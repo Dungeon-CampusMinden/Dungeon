@@ -26,19 +26,14 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.systems.*;
 import core.utils.Constants;
-import core.utils.DelayedSet;
+import core.utils.EntitySystemMapper;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -51,8 +46,12 @@ public final class Game extends ScreenAdapter {
      * <p>The Key-Value is the Class of the system
      */
     private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
-    /** All entities that are currently active in the dungeon */
-    private static final DelayedSet<Entity> entities = new DelayedSet<>();
+
+    /**
+     * Collection of {@link EntitySystemMapper} that maps the exisiting entities to the systems. The
+     * {@link EntitySystemMapper} with no filter-rules will contain each entity in the game
+     */
+    private static final Set<EntitySystemMapper> entityStorage = new HashSet<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
     /**
@@ -101,6 +100,13 @@ public final class Game extends ScreenAdapter {
      * <p> Will not replace {@link #onFrame )</p>
      */
     private static IVoidFunction userOnFrame = () -> {};
+
+    /**
+     * Part of the pre-run configuration. This function will be called after the libgdx-setup once.
+     *
+     * <p>Will not replace {@link #onSetup()} )
+     */
+    private static IVoidFunction userOnSetup = () -> {};
     /**
      * Part of the pre-run configuration. This function will be called after a level was loaded.
      *
@@ -134,7 +140,7 @@ public final class Game extends ScreenAdapter {
                 } catch (MissingComponentException e) {
                     LOGGER.warning(e.getMessage());
                 }
-                hero().ifPresent(Game::addEntity);
+                hero().ifPresent(Game::add);
                 userOnLevelLoad.execute();
             };
 
@@ -158,9 +164,13 @@ public final class Game extends ScreenAdapter {
         return new LinkedHashMap<>(systems);
     }
 
-    /** Remove all registered systems from the game. */
+    /**
+     * Remove all registered systems from the game.
+     *
+     * <p>Will trigger {@link System#onEntityRemove} for each entity in each system.
+     */
     public static void removeAllSystems() {
-        systems.clear();
+        new HashSet<>(systems.keySet()).forEach(Game::remove);
     }
 
     /**
@@ -305,6 +315,18 @@ public final class Game extends ScreenAdapter {
     }
 
     /**
+     * Set the function that will be executed once after the libgdx-setup.
+     *
+     * <p>Will not replace {@link #onSetup()} )
+     *
+     * @param userOnSetup function that will be once after the libgdx-setup.
+     * @see IVoidFunction
+     */
+    public static void userOnSetup(IVoidFunction userOnSetup) {
+        Game.userOnSetup = userOnSetup;
+    }
+
+    /**
      * Set the function that will be executed after a new level was loaded.
      *
      * <p>Use this, if you want to execute some logic after a level was loaded. For example spawning
@@ -340,35 +362,43 @@ public final class Game extends ScreenAdapter {
     }
 
     /**
-     * In the next frame, each system will be informed that the given entity has changes in its
-     * Component Collection.
+     * Inform each {@link System} that the given Entity has changes on component bases.
      *
-     * @param entity the entity that has changes in its Component Collection
+     * <p>If necessary, the {@link System}s will trigger {@link System#triggerOnAdd(Entity)} or
+     * {@link System#triggerOnRemove(Entity)}.
+     *
+     * @param entity the entity that has changes in its Component Collection.
      */
     public static void informAboutChanges(Entity entity) {
-        entities.add(entity);
-        LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+        if (entityStream().anyMatch(entity1 -> entity1.equals(entity))) {
+            entityStorage.forEach(f -> f.update(entity));
+            LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+        }
     }
-
     /**
-     * The given entity will be added to the game on the next frame.
+     * The given entity will be added to the game.
      *
-     * @param entity the entity to add
-     * @see DelayedSet
+     * <p>For each {@link System}, it will be checked if the {@link System} will process this
+     * entity.
+     *
+     * <p>If necessary, the {@link System} will trigger {@link System#triggerOnAdd(Entity)} .
+     *
+     * @param entity the entity to add.
      */
-    public static void addEntity(Entity entity) {
-        entities.add(entity);
+    public static void add(Entity entity) {
+        entityStorage.forEach(f -> f.add(entity));
         LOGGER.info("Entity: " + entity + " will be added to the Game.");
     }
 
     /**
-     * The given entity will be removed from the game on the next frame.
+     * The given entity will be removed from the game.
+     *
+     * <p>If necessary, the {@link System}s will trigger {@link System#triggerOnAdd(Entity)} .
      *
      * @param entity the entity to remove
-     * @see DelayedSet
      */
-    public static void removeEntity(Entity entity) {
-        entities.remove(entity);
+    public static void remove(Entity entity) {
+        entityStorage.forEach(f -> f.remove(entity));
         LOGGER.info("Entity: " + entity + " will be removed from the Game.");
     }
 
@@ -378,7 +408,58 @@ public final class Game extends ScreenAdapter {
      * @return a stream of all entities currently in the game
      */
     public static Stream<Entity> entityStream() {
-        return entities.stream();
+        return entityStream(new HashSet<>());
+    }
+
+    /**
+     * Use this stream if you want to iterate over all entities that contain the necessary
+     * Components to be processed by the given system.
+     *
+     * @return a stream of all entities currently in the game that should be processed by the given
+     *     system.
+     */
+    public static Stream<Entity> entityStream(System system) {
+        return entityStream(system.filterRules());
+    }
+
+    /**
+     * Use this stream if you want to iterate over all entities that contain the given components.
+     *
+     * @return a stream of all entities currently in the game that contains the given components.
+     */
+    public static Stream<Entity> entityStream(Set<Class<? extends Component>> filter) {
+        Stream<Entity> returnStream;
+        Optional<EntitySystemMapper> rf =
+                entityStorage.stream().filter(f -> f.equals(filter)).findFirst();
+
+        if (rf.isEmpty()) {
+            EntitySystemMapper newMapper = createNewEntitySystemMapper(filter);
+            returnStream = newMapper.stream();
+        } else returnStream = rf.get().stream();
+        return returnStream;
+    }
+
+    /**
+     * Create a new {@link EntitySystemMapper} with the given filter rules.
+     *
+     * <p>The {@link EntitySystemMapper} will be added to {@link #entityStorage}.
+     *
+     * <p>All entities in the empty filter (basically every entity in the game) will be tried to add
+     * with {@link EntitySystemMapper#add(Entity)}.
+     *
+     * <p>This function will not check if an {@link EntitySystemMapper} with the same rules already
+     * exists. If an {@link EntitySystemMapper} exists, it will not be replaced, and the {@link
+     * EntitySystemMapper} created in this function will be lost.
+     *
+     * @param filter Set of Component classes that define the filter rules.
+     * @return the created {@link EntitySystemMapper}.
+     */
+    private static EntitySystemMapper createNewEntitySystemMapper(
+            Set<Class<? extends Component>> filter) {
+        EntitySystemMapper mapper = new EntitySystemMapper(filter);
+        entityStorage.add(mapper);
+        entityStream().forEach(mapper::add);
+        return mapper;
     }
 
     /**
@@ -449,8 +530,7 @@ public final class Game extends ScreenAdapter {
      * <p>If a System is added to the game, the {@link System#execute} method will be called every
      * frame.
      *
-     * <p>Additionally, the system will be informed about all new, changed, and removed entities via
-     * {@link System#showEntity} or {@link System#removeEntity}.
+     * <p>Additionally, the system will be informed about all new, changed, and removed entities.
      *
      * <p>The game can only store one system of each system type.
      *
@@ -460,30 +540,38 @@ public final class Game extends ScreenAdapter {
      * @see System
      * @see Optional
      */
-    public static Optional<System> addSystem(System system) {
+    public static Optional<System> add(System system) {
         System currentSystem = systems.get(system.getClass());
         systems.put(system.getClass(), system);
+        // add to existing filter or create new filter if no matching exists
+        Optional<EntitySystemMapper> filter =
+                entityStorage.stream().filter(f -> f.equals(system.filterRules())).findFirst();
+        filter.ifPresentOrElse(
+                f -> f.add(system),
+                () -> createNewEntitySystemMapper(system.filterRules()).add(system));
         LOGGER.info("A new " + system.getClass().getName() + " was added to the game");
         return Optional.ofNullable(currentSystem);
     }
 
     /**
-     * Remove the stored system of the given class from the game.
+     * Remove the stored system of the given class from the game. If the System is successfully
+     * removed, the {@link System#triggerOnRemove(Entity)} method of the System will be called for
+     * each existing Entity that was associated with the removed System.
      *
      * @param system the class of the system to remove
      */
-    public static void removeSystem(Class<? extends System> system) {
-        systems.remove(system);
+    public static void remove(Class<? extends System> system) {
+        System systemInstance = systems.remove(system);
+        if (systemInstance != null) entityStorage.forEach(f -> f.remove(systemInstance));
     }
 
     /**
-     * Remove all entities from the game immediately.
+     * Remove all entities from the game.
      *
      * <p>This will also remove all entities from each system.
      */
     public static void removeAllEntities() {
-        systems.values().forEach(System::clearEntities);
-        entities.clear();
+        Game.entityStream().forEach(Game::remove);
         LOGGER.info("All entities will be removed from the game.");
     }
 
@@ -640,7 +728,6 @@ public final class Game extends ScreenAdapter {
         DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
-        updateSystems();
         systems.values().stream().filter(System::isRunning).forEach(System::execute);
         CameraSystem.camera().update();
         // stage logic
@@ -655,8 +742,10 @@ public final class Game extends ScreenAdapter {
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
+        entityStorage.add(new EntitySystemMapper());
         createSystems();
         setupStage();
+        userOnSetup.execute();
     }
 
     /**
@@ -701,27 +790,6 @@ public final class Game extends ScreenAdapter {
         return entity;
     }
 
-    /** Will update the entity sets of each system and {@link Game#entities}. */
-    private void updateSystems() {
-        Collection<System> systemsColl = systems.values();
-        Queue<Entity> q = new ArrayDeque<>(entities.toAdd());
-        entities.toAdd().clear();
-        while (q.size() > 0) {
-            Entity curr = q.remove();
-            systemsColl.forEach(x -> x.showEntity(curr));
-            // update add logic
-            entities.current().add(curr);
-        }
-        q = new ArrayDeque<>(entities.toRemove());
-        entities.toRemove().clear();
-        while (q.size() > 0) {
-            Entity curr = q.remove();
-            systemsColl.forEach(x -> x.removeEntity(curr));
-            // update remove logic
-            entities.current().remove(curr);
-        }
-    }
-
     /**
      * Set the position of the given entity to the position of the level-start.
      *
@@ -730,7 +798,7 @@ public final class Game extends ScreenAdapter {
      * @param entity entity to set on the start of the level, normally this is the hero.
      */
     private void placeOnLevelStart(Entity entity) {
-        entities.add(entity);
+        add(entity);
         PositionComponent pc =
                 entity.fetch(PositionComponent.class)
                         .orElseThrow(
@@ -752,16 +820,16 @@ public final class Game extends ScreenAdapter {
 
     /** Create the systems. */
     private void createSystems() {
-        addSystem(new CameraSystem());
-        addSystem(
+        add(new CameraSystem());
+        add(
                 new LevelSystem(
                         DrawSystem.painter(),
                         new WallGenerator(new RandomWalkGenerator()),
                         onLevelLoad));
-        addSystem(new DrawSystem());
-        addSystem(new VelocitySystem());
-        addSystem(new PlayerSystem());
-        addSystem(new HudSystem());
+        add(new DrawSystem());
+        add(new VelocitySystem());
+        add(new PlayerSystem());
+        add(new HudSystem());
     }
 
     @Override

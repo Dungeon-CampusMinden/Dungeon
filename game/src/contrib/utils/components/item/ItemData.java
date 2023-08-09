@@ -157,7 +157,7 @@ public class ItemData implements CraftingIngredient, CraftingResult {
      * @param position Position where to drop the item.
      */
     private static void defaultDrop(Entity who, ItemData which, Point position) {
-        WorldItemBuilder.buildWorldItem(which, position);
+        Game.add(WorldItemBuilder.buildWorldItem(which, position));
     }
 
     /**
@@ -185,7 +185,7 @@ public class ItemData implements CraftingIngredient, CraftingResult {
                                                     if (invComp.add(itemComp.get().itemData()))
                                                         // if added to hero Inventory
                                                         // remove Item from World
-                                                        Game.removeEntity(worldItem);
+                                                        Game.remove(worldItem);
                                                     System.out.println("Item collected");
                                                 });
                             }

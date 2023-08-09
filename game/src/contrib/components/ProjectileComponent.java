@@ -1,7 +1,6 @@
 package contrib.components;
 
 import core.Component;
-import core.Entity;
 import core.utils.Point;
 
 /**
@@ -26,21 +25,18 @@ import core.utils.Point;
  *
  * @see contrib.utils.components.skill.DamageProjectile
  */
-public final class ProjectileComponent extends Component {
+public final class ProjectileComponent implements Component {
 
     private final Point goalLocation;
     private final Point startPosition;
 
     /**
-     * Create a new ProjectileComponent and add it to the associated entity.
+     * Create a new ProjectileComponent.
      *
-     * @param entity The associated entity.
      * @param startPosition The point from which to start the calculation to the goal location.
      * @param goalLocation The point where the projectile should fly to.
      */
-    public ProjectileComponent(
-            final Entity entity, final Point startPosition, final Point goalLocation) {
-        super(entity);
+    public ProjectileComponent(final Point startPosition, final Point goalLocation) {
         this.goalLocation = goalLocation;
         this.startPosition = startPosition;
     }

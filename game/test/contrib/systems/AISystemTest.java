@@ -22,16 +22,17 @@ public class AISystemTest {
         Game.removeAllEntities();
         Game.removeAllSystems();
         system = new AISystem();
-        Game.addSystem(system);
+        Game.add(system);
         entity = new Entity();
-        new AIComponent(
-                entity,
-                null,
-                e -> {},
-                entity -> {
-                    updateCounter++;
-                    return false;
-                });
+        entity.addComponent(
+                new AIComponent(
+                        null,
+                        e -> {},
+                        entity -> {
+                            updateCounter++;
+                            return false;
+                        }));
+        Game.add(entity);
 
         updateCounter = 0;
     }
@@ -45,18 +46,7 @@ public class AISystemTest {
 
     @Test
     public void update() {
-        system.showEntity(entity);
         system.execute();
         assertEquals(1, updateCounter);
-    }
-
-    @Test
-    public void updateWithoutAIComponent() {
-        entity.removeComponent(AIComponent.class);
-        system.showEntity(entity);
-
-        system.execute();
-
-        assertEquals(0, updateCounter);
     }
 }

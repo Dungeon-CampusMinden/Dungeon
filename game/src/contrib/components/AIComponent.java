@@ -8,7 +8,6 @@ import contrib.utils.components.ai.transition.RangeTransition;
 import core.Component;
 import core.Entity;
 
-import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 
 import java.util.function.Consumer;
@@ -20,8 +19,8 @@ import java.util.function.Function;
  * <p>An AI-controlled entity can have two different states which define the behaviour of the
  * entity. The "idle state" describes the default behaviour of the entity, like walking around in
  * the level. The "combat state" describes the fighting behaviour, like throwing fireballs at the
- * hero. The {@link AISystem} will trigger {@link #execute()} which uses {@link #shouldFight} to
- * check if the idle or combat behaviour should be executed.
+ * hero. The {@link AISystem} will trigger {@link #execute(Entity)} which uses {@link #shouldFight}
+ * to check if the idle or combat behaviour should be executed.
  *
  * <p>The {@link #idleBehavior} defines the behaviour in idle state, e.g. walking on a specific path
  * {@link contrib.utils.components.ai.idle.PatrouilleWalk}.
@@ -35,40 +34,35 @@ import java.util.function.Function;
  * @see AISystem
  */
 @DSLType(name = "ai_component")
-public final class AIComponent extends Component {
+public final class AIComponent implements Component {
     private final Consumer<Entity> fightBehavior;
     private final Consumer<Entity> idleBehavior;
     private final Function<Entity, Boolean> shouldFight;
 
     /**
-     * Create an AIComponent with the given behavior and add it to the associated entity.
+     * Create an AIComponent with the given behavior.
      *
-     * @param entity The associated entity.
      * @param fightBehavior The combat behavior.
      * @param idleBehavior The idle behavior.
      * @param shouldFight Determines when to fight.
      */
     public AIComponent(
-            final Entity entity,
             final Consumer<Entity> fightBehavior,
             final Consumer<Entity> idleBehavior,
             final Function<Entity, Boolean> shouldFight) {
-        super(entity);
         this.fightBehavior = fightBehavior;
         this.idleBehavior = idleBehavior;
         this.shouldFight = shouldFight;
     }
 
     /**
-     * Create an AIComponent with default behavior and add it to the associated entity.
+     * Create an AIComponent with default behavior.
      *
      * <p>The default behavior uses {@link RadiusWalk} as the idle behavior, {@link RangeTransition}
      * as the transition function, and {@link CollideAI} as the fight behavior.
-     *
-     * @param entity The associated entity.
      */
-    public AIComponent(@DSLContextMember(name = "entity") final Entity entity) {
-        this(entity, new CollideAI(2f), new RadiusWalk(5, 2), new RangeTransition(5f));
+    public AIComponent() {
+        this(new CollideAI(2f), new RadiusWalk(5, 2), new RangeTransition(5f));
     }
 
     /**
@@ -76,8 +70,10 @@ public final class AIComponent extends Component {
      *
      * <p>Uses {@link #shouldFight} to check if the entity is in idle mode or in fight mode and
      * execute the corresponding behavior
+     *
+     * @param entity associated entity of this component.
      */
-    public void execute() {
+    public void execute(final Entity entity) {
         if (shouldFight.apply(entity)) fightBehavior.accept(entity);
         else idleBehavior.accept(entity);
     }

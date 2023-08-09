@@ -58,7 +58,8 @@ public class CollisionSystemTest {
      */
     private static Entity prepareEntityWithPosition(Point point1) {
         Entity e1 = new Entity();
-        new PositionComponent(e1, point1);
+        e1.addComponent(new PositionComponent(point1));
+
         return e1;
     }
 
@@ -71,23 +72,28 @@ public class CollisionSystemTest {
     public void checkForCollisionRight() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(.5f, 0));
 
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        cs.showEntity(e1);
-        cs.showEntity(e2);
-        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
-        assertEquals(DIRECTION_MESSAGE, Tile.Direction.E, cs.checkDirectionOfCollision(hb1, hb2));
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        Game.add(e1);
+        Game.add(e2);
+        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+        assertEquals(
+                DIRECTION_MESSAGE,
+                Tile.Direction.E,
+                cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
         cleanUpEnvironment();
     }
 
@@ -102,24 +108,29 @@ public class CollisionSystemTest {
     public void checkForCollisionRightNoIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
 
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(1.5f, 0));
 
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        cs.showEntity(e1);
-        cs.showEntity(e2);
-        assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
-        assertEquals(DIRECTION_MESSAGE, Tile.Direction.E, cs.checkDirectionOfCollision(hb1, hb2));
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        Game.add(e1);
+        Game.add(e2);
+        assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+        assertEquals(
+                DIRECTION_MESSAGE,
+                Tile.Direction.E,
+                cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
         cleanUpEnvironment();
     }
 
@@ -133,22 +144,24 @@ public class CollisionSystemTest {
     public void checkForCollisionLeft() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(-.5f, 0));
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        cs.showEntity(e1);
-        cs.showEntity(e2);
-        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
-        assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(hb1, hb2));
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        Game.add(e1);
+        Game.add(e2);
+        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+        assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
         cleanUpEnvironment();
     }
 
@@ -163,24 +176,26 @@ public class CollisionSystemTest {
     public void checkForCollisionLeftNoIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
 
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(-1.5f, 0));
 
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        cs.showEntity(e1);
-        cs.showEntity(e2);
-        assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
-        assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(hb1, hb2));
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        Game.add(e1);
+        Game.add(e2);
+        assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+        assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
         cleanUpEnvironment();
     }
 
@@ -193,22 +208,24 @@ public class CollisionSystemTest {
     public void checkForCollisionBottomWithIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, .5f));
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        cs.showEntity(e1);
-        cs.showEntity(e2);
-        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
-        assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(hb1, hb2));
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        Game.add(e1);
+        Game.add(e2);
+        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+        assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
         cleanUpEnvironment();
     }
 
@@ -222,22 +239,24 @@ public class CollisionSystemTest {
     public void checkForCollisionBottomWithNoIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, 1.5f));
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        cs.showEntity(e1);
-        cs.showEntity(e2);
-        assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
-        assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(hb1, hb2));
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        Game.add(e1);
+        Game.add(e2);
+        assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+        assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
         cleanUpEnvironment();
     }
 
@@ -250,22 +269,24 @@ public class CollisionSystemTest {
     public void checkForCollisionTopWithIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, -0.5f));
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        cs.showEntity(e1);
-        cs.showEntity(e2);
-        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
-        assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(hb1, hb2));
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        Game.add(e1);
+        Game.add(e2);
+        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+        assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
         cleanUpEnvironment();
     }
 
@@ -279,22 +300,24 @@ public class CollisionSystemTest {
     public void checkForCollisionTopNoIntersection() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Point offset = new Point(0, 0);
         Point size = new Point(1, 1);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
-                new CollideComponent(e1, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(0, -1.5f));
         CollideComponent hb2 =
-                new CollideComponent(e2, new Point(offset), new Point(size), collider, collider);
+                new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        cs.showEntity(e1);
-        cs.showEntity(e2);
-        assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(hb1, hb2));
-        assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(hb1, hb2));
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        Game.add(e1);
+        Game.add(e2);
+        assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+        assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
         cleanUpEnvironment();
     }
 
@@ -306,12 +329,11 @@ public class CollisionSystemTest {
     public void checkForCollisionBoxAAroundB() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Entity e1 = prepareEntityWithPosition(new Point(-.1f, -.1f));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(
-                        e1,
                         new Point(new Point(0, 0)),
                         new Point(new Point(1.2f, 1.2f)),
                         collider,
@@ -320,15 +342,13 @@ public class CollisionSystemTest {
         Entity e2 = prepareEntityWithPosition(new Point(0, 0f));
         CollideComponent hb2 =
                 new CollideComponent(
-                        e2,
-                        new Point(new Point(0, 0)),
-                        new Point(new Point(1, 1)),
-                        collider,
-                        collider);
+                        new Point(new Point(0, 0)), new Point(new Point(1, 1)), collider, collider);
 
-        cs.showEntity(e1);
-        cs.showEntity(e2);
-        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        Game.add(e1);
+        Game.add(e2);
+        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
         cleanUpEnvironment();
     }
 
@@ -340,29 +360,26 @@ public class CollisionSystemTest {
     public void checkForCollisionBoxBAroundA() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
         CollideComponent hb1 =
                 new CollideComponent(
-                        e1,
-                        new Point(new Point(0, 0)),
-                        new Point(new Point(1, 1)),
-                        collider,
-                        collider);
+                        new Point(new Point(0, 0)), new Point(new Point(1, 1)), collider, collider);
 
         Entity e2 = prepareEntityWithPosition(new Point(-.1f, -.1f));
         CollideComponent hb2 =
                 new CollideComponent(
-                        e2,
                         new Point(new Point(0, 0)),
                         new Point(new Point(1.2f, 1.2f)),
                         collider,
                         collider);
 
-        cs.showEntity(e1);
-        cs.showEntity(e2);
-        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(hb1, hb2));
+        e1.addComponent(hb1);
+        e2.addComponent(hb2);
+        Game.add(e1);
+        Game.add(e2);
+        assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
         cleanUpEnvironment();
     }
 
@@ -371,7 +388,7 @@ public class CollisionSystemTest {
     public void checkInverseN() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         assertEquals(Tile.Direction.S, cs.inverse(Tile.Direction.N));
         cleanUpEnvironment();
     }
@@ -381,7 +398,7 @@ public class CollisionSystemTest {
     public void checkInverseE() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         assertEquals(Tile.Direction.W, cs.inverse(Tile.Direction.E));
         cleanUpEnvironment();
     }
@@ -391,7 +408,7 @@ public class CollisionSystemTest {
     public void checkInverseS() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         assertEquals(Tile.Direction.N, cs.inverse(Tile.Direction.S));
         cleanUpEnvironment();
     }
@@ -401,7 +418,7 @@ public class CollisionSystemTest {
     public void checkInverseW() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         assertEquals(Tile.Direction.E, cs.inverse(Tile.Direction.W));
         cleanUpEnvironment();
     }
@@ -411,7 +428,7 @@ public class CollisionSystemTest {
     public void checkUpdateNoEntities() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         cs.execute();
         cleanUpEnvironment();
     }
@@ -421,7 +438,7 @@ public class CollisionSystemTest {
     public void checkUpdateNoEntitiesWithHitboxComponent() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         prepareEntityWithPosition(new Point(0, 0));
         cs.execute();
         cleanUpEnvironment();
@@ -434,16 +451,16 @@ public class CollisionSystemTest {
     public void checkUpdateOneEntityWithHitboxComponent() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        new CollideComponent(
-                e1,
-                new Point(0, 0),
-                new Point(1, 1),
-                (a, b, c) -> sc1OnEnter.inc(),
-                (a, b, c) -> sc1OnLeave.inc());
+        e1.addComponent(
+                new CollideComponent(
+                        new Point(0, 0),
+                        new Point(1, 1),
+                        (a, b, c) -> sc1OnEnter.inc(),
+                        (a, b, c) -> sc1OnLeave.inc()));
         cs.execute();
         assertEquals("No interaction begins for e1", 0, sc1OnEnter.getCount());
         assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
@@ -455,25 +472,25 @@ public class CollisionSystemTest {
     public void checkUpdateTwoEntitiesWithHitboxComponentNonColliding() {
         prepareEnvironment();
         CollisionSystem cs = new CollisionSystem();
-        Game.addSystem(cs);
+        Game.add(cs);
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        new CollideComponent(
-                e1,
-                new Point(0, 0),
-                new Point(1, 1),
-                (a, b, c) -> sc1OnEnter.inc(),
-                (a, b, c) -> sc1OnLeave.inc());
+        e1.addComponent(
+                new CollideComponent(
+                        new Point(0, 0),
+                        new Point(1, 1),
+                        (a, b, c) -> sc1OnEnter.inc(),
+                        (a, b, c) -> sc1OnLeave.inc()));
         Entity e2 = prepareEntityWithPosition(new Point(1, 1));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
-        new CollideComponent(
-                e2,
-                new Point(0, 0),
-                new Point(1, 1),
-                (a, b, c) -> sc2OnEnter.inc(),
-                (a, b, c) -> sc2OnLeave.inc());
+        e2.addComponent(
+                new CollideComponent(
+                        new Point(0, 0),
+                        new Point(1, 1),
+                        (a, b, c) -> sc2OnEnter.inc(),
+                        (a, b, c) -> sc2OnLeave.inc()));
         cs.execute();
         assertEquals("No interaction begins for e1", 0, sc1OnEnter.getCount());
         assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());

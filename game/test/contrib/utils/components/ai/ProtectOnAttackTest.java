@@ -32,17 +32,18 @@ public class ProtectOnAttackTest {
 
         // Get a victim and its HealthComponent
         protectedEntity = new Entity();
-        entityHC = new HealthComponent(protectedEntity);
+        entityHC = new HealthComponent();
+        protectedEntity.addComponent(entityHC);
 
         // Get an attacker
         attacker = new Entity();
-        new PlayerComponent(attacker);
+        attacker.addComponent(new PlayerComponent());
 
         // Prepare a list of entities with a HealthComponent
         entitiesToProtect = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Entity e = new Entity();
-            new HealthComponent(e);
+            e.addComponent(new HealthComponent());
             entitiesToProtect.add(e);
         }
         updateCounter = 0;
@@ -54,18 +55,17 @@ public class ProtectOnAttackTest {
         // given
         AIComponent attackerAI =
                 new AIComponent(
-                        protector,
                         entity -> {
                             updateCounter++;
                         },
                         new RadiusWalk(2, 2),
                         new ProtectOnAttack(protectedEntity));
-
+        protector.addComponent(attackerAI);
         // when
         entityHC.receiveHit(new Damage(1, null, attacker));
 
         // then
-        attackerAI.execute();
+        attackerAI.execute(protector);
         assertEquals(1, updateCounter);
     }
 
@@ -75,15 +75,15 @@ public class ProtectOnAttackTest {
         // given
         AIComponent attackerAI =
                 new AIComponent(
-                        protector,
                         entity -> {
                             updateCounter++;
                         },
                         new RadiusWalk(2, 2),
                         new ProtectOnAttack(protectedEntity));
+        protector.addComponent(attackerAI);
 
         // then
-        attackerAI.execute();
+        attackerAI.execute(protector);
         assertEquals(0, updateCounter);
     }
 
@@ -93,13 +93,12 @@ public class ProtectOnAttackTest {
         // given
         AIComponent attackerAI =
                 new AIComponent(
-                        protector,
                         entity -> {
                             updateCounter++;
                         },
                         new RadiusWalk(2, 2),
                         new ProtectOnAttack(entitiesToProtect));
-
+        protector.addComponent(attackerAI);
         // when
         for (Entity e : entitiesToProtect) {
             if (e.fetch(HealthComponent.class).isPresent()) {
@@ -109,7 +108,7 @@ public class ProtectOnAttackTest {
         }
 
         // then
-        attackerAI.execute();
+        attackerAI.execute(protector);
         assertEquals(1, updateCounter);
     }
 
@@ -120,15 +119,15 @@ public class ProtectOnAttackTest {
         // given
         AIComponent attackerAI =
                 new AIComponent(
-                        protector,
                         entity -> {
                             updateCounter++;
                         },
                         new RadiusWalk(2, 2),
                         new ProtectOnAttack(protectedEntity));
 
+        protector.addComponent(attackerAI);
         // then
-        attackerAI.execute();
+        attackerAI.execute(protector);
         assertEquals(0, updateCounter);
     }
 }

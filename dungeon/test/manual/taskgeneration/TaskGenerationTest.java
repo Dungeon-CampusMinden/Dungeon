@@ -11,7 +11,6 @@ import core.components.PositionComponent;
 import core.hud.UITools;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
-import core.utils.IVoidFunction;
 
 import dslToGame.DslFileLoader;
 import dslToGame.QuestConfig;
@@ -40,44 +39,50 @@ public class TaskGenerationTest {
 
     public static void main(String[] args) throws IOException {
         Game.initBaseLogger();
-        Game.hero(EntityFactory.newHero());
         LevelSystem.levelSize(LevelSize.MEDIUM);
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.disableAudio(true);
-        Game.userOnLevelLoad(
-                new IVoidFunction() {
-                    @Override
-                    public void execute() {
-                        try {
-                            EntityFactory.randomMonster();
-                            EntityFactory.newChest();
-                        } catch (IOException e) {
-                            // oh well
-                        }
-
-                        Set<File> files = DslFileLoader.dslFiles();
-                        List<String> fileContents =
-                                files.stream()
-                                        .filter(f -> f.getName().endsWith("task_test.dng"))
-                                        .map(DslFileLoader::fileToString)
-                                        .toList();
-
-                        // for the start: print on console
-                        buildScenarios(fileContents.get(0));
+        Game.userOnSetup(
+                () -> {
+                    try {
+                        Entity hero = EntityFactory.newHero();
+                        Game.hero(hero);
+                        Game.add(hero);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
+                });
+        Game.userOnLevelLoad(
+                () -> {
+                    try {
+                        Game.add(EntityFactory.randomMonster());
+                        Game.add(EntityFactory.newChest());
+                    } catch (IOException e) {
+                        // oh well
+                    }
+
+                    Set<File> files = DslFileLoader.dslFiles();
+                    List<String> fileContents =
+                            files.stream()
+                                    .filter(f -> f.getName().endsWith("task_test.dng"))
+                                    .map(DslFileLoader::fileToString)
+                                    .toList();
+
+                    // for the start: print on console
+                    buildScenarios(fileContents.get(0));
                 });
 
         Game.windowTitle("Task Test");
-        Game.addSystem(new AISystem());
-        Game.addSystem(new CollisionSystem());
-        Game.addSystem(new HealthSystem());
-        Game.addSystem(new XPSystem());
-        Game.addSystem(new ProjectileSystem());
-        Game.addSystem(new HealthbarSystem());
-        Game.addSystem(new HeroUISystem());
+        Game.add(new AISystem());
+        Game.add(new CollisionSystem());
+        Game.add(new HealthSystem());
+        Game.add(new XPSystem());
+        Game.add(new ProjectileSystem());
+        Game.add(new HealthbarSystem());
+        Game.add(new HeroUISystem());
 
         Game.run();
     }
@@ -102,11 +107,13 @@ public class TaskGenerationTest {
         }
 
         Entity wizard = new Entity("Quest Wizard");
-        new PositionComponent(wizard);
-        new DrawComponent(wizard, texture);
-        new TaskComponent(wizard, quiz);
-        new InteractionComponent(
-                wizard, 1, true, UIAnswerCallback.askOnInteraction(quiz, showAnswersOnHud()));
+        wizard.addComponent(new PositionComponent());
+        wizard.addComponent(new DrawComponent(texture));
+        wizard.addComponent(new TaskComponent(quiz));
+        wizard.addComponent(
+                new InteractionComponent(
+                        1, true, UIAnswerCallback.askOnInteraction(quiz, showAnswersOnHud())));
+        Game.add(wizard);
     }
 
     private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {

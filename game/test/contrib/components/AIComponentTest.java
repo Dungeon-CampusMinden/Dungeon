@@ -23,13 +23,13 @@ public class AIComponentTest {
 
     @Before
     public void setup() {
-        aiComponent = new AIComponent(entity, mockFightAI, mockIdleAI, mockTransition);
+        aiComponent = new AIComponent(mockFightAI, mockIdleAI, mockTransition);
     }
 
     @Test
     public void executeFight() {
         when(mockTransition.apply(entity)).thenReturn(true);
-        aiComponent.execute();
+        aiComponent.execute(entity);
         verify(mockFightAI, times(1)).accept(entity);
         verify(mockIdleAI, never()).accept(entity);
     }
@@ -37,7 +37,7 @@ public class AIComponentTest {
     @Test
     public void executeIdle() {
         when(mockTransition.apply(entity)).thenReturn(false);
-        aiComponent.execute();
+        aiComponent.execute(entity);
         verify(mockFightAI, never()).accept(entity);
         verify(mockIdleAI, times(1)).accept(entity);
     }

@@ -54,6 +54,7 @@ public final class HudSystem extends System {
                         .orElseThrow(
                                 () -> MissingComponentException.build(entity, UIComponent.class))
                         .dialog();
+
         Game.stage()
                 .ifPresent(
                         stage -> {

@@ -1,7 +1,6 @@
 package task;
 
 import core.Component;
-import core.Entity;
 
 /**
  * Marks an entity as a management entity for a task.
@@ -14,18 +13,16 @@ import core.Entity;
  *
  * <p>{@link TaskComponent} stores a reference to the corresponding {@link Task}
  */
-public final class TaskComponent extends Component {
+public final class TaskComponent implements Component {
 
     private final Task task;
 
     /**
      * Creates a new TaskManagerComponent and add it to the associated entity.
      *
-     * @param entity associated entity
      * @param task the task this component manages
      */
-    public TaskComponent(final Entity entity, final Task task) {
-        super(entity);
+    public TaskComponent(final Task task) {
         this.task = task;
     }
 

@@ -34,12 +34,14 @@ public class HealthSystemTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
         Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
-        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
-        HealthComponent component = new HealthComponent(entity, 1, onDeath);
+        DrawComponent ac = new DrawComponent(ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(1, onDeath);
+        entity.addComponent(ac);
+        entity.addComponent(component);
+        Game.add(entity);
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
+        Game.add(system);
         component.currentHealthpoints(0);
-        system.showEntity(entity);
 
         system.execute();
         assertTrue(ac.isCurrentAnimation(AdditionalAnimations.DIE));
@@ -51,13 +53,15 @@ public class HealthSystemTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
         Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
-        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
-        HealthComponent component = new HealthComponent(entity, 10, onDeath);
+        DrawComponent ac = new DrawComponent(ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(10, onDeath);
+        entity.addComponent(ac);
+        entity.addComponent(component);
+        Game.add(entity);
         component.receiveHit(new Damage(5, DamageType.FIRE, null));
         component.receiveHit(new Damage(2, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
-        system.showEntity(entity);
+        Game.add(system);
 
         system.execute();
         assertEquals(3, component.currentHealthpoints());
@@ -69,13 +73,15 @@ public class HealthSystemTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
         Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
-        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
-        HealthComponent component = new HealthComponent(entity, 10, onDeath);
+        DrawComponent ac = new DrawComponent(ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(10, onDeath);
+        entity.addComponent(ac);
+        entity.addComponent(component);
+        Game.add(entity);
         component.currentHealthpoints(3);
         component.receiveHit(new Damage(-3, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
-        system.showEntity(entity);
+        Game.add(system);
         system.execute();
         assertEquals(6, component.currentHealthpoints());
         assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
@@ -86,12 +92,14 @@ public class HealthSystemTest {
         Game.removeAllEntities();
         Entity entity = new Entity();
         Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
-        DrawComponent ac = new DrawComponent(entity, ANIMATION_PATH);
-        HealthComponent component = new HealthComponent(entity, 10, onDeath);
+        DrawComponent ac = new DrawComponent(ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(10, onDeath);
+        entity.addComponent(ac);
+        entity.addComponent(component);
+        Game.add(entity);
         component.receiveHit(new Damage(0, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
-        system.showEntity(entity);
+        Game.add(system);
         system.execute();
         assertEquals(10, component.currentHealthpoints());
         assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
@@ -101,7 +109,7 @@ public class HealthSystemTest {
     public void updateWithoutHealthComponent() {
         Game.removeAllEntities();
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
+        Game.add(system);
         system.execute();
     }
 
@@ -109,18 +117,20 @@ public class HealthSystemTest {
     public void testDamageWithModifier() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        new DrawComponent(entity, ANIMATION_PATH);
-        StatsComponent statsComponent = new StatsComponent(entity);
+        entity.addComponent(new DrawComponent(ANIMATION_PATH));
+        StatsComponent statsComponent = new StatsComponent();
+        entity.addComponent(statsComponent);
         statsComponent.multiplier(DamageType.PHYSICAL, 2);
 
-        HealthComponent healthComponent = new HealthComponent(entity);
+        HealthComponent healthComponent = new HealthComponent();
+        entity.addComponent(healthComponent);
         healthComponent.maximalHealthpoints(100);
         healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
-        system.showEntity(entity);
+        Game.add(system);
+        Game.add(entity);
 
         system.execute();
 
@@ -131,18 +141,20 @@ public class HealthSystemTest {
     public void testDamageWithModifierNegative() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        new DrawComponent(entity, ANIMATION_PATH);
-        StatsComponent statsComponent = new StatsComponent(entity);
+        entity.addComponent(new DrawComponent(ANIMATION_PATH));
+        StatsComponent statsComponent = new StatsComponent();
+        entity.addComponent(statsComponent);
         statsComponent.multiplier(DamageType.PHYSICAL, -2);
 
-        HealthComponent healthComponent = new HealthComponent(entity);
+        HealthComponent healthComponent = new HealthComponent();
+        entity.addComponent(healthComponent);
         healthComponent.maximalHealthpoints(200);
         healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
-        system.showEntity(entity);
+        Game.add(system);
+        Game.add(entity);
 
         system.execute();
 
@@ -153,18 +165,20 @@ public class HealthSystemTest {
     public void testDamageWithModifierZero() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        new DrawComponent(entity, ANIMATION_PATH);
-        StatsComponent statsComponent = new StatsComponent(entity);
+        entity.addComponent(new DrawComponent(ANIMATION_PATH));
+        StatsComponent statsComponent = new StatsComponent();
+        entity.addComponent(statsComponent);
         statsComponent.multiplier(DamageType.PHYSICAL, 0);
 
-        HealthComponent healthComponent = new HealthComponent(entity);
+        HealthComponent healthComponent = new HealthComponent();
+        entity.addComponent(healthComponent);
         healthComponent.maximalHealthpoints(200);
         healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
-        system.showEntity(entity);
+        Game.add(system);
+        Game.add(entity);
 
         system.execute();
 
@@ -175,18 +189,20 @@ public class HealthSystemTest {
     public void testDamageWithModifierHuge() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
-        new DrawComponent(entity, ANIMATION_PATH);
-        StatsComponent statsComponent = new StatsComponent(entity);
+        entity.addComponent(new DrawComponent(ANIMATION_PATH));
+        StatsComponent statsComponent = new StatsComponent();
+        entity.addComponent(statsComponent);
         statsComponent.multiplier(DamageType.PHYSICAL, 100);
 
-        HealthComponent healthComponent = new HealthComponent(entity);
+        HealthComponent healthComponent = new HealthComponent();
+        entity.addComponent(healthComponent);
         healthComponent.maximalHealthpoints(200);
         healthComponent.currentHealthpoints(100);
         healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
 
         HealthSystem system = new HealthSystem();
-        Game.addSystem(system);
-        system.showEntity(entity);
+        Game.add(system);
+        Game.add(entity);
 
         system.execute();
 

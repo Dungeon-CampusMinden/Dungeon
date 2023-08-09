@@ -60,7 +60,7 @@ public class TileLevelAPITest {
         onLevelLoader = Mockito.mock(IVoidFunction.class);
         level = Mockito.mock(TileLevel.class);
         api = new LevelSystem(painter, generator, onLevelLoader);
-        Game.addSystem(api);
+        Game.add(api);
     }
 
     @After
@@ -201,7 +201,7 @@ public class TileLevelAPITest {
         when(generator.level(any(), Mockito.any())).thenReturn(level);
         api.loadLevel();
         Entity hero = EntityFactory.newHero();
-        api.showEntity(hero);
+        Game.add(hero);
 
         Tile end = Mockito.mock(Tile.class);
         Point p = new Point(3, 3);

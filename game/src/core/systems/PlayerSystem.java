@@ -23,6 +23,6 @@ public final class PlayerSystem extends System {
     private void execute(Entity entity) {
         entity.fetch(PlayerComponent.class)
                 .orElseThrow(() -> MissingComponentException.build(entity, PlayerComponent.class))
-                .execute();
+                .execute(entity);
     }
 }

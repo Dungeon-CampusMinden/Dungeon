@@ -30,7 +30,7 @@ public class UITools {
      * @param entity entity that stores the {@link UIComponent} with the UI-Elements
      */
     public static void show(Supplier<Dialog> provider, Entity entity) {
-        new UIComponent(entity, provider.get(), true);
+        entity.addComponent(new UIComponent(provider.get(), true));
     }
 
     /**
@@ -39,6 +39,8 @@ public class UITools {
      * @param content text which should be shown in the body of the dialog
      * @param buttonText text which should be shown in the button for closing the TextDialog
      * @param windowText text which should be shown as the name for the TextDialog
+     * @return Entity that contains the {@link UIComponent}. The entity will already be added to the
+     *     game by this method.
      */
     public static Entity generateNewTextDialog(
             String content, String buttonText, String windowText) {
@@ -59,6 +61,7 @@ public class UITools {
                     }
                 },
                 entity);
+        Game.add(entity);
         return entity;
     }
 
@@ -76,7 +79,7 @@ public class UITools {
             final Entity entity, final String closeButtonID) {
         return (d, id) -> {
             if (Objects.equals(id, closeButtonID)) {
-                Game.removeEntity(entity);
+                Game.remove(entity);
                 return true;
             }
             return false;

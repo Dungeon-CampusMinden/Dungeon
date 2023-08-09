@@ -10,7 +10,6 @@ import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
 
-import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
 
@@ -32,12 +31,12 @@ import java.util.logging.Logger;
  * #calculateDamageOf(DamageType)} method for each {@link DamageType} and calculates the sum of the
  * damage. Next, the {@link HealthSystem} reduces the {@link #currentHealthpoints} by this value and
  * calls {@link #clearDamage()} to clear the internal list afterwards. When the health points drop
- * to 0 or less, the system calls {@link #triggerOnDeath()}.
+ * to 0 or less, the system calls {@link #triggerOnDeath(Entity)}.
  *
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
 @DSLType(name = "health_component")
-public final class HealthComponent extends Component {
+public final class HealthComponent implements Component {
     private final List<Damage> damageToGet;
     private @DSLTypeMember(name = "on_death_function") final Consumer<Entity> onDeath;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
@@ -46,16 +45,13 @@ public final class HealthComponent extends Component {
     private @Null Entity lastCause = null;
 
     /**
-     * Create a new HealthComponent and add it to the associated entity.
+     * Create a new HealthComponent.
      *
-     * @param entity associated entity
      * @param maximalHitPoints Maximum amount of health points; currentHitPoints cannot be greater
      *     than that
      * @param onDeath Function that gets called when this entity dies
      */
-    public HealthComponent(
-            final Entity entity, int maximalHitPoints, final Consumer<Entity> onDeath) {
-        super(entity);
+    public HealthComponent(int maximalHitPoints, final Consumer<Entity> onDeath) {
         this.maximalHealthpoints = maximalHitPoints;
         this.currentHealthpoints = maximalHitPoints;
         this.onDeath = onDeath;
@@ -63,14 +59,12 @@ public final class HealthComponent extends Component {
     }
 
     /**
-     * Create a HealthComponent with default values and add it to the associated entity.
+     * Create a HealthComponent with default values.
      *
      * <p>The maximum health points are set to 1, and the onDeath function is empty.
-     *
-     * @param entity associated entity
      */
-    public HealthComponent(@DSLContextMember(name = "entity") final Entity entity) {
-        this(entity, 1, onDeath -> {});
+    public HealthComponent() {
+        this(1, onDeath -> {});
     }
 
     /**
@@ -86,8 +80,12 @@ public final class HealthComponent extends Component {
         this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
     }
 
-    /** Trigger the onDeath function */
-    public void triggerOnDeath() {
+    /**
+     * Trigger the onDeath function
+     *
+     * @param entity associated entity of this component.
+     */
+    public void triggerOnDeath(final Entity entity) {
         onDeath.accept(entity);
     }
 
@@ -106,11 +104,7 @@ public final class HealthComponent extends Component {
 
         LOGGER.log(
                 CustomLogLevel.DEBUG,
-                this.getClass().getSimpleName()
-                        + " processed damage for entity: '"
-                        + entity
-                        + "': "
-                        + damageSum);
+                this.getClass().getSimpleName() + " processed damage: '" + damageSum);
 
         return damageSum;
     }

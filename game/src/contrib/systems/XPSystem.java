@@ -23,7 +23,7 @@ public final class XPSystem extends System {
                         .orElseThrow(() -> MissingComponentException.build(entity, XPSystem.class));
         long xpLeft;
         while ((xpLeft = comp.xpToNextCharacterLevel()) <= 0) {
-            this.performLevelUp(comp, (int) xpLeft);
+            this.performLevelUp(entity, comp, (int) xpLeft);
         }
     }
 
@@ -35,9 +35,9 @@ public final class XPSystem extends System {
      * @param comp XPComponent of entity
      * @param xpLeft XP left to level up (can be negative if greater the needed amount)
      */
-    private void performLevelUp(XPComponent comp, int xpLeft) {
+    private void performLevelUp(Entity entity, XPComponent comp, int xpLeft) {
         comp.characterLevel(comp.characterLevel() + 1);
         comp.currentXP(xpLeft * -1);
-        comp.levelUp().accept(comp.entity());
+        comp.levelUp().accept(entity);
     }
 }

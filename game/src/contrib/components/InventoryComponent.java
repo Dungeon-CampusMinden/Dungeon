@@ -3,7 +3,6 @@ package contrib.components;
 import contrib.utils.components.item.ItemData;
 
 import core.Component;
-import core.Entity;
 import core.utils.logging.CustomLogLevel;
 
 import java.util.HashSet;
@@ -25,21 +24,18 @@ import java.util.logging.Logger;
  *
  * <p>The number of items in the inventory can be retrieved using {@link #count()}.
  */
-public final class InventoryComponent extends Component {
+public final class InventoryComponent implements Component {
 
     private final Set<ItemData> inventory;
     private final int maxSize;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
     /**
-     * Create a new {@link InventoryComponent} with the given size and add it to the associated
-     * entity.
+     * Create a new {@link InventoryComponent} with the given size.
      *
-     * @param entity The associated entity.
      * @param maxSize The number of items that can be stored in the inventory.
      */
-    public InventoryComponent(final Entity entity, int maxSize) {
-        super(entity);
+    public InventoryComponent(int maxSize) {
         inventory = new HashSet<>(maxSize);
         this.maxSize = maxSize;
     }
@@ -64,7 +60,6 @@ public final class InventoryComponent extends Component {
                 "Item '"
                         + this.getClass().getSimpleName()
                         + "' was added to the inventory of entity '"
-                        + entity.getClass().getSimpleName()
                         + "'.");
         return inventory.add(itemData);
     }
@@ -78,11 +73,7 @@ public final class InventoryComponent extends Component {
     public boolean remove(final ItemData itemData) {
         LOGGER.log(
                 CustomLogLevel.DEBUG,
-                "Removing item '"
-                        + this.getClass().getSimpleName()
-                        + "' from inventory of entity '"
-                        + entity.getClass().getSimpleName()
-                        + "'.");
+                "Removing item '" + this.getClass().getSimpleName() + "' from inventory.");
         return inventory.remove(itemData);
     }
 

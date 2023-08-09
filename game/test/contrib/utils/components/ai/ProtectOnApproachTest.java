@@ -28,14 +28,11 @@ public class ProtectOnApproachTest {
 
         // Add AI Component
         AIComponent protectedAI =
-                new AIComponent(
-                        protectedEntity,
-                        new CollideAI(0.2f),
-                        new RadiusWalk(0, 50),
-                        new RangeTransition(2));
+                new AIComponent(new CollideAI(0.2f), new RadiusWalk(0, 50), new RangeTransition(2));
+        entity.addComponent(protectedAI);
 
         // Add Position Component
-        new PositionComponent(protectedEntity, pointOfProtect);
+        entity.addComponent(new PositionComponent(pointOfProtect));
 
         // Protecting Entity
         entity = new Entity();
@@ -43,13 +40,13 @@ public class ProtectOnApproachTest {
         // Add AI Component
         entityAI =
                 new AIComponent(
-                        entity,
                         new CollideAI(0.2f),
                         new RadiusWalk(0, 50),
                         new ProtectOnApproach(2f, protectedEntity));
+        entity.addComponent(entityAI);
 
         // Add Position Component
-        new PositionComponent(entity, new Point(0f, 0f));
+        entity.addComponent(new PositionComponent(new Point(0f, 0f)));
 
         // Hero
         hero = Game.hero().orElse(new Entity());

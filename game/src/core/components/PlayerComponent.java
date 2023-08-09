@@ -25,19 +25,14 @@ import java.util.function.Consumer;
  * @see Input.Keys
  * @see core.systems.PlayerSystem
  */
-public final class PlayerComponent extends Component {
+public final class PlayerComponent implements Component {
 
     public record InputData(boolean repeat, Consumer<Entity> callback) {}
 
     private final Map<Integer, InputData> callbacks;
 
-    /**
-     * Create a new PlayerComponent and add it to the associated entity.
-     *
-     * @param entity associated entity
-     */
-    public PlayerComponent(final Entity entity) {
-        super(entity);
+    /** Create a new PlayerComponent and add it to the associated entity. */
+    public PlayerComponent() {
         callbacks = new HashMap<>();
     }
 
@@ -94,12 +89,16 @@ public final class PlayerComponent extends Component {
         callbacks.remove(key);
     }
 
-    /** Execute the callback function registered to a key when it is pressed. */
-    public void execute() {
-        callbacks.forEach(this::execute);
+    /**
+     * Execute the callback function registered to a key when it is pressed.
+     *
+     * @param entity associated entity of this component.
+     */
+    public void execute(final Entity entity) {
+        callbacks.forEach((k, v) -> execute(entity, k, v));
     }
 
-    private void execute(int key, final InputData data) {
+    private void execute(Entity entity, int key, final InputData data) {
         if ((!data.repeat() && Gdx.input.isKeyJustPressed(key))
                 || (data.repeat() && Gdx.input.isKeyPressed(key))) {
             data.callback().accept(entity);

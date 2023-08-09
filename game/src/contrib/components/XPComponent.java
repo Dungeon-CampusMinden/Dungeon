@@ -30,7 +30,7 @@ import java.util.function.Function;
  * with {@link #levelUPFormula(Function)}. The default formula uses a quadratic function, resulting
  * in each level requiring more XP than the previous one.
  */
-public final class XPComponent extends Component {
+public final class XPComponent implements Component {
 
     private static final double NEEDED_XP_FOR_LEVEL_ONE = 100;
     private static final double FORMULA_SLOPE = 0.5;
@@ -56,34 +56,30 @@ public final class XPComponent extends Component {
     private long currentXP;
 
     /**
-     * Create a new XPComponent and add it to the associated entity.
+     * Create a new XPComponent.
      *
      * <p>Useful for entities that should collect XP to level up, such as the player character.
      *
      * <p>The {@link #lootXP()} will always be half of {@link #currentXP}, dynamically adjusting as
      * this component collects more XP.
      *
-     * @param entity the associated entity
      * @param levelUp the callback for when the entity levels up
      */
-    public XPComponent(final Entity entity, final Consumer<Entity> levelUp) {
-        super(entity);
+    public XPComponent(final Consumer<Entity> levelUp) {
         callbackLevelUp = levelUp;
         levelUPFormula = DEFAULT_LEVEL_UP_FORMULA;
         lootXPFunction = DEFAULT_LOOT_XP_FUNCTION;
     }
 
     /**
-     * Create a new XPComponent with an empty level-up callback and add it to the associated entity.
+     * Create a new XPComponent with an empty level-up callback.
      *
      * <p>Useful for entities that should only give XP and not gain XP themselves, such as monsters.
      *
-     * @param entity the associated entity
      * @param lootXP the amount of XP this entity drops if it dies (requires a {@link
      *     HealthComponent}). If the value is negativ, XP are taken from the entity that is looting.
      */
-    public XPComponent(final Entity entity, long lootXP) {
-        super(entity);
+    public XPComponent(long lootXP) {
         callbackLevelUp = DEFAULT_LEVEL_UP;
         levelUPFormula = DEFAULT_LEVEL_UP_FORMULA;
         this.lootXPFunction = xpComponent -> lootXP;

@@ -29,17 +29,22 @@ public class QuizUI {
      *
      * @param question Question to show on the HUD
      * @param resulthandlerLinker callback function
-     * @return the Entity that stores the {@link core.components.UIComponent} with the UI-Elements.
+     * @return the Entity that stores the {@link core.components.UIComponent} with the UI-Elements
+     *     The entity will already be added to the game by this method.
      */
     public static Entity showQuizDialog(
             Quiz question,
             Function<Entity, BiFunction<TextDialog, String, Boolean>> resulthandlerLinker) {
-        return showQuizDialog(
-                question,
-                formatStringForDialogWindow(question.taskText()),
-                core.hud.UITools.DEFAULT_DIALOG_CONFIRM,
-                core.hud.UITools.DEFAULT_DIALOG_TITLE,
-                resulthandlerLinker);
+
+        Entity entity =
+                showQuizDialog(
+                        question,
+                        formatStringForDialogWindow(question.taskText()),
+                        core.hud.UITools.DEFAULT_DIALOG_CONFIRM,
+                        core.hud.UITools.DEFAULT_DIALOG_TITLE,
+                        resulthandlerLinker);
+        Game.add(entity);
+        return entity;
     }
 
     /**
@@ -49,7 +54,8 @@ public class QuizUI {
      * <p>Use default callback method, that will delete the hud-entity from the game.
      *
      * @param question Question to show on the HUD
-     * @return the Entity that stores the {@link core.components.UIComponent} with the UI-Elements.
+     * @return the Entity that stores the {@link core.components.UIComponent} with the UI-Elements
+     *     The entity will already be added to the game by this method.
      */
     public static Entity showQuizDialog(Quiz question) {
         return showQuizDialog(
@@ -66,6 +72,8 @@ public class QuizUI {
      * text and picture, single or multiple choice ) in the Dialog
      *
      * @param question Various question configurations
+     * @return the Entity that stores the {@link core.components.UIComponent} with the UI-Elements
+     *     The entity will already be added to the game by this method.
      */
     private static Entity showQuizDialog(
             Quiz question,
@@ -89,7 +97,7 @@ public class QuizUI {
                     return quizDialog;
                 },
                 entity);
-
+        Game.add(entity);
         return entity;
     }
 
@@ -153,7 +161,7 @@ public class QuizUI {
             final Entity entity, final String closeButtonID) {
         return (d, id) -> {
             if (Objects.equals(id, closeButtonID)) {
-                Game.removeEntity(entity);
+                Game.remove(entity);
                 return true;
             }
             return false;

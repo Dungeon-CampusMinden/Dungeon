@@ -2,7 +2,6 @@ package core.components;
 
 import static org.junit.Assert.assertEquals;
 
-import core.Entity;
 import core.utils.Point;
 
 import org.junit.Before;
@@ -15,7 +14,7 @@ public class PositionComponentTest {
 
     @Before
     public void setup() {
-        positionComponent = new PositionComponent(new Entity(), position);
+        positionComponent = new PositionComponent(position);
     }
 
     @Test

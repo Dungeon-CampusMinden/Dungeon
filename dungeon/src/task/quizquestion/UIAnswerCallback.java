@@ -60,7 +60,7 @@ public final class UIAnswerCallback {
         return (textDialog, id) -> {
             if (Objects.equals(id, UITools.DEFAULT_DIALOG_CONFIRM)) {
                 dslCallback.accept(quest, getAnswer(quest, answerSection(textDialog)));
-                Game.removeEntity(hudEntity);
+                Game.remove(hudEntity);
                 return true;
             }
             return false;
@@ -79,8 +79,6 @@ public final class UIAnswerCallback {
 
     private static Set<TaskContent> getAnswer(Quiz quiz, VerticalGroup answerSection) {
         if (quiz.type() == Quiz.Type.FREETEXT) {
-            // make the answer to a task content object
-            // todo is this the way? malte-r?
             Quiz.Content content = new Quiz.Content(freeTextAnswer(answerSection));
             quiz.addAnswer(content);
             return Set.of(content);

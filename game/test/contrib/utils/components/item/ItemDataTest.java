@@ -78,7 +78,8 @@ public class ItemDataTest {
     public void testItemRemovedAfterUseWithDefaultCallback() {
         ItemData item = new ItemData();
         Entity entity = new Entity();
-        InventoryComponent inventoryComponent = new InventoryComponent(entity, 2);
+        InventoryComponent inventoryComponent = new InventoryComponent(2);
+        entity.addComponent(inventoryComponent);
         inventoryComponent.add(item);
         assertTrue(
                 "ItemActive needs to be in entities inventory.",

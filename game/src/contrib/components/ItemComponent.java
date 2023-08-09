@@ -35,17 +35,15 @@ import core.Entity;
  * @see ItemData
  * @see contrib.entities.WorldItemBuilder
  */
-public final class ItemComponent extends Component {
+public final class ItemComponent implements Component {
     private final ItemData itemData;
 
     /**
-     * Creates a new {@link ItemComponent} and adds it to the associated entity.
+     * Creates a new {@link ItemComponent}.
      *
-     * @param entity The associated entity.
      * @param itemData The data of the item to store in this component.
      */
-    public ItemComponent(final Entity entity, ItemData itemData) {
-        super(entity);
+    public ItemComponent(final ItemData itemData) {
         this.itemData = itemData;
     }
 

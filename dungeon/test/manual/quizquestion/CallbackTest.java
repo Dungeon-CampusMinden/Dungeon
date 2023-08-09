@@ -38,7 +38,7 @@ import java.util.function.BiConsumer;
  *
  * <p>Start the test with gradle runCallbackTest.
  */
-public class WizardQuizTest {
+public class CallbackTest {
     private static Quiz question = multipleChoiceDummy();
 
     private static void toggleQuiz() {
@@ -52,13 +52,23 @@ public class WizardQuizTest {
 
     public static void main(String[] args) throws IOException {
         // start the game
-        Game.hero(EntityFactory.newHero());
+
         LevelSystem.levelSize(LevelSize.SMALL);
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.frameRate(30);
+        Game.userOnSetup(
+                () -> {
+                    try {
+                        Entity hero = EntityFactory.newHero();
+                        Game.hero(hero);
+                        Game.add(hero);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         Game.userOnFrame(
                 () -> {
                     if (Gdx.input.isKeyJustPressed(Input.Keys.V)) toggleQuiz();
@@ -66,34 +76,35 @@ public class WizardQuizTest {
         Game.userOnLevelLoad(
                 () -> {
                     try {
-                        questWizard();
+                        Game.add(questWizard());
                     } catch (IOException e) {
                         throw new RuntimeException();
                     }
                 });
         Game.windowTitle("Quest Wizard");
-        Game.addSystem(new AISystem());
-        Game.addSystem(new CollisionSystem());
-        Game.addSystem(new HealthSystem());
-        Game.addSystem(new XPSystem());
-        Game.addSystem(new ProjectileSystem());
+        Game.add(new AISystem());
+        Game.add(new CollisionSystem());
+        Game.add(new HealthSystem());
+        Game.add(new XPSystem());
+        Game.add(new ProjectileSystem());
 
         // build and start game
         Game.run();
     }
 
-    private static void questWizard() throws IOException {
+    private static Entity questWizard() throws IOException {
         Entity wizard = new Entity("Quest Wizard");
-        new PositionComponent(wizard);
-        new DrawComponent(wizard, "character/wizard");
-        new TaskComponent(wizard, question);
-        new InteractionComponent(
-                wizard,
-                1,
-                false,
-                (entity, who) ->
-                        UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
-                                .accept(entity, who));
+        wizard.addComponent(new PositionComponent());
+        wizard.addComponent(new DrawComponent("character/wizard"));
+        wizard.addComponent(new TaskComponent(question));
+        wizard.addComponent(
+                new InteractionComponent(
+                        1,
+                        false,
+                        (entity, who) ->
+                                UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
+                                        .accept(entity, who)));
+        return wizard;
     }
 
     private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {

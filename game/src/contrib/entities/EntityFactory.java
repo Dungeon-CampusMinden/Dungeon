@@ -59,18 +59,19 @@ public class EntityFactory {
      */
     public static Entity newHero() throws IOException {
         Entity hero = new Entity("hero");
-        new CameraComponent(hero);
-        new PositionComponent(hero);
-        new VelocityComponent(hero, X_SPEED_HERO, Y_SPEED_HERO);
-        new DrawComponent(hero, HERO_FILE_PATH);
-        new InventoryComponent(hero, Constants.DEFAULT_INVENTORY_SIZE);
-        new CollideComponent(
-                hero,
-                (you, other, direction) -> System.out.println("heroCollisionEnter"),
-                (you, other, direction) -> System.out.println("heroCollisionLeave"));
-        new HealthComponent(hero, 200, Game::removeEntity);
-        new XPComponent(hero, (e) -> {});
-        PlayerComponent pc = new PlayerComponent(hero);
+        hero.addComponent(new CameraComponent());
+        hero.addComponent(new PositionComponent());
+        hero.addComponent(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO));
+        hero.addComponent(new DrawComponent(HERO_FILE_PATH));
+        hero.addComponent(new InventoryComponent(Constants.DEFAULT_INVENTORY_SIZE));
+        hero.addComponent(
+                new CollideComponent(
+                        (you, other, direction) -> System.out.println("heroCollisionEnter"),
+                        (you, other, direction) -> System.out.println("heroCollisionLeave")));
+        hero.addComponent(new HealthComponent(200, Game::remove));
+        hero.addComponent(new XPComponent((e) -> {}));
+        PlayerComponent pc = new PlayerComponent();
+        hero.addComponent(pc);
         Skill fireball =
                 new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
@@ -169,12 +170,15 @@ public class EntityFactory {
     public static Entity newChest(Set<ItemData> itemData, Point position) throws IOException {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
-        new PositionComponent(chest, position);
-        InventoryComponent ic = new InventoryComponent(chest, itemData.size());
+        chest.addComponent(new PositionComponent(position));
+        InventoryComponent ic = new InventoryComponent(itemData.size());
+        chest.addComponent(ic);
         itemData.forEach(ic::add);
-        new InteractionComponent(
-                chest, defaultInteractionRadius, false, new DropItemsInteraction());
-        DrawComponent dc = new DrawComponent(chest, "objects/treasurechest");
+        chest.addComponent(
+                new InteractionComponent(
+                        defaultInteractionRadius, false, new DropItemsInteraction()));
+        DrawComponent dc = new DrawComponent("objects/treasurechest");
+        chest.addComponent(dc);
         dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
 
         return chest;
@@ -219,22 +223,23 @@ public class EntityFactory {
         if (itemRoll == 0) {
             ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
             ItemData item = itemDataGenerator.generateItemData();
-            InventoryComponent ic = new InventoryComponent(monster, 1);
+            InventoryComponent ic = new InventoryComponent(1);
+            monster.addComponent(ic);
             ic.add(item);
             onDeath = new DropItemsInteraction();
         } else {
             onDeath = (e, who) -> {};
         }
-        new HealthComponent(monster, health, (e) -> onDeath.accept(e, null));
-        new PositionComponent(monster);
-        new AIComponent(
-                monster,
-                AIFactory.generateRandomFightAI(),
-                AIFactory.generateRandomIdleAI(),
-                AIFactory.generateRandomTransitionAI(monster));
-        new DrawComponent(monster, pathToTexture);
-        new VelocityComponent(monster, speed, speed);
-        new CollideComponent(monster);
+        monster.addComponent(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
+        monster.addComponent(new PositionComponent());
+        monster.addComponent(
+                new AIComponent(
+                        AIFactory.generateRandomFightAI(),
+                        AIFactory.generateRandomIdleAI(),
+                        AIFactory.generateRandomTransitionAI(monster)));
+        monster.addComponent(new DrawComponent(pathToTexture));
+        monster.addComponent(new VelocityComponent(speed, speed));
+        monster.addComponent(new CollideComponent());
         return monster;
     }
 }

@@ -71,7 +71,7 @@ public class ProjectileSystem extends System {
     }
 
     private void removeEntitiesOnEndpoint(PSData data) {
-        Game.removeEntity(data.pc.entity());
+        Game.remove(data.e);
     }
 
     /**
