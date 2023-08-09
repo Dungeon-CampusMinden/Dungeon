@@ -58,10 +58,48 @@ public class InventoryGUI extends GUI {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         // Draw & cache slot squares
+        this.drawSlots();
+
+        // Draw Background & Slots
+        batch.draw(background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        batch.draw(this.textureSlots, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+
+        // Draw Items
+        this.drawItems(batch);
+    }
+
+    private void drawItems(Batch batch) {
+        float slotSize = this.getWidth() / MAX_ITEMS_PER_ROW;
+        for (int i = 0; i < this.inventoryComponent.items().length; i++) {
+            if (this.inventoryComponent.items()[i] == null) continue;
+            float x = this.getX() + slotSize * (i % MAX_ITEMS_PER_ROW) + 2 * BORDER_PADDING;
+            float y =
+                    this.getY()
+                            + slotSize * (float) Math.floor((i / (float) MAX_ITEMS_PER_ROW))
+                            + 2 * BORDER_PADDING;
+            batch.draw(
+                    new Texture(
+                            this.inventoryComponent
+                                    .items()[i]
+                                    .item()
+                                    .inventoryAnimation()
+                                    .nextAnimationTexturePath()),
+                    x,
+                    y,
+                    slotSize - 4 * BORDER_PADDING,
+                    slotSize - 4 * BORDER_PADDING);
+        }
+    }
+
+    private void drawSlots() {
         if (this.textureSlots == null
                 || this.textureSlots.getWidth() != this.getWidth()
                 || this.textureSlots.getHeight() != this.getHeight()) {
             if (this.textureSlots != null) this.textureSlots.dispose();
+
+            // Minimized windows have 0 width and height -> container will be 0x0 -> Crash on pixmap
+            // creation
+            if ((int) this.getWidth() <= 0 || (int) this.getHeight() <= 0) return;
 
             Pixmap pixmap =
                     new Pixmap(
@@ -85,33 +123,6 @@ public class InventoryGUI extends GUI {
             }
             this.textureSlots = new Texture(pixmap);
         }
-
-        // Draw Background & Slots
-        batch.draw(background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        batch.draw(this.textureSlots, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-
-        // Draw Items
-        float slotSize = this.getWidth() / MAX_ITEMS_PER_ROW;
-        for (int i = 0; i < this.inventoryComponent.items().length; i++) {
-            if (this.inventoryComponent.items()[i] == null) continue;
-            float x = this.getX() + slotSize * (i % MAX_ITEMS_PER_ROW) + 2 * BORDER_PADDING;
-            float y =
-                    this.getY()
-                            + slotSize * (float) Math.floor((i / (float) MAX_ITEMS_PER_ROW))
-                            + 2 * BORDER_PADDING;
-            batch.draw(
-                    new Texture(
-                            this.inventoryComponent
-                                    .items()[i]
-                                    .item()
-                                    .inventoryAnimation()
-                                    .nextAnimationTexturePath()),
-                    x,
-                    y,
-                    slotSize - 4 * BORDER_PADDING,
-                    slotSize - 4 * BORDER_PADDING);
-        }
-        super.draw(batch, parentAlpha);
     }
 
     @Override
