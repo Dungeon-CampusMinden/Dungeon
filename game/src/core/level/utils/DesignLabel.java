@@ -1,7 +1,6 @@
 package core.level.utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -20,7 +19,7 @@ public enum DesignLabel {
     private static final List<DesignLabel> VALUES = new ArrayList<>();
 
     static {
-        VALUES.addAll(Arrays.asList(values()));
+        for (DesignLabel l : values()) for (int i = 0; i < l.chance; i++) VALUES.add(l);
     }
 
     /**
@@ -37,16 +36,6 @@ public enum DesignLabel {
      * @return A random enum-value based on chances
      */
     public static DesignLabel randomDesign() {
-        int totalChances = VALUES.stream().mapToInt(label -> label.chance).sum();
-        int randomValue = RANDOM.nextInt(totalChances);
-        int cumulativeChances = 0;
-        for (DesignLabel label : VALUES) {
-            cumulativeChances += label.chance;
-            if (randomValue < cumulativeChances) {
-                return label;
-            }
-        }
-        // error case
-        return DEFAULT;
+        return VALUES.get(RANDOM.nextInt(0, VALUES.size()));
     }
 }
