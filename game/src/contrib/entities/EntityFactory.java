@@ -35,9 +35,9 @@ public class EntityFactory {
     private static final Logger LOGGER = Logger.getLogger(EntityFactory.class.getName());
     private static final Random RANDOM = new Random();
     private static final String HERO_FILE_PATH = "character/knight";
-    private static final float X_SPEED_HERO = 0.3f;
-    private static final float Y_SPEED_HERO = 0.3f;
-    private static final int FIREBALL_COOL_DOWN = 2;
+    private static final float X_SPEED_HERO = 7.5f;
+    private static final float Y_SPEED_HERO = 7.5f;
+    private static final int FIREBALL_COOL_DOWN = 1;
     private static final String[] MONSTER_FILE_PATHS = {
         "character/monster/chort", "character/monster/imp"
     };
@@ -46,8 +46,8 @@ public class EntityFactory {
 
     // NOTE: +1 for health as nextInt() is exclusive
     private static final int MAX_MONSTER_HEALTH = 5 + 1;
-    private static final float MIN_MONSTER_SPEED = 0.1f;
-    private static final float MAX_MONSTER_SPEED = 0.25f;
+    private static final float MIN_MONSTER_SPEED = 3.0f;
+    private static final float MAX_MONSTER_SPEED = 7.5f;
 
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link

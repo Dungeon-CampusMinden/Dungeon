@@ -47,6 +47,7 @@ public final class Constants {
     public static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
     public static final int DEFAULT_INVENTORY_SIZE = 5;
     public static final float DEFAULT_ITEM_PICKUP_RADIUS = 2.0f;
+    public static final float DEFAULT_FRICTION = 0.8f;
 
     /**
      * @param path the relative path to the resource

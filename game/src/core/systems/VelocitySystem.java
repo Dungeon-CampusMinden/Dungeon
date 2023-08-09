@@ -1,5 +1,8 @@
 package core.systems;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
+
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
 
@@ -9,6 +12,7 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.utils.Constants;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
@@ -54,20 +58,38 @@ public final class VelocitySystem extends System {
     }
 
     private void updatePosition(VSData vsd) {
-        float newX = vsd.pc.position().x + vsd.vc.currentXVelocity();
-        float newY = vsd.pc.position().y + vsd.vc.currentYVelocity();
-        Point newPosition = new Point(newX, newY);
-        if (Game.tileAT(newPosition).isAccessible()) {
-            vsd.pc.position(newPosition);
-            movementAnimation(vsd);
+        Vector2 velocity = new Vector2(vsd.vc.currentXVelocity(), vsd.vc.currentYVelocity());
+        float len = velocity.len();
+        velocity.nor();
+        velocity.scl(len * Constants.DEFAULT_FRICTION * Gdx.graphics.getDeltaTime());
+
+        float newX = vsd.pc.position().x + velocity.x;
+        float newY = vsd.pc.position().y + velocity.y;
+
+        if (Game.tileAT(new Point(newX, newY)).isAccessible()) {
+            vsd.pc.position(new Point(newX, newY));
+            this.movementAnimation(vsd);
+        } else if (Game.tileAT(new Point(newX, vsd.pc.position().y)).isAccessible()) {
+            vsd.pc.position(new Point(newX, vsd.pc.position().y));
+            this.movementAnimation(vsd);
+            vsd.vc.currentYVelocity(0.0f);
+        } else if (Game.tileAT(new Point(vsd.pc.position().x, newY)).isAccessible()) {
+            vsd.pc.position(new Point(vsd.pc.position().x, newY));
+            this.movementAnimation(vsd);
+            vsd.vc.currentXVelocity(0.0f);
         }
 
         // remove projectiles that hit the wall or other non-accessible
         // tiles
         else if (vsd.e.fetch(ProjectileComponent.class).isPresent()) Game.remove(vsd.e);
 
-        vsd.vc.currentYVelocity(0);
-        vsd.vc.currentXVelocity(0);
+        float newVX = vsd.vc.currentXVelocity() * (1.0f - Constants.DEFAULT_FRICTION);
+        if (Math.abs(newVX) < 0.01f) newVX = 0.0f;
+        float newVY = vsd.vc.currentYVelocity() * (1.0f - Constants.DEFAULT_FRICTION);
+        if (Math.abs(newVY) < 0.01f) newVY = 0.0f;
+
+        vsd.vc.currentYVelocity(newVY);
+        vsd.vc.currentXVelocity(newVX);
     }
 
     private VSData buildDataObject(Entity e) {
