@@ -5,10 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Specifies which textures and layouts should be used for the room.
- *
- */
+/** Specifies which textures and layouts should be used for the room. */
 public enum DesignLabel {
     DEFAULT(50), // 50% chance
     FIRE(10), // 10% chance
