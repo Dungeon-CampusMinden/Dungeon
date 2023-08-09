@@ -59,6 +59,7 @@ public final class VelocitySystem extends System {
     private void updatePosition(VSData vsd) {
         Vector2 velocity = new Vector2(vsd.vc.currentXVelocity(), vsd.vc.currentYVelocity());
         float maxSpeed = Math.max(Math.abs(vsd.vc.xVelocity()), Math.abs(vsd.vc.yVelocity()));
+        // Limit velocity to maxSpeed (primarily for diagonal movement)
         if (velocity.len() > maxSpeed) {
             velocity.nor();
             velocity.scl(maxSpeed);
