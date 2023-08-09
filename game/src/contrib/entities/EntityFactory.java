@@ -73,7 +73,7 @@ public class EntityFactory {
         hero.addComponent(new XPComponent((e) -> {}));
         PlayerComponent pc = new PlayerComponent();
         hero.addComponent(pc);
-        InventoryComponent ic = new InventoryComponent(hero, Constants.DEFAULT_INVENTORY_SIZE);
+        InventoryComponent ic = new InventoryComponent(Constants.DEFAULT_INVENTORY_SIZE);
         hero.addComponent(ic);
         Skill fireball =
                 new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
@@ -136,7 +136,7 @@ public class EntityFactory {
                             e.removeComponent(UIComponent.class);
                         }
                     } else {
-                        new UIComponent(e, new GUICombination(new InventoryGUI(ic)), false);
+                        new UIComponent(new GUICombination(new InventoryGUI(ic)), false);
                     }
                 },
                 false);
