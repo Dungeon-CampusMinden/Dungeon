@@ -150,7 +150,7 @@ list = [ "Hello", "World", "!" ];
 **Unsortierte Menge:**
 
 ```
-set = ( "elem1", "elem2" );
+set = < "elem1", "elem2" >;
 ```
 
 **Benannte Elemente:**
@@ -158,10 +158,10 @@ set = ( "elem1", "elem2" );
 Die Elemente einer Menge (sortiert und unsortiert) können benannt werden:
 
 ```
-set = (
+set = <
   e1: "elem1",
   x1: "elem2"
-);
+>;
 ```
 
 Auf die benannten Elemente kann anschließend per `.`-Operator zugegriffen werden:
@@ -175,10 +175,10 @@ string_variable = set.x1
 Mengen können andere Mengen enthalten:
 
 ```
-set = (
+set = <
   list1: ["elem1", "elem2"],
   list2: ["elem3", "elem4"]
-);
+>;
 ```
 
 Es existiert aktuell kein Mechanismus für DSL-Nutzende, abseits von
@@ -586,7 +586,7 @@ rules: (
 ```
 mapping_task t {
   ...,
-  mapping: (
+  mapping: <
     // Definition Zuordnung - (<term>, <definition>)
     ["a", "b"],
 
@@ -595,7 +595,7 @@ mapping_task t {
 
     // Hinzufügen von zusätzlicher Definition
     [_, "w"]
-  )
+  >
 }
 ```
 
@@ -604,7 +604,7 @@ mapping_task t {
 ```
 gap_task t {
   ...,
-  gaps: (
+  gaps: <
     // Definition der Lücken
     // der erste Eintrag der Menge wird als regulärer Ausdruck betrachtet,
     // der zweite Eintrag wird als Name der Lücke betrachtet
@@ -612,7 +612,7 @@ gap_task t {
     ["regexp2", "gapname2"],
     ["regexp3", "gapname3"],
     ["regexp4", "gapname4"]
-  )
+  >
 }
 ```
 
