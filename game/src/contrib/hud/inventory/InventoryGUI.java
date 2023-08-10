@@ -161,6 +161,7 @@ public class InventoryGUI extends GUI {
                 y,
                 glyphLayout.width + (BORDER_PADDING * 2),
                 glyphLayout.height + (BORDER_PADDING * 2));
+        bitmapFont.setColor(Color.BLACK);
         bitmapFont.draw(
                 batch, this.title, x + BORDER_PADDING, y + glyphLayout.height + BORDER_PADDING);
     }
@@ -192,7 +193,7 @@ public class InventoryGUI extends GUI {
         float width = layout.width + 10;
         float height = layout.height + 10;
         batch.draw(hoverBackground, x, y, width, height);
-        bitmapFont.setColor(Color.RED);
+        bitmapFont.setColor(Color.BLACK);
         bitmapFont.draw(batch, item.item().displayName(), x + 5, y + height - 5);
     }
 

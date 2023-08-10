@@ -136,7 +136,8 @@ public class EntityFactory {
                             e.removeComponent(UIComponent.class);
                         }
                     } else {
-                        new UIComponent(new GUICombination(new InventoryGUI(ic)), false);
+                        e.addComponent(
+                                new UIComponent(new GUICombination(new InventoryGUI(ic)), false));
                     }
                 },
                 false);
