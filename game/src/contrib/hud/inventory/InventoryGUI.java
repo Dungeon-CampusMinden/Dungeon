@@ -19,6 +19,8 @@ import contrib.hud.CombinableGUI;
 import contrib.hud.GUICombination;
 import contrib.utils.components.item.ItemData;
 
+import core.Game;
+
 public class InventoryGUI extends CombinableGUI {
 
     private static final int MAX_ITEMS_PER_ROW = 8;
@@ -125,25 +127,23 @@ public class InventoryGUI extends CombinableGUI {
 
             // Minimized windows have 0 width and height -> container will be 0x0 -> Crash on pixmap
             // creation
-            if ((int) this.width() <= 0 || (int) this.height() <= 0) return;
+            if (this.width() <= 0 || this.height() <= 0) return;
 
-            Pixmap pixmap =
-                    new Pixmap((int) this.width(), (int) this.height(), Pixmap.Format.RGBA8888);
+            Pixmap pixmap = new Pixmap(this.width(), this.height(), Pixmap.Format.RGBA8888);
             pixmap.setColor(BORDER_COLOR);
             int rows =
                     (int)
                             Math.ceil(
                                     this.inventoryComponent.items().length
                                             / (float) this.slotsPerRow);
-            int itemSize = (int) this.width() / this.slotsPerRow;
             for (int y = 0; y < rows; y++) {
                 for (int x = 0; x < this.slotsPerRow; x++) {
                     if (x + y * this.slotsPerRow >= this.inventoryComponent.items().length) break;
                     pixmap.drawRectangle(
-                            x * itemSize + BORDER_PADDING,
-                            pixmap.getHeight() - (y * itemSize + BORDER_PADDING),
-                            itemSize - 2 * BORDER_PADDING,
-                            -itemSize + 2 * BORDER_PADDING);
+                            x * this.slotSize + BORDER_PADDING,
+                            pixmap.getHeight() - (y * this.slotSize + BORDER_PADDING),
+                            this.slotSize - 2 * BORDER_PADDING,
+                            -this.slotSize + 2 * BORDER_PADDING);
                 }
             }
             this.textureSlots = new Texture(pixmap);
@@ -199,12 +199,13 @@ public class InventoryGUI extends CombinableGUI {
                         + 5; // 5 (-> 10) Padding + 5 gap between name and description
         batch.draw(hoverBackground, x, y, width, height);
         bitmapFont.setColor(Color.BLACK);
-        bitmapFont.draw(batch, item.item().displayName(), x + 5, y + layoutName.height + 5);
         bitmapFont.draw(
                 batch,
-                item.item().description(),
+                item.item().displayName(),
                 x + 5,
                 y + layoutName.height + 5 + layoutDesc.height + 5);
+        bitmapFont.setColor(new Color(0x000000b0));
+        bitmapFont.draw(batch, item.item().description(), x + 5, y + layoutName.height + 5);
     }
 
     @Override
@@ -292,10 +293,10 @@ public class InventoryGUI extends CombinableGUI {
                             float x,
                             float y,
                             int pointer) {
-                        int slotSize = InventoryGUI.this.width() / InventoryGUI.this.slotsPerRow;
                         int slot =
-                                (int) (x / slotSize)
-                                        + (int) (y / slotSize) * InventoryGUI.this.slotsPerRow;
+                                (int) (x / InventoryGUI.this.slotSize)
+                                        + (int) (y / InventoryGUI.this.slotSize)
+                                                * InventoryGUI.this.slotsPerRow;
                         if (payload.getObject() != null
                                 && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
                             InventoryGUI.this.inventoryComponent.set(
@@ -314,7 +315,11 @@ public class InventoryGUI extends CombinableGUI {
                                         this.inventoryComponent.items().length
                                                 / (float) this.slotsPerRow),
                                 1.0f);
-        int width = availableSpace.width();
+        int width =
+                (int)
+                        Math.min(
+                                availableSpace.width(),
+                                (Game.stage().orElseThrow().getWidth() / 4) * 3);
         int height = (width / this.slotsPerRow) * rows;
 
         if (height > availableSpace.height()) {
