@@ -56,8 +56,8 @@ public class TaskGenerationTest {
                     }
                 });
         Game.userOnLevelLoad(
-                (b) -> {
-                    if (b) {
+                (loadFirstTime) -> {
+                    if (loadFirstTime) {
                         try {
 
                             Game.add(EntityFactory.randomMonster());

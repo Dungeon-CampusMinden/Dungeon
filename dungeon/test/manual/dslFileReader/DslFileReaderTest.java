@@ -23,7 +23,7 @@ public class DslFileReaderTest {
                 core.configuration.KeyboardConfig.class);
         Game.disableAudio(true);
         Game.userOnLevelLoad(
-                b -> {
+                loadFirstTime -> {
                     Set<File> files = DslFileLoader.dslFiles();
                     Set<String> fileContents =
                             files.stream()
