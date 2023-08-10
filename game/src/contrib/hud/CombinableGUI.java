@@ -146,6 +146,13 @@ public abstract class CombinableGUI {
         this.height = height;
     }
 
+    /**
+     * Generate a GDX-Actor for the element with the current position and size.
+     *
+     * <p>This Actor may be used for GDX-functionality like DragAndDrop.
+     *
+     * @return an Actor for the element.
+     */
     protected Actor actor() {
         if (this.actor == null) {
             this.actor = new Actor();
