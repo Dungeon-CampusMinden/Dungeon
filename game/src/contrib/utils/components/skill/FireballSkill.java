@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 public class FireballSkill extends DamageProjectile {
 
     private static final String PROJECTILE_TEXTURES = "skills/fireball";
-    private static final float PROJECTILE_SPEED = 0.5f;
+    private static final float PROJECTILE_SPEED = 15.0f;
     private static final int DAMAGE_AMOUNT = 1;
     private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
     private static final Point HITBOX_SIZE = new Point(1, 1);
