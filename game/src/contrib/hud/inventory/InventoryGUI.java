@@ -1,9 +1,15 @@
 package contrib.hud.inventory;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
@@ -16,18 +22,28 @@ import core.Game;
 
 public class InventoryGUI extends GUI {
 
-    private static final Texture texture;
-    private static final TextureRegion background;
     private static final int MAX_ITEMS_PER_ROW = 8;
     private static final int BORDER_COLOR = 0x9dc1ebff;
+    private static final int BACKGROUND_COLOR = 0x3e3e63e1;
+    private static final int HOVER_BACKGROUND_COLOR = 0xffffffff;
     private static final int BORDER_PADDING = 5;
+    private static final BitmapFont bitmapFont;
+    private static final Texture texture;
+    private static final TextureRegion background, hoverBackground;
 
     static {
         // Prepare background texture
-        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.drawPixel(0, 0, 0x3e3e63e1); // Background
+        Pixmap pixmap = new Pixmap(2, 1, Pixmap.Format.RGBA8888);
+        pixmap.drawPixel(0, 0, BACKGROUND_COLOR); // Background
+        pixmap.drawPixel(1, 0, HOVER_BACKGROUND_COLOR); // Hover
         texture = new Texture(pixmap);
         background = new TextureRegion(texture, 0, 0, 1, 1);
+        hoverBackground = new TextureRegion(texture, 1, 0, 1, 1);
+        bitmapFont =
+                new BitmapFont(
+                        new FileHandle("./game/assets/skin/myFont.fnt"),
+                        new FileHandle("./game/assets/skin/myFont.png"),
+                        false);
     }
 
     private final InventoryComponent inventoryComponent;
@@ -57,6 +73,7 @@ public class InventoryGUI extends GUI {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        this.validate();
         // Draw & cache slot squares
         this.drawSlots();
 
@@ -66,6 +83,12 @@ public class InventoryGUI extends GUI {
 
         // Draw Items
         this.drawItems(batch);
+
+        // Draw inventory title
+        this.drawInventoryTitle(batch);
+
+        // Draw hover info of hovered item.
+        this.drawItemInfo(batch);
     }
 
     private void drawItems(Batch batch) {
@@ -123,6 +146,54 @@ public class InventoryGUI extends GUI {
             }
             this.textureSlots = new Texture(pixmap);
         }
+    }
+
+    private void drawInventoryTitle(Batch batch) {
+
+        GlyphLayout glyphLayout = new GlyphLayout(bitmapFont, this.title);
+
+        float x = this.getX() + this.getWidth() / 2 - glyphLayout.width / 2;
+        float y = this.getY() + this.getHeight() + BORDER_PADDING;
+
+        batch.draw(
+                hoverBackground,
+                x,
+                y,
+                glyphLayout.width + (BORDER_PADDING * 2),
+                glyphLayout.height + (BORDER_PADDING * 2));
+        bitmapFont.draw(
+                batch, this.title, x + BORDER_PADDING, y + glyphLayout.height + BORDER_PADDING);
+    }
+
+    private void drawItemInfo(Batch batch) {
+        Vector2 mousePos =
+                new Vector2(
+                        Gdx.input.getX() - this.getParent().getX(),
+                        Gdx.graphics.getHeight() - Gdx.input.getY() - this.getParent().getY());
+
+        // Check if mouse is in inventory bounds
+        if (mousePos.x < this.getX() || mousePos.x > this.getX() + this.getWidth()) return;
+        if (mousePos.y < this.getY() || mousePos.y > this.getY() + this.getHeight()) return;
+
+        batch.draw(hoverBackground, mousePos.x, mousePos.y, 5, 5);
+
+        // Check if mouse is dragging an item
+        if (this.dragAndDrop().isDragging()) return;
+
+        float slotSize = InventoryGUI.this.getWidth() / MAX_ITEMS_PER_ROW;
+        int slot =
+                (int) (mousePos.x / slotSize) + (int) (mousePos.y / slotSize) * MAX_ITEMS_PER_ROW;
+        ItemData item = InventoryGUI.this.inventoryComponent.get(slot);
+        if (item == null) return;
+
+        GlyphLayout layout = new GlyphLayout(bitmapFont, item.item().displayName());
+        float x = mousePos.x + 10;
+        float y = mousePos.y + 10;
+        float width = layout.width + 10;
+        float height = layout.height + 10;
+        batch.draw(hoverBackground, x, y, width, height);
+        bitmapFont.setColor(Color.RED);
+        bitmapFont.draw(batch, item.item().displayName(), x + 5, y + height - 5);
     }
 
     @Override

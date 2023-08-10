@@ -5,6 +5,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
 public abstract class GUI extends WidgetGroup {
 
+    private int x, y, width, height;
+
     private DragAndDrop dragAndDrop;
 
     /**
