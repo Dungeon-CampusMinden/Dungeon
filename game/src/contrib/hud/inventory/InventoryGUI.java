@@ -15,12 +15,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
 import contrib.components.InventoryComponent;
-import contrib.hud.GUI;
+import contrib.hud.CombinableGUI;
+import contrib.hud.GUICombination;
 import contrib.utils.components.item.ItemData;
 
-import core.Game;
-
-public class InventoryGUI extends GUI {
+public class InventoryGUI extends CombinableGUI {
 
     private static final int MAX_ITEMS_PER_ROW = 8;
     private static final int BORDER_COLOR = 0x9dc1ebff;
@@ -49,6 +48,8 @@ public class InventoryGUI extends GUI {
     private final InventoryComponent inventoryComponent;
     private Texture textureSlots;
     private String title;
+    private int slotSize = 0;
+    private int slotsPerRow = 0;
 
     /**
      * Create a new inventory GUI
@@ -60,6 +61,7 @@ public class InventoryGUI extends GUI {
         super();
         this.inventoryComponent = inventoryComponent;
         this.title = title;
+        this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
     }
 
     /**
@@ -72,34 +74,35 @@ public class InventoryGUI extends GUI {
     }
 
     @Override
-    public void draw(Batch batch, float parentAlpha) {
-        this.validate();
+    public void draw(Batch batch) {
         // Draw & cache slot squares
         this.drawSlots();
 
         // Draw Background & Slots
-        batch.draw(background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        batch.draw(this.textureSlots, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        batch.draw(background, this.x(), this.y(), this.width(), this.height());
+        batch.draw(this.textureSlots, this.x(), this.y(), this.width(), this.height());
 
         // Draw Items
         this.drawItems(batch);
 
         // Draw inventory title
         this.drawInventoryTitle(batch);
+    }
 
-        // Draw hover info of hovered item.
+    @Override
+    protected void drawTopLayer(Batch batch) {
         this.drawItemInfo(batch);
     }
 
     private void drawItems(Batch batch) {
-        float slotSize = this.getWidth() / MAX_ITEMS_PER_ROW;
         for (int i = 0; i < this.inventoryComponent.items().length; i++) {
             if (this.inventoryComponent.items()[i] == null) continue;
-            float x = this.getX() + slotSize * (i % MAX_ITEMS_PER_ROW) + 2 * BORDER_PADDING;
+            float x = this.x() + this.slotSize * (i % this.slotsPerRow) + 2 * BORDER_PADDING;
             float y =
-                    this.getY()
-                            + slotSize * (float) Math.floor((i / (float) MAX_ITEMS_PER_ROW))
+                    this.y()
+                            + this.slotSize * (float) Math.floor((i / (float) this.slotsPerRow))
                             + 2 * BORDER_PADDING;
+
             batch.draw(
                     new Texture(
                             this.inventoryComponent
@@ -109,34 +112,33 @@ public class InventoryGUI extends GUI {
                                     .nextAnimationTexturePath()),
                     x,
                     y,
-                    slotSize - 4 * BORDER_PADDING,
-                    slotSize - 4 * BORDER_PADDING);
+                    this.slotSize - 4 * BORDER_PADDING,
+                    this.slotSize - 4 * BORDER_PADDING);
         }
     }
 
     private void drawSlots() {
         if (this.textureSlots == null
-                || this.textureSlots.getWidth() != this.getWidth()
-                || this.textureSlots.getHeight() != this.getHeight()) {
+                || this.textureSlots.getWidth() != this.width()
+                || this.textureSlots.getHeight() != this.height()) {
             if (this.textureSlots != null) this.textureSlots.dispose();
 
             // Minimized windows have 0 width and height -> container will be 0x0 -> Crash on pixmap
             // creation
-            if ((int) this.getWidth() <= 0 || (int) this.getHeight() <= 0) return;
+            if ((int) this.width() <= 0 || (int) this.height() <= 0) return;
 
             Pixmap pixmap =
-                    new Pixmap(
-                            (int) this.getWidth(), (int) this.getHeight(), Pixmap.Format.RGBA8888);
+                    new Pixmap((int) this.width(), (int) this.height(), Pixmap.Format.RGBA8888);
             pixmap.setColor(BORDER_COLOR);
             int rows =
                     (int)
                             Math.ceil(
                                     this.inventoryComponent.items().length
-                                            / (float) MAX_ITEMS_PER_ROW);
-            int itemSize = (int) this.getWidth() / MAX_ITEMS_PER_ROW;
+                                            / (float) this.slotsPerRow);
+            int itemSize = (int) this.width() / this.slotsPerRow;
             for (int y = 0; y < rows; y++) {
-                for (int x = 0; x < MAX_ITEMS_PER_ROW; x++) {
-                    if (x + y * MAX_ITEMS_PER_ROW >= this.inventoryComponent.items().length) break;
+                for (int x = 0; x < this.slotsPerRow; x++) {
+                    if (x + y * this.slotsPerRow >= this.inventoryComponent.items().length) break;
                     pixmap.drawRectangle(
                             x * itemSize + BORDER_PADDING,
                             pixmap.getHeight() - (y * itemSize + BORDER_PADDING),
@@ -152,8 +154,8 @@ public class InventoryGUI extends GUI {
 
         GlyphLayout glyphLayout = new GlyphLayout(bitmapFont, this.title);
 
-        float x = this.getX() + this.getWidth() / 2 - glyphLayout.width / 2;
-        float y = this.getY() + this.getHeight() + BORDER_PADDING;
+        int x = this.x() + this.width() / 2 - Math.round(glyphLayout.width) / 2;
+        int y = this.y() + this.height() + BORDER_PADDING;
 
         batch.draw(
                 hoverBackground,
@@ -168,44 +170,55 @@ public class InventoryGUI extends GUI {
 
     private void drawItemInfo(Batch batch) {
         Vector2 mousePos =
-                new Vector2(
-                        Gdx.input.getX() - this.getParent().getX(),
-                        Gdx.graphics.getHeight() - Gdx.input.getY() - this.getParent().getY());
+                new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+        Vector2 relMousePos = new Vector2(mousePos.x - this.x(), mousePos.y - this.y());
 
         // Check if mouse is in inventory bounds
-        if (mousePos.x < this.getX() || mousePos.x > this.getX() + this.getWidth()) return;
-        if (mousePos.y < this.getY() || mousePos.y > this.getY() + this.getHeight()) return;
-
-        batch.draw(hoverBackground, mousePos.x, mousePos.y, 5, 5);
+        if (mousePos.x < this.x() || mousePos.x > this.x() + this.width()) return;
+        if (mousePos.y < this.y() || mousePos.y > this.y() + this.height()) return;
 
         // Check if mouse is dragging an item
         if (this.dragAndDrop().isDragging()) return;
 
-        float slotSize = InventoryGUI.this.getWidth() / MAX_ITEMS_PER_ROW;
         int slot =
-                (int) (mousePos.x / slotSize) + (int) (mousePos.y / slotSize) * MAX_ITEMS_PER_ROW;
+                (int) (relMousePos.x / this.slotSize)
+                        + (int) (relMousePos.y / this.slotSize) * this.slotsPerRow;
         ItemData item = InventoryGUI.this.inventoryComponent.get(slot);
         if (item == null) return;
 
-        GlyphLayout layout = new GlyphLayout(bitmapFont, item.item().displayName());
+        GlyphLayout layoutName = new GlyphLayout(bitmapFont, item.item().displayName());
+        GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, item.item().description());
+
         float x = mousePos.x + 10;
         float y = mousePos.y + 10;
-        float width = layout.width + 10;
-        float height = layout.height + 10;
+        float width = Math.max(layoutName.width, layoutDesc.width) + 10;
+        float height =
+                layoutName.height
+                        + layoutDesc.height
+                        + 10
+                        + 5; // 5 (-> 10) Padding + 5 gap between name and description
         batch.draw(hoverBackground, x, y, width, height);
         bitmapFont.setColor(Color.BLACK);
-        bitmapFont.draw(batch, item.item().displayName(), x + 5, y + height - 5);
+        bitmapFont.draw(batch, item.item().displayName(), x + 5, y + layoutName.height + 5);
+        bitmapFont.draw(
+                batch,
+                item.item().description(),
+                x + 5,
+                y + layoutName.height + 5 + layoutDesc.height + 5);
     }
 
     @Override
     protected void initDragAndDrop(DragAndDrop dragAndDrop) {
         dragAndDrop.addSource(
-                new DragAndDrop.Source(InventoryGUI.this) {
+                new DragAndDrop.Source(this.actor()) {
                     @Override
                     public DragAndDrop.Payload dragStart(
                             InputEvent event, float x, float y, int pointer) {
-                        float slotSize = InventoryGUI.this.getWidth() / MAX_ITEMS_PER_ROW;
-                        int slot = (int) (x / slotSize) + (int) (y / slotSize) * MAX_ITEMS_PER_ROW;
+
+                        int slot =
+                                (int) (x / InventoryGUI.this.slotSize)
+                                        + (int) (y / InventoryGUI.this.slotSize)
+                                                * InventoryGUI.this.slotsPerRow;
                         ItemData item = InventoryGUI.this.inventoryComponent.get(slot);
                         if (item == null) return null;
 
@@ -220,7 +233,7 @@ public class InventoryGUI extends GUI {
                                                 item.item()
                                                         .inventoryAnimation()
                                                         .nextAnimationTexturePath()));
-                        image.setSize(slotSize, slotSize);
+                        image.setSize(InventoryGUI.this.slotSize, InventoryGUI.this.slotSize);
                         payload.setDragActor(image);
                         dragAndDrop.setDragActorPosition(
                                 image.getWidth() / 2, -image.getHeight() / 2);
@@ -251,7 +264,7 @@ public class InventoryGUI extends GUI {
                 });
 
         dragAndDrop.addTarget(
-                new DragAndDrop.Target(InventoryGUI.this) {
+                new DragAndDrop.Target(this.actor()) {
                     @Override
                     public boolean drag(
                             DragAndDrop.Source source,
@@ -261,9 +274,10 @@ public class InventoryGUI extends GUI {
                             int pointer) {
                         if (payload.getObject() != null
                                 && payload.getObject() instanceof ItemDragPayload) {
-                            float slotSize = InventoryGUI.this.getWidth() / MAX_ITEMS_PER_ROW;
                             int slot =
-                                    (int) (x / slotSize) + (int) (y / slotSize) * MAX_ITEMS_PER_ROW;
+                                    (int) (x / InventoryGUI.this.slotSize)
+                                            + (int) (y / InventoryGUI.this.slotSize)
+                                                    * InventoryGUI.this.slotsPerRow;
                             return InventoryGUI.this.inventoryComponent.get(slot) == null
                                     && slot < InventoryGUI.this.inventoryComponent.items().length
                                     && slot >= 0;
@@ -278,8 +292,10 @@ public class InventoryGUI extends GUI {
                             float x,
                             float y,
                             int pointer) {
-                        float slotSize = InventoryGUI.this.getWidth() / MAX_ITEMS_PER_ROW;
-                        int slot = (int) (x / slotSize) + (int) (y / slotSize) * MAX_ITEMS_PER_ROW;
+                        int slotSize = InventoryGUI.this.width() / InventoryGUI.this.slotsPerRow;
+                        int slot =
+                                (int) (x / slotSize)
+                                        + (int) (y / slotSize) * InventoryGUI.this.slotsPerRow;
                         if (payload.getObject() != null
                                 && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
                             InventoryGUI.this.inventoryComponent.set(
@@ -290,38 +306,24 @@ public class InventoryGUI extends GUI {
     }
 
     @Override
-    public float getMinWidth() {
-        return 50;
-    }
+    protected Vector2 preferredSize(GUICombination.AvailableSpace availableSpace) {
+        int rows =
+                (int)
+                        Math.max(
+                                Math.ceil(
+                                        this.inventoryComponent.items().length
+                                                / (float) this.slotsPerRow),
+                                1.0f);
+        int width = availableSpace.width();
+        int height = (width / this.slotsPerRow) * rows;
 
-    @Override
-    public float getMinHeight() {
-        return 50;
-    }
+        if (height > availableSpace.height()) {
+            height = availableSpace.height();
+            width = (height / rows) * this.slotsPerRow;
+        }
 
-    @Override
-    public float getPrefWidth() {
-        int nrOfChildren = this.getParent().getChildren().size;
-        return Math.min(
-                Game.stage().orElseThrow().getHeight() * 0.9f,
-                Game.stage().orElseThrow().getWidth() / (float) nrOfChildren
-                        - 30.0f); // -30.0f um etwas Platz um die Inventories zu lassen (Padding)
-    }
-
-    @Override
-    public float getPrefHeight() {
-        return (float) Math.ceil(this.inventoryComponent.items().length / (float) MAX_ITEMS_PER_ROW)
-                * (this.getWidth() / MAX_ITEMS_PER_ROW);
-    }
-
-    @Override
-    public float getMaxWidth() {
-        return Game.stage().orElseThrow().getHeight() * 0.9f;
-    }
-
-    @Override
-    public float getMaxHeight() {
-        return this.getMaxWidth();
+        this.slotSize = width / this.slotsPerRow;
+        return new Vector2(width, height);
     }
 
     /**
