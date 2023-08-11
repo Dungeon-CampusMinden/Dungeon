@@ -485,4 +485,36 @@ public class TypeBuilder {
         globalScope.bind(aggregateType);
         return aggregateType;
     }
+
+    public void registerProperty(IScope globalScope, IDSLTypeProperty<?,?> property) {
+        // get extended type
+        Class<?> propertyClass = property.getClass();
+        if (propertyClass.isAnnotationPresent(DSLTypeProperty.class)) {
+            var annotation = propertyClass.getAnnotation(DSLTypeProperty.class);
+            var extendedClass = annotation.extendedType();
+            String extendedClassName = getDSLTypeName(extendedClass);
+            Symbol extendedTypeSymbol = globalScope.resolve(extendedClassName);
+            if (extendedTypeSymbol.equals(Symbol.NULL)) {
+                throw new RuntimeException("Name of extended type '" + extendedClassName +
+                    "' could not be resolved in scope");
+            }
+
+            IType extendedType = (IType) extendedTypeSymbol;
+            if (extendedType instanceof AggregateType aggregateExtendedType) {
+                var genericInterfaces = propertyClass.getGenericInterfaces();
+                var type = genericInterfaces[0];
+                ParameterizedType parameterizedType = (ParameterizedType) type;
+
+                var instanceType = parameterizedType.getActualTypeArguments()[0];
+                IType instanceDSLType = createDSLTypeForJavaTypeInScope(globalScope, instanceType);
+
+                var valueType = parameterizedType.getActualTypeArguments()[1];
+                IType valueDSLType = createDSLTypeForJavaTypeInScope(globalScope, valueType);
+
+                // create new symbol for property -> likely requires new Symbol kind
+                PropertySymbol propertySymbol = new PropertySymbol(annotation.name(), aggregateExtendedType, valueDSLType, property);
+                aggregateExtendedType.bind(propertySymbol);
+            }
+        }
+    }
 }
