@@ -1,11 +1,34 @@
 package interpreter.mockecs;
 
-import semanticanalysis.types.DSLContextMember;
-import semanticanalysis.types.DSLType;
-import semanticanalysis.types.DSLTypeMember;
+import semanticanalysis.types.*;
 
 @DSLType
 public class TestComponent2 extends Component {
+
+    @DSLTypeProperty(name="this_is_a_float", extendedType = TestComponent2.class)
+    public static class TestComponentPseudoProperty implements IDSLTypeProperty<TestComponent2, Float> {
+        public static TestComponentPseudoProperty instance = new TestComponentPseudoProperty();
+        private TestComponentPseudoProperty(){}
+        @Override
+        public void set(TestComponent2 instance, Float valueToSet) {
+        }
+
+        @Override
+        public Float get(TestComponent2 instance) {
+            return (float) instance.member2 + 3.14f;
+        }
+
+        @Override
+        public boolean isSettable() {
+            return false;
+        }
+
+        @Override
+        public boolean isGettable() {
+            return true;
+        }
+    }
+
     private Entity entity;
 
     public Entity getEntity() {
@@ -34,3 +57,4 @@ public class TestComponent2 extends Component {
         return member3;
     }
 }
+

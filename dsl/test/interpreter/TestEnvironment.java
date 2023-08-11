@@ -5,7 +5,11 @@ import interpreter.mockecs.MockEntityTranslator;
 
 import runtime.GameEnvironment;
 
+import semanticanalysis.types.IDSLTypeProperty;
 import semanticanalysis.types.TypeBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // TODO: revise class-structure.. maybe the GameEnvironment should extend the
 //  'DefaultEnvironment`, which only bind the basic built in types and the
@@ -24,6 +28,11 @@ public class TestEnvironment extends GameEnvironment {
     @Override
     public Class<?>[] getBuiltInAggregateTypeClasses() {
         return new Class[] {CustomQuestConfig.class};
+    }
+
+    @Override
+    public List<IDSLTypeProperty<?, ?>> getBuiltInProperties() {
+        return new ArrayList<>();
     }
 
     @Override
