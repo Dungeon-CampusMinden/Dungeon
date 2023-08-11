@@ -13,18 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 public class SingleChoiceTask {
-    @DSLTypeProperty(name="description", extendedType = SingleChoiceTask.class)
-    public static class DescriptionProperty implements IDSLTypeProperty<Quiz, String> {
-        @Override
-        public void set(Quiz instance, String valueToSet) {
-            instance.taskText(valueToSet);
-        }
-
-        @Override
-        public String get(Quiz instance) {
-            return instance.taskText();
-        }
-    }
 
     @DSLTypeAdapter(name = "single_choice_task")
     public static Task buildQuizFromSingleChoiceTask(
