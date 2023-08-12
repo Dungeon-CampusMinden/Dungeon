@@ -2,6 +2,8 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
+import contrib.hud.GUICombination;
+import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemData;
@@ -63,7 +65,6 @@ public class EntityFactory {
         hero.addComponent(new PositionComponent());
         hero.addComponent(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO));
         hero.addComponent(new DrawComponent(HERO_FILE_PATH));
-        hero.addComponent(new InventoryComponent(Constants.DEFAULT_INVENTORY_SIZE));
         hero.addComponent(
                 new CollideComponent(
                         (you, other, direction) -> System.out.println("heroCollisionEnter"),
@@ -72,6 +73,8 @@ public class EntityFactory {
         hero.addComponent(new XPComponent((e) -> {}));
         PlayerComponent pc = new PlayerComponent();
         hero.addComponent(pc);
+        InventoryComponent ic = new InventoryComponent(Constants.DEFAULT_INVENTORY_SIZE);
+        hero.addComponent(ic);
         Skill fireball =
                 new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
@@ -123,6 +126,21 @@ public class EntityFactory {
 
                     vc.currentXVelocity(-1 * vc.xVelocity());
                 });
+
+        pc.registerCallback(
+                KeyboardConfig.INVENTORY_OPEN.value(),
+                (e) -> {
+                    UIComponent uiComponent = e.fetch(UIComponent.class).orElse(null);
+                    if (uiComponent != null) {
+                        if (uiComponent.dialog() instanceof GUICombination) {
+                            e.removeComponent(UIComponent.class);
+                        }
+                    } else {
+                        e.addComponent(
+                                new UIComponent(new GUICombination(new InventoryGUI(ic)), false));
+                    }
+                },
+                false);
 
         pc.registerCallback(
                 KeyboardConfig.INTERACT_WORLD.value(),

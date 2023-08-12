@@ -223,11 +223,11 @@ public enum Item {
             "A letter. I wonder what it says.",
             ItemCategory.OTHER,
             "items/book/letter.png"),
-    MAGIC_ROLL(
+    MAGIC_SCROLL(
             "Magic Roll",
             "A magic roll. It's said that it was forged by the gods.",
             ItemCategory.TOOL,
-            "items/book/magic_roll.png"),
+            "items/book/magic_scroll.png"),
     WISDOM_SCROLL(
             "Wisdom Roll",
             "A wisdom roll. Some of it could be very informative.",
@@ -335,8 +335,8 @@ public enum Item {
                 name,
                 description,
                 category,
-                new Animation("animation/missingTexture.png"),
-                new Animation("animation/missingTexture.png"));
+                new Animation("animation/missing_texture.png"),
+                new Animation("animation/missing_texture.png"));
     }
 
     Item(String name, String description, ItemCategory category, Animation animation) {

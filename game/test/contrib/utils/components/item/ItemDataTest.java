@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 public class ItemDataTest {
@@ -83,10 +84,10 @@ public class ItemDataTest {
         inventoryComponent.add(item);
         assertTrue(
                 "ItemActive needs to be in entities inventory.",
-                inventoryComponent.items().contains(item));
+                Arrays.asList(inventoryComponent.items()).contains(item));
         item.triggerUse(entity);
         assertFalse(
                 "Item was not removed from inventory after use.",
-                inventoryComponent.items().contains(item));
+                Arrays.asList(inventoryComponent.items()).contains(item));
     }
 }
