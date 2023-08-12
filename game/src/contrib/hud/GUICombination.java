@@ -1,6 +1,7 @@
 package contrib.hud;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
@@ -10,6 +11,18 @@ import core.Game;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * An object of this class represents a combination of multiple {@link CombinableGUI
+ * CombinableGUIs}.
+ *
+ * <p>This class calculates the position and available space for each {@link CombinableGUI} and
+ * calls the methods of the {@link CombinableGUI} to draw the elements and to calculate the
+ * preferred size.
+ *
+ * <p>The class inherits from {@link Group} so it can be added to a {@link
+ * com.badlogic.gdx.scenes.scene2d.Stage Stage} to be displayed. This should happen through the use
+ * of a {@link core.components.UIComponent}.
+ */
 public class GUICombination extends Group {
 
     public static final int GAP = 10;
@@ -82,6 +95,14 @@ public class GUICombination extends Group {
         this.combinableGuis.forEach(
                 combinableGUI -> {
                     combinableGUI.drawTopLayer(batch);
+                });
+    }
+
+    @Override
+    public void drawDebug(ShapeRenderer shapes) {
+        this.combinableGuis.forEach(
+                combinableGUI -> {
+                    combinableGUI.drawDebug(shapes);
                 });
     }
 }

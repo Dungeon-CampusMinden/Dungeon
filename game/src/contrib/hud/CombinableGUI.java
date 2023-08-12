@@ -1,19 +1,40 @@
 package contrib.hud;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
-/** A GUI element that can be combined with other GUI elements. */
+/**
+ * A GUI element that can be combined with other GUI elements using {@link GUICombination}. Gui
+ * Elements that should be displayed together should extend this class.
+ *
+ * <p>This class is used to create GUI elements that can be combined in one {@link GUICombination}
+ * to be displayed together. The {@link GUICombination} will call the methods of this class to draw
+ * the element and to calculate the preferred size.
+ *
+ * <p>Also this class provides a {@link DragAndDrop} object that can be used to drag and drop
+ * elements between multiple {@link CombinableGUI CombinableGUIs}.
+ *
+ * <p>The method {@link CombinableGUI#preferredSize(GUICombination.AvailableSpace)} is called by the
+ * parent {@link GUICombination} if the available space for a GUI element changes and the size needs
+ * to be recalculated. The method should calculate the preferred size of the element based on the
+ * available space and return it as a {@link Vector2}. It should not be greater than the available
+ * space.
+ */
 public abstract class CombinableGUI {
 
+    // Position of the GUI-Element and its size
     private int x, y, width, height;
+    // Drag and Drop context object for the GUICombination
     private DragAndDrop dragAndDrop;
-    private Actor actor; // Actor "dummy". Only used for DragAndDrop (thx GDX)
+    // Actor "dummy". Only used for DragAndDrop (thx GDX <3)
+    private Actor actor;
 
     /**
-     * Set the drag and drop object
+     * Set the drag and drop object. This should not be called directly as it is called by the
+     * parent {@link GUICombination} on initialization.
      *
      * @param dragAndDrop the drag and drop object
      */
@@ -57,7 +78,17 @@ public abstract class CombinableGUI {
      */
     protected void drawTopLayer(Batch batch) {}
 
-    protected void drawDebug(Batch batch) {}
+    /**
+     * Draw debug information for the element
+     *
+     * <p>This method should be used for drawing debug information like borders. It will only be
+     * called if the parent {@link GUICombination} is in debug mode.
+     *
+     * <p>The default implementation does nothing.
+     *
+     * @param renderer the batch to draw to
+     */
+    protected void drawDebug(ShapeRenderer renderer) {}
 
     /**
      * Calculate the preferred size of the gui element.
@@ -122,7 +153,7 @@ public abstract class CombinableGUI {
      *
      * @param width the width.
      */
-    public final void width(int width) {
+    public void width(int width) {
         this.actor.setSize(width, this.height);
         this.width = width;
     }
@@ -141,7 +172,7 @@ public abstract class CombinableGUI {
      *
      * @param height the height.
      */
-    public final void height(int height) {
+    public void height(int height) {
         this.actor.setSize(this.width, height);
         this.height = height;
     }
