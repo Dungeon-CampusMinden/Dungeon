@@ -1,5 +1,9 @@
 package core.components;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+
+import contrib.crafting.Crafting;
 import contrib.utils.components.draw.AdditionalAnimations;
 
 import core.Component;
@@ -9,7 +13,6 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.draw.IPath;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
@@ -72,12 +75,23 @@ public final class DrawComponent implements Component {
     public DrawComponent(final String path) throws IOException {
         // fetch available animations
         try {
-            ClassLoader classLoader = getClass().getClassLoader();
-            File directory = new File(classLoader.getResource(path).getFile());
+            FileHandle directory = null;
+            FileHandle directoryd = null;
+            if (Objects.requireNonNull(Crafting.class.getResource("."))
+                    .toString()
+                    .startsWith("jar:")) {
+                java.lang.System.out.println("Test");
+            } else {
+                directory = Gdx.files.internal("./game/assets/" + path);
+                directoryd = Gdx.files.internal(".");
+            }
+
+            java.lang.System.out.println(directoryd.isDirectory());
+            Arrays.stream(directoryd.list()).forEach(f -> java.lang.System.out.println(f));
             animationMap =
-                    Arrays.stream(directory.listFiles())
-                            .filter(File::isDirectory)
-                            .collect(Collectors.toMap(File::getName, Animation::of));
+                    Arrays.stream(directory.list())
+                            .filter(FileHandle::isDirectory)
+                            .collect(Collectors.toMap(FileHandle::name, Animation::of));
 
             currentAnimation(
                     CoreAnimations.IDLE_DOWN,

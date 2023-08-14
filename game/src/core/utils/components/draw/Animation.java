@@ -1,6 +1,7 @@
 package core.utils.components.draw;
 
-import java.io.File;
+import com.badlogic.gdx.files.FileHandle;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -93,16 +94,15 @@ public final class Animation {
      * @param loop should the Animation continue to repeat ?
      * @return The created Animation instance
      */
-    public static Animation of(File subDir, int frameTime, boolean loop) {
+    public static Animation of(FileHandle subDir, int frameTime, boolean loop) {
         List<String> fileNames =
-                Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
-                        .filter(File::isFile)
-                        .map(File::getPath)
+                Arrays.stream(Objects.requireNonNull(subDir.list()))
+                        .filter(fh -> !fh.isDirectory())
+                        .map(FileHandle::path)
+                        .sorted()
                         .collect(Collectors.toList());
-
         // sort the files in lexicographic order (like the most os)
         // animations will be played in order
-        Collections.sort(fileNames);
         return new Animation(fileNames, frameTime, loop);
     }
 
@@ -115,7 +115,7 @@ public final class Animation {
      * @param subDir Path to the subdirectory where the animation frames are stored
      * @return The created Animation instance
      */
-    public static Animation of(File subDir) {
+    public static Animation of(FileHandle subDir) {
         return Animation.of(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
     }
 
