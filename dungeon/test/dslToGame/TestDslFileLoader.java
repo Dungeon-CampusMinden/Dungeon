@@ -100,6 +100,25 @@ public class TestDslFileLoader {
     }
 
     @Test
+    public void argFileToString() throws IOException {
+        String[] args = {SIMPLE_DNG_STRING};
+        Set<Path> paths = DslFileLoader.processArguments(args);
+        assertEquals(1, paths.size());
+        Path p = (Path) paths.toArray()[0];
+        String read = DslFileLoader.fileToString(p.toFile());
+
+        String expectedContent =
+                "some test text."
+                        + System.lineSeparator()
+                        + "some test text, second line."
+                        + System.lineSeparator()
+                        + System.lineSeparator()
+                        + "some test text, fourth line."
+                        + System.lineSeparator();
+        assertEquals(expectedContent, read);
+    }
+
+    @Test
     public void emptyFileToString() {
         ClassLoader classLoader = getClass().getClassLoader();
         File f = new File(classLoader.getResource(PATH_TO_EMPTY_DNG.toString()).getFile());
