@@ -110,8 +110,11 @@ public class Crafting {
                 JarEntry entry = entries.nextElement();
                 if (entry.getName().startsWith("recipes") && entry.getName().endsWith(".recipe")) {
                     LOGGER.info("Load recipe: " + entry.getName());
-                    Crafting.RECIPES.add(
-                            parseRecipe(Main.class.getResourceAsStream("/" + entry.getName())));
+                    Recipe r =
+                            parseRecipe(
+                                    Main.class.getResourceAsStream("/" + entry.getName()),
+                                    entry.getName());
+                    if (r != null) Crafting.RECIPES.add(r);
                 }
             }
         } catch (IOException e) {
@@ -129,13 +132,16 @@ public class Crafting {
         for (File file : files) {
             if (file.getName().endsWith(".recipe")) {
                 LOGGER.info("Load recipe: " + file.getName());
-                Crafting.RECIPES.add(
-                        parseRecipe(Main.class.getResourceAsStream("/recipes/" + file.getName())));
+                Recipe r =
+                        parseRecipe(
+                                Main.class.getResourceAsStream("/recipes/" + file.getName()),
+                                file.getName());
+                if (r != null) Crafting.RECIPES.add(r);
             }
         }
     }
 
-    private static Recipe parseRecipe(InputStream stream) {
+    private static Recipe parseRecipe(InputStream stream, String name) {
 
         try {
             BufferedReader reader =
@@ -193,6 +199,8 @@ public class Crafting {
             return recipe;
         } catch (IOException ex) {
             ex.printStackTrace();
+        } catch (IllegalArgumentException ex) {
+            System.err.println("Error parsing recipe (" + name + "): " + ex.getMessage());
         }
 
         return null;
