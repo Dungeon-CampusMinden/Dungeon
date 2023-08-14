@@ -11,16 +11,16 @@ Nachdem die Dateien und Verzeichnisse kopiert wurden, erstellt das Skript eine J
 
 `jarConverter.sh` kann genutzt werden, um verschiedene DSL-Skripte in einer JAR-Datei zu sammeln, um sie dann im Spiel einzulesen zu lassen.
 
-## How to use
+## Anwenden
 
-1. Open your terminal.
-2. Navigate to the directory where the script is located (if you're not already there).
-3. To use the script, provide the relative paths of the files and directories you want to include in the JAR file as arguments. For example:
+1. Öffnen Sie Ihr Terminal.
+2. Navigieren Sie zum Verzeichnis, in dem sich das Skript befindet (falls Sie sich dort nicht bereits befinden).
+3. Um das Skript zu verwenden, geben Sie die relativen Pfade der Dateien und Verzeichnisse an, die Sie in die JAR-Datei aufnehmen möchten, als Argumente. Zum Beispiel:
 
    ```bash
-   ./jarConverter.sh file1.dng directory1 file2.dng
+   ./jarConverter.sh datei1.dng verzeichnis1 datei2.dng
    ```
 
-   Replace `file1.dng`, `directory1`, and `file2.dng` with the actual relative paths of the files and directories you want to include.
+   Ersetzen Sie `datei1.dng`, `verzeichnis1` und `datei2.dng` durch die tatsächlichen relativen Pfade der Dateien und Verzeichnisse, die Sie aufnehmen möchten.
 
-4. The script will copy the specified files and directories to a new folder named "scripts" and create a JAR file named "scripts.jar" containing the contents of the "scripts" folder.
+4. Das Skript kopiert die angegebenen Dateien und Verzeichnisse in einen neuen Ordner namens "scripts" und erstellt eine JAR-Datei mit dem Namen "scripts.jar", die den Inhalt des Ordners "scripts" enthält.
