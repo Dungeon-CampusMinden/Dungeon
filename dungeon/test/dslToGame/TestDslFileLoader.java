@@ -13,6 +13,14 @@ import java.nio.file.Paths;
 import java.util.Set;
 
 public class TestDslFileLoader {
+
+    private static final String ASSET_ARG_STRING = "./dungeon/test_resources/dslFileLoader";
+    private static final String SIMPLE_DNG_STRING = ASSET_ARG_STRING + "/simple.dng";
+
+    private static final String TEST_JAR_STRING = ASSET_ARG_STRING + "/testjar.jar";
+    private static final String EMPTY_STRING = ASSET_ARG_STRING + "/empty.dng";
+    private static final String TXT_STRING = ASSET_ARG_STRING + "/test.txt";
+
     private static final Path PATH_TO_DNG = Paths.get(".", "dslFileLoader", "simple.dng");
     private static final Path PATH_TO_JAR = Paths.get(".", "dslFileLoader", "testjar.jar");
     private static final Path PATH_OF_FIRST_FILE =
@@ -27,7 +35,7 @@ public class TestDslFileLoader {
 
     @Test
     public void processArguments_oneJar() throws IOException {
-        String[] args = {PATH_TO_JAR.toString()};
+        String[] args = {TEST_JAR_STRING};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(2, paths.size());
         assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_FILE.normalize())));
@@ -36,8 +44,8 @@ public class TestDslFileLoader {
     }
 
     @Test
-    public void processArguments_oneDSLFIle() throws IOException {
-        String[] args = {PATH_TO_DNG.toString()};
+    public void processArguments_oneDSLFile() throws IOException {
+        String[] args = {SIMPLE_DNG_STRING};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(1, paths.size());
         Path p = (Path) paths.toArray()[0];
@@ -46,7 +54,7 @@ public class TestDslFileLoader {
 
     @Test
     public void processArguments_oneJarOneDSL() throws IOException {
-        String[] args = {PATH_TO_JAR.toString(), PATH_TO_DNG.toString()};
+        String[] args = {TEST_JAR_STRING, SIMPLE_DNG_STRING};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(3, paths.size());
         assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_FILE.normalize())));
@@ -57,9 +65,7 @@ public class TestDslFileLoader {
 
     @Test
     public void processArguments_mixed() throws IOException {
-        String[] args = {
-            PATH_TO_EMPTY_DNG.toString(), PATH_TO_JAR.toString(), PATH_TO_DNG.toString()
-        };
+        String[] args = {EMPTY_STRING, TEST_JAR_STRING, SIMPLE_DNG_STRING};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(4, paths.size());
         assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_FILE.normalize())));
@@ -71,7 +77,7 @@ public class TestDslFileLoader {
 
     @Test
     public void processArguments_nonDSLFile() throws IOException {
-        String[] args = {PATH_TO_TXT.toString()};
+        String[] args = {TXT_STRING};
         Set<Path> paths = DslFileLoader.processArguments(args);
         assertEquals(0, paths.size());
     }

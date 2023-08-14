@@ -5,9 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * Provides functions for loading DSL files.
@@ -19,7 +21,7 @@ public class DslFileLoader {
 
     private static final String DSL_FILE_ENDING = ".dng";
     private static final String JAR_FILE_ENDING = ".jar";
-    private static final String SCRIPT_FOLDER = "/scripts";
+    private static final String SCRIPT_FOLDER = "scripts/";
 
     /**
      * Load DSL files from the given paths.
@@ -34,70 +36,45 @@ public class DslFileLoader {
      * @throws IOException if an I/O error occurs while reading the files.
      */
     public static Set<Path> processArguments(String[] args) throws IOException {
-        ClassLoader classLoader = DslFileLoader.class.getClassLoader();
-        Set<Path> paths = new HashSet<>();
+        Set<Path> foundPaths = new HashSet<>();
+
         for (String arg : args) {
-            Path path = Paths.get(classLoader.getResource(arg).getFile());
-            if (DslFileLoader.is(path, JAR_FILE_ENDING)) {
-                paths.addAll(findDSLFilesInJar(path));
-            } else if (DslFileLoader.is(path, DSL_FILE_ENDING)) paths.add(path);
-        }
-        return paths;
-    }
+            Path path = Paths.get(arg);
 
-    private static Set<Path> findDSLFilesInJar(Path jarPath) throws IOException {
-        Set<Path> dngFiles = new HashSet<>();
-        ClassLoader classLoader = DslFileLoader.class.getClassLoader();
-        try (FileSystem jarFileSystem = FileSystems.newFileSystem(jarPath, classLoader)) {
-            Path scriptsFolderPath = jarFileSystem.getPath(SCRIPT_FOLDER);
-
-            if (Files.exists(scriptsFolderPath) && Files.isDirectory(scriptsFolderPath)) {
-                Files.walkFileTree(
-                        scriptsFolderPath,
-                        new SimpleFileVisitor<>() {
-                            @Override
-                            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                                if (file.toString().toLowerCase().endsWith(DSL_FILE_ENDING)) {
-                                    dngFiles.add(Path.of(jarPath.toString(), file.toString()));
-                                }
-                                return FileVisitResult.CONTINUE;
-                            }
-
-                            @Override
-                            public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                                // Handle errors if necessary
-                                return FileVisitResult.CONTINUE;
-                            }
-                        });
+            if (Files.exists(path)) {
+                String fileName = path.getFileName().toString();
+                if (fileName.endsWith(JAR_FILE_ENDING)) {
+                    Set<Path> jarPaths = findDSLFilesInJar(arg);
+                    foundPaths.addAll(jarPaths);
+                } else if (fileName.endsWith(DSL_FILE_ENDING)) {
+                    foundPaths.add(path);
+                }
             }
         }
 
-        return dngFiles;
+        return foundPaths;
     }
 
-    /**
-     * Check if the given Path is a File with the specified file ending.
-     *
-     * @param path The Path to check.
-     * @param ending The expected file ending.
-     * @return true if the file ends with the given ending (is of that type), otherwise false.
-     */
-    private static boolean is(Path path, String ending) {
-        if (Files.exists(path))
-            if (Files.isRegularFile(path)) {
-                String fileExtension = getFileExtension(path);
-                if (fileExtension != null) return fileExtension.equalsIgnoreCase(ending);
+    private static Set<Path> findDSLFilesInJar(String jarPath) throws IOException {
+        Set<Path> dngPaths = new HashSet<>();
+
+        try (JarFile jarFile = new JarFile(jarPath)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                if (entryName.startsWith(SCRIPT_FOLDER) && entryName.endsWith(DSL_FILE_ENDING)) {
+                    Path entryPath = Paths.get(jarPath + File.separator + entryName);
+                    dngPaths.add(entryPath);
+                }
             }
-        return false;
-    }
-
-    private static String getFileExtension(Path path) {
-        String fileName = path.getFileName().toString();
-        int dotIndex = fileName.lastIndexOf('.');
-        if (dotIndex > 0 && dotIndex < fileName.length() - 1) {
-            return fileName.substring(dotIndex + 1);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return null;
+
+        return dngPaths;
     }
 
     /**
