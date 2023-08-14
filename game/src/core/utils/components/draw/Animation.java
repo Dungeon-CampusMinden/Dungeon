@@ -95,6 +95,11 @@ public final class Animation {
      * @return The created Animation instance
      */
     public static Animation of(FileHandle subDir, int frameTime, boolean loop) {
+        System.out.println("Animation");
+        System.out.println(subDir);
+        System.out.println(subDir.isDirectory());
+        Arrays.stream(subDir.list()).forEach(f -> System.out.println(f));
+        System.out.println("-------------- Animation End ----------");
         List<String> fileNames =
                 Arrays.stream(Objects.requireNonNull(subDir.list()))
                         .filter(fh -> !fh.isDirectory())

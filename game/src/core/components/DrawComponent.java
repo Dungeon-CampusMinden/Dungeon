@@ -3,7 +3,6 @@ package core.components;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
-import contrib.crafting.Crafting;
 import contrib.utils.components.draw.AdditionalAnimations;
 
 import core.Component;
@@ -76,18 +75,18 @@ public final class DrawComponent implements Component {
         // fetch available animations
         try {
             FileHandle directory = null;
-            FileHandle directoryd = null;
-            if (Objects.requireNonNull(Crafting.class.getResource("."))
-                    .toString()
-                    .startsWith("jar:")) {
-                java.lang.System.out.println("Test");
+            if (isRunningFromJar()) {
+                // working dir? relativer pfad der jar über cla bzw java start argumente
+                // how to get in the jar Dungeon => Dungeon.jar
+                directory = Gdx.files.internal("./Dungeon/" + path);
+
             } else {
                 directory = Gdx.files.internal("./game/assets/" + path);
-                directoryd = Gdx.files.internal(".");
             }
 
-            java.lang.System.out.println(directoryd.isDirectory());
-            Arrays.stream(directoryd.list()).forEach(f -> java.lang.System.out.println(f));
+            java.lang.System.out.println(directory.isDirectory());
+            Arrays.stream(directory.list()).forEach(f -> java.lang.System.out.println(f));
+            java.lang.System.out.println("---------------------- END --------------");
             animationMap =
                     Arrays.stream(directory.list())
                             .filter(FileHandle::isDirectory)
@@ -219,5 +218,11 @@ public final class DrawComponent implements Component {
      */
     public boolean isCurrentAnimationFinished() {
         return currentAnimation.isFinished();
+    }
+
+    private static boolean isRunningFromJar() {
+        String className = DrawComponent.class.getName().replace('.', '/');
+        String classJar = DrawComponent.class.getResource("/" + className + ".class").toString();
+        return classJar.startsWith("jar:");
     }
 }
