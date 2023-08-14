@@ -5,9 +5,10 @@ import contrib.utils.components.Debugger;
 import core.Game;
 import core.level.utils.LevelSize;
 
+import dslToGame.DSLEntryPoint;
 import dslToGame.loadFiles.DslFileLoader;
-import dslToGame.loadFiles.DummyDSLFunctions;
-import dslToGame.loadFiles.EntryPoint;
+
+import interpreter.DSLEntryPointFinder;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -17,11 +18,12 @@ import java.util.logging.Logger;
 public class Starter {
     public static void main(String[] args) throws IOException {
         setupBasicGame();
-        Set<EntryPoint> entryPoints = new HashSet<>();
+        Set<DSLEntryPoint> entryPoints = new HashSet<>();
+        DSLEntryPointFinder finder = new DSLEntryPointFinder();
         DslFileLoader.processArguments(args)
                 .forEach(
                         path -> {
-                            DummyDSLFunctions.entryPointsFor(path).ifPresent(entryPoints::addAll);
+                            finder.getEntryPoints(path).ifPresent(entryPoints::addAll);
                         });
 
         // Todo Game.menue.show(entryPoints)
@@ -55,13 +57,13 @@ public class Starter {
                 });
         Game.userOnFrame(debugger::execute);
         Game.windowTitle("DSL Dungeon");
-        Game.addSystem(new AISystem());
-        Game.addSystem(new CollisionSystem());
-        Game.addSystem(new HealthSystem());
-        Game.addSystem(new XPSystem());
-        Game.addSystem(new ProjectileSystem());
-        Game.addSystem(new HealthbarSystem());
-        Game.addSystem(new HeroUISystem());
+        Game.add(new AISystem());
+        Game.add(new CollisionSystem());
+        Game.add(new HealthSystem());
+        Game.add(new XPSystem());
+        Game.add(new ProjectileSystem());
+        Game.add(new HealthbarSystem());
+        Game.add(new HeroUISystem());
         // build and start game
     }
 }

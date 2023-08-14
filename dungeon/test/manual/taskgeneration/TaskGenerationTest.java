@@ -23,8 +23,8 @@ import task.TaskContent;
 import task.quizquestion.Quiz;
 import task.quizquestion.UIAnswerCallback;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -56,30 +56,36 @@ public class TaskGenerationTest {
                         Game.add(hero);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
-                    }});
+                    }
+                });
         Game.userOnLevelLoad(
                 (loadFirstTime) -> {
                     if (loadFirstTime) {
                         try {
 
-                            Game.add(EntityFactory.randomMonster());
-                            Game.add(EntityFactory.newChest());
-
-                        } catch (IOException e) {
-                            // oh well
-                        }
-
-                        Set<File> files = DslFileLoader.dslFiles();
-                        List<String> fileContents =
-                                files.stream()
-                                        .filter(f -> f.getName().endsWith("task_test.dng"))
-                                        .map(DslFileLoader::fileToString)
-                                        .toList();
-
-                        // for the start: print on console
-                        buildScenarios(fileContents.get(0));
+                        Game.add(EntityFactory.randomMonster());
+                        Game.add(EntityFactory.newChest());
+                    } catch (IOException e) {
+                        // oh well
                     }
+
+                    Set<Path> dslFilePaths;
+                    try {
+                        dslFilePaths = DslFileLoader.processArguments(args);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    List<String> fileContents =
+                            dslFilePaths.stream()
+                                    .map(Path::toFile)
+                                    .filter(f -> f.getName().endsWith("task_test.dng"))
+                                    .map(DslFileLoader::fileToString)
+                                    .toList();
+                    buildScenarios(fileContents.get(0));
+                }
                 });
+
         Game.windowTitle("Task Test");
         Game.add(new AISystem());
         Game.add(new CollisionSystem());

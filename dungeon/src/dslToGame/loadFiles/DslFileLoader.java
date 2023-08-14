@@ -17,8 +17,8 @@ import java.util.Set;
  */
 public class DslFileLoader {
 
-    private static final String DSL_FILE_ENDING = "dng";
-    private static final String JAR_FILE_ENDING = "jar";
+    private static final String DSL_FILE_ENDING = ".dng";
+    private static final String JAR_FILE_ENDING = ".jar";
     private static final String SCRIPT_FOLDER = "/scripts";
 
     /**
