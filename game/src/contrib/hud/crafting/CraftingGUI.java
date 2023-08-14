@@ -11,6 +11,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
 
+import contrib.crafting.Crafting;
+import contrib.crafting.CraftingResult;
+import contrib.crafting.CraftingType;
+import contrib.crafting.Recipe;
 import contrib.hud.CombinableGUI;
 import contrib.hud.GUICombination;
 import contrib.hud.inventory.ItemDragPayload;
@@ -22,7 +26,10 @@ import core.utils.components.draw.TextureMap;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Optional;
 
+/** */
 public class CraftingGUI extends CombinableGUI {
 
     // Position settings
@@ -30,31 +37,48 @@ public class CraftingGUI extends CombinableGUI {
     private static final int NUMBER_PADDING = 5;
     private static final int ITEM_GAP = 10;
 
+    // Item positioning and sizing
+    // These values should fit the background texture of the crafting GUI and should be between 0
+    // and 1.
+    // 0 is the bottom left corner and 1 is the top right corner.
+
+    // X coordinate of the center of the input item row.
+    private static final float INPUT_ITEMS_X = 0.5f;
+
+    // Y coordinate of the bottom edge of the input item row.
+    private static final float INPUT_ITEMS_Y = 0.775f;
+
+    // The size is based on the height of the crafting GUI and items are always square.
+    private static final float INPUT_ITEMS_MAX_SIZE = 0.2f;
+
+    // X coordinate of the center of the result item.
+    private static final float RESULT_ITEM_X = 0.5f;
+
+    // Y coordinate of the bottom edge of the result item.
+    private static final float RESULT_ITEM_Y = 0.219f;
+
+    // The size is based on the height of the crafting GUI and items are always square.
+    private static final float RESULT_ITEM_MAX_SIZE = 0.1f;
+
     // Colors
-    private static final int BORDER_COLOR = 0x9dc1ebff;
-    private static final int BACKGROUND_COLOR = 0x3e3e63e1;
     private static final int HOVER_BACKGROUND_COLOR = 0xffffffff;
     private static final int NUMBER_BACKGROUND_COLOR = 0xd93030ff;
 
     private static final Texture texture;
-    private static final TextureRegion background, hoverBackground, border, numberBackground;
-    private static final Animation cauldronAnimation;
+    private static final TextureRegion hoverBackground, numberBackground;
+    private static final Animation backgroundAnimation;
     private static final BitmapFont bitmapFont;
 
     static {
-        cauldronAnimation = Animation.of(new File("./game/assets/objects/cauldron/idle"));
+        backgroundAnimation = Animation.of(new File("./game/assets/hud/crafting/idle"));
 
-        Pixmap pixmap = new Pixmap(4, 1, Pixmap.Format.RGBA8888);
-        pixmap.drawPixel(0, 0, BACKGROUND_COLOR);
-        pixmap.drawPixel(1, 0, HOVER_BACKGROUND_COLOR);
-        pixmap.drawPixel(2, 0, BORDER_COLOR);
-        pixmap.drawPixel(3, 0, NUMBER_BACKGROUND_COLOR);
+        Pixmap pixmap = new Pixmap(2, 1, Pixmap.Format.RGBA8888);
+        pixmap.drawPixel(0, 0, HOVER_BACKGROUND_COLOR);
+        pixmap.drawPixel(1, 0, NUMBER_BACKGROUND_COLOR);
 
         texture = new Texture(pixmap);
-        background = new TextureRegion(texture, 0, 0, 1, 1);
-        hoverBackground = new TextureRegion(texture, 1, 0, 1, 1);
-        border = new TextureRegion(texture, 2, 0, 1, 1);
-        numberBackground = new TextureRegion(texture, 3, 0, 1, 1);
+        hoverBackground = new TextureRegion(texture, 0, 0, 1, 1);
+        numberBackground = new TextureRegion(texture, 1, 0, 1, 1);
 
         // Init Font
         bitmapFont =
@@ -65,6 +89,7 @@ public class CraftingGUI extends CombinableGUI {
     }
 
     private ArrayList<ItemData> items = new ArrayList<>();
+    private Optional<Recipe> currentRecipe = Optional.empty();
 
     @Override
     protected void initDragAndDrop(DragAndDrop dragAndDrop) {
@@ -115,78 +140,138 @@ public class CraftingGUI extends CombinableGUI {
 
     @Override
     protected void draw(Batch batch) {
-
         // Draw background
-        batch.draw(background, this.x(), this.y(), this.width(), this.height());
+        batch.draw(
+                TextureMap.instance().textureAt(backgroundAnimation.nextAnimationTexturePath()),
+                this.x(),
+                this.y(),
+                this.width(),
+                this.height());
 
-        // Draw border
-        batch.draw(border, this.x(), this.y(), this.width(), 1);
-        batch.draw(border, this.x(), this.y(), 1, this.height());
-        batch.draw(border, this.x() + this.width() - 1, this.y(), 1, this.height());
-        batch.draw(border, this.x(), this.y() + this.height() - 1, this.width(), 1);
-
-        this.drawCauldron(batch);
         this.drawItems(batch);
         this.drawButtons(batch);
     }
 
-    private void drawCauldron(Batch batch) {
-
-        int size = (this.height() / 3) * 2;
-        int x = this.x() + this.width() / 2 - size / 2;
-        int y = this.y() + PADDING;
-
-        batch.draw(
-                TextureMap.instance().textureAt(cauldronAnimation.nextAnimationTexturePath()),
-                x,
-                y,
-                size,
-                size);
-    }
-
+    /**
+     * Draws the items that have been added to the cauldron.
+     *
+     * @param batch The batch to draw to.
+     */
     private void drawItems(Batch batch) {
         if (this.items.isEmpty()) {
             return;
         }
 
-        int size =
-                Math.min(
-                        this.height() / 3 - 2 * PADDING,
-                        (this.width() - this.items.size() * ITEM_GAP) / (this.items.size()));
-        int rowWidth = size * this.items.size() + ITEM_GAP * (this.items.size() + 1);
-        int startX = this.x() + (this.width() / 2) - (rowWidth / 2);
-        int startY = this.y() + (this.height() / 6) * 5 - size / 2;
+        // Draw inserted items
+        {
+            int size =
+                    Math.min(
+                            Math.round(this.height() * INPUT_ITEMS_MAX_SIZE),
+                            (this.width() - this.items.size() * ITEM_GAP) / this.items.size());
+            int rowWidth = size * this.items.size() + ITEM_GAP * (this.items.size() + 1);
+            int startX = this.x() + Math.round(this.width() * INPUT_ITEMS_X) - rowWidth / 2;
+            int startY = this.y() + Math.round(this.height() * INPUT_ITEMS_Y);
 
-        for (int i = 0; i < this.items.size(); i++) {
-            Texture itemTexture =
-                    TextureMap.instance()
-                            .textureAt(
-                                    this.items
-                                            .get(i)
-                                            .item()
-                                            .inventoryAnimation()
-                                            .nextAnimationTexturePath());
-            int textureX = startX + ITEM_GAP * (i + 1) + size * i;
-            batch.draw(itemTexture, textureX, startY, size, size);
+            for (int i = 0; i < this.items.size(); i++) {
+                Texture itemTexture =
+                        TextureMap.instance()
+                                .textureAt(
+                                        this.items
+                                                .get(i)
+                                                .item()
+                                                .inventoryAnimation()
+                                                .nextAnimationTexturePath());
+                int textureX = startX + ITEM_GAP * (i + 1) + size * i;
+                batch.draw(itemTexture, textureX, startY, size, size);
 
-            GlyphLayout layout = new GlyphLayout(bitmapFont, Integer.toString(i + 1));
-            int boxX = textureX + (size / 2) - Math.round((layout.height / 2)) - NUMBER_PADDING;
-            int boxY = startY - NUMBER_PADDING;
-            batch.draw(
-                    numberBackground,
-                    boxX,
-                    boxY,
-                    layout.height + 2 * NUMBER_PADDING,
-                    layout.height + 2 * NUMBER_PADDING);
+                GlyphLayout layout = new GlyphLayout(bitmapFont, Integer.toString(i + 1));
+                int boxX = textureX + (size / 2) - Math.round((layout.height / 2)) - NUMBER_PADDING;
+                int boxY = startY - NUMBER_PADDING;
+                batch.draw(
+                        numberBackground,
+                        boxX,
+                        boxY,
+                        layout.height + 2 * NUMBER_PADDING,
+                        layout.height + 2 * NUMBER_PADDING);
 
-            bitmapFont.draw(
-                    batch,
-                    Integer.toString(i + 1),
-                    boxX + NUMBER_PADDING,
-                    boxY + NUMBER_PADDING + layout.height,
-                    layout.width,
-                    Align.left,
-                    false);
+                bitmapFont.draw(
+                        batch,
+                        Integer.toString(i + 1),
+                        boxX + NUMBER_PADDING,
+                        boxY + NUMBER_PADDING + layout.height,
+                        layout.width,
+                        Align.center,
+                        false);
+            }
+        }
+
+        // Draw result if present
+        {
+            if (this.currentRecipe.isEmpty()) {
+                return;
+            }
+            Recipe recipe = this.currentRecipe.get();
+
+            int nrItemResults =
+                    (int)
+                            Arrays.stream(recipe.results())
+                                    .filter(
+                                            result ->
+                                                    result.resultType() == CraftingType.ITEM
+                                                            && result instanceof ItemData)
+                                    .count();
+            if (nrItemResults == 0) {
+                return;
+            }
+
+            int size =
+                    Math.min(
+                            Math.round(this.height() * RESULT_ITEM_MAX_SIZE),
+                            (this.width() - nrItemResults * ITEM_GAP) / nrItemResults);
+            int rowWidth = size * nrItemResults + ITEM_GAP * (nrItemResults + 1);
+            int x = this.x() + Math.round(this.width() * RESULT_ITEM_X) - rowWidth / 2;
+            int y = this.y() + Math.round(this.height() * RESULT_ITEM_Y);
+
+            int i = 0;
+            for (CraftingResult result : recipe.results()) {
+                if (result.resultType() != CraftingType.ITEM
+                        || !(result instanceof ItemData item)) {
+                    continue;
+                }
+                Texture itemTexture =
+                        TextureMap.instance()
+                                .textureAt(
+                                        item.item()
+                                                .inventoryAnimation()
+                                                .nextAnimationTexturePath());
+                batch.draw(itemTexture, x + ITEM_GAP * (i + 1) + size * i, y, size, size);
+
+                GlyphLayout layout = new GlyphLayout(bitmapFont, item.item().displayName());
+                int boxX =
+                        x
+                                + ITEM_GAP * (i + 1)
+                                + size * i
+                                + (size / 2)
+                                - Math.round((layout.width / 2))
+                                - NUMBER_PADDING;
+                int boxY = y - NUMBER_PADDING;
+                batch.draw(
+                        numberBackground,
+                        boxX,
+                        boxY,
+                        layout.width + 2 * NUMBER_PADDING,
+                        layout.height + 2 * NUMBER_PADDING);
+                bitmapFont.draw(
+                        batch,
+                        item.item().displayName(),
+                        boxX + NUMBER_PADDING,
+                        boxY + NUMBER_PADDING + layout.height,
+                        layout.width,
+                        Align.center,
+                        false);
+
+                i++;
+            }
         }
     }
 
@@ -195,6 +280,7 @@ public class CraftingGUI extends CombinableGUI {
     }
 
     private void updateRecipe() {
-        // TODO: Implement
+        ItemData[] itemData = this.items.toArray(new ItemData[0]);
+        this.currentRecipe = Crafting.recipeByIngredients(itemData);
     }
 }
