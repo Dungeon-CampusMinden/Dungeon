@@ -72,6 +72,7 @@ public class GUICombination extends Group {
             combinableGUI.height((int) size.y);
             combinableGUI.x(avs.x + (avs.width - (int) size.x) / 2);
             combinableGUI.y(avs.y + (avs.height - (int) size.y) / 2);
+            combinableGUI.boundsUpdate();
         }
     }
 
