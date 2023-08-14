@@ -6,6 +6,7 @@ import semanticanalysis.types.DSLTypeMember;
 import task.Task;
 import task.TaskContent;
 import task.quizquestion.Quiz;
+import task.quizquestion.SingleChoice;
 
 import java.util.List;
 import java.util.Set;
@@ -20,7 +21,7 @@ public class SingleChoiceTask {
             //  @DSLTypeMember(name="score_function") BiFunction<Task, Set<Quiz.Content>, Float>
             //  scoreFunction
             ) {
-        Quiz quiz = new Quiz(Quiz.Type.SINGLE_CHOICE, description);
+        Quiz quiz = new SingleChoice(description);
 
         for (Quiz.Content answer : answers) {
             quiz.addAnswer(answer);

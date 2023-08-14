@@ -7,8 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 import core.Game;
 
-import task.quizquestion.Quiz;
-import task.quizquestion.QuizUI;
+import task.quizquestion.*;
 
 import java.util.Random;
 
@@ -47,7 +46,7 @@ public class QuizQuestionUITest {
     public static class DummyQuizQuestionList {
 
         public static Quiz singleChoiceDummy() {
-            Quiz question = new Quiz(Quiz.Type.SINGLE_CHOICE, "Was ist kein Ziel von Refactoring?");
+            Quiz question = new SingleChoice("Was ist kein Ziel von Refactoring?");
             question.addAnswer(new Quiz.Content("Lesbarkeit von Code verbessern"));
             question.addAnswer(new Quiz.Content("Verständlichkeit von Code verbessern"));
             question.addAnswer(new Quiz.Content("Wartbarkeit von Code verbessern"));
@@ -57,8 +56,7 @@ public class QuizQuestionUITest {
 
         public static Quiz multipleChoiceDummy() {
             Quiz question =
-                    new Quiz(
-                            Quiz.Type.MULTIPLE_CHOICE,
+                    new MultipleChoice(
                             "Welche der hier genannten Komponenten sind \"atomare Komponenten\"?");
             question.addAnswer(new Quiz.Content("Buttons"));
             question.addAnswer(new Quiz.Content("Frames"));
@@ -72,8 +70,7 @@ public class QuizQuestionUITest {
 
         public static Quiz singleChoiceDummy2() {
             Quiz question =
-                    new Quiz(
-                            Quiz.Type.SINGLE_CHOICE,
+                    new SingleChoice(
                             "Welche Methode/n muss der Observer mindestens implementieren?");
             question.addAnswer(new Quiz.Content("Eine update-Methode und eine register-Methode"));
 
@@ -86,15 +83,13 @@ public class QuizQuestionUITest {
         }
 
         public static Quiz freeTextDummy() {
-            return new Quiz(
-                    Quiz.Type.FREETEXT,
+            return new FreeText(
                     "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");
         }
 
         public static Quiz imageFreeTextDummy() {
             Quiz question =
-                    new Quiz(
-                            Quiz.Type.SINGLE_CHOICE,
+                    new SingleChoice(
                             "Welche Farbe siehst du?",
                             new Image(new Texture("logo/cat_logo_35x35.png")));
             question.addAnswer(new Quiz.Content("Weiß"));
@@ -104,14 +99,11 @@ public class QuizQuestionUITest {
         }
 
         public static Quiz imageSingleChoiceDummy() {
-            return new Quiz(Quiz.Type.FREETEXT, "", new Image(new Texture("image_quiz/dummy.png")));
+            return new FreeText("", new Image(new Texture("image_quiz/dummy.png")));
         }
 
         public static Quiz singleChoiceDummy3() {
-            Quiz question =
-                    new Quiz(
-                            Quiz.Type.SINGLE_CHOICE,
-                            "Was ist 'Game Loop' in LibGDX und was macht diese?");
+            Quiz question = new SingleChoice("Was ist 'Game Loop' in LibGDX und was macht diese?");
             question.addAnswer(
                     new Quiz.Content(
                             "Launcher ruft abwechselnd die Methoden update und render auf."));
@@ -131,8 +123,7 @@ public class QuizQuestionUITest {
 
         public static Quiz singleChoiceDummy4() {
             Quiz question =
-                    new Quiz(
-                            Quiz.Type.SINGLE_CHOICE,
+                    new SingleChoice(
                             "Mit git log kann man sich eine Liste aller Commits anzeigen lassen.");
             question.addAnswer(new Quiz.Content("Wahr"));
             question.addAnswer(new Quiz.Content("Falsch"));
@@ -141,8 +132,7 @@ public class QuizQuestionUITest {
 
         public static Quiz singleChoiceDummy5() {
             Quiz question =
-                    new Quiz(
-                            Quiz.Type.SINGLE_CHOICE,
+                    new SingleChoice(
                             "Über welche Methode kann ein Thread thread1 darauf warten, dass ein anderer Thread thread2 ihn über ein Objekt obj benachrichtigt?");
             question.addAnswer(new Quiz.Content("obj.wait()"));
             question.addAnswer(new Quiz.Content("obj.wait(otherThread)"));
@@ -152,7 +142,7 @@ public class QuizQuestionUITest {
         }
 
         public static Quiz singleChoiceDummy6() {
-            Quiz question = new Quiz(Quiz.Type.SINGLE_CHOICE, "Was macht die notify()-Methode?");
+            Quiz question = new SingleChoice("Was macht die notify()-Methode?");
             question.addAnswer(
                     new Quiz.Content(
                             "Sie benachrichtigt alle Threads, die \"auf\" einem Objekt warten"));

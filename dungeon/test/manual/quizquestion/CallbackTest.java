@@ -18,8 +18,7 @@ import core.systems.LevelSystem;
 import task.Task;
 import task.TaskComponent;
 import task.TaskContent;
-import task.quizquestion.Quiz;
-import task.quizquestion.UIAnswerCallback;
+import task.quizquestion.*;
 
 import java.io.IOException;
 import java.util.Set;
@@ -39,18 +38,23 @@ import java.util.function.BiConsumer;
  * <p>Start the test with gradle runCallbackTest.
  */
 public class CallbackTest {
+
     private static Quiz question = multipleChoiceDummy();
 
+    // to toggle between question types
+    private static int toggle = 0;
+
     private static void toggleQuiz() {
-        Game.initBaseLogger();
-        switch (question.type()) {
-            case FREETEXT -> question = singleChoiceDummy();
-            case SINGLE_CHOICE -> question = multipleChoiceDummy();
-            case MULTIPLE_CHOICE -> question = freeTextDummy();
+        toggle = (toggle + 1) % 3;
+        switch (toggle) {
+            case 0 -> question = singleChoiceDummy();
+            case 1 -> question = multipleChoiceDummy();
+            case 2 -> question = freeTextDummy();
         }
     }
 
     public static void main(String[] args) throws IOException {
+        Game.initBaseLogger();
         // start the game
 
         LevelSystem.levelSize(LevelSize.SMALL);
@@ -119,7 +123,7 @@ public class CallbackTest {
     }
 
     public static Quiz singleChoiceDummy() {
-        Quiz question = new Quiz(Quiz.Type.SINGLE_CHOICE, "Was ist kein Ziel von Refactoring?");
+        Quiz question = new SingleChoice("Was ist kein Ziel von Refactoring?");
         question.addAnswer(new Quiz.Content("Lesbarkeit von Code verbessern"));
         question.addAnswer(new Quiz.Content("Verständlichkeit von Code verbessern"));
         question.addAnswer(new Quiz.Content("Wartbarkeit von Code verbessern"));
@@ -129,8 +133,7 @@ public class CallbackTest {
 
     public static Quiz multipleChoiceDummy() {
         Quiz question =
-                new Quiz(
-                        Quiz.Type.MULTIPLE_CHOICE,
+                new MultipleChoice(
                         "Welche der hier genannten Komponenten sind \"atomare Komponenten\"?");
         question.addAnswer(new Quiz.Content("Buttons"));
         question.addAnswer(new Quiz.Content("Frames"));
@@ -143,8 +146,7 @@ public class CallbackTest {
     }
 
     public static Quiz freeTextDummy() {
-        return new Quiz(
-                Quiz.Type.FREETEXT,
+        return new FreeText(
                 "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");
     }
 }
