@@ -1,8 +1,5 @@
 package core.components;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-
 import contrib.utils.components.draw.AdditionalAnimations;
 
 import core.Component;
@@ -12,9 +9,14 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.draw.IPath;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -50,7 +52,7 @@ import java.util.stream.Collectors;
  * @see IPath
  */
 public final class DrawComponent implements Component {
-    private final Map<String, Animation> animationMap;
+    private Map<String, Animation> animationMap = null;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
 
@@ -74,24 +76,7 @@ public final class DrawComponent implements Component {
     public DrawComponent(final String path) throws IOException {
         // fetch available animations
         try {
-            FileHandle directory = null;
-            if (isRunningFromJar()) {
-                // working dir? relativer pfad der jar über cla bzw java start argumente
-                // how to get in the jar Dungeon => Dungeon.jar
-                directory = Gdx.files.internal("./Dungeon/" + path);
-
-            } else {
-                directory = Gdx.files.internal("./game/assets/" + path);
-            }
-
-            java.lang.System.out.println(directory.isDirectory());
-            Arrays.stream(directory.list()).forEach(f -> java.lang.System.out.println(f));
-            java.lang.System.out.println("---------------------- END --------------");
-            animationMap =
-                    Arrays.stream(directory.list())
-                            .filter(FileHandle::isDirectory)
-                            .collect(Collectors.toMap(FileHandle::name, Animation::of));
-
+            loadAnimationsFromDirectory(path);
             currentAnimation(
                     CoreAnimations.IDLE_DOWN,
                     CoreAnimations.IDLE_LEFT,
@@ -220,9 +205,67 @@ public final class DrawComponent implements Component {
         return currentAnimation.isFinished();
     }
 
-    private static boolean isRunningFromJar() {
-        String className = DrawComponent.class.getName().replace('.', '/');
-        String classJar = DrawComponent.class.getResource("/" + className + ".class").toString();
-        return classJar.startsWith("jar:");
+    private void loadAnimationsFromDirectory(String path) throws IOException {
+        File jarFile =
+                new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        if (jarFile.isFile()) loadAnimationsFromJar(path, jarFile);
+        else loadAnimationsFromIDE(path);
+    }
+
+    private void loadAnimationsFromJar(String path, File jarFile) throws IOException {
+        JarFile jar = new JarFile(jarFile);
+        Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
+        HashMap<String, List<String>> storage = new HashMap<>();
+        animationMap = new HashMap<>();
+
+        while (entries.hasMoreElements()) {
+
+            // example: character/knight/idle/idle_knight_1.png
+            // but also: character/knight/idle/
+            // and: character/knight/
+            String fileName = entries.nextElement().getName();
+            if (fileName.startsWith(path + File.separator)) {
+                // Extract the last part of the path as the fileName
+                int lastSlashIndex = fileName.lastIndexOf(File.separator);
+                // ignore directory's
+                if (lastSlashIndex != fileName.length() - 1) {
+                    // Extract the second-to-last part of the path as the lastDir
+                    int secondLastSlashIndex =
+                            fileName.lastIndexOf(File.separator, lastSlashIndex - 1);
+                    // example: idle
+                    // this is the key of the animation map
+                    String lastDir = fileName.substring(secondLastSlashIndex + 1, lastSlashIndex);
+
+                    // add animation to new or existing list
+                    if (storage.containsKey(lastDir)) storage.get(lastDir).add(fileName);
+                    else {
+                        LinkedList<String> list = new LinkedList<>();
+                        list.add(fileName);
+                        storage.put(lastDir, list);
+                    }
+                }
+            }
+        }
+
+        // sort the files in lexicographic order (like the most os)
+        // animations will be played in order
+        storage.values().forEach(Collections::sort);
+        // create animations
+        storage.forEach((name, textureSet) -> animationMap.put(name, new Animation(textureSet)));
+        jar.close();
+    }
+
+    private void loadAnimationsFromIDE(String path) {
+        URL url = DrawComponent.class.getResource(File.separator + path);
+        if (url != null) {
+            try {
+                File apps = new File(url.toURI());
+                animationMap =
+                        Arrays.stream(Objects.requireNonNull(apps.listFiles()))
+                                .filter(File::isDirectory)
+                                .collect(Collectors.toMap(File::getName, Animation::of));
+            } catch (URISyntaxException ignored) {
+            }
+        }
     }
 }

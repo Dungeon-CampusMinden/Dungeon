@@ -1,7 +1,6 @@
 package core.utils.components.draw;
 
-import com.badlogic.gdx.files.FileHandle;
-
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,6 +74,15 @@ public final class Animation {
     }
 
     /**
+     * Creates an animation with the default configuration.
+     *
+     * @param animationFrames The list of textures that builds the animation. Must be in order.
+     */
+    public Animation(Collection<String> animationFrames) {
+        this(animationFrames, DEFAULT_FRAME_TIME, true);
+    }
+
+    /**
      * Creates an animation containing only one frame. repeats forever
      *
      * @param animationFrame The texture that builds the animation.
@@ -94,16 +102,11 @@ public final class Animation {
      * @param loop should the Animation continue to repeat ?
      * @return The created Animation instance
      */
-    public static Animation of(FileHandle subDir, int frameTime, boolean loop) {
-        System.out.println("Animation");
-        System.out.println(subDir);
-        System.out.println(subDir.isDirectory());
-        Arrays.stream(subDir.list()).forEach(f -> System.out.println(f));
-        System.out.println("-------------- Animation End ----------");
+    public static Animation of(File subDir, int frameTime, boolean loop) {
         List<String> fileNames =
-                Arrays.stream(Objects.requireNonNull(subDir.list()))
-                        .filter(fh -> !fh.isDirectory())
-                        .map(FileHandle::path)
+                Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
+                        .filter(File::isFile)
+                        .map(File::getPath)
                         .sorted()
                         .collect(Collectors.toList());
         // sort the files in lexicographic order (like the most os)
@@ -120,7 +123,7 @@ public final class Animation {
      * @param subDir Path to the subdirectory where the animation frames are stored
      * @return The created Animation instance
      */
-    public static Animation of(FileHandle subDir) {
+    public static Animation of(File subDir) {
         return Animation.of(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
     }
 
