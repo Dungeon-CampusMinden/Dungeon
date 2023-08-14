@@ -29,6 +29,7 @@ public final class Animation {
     private static final String MISSING_TEXTURE = "animation/missing_texture.png";
     private static final int DEFAULT_FRAME_TIME = 5;
     private static final boolean DEFAULT_IS_LOOP = true;
+    private static final int DEFAULT_PRIO = 200;
 
     /** The set of textures that build the animation. */
     private final List<String> animationFrames;
@@ -47,20 +48,24 @@ public final class Animation {
 
     private boolean looping;
 
+    private int priority;
+
     /**
      * Creates an animation.
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
      * @param frameTime How many frames to wait, before switching to the next texture?
      * @param looping should the Animation continue to repeat ?
+     * @param prio priority for playing this animation
      */
-    public Animation(Collection<String> animationFrames, int frameTime, boolean looping) {
+    public Animation(Collection<String> animationFrames, int frameTime, boolean looping, int prio) {
         assert (animationFrames != null && !animationFrames.isEmpty());
         assert (frameTime > 0);
         this.animationFrames = new ArrayList<>(animationFrames);
         frames = animationFrames.size();
         this.timeBetweenFrames = frameTime;
         this.looping = looping;
+        this.priority = prio;
     }
 
     /**
@@ -68,9 +73,10 @@ public final class Animation {
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
      * @param frameTime How many frames to wait, before switching to the next texture?
+     * @param prio priority for playing this animation
      */
-    public Animation(Collection<String> animationFrames, int frameTime) {
-        this(animationFrames, frameTime, true);
+    public Animation(Collection<String> animationFrames, int frameTime, int prio) {
+        this(animationFrames, frameTime, true, prio);
     }
 
     /**
@@ -86,9 +92,10 @@ public final class Animation {
      * Creates an animation containing only one frame. repeats forever
      *
      * @param animationFrame The texture that builds the animation.
+     * @param prio priority for playing this animation
      */
-    public Animation(String animationFrame) {
-        this(Set.of(animationFrame), 1, true);
+    public Animation(String animationFrame, int prio) {
+        this(Set.of(animationFrame), 1, true, prio);
     }
 
     /**
@@ -100,9 +107,10 @@ public final class Animation {
      * @param subDir Path to the subdirectory where the animation frames are stored
      * @param frameTime How many frames to wait, before switching to the next texture?
      * @param loop should the Animation continue to repeat ?
+     * @param prio priority for playing this animation
      * @return The created Animation instance
      */
-    public static Animation of(File subDir, int frameTime, boolean loop) {
+    public static Animation of(File subDir, int frameTime, boolean loop, int prio) {
         List<String> fileNames =
                 Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
                         .filter(File::isFile)
@@ -125,7 +133,7 @@ public final class Animation {
      * @return The created Animation instance
      */
     public static Animation of(File subDir) {
-        return Animation.of(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
+        return Animation.of(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
     /**
@@ -135,7 +143,7 @@ public final class Animation {
      * @return The created Animation instance
      */
     public static Animation of(String fileName) {
-        return new Animation(List.of(fileName), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
+        return new Animation(List.of(fileName), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
     /**
@@ -146,7 +154,7 @@ public final class Animation {
      * @return The created Animation instance
      */
     public static Animation of(String fileName, int frameTime) {
-        return new Animation(List.of(fileName), frameTime, DEFAULT_IS_LOOP);
+        return new Animation(List.of(fileName), frameTime, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
     /**
@@ -156,7 +164,7 @@ public final class Animation {
      * @return missing texture animation
      */
     public static Animation defaultAnimation() {
-        return new Animation(Set.of(MISSING_TEXTURE), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP);
+        return new Animation(Set.of(MISSING_TEXTURE), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, 0);
     }
 
     /**
@@ -220,5 +228,9 @@ public final class Animation {
      */
     public void setLoop(boolean loop) {
         this.looping = loop;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 }
