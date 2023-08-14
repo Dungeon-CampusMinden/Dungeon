@@ -1,24 +1,17 @@
 {
-    "ordered": true,
+    "ordered": false,
     "ingredients": [
         {
             "type": "item",
             "item": {
-                "id": "WATER_BOTTLE",
+                "id": "RESOURCE_IRON_ORE",
                 "count": 1
             }
         },
         {
             "type": "item",
             "item": {
-                "id": "MUSHROOM_RED",
-                "count": 1
-            }
-        },
-        {
-            "type": "item",
-            "item": {
-                "id": "FLOWER_RED",
+                "id": "RESOURCE_WOOD",
                 "count": 1
             }
         }
@@ -27,7 +20,7 @@
         {
             "type": "item",
             "item": {
-                "id": "HEALTH_POTION",
+                "id": "RESOURCE_STEEL",
                 "count": 1
             }
         }
