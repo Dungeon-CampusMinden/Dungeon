@@ -1,5 +1,6 @@
 package starter;
 
+import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
@@ -31,6 +32,7 @@ public class Main {
                         Entity hero = (EntityFactory.newHero());
                         Game.add(hero);
                         Game.hero(hero);
+                        Crafting.loadRecipes();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
