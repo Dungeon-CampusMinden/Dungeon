@@ -55,6 +55,7 @@ public final class DrawComponent implements Component {
     private Map<String, Animation> animationMap = null;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
+    private Map<Animation[], Integer> animationQueue = new HashMap<>();
 
     /**
      * Create a new DrawComponent.
@@ -147,6 +148,16 @@ public final class DrawComponent implements Component {
                                 + animationPath
                                 + " can not be set, because the given Animation could not be found.");
         }
+    }
+
+    // TODO javadoc
+    public void nextAnimation(Animation... next) {
+        nextAnimation(1, next);
+    }
+
+    // TODO javadoc
+    public void nextAnimation(int forFrames, Animation... next) {
+        animationQueue.put(next, forFrames);
     }
 
     /**
