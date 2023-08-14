@@ -2,7 +2,9 @@ package runtime;
 
 import dslToGame.graph.Graph;
 
+import semanticanalysis.PropertySymbol;
 import semanticanalysis.types.BuiltInType;
+import semanticanalysis.types.IDSLTypeProperty;
 import semanticanalysis.types.IType;
 
 // TODO: should this be able to be undefined?
@@ -135,3 +137,4 @@ public class Value implements IClonable {
         return cloned;
     }
 }
+
