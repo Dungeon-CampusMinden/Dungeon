@@ -11,7 +11,8 @@ public class PropertyValue extends Value {
     // which no concrete Object is constructed..
     // come to think of it, the PropertyValue only makes sense in the case,
     // where the enclosing AggregateValue encapsulated a concrete runtime-Object
-    public PropertyValue(IType type, IDSLTypeProperty<Object, Object> property, AggregateValue parentValue) {
+    public PropertyValue(
+            IType type, IDSLTypeProperty<Object, Object> property, AggregateValue parentValue) {
         super(type, parentValue);
         this.property = property;
     }

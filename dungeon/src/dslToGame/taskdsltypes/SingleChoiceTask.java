@@ -3,8 +3,6 @@ package dslToGame.taskdsltypes;
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
 
-import semanticanalysis.types.DSLTypeProperty;
-import semanticanalysis.types.IDSLTypeProperty;
 import task.Task;
 import task.TaskContent;
 import task.quizquestion.Quiz;

@@ -67,8 +67,8 @@ public class GameEnvironment implements IEvironment {
                 };
     }
 
-    public List<IDSLTypeProperty<?,?>> getBuiltInProperties() {
-        ArrayList<IDSLTypeProperty<?,?>> properties = new ArrayList<>();
+    public List<IDSLTypeProperty<?, ?>> getBuiltInProperties() {
+        ArrayList<IDSLTypeProperty<?, ?>> properties = new ArrayList<>();
         properties.add(SingleChoiceDescriptionProperty.instance);
         return properties;
     }
@@ -197,7 +197,7 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected void bindBuiltInProperties() {
-        for (IDSLTypeProperty<?,?> property : getBuiltInProperties()) {
+        for (IDSLTypeProperty<?, ?> property : getBuiltInProperties()) {
             this.typeBuilder.registerProperty(this.globalScope, property);
         }
     }

@@ -9,18 +9,16 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 public @interface DSLTypeProperty {
     /**
-     *
      * @return
      */
     String name() default "";
 
     /**
-     * The Java-Class corresponding to the the dsl type, which should be extended
-     * by this property.
+     * The Java-Class corresponding to the the dsl type, which should be extended by this property.
      *
-     * For {@link AggregateTypeAdapter} instances, this should be the adapter-class.
+     * <p>For {@link AggregateTypeAdapter} instances, this should be the adapter-class.
+     *
      * @return
      */
-     Class<?> extendedType();
+    Class<?> extendedType();
 }
-

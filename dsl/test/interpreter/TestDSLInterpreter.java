@@ -1442,7 +1442,7 @@ public class TestDSLInterpreter {
     @Test
     public void testProperty() {
         String program =
-            """
+                """
             entity_type my_type {
                 test_component2 {
                     member2: 42
@@ -1469,21 +1469,23 @@ public class TestDSLInterpreter {
         TestEnvironment env = new TestEnvironment();
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponentTestComponent2ConsumerCallback.class);
-        env.getTypeBuilder().registerProperty(env.getGlobalScope(), TestComponent2.TestComponentPseudoProperty.instance);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentTestComponent2ConsumerCallback.class);
+        env.getTypeBuilder()
+                .registerProperty(
+                        env.getGlobalScope(), TestComponent2.TestComponentPseudoProperty.instance);
 
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(
-                    program,
-                    env,
-                    interpreter
-                    );
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         var entity = config.entity();
-        var componentWithConsumer = (TestComponentTestComponent2ConsumerCallback) entity.components.get(0);
-        var testComponent2 = (TestComponent2)entity.components.get(1);
+        var componentWithConsumer =
+                (TestComponentTestComponent2ConsumerCallback) entity.components.get(0);
+        var testComponent2 = (TestComponent2) entity.components.get(1);
         componentWithConsumer.consumer.accept(testComponent2);
 
         String output = outputStream.toString();

@@ -5,22 +5,26 @@ import semanticanalysis.types.*;
 @DSLType
 public class TestComponent2 extends Component {
 
-    @DSLTypeProperty(name="this_is_a_float", extendedType = TestComponent2.class)
-    public static class TestComponentPseudoProperty implements IDSLTypeProperty<TestComponent2, Float> {
+    @DSLTypeProperty(name = "this_is_a_float", extendedType = TestComponent2.class)
+    public static class TestComponentPseudoProperty
+            implements IDSLTypeProperty<TestComponent2, Float> {
         public static TestComponentPseudoProperty instance = new TestComponentPseudoProperty();
-        private TestComponentPseudoProperty(){}
+
+        private TestComponentPseudoProperty() {}
+
         @Override
         public void set(TestComponent2 instance, Float valueToSet) {
+            instance.hiddenFloat = instance.member2 - valueToSet - 3.14f;
         }
 
         @Override
         public Float get(TestComponent2 instance) {
-            return (float) instance.member2 + 3.14f;
+            return (float) instance.member2 + instance.hiddenFloat + 3.14f;
         }
 
         @Override
         public boolean isSettable() {
-            return false;
+            return true;
         }
 
         @Override
@@ -38,6 +42,8 @@ public class TestComponent2 extends Component {
     @DSLTypeMember private String member1;
     @DSLTypeMember private int member2;
     @DSLTypeMember private String member3;
+
+    private float hiddenFloat;
 
     public TestComponent2(@DSLContextMember(name = "entity") Entity entity) {
         super(entity);
@@ -57,4 +63,3 @@ public class TestComponent2 extends Component {
         return member3;
     }
 }
-
