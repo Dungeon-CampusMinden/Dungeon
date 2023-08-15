@@ -5,6 +5,7 @@ import interpreter.DSLInterpreter;
 import runtime.*;
 
 import semanticanalysis.FunctionSymbol;
+import semanticanalysis.PropertySymbol;
 import semanticanalysis.types.callbackadapter.CallbackAdapter;
 import semanticanalysis.types.callbackadapter.CallbackAdapterBuilder;
 
@@ -34,22 +35,12 @@ public class TypeInstantiator {
      */
     public Object instantiate(AggregateValue value) {
         AggregateType type = (AggregateType) value.getDataType();
-        IMemorySpace ms = value.getMemorySpace();
 
         if (type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
             return convertValueToObject(value);
         }
 
-        var originalJavaClass = type.getOriginType();
-        if (null == originalJavaClass) {
-            return null;
-        }
-
-        if (originalJavaClass.isRecord()) {
-            return instantiateRecord(originalJavaClass, ms);
-        } else {
-            return instantiateClass(originalJavaClass, ms);
-        }
+        return instantiateAsType(value, type);
     }
 
     /**
@@ -67,11 +58,35 @@ public class TypeInstantiator {
         if (null == originalJavaClass) {
             return null;
         }
+        Object instance;
 
         if (originalJavaClass.isRecord()) {
-            return instantiateRecord(originalJavaClass, ms);
+            instance = instantiateRecord(originalJavaClass, ms);
         } else {
-            return instantiateClass(originalJavaClass, ms);
+            instance = instantiateClass(originalJavaClass, ms);
+        }
+
+        // set properties
+        setProperties(instance, type, ms);
+
+        return instance;
+    }
+
+    void setProperties(Object instance, AggregateType type, IMemorySpace ms) {
+        var properties =
+                type.getSymbols().stream()
+                        .filter(symbol -> symbol instanceof PropertySymbol)
+                        .map(symbol -> (PropertySymbol) symbol)
+                        .toList();
+
+        for (PropertySymbol propertySymbol : properties) {
+            IDSLTypeProperty property = propertySymbol.getProperty();
+            if (property.isSettable()) {
+                // get corresponding value from memorySpace
+                Value value = ms.resolve(propertySymbol.getName());
+                Object valueAsObject = convertValueToObject(value);
+                property.set(instance, valueAsObject);
+            }
         }
     }
 
