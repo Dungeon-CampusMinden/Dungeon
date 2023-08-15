@@ -3,7 +3,8 @@ package contrib.utils.components.draw;
 import core.utils.components.draw.IPath;
 
 /**
- * This enum stores the paths to the animations used by the systems inside the contrib package.
+ * This enum stores the paths to the animations, and their priority, used by the systems inside the
+ * contrib package.
  *
  * <p>Add your own path, if you need a new animation-type (like jumping)
  *

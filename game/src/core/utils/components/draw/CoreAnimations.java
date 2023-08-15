@@ -1,7 +1,8 @@
 package core.utils.components.draw;
 
 /**
- * This enum stores the default paths to the animations used by the systems inside the core package.
+ * This enum stores the default paths to the animations, and their priority, used by the systems
+ * inside the core package.
  */
 public enum CoreAnimations implements IPath {
     IDLE("idle", 1000),
