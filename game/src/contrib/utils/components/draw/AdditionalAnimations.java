@@ -12,22 +12,24 @@ import core.utils.components.draw.IPath;
  * @see core.utils.components.draw.CoreAnimations
  */
 public enum AdditionalAnimations implements IPath {
-    DIE("die"),
-    DIE_LEFT("die_left"),
-    DIE_RIGHT("die_right"),
-    DIE_UP("die_up"),
-    DIE_DOWN("die_down"),
-    HIT("hit"),
-    ATTACK("attack"),
-    FIGHT_LEFT("fight_left"),
-    FIGHT_RIGHT("fight_right"),
-    FIGHT_UP("fight_up"),
-    FIGHT_DOWN("fight_down");
+    DIE("die", 5000),
+    DIE_LEFT("die_left", 5000),
+    DIE_RIGHT("die_right", 5000),
+    DIE_UP("die_up", 5000),
+    DIE_DOWN("die_down", 5000),
+    HIT("hit", 4000),
+    ATTACK("attack", 3000),
+    FIGHT_LEFT("fight_left", 3000),
+    FIGHT_RIGHT("fight_right", 3000),
+    FIGHT_UP("fight_up", 3000),
+    FIGHT_DOWN("fight_down", 3000);
 
     private final String value;
+    private final int priority;
 
-    AdditionalAnimations(String value) {
+    AdditionalAnimations(String value, int prio) {
         this.value = value;
+        this.priority = prio;
     }
 
     @Override
@@ -38,5 +40,10 @@ public enum AdditionalAnimations implements IPath {
     @Override
     public String toString() {
         return "AdditionalAnimation[" + this.value + "]";
+    }
+
+    @Override
+    public int priority() {
+        return priority;
     }
 }
