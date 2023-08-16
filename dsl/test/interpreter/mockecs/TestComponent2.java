@@ -14,12 +14,12 @@ public class TestComponent2 extends Component {
 
         @Override
         public void set(TestComponent2 instance, Float valueToSet) {
-            instance.hiddenFloat = instance.member2 - valueToSet - 3.14f;
+            instance.hiddenFloat = valueToSet;
         }
 
         @Override
         public Float get(TestComponent2 instance) {
-            return (float) instance.member2 + instance.hiddenFloat + 3.14f;
+            return instance.hiddenFloat;
         }
 
         @Override

@@ -9,6 +9,7 @@ import helpers.Helpers;
 
 import interpreter.mockecs.*;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,6 +33,17 @@ import java.util.List;
 import java.util.Set;
 
 public class TestDSLInterpreter {
+
+    @AfterClass
+    public static void afterAll() {
+        for (var entry : DSLInterpreter.classesOfSymbols.entrySet()) {
+            System.out.println("SymbolClass: " + entry.getKey());
+            for (var nodeClass : entry.getValue().toArray()) {
+                System.out.println("\tNodeClass: " + nodeClass);
+            }
+        }
+    }
+
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
     @Test
     public void funcCall() {
@@ -1445,7 +1457,8 @@ public class TestDSLInterpreter {
                 """
             entity_type my_type {
                 test_component2 {
-                    member2: 42
+                    member2: 42,
+                    this_is_a_float: 3.14
                 },
                 test_component_with_callback {
                     consumer: get_property
@@ -1489,6 +1502,6 @@ public class TestDSLInterpreter {
         componentWithConsumer.consumer.accept(testComponent2);
 
         String output = outputStream.toString();
-        Assert.assertTrue(output.contains("45.14"));
+        Assert.assertTrue(output.contains("3.14"));
     }
 }

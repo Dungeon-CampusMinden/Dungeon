@@ -1,7 +1,10 @@
 package runtime;
 
+import semanticanalysis.PropertySymbol;
+import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.BuiltInType;
+import semanticanalysis.types.IDSLTypeProperty;
 import semanticanalysis.types.TypeBuilder;
 
 import java.lang.reflect.Field;
@@ -110,6 +113,16 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                 }
             } catch (IllegalAccessException e) {
                 // TODO: handle
+            }
+        } else {
+            // it may be a property
+            Symbol symbol = type.resolve(name);
+            if (symbol instanceof PropertySymbol propertySymbol) {
+                returnValue =
+                    new PropertyValue(
+                        symbol.getDataType(),
+                        (IDSLTypeProperty<Object, Object>) propertySymbol.getProperty(),
+                        this.object);
             }
         }
         return returnValue;
