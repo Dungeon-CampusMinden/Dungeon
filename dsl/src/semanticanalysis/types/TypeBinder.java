@@ -47,7 +47,7 @@ public class TypeBinder implements AstVisitor<Object> {
             return null;
         }
         var newType = new AggregateType(newTypeName, this.symbolTable().getGlobalScope());
-        symbolTable().addSymbolNodeRelation(newType, node);
+        symbolTable().addSymbolNodeRelation(newType, node, true);
 
         // visit all component definitions and get type and create new symbol in gameObject type
         for (var componentDef : node.getComponentDefinitionNodes()) {
@@ -59,7 +59,7 @@ public class TypeBinder implements AstVisitor<Object> {
                 String componentName = compDefNode.getIdName();
                 var memberSymbol = new Symbol(componentName, newType, (IType) componentType);
                 newType.bind(memberSymbol);
-                symbolTable().addSymbolNodeRelation(memberSymbol, compDefNode);
+                symbolTable().addSymbolNodeRelation(memberSymbol, compDefNode, true);
             }
         }
 
