@@ -304,13 +304,14 @@ public class TypeInstantiator {
                 }
                 if (field.isAnnotationPresent(DSLCallback.class)) {
                     assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
-                    assert fieldValue.getInternalValue() instanceof FunctionSymbol;
-
-                    CallbackAdapter adapter =
-                            callbackAdapterBuilder.buildAdapter(
-                                    (FunctionSymbol) fieldValue.getInternalValue());
-                    field.setAccessible(true);
-                    field.set(instance, adapter);
+                    FunctionValue functionValue = (FunctionValue) fieldValue;
+                    if (!(functionValue.getCallable() instanceof FunctionSymbol functionSymbol)) {
+                        throw new RuntimeException("Usage of non-FunctionSymbol callables as DSLCallback currently not supported");
+                    } else {
+                        CallbackAdapter adapter = callbackAdapterBuilder.buildAdapter(functionSymbol);
+                        field.setAccessible(true);
+                        field.set(instance, adapter);
+                    }
                 }
             }
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {

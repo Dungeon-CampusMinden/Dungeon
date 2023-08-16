@@ -3,6 +3,7 @@ package semanticanalysis;
 import interpreter.DSLInterpreter;
 
 import parser.ast.Node;
+import semanticanalysis.types.FunctionType;
 
 import java.util.List;
 
@@ -28,4 +29,6 @@ public interface ICallable {
      * @return
      */
     Type getCallableType();
+
+    FunctionType getFunctionType();
 }
