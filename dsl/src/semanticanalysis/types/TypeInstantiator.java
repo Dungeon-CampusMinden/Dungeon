@@ -186,6 +186,10 @@ public class TypeInstantiator {
                 convertedObject = instantiateList((ListValue) value);
             } else if (value.getDataType().getTypeKind().equals(IType.Kind.SetType)) {
                 convertedObject = instantiateSet((SetValue) value);
+            } else if (value.getDataType().getTypeKind().equals(IType.Kind.Aggregate)) {
+                if (convertedObject == null) {
+                    convertedObject = instantiate((AggregateValue) value);
+                }
             }
         } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
