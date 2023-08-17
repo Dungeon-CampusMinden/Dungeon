@@ -130,14 +130,31 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
+    public void enterExpression(DungeonDSLParser.ExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitExpression(DungeonDSLParser.ExpressionContext ctx) {
+        if (ctx.expression_rhs() != null) {
+            Node expressionRhs = astStack.pop();
+            Node assignment = astStack.pop();
+            var memberAccessNode = new MemberAccessNode(assignment, expressionRhs);
+            astStack.push(memberAccessNode);
+        }
+    }
+
+    @Override
     public void enterMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {}
 
     @Override
     public void exitMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {
-        Node funcCall = astStack.pop();
-        Node innerExpression = astStack.pop();
-        Node expression = new MemberAccessNode(innerExpression, funcCall);
-        astStack.push(expression);
+        if (ctx.expression_rhs() != null) {
+            Node expressionRhs = astStack.pop();
+            Node funcCall = astStack.pop();
+            var memberAccessNode = new MemberAccessNode(funcCall, expressionRhs);
+            astStack.push(memberAccessNode);
+        }
     }
 
     @Override
@@ -146,18 +163,12 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitMember_access_expression(DungeonDSLParser.Member_access_expressionContext ctx) {
-        Node identifier = astStack.pop();
-        Node innerExpression = astStack.pop();
-        Node expression = new MemberAccessNode(innerExpression, identifier);
-        astStack.push(expression);
-    }
-
-    @Override
-    public void enterAssignment_expression(DungeonDSLParser.Assignment_expressionContext ctx) {}
-
-    @Override
-    public void exitAssignment_expression(DungeonDSLParser.Assignment_expressionContext ctx) {
-        // just let it bubble up, nothing to do
+        if (ctx.expression_rhs() != null) {
+            Node expressionRhs = astStack.pop();
+            Node identifier = astStack.pop();
+            var memberAccessNode = new MemberAccessNode(identifier, expressionRhs);
+            astStack.push(memberAccessNode);
+        }
     }
 
     @Override
