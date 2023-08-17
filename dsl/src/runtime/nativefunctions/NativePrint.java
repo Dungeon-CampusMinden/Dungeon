@@ -38,7 +38,7 @@ public class NativePrint extends NativeFunction {
         assert parameters != null && parameters.size() > 0;
         try {
             Value param = (Value) parameters.get(0).accept(interperter);
-            String paramAsString = param.getInternalValue().toString();
+            String paramAsString = param.toString();
             System.out.println(paramAsString);
         } catch (ClassCastException ex) {
             // TODO: handle.. although this should not be a problem because

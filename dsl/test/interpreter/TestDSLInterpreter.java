@@ -33,17 +33,6 @@ import java.util.List;
 import java.util.Set;
 
 public class TestDSLInterpreter {
-
-    @AfterClass
-    public static void afterAll() {
-        for (var entry : DSLInterpreter.classesOfSymbols.entrySet()) {
-            System.out.println("SymbolClass: " + entry.getKey());
-            for (var nodeClass : entry.getValue().toArray()) {
-                System.out.println("\tNodeClass: " + nodeClass);
-            }
-        }
-    }
-
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
     @Test
     public void funcCall() {

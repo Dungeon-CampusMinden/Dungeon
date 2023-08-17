@@ -81,23 +81,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         return scopeStack.get(0);
     }
 
-    /**
-     * Bind a symbol in the current scope and create an association between symbol and AST node
-     *
-     * @param symbol The symbol to bind
-     * @param nodeOfSymbol The corresponding AST node
-     * @return True, if the symbol was not bound in current scope, or false otherwise
-     */
-    private boolean bind(Symbol symbol, Node nodeOfSymbol) {
-        var currentScope = currentScope();
-        if (!currentScope.bind(symbol)) {
-            return false;
-        } else {
-            symbolTable.addSymbolNodeRelation(symbol, nodeOfSymbol);
-            return true;
-        }
-    }
-
     public IEvironment getEnvironment() {
         return this.environment;
     }

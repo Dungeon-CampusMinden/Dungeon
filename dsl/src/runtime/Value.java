@@ -134,4 +134,13 @@ public class Value implements IClonable {
         cloned.dirty = this.dirty;
         return cloned;
     }
+
+    @Override
+    public String toString() {
+        if (this.object == null) {
+            return "";
+        } else {
+            return this.getInternalValue().toString();
+        }
+    }
 }

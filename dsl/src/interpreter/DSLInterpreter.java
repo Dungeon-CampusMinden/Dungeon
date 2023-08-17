@@ -478,10 +478,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     // this is used for resolving object references
     @Override
     public Object visit(IdNode node) {
-        var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
-        var creationASTNode = this.symbolTable().getCreationAstNode(symbol);
-
-        }
         return this.getCurrentMemorySpace().resolve(node.getName(), true);
     }
 
