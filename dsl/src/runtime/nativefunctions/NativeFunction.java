@@ -13,6 +13,7 @@ public abstract class NativeFunction extends ScopedSymbol implements ICallable {
     public void overwriteFunctionType(FunctionType type) {
         this.dataType = type;
     }
+
     @Override
     public FunctionType getFunctionType() {
         return (FunctionType) this.getDataType();

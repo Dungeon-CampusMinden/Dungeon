@@ -119,10 +119,10 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
             Symbol symbol = type.resolve(name);
             if (symbol instanceof PropertySymbol propertySymbol) {
                 returnValue =
-                    new PropertyValue(
-                        symbol.getDataType(),
-                        (IDSLTypeProperty<Object, Object>) propertySymbol.getProperty(),
-                        this.object);
+                        new PropertyValue(
+                                symbol.getDataType(),
+                                (IDSLTypeProperty<Object, Object>) propertySymbol.getProperty(),
+                                this.object);
             }
         }
         return returnValue;

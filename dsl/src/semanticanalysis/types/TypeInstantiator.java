@@ -306,9 +306,11 @@ public class TypeInstantiator {
                     assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
                     FunctionValue functionValue = (FunctionValue) fieldValue;
                     if (!(functionValue.getCallable() instanceof FunctionSymbol functionSymbol)) {
-                        throw new RuntimeException("Usage of non-FunctionSymbol callables as DSLCallback currently not supported");
+                        throw new RuntimeException(
+                                "Usage of non-FunctionSymbol callables as DSLCallback currently not supported");
                     } else {
-                        CallbackAdapter adapter = callbackAdapterBuilder.buildAdapter(functionSymbol);
+                        CallbackAdapter adapter =
+                                callbackAdapterBuilder.buildAdapter(functionSymbol);
                         field.setAccessible(true);
                         field.set(instance, adapter);
                     }

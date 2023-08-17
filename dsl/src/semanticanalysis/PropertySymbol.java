@@ -6,7 +6,7 @@ import semanticanalysis.types.IType;
 public class PropertySymbol extends Symbol {
     private IDSLTypeProperty<?, ?> property;
 
-    public IDSLTypeProperty<?,?> getProperty() {
+    public IDSLTypeProperty<?, ?> getProperty() {
         return property;
     }
 

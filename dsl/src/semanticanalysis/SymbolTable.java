@@ -65,7 +65,8 @@ public class SymbolTable {
      * @param symbol The symbol
      * @param nodeOfSymbol The AST Node, which references the symbol
      */
-    public void addSymbolNodeRelation(Symbol symbol, Node nodeOfSymbol, boolean isNodeCreationNode) {
+    public void addSymbolNodeRelation(
+            Symbol symbol, Node nodeOfSymbol, boolean isNodeCreationNode) {
         if (!astNodeSymbolRelation.containsKey(nodeOfSymbol.getIdx())) {
             astNodeSymbolRelation.put(nodeOfSymbol.getIdx(), new ArrayList<>());
         }
@@ -123,9 +124,9 @@ public class SymbolTable {
     }
 
     /**
-     * Gets the AST Node, which was passed to {@link #addSymbolNodeRelation(Symbol, Node, boolean)} the first
-     * time the symbol was passed to that method, which will be treated as the AST Node, which
-     * creates the Symbol
+     * Gets the AST Node, which was passed to {@link #addSymbolNodeRelation(Symbol, Node, boolean)}
+     * the first time the symbol was passed to that method, which will be treated as the AST Node,
+     * which creates the Symbol
      *
      * @param symbol The symbol to get the creation AST node for
      * @return The creation AST node or Node.NONE, if none could be found for the passed symbol

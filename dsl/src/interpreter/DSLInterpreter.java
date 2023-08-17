@@ -164,7 +164,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             if (!symbol.getDataType().getName().equals("quest_config")) {
                 Node astNode = symbolTable().getCreationAstNode(symbol);
                 if (astNode != Node.NONE) {
-                    Value valueToAssign = (Value)astNode.accept(this);
+                    Value valueToAssign = (Value) astNode.accept(this);
                     Value assignee = entry.getValue();
                     setValue(assignee, valueToAssign);
                 }

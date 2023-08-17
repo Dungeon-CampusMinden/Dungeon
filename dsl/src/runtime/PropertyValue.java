@@ -6,8 +6,7 @@ import semanticanalysis.types.IType;
 public class PropertyValue extends Value {
     private final IDSLTypeProperty<Object, Object> property;
 
-    public PropertyValue(
-            IType type, IDSLTypeProperty<Object, Object> property, Object instance) {
+    public PropertyValue(IType type, IDSLTypeProperty<Object, Object> property, Object instance) {
         super(type, instance);
         this.property = property;
     }

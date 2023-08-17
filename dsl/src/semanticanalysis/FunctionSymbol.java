@@ -8,7 +8,6 @@ import parser.ast.Node;
 import semanticanalysis.types.FunctionType;
 
 import java.util.List;
-import java.util.function.Function;
 
 public class FunctionSymbol extends ScopedSymbol implements ICallable {
 
@@ -36,7 +35,7 @@ public class FunctionSymbol extends ScopedSymbol implements ICallable {
 
     @Override
     public FunctionType getFunctionType() {
-        return (FunctionType)this.getDataType();
+        return (FunctionType) this.getDataType();
     }
 
     public FuncDefNode getAstRootNode() {
