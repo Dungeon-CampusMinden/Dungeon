@@ -116,19 +116,20 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
             Symbol symbol = type.resolve(name);
             if (symbol instanceof PropertySymbol propertySymbol) {
                 if (symbol.getDataType().getTypeKind().equals(IType.Kind.Aggregate)
-                    || symbol.getDataType().getTypeKind().equals(IType.Kind.AggregateAdapted)) {
-                    returnValue = new AggregatePropertyValue(symbol.getDataType(),
-                        (IDSLTypeProperty<Object, Object>) propertySymbol.getProperty(),
-                        this.object,
-                        MemorySpace.NONE,
-                        this.environment
-                        );
+                        || symbol.getDataType().getTypeKind().equals(IType.Kind.AggregateAdapted)) {
+                    returnValue =
+                            new AggregatePropertyValue(
+                                    symbol.getDataType(),
+                                    (IDSLTypeProperty<Object, Object>) propertySymbol.getProperty(),
+                                    this.object,
+                                    MemorySpace.NONE,
+                                    this.environment);
                 } else {
                     returnValue =
-                        new PropertyValue(
-                            symbol.getDataType(),
-                            (IDSLTypeProperty<Object, Object>) propertySymbol.getProperty(),
-                            this.object);
+                            new PropertyValue(
+                                    symbol.getDataType(),
+                                    (IDSLTypeProperty<Object, Object>) propertySymbol.getProperty(),
+                                    this.object);
                 }
             }
         }

@@ -13,8 +13,7 @@ public class AggregatePropertyValue extends AggregateValue {
             IDSLTypeProperty<Object, Object> property,
             Object instance,
             IMemorySpace parentMemorySpace,
-            IEvironment environment
-    ) {
+            IEvironment environment) {
         super(type, parentMemorySpace);
         this.object = instance;
         this.property = property;
@@ -25,9 +24,12 @@ public class AggregatePropertyValue extends AggregateValue {
     @Override
     public IMemorySpace getMemorySpace() {
         Object internalValue = this.getInternalValue();
-        var runtimeObject = environment.getRuntimeObjectTranslator().translateRuntimeObject(internalValue, parentMemorySpace, environment);
+        var runtimeObject =
+                environment
+                        .getRuntimeObjectTranslator()
+                        .translateRuntimeObject(internalValue, parentMemorySpace, environment);
         assert runtimeObject instanceof AggregateValue;
-        return ((AggregateValue)runtimeObject).getMemorySpace();
+        return ((AggregateValue) runtimeObject).getMemorySpace();
     }
 
     @Override

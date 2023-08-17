@@ -130,9 +130,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterExpression(DungeonDSLParser.ExpressionContext ctx) {
-
-    }
+    public void enterExpression(DungeonDSLParser.ExpressionContext ctx) {}
 
     @Override
     public void exitExpression(DungeonDSLParser.ExpressionContext ctx) {
