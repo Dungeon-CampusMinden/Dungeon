@@ -77,6 +77,12 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
             correspondingField.setAccessible(true);
             try {
                 var fieldValue = correspondingField.get(this.getInternalValue());
+
+                // handle null
+                if (fieldValue == null) {
+                    return Value.NONE;
+                }
+
                 // convert the read field value to a DSL 'Value'
                 // this may require recursive creation of encapsulated objects,
                 // if the field is a component for example

@@ -1509,6 +1509,7 @@ public class TestDSLInterpreter {
 
         fn get_property(test_component2 comp) {
             print(comp.this_is_complex.member1);
+            print(comp.this_is_complex.member3);
         }
 
         quest_config c {
