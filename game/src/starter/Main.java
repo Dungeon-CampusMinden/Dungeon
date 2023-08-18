@@ -6,9 +6,13 @@ import contrib.utils.components.Debugger;
 
 import core.Entity;
 import core.Game;
-import core.level.utils.LevelSize;
+import core.level.elements.ILevel;
+import core.level.generator.graphBased.LevelGenerator;
+import core.level.utils.DesignLabel;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class Main {
@@ -17,7 +21,6 @@ public class Main {
         Logger LOGGER = Logger.getLogger("Main");
         Debugger debugger = new Debugger();
         // start the game
-
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
@@ -27,27 +30,30 @@ public class Main {
         Game.userOnSetup(
                 () -> {
                     try {
-
                         Entity hero = (EntityFactory.newHero());
                         Game.add(hero);
                         Game.hero(hero);
+
+                        // create entity sets
+                        Set<Set<Entity>> entities = new HashSet<>();
+                        int roomCount = 10;
+                        for (int i = 0; i < roomCount; i++) {
+                            Set<Entity> set = new HashSet<>();
+                            entities.add(set);
+                            set.add(new Entity());
+                            int monsterCount = 0;
+                            int chestCount = 0;
+                            for (int j = 0; j < monsterCount; j++)
+                                set.add(EntityFactory.randomMonster());
+                            for (int k = 0; k < chestCount; k++) set.add(EntityFactory.newChest());
+                        }
+                        System.out.println(entities.size());
+                        ILevel level = LevelGenerator.level(entities, DesignLabel.randomDesign());
+                        Game.currentLevel(level);
+
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                });
-        Game.userOnLevelLoad(
-                () -> {
-                    try {
-
-                        Game.add(EntityFactory.newChest());
-                        for (int i = 0; i < 5; i++) {
-                            Game.add(EntityFactory.randomMonster());
-                        }
-                    } catch (IOException e) {
-                        LOGGER.warning("Could not create new Chest: " + e.getMessage());
-                        throw new RuntimeException();
-                    }
-                    Game.levelSize(LevelSize.randomSize());
                 });
         Game.userOnFrame(debugger::execute);
         Game.windowTitle("My Dungeon");

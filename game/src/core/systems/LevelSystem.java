@@ -7,6 +7,7 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
+import core.level.elements.tile.DoorTile;
 import core.level.generator.IGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -18,6 +19,7 @@ import core.utils.components.draw.PainterConfig;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -214,6 +216,23 @@ public final class LevelSystem extends System {
         return currentTile.equals(Game.endTile());
     }
 
+    private Optional<ILevel> isOnDoor(Entity entity) {
+        ILevel nextLevel = null;
+        PositionComponent pc =
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        for (DoorTile door : currentLevel.doorTiles()) {
+            if (door.equals(Game.tileAT(pc.position()))) {
+                door.onEntering(entity);
+                nextLevel = door.level();
+            }
+        }
+        return Optional.ofNullable(nextLevel);
+    }
+
     /**
      * Execute the system logic.
      *
@@ -226,6 +245,7 @@ public final class LevelSystem extends System {
     public void execute() {
         if (currentLevel == null) loadLevel(levelSize);
         else if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(levelSize);
+        else entityStream().forEach(e -> isOnDoor(e).ifPresent(this::loadLevel));
         drawLevel();
     }
 

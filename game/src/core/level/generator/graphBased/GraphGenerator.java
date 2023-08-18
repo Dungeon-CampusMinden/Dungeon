@@ -1,4 +1,4 @@
-package core.level.generator.graphBased.graph;
+package core.level.generator.graphBased;
 
 import core.Entity;
 

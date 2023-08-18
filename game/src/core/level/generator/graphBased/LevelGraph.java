@@ -1,6 +1,7 @@
-package core.level.generator.graphBased.graph;
+package core.level.generator.graphBased;
 
 import core.Entity;
+import core.level.elements.ILevel;
 
 import java.util.*;
 
@@ -55,6 +56,14 @@ public final class LevelGraph {
      */
     public Node random() {
         return nodes.get(RANDOM.nextInt(nodes.size() - 1));
+    }
+
+    public Node root() {
+        return root;
+    }
+
+    public List<Node> nodes() {
+        return new ArrayList<>(nodes);
     }
 
     /**
@@ -114,6 +123,8 @@ public final class LevelGraph {
      */
     public static final class Node {
         private final Set<Entity> entities;
+
+        private ILevel level;
         private final Node[] neighbours = new Node[Direction.values().length];
 
         /**
@@ -223,6 +234,14 @@ public final class LevelGraph {
             java.lang.System.arraycopy(neighbours, 0, copy, 0, neighbours.length);
             return copy;
         }
+
+        public void level(ILevel level) {
+            this.level = level;
+        }
+
+        public ILevel level() {
+            return level;
+        }
     }
 
     /** The different directions in which nodes can be connected to each other. */
@@ -236,6 +255,10 @@ public final class LevelGraph {
 
         Direction(int value) {
             this.value = value;
+        }
+
+        public int value() {
+            return value;
         }
 
         /**

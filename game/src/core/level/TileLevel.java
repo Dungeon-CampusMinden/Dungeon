@@ -8,6 +8,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
+import core.utils.IVoidFunction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +20,9 @@ import java.util.List;
  * @author Andre Matutat
  */
 public class TileLevel implements ILevel {
+
+    private IVoidFunction onFirstLoad;
+    private boolean wasLoaded = false;
     protected final TileHeuristic tileHeuristic = new TileHeuristic();
     protected Tile startTile;
     protected int nodeCount = 0;
@@ -114,6 +118,22 @@ public class TileLevel implements ILevel {
                 checkTile.addConnection(t);
             }
         }
+    }
+
+    @Override
+    public void onFirstLoad(IVoidFunction function) {
+        this.onFirstLoad = function;
+    }
+
+    @Override
+    public boolean wasLoadedAtLeastOnce() {
+        return wasLoaded;
+    }
+
+    @Override
+    public void triggerFirstLoad() {
+        wasLoaded = false;
+        onFirstLoad.execute();
     }
 
     @Override

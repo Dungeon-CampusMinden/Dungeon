@@ -4,6 +4,7 @@ import core.level.Tile;
 import core.level.elements.tile.*;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
+import core.utils.IVoidFunction;
 
 import java.util.List;
 
@@ -210,4 +211,10 @@ public interface ILevel extends ITileable {
     default Tile randomFloorTile() {
         return randomTile(LevelElement.FLOOR);
     }
+
+    void onFirstLoad(IVoidFunction function);
+
+    boolean wasLoadedAtLeastOnce();
+
+    void triggerFirstLoad();
 }
