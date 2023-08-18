@@ -1,4 +1,4 @@
-package core.level.levelgraph;
+package core.level.generator.graphBased.graph;
 
 /**
  * Defines on which side of the room the door is located

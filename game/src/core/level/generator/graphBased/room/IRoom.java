@@ -1,8 +1,8 @@
-package core.level.room;
+package core.level.generator.graphBased.room;
 
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
-import core.level.levelgraph.LevelNode;
+import core.level.generator.graphBased.graph.LevelNode;
 
 import java.util.LinkedHashSet;
 

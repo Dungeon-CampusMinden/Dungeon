@@ -1,6 +1,6 @@
 package dslToGame;
 
-import core.level.levelgraph.LevelNode;
+import core.level.generator.graphBased.graph.LevelNode;
 
 import dslToGame.graph.Edge;
 import dslToGame.graph.Graph;

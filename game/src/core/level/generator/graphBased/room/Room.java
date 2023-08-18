@@ -1,9 +1,10 @@
-package core.level;
+package core.level.generator.graphBased.room;
 
 import core.Entity;
+import core.level.Tile;
+import core.level.TileLevel;
 import core.level.elements.tile.DoorTile;
-import core.level.levelgraph.LevelNode;
-import core.level.room.IRoom;
+import core.level.generator.graphBased.graph.LevelNode;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 

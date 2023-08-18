@@ -1,7 +1,7 @@
-package core.level.levelgraph;
+package core.level.generator.graphBased.graph;
 
 import core.level.elements.tile.DoorTile;
-import core.level.room.IRoom;
+import core.level.generator.graphBased.room.IRoom;
 
 import java.util.ArrayList;
 import java.util.Collections;

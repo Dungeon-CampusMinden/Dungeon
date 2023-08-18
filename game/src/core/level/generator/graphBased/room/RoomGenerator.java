@@ -1,12 +1,11 @@
-package core.level.room;
+package core.level.generator.graphBased.room;
 
 import static core.level.elements.ILevel.RANDOM;
 
-import core.level.Room;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
-import core.level.levelgraph.DoorDirection;
-import core.level.levelgraph.LevelNode;
+import core.level.generator.graphBased.graph.DoorDirection;
+import core.level.generator.graphBased.graph.LevelNode;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;

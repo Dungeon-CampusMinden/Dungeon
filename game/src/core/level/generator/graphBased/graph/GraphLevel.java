@@ -1,9 +1,9 @@
-package core.level.levelgraph;
+package core.level.generator.graphBased.graph;
 
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
-import core.level.room.IRoom;
-import core.level.room.RoomGenerator;
+import core.level.generator.graphBased.room.IRoom;
+import core.level.generator.graphBased.room.RoomGenerator;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
