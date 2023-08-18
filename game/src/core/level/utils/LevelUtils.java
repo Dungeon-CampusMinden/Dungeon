@@ -151,9 +151,9 @@ public class LevelUtils {
      */
     public static List<Tile> tilesInRange(final Point center, final float radius) {
         List<Tile> tiles = new ArrayList<>();
-        for (float x = center.x - radius; x <= center.x + radius; x++) {
-            for (float y = center.y - radius; y <= center.y + radius; y++) {
-                tiles.add(Game.tileAT(new Point(x, y)));
+        for (int x = (int) (center.x - radius); x <= center.x + radius; x++) {
+            for (int y = (int) (center.y - radius); y <= center.y + radius; y++) {
+                tiles.add(Game.tileAT(new Coordinate(x, y)));
             }
         }
         tiles.removeIf(Objects::isNull);
