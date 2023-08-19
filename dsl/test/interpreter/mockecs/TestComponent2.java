@@ -90,6 +90,10 @@ public class TestComponent2 extends Component {
         return member2;
     }
 
+    public void setMember2(int value) {
+        member2 = value;
+    }
+
     public String getMember3() {
         return member3;
     }
