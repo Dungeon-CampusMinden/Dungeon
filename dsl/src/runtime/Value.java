@@ -137,10 +137,11 @@ public class Value implements IClonable {
 
     @Override
     public String toString() {
-        if (this.object == null) {
-            return "[internal value of {Value@hc:"+this.hashCode()+"} is null]";
+        var internalValue = this.getInternalValue();
+        if (internalValue == null) {
+            return "[internal value of {Value@hc:" + this.hashCode() + "} is null]";
         } else {
-            return this.getInternalValue().toString();
+            return internalValue.toString();
         }
     }
 }

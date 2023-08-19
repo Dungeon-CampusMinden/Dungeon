@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class MemorySpace implements IMemorySpace {
-    public static MemorySpace NONE;
+    public static MemorySpace NONE = new MemorySpace();
     private final HashMap<String, Value> values = new HashMap<>();
     // TODO: is this really needed?!
     private final IMemorySpace parent;
@@ -21,7 +21,7 @@ public class MemorySpace implements IMemorySpace {
 
     /** Constructor, parent will be set to NONE */
     public MemorySpace() {
-        this.parent = NONE;
+        this.parent = MemorySpace.NONE;
     }
 
     /**
@@ -70,7 +70,7 @@ public class MemorySpace implements IMemorySpace {
     public Value resolve(String name, boolean resolveInParent) {
         if (this.values.containsKey(name)) {
             return this.values.get(name);
-        } else if (this.parent != NONE && resolveInParent) {
+        } else if (this.parent != MemorySpace.NONE && this.parent != null && resolveInParent) {
             return this.parent.resolve(name, true);
         } else {
             return Value.NONE;

@@ -24,6 +24,10 @@ public class AggregatePropertyValue extends AggregateValue {
     @Override
     public IMemorySpace getMemorySpace() {
         Object internalValue = this.getInternalValue();
+        if (internalValue == null) {
+            return MemorySpace.NONE;
+        }
+
         var runtimeObject =
                 environment
                         .getRuntimeObjectTranslator()
