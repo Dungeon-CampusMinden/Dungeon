@@ -201,8 +201,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (type.getTypeKind().equals(IType.Kind.Basic)) {
             Object internalValue = Value.getDefaultValue(type);
             return new Value(type, internalValue);
+        } else if (type.getTypeKind().equals(IType.Kind.PODAdapted)) {
+            AdaptedType adaptedType = (AdaptedType) type;
+            var builderParamType = adaptedType.getBuildParameterType();
+            return createDefaultValue(builderParamType);
         } else if (type.getTypeKind().equals(IType.Kind.Aggregate)
-                || type.getTypeKind().equals(IType.Kind.PODAdapted)
                 || type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
             AggregateValue value = new AggregateValue(type, getCurrentMemorySpace());
 

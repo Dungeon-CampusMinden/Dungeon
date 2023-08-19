@@ -430,6 +430,11 @@ public class TestDSLInterpreter {
                 """;
 
         var env = new TestEnvironment();
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+
         var interpreter = new DSLInterpreter();
         var questConfig =
                 Helpers.generateQuestConfigWithCustomTypes(
@@ -507,6 +512,11 @@ public class TestDSLInterpreter {
             """;
 
         var env = new TestEnvironment();
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+
         var interpreter = new DSLInterpreter();
         var questConfig =
                 Helpers.generateQuestConfigWithCustomTypes(
@@ -556,9 +566,17 @@ public class TestDSLInterpreter {
             """;
 
         var env = new TestEnvironment();
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), ComponentWithExternalTypeMember.class);
+        env.getTypeBuilder()
+                .registerProperty(
+                        env.getGlobalScope(),
+                        Entity.ComponentWithExternalTypeMemberProperty.instance);
+
         DSLInterpreter interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomTypes(
-                program, env, interpreter, Entity.class, ComponentWithExternalTypeMember.class);
+
+        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter, Entity.class);
 
         var globalMs = interpreter.getGlobalMemorySpace();
 
@@ -571,6 +589,7 @@ public class TestDSLInterpreter {
                 ((AggregateValue) myObj)
                         .getMemorySpace()
                         .resolve("component_with_external_type_member");
+
         var encapsulatedObject = (EncapsulatedObject) ((AggregateValue) component).getMemorySpace();
         var internalComponent = encapsulatedObject.getInternalValue();
 
@@ -601,15 +620,19 @@ public class TestDSLInterpreter {
         // setup test type system
         var env = new TestEnvironment();
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, env.getGlobalScope());
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), ExternalType.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithExternalType.class);
+        env.getTypeBuilder()
+                .registerProperty(
+                        env.getGlobalScope(),
+                        Entity.TestComponentWithExternalTypeProperty.instance);
+
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
-                program,
-                env,
-                interpreter,
-                Entity.class,
-                TestComponent1.class,
-                TestComponentWithExternalType.class,
-                ExternalType.class);
+                program, env, interpreter, Entity.class, TestComponent1.class);
 
         var globalMs = interpreter.getGlobalMemorySpace();
         AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
@@ -651,6 +674,13 @@ public class TestDSLInterpreter {
         var env = new TestEnvironment();
         env.getTypeBuilder()
                 .registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithExternalType.class);
+        env.getTypeBuilder()
+                .registerProperty(
+                        env.getGlobalScope(),
+                        Entity.TestComponentWithExternalTypeProperty.instance);
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
                 program,
@@ -658,7 +688,7 @@ public class TestDSLInterpreter {
                 interpreter,
                 Entity.class,
                 TestComponent1.class,
-                TestComponentWithExternalType.class,
+                // TestComponentWithExternalType.class,
                 ExternalType.class);
 
         var globalMs = interpreter.getGlobalMemorySpace();

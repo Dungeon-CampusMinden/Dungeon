@@ -70,6 +70,76 @@ public class Entity {
         }
     }
 
+    @DSLTypeProperty(name = "test_component_with_external_type", extendedType = Entity.class)
+    public static class TestComponentWithExternalTypeProperty
+            implements IDSLTypeProperty<Entity, TestComponentWithExternalType> {
+        public static Entity.TestComponentWithExternalTypeProperty instance =
+                new Entity.TestComponentWithExternalTypeProperty();
+
+        private TestComponentWithExternalTypeProperty() {}
+
+        @Override
+        public void set(Entity instance, TestComponentWithExternalType valueToSet) {}
+
+        @Override
+        public TestComponentWithExternalType get(Entity instance) {
+            var list =
+                    instance.components.stream()
+                            .filter(c -> c instanceof TestComponentWithExternalType)
+                            .toList();
+            if (list.size() == 0) {
+                return null;
+            } else {
+                return (TestComponentWithExternalType) list.get(0);
+            }
+        }
+
+        @Override
+        public boolean isSettable() {
+            return false;
+        }
+
+        @Override
+        public boolean isGettable() {
+            return true;
+        }
+    }
+
+    @DSLTypeProperty(name = "component_with_external_type_member", extendedType = Entity.class)
+    public static class ComponentWithExternalTypeMemberProperty
+            implements IDSLTypeProperty<Entity, ComponentWithExternalTypeMember> {
+        public static Entity.ComponentWithExternalTypeMemberProperty instance =
+                new Entity.ComponentWithExternalTypeMemberProperty();
+
+        private ComponentWithExternalTypeMemberProperty() {}
+
+        @Override
+        public void set(Entity instance, ComponentWithExternalTypeMember valueToSet) {}
+
+        @Override
+        public ComponentWithExternalTypeMember get(Entity instance) {
+            var list =
+                    instance.components.stream()
+                            .filter(c -> c instanceof ComponentWithExternalTypeMember)
+                            .toList();
+            if (list.size() == 0) {
+                return null;
+            } else {
+                return (ComponentWithExternalTypeMember) list.get(0);
+            }
+        }
+
+        @Override
+        public boolean isSettable() {
+            return false;
+        }
+
+        @Override
+        public boolean isGettable() {
+            return true;
+        }
+    }
+
     private static int _idx;
     public List<Component> components = new ArrayList<>();
 

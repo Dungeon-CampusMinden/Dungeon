@@ -1,8 +1,5 @@
 package interpreter;
 
-import interpreter.mockecs.Entity;
-import interpreter.mockecs.MockEntityTranslator;
-
 import runtime.GameEnvironment;
 
 import semanticanalysis.types.IDSLTypeProperty;
@@ -36,8 +33,5 @@ public class TestEnvironment extends GameEnvironment {
     }
 
     @Override
-    protected void registerDefaultRuntimeObjectTranslators() {
-        this.runtimeObjectTranslator.loadObjectToValueTranslator(
-                Entity.class, MockEntityTranslator.instance);
-    }
+    protected void registerDefaultRuntimeObjectTranslators() {}
 }
