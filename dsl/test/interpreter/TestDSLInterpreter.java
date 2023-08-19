@@ -1548,4 +1548,57 @@ public class TestDSLInterpreter {
         String output = outputStream.toString();
         Assert.assertTrue(output.contains("42"));
     }
+
+    @Test
+    public void testComponentPropertyOfEntity() {
+        String program =
+                """
+            entity_type my_type {
+                test_component2 {
+                    member2: 42
+                },
+                test_component_with_callback {
+                    consumer: get_property
+                }
+            }
+
+            fn get_property(entity ent) {
+                print(ent.test_component1.member1);
+                print(ent.test_component2.member2);
+            }
+
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+        var componentWithConsumer = (TestComponentEntityConsumerCallback) entity.components.get(0);
+        componentWithConsumer.consumer.accept(entity);
+
+        String output = outputStream.toString();
+        Assert.assertTrue(output.contains("42"));
+    }
 }
