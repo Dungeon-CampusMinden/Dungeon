@@ -179,7 +179,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             ms.bindValue(symbol.getName(), value);
             return value;
         }
-        if (!(symbol instanceof IType)) {
+        if (!(symbol instanceof IType) && !(symbol instanceof PropertySymbol)) {
             var value = createDefaultValue(symbol.getDataType());
             ms.bindValue(symbol.getName(), value);
             return value;
