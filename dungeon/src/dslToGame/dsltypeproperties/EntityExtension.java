@@ -8,12 +8,13 @@ import semanticanalysis.types.DSLTypeProperty;
 import semanticanalysis.types.IDSLTypeProperty;
 
 /**
- * This class implements {@link IDSLTypeProperty} for the {@link Entity} class,
- * in order to access the Components of an entity from a DSL-program.
+ * This class implements {@link IDSLTypeProperty} for the {@link Entity} class, in order to access
+ * the Components of an entity from a DSL-program.
  */
 public class EntityExtension {
     // private ctor, because this class should not be instantiated
     private EntityExtension() {}
+
     @DSLTypeProperty(name = "velocity_component", extendedType = Entity.class)
     public static class VelocityComponentProperty
             implements IDSLTypeProperty<Entity, VelocityComponent> {

@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
 public @interface DSLTypeProperty {
     /**
      * The name of the property, by which it should be accessible in a DSL program.
+     *
      * @return the name.
      */
     String name();
@@ -25,12 +26,14 @@ public @interface DSLTypeProperty {
 
     /**
      * Is the property settable?
+     *
      * @return true, if the property is settable, false otherwise
      */
     boolean isSettable() default true;
 
     /**
      * Is the property gettable?
+     *
      * @return true, if the property is gettable, false otherwise
      */
     boolean isGettable() default true;
