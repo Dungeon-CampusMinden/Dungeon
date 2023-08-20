@@ -84,8 +84,10 @@ public class TypeInstantiator {
             if (property.isSettable()) {
                 // get corresponding value from memorySpace
                 Value value = ms.resolve(propertySymbol.getName());
-                Object valueAsObject = convertValueToObject(value);
-                property.set(instance, valueAsObject);
+                if (value != Value.NONE) {
+                    Object valueAsObject = convertValueToObject(value);
+                    property.set(instance, valueAsObject);
+                }
             }
         }
     }
