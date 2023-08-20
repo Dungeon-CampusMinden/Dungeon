@@ -7,7 +7,13 @@ import core.components.VelocityComponent;
 import semanticanalysis.types.DSLTypeProperty;
 import semanticanalysis.types.IDSLTypeProperty;
 
+/**
+ * This class implements {@link IDSLTypeProperty} for the {@link Entity} class,
+ * in order to access the Components of an entity from a DSL-program.
+ */
 public class EntityExtension {
+    // private ctor, because this class should not be instantiated
+    private EntityExtension() {}
     @DSLTypeProperty(name = "velocity_component", extendedType = Entity.class)
     public static class VelocityComponentProperty
             implements IDSLTypeProperty<Entity, VelocityComponent> {
@@ -26,16 +32,6 @@ public class EntityExtension {
         public VelocityComponent get(Entity instance) {
             var optionalComponent = instance.fetch(VelocityComponent.class);
             return optionalComponent.orElse(null);
-        }
-
-        @Override
-        public boolean isSettable() {
-            return true;
-        }
-
-        @Override
-        public boolean isGettable() {
-            return true;
         }
     }
 
@@ -57,16 +53,6 @@ public class EntityExtension {
         public PositionComponent get(Entity instance) {
             var optionalComponent = instance.fetch(PositionComponent.class);
             return optionalComponent.orElse(null);
-        }
-
-        @Override
-        public boolean isSettable() {
-            return true;
-        }
-
-        @Override
-        public boolean isGettable() {
-            return true;
         }
     }
 }

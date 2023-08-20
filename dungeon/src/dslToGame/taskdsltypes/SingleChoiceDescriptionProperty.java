@@ -20,14 +20,4 @@ public class SingleChoiceDescriptionProperty implements IDSLTypeProperty<Quiz, S
     public String get(Quiz instance) {
         return instance.taskText();
     }
-
-    @Override
-    public boolean isSettable() {
-        return true;
-    }
-
-    @Override
-    public boolean isGettable() {
-        return true;
-    }
 }

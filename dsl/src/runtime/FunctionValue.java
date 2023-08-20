@@ -3,6 +3,7 @@ package runtime;
 import semanticanalysis.ICallable;
 import semanticanalysis.types.IType;
 
+/** This Value represents the instance of an {@link ICallable}. */
 public class FunctionValue extends Value {
     ICallable callable;
 

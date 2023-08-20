@@ -8,7 +8,7 @@ import java.util.List;
 @DSLType(name = "entity")
 @DSLContextPush(name = "entity")
 public class Entity {
-    @DSLTypeProperty(name = "test_component2", extendedType = Entity.class)
+    @DSLTypeProperty(name = "test_component2", extendedType = Entity.class, isSettable = false)
     public static class TestComponent2Property implements IDSLTypeProperty<Entity, TestComponent2> {
         public static Entity.TestComponent2Property instance = new Entity.TestComponent2Property();
 
@@ -27,19 +27,9 @@ public class Entity {
                 return (TestComponent2) list.get(0);
             }
         }
-
-        @Override
-        public boolean isSettable() {
-            return false;
-        }
-
-        @Override
-        public boolean isGettable() {
-            return true;
-        }
     }
 
-    @DSLTypeProperty(name = "test_component1", extendedType = Entity.class)
+    @DSLTypeProperty(name = "test_component1", extendedType = Entity.class, isSettable = false)
     public static class TestComponent1Property implements IDSLTypeProperty<Entity, TestComponent1> {
         public static Entity.TestComponent1Property instance = new Entity.TestComponent1Property();
 
@@ -58,19 +48,12 @@ public class Entity {
                 return (TestComponent1) list.get(0);
             }
         }
-
-        @Override
-        public boolean isSettable() {
-            return false;
-        }
-
-        @Override
-        public boolean isGettable() {
-            return true;
-        }
     }
 
-    @DSLTypeProperty(name = "test_component_with_external_type", extendedType = Entity.class)
+    @DSLTypeProperty(
+            name = "test_component_with_external_type",
+            extendedType = Entity.class,
+            isSettable = false)
     public static class TestComponentWithExternalTypeProperty
             implements IDSLTypeProperty<Entity, TestComponentWithExternalType> {
         public static Entity.TestComponentWithExternalTypeProperty instance =
@@ -93,19 +76,12 @@ public class Entity {
                 return (TestComponentWithExternalType) list.get(0);
             }
         }
-
-        @Override
-        public boolean isSettable() {
-            return false;
-        }
-
-        @Override
-        public boolean isGettable() {
-            return true;
-        }
     }
 
-    @DSLTypeProperty(name = "component_with_external_type_member", extendedType = Entity.class)
+    @DSLTypeProperty(
+            name = "component_with_external_type_member",
+            extendedType = Entity.class,
+            isSettable = false)
     public static class ComponentWithExternalTypeMemberProperty
             implements IDSLTypeProperty<Entity, ComponentWithExternalTypeMember> {
         public static Entity.ComponentWithExternalTypeMemberProperty instance =
@@ -127,16 +103,6 @@ public class Entity {
             } else {
                 return (ComponentWithExternalTypeMember) list.get(0);
             }
-        }
-
-        @Override
-        public boolean isSettable() {
-            return false;
-        }
-
-        @Override
-        public boolean isGettable() {
-            return true;
         }
     }
 

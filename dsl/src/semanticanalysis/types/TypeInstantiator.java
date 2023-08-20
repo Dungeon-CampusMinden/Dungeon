@@ -81,7 +81,7 @@ public class TypeInstantiator {
 
         for (PropertySymbol propertySymbol : properties) {
             IDSLTypeProperty property = propertySymbol.getProperty();
-            if (property.isSettable()) {
+            if (propertySymbol.isSettable()) {
                 // get corresponding value from memorySpace
                 Value value = ms.resolve(propertySymbol.getName());
                 if (value != Value.NONE) {

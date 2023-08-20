@@ -21,16 +21,6 @@ public class TestComponent2 extends Component {
         public Float get(TestComponent2 instance) {
             return instance.hiddenFloat;
         }
-
-        @Override
-        public boolean isSettable() {
-            return true;
-        }
-
-        @Override
-        public boolean isGettable() {
-            return true;
-        }
     }
 
     @DSLTypeProperty(name = "this_is_complex", extendedType = TestComponent2.class)
@@ -49,16 +39,6 @@ public class TestComponent2 extends Component {
         @Override
         public ComplexType get(TestComponent2 instance) {
             return instance.hiddenComplexMember;
-        }
-
-        @Override
-        public boolean isSettable() {
-            return true;
-        }
-
-        @Override
-        public boolean isGettable() {
-            return true;
         }
     }
 
