@@ -9,6 +9,7 @@ import core.components.VelocityComponent;
 
 import dslToGame.EntityTranslator;
 import dslToGame.QuestConfig;
+import dslToGame.dsltypeproperties.EntityExtension;
 import dslToGame.taskdsltypes.MultipleChoiceTask;
 import dslToGame.taskdsltypes.SingleChoiceDescriptionProperty;
 import dslToGame.taskdsltypes.SingleChoiceTask;
@@ -70,6 +71,10 @@ public class GameEnvironment implements IEvironment {
     public List<IDSLTypeProperty<?, ?>> getBuiltInProperties() {
         ArrayList<IDSLTypeProperty<?, ?>> properties = new ArrayList<>();
         properties.add(SingleChoiceDescriptionProperty.instance);
+
+        properties.add(EntityExtension.VelocityComponentProperty.instance);
+        properties.add(EntityExtension.PositionComponentProperty.instance);
+
         return properties;
     }
 
@@ -110,8 +115,8 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected void registerDefaultRuntimeObjectTranslators() {
-        this.runtimeObjectTranslator.loadObjectToValueTranslator(
-                Entity.class, EntityTranslator.instance);
+        /*this.runtimeObjectTranslator.loadObjectToValueTranslator(
+                Entity.class, EntityTranslator.instance);*/
     }
 
     protected void bindNativeFunctions() {
