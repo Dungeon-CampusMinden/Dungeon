@@ -3,13 +3,16 @@ package dslToGame.dsltypeproperties;
 import core.Entity;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+
 import semanticanalysis.types.DSLTypeProperty;
 import semanticanalysis.types.IDSLTypeProperty;
 
 public class EntityExtension {
     @DSLTypeProperty(name = "velocity_component", extendedType = Entity.class)
-    public static class VelocityComponentProperty implements IDSLTypeProperty<Entity, VelocityComponent> {
-        public static EntityExtension.VelocityComponentProperty instance = new EntityExtension.VelocityComponentProperty();
+    public static class VelocityComponentProperty
+            implements IDSLTypeProperty<Entity, VelocityComponent> {
+        public static EntityExtension.VelocityComponentProperty instance =
+                new EntityExtension.VelocityComponentProperty();
 
         private VelocityComponentProperty() {}
 
@@ -37,8 +40,10 @@ public class EntityExtension {
     }
 
     @DSLTypeProperty(name = "position_component", extendedType = Entity.class)
-    public static class PositionComponentProperty implements IDSLTypeProperty<Entity, PositionComponent> {
-        public static EntityExtension.PositionComponentProperty instance = new EntityExtension.PositionComponentProperty();
+    public static class PositionComponentProperty
+            implements IDSLTypeProperty<Entity, PositionComponent> {
+        public static EntityExtension.PositionComponentProperty instance =
+                new EntityExtension.PositionComponentProperty();
 
         private PositionComponentProperty() {}
 

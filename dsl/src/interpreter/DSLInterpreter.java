@@ -148,7 +148,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         // bind all function definition and object definition symbols to values
         // in global memorySpace
-        // TODO: this should potentially done on a file basis, not globally for the whole DSLInterpreter
+        // TODO: this should potentially done on a file basis, not globally for the whole
+        // DSLInterpreter
         //  should define a file-scope...
         HashMap<Symbol, Value> globalValues = new HashMap<>();
         for (var symbol : symbolTable().getGlobalScope().getSymbols()) {

@@ -7,7 +7,6 @@ import core.Entity;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
-import dslToGame.EntityTranslator;
 import dslToGame.QuestConfig;
 import dslToGame.dsltypeproperties.EntityExtension;
 import dslToGame.taskdsltypes.MultipleChoiceTask;
@@ -114,10 +113,7 @@ public class GameEnvironment implements IEvironment {
         typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
     }
 
-    protected void registerDefaultRuntimeObjectTranslators() {
-        /*this.runtimeObjectTranslator.loadObjectToValueTranslator(
-                Entity.class, EntityTranslator.instance);*/
-    }
+    protected void registerDefaultRuntimeObjectTranslators() {}
 
     protected void bindNativeFunctions() {
         for (Symbol func : NATIVE_FUNCTIONS) {
