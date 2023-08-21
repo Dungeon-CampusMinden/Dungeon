@@ -85,7 +85,7 @@ public class TestDslFileLoader {
     @Test
     public void fileToString() {
         ClassLoader classLoader = getClass().getClassLoader();
-        File f = new File(classLoader.getResource(PATH_TO_DNG.toString()).getFile());
+        File f = new File(classLoader.getResource(PATH_TO_DNG.toString().replace("\\","/")).getFile());
         String expectedContent =
                 "some test text."
                         + System.lineSeparator()
