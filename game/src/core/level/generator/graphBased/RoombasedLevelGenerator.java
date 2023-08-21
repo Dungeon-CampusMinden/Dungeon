@@ -15,11 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class LevelGenerator {
+public class RoombasedLevelGenerator {
 
     public static ILevel level(Set<Set<Entity>> entities, DesignLabel designLabel) {
         LevelGraph graph = GraphGenerator.generate(entities);
         RoomGenerator roomG = new RoomGenerator();
+
+        // generate TileLevel for each Node
         graph.nodes()
                 .forEach(
                         node ->
@@ -31,8 +33,11 @@ public class LevelGenerator {
 
         for (LevelGraph.Node node : graph.nodes()) {
             ILevel level = node.level();
+
+            // remove trapdoor exit, in rooms we only use doors
             List<Tile> exits = new ArrayList<>(level.exitTiles());
             exits.forEach(exit -> level.changeTileElementType(exit, LevelElement.FLOOR));
+
             configureDoors(node);
             node.level().onFirstLoad(() -> node.entities().forEach(Game::add));
         }

@@ -227,7 +227,7 @@ public final class LevelSystem extends System {
         for (DoorTile door : currentLevel.doorTiles()) {
             if (door.equals(Game.tileAT(pc.position()))) {
                 door.onEntering(entity);
-                nextLevel = door.level();
+                nextLevel = door.getOtherDoor().level();
             }
         }
         return Optional.ofNullable(nextLevel);

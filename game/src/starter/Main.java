@@ -7,7 +7,7 @@ import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.level.elements.ILevel;
-import core.level.generator.graphBased.LevelGenerator;
+import core.level.generator.graphBased.RoombasedLevelGenerator;
 import core.level.utils.DesignLabel;
 
 import java.io.IOException;
@@ -48,7 +48,8 @@ public class Main {
                             for (int k = 0; k < chestCount; k++) set.add(EntityFactory.newChest());
                         }
                         System.out.println(entities.size());
-                        ILevel level = LevelGenerator.level(entities, DesignLabel.randomDesign());
+                        ILevel level =
+                                RoombasedLevelGenerator.level(entities, DesignLabel.randomDesign());
                         Game.currentLevel(level);
 
                     } catch (IOException e) {
