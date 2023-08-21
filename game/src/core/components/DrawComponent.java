@@ -51,7 +51,7 @@ public final class DrawComponent implements Component {
     private final Map<String, Animation> animationMap;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
-    private Map<Animation[], Integer> animationQueue = new HashMap<>();
+    private Map<IPath[], Integer> animationQueue = new HashMap<>();
 
     /**
      * Create a new DrawComponent.
@@ -153,12 +153,12 @@ public final class DrawComponent implements Component {
     }
 
     // TODO javadoc
-    public void nextAnimation(Animation... next) {
+    public void nextAnimation(IPath... next) {
         nextAnimation(1, next);
     }
 
     // TODO javadoc
-    public void nextAnimation(int forFrames, Animation... next) {
+    public void nextAnimation(int forFrames, IPath... next) {
         animationQueue.put(next, forFrames);
     }
 

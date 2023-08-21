@@ -66,7 +66,7 @@ public final class DrawSystem extends System {
     }
 
     private void draw(DSData dsd) {
-        final Animation animation = dsd.ac.currentAnimation();
+        final Animation animation = dsd.dc.currentAnimation();
         String currentAnimationTexture = animation.nextAnimationTexturePath();
         if (!configs.containsKey(currentAnimationTexture)) {
             configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
@@ -93,7 +93,7 @@ public final class DrawSystem extends System {
         run = true;
     }
 
-    private record DSData(Entity e, DrawComponent ac, PositionComponent pc) {}
+    private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {}
 
     /**
      * @return the {@link #painter} of the Drawsystem

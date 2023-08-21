@@ -335,8 +335,8 @@ public enum Item {
                 name,
                 description,
                 category,
-                new Animation("animation/missing_texture.png"),
-                new Animation("animation/missing_texture.png"));
+                new Animation("animation/missing_texture.png", 0),
+                new Animation("animation/missing_texture.png", 0));
     }
 
     Item(String name, String description, ItemCategory category, Animation animation) {
@@ -344,7 +344,7 @@ public enum Item {
     }
 
     Item(String name, String description, ItemCategory category, String texturePath) {
-        this(name, description, category, new Animation(texturePath), new Animation(texturePath));
+        this(name, description, category, new Animation(texturePath, 0), new Animation(texturePath, 0));
     }
 
     Item(
