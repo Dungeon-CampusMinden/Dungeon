@@ -212,9 +212,19 @@ public interface ILevel extends ITileable {
         return randomTile(LevelElement.FLOOR);
     }
 
+    /**
+     * Set the function that should be executed if this level is loaded as the current level for the
+     * first time.
+     *
+     * @param function The function to be executed when the level is loaded for the first time.
+     */
     void onFirstLoad(IVoidFunction function);
 
-    boolean wasLoadedAtLeastOnce();
-
-    void triggerFirstLoad();
+    /**
+     * Notify the level that it has been loaded as the current level.
+     *
+     * <p>This function should check if the level was loaded for the first time and then execute the
+     * registered function from {@link #onFirstLoad(IVoidFunction)}.
+     */
+    void onLoad();
 }

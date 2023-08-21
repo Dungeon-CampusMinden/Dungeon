@@ -21,23 +21,22 @@ import java.util.List;
  */
 public class TileLevel implements ILevel {
 
-    private IVoidFunction onFirstLoad;
-    private boolean wasLoaded = false;
+    private static final Coordinate[] CONNECTION_OFFSETS = {
+        new Coordinate(0, 1), new Coordinate(0, -1), new Coordinate(1, 0), new Coordinate(-1, 0),
+    };
     protected final TileHeuristic tileHeuristic = new TileHeuristic();
     protected Tile startTile;
     protected int nodeCount = 0;
     protected Tile[][] layout;
-
     protected ArrayList<FloorTile> floorTiles = new ArrayList<>();
     protected ArrayList<WallTile> wallTiles = new ArrayList<>();
     protected ArrayList<HoleTile> holeTiles = new ArrayList<>();
     protected ArrayList<DoorTile> doorTiles = new ArrayList<>();
     protected ArrayList<ExitTile> exitTiles = new ArrayList<>();
     protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
+    private IVoidFunction onFirstLoad;
+    private boolean wasLoaded = false;
 
-    private static final Coordinate CONNECTION_OFFSETS[] = {
-        new Coordinate(0, 1), new Coordinate(0, -1), new Coordinate(1, 0), new Coordinate(-1, 0),
-    };
     /**
      * Create a new level
      *
@@ -58,14 +57,6 @@ public class TileLevel implements ILevel {
      */
     public TileLevel(LevelElement[][] layout, DesignLabel designLabel) {
         this(convertLevelElementToTile(layout, designLabel));
-    }
-
-    private void putTilesInLists() {
-        for (int y = 0; y < layout.length; y++) {
-            for (int x = 0; x < layout[0].length; x++) {
-                addTile(layout[y][x]);
-            }
-        }
     }
 
     /**
@@ -90,6 +81,14 @@ public class TileLevel implements ILevel {
             }
         }
         return tileLayout;
+    }
+
+    private void putTilesInLists() {
+        for (int y = 0; y < layout.length; y++) {
+            for (int x = 0; x < layout[0].length; x++) {
+                addTile(layout[y][x]);
+            }
+        }
     }
 
     @Override
@@ -126,14 +125,11 @@ public class TileLevel implements ILevel {
     }
 
     @Override
-    public boolean wasLoadedAtLeastOnce() {
-        return wasLoaded;
-    }
-
-    @Override
-    public void triggerFirstLoad() {
-        wasLoaded = false;
-        onFirstLoad.execute();
+    public void onLoad() {
+        if (!wasLoaded) {
+            wasLoaded = false;
+            onFirstLoad.execute();
+        }
     }
 
     @Override

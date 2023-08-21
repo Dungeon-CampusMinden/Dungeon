@@ -141,6 +141,7 @@ public final class Game extends ScreenAdapter {
                     LOGGER.warning(e.getMessage());
                 }
                 hero().ifPresent(Game::add);
+                currentLevel().onLoad();
                 userOnLevelLoad.execute();
             };
 

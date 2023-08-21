@@ -336,7 +336,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isRightWall(Coordinate p, LevelElement[][] layout) {
+    public static boolean isRightWall(Coordinate p, LevelElement[][] layout) {
         return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
                 && (belowIsWall(p, layout) || belowIsDoor(p, layout))
                 && leftIsInside(p, layout);
@@ -350,7 +350,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isLeftWall(Coordinate p, LevelElement[][] layout) {
+    public static boolean isLeftWall(Coordinate p, LevelElement[][] layout) {
         return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
                 && (belowIsWall(p, layout) || belowIsDoor(p, layout))
                 && rightIsInside(p, layout);
@@ -364,7 +364,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isTopWall(Coordinate p, LevelElement[][] layout) {
+    public static boolean isTopWall(Coordinate p, LevelElement[][] layout) {
         return (leftIsWall(p, layout) || leftIsDoor(p, layout))
                 && (rightIsWall(p, layout) || rightIsDoor(p, layout))
                 && belowIsInside(p, layout);
@@ -378,7 +378,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return true if all conditions are met
      */
-    private static boolean isBottomWall(Coordinate p, LevelElement[][] layout) {
+    public static boolean isBottomWall(Coordinate p, LevelElement[][] layout) {
         return (leftIsWall(p, layout) || leftIsDoor(p, layout))
                 && (rightIsWall(p, layout) || rightIsDoor(p, layout))
                 && aboveIsInside(p, layout);

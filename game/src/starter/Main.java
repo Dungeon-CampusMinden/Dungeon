@@ -47,7 +47,6 @@ public class Main {
                                 set.add(EntityFactory.randomMonster());
                             for (int k = 0; k < chestCount; k++) set.add(EntityFactory.newChest());
                         }
-                        System.out.println(entities.size());
                         ILevel level =
                                 RoombasedLevelGenerator.level(entities, DesignLabel.randomDesign());
                         Game.currentLevel(level);
