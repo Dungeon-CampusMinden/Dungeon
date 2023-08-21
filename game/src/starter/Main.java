@@ -1,9 +1,12 @@
 package starter;
 
+import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
+import contrib.utils.components.item.Item;
+import contrib.utils.components.item.ItemData;
 
 import core.Entity;
 import core.Game;
@@ -28,7 +31,6 @@ public class Main {
         Game.userOnSetup(
                 () -> {
                     try {
-
                         Entity hero = (EntityFactory.newHero());
                         Game.add(hero);
                         Game.hero(hero);
@@ -38,20 +40,25 @@ public class Main {
                     }
                 });
         Game.userOnLevelLoad(
-                (firstTime) -> {
-                    if (firstTime) {
-                        try {
-
-                            Game.add(EntityFactory.newChest());
-                            for (int i = 0; i < 5; i++) {
-                                Game.add(EntityFactory.randomMonster());
-                            }
-                        } catch (IOException e) {
-                            LOGGER.warning("Could not create new Chest: " + e.getMessage());
-                            throw new RuntimeException();
+                () -> {
+                    try {
+                        Game.add(EntityFactory.newChest());
+                        for (int i = 0; i < 5; i++) {
+                            Game.add(EntityFactory.randomMonster());
                         }
-                        Game.levelSize(LevelSize.randomSize());
+                        Game.add(EntityFactory.newCraftingCauldron());
+                        Game.hero()
+                                .flatMap(h -> h.fetch(InventoryComponent.class))
+                                .ifPresent(
+                                        i -> {
+                                            i.add(new ItemData(Item.RESOURCE_WOOD));
+                                            i.add(new ItemData(Item.RESOURCE_IRON_ORE));
+                                        });
+                    } catch (IOException e) {
+                        LOGGER.warning("Could not create new Chest: " + e.getMessage());
+                        throw new RuntimeException();
                     }
+                    Game.levelSize(LevelSize.randomSize());
                 });
         Game.userOnFrame(debugger::execute);
         Game.windowTitle("My Dungeon");

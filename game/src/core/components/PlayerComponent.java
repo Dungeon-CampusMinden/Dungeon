@@ -27,7 +27,11 @@ import java.util.function.Consumer;
  */
 public final class PlayerComponent implements Component {
 
-    public record InputData(boolean repeat, Consumer<Entity> callback) {}
+    public record InputData(boolean repeat, Consumer<Entity> callback, boolean pausable) {
+        public InputData(boolean repeat, Consumer<Entity> callback) {
+            this(repeat, callback, true);
+        }
+    }
 
     private final Map<Integer, InputData> callbacks;
 
@@ -67,16 +71,35 @@ public final class PlayerComponent implements Component {
      * @param key The integer value of the key on which the callback should be executed.
      * @param callback The {@link Consumer} that contains the callback to execute if the key is
      * @param repeat If the callback should be executed repeatedly while the key is pressed.
+     * @param pausable If the callback should be executed while the game is paused.
      * @return Optional<Consumer<Entity>> The old callback, if one was existing. Can be null.
      */
     public Optional<Consumer<Entity>> registerCallback(
-            int key, final Consumer<Entity> callback, boolean repeat) {
+            int key, final Consumer<Entity> callback, boolean repeat, boolean pausable) {
         Consumer<Entity> oldCallback = null;
         if (callbacks.containsKey(key)) {
             oldCallback = callbacks.get(key).callback();
         }
-        callbacks.put(key, new InputData(repeat, callback));
+        callbacks.put(key, new InputData(repeat, callback, pausable));
         return Optional.ofNullable(oldCallback);
+    }
+
+    /**
+     * Register a new pausable callback for a key.
+     *
+     * <p>If a callback is already registered on this key, the old callback will be replaced.
+     *
+     * <p>This exists for compatibility reasons. Use {@link #registerCallback(int, Consumer,
+     * boolean, boolean)} instead.
+     *
+     * @param key The integer value of the key on which the callback should be executed.
+     * @param callback The {@link Consumer} that contains the callback to execute if the key is
+     * @param repeat If the callback should be executed repeatedly while the key is pressed.
+     * @return Optional<Consumer<Entity>> The old callback, if one was existing. Can be null.
+     */
+    public Optional<Consumer<Entity>> registerCallback(
+            int key, final Consumer<Entity> callback, boolean repeat) {
+        return this.registerCallback(key, callback, repeat, true);
     }
 
     /**
@@ -92,10 +115,19 @@ public final class PlayerComponent implements Component {
     /**
      * Execute the callback function registered to a key when it is pressed.
      *
+     * <p>The callbacks are executed only if the game is not paused or if the callback is not
+     * pausable.
+     *
      * @param entity associated entity of this component.
+     * @param paused if the game is paused or not.
      */
-    public void execute(final Entity entity) {
-        callbacks.forEach((k, v) -> execute(entity, k, v));
+    public void execute(final Entity entity, boolean paused) {
+        this.callbacks.forEach(
+                (key, value) -> {
+                    if (!paused || !value.pausable) {
+                        this.execute(entity, key, value);
+                    }
+                });
     }
 
     private void execute(Entity entity, int key, final InputData data) {
