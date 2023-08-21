@@ -139,16 +139,16 @@ public final class VelocitySystem extends System {
 
         float x = vsd.vc.currentXVelocity();
         float y = vsd.vc.currentYVelocity();
-        if (x > 0) vsd.dc.currentAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-        else if (x < 0) vsd.dc.currentAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-        else if (y > 0) vsd.dc.currentAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
-        else if (y < 0) vsd.dc.currentAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
+        if (x > 0) vsd.dc.nextAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
+        else if (x < 0) vsd.dc.nextAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
+        else if (y > 0) vsd.dc.nextAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
+        else if (y < 0) vsd.dc.nextAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
         // idle
         else {
             // each drawComponent has an idle animation, so no check is needed
             if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
                     || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_LEFT))
-                vsd.dc.currentAnimation(
+                vsd.dc.nextAnimation(
                         CoreAnimations.IDLE_LEFT,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_RIGHT,
@@ -156,22 +156,22 @@ public final class VelocitySystem extends System {
                         CoreAnimations.IDLE_UP);
             else if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_RIGHT)
                     || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_RIGHT))
-                vsd.dc.currentAnimation(
+                vsd.dc.nextAnimation(
                         CoreAnimations.IDLE_RIGHT,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_LEFT,
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE_UP);
             else if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_UP)
-                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_UP))
-                vsd.dc.currentAnimation(
+                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_DOWN))
+                vsd.dc.nextAnimation(
                         CoreAnimations.IDLE_UP,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE_LEFT,
                         CoreAnimations.IDLE_RIGHT);
             else
-                vsd.dc.currentAnimation(
+                vsd.dc.nextAnimation(
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_UP,
