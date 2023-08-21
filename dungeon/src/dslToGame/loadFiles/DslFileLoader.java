@@ -11,8 +11,11 @@ import java.util.jar.JarFile;
 /**
  * Provides functions for loading DSL files.
  *
- * <p>Use {@link #processArguments(String[])} to read in all DSL files in the given paths.
- * Basically, use this function to parse the command line arguments and extract all DSL file paths.
+ * <p>Use {@link #processArguments(String[])} to read all DSL files in the given paths. Basically,
+ * use this function to parse the command line arguments and extract all DSL file paths.
+ *
+ * <p>Note: Always use "/" as the file separator; do not use the typical Windows "\\" file
+ * separator.
  */
 public class DslFileLoader {
 
@@ -23,21 +26,26 @@ public class DslFileLoader {
     /**
      * Load DSL files from the given paths.
      *
-     * <p>This function will try to parse each given String to a Path and then check if it's a DSL
-     * file or a jar.
+     * <p>This function attempts to parse each given String into a {@link Path} and then checks
+     * whether it represents a DSL file or a jar.
      *
-     * <p>If it's a jar, it will load each DSL file from inside the jar's "/script" directory.
+     * <p>If it's a DSL file, the function adds the file's path to the return set.
      *
-     * @param args Strings that could be paths, basically use the command line arguments.
+     * <p>If it's a jar, it loads each DSL file from the "/script" directory within the jar.
+     *
+     * <p>Non-DSL files will be ignored.
+     *
+     * <p>Note: Always use "/" as the file separator; do not use the typical Windows "\\" file
+     * separator.
+     *
+     * @param args Strings that could be paths; typically, these are the command line arguments.
      * @return Set containing all paths to DSL files.
      * @throws IOException if an I/O error occurs while reading the files.
      */
     public static Set<Path> processArguments(String[] args) throws IOException {
         Set<Path> foundPaths = new HashSet<>();
-
         for (String arg : args) {
             Path path = Paths.get(arg);
-
             if (Files.exists(path)) {
                 String fileName = path.getFileName().toString();
                 if (fileName.endsWith(JAR_FILE_ENDING)) {
@@ -52,7 +60,14 @@ public class DslFileLoader {
         return foundPaths;
     }
 
-    private static Set<Path> findDSLFilesInJar(String jarPath) throws IOException {
+    /**
+     * Search for files in the "/script" directory of the given jar file.
+     *
+     * @param jarPath Path to the jar file.
+     * @return Collection of Path objects representing all DSL files in the ".jar/scripts"
+     *     directory.
+     */
+    private static Set<Path> findDSLFilesInJar(String jarPath) {
         Set<Path> dngPaths = new HashSet<>();
 
         try (JarFile jarFile = new JarFile(jarPath)) {
@@ -75,10 +90,12 @@ public class DslFileLoader {
     }
 
     /**
-     * Read in the given file as string.
+     * Read the given file as a string.
      *
-     * @param file file to read in.
-     * @return read in string.
+     * <p>Note: This only works if the program is running in the IDE, not in the jar.
+     *
+     * @param file File to read.
+     * @return Read-in string.
      */
     public static String fileToString(File file) {
         StringBuilder stringBuilder = new StringBuilder();

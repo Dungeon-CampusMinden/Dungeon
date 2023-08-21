@@ -15,26 +15,39 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+/**
+ * Generic Game Starter for a game that uses DSL inputs.
+ *
+ * <p>This will set up a basic game with all systems and a hero.
+ *
+ * <p>It reads command line arguments that are paths to DSL files or jars.
+ *
+ * <p>Not yet implemented: Letting the player select a starting point (essentially a level) from the
+ * input DSL files and loading the game.
+ *
+ * <p>Start with "./gradlew start".
+ */
 public class Starter {
+
+    private static final Logger LOGGER = Logger.getLogger(Starter.class.getName());
+
     public static void main(String[] args) throws IOException {
         setupBasicGame();
+        processCLIArguments(args);
+        Game.run();
+    }
+
+    private static void processCLIArguments(String[] args) throws IOException {
         Set<DSLEntryPoint> entryPoints = new HashSet<>();
         DSLEntryPointFinder finder = new DSLEntryPointFinder();
         DslFileLoader.processArguments(args)
-                .forEach(
-                        path -> {
-                            finder.getEntryPoints(path).ifPresent(entryPoints::addAll);
-                        });
-
-        // Todo Game.menue.show(entryPoints)
-        Game.run();
+                .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
+        // Todo Game.menu.show(entryPoints)
     }
 
     private static void setupBasicGame() throws IOException {
         Game.initBaseLogger();
-        Logger LOGGER = Logger.getLogger("Main");
         Debugger debugger = new Debugger();
-        // start the game
         Game.hero(EntityFactory.newHero());
         Game.loadConfig(
                 "dungeon_config.json",
@@ -42,20 +55,25 @@ public class Starter {
                 core.configuration.KeyboardConfig.class);
         Game.frameRate(30);
         Game.disableAudio(true);
+        Game.userOnFrame(debugger::execute);
         Game.userOnLevelLoad(
                 () -> {
                     try {
                         EntityFactory.newChest();
-                        for (int i = 0; i < 5; i++) {
-                            EntityFactory.randomMonster();
-                        }
                     } catch (IOException e) {
                         LOGGER.warning("Could not create new Chest: " + e.getMessage());
                         throw new RuntimeException();
                     }
+                    for (int i = 0; i < 5; i++) {
+                        try {
+                            EntityFactory.randomMonster();
+                        } catch (IOException e) {
+                            LOGGER.warning("Could not create new Monster: " + e.getMessage());
+                            throw new RuntimeException(e);
+                        }
+                    }
                     Game.levelSize(LevelSize.randomSize());
                 });
-        Game.userOnFrame(debugger::execute);
         Game.windowTitle("DSL Dungeon");
         Game.add(new AISystem());
         Game.add(new CollisionSystem());
@@ -64,6 +82,5 @@ public class Starter {
         Game.add(new ProjectileSystem());
         Game.add(new HealthbarSystem());
         Game.add(new HeroUISystem());
-        // build and start game
     }
 }
