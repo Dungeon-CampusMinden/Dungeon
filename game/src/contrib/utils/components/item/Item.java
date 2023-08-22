@@ -344,7 +344,12 @@ public enum Item {
     }
 
     Item(String name, String description, ItemCategory category, String texturePath) {
-        this(name, description, category, new Animation(texturePath, 0), new Animation(texturePath, 0));
+        this(
+                name,
+                description,
+                category,
+                new Animation(texturePath, 0),
+                new Animation(texturePath, 0));
     }
 
     Item(

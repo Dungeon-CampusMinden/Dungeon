@@ -66,6 +66,7 @@ public final class DrawSystem extends System {
     }
 
     private void draw(DSData dsd) {
+        advanceAnimation(dsd);
         final Animation animation = dsd.dc.currentAnimation();
         String currentAnimationTexture = animation.nextAnimationTexturePath();
         if (!configs.containsKey(currentAnimationTexture)) {
@@ -73,6 +74,12 @@ public final class DrawSystem extends System {
         }
         painter.draw(
                 dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
+    }
+
+    private void advanceAnimation(DSData dsd) {
+        if (dsd.dc.isCurrentAnimationFinished() || dsd.dc.reachedFrametimeLimit()) {
+            dsd.dc.setNextAnimation();
+        }
     }
 
     private DSData buildDataObject(Entity e) {
