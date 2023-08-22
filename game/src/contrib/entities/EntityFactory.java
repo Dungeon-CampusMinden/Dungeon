@@ -138,9 +138,10 @@ public class EntityFactory {
                         }
                     } else {
                         e.addComponent(
-                                new UIComponent(new GUICombination(new InventoryGUI(ic)), false));
+                                new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
                     }
                 },
+                false,
                 false);
 
         pc.registerCallback(
@@ -230,17 +231,17 @@ public class EntityFactory {
         cauldron.addComponent(
                 new InteractionComponent(
                         1f,
-                        false,
+                        true,
                         (entity, who) -> {
                             who.fetch(InventoryComponent.class)
                                     .ifPresent(
                                             ic ->
-                                                    entity.addComponent(
+                                                    who.addComponent(
                                                             new UIComponent(
                                                                     new GUICombination(
                                                                             new InventoryGUI(ic),
                                                                             new CraftingGUI(ic)),
-                                                                    false)));
+                                                                    true)));
                         }));
         return cauldron;
     }
