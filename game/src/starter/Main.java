@@ -1,12 +1,9 @@
 package starter;
 
-import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
-import contrib.utils.components.item.Item;
-import contrib.utils.components.item.ItemData;
 
 import core.Entity;
 import core.Game;
@@ -47,13 +44,6 @@ public class Main {
                             Game.add(EntityFactory.randomMonster());
                         }
                         Game.add(EntityFactory.newCraftingCauldron());
-                        Game.hero()
-                                .flatMap(h -> h.fetch(InventoryComponent.class))
-                                .ifPresent(
-                                        i -> {
-                                            i.add(new ItemData(Item.RESOURCE_WOOD));
-                                            i.add(new ItemData(Item.RESOURCE_IRON_ORE));
-                                        });
                     } catch (IOException e) {
                         LOGGER.warning("Could not create new Chest: " + e.getMessage());
                         throw new RuntimeException();
