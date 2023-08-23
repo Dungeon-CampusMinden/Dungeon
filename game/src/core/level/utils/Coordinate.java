@@ -52,4 +52,8 @@ public class Coordinate {
     public Point toPoint() {
         return new Point(x, y);
     }
+
+    public Coordinate add(Coordinate offset) {
+        return new Coordinate(this.x + offset.x, this.y + offset.y);
+    }
 }
