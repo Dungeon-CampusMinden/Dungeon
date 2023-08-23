@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.TextureMap;
 
+/** A button that displays an animation on top of it. */
 public class ImageButton extends Button {
 
     private static final int PADDING = 15;
