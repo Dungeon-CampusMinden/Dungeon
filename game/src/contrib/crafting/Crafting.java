@@ -143,6 +143,13 @@ public class Crafting {
         }
     }
 
+    /**
+     * Parse a recipe from a file.
+     *
+     * @param stream The stream to read from.
+     * @param name The name of the file. Used for error logging only.
+     * @return The parsed recipe.
+     */
     private static Recipe parseRecipe(InputStream stream, String name) {
 
         try {
