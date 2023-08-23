@@ -26,11 +26,30 @@ import core.Game;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.TextureMap;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/** */
+/**
+ * This class represents the GUI for the crafting system. If this gui is open, the player can craft
+ * items in it.
+ *
+ * <p>The GUI is a {@link CombinableGUI} and can be combined with other GUIs. It is recommended to
+ * combine it with a {@link contrib.hud.inventory.InventoryGUI InventoryGUI} that shows the target
+ * inventory.
+ *
+ * <p>The GUI has a target inventory. If the player successfully crafts an item, the item will be
+ * added to the target inventory.
+ *
+ * <p>The GUI shows a list of items that have been added to the cauldron. The player can add items
+ * to the cauldron by dragging them into the GUI. The GUI will then try to find a recipe that
+ * matches the items in the cauldron. If a recipe is found, the GUI will show the result of the
+ * recipe. The player can then click the OK button to craft the item or the cancel button to cancel
+ * the crafting process and get the items back (if there is enough space in the target inventory).
+ *
+ * <p>The GUI is configured by the many constants at the top of this file. These constants are used
+ * to position the items and buttons in the GUI. The GUI is always square and the size is based on a
+ * percentage of the height of the crafting GUI.
+ */
 public class CraftingGUI extends CombinableGUI {
 
     // Position settings
@@ -73,13 +92,18 @@ public class CraftingGUI extends CombinableGUI {
     // Colors
     private static final int NUMBER_BACKGROUND_COLOR = 0xd93030ff;
 
+    // Textures
+    private static final String BACKGROUND_TEXTURE_PATH = "hud/crafting/idle";
+    private static final String BUTTON_OK_TEXTURE_PATH = "hud/check.png";
+    private static final String BUTTON_CANCEL_TEXTURE_PATH = "hud/cross.png";
+
     private static final Texture texture;
     private static final TextureRegion numberBackground;
     private static final Animation backgroundAnimation;
     private static final BitmapFont bitmapFont;
 
     static {
-        backgroundAnimation = Animation.of(new File("./game/assets/hud/crafting/idle"));
+        backgroundAnimation = Animation.of(BACKGROUND_TEXTURE_PATH);
 
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.drawPixel(0, 0, NUMBER_BACKGROUND_COLOR);
@@ -100,10 +124,17 @@ public class CraftingGUI extends CombinableGUI {
     private final ImageButton buttonOk, buttonCancel;
     private final InventoryComponent targetInventory;
 
+    /**
+     * Create a CraftingGUI that has the given InventoryComponent as target inventory for
+     * successfully crafted items.
+     *
+     * @param targetInventory The target inventory.
+     */
     public CraftingGUI(InventoryComponent targetInventory) {
         this.targetInventory = targetInventory;
-        this.buttonOk = new ImageButton(this, Animation.of("hud/check.png"), 0, 0, 1, 1);
-        this.buttonCancel = new ImageButton(this, Animation.of("hud/cross.png"), 0, 0, 1, 1);
+        this.buttonOk = new ImageButton(this, Animation.of(BUTTON_OK_TEXTURE_PATH), 0, 0, 1, 1);
+        this.buttonCancel =
+                new ImageButton(this, Animation.of(BUTTON_CANCEL_TEXTURE_PATH), 0, 0, 1, 1);
         this.buttonOk.onClick(
                 (button) -> {
                     this.craft();
@@ -114,6 +145,9 @@ public class CraftingGUI extends CombinableGUI {
                 });
     }
 
+    // Init CraftingGUI as drag and drop target so that items can be dragged into the cauldron/ui
+    // but not as source
+    // so that items can't be dragged out of the cauldron/ui.
     @Override
     protected void initDragAndDrop(DragAndDrop dragAndDrop) {
         dragAndDrop.addTarget(
