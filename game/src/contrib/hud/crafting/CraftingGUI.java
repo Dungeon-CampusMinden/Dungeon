@@ -93,7 +93,7 @@ public class CraftingGUI extends CombinableGUI {
     private static final int NUMBER_BACKGROUND_COLOR = 0xd93030ff;
 
     // Textures
-    private static final String BACKGROUND_TEXTURE_PATH = "hud/crafting/idle";
+    private static final String BACKGROUND_TEXTURE_PATH = "hud/crafting/background.png";
     private static final String BUTTON_OK_TEXTURE_PATH = "hud/check.png";
     private static final String BUTTON_CANCEL_TEXTURE_PATH = "hud/cross.png";
 
