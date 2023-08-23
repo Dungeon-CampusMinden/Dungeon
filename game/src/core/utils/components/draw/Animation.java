@@ -107,10 +107,11 @@ public final class Animation {
                 Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
                         .filter(File::isFile)
                         .map(File::getPath)
+                        // sort the files in lexicographic order (like the most os) so animations
+                        // will be played in order
                         .sorted()
                         .collect(Collectors.toList());
-        // sort the files in lexicographic order (like the most os)
-        // animations will be played in order
+
         return new Animation(fileNames, frameTime, loop);
     }
 
