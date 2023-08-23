@@ -56,23 +56,27 @@ public class TaskGenerationTest {
                     }
                 });
         Game.userOnLevelLoad(
-                () -> {
-                    try {
-                        Game.add(EntityFactory.randomMonster());
-                        Game.add(EntityFactory.newChest());
-                    } catch (IOException e) {
-                        // oh well
+                (loadFirstTime) -> {
+                    if (loadFirstTime) {
+                        try {
+
+                            Game.add(EntityFactory.randomMonster());
+                            Game.add(EntityFactory.newChest());
+
+                        } catch (IOException e) {
+                            // oh well
+                        }
+
+                        Set<File> files = DslFileLoader.dslFiles();
+                        List<String> fileContents =
+                                files.stream()
+                                        .filter(f -> f.getName().endsWith("task_test.dng"))
+                                        .map(DslFileLoader::fileToString)
+                                        .toList();
+
+                        // for the start: print on console
+                        buildScenarios(fileContents.get(0));
                     }
-
-                    Set<File> files = DslFileLoader.dslFiles();
-                    List<String> fileContents =
-                            files.stream()
-                                    .filter(f -> f.getName().endsWith("task_test.dng"))
-                                    .map(DslFileLoader::fileToString)
-                                    .toList();
-
-                    // for the start: print on console
-                    buildScenarios(fileContents.get(0));
                 });
 
         Game.windowTitle("Task Test");

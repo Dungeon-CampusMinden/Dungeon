@@ -36,18 +36,20 @@ public class Main {
                     }
                 });
         Game.userOnLevelLoad(
-                () -> {
-                    try {
+                (firstTime) -> {
+                    if (firstTime) {
+                        try {
 
-                        Game.add(EntityFactory.newChest());
-                        for (int i = 0; i < 5; i++) {
-                            Game.add(EntityFactory.randomMonster());
+                            Game.add(EntityFactory.newChest());
+                            for (int i = 0; i < 5; i++) {
+                                Game.add(EntityFactory.randomMonster());
+                            }
+                        } catch (IOException e) {
+                            LOGGER.warning("Could not create new Chest: " + e.getMessage());
+                            throw new RuntimeException();
                         }
-                    } catch (IOException e) {
-                        LOGGER.warning("Could not create new Chest: " + e.getMessage());
-                        throw new RuntimeException();
+                        Game.levelSize(LevelSize.randomSize());
                     }
-                    Game.levelSize(LevelSize.randomSize());
                 });
         Game.userOnFrame(debugger::execute);
         Game.windowTitle("My Dungeon");
