@@ -194,7 +194,20 @@ public class EntityFactory {
         itemData.forEach(ic::add);
         chest.addComponent(
                 new InteractionComponent(
-                        defaultInteractionRadius, false, new DropItemsInteraction()));
+                        defaultInteractionRadius,
+                        true,
+                        (entity, who) -> {
+                            who.fetch(InventoryComponent.class)
+                                    .ifPresent(
+                                            whoIc -> {
+                                                who.addComponent(
+                                                        new UIComponent(
+                                                                new GUICombination(
+                                                                        new InventoryGUI(whoIc),
+                                                                        new InventoryGUI(ic)),
+                                                                false));
+                                            });
+                        }));
         DrawComponent dc = new DrawComponent("objects/treasurechest");
         chest.addComponent(dc);
         dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
