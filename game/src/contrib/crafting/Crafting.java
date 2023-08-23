@@ -5,6 +5,8 @@ import com.badlogic.gdx.utils.JsonValue;
 
 import contrib.utils.components.item.ItemData;
 
+import core.utils.logging.CustomLogLevel;
+
 import starter.Main;
 
 import java.io.*;
@@ -198,9 +200,13 @@ public class Crafting {
 
             return recipe;
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LOGGER.log(
+                    CustomLogLevel.ERROR,
+                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
         } catch (IllegalArgumentException ex) {
-            System.err.println("Error parsing recipe (" + name + "): " + ex.getMessage());
+            LOGGER.log(
+                    CustomLogLevel.WARNING,
+                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Warning
         }
 
         return null;
