@@ -3,6 +3,7 @@ package contrib.entities;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.GUICombination;
+import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
@@ -137,9 +138,10 @@ public class EntityFactory {
                         }
                     } else {
                         e.addComponent(
-                                new UIComponent(new GUICombination(new InventoryGUI(ic)), false));
+                                new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
                     }
                 },
+                false,
                 false);
 
         pc.registerCallback(
@@ -213,6 +215,35 @@ public class EntityFactory {
         dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
 
         return chest;
+    }
+
+    /**
+     * Create a new Entity that can be used as a crafting cauldron.
+     *
+     * @return Created Entity
+     * @throws IOException if the textures do not exist
+     */
+    public static Entity newCraftingCauldron() throws IOException {
+        Entity cauldron = new Entity("cauldron");
+        cauldron.addComponent(new PositionComponent());
+        cauldron.addComponent(new DrawComponent("objects/cauldron"));
+        cauldron.addComponent(new CollideComponent());
+        cauldron.addComponent(
+                new InteractionComponent(
+                        1f,
+                        true,
+                        (entity, who) -> {
+                            who.fetch(InventoryComponent.class)
+                                    .ifPresent(
+                                            ic ->
+                                                    who.addComponent(
+                                                            new UIComponent(
+                                                                    new GUICombination(
+                                                                            new InventoryGUI(ic),
+                                                                            new CraftingGUI(ic)),
+                                                                    true)));
+                        }));
+        return cauldron;
     }
 
     /**

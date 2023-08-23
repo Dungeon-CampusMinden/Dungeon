@@ -20,6 +20,7 @@ import contrib.hud.GUICombination;
 import contrib.utils.components.item.ItemData;
 
 import core.Game;
+import core.utils.components.draw.TextureMap;
 
 public class InventoryGUI extends CombinableGUI {
 
@@ -116,12 +117,13 @@ public class InventoryGUI extends CombinableGUI {
                             + (2 * BORDER_PADDING);
 
             batch.draw(
-                    new Texture(
-                            this.inventoryComponent
-                                    .items()[i]
-                                    .item()
-                                    .inventoryAnimation()
-                                    .nextAnimationTexturePath()),
+                    TextureMap.instance()
+                            .textureAt(
+                                    this.inventoryComponent
+                                            .items()[i]
+                                            .item()
+                                            .inventoryAnimation()
+                                            .nextAnimationTexturePath()),
                     x,
                     y,
                     this.slotSize - (4 * BORDER_PADDING),

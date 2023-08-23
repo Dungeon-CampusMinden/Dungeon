@@ -26,7 +26,7 @@ public class WorldItemBuilder {
         droppedItem.addComponent(new ItemComponent(itemData));
         droppedItem.addComponent(
                 new InteractionComponent(
-                        Constants.DEFAULT_ITEM_PICKUP_RADIUS, false, itemData.onCollect()));
+                        Constants.DEFAULT_ITEM_PICKUP_RADIUS, true, itemData.onCollect()));
 
         return droppedItem;
     }

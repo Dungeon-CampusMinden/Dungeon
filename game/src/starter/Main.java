@@ -1,5 +1,6 @@
 package starter;
 
+import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
@@ -27,10 +28,10 @@ public class Main {
         Game.userOnSetup(
                 () -> {
                     try {
-
                         Entity hero = (EntityFactory.newHero());
                         Game.add(hero);
                         Game.hero(hero);
+                        Crafting.loadRecipes();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -39,13 +40,13 @@ public class Main {
                 (firstTime) -> {
                     if (firstTime) {
                         try {
-
                             Game.add(EntityFactory.newChest());
                             for (int i = 0; i < 5; i++) {
                                 Game.add(EntityFactory.randomMonster());
                             }
+                            Game.add(EntityFactory.newCraftingCauldron());
                         } catch (IOException e) {
-                            LOGGER.warning("Could not create new Chest: " + e.getMessage());
+                            LOGGER.warning("Could not create new entities: " + e.getMessage());
                             throw new RuntimeException();
                         }
                         Game.levelSize(LevelSize.randomSize());
