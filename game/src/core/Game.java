@@ -820,6 +820,7 @@ public final class Game extends ScreenAdapter {
 
     /** Create the systems. */
     private void createSystems() {
+        add(new PositionSystem());
         add(new CameraSystem());
         add(
                 new LevelSystem(
