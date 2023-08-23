@@ -154,12 +154,24 @@ public final class DrawComponent implements Component {
         }
     }
 
-    // TODO javadoc
+    /**
+     * Queue up an Animation to be considered as the next played Animation. Animations are given as
+     * an IPath Array, or multiple variables. Animation length is set as one frame. If you need to
+     * queue longer Animations use {@link #nextAnimation(int, IPath...)}
+     *
+     * @param next Array of IPaths to Animation
+     */
     public void nextAnimation(IPath... next) {
         nextAnimation(1, next);
     }
 
-    // TODO javadoc
+    /**
+     * Queue up an Animation to be considered as the next played Animation. Animations are given as
+     * an IPath Array, or multiple variables. Animation length is set to given parameter.
+     *
+     * @param forFrames number of Frames to play Animation for
+     * @param next Array of IPaths to Animation
+     */
     public void nextAnimation(int forFrames, IPath... next) {
         animationQueue.put(next, forFrames);
     }
@@ -224,7 +236,8 @@ public final class DrawComponent implements Component {
         return frameCounter >= currentFrametime;
     }
 
-    // TODO javadoc
+    // checks the status of animations in the animationQueue and selects the next animation by
+    // priority
     public void setNextAnimation() {
 
         if (animationQueue.size() > 0) {
