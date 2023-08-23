@@ -141,7 +141,7 @@ public final class VelocitySystem extends System {
             // each drawComponent has an idle animation, so no check is needed
             if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
                     || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_LEFT))
-                vsd.dc.nextAnimation(
+                vsd.dc.nextAnimation(2,
                         CoreAnimations.IDLE_LEFT,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_RIGHT,
@@ -149,7 +149,7 @@ public final class VelocitySystem extends System {
                         CoreAnimations.IDLE_UP);
             else if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_RIGHT)
                     || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_RIGHT))
-                vsd.dc.nextAnimation(
+                vsd.dc.nextAnimation(2,
                         CoreAnimations.IDLE_RIGHT,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_LEFT,
@@ -157,14 +157,14 @@ public final class VelocitySystem extends System {
                         CoreAnimations.IDLE_UP);
             else if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_UP)
                     || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_DOWN))
-                vsd.dc.nextAnimation(
+                vsd.dc.nextAnimation(2,
                         CoreAnimations.IDLE_UP,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE_LEFT,
                         CoreAnimations.IDLE_RIGHT);
             else
-                vsd.dc.nextAnimation(
+                vsd.dc.nextAnimation(2,
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_UP,
