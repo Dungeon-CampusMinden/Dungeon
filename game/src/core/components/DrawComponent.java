@@ -241,11 +241,11 @@ public final class DrawComponent implements Component {
             // If the entry starts with the path name (character/knight/idle),
             // this is true for entries like (character/knight/idle/idle_knight_1.png) and
             // (character/knight/idle/).
-            if (fileName.startsWith(path + File.separator)) {
+            if (fileName.startsWith(path + "/")) {
 
                 // Get the index of the last FileSeparator; every character after that separator is
                 // part of the filename.
-                int lastSlashIndex = fileName.lastIndexOf(File.separator);
+                int lastSlashIndex = fileName.lastIndexOf("/");
 
                 // Ignore directories, so we only work with strings like
                 // (character/knight/idle/idle_knight_1.png).
@@ -254,8 +254,7 @@ public final class DrawComponent implements Component {
                     // For example, in "character/knight/idle/idle_knight_1.png", this would be the
                     // index of the slash in "/idle".
 
-                    int secondLastSlashIndex =
-                            fileName.lastIndexOf(File.separator, lastSlashIndex - 1);
+                    int secondLastSlashIndex = fileName.lastIndexOf("/", lastSlashIndex - 1);
 
                     // Get the name of the directory. The directory name is between the
                     // second-to-last and the last separator index.
@@ -285,7 +284,7 @@ public final class DrawComponent implements Component {
     }
 
     private void loadAnimationsFromIDE(String path) {
-        URL url = DrawComponent.class.getResource(File.separator + path);
+        URL url = DrawComponent.class.getResource("/" + path);
         if (url != null) {
             try {
                 File apps = new File(url.toURI());
