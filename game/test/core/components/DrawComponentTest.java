@@ -65,4 +65,6 @@ public class DrawComponentTest {
         assertTrue(animationComponent.hasAnimation(CoreAnimations.RUN_LEFT));
         assertFalse(animationComponent.hasAnimation(() -> "DUMMY"));
     }
+
+    // Test to trigger Matrix
 }
