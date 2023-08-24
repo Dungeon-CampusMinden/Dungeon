@@ -73,9 +73,12 @@ stmt
     ;
 
 expression
-    : assignment                #assignment_expression
-    | expression '.' func_call  #method_call_expression
-    | expression '.' ID         #member_access_expression
+    : assignment expression_rhs?
+    ;
+
+expression_rhs
+    : '.' func_call expression_rhs?  #method_call_expression
+    | '.' ID expression_rhs?         #member_access_expression
     ;
 
 assignment

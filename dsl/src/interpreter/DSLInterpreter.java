@@ -96,6 +96,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         prototype.addDefaultValue(compDefNode.getIdName(), componentPrototype);
                     }
                     this.environment.addPrototype(prototype);
+                    this.getGlobalMemorySpace().bindValue(prototype.getName(), prototype);
                 }
             }
         }
@@ -145,25 +146,45 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public void initializeRuntime(IEvironment environment) {
         this.environment = new RuntimeEnvironment(environment, this);
 
-        // bind all function definition and object definition symbols to objects
+        // bind all function definition and object definition symbols to values
         // in global memorySpace
+        // TODO: this should potentially done on a file basis, not globally for the whole
+        // DSLInterpreter
+        //  should define a file-scope...
+        HashMap<Symbol, Value> globalValues = new HashMap<>();
         for (var symbol : symbolTable().getGlobalScope().getSymbols()) {
-            bindFromSymbol(symbol, memoryStack.peek());
+            var value = bindFromSymbol(symbol, memoryStack.peek());
+            if (value != Value.NONE) {
+                globalValues.put(symbol, value);
+            }
+        }
+
+        for (var entry : globalValues.entrySet()) {
+            Symbol symbol = entry.getKey();
+            // TODO: this is a temporary solution
+            if (!symbol.getDataType().getName().equals("quest_config")) {
+                Node astNode = symbolTable().getCreationAstNode(symbol);
+                if (astNode != Node.NONE) {
+                    Value valueToAssign = (Value) astNode.accept(this);
+                    Value assignee = entry.getValue();
+                    setValue(assignee, valueToAssign);
+                }
+            }
         }
     }
 
-    private boolean bindFromSymbol(Symbol symbol, IMemorySpace ms) {
-        if (symbol instanceof ICallable) {
-            var value = new FuncCallValue(symbol.getDataType(), symbol.getIdx());
+    private Value bindFromSymbol(Symbol symbol, IMemorySpace ms) {
+        if (symbol instanceof ICallable callable) {
+            var value = new FunctionValue(symbol.getDataType(), callable);
             ms.bindValue(symbol.getName(), value);
-            return true;
+            return value;
         }
-        if (!(symbol instanceof IType)) {
+        if (!(symbol instanceof IType) && !(symbol instanceof PropertySymbol)) {
             var value = createDefaultValue(symbol.getDataType());
             ms.bindValue(symbol.getName(), value);
-            return true;
+            return value;
         }
-        return false;
+        return Value.NONE;
     }
 
     /**
@@ -181,8 +202,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (type.getTypeKind().equals(IType.Kind.Basic)) {
             Object internalValue = Value.getDefaultValue(type);
             return new Value(type, internalValue);
+        } else if (type.getTypeKind().equals(IType.Kind.PODAdapted)) {
+            AdaptedType adaptedType = (AdaptedType) type;
+            var builderParamType = adaptedType.getBuildParameterType();
+            return createDefaultValue(builderParamType);
         } else if (type.getTypeKind().equals(IType.Kind.Aggregate)
-                || type.getTypeKind().equals(IType.Kind.PODAdapted)
                 || type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
             AggregateValue value = new AggregateValue(type, getCurrentMemorySpace());
 
@@ -458,19 +482,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     // this is used for resolving object references
     @Override
     public Object visit(IdNode node) {
-        var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
-        var creationASTNode = this.symbolTable().getCreationAstNode(symbol);
-
-        // if the creationASTNode does not equal the node we are currently interpreting,
-        // then the IdNode is just a reference node to some other structure
-        if (creationASTNode != node) {
-            return creationASTNode.accept(this);
-        } else {
-            // if the creationASTNode of the resolved symbol is the currently interpreted
-            // IdNode, then we have to resolve the IdNode in the current memory space,
-            // because it is used in an expression
-            return this.getCurrentMemorySpace().resolve(node.getName(), true);
-        }
+        return this.getCurrentMemorySpace().resolve(node.getName(), true);
     }
 
     @Override
@@ -506,13 +518,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // resolve function name in global memory-space
         var funcName = node.getIdName();
         var funcValue = this.globalSpace.resolve(funcName);
-        assert funcValue instanceof FuncCallValue;
+        assert funcValue instanceof FunctionValue;
 
         // get the function symbol by symbolIdx from funcValue
-        int functionSymbolIndex = ((FuncCallValue) funcValue).getFunctionSymbolIdx();
-        var funcSymbol = this.symbolTable().getSymbolByIdx(functionSymbolIndex);
-        assert funcSymbol instanceof ICallable;
-        var funcCallable = (ICallable) funcSymbol;
+        var funcCallable = ((FunctionValue) funcValue).getCallable();
 
         // execute the function call
         var returnValue = funcCallable.call(this, node.getParameters());

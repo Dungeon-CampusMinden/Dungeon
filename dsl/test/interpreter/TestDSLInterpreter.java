@@ -432,6 +432,11 @@ public class TestDSLInterpreter {
                 """;
 
         var env = new TestEnvironment();
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+
         var interpreter = new DSLInterpreter();
         var questConfig =
                 Helpers.generateQuestConfigWithCustomTypes(
@@ -509,6 +514,11 @@ public class TestDSLInterpreter {
             """;
 
         var env = new TestEnvironment();
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+
         var interpreter = new DSLInterpreter();
         var questConfig =
                 Helpers.generateQuestConfigWithCustomTypes(
@@ -558,9 +568,17 @@ public class TestDSLInterpreter {
             """;
 
         var env = new TestEnvironment();
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), ComponentWithExternalTypeMember.class);
+        env.getTypeBuilder()
+                .registerProperty(
+                        env.getGlobalScope(),
+                        Entity.ComponentWithExternalTypeMemberProperty.instance);
+
         DSLInterpreter interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomTypes(
-                program, env, interpreter, Entity.class, ComponentWithExternalTypeMember.class);
+
+        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter, Entity.class);
 
         var globalMs = interpreter.getGlobalMemorySpace();
 
@@ -573,6 +591,7 @@ public class TestDSLInterpreter {
                 ((AggregateValue) myObj)
                         .getMemorySpace()
                         .resolve("component_with_external_type_member");
+
         var encapsulatedObject = (EncapsulatedObject) ((AggregateValue) component).getMemorySpace();
         var internalComponent = encapsulatedObject.getInternalValue();
 
@@ -603,15 +622,19 @@ public class TestDSLInterpreter {
         // setup test type system
         var env = new TestEnvironment();
         env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, env.getGlobalScope());
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), ExternalType.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithExternalType.class);
+        env.getTypeBuilder()
+                .registerProperty(
+                        env.getGlobalScope(),
+                        Entity.TestComponentWithExternalTypeProperty.instance);
+
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
-                program,
-                env,
-                interpreter,
-                Entity.class,
-                TestComponent1.class,
-                TestComponentWithExternalType.class,
-                ExternalType.class);
+                program, env, interpreter, Entity.class, TestComponent1.class);
 
         var globalMs = interpreter.getGlobalMemorySpace();
         AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
@@ -653,6 +676,13 @@ public class TestDSLInterpreter {
         var env = new TestEnvironment();
         env.getTypeBuilder()
                 .registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithExternalType.class);
+        env.getTypeBuilder()
+                .registerProperty(
+                        env.getGlobalScope(),
+                        Entity.TestComponentWithExternalTypeProperty.instance);
         DSLInterpreter interpreter = new DSLInterpreter();
         Helpers.generateQuestConfigWithCustomTypes(
                 program,
@@ -660,7 +690,7 @@ public class TestDSLInterpreter {
                 interpreter,
                 Entity.class,
                 TestComponent1.class,
-                TestComponentWithExternalType.class,
+                // TestComponentWithExternalType.class,
                 ExternalType.class);
 
         var globalMs = interpreter.getGlobalMemorySpace();
@@ -1439,5 +1469,242 @@ public class TestDSLInterpreter {
 
         String outputStreamString = outputStream.toString();
         Assert.assertTrue(outputStreamString.contains("Hello, World!"));
+    }
+
+    @Test
+    public void testProperty() {
+        String program =
+                """
+            entity_type my_type {
+                test_component2 {
+                    member2: 42,
+                    this_is_a_float: 3.14
+                },
+                test_component_with_callback {
+                    consumer: get_property
+                }
+            }
+
+            fn get_property(test_component2 comp) {
+                print(comp.this_is_a_float);
+            }
+
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentTestComponent2ConsumerCallback.class);
+        env.getTypeBuilder()
+                .registerProperty(
+                        env.getGlobalScope(), TestComponent2.TestComponentPseudoProperty.instance);
+
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+        var componentWithConsumer =
+                (TestComponentTestComponent2ConsumerCallback) entity.components.get(0);
+        var testComponent2 = (TestComponent2) entity.components.get(1);
+        componentWithConsumer.consumer.accept(testComponent2);
+
+        String output = outputStream.toString();
+        Assert.assertTrue(output.contains("3.14"));
+    }
+
+    @Test
+    public void testPropertyOfComplexType() {
+        String program =
+                """
+        entity_type my_type {
+            test_component2 {
+                member2: 42,
+                this_is_complex: complex_type { member1: 42 }
+            },
+            test_component_with_callback {
+                consumer: get_property
+            }
+        }
+
+        fn get_property(test_component2 comp) {
+            print(comp.this_is_complex.member1);
+            print(comp.this_is_complex.member3);
+        }
+
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentTestComponent2ConsumerCallback.class);
+        env.getTypeBuilder()
+                .registerProperty(
+                        env.getGlobalScope(),
+                        TestComponent2.TestComponentPseudoPropertyComplexType.instance);
+
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+        var componentWithConsumer =
+                (TestComponentTestComponent2ConsumerCallback) entity.components.get(0);
+        var testComponent2 = (TestComponent2) entity.components.get(1);
+        componentWithConsumer.consumer.accept(testComponent2);
+
+        String output = outputStream.toString();
+        Assert.assertTrue(output.contains("42"));
+    }
+
+    @Test
+    public void testComponentPropertyOfEntity() {
+        String program =
+                """
+            entity_type my_type {
+                test_component2 {
+                    member2: 42
+                },
+                test_component_with_callback {
+                    consumer: get_property
+                }
+            }
+
+            fn get_property(entity ent) {
+                print(ent.test_component1.member1);
+                print(ent.test_component2.member2);
+            }
+
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+        var componentWithConsumer = (TestComponentEntityConsumerCallback) entity.components.get(0);
+        componentWithConsumer.consumer.accept(entity);
+
+        String output = outputStream.toString();
+        Assert.assertTrue(output.contains("42"));
+    }
+
+    @Test
+    public void testComponentPropertyOfEntityUpdateValue() {
+        String program =
+                """
+        entity_type my_type {
+            test_component2 {
+                member2: 42
+            },
+            test_component_with_callback {
+                consumer: get_property
+            }
+        }
+
+        fn get_property(entity ent) {
+            print(ent.test_component2.member2);
+        }
+
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+
+        TestComponentEntityConsumerCallback componentWithConsumer =
+                (TestComponentEntityConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                                .toList()
+                                .get(0);
+        // first call to dsl function get_property
+        componentWithConsumer.consumer.accept(entity);
+
+        TestComponent2 oldComponent =
+                (TestComponent2)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponent2)
+                                .toList()
+                                .get(0);
+        entity.components.remove(oldComponent);
+
+        TestComponent2 newComp = new TestComponent2(entity);
+        newComp.setMember2(123);
+
+        // second call to dsl function get_property
+        componentWithConsumer.consumer.accept(entity);
+
+        String output = outputStream.toString();
+        Assert.assertTrue(output.contains("42"));
+        Assert.assertTrue(output.contains("123"));
     }
 }

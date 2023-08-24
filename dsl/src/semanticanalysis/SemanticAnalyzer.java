@@ -81,23 +81,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         return scopeStack.get(0);
     }
 
-    /**
-     * Bind a symbol in the current scope and create an association between symbol and AST node
-     *
-     * @param symbol The symbol to bind
-     * @param nodeOfSymbol The corresponding AST node
-     * @return True, if the symbol was not bound in current scope, or false otherwise
-     */
-    private boolean bind(Symbol symbol, Node nodeOfSymbol) {
-        var currentScope = currentScope();
-        if (!currentScope.bind(symbol)) {
-            return false;
-        } else {
-            symbolTable.addSymbolNodeRelation(symbol, nodeOfSymbol);
-            return true;
-        }
-    }
-
     public IEvironment getEnvironment() {
         return this.environment;
     }
@@ -224,7 +207,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                             + node.getSourceFileReference()
                             + "\n");
         } else {
-            symbolTable.addSymbolNodeRelation(symbol, node);
+            symbolTable.addSymbolNodeRelation(symbol, node, false);
         }
         return null;
     }
@@ -304,8 +287,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         } else {
             // link the propertySymbol in the dataType to the astNode of this concrete property
             // definition
-            // this.symbolTable.addSymbolNodeRelation(propertySymbol, node.getIdNode());
-            this.symbolTable.addSymbolNodeRelation(propertySymbol, node);
+            this.symbolTable.addSymbolNodeRelation(propertySymbol, node, true);
         }
 
         var stmtNode = node.getStmtNode();
@@ -355,7 +337,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         }
 
         assert funcSymbol.getSymbolType() == Symbol.Type.Scoped;
-        this.symbolTable.addSymbolNodeRelation(funcSymbol, node);
+        this.symbolTable.addSymbolNodeRelation(funcSymbol, node, false);
 
         for (var parameter : node.getParameters()) {
             parameter.accept(this);
@@ -380,7 +362,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             }
 
             // create symbol table entry
-            symbolTable.addSymbolNodeRelation(funcSymbol, node);
+            symbolTable.addSymbolNodeRelation(funcSymbol, node, false);
 
             scopeStack.pop();
         }
@@ -428,7 +410,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             Symbol symbol = this.currentScope().resolve(nameToResolve);
             lhsDataType = symbol.getDataType();
 
-            symbolTable.addSymbolNodeRelation(symbol, lhs);
+            symbolTable.addSymbolNodeRelation(symbol, lhs, false);
         } else if (lhs.type.equals(Node.Type.FuncCall)) {
             // visit function call itself (resolve parameters etc.)
             lhs.accept(this);

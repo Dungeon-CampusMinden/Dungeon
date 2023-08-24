@@ -65,7 +65,8 @@ public class SymbolTable {
      * @param symbol The symbol
      * @param nodeOfSymbol The AST Node, which references the symbol
      */
-    public void addSymbolNodeRelation(Symbol symbol, Node nodeOfSymbol) {
+    public void addSymbolNodeRelation(
+            Symbol symbol, Node nodeOfSymbol, boolean isNodeCreationNode) {
         if (!astNodeSymbolRelation.containsKey(nodeOfSymbol.getIdx())) {
             astNodeSymbolRelation.put(nodeOfSymbol.getIdx(), new ArrayList<>());
         }
@@ -75,9 +76,15 @@ public class SymbolTable {
         //  if not, this could be simplified
         astNodeSymbolRelation.get(nodeOfSymbol.getIdx()).add(symbol.getIdx());
 
+        if (isNodeCreationNode) {
+            setCreationAstNode(symbol, nodeOfSymbol);
+        }
+
+        /*
+        // treat the first astNodeToSymbol relation as the creationASTNode
         if (!symbolIdxToSymbol.containsKey(symbol.getIdx())) {
             symbolToAstNodeRelation.put(symbol.getIdx(), nodeOfSymbol.getIdx());
-        }
+        }*/
 
         symbolIdxToSymbol.put(symbol.getIdx(), symbol);
         astNodeIdxToAstNode.put(nodeOfSymbol.getIdx(), nodeOfSymbol);
@@ -112,10 +119,14 @@ public class SymbolTable {
         return returnList;
     }
 
+    private void setCreationAstNode(Symbol symbol, Node creationNode) {
+        symbolToAstNodeRelation.put(symbol.getIdx(), creationNode.getIdx());
+    }
+
     /**
-     * Gets the AST Node, which was passed to {@link #addSymbolNodeRelation(Symbol, Node)} the first
-     * time the symbol was passed to that method, which will be treated as the AST Node, which
-     * creates the Symbol
+     * Gets the AST Node, which was passed to {@link #addSymbolNodeRelation(Symbol, Node, boolean)}
+     * the first time the symbol was passed to that method, which will be treated as the AST Node,
+     * which creates the Symbol
      *
      * @param symbol The symbol to get the creation AST node for
      * @return The creation AST node or Node.NONE, if none could be found for the passed symbol

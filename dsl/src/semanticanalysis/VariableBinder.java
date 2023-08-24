@@ -124,7 +124,7 @@ public class VariableBinder implements AstVisitor<Void> {
         if (Symbol.NULL == objectSymbol) {
             objectSymbol = new Symbol(idName, parentScope, BuiltInType.graphType);
             if (parentScope.bind(objectSymbol)) {
-                symbolTable.addSymbolNodeRelation(objectSymbol, node);
+                symbolTable.addSymbolNodeRelation(objectSymbol, node, true);
             }
         } else {
             errorStringBuilder.append("Already defined object of name...");
@@ -154,7 +154,7 @@ public class VariableBinder implements AstVisitor<Void> {
 
             objectSymbol = new Symbol(idName, parentScope, (IType) type);
             if (parentScope.bind(objectSymbol)) {
-                symbolTable.addSymbolNodeRelation(objectSymbol, node);
+                symbolTable.addSymbolNodeRelation(objectSymbol, node, true);
             }
         } else {
             errorStringBuilder.append("Already defined object of name...");

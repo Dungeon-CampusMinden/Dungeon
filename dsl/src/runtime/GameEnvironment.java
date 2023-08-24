@@ -7,9 +7,10 @@ import core.Entity;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
-import dslToGame.EntityTranslator;
 import dslToGame.QuestConfig;
+import dslToGame.dsltypeproperties.EntityExtension;
 import dslToGame.taskdsltypes.MultipleChoiceTask;
+import dslToGame.taskdsltypes.SingleChoiceDescriptionProperty;
 import dslToGame.taskdsltypes.SingleChoiceTask;
 
 import runtime.nativefunctions.NativeInstantiate;
@@ -17,6 +18,7 @@ import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.*;
 import semanticanalysis.types.BuiltInType;
+import semanticanalysis.types.IDSLTypeProperty;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
@@ -65,6 +67,16 @@ public class GameEnvironment implements IEvironment {
                 };
     }
 
+    public List<IDSLTypeProperty<?, ?>> getBuiltInProperties() {
+        ArrayList<IDSLTypeProperty<?, ?>> properties = new ArrayList<>();
+        properties.add(SingleChoiceDescriptionProperty.instance);
+
+        properties.add(EntityExtension.VelocityComponentProperty.instance);
+        properties.add(EntityExtension.PositionComponentProperty.instance);
+
+        return properties;
+    }
+
     @Override
     public TypeBuilder getTypeBuilder() {
         return typeBuilder;
@@ -88,6 +100,8 @@ public class GameEnvironment implements IEvironment {
         registerDefaultRuntimeObjectTranslators();
         bindBuiltInAggregateTypes();
 
+        bindBuiltInProperties();
+
         bindNativeFunctions();
     }
 
@@ -99,10 +113,7 @@ public class GameEnvironment implements IEvironment {
         typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
     }
 
-    protected void registerDefaultRuntimeObjectTranslators() {
-        this.runtimeObjectTranslator.loadObjectToValueTranslator(
-                Entity.class, EntityTranslator.instance);
-    }
+    protected void registerDefaultRuntimeObjectTranslators() {}
 
     protected void bindNativeFunctions() {
         for (Symbol func : NATIVE_FUNCTIONS) {
@@ -183,6 +194,12 @@ public class GameEnvironment implements IEvironment {
     protected void bindBuiltInAggregateTypes() {
         for (Class<?> clazz : getBuiltInAggregateTypeClasses()) {
             this.typeBuilder.createDSLTypeForJavaTypeInScope(this.globalScope, clazz);
+        }
+    }
+
+    protected void bindBuiltInProperties() {
+        for (IDSLTypeProperty<?, ?> property : getBuiltInProperties()) {
+            this.typeBuilder.registerProperty(this.globalScope, property);
         }
     }
 

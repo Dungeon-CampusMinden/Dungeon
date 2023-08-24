@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 public class SingleChoiceTask {
+
     @DSLTypeAdapter(name = "single_choice_task")
     public static Task buildQuizFromSingleChoiceTask(
             @DSLTypeMember(name = "description") String description,
