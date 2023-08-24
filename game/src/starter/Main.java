@@ -41,9 +41,9 @@ public class Main {
                         for (int i = 0; i < roomCount; i++) {
                             Set<Entity> set = new HashSet<>();
                             entities.add(set);
-                            set.add(new Entity());
-                            int monsterCount = 0;
-                            int chestCount = 0;
+                            if (i == roomCount / 2) set.add(EntityFactory.newCraftingCauldron());
+                            int monsterCount = 3;
+                            int chestCount = 1;
                             for (int j = 0; j < monsterCount; j++)
                                 set.add(EntityFactory.randomMonster());
                             for (int k = 0; k < chestCount; k++) set.add(EntityFactory.newChest());
