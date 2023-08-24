@@ -146,6 +146,7 @@ public final class Game extends ScreenAdapter {
      */
     private final IVoidFunction onLevelLoad =
             () -> {
+                newLevelWasLoadedInThisLoop = true;
                 hero().ifPresent(Game::remove);
                 // Remove the systems so that each triggerOnRemove(entity) will be called (basically
                 // cleanup).
@@ -169,6 +170,8 @@ public final class Game extends ScreenAdapter {
 
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
+
+    private boolean newLevelWasLoadedInThisLoop = false;
 
     // for singleton
     private Game() {}
@@ -756,7 +759,13 @@ public final class Game extends ScreenAdapter {
         DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
-        systems().values().stream().filter(System::isRunning).forEach(System::execute);
+
+        for (System system : systems().values()) {
+            // if a new level was loaded, stop this loop-run
+            if (newLevelWasLoadedInThisLoop) break;
+            if (system.isRunning()) system.execute();
+        }
+        newLevelWasLoadedInThisLoop = false;
         CameraSystem.camera().update();
         // stage logic
         Game.stage().ifPresent(Game::updateStage);
