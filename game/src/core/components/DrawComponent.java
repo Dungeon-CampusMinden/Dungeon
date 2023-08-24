@@ -288,6 +288,8 @@ public final class DrawComponent implements Component {
     }
 
     private void loadAnimationsFromIDE(String path) {
+        String newPath = File.separator + path;
+        path = path.replace("\\", "/");
         URL url = DrawComponent.class.getResource(File.separator + path);
         if (url != null) {
             try {
