@@ -127,7 +127,7 @@ public class TileLevel implements ILevel {
     @Override
     public void onLoad() {
         if (!wasLoaded) {
-            wasLoaded = false;
+            wasLoaded = true;
             onFirstLoad.execute();
         }
     }
