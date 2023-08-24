@@ -8,6 +8,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
+import core.utils.IVoidFunction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,21 +20,23 @@ import java.util.List;
  * @author Andre Matutat
  */
 public class TileLevel implements ILevel {
+
+    private static final Coordinate[] CONNECTION_OFFSETS = {
+        new Coordinate(0, 1), new Coordinate(0, -1), new Coordinate(1, 0), new Coordinate(-1, 0),
+    };
     protected final TileHeuristic tileHeuristic = new TileHeuristic();
     protected Tile startTile;
     protected int nodeCount = 0;
     protected Tile[][] layout;
-
     protected ArrayList<FloorTile> floorTiles = new ArrayList<>();
     protected ArrayList<WallTile> wallTiles = new ArrayList<>();
     protected ArrayList<HoleTile> holeTiles = new ArrayList<>();
     protected ArrayList<DoorTile> doorTiles = new ArrayList<>();
     protected ArrayList<ExitTile> exitTiles = new ArrayList<>();
     protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
+    private IVoidFunction onFirstLoad;
+    private boolean wasLoaded = false;
 
-    private static final Coordinate CONNECTION_OFFSETS[] = {
-        new Coordinate(0, 1), new Coordinate(0, -1), new Coordinate(1, 0), new Coordinate(-1, 0),
-    };
     /**
      * Create a new level
      *
@@ -54,14 +57,6 @@ public class TileLevel implements ILevel {
      */
     public TileLevel(LevelElement[][] layout, DesignLabel designLabel) {
         this(convertLevelElementToTile(layout, designLabel));
-    }
-
-    private void putTilesInLists() {
-        for (int y = 0; y < layout.length; y++) {
-            for (int x = 0; x < layout[0].length; x++) {
-                addTile(layout[y][x]);
-            }
-        }
     }
 
     /**
@@ -86,6 +81,14 @@ public class TileLevel implements ILevel {
             }
         }
         return tileLayout;
+    }
+
+    private void putTilesInLists() {
+        for (int y = 0; y < layout.length; y++) {
+            for (int x = 0; x < layout[0].length; x++) {
+                addTile(layout[y][x]);
+            }
+        }
     }
 
     @Override
@@ -113,6 +116,19 @@ public class TileLevel implements ILevel {
                     && !checkTile.connections().contains(new TileConnection(checkTile, t), false)) {
                 checkTile.addConnection(t);
             }
+        }
+    }
+
+    @Override
+    public void onFirstLoad(IVoidFunction function) {
+        this.onFirstLoad = function;
+    }
+
+    @Override
+    public void onLoad() {
+        if (!wasLoaded) {
+            wasLoaded = false;
+            onFirstLoad.execute();
         }
     }
 
