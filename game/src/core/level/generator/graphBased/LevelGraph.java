@@ -168,30 +168,30 @@ public final class LevelGraph {
          * this node as parameter will be called on the neighbor of the given node in the opposite
          * {@link Direction} of the randomly selected direction.
          *
-         * @param node The node to be connected to this node.
+         * @param other The node to be connected to this node.
          */
-        public void addAtRandomDirection(final Node node) {
-            if (isNeighbourWith(node)) return;
+        public void addAtRandomDirection(final Node other) {
+            if (isNeighbourWith(other)) return;
 
             // select random connection direction
-            Direction random = Direction.of(RANDOM.nextInt(0, 4));
-            Optional<Node> neighbour = at(random);
+            Direction addAt = Direction.of(RANDOM.nextInt(0, 4));
+            Optional<Node> neighbour = at(addAt);
 
             if (neighbour.isPresent()) {
                 // add node to the neighbour
-                neighbour.get().addAtRandomDirection(node);
+                neighbour.get().addAtRandomDirection(other);
             } else {
                 // add it to this node
 
-                Optional<Node> child = node.at(random);
+                Optional<Node> neighbourOfOther = other.at(Direction.opposite(addAt));
 
-                if (child.isPresent()) {
+                if (neighbourOfOther.isPresent()) {
                     // add this node to the neighbour at the random direction of this node
-                    child.get().addAtRandomDirection(this);
+                    neighbourOfOther.get().addAtRandomDirection(this);
                 } else {
                     // other has space on the selected direction
-                    node.add(this, Direction.opposite(random));
-                    add(node, random);
+                    other.add(this, Direction.opposite(addAt));
+                    add(other, addAt);
                 }
             }
         }
