@@ -12,8 +12,8 @@ import core.hud.UITools;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
-import dslToGame.DslFileLoader;
 import dslToGame.QuestConfig;
+import dslToGame.loadFiles.DslFileLoader;
 
 import interpreter.DSLInterpreter;
 
@@ -23,8 +23,8 @@ import task.TaskContent;
 import task.quizquestion.Quiz;
 import task.quizquestion.UIAnswerCallback;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -33,6 +33,8 @@ import java.util.function.BiConsumer;
 /**
  * <a
  * href="file:../../../../doc/tasks/anleitung_task_test.md">../../../../doc/tasks/anleitung_task_test.md</a>
+ *
+ * <p>Use taskGenerationTest --args "dungeon/assets/scripts/task_test.dng" to run thus
  */
 public class TaskGenerationTest {
     static DSLInterpreter interpreter = new DSLInterpreter();
@@ -45,6 +47,7 @@ public class TaskGenerationTest {
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.disableAudio(true);
+
         Game.userOnSetup(
                 () -> {
                     try {
@@ -62,19 +65,23 @@ public class TaskGenerationTest {
 
                             Game.add(EntityFactory.randomMonster());
                             Game.add(EntityFactory.newChest());
-
                         } catch (IOException e) {
                             // oh well
                         }
 
-                        Set<File> files = DslFileLoader.dslFiles();
+                        Set<Path> dslFilePaths;
+                        try {
+                            dslFilePaths = DslFileLoader.processArguments(args);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
                         List<String> fileContents =
-                                files.stream()
+                                dslFilePaths.stream()
+                                        .map(Path::toFile)
                                         .filter(f -> f.getName().endsWith("task_test.dng"))
                                         .map(DslFileLoader::fileToString)
                                         .toList();
-
-                        // for the start: print on console
                         buildScenarios(fileContents.get(0));
                     }
                 });
