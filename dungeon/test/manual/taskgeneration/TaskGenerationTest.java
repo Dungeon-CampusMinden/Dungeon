@@ -63,27 +63,27 @@ public class TaskGenerationTest {
                     if (loadFirstTime) {
                         try {
 
-                        Game.add(EntityFactory.randomMonster());
-                        Game.add(EntityFactory.newChest());
-                    } catch (IOException e) {
-                        // oh well
-                    }
+                            Game.add(EntityFactory.randomMonster());
+                            Game.add(EntityFactory.newChest());
+                        } catch (IOException e) {
+                            // oh well
+                        }
 
-                    Set<Path> dslFilePaths;
-                    try {
-                        dslFilePaths = DslFileLoader.processArguments(args);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                        Set<Path> dslFilePaths;
+                        try {
+                            dslFilePaths = DslFileLoader.processArguments(args);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
 
-                    List<String> fileContents =
-                            dslFilePaths.stream()
-                                    .map(Path::toFile)
-                                    .filter(f -> f.getName().endsWith("task_test.dng"))
-                                    .map(DslFileLoader::fileToString)
-                                    .toList();
-                    buildScenarios(fileContents.get(0));
-                }
+                        List<String> fileContents =
+                                dslFilePaths.stream()
+                                        .map(Path::toFile)
+                                        .filter(f -> f.getName().endsWith("task_test.dng"))
+                                        .map(DslFileLoader::fileToString)
+                                        .toList();
+                        buildScenarios(fileContents.get(0));
+                    }
                 });
 
         Game.windowTitle("Task Test");
