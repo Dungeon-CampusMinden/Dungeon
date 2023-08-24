@@ -105,7 +105,10 @@ public class Crafting {
             String path =
                     new File(Main.class.getResource("").getPath())
                             .getParent()
-                            .replaceAll("(!|file:\\\\)", "");
+                            // for windows
+                            .replaceAll("(!|file:\\\\)", "")
+                            // for unix/macos
+                            .replaceAll("(!|file:)", "");
             JarFile jar = new JarFile(path);
             Enumeration<JarEntry> entries = jar.entries();
             while (entries.hasMoreElements()) {
