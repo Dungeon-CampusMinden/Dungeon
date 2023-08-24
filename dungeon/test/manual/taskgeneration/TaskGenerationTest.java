@@ -33,6 +33,8 @@ import java.util.function.BiConsumer;
 /**
  * <a
  * href="file:../../../../doc/tasks/anleitung_task_test.md">../../../../doc/tasks/anleitung_task_test.md</a>
+ *
+ * <p>Use taskGenerationTest --args "dungeon/assets/scripts/task_test.dng" to run thus
  */
 public class TaskGenerationTest {
     static DSLInterpreter interpreter = new DSLInterpreter();
@@ -45,6 +47,7 @@ public class TaskGenerationTest {
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.disableAudio(true);
+
         Game.userOnSetup(
                 () -> {
                     try {
@@ -53,8 +56,7 @@ public class TaskGenerationTest {
                         Game.add(hero);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
-                    }
-                });
+                    }});
         Game.userOnLevelLoad(
                 (loadFirstTime) -> {
                     if (loadFirstTime) {
@@ -78,7 +80,6 @@ public class TaskGenerationTest {
                         buildScenarios(fileContents.get(0));
                     }
                 });
-
         Game.windowTitle("Task Test");
         Game.add(new AISystem());
         Game.add(new CollisionSystem());

@@ -1,5 +1,8 @@
 package dslToGame.loadFiles;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -94,5 +97,24 @@ public class DslFileLoader {
             return fileName.substring(dotIndex + 1);
         }
         return null;
+    }
+
+    /**
+     * Read in the given file as string.
+     *
+     * @param file file to read in.
+     * @return read in string.
+     */
+    public static String fileToString(File file) {
+        StringBuilder stringBuilder = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line).append(System.lineSeparator());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stringBuilder.toString();
     }
 }
