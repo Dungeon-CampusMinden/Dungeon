@@ -12,7 +12,11 @@ import core.utils.components.draw.IPath;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -48,7 +52,7 @@ import java.util.stream.Collectors;
  * @see IPath
  */
 public final class DrawComponent implements Component {
-    private final Map<String, Animation> animationMap;
+    private Map<String, Animation> animationMap = null;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
 
@@ -72,13 +76,7 @@ public final class DrawComponent implements Component {
     public DrawComponent(final String path) throws IOException {
         // fetch available animations
         try {
-            ClassLoader classLoader = getClass().getClassLoader();
-            File directory = new File(classLoader.getResource(path).getFile());
-            animationMap =
-                    Arrays.stream(directory.listFiles())
-                            .filter(File::isDirectory)
-                            .collect(Collectors.toMap(File::getName, Animation::of));
-
+            loadAnimationsFromDirectory(path);
             currentAnimation(
                     CoreAnimations.IDLE_DOWN,
                     CoreAnimations.IDLE_LEFT,
@@ -205,5 +203,98 @@ public final class DrawComponent implements Component {
      */
     public boolean isCurrentAnimationFinished() {
         return currentAnimation.isFinished();
+    }
+
+    private void loadAnimationsFromDirectory(String path) throws IOException {
+        File jarFile =
+                new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        if (jarFile.isFile()) loadAnimationsFromJar(path, jarFile);
+        else loadAnimationsFromIDE(path);
+    }
+
+    private void loadAnimationsFromJar(String path, File jarFile) throws IOException {
+        // This function will create a map of directories (String) and the files
+        // (LinkedList<String>) inside these directories.
+        // The map will be filled with the directories inside the given path (e.g.,
+        // "character/knight").
+        // Ultimately, this function will manually create an Animation for each entry within this
+        // map.
+
+        JarFile jar = new JarFile(jarFile);
+        Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
+
+        // This will be used to map the directory names (e.g., "idle") and the texture files.
+        // Ultimately, we will create animations out of this by using the
+        // Animation(LinkedList<String>) constructor.
+
+        HashMap<String, List<String>> storage = new HashMap<>();
+        animationMap = new HashMap<>();
+
+        // Iterate over each file and directory in the JAR.
+
+        while (entries.hasMoreElements()) {
+            // example: character/knight/idle/idle_knight_1.png
+            // but also: character/knight/idle/
+            // and: character/knight/
+            String fileName = entries.nextElement().getName();
+
+            // If the entry starts with the path name (character/knight/idle),
+            // this is true for entries like (character/knight/idle/idle_knight_1.png) and
+            // (character/knight/idle/).
+            if (fileName.startsWith(path + File.separator)) {
+
+                // Get the index of the last FileSeparator; every character after that separator is
+                // part of the filename.
+                int lastSlashIndex = fileName.lastIndexOf(File.separator);
+
+                // Ignore directories, so we only work with strings like
+                // (character/knight/idle/idle_knight_1.png).
+                if (lastSlashIndex != fileName.length() - 1) {
+                    // Get the index of the second-to-last part of the string.
+                    // For example, in "character/knight/idle/idle_knight_1.png", this would be the
+                    // index of the slash in "/idle".
+
+                    int secondLastSlashIndex =
+                            fileName.lastIndexOf(File.separator, lastSlashIndex - 1);
+
+                    // Get the name of the directory. The directory name is between the
+                    // second-to-last and the last separator index.
+                    // The directory name serves as the key of the animation in the animation map
+                    // (similar to what the IPATh values are for them).
+                    // For example: "idle"
+
+                    String lastDir = fileName.substring(secondLastSlashIndex + 1, lastSlashIndex);
+
+                    // add animation-files to new or existing storage map
+                    if (storage.containsKey(lastDir)) storage.get(lastDir).add(fileName);
+                    else {
+                        LinkedList<String> list = new LinkedList<>();
+                        list.add(fileName);
+                        storage.put(lastDir, list);
+                    }
+                }
+            }
+        }
+
+        // sort the files in lexicographic order (like the most os)
+        // animations will be played in order
+        storage.values().forEach(Collections::sort);
+        // create animations
+        storage.forEach((name, textureSet) -> animationMap.put(name, new Animation(textureSet)));
+        jar.close();
+    }
+
+    private void loadAnimationsFromIDE(String path) {
+        URL url = DrawComponent.class.getResource(File.separator + path);
+        if (url != null) {
+            try {
+                File apps = new File(url.toURI());
+                animationMap =
+                        Arrays.stream(Objects.requireNonNull(apps.listFiles()))
+                                .filter(File::isDirectory)
+                                .collect(Collectors.toMap(File::getName, Animation::of));
+            } catch (URISyntaxException ignored) {
+            }
+        }
     }
 }

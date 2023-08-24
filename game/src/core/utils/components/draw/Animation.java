@@ -74,6 +74,15 @@ public final class Animation {
     }
 
     /**
+     * Creates an animation with the default configuration.
+     *
+     * @param animationFrames The list of textures that builds the animation. Must be in order.
+     */
+    public Animation(Collection<String> animationFrames) {
+        this(animationFrames, DEFAULT_FRAME_TIME, true);
+    }
+
+    /**
      * Creates an animation containing only one frame. repeats forever
      *
      * @param animationFrame The texture that builds the animation.
@@ -98,11 +107,11 @@ public final class Animation {
                 Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
                         .filter(File::isFile)
                         .map(File::getPath)
+                        // sort the files in lexicographic order (like the most os) so animations
+                        // will be played in order
+                        .sorted()
                         .collect(Collectors.toList());
 
-        // sort the files in lexicographic order (like the most os)
-        // animations will be played in order
-        Collections.sort(fileNames);
         return new Animation(fileNames, frameTime, loop);
     }
 
