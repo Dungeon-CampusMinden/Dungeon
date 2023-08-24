@@ -74,9 +74,12 @@ public final class DrawComponent implements Component {
      * @see Animation
      */
     public DrawComponent(final String path) throws IOException {
+        // for windows
+        String betterPath = path.replace("\\", "/");
+
         // fetch available animations
         try {
-            loadAnimationsFromDirectory(path);
+            loadAnimationsFromDirectory(betterPath);
             currentAnimation(
                     CoreAnimations.IDLE_DOWN,
                     CoreAnimations.IDLE_LEFT,
