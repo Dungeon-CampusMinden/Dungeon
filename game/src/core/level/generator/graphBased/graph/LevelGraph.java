@@ -162,7 +162,7 @@ public final class LevelGraph {
         public void addAtRandomDirection(final Node other) {
             if (isNeighbourWith(other)) return;
 
-            // select atAt connection direction
+            // select addAt connection direction
             Direction addAt = Direction.of(RANDOM.nextInt(0, 4));
             Optional<Node> neighbour = at(addAt);
 
@@ -175,7 +175,7 @@ public final class LevelGraph {
                 Optional<Node> neighbourOfOther = other.at(Direction.opposite(addAt));
 
                 if (neighbourOfOther.isPresent()) {
-                    // add this node to the neighbour at the atAt direction of this node
+                    // add this node to the neighbour at the addAt direction of this node
                     neighbourOfOther.get().addAtRandomDirection(this);
                 } else {
                     // other has space on the selected direction
