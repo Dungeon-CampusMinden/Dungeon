@@ -57,19 +57,21 @@ public class Starter {
         Game.disableAudio(true);
         Game.userOnFrame(debugger::execute);
         Game.userOnLevelLoad(
-                () -> {
-                    try {
-                        EntityFactory.newChest();
-                    } catch (IOException e) {
-                        LOGGER.warning("Could not create new Chest: " + e.getMessage());
-                        throw new RuntimeException();
-                    }
-                    for (int i = 0; i < 5; i++) {
+                (firstload) -> {
+                    if (firstload) {
                         try {
-                            EntityFactory.randomMonster();
+                            Game.add(EntityFactory.newChest());
                         } catch (IOException e) {
-                            LOGGER.warning("Could not create new Monster: " + e.getMessage());
-                            throw new RuntimeException(e);
+                            LOGGER.warning("Could not create new Chest: " + e.getMessage());
+                            throw new RuntimeException();
+                        }
+                        for (int i = 0; i < 5; i++) {
+                            try {
+                                Game.add(EntityFactory.randomMonster());
+                            } catch (IOException e) {
+                                LOGGER.warning("Could not create new Monster: " + e.getMessage());
+                                throw new RuntimeException(e);
+                            }
                         }
                     }
                     Game.levelSize(LevelSize.randomSize());

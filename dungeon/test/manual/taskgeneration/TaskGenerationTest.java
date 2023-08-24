@@ -34,7 +34,7 @@ import java.util.function.BiConsumer;
  * <a
  * href="file:../../../../doc/tasks/anleitung_task_test.md">../../../../doc/tasks/anleitung_task_test.md</a>
  *
- * <p>Use taskGenerationTest --args "scripts/task_test.dng" to run thus
+ * <p>Use taskGenerationTest --args "dungeon/assets/scripts/task_test.dng" to run thus
  */
 public class TaskGenerationTest {
     static DSLInterpreter interpreter = new DSLInterpreter();
