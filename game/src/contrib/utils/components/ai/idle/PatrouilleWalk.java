@@ -62,7 +62,6 @@ public class PatrouilleWalk implements Consumer<Entity> {
     }
 
     private void init(final Entity entity) {
-        System.out.println("INIT");
         initialized = true;
         PositionComponent position =
                 entity.fetch(PositionComponent.class)
@@ -109,7 +108,6 @@ public class PatrouilleWalk implements Consumer<Entity> {
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
 
-        // todo
         if (currentPath != null && !AIUtils.pathFinished(entity, currentPath)) {
             if (AIUtils.pathLeft(entity, currentPath)) {
                 currentPath =
