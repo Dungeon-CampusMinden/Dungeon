@@ -28,9 +28,9 @@ import java.util.*;
  * <p>Use {@link #add(Set)} to add a new entity collection and thus a new node to the graph.
  */
 public final class LevelGraph {
-    private Node root;
-    private final List<Node> nodes = new ArrayList<>();
     private static final Random RANDOM = new Random();
+    private final List<Node> nodes = new ArrayList<>();
+    private Node root;
 
     /**
      * Creates a new node with the given set as payload and adds it to a random position in the
@@ -103,6 +103,56 @@ public final class LevelGraph {
         return dotBuilder.toString();
     }
 
+    /** The different directions in which nodes can be connected to each other. */
+    public enum Direction {
+        NORTH(0),
+        EAST(1),
+        SOUTH(2),
+        WEST(3);
+
+        private final int value;
+
+        Direction(int value) {
+            this.value = value;
+        }
+
+        /**
+         * Retrieves the opposite direction.
+         *
+         * @param from The direction from which the opposite direction is sought.
+         * @return The opposite direction.
+         */
+        public static Direction opposite(Direction from) {
+            return switch (from) {
+                case NORTH -> SOUTH;
+                case EAST -> WEST;
+                case SOUTH -> NORTH;
+                case WEST -> EAST;
+            };
+        }
+
+        /**
+         * Returns the Direction enum value corresponding to the given integer value.
+         *
+         * @param v The integer value representing a direction.
+         * @return The Direction enum value, or null if the value does not correspond to any
+         *     direction.
+         */
+        public static Direction of(int v) {
+            return switch (v) {
+                case 0 -> NORTH;
+                case 1 -> EAST;
+                case 2 -> SOUTH;
+                case 3 -> WEST;
+                default -> null;
+            };
+        }
+
+        public int value() {
+            return value;
+        }
+    }
+
     /**
      * Node in the level graph.
      *
@@ -123,9 +173,8 @@ public final class LevelGraph {
      */
     public static final class Node {
         private final Set<Entity> entities;
-
-        private ILevel level;
         private final Node[] neighbours = new Node[Direction.values().length];
+        private ILevel level;
 
         /**
          * Creates a new node with the given collection as payload.
@@ -195,6 +244,7 @@ public final class LevelGraph {
                 }
             }
         }
+
         /**
          * Retrieves the neighbor in the given direction.
          *
@@ -205,6 +255,7 @@ public final class LevelGraph {
         public Optional<Node> at(Direction direction) {
             return Optional.ofNullable(neighbours[direction.value]);
         }
+
         /**
          * Checks if this node and the given node are direct neighbors.
          *
@@ -224,6 +275,7 @@ public final class LevelGraph {
         public Set<Entity> entities() {
             return entities;
         }
+
         /**
          * Retrieves a copy of the neighbor node array.
          *
@@ -241,56 +293,6 @@ public final class LevelGraph {
 
         public ILevel level() {
             return level;
-        }
-    }
-
-    /** The different directions in which nodes can be connected to each other. */
-    public enum Direction {
-        NORTH(0),
-        EAST(1),
-        SOUTH(2),
-        WEST(3);
-
-        private final int value;
-
-        Direction(int value) {
-            this.value = value;
-        }
-
-        public int value() {
-            return value;
-        }
-
-        /**
-         * Retrieves the opposite direction.
-         *
-         * @param from The direction from which the opposite direction is sought.
-         * @return The opposite direction.
-         */
-        public static Direction opposite(Direction from) {
-            return switch (from) {
-                case NORTH -> SOUTH;
-                case EAST -> WEST;
-                case SOUTH -> NORTH;
-                case WEST -> EAST;
-            };
-        }
-
-        /**
-         * Returns the Direction enum value corresponding to the given integer value.
-         *
-         * @param v The integer value representing a direction.
-         * @return The Direction enum value, or null if the value does not correspond to any
-         *     direction.
-         */
-        public static Direction of(int v) {
-            return switch (v) {
-                case 0 -> NORTH;
-                case 1 -> EAST;
-                case 2 -> SOUTH;
-                case 3 -> WEST;
-                default -> null;
-            };
         }
     }
 }

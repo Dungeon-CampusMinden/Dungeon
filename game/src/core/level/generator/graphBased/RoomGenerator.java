@@ -21,10 +21,6 @@ import java.util.Random;
  */
 public class RoomGenerator {
 
-    private record MinMaxValue(int min, int max) {}
-
-    private record Area(int x, int y) {}
-
     private static final int WALL_BUFFER = 2;
     private static final float SYMMETRICAL = 0.5f;
     private static final float EXTEND_TO_SIDES = 0.5f;
@@ -43,7 +39,6 @@ public class RoomGenerator {
     private static final int BIG_MIN_Y_SIZE = 20;
     private static final int BIG_MAX_X_SIZE = 24;
     private static final int BIG_MAX_Y_SIZE = 24;
-
     private Random random;
 
     /**
@@ -567,4 +562,8 @@ public class RoomGenerator {
             System.out.println();
         }
     }
+
+    private record MinMaxValue(int min, int max) {}
+
+    private record Area(int x, int y) {}
 }
