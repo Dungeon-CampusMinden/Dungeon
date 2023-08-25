@@ -80,6 +80,12 @@ public class LevelUtilsTest {
     }
 
     @Test
+    public void tilesInRangeCenterNotInLevel() {
+        var tiles = LevelUtils.tilesInRange(new Point(-10, -10), 1.1f);
+        assertEquals("should have 3", 0, tiles.size());
+    }
+
+    @Test
     public void tilesInRangeOnlyCorners() {
         var tiles = LevelUtils.tilesInRange(new Point(0, 0), 1.1f);
         assertEquals("should have 3", 3, tiles.size());

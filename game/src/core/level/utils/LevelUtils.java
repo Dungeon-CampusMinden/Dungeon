@@ -164,7 +164,8 @@ public class LevelUtils {
 
         Set<Tile> tiles = new HashSet<>();
         Queue<Tile> tileque = new ArrayDeque<>();
-        tileque.add(Game.tileAT(center));
+        Tile start = Game.tileAT(center);
+        if (start != null) tileque.add(start);
         while (tileque.size() > 0) {
             Tile current = tileque.remove();
             boolean added = tiles.add(current);
