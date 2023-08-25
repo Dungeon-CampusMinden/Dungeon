@@ -41,7 +41,8 @@ import java.util.logging.Logger;
  * <p>Not yet implemented: Letting the player select a starting point (essentially a level) from the
  * input DSL files and loading the game.
  *
- * <p>Start with "./gradlew start".
+ * <p>Start with "./gradlew start --args "dungeon/assets/scripts/task_test.dng" " or with other dsl
+ * paths.
  */
 public class Starter {
     private static final Logger LOGGER = Logger.getLogger(Starter.class.getName());

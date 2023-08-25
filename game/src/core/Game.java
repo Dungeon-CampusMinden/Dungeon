@@ -854,6 +854,7 @@ public final class Game extends ScreenAdapter {
 
     /** Create the systems. */
     private void createSystems() {
+        add(new PositionSystem());
         add(new CameraSystem());
         add(
                 new LevelSystem(
@@ -861,7 +862,6 @@ public final class Game extends ScreenAdapter {
                         new WallGenerator(new RandomWalkGenerator()),
                         onLevelLoad));
         add(new DrawSystem());
-        add(new PositionSystem());
         add(new VelocitySystem());
         add(new PlayerSystem());
         add(new HudSystem());
