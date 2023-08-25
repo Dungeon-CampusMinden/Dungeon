@@ -47,16 +47,15 @@ public final class Game extends ScreenAdapter {
      * <p>The Key-Value is the Class of the system
      */
     private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
+    /** Maps the level with the different {@link EntitySystemMapper} for that level. */
+    private static final Map<ILevel, Set<EntitySystemMapper>> levelStorageMap = new HashMap<>();
 
+    private static final Logger LOGGER = Logger.getLogger("Game");
     /**
      * Collection of {@link EntitySystemMapper} that maps the exisiting entities to the systems. The
      * {@link EntitySystemMapper} with no filter-rules will contain each entity in the game
      */
     private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
-    /** Maps the level with the different {@link EntitySystemMapper} for that level. */
-    private static final Map<ILevel, Set<EntitySystemMapper>> levelStorageMap = new HashMap<>();
-
-    private static final Logger LOGGER = Logger.getLogger("Game");
     /**
      * The width of the game window in pixels.
      *
@@ -134,7 +133,9 @@ public final class Game extends ScreenAdapter {
     private static Entity hero;
 
     private static Stage stage;
-
+    private boolean doSetup = true;
+    private boolean uiDebugFlag = false;
+    private boolean newLevelWasLoadedInThisLoop = false;
     /**
      * Sets {@link #currentLevel} to the new level and changes the currently active entity storage.
      *
@@ -146,7 +147,8 @@ public final class Game extends ScreenAdapter {
      */
     private final IVoidFunction onLevelLoad =
             () -> {
-                boolean firstTimeLevelLoad = !levelStorageMap.containsKey(currentLevel());
+                newLevelWasLoadedInThisLoop = true;
+                boolean firstLoad = !levelStorageMap.containsKey(currentLevel());
                 hero().ifPresent(Game::remove);
                 // Remove the systems so that each triggerOnRemove(entity) will be called (basically
                 // cleanup).
@@ -164,11 +166,9 @@ public final class Game extends ScreenAdapter {
                     LOGGER.warning(e.getMessage());
                 }
                 hero().ifPresent(Game::add);
-                userOnLevelLoad.accept(firstTimeLevelLoad);
+                currentLevel().onLoad();
+                userOnLevelLoad.accept(firstLoad);
             };
-
-    private boolean doSetup = true;
-    private boolean uiDebugFlag = false;
 
     // for singleton
     private Game() {}
@@ -401,6 +401,7 @@ public final class Game extends ScreenAdapter {
             LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
         }
     }
+
     /**
      * The given entity will be added to the game.
      *
@@ -756,7 +757,13 @@ public final class Game extends ScreenAdapter {
         DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
-        systems().values().stream().filter(System::isRunning).forEach(System::execute);
+
+        for (System system : systems().values()) {
+            // if a new level was loaded, stop this loop-run
+            if (newLevelWasLoadedInThisLoop) break;
+            if (system.isRunning()) system.execute();
+        }
+        newLevelWasLoadedInThisLoop = false;
         CameraSystem.camera().update();
         // stage logic
         Game.stage().ifPresent(Game::updateStage);

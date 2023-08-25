@@ -173,7 +173,8 @@ public class EntityFactory {
                 IntStream.range(0, RANDOM.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .collect(Collectors.toSet());
-        return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
+        if (Game.currentLevel() == null) return newChest(itemData, null);
+        else return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
     }
 
     /**
@@ -190,7 +191,9 @@ public class EntityFactory {
     public static Entity newChest(Set<ItemData> itemData, Point position) throws IOException {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
-        chest.addComponent(new PositionComponent(position));
+
+        if (position == null) chest.addComponent(new PositionComponent());
+        else chest.addComponent(new PositionComponent(position));
         InventoryComponent ic = new InventoryComponent(itemData.size());
         chest.addComponent(ic);
         itemData.forEach(ic::add);

@@ -1,14 +1,9 @@
-package core.level.room;
+package core.level.generator.graphBased;
 
 import static core.level.elements.ILevel.RANDOM;
 
-import core.level.Room;
-import core.level.Tile;
-import core.level.elements.tile.DoorTile;
-import core.level.levelgraph.DoorDirection;
-import core.level.levelgraph.LevelNode;
+import core.level.generator.graphBased.LevelGraph.Node;
 import core.level.utils.Coordinate;
-import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 
@@ -25,10 +20,6 @@ import java.util.Random;
  * outermost walls for every given door direction.
  */
 public class RoomGenerator {
-
-    private record MinMaxValue(int min, int max) {}
-
-    private record Area(int x, int y) {}
 
     private static final int WALL_BUFFER = 2;
     private static final float SYMMETRICAL = 0.5f;
@@ -48,24 +39,7 @@ public class RoomGenerator {
     private static final int BIG_MIN_Y_SIZE = 20;
     private static final int BIG_MAX_X_SIZE = 24;
     private static final int BIG_MAX_Y_SIZE = 24;
-
     private Random random;
-
-    /**
-     * Generates a random room with given parameters.
-     *
-     * @param designLabel Design of the room tiles
-     * @param size Size of the room
-     * @param doors Directions of doors to be generated
-     * @param node LevelNode the room should be attached to
-     * @return The generated room
-     */
-    public IRoom level(
-            DesignLabel designLabel, LevelSize size, DoorDirection[] doors, LevelNode node) {
-        Room room = new Room(layout(size, doors), designLabel, node);
-        addDoorTilesToRoom(room);
-        return room;
-    }
 
     /**
      * Generates a random room layout with the given parameters.
@@ -74,7 +48,7 @@ public class RoomGenerator {
      * @param doors Array of DoorDirections to specify where doors should be generated
      * @return The generated room layout
      */
-    public LevelElement[][] layout(LevelSize size, DoorDirection[] doors) {
+    public LevelElement[][] layout(LevelSize size, Node[] doors) {
         return generateRoom(size, RANDOM.nextLong(), doors);
     }
 
@@ -86,7 +60,7 @@ public class RoomGenerator {
      * @param doors Array of DoorDirections to specify where doors should be generated
      * @return The generated room layout
      */
-    private LevelElement[][] generateRoom(LevelSize size, long seed, DoorDirection[] doors) {
+    private LevelElement[][] generateRoom(LevelSize size, long seed, Node[] doors) {
         // Initialize random number generator with seed
         random = new Random(seed);
 
@@ -427,11 +401,11 @@ public class RoomGenerator {
      * @param maxArea Maximum area of the room on which FloorTiles can be placed
      * @param layout The layout of the level
      */
-    private void addDoors(DoorDirection[] doors, Area maxArea, LevelElement[][] layout) {
-        boolean upperDoor = doors[DoorDirection.UP.value()] != null;
-        boolean bottomDoor = doors[DoorDirection.DOWN.value()] != null;
-        boolean leftDoor = doors[DoorDirection.LEFT.value()] != null;
-        boolean rightDoor = doors[DoorDirection.RIGHT.value()] != null;
+    private void addDoors(Node[] doors, Area maxArea, LevelElement[][] layout) {
+        boolean upperDoor = doors[LevelGraph.Direction.NORTH.value()] != null;
+        boolean bottomDoor = doors[LevelGraph.Direction.SOUTH.value()] != null;
+        boolean leftDoor = doors[LevelGraph.Direction.WEST.value()] != null;
+        boolean rightDoor = doors[LevelGraph.Direction.EAST.value()] != null;
 
         if (upperDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
@@ -565,16 +539,6 @@ public class RoomGenerator {
     }
 
     /**
-     * Links the generated DoorTiles to the Room for easy access.
-     *
-     * @param room The generated room
-     */
-    private void addDoorTilesToRoom(Room room) {
-        for (Tile[] row : room.layout())
-            for (Tile tile : row) if (tile instanceof DoorTile) room.addDoor((DoorTile) tile);
-    }
-
-    /**
      * Prints the layout of the room for debugging.
      *
      * @param layout The layout of the room
@@ -598,4 +562,8 @@ public class RoomGenerator {
             System.out.println();
         }
     }
+
+    private record MinMaxValue(int min, int max) {}
+
+    private record Area(int x, int y) {}
 }

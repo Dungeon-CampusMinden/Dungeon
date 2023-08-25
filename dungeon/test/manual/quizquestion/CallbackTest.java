@@ -66,6 +66,11 @@ public class CallbackTest {
         Game.userOnSetup(
                 () -> {
                     try {
+                        Game.add(new AISystem());
+                        Game.add(new CollisionSystem());
+                        Game.add(new HealthSystem());
+                        Game.add(new XPSystem());
+                        Game.add(new ProjectileSystem());
                         Entity hero = EntityFactory.newHero();
                         Game.hero(hero);
                         Game.add(hero);
@@ -86,11 +91,6 @@ public class CallbackTest {
                     }
                 });
         Game.windowTitle("Quest Wizard");
-        Game.add(new AISystem());
-        Game.add(new CollisionSystem());
-        Game.add(new HealthSystem());
-        Game.add(new XPSystem());
-        Game.add(new ProjectileSystem());
 
         // build and start game
         Game.run();
