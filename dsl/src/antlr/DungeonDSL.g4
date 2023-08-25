@@ -45,13 +45,7 @@ fragment STRING_ESCAPE_SEQ
 /*
  * Parser rules
  */
-
-// TODO:
-// - expression grammar
-// - proper stmt =efinition
-
 program : definition* EOF
-        //| stmt
         ;
 
 definition
@@ -93,7 +87,6 @@ assignee
     ;
 
 logic_or
-
     : logic_or ( or='or' logic_and )
     | logic_and
     ;
