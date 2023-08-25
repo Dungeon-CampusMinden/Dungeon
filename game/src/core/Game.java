@@ -147,6 +147,7 @@ public final class Game extends ScreenAdapter {
     private final IVoidFunction onLevelLoad =
             () -> {
                 newLevelWasLoadedInThisLoop = true;
+                boolean firstLoad = !levelStorageMap.containsKey(currentLevel());
                 hero().ifPresent(Game::remove);
                 // Remove the systems so that each triggerOnRemove(entity) will be called (basically
                 // cleanup).
@@ -165,7 +166,7 @@ public final class Game extends ScreenAdapter {
                 }
                 hero().ifPresent(Game::add);
                 currentLevel().onLoad();
-                userOnLevelLoad.accept(!levelStorageMap.containsKey(currentLevel()));
+                userOnLevelLoad.accept(firstLoad);
             };
 
     private boolean doSetup = true;

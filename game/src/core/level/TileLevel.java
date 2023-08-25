@@ -34,7 +34,8 @@ public class TileLevel implements ILevel {
     protected ArrayList<DoorTile> doorTiles = new ArrayList<>();
     protected ArrayList<ExitTile> exitTiles = new ArrayList<>();
     protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
-    private IVoidFunction onFirstLoad;
+    private IVoidFunction onFirstLoad = () -> {};
+
     private boolean wasLoaded = false;
 
     /**
