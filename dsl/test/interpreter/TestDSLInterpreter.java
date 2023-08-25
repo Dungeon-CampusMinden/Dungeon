@@ -1832,4 +1832,56 @@ public class TestDSLInterpreter {
         String output = outputStream.toString();
         Assert.assertTrue(output.equals("ja" + System.lineSeparator() + "nein" + System.lineSeparator()));
     }
+
+    @Test
+    public void testAssignmentFuncParam() {
+        String program =
+            """
+    entity_type my_type {
+        test_component_with_string_consumer_callback {
+            on_interaction: set_param
+        }
+    }
+
+    fn set_param(string text) {
+        print(text);
+        text = "my text";
+        print(text);
+    }
+
+    quest_config c {
+        entity: instantiate(my_type)
+    }
+    """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+
+        var config =
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+
+        TestComponentWithStringConsumerCallback componentWithConsumer =
+            (TestComponentWithStringConsumerCallback)
+                entity.components.stream()
+                    .filter(c -> c instanceof TestComponentWithStringConsumerCallback)
+                    .toList()
+                    .get(0);
+
+        componentWithConsumer.executeCallbackWithText("hello");
+
+        String output = outputStream.toString();
+        Assert.assertTrue(output.equals("hello" + System.lineSeparator() + "my text" + System.lineSeparator()));
+    }
 }
