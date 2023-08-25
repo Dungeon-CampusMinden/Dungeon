@@ -31,6 +31,13 @@ public class Main {
         Game.userOnSetup(
                 () -> {
                     try {
+                        Game.add(new CollisionSystem());
+                        Game.add(new AISystem());
+                        Game.add(new HealthSystem());
+                        Game.add(new XPSystem());
+                        Game.add(new ProjectileSystem());
+                        Game.add(new HealthbarSystem());
+                        Game.add(new HeroUISystem());
                         Entity hero = (EntityFactory.newHero());
                         Game.add(hero);
                         Game.hero(hero);
@@ -59,13 +66,7 @@ public class Main {
 
         Game.userOnFrame(debugger::execute);
         Game.windowTitle("My Dungeon");
-        // Game.add(new AISystem());
-        Game.add(new CollisionSystem());
-        Game.add(new HealthSystem());
-        Game.add(new XPSystem());
-        Game.add(new ProjectileSystem());
-        Game.add(new HealthbarSystem());
-        Game.add(new HeroUISystem());
+
         // build and start game
         Game.run();
     }
