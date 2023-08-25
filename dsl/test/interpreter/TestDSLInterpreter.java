@@ -1711,7 +1711,7 @@ public class TestDSLInterpreter {
     @Test
     public void testAssignmentProperty() {
         String program =
-            """
+                """
     entity_type my_type {
         test_component2 {
             member1: "ja",
@@ -1742,38 +1742,40 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
         env.getTypeBuilder()
-            .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
         env.getTypeBuilder()
-            .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
 
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         var entity = config.entity();
 
         TestComponentEntityConsumerCallback componentWithConsumer =
-            (TestComponentEntityConsumerCallback)
-                entity.components.stream()
-                    .filter(c -> c instanceof TestComponentEntityConsumerCallback)
-                    .toList()
-                    .get(0);
+                (TestComponentEntityConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                                .toList()
+                                .get(0);
 
         componentWithConsumer.consumer.accept(entity);
 
         String output = outputStream.toString();
-        Assert.assertTrue(output.equals("kuckuck"+System.lineSeparator()+"kuckuck"+System.lineSeparator()));
+        Assert.assertTrue(
+                output.equals(
+                        "kuckuck" + System.lineSeparator() + "kuckuck" + System.lineSeparator()));
     }
 
     @Test
     public void testAssignmentObjectMember() {
         String program =
-            """
+                """
     entity_type my_type {
         test_component2 {
             member1: "ja",
@@ -1805,38 +1807,39 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
         env.getTypeBuilder()
-            .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
         env.getTypeBuilder()
-            .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
 
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         var entity = config.entity();
 
         TestComponentEntityConsumerCallback componentWithConsumer =
-            (TestComponentEntityConsumerCallback)
-                entity.components.stream()
-                    .filter(c -> c instanceof TestComponentEntityConsumerCallback)
-                    .toList()
-                    .get(0);
+                (TestComponentEntityConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                                .toList()
+                                .get(0);
 
         componentWithConsumer.consumer.accept(entity);
 
         String output = outputStream.toString();
-        Assert.assertTrue(output.equals("ja" + System.lineSeparator() + "nein" + System.lineSeparator()));
+        Assert.assertTrue(
+                output.equals("ja" + System.lineSeparator() + "nein" + System.lineSeparator()));
     }
 
     @Test
     public void testAssignmentFuncParam() {
         String program =
-            """
+                """
     entity_type my_type {
         test_component_with_string_consumer_callback {
             on_interaction: set_param
@@ -1863,25 +1866,27 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         var entity = config.entity();
 
         TestComponentWithStringConsumerCallback componentWithConsumer =
-            (TestComponentWithStringConsumerCallback)
-                entity.components.stream()
-                    .filter(c -> c instanceof TestComponentWithStringConsumerCallback)
-                    .toList()
-                    .get(0);
+                (TestComponentWithStringConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentWithStringConsumerCallback)
+                                .toList()
+                                .get(0);
 
         componentWithConsumer.executeCallbackWithText("hello");
 
         String output = outputStream.toString();
-        Assert.assertTrue(output.equals("hello" + System.lineSeparator() + "my text" + System.lineSeparator()));
+        Assert.assertTrue(
+                output.equals(
+                        "hello" + System.lineSeparator() + "my text" + System.lineSeparator()));
     }
 }
