@@ -51,6 +51,13 @@ public class TaskGenerationTest {
         Game.userOnSetup(
                 () -> {
                     try {
+                        Game.add(new AISystem());
+                        Game.add(new CollisionSystem());
+                        Game.add(new HealthSystem());
+                        Game.add(new XPSystem());
+                        Game.add(new ProjectileSystem());
+                        Game.add(new HealthbarSystem());
+                        Game.add(new HeroUISystem());
                         Entity hero = EntityFactory.newHero();
                         Game.hero(hero);
                         Game.add(hero);
@@ -87,14 +94,6 @@ public class TaskGenerationTest {
                 });
 
         Game.windowTitle("Task Test");
-        Game.add(new AISystem());
-        Game.add(new CollisionSystem());
-        Game.add(new HealthSystem());
-        Game.add(new XPSystem());
-        Game.add(new ProjectileSystem());
-        Game.add(new HealthbarSystem());
-        Game.add(new HeroUISystem());
-
         Game.run();
     }
 

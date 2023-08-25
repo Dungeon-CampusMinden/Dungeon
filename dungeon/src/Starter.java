@@ -55,6 +55,16 @@ public class Starter {
                 core.configuration.KeyboardConfig.class);
         Game.frameRate(30);
         Game.disableAudio(true);
+        Game.userOnSetup(
+                () -> {
+                    Game.add(new AISystem());
+                    Game.add(new CollisionSystem());
+                    Game.add(new HealthSystem());
+                    Game.add(new XPSystem());
+                    Game.add(new ProjectileSystem());
+                    Game.add(new HealthbarSystem());
+                    Game.add(new HeroUISystem());
+                });
         Game.userOnFrame(debugger::execute);
         Game.userOnLevelLoad(
                 (firstload) -> {
@@ -77,12 +87,5 @@ public class Starter {
                     Game.levelSize(LevelSize.randomSize());
                 });
         Game.windowTitle("DSL Dungeon");
-        Game.add(new AISystem());
-        Game.add(new CollisionSystem());
-        Game.add(new HealthSystem());
-        Game.add(new XPSystem());
-        Game.add(new ProjectileSystem());
-        Game.add(new HealthbarSystem());
-        Game.add(new HeroUISystem());
     }
 }
