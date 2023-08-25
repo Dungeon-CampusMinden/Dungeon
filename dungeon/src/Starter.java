@@ -10,6 +10,7 @@ import core.components.PositionComponent;
 import core.hud.UITools;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
+import core.level.generator.graphBased.RoombasedLevelGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 
@@ -73,18 +74,65 @@ public class Starter {
                     // load the task and generate the level for it
                     if (!realGameStarted && selectedPoint != null) {
                         realGameStarted = true;
+                        Set<Set<Entity>> entityCollection = todo(selectedPoint);
+
+                        // todo find better solution
+                        for (Set<Entity> collection : entityCollection)
+                            for (Entity e : collection)
+                                e.fetch(PositionComponent.class)
+                                        .ifPresent(
+                                                pc ->
+                                                        pc.position(
+                                                                PositionComponent
+                                                                        .ILLEGAL_POSITION));
+
+                        ILevel level =
+                                RoombasedLevelGenerator.level(
+                                        entityCollection, DesignLabel.randomDesign());
+                        Game.currentLevel(level);
                         UITools.generateNewTextDialog(
                                 "You selected " + selectedPoint.displayName(),
                                 "Ok",
                                 "Your selection");
-                        // todo create task and generate level for it
-                        Game.currentLevel()
-                                .changeTileElementType(
-                                        Game.randomTile(LevelElement.FLOOR), LevelElement.EXIT);
                     }
                 });
 
         Game.run();
+    }
+
+    // TODO connect with DSL
+    private static Set<Set<Entity>> todo(DSLEntryPoint selectedPoint) {
+        int roomcount = 10;
+        int chestcount = 1;
+        int monstercount = 5;
+
+        Set<Set<Entity>> entities = new HashSet<>();
+        for (int i = 0; i < roomcount; i++) {
+            Set<Entity> set = new HashSet<>();
+            entities.add(set);
+            if (i == roomcount / 2) {
+                try {
+                    set.add(EntityFactory.newCraftingCauldron());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            for (int j = 0; j < monstercount; j++) {
+                try {
+                    set.add(EntityFactory.randomMonster());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            for (int k = 0; k < chestcount; k++) {
+                try {
+                    set.add(EntityFactory.newChest());
+                } catch (IOException e) {
+
+                }
+            }
+        }
+        return entities;
     }
 
     private static void createHero() {
@@ -111,8 +159,8 @@ public class Starter {
     }
 
     private static void createSystems() {
-        Game.add(new CollisionSystem());
         Game.add(new AISystem());
+        Game.add(new CollisionSystem());
         Game.add(new HealthSystem());
         Game.add(new XPSystem());
         Game.add(new ProjectileSystem());
