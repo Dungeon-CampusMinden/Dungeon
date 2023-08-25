@@ -168,7 +168,6 @@ public class VariableBinder implements AstVisitor<Void> {
         //  and nothing more.. so this is currenlty not implemented
         //  but not 'unsupported'
 
-        //throw new UnsupportedOperationException();
         return null;
     }
 
