@@ -130,6 +130,26 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
+    public void enterVar_decl_assignment(DungeonDSLParser.Var_decl_assignmentContext ctx) {
+
+    }
+
+    @Override
+    public void exitVar_decl_assignment(DungeonDSLParser.Var_decl_assignmentContext ctx) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void enterVar_decl_type_decl(DungeonDSLParser.Var_decl_type_declContext ctx) {
+
+    }
+
+    @Override
+    public void exitVar_decl_type_decl(DungeonDSLParser.Var_decl_type_declContext ctx) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void enterExpression(DungeonDSLParser.ExpressionContext ctx) {}
 
     @Override

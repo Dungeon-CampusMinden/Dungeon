@@ -61,9 +61,15 @@ fn_def
 
 stmt
     : expression ';'
+    | var_decl
     | stmt_block
     | conditional_stmt
     | return_stmt
+    ;
+
+var_decl
+    : 'var' id=ID '=' expression ';'   #var_decl_assignment
+    | 'var' id=ID ':' type_decl ';'    #var_decl_type_decl
     ;
 
 expression
