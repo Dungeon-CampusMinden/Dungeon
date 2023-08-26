@@ -164,8 +164,11 @@ public class VariableBinder implements AstVisitor<Void> {
 
     @Override
     public Void visit(AssignmentNode node) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        // TODO: implement creation of new variable..
+        //  and nothing more.. so this is currenlty not implemented
+        //  but not 'unsupported'
+
+        return null;
     }
 
     // region ASTVisitor implementation of Nodes unrelated to variable binding

@@ -654,8 +654,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(AssignmentNode node) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        Value lhsValue = (Value) node.getLhs().accept(this);
+        Value rhsValue = (Value) node.getRhs().accept(this);
+        setValue(lhsValue, rhsValue);
+
+        return lhsValue;
     }
 
     @Override

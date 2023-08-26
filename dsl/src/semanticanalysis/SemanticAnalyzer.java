@@ -484,8 +484,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(AssignmentNode node) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        // TODO: typechcking
+
+        visitChildren(node);
+        return null;
     }
 
     @Override
