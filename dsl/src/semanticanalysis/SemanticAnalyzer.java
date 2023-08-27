@@ -542,12 +542,12 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(VarDeclNode node) {
-        String name = ((IdNode)node.getIdentifier()).getName();
+        String name = ((IdNode) node.getIdentifier()).getName();
 
         // check if a variable is already defined in the current scope
         Symbol resolvedName = this.currentScope().resolve(name, false);
         if (!resolvedName.equals(Symbol.NULL)) {
-            throw new RuntimeException("Redefinition of variable '" + name +"'");
+            throw new RuntimeException("Redefinition of variable '" + name + "'");
         }
 
         // create new symbol for the variable
@@ -557,7 +557,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         }
 
         // resolve the type name
-        IdNode typeDeclNode = (IdNode)node.getRhs();
+        IdNode typeDeclNode = (IdNode) node.getRhs();
         String typeName = typeDeclNode.getName();
         if (!typeDeclNode.type.equals(Node.Type.Identifier)) {
             // list or set type -> create type

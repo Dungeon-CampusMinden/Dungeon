@@ -156,14 +156,14 @@ public class TestDSLInterpreter {
     public void funcCallReturnUserFunc() {
         String program =
                 """
-            fn ret_string() -> string {
-                return "Hello, World!";
-            }
+                    fn ret_string() -> string {
+                        return "Hello, World!";
+                    }
 
-            quest_config c {
-                test: print(ret_string())
-            }
-        """;
+                    quest_config c {
+                        test: print(ret_string())
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -182,18 +182,18 @@ public class TestDSLInterpreter {
     public void funcCallReturnUserFuncNestedBlock() {
         String program =
                 """
-            fn ret_string() -> string {
-                {
-                    {
-                        return "Hello, World!";
+                    fn ret_string() -> string {
+                        {
+                            {
+                                return "Hello, World!";
+                            }
+                        }
                     }
-                }
-            }
 
-            quest_config c {
-                test: print(ret_string())
-            }
-        """;
+                    quest_config c {
+                        test: print(ret_string())
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -211,18 +211,18 @@ public class TestDSLInterpreter {
     public void funcCallNestedStmtBlock() {
         String program =
                 """
-                fn print_string() {
-                    {
+                    fn print_string() {
                         {
-                            print("Hello, World!");
+                            {
+                                print("Hello, World!");
+                            }
                         }
                     }
-                }
 
-                quest_config c {
-                    test: print_string()
-                }
-            """;
+                    quest_config c {
+                        test: print_string()
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -241,14 +241,14 @@ public class TestDSLInterpreter {
     public void funcCallReturnUserFuncWithoutReturnType() {
         String program =
                 """
-                    fn ret_string() {
-                        return "Hello, World!";
-                    }
+                        fn ret_string() {
+                            return "Hello, World!";
+                        }
 
-                quest_config c {
-                    test: print(ret_string())
-                }
-            """;
+                    quest_config c {
+                        test: print(ret_string())
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -496,22 +496,22 @@ public class TestDSLInterpreter {
     public void objectEncapsulation() {
         String program =
                 """
-            entity_type my_obj {
-                test_component1 {
-                    member1: 42,
-                    member2: 12.34
-                },
-                test_component2 {
-                    member1: "Hallo",
-                    member2: 123
+                entity_type my_obj {
+                    test_component1 {
+                        member1: 42,
+                        member2: 12.34
+                    },
+                    test_component2 {
+                        member1: "Hallo",
+                        member2: 123
+                    }
                 }
-            }
 
-            quest_config config {
-                entity: instantiate(my_obj),
-                second_entity: instantiate(my_obj)
-            }
-            """;
+                quest_config config {
+                    entity: instantiate(my_obj),
+                    second_entity: instantiate(my_obj)
+                }
+                """;
 
         var env = new TestEnvironment();
         env.getTypeBuilder()
@@ -558,14 +558,14 @@ public class TestDSLInterpreter {
     public void aggregateTypeInstancingNonSupportedExternalType() {
         String program =
                 """
-            entity_type my_obj {
-                component_with_external_type_member { }
-            }
+                entity_type my_obj {
+                    component_with_external_type_member { }
+                }
 
-            quest_config config {
-                entity: instantiate(my_obj)
-            }
-            """;
+                quest_config config {
+                    entity: instantiate(my_obj)
+                }
+                """;
 
         var env = new TestEnvironment();
         env.getTypeBuilder()
@@ -747,14 +747,14 @@ public class TestDSLInterpreter {
     public void testIfStmtFalse() {
         String program =
                 """
-            fn test_func() {
-                if 0 print("Hello, World!");
-            }
+                fn test_func() {
+                    if 0 print("Hello, World!");
+                }
 
-            quest_config c {
-                test: test_func()
-            }
-                """;
+                quest_config c {
+                    test: test_func()
+                }
+                    """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -772,14 +772,14 @@ public class TestDSLInterpreter {
     public void testIfStmtTrue() {
         String program =
                 """
-            fn test_func() {
-                if 1 print("Hello, World!");
-            }
+                fn test_func() {
+                    if 1 print("Hello, World!");
+                }
 
-            quest_config c {
-                test: test_func()
-            }
-                """;
+                quest_config c {
+                    test: test_func()
+                }
+                    """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -797,15 +797,15 @@ public class TestDSLInterpreter {
     public void testElseStmt() {
         String program =
                 """
-            fn test_func() {
-                if 0 print("Hello");
-                else print ("World");
-            }
+                fn test_func() {
+                    if 0 print("Hello");
+                    else print ("World");
+                }
 
-            quest_config c {
-                test: test_func()
-            }
-                """;
+                quest_config c {
+                    test: test_func()
+                }
+                    """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -823,16 +823,16 @@ public class TestDSLInterpreter {
     public void testIfElseStmt() {
         String program =
                 """
-            fn test_func() {
-                if 0 print("Hello");
-                else if 0 print ("World");
-                else print("!");
-            }
+                fn test_func() {
+                    if 0 print("Hello");
+                    else if 0 print ("World");
+                    else print("!");
+                }
 
-            quest_config c {
-                test: test_func()
-            }
-                """;
+                quest_config c {
+                    test: test_func()
+                }
+                    """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -850,16 +850,16 @@ public class TestDSLInterpreter {
     public void testIfElseStmtSecondIf() {
         String program =
                 """
-            fn test_func() {
-                if false print("Hello");
-                else if true print ("World");
-                else print("!");
-            }
+                fn test_func() {
+                    if false print("Hello");
+                    else if true print ("World");
+                    else print("!");
+                }
 
-            quest_config c {
-                test: test_func()
-            }
-                """;
+                quest_config c {
+                    test: test_func()
+                }
+                    """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -878,21 +878,21 @@ public class TestDSLInterpreter {
     public void testBranchingReturn() {
         String program =
                 """
-        fn test_func() {
-            if false {
-                print("branch1");
-            } else {
-                print("branch2 stmt1");
-                print("branch2 stmt2");
-                return;
-                print("after return stmt");
-            }
-        }
+                fn test_func() {
+                    if false {
+                        print("branch1");
+                    } else {
+                        print("branch2 stmt1");
+                        print("branch2 stmt2");
+                        return;
+                        print("after return stmt");
+                    }
+                }
 
-        quest_config c {
-            test: test_func()
-        }
-            """;
+                quest_config c {
+                    test: test_func()
+                }
+                    """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -913,28 +913,28 @@ public class TestDSLInterpreter {
     public void testBranchingReturnNested() {
         String program =
                 """
-        fn other_func() -> string {
-            print("other_func stmt1");
-            print("other_func stmt2");
-            return "hello" ;
-            print("other_func stmt3");
-        }
+                fn other_func() -> string {
+                    print("other_func stmt1");
+                    print("other_func stmt2");
+                    return "hello" ;
+                    print("other_func stmt3");
+                }
 
-        fn test_func() {
-            if false {
-                print("branch1");
-            } else {
-                print("branch2 stmt1");
-                print(other_func());
-                return;
-                print("after return stmt");
-            }
-        }
+                fn test_func() {
+                    if false {
+                        print("branch1");
+                    } else {
+                        print("branch2 stmt1");
+                        print(other_func());
+                        return;
+                        print("after return stmt");
+                    }
+                }
 
-        quest_config c {
-            test: test_func()
-        }
-            """;
+                quest_config c {
+                    test: test_func()
+                }
+                    """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -961,20 +961,20 @@ public class TestDSLInterpreter {
     public void testFuncRefValue() {
         String program =
                 """
-            entity_type my_type {
-                test_component_with_callback {
-                    on_interaction: other_func
-                }
-            }
+                    entity_type my_type {
+                        test_component_with_callback {
+                            on_interaction: other_func
+                        }
+                    }
 
-            fn other_func(entity my_entity) {
-                print("Hello, World!");
-            }
+                    fn other_func(entity my_entity) {
+                        print("Hello, World!");
+                    }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-        """;
+                    quest_config c {
+                        entity: instantiate(my_type)
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -994,20 +994,20 @@ public class TestDSLInterpreter {
     public void testFuncRefValueCall() {
         String program =
                 """
-            entity_type my_type {
-                test_component_with_string_consumer_callback {
-                    on_interaction: other_func
-                }
-            }
+                    entity_type my_type {
+                        test_component_with_string_consumer_callback {
+                            on_interaction: other_func
+                        }
+                    }
 
-            fn other_func(string text) {
-                print(text);
-            }
+                    fn other_func(string text) {
+                        print(text);
+                    }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-        """;
+                    quest_config c {
+                        entity: instantiate(my_type)
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1039,20 +1039,20 @@ public class TestDSLInterpreter {
     public void testFuncRefValueCallReturn() {
         String program =
                 """
-            entity_type my_type {
-                test_component_with_string_function_callback {
-                    on_interaction: other_func
-                }
-            }
+                    entity_type my_type {
+                        test_component_with_string_function_callback {
+                            on_interaction: other_func
+                        }
+                    }
 
-            fn other_func(string text) -> string {
-                return text;
-            }
+                    fn other_func(string text) -> string {
+                        return text;
+                    }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-        """;
+                    quest_config c {
+                        entity: instantiate(my_type)
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1081,11 +1081,11 @@ public class TestDSLInterpreter {
     public void registerListAndSetTypesInEnvironment() {
         String program =
                 """
-                quest_config c {
-                    int_list: [1,2,3],
-                    string_list: ["Hello", "World", "!"]
-                }
-            """;
+                    quest_config c {
+                        int_list: [1,2,3],
+                        string_list: ["Hello", "World", "!"]
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1115,11 +1115,11 @@ public class TestDSLInterpreter {
     public void setListValues() {
         String program =
                 """
-                quest_config c {
-                    int_list: [1,2,3],
-                    string_list: ["Hello", "World", "!"]
-                }
-            """;
+                    quest_config c {
+                        int_list: [1,2,3],
+                        string_list: ["Hello", "World", "!"]
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1147,11 +1147,11 @@ public class TestDSLInterpreter {
     public void setSetValues() {
         String program =
                 """
-                quest_config c {
-                    float_set: <1.2,2.3,3.0,3.0>,
-                    string_set: <"Hello", "Hello", "World", "!">
-                }
-            """;
+                    quest_config c {
+                        float_set: <1.2,2.3,3.0,3.0>,
+                        string_set: <"Hello", "Hello", "World", "!">
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1182,20 +1182,20 @@ public class TestDSLInterpreter {
     public void passListValueToFunc() {
         String program =
                 """
-                fn test_func(entity[] my_entities) -> bool {
-                    return true;
-                }
-
-                entity_type my_type{
-                    test_component_list_callback{
-                        on_interaction: test_func
+                    fn test_func(entity[] my_entities) -> bool {
+                        return true;
                     }
-                }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-            """;
+                    entity_type my_type{
+                        test_component_list_callback{
+                            on_interaction: test_func
+                        }
+                    }
+
+                    quest_config c {
+                        entity: instantiate(my_type)
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1230,20 +1230,20 @@ public class TestDSLInterpreter {
     public void passListValueThroughFunc() {
         String program =
                 """
-                fn test_func(entity[] my_entities) -> entity[] {
-                    return my_entities;
-                }
-
-                entity_type my_type{
-                    test_component_list_pass_through_callback{
-                        on_interaction: test_func
+                    fn test_func(entity[] my_entities) -> entity[] {
+                        return my_entities;
                     }
-                }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-            """;
+                    entity_type my_type{
+                        test_component_list_pass_through_callback{
+                            on_interaction: test_func
+                        }
+                    }
+
+                    quest_config c {
+                        entity: instantiate(my_type)
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1280,20 +1280,20 @@ public class TestDSLInterpreter {
     public void passSetValueThroughFunc() {
         String program =
                 """
-                fn test_func(entity<> my_entities) -> entity<> {
-                    return my_entities;
-                }
-
-                entity_type my_type{
-                    test_component_set_pass_through_callback{
-                        on_interaction: test_func
+                    fn test_func(entity<> my_entities) -> entity<> {
+                        return my_entities;
                     }
-                }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-            """;
+                    entity_type my_type{
+                        test_component_set_pass_through_callback{
+                            on_interaction: test_func
+                        }
+                    }
+
+                    quest_config c {
+                        entity: instantiate(my_type)
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1330,22 +1330,22 @@ public class TestDSLInterpreter {
     public void taskDefinition() {
         String program =
                 """
-            single_choice_task my_single_choice_task {
-                description: "Hello",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 1
-            }
+                    single_choice_task my_single_choice_task {
+                        description: "Hello",
+                        answers: ["1", "2", "3"],
+                        correct_answer_index: 1
+                    }
 
-            multiple_choice_task my_multiple_choice_task {
-                description: "Tschüss",
-                answers: ["4", "5", "6"],
-                correct_answer_index: [0,1]
-            }
+                    multiple_choice_task my_multiple_choice_task {
+                        description: "Tschüss",
+                        answers: ["4", "5", "6"],
+                        correct_answer_index: [0,1]
+                    }
 
-            quest_config c {
-                tasks: [my_single_choice_task, my_multiple_choice_task]
-            }
-        """;
+                    quest_config c {
+                        tasks: [my_single_choice_task, my_multiple_choice_task]
+                    }
+                """;
 
         DSLInterpreter interpreter = new DSLInterpreter();
         var config = (QuestConfig) interpreter.getQuestConfig(program);
@@ -1373,23 +1373,23 @@ public class TestDSLInterpreter {
     public void testMemberAccess() {
         String program =
                 """
-            fn test_func(test_component2 component) {
-                print(component.member1);
-            }
+                    fn test_func(test_component2 component) {
+                        print(component.member1);
+                    }
 
-            entity_type my_type{
-                test_component_string_member_and_callback{
-                    consumer: test_func
-                },
-                test_component2 {
-                    member1: "Hello, World!"
-                }
-            }
+                    entity_type my_type{
+                        test_component_string_member_and_callback{
+                            consumer: test_func
+                        },
+                        test_component2 {
+                            member1: "Hello, World!"
+                        }
+                    }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-        """;
+                    quest_config c {
+                        entity: instantiate(my_type)
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1422,28 +1422,28 @@ public class TestDSLInterpreter {
     public void testMemberAccessFuncCall() {
         String program =
                 """
-            fn return_component(test_component2 component) -> test_component2 {
-                return component;
-            }
+                    fn return_component(test_component2 component) -> test_component2 {
+                        return component;
+                    }
 
-            fn use_function(test_component2 component) {
-                // setting of the component parameter does not work!
-                print(return_component(component).member1);
-            }
+                    fn use_function(test_component2 component) {
+                        // setting of the component parameter does not work!
+                        print(return_component(component).member1);
+                    }
 
-            entity_type my_type{
-                test_component_string_member_and_callback{
-                    consumer: use_function
-                },
-                test_component2 {
-                    member1: "Hello, World!"
-                }
-            }
+                    entity_type my_type{
+                        test_component_string_member_and_callback{
+                            consumer: use_function
+                        },
+                        test_component2 {
+                            member1: "Hello, World!"
+                        }
+                    }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-        """;
+                    quest_config c {
+                        entity: instantiate(my_type)
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1475,24 +1475,24 @@ public class TestDSLInterpreter {
     public void testProperty() {
         String program =
                 """
-            entity_type my_type {
-                test_component2 {
-                    member2: 42,
-                    this_is_a_float: 3.14
-                },
-                test_component_with_callback {
-                    consumer: get_property
+                entity_type my_type {
+                    test_component2 {
+                        member2: 42,
+                        this_is_a_float: 3.14
+                    },
+                    test_component_with_callback {
+                        consumer: get_property
+                    }
                 }
-            }
 
-            fn get_property(test_component2 comp) {
-                print(comp.this_is_a_float);
-            }
+                fn get_property(test_component2 comp) {
+                    print(comp.this_is_a_float);
+                }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-            """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1529,25 +1529,25 @@ public class TestDSLInterpreter {
     public void testPropertyOfComplexType() {
         String program =
                 """
-        entity_type my_type {
-            test_component2 {
-                member2: 42,
-                this_is_complex: complex_type { member1: 42 }
-            },
-            test_component_with_callback {
-                consumer: get_property
-            }
-        }
+                entity_type my_type {
+                    test_component2 {
+                        member2: 42,
+                        this_is_complex: complex_type { member1: 42 }
+                    },
+                    test_component_with_callback {
+                        consumer: get_property
+                    }
+                }
 
-        fn get_property(test_component2 comp) {
-            print(comp.this_is_complex.member1);
-            print(comp.this_is_complex.member3);
-        }
+                fn get_property(test_component2 comp) {
+                    print(comp.this_is_complex.member1);
+                    print(comp.this_is_complex.member3);
+                }
 
-        quest_config c {
-            entity: instantiate(my_type)
-        }
-        """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1585,24 +1585,24 @@ public class TestDSLInterpreter {
     public void testComponentPropertyOfEntity() {
         String program =
                 """
-            entity_type my_type {
-                test_component2 {
-                    member2: 42
-                },
-                test_component_with_callback {
-                    consumer: get_property
+                entity_type my_type {
+                    test_component2 {
+                        member2: 42
+                    },
+                    test_component_with_callback {
+                        consumer: get_property
+                    }
                 }
-            }
 
-            fn get_property(entity ent) {
-                print(ent.test_component1.member1);
-                print(ent.test_component2.member2);
-            }
+                fn get_property(entity ent) {
+                    print(ent.test_component1.member1);
+                    print(ent.test_component2.member2);
+                }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-            """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1638,23 +1638,23 @@ public class TestDSLInterpreter {
     public void testComponentPropertyOfEntityUpdateValue() {
         String program =
                 """
-        entity_type my_type {
-            test_component2 {
-                member2: 42
-            },
-            test_component_with_callback {
-                consumer: get_property
-            }
-        }
+                entity_type my_type {
+                    test_component2 {
+                        member2: 42
+                    },
+                    test_component_with_callback {
+                        consumer: get_property
+                    }
+                }
 
-        fn get_property(entity ent) {
-            print(ent.test_component2.member2);
-        }
+                fn get_property(entity ent) {
+                    print(ent.test_component2.member2);
+                }
 
-        quest_config c {
-            entity: instantiate(my_type)
-        }
-        """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1712,26 +1712,26 @@ public class TestDSLInterpreter {
     public void testAssignmentProperty() {
         String program =
                 """
-    entity_type my_type {
-        test_component2 {
-            member1: "ja",
-            member3: "nein"
-        },
-        test_component_with_callback {
-            consumer: get_property
-        }
-    }
+                    entity_type my_type {
+                        test_component2 {
+                            member1: "ja",
+                            member3: "nein"
+                        },
+                        test_component_with_callback {
+                            consumer: get_property
+                        }
+                    }
 
-    fn get_property(entity ent) {
-        ent.test_component2.member3 = ent.test_component2.member1 = "kuckuck";
-        print(ent.test_component2.member1);
-        print(ent.test_component2.member3);
-    }
+                    fn get_property(entity ent) {
+                        ent.test_component2.member3 = ent.test_component2.member1 = "kuckuck";
+                        print(ent.test_component2.member1);
+                        print(ent.test_component2.member3);
+                    }
 
-    quest_config c {
-        entity: instantiate(my_type)
-    }
-    """;
+                    quest_config c {
+                        entity: instantiate(my_type)
+                    }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1754,7 +1754,6 @@ public class TestDSLInterpreter {
         var config =
                 (CustomQuestConfig)
                         Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
-
         var entity = config.entity();
 
         TestComponentEntityConsumerCallback componentWithConsumer =
@@ -1776,27 +1775,27 @@ public class TestDSLInterpreter {
     public void testAssignmentObjectMember() {
         String program =
                 """
-    entity_type my_type {
-        test_component2 {
-            member1: "ja",
-            member3: "nein"
-        },
-        test_component_with_callback {
-            consumer: set_property
-        }
-    }
+                entity_type my_type {
+                    test_component2 {
+                        member1: "ja",
+                        member3: "nein"
+                    },
+                    test_component_with_callback {
+                        consumer: set_property
+                    }
+                }
 
-    fn set_property(entity ent) {
-        c.second_entity = ent;
-        print(c.second_entity.test_component2.member1);
-        ent.test_component2.member1 = "nein";
-        print(c.second_entity.test_component2.member1);
-    }
+                fn set_property(entity ent) {
+                    c.second_entity = ent;
+                    print(c.second_entity.test_component2.member1);
+                    ent.test_component2.member1 = "nein";
+                    print(c.second_entity.test_component2.member1);
+                }
 
-    quest_config c {
-        entity: instantiate(my_type)
-    }
-    """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1840,22 +1839,22 @@ public class TestDSLInterpreter {
     public void testAssignmentFuncParam() {
         String program =
                 """
-    entity_type my_type {
-        test_component_with_string_consumer_callback {
-            on_interaction: set_param
-        }
-    }
+                entity_type my_type {
+                    test_component_with_string_consumer_callback {
+                        on_interaction: set_param
+                    }
+                }
 
-    fn set_param(string text) {
-        print(text);
-        text = "my text";
-        print(text);
-    }
+                fn set_param(string text) {
+                    print(text);
+                    text = "my text";
+                    print(text);
+                }
 
-    quest_config c {
-        entity: instantiate(my_type)
-    }
-    """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -1868,6 +1867,58 @@ public class TestDSLInterpreter {
         env.getTypeBuilder()
                 .createDSLTypeForJavaTypeInScope(
                         env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+
+        TestComponentWithStringConsumerCallback componentWithConsumer =
+                (TestComponentWithStringConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentWithStringConsumerCallback)
+                                .toList()
+                                .get(0);
+
+        componentWithConsumer.executeCallbackWithText("hello");
+
+        String output = outputStream.toString();
+        Assert.assertTrue(
+                output.equals(
+                        "hello" + System.lineSeparator() + "my text" + System.lineSeparator()));
+    }
+
+    @Test
+    public void testVariableCreation() {
+        String program =
+                """
+                entity_type my_type {
+                    test_component_with_callback {
+                        consumer: get_property
+                    }
+                }
+
+                fn get_property(string param) {
+                    var test : string;
+                }
+
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithCallback.class);
 
         var config =
                 (CustomQuestConfig)

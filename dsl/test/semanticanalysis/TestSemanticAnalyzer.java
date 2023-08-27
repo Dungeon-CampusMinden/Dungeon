@@ -4,14 +4,12 @@ import dslToGame.graph.Graph;
 
 import helpers.Helpers;
 
-import interpreter.CustomQuestConfig;
-import interpreter.DSLInterpreter;
 import interpreter.DummyNativeFunction;
 import interpreter.TestEnvironment;
 import interpreter.mockecs.Entity;
 import interpreter.mockecs.TestComponent2;
-
 import interpreter.mockecs.TestComponentEntityConsumerCallback;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -596,7 +594,7 @@ public class TestSemanticAnalyzer {
     @Test
     public void testVariableCreation() {
         String program =
-            """
+                """
     entity_type my_type {
         test_component_with_callback {
             consumer: get_property
@@ -620,14 +618,15 @@ public class TestSemanticAnalyzer {
         TestEnvironment env = new TestEnvironment();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
 
         var ast = Helpers.getASTFromString(program);
         var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
         var symbolTable = result.symbolTable;
 
-        FunctionSymbol funcSymbol = (FunctionSymbol)symbolTable.globalScope.resolve("get_property");
+        FunctionSymbol funcSymbol =
+                (FunctionSymbol) symbolTable.globalScope.resolve("get_property");
         Symbol testVariableSymbol = funcSymbol.resolve("test");
         Assert.assertNotEquals(Symbol.NULL, testVariableSymbol);
         Assert.assertEquals(BuiltInType.stringType, testVariableSymbol.dataType);
