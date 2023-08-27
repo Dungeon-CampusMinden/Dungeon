@@ -356,10 +356,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             FunctionSymbol funcSymbol = (FunctionSymbol) resolved;
             scopeStack.push(funcSymbol);
 
-            // visit all stmts
-            for (var stmt : node.getStmts()) {
-                stmt.accept(this);
-            }
+            // visit statements
+            node.getStmtBlock().accept(this);
 
             // create symbol table entry
             symbolTable.addSymbolNodeRelation(funcSymbol, node, false);
