@@ -4,7 +4,8 @@ import com.badlogic.gdx.utils.Null;
 
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
-import contrib.utils.components.item.ItemData;
+import contrib.item.IItemDroppable;
+import contrib.item.Item;
 
 import core.Entity;
 import core.components.*;
@@ -64,14 +65,16 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
                                 () ->
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
-        ItemData[] itemData = inventoryComponent.items();
+        Item[] itemData = inventoryComponent.items();
         double count = itemData.length;
         // used for calculation of drop position
         AtomicInteger index = new AtomicInteger();
         Arrays.stream(itemData)
+                .filter(IItemDroppable.class::isInstance)
+                .map(IItemDroppable.class::cast)
                 .forEach(
                         item ->
-                                item.triggerDrop(
+                                item.drop(
                                         entity,
                                         calculateDropPosition(
                                                 positionComponent,

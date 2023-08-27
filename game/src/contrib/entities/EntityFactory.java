@@ -5,9 +5,9 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.GUICombination;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.item.Item;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
-import contrib.utils.components.item.ItemData;
 import contrib.utils.components.item.ItemDataGenerator;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
@@ -208,12 +208,12 @@ public class EntityFactory {
     public static Entity newChest() throws IOException {
         ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
 
-        Set<ItemData> itemData =
+        Set<Item> items =
                 IntStream.range(0, RANDOM.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .collect(Collectors.toSet());
-        if (Game.currentLevel() == null) return newChest(itemData, null);
-        else return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
+        if (Game.currentLevel() == null) return newChest(items, null);
+        else return newChest(items, Game.randomTile(LevelElement.FLOOR).position());
     }
 
     /**
@@ -223,19 +223,19 @@ public class EntityFactory {
      * DrawComponent}, {@link CollideComponent} and {@link InventoryComponent}. It will use the
      * {@link DropItemsInteraction} on interaction.
      *
-     * @param itemData The {@link ItemData} for the Items inside the chest.
+     * @param item The {@link Item} for the Items inside the chest.
      * @param position The position of the chest.
      * @return Created Entity
      */
-    public static Entity newChest(Set<ItemData> itemData, Point position) throws IOException {
+    public static Entity newChest(Set<Item> item, Point position) throws IOException {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
 
         if (position == null) chest.addComponent(new PositionComponent());
         else chest.addComponent(new PositionComponent(position));
-        InventoryComponent ic = new InventoryComponent(itemData.size());
+        InventoryComponent ic = new InventoryComponent(item.size());
         chest.addComponent(ic);
-        itemData.forEach(ic::add);
+        item.forEach(ic::add);
         chest.addComponent(
                 new InteractionComponent(
                         defaultInteractionRadius,
@@ -326,7 +326,7 @@ public class EntityFactory {
         BiConsumer<Entity, Entity> onDeath;
         if (itemRoll == 0) {
             ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
-            ItemData item = itemDataGenerator.generateItemData();
+            Item item = itemDataGenerator.generateItemData();
             InventoryComponent ic = new InventoryComponent(1);
             monster.addComponent(ic);
             ic.add(item);
