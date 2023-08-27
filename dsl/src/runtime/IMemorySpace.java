@@ -31,6 +31,13 @@ public interface IMemorySpace {
     Value resolve(String name, boolean resolveInParent);
 
     /**
+     * Delete a {@link Value} of given name from this IMemorySpace
+     *
+     * @param name the name of the value to delete
+     */
+    void delete(String name);
+
+    /**
      * Set the value specified by the name
      *
      * @param name name of the value to set

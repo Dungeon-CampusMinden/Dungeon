@@ -147,6 +147,11 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
         return resolve(name);
     }
 
+    @Override
+    public void delete(String name) {
+        throw new UnsupportedOperationException("Deleting a value from an Encapsulated Object is not supported!");
+    }
+
     // TODO: define the semantics for this based on, if the value is a POD type or
     //  a complex type -> what happens, if we want to set a component of an
     //  entity or a complex datatype of a component (e.g. Point)?!
