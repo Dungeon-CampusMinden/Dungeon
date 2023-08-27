@@ -540,6 +540,43 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(VarDeclNode node) {
+        String name = ((IdNode)node.getIdentifier()).getName();
+
+        // check if a variable is already defined in the current scope
+        Symbol resolvedName = this.currentScope().resolve(name, false);
+        if (!resolvedName.equals(Symbol.NULL)) {
+            throw new RuntimeException("Redefinition of variable '" + name +"'");
+        }
+
+        // create new symbol for the variable
+        // get the type of the variable
+        if (node.getDeclType().equals(VarDeclNode.DeclType.assignmentDecl)) {
+            throw new RuntimeException("Inference of variable type currently not supported!");
+        }
+
+        // resolve the type name
+        IdNode typeDeclNode = (IdNode)node.getRhs();
+        String typeName = typeDeclNode.getName();
+        if (!typeDeclNode.type.equals(Node.Type.Identifier)) {
+            // list or set type -> create type
+            typeDeclNode.accept(this);
+        }
+
+        Symbol typeSymbol = this.globalScope().resolve(typeName);
+        if (!(typeSymbol instanceof IType variableType)) {
+            throw new RuntimeException("Type of name '" + typeName + "' cannot be resolved!");
+        }
+
+        // create variable symbol
+        Symbol variableSymbol = new Symbol(name, this.currentScope(), variableType);
+        this.currentScope().bind(variableSymbol);
+        this.symbolTable.addSymbolNodeRelation(variableSymbol, node, true);
+
+        return null;
+    }
+
     // region ASTVisitor implementation for nodes unrelated to semantic analysis
     @Override
     public Void visit(DecNumNode node) {
