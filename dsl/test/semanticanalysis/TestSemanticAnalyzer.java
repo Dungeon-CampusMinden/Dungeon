@@ -627,7 +627,10 @@ public class TestSemanticAnalyzer {
 
         FunctionSymbol funcSymbol =
                 (FunctionSymbol) symbolTable.globalScope.resolve("get_property");
-        Symbol testVariableSymbol = funcSymbol.resolve("test");
+        FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
+        VarDeclNode declNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
+        Symbol testVariableSymbol = symbolTable.getSymbolsForAstNode(declNode).get(0);
+
         Assert.assertNotEquals(Symbol.NULL, testVariableSymbol);
         Assert.assertEquals(BuiltInType.stringType, testVariableSymbol.dataType);
     }
