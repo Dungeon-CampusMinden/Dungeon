@@ -1941,4 +1941,58 @@ public class TestDSLInterpreter {
         String output = outputStream.toString();
         assertEquals(output, System.lineSeparator());
     }
+
+    @Test
+    public void testVariableCreationAndAssignment() {
+        String program =
+            """
+            entity_type my_type {
+                test_component_with_string_consumer_callback {
+                    on_interaction: get_property
+                }
+            }
+
+            fn get_property(string param) {
+                var test : string;
+                test = "Hello, World!";
+                print(test);
+            }
+
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+
+        var config =
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+
+        TestComponentWithStringConsumerCallback componentWithConsumer =
+            (TestComponentWithStringConsumerCallback)
+                entity.components.stream()
+                    .filter(c -> c instanceof TestComponentWithStringConsumerCallback)
+                    .toList()
+                    .get(0);
+
+        componentWithConsumer.executeCallbackWithText("hello");
+
+        // the output stream should only contain the default value for a string variable ("") and the
+        // line separator from the print-call
+        String output = outputStream.toString();
+        assertEquals(output, "Hello, World!"+System.lineSeparator());
+    }
 }
