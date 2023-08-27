@@ -1901,6 +1901,7 @@ public class TestDSLInterpreter {
 
                 fn get_property(string param) {
                     var test : string;
+                    print(test);
                 }
 
                 quest_config c {
@@ -1935,9 +1936,9 @@ public class TestDSLInterpreter {
 
         componentWithConsumer.executeCallbackWithText("hello");
 
+        // the output stream should only contain the default value for a string variable ("") and the
+        // line separator from the print-call
         String output = outputStream.toString();
-        Assert.assertTrue(
-                output.equals(
-                        "hello" + System.lineSeparator() + "my text" + System.lineSeparator()));
+        assertEquals(output, System.lineSeparator());
     }
 }
