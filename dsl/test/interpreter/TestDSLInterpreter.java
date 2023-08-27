@@ -1894,8 +1894,8 @@ public class TestDSLInterpreter {
         String program =
                 """
                 entity_type my_type {
-                    test_component_with_callback {
-                        consumer: get_property
+                    test_component_with_string_consumer_callback {
+                        on_interaction: get_property
                     }
                 }
 
@@ -1918,7 +1918,7 @@ public class TestDSLInterpreter {
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
                 .createDSLTypeForJavaTypeInScope(
-                        env.getGlobalScope(), TestComponentWithCallback.class);
+                        env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
         var config =
                 (CustomQuestConfig)
