@@ -65,7 +65,8 @@ public class Node {
         ListDefinitionNode,
         SetDefinitionNode,
         ListTypeIdentifierNode,
-        SetTypeIdentifierNode
+        SetTypeIdentifierNode,
+        VarDeclNode
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());
