@@ -22,7 +22,7 @@ public class FunctionValue extends Value {
      * @param callable the callable represented by this value
      */
     public FunctionValue(IType functionReturnValue, ICallable callable) {
-        super(functionReturnValue, null);
+        super(functionReturnValue, callable);
         this.callable = callable;
     }
 

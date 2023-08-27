@@ -117,8 +117,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
 
             // get type of lhs (the assignee)
-            var propName = propertyDefNode.getIdName();
-            var propertiesType = prototypesType.resolve(propName).getDataType();
+            var propertyName = propertyDefNode.getIdName();
+            Symbol propertySymbol = prototypesType.resolve(propertyName);
+            if (propertySymbol.equals(Symbol.NULL)) {
+                throw new RuntimeException("Property of name '" + propertyName + "' cannot be resolved in type '" + prototypesType.getName() + "'");
+            }
+            var propertiesType = propertySymbol.getDataType();
 
             // clone value
             Value value = (Value) rhsValue.clone();
