@@ -17,10 +17,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import contrib.components.InventoryComponent;
 import contrib.hud.CombinableGUI;
 import contrib.hud.GUICombination;
-import contrib.utils.components.item.ItemData;
+import contrib.item.Item;
 
 import core.Game;
-import core.utils.components.draw.TextureMap;
 
 public class InventoryGUI extends CombinableGUI {
 
@@ -117,13 +116,11 @@ public class InventoryGUI extends CombinableGUI {
                             + (2 * BORDER_PADDING);
 
             batch.draw(
-                    TextureMap.instance()
-                            .textureAt(
-                                    this.inventoryComponent
-                                            .items()[i]
-                                            .item()
-                                            .inventoryAnimation()
-                                            .nextAnimationTexturePath()),
+                    new Texture(
+                            this.inventoryComponent
+                                    .items()[i]
+                                    .inventoryAnimation()
+                                    .nextAnimationTexturePath()),
                     x,
                     y,
                     this.slotSize - (4 * BORDER_PADDING),
@@ -194,11 +191,11 @@ public class InventoryGUI extends CombinableGUI {
         if (this.dragAndDrop().isDragging()) return;
 
         int hoveredSlot = this.getSlotByCoordinates(relMousePos.x, relMousePos.y);
-        ItemData item = InventoryGUI.this.inventoryComponent.get(hoveredSlot);
+        Item item = InventoryGUI.this.inventoryComponent.get(hoveredSlot);
         if (item == null) return;
 
-        GlyphLayout layoutName = new GlyphLayout(bitmapFont, item.item().displayName());
-        GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, item.item().description());
+        GlyphLayout layoutName = new GlyphLayout(bitmapFont, item.displayName());
+        GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, item.description());
 
         float x = mousePos.x + HOVER_OFFSET.x;
         float y = mousePos.y + HOVER_OFFSET.y;
@@ -208,15 +205,12 @@ public class InventoryGUI extends CombinableGUI {
         bitmapFont.setColor(Color.BLACK);
         bitmapFont.draw(
                 batch,
-                item.item().displayName(),
+                item.displayName(),
                 x + BORDER_PADDING,
                 y + layoutName.height + LINE_GAP + layoutDesc.height + 5);
         bitmapFont.setColor(new Color(0x000000b0));
         bitmapFont.draw(
-                batch,
-                item.item().description(),
-                x + BORDER_PADDING,
-                y + layoutName.height + LINE_GAP);
+                batch, item.description(), x + BORDER_PADDING, y + layoutName.height + LINE_GAP);
     }
 
     @Override
@@ -228,7 +222,7 @@ public class InventoryGUI extends CombinableGUI {
                             InputEvent event, float x, float y, int pointer) {
 
                         int draggedSlot = InventoryGUI.this.getSlotByCoordinates(x, y);
-                        ItemData item = InventoryGUI.this.inventoryComponent.get(draggedSlot);
+                        Item item = InventoryGUI.this.inventoryComponent.get(draggedSlot);
                         if (item == null) return null;
 
                         DragAndDrop.Payload payload = new DragAndDrop.Payload();
@@ -239,8 +233,7 @@ public class InventoryGUI extends CombinableGUI {
                         Image image =
                                 new Image(
                                         new Texture(
-                                                item.item()
-                                                        .inventoryAnimation()
+                                                item.inventoryAnimation()
                                                         .nextAnimationTexturePath()));
                         image.setSize(InventoryGUI.this.slotSize, InventoryGUI.this.slotSize);
                         payload.setDragActor(image);
@@ -265,8 +258,7 @@ public class InventoryGUI extends CombinableGUI {
                                 && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
                             InventoryGUI.this.inventoryComponent.set(
                                     itemDragPayload.slot(),
-                                    (itemDragPayload
-                                            .itemData())); // reset item to original slot if not
+                                    (itemDragPayload.item())); // reset item to original slot if not
                             // dropped on target
                         }
                     }
@@ -301,8 +293,7 @@ public class InventoryGUI extends CombinableGUI {
                         int slot = InventoryGUI.this.getSlotByCoordinates(x, y);
                         if (payload.getObject() != null
                                 && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-                            InventoryGUI.this.inventoryComponent.set(
-                                    slot, itemDragPayload.itemData());
+                            InventoryGUI.this.inventoryComponent.set(slot, itemDragPayload.item());
                         }
                     }
                 });

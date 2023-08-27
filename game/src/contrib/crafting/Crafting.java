@@ -3,8 +3,6 @@ package contrib.crafting;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
-import contrib.utils.components.item.ItemData;
-
 import core.utils.logging.CustomLogLevel;
 
 import starter.Main;

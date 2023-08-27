@@ -3,6 +3,7 @@ package contrib.utils.components.item;
 import static org.junit.Assert.*;
 
 import contrib.components.InventoryComponent;
+import contrib.item.Items;
 
 import core.Entity;
 import core.Game;
@@ -23,13 +24,13 @@ public class ItemDataTest {
     @Test
     public void testDefaultConstructor() {
         ItemData itemData = new ItemData();
-        assertEquals(Item.DEFAULT_ITEM, itemData.item());
+        assertEquals(Items.DEFAULT_ITEM, itemData.item());
     }
 
     @Test
     public void testParameterConstructor() {
-        ItemData itemData = new ItemData(Item.RESOURCE_FLOWER_RED);
-        assertEquals(Item.RESOURCE_FLOWER_RED, itemData.item());
+        ItemData itemData = new ItemData(Items.RESOURCE_FLOWER_RED);
+        assertEquals(Items.RESOURCE_FLOWER_RED, itemData.item());
     }
 
     // <p> Since we cant update the {@link Game#entities} from outside the gameloop, this is
