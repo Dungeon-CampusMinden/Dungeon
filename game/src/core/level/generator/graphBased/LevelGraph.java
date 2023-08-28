@@ -85,7 +85,7 @@ public final class LevelGraph {
      * @return A tuple containing the node in this graph and the direction in which the given graph
      *     was connected.
      */
-    public Optional<Tuple<Node, Direction>> connectGraph(LevelGraph other) {
+    public Optional<Tuple<Node, Direction>> add(LevelGraph other) {
         for (Node node : other.nodes()) {
             // todo this can end in an endless loop
             Optional<Tuple<Node, Direction>> tup = add(node);

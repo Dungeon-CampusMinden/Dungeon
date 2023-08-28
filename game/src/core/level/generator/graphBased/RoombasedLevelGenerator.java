@@ -64,7 +64,7 @@ public class RoombasedLevelGenerator {
         System.out.println("---");
         System.out.println(graph2.toDot());
         System.out.println("---");
-        System.out.println(graph.connectGraph(graph2).isPresent());
+        System.out.println(graph.add(graph2).isPresent());
         System.out.println(graph.toDot());
 
         RoomGenerator roomG = new RoomGenerator();
