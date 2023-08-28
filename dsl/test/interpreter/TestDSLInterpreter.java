@@ -1995,4 +1995,65 @@ public class TestDSLInterpreter {
         String output = outputStream.toString();
         assertEquals(output, "Hello, World!"+System.lineSeparator());
     }
+
+    @Test
+    public void testVariableCreationAndAssignmentEntity() {
+        String program =
+            """
+            entity_type my_type {
+                test_component2 {
+                    member1: "Hello, World!"
+                },
+                test_component_with_callback {
+                    consumer: func
+                }
+            }
+
+            fn func(entity ent) {
+                var test : entity;
+                test = ent;
+                print(test.test_component2.member1);
+            }
+
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+        env.getTypeBuilder()
+            .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+
+        var config =
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+
+        TestComponentEntityConsumerCallback componentWithConsumer =
+            (TestComponentEntityConsumerCallback)
+                entity.components.stream()
+                    .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                    .toList()
+                    .get(0);
+
+        componentWithConsumer.consumer.accept(entity);
+
+        // the output stream should only contain the default value for a string variable ("") and the
+        // line separator from the print-call
+        String output = outputStream.toString();
+        assertEquals(output, "Hello, World!"+System.lineSeparator());
+    }
 }
