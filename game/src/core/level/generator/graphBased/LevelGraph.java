@@ -86,11 +86,16 @@ public final class LevelGraph {
      *     was connected.
      */
     public Optional<Tuple<Node, Direction>> connectGraph(LevelGraph other) {
-        nodes.addAll(other.nodes());
         for (Node node : other.nodes()) {
-            //todo this can end in an endless loop
+            // todo this can end in an endless loop
             Optional<Tuple<Node, Direction>> tup = add(node);
-            if (tup.isPresent()) return tup;
+            if (tup.isPresent()) {
+                // All nodes of the given graph are now part of this graph after the connection.
+                // Only the `tup.node` (which is from this graph) remains in `other#nodes`.
+                // Due to the inability to access `other#nodes`, the other graph becomes corrupted.
+                nodes.addAll(other.nodes());
+                return tup;
+            }
         }
         return Optional.empty();
     }
