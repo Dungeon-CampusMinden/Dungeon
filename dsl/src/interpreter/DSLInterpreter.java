@@ -120,7 +120,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
             var propertyName = propertyDefNode.getIdName();
             Symbol propertySymbol = prototypesType.resolve(propertyName);
             if (propertySymbol.equals(Symbol.NULL)) {
-                throw new RuntimeException("Property of name '" + propertyName + "' cannot be resolved in type '" + prototypesType.getName() + "'");
+                throw new RuntimeException(
+                        "Property of name '"
+                                + propertyName
+                                + "' cannot be resolved in type '"
+                                + prototypesType.getName()
+                                + "'");
             }
             var propertiesType = propertySymbol.getDataType();
 
@@ -616,7 +621,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(VarDeclNode node) {
-        String variableName = ((IdNode)node.getIdentifier()).getName();
+        String variableName = ((IdNode) node.getIdentifier()).getName();
 
         // check, if the current memory space already contains a value of the same name
         Value value = getCurrentMemorySpace().resolve(variableName, false);
@@ -627,7 +632,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         // create new Value in memory space (overwrite existing one)
         if (node.getDeclType().equals(VarDeclNode.DeclType.assignmentDecl)) {
-            throw new UnsupportedOperationException("Assignment declaration currently not supported");
+            throw new UnsupportedOperationException(
+                    "Assignment declaration currently not supported");
         } else {
             // get datatype
             Symbol variableSymbol = symbolTable().getSymbolsForAstNode(node).get(0);

@@ -389,7 +389,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     public Void visit(ConditionalStmtNodeIf node) {
         node.getCondition().accept(this);
 
-        // if the statement is not a block (i.e. there is only one statement in the if-statements body),
+        // if the statement is not a block (i.e. there is only one statement in the if-statements
+        // body),
         // we need to create a new scope here (because it won't be created in a block-statement)
         if (!node.getIfStmt().type.equals(Node.Type.Block)) {
             var scope = new Scope(scopeStack.peek());
@@ -407,7 +408,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     public Void visit(ConditionalStmtNodeIfElse node) {
         node.getCondition().accept(this);
 
-        // if the statements are not blocks (i.e. there is only one statement in the if-statements body),
+        // if the statements are not blocks (i.e. there is only one statement in the if-statements
+        // body),
         // we need to create new scopes here (because it won't be created in block-statements)
         if (!node.getIfStmt().type.equals(Node.Type.Block)) {
             var ifScope = new Scope(scopeStack.peek());

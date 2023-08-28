@@ -9,8 +9,8 @@ import interpreter.TestEnvironment;
 import interpreter.mockecs.Entity;
 import interpreter.mockecs.TestComponent2;
 import interpreter.mockecs.TestComponentEntityConsumerCallback;
-
 import interpreter.mockecs.TestComponentWithStringConsumerCallback;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -635,10 +635,11 @@ public class TestSemanticAnalyzer {
         Assert.assertNotEquals(Symbol.NULL, testVariableSymbol);
         Assert.assertEquals(BuiltInType.stringType, testVariableSymbol.dataType);
     }
+
     @Test
     public void testVariableCreationIfStmt() {
         String program =
-            """
+                """
             entity_type my_type {
                 test_component_with_string_consumer_callback {
                     on_interaction: callback
@@ -665,18 +666,18 @@ public class TestSemanticAnalyzer {
         TestEnvironment env = new TestEnvironment();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
         var ast = Helpers.getASTFromString(program);
         var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
         var symbolTable = result.symbolTable;
 
-        FunctionSymbol funcSymbol =
-            (FunctionSymbol) symbolTable.globalScope.resolve("callback");
+        FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("callback");
 
         FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
-        ConditionalStmtNodeIfElse conditional = (ConditionalStmtNodeIfElse) funcDefNode.getStmtBlock().getChild(0).getChild(0);
+        ConditionalStmtNodeIfElse conditional =
+                (ConditionalStmtNodeIfElse) funcDefNode.getStmtBlock().getChild(0).getChild(0);
         VarDeclNode ifStmtDeclNode = (VarDeclNode) conditional.getIfStmt();
         VarDeclNode elseStmtDeclNode = (VarDeclNode) conditional.getElseStmt();
 

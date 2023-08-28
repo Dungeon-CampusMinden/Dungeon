@@ -1936,7 +1936,8 @@ public class TestDSLInterpreter {
 
         componentWithConsumer.executeCallbackWithText("hello");
 
-        // the output stream should only contain the default value for a string variable ("") and the
+        // the output stream should only contain the default value for a string variable ("") and
+        // the
         // line separator from the print-call
         String output = outputStream.toString();
         assertEquals(output, System.lineSeparator());
@@ -1945,7 +1946,7 @@ public class TestDSLInterpreter {
     @Test
     public void testVariableCreationAndAssignment() {
         String program =
-            """
+                """
             entity_type my_type {
                 test_component_with_string_consumer_callback {
                     on_interaction: get_property
@@ -1972,34 +1973,35 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         var entity = config.entity();
 
         TestComponentWithStringConsumerCallback componentWithConsumer =
-            (TestComponentWithStringConsumerCallback)
-                entity.components.stream()
-                    .filter(c -> c instanceof TestComponentWithStringConsumerCallback)
-                    .toList()
-                    .get(0);
+                (TestComponentWithStringConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentWithStringConsumerCallback)
+                                .toList()
+                                .get(0);
 
         componentWithConsumer.executeCallbackWithText("hello");
 
-        // the output stream should only contain the default value for a string variable ("") and the
+        // the output stream should only contain the default value for a string variable ("") and
+        // the
         // line separator from the print-call
         String output = outputStream.toString();
-        assertEquals(output, "Hello, World!"+System.lineSeparator());
+        assertEquals(output, "Hello, World!" + System.lineSeparator());
     }
 
     @Test
     public void testVariableCreationAndAssignmentEntity() {
         String program =
-            """
+                """
             entity_type my_type {
                 test_component2 {
                     member1: "Hello, World!"
@@ -2029,31 +2031,32 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
         env.getTypeBuilder()
-            .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
 
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         var entity = config.entity();
 
         TestComponentEntityConsumerCallback componentWithConsumer =
-            (TestComponentEntityConsumerCallback)
-                entity.components.stream()
-                    .filter(c -> c instanceof TestComponentEntityConsumerCallback)
-                    .toList()
-                    .get(0);
+                (TestComponentEntityConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                                .toList()
+                                .get(0);
 
         componentWithConsumer.consumer.accept(entity);
 
-        // the output stream should only contain the default value for a string variable ("") and the
+        // the output stream should only contain the default value for a string variable ("") and
+        // the
         // line separator from the print-call
         String output = outputStream.toString();
-        assertEquals(output, "Hello, World!"+System.lineSeparator());
+        assertEquals(output, "Hello, World!" + System.lineSeparator());
     }
 }

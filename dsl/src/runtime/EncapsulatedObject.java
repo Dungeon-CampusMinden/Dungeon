@@ -149,7 +149,8 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
 
     @Override
     public void delete(String name) {
-        throw new UnsupportedOperationException("Deleting a value from an Encapsulated Object is not supported!");
+        throw new UnsupportedOperationException(
+                "Deleting a value from an Encapsulated Object is not supported!");
     }
 
     // TODO: define the semantics for this based on, if the value is a POD type or
