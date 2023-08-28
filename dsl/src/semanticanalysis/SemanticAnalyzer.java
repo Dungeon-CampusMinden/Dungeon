@@ -387,13 +387,46 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(ConditionalStmtNodeIf node) {
-        visitChildren(node);
+        node.getCondition().accept(this);
+
+        // if the statement is not a block (i.e. there is only one statement in the if-statements body),
+        // we need to create a new scope here (because it won't be created in a block-statement)
+        if (!node.getIfStmt().type.equals(Node.Type.Block)) {
+            var scope = new Scope(scopeStack.peek());
+            scopeStack.push(scope);
+            node.getIfStmt().accept(this);
+            scopeStack.pop();
+        } else {
+            node.getIfStmt().accept(this);
+        }
+
         return null;
     }
 
     @Override
     public Void visit(ConditionalStmtNodeIfElse node) {
-        visitChildren(node);
+        node.getCondition().accept(this);
+
+        // if the statements are not blocks (i.e. there is only one statement in the if-statements body),
+        // we need to create new scopes here (because it won't be created in block-statements)
+        if (!node.getIfStmt().type.equals(Node.Type.Block)) {
+            var ifScope = new Scope(scopeStack.peek());
+            scopeStack.push(ifScope);
+            node.getIfStmt().accept(this);
+            scopeStack.pop();
+        } else {
+            node.getIfStmt().accept(this);
+        }
+
+        if (!node.getElseStmt().type.equals(Node.Type.Block)) {
+            var elseScope = new Scope(scopeStack.peek());
+            scopeStack.push(elseScope);
+            node.getElseStmt().accept(this);
+            scopeStack.pop();
+        } else {
+            node.getElseStmt().accept(this);
+        }
+
         return null;
     }
 
