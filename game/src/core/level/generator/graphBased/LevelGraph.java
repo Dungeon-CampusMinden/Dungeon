@@ -2,6 +2,7 @@ package core.level.generator.graphBased;
 
 import core.Entity;
 import core.level.elements.ILevel;
+import core.utils.Tuple;
 
 import java.util.*;
 
@@ -64,6 +65,23 @@ public final class LevelGraph {
 
     public List<Node> nodes() {
         return new ArrayList<>(nodes);
+    }
+
+    /**
+     * Add the given level graph to this level graph.
+     *
+     * <p>This function will search in this level graph for a free edge and will then connect the
+     * given level graph to it.
+     *
+     * @param other The level graph to connect to this graph.
+     * @return A tuple with the node in this graph and the direction where the given graph was
+     *     connected.
+     */
+    public Tuple<Node, Direction> connectGraph(LevelGraph other) {
+        // todo
+        Node n = null;
+        Direction d = null;
+        return new Tuple<Node, Direction>(n, d);
     }
 
     /**
@@ -287,10 +305,20 @@ public final class LevelGraph {
             return copy;
         }
 
+        /**
+         * Set the level for this node.
+         *
+         * @param level The level/room that is represented by this node.
+         */
         public void level(ILevel level) {
             this.level = level;
         }
 
+        /**
+         * Get level/room that is represented by this node.
+         *
+         * @return level/room that is represented by this node.
+         */
         public ILevel level() {
             return level;
         }
