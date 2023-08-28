@@ -88,6 +88,7 @@ public final class LevelGraph {
     public Optional<Tuple<Node, Direction>> connectGraph(LevelGraph other) {
         nodes.addAll(other.nodes());
         for (Node node : other.nodes()) {
+            //todo this can end in an endless loop
             Optional<Tuple<Node, Direction>> tup = add(node);
             if (tup.isPresent()) return tup;
         }
