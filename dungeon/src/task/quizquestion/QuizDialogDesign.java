@@ -47,9 +47,9 @@ public class QuizDialogDesign {
                             checkBox.left();
                         });
 
-        if (quizQuestion instanceof SingleChoice)
+        if (quizQuestion instanceof MultipleChoice)
             btnGroup.setMaxCheckCount((int) quizQuestion.contentStream().count());
-        else if (quizQuestion instanceof MultipleChoice) btnGroup.setMaxCheckCount(1);
+        else if (quizQuestion instanceof SingleChoice) btnGroup.setMaxCheckCount(1);
 
         answerButtons.align(Align.left);
         answerButtons.left();
