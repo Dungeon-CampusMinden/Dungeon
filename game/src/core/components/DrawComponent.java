@@ -251,7 +251,8 @@ public final class DrawComponent implements Component {
                 // (character/knight/idle/idle_front_knight_1.png).
                 if (lastSlashIndex != fileName.length() - 1) {
                     // Get the index of the second-to-last part of the string.
-                    // For example, in "character/knight/idle/idle_front_knight_1.png", this would be the
+                    // For example, in "character/knight/idle/idle_front_knight_1.png", this would
+                    // be the
                     // index of the slash in "/idle".
 
                     int secondLastSlashIndex = fileName.lastIndexOf("/", lastSlashIndex - 1);
