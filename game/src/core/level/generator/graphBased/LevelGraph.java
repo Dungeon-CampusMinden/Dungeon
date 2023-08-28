@@ -38,16 +38,20 @@ public final class LevelGraph {
      * graph.
      *
      * @param set The entity collection to be placed as payload in the new node.
+     * @return A Tuple containing the node in the graph where the given node was connected and the
+     *     direction of the connection.
      */
-    public void add(Set<Entity> set) {
+    public Optional<Tuple<Node, Direction>> add(Set<Entity> set) {
         Node node = new Node(set);
         nodes.add(node);
-        if (root == null) root = node;
-        else add(node);
+        if (root == null) {
+            root = node;
+            return Optional.empty();
+        } else return add(node);
     }
 
-    private void add(Node node) {
-        root.addAtRandomDirection(node);
+    private Optional<Tuple<Node, Direction>> add(Node node) {
+        return root.addAtRandomDirection(node);
     }
 
     /**
@@ -68,20 +72,26 @@ public final class LevelGraph {
     }
 
     /**
-     * Add the given level graph to this level graph.
+     * Adds the provided level graph to this level graph.
      *
-     * <p>This function will search in this level graph for a free edge and will then connect the
-     * given level graph to it.
+     * <p>This function searches for a free edge within this level graph and then connects the
+     * provided level graph to it.
      *
-     * @param other The level graph to connect to this graph.
-     * @return A tuple with the node in this graph and the direction where the given graph was
-     *     connected.
+     * <p>Note: This operation modifies both graphs and merges them into one. Both references will
+     * point to the same graph.
+     *
+     * @param other The level graph to be connected to this graph.
+     * @return A tuple containing the node in this graph and the direction in which the given graph
+     *     was connected.
      */
-    public Tuple<Node, Direction> connectGraph(LevelGraph other) {
-        // todo
-        Node n = null;
-        Direction d = null;
-        return new Tuple<Node, Direction>(n, d);
+    public Optional<Tuple<Node, Direction>> connectGraph(LevelGraph other) {
+        // avoid concurrent-modification exception
+        List<Node> nodes = new ArrayList<>(other.nodes());
+        for (Node node : nodes) {
+            Optional<Tuple<Node, Direction>> tup = add(node);
+            if (tup.isPresent()) return tup;
+        }
+        return Optional.empty();
     }
 
     /**
@@ -212,9 +222,12 @@ public final class LevelGraph {
          * @param node The neighbor to be added.
          * @param direction The direction at which the neighbor should be added from this node's
          *     perspective (in the neighbor, this corresponds to the opposite direction).
+         * @return A Tuple containing the node in the graph where the given node was connected and
+         *     the direction of the connection.
          */
-        private void add(final Node node, final Direction direction) {
+        private Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
             neighbours[direction.value] = node;
+            return Optional.of(new Tuple<>(node, direction));
         }
 
         /**
@@ -236,9 +249,11 @@ public final class LevelGraph {
          * {@link Direction} of the randomly selected direction.
          *
          * @param other The node to be connected to this node.
+         * @return A Tuple containing the node in the graph where the given node was connected and
+         *     the direction of the connection.
          */
-        public void addAtRandomDirection(final Node other) {
-            if (isNeighbourWith(other)) return;
+        public Optional<Tuple<Node, Direction>> addAtRandomDirection(final Node other) {
+            if (isNeighbourWith(other)) return Optional.empty();
 
             // select random connection direction
             Direction addAt = Direction.of(RANDOM.nextInt(0, 4));
@@ -246,7 +261,7 @@ public final class LevelGraph {
 
             if (neighbour.isPresent()) {
                 // add node to the neighbour
-                neighbour.get().addAtRandomDirection(other);
+                return neighbour.get().addAtRandomDirection(other);
             } else {
                 // add it to this node
 
@@ -254,11 +269,11 @@ public final class LevelGraph {
 
                 if (neighbourOfOther.isPresent()) {
                     // add this node to the neighbour at the random direction of this node
-                    neighbourOfOther.get().addAtRandomDirection(this);
+                    return neighbourOfOther.get().addAtRandomDirection(this);
                 } else {
                     // other has space on the selected direction
                     other.add(this, Direction.opposite(addAt));
-                    add(other, addAt);
+                    return add(other, addAt);
                 }
             }
         }
