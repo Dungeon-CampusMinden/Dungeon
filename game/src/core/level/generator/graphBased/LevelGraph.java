@@ -77,17 +77,17 @@ public final class LevelGraph {
      * <p>This function searches for a free edge within this level graph and then connects the
      * provided level graph to it.
      *
-     * <p>Note: This operation modifies both graphs and merges them into one. Both references will
-     * point to the same graph.
+     * <p>Note: This operation modifies both graphs and merges them into one. The provided level
+     * graph is manipulated in a way that it becomes corrupted; the graph should not be used
+     * further.
      *
      * @param other The level graph to be connected to this graph.
      * @return A tuple containing the node in this graph and the direction in which the given graph
      *     was connected.
      */
     public Optional<Tuple<Node, Direction>> connectGraph(LevelGraph other) {
-        // avoid concurrent-modification exception
-        List<Node> nodes = new ArrayList<>(other.nodes());
-        for (Node node : nodes) {
+        nodes.addAll(other.nodes());
+        for (Node node : other.nodes()) {
             Optional<Tuple<Node, Direction>> tup = add(node);
             if (tup.isPresent()) return tup;
         }

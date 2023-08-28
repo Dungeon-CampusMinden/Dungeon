@@ -10,6 +10,7 @@ import core.level.utils.*;
 import core.utils.IVoidFunction;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -51,6 +52,21 @@ public class RoombasedLevelGenerator {
      */
     public static ILevel level(Set<Set<Entity>> entities, DesignLabel designLabel) {
         LevelGraph graph = GraphGenerator.generate(entities);
+        Set<Set<Entity>> entities2 = new HashSet<>();
+        for (int i = 0; i < 4; i++) {
+            Set<Entity> set = new HashSet<>();
+            set.add(new Entity());
+            entities2.add(set);
+        }
+
+        LevelGraph graph2 = GraphGenerator.generate(entities2);
+        System.out.println(graph.toDot());
+        System.out.println("---");
+        System.out.println(graph2.toDot());
+        System.out.println("---");
+        System.out.println(graph.connectGraph(graph2).isPresent());
+        System.out.println(graph.toDot());
+
         RoomGenerator roomG = new RoomGenerator();
         LOGGER.info(graph.toDot());
         // generate TileLevel for each Node
