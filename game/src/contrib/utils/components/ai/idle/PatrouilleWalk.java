@@ -97,7 +97,10 @@ public class PatrouilleWalk implements Consumer<Entity> {
     @Override
     public void accept(final Entity entity) {
         if (!initialized) this.init(entity);
-
+        if (this.checkpoints.size() <= 0) {
+            initialized = false;
+            return;
+        }
         PositionComponent position =
                 entity.fetch(PositionComponent.class)
                         .orElseThrow(
