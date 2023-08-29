@@ -32,6 +32,7 @@ import semanticanalysis.types.IType;
 // TODO: handle scoped Variables in stmt Blocks correctly, once
 //  variable definitions are implemented
 
+// TODO: rename this to ObjectBinder (only handles global definitions)
 /** Creates symbols for definition nodes (graph, object) and binds these nodes to those symbols */
 public class VariableBinder implements AstVisitor<Void> {
     SymbolTable symbolTable;
@@ -279,6 +280,11 @@ public class VariableBinder implements AstVisitor<Void> {
 
     @Override
     public Void visit(SetDefinitionNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(VarDeclNode node) {
         return null;
     }
 

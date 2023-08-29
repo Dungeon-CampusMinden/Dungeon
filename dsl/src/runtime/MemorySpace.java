@@ -78,6 +78,11 @@ public class MemorySpace implements IMemorySpace {
     }
 
     @Override
+    public void delete(String name) {
+        this.values.remove(name);
+    }
+
+    @Override
     public boolean setValue(String name, Value value) {
         var resolved = resolve(name, false);
         if (resolved.equals(Value.NONE)) {

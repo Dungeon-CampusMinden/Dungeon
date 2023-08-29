@@ -130,6 +130,33 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
+    public void enterVar_decl_assignment(DungeonDSLParser.Var_decl_assignmentContext ctx) {}
+
+    @Override
+    public void exitVar_decl_assignment(DungeonDSLParser.Var_decl_assignmentContext ctx) {
+        Node expression = astStack.pop();
+        Node identifier = astStack.pop();
+        assert identifier.type == Node.Type.Identifier;
+
+        Node varDeclNode =
+                new VarDeclNode(VarDeclNode.DeclType.assignmentDecl, identifier, expression);
+        astStack.push(varDeclNode);
+    }
+
+    @Override
+    public void enterVar_decl_type_decl(DungeonDSLParser.Var_decl_type_declContext ctx) {}
+
+    @Override
+    public void exitVar_decl_type_decl(DungeonDSLParser.Var_decl_type_declContext ctx) {
+        Node typeDecl = astStack.pop();
+        Node identifier = astStack.pop();
+        assert identifier.type == Node.Type.Identifier;
+
+        Node varDeclNode = new VarDeclNode(VarDeclNode.DeclType.typeDecl, identifier, typeDecl);
+        astStack.push(varDeclNode);
+    }
+
+    @Override
     public void enterExpression(DungeonDSLParser.ExpressionContext ctx) {}
 
     @Override

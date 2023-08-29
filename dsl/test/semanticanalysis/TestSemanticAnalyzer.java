@@ -6,7 +6,10 @@ import helpers.Helpers;
 
 import interpreter.DummyNativeFunction;
 import interpreter.TestEnvironment;
+import interpreter.mockecs.Entity;
 import interpreter.mockecs.TestComponent2;
+import interpreter.mockecs.TestComponentEntityConsumerCallback;
+import interpreter.mockecs.TestComponentWithStringConsumerCallback;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,6 +20,9 @@ import runtime.GameEnvironment;
 import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.types.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 public class TestSemanticAnalyzer {
 
@@ -584,5 +590,114 @@ public class TestSemanticAnalyzer {
 
         var symbolForMember1Identifier = symbolsForMember1Identifier.get(0);
         Assert.assertEquals(member1Symbol, symbolForMember1Identifier);
+    }
+
+    @Test
+    public void testVariableCreation() {
+        String program =
+                """
+    entity_type my_type {
+        test_component_with_callback {
+            consumer: get_property
+        }
+    }
+
+    fn get_property(entity ent) {
+        var test : string;
+    }
+
+    quest_config c {
+        entity: instantiate(my_type)
+    }
+    """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+
+        var ast = Helpers.getASTFromString(program);
+        var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+        var symbolTable = result.symbolTable;
+
+        FunctionSymbol funcSymbol =
+                (FunctionSymbol) symbolTable.globalScope.resolve("get_property");
+        FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
+        VarDeclNode declNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
+        Symbol testVariableSymbol = symbolTable.getSymbolsForAstNode(declNode).get(0);
+
+        Assert.assertNotEquals(Symbol.NULL, testVariableSymbol);
+        Assert.assertEquals(BuiltInType.stringType, testVariableSymbol.dataType);
+    }
+
+    @Test
+    public void testVariableCreationIfStmt() {
+        String program =
+                """
+            entity_type my_type {
+                test_component_with_string_consumer_callback {
+                    on_interaction: callback
+                }
+            }
+
+            fn callback(entity ent) {
+                if true
+                    var test : string;
+                else
+                    var test : string;
+            }
+
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+
+        var ast = Helpers.getASTFromString(program);
+        var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+        var symbolTable = result.symbolTable;
+
+        FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("callback");
+
+        FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
+        ConditionalStmtNodeIfElse conditional =
+                (ConditionalStmtNodeIfElse) funcDefNode.getStmtBlock().getChild(0).getChild(0);
+        VarDeclNode ifStmtDeclNode = (VarDeclNode) conditional.getIfStmt();
+        VarDeclNode elseStmtDeclNode = (VarDeclNode) conditional.getElseStmt();
+
+        Symbol ifStmtDeclSymbol = symbolTable.getSymbolsForAstNode(ifStmtDeclNode).get(0);
+        Assert.assertNotEquals(Symbol.NULL, ifStmtDeclSymbol);
+
+        // test correct scope relation
+        var declScope = ifStmtDeclSymbol.getScope();
+        // Note: expected scope relation:
+        // - declScope = scope of if-Stmt
+        // - parent of declScope = stmt-block of function
+        // - parent of parent of declScope = function-scope
+        var expectedToBeFunctionScope = declScope.getParent().getParent();
+        Assert.assertEquals(funcSymbol, expectedToBeFunctionScope);
+
+        Symbol elseStmtDeclSymbol = symbolTable.getSymbolsForAstNode(elseStmtDeclNode).get(0);
+        Assert.assertNotEquals(Symbol.NULL, ifStmtDeclSymbol);
+        // test correct scope relation
+        declScope = elseStmtDeclSymbol.getScope();
+        expectedToBeFunctionScope = declScope.getParent().getParent();
+        Assert.assertEquals(funcSymbol, expectedToBeFunctionScope);
     }
 }
