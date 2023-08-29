@@ -60,7 +60,7 @@ public final class Node {
      *     direction of the connection. Returns an empty result if the nodes could not be connected.
      */
     private Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
-        if (neighbours[direction.value()] != null) return Optional.empty();
+        if (this == node || neighbours[direction.value()] != null) return Optional.empty();
         neighbours[direction.value()] = node;
         // if a node of a other graph gets added, all nodes of the other graph a now part of
         // this graph
