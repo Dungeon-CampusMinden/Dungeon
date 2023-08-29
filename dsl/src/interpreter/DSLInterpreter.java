@@ -512,6 +512,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(StmtBlockNode node) {
         ArrayList<Node> statements = node.getStmts();
 
+        // push scope exit mark
+        statementStack.addFirst(new Node(Node.Type.ScopeExitMark));
+
+        // push new MemorySpace on top of memory stack
+        MemorySpace ms = new MemorySpace(this.getCurrentMemorySpace());
+        this.memoryStack.push(ms);
+
         // push statements in reverse order onto the statement stack
         // (as execution is done by popping the topmost statement from the stack)
         var iter = statements.listIterator(statements.size());
@@ -572,7 +579,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // unroll the statement stack until we find a return mark
         while (statementStack.peek() != null
                 && statementStack.peek().type != Node.Type.ReturnMark) {
-            statementStack.pop();
+            // we still need to clean up the memory stack, if we find a ScopeExitMark
+            Node poppedNode = statementStack.pop();
+            if (poppedNode.type.equals(Node.Type.ScopeExitMark)) {
+                poppedNode.accept(this);
+            }
         }
 
         return null;
@@ -582,6 +593,14 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ConditionalStmtNodeIf node) {
         Value conditionValue = (Value) node.getCondition().accept(this);
         if (isBooleanTrue(conditionValue)) {
+            // if we only got one statement (no block), we need to create a new MemorySpace
+            // here
+            if (!node.getIfStmt().type.equals(Node.Type.Block)) {
+                MemorySpace ms = new MemorySpace(this.getCurrentMemorySpace());
+                memoryStack.push(ms);
+                statementStack.push(new Node(Node.Type.ScopeExitMark));
+            }
+
             statementStack.addFirst(node.getIfStmt());
         }
 
@@ -592,8 +611,22 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ConditionalStmtNodeIfElse node) {
         Value conditionValue = (Value) node.getCondition().accept(this);
         if (isBooleanTrue(conditionValue)) {
+            // if we only got one statement (no block), we need to create a new MemorySpace
+            // here
+            if (!node.getIfStmt().type.equals(Node.Type.Block)) {
+                MemorySpace ms = new MemorySpace(this.getCurrentMemorySpace());
+                memoryStack.push(ms);
+                statementStack.push(new Node(Node.Type.ScopeExitMark));
+            }
             statementStack.addFirst(node.getIfStmt());
         } else {
+            // if we only got one statement (no block), we need to create a new MemorySpace
+            // here
+            if (!node.getElseStmt().type.equals(Node.Type.Block)) {
+                MemorySpace ms = new MemorySpace(this.getCurrentMemorySpace());
+                memoryStack.push(ms);
+                statementStack.push(new Node(Node.Type.ScopeExitMark));
+            }
             statementStack.addFirst(node.getElseStmt());
         }
 
@@ -754,6 +787,14 @@ public class DSLInterpreter implements AstVisitor<Object> {
             setValue.addValue(setEntry);
         }
         return setValue;
+    }
+
+    @Override
+    public Object visit(Node node) {
+        if (node.type.equals(Node.Type.ScopeExitMark)) {
+            this.memoryStack.pop();
+        }
+        return null;
     }
 
     // region value-setting
@@ -1014,10 +1055,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     // endregion
 
     // region ASTVisitor implementation for nodes which do not need to be interpreted
-    @Override
-    public Object visit(Node node) {
-        return null;
-    }
 
     @Override
     public Object visit(BinaryNode node) {

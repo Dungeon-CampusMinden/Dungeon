@@ -52,6 +52,7 @@ public class Node {
         Bool,
         ConditionalStmtIfElse,
         ReturnMark,
+        ScopeExitMark,
         Assignment,
         LogicOr,
         LogicAnd,
