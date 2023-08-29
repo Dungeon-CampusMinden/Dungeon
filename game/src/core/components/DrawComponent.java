@@ -233,13 +233,13 @@ public final class DrawComponent implements Component {
         // Iterate over each file and directory in the JAR.
 
         while (entries.hasMoreElements()) {
-            // example: character/knight/idle/idle_knight_1.png
+            // example: character/knight/idle_down/idle_down_knight_1.png
             // but also: character/knight/idle/
             // and: character/knight/
             String fileName = entries.nextElement().getName();
 
             // If the entry starts with the path name (character/knight/idle),
-            // this is true for entries like (character/knight/idle/idle_knight_1.png) and
+            // this is true for entries like (character/knight/idle_down/idle_down_knight_1.png) and
             // (character/knight/idle/).
             if (fileName.startsWith(path + "/")) {
 
@@ -248,10 +248,12 @@ public final class DrawComponent implements Component {
                 int lastSlashIndex = fileName.lastIndexOf("/");
 
                 // Ignore directories, so we only work with strings like
-                // (character/knight/idle/idle_knight_1.png).
+                // (character/knight/idle_down/idle_down_knight_1.png).
                 if (lastSlashIndex != fileName.length() - 1) {
                     // Get the index of the second-to-last part of the string.
-                    // For example, in "character/knight/idle/idle_knight_1.png", this would be the
+                    // For example, in "character/knight/idle_down/idle_down_knight_1.png", this
+                    // would
+                    // be the
                     // index of the slash in "/idle".
 
                     int secondLastSlashIndex = fileName.lastIndexOf("/", lastSlashIndex - 1);
