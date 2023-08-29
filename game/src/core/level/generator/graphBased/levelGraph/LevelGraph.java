@@ -29,7 +29,7 @@ import java.util.*;
  */
 public final class LevelGraph {
     private static final Random RANDOM = new Random();
-    private final List<Node> nodes = new ArrayList<>();
+    private final Set<Node> nodes = new HashSet<>();
     private Node root;
 
     /**
@@ -50,8 +50,9 @@ public final class LevelGraph {
     }
 
     public Optional<Tuple<Node, Direction>> add(Node node) {
-        Collections.shuffle(nodes);
-        for (Node n : nodes) {
+        List<Node> shuffledNodes = new ArrayList<>(nodes().stream().toList());
+        Collections.shuffle(shuffledNodes);
+        for (Node n : shuffledNodes) {
             Optional<Tuple<Node, Direction>> tup = n.add(node);
             if (tup.isPresent()) return tup;
         }
@@ -76,7 +77,7 @@ public final class LevelGraph {
             // Examine every possible combination (no random selection as it could lead to potential
             // infinite loops).
 
-            List<Node> listA = nodes();
+            List<Node> listA = new ArrayList<>(nodes().stream().toList());
             listA.removeIf(n -> n.neighboursCount() == Direction.values().length);
             List<Node> listB = new ArrayList<>(listA);
             Collections.shuffle(listA);
@@ -104,10 +105,10 @@ public final class LevelGraph {
     /**
      * Get all nodes in the graph.
      *
-     * @return copy of the list with all nodes in this graph.
+     * @return copy of the set with all nodes in this graph.
      */
-    public List<Node> nodes() {
-        return new ArrayList<>(nodes);
+    public Set<Node> nodes() {
+        return new HashSet<>(nodes);
     }
 
     /**
@@ -135,24 +136,21 @@ public final class LevelGraph {
         for (Node node : nodesWhereCanBeAdded) {
             for (Node otherNode : other.nodes()) {
                 Optional<Tuple<Node, Direction>> tup = node.add(otherNode);
-                if (tup.isPresent()) {
-                    nodes.addAll(other.nodes());
-                    return tup;
-                }
+                if (tup.isPresent()) return tup;
             }
         }
         return Optional.empty();
     }
 
     /**
-     * Add all nodes from the given list to the node list of this graph.
+     * Add all nodes from the given set to the node list of this graph.
      *
      * <p>This operation only adds nodes and does not establish any connections. Ensure that the
      * nodes are connected before calling this method.
      *
-     * @param other List of nodes to be added.
+     * @param other Set of nodes to be added.
      */
-    public void addNodes(final List<Node> other) {
+    public void addNodes(final Set<Node> other) {
         nodes.addAll(other);
     }
 
@@ -162,13 +160,15 @@ public final class LevelGraph {
      * @return DOT representation of the graph as a string.
      */
     public String toDot() {
+        List<Node> nodeList = nodes.stream().toList();
+
         StringBuilder dotBuilder = new StringBuilder();
 
         dotBuilder.append("graph LevelGraph {\n");
         dotBuilder.append("    node [shape=box];\n");
 
-        for (Node node : nodes) {
-            int nodeId = nodes.indexOf(node);
+        for (Node node : nodeList) {
+            int nodeId = nodeList.indexOf(node);
             dotBuilder.append("    node").append(nodeId).append(" [label=\"");
             for (Entity entity : node.entities()) {
                 dotBuilder.append(entity.toString()).append("\\n");
@@ -177,8 +177,8 @@ public final class LevelGraph {
 
             for (Direction direction : Direction.values()) {
                 Node neighbour = node.at(direction).orElse(null);
-                if (neighbour != null && nodes.indexOf(neighbour) > nodeId) {
-                    int neighbourId = nodes.indexOf(neighbour);
+                if (neighbour != null && nodeList.indexOf(neighbour) > nodeId) {
+                    int neighbourId = nodeList.indexOf(neighbour);
                     dotBuilder
                             .append("    node")
                             .append(nodeId)
