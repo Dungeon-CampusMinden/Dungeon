@@ -53,7 +53,14 @@ public class Coordinate {
         return new Point(x, y);
     }
 
-    public Coordinate add(Coordinate offset) {
-        return new Coordinate(this.x + offset.x, this.y + offset.y);
+
+    /**
+     * Creates a new Coordinate which has the sum of the Coordinates
+     *
+     * @param other which Coordinate to add
+     * @return Coordinate where the values for x and y are added
+     */
+    public Coordinate add(Coordinate other) {
+        return new Coordinate(this.x + other.x, this.y + other.y);
     }
 }
