@@ -53,7 +53,6 @@ public class Coordinate {
         return new Point(x, y);
     }
 
-
     /**
      * Creates a new Coordinate which has the sum of the Coordinates
      *
