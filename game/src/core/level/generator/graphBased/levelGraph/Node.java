@@ -64,10 +64,8 @@ public final class Node {
         neighbours[direction.value()] = node;
         // if a node of a other graph gets added, all nodes of the other graph a now part of
         // this graph
-        if (originGraph != node.originGraph()) {
-            originGraph.addNodes(node.originGraph().nodes());
-            node.originGraph().addNodes(originGraph.nodes());
-        }
+        if (originGraph != node.originGraph()) originGraph.addNodes(node.originGraph().nodes());
+
         return Optional.of(new Tuple<>(node, direction));
     }
 
@@ -89,20 +87,21 @@ public final class Node {
         if (freeDirections.size() == 0) return Optional.empty();
         else {
             Collections.shuffle(freeDirections);
-            other.add(this, Direction.opposite(freeDirections.get(0)));
-            return add(other, freeDirections.get(0));
+            if (other.add(this, Direction.opposite(freeDirections.get(0))).isPresent())
+                return add(other, freeDirections.get(0));
         }
+        return Optional.empty();
     }
 
     private List<Direction> possibleConnectDirections(final Node other) {
-        List<Direction> freeDirections = getFreeDirections();
-        List<Direction> otherDirections = other.getFreeDirections();
+        List<Direction> freeDirections = freeDirections();
+        List<Direction> otherDirections = other.freeDirections();
         otherDirections.replaceAll(Direction::opposite);
         freeDirections.retainAll(otherDirections);
         return freeDirections;
     }
 
-    private List<Direction> getFreeDirections() {
+    private List<Direction> freeDirections() {
         List<Direction> freeDirections = new ArrayList<>();
         if (neighbours[Direction.NORTH.value()] == null) freeDirections.add(Direction.NORTH);
         if (neighbours[Direction.EAST.value()] == null) freeDirections.add(Direction.EAST);

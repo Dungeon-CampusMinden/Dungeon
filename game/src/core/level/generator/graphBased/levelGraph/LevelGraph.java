@@ -45,12 +45,13 @@ public final class LevelGraph {
         nodes.add(node);
         if (root == null) {
             root = node;
-            return Optional.empty();
+            return Optional.of(new Tuple<>(node, null));
         } else return add(node);
     }
 
-    public Optional<Tuple<Node, Direction>> add(Node node) {
+    private Optional<Tuple<Node, Direction>> add(Node node) {
         List<Node> shuffledNodes = new ArrayList<>(nodes().stream().toList());
+        shuffledNodes.remove(node);
         Collections.shuffle(shuffledNodes);
         for (Node n : shuffledNodes) {
             Optional<Tuple<Node, Direction>> tup = n.add(node);

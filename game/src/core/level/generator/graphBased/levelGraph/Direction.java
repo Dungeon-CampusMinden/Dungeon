@@ -28,22 +28,6 @@ public enum Direction {
         };
     }
 
-    /**
-     * Returns the Direction enum value corresponding to the given integer value.
-     *
-     * @param v The integer value representing a direction.
-     * @return The Direction enum value, or null if the value does not correspond to any direction.
-     */
-    public static Direction of(int v) {
-        return switch (v) {
-            case 0 -> NORTH;
-            case 1 -> EAST;
-            case 2 -> SOUTH;
-            case 3 -> WEST;
-            default -> null;
-        };
-    }
-
     public int value() {
         return value;
     }
