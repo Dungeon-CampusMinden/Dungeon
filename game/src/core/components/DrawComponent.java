@@ -324,8 +324,24 @@ public final class DrawComponent implements Component {
         }
     }
 
+    /**
+     * Check if the current animation has reached its frameTime limit
+     *
+     * @return true if limit has been reached
+     */
     public boolean reachedFrametimeLimit() {
         return frameCounter >= currentFrametime;
+    }
+
+    /**
+     * Check if Animation is queued up
+     * @return true if Animation is in queue
+     */
+    public boolean isAnimationQueued(IPath requestedAnimation) {
+        for (Map.Entry<IPath[], Integer> animationArr : animationQueue.entrySet()) {
+            if (animationArr.getKey()[0].pathString().equals(requestedAnimation.pathString())) return true;
+        }
+        return false;
     }
 
     // checks the status of animations in the animationQueue and selects the next animation by
