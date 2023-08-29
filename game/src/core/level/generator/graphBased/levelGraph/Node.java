@@ -34,6 +34,8 @@ public final class Node {
      * Creates a new node with the given collection as payload.
      *
      * @param entities The entity collection stored in this node.
+     * @param originGraph is the graph in which this node was initially created and added. It helps
+     *     to differentiate nodes in connected graphs.
      */
     public Node(final Set<Entity> entities, LevelGraph originGraph) {
         this.entities = entities;
@@ -176,6 +178,14 @@ public final class Node {
         return level;
     }
 
+    /**
+     * Get the origin graph of the node.
+     *
+     * <p>This is the graph in which this node was initially created and added. It helps to
+     * differentiate nodes in connected graphs.
+     *
+     * @return The origin graph of the node.
+     */
     public LevelGraph originGraph() {
         return originGraph;
     }

@@ -58,10 +58,19 @@ public final class LevelGraph {
         return Optional.empty();
     }
 
-    public void addRandomEdges(int range) {
+    /**
+     * Adds new edges between random nodes in the graph.
+     *
+     * <p>If the graph has only two nodes, no additional edges can be added.
+     *
+     * @param divider Specifies the range for determining the number of extra edges to be added. The
+     *     number will be randomly selected between the number of nodes in the graph divided by the
+     *     divider and the total number of nodes in the graph.
+     */
+    public void addRandomEdges(int divider) {
         // for two nodes no extra edges are needed
         if (nodes.size() >= 3) {
-            int howManyExtraEdges = RANDOM.nextInt(nodes.size() / range, nodes.size());
+            int howManyExtraEdges = RANDOM.nextInt(nodes.size() / divider, nodes.size());
 
             // Consider only nodes that still have space for another neighbor.
             // Examine every possible combination (no random selection as it could lead to potential
@@ -83,10 +92,20 @@ public final class LevelGraph {
         }
     }
 
+    /**
+     * Get the root node of this graph.
+     *
+     * @return the root node of this graph.
+     */
     public Node root() {
         return root;
     }
 
+    /**
+     * Get all nodes in the graph.
+     *
+     * @return copy of the list with all nodes in this graph.
+     */
     public List<Node> nodes() {
         return new ArrayList<>(nodes);
     }
