@@ -147,7 +147,7 @@ public class RoombasedLevelGenerator {
      * Get the LevelElement[][] for a Tile[][]
      *
      * @param tileLayout tile layout to parse
-     * @return the paresed LevelElement layout.
+     * @return the parsed LevelElement layout.
      */
     private static LevelElement[][] parseToElementLayout(Tile[][] tileLayout) {
         int ySize = tileLayout.length;

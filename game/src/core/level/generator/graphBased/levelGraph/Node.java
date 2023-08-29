@@ -165,7 +165,7 @@ public final class Node {
     private Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
         if (this == node || neighbours[direction.value()] != null) return Optional.empty();
         neighbours[direction.value()] = node;
-        // if a node of a other graph gets added, all nodes of the other graph a now part of
+        // if a node of an other graph gets added, all nodes of the other graph a now part of
         // this graph
         if (originGraph != node.originGraph()) originGraph.addNodes(node.originGraph().nodes());
 

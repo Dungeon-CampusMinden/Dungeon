@@ -23,7 +23,6 @@ import java.util.Random;
 public class RoomGenerator {
 
     private static final int WALL_BUFFER = 2;
-    private static final float SYMMETRICAL = 0.5f;
     private static final float EXTEND_TO_SIDES = 0.5f;
     private static final float PROBABILITY_SIDE = 0.75f;
     private static final float PROBABILITY_CORNER = 0.75f;
@@ -143,8 +142,6 @@ public class RoomGenerator {
         }
 
         // Extend base floor
-        boolean symmetrical = random.nextFloat() < SYMMETRICAL;
-        // TODO use symmetrical boolean to generate symmetrical or asymmetrical rooms
         // Small rooms cannot extend to the corners
         // Medium and Big Rooms can extend to corner or sides
         if (size == LevelSize.SMALL || random.nextFloat() < EXTEND_TO_SIDES) {
