@@ -42,7 +42,7 @@ public final class LevelGraph {
      *     direction of the connection.
      */
     public Optional<Tuple<Node, Direction>> add(Set<Entity> set) {
-        Node node = new Node(set);
+        Node node = new Node(set, this);
         nodes.add(node);
         if (root == null) {
             root = node;
@@ -77,27 +77,44 @@ public final class LevelGraph {
      * <p>This function searches for a free edge within this level graph and then connects the
      * provided level graph to it.
      *
-     * <p>Note: This operation modifies both graphs and merges them into one. The provided level
-     * graph is manipulated in a way that it becomes corrupted; the graph should not be used
-     * further.
+     * <p>Note: This operation modifies both graphs and merges them into one. Both graphs (this and
+     * the other) will be structurally identical.
      *
      * @param other The level graph to be connected to this graph.
+     * @param connectOn A new edge will only be created with a node in this graph whose origin graph
+     *     is the given one.
      * @return A tuple containing the node in this graph and the direction in which the given graph
      *     was connected.
      */
-    public Optional<Tuple<Node, Direction>> add(LevelGraph other) {
-        for (Node node : other.nodes()) {
+    public Optional<Tuple<Node, Direction>> add(
+            final LevelGraph other, final LevelGraph connectOn) {
+
+        List<Node> filtertList =
+                new ArrayList<>(
+                        other.nodes().stream().filter(n -> n.originGraph() == connectOn).toList());
+        Collections.shuffle(filtertList);
+
+        for (Node node : filtertList) {
             // todo this can end in an endless loop
             Optional<Tuple<Node, Direction>> tup = add(node);
             if (tup.isPresent()) {
-                // All nodes of the given graph are now part of this graph after the connection.
-                // Only the `tup.node` (which is from this graph) remains in `other#nodes`.
-                // Due to the inability to access `other#nodes`, the other graph becomes corrupted.
                 nodes.addAll(other.nodes());
                 return tup;
             }
         }
         return Optional.empty();
+    }
+
+    /**
+     * Add all nodes from the given list to the node list of this graph.
+     *
+     * <p>This operation only adds nodes and does not establish any connections. Ensure that the
+     * nodes are connected before calling this method.
+     *
+     * @param other List of nodes to be added.
+     */
+    private void addNodes(final List<Node> other) {
+        nodes.addAll(other);
     }
 
     /**
@@ -210,13 +227,16 @@ public final class LevelGraph {
         private final Node[] neighbours = new Node[Direction.values().length];
         private ILevel level;
 
+        private final LevelGraph originGraph;
+
         /**
          * Creates a new node with the given collection as payload.
          *
          * @param entities The entity collection stored in this node.
          */
-        private Node(final Set<Entity> entities) {
+        private Node(final Set<Entity> entities, LevelGraph originGraph) {
             this.entities = entities;
+            this.originGraph = originGraph;
         }
 
         /**
@@ -224,6 +244,10 @@ public final class LevelGraph {
          *
          * <p>Note: This method will not check if the spot is free; an already set neighbor will
          * potentially be overwritten.
+         *
+         * <p>If the origin graph of the given node is not the same graph as the origin graph of
+         * this node, the graphs get connected. All nodes of this origin graph will be added to the
+         * given node's origin graph, and vice versa.
          *
          * @param node The neighbor to be added.
          * @param direction The direction at which the neighbor should be added from this node's
@@ -233,6 +257,12 @@ public final class LevelGraph {
          */
         private Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
             neighbours[direction.value] = node;
+            // if a node of a other graph gets added, all nodes of the other graph a now part of
+            // this graph
+            if (originGraph != node.originGraph()) {
+                originGraph.addNodes(node.originGraph().nodes());
+                node.originGraph().addNodes(originGraph.nodes());
+            }
             return Optional.of(new Tuple<>(node, direction));
         }
 
@@ -342,6 +372,10 @@ public final class LevelGraph {
          */
         public ILevel level() {
             return level;
+        }
+
+        public LevelGraph originGraph() {
+            return originGraph;
         }
     }
 }
