@@ -43,33 +43,6 @@ public final class Node {
     }
 
     /**
-     * Adds a neighbor in the given direction.
-     *
-     * <p>If the origin graph of the given node is not the same graph as the origin graph of this
-     * node, the graphs get connected. All nodes from this origin graph will be added to the given
-     * node's origin graph, and vice versa.
-     *
-     * <p>This method only establishes the connection from this node to the other. Remember to also
-     * call {@link #add(Node, Direction)} for the given node with the opposite direction to complete
-     * the connection.
-     *
-     * @param node The neighbor to be added.
-     * @param direction The direction at which the neighbor should be added from this node's
-     *     perspective (in the neighbor's context, this corresponds to the opposite direction).
-     * @return A Tuple containing the node in the graph where the given node was connected, and the
-     *     direction of the connection. Returns an empty result if the nodes could not be connected.
-     */
-    private Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
-        if (this == node || neighbours[direction.value()] != null) return Optional.empty();
-        neighbours[direction.value()] = node;
-        // if a node of a other graph gets added, all nodes of the other graph a now part of
-        // this graph
-        if (originGraph != node.originGraph()) originGraph.addNodes(node.originGraph().nodes());
-
-        return Optional.of(new Tuple<>(node, direction));
-    }
-
-    /**
      * Adds a neighbor in a random direction.
      *
      * <p>If the origin graph of the given node is not the same graph as the origin graph of this
@@ -91,23 +64,6 @@ public final class Node {
                 return add(other, freeDirections.get(0));
         }
         return Optional.empty();
-    }
-
-    private List<Direction> possibleConnectDirections(final Node other) {
-        List<Direction> freeDirections = freeDirections();
-        List<Direction> otherDirections = other.freeDirections();
-        otherDirections.replaceAll(Direction::opposite);
-        freeDirections.retainAll(otherDirections);
-        return freeDirections;
-    }
-
-    private List<Direction> freeDirections() {
-        List<Direction> freeDirections = new ArrayList<>();
-        if (neighbours[Direction.NORTH.value()] == null) freeDirections.add(Direction.NORTH);
-        if (neighbours[Direction.EAST.value()] == null) freeDirections.add(Direction.EAST);
-        if (neighbours[Direction.SOUTH.value()] == null) freeDirections.add(Direction.SOUTH);
-        if (neighbours[Direction.WEST.value()] == null) freeDirections.add(Direction.WEST);
-        return freeDirections;
     }
 
     /**
@@ -187,5 +143,49 @@ public final class Node {
      */
     public LevelGraph originGraph() {
         return originGraph;
+    }
+
+    /**
+     * Adds a neighbor in the given direction.
+     *
+     * <p>If the origin graph of the given node is not the same graph as the origin graph of this
+     * node, the graphs get connected. All nodes from this origin graph will be added to the given
+     * node's origin graph, and vice versa.
+     *
+     * <p>This method only establishes the connection from this node to the other. Remember to also
+     * call {@link #add(Node, Direction)} for the given node with the opposite direction to complete
+     * the connection.
+     *
+     * @param node The neighbor to be added.
+     * @param direction The direction at which the neighbor should be added from this node's
+     *     perspective (in the neighbor's context, this corresponds to the opposite direction).
+     * @return A Tuple containing the node in the graph where the given node was connected, and the
+     *     direction of the connection. Returns an empty result if the nodes could not be connected.
+     */
+    private Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
+        if (this == node || neighbours[direction.value()] != null) return Optional.empty();
+        neighbours[direction.value()] = node;
+        // if a node of a other graph gets added, all nodes of the other graph a now part of
+        // this graph
+        if (originGraph != node.originGraph()) originGraph.addNodes(node.originGraph().nodes());
+
+        return Optional.of(new Tuple<>(node, direction));
+    }
+
+    private List<Direction> possibleConnectDirections(final Node other) {
+        List<Direction> freeDirections = freeDirections();
+        List<Direction> otherDirections = other.freeDirections();
+        otherDirections.replaceAll(Direction::opposite);
+        freeDirections.retainAll(otherDirections);
+        return freeDirections;
+    }
+
+    private List<Direction> freeDirections() {
+        List<Direction> freeDirections = new ArrayList<>();
+        if (neighbours[Direction.NORTH.value()] == null) freeDirections.add(Direction.NORTH);
+        if (neighbours[Direction.EAST.value()] == null) freeDirections.add(Direction.EAST);
+        if (neighbours[Direction.SOUTH.value()] == null) freeDirections.add(Direction.SOUTH);
+        if (neighbours[Direction.WEST.value()] == null) freeDirections.add(Direction.WEST);
+        return freeDirections;
     }
 }

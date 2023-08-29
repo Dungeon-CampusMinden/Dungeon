@@ -49,13 +49,33 @@ public final class LevelGraph {
         } else return add(node);
     }
 
-    private Optional<Tuple<Node, Direction>> add(Node node) {
-        List<Node> shuffledNodes = new ArrayList<>(nodes().stream().toList());
-        shuffledNodes.remove(node);
-        Collections.shuffle(shuffledNodes);
-        for (Node n : shuffledNodes) {
-            Optional<Tuple<Node, Direction>> tup = n.add(node);
-            if (tup.isPresent()) return tup;
+    /**
+     * Adds the provided level graph to this level graph.
+     *
+     * <p>This function searches for a free edge within this level graph and then connects the
+     * provided level graph to it.
+     *
+     * <p>Note: This operation modifies both graphs and merges them into one. Both graphs (this and
+     * the other) will be structurally identical.
+     *
+     * @param other The level graph to be connected to this graph.
+     * @param connectOn A new edge will only be created with a node in this graph whose origin graph
+     *     is the given one.
+     * @return A tuple containing the node in this graph and the direction in which the given graph
+     *     was connected.
+     */
+    public Optional<Tuple<Node, Direction>> add(
+            final LevelGraph other, final LevelGraph connectOn) {
+
+        List<Node> nodesWhereCanBeAdded =
+                new ArrayList<>(nodes.stream().filter(n -> n.originGraph() == connectOn).toList());
+        Collections.shuffle(nodesWhereCanBeAdded);
+
+        for (Node node : nodesWhereCanBeAdded) {
+            for (Node otherNode : other.nodes()) {
+                Optional<Tuple<Node, Direction>> tup = node.add(otherNode);
+                if (tup.isPresent()) return tup;
+            }
         }
         return Optional.empty();
     }
@@ -95,6 +115,20 @@ public final class LevelGraph {
     }
 
     /**
+     * Add all nodes from the given set to the node list of this graph.
+     *
+     * <p>This will also add the nodes to each graph that is connected with this graph.
+     *
+     * <p>This operation only adds nodes and does not establish any connections. Ensure that the
+     * nodes are connected before calling this method.
+     *
+     * @param nodes Set of nodes to be added.
+     */
+    public void addNodes(final Set<Node> nodes) {
+        addNodes(nodes, new HashSet<>());
+    }
+
+    /**
      * Get the root node of this graph.
      *
      * @return the root node of this graph.
@@ -112,47 +146,25 @@ public final class LevelGraph {
         return new HashSet<>(nodes);
     }
 
-    /**
-     * Adds the provided level graph to this level graph.
-     *
-     * <p>This function searches for a free edge within this level graph and then connects the
-     * provided level graph to it.
-     *
-     * <p>Note: This operation modifies both graphs and merges them into one. Both graphs (this and
-     * the other) will be structurally identical.
-     *
-     * @param other The level graph to be connected to this graph.
-     * @param connectOn A new edge will only be created with a node in this graph whose origin graph
-     *     is the given one.
-     * @return A tuple containing the node in this graph and the direction in which the given graph
-     *     was connected.
-     */
-    public Optional<Tuple<Node, Direction>> add(
-            final LevelGraph other, final LevelGraph connectOn) {
-
-        List<Node> nodesWhereCanBeAdded =
-                new ArrayList<>(nodes.stream().filter(n -> n.originGraph() == connectOn).toList());
-        Collections.shuffle(nodesWhereCanBeAdded);
-
-        for (Node node : nodesWhereCanBeAdded) {
-            for (Node otherNode : other.nodes()) {
-                Optional<Tuple<Node, Direction>> tup = node.add(otherNode);
-                if (tup.isPresent()) return tup;
-            }
+    private Optional<Tuple<Node, Direction>> add(Node node) {
+        List<Node> shuffledNodes = new ArrayList<>(nodes().stream().toList());
+        shuffledNodes.remove(node);
+        Collections.shuffle(shuffledNodes);
+        for (Node n : shuffledNodes) {
+            Optional<Tuple<Node, Direction>> tup = n.add(node);
+            if (tup.isPresent()) return tup;
         }
         return Optional.empty();
     }
 
-    /**
-     * Add all nodes from the given set to the node list of this graph.
-     *
-     * <p>This operation only adds nodes and does not establish any connections. Ensure that the
-     * nodes are connected before calling this method.
-     *
-     * @param other Set of nodes to be added.
-     */
-    public void addNodes(final Set<Node> other) {
-        nodes.addAll(other);
+    private void addNodes(final Set<Node> nodes, Set<LevelGraph> alreadyVisited) {
+        this.nodes.addAll(nodes);
+        alreadyVisited.add(this);
+        // collect each other node
+        Set<LevelGraph> otherGraphs = new HashSet<>();
+        for (Node n : nodes) otherGraphs.add(n.originGraph());
+        for (LevelGraph og : otherGraphs)
+            if (!alreadyVisited.contains(og)) og.addNodes(nodes, alreadyVisited);
     }
 
     /**
