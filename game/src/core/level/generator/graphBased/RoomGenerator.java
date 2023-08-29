@@ -2,7 +2,8 @@ package core.level.generator.graphBased;
 
 import static core.level.elements.ILevel.RANDOM;
 
-import core.level.generator.graphBased.LevelGraph.Node;
+import core.level.generator.graphBased.levelGraph.Direction;
+import core.level.generator.graphBased.levelGraph.Node;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
@@ -402,10 +403,10 @@ public class RoomGenerator {
      * @param layout The layout of the level
      */
     private void addDoors(Node[] doors, Area maxArea, LevelElement[][] layout) {
-        boolean upperDoor = doors[LevelGraph.Direction.NORTH.value()] != null;
-        boolean bottomDoor = doors[LevelGraph.Direction.SOUTH.value()] != null;
-        boolean leftDoor = doors[LevelGraph.Direction.WEST.value()] != null;
-        boolean rightDoor = doors[LevelGraph.Direction.EAST.value()] != null;
+        boolean upperDoor = doors[Direction.NORTH.value()] != null;
+        boolean bottomDoor = doors[Direction.SOUTH.value()] != null;
+        boolean leftDoor = doors[Direction.WEST.value()] != null;
+        boolean rightDoor = doors[Direction.EAST.value()] != null;
 
         if (upperDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();

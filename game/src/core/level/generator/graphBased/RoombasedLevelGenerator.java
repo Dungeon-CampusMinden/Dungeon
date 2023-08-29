@@ -6,6 +6,10 @@ import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
+import core.level.generator.graphBased.levelGraph.Direction;
+import core.level.generator.graphBased.levelGraph.GraphGenerator;
+import core.level.generator.graphBased.levelGraph.LevelGraph;
+import core.level.generator.graphBased.levelGraph.Node;
 import core.level.utils.*;
 import core.utils.IVoidFunction;
 
@@ -64,7 +68,7 @@ public class RoombasedLevelGenerator {
         System.out.println("---");
         System.out.println(graph2.toDot());
         System.out.println("---");
-        System.out.println(graph.add(graph2).isPresent());
+        System.out.println(graph.add(graph2, graph).isPresent());
         System.out.println(graph.toDot());
 
         RoomGenerator roomG = new RoomGenerator();
@@ -79,7 +83,7 @@ public class RoombasedLevelGenerator {
                                                         LevelSize.randomSize(), node.neighbours()),
                                                 designLabel)));
 
-        for (LevelGraph.Node node : graph.nodes()) {
+        for (Node node : graph.nodes()) {
             ILevel level = node.level();
 
             // remove trapdoor exit, in rooms we only use doors
@@ -100,16 +104,15 @@ public class RoombasedLevelGenerator {
      *
      * @param node Node to configure the doors for.
      */
-    private static void configureDoors(LevelGraph.Node node) {
+    private static void configureDoors(Node node) {
         for (DoorTile door : node.level().doorTiles()) {
-            LevelGraph.Direction doorDirection = doorDirection(node, door);
+            Direction doorDirection = doorDirection(node, door);
 
             // find neighbour door
-            LevelGraph.Node neighbour = node.neighbours()[doorDirection.value()];
+            Node neighbour = node.neighbours()[doorDirection.value()];
             DoorTile neighbourDoor = null;
             for (DoorTile doorTile : neighbour.level().doorTiles())
-                if (LevelGraph.Direction.opposite(doorDirection)
-                        == doorDirection(neighbour, doorTile)) {
+                if (Direction.opposite(doorDirection) == doorDirection(neighbour, doorTile)) {
                     neighbourDoor = doorTile;
                     break;
                 }
@@ -150,15 +153,12 @@ public class RoombasedLevelGenerator {
      * @param door door-tile where to find the direction for
      * @return the direction of the door
      */
-    private static LevelGraph.Direction doorDirection(LevelGraph.Node node, DoorTile door) {
+    private static Direction doorDirection(Node node, DoorTile door) {
         LevelElement[][] layout = parseToElementLayout(node.level().layout());
-        if (TileTextureFactory.isTopWall(door.coordinate(), layout))
-            return LevelGraph.Direction.NORTH;
-        if (TileTextureFactory.isRightWall(door.coordinate(), layout))
-            return LevelGraph.Direction.EAST;
-        if (TileTextureFactory.isBottomWall(door.coordinate(), layout))
-            return LevelGraph.Direction.SOUTH;
-        return LevelGraph.Direction.WEST;
+        if (TileTextureFactory.isTopWall(door.coordinate(), layout)) return Direction.NORTH;
+        if (TileTextureFactory.isRightWall(door.coordinate(), layout)) return Direction.EAST;
+        if (TileTextureFactory.isBottomWall(door.coordinate(), layout)) return Direction.SOUTH;
+        return Direction.WEST;
     }
 
     /**

@@ -1,8 +1,8 @@
 package manual.level.generator.graphBased;
 
 import core.Entity;
-import core.level.generator.graphBased.GraphGenerator;
-import core.level.generator.graphBased.LevelGraph;
+import core.level.generator.graphBased.levelGraph.GraphGenerator;
+import core.level.generator.graphBased.levelGraph.LevelGraph;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
