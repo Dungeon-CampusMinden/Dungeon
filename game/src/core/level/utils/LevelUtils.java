@@ -150,6 +150,7 @@ public class LevelUtils {
      * @return List of tiles in the given radius around the center point.
      */
     public static List<Tile> tilesInRange(final Point center, final float radius) {
+        // offset of neighbour Tiles which may not be accessible
         Coordinate[] offsets =
                 new Coordinate[] {
                     new Coordinate(-1, -1),
@@ -161,8 +162,9 @@ public class LevelUtils {
                     new Coordinate(0, 1),
                     new Coordinate(1, 1),
                 };
-
+        // all found tiles
         Set<Tile> tiles = new HashSet<>();
+        // BFS queue
         Queue<Tile> tileque = new ArrayDeque<>();
         Tile start = Game.tileAT(center);
         if (start != null) tileque.add(start);
@@ -182,7 +184,7 @@ public class LevelUtils {
     }
 
     private static boolean isInRange(Point center, float radius, Tile tile) {
-        return isAnyCornerInRadius(center, radius, tile)
+        return isAnyCornerOfTileInRadius(center, radius, tile)
                 || isPointBarelyInTile(center, radius, tile);
     }
 
@@ -216,7 +218,7 @@ public class LevelUtils {
                 && point.y < (tile.coordinate().toPoint().y + 1);
     }
 
-    private static boolean isAnyCornerInRadius(Point center, float radius, Tile x) {
+    private static boolean isAnyCornerOfTileInRadius(Point center, float radius, Tile x) {
         return Point.inRange(center, x.coordinate().toPoint(), radius)
                 || Point.inRange(center, x.coordinate().toPoint(), radius)
                 || Point.inRange(center, x.coordinate().toPoint(), radius)
