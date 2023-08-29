@@ -44,16 +44,20 @@ public final class Node {
      * Adds a neighbor in the given direction.
      *
      * <p>If the origin graph of the given node is not the same graph as the origin graph of this
-     * node, the graphs get connected. All nodes of this origin graph will be added to the given
+     * node, the graphs get connected. All nodes from this origin graph will be added to the given
      * node's origin graph, and vice versa.
+     *
+     * <p>This method only establishes the connection from this node to the other. Remember to also
+     * call {@link #add(Node, Direction)} for the given node with the opposite direction to complete
+     * the connection.
      *
      * @param node The neighbor to be added.
      * @param direction The direction at which the neighbor should be added from this node's
-     *     perspective (in the neighbor, this corresponds to the opposite direction).
-     * @return A Tuple containing the node in the graph where the given node was connected and the
-     *     direction of the connection.
+     *     perspective (in the neighbor's context, this corresponds to the opposite direction).
+     * @return A Tuple containing the node in the graph where the given node was connected, and the
+     *     direction of the connection. Returns an empty result if the nodes could not be connected.
      */
-    public Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
+    private Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
         if (neighbours[direction.value()] != null) return Optional.empty();
         neighbours[direction.value()] = node;
         // if a node of a other graph gets added, all nodes of the other graph a now part of
@@ -65,6 +69,19 @@ public final class Node {
         return Optional.of(new Tuple<>(node, direction));
     }
 
+    /**
+     * Adds a neighbor in a random direction.
+     *
+     * <p>If the origin graph of the given node is not the same graph as the origin graph of this
+     * node, the graphs get connected. All nodes from this origin graph will be added to the given
+     * node's origin graph, and vice versa.
+     *
+     * <p>This method establishes the connection from this node to the other, and vice versa.
+     *
+     * @param other The neighbor to be added.
+     * @return A Tuple containing the node in the graph where the given node was connected, and the
+     *     direction of the connection. Returns an empty result if the nodes could not be connected.
+     */
     public Optional<Tuple<Node, Direction>> add(final Node other) {
         List<Direction> freeDirections = possibleConnectDirections(other);
         if (freeDirections.size() == 0) return Optional.empty();
@@ -75,11 +92,11 @@ public final class Node {
         }
     }
 
-    private List<Direction> possibleConnectDirections(Node other) {
+    private List<Direction> possibleConnectDirections(final Node other) {
         List<Direction> freeDirections = getFreeDirections();
         List<Direction> otherDirections = other.getFreeDirections();
         otherDirections.replaceAll(Direction::opposite);
-        freeDirections.retainAll(other.getFreeDirections());
+        freeDirections.retainAll(otherDirections);
         return freeDirections;
     }
 
@@ -132,6 +149,13 @@ public final class Node {
         Node[] copy = new Node[neighbours.length];
         java.lang.System.arraycopy(neighbours, 0, copy, 0, neighbours.length);
         return copy;
+    }
+
+    /**
+     * @return the number of neighbours of this node.
+     */
+    public int neighboursCount() {
+        return (int) Arrays.stream(neighbours).filter(Objects::nonNull).count();
     }
 
     /**

@@ -63,24 +63,24 @@ public final class LevelGraph {
         if (nodes.size() >= 3) {
             int howManyExtraEdges = RANDOM.nextInt(nodes.size() / range, nodes.size());
 
-            for (int i = 0; i < howManyExtraEdges; i++) {
-                Node a = random();
-                Node b = random();
-                if (a == b || a.isNeighbourWith(b)) i = i - 1;
-                else {
-                    a.add(b);
-                }
-            }
-        }
-    }
+            // Consider only nodes that still have space for another neighbor.
+            // Examine every possible combination (no random selection as it could lead to potential
+            // infinite loops).
 
-    /**
-     * Retrieves a random node from the graph.
-     *
-     * @return A randomly selected node from the graph.
-     */
-    public Node random() {
-        return nodes.get(RANDOM.nextInt(nodes.size() - 1));
+            List<Node> listA = nodes();
+            listA.removeIf(n -> n.neighboursCount() == Direction.values().length);
+            List<Node> listB = new ArrayList<>(listA);
+            Collections.shuffle(listA);
+            Collections.shuffle(listB);
+
+            int connected = 0;
+            for (Node a : listA)
+                for (Node b : listB)
+                    if (a != b && !a.isNeighbourWith(b) && a.add(b).isPresent()) {
+                        connected++;
+                        if (connected >= howManyExtraEdges) return;
+                    }
+        }
     }
 
     public Node root() {
@@ -115,7 +115,6 @@ public final class LevelGraph {
 
         for (Node node : nodesWhereCanBeAdded) {
             for (Node otherNode : other.nodes()) {
-                // todo this can end in an endless loop
                 Optional<Tuple<Node, Direction>> tup = node.add(otherNode);
                 if (tup.isPresent()) {
                     nodes.addAll(other.nodes());
