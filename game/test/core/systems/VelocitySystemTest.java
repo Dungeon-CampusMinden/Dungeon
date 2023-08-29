@@ -159,26 +159,26 @@ public class VelocitySystemTest {
         velocityComponent.currentXVelocity(xVelocity);
         velocityComponent.currentYVelocity(yVelocity);
         velocitySystem.execute();
-        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.RUN_RIGHT));
+        assertTrue(animationComponent.isAnimationQueued(CoreAnimations.RUN_RIGHT));
 
         // idleRight
         velocityComponent.currentXVelocity(0);
         velocityComponent.currentYVelocity(0);
 
         velocitySystem.execute();
-        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_RIGHT));
+        assertTrue(animationComponent.isAnimationQueued(CoreAnimations.IDLE_RIGHT));
 
         // left
         velocityComponent.currentXVelocity(-1);
         velocityComponent.currentYVelocity(0);
         velocitySystem.execute();
-        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.RUN_LEFT));
+        assertTrue(animationComponent.isAnimationQueued(CoreAnimations.RUN_LEFT));
 
         // idleLeft
         velocityComponent.currentXVelocity(0);
         velocityComponent.currentYVelocity(0);
 
         velocitySystem.execute();
-        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_LEFT));
+        assertTrue(animationComponent.isAnimationQueued(CoreAnimations.IDLE_LEFT));
     }
 }
