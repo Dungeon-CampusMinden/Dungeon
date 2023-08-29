@@ -82,7 +82,7 @@ public class LevelUtilsTest {
     @Test
     public void tilesInRangeCenterNotInLevel() {
         var tiles = LevelUtils.tilesInRange(new Point(-10, -10), 1.1f);
-        assertEquals("should have 3", 0, tiles.size());
+        assertEquals("tile is outside of the level no Tile should be returned", 0, tiles.size());
     }
 
     @Test
