@@ -2,6 +2,7 @@ package contrib.components;
 
 import contrib.systems.AISystem;
 import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
 
@@ -23,7 +24,7 @@ import java.util.function.Function;
  * to check if the idle or combat behaviour should be executed.
  *
  * <p>The {@link #idleBehavior} defines the behaviour in idle state, e.g. walking on a specific path
- * {@link contrib.utils.components.ai.idle.PatrouilleWalk}.
+ * {@link PatrolWalk}.
  *
  * <p>The {@link #fightBehavior} defines the combat behaviour, e.g. attacking with a fireball skill
  * {@link contrib.utils.components.ai.fight.RangeAI}.

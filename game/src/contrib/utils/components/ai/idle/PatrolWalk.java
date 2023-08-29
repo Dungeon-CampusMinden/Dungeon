@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class PatrouilleWalk implements Consumer<Entity> {
+public class PatrolWalk implements Consumer<Entity> {
 
     private static final Random random = new Random();
 
@@ -53,7 +53,7 @@ public class PatrouilleWalk implements Consumer<Entity> {
      * @param pauseTime Max time in milliseconds to wait on a checkpoint. The actual time is a
      *     random number between 0 and this value
      */
-    public PatrouilleWalk(
+    public PatrolWalk(
             final float radius, final int numberCheckpoints, final int pauseTime, final MODE mode) {
         this.radius = radius;
         this.numberCheckpoints = numberCheckpoints;
