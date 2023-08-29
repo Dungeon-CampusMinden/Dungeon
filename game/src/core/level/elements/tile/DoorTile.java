@@ -20,8 +20,12 @@ public class DoorTile extends Tile {
     private DoorTile otherDoor;
     private Tile doorstep;
 
+    private boolean open;
+
     /**
      * Creates a new Tile.
+     *
+     * <p>The door will be open.
      *
      * @param texturePath Path to the texture of the tile.
      * @param globalPosition Position of the tile in the global system.
@@ -32,6 +36,7 @@ public class DoorTile extends Tile {
             String texturePath, Coordinate globalPosition, DesignLabel designLabel, ILevel level) {
         super(texturePath, globalPosition, designLabel, level);
         levelElement = LevelElement.DOOR;
+        open = true;
     }
 
     @Override
@@ -101,5 +106,32 @@ public class DoorTile extends Tile {
             }
             texturePath = textureBuilder.toString();
         } // TODO else { error }
+    }
+
+    /**
+     * Open the door.
+     *
+     * <p>The player can use the door to enter the next room.
+     */
+    public void open() {
+        open = true;
+    }
+
+    /**
+     * Close the door.
+     *
+     * <p>The player cant use the door to enter the next room.
+     */
+    public void close() {
+        open = false;
+    }
+
+    /**
+     * Check if the door is open.
+     *
+     * @return true if the door is open, false if not.
+     */
+    public boolean isOpen() {
+        return open;
     }
 }
