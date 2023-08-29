@@ -2,7 +2,8 @@ package core.level.generator.graphBased;
 
 import static core.level.elements.ILevel.RANDOM;
 
-import core.level.generator.graphBased.LevelGraph.Node;
+import core.level.generator.graphBased.levelGraph.Direction;
+import core.level.generator.graphBased.levelGraph.Node;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
@@ -22,7 +23,6 @@ import java.util.Random;
 public class RoomGenerator {
 
     private static final int WALL_BUFFER = 2;
-    private static final float SYMMETRICAL = 0.5f;
     private static final float EXTEND_TO_SIDES = 0.5f;
     private static final float PROBABILITY_SIDE = 0.75f;
     private static final float PROBABILITY_CORNER = 0.75f;
@@ -142,8 +142,6 @@ public class RoomGenerator {
         }
 
         // Extend base floor
-        boolean symmetrical = random.nextFloat() < SYMMETRICAL;
-        // TODO use symmetrical boolean to generate symmetrical or asymmetrical rooms
         // Small rooms cannot extend to the corners
         // Medium and Big Rooms can extend to corner or sides
         if (size == LevelSize.SMALL || random.nextFloat() < EXTEND_TO_SIDES) {
@@ -402,10 +400,10 @@ public class RoomGenerator {
      * @param layout The layout of the level
      */
     private void addDoors(Node[] doors, Area maxArea, LevelElement[][] layout) {
-        boolean upperDoor = doors[LevelGraph.Direction.NORTH.value()] != null;
-        boolean bottomDoor = doors[LevelGraph.Direction.SOUTH.value()] != null;
-        boolean leftDoor = doors[LevelGraph.Direction.WEST.value()] != null;
-        boolean rightDoor = doors[LevelGraph.Direction.EAST.value()] != null;
+        boolean upperDoor = doors[Direction.NORTH.value()] != null;
+        boolean bottomDoor = doors[Direction.SOUTH.value()] != null;
+        boolean leftDoor = doors[Direction.WEST.value()] != null;
+        boolean rightDoor = doors[Direction.EAST.value()] != null;
 
         if (upperDoor) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
