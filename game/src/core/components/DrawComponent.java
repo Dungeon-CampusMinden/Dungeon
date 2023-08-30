@@ -59,6 +59,9 @@ public final class DrawComponent implements Component {
      * <p>Will read in all subdirectories of the given path and use each file in the subdirectory to
      * create an animation. So each subdirectory should contain only the files for one animation.
      *
+     * <p>Animations should not be set directly via {@link #currentAnimation()} but rather be queued
+     * via {@link #queueAnimation(IPath...)} or {@link #queueAnimation(int, IPath...)}
+     *
      * <p>Will set the current animation to either idle down, idle left, idle right, idle up or
      * idle, depending on which one of these animations exist.
      *
