@@ -51,8 +51,6 @@ public final class DrawComponent implements Component {
     private final Map<String, Animation> animationMap;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
-    private int frameCounter;
-    private int currentFrametime;
     private Map<IPath[], Integer> animationQueue = new HashMap<>();
 
     /**
@@ -288,4 +286,5 @@ public final class DrawComponent implements Component {
             }
         }
     }
+
 }
