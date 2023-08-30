@@ -41,6 +41,11 @@ import java.util.logging.Logger;
  */
 public class RoombasedLevelGenerator {
 
+    /** Rooms with this amount or fewer entities will be generated small. */
+    private static final int MAX_ENTITIES_FOR_SMALL_ROOMS = 2;
+    /** Rooms with this amount or more entities will be generated large. */
+    private static final int MIN_ENTITIES_FOR_BIG_ROOM = 5;
+
     private static final Logger LOGGER = Logger.getLogger(RoombasedLevelGenerator.class.getName());
 
     /**
@@ -63,8 +68,7 @@ public class RoombasedLevelGenerator {
                         node ->
                                 node.level(
                                         new TileLevel(
-                                                roomG.layout(
-                                                        LevelSize.randomSize(), node.neighbours()),
+                                                roomG.layout(sizeFor(node), node.neighbours()),
                                                 designLabel)));
 
         for (Node node : graph.nodes()) {
@@ -76,6 +80,12 @@ public class RoombasedLevelGenerator {
             node.level().onFirstLoad(() -> node.entities().forEach(Game::add));
         }
         return graph.root().level();
+    }
+
+    private static LevelSize sizeFor(Node node) {
+        if (node.entities().size() <= MAX_ENTITIES_FOR_SMALL_ROOMS) return LevelSize.SMALL;
+        else if (node.entities().size() >= MIN_ENTITIES_FOR_BIG_ROOM) return LevelSize.LARGE;
+        else return LevelSize.MEDIUM;
     }
 
     /**
