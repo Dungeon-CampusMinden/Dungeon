@@ -171,6 +171,9 @@ public final class DrawComponent implements Component {
      * @param next Array of IPaths to Animation
      */
     public void nextAnimation(int forFrames, IPath... next) {
+        for (Map.Entry<IPath[], Integer> animationArr : animationQueue.entrySet()) {
+            if (animationArr.getKey()[0].pathString().equals(next[0].pathString())) return;
+        }
         animationQueue.put(next, forFrames);
     }
 
@@ -241,41 +244,18 @@ public final class DrawComponent implements Component {
         return false;
     }
 
-    // checks the status of animations in the animationQueue and selects the next animation by
-    // priority
-    public void setNextAnimation() {
 
-        if (animationQueue.size() > 0) {
-            Animation highestPrio = null;
 
-            // iterate through animationQueue
-            for (Map.Entry<IPath[], Integer> animationArr : animationQueue.entrySet()) {
-                // subtract 1 from every frametimer, if value below zero, remove animation from
-                // queue
-                animationArr.setValue(animationArr.getValue() - 1);
-                if (animationArr.getValue() < 0) {
-                    animationQueue.remove(animationArr.getKey());
-                    break;
-                }
+    public Map<IPath[], Integer> animationQueue() {
+        return animationQueue;
+    }
 
-                // if animation has frametime left, check if it's the highest priority
-                // then generate the first valid Animation from that array
-                for (IPath animationPath : animationArr.getKey()) {
-                    if (highestPrio == null
-                            || highestPrio.getPriority() < animationPath.priority()) {
-                        highestPrio = animationMap.get(animationPath.pathString());
-                        if (highestPrio != null) {
-                            currentAnimation = highestPrio;
-                            break;
-                        } else
-                            LOGGER.warning(
-                                    "Animation "
-                                            + animationPath
-                                            + " can not be set, because the given Animation could not be found.");
-                    }
-                }
-            }
-        }
+    public void setAnimationQueue(Map<IPath[], Integer> queue) {
+        animationQueue = queue;
+    }
+
+    public Map<String, Animation> animationMap() {
+        return animationMap;
     }
 
 }
