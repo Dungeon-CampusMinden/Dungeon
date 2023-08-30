@@ -19,6 +19,8 @@ public class KeyboardConfig {
             new ConfigKey<>(new String[] {"movement", "right"}, new ConfigIntValue(Input.Keys.D));
     public static final ConfigKey<Integer> INVENTORY_OPEN =
             new ConfigKey<>(new String[] {"inventory", "open"}, new ConfigIntValue(Input.Keys.I));
+    public static final ConfigKey<Integer> CLOSE_UI =
+            new ConfigKey<>(new String[] {"ui", "close"}, new ConfigIntValue(Input.Keys.ESCAPE));
     public static final ConfigKey<Integer> INTERACT_WORLD =
             new ConfigKey<>(new String[] {"interact", "world"}, new ConfigIntValue(Input.Keys.E));
     public static final ConfigKey<Integer> FIRST_SKILL =
