@@ -71,7 +71,7 @@ public final class HealthSystem extends System {
 
     private HSData activateDeathAnimation(HSData hsd) {
         // set DeathAnimation as active animation
-        hsd.dc.nextAnimation(10, AdditionalAnimations.DIE);
+        hsd.dc.queueAnimation(10, AdditionalAnimations.DIE);
         return hsd;
     }
 
@@ -123,7 +123,7 @@ public final class HealthSystem extends System {
     private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
         if (dmgAmount > 0) {
             // we have some damage - let's show a little dance
-            hsd.dc.nextAnimation(5, AdditionalAnimations.HIT);
+            hsd.dc.queueAnimation(5, AdditionalAnimations.HIT);
         }
         // reset all damage objects in health component and apply damage
         hsd.hc.clearDamage();

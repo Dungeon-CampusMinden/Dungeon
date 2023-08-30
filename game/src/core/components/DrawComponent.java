@@ -153,12 +153,12 @@ public final class DrawComponent implements Component {
     /**
      * Queue up an Animation to be considered as the next played Animation. Animations are given as
      * an IPath Array, or multiple variables. Animation length is set as one frame. If you need to
-     * queue longer Animations use {@link #nextAnimation(int, IPath...)}
+     * queue longer Animations use {@link #queueAnimation(int, IPath...)}
      *
      * @param next Array of IPaths to Animation
      */
-    public void nextAnimation(IPath... next) {
-        nextAnimation(1, next);
+    public void queueAnimation(IPath... next) {
+        queueAnimation(1, next);
     }
 
     /**
@@ -168,7 +168,7 @@ public final class DrawComponent implements Component {
      * @param forFrames number of Frames to play Animation for
      * @param next Array of IPaths to Animation
      */
-    public void nextAnimation(int forFrames, IPath... next) {
+    public void queueAnimation(int forFrames, IPath... next) {
         for (Map.Entry<IPath[], Integer> animationArr : animationQueue.entrySet()) {
             if (animationArr.getKey()[0].pathString().equals(next[0].pathString())) return;
         }
