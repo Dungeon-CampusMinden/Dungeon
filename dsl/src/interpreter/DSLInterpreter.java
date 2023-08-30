@@ -183,11 +183,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     private Value bindFromSymbol(Symbol symbol, IMemorySpace ms) {
-        if (symbol instanceof ICallable callable) {
-            var value = new FunctionValue(symbol.getDataType(), callable);
-            ms.bindValue(symbol.getName(), value);
-            return value;
-        }
         if (!(symbol instanceof IType) && !(symbol instanceof PropertySymbol)) {
             var value = createDefaultValue(symbol.getDataType());
             ms.bindValue(symbol.getName(), value);
@@ -491,6 +486,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
     // this is used for resolving object references
     @Override
     public Object visit(IdNode node) {
+        var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
+        if (symbol instanceof FunctionSymbol functionSymbol) {
+            return new FunctionValue(functionSymbol.getFunctionType().getReturnType(), functionSymbol);
+        }
+
         return this.getCurrentMemorySpace().resolve(node.getName(), true);
     }
 
@@ -531,33 +531,34 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(FuncCallNode node) {
-        // resolve function name in global memory-space
         var funcName = node.getIdName();
-        var funcValue = this.globalSpace.resolve(funcName);
-        assert funcValue instanceof FunctionValue;
 
-        // get the function symbol by symbolIdx from funcValue
-        var funcCallable = ((FunctionValue) funcValue).getCallable();
-
-        // execute the function call
-        var returnValue = funcCallable.call(this, node.getParameters());
-        if (returnValue == null) {
-            return Value.NONE;
-        }
-
-        if (!(returnValue instanceof Value)) {
-            // package it into value
-            var valueClass = returnValue.getClass();
-
-            // try to resolve the objects type as primitive built in type
-            var dslType = this.environment.getDSLTypeForClass(valueClass);
-            if (dslType == null) {
-                throw new RuntimeException(
-                        "No DSL Type representation for java type '" + valueClass + "'");
+        // TODO: resolve in current memory-space / in datatype of "this"
+        //  this resolving will likely be more complex and should be refactored into it's own method
+        var symbol = this.symbolTable().getGlobalScope().resolve(funcName);
+        if (!(symbol instanceof ICallable callable)) {
+            throw new RuntimeException("Symbol for name '" + funcName + "' is not callable!");
+        } else {
+            // execute function call
+            var returnValue = callable.call(this, node.getParameters());
+            if (returnValue == null) {
+                return Value.NONE;
             }
-            returnValue = new Value(dslType, returnValue);
+
+            if (!(returnValue instanceof Value)) {
+                // package it into value
+                var valueClass = returnValue.getClass();
+
+                // try to resolve the objects type as primitive built in type
+                var dslType = this.environment.getDSLTypeForClass(valueClass);
+                if (dslType == null) {
+                    throw new RuntimeException(
+                        "No DSL Type representation for java type '" + valueClass + "'");
+                }
+                returnValue = new Value(dslType, returnValue);
+            }
+            return returnValue;
         }
-        return returnValue;
     }
 
     @Override
