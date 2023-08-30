@@ -19,10 +19,12 @@ import core.components.*;
 import core.level.utils.LevelElement;
 import core.utils.Constants;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -139,6 +141,43 @@ public class EntityFactory {
                     } else {
                         e.addComponent(
                                 new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
+                    }
+                },
+                false,
+                false);
+
+        pc.registerCallback(
+                KeyboardConfig.CLOSE_UI.value(),
+                (e) -> {
+                    var firstUI =
+                            Game.entityStream() // would be nice to directly access HudSystems
+                                    // stream (no access to the System object)
+                                    .filter(
+                                            x ->
+                                                    x.isPresent(
+                                                            UIComponent.class)) // find all Entities
+                                    // which have a
+                                    // UIComponent
+                                    .map(
+                                            x ->
+                                                    new Tuple<>(
+                                                            x,
+                                                            x.fetch(UIComponent.class)
+                                                                    .get())) // create a tuple to
+                                    // still have access to
+                                    // the UI Entity
+                                    .filter(x -> x.b().closeOnUICloseKey())
+                                    .max(
+                                            Comparator.comparingInt(
+                                                    x -> x.b().dialog().getZIndex())) // find dialog
+                                    // with highest
+                                    // zindex
+                                    .orElse(null);
+                    if (firstUI != null) {
+                        firstUI.a().removeComponent(UIComponent.class);
+                        if (firstUI.a().componentStream().findAny().isEmpty()) {
+                            Game.remove(firstUI.a()); // delete unused Entity
+                        }
                     }
                 },
                 false,
