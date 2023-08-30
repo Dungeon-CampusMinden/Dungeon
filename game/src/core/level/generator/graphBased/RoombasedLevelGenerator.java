@@ -2,6 +2,8 @@ package core.level.generator.graphBased;
 
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
@@ -16,6 +18,7 @@ import core.utils.IVoidFunction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /**
@@ -83,8 +86,16 @@ public class RoombasedLevelGenerator {
     }
 
     private static LevelSize sizeFor(Node node) {
-        if (node.entities().size() <= MAX_ENTITIES_FOR_SMALL_ROOMS) return LevelSize.SMALL;
-        else if (node.entities().size() >= MIN_ENTITIES_FOR_BIG_ROOM) return LevelSize.LARGE;
+        AtomicInteger count = new AtomicInteger();
+        node.entities()
+                .forEach(
+                        e -> {
+                            if (e.isPresent(PositionComponent.class)
+                                    && e.isPresent(DrawComponent.class)) count.getAndIncrement();
+                        });
+
+        if (count.get() <= MAX_ENTITIES_FOR_SMALL_ROOMS) return LevelSize.SMALL;
+        else if (count.get() >= MIN_ENTITIES_FOR_BIG_ROOM) return LevelSize.LARGE;
         else return LevelSize.MEDIUM;
     }
 
