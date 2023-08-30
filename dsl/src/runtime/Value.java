@@ -13,11 +13,13 @@ import semanticanalysis.types.IType;
  */
 public class Value implements IClonable {
     public static Value NONE = new Value(BuiltInType.noType, null, false);
+    public static String THIS_NAME = "$THIS$";
 
     protected IType dataType;
     protected Object object;
     protected final boolean isMutable;
     protected boolean dirty;
+    protected IMemorySpace memorySpace;
 
     /**
      * Indicates, if the internal value of this {@link Value} was set explicitly (e.g. in a
@@ -54,6 +56,15 @@ public class Value implements IClonable {
 
     public void setDataType(IType type) {
         this.dataType = type;
+    }
+
+
+    public IMemorySpace getMemorySpace() {
+        if (this.memorySpace == null) {
+            this.memorySpace = new MemorySpace();
+            this.memorySpace.bindValue(THIS_NAME, this);
+        }
+        return this.memorySpace;
     }
 
     /**
