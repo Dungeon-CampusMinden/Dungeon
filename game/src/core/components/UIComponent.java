@@ -12,14 +12,24 @@ import core.Component;
 public class UIComponent implements Component {
     private final Group dialog;
     private final boolean willPauseGame;
+    private final boolean closeOnUICloseKey;
 
+    /**
+     * @param dialog a Group of Elements which should be shown
+     * @param willPauseGame if the UI should pause the Game or not
+     * @param closeOnUICloseKey if the UI should close when the UI Close Key was pressed
+     */
+    public UIComponent(Group dialog, boolean willPauseGame, boolean closeOnUICloseKey) {
+        this.dialog = dialog;
+        this.willPauseGame = willPauseGame;
+        this.closeOnUICloseKey = closeOnUICloseKey;
+    }
     /**
      * @param dialog a Group of Elements which should be shown
      * @param willPauseGame if the UI should pause the Game or not
      */
     public UIComponent(Group dialog, boolean willPauseGame) {
-        this.dialog = dialog;
-        this.willPauseGame = willPauseGame;
+        this(dialog, willPauseGame, true);
     }
 
     /**
@@ -48,5 +58,12 @@ public class UIComponent implements Component {
      */
     public Group dialog() {
         return dialog;
+    }
+
+    /**
+     * @return true when the UI should be closed with a press of the close key otherwise false
+     */
+    public boolean closeOnUICloseKey() {
+        return closeOnUICloseKey;
     }
 }
