@@ -2,6 +2,8 @@ package core.level.generator.graphBased;
 
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
@@ -16,6 +18,7 @@ import core.utils.IVoidFunction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /**
@@ -41,6 +44,11 @@ import java.util.logging.Logger;
  */
 public class RoombasedLevelGenerator {
 
+    /** Rooms with this amount or fewer entities will be generated small. */
+    private static final int MAX_ENTITIES_FOR_SMALL_ROOMS = 2;
+    /** Rooms with this amount or more entities will be generated large. */
+    private static final int MIN_ENTITIES_FOR_BIG_ROOM = 5;
+
     private static final Logger LOGGER = Logger.getLogger(RoombasedLevelGenerator.class.getName());
 
     /**
@@ -63,8 +71,7 @@ public class RoombasedLevelGenerator {
                         node ->
                                 node.level(
                                         new TileLevel(
-                                                roomG.layout(
-                                                        LevelSize.randomSize(), node.neighbours()),
+                                                roomG.layout(sizeFor(node), node.neighbours()),
                                                 designLabel)));
 
         for (Node node : graph.nodes()) {
@@ -76,6 +83,20 @@ public class RoombasedLevelGenerator {
             node.level().onFirstLoad(() -> node.entities().forEach(Game::add));
         }
         return graph.root().level();
+    }
+
+    private static LevelSize sizeFor(Node node) {
+        AtomicInteger count = new AtomicInteger();
+        node.entities()
+                .forEach(
+                        e -> {
+                            if (e.isPresent(PositionComponent.class)
+                                    && e.isPresent(DrawComponent.class)) count.getAndIncrement();
+                        });
+
+        if (count.get() <= MAX_ENTITIES_FOR_SMALL_ROOMS) return LevelSize.SMALL;
+        else if (count.get() >= MIN_ENTITIES_FOR_BIG_ROOM) return LevelSize.LARGE;
+        else return LevelSize.MEDIUM;
     }
 
     /**
