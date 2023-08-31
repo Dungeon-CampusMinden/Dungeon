@@ -6,6 +6,5 @@ import task.Task;
 
 public final class PetriNet {
     public PetriNet() {
-        super();
     }
 }
