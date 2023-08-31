@@ -488,7 +488,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(IdNode node) {
         var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
         if (symbol instanceof FunctionSymbol functionSymbol) {
-            return new FunctionValue(functionSymbol.getFunctionType().getReturnType(), functionSymbol);
+            return new FunctionValue(
+                    functionSymbol.getFunctionType().getReturnType(), functionSymbol);
         }
 
         return this.getCurrentMemorySpace().resolve(node.getName(), true);
@@ -535,7 +536,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         // TODO: resolve in current memory-space / in datatype of "this"
         //  this resolving will likely be more complex and should be refactored into it's own method
-        var symbol = this.symbolTable().getGlobalScope().resolve(funcName);
+
+        var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
+
         if (!(symbol instanceof ICallable callable)) {
             throw new RuntimeException("Symbol for name '" + funcName + "' is not callable!");
         } else {
@@ -553,7 +556,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 var dslType = this.environment.getDSLTypeForClass(valueClass);
                 if (dslType == null) {
                     throw new RuntimeException(
-                        "No DSL Type representation for java type '" + valueClass + "'");
+                            "No DSL Type representation for java type '" + valueClass + "'");
                 }
                 returnValue = new Value(dslType, returnValue);
             }
@@ -643,10 +646,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(MemberAccessNode node) {
         Value lhs = (Value) node.getLhs().accept(this);
 
-        assert lhs instanceof AggregateValue;
-
-        AggregateValue lhsAggregateValue = (AggregateValue) lhs;
-        this.memoryStack.push(lhsAggregateValue.getMemorySpace());
+        this.memoryStack.push(lhs.getMemorySpace());
         Value rhsValue = (Value) node.getRhs().accept(this);
         this.memoryStack.pop();
 
