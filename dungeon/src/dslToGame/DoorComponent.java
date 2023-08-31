@@ -4,31 +4,34 @@ import core.Component;
 import core.level.elements.tile.DoorTile;
 
 /**
- * Speichert ein {@link DoorTile} um dieses mit einer Entität zu verbinden.
+ * Associates a {@link DoorTile} to be connected with an entity.
  *
- * <p>Sollte in Verbindung mit dem {@link task.TaskComponent} verwendet werden.
+ * <p>Should be used in conjunction with the {@link task.TaskComponent}.
  *
- * <p>In Kombination kann dann der {@link task.TaskComponent#DOOR_OPENER} Consumer verwendet werden,
- * um beim aktivieren einer Task die entsprechende Tür im level zu öffnen
+ * <p>In combination, the {@link task.TaskComponent#DOOR_OPENER} Consumer can be used to open the
+ * corresponding door in the level when a task is activated.
  *
- * <p>Dafür beim verbinden der Levelgraphen der einzelenen Task die so enstandende Tür in diesen
- * Component speichern und der Manager-Entität umhängen, dann den Callback in
+ * <p>To achieve this, store the resulting door from connecting the level graphs of individual tasks
+ * in this component and attach it to the managing entity. Then, use the callback in conjunction
+ * with the TaskComponent's DOOR_OPENER Consumer to open the door when the task is activated.
  */
 public final class DoorComponent implements Component {
 
     private final DoorTile door;
 
     /**
-     * Create a new DoorOpenerComponent.
+     * Creates a new DoorOpenerComponent.
      *
-     * @param door DoorTile to store in this component.
+     * @param door The DoorTile to store in this component.
      */
     public DoorComponent(final DoorTile door) {
         this.door = door;
     }
 
     /**
-     * @return the doorTile stored in this component.
+     * Returns the stored doorTile in this component.
+     *
+     * @return The DoorTile stored in this component.
      */
     public DoorTile door() {
         return door;
