@@ -1,4 +1,3 @@
 package petriNet;
 
-public class Transition {
-}
+public class Transition {}
