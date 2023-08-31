@@ -8,7 +8,6 @@ public class Transition {
 
     private final Map<Place, Boolean> dependencyPlaces;
     private final Set<Place> addTokenIfTriggerd;
-
     private final Set<Place> addTokenOnFire;
 
     public Transition(
