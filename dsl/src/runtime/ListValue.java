@@ -91,4 +91,26 @@ public class ListValue extends Value {
             return listValue.list().size();
         }
     }
+
+    public static class GetMethod implements IInstanceCallable {
+
+        public static GetMethod instance = new GetMethod();
+
+        private GetMethod() {}
+
+        @Override
+        public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+            ListValue listValue = (ListValue) instance;
+
+            Node indexParameterNode = parameters.get(0);
+            Value indexValue = (Value) indexParameterNode.accept(interpreter);
+            int index = (int) indexValue.getInternalValue();
+
+            if (index >= listValue.list().size()) {
+                return Value.NONE;
+            } else {
+                return listValue.list().get(index);
+            }
+        }
+    }
 }

@@ -2322,6 +2322,7 @@ public class TestDSLInterpreter {
             }
             print(test);
             print(test.size());
+            print(test.get(1));
         }
 
         quest_config c {
@@ -2361,6 +2362,13 @@ public class TestDSLInterpreter {
         // if-else=stmt-body "escapes" the output will contain '0', as the new 'test'-variable
         // will be initialized with 0
         String output = outputStream.toString();
-        assertEquals("[hello, world]" + System.lineSeparator() + "2" + System.lineSeparator(), output);
+        assertEquals(
+                "[hello, world]"
+                        + System.lineSeparator()
+                        + "2"
+                        + System.lineSeparator()
+                        + "world"
+                        + System.lineSeparator(),
+                output);
     }
 }
