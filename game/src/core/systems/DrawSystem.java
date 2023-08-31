@@ -77,7 +77,6 @@ public final class DrawSystem extends System {
                 dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
     }
 
-
     private DSData buildDataObject(Entity e) {
         DrawComponent dc =
                 e.fetch(DrawComponent.class)
@@ -115,8 +114,7 @@ public final class DrawSystem extends System {
             // if animation has frametime left, check if it's the highest priority
             // then generate the first valid Animation from that array
             for (IPath animationPath : animationArr.getKey()) {
-                if (highestPrio == null
-                    || highestPrio.priority() < animationPath.priority()) {
+                if (highestPrio == null || highestPrio.priority() < animationPath.priority()) {
                     highestPrio = animationPath;
                     dc.animationMap().get(animationPath.pathString());
                 }

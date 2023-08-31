@@ -182,11 +182,13 @@ public final class DrawComponent implements Component {
 
     /**
      * removes all animations with given priority
+     *
      * @param prio priority to remove
      */
     public void deQueueByPriority(int prio) {
         for (Map.Entry<IPath[], Integer> animationArr : animationQueue.entrySet()) {
-            if (animationArr.getKey()[0].priority() == prio) animationQueue.remove(animationArr.getKey());
+            if (animationArr.getKey()[0].priority() == prio)
+                animationQueue.remove(animationArr.getKey());
         }
     }
 
@@ -248,16 +250,16 @@ public final class DrawComponent implements Component {
 
     /**
      * Check if Animation is queued up
+     *
      * @return true if Animation is in queue
      */
     public boolean isAnimationQueued(IPath requestedAnimation) {
         for (Map.Entry<IPath[], Integer> animationArr : animationQueue.entrySet()) {
-            if (animationArr.getKey()[0].pathString().equals(requestedAnimation.pathString())) return true;
+            if (animationArr.getKey()[0].pathString().equals(requestedAnimation.pathString()))
+                return true;
         }
         return false;
     }
-
-
 
     public Map<IPath[], Integer> animationQueue() {
         return animationQueue;
@@ -270,5 +272,4 @@ public final class DrawComponent implements Component {
     public Map<String, Animation> animationMap() {
         return animationMap;
     }
-
 }

@@ -63,6 +63,6 @@ public class DrawComponentTest {
     @Test
     public void hasAnimations() {
         assertTrue(animationComponent.hasAnimation(CoreAnimations.RUN_LEFT));
-//        assertFalse(animationComponent.hasAnimation(() -> "DUMMY"));
+        //        assertFalse(animationComponent.hasAnimation(() -> "DUMMY"));
     }
 }
