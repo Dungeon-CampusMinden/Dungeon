@@ -28,17 +28,4 @@ public class PlaceTest {
         Mockito.verify(transitionA).notify(place);
         Mockito.verify(transitionB).notify(place);
     }
-
-    @Test
-    public void deregister_transition() {
-        Place place = new Place();
-        Transition transitionA = Mockito.mock(Transition.class);
-        Transition transitionB = Mockito.mock(Transition.class);
-        place.register(transitionA);
-        place.register(transitionB);
-        place.deregister(transitionA);
-        Mockito.verifyNoMoreInteractions(transitionA);
-        place.placeToken();
-        Mockito.verify(transitionB).notify(place);
-    }
 }

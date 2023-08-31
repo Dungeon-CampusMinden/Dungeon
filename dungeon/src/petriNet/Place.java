@@ -10,7 +10,7 @@ import java.util.Set;
  *
  * <p>Places are observed by {@link Transition}. If a new token is added to a Place, it will notify
  * all observer transitions. Use {@link #register(Transition)} to register a Transition as an
- * observer, and {@link #deregister(Transition)} to deregister an observer.
+ * observer.
  */
 public class Place {
     private int tokenCount = 0;
@@ -45,14 +45,5 @@ public class Place {
      */
     public void register(Transition observer) {
         this.observer.add(observer);
-    }
-
-    /**
-     * Remove the given Transition as an observer.
-     *
-     * @param observer Transition to remove as an observer.
-     */
-    public void deregister(Transition observer) {
-        this.observer.remove(observer);
     }
 }
