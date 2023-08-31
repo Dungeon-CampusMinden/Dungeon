@@ -1,10 +1,12 @@
 package semanticanalysis.types;
 
-import semanticanalysis.IScope;
-import semanticanalysis.Symbol;
+import runtime.ListValue;
+import runtime.nativefunctions.NativeMethod;
 
-public class ListType extends Symbol implements IType {
-    // private final IType elementType;
+import semanticanalysis.IScope;
+import semanticanalysis.ScopedSymbol;
+
+public class ListType extends ScopedSymbol implements IType {
     public IType getElementType() {
         return this.dataType;
     }
@@ -14,9 +16,15 @@ public class ListType extends Symbol implements IType {
     }
 
     public ListType(IType elementType, IScope parentScope) {
-        this.name = getListTypeName(elementType);
-        this.dataType = elementType;
-        this.scope = parentScope;
+        super(getListTypeName(elementType), parentScope, elementType);
+
+        NativeMethod addMehod =
+                new NativeMethod(
+                        "add",
+                        this,
+                        new FunctionType(BuiltInType.noType, elementType),
+                        ListValue.AddMethod.instance);
+        this.bind(addMehod);
     }
 
     @Override

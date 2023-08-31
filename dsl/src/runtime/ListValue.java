@@ -1,6 +1,11 @@
 package runtime;
 
-import semanticanalysis.types.ListType;
+import interpreter.DSLInterpreter;
+
+import parser.ast.Node;
+
+import semanticanalysis.IInstanceCallable;
+import semanticanalysis.types.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +25,17 @@ public class ListValue extends Value {
         return (ListType) this.dataType;
     }
 
+    protected ArrayList<Value> list() {
+        return (ArrayList<Value>) this.object;
+    }
+
     /**
      * Add a Value to the list
      *
      * @param value the value to add
      */
     public void addValue(Value value) {
-        ((ArrayList<Value>) this.object).add(value);
+        list().add(value);
     }
 
     /**
@@ -36,7 +45,7 @@ public class ListValue extends Value {
      * @return the Value at specified index
      */
     public Value getValue(int index) {
-        return ((ArrayList<Value>) this.object).get(index);
+        return list().get(index);
     }
 
     /**
@@ -45,11 +54,27 @@ public class ListValue extends Value {
      * @return the stored Values
      */
     public List<Value> getValues() {
-        return (List<Value>) this.object;
+        return list();
     }
 
     public void clearList() {
-        ((List<Value>) this.object).clear();
-        ;
+        list().clear();
+    }
+
+    public static class AddMethod implements IInstanceCallable {
+
+        public static AddMethod instance = new AddMethod();
+
+        private AddMethod() {}
+
+        @Override
+        public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+            ListValue listValue = (ListValue) instance;
+            Node paramNode = parameters.get(0);
+            Value paramValue = (Value) paramNode.accept(interpreter);
+
+            listValue.list().add(paramValue);
+            return null;
+        }
     }
 }
