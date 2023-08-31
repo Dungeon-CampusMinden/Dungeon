@@ -179,6 +179,16 @@ public final class DrawComponent implements Component {
     }
 
     /**
+     * removes all animations with given priority
+     * @param prio priority to remove
+     */
+    public void deQueueByPriority(int prio) {
+        for (Map.Entry<IPath[], Integer> animationArr : animationQueue.entrySet()) {
+            if (animationArr.getKey()[0].priority() == prio) animationQueue.remove(animationArr.getKey());
+        }
+    }
+
+    /**
      * Get the Animation at the given path.
      *
      * <p>Can be null if the component does not store an animation with this path.

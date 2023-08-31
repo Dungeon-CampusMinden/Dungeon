@@ -139,10 +139,14 @@ public final class VelocitySystem extends System {
 
         float x = vsd.vc.currentXVelocity();
         float y = vsd.vc.currentYVelocity();
-        if (x > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-        else if (x < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-        else if (y > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
-        else if (y < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
+        if (x != 0 || y != 0) {
+            if (x > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
+            else if (x < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
+            else if (y > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
+            else if (y < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
+            vsd.dc.deQueueByPriority(0);
+        }
+
         // idle
         else {
             // each drawComponent has an idle animation, so no check is needed
