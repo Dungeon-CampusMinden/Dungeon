@@ -4,23 +4,43 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Represents a Transition in a Petri net.
+ *
+ * <p>A Transition observes a Set of {@link Place}s. If each place has at least one token, the
+ * Transition will fire.
+ *
+ * <p>If a Transition fires, it will place a Token in each {@link Place} defined in the constructor.
+ */
 public class Transition {
 
     private final Map<Place, Boolean> dependencyPlaces;
-    private final Set<Place> addTokenIfTriggerd;
     private final Set<Place> addTokenOnFire;
 
-    public Transition(
-            Set<Place> dependencyPlaces, Set<Place> addTokenIfTriggerd, Set<Place> addTokenOnFire) {
+    /**
+     * Creates a new Transition.
+     *
+     * @param dependencyPlaces This Transition observes each of these {@link Place}s and will fire
+     *     if each Place has at least one token. These are all Places that have an outgoing arc to
+     *     this transition.
+     * @param addTokenOnFire If the Transition fires, for each of these {@link Place}s, {@link
+     *     Place#placeToken()} will be called. These are all Places that have an incoming arc from
+     *     this transition.
+     */
+    public Transition(Set<Place> dependencyPlaces, Set<Place> addTokenOnFire) {
         this.addTokenOnFire = addTokenOnFire;
         this.dependencyPlaces = new HashMap<>();
         for (Place place : dependencyPlaces) {
             this.dependencyPlaces.put(place, place.tokenCount() > 0);
             place.register(this);
         }
-        this.addTokenIfTriggerd = addTokenIfTriggerd;
     }
 
+    /**
+     * Notify a Transition that the given Place has increased its token count.
+     *
+     * @param place Place that has increased its token count.
+     */
     public void notify(Place place) {
         dependencyPlaces.replace(place, true);
 
