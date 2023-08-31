@@ -76,7 +76,7 @@ public final class HeroUISystem extends System {
         ui.pb.setPosition(calculateCenterX(ui.pb.getWidth()), 40);
         uiGroup.addActor(ui.level);
         ui.level.setPosition(calculateCenterX(ui.level.getWidth()), 60);
-        entity.addComponent(new UIComponent(uiGroup, false));
+        entity.addComponent(new UIComponent(uiGroup, false, false));
         Game.add(entity);
         return ui;
     }
