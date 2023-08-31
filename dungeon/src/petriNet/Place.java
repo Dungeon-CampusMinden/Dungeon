@@ -23,7 +23,7 @@ public class Place {
      */
     public void placeToken() {
         tokenCount++;
-        observer.forEach(Transition::notify);
+        observer.forEach(transition -> transition.notify(this));
     }
 
     /**
