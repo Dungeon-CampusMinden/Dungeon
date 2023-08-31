@@ -42,7 +42,7 @@ public class SetValue extends Value {
         if (internalValueSet.contains(internalValue)) {
             return false;
         }
-        internalValueSet.add(object);
+        internalValueSet.add(internalValue);
         set().add(value);
         return true;
     }
