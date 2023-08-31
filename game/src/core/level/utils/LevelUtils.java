@@ -150,14 +150,79 @@ public class LevelUtils {
      * @return List of tiles in the given radius around the center point.
      */
     public static List<Tile> tilesInRange(final Point center, final float radius) {
-        List<Tile> tiles = new ArrayList<>();
-        for (float x = center.x - radius; x <= center.x + radius; x++) {
-            for (float y = center.y - radius; y <= center.y + radius; y++) {
-                tiles.add(Game.tileAT(new Point(x, y)));
+        // offset of neighbour Tiles which may not be accessible
+        Coordinate[] offsets =
+                new Coordinate[] {
+                    new Coordinate(-1, -1),
+                    new Coordinate(0, -1),
+                    new Coordinate(1, -1),
+                    new Coordinate(-1, 0),
+                    new Coordinate(1, 0),
+                    new Coordinate(-1, 1),
+                    new Coordinate(0, 1),
+                    new Coordinate(1, 1),
+                };
+        // all found tiles
+        Set<Tile> tiles = new HashSet<>();
+        // BFS queue
+        Queue<Tile> tileque = new ArrayDeque<>();
+        Tile start = Game.tileAT(center);
+        if (start != null) tileque.add(start);
+        while (tileque.size() > 0) {
+            Tile current = tileque.remove();
+            boolean added = tiles.add(current);
+            if (added) {
+                // Tile is a new Tile so add the neighbours to be checked
+                for (Coordinate offset : offsets) {
+                    Tile tile = current.level().tileAt(current.coordinate().add(offset));
+                    if (tile != null && isInRange(center, radius, tile)) tileque.add(tile);
+                }
             }
         }
         tiles.removeIf(Objects::isNull);
-        return tiles;
+        return new ArrayList<>(tiles);
+    }
+
+    private static boolean isInRange(Point center, float radius, Tile tile) {
+        return isAnyCornerOfTileInRadius(center, radius, tile)
+                || isPointBarelyInTile(center, radius, tile);
+    }
+
+    /**
+     * if the radius is barely entering any side it may not touch any of the corners
+     *
+     * @param center
+     * @param radius
+     * @param tile
+     * @return
+     */
+    private static boolean isPointBarelyInTile(Point center, float radius, Tile tile) {
+        // left maxdistance
+        Point xMin = new Point(-radius, 0).add(center);
+        // right maxdistance
+        Point xMax = new Point(radius, 0).add(center);
+        // up maxdistance
+        Point yMin = new Point(0, -radius).add(center);
+        // down maxdistance
+        Point yMax = new Point(0, radius).add(center);
+        return isPointInTile(xMin, tile)
+                || isPointInTile(xMax, tile)
+                || isPointInTile(yMin, tile)
+                || isPointInTile(yMax, tile);
+    }
+
+    private static boolean isPointInTile(Point point, Tile tile) {
+        return tile.coordinate().toPoint().x < point.x
+                && point.x < (tile.coordinate().toPoint().x + 1)
+                && tile.coordinate().toPoint().y < point.y
+                && point.y < (tile.coordinate().toPoint().y + 1);
+    }
+
+    private static boolean isAnyCornerOfTileInRadius(Point center, float radius, Tile x) {
+        return Point.inRange(center, x.coordinate().toPoint(), radius)
+                || Point.inRange(center, x.coordinate().toPoint(), radius)
+                || Point.inRange(center, x.coordinate().toPoint(), radius)
+                || Point.inRange(center, x.coordinate().toPoint(), radius);
     }
 
     /**

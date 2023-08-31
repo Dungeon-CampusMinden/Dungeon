@@ -101,6 +101,9 @@ public abstract class CombinableGUI {
      */
     protected abstract Vector2 preferredSize(GUICombination.AvailableSpace availableSpace);
 
+    /** Called when the bounds of the element change. */
+    protected void boundsUpdate() {}
+
     /**
      * Get the x coordinate of the left edge of the element
      *

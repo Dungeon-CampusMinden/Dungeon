@@ -5,6 +5,8 @@ import com.badlogic.gdx.utils.JsonValue;
 
 import contrib.utils.components.item.ItemData;
 
+import core.utils.logging.CustomLogLevel;
+
 import starter.Main;
 
 import java.io.*;
@@ -103,15 +105,21 @@ public class Crafting {
             String path =
                     new File(Main.class.getResource("").getPath())
                             .getParent()
-                            .replaceAll("(!|file:\\\\)", "");
+                            // for windows
+                            .replaceAll("(!|file:\\\\)", "")
+                            // for unix/macos
+                            .replaceAll("(!|file:)", "");
             JarFile jar = new JarFile(path);
             Enumeration<JarEntry> entries = jar.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 if (entry.getName().startsWith("recipes") && entry.getName().endsWith(".recipe")) {
                     LOGGER.info("Load recipe: " + entry.getName());
-                    Crafting.RECIPES.add(
-                            parseRecipe(Main.class.getResourceAsStream("/" + entry.getName())));
+                    Recipe r =
+                            parseRecipe(
+                                    Main.class.getResourceAsStream("/" + entry.getName()),
+                                    entry.getName());
+                    if (r != null) Crafting.RECIPES.add(r);
                 }
             }
         } catch (IOException e) {
@@ -129,13 +137,23 @@ public class Crafting {
         for (File file : files) {
             if (file.getName().endsWith(".recipe")) {
                 LOGGER.info("Load recipe: " + file.getName());
-                Crafting.RECIPES.add(
-                        parseRecipe(Main.class.getResourceAsStream("/recipes/" + file.getName())));
+                Recipe r =
+                        parseRecipe(
+                                Main.class.getResourceAsStream("/recipes/" + file.getName()),
+                                file.getName());
+                if (r != null) Crafting.RECIPES.add(r);
             }
         }
     }
 
-    private static Recipe parseRecipe(InputStream stream) {
+    /**
+     * Parse a recipe from a file.
+     *
+     * @param stream The stream to read from.
+     * @param name The name of the file. Used for error logging only.
+     * @return The parsed recipe.
+     */
+    private static Recipe parseRecipe(InputStream stream, String name) {
 
         try {
             BufferedReader reader =
@@ -192,7 +210,13 @@ public class Crafting {
 
             return recipe;
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LOGGER.log(
+                    CustomLogLevel.ERROR,
+                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
+        } catch (IllegalArgumentException ex) {
+            LOGGER.log(
+                    CustomLogLevel.WARNING,
+                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Warning
         }
 
         return null;

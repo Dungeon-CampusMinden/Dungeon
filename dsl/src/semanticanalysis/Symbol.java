@@ -112,4 +112,9 @@ public class Symbol {
         this.dataType = null;
         this.symbolType = Type.Base;
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

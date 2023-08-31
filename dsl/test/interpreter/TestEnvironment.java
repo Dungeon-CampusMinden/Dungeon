@@ -1,11 +1,12 @@
 package interpreter;
 
-import interpreter.mockecs.Entity;
-import interpreter.mockecs.MockEntityTranslator;
-
 import runtime.GameEnvironment;
 
+import semanticanalysis.types.IDSLTypeProperty;
 import semanticanalysis.types.TypeBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // TODO: revise class-structure.. maybe the GameEnvironment should extend the
 //  'DefaultEnvironment`, which only bind the basic built in types and the
@@ -27,8 +28,10 @@ public class TestEnvironment extends GameEnvironment {
     }
 
     @Override
-    protected void registerDefaultRuntimeObjectTranslators() {
-        this.runtimeObjectTranslator.loadObjectToValueTranslator(
-                Entity.class, MockEntityTranslator.instance);
+    public List<IDSLTypeProperty<?, ?>> getBuiltInProperties() {
+        return new ArrayList<>();
     }
+
+    @Override
+    protected void registerDefaultRuntimeObjectTranslators() {}
 }

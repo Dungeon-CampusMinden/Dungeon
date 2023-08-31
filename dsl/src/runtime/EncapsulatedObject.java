@@ -1,8 +1,8 @@
 package runtime;
 
-import semanticanalysis.types.AggregateType;
-import semanticanalysis.types.BuiltInType;
-import semanticanalysis.types.TypeBuilder;
+import semanticanalysis.PropertySymbol;
+import semanticanalysis.Symbol;
+import semanticanalysis.types.*;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -77,6 +77,12 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
             correspondingField.setAccessible(true);
             try {
                 var fieldValue = correspondingField.get(this.getInternalValue());
+
+                // handle null
+                if (fieldValue == null) {
+                    return Value.NONE;
+                }
+
                 // convert the read field value to a DSL 'Value'
                 // this may require recursive creation of encapsulated objects,
                 // if the field is a component for example
@@ -111,6 +117,27 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
             } catch (IllegalAccessException e) {
                 // TODO: handle
             }
+        } else {
+            // it may be a property
+            Symbol symbol = type.resolve(name);
+            if (symbol instanceof PropertySymbol propertySymbol) {
+                if (symbol.getDataType().getTypeKind().equals(IType.Kind.Aggregate)
+                        || symbol.getDataType().getTypeKind().equals(IType.Kind.AggregateAdapted)) {
+                    returnValue =
+                            new AggregatePropertyValue(
+                                    symbol.getDataType(),
+                                    (IDSLTypeProperty<Object, Object>) propertySymbol.getProperty(),
+                                    this.object,
+                                    MemorySpace.NONE,
+                                    this.environment);
+                } else {
+                    returnValue =
+                            new PropertyValue(
+                                    symbol.getDataType(),
+                                    (IDSLTypeProperty<Object, Object>) propertySymbol.getProperty(),
+                                    this.object);
+                }
+            }
         }
         return returnValue;
     }
@@ -118,6 +145,12 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
     @Override
     public Value resolve(String name, boolean resolveInParent) {
         return resolve(name);
+    }
+
+    @Override
+    public void delete(String name) {
+        throw new UnsupportedOperationException(
+                "Deleting a value from an Encapsulated Object is not supported!");
     }
 
     // TODO: define the semantics for this based on, if the value is a POD type or

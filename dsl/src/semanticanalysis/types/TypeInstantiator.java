@@ -5,6 +5,7 @@ import interpreter.DSLInterpreter;
 import runtime.*;
 
 import semanticanalysis.FunctionSymbol;
+import semanticanalysis.PropertySymbol;
 import semanticanalysis.types.callbackadapter.CallbackAdapter;
 import semanticanalysis.types.callbackadapter.CallbackAdapterBuilder;
 
@@ -34,22 +35,12 @@ public class TypeInstantiator {
      */
     public Object instantiate(AggregateValue value) {
         AggregateType type = (AggregateType) value.getDataType();
-        IMemorySpace ms = value.getMemorySpace();
 
         if (type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
             return convertValueToObject(value);
         }
 
-        var originalJavaClass = type.getOriginType();
-        if (null == originalJavaClass) {
-            return null;
-        }
-
-        if (originalJavaClass.isRecord()) {
-            return instantiateRecord(originalJavaClass, ms);
-        } else {
-            return instantiateClass(originalJavaClass, ms);
-        }
+        return instantiateAsType(value, type);
     }
 
     /**
@@ -67,11 +58,37 @@ public class TypeInstantiator {
         if (null == originalJavaClass) {
             return null;
         }
+        Object instance;
 
         if (originalJavaClass.isRecord()) {
-            return instantiateRecord(originalJavaClass, ms);
+            instance = instantiateRecord(originalJavaClass, ms);
         } else {
-            return instantiateClass(originalJavaClass, ms);
+            instance = instantiateClass(originalJavaClass, ms);
+        }
+
+        // set properties
+        setProperties(instance, type, ms);
+
+        return instance;
+    }
+
+    void setProperties(Object instance, AggregateType type, IMemorySpace ms) {
+        var properties =
+                type.getSymbols().stream()
+                        .filter(symbol -> symbol instanceof PropertySymbol)
+                        .map(symbol -> (PropertySymbol) symbol)
+                        .toList();
+
+        for (PropertySymbol propertySymbol : properties) {
+            IDSLTypeProperty property = propertySymbol.getProperty();
+            if (propertySymbol.isSettable()) {
+                // get corresponding value from memorySpace
+                Value value = ms.resolve(propertySymbol.getName());
+                if (value != Value.NONE) {
+                    Object valueAsObject = convertValueToObject(value);
+                    property.set(instance, valueAsObject);
+                }
+            }
         }
     }
 
@@ -171,6 +188,10 @@ public class TypeInstantiator {
                 convertedObject = instantiateList((ListValue) value);
             } else if (value.getDataType().getTypeKind().equals(IType.Kind.SetType)) {
                 convertedObject = instantiateSet((SetValue) value);
+            } else if (value.getDataType().getTypeKind().equals(IType.Kind.Aggregate)) {
+                if (convertedObject == null) {
+                    convertedObject = instantiate((AggregateValue) value);
+                }
             }
         } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -289,13 +310,16 @@ public class TypeInstantiator {
                 }
                 if (field.isAnnotationPresent(DSLCallback.class)) {
                     assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
-                    assert fieldValue.getInternalValue() instanceof FunctionSymbol;
-
-                    CallbackAdapter adapter =
-                            callbackAdapterBuilder.buildAdapter(
-                                    (FunctionSymbol) fieldValue.getInternalValue());
-                    field.setAccessible(true);
-                    field.set(instance, adapter);
+                    FunctionValue functionValue = (FunctionValue) fieldValue;
+                    if (!(functionValue.getCallable() instanceof FunctionSymbol functionSymbol)) {
+                        throw new RuntimeException(
+                                "Usage of non-FunctionSymbol callables as DSLCallback currently not supported");
+                    } else {
+                        CallbackAdapter adapter =
+                                callbackAdapterBuilder.buildAdapter(functionSymbol);
+                        field.setAccessible(true);
+                        field.set(instance, adapter);
+                    }
                 }
             }
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {

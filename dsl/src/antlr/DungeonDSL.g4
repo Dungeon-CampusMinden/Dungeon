@@ -45,13 +45,7 @@ fragment STRING_ESCAPE_SEQ
 /*
  * Parser rules
  */
-
-// TODO:
-// - expression grammar
-// - proper stmt =efinition
-
 program : definition* EOF
-        //| stmt
         ;
 
 definition
@@ -67,15 +61,24 @@ fn_def
 
 stmt
     : expression ';'
+    | var_decl
     | stmt_block
     | conditional_stmt
     | return_stmt
     ;
 
+var_decl
+    : 'var' id=ID '=' expression ';'   #var_decl_assignment
+    | 'var' id=ID ':' type_decl ';'    #var_decl_type_decl
+    ;
+
 expression
-    : assignment                #assignment_expression
-    | expression '.' func_call  #method_call_expression
-    | expression '.' ID         #member_access_expression
+    : assignment expression_rhs?
+    ;
+
+expression_rhs
+    : '.' func_call expression_rhs?  #method_call_expression
+    | '.' ID expression_rhs?         #member_access_expression
     ;
 
 assignment
@@ -90,7 +93,6 @@ assignee
     ;
 
 logic_or
-
     : logic_or ( or='or' logic_and )
     | logic_and
     ;

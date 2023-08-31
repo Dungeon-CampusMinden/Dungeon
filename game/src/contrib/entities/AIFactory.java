@@ -4,7 +4,7 @@ import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.fight.RangeAI;
-import contrib.utils.components.ai.idle.PatrouilleWalk;
+import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.idle.StaticRadiusWalk;
 import contrib.utils.components.ai.transition.ProtectOnApproach;
@@ -116,8 +116,8 @@ public class AIFactory {
 
         switch (index) {
             case 0 -> {
-                PatrouilleWalk.MODE[] modes = PatrouilleWalk.MODE.values();
-                return new PatrouilleWalk(
+                PatrolWalk.MODE[] modes = PatrolWalk.MODE.values();
+                return new PatrolWalk(
                         RANDOM.nextFloat(PATROUILLE_RADIUS_LOW, PATROUILLE_RADIUS_HIGH),
                         RANDOM.nextInt(CHECKPOINTS_LOW, CHECKPOINTS_HIGH + 1),
                         RANDOM.nextInt(PAUSE_TIME_LOW, PAUSE_TIME_HIGH + 1),

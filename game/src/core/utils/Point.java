@@ -10,6 +10,8 @@ import core.level.utils.Coordinate;
  */
 public class Point {
 
+    private static final float EPSILON = 0.000001f;
+
     public float x;
     public float y;
 
@@ -79,5 +81,25 @@ public class Point {
         float xDiff = p1.x - p2.x;
         float yDiff = p1.y - p2.y;
         return (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+    }
+
+    /**
+     * Creates a new Point which has the sum of the Points
+     *
+     * @param other which point to add
+     * @return Point where the values for x and y are added
+     */
+    public Point add(Point other) {
+        return new Point(this.x + other.x, this.y + other.y);
+    }
+
+    /**
+     * Two points are equal, if they have the same x and y values.
+     *
+     * @param other Point to compare with
+     * @return if the x and y values of the points are equal.
+     */
+    public boolean equals(Point other) {
+        return Math.abs(x - other.x) < EPSILON && Math.abs(y - other.y) < EPSILON;
     }
 }

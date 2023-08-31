@@ -34,6 +34,7 @@ import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -46,14 +47,15 @@ public final class Game extends ScreenAdapter {
      * <p>The Key-Value is the Class of the system
      */
     private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
+    /** Maps the level with the different {@link EntitySystemMapper} for that level. */
+    private static final Map<ILevel, Set<EntitySystemMapper>> levelStorageMap = new HashMap<>();
 
+    private static final Logger LOGGER = Logger.getLogger("Game");
     /**
      * Collection of {@link EntitySystemMapper} that maps the exisiting entities to the systems. The
      * {@link EntitySystemMapper} with no filter-rules will contain each entity in the game
      */
-    private static final Set<EntitySystemMapper> entityStorage = new HashSet<>();
-
-    private static final Logger LOGGER = Logger.getLogger("Game");
+    private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
     /**
      * The width of the game window in pixels.
      *
@@ -113,9 +115,13 @@ public final class Game extends ScreenAdapter {
      * <p>Use this, if you want to execute some logic after a level was loaded. For example spawning
      * some Monsters.
      *
+     * <p>The Consumer takes a boolean that is true if the level was never loaded before, and false
+     * if it was loaded before. * This can be useful, for example, if you only want to spawn
+     * monsters the first time.
+     *
      * <p>Will not replace {@link #onLevelLoad}
      */
-    private static IVoidFunction userOnLevelLoad = () -> {};
+    private static Consumer<Boolean> userOnLevelLoad = (b) -> {};
     /**
      * Part of the pre-run configuration. If this value is true, the audio for the game will be
      * disabled.
@@ -127,25 +133,42 @@ public final class Game extends ScreenAdapter {
     private static Entity hero;
 
     private static Stage stage;
+    private boolean doSetup = true;
+    private boolean uiDebugFlag = false;
+    private boolean newLevelWasLoadedInThisLoop = false;
     /**
-     * Sets {@link #currentLevel} to the new level and removes all entities.
+     * Sets {@link #currentLevel} to the new level and changes the currently active entity storage.
      *
-     * <p>Will re-add the hero if he exists.
+     * <p>Will remove all Systems using {@link Game#removeAllSystems()} from the Game. This will
+     * trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
+     * using {@link Game#add(System)}, triggering {@link System#onEntityAdd} for the new level.
+     *
+     * <p>Will re-add the hero if they exist.
      */
     private final IVoidFunction onLevelLoad =
             () -> {
-                removeAllEntities();
+                newLevelWasLoadedInThisLoop = true;
+                boolean firstLoad = !levelStorageMap.containsKey(currentLevel());
+                hero().ifPresent(Game::remove);
+                // Remove the systems so that each triggerOnRemove(entity) will be called (basically
+                // cleanup).
+                Map<Class<? extends System>, System> s = Game.systems();
+                removeAllSystems();
+                activeEntityStorage =
+                        levelStorageMap.computeIfAbsent(currentLevel(), k -> new HashSet<>());
+                // Readd the systems so that each triggerOnAdd(entity) will be called (basically
+                // setup). This will also create new EntitySystemMapper if needed.
+                s.values().forEach(Game::add);
+
                 try {
                     hero().ifPresent(this::placeOnLevelStart);
                 } catch (MissingComponentException e) {
                     LOGGER.warning(e.getMessage());
                 }
                 hero().ifPresent(Game::add);
-                userOnLevelLoad.execute();
+                currentLevel().onLoad();
+                userOnLevelLoad.accept(firstLoad);
             };
-
-    private boolean doSetup = true;
-    private boolean uiDebugFlag = false;
 
     // for singleton
     private Game() {}
@@ -329,14 +352,17 @@ public final class Game extends ScreenAdapter {
     /**
      * Set the function that will be executed after a new level was loaded.
      *
+     * <p>The Consumer takes a boolean that is true if the level was never loaded before, and false
+     * if it was loaded before. This can be useful, for example, if you only want to spawn monsters
+     * the first time.
+     *
      * <p>Use this, if you want to execute some logic after a level was loaded. For example spawning
      * some Monsters.
      *
      * @param userOnLevelLoad the function that will be executed after a new level was loaded
-     * @see IVoidFunction
      *     <p>Will not replace {@link #onLevelLoad}
      */
-    public static void userOnLevelLoad(IVoidFunction userOnLevelLoad) {
+    public static void userOnLevelLoad(Consumer<Boolean> userOnLevelLoad) {
         Game.userOnLevelLoad = userOnLevelLoad;
     }
 
@@ -371,10 +397,11 @@ public final class Game extends ScreenAdapter {
      */
     public static void informAboutChanges(Entity entity) {
         if (entityStream().anyMatch(entity1 -> entity1.equals(entity))) {
-            entityStorage.forEach(f -> f.update(entity));
+            activeEntityStorage.forEach(f -> f.update(entity));
             LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
         }
     }
+
     /**
      * The given entity will be added to the game.
      *
@@ -386,7 +413,7 @@ public final class Game extends ScreenAdapter {
      * @param entity the entity to add.
      */
     public static void add(Entity entity) {
-        entityStorage.forEach(f -> f.add(entity));
+        activeEntityStorage.forEach(f -> f.add(entity));
         LOGGER.info("Entity: " + entity + " will be added to the Game.");
     }
 
@@ -398,7 +425,7 @@ public final class Game extends ScreenAdapter {
      * @param entity the entity to remove
      */
     public static void remove(Entity entity) {
-        entityStorage.forEach(f -> f.remove(entity));
+        activeEntityStorage.forEach(f -> f.remove(entity));
         LOGGER.info("Entity: " + entity + " will be removed from the Game.");
     }
 
@@ -430,7 +457,7 @@ public final class Game extends ScreenAdapter {
     public static Stream<Entity> entityStream(Set<Class<? extends Component>> filter) {
         Stream<Entity> returnStream;
         Optional<EntitySystemMapper> rf =
-                entityStorage.stream().filter(f -> f.equals(filter)).findFirst();
+                activeEntityStorage.stream().filter(f -> f.equals(filter)).findFirst();
 
         if (rf.isEmpty()) {
             EntitySystemMapper newMapper = createNewEntitySystemMapper(filter);
@@ -442,7 +469,7 @@ public final class Game extends ScreenAdapter {
     /**
      * Create a new {@link EntitySystemMapper} with the given filter rules.
      *
-     * <p>The {@link EntitySystemMapper} will be added to {@link #entityStorage}.
+     * <p>The {@link EntitySystemMapper} will be added to {@link #activeEntityStorage}.
      *
      * <p>All entities in the empty filter (basically every entity in the game) will be tried to add
      * with {@link EntitySystemMapper#add(Entity)}.
@@ -457,7 +484,7 @@ public final class Game extends ScreenAdapter {
     private static EntitySystemMapper createNewEntitySystemMapper(
             Set<Class<? extends Component>> filter) {
         EntitySystemMapper mapper = new EntitySystemMapper(filter);
-        entityStorage.add(mapper);
+        activeEntityStorage.add(mapper);
         entityStream().forEach(mapper::add);
         return mapper;
     }
@@ -545,7 +572,9 @@ public final class Game extends ScreenAdapter {
         systems.put(system.getClass(), system);
         // add to existing filter or create new filter if no matching exists
         Optional<EntitySystemMapper> filter =
-                entityStorage.stream().filter(f -> f.equals(system.filterRules())).findFirst();
+                activeEntityStorage.stream()
+                        .filter(f -> f.equals(system.filterRules()))
+                        .findFirst();
         filter.ifPresentOrElse(
                 f -> f.add(system),
                 () -> createNewEntitySystemMapper(system.filterRules()).add(system));
@@ -562,7 +591,7 @@ public final class Game extends ScreenAdapter {
      */
     public static void remove(Class<? extends System> system) {
         System systemInstance = systems.remove(system);
-        if (systemInstance != null) entityStorage.forEach(f -> f.remove(systemInstance));
+        if (systemInstance != null) activeEntityStorage.forEach(f -> f.remove(systemInstance));
     }
 
     /**
@@ -728,7 +757,13 @@ public final class Game extends ScreenAdapter {
         DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
         onFrame();
         clearScreen();
-        systems.values().stream().filter(System::isRunning).forEach(System::execute);
+
+        for (System system : systems().values()) {
+            // if a new level was loaded, stop this loop-run
+            if (newLevelWasLoadedInThisLoop) break;
+            if (system.isRunning()) system.execute();
+        }
+        newLevelWasLoadedInThisLoop = false;
         CameraSystem.camera().update();
         // stage logic
         Game.stage().ifPresent(Game::updateStage);
@@ -742,7 +777,6 @@ public final class Game extends ScreenAdapter {
     private void onSetup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
-        entityStorage.add(new EntitySystemMapper());
         createSystems();
         setupStage();
         userOnSetup.execute();
@@ -820,6 +854,7 @@ public final class Game extends ScreenAdapter {
 
     /** Create the systems. */
     private void createSystems() {
+        add(new PositionSystem());
         add(new CameraSystem());
         add(
                 new LevelSystem(

@@ -46,7 +46,9 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                                         () ->
                                                 MissingComponentException.build(
                                                         entity, PositionComponent.class));
-                center = pc.position();
+
+                if (pc.position().equals(PositionComponent.ILLEGAL_POSITION)) return;
+                else center = pc.position();
             }
 
             if (currentBreak >= breakTime) {
@@ -57,6 +59,7 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                                         () ->
                                                 MissingComponentException.build(
                                                         entity, PositionComponent.class));
+                if (pc2.position().equals(PositionComponent.ILLEGAL_POSITION)) return;
                 currentPosition = pc2.position();
                 newEndTile =
                         LevelUtils.randomAccessibleTileCoordinateInRange(center, radius)

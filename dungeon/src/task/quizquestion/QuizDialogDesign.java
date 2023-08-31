@@ -27,12 +27,10 @@ public class QuizDialogDesign {
         ButtonGroup<CheckBox> btnGroup = new ButtonGroup<>();
         btnGroup.setMinCheckCount(0);
         btnGroup.uncheckAll();
-
-        final CheckBox.CheckBoxStyle style =
-                switch (quizQuestion.type()) {
-                    case SINGLE_CHOICE -> skin.get("radio", CheckBox.CheckBoxStyle.class);
-                    default -> skin.get("default", CheckBox.CheckBoxStyle.class);
-                };
+        final CheckBox.CheckBoxStyle style;
+        if (quizQuestion instanceof SingleChoice)
+            style = skin.get("radio", CheckBox.CheckBoxStyle.class);
+        else style = skin.get("default", CheckBox.CheckBoxStyle.class);
         quizQuestion
                 .contentStream()
                 .map(answer -> (Quiz.Content) answer)
@@ -49,11 +47,9 @@ public class QuizDialogDesign {
                             checkBox.left();
                         });
 
-        switch (quizQuestion.type()) {
-            case MULTIPLE_CHOICE -> btnGroup.setMaxCheckCount(
-                    (int) quizQuestion.contentStream().count());
-            case SINGLE_CHOICE -> btnGroup.setMaxCheckCount(1);
-        }
+        if (quizQuestion instanceof MultipleChoice)
+            btnGroup.setMaxCheckCount((int) quizQuestion.contentStream().count());
+        else if (quizQuestion instanceof SingleChoice) btnGroup.setMaxCheckCount(1);
 
         answerButtons.align(Align.left);
         answerButtons.left();
@@ -63,7 +59,7 @@ public class QuizDialogDesign {
     }
 
     /**
-     * Creates a UI for a Quizquestion
+     * Creates a UI for a {@link Quiz}
      *
      * @param quizQuestion Various question configurations
      * @param skin Skin for the dialogue (resources that can be used by UI widgets)
@@ -86,7 +82,7 @@ public class QuizDialogDesign {
     /**
      * creates needed UI Elements to visualize all Question types.
      *
-     * <p>QuestionType.TEXT will be shown on a Label, QuestionType.IMAGE will be shown on a Image
+     * <p>QuestionType.TEXT will be shown on a Label, QuestionType.IMAGE will be shown on an Image
      * and QuestionType.TEXT_AND_IMAGE will show the whole Text and then the Image.
      *
      * @param questionContent the {@link Quiz.Content} to show on the hud.
@@ -141,21 +137,18 @@ public class QuizDialogDesign {
 
         VerticalGroup vg = new VerticalGroup();
 
-        switch (quizQuestion.type()) {
-            case FREETEXT -> {
-                ScrollPane scroller = new ScrollPane(DialogDesign.createEditableText(skin), skin);
-                scroller.setFadeScrollBars(false);
-                scroller.setScrollbarsVisible(true);
-                vg.addActor(scroller);
-            }
-            case MULTIPLE_CHOICE, SINGLE_CHOICE -> {
-                VerticalGroup btnGrp = createAnswerButtons(skin, quizQuestion);
-                btnGrp.fill();
-                btnGrp.left();
-                vg.addActor(DialogDesign.createScrollPane(skin, btnGrp));
-            }
-            default -> {}
+        if (quizQuestion instanceof FreeText) {
+            ScrollPane scroller = new ScrollPane(DialogDesign.createEditableText(skin), skin);
+            scroller.setFadeScrollBars(false);
+            scroller.setScrollbarsVisible(true);
+            vg.addActor(scroller);
+        } else {
+            VerticalGroup btnGrp = createAnswerButtons(skin, quizQuestion);
+            btnGrp.fill();
+            btnGrp.left();
+            vg.addActor(DialogDesign.createScrollPane(skin, btnGrp));
         }
+
         vg.grow();
         vg.setName(ANSWERS_GROUP_NAME);
         return vg;

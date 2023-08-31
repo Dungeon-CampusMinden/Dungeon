@@ -356,6 +356,16 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for VarDeclNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(VarDeclNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Visit all children of the passed node
      *
      * @param node The node to visit all children of

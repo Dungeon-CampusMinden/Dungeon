@@ -3,6 +3,7 @@ package contrib.entities;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.GUICombination;
+import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
@@ -18,10 +19,12 @@ import core.components.*;
 import core.level.utils.LevelElement;
 import core.utils.Constants;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -137,9 +140,47 @@ public class EntityFactory {
                         }
                     } else {
                         e.addComponent(
-                                new UIComponent(new GUICombination(new InventoryGUI(ic)), false));
+                                new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
                     }
                 },
+                false,
+                false);
+
+        pc.registerCallback(
+                KeyboardConfig.CLOSE_UI.value(),
+                (e) -> {
+                    var firstUI =
+                            Game.entityStream() // would be nice to directly access HudSystems
+                                    // stream (no access to the System object)
+                                    .filter(
+                                            x ->
+                                                    x.isPresent(
+                                                            UIComponent.class)) // find all Entities
+                                    // which have a
+                                    // UIComponent
+                                    .map(
+                                            x ->
+                                                    new Tuple<>(
+                                                            x,
+                                                            x.fetch(UIComponent.class)
+                                                                    .get())) // create a tuple to
+                                    // still have access to
+                                    // the UI Entity
+                                    .filter(x -> x.b().closeOnUICloseKey())
+                                    .max(
+                                            Comparator.comparingInt(
+                                                    x -> x.b().dialog().getZIndex())) // find dialog
+                                    // with highest
+                                    // zindex
+                                    .orElse(null);
+                    if (firstUI != null) {
+                        firstUI.a().removeComponent(UIComponent.class);
+                        if (firstUI.a().componentStream().findAny().isEmpty()) {
+                            Game.remove(firstUI.a()); // delete unused Entity
+                        }
+                    }
+                },
+                false,
                 false);
 
         pc.registerCallback(
@@ -171,7 +212,8 @@ public class EntityFactory {
                 IntStream.range(0, RANDOM.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .collect(Collectors.toSet());
-        return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
+        if (Game.currentLevel() == null) return newChest(itemData, null);
+        else return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
     }
 
     /**
@@ -188,18 +230,62 @@ public class EntityFactory {
     public static Entity newChest(Set<ItemData> itemData, Point position) throws IOException {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
-        chest.addComponent(new PositionComponent(position));
+
+        if (position == null) chest.addComponent(new PositionComponent());
+        else chest.addComponent(new PositionComponent(position));
         InventoryComponent ic = new InventoryComponent(itemData.size());
         chest.addComponent(ic);
         itemData.forEach(ic::add);
         chest.addComponent(
                 new InteractionComponent(
-                        defaultInteractionRadius, false, new DropItemsInteraction()));
+                        defaultInteractionRadius,
+                        true,
+                        (entity, who) -> {
+                            who.fetch(InventoryComponent.class)
+                                    .ifPresent(
+                                            whoIc -> {
+                                                who.addComponent(
+                                                        new UIComponent(
+                                                                new GUICombination(
+                                                                        new InventoryGUI(whoIc),
+                                                                        new InventoryGUI(ic)),
+                                                                false));
+                                            });
+                        }));
         DrawComponent dc = new DrawComponent("objects/treasurechest");
         chest.addComponent(dc);
         dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
 
         return chest;
+    }
+
+    /**
+     * Create a new Entity that can be used as a crafting cauldron.
+     *
+     * @return Created Entity
+     * @throws IOException if the textures do not exist
+     */
+    public static Entity newCraftingCauldron() throws IOException {
+        Entity cauldron = new Entity("cauldron");
+        cauldron.addComponent(new PositionComponent());
+        cauldron.addComponent(new DrawComponent("objects/cauldron"));
+        cauldron.addComponent(new CollideComponent());
+        cauldron.addComponent(
+                new InteractionComponent(
+                        1f,
+                        true,
+                        (entity, who) -> {
+                            who.fetch(InventoryComponent.class)
+                                    .ifPresent(
+                                            ic ->
+                                                    who.addComponent(
+                                                            new UIComponent(
+                                                                    new GUICombination(
+                                                                            new InventoryGUI(ic),
+                                                                            new CraftingGUI(ic)),
+                                                                    true)));
+                        }));
+        return cauldron;
     }
 
     /**

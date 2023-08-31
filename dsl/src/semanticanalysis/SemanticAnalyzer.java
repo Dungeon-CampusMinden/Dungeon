@@ -81,23 +81,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         return scopeStack.get(0);
     }
 
-    /**
-     * Bind a symbol in the current scope and create an association between symbol and AST node
-     *
-     * @param symbol The symbol to bind
-     * @param nodeOfSymbol The corresponding AST node
-     * @return True, if the symbol was not bound in current scope, or false otherwise
-     */
-    private boolean bind(Symbol symbol, Node nodeOfSymbol) {
-        var currentScope = currentScope();
-        if (!currentScope.bind(symbol)) {
-            return false;
-        } else {
-            symbolTable.addSymbolNodeRelation(symbol, nodeOfSymbol);
-            return true;
-        }
-    }
-
     public IEvironment getEnvironment() {
         return this.environment;
     }
@@ -224,7 +207,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                             + node.getSourceFileReference()
                             + "\n");
         } else {
-            symbolTable.addSymbolNodeRelation(symbol, node);
+            symbolTable.addSymbolNodeRelation(symbol, node, false);
         }
         return null;
     }
@@ -304,8 +287,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         } else {
             // link the propertySymbol in the dataType to the astNode of this concrete property
             // definition
-            // this.symbolTable.addSymbolNodeRelation(propertySymbol, node.getIdNode());
-            this.symbolTable.addSymbolNodeRelation(propertySymbol, node);
+            this.symbolTable.addSymbolNodeRelation(propertySymbol, node, true);
         }
 
         var stmtNode = node.getStmtNode();
@@ -355,7 +337,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         }
 
         assert funcSymbol.getSymbolType() == Symbol.Type.Scoped;
-        this.symbolTable.addSymbolNodeRelation(funcSymbol, node);
+        this.symbolTable.addSymbolNodeRelation(funcSymbol, node, false);
 
         for (var parameter : node.getParameters()) {
             parameter.accept(this);
@@ -374,13 +356,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             FunctionSymbol funcSymbol = (FunctionSymbol) resolved;
             scopeStack.push(funcSymbol);
 
-            // visit all stmts
-            for (var stmt : node.getStmts()) {
-                stmt.accept(this);
-            }
+            // visit statements
+            node.getStmtBlock().accept(this);
 
             // create symbol table entry
-            symbolTable.addSymbolNodeRelation(funcSymbol, node);
+            symbolTable.addSymbolNodeRelation(funcSymbol, node, false);
 
             scopeStack.pop();
         }
@@ -407,13 +387,48 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(ConditionalStmtNodeIf node) {
-        visitChildren(node);
+        node.getCondition().accept(this);
+
+        // if the statement is not a block (i.e. there is only one statement in the if-statements
+        // body),
+        // we need to create a new scope here (because it won't be created in a block-statement)
+        if (!node.getIfStmt().type.equals(Node.Type.Block)) {
+            var scope = new Scope(scopeStack.peek());
+            scopeStack.push(scope);
+            node.getIfStmt().accept(this);
+            scopeStack.pop();
+        } else {
+            node.getIfStmt().accept(this);
+        }
+
         return null;
     }
 
     @Override
     public Void visit(ConditionalStmtNodeIfElse node) {
-        visitChildren(node);
+        node.getCondition().accept(this);
+
+        // if the statements are not blocks (i.e. there is only one statement in the if-statements
+        // body),
+        // we need to create new scopes here (because it won't be created in block-statements)
+        if (!node.getIfStmt().type.equals(Node.Type.Block)) {
+            var ifScope = new Scope(scopeStack.peek());
+            scopeStack.push(ifScope);
+            node.getIfStmt().accept(this);
+            scopeStack.pop();
+        } else {
+            node.getIfStmt().accept(this);
+        }
+
+        if (!node.getElseStmt().type.equals(Node.Type.Block)) {
+            var elseScope = new Scope(scopeStack.peek());
+            scopeStack.push(elseScope);
+            node.getElseStmt().accept(this);
+            scopeStack.pop();
+        } else {
+            node.getElseStmt().accept(this);
+        }
+
         return null;
     }
 
@@ -428,7 +443,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             Symbol symbol = this.currentScope().resolve(nameToResolve);
             lhsDataType = symbol.getDataType();
 
-            symbolTable.addSymbolNodeRelation(symbol, lhs);
+            symbolTable.addSymbolNodeRelation(symbol, lhs, false);
         } else if (lhs.type.equals(Node.Type.FuncCall)) {
             // visit function call itself (resolve parameters etc.)
             lhs.accept(this);
@@ -502,8 +517,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(AssignmentNode node) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+        // TODO: typechcking
+
+        visitChildren(node);
+        return null;
     }
 
     @Override
@@ -553,6 +570,43 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     @Override
     public Void visit(SetDefinitionNode node) {
         visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(VarDeclNode node) {
+        String name = ((IdNode) node.getIdentifier()).getName();
+
+        // check if a variable is already defined in the current scope
+        Symbol resolvedName = this.currentScope().resolve(name, false);
+        if (!resolvedName.equals(Symbol.NULL)) {
+            throw new RuntimeException("Redefinition of variable '" + name + "'");
+        }
+
+        // create new symbol for the variable
+        // get the type of the variable
+        if (node.getDeclType().equals(VarDeclNode.DeclType.assignmentDecl)) {
+            throw new RuntimeException("Inference of variable type currently not supported!");
+        }
+
+        // resolve the type name
+        IdNode typeDeclNode = (IdNode) node.getRhs();
+        String typeName = typeDeclNode.getName();
+        if (!typeDeclNode.type.equals(Node.Type.Identifier)) {
+            // list or set type -> create type
+            typeDeclNode.accept(this);
+        }
+
+        Symbol typeSymbol = this.globalScope().resolve(typeName);
+        if (!(typeSymbol instanceof IType variableType)) {
+            throw new RuntimeException("Type of name '" + typeName + "' cannot be resolved!");
+        }
+
+        // create variable symbol
+        Symbol variableSymbol = new Symbol(name, this.currentScope(), variableType);
+        this.currentScope().bind(variableSymbol);
+        this.symbolTable.addSymbolNodeRelation(variableSymbol, node, true);
+
         return null;
     }
 

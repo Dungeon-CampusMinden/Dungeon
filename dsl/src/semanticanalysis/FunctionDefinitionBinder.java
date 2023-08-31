@@ -126,7 +126,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
             }
 
             // create symbol table entry
-            symbolTable.addSymbolNodeRelation(funcSymbol, node);
+            symbolTable.addSymbolNodeRelation(funcSymbol, node, true);
 
             scopeStack.pop();
         }
@@ -150,7 +150,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
             Symbol parameterSymbol = new Symbol(parameterName, currentScope, parameterType);
             currentScope.bind(parameterSymbol);
 
-            symbolTable.addSymbolNodeRelation(parameterSymbol, parameterIdNode);
+            symbolTable.addSymbolNodeRelation(parameterSymbol, parameterIdNode, true);
         }
         return null;
     }

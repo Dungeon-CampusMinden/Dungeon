@@ -33,6 +33,11 @@ public class FunctionSymbol extends ScopedSymbol implements ICallable {
         return ICallable.Type.UserDefined;
     }
 
+    @Override
+    public FunctionType getFunctionType() {
+        return (FunctionType) this.getDataType();
+    }
+
     public FuncDefNode getAstRootNode() {
         return astRootNode;
     }

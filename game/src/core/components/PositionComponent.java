@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 @DSLType(name = "position_component")
 public final class PositionComponent implements Component {
 
+    public static final Point ILLEGAL_POSITION = new Point(-100, -100);
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Point position;
 
@@ -51,18 +52,19 @@ public final class PositionComponent implements Component {
     }
 
     /**
-     * Create a new PositionComponent with random position.
+     * Creates a new PositionComponent with a random position.
      *
      * <p>Sets the position of this entity on a random floor tile in the level. If no level is
-     * loaded, set the position to (0,0). Beware that (0,0) may not necessarily be a playable area
-     * within the level, it could be a wall or an "out of level" area.
+     * loaded, the position is set to {@link #ILLEGAL_POSITION}. Keep in mind that if the associated
+     * entity is processed by the {@link core.systems.PositionSystem}, {@link #ILLEGAL_POSITION}
+     * will be replaced with a random accessible position.
      */
     public PositionComponent() {
 
         if (Game.currentLevel() != null) {
             position = Game.randomTilePoint(LevelElement.FLOOR);
         } else {
-            position = new Point(0, 0);
+            position = ILLEGAL_POSITION;
         }
     }
 

@@ -53,6 +53,9 @@ public class RuntimeObjectTranslator {
             IEvironment environment,
             IType targetType) {
         Value returnValue = Value.NONE;
+        if (object == null) {
+            return returnValue;
+        }
 
         IType dslType = targetType;
         if (dslType == null) {
@@ -139,6 +142,9 @@ public class RuntimeObjectTranslator {
             IMemorySpace parentMemorySpace,
             IEvironment environment,
             IType targetType) {
+        if (object == null) {
+            return Value.NONE;
+        }
 
         var objectsClass = object.getClass();
         var translator = this.translators.get(objectsClass);

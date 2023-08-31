@@ -1,0 +1,28 @@
+{
+    "ordered": true,
+    "ingredients": [
+        {
+            "type": "item",
+            "item": {
+                "id": "RESOURCE_IRON_ORE",
+                "count": 1
+            }
+        },
+        {
+            "type": "item",
+            "item": {
+                "id": "RESOURCE_WOOD",
+                "count": 1
+            }
+        }
+    ],
+    "results": [
+        {
+            "type": "item",
+            "item": {
+                "id": "RESOURCE_STEEL",
+                "count": 1
+            }
+        }
+    ]
+}

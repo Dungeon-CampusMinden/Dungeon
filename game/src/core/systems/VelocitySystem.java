@@ -162,7 +162,7 @@ public final class VelocitySystem extends System {
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE_UP);
             else if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_UP)
-                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_DOWN))
+                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_UP))
                 vsd.dc.queueAnimation(
                         2,
                         CoreAnimations.IDLE_UP,
