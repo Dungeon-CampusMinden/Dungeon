@@ -61,6 +61,7 @@ public class ListValue extends Value {
         list().clear();
     }
 
+    // region native_methods
     public static class AddMethod implements IInstanceCallable {
 
         public static AddMethod instance = new AddMethod();
@@ -113,4 +114,5 @@ public class ListValue extends Value {
             }
         }
     }
+    // endregion
 }
