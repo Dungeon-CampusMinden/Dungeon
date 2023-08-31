@@ -5,16 +5,16 @@ package core.utils.components.draw;
  * inside the core package.
  */
 public enum CoreAnimations implements IPath {
-    IDLE("idle", 1000),
-    IDLE_LEFT("idle_left", 1000),
-    IDLE_RIGHT("idle_right", 1000),
-    IDLE_UP("idle_up", 1000),
-    IDLE_DOWN("idle_down", 100),
-    RUN("RUN", 2000),
-    RUN_LEFT("run_left", 2000),
-    RUN_RIGHT("run_right", 2000),
-    RUN_UP("run_up", 2000),
-    RUN_DOWN("run_down", 2000);
+    IDLE("idle", CoreAnimationPriorities.IDLE.priority()),
+    IDLE_LEFT("idle_left", CoreAnimationPriorities.IDLE.priority()),
+    IDLE_RIGHT("idle_right", CoreAnimationPriorities.IDLE.priority()),
+    IDLE_UP("idle_up", CoreAnimationPriorities.IDLE.priority()),
+    IDLE_DOWN("idle_down", CoreAnimationPriorities.IDLE.priority()),
+    RUN("RUN", CoreAnimationPriorities.RUN.priority()),
+    RUN_LEFT("run_left", CoreAnimationPriorities.RUN.priority()),
+    RUN_RIGHT("run_right", CoreAnimationPriorities.RUN.priority()),
+    RUN_UP("run_up", CoreAnimationPriorities.RUN.priority()),
+    RUN_DOWN("run_down", CoreAnimationPriorities.RUN.priority());
 
     private final String value;
     private final int priority;

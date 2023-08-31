@@ -13,17 +13,17 @@ import core.utils.components.draw.IPath;
  * @see core.utils.components.draw.CoreAnimations
  */
 public enum AdditionalAnimations implements IPath {
-    DIE("die", 5000),
-    DIE_LEFT("die_left", 5000),
-    DIE_RIGHT("die_right", 5000),
-    DIE_UP("die_up", 5000),
-    DIE_DOWN("die_down", 5000),
-    HIT("hit", 4000),
-    ATTACK("attack", 3000),
-    FIGHT_LEFT("fight_left", 3000),
-    FIGHT_RIGHT("fight_right", 3000),
-    FIGHT_UP("fight_up", 3000),
-    FIGHT_DOWN("fight_down", 3000);
+    DIE("die", AdditionalAnimationsPriorities.DIE.priority()),
+    DIE_LEFT("die_left", AdditionalAnimationsPriorities.DIE.priority()),
+    DIE_RIGHT("die_right", AdditionalAnimationsPriorities.DIE.priority()),
+    DIE_UP("die_up", AdditionalAnimationsPriorities.DIE.priority()),
+    DIE_DOWN("die_down", AdditionalAnimationsPriorities.DIE.priority()),
+    HIT("hit", AdditionalAnimationsPriorities.HIT.priority()),
+    ATTACK("attack", AdditionalAnimationsPriorities.FIGHT.priority()),
+    FIGHT_LEFT("fight_left", AdditionalAnimationsPriorities.FIGHT.priority()),
+    FIGHT_RIGHT("fight_right", AdditionalAnimationsPriorities.FIGHT.priority()),
+    FIGHT_UP("fight_up", AdditionalAnimationsPriorities.FIGHT.priority()),
+    FIGHT_DOWN("fight_down", AdditionalAnimationsPriorities.FIGHT.priority());
 
     private final String value;
     private final int priority;
