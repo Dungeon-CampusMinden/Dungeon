@@ -18,13 +18,21 @@ public class ListType extends ScopedSymbol implements IType {
     public ListType(IType elementType, IScope parentScope) {
         super(getListTypeName(elementType), parentScope, elementType);
 
-        NativeMethod addMehod =
+        NativeMethod addMethod =
                 new NativeMethod(
                         "add",
                         this,
                         new FunctionType(BuiltInType.noType, elementType),
                         ListValue.AddMethod.instance);
-        this.bind(addMehod);
+        this.bind(addMethod);
+
+        NativeMethod sizeMethod =
+            new NativeMethod(
+                "size",
+                this,
+                new FunctionType(BuiltInType.intType, BuiltInType.noType),
+                ListValue.SizeMethod.instance);
+        this.bind(sizeMethod);
     }
 
     @Override

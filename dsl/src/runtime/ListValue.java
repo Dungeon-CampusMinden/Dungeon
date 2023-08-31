@@ -77,4 +77,18 @@ public class ListValue extends Value {
             return null;
         }
     }
+
+    public static class SizeMethod implements IInstanceCallable {
+
+        public static SizeMethod instance = new SizeMethod();
+
+        private SizeMethod() {}
+
+        @Override
+        public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+            ListValue listValue = (ListValue) instance;
+
+            return listValue.list().size();
+        }
+    }
 }
