@@ -1,7 +1,10 @@
 package task;
 
+import petriNet.Place;
+
 import semanticanalysis.types.DSLType;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +25,9 @@ import java.util.stream.Stream;
  *
  * <p>Each task is associated with a {@link TaskComponent} that handles the meta-control of the
  * task.
+ *
+ * <p>Using {@link #registerPlace(Place)}, {@link Place}s can be registered to this task. If the
+ * task changes to {@link TaskState#FINISHED}, each registered place will receive a token.
  */
 @DSLType
 public abstract class Task {
@@ -30,6 +36,9 @@ public abstract class Task {
     private TaskState state;
     private String taskText;
     private TaskComponent managementComponent;
+
+    private Set<Place> addTokenOnFinish = new HashSet<>();
+
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
 
@@ -41,6 +50,17 @@ public abstract class Task {
         state = DEFAULT_TASK_STATE;
         taskText = DEFAULT_TASK_TEXT;
         content = new LinkedList<>();
+    }
+    /**
+     * Register a {@link Place} at this task.
+     *
+     * <p>If this Task's TaskState changes to {@link TaskState#FINISHED}, {@link Place#placeToken()}
+     * will be called for each registered place.
+     *
+     * @param place The place to register.
+     */
+    public void registerPlace(Place place) {
+        addTokenOnFinish.add(place);
     }
 
     /**
@@ -55,10 +75,14 @@ public abstract class Task {
     /**
      * Set the state of the task.
      *
-     * @param state new state of the task.
+     * <p>If the given state is {@link TaskState#FINISHED}, each registered {@link Place} in this
+     * task will receive a token.
+     *
+     * @param state The new state of the task.
      */
     public void state(final TaskState state) {
         this.state = state;
+        if (state == TaskState.FINISHED) addTokenOnFinish.forEach(Place::placeToken);
     }
 
     /**
