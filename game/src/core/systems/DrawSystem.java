@@ -100,30 +100,28 @@ public final class DrawSystem extends System {
     // priority
     public void setNextAnimation(DrawComponent dc) {
 
-        if (dc.animationQueue().size() > 0) {
-            IPath highestPrio = null;
+        IPath highestPrio = null;
 
-            // iterate through animationQueue
-            for (Map.Entry<IPath[], Integer> animationArr : dc.animationQueue().entrySet()) {
-                // subtract 1 from every frametimer, if value below zero, remove animation from
-                // queue
-                animationArr.setValue(animationArr.getValue() - 1);
-                if (animationArr.getValue() < 0) {
-                    dc.animationQueue().remove(animationArr.getKey());
-                    break;
-                }
-
-                // if animation has frametime left, check if it's the highest priority
-                // then generate the first valid Animation from that array
-                for (IPath animationPath : animationArr.getKey()) {
-                    if (highestPrio == null
-                        || highestPrio.priority() < animationPath.priority()) {
-                        highestPrio = animationPath;
-                            dc.animationMap().get(animationPath.pathString());
-                    }
-                }
-                dc.currentAnimation(highestPrio);
+        // iterate through animationQueue
+        for (Map.Entry<IPath[], Integer> animationArr : dc.animationQueue().entrySet()) {
+            // subtract 1 from every frametimer, if value below zero, remove animation from
+            // queue
+            animationArr.setValue(animationArr.getValue() - 1);
+            if (animationArr.getValue() < 0) {
+                dc.animationQueue().remove(animationArr.getKey());
+                break;
             }
+
+            // if animation has frametime left, check if it's the highest priority
+            // then generate the first valid Animation from that array
+            for (IPath animationPath : animationArr.getKey()) {
+                if (highestPrio == null
+                    || highestPrio.priority() < animationPath.priority()) {
+                    highestPrio = animationPath;
+                    dc.animationMap().get(animationPath.pathString());
+                }
+            }
+            dc.currentAnimation(highestPrio);
         }
     }
 
