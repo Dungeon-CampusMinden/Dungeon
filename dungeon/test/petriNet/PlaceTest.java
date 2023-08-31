@@ -18,7 +18,7 @@ public class PlaceTest {
     }
 
     @Test
-    public void register_transient() {
+    public void register_transition() {
         Place place = new Place();
         Transition transitionA = Mockito.mock(Transition.class);
         Transition transitionB = Mockito.mock(Transition.class);
