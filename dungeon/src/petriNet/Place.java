@@ -8,7 +8,8 @@ import java.util.Set;
 /**
  * Represents a Place in the Petri Net.
  *
- * <p>Stores an integer value as tokens. Add a token to the Place by calling {@link #placeToken()}.
+ * <p>Stores an integer value as tokens. Add a token to the Place by calling {@link #placeToken()},
+ * use {@link #removeToken()} to decrase the token count.
  *
  * <p>Places are observed by {@link Transition}. If a new token is added to a Place, it will notify
  * all observer transitions. Use {@link #register(Transition)} to register a Transition as an
@@ -53,6 +54,18 @@ public class Place {
 
         if (activate != null && activate.state() == Task.TaskState.INACTIVE)
             activate.state(Task.TaskState.ACTIVE);
+    }
+
+    /**
+     * Decrease the token count of this place.
+     *
+     * <p>*
+     *
+     * <p>This will invoke {@link Transition#notify(Place)} for all observers.
+     */
+    public void removeToken() {
+        tokenCount--;
+        observer.forEach(transition -> transition.notify(this));
     }
 
     /**
