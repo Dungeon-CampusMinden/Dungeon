@@ -59,12 +59,12 @@ public class Place {
     /**
      * Decrease the token count of this place.
      *
-     * <p>*
+     * <p>Tokencount cant be negative.
      *
      * <p>This will invoke {@link Transition#notify(Place)} for all observers.
      */
     public void removeToken() {
-        tokenCount--;
+        tokenCount = Math.max(0, tokenCount - 1);
         observer.forEach(transition -> transition.notify(this));
     }
 
