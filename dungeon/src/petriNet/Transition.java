@@ -37,7 +37,7 @@ public class Transition {
     }
 
     /**
-     * Notify a Transition that the given Place has increased or decrased its token count.
+     * Notify a Transition that the given Place has increased or decreased its token count.
      *
      * @param place Place that has increased its token count.
      */
@@ -45,7 +45,7 @@ public class Transition {
         if (place.tokenCount() > 0) {
             dependencyPlaces.replace(place, true);
             // if all places have a token fire
-            if (dependencyPlaces.values().stream().allMatch(v -> v == true)) fire();
+            if (dependencyPlaces.values().stream().allMatch(v -> v)) fire();
         } else dependencyPlaces.replace(place, false);
     }
 

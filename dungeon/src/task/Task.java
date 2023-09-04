@@ -27,7 +27,7 @@ import java.util.stream.Stream;
  * task.
  *
  * <p>Using {@link #registerPlace(Place)}, {@link Place}s can be registered to this task. If the
- * task changes to {@link TaskState#FINISHED}, each registered place will receive a token.
+ * task state changes, each registered place will be notified.
  */
 @DSLType
 public abstract class Task {
@@ -36,8 +36,7 @@ public abstract class Task {
     private TaskState state;
     private String taskText;
     private TaskComponent managementComponent;
-
-    private Set<Place> addTokenOnFinish = new HashSet<>();
+    private final Set<Place> observer = new HashSet<>();
 
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
@@ -52,15 +51,15 @@ public abstract class Task {
         content = new LinkedList<>();
     }
     /**
-     * Register a {@link Place} at this task.
+     * Register a {@link Place} with this task.
      *
-     * <p>If this Task's TaskState changes to {@link TaskState#FINISHED}, {@link Place#placeToken()}
-     * will be called for each registered place.
+     * <p>If this task's {@link TaskState} changes, {@link Place#notify(Task, TaskState)} will be
+     * called for each registered place.
      *
      * @param place The place to register.
      */
     public void registerPlace(Place place) {
-        addTokenOnFinish.add(place);
+        observer.add(place);
     }
 
     /**
@@ -75,11 +74,10 @@ public abstract class Task {
     /**
      * Set the state of the task.
      *
-     * <p>If the given state is {@link TaskState#FINISHED}, each registered {@link Place} in this
-     * task will receive a token.
+     * <p>Each registered {@link Place} will be notified.
      *
-     * <p>A {@link TaskState#ACTIVE} cannot be changed into {@link TaskState#INACTIVE}, and a {@link
-     * TaskState#FINISHED} cannot be changed into {@link TaskState#ACTIVE} or {@link
+     * <p>A {@link TaskState#ACTIVE} cannot be changed to {@link TaskState#INACTIVE}, and a {@link
+     * TaskState#FINISHED} cannot be changed to {@link TaskState#ACTIVE} or {@link
      * TaskState#INACTIVE}.
      *
      * @param state The new state of the task.
@@ -89,7 +87,7 @@ public abstract class Task {
         if (this.state == state || this.state == TaskState.FINISHED) return false;
         if (this.state == TaskState.ACTIVE && state == TaskState.INACTIVE) return false;
         this.state = state;
-        if (state == TaskState.FINISHED) addTokenOnFinish.forEach(Place::placeToken);
+        if (state == TaskState.FINISHED) observer.forEach(place -> place.notify(this, state));
         return true;
     }
 
