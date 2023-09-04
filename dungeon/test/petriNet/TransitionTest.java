@@ -15,6 +15,7 @@ public class TransitionTest {
         Transition transition = new Transition(Set.of(dependency), Set.of(addToken));
         dependency.placeToken();
         assertEquals("Transition should have fired.", 1, addToken.tokenCount());
+        assertEquals(0, dependency.tokenCount());
     }
 
     @Test
@@ -30,6 +31,8 @@ public class TransitionTest {
                 addToken.tokenCount());
         dependencyB.placeToken();
         assertEquals("Transition should have fired.", 1, addToken.tokenCount());
+        assertEquals(0, dependencyA.tokenCount());
+        assertEquals(0, dependencyB.tokenCount());
     }
 
     @Test
@@ -41,6 +44,7 @@ public class TransitionTest {
         assertEquals("Transition should have fired.", 1, addToken.tokenCount());
         dependency.placeToken();
         assertEquals("Transition should have fired again.", 2, addToken.tokenCount());
+        assertEquals(0, dependency.tokenCount());
     }
 
     @Test
@@ -52,5 +56,6 @@ public class TransitionTest {
         dependency.placeToken();
         assertEquals("Transition should have fired", 1, addTokenA.tokenCount());
         assertEquals("Transition should have fired.", 1, addTokenB.tokenCount());
+        assertEquals(0, dependency.tokenCount());
     }
 }
