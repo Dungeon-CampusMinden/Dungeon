@@ -1,7 +1,10 @@
 package task;
 
+import petriNet.Place;
+
 import semanticanalysis.types.DSLType;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +25,9 @@ import java.util.stream.Stream;
  *
  * <p>Each task is associated with a {@link TaskComponent} that handles the meta-control of the
  * task.
+ *
+ * <p>Using {@link #registerPlace(Place)}, {@link Place}s can be registered to this task. If the
+ * task state changes, each registered place will be notified.
  */
 @DSLType
 public abstract class Task {
@@ -30,6 +36,8 @@ public abstract class Task {
     private TaskState state;
     private String taskText;
     private TaskComponent managementComponent;
+    private final Set<Place> observer = new HashSet<>();
+
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
 
@@ -41,6 +49,17 @@ public abstract class Task {
         state = DEFAULT_TASK_STATE;
         taskText = DEFAULT_TASK_TEXT;
         content = new LinkedList<>();
+    }
+    /**
+     * Register a {@link Place} with this task.
+     *
+     * <p>If this task's {@link TaskState} changes, {@link Place#notify(Task, TaskState)} will be
+     * called for each registered place.
+     *
+     * @param place The place to register.
+     */
+    public void registerPlace(Place place) {
+        observer.add(place);
     }
 
     /**
@@ -55,10 +74,25 @@ public abstract class Task {
     /**
      * Set the state of the task.
      *
-     * @param state new state of the task.
+     * <p>Each registered {@link Place} will be notified.
+     *
+     * <p>A {@link TaskState#ACTIVE} cannot be changed to {@link TaskState#INACTIVE}, and a {@link
+     * TaskState#FINISHED_PERFECT} or {@link * TaskState#FINISHED_OKAY} or {@link *
+     * TaskState#FINISHED_BAD} cannot be changed to {@link TaskState#ACTIVE} or {@link
+     * TaskState#INACTIVE}.
+     *
+     * @param state The new state of the task.
+     * @return true if the state was changed successfully, false if not.
      */
-    public void state(final TaskState state) {
+    public boolean state(final TaskState state) {
+        if (this.state == state
+                || this.state == TaskState.FINISHED_BAD
+                || this.state == TaskState.FINISHED_OKAY
+                || this.state == TaskState.FINISHED_PERFECT) return false;
+        if (this.state == TaskState.ACTIVE && state == TaskState.INACTIVE) return false;
         this.state = state;
+        observer.forEach(place -> place.notify(this, state));
+        return true;
     }
 
     /**
@@ -146,6 +180,6 @@ public abstract class Task {
         INACTIVE,
         FINISHED_PERFECT,
         FINISHED_OKAY,
-        FINISHED_BAD;
+        FINISHED_BAD
     }
 }
