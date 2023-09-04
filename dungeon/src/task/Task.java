@@ -133,13 +133,19 @@ public abstract class Task {
      *
      * <p>ACTIVE - The task can be actively worked on.
      *
-     * <p>DEACTIVATE - The task cannot be worked on.
+     * <p>INACTIVE - The task cannot be worked on.
      *
-     * <p>FINISHED - The task has been completed and cannot be worked on anymore.
+     * <p>FINISHED_PERFECT - The task has been perfectly completed and cannot be worked on anymore.
+     *
+     * <p>FINISHED_OKAY - The task has been okay completed and cannot be worked on anymore.
+     *
+     * <p>FINISHED_BAD - The task has been completed poorly and cannot be worked on anymore.
      */
     public enum TaskState {
         ACTIVE,
         INACTIVE,
-        FINISHED
+        FINISHED_PERFECT,
+        FINISHED_OKAY,
+        FINISHED_BAD;
     }
 }
