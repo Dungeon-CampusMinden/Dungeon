@@ -30,6 +30,8 @@ import java.util.stream.Stream;
  */
 @DSLType
 public abstract class Task {
+
+    private static final Set<Task> ALL_TASKS = new HashSet<>();
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
     private TaskState state;
@@ -45,6 +47,7 @@ public abstract class Task {
      * with an empty content-collection and without an {@link TaskComponent}.
      */
     public Task() {
+        ALL_TASKS.add(this);
         state = DEFAULT_TASK_STATE;
         taskText = DEFAULT_TASK_TEXT;
         content = new LinkedList<>();
@@ -168,6 +171,15 @@ public abstract class Task {
      */
     public void scoringFunction(BiFunction<Task, Set<TaskContent>, Float> scoringFunction) {
         this.scoringFunction = scoringFunction;
+    }
+
+    /**
+     * Get a stream of all Task-Objects that exist.
+     *
+     * @return Stream of all Task-Objects that ever exist.
+     */
+    public static Stream<Task> allTasks() {
+        return new HashSet<>(ALL_TASKS).stream();
     }
 
     /**

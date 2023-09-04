@@ -60,4 +60,7 @@ public class KeyboardConfig {
     public static final ConfigKey<Integer> DEBUG_TELEPORT_TO_CURSOR =
             new ConfigKey<>(
                     new String[] {"debug", "teleport_cursor"}, new ConfigIntValue(Input.Keys.O));
+
+    public static final ConfigKey<Integer> QUESTLOG =
+            new ConfigKey<>(new String[] {"menue", "questlog"}, new ConfigIntValue(Input.Keys.M));
 }
