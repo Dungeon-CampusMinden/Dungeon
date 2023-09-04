@@ -62,7 +62,19 @@ public class RoombasedLevelGenerator {
      * @return The generated level.
      */
     public static ILevel level(Set<Set<Entity>> entities, DesignLabel designLabel) {
-        LevelGraph graph = GraphGenerator.generate(entities);
+        return level(GraphGenerator.generate(entities), designLabel);
+    }
+
+    /**
+     * Get a room-based level with a given level graph.
+     *
+     * <p>Now you can get a dot representation of the level graph in the log.
+     *
+     * @param graph level graph to generate the level for.
+     * @param designLabel Design of the level.
+     * @return The generated level.
+     */
+    public static ILevel level(final LevelGraph graph, DesignLabel designLabel) {
         RoomGenerator roomG = new RoomGenerator();
         LOGGER.info(graph.toDot());
         // generate TileLevel for each Node
