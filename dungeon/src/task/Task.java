@@ -77,17 +77,21 @@ public abstract class Task {
      * <p>Each registered {@link Place} will be notified.
      *
      * <p>A {@link TaskState#ACTIVE} cannot be changed to {@link TaskState#INACTIVE}, and a {@link
-     * TaskState#FINISHED} cannot be changed to {@link TaskState#ACTIVE} or {@link
+     * TaskState#FINISHED_PERFECT} or {@link * TaskState#FINISHED_OKAY} or {@link *
+     * TaskState#FINISHED_BAD} cannot be changed to {@link TaskState#ACTIVE} or {@link
      * TaskState#INACTIVE}.
      *
      * @param state The new state of the task.
      * @return true if the state was changed successfully, false if not.
      */
     public boolean state(final TaskState state) {
-        if (this.state == state || this.state == TaskState.FINISHED) return false;
+        if (this.state == state
+                || this.state == TaskState.FINISHED_BAD
+                || this.state == TaskState.FINISHED_OKAY
+                || this.state == TaskState.FINISHED_PERFECT) return false;
         if (this.state == TaskState.ACTIVE && state == TaskState.INACTIVE) return false;
         this.state = state;
-        if (state == TaskState.FINISHED) observer.forEach(place -> place.notify(this, state));
+        observer.forEach(place -> place.notify(this, state));
         return true;
     }
 
@@ -176,6 +180,6 @@ public abstract class Task {
         INACTIVE,
         FINISHED_PERFECT,
         FINISHED_OKAY,
-        FINISHED_BAD;
+        FINISHED_BAD
     }
 }
