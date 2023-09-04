@@ -62,7 +62,19 @@ public class RoombasedLevelGenerator {
      * @return The generated level.
      */
     public static ILevel level(Set<Set<Entity>> entities, DesignLabel designLabel) {
-        LevelGraph graph = GraphGenerator.generate(entities);
+        return level(GraphGenerator.generate(entities), designLabel);
+    }
+
+    /**
+     * Get a room-based level with a given level graph.
+     *
+     * <p>Now you can get a dot representation of the level graph in the log.
+     *
+     * @param graph level graph to generate the level for.
+     * @param designLabel Design of the level.
+     * @return The generated level.
+     */
+    public static ILevel level(final LevelGraph graph, DesignLabel designLabel) {
         RoomGenerator roomG = new RoomGenerator();
         LOGGER.info(graph.toDot());
         // generate TileLevel for each Node
@@ -109,13 +121,16 @@ public class RoombasedLevelGenerator {
      */
     private static void configureDoors(Node node) {
         for (DoorTile door : node.level().doorTiles()) {
-            Direction doorDirection = doorDirection(node, door);
+            Direction doorDirection =
+                    core.level.utils.GeneratorUtils.doorDirection(node.level(), door);
 
             // find neighbour door
             Node neighbour = node.neighbours()[doorDirection.value()];
             DoorTile neighbourDoor = null;
             for (DoorTile doorTile : neighbour.level().doorTiles())
-                if (Direction.opposite(doorDirection) == doorDirection(neighbour, doorTile)) {
+                if (Direction.opposite(doorDirection)
+                        == core.level.utils.GeneratorUtils.doorDirection(
+                                neighbour.level(), doorTile)) {
                     neighbourDoor = doorTile;
                     break;
                 }
@@ -147,39 +162,5 @@ public class RoombasedLevelGenerator {
             }
             door.setDoorstep(doorStep);
         }
-    }
-
-    /**
-     * Get the direction where a door is placed
-     *
-     * @param node Node that stores the level
-     * @param door door-tile where to find the direction for
-     * @return the direction of the door
-     */
-    private static Direction doorDirection(Node node, DoorTile door) {
-        LevelElement[][] layout = parseToElementLayout(node.level().layout());
-        if (TileTextureFactory.isTopWall(door.coordinate(), layout)) return Direction.NORTH;
-        if (TileTextureFactory.isRightWall(door.coordinate(), layout)) return Direction.EAST;
-        if (TileTextureFactory.isBottomWall(door.coordinate(), layout)) return Direction.SOUTH;
-        return Direction.WEST;
-    }
-
-    /**
-     * Get the LevelElement[][] for a Tile[][]
-     *
-     * @param tileLayout tile layout to parse
-     * @return the parsed LevelElement layout.
-     */
-    private static LevelElement[][] parseToElementLayout(Tile[][] tileLayout) {
-        int ySize = tileLayout.length;
-        int xSize = tileLayout[0].length;
-        LevelElement[][] elementLayout = new LevelElement[ySize][xSize];
-        for (int x = 0; x < xSize; x++) {
-            for (int y = 0; y < ySize; y++) {
-                Tile tile = tileLayout[y][x];
-                elementLayout[y][x] = tile.levelElement();
-            }
-        }
-        return elementLayout;
     }
 }

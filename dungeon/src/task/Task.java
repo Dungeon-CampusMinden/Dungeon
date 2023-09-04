@@ -1,13 +1,12 @@
 package task;
 
+import core.Entity;
+
 import petriNet.Place;
 
 import semanticanalysis.types.DSLType;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -35,8 +34,8 @@ public abstract class Task {
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
     private TaskState state;
     private String taskText;
-    private TaskComponent managementComponent;
     private final Set<Place> observer = new HashSet<>();
+    private Entity managementEntity;
 
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
@@ -91,7 +90,13 @@ public abstract class Task {
                 || this.state == TaskState.FINISHED_PERFECT) return false;
         if (this.state == TaskState.ACTIVE && state == TaskState.INACTIVE) return false;
         this.state = state;
+
         observer.forEach(place -> place.notify(this, state));
+
+        if (state == TaskState.ACTIVE && managementEntity != null)
+            managementEntity
+                    .fetch(TaskComponent.class)
+                    .ifPresent(tc -> tc.activate(managementEntity));
         return true;
     }
 
@@ -114,21 +119,24 @@ public abstract class Task {
     }
 
     /**
-     * Get the current task-component that manages this task.
+     * Get the current task-manager for this task.
      *
-     * @return current manager component
+     * @return current manager.
      */
-    public TaskComponent managerComponent() {
-        return managementComponent;
+    public Optional<Entity> managerEntity() {
+        return Optional.ofNullable(managementEntity);
     }
 
     /**
-     * Set a new task-component to manage this task.
+     * Set a new Entity that implements the {@link TaskComponent} to manage this task.
      *
-     * @param component new manager-component.
+     * @param taskmanager new manager.
      */
-    public void managerComponent(final TaskComponent component) {
-        this.managementComponent = component;
+    public boolean managerEntity(final Entity taskmanager) {
+        if (taskmanager.isPresent(TaskComponent.class)) {
+            this.managementEntity = taskmanager;
+            return true;
+        } else return false;
     }
 
     public Stream<TaskContent> contentStream() {

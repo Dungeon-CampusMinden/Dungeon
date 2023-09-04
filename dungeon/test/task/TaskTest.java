@@ -2,7 +2,10 @@ package task;
 
 import static junit.framework.TestCase.assertEquals;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import core.Entity;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -99,10 +102,25 @@ public class TaskTest {
     }
 
     @Test
-    public void managerComponent() {
-        TaskComponent component = new TaskComponent(task);
-        task.managerComponent(component);
-        assertEquals(component, task.managerComponent());
+    public void managerEntity() {
+        assertTrue(task.managerEntity().isEmpty());
+        Entity e = new Entity();
+        assertFalse(task.managerEntity(e));
+        e.addComponent(new TaskComponent(task));
+        task.managerEntity(e);
+        assertEquals(e, task.managerEntity().get());
+    }
+
+    @Test
+    public void notify_managerEntity() {
+        Entity e = new Entity();
+        final int[] c = {0};
+        TaskComponent tc = new TaskComponent(task);
+        tc.onActivate(entity -> c[0]++);
+        e.addComponent(tc);
+        task.managerEntity(e);
+        task.state(Task.TaskState.ACTIVE);
+        assertEquals(1, c[0]);
     }
 
     @Test

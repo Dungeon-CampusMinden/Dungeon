@@ -2,6 +2,7 @@ package core.level.generator.graphBased.levelGraph;
 
 import core.Entity;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -43,5 +44,17 @@ public class GraphGenerator {
         // draw some random edges to make it more fun
         graph.addRandomEdges(RANGE_OF_RANDOM_EDGE_COUNT);
         return graph;
+    }
+
+    /**
+     * Generates a {@link LevelGraph} with the given numbers of nodes.
+     *
+     * @param nodeCount number of nodes in the graph.
+     * @return The generated graph.
+     */
+    public static LevelGraph generate(int nodeCount) {
+        Set<Set<Entity>> outerSet = new HashSet<>();
+        for (int i = 0; i < nodeCount; i++) outerSet.add(Set.of(new Entity()));
+        return generate(outerSet);
     }
 }
