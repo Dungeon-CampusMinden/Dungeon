@@ -95,7 +95,8 @@ public abstract class Task {
         this.state = state;
 
         observer.forEach(place -> place.notify(this, state));
-        if (state == TaskState.ACTIVE)
+
+        if (state == TaskState.ACTIVE && managementEntity != null)
             managementEntity
                     .fetch(TaskComponent.class)
                     .ifPresent(tc -> tc.activate(managementEntity));
