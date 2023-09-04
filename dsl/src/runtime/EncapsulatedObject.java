@@ -76,6 +76,10 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
             return objectCache.get(name);
         }
 
+        if (name.equals(THIS_NAME)) {
+            return thisValue;
+        }
+
         // lookup name
         Field correspondingField = this.typeMemberToField.getOrDefault(name, null);
         if (correspondingField != null) {
