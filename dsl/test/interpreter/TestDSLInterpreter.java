@@ -2375,7 +2375,7 @@ public class TestDSLInterpreter {
     @Test
     public void testNativeMethodCallSet() {
         String program =
-            """
+                """
     entity_type my_type {
         test_component_with_callback {
             consumer: func
@@ -2407,8 +2407,89 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+
+        TestComponentEntityConsumerCallback componentWithConsumer =
+                (TestComponentEntityConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                                .toList()
+                                .get(0);
+
+        componentWithConsumer.consumer.accept(entity);
+
+        // the output stream should only contain the default value for a string variable ("") and
+        // the line separator from the print-call; if the variable definitions in the
+        // if-else=stmt-body "escapes" the output will contain '0', as the new 'test'-variable
+        // will be initialized with 0
+        String output = outputStream.toString();
+        assertEquals(
+                "2"
+                        + System.lineSeparator()
+                        + "true"
+                        + System.lineSeparator()
+                        + "false"
+                        + System.lineSeparator(),
+                output);
+    }
+
+    @Test
+    public void testExtensionMethodCall() {
+        String program =
+            """
+        entity_type my_type {
+            test_component1 {
+                member1: 42,
+                member2: 3.14,
+                member3: "Hello, World!"
+            },
+            test_component2 {},
+            test_component_with_callback {
+                consumer: func
+            }
+        }
+
+        fn func(entity ent) {
+            // here, the second "ent" can't be resolved, because test_component2 is still on top of scope stack..
+            // should first resolve all member accesses and after that the parameters
+            // or create dedicated scope stack for member access..
+            //ent.test_component2.my_method(ent.test_component1);
+            ent.test_component2.my_method("Hello, World!", 42, "Nope");
+            print(ent.test_component2.member1);
+        }
+
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
             .createDSLTypeForJavaTypeInScope(
                 env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponent1.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder().registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+        env.getTypeBuilder().registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+        env.getTypeBuilder().registerMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
 
         var config =
             (CustomQuestConfig)
@@ -2430,13 +2511,6 @@ public class TestDSLInterpreter {
         // if-else=stmt-body "escapes" the output will contain '0', as the new 'test'-variable
         // will be initialized with 0
         String output = outputStream.toString();
-        assertEquals(
-                "2"
-                + System.lineSeparator()
-                + "true"
-                + System.lineSeparator()
-                + "false"
-                + System.lineSeparator(),
-            output);
+        assertEquals( "Hello, World!" + System.lineSeparator(), output);
     }
 }
