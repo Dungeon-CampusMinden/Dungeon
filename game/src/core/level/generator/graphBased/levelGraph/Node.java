@@ -169,7 +169,7 @@ public final class Node {
         // this graph
         if (originGraph != node.originGraph()) originGraph.addNodes(node.originGraph().nodes());
 
-        return Optional.of(new Tuple<>(node, direction));
+        return Optional.of(new Tuple<>(this, direction));
     }
 
     private List<Direction> possibleConnectDirections(final Node other) {
