@@ -4,6 +4,8 @@ import core.utils.TriConsumer;
 
 import dslToGame.graph.Graph;
 
+import runtime.nativefunctions.ExtensionMethod;
+
 import semanticanalysis.*;
 import semanticanalysis.types.callbackadapter.BiFunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
@@ -518,6 +520,53 @@ public class TypeBuilder {
                         new PropertySymbol(
                                 annotation.name(), aggregateExtendedType, valueDSLType, property);
                 aggregateExtendedType.bind(propertySymbol);
+            }
+        }
+    }
+
+    public void registerMethod(IScope globalScope, IDSLExtensionMethod<?> method) {
+        // get extended type
+        Class<?> methodClass = method.getClass();
+        if (methodClass.isAnnotationPresent(DSLExtensionMethod.class)) {
+            var annotation = methodClass.getAnnotation(DSLExtensionMethod.class);
+            var extendedClass = annotation.extendedType();
+            String extendedClassName = getDSLTypeName(extendedClass);
+            Symbol extendedTypeSymbol = globalScope.resolve(extendedClassName);
+            if (extendedTypeSymbol.equals(Symbol.NULL)) {
+                throw new RuntimeException(
+                        "Name of extended type '"
+                                + extendedClassName
+                                + "' could not be resolved in scope");
+            }
+
+            IType extendedType = (IType) extendedTypeSymbol;
+            if (extendedType instanceof AggregateType aggregateExtendedType) {
+                var genericInterfaces = methodClass.getGenericInterfaces();
+                var type = genericInterfaces[0];
+                ParameterizedType parameterizedType = (ParameterizedType) type;
+
+                var instanceType = parameterizedType.getActualTypeArguments()[0];
+                IType instanceDSLType = createDSLTypeForJavaTypeInScope(globalScope, instanceType);
+
+                // create FunctionType
+                Class<?> returnType = method.getReturnType();
+                IType returnDSLType = createDSLTypeForJavaTypeInScope(globalScope, returnType);
+
+                var parameterTypes = method.getParameterTypes();
+                List<IType> parameterDSLTypes =
+                        parameterTypes.stream()
+                                .map(t -> createDSLTypeForJavaTypeInScope(globalScope, t))
+                                .toList();
+
+                FunctionType functionType = new FunctionType(returnDSLType, parameterDSLTypes);
+
+                ExtensionMethod nativeMethodSymbol =
+                        new ExtensionMethod(
+                                annotation.name(),
+                                aggregateExtendedType,
+                                functionType,
+                                (IDSLExtensionMethod<Object>) method);
+                aggregateExtendedType.bind(nativeMethodSymbol);
             }
         }
     }
