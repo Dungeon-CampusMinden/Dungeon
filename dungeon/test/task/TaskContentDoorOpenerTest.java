@@ -20,32 +20,32 @@ import org.junit.Test;
 
 public class TaskContentDoorOpenerTest {
 
-    private Task taskA;
+    private Task task;
     private Entity manager;
     private TaskComponent taskComponent;
 
     @Before
     public void setup() {
-        taskA = new DummyTask();
+        task = new DummyTask();
         manager = new Entity();
-        taskComponent = new TaskComponent(taskA);
+        taskComponent = new TaskComponent(task);
         manager.addComponent(taskComponent);
-        taskA.managerEntity(manager);
+        task.managerEntity(manager);
     }
 
     @Test
     public void openDoor() {
-        LevelGraph taskALevelGraph = GraphGenerator.generate(3);
+        LevelGraph taskLevelGraph = GraphGenerator.generate(3);
         LevelGraph nextLevelGraph = GraphGenerator.generate(2);
         Tuple<Node, Direction> tuple =
-                taskALevelGraph.add(nextLevelGraph, taskALevelGraph).orElseThrow();
-        RoombasedLevelGenerator.level(taskALevelGraph, DesignLabel.DEFAULT);
+                taskLevelGraph.add(nextLevelGraph, taskLevelGraph).orElseThrow();
+        RoombasedLevelGenerator.level(taskLevelGraph, DesignLabel.DEFAULT);
         DoorTile door = GeneratorUtils.doorAt(tuple.a().level(), tuple.b()).orElseThrow();
         door.close();
         DoorComponent dc = new DoorComponent(door);
         manager.addComponent(dc);
         taskComponent.onActivate(TaskComponent.DOOR_OPENER);
-        taskA.state(Task.TaskState.ACTIVE);
+        task.state(Task.TaskState.ACTIVE);
         assertTrue(door.isOpen());
     }
 
