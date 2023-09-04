@@ -2,6 +2,7 @@ package semanticanalysis.types;
 
 import runtime.SetValue;
 import runtime.nativefunctions.NativeMethod;
+
 import semanticanalysis.IScope;
 import semanticanalysis.ScopedSymbol;
 
@@ -19,27 +20,27 @@ public class SetType extends ScopedSymbol implements IType {
         super(getSetTypeName(elementType), parentScope, elementType);
 
         NativeMethod addMethod =
-            new NativeMethod(
-                "add",
-                this,
-                new FunctionType(BuiltInType.boolType, elementType),
-                SetValue.AddMethod.instance);
+                new NativeMethod(
+                        "add",
+                        this,
+                        new FunctionType(BuiltInType.boolType, elementType),
+                        SetValue.AddMethod.instance);
         this.bind(addMethod);
 
         NativeMethod sizeMethod =
-            new NativeMethod(
-                "size",
-                this,
-                new FunctionType(BuiltInType.intType, BuiltInType.noType),
-                SetValue.SizeMethod.instance);
+                new NativeMethod(
+                        "size",
+                        this,
+                        new FunctionType(BuiltInType.intType, BuiltInType.noType),
+                        SetValue.SizeMethod.instance);
         this.bind(sizeMethod);
 
         NativeMethod getMethod =
-            new NativeMethod(
-                "contains",
-                this,
-                new FunctionType(BuiltInType.boolType, elementType),
-                SetValue.ContainsMethod.instance);
+                new NativeMethod(
+                        "contains",
+                        this,
+                        new FunctionType(BuiltInType.boolType, elementType),
+                        SetValue.ContainsMethod.instance);
         this.bind(getMethod);
     }
 

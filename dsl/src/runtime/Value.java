@@ -58,7 +58,6 @@ public class Value implements IClonable {
         this.dataType = type;
     }
 
-
     public IMemorySpace getMemorySpace() {
         if (this.memorySpace == null) {
             this.memorySpace = new MemorySpace();

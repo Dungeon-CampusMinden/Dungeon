@@ -52,8 +52,9 @@ public class TestComponent2 extends Component {
         public static MyMethod instance = new MyMethod();
 
         @Override
-        public Object call(DSLInterpreter interpreter, TestComponent2 instance, List<Object> params) {
-            //TestComponent1 param1 = (TestComponent1) params[0];
+        public Object call(
+                DSLInterpreter interpreter, TestComponent2 instance, List<Object> params) {
+            // TestComponent1 param1 = (TestComponent1) params[0];
             String param1 = (String) params.get(0);
             Integer param2 = (Integer) params.get(1);
             String param3 = (String) params.get(2);
@@ -67,7 +68,7 @@ public class TestComponent2 extends Component {
 
         @Override
         public List<Class<?>> getParameterTypes() {
-            //var arr = new Class<?>[] {TestComponent1.class, Integer.class, String.class};
+            // var arr = new Class<?>[] {TestComponent1.class, Integer.class, String.class};
             var arr = new Class<?>[] {String.class, Integer.class, String.class};
             return Arrays.stream(arr).toList();
         }

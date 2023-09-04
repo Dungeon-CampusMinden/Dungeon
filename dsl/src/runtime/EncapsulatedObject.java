@@ -163,7 +163,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
             thisValue = Value.NONE;
         } else {
             throw new UnsupportedOperationException(
-                "Deleting a value from an Encapsulated Object is not supported!");
+                    "Deleting a value from an Encapsulated Object is not supported!");
         }
     }
 

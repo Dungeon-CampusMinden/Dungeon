@@ -1,7 +1,9 @@
 package runtime;
 
 import interpreter.DSLInterpreter;
+
 import parser.ast.Node;
+
 import semanticanalysis.IInstanceCallable;
 import semanticanalysis.types.SetType;
 
@@ -29,7 +31,9 @@ public class SetValue extends Value {
         return (SetType) this.dataType;
     }
 
-    protected HashSet<Value> set() { return ((HashSet<Value>) this.object); }
+    protected HashSet<Value> set() {
+        return ((HashSet<Value>) this.object);
+    }
     /**
      * Add a Value to the set. The Value will only be added to the set, if no other Value with the
      * same internal value of the passed Value is already stored in this set.
@@ -57,7 +61,6 @@ public class SetValue extends Value {
     public void clearSet() {
         set().clear();
     }
-
 
     // region native_methods
     public static class AddMethod implements IInstanceCallable {

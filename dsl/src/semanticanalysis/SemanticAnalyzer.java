@@ -338,8 +338,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         }
 
         if (!(funcSymbol instanceof ICallable)) {
-            throw new RuntimeException(
-                "Symbol with name " + funcName + " is not callable!");
+            throw new RuntimeException("Symbol with name " + funcName + " is not callable!");
         }
 
         this.symbolTable.addSymbolNodeRelation(funcSymbol, node, false);
@@ -445,6 +444,9 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         IType lhsDataType = BuiltInType.noType;
         if (lhs.type.equals(Node.Type.Identifier)) {
             String nameToResolve = ((IdNode) lhs).getName();
+            if (nameToResolve.equals("ent")) {
+                boolean b = true;
+            }
             Symbol symbol = this.currentScope().resolve(nameToResolve);
             lhsDataType = symbol.getDataType();
 

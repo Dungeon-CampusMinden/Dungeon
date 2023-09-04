@@ -35,11 +35,11 @@ public class ListType extends ScopedSymbol implements IType {
         this.bind(sizeMethod);
 
         NativeMethod getMethod =
-            new NativeMethod(
-                "get",
-                this,
-                new FunctionType(elementType, BuiltInType.intType),
-                ListValue.GetMethod.instance);
+                new NativeMethod(
+                        "get",
+                        this,
+                        new FunctionType(elementType, BuiltInType.intType),
+                        ListValue.GetMethod.instance);
         this.bind(getMethod);
     }
 

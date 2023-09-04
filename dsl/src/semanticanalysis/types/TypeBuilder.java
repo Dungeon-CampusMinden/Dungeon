@@ -406,6 +406,7 @@ public class TypeBuilder {
      * @param type the java {@link Type} to create a DSL {@link IType} from
      */
     public IType createDSLTypeForJavaTypeInScope(IScope globalScope, Type type) {
+        // TODO: test for type = null
         // catch recursion
         if (this.currentLookedUpTypes.contains(type)) {
             throw new RuntimeException("RECURSIVE TYPE DEF");

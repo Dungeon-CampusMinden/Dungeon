@@ -2443,7 +2443,7 @@ public class TestDSLInterpreter {
     @Test
     public void testExtensionMethodCall() {
         String program =
-            """
+                """
         entity_type my_type {
             test_component1 {
                 member1: 42,
@@ -2479,30 +2479,30 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponent1.class);
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponent2.class);
-        env.getTypeBuilder().registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
-        env.getTypeBuilder().registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+        env.getTypeBuilder()
+                .registerProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
         env.getTypeBuilder().registerMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
 
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         var entity = config.entity();
 
         TestComponentEntityConsumerCallback componentWithConsumer =
-            (TestComponentEntityConsumerCallback)
-                entity.components.stream()
-                    .filter(c -> c instanceof TestComponentEntityConsumerCallback)
-                    .toList()
-                    .get(0);
+                (TestComponentEntityConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                                .toList()
+                                .get(0);
 
         componentWithConsumer.consumer.accept(entity);
 
@@ -2511,6 +2511,6 @@ public class TestDSLInterpreter {
         // if-else=stmt-body "escapes" the output will contain '0', as the new 'test'-variable
         // will be initialized with 0
         String output = outputStream.toString();
-        assertEquals( "Hello, World!" + System.lineSeparator(), output);
+        assertEquals("Hello, World!" + System.lineSeparator(), output);
     }
 }
