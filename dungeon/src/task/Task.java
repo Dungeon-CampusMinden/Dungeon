@@ -6,10 +6,7 @@ import petriNet.Place;
 
 import semanticanalysis.types.DSLType;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -126,8 +123,8 @@ public abstract class Task {
      *
      * @return current manager.
      */
-    public Entity managerEntity() {
-        return managementEntity;
+    public Optional<Entity> managerEntity() {
+        return Optional.ofNullable(managementEntity);
     }
 
     /**
@@ -135,8 +132,11 @@ public abstract class Task {
      *
      * @param taskmanager new manager.
      */
-    public void managerEntity(final Entity taskmanager) {
-        this.managementEntity = taskmanager;
+    public boolean managerEntity(final Entity taskmanager) {
+        if (taskmanager.isPresent(TaskComponent.class)) {
+            this.managementEntity = taskmanager;
+            return true;
+        } else return false;
     }
 
     public Stream<TaskContent> contentStream() {

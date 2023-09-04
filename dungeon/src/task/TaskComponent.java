@@ -28,7 +28,7 @@ public final class TaskComponent implements Component {
                     entity.fetch(DoorComponent.class)
                             .ifPresent(component -> component.door().open());
 
-    private Consumer onActivate;
+    private Consumer<Entity> onActivate;
     private final Task task;
 
     /**
