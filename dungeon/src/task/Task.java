@@ -78,11 +78,19 @@ public abstract class Task {
      * <p>If the given state is {@link TaskState#FINISHED}, each registered {@link Place} in this
      * task will receive a token.
      *
+     * <p>A {@link TaskState#ACTIVE} cannot be changed into {@link TaskState#INACTIVE}, and a {@link
+     * TaskState#FINISHED} cannot be changed into {@link TaskState#ACTIVE} or {@link
+     * TaskState#INACTIVE}.
+     *
      * @param state The new state of the task.
+     * @return true if the state was changed successfully, false if not.
      */
-    public void state(final TaskState state) {
+    public boolean state(final TaskState state) {
+        if (this.state == state || this.state == TaskState.FINISHED) return false;
+        if (this.state == TaskState.ACTIVE && state == TaskState.INACTIVE) return false;
         this.state = state;
         if (state == TaskState.FINISHED) addTokenOnFinish.forEach(Place::placeToken);
+        return true;
     }
 
     /**
