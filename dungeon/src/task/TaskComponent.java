@@ -1,6 +1,11 @@
 package task;
 
 import core.Component;
+import core.Entity;
+
+import dslToGame.DoorComponent;
+
+import java.util.function.Consumer;
 
 /**
  * Marks an entity as a management entity for a task.
@@ -15,6 +20,14 @@ import core.Component;
  */
 public final class TaskComponent implements Component {
 
+    private static final Consumer<Entity> EMPTY_ON_ACTIVATE = (taskmanager) -> {};
+
+    public static final Consumer<Entity> DOOR_OPENER =
+            entity ->
+                    entity.fetch(DoorComponent.class)
+                            .ifPresent(component -> component.door().open());
+
+    private Consumer onActivate;
     private final Task task;
 
     /**
@@ -33,5 +46,23 @@ public final class TaskComponent implements Component {
      */
     public Task task() {
         return task;
+    }
+
+    /**
+     * Set the function to execute if the associated task is set to active.
+     *
+     * @param callback new callback function.
+     */
+    public void onActivate(Consumer<Entity> callback) {
+        this.onActivate = callback;
+    }
+
+    /**
+     * Execute the callback function.
+     *
+     * @param taskmanager Entity that implements this component.
+     */
+    public void activate(Entity taskmanager) {
+        onActivate.accept(taskmanager);
     }
 }
