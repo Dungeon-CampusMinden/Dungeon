@@ -6,7 +6,6 @@ import petriNet.Place;
 
 import semanticanalysis.types.DSLType;
 
-
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
