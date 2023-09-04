@@ -1,4 +1,5 @@
 import contrib.components.InteractionComponent;
+import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
@@ -6,6 +7,7 @@ import contrib.systems.*;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.hud.UITools;
 import core.level.TileLevel;
@@ -29,6 +31,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
@@ -48,6 +51,24 @@ public class Starter {
     private static final Logger LOGGER = Logger.getLogger(Starter.class.getName());
     private static DSLEntryPoint selectedPoint = null;
     private static boolean realGameStarted = false;
+
+    private static Consumer<Entity> showQuestLog =
+            new Consumer<Entity>() {
+                @Override
+                public void accept(Entity entity) {
+                    StringBuilder questlogBuilder = new StringBuilder();
+                    Task.allTasks()
+                            .filter(t -> t.state() == Task.TaskState.ACTIVE)
+                            .forEach(
+                                    task ->
+                                            questlogBuilder
+                                                    .append(task.taskText())
+                                                    .append(System.lineSeparator())
+                                                    .append(System.lineSeparator()));
+                    String questlog = questlogBuilder.toString();
+                    UITools.generateNewTextDialog(questlog, "Weiter gehts!", "Questlog");
+                }
+            };
 
     public static void main(String[] args) throws IOException {
         Set<DSLEntryPoint> entryPoints = processCLIArguments(args);
@@ -140,6 +161,10 @@ public class Starter {
         Entity hero = null;
         try {
             hero = (EntityFactory.newHero());
+            hero.fetch(PlayerComponent.class)
+                    .get()
+                    .registerCallback(KeyboardConfig.QUESTLOG.value(), showQuestLog, false, true);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -232,6 +257,7 @@ public class Starter {
     private static SingleChoice selectionQuestion(Set<DSLEntryPoint> entryPoints) {
         SingleChoice question = new SingleChoice("Wähle deine Mission:");
         entryPoints.forEach(ep -> question.addAnswer(new PayloadTaskContent(ep)));
+        question.state(Task.TaskState.ACTIVE);
         return question;
     }
 
