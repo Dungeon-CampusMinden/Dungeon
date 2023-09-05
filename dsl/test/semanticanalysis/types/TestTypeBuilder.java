@@ -333,9 +333,7 @@ public class TestTypeBuilder {
     @Test
     public void testTypeForNull() {
         TestEnvironment env = new TestEnvironment();
-        var type = env.getTypeBuilder()
-                    .createDSLTypeForJavaTypeInScope(
-                        env.getGlobalScope(), null);
+        var type = env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), null);
         Assert.assertEquals(BuiltInType.noType, type);
     }
 }

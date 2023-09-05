@@ -15,9 +15,9 @@ import semanticanalysis.types.IDSLExtensionMethod;
 import java.util.List;
 
 /**
- * {@link ICallable} implementation for an {@link IDSLExtensionMethod}.
- * It is used for binding {@link IDSLExtensionMethod} implementations as symbols in a
- * DSL data type, which is created from a java class.
+ * {@link ICallable} implementation for an {@link IDSLExtensionMethod}. It is used for binding
+ * {@link IDSLExtensionMethod} implementations as symbols in a DSL data type, which is created from
+ * a java class.
  */
 public class ExtensionMethod extends Symbol implements ICallable {
     private final IDSLExtensionMethod<Object, Object> extensionMethod;
@@ -27,8 +27,10 @@ public class ExtensionMethod extends Symbol implements ICallable {
      *
      * @param name The name of the method
      * @param parentScope The parent scope of this symbol
-     * @param functionType The {@link FunctionType} containing the signature information of the method
-     * @param callable The {@link IDSLExtensionMethod}, which contains the actual implementation of the method's logic
+     * @param functionType The {@link FunctionType} containing the signature information of the
+     *     method
+     * @param callable The {@link IDSLExtensionMethod}, which contains the actual implementation of
+     *     the method's logic
      */
     public ExtensionMethod(
             String name,

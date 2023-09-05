@@ -493,8 +493,8 @@ public class TypeBuilder {
     }
 
     /**
-     * Bind a {@link IDSLTypeProperty} as an {@link PropertySymbol} in the DSL
-     * datatype corresponding to the {@link DSLTypeProperty#extendedType()} field.
+     * Bind a {@link IDSLTypeProperty} as an {@link PropertySymbol} in the DSL datatype
+     * corresponding to the {@link DSLTypeProperty#extendedType()} field.
      *
      * @param globalScope the global scope to use for resolving data types
      * @param property the {@link IDSLTypeProperty} to bind
@@ -525,8 +525,8 @@ public class TypeBuilder {
     }
 
     /**
-     * Bind a {@link IDSLExtensionMethod} as an {@link ExtensionMethod} symbol in the DSL
-     * datatype corresponding to the {@link DSLExtensionMethod#extendedType()} field.
+     * Bind a {@link IDSLExtensionMethod} as an {@link ExtensionMethod} symbol in the DSL datatype
+     * corresponding to the {@link DSLExtensionMethod#extendedType()} field.
      *
      * @param globalScope the global scope to use for resolving data types
      * @param method the {@link IDSLExtensionMethod} to bind
