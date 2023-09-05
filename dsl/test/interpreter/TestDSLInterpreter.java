@@ -2425,10 +2425,6 @@ public class TestDSLInterpreter {
 
         componentWithConsumer.consumer.accept(entity);
 
-        // the output stream should only contain the default value for a string variable ("") and
-        // the line separator from the print-call; if the variable definitions in the
-        // if-else=stmt-body "escapes" the output will contain '0', as the new 'test'-variable
-        // will be initialized with 0
         String output = outputStream.toString();
         assertEquals(
                 "2"
@@ -2457,10 +2453,7 @@ public class TestDSLInterpreter {
         }
 
         fn func(entity ent) {
-            // here, the second "ent" can't be resolved, because test_component2 is still on top of scope stack..
-            // should first resolve all member accesses and after that the parameters
-            // or create dedicated scope stack for member access..
-            //ent.test_component2.my_method(ent.test_component1);
+            // in test_component2.my_method, `member` of the instance will be set to the first parameter
             ent.test_component2.my_method("Hello, World!", 42, "Nope");
             print(ent.test_component2.member1);
         }
@@ -2506,10 +2499,6 @@ public class TestDSLInterpreter {
 
         componentWithConsumer.consumer.accept(entity);
 
-        // the output stream should only contain the default value for a string variable ("") and
-        // the line separator from the print-call; if the variable definitions in the
-        // if-else=stmt-body "escapes" the output will contain '0', as the new 'test'-variable
-        // will be initialized with 0
         String output = outputStream.toString();
         assertEquals("Hello, World!" + System.lineSeparator(), output);
     }

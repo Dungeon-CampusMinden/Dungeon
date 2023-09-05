@@ -534,9 +534,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(FuncCallNode node) {
         var funcName = node.getIdName();
 
-        // TODO: resolve in current memory-space / in datatype of "this"
-        //  this resolving will likely be more complex and should be refactored into it's own method
-
         var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
 
         if (!(symbol instanceof ICallable callable)) {

@@ -47,7 +47,6 @@ public class AggregateValue extends Value {
      * @param ms the {@link IMemorySpace} to set as the memory space of this AggregateValue
      */
     public void setMemorySpace(IMemorySpace ms) {
-        // TODO: test this
         ms.delete(THIS_NAME);
         ms.bindValue(THIS_NAME, this);
         this.memorySpace = ms;
