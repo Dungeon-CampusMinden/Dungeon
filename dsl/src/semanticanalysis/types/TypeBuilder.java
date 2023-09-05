@@ -492,7 +492,14 @@ public class TypeBuilder {
         return aggregateType;
     }
 
-    public void registerProperty(IScope globalScope, IDSLTypeProperty<?, ?> property) {
+    /**
+     * Bind a {@link IDSLTypeProperty} as an {@link PropertySymbol} in the DSL
+     * datatype corresponding to the {@link DSLTypeProperty#extendedType()} field.
+     *
+     * @param globalScope the global scope to use for resolving data types
+     * @param property the {@link IDSLTypeProperty} to bind
+     */
+    public void bindProperty(IScope globalScope, IDSLTypeProperty<?, ?> property) {
         // get extended type
         Class<?> propertyClass = property.getClass();
         if (propertyClass.isAnnotationPresent(DSLTypeProperty.class)) {
@@ -517,7 +524,14 @@ public class TypeBuilder {
         }
     }
 
-    public void registerMethod(IScope globalScope, IDSLExtensionMethod<?, ?> method) {
+    /**
+     * Bind a {@link IDSLExtensionMethod} as an {@link ExtensionMethod} symbol in the DSL
+     * datatype corresponding to the {@link DSLExtensionMethod#extendedType()} field.
+     *
+     * @param globalScope the global scope to use for resolving data types
+     * @param method the {@link IDSLExtensionMethod} to bind
+     */
+    public void bindMethod(IScope globalScope, IDSLExtensionMethod<?, ?> method) {
         // get extended type
         Class<?> methodClass = method.getClass();
         if (methodClass.isAnnotationPresent(DSLExtensionMethod.class)) {

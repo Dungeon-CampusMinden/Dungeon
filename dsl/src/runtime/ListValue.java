@@ -62,6 +62,11 @@ public class ListValue extends Value {
     }
 
     // region native_methods
+
+    /**
+     * Native method, which implements adding a Value to the internal {@link List}
+     * of a {@link ListValue}.
+     */
     public static class AddMethod implements IInstanceCallable {
 
         public static AddMethod instance = new AddMethod();
@@ -79,6 +84,10 @@ public class ListValue extends Value {
         }
     }
 
+    /**
+     * Native method, which implements calculating the size (i.e. the number of stored elements
+     * of a {@link ListValue}.
+     */
     public static class SizeMethod implements IInstanceCallable {
 
         public static SizeMethod instance = new SizeMethod();
@@ -93,6 +102,11 @@ public class ListValue extends Value {
         }
     }
 
+    /**
+     * Native method, which implements the access to one element of a {@link ListValue} by index.
+     * If the index is out of range of the internal {@link List} of the {@link ListValue},
+     * {@link Value#NONE} is returned.
+     */
     public static class GetMethod implements IInstanceCallable {
 
         public static GetMethod instance = new GetMethod();

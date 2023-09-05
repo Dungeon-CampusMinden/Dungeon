@@ -11,12 +11,27 @@ import semanticanalysis.IInstanceCallable;
 import semanticanalysis.IScope;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.FunctionType;
+import semanticanalysis.types.IDSLExtensionMethod;
 
 import java.util.List;
 
+ /**
+  * {@link ICallable} implementation for native methods, which are an integral built-in
+  * part of the DungeonDSL.
+  * It is used for binding {@link IInstanceCallable} implementations as symbols in a
+  * DSL data type.
+  */
 public class NativeMethod extends Symbol implements ICallable {
     private final IInstanceCallable instanceCallable;
 
+     /**
+      * Constructor.
+      *
+      * @param name The name of the method
+      * @param parentScope The parent scope of this symbol
+      * @param functionType The {@link FunctionType} containing the signature information of the method
+      * @param callable The {@link IInstanceCallable}, which contains the actual implementation of the method's logic
+      */
     public NativeMethod(
             String name,
             IScope parentScope,

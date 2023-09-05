@@ -63,6 +63,10 @@ public class SetValue extends Value {
     }
 
     // region native_methods
+    /**
+     * Native method, which implements adding a Value to the internal {@link Set}
+     * of a {@link SetValue}.
+     */
     public static class AddMethod implements IInstanceCallable {
 
         public static SetValue.AddMethod instance = new SetValue.AddMethod();
@@ -79,6 +83,10 @@ public class SetValue extends Value {
         }
     }
 
+    /**
+     * Native method, which implements calculating the size (i.e. the number of stored elements
+     * of a {@link SetValue}.
+     */
     public static class SizeMethod implements IInstanceCallable {
 
         public static SetValue.SizeMethod instance = new SetValue.SizeMethod();
@@ -93,6 +101,12 @@ public class SetValue extends Value {
         }
     }
 
+    /**
+     * Native method, which checks whether a given Value is present in the
+     * internal value set of a {@link SetValue}.
+     * Because different instances of {@link Value} can refer to the same internal value,
+     * the internal values are used for the lookup.
+     */
     public static class ContainsMethod implements IInstanceCallable {
 
         public static SetValue.ContainsMethod instance = new SetValue.ContainsMethod();

@@ -58,6 +58,13 @@ public class Value implements IClonable {
         this.dataType = type;
     }
 
+    /**
+     * Return the {@link IMemorySpace} associated with this Value.
+     * Basic Values only store a reference to themselves in this
+     * IMemorySpace. Therefore, it is only created on demand.
+     *
+     * @return the IMemorySpace associated with this Value
+     */
     public IMemorySpace getMemorySpace() {
         if (this.memorySpace == null) {
             this.memorySpace = new MemorySpace();
