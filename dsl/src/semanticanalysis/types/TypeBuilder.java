@@ -498,28 +498,17 @@ public class TypeBuilder {
         if (propertyClass.isAnnotationPresent(DSLTypeProperty.class)) {
             var annotation = propertyClass.getAnnotation(DSLTypeProperty.class);
             var extendedClass = annotation.extendedType();
-            String extendedClassName = getDSLTypeName(extendedClass);
-            Symbol extendedTypeSymbol = globalScope.resolve(extendedClassName);
-            if (extendedTypeSymbol.equals(Symbol.NULL)) {
-                throw new RuntimeException(
-                        "Name of extended type '"
-                                + extendedClassName
-                                + "' could not be resolved in scope");
-            }
-
-            IType extendedType = (IType) extendedTypeSymbol;
+            IType extendedType = createDSLTypeForJavaTypeInScope(globalScope, extendedClass);
             if (extendedType instanceof AggregateType aggregateExtendedType) {
                 var genericInterfaces = propertyClass.getGenericInterfaces();
                 var type = genericInterfaces[0];
                 ParameterizedType parameterizedType = (ParameterizedType) type;
 
-                var instanceType = parameterizedType.getActualTypeArguments()[0];
-                IType instanceDSLType = createDSLTypeForJavaTypeInScope(globalScope, instanceType);
-
+                // get properties datatype
                 var valueType = parameterizedType.getActualTypeArguments()[1];
                 IType valueDSLType = createDSLTypeForJavaTypeInScope(globalScope, valueType);
 
-                // create new symbol for property -> likely requires new Symbol kind
+                // create and bind property symbol
                 PropertySymbol propertySymbol =
                         new PropertySymbol(
                                 annotation.name(), aggregateExtendedType, valueDSLType, property);
@@ -534,29 +523,17 @@ public class TypeBuilder {
         if (methodClass.isAnnotationPresent(DSLExtensionMethod.class)) {
             var annotation = methodClass.getAnnotation(DSLExtensionMethod.class);
             var extendedClass = annotation.extendedType();
-            String extendedClassName = getDSLTypeName(extendedClass);
-            Symbol extendedTypeSymbol = globalScope.resolve(extendedClassName);
-            if (extendedTypeSymbol.equals(Symbol.NULL)) {
-                throw new RuntimeException(
-                        "Name of extended type '"
-                                + extendedClassName
-                                + "' could not be resolved in scope");
-            }
-
-            IType extendedType = (IType) extendedTypeSymbol;
+            IType extendedType = createDSLTypeForJavaTypeInScope(globalScope, extendedClass);
             if (extendedType instanceof AggregateType aggregateExtendedType) {
                 var genericInterfaces = methodClass.getGenericInterfaces();
                 var type = genericInterfaces[0];
                 ParameterizedType parameterizedType = (ParameterizedType) type;
 
-                var instanceType = parameterizedType.getActualTypeArguments()[0];
-                IType instanceDSLType = createDSLTypeForJavaTypeInScope(globalScope, instanceType);
-
                 // create FunctionType
                 Type returnType = parameterizedType.getActualTypeArguments()[1];
                 IType returnDSLType = createDSLTypeForJavaTypeInScope(globalScope, returnType);
 
-                var parameterTypes = method.getParameterTypes();
+                List<Class<?>> parameterTypes = method.getParameterTypes();
                 List<IType> parameterDSLTypes =
                         parameterTypes.stream()
                                 .map(t -> createDSLTypeForJavaTypeInScope(globalScope, t))
@@ -564,6 +541,7 @@ public class TypeBuilder {
 
                 FunctionType functionType = new FunctionType(returnDSLType, parameterDSLTypes);
 
+                // create and bind method symbol
                 ExtensionMethod nativeMethodSymbol =
                         new ExtensionMethod(
                                 annotation.name(),
