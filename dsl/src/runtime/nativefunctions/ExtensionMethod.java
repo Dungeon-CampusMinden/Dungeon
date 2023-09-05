@@ -52,7 +52,7 @@ public class ExtensionMethod extends Symbol implements ICallable {
                         .map(o -> ((Value) o).getInternalValue())
                         .toList();
 
-        return this.extensionMethod.call(interperter, instanceObject, parameterObjects);
+        return this.extensionMethod.call(instanceObject, parameterObjects);
     }
 
     @Override

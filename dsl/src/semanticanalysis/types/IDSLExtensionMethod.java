@@ -19,12 +19,11 @@ public interface IDSLExtensionMethod<T, R> {
     /**
      * Implementation of the method's logic.
      *
-     * @param interpreter DSLInterpreter to use for interpretation (TODO: remove)
      * @param instance the object, which provides the context for the method execution
-     * @param params the List of parameters for the method call.
+     * @param params   the List of parameters for the method call.
      * @return The return value of the method call.
      */
-    R call(DSLInterpreter interpreter, T instance, List<Object> params);
+    R call(T instance, List<Object> params);
 
     /**
      * Should return an in-order list of the classes, which will be used for the parameters.

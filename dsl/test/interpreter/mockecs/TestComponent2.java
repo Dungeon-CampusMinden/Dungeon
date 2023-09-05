@@ -1,7 +1,5 @@
 package interpreter.mockecs;
 
-import interpreter.DSLInterpreter;
-
 import semanticanalysis.types.*;
 
 import java.util.Arrays;
@@ -52,8 +50,7 @@ public class TestComponent2 extends Component {
         public static MyMethod instance = new MyMethod();
 
         @Override
-        public TestComponent2 call(
-                DSLInterpreter interpreter, TestComponent2 instance, List<Object> params) {
+        public TestComponent2 call(TestComponent2 instance, List<Object> params) {
             String param1 = (String) params.get(0);
             Integer param2 = (Integer) params.get(1);
             String param3 = (String) params.get(2);
