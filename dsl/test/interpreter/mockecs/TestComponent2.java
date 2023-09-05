@@ -48,11 +48,11 @@ public class TestComponent2 extends Component {
     }
 
     @DSLExtensionMethod(name = "my_method", extendedType = TestComponent2.class)
-    public static class MyMethod implements IDSLExtensionMethod<TestComponent2> {
+    public static class MyMethod implements IDSLExtensionMethod<TestComponent2, TestComponent2> {
         public static MyMethod instance = new MyMethod();
 
         @Override
-        public Object call(
+        public TestComponent2 call(
                 DSLInterpreter interpreter, TestComponent2 instance, List<Object> params) {
             String param1 = (String) params.get(0);
             Integer param2 = (Integer) params.get(1);
@@ -62,18 +62,13 @@ public class TestComponent2 extends Component {
             instance.member2 = param2;
             instance.member3 = param3;
 
-            return this;
+            return instance;
         }
 
         @Override
         public List<Class<?>> getParameterTypes() {
             var arr = new Class<?>[] {String.class, Integer.class, String.class};
             return Arrays.stream(arr).toList();
-        }
-
-        @Override
-        public Class<?> getReturnType() {
-            return TestComponent2.class;
         }
     }
 

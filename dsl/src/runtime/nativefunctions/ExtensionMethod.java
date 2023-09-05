@@ -15,13 +15,13 @@ import semanticanalysis.types.IDSLExtensionMethod;
 import java.util.List;
 
 public class ExtensionMethod extends Symbol implements ICallable {
-    private final IDSLExtensionMethod<Object> extensionMethod;
+    private final IDSLExtensionMethod<Object, Object> extensionMethod;
 
     public ExtensionMethod(
             String name,
             IScope parentScope,
             FunctionType functionType,
-            IDSLExtensionMethod<Object> callable) {
+            IDSLExtensionMethod<Object, Object> callable) {
         super(name, parentScope, functionType);
         this.extensionMethod = callable;
     }

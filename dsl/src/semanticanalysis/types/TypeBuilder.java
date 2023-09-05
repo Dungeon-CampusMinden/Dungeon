@@ -525,7 +525,7 @@ public class TypeBuilder {
         }
     }
 
-    public void registerMethod(IScope globalScope, IDSLExtensionMethod<?> method) {
+    public void registerMethod(IScope globalScope, IDSLExtensionMethod<?, ?> method) {
         // get extended type
         Class<?> methodClass = method.getClass();
         if (methodClass.isAnnotationPresent(DSLExtensionMethod.class)) {
@@ -550,7 +550,7 @@ public class TypeBuilder {
                 IType instanceDSLType = createDSLTypeForJavaTypeInScope(globalScope, instanceType);
 
                 // create FunctionType
-                Class<?> returnType = method.getReturnType();
+                Type returnType = parameterizedType.getActualTypeArguments()[1];
                 IType returnDSLType = createDSLTypeForJavaTypeInScope(globalScope, returnType);
 
                 var parameterTypes = method.getParameterTypes();
@@ -566,7 +566,7 @@ public class TypeBuilder {
                                 annotation.name(),
                                 aggregateExtendedType,
                                 functionType,
-                                (IDSLExtensionMethod<Object>) method);
+                                (IDSLExtensionMethod<Object, Object>) method);
                 aggregateExtendedType.bind(nativeMethodSymbol);
             }
         }

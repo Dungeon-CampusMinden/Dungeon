@@ -9,11 +9,8 @@ import java.util.List;
  *
  * @param <T> type of the instance in which to access the method
  */
-public interface IDSLExtensionMethod<T> {
-    // TODO: generify return value
-    Object call(DSLInterpreter interpreter, T instance, List<Object> params);
+public interface IDSLExtensionMethod<T, R> {
+    R call(DSLInterpreter interpreter, T instance, List<Object> params);
 
     List<Class<?>> getParameterTypes();
-
-    Class<?> getReturnType();
 }
