@@ -1,6 +1,11 @@
 package runtime;
 
-import semanticanalysis.types.ListType;
+import interpreter.DSLInterpreter;
+
+import parser.ast.Node;
+
+import semanticanalysis.IInstanceCallable;
+import semanticanalysis.types.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +25,17 @@ public class ListValue extends Value {
         return (ListType) this.dataType;
     }
 
+    protected ArrayList<Value> list() {
+        return (ArrayList<Value>) this.object;
+    }
+
     /**
      * Add a Value to the list
      *
      * @param value the value to add
      */
     public void addValue(Value value) {
-        ((ArrayList<Value>) this.object).add(value);
+        list().add(value);
     }
 
     /**
@@ -36,7 +45,7 @@ public class ListValue extends Value {
      * @return the Value at specified index
      */
     public Value getValue(int index) {
-        return ((ArrayList<Value>) this.object).get(index);
+        return list().get(index);
     }
 
     /**
@@ -45,11 +54,79 @@ public class ListValue extends Value {
      * @return the stored Values
      */
     public List<Value> getValues() {
-        return (List<Value>) this.object;
+        return list();
     }
 
     public void clearList() {
-        ((List<Value>) this.object).clear();
-        ;
+        list().clear();
     }
+
+    // region native_methods
+
+    /**
+     * Native method, which implements adding a Value to the internal {@link List} of a {@link
+     * ListValue}.
+     */
+    public static class AddMethod implements IInstanceCallable {
+
+        public static AddMethod instance = new AddMethod();
+
+        private AddMethod() {}
+
+        @Override
+        public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+            ListValue listValue = (ListValue) instance;
+            Node paramNode = parameters.get(0);
+            Value paramValue = (Value) paramNode.accept(interpreter);
+
+            listValue.list().add(paramValue);
+            return null;
+        }
+    }
+
+    /**
+     * Native method, which implements calculating the size (i.e. the number of stored elements of a
+     * {@link ListValue}.
+     */
+    public static class SizeMethod implements IInstanceCallable {
+
+        public static SizeMethod instance = new SizeMethod();
+
+        private SizeMethod() {}
+
+        @Override
+        public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+            ListValue listValue = (ListValue) instance;
+
+            return listValue.list().size();
+        }
+    }
+
+    /**
+     * Native method, which implements the access to one element of a {@link ListValue} by index. If
+     * the index is out of range of the internal {@link List} of the {@link ListValue}, {@link
+     * Value#NONE} is returned.
+     */
+    public static class GetMethod implements IInstanceCallable {
+
+        public static GetMethod instance = new GetMethod();
+
+        private GetMethod() {}
+
+        @Override
+        public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+            ListValue listValue = (ListValue) instance;
+
+            Node indexParameterNode = parameters.get(0);
+            Value indexValue = (Value) indexParameterNode.accept(interpreter);
+            int index = (int) indexValue.getInternalValue();
+
+            if (index >= listValue.list().size()) {
+                return Value.NONE;
+            } else {
+                return listValue.list().get(index);
+            }
+        }
+    }
+    // endregion
 }

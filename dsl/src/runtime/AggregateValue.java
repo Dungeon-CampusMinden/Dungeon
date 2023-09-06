@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.Set;
 
 public class AggregateValue extends Value {
-    protected IMemorySpace ms;
 
     /**
      * @return {@link IMemorySpace} holding the values of this AggregateValue
      */
+    @Override
     public IMemorySpace getMemorySpace() {
-        return ms;
+        return memorySpace;
     }
 
     /**
@@ -23,7 +23,7 @@ public class AggregateValue extends Value {
      */
     public AggregateValue(IType datatype, IMemorySpace parentSpace) {
         super(datatype, null);
-        this.ms = new MemorySpace(parentSpace);
+        initializeMemorySpace(parentSpace);
     }
 
     /**
@@ -35,14 +35,21 @@ public class AggregateValue extends Value {
      */
     public AggregateValue(IType datatype, IMemorySpace parentSpace, Object internalValue) {
         super(datatype, internalValue);
-        this.ms = new MemorySpace(parentSpace);
+        initializeMemorySpace(parentSpace);
+    }
+
+    private void initializeMemorySpace(IMemorySpace parentSpace) {
+        this.memorySpace = new MemorySpace(parentSpace);
+        this.memorySpace.bindValue(THIS_NAME, this);
     }
 
     /**
      * @param ms the {@link IMemorySpace} to set as the memory space of this AggregateValue
      */
     public void setMemorySpace(IMemorySpace ms) {
-        this.ms = ms;
+        ms.delete(THIS_NAME);
+        ms.bindValue(THIS_NAME, this);
+        this.memorySpace = ms;
     }
 
     /**

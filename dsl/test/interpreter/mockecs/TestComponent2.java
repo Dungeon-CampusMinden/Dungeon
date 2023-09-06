@@ -2,6 +2,9 @@ package interpreter.mockecs;
 
 import semanticanalysis.types.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 @DSLType
 public class TestComponent2 extends Component {
 
@@ -39,6 +42,30 @@ public class TestComponent2 extends Component {
         @Override
         public ComplexType get(TestComponent2 instance) {
             return instance.hiddenComplexMember;
+        }
+    }
+
+    @DSLExtensionMethod(name = "my_method", extendedType = TestComponent2.class)
+    public static class MyMethod implements IDSLExtensionMethod<TestComponent2, TestComponent2> {
+        public static MyMethod instance = new MyMethod();
+
+        @Override
+        public TestComponent2 call(TestComponent2 instance, List<Object> params) {
+            String param1 = (String) params.get(0);
+            Integer param2 = (Integer) params.get(1);
+            String param3 = (String) params.get(2);
+
+            instance.member1 = param1;
+            instance.member2 = param2;
+            instance.member3 = param3;
+
+            return instance;
+        }
+
+        @Override
+        public List<Class<?>> getParameterTypes() {
+            var arr = new Class<?>[] {String.class, Integer.class, String.class};
+            return Arrays.stream(arr).toList();
         }
     }
 

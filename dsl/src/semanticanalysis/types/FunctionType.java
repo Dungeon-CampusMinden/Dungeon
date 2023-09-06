@@ -6,6 +6,7 @@ import semanticanalysis.Symbol;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: extend this for named parameters
 public class FunctionType extends Symbol implements IType {
     private final IType returnType;
     private final ArrayList<IType> parameterTypes;
@@ -42,13 +43,13 @@ public class FunctionType extends Symbol implements IType {
         this.parameterTypes = new ArrayList<>(List.of(parameterTypes));
     }
 
-    public FunctionType(IType returnType, ArrayList<IType> parameterTypes) {
+    public FunctionType(IType returnType, List<IType> parameterTypes) {
         super(calculateTypeName(returnType, parameterTypes), Scope.NULL, null);
         this.returnType = returnType;
-        this.parameterTypes = parameterTypes;
+        this.parameterTypes = new ArrayList<>(parameterTypes);
     }
 
-    public static String calculateTypeName(IType returnType, ArrayList<IType> parameterTypes) {
+    public static String calculateTypeName(IType returnType, List<IType> parameterTypes) {
         StringBuilder nameBuilder = new StringBuilder();
         nameBuilder.append("$fn(");
         for (int i = 0; i < parameterTypes.size(); i++) {

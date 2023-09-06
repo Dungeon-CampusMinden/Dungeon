@@ -7,6 +7,7 @@ import dslToGame.graph.Graph;
 import interpreter.TestEnvironment;
 import interpreter.mockecs.*;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import semanticanalysis.Scope;
@@ -327,5 +328,12 @@ public class TestTypeBuilder {
         assertEquals("float<>", floatSetSymbol.getDataType().getName());
         setType = (SetType) floatSetSymbol.getDataType();
         assertEquals(BuiltInType.floatType, setType.getElementType());
+    }
+
+    @Test
+    public void testTypeForNull() {
+        TestEnvironment env = new TestEnvironment();
+        var type = env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), null);
+        Assert.assertEquals(BuiltInType.noType, type);
     }
 }

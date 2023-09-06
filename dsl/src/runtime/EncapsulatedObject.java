@@ -12,6 +12,7 @@ import java.util.Set;
 public class EncapsulatedObject extends Value implements IMemorySpace {
     private IMemorySpace parent;
     private AggregateType type;
+    private Value thisValue = Value.NONE;
 
     // TODO: this should be static for one aggregateType and not instanced for each new instance of
     //  the same type;
@@ -60,7 +61,12 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
 
     @Override
     public boolean bindValue(String name, Value value) {
-        return false;
+        if (name.equals(THIS_NAME)) {
+            thisValue = value;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -68,6 +74,10 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
         Value returnValue = Value.NONE;
         if (objectCache.containsKey(name)) {
             return objectCache.get(name);
+        }
+
+        if (name.equals(THIS_NAME)) {
+            return thisValue;
         }
 
         // lookup name
@@ -149,8 +159,12 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
 
     @Override
     public void delete(String name) {
-        throw new UnsupportedOperationException(
-                "Deleting a value from an Encapsulated Object is not supported!");
+        if (name.equals(THIS_NAME)) {
+            thisValue = Value.NONE;
+        } else {
+            throw new UnsupportedOperationException(
+                    "Deleting a value from an Encapsulated Object is not supported!");
+        }
     }
 
     // TODO: define the semantics for this based on, if the value is a POD type or
@@ -159,6 +173,11 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
     //  (will be done in https://github.com/Programmiermethoden/Dungeon/issues/156)
     @Override
     public boolean setValue(String name, Value value) {
+        // handle this value
+        if (name.equals(THIS_NAME)) {
+            thisValue = value;
+        }
+
         Field correspondingField = this.typeMemberToField.getOrDefault(name, null);
         if (correspondingField == null) {
             return false;

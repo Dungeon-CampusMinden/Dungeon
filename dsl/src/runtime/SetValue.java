@@ -1,8 +1,14 @@
 package runtime;
 
+import interpreter.DSLInterpreter;
+
+import parser.ast.Node;
+
+import semanticanalysis.IInstanceCallable;
 import semanticanalysis.types.SetType;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /** Implements a set value */
@@ -25,6 +31,9 @@ public class SetValue extends Value {
         return (SetType) this.dataType;
     }
 
+    protected HashSet<Value> set() {
+        return ((HashSet<Value>) this.object);
+    }
     /**
      * Add a Value to the set. The Value will only be added to the set, if no other Value with the
      * same internal value of the passed Value is already stored in this set.
@@ -37,8 +46,8 @@ public class SetValue extends Value {
         if (internalValueSet.contains(internalValue)) {
             return false;
         }
-        internalValueSet.add(object);
-        ((HashSet<Value>) this.object).add(value);
+        internalValueSet.add(internalValue);
+        set().add(value);
         return true;
     }
 
@@ -46,10 +55,73 @@ public class SetValue extends Value {
      * @return all stored values
      */
     public Set<Value> getValues() {
-        return (Set<Value>) this.object;
+        return set();
     }
 
     public void clearSet() {
-        ((Set<Value>) this.object).clear();
+        set().clear();
     }
+
+    // region native_methods
+    /**
+     * Native method, which implements adding a Value to the internal {@link Set} of a {@link
+     * SetValue}.
+     */
+    public static class AddMethod implements IInstanceCallable {
+
+        public static SetValue.AddMethod instance = new SetValue.AddMethod();
+
+        private AddMethod() {}
+
+        @Override
+        public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+            SetValue setValue = (SetValue) instance;
+            Node paramNode = parameters.get(0);
+            Value paramValue = (Value) paramNode.accept(interpreter);
+
+            return setValue.addValue(paramValue);
+        }
+    }
+
+    /**
+     * Native method, which implements calculating the size (i.e. the number of stored elements of a
+     * {@link SetValue}.
+     */
+    public static class SizeMethod implements IInstanceCallable {
+
+        public static SetValue.SizeMethod instance = new SetValue.SizeMethod();
+
+        private SizeMethod() {}
+
+        @Override
+        public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+            SetValue setValue = (SetValue) instance;
+
+            return setValue.set().size();
+        }
+    }
+
+    /**
+     * Native method, which checks whether a given Value is present in the internal value set of a
+     * {@link SetValue}. Because different instances of {@link Value} can refer to the same internal
+     * value, the internal values are used for the lookup.
+     */
+    public static class ContainsMethod implements IInstanceCallable {
+
+        public static SetValue.ContainsMethod instance = new SetValue.ContainsMethod();
+
+        private ContainsMethod() {}
+
+        @Override
+        public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+            SetValue setValue = (SetValue) instance;
+
+            Node valueToCheckNode = parameters.get(0);
+            Value valueToCheck = (Value) valueToCheckNode.accept(interpreter);
+
+            return setValue.internalValueSet.contains(valueToCheck.getInternalValue());
+        }
+    }
+    // endregion
+
 }

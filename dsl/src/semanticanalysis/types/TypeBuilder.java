@@ -4,6 +4,8 @@ import core.utils.TriConsumer;
 
 import dslToGame.graph.Graph;
 
+import runtime.nativefunctions.ExtensionMethod;
+
 import semanticanalysis.*;
 import semanticanalysis.types.callbackadapter.BiFunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
@@ -404,6 +406,10 @@ public class TypeBuilder {
      * @param type the java {@link Type} to create a DSL {@link IType} from
      */
     public IType createDSLTypeForJavaTypeInScope(IScope globalScope, Type type) {
+        if (type == null) {
+            return BuiltInType.noType;
+        }
+
         // catch recursion
         if (this.currentLookedUpTypes.contains(type)) {
             throw new RuntimeException("RECURSIVE TYPE DEF");
@@ -486,38 +492,77 @@ public class TypeBuilder {
         return aggregateType;
     }
 
-    public void registerProperty(IScope globalScope, IDSLTypeProperty<?, ?> property) {
+    /**
+     * Bind a {@link IDSLTypeProperty} as an {@link PropertySymbol} in the DSL datatype
+     * corresponding to the {@link DSLTypeProperty#extendedType()} field.
+     *
+     * @param globalScope the global scope to use for resolving data types
+     * @param property the {@link IDSLTypeProperty} to bind
+     */
+    public void bindProperty(IScope globalScope, IDSLTypeProperty<?, ?> property) {
         // get extended type
         Class<?> propertyClass = property.getClass();
         if (propertyClass.isAnnotationPresent(DSLTypeProperty.class)) {
             var annotation = propertyClass.getAnnotation(DSLTypeProperty.class);
             var extendedClass = annotation.extendedType();
-            String extendedClassName = getDSLTypeName(extendedClass);
-            Symbol extendedTypeSymbol = globalScope.resolve(extendedClassName);
-            if (extendedTypeSymbol.equals(Symbol.NULL)) {
-                throw new RuntimeException(
-                        "Name of extended type '"
-                                + extendedClassName
-                                + "' could not be resolved in scope");
-            }
-
-            IType extendedType = (IType) extendedTypeSymbol;
+            IType extendedType = createDSLTypeForJavaTypeInScope(globalScope, extendedClass);
             if (extendedType instanceof AggregateType aggregateExtendedType) {
                 var genericInterfaces = propertyClass.getGenericInterfaces();
                 var type = genericInterfaces[0];
                 ParameterizedType parameterizedType = (ParameterizedType) type;
 
-                var instanceType = parameterizedType.getActualTypeArguments()[0];
-                IType instanceDSLType = createDSLTypeForJavaTypeInScope(globalScope, instanceType);
-
+                // get properties datatype
                 var valueType = parameterizedType.getActualTypeArguments()[1];
                 IType valueDSLType = createDSLTypeForJavaTypeInScope(globalScope, valueType);
 
-                // create new symbol for property -> likely requires new Symbol kind
+                // create and bind property symbol
                 PropertySymbol propertySymbol =
                         new PropertySymbol(
                                 annotation.name(), aggregateExtendedType, valueDSLType, property);
                 aggregateExtendedType.bind(propertySymbol);
+            }
+        }
+    }
+
+    /**
+     * Bind a {@link IDSLExtensionMethod} as an {@link ExtensionMethod} symbol in the DSL datatype
+     * corresponding to the {@link DSLExtensionMethod#extendedType()} field.
+     *
+     * @param globalScope the global scope to use for resolving data types
+     * @param method the {@link IDSLExtensionMethod} to bind
+     */
+    public void bindMethod(IScope globalScope, IDSLExtensionMethod<?, ?> method) {
+        // get extended type
+        Class<?> methodClass = method.getClass();
+        if (methodClass.isAnnotationPresent(DSLExtensionMethod.class)) {
+            var annotation = methodClass.getAnnotation(DSLExtensionMethod.class);
+            var extendedClass = annotation.extendedType();
+            IType extendedType = createDSLTypeForJavaTypeInScope(globalScope, extendedClass);
+            if (extendedType instanceof AggregateType aggregateExtendedType) {
+                var genericInterfaces = methodClass.getGenericInterfaces();
+                var type = genericInterfaces[0];
+                ParameterizedType parameterizedType = (ParameterizedType) type;
+
+                // create FunctionType
+                Type returnType = parameterizedType.getActualTypeArguments()[1];
+                IType returnDSLType = createDSLTypeForJavaTypeInScope(globalScope, returnType);
+
+                List<Class<?>> parameterTypes = method.getParameterTypes();
+                List<IType> parameterDSLTypes =
+                        parameterTypes.stream()
+                                .map(t -> createDSLTypeForJavaTypeInScope(globalScope, t))
+                                .toList();
+
+                FunctionType functionType = new FunctionType(returnDSLType, parameterDSLTypes);
+
+                // create and bind method symbol
+                ExtensionMethod nativeMethodSymbol =
+                        new ExtensionMethod(
+                                annotation.name(),
+                                aggregateExtendedType,
+                                functionType,
+                                (IDSLExtensionMethod<Object, Object>) method);
+                aggregateExtendedType.bind(nativeMethodSymbol);
             }
         }
     }

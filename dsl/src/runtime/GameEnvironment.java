@@ -199,7 +199,7 @@ public class GameEnvironment implements IEvironment {
 
     protected void bindBuiltInProperties() {
         for (IDSLTypeProperty<?, ?> property : getBuiltInProperties()) {
-            this.typeBuilder.registerProperty(this.globalScope, property);
+            this.typeBuilder.bindProperty(this.globalScope, property);
         }
     }
 
