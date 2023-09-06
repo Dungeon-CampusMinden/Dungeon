@@ -71,7 +71,7 @@ public class ObjectDefNode extends Node {
      * @return A List of AstNodes corresponding to property definitions
      */
     public List<Node> getPropertyDefinitions() {
-        return this.children.get(propertyDefListIdx).getChildren();
+        return this.getChild(propertyDefListIdx).getChildren();
     }
 
     /**
@@ -88,9 +88,9 @@ public class ObjectDefNode extends Node {
                 new ArrayList<>(propertyDefList.getChildren().size() + 2));
         this.type = type;
 
-        this.children.add(typeSpecifier);
-        this.children.add(id);
-        this.children.add(propertyDefList);
+        this.addChild(typeSpecifier);
+        this.addChild(id);
+        this.addChild(propertyDefList);
     }
 
     @Override

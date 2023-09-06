@@ -10,14 +10,14 @@ public class EdgeRhsNode extends Node {
      * @return The EdgeOpNode corresponding to the EdgeOperator
      */
     public Node getEdgeOpNode() {
-        return this.children.get(edgeOpIdx);
+        return this.getChild(edgeOpIdx);
     }
 
     /**
      * @return The IdNode corresponding to the referenced identifier on the right-hand-side
      */
     public Node getIdNode() {
-        return this.children.get(idNodeIdx);
+        return this.getChild(idNodeIdx);
     }
 
     /**
@@ -35,8 +35,8 @@ public class EdgeRhsNode extends Node {
      */
     public EdgeRhsNode(Node edgeOpNode, Node idNode) {
         super(Type.DotEdgeRHS, new ArrayList<>(2));
-        this.children.add(edgeOpNode);
-        this.children.add(idNode);
+        this.addChild(edgeOpNode);
+        this.addChild(idNode);
     }
 
     @Override

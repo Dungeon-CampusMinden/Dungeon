@@ -7,7 +7,7 @@ public class ReturnStmtNode extends Node {
 
     public ReturnStmtNode(Node innerStmt) {
         super(Type.ReturnStmt);
-        this.children.add(innerStmt);
+        this.addChild(innerStmt);
     }
 
     @Override

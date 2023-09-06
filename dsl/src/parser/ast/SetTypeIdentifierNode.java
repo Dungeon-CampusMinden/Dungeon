@@ -12,7 +12,7 @@ public class SetTypeIdentifierNode extends IdNode {
                 Type.SetTypeIdentifierNode,
                 innerTypeNode.getName() + "<>",
                 innerTypeNode.getSourceFileReference());
-        this.children.add(innerTypeNode);
+        this.addChild(innerTypeNode);
     }
 
     public IdNode getInnerTypeNode() {

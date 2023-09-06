@@ -46,8 +46,8 @@ public class AggregateValueDefinitionNode extends Node {
      */
     public AggregateValueDefinitionNode(Node idNode, Node propertyDefinitionList) {
         super(Type.AggregateValueDefinition, new ArrayList<>(2));
-        this.children.add(idNode);
-        this.children.add(propertyDefinitionList);
+        this.addChild(idNode);
+        this.addChild(propertyDefinitionList);
     }
 
     @Override

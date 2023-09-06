@@ -10,7 +10,7 @@ public class ListDefinitionNode extends Node {
 
     public ListDefinitionNode(Node entryList) {
         super(Type.ListDefinitionNode, new ArrayList<>(1));
-        this.children.add(entryList);
+        this.addChild(entryList);
     }
 
     @Override

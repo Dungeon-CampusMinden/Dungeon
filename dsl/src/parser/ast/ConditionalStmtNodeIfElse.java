@@ -44,9 +44,9 @@ public class ConditionalStmtNodeIfElse extends Node {
     public ConditionalStmtNodeIfElse(Node condition, Node stmtIf, Node stmtElse) {
         super(Type.ConditionalStmtIfElse, new ArrayList<>(3));
 
-        this.children.add(condition);
-        this.children.add(stmtIf);
-        this.children.add(stmtElse);
+        this.addChild(condition);
+        this.addChild(stmtIf);
+        this.addChild(stmtElse);
     }
 
     @Override

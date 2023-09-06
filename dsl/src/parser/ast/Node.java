@@ -72,7 +72,7 @@ public class Node {
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());
 
-    protected ArrayList<Node> children;
+    private ArrayList<Node> children;
     public final Type type;
     private Node parent;
     private SourceFileReference sourceFileReference = SourceFileReference.NULL;
@@ -141,13 +141,22 @@ public class Node {
         return children.get(idx);
     }
 
+    public void addChild(Node node) {
+        this.children.add(node);
+        node.parent = this;
+    }
+
+    public Node getParent() {
+        return parent;
+    }
+
     /**
      * Get all children of this node.
      *
      * @return List of all children of the node.
      */
     public ArrayList<Node> getChildren() {
-        return children;
+        return new ArrayList<>(children);
     }
 
     /**

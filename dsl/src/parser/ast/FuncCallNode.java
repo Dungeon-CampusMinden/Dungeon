@@ -31,7 +31,7 @@ public class FuncCallNode extends Node {
      * @return List of the AstNodes corresponding to the parameters of the function call
      */
     public List<Node> getParameters() {
-        return this.children.get(paramListIdx).getChildren();
+        return this.getChild(paramListIdx).getChildren();
     }
 
     /**
@@ -43,8 +43,8 @@ public class FuncCallNode extends Node {
     public FuncCallNode(Node id, Node paramList) {
         super(Type.FuncCall, new ArrayList<>(paramList.getChildren().size() + 1));
 
-        this.children.add(id);
-        this.children.add(paramList);
+        this.addChild(id);
+        this.addChild(paramList);
     }
 
     @Override

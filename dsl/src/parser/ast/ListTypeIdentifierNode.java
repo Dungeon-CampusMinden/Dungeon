@@ -12,7 +12,7 @@ public class ListTypeIdentifierNode extends IdNode {
                 Type.ListTypeIdentifierNode,
                 innerTypeNode.getName() + "[]",
                 innerTypeNode.getSourceFileReference());
-        this.children.add(innerTypeNode);
+        this.addChild(innerTypeNode);
     }
 
     public IdNode getInnerTypeNode() {

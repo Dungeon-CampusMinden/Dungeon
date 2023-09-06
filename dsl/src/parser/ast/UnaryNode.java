@@ -21,7 +21,7 @@ public class UnaryNode extends Node {
     public UnaryNode(UnaryType type, Node inner) {
         super(Type.Unary, new ArrayList<>(1));
         this.unaryType = type;
-        this.children.add(inner);
+        this.addChild(inner);
     }
 
     @Override

@@ -70,7 +70,7 @@ public class FuncDefNode extends Node {
      * @return List of the AstNodes corresponding to the parameters of the function call
      */
     public List<Node> getParameters() {
-        return this.children.get(paramListIdx).getChildren();
+        return this.getChild(paramListIdx).getChildren();
     }
 
     /**
@@ -82,10 +82,10 @@ public class FuncDefNode extends Node {
     public FuncDefNode(Node id, Node paramList, Node retType, Node stmtBlock) {
         super(Type.FuncDef, new ArrayList<>(4));
 
-        this.children.add(id);
-        this.children.add(paramList);
-        this.children.add(retType);
-        this.children.add(stmtBlock);
+        this.addChild(id);
+        this.addChild(paramList);
+        this.addChild(retType);
+        this.addChild(stmtBlock);
     }
 
     @Override

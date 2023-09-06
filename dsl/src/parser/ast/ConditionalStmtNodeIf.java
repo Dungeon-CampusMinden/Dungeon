@@ -33,8 +33,8 @@ public class ConditionalStmtNodeIf extends Node {
     public ConditionalStmtNodeIf(Node condition, Node stmt) {
         super(Type.ConditionalStmtIf, new ArrayList<>(2));
 
-        this.children.add(condition);
-        this.children.add(stmt);
+        this.addChild(condition);
+        this.addChild(stmt);
     }
 
     @Override
