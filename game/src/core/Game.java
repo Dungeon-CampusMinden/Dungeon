@@ -794,12 +794,16 @@ public final class Game extends ScreenAdapter {
         userOnFrame.execute();
     }
 
+    Entity pauseMenu;
     /** Just for debugging, remove later. */
     private void debugKeys() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             // Text Dialogue (output of information texts)
-
-            newPauseMenu();
+            if (pauseMenu == null
+                    || pauseMenu
+                            .fetch(UIComponent.class)
+                            .map(x -> x.dialog().getStage() == null)
+                            .orElse(false)) pauseMenu = newPauseMenu();
 
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             // toggle UI "debug rendering"
