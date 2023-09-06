@@ -29,6 +29,7 @@ import runtime.nativefunctions.NativeFunction;
 
 import semanticanalysis.types.*;
 
+import java.lang.reflect.Member;
 import java.util.Stack;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
@@ -328,20 +329,27 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(FuncCallNode node) {
-        // resolve function definition in global scope
-        String funcName = node.getIdName();
+        Node parentNode = node.getParent();
+        if (parentNode.type.equals(Node.Type.MemberAccess) && ((MemberAccessNode)parentNode).getRhs().equals(node)) {
+            // symbol will be resolved in the visit-implementation of MemberAccessNode, as it requires
+            // resolving in the datatype of the preceding member-access expression
+        } else {
+            Symbol funcSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+            if (funcSymbol == Symbol.NULL) {
+                String funcName = node.getIdName();
+                funcSymbol = currentScope().resolve(funcName, true);
+                if (funcSymbol.equals(Symbol.NULL)) {
+                    throw new RuntimeException(
+                        "Function with name " + funcName + " could not be resolved!");
+                }
 
-        var funcSymbol = currentScope().resolve(funcName, true);
-        if (funcSymbol.equals(Symbol.NULL)) {
-            throw new RuntimeException(
-                    "Function with name " + funcName + " could not be resolved!");
+                if (!(funcSymbol instanceof ICallable)) {
+                    throw new RuntimeException("Symbol with name " + funcName + " is not callable!");
+                }
+
+                this.symbolTable.addSymbolNodeRelation(funcSymbol, node, false);
+            }
         }
-
-        if (!(funcSymbol instanceof ICallable)) {
-            throw new RuntimeException("Symbol with name " + funcName + " is not callable!");
-        }
-
-        this.symbolTable.addSymbolNodeRelation(funcSymbol, node, false);
 
         for (var parameter : node.getParameters()) {
             parameter.accept(this);
@@ -438,41 +446,71 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(MemberAccessNode node) {
-        Node lhs = node.getLhs();
-
-        // resolve name of lhs in scope
+        Node currentNode = node;
+        Node lhs = Node.NONE;
+        Node rhs = Node.NONE;
         IType lhsDataType = BuiltInType.noType;
-        if (lhs.type.equals(Node.Type.Identifier)) {
-            String nameToResolve = ((IdNode) lhs).getName();
-            Symbol symbol = this.currentScope().resolve(nameToResolve);
-            lhsDataType = symbol.getDataType();
+        IScope scopeToUse = this.currentScope();
 
-            symbolTable.addSymbolNodeRelation(symbol, lhs, false);
-        } else if (lhs.type.equals(Node.Type.FuncCall)) {
-            // visit function call itself (resolve parameters etc.)
-            lhs.accept(this);
+        while (currentNode.type.equals(Node.Type.MemberAccess)) {
+            lhs = ((MemberAccessNode)currentNode).getLhs();
+            rhs = ((MemberAccessNode)currentNode).getRhs();
 
-            // resolve function definition
-            String functionName = ((FuncCallNode) lhs).getIdName();
-            FunctionSymbol functionSymbol =
-                    (FunctionSymbol) this.currentScope().resolve(functionName);
-            FunctionType functionType = (FunctionType) functionSymbol.getDataType();
-            lhsDataType = functionType.getReturnType();
-        }
+            // resolve name of lhs in scope
+            //lhsDataType = BuiltInType.noType;
+            if (lhs.type.equals(Node.Type.Identifier)) {
+                String nameToResolve = ((IdNode) lhs).getName();
+                Symbol symbol = scopeToUse.resolve(nameToResolve);
+                lhsDataType = symbol.getDataType();
 
-        if (!(lhsDataType instanceof ScopedSymbol lhsTypeScopedSymbol)) {
-            throw new RuntimeException(
+                symbolTable.addSymbolNodeRelation(symbol, lhs, false);
+            } else if (lhs.type.equals(Node.Type.FuncCall)) {
+                // visit function call itself (resolve parameters etc.)
+                lhs.accept(this);
+
+                // resolve function definition
+                String functionName = ((FuncCallNode) lhs).getIdName();
+                FunctionSymbol functionSymbol =
+                    (FunctionSymbol) scopeToUse.resolve(functionName);
+                FunctionType functionType = (FunctionType) functionSymbol.getDataType();
+                lhsDataType = functionType.getReturnType();
+            }
+
+            currentNode = rhs;
+
+            if (!(lhsDataType instanceof ScopedSymbol lhsTypeScopedSymbol)) {
+                throw new RuntimeException(
                     "Datatype "
-                            + lhsDataType.getName()
-                            + " of lhs in member access is no scoped symbol!");
+                        + lhsDataType.getName()
+                        + " of lhs in member access is no scoped symbol!");
+            }
+            scopeToUse = lhsTypeScopedSymbol;
         }
 
-        Node rhs = node.getRhs();
-        // resolve rhs-name in scope of the type of the lhs-symbol
-        // -> put datatype of lhs on scope-stack
-        scopeStack.push(lhsTypeScopedSymbol);
-        rhs.accept(this);
-        scopeStack.pop();
+        // if we arrive here, we have got two options:
+        // 1. we resolve an IdNode at the rhs of the MemberAccessNode
+        // 2. we resolve an FuncCallNode at the rhs of the MemberAccessNode
+        if (rhs.type.equals(Node.Type.Identifier)) {
+            // push lhsDataType on stack
+            scopeStack.push(scopeToUse);
+            rhs.accept(this);
+            scopeStack.pop();
+        } else if (rhs.type.equals(Node.Type.FuncCall)) {
+            // resolve function name in scope to use
+            String funcName = ((FuncCallNode)rhs).getIdName();
+            Symbol funcSymbol = scopeToUse.resolve(funcName, true);
+            if (funcSymbol.equals(Symbol.NULL)) {
+                throw new RuntimeException(
+                    "Function with name " + funcName + " could not be resolved!");
+            }
+
+            if (!(funcSymbol instanceof ICallable)) {
+                throw new RuntimeException("Symbol with name " + funcName + " is not callable!");
+            }
+            this.symbolTable.addSymbolNodeRelation(funcSymbol, rhs, false);
+
+            rhs.accept(this);
+        }
 
         return null;
     }

@@ -2454,7 +2454,8 @@ public class TestDSLInterpreter {
 
         fn func(entity ent) {
             // in test_component2.my_method, `member` of the instance will be set to the first parameter
-            ent.test_component2.my_method("Hello, World!", 42, "Nope");
+            //ent.test_component2.my_method("Hello, World!", 42, "Nope");
+            ent.test_component2.my_method(ent.test_component1.member1, 42, "Nope");
             print(ent.test_component2.member1);
         }
 
