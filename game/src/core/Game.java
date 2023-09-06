@@ -794,7 +794,12 @@ public final class Game extends ScreenAdapter {
         userOnFrame.execute();
     }
 
-    Entity pauseMenu;
+    /**
+     * A Variable which only is used to check whether the UI still exists.
+     *
+     * <p>should be moved with the debug key for pause
+     */
+    private Entity pauseMenu;
     /** Just for debugging, remove later. */
     private void debugKeys() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
