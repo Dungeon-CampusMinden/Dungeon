@@ -102,23 +102,26 @@ public final class DrawSystem extends System {
         IPath highestPrio = null;
 
         // iterate through animationQueue
-        for (Map.Entry<IPath[], Integer> animationArr : dc.animationQueue().entrySet()) {
+        for (Map.Entry<IPath, Integer> entry : dc.animationQueue().entrySet()) {
             // subtract 1 from every frametimer, if value below zero, remove animation from
             // queue
-            animationArr.setValue(animationArr.getValue() - 1);
-            if (animationArr.getValue() < 0) {
-                dc.animationQueue().remove(animationArr.getKey());
+            entry.setValue(entry.getValue() - 1);
+            if (entry.getValue() < 0) {
+                dc.animationQueue().remove(entry.getKey());
+                // why break ? not continue
                 break;
             }
-
             // if animation has frametime left, check if it's the highest priority
             // then generate the first valid Animation from that array
-            for (IPath animationPath : animationArr.getKey()) {
-                if (highestPrio == null || highestPrio.priority() < animationPath.priority()) {
-                    highestPrio = animationPath;
-                    dc.animationMap().get(animationPath.pathString());
-                }
+            if (highestPrio == null || highestPrio.priority() < entry.getKey().priority()) {
+                highestPrio = entry.getKey();
             }
+        }
+        // when there is an animation load it
+        if (highestPrio != null) {
+            // making sure the animation exists
+            dc.animationMap().get(highestPrio.pathString());
+            // changing the Animation
             dc.currentAnimation(highestPrio);
         }
     }

@@ -55,7 +55,11 @@ public final class DrawComponent implements Component {
     private Map<String, Animation> animationMap = null;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
-    private Map<IPath[], Integer> animationQueue = new HashMap<>();
+    // ??? what is this neither queue nor map
+    // each Entry is running in parrallel
+    // the value is how long the Entry should be contained
+    // the key is all Animations which then get checked for highest Priority?
+    private Map<IPath, Integer> animationQueue = new HashMap<>();
 
     /**
      * Create a new DrawComponent.
@@ -172,10 +176,19 @@ public final class DrawComponent implements Component {
      * @param next Array of IPaths to Animation
      */
     public void queueAnimation(int forFrames, IPath... next) {
-        for (Map.Entry<IPath[], Integer> animationArr : animationQueue.entrySet()) {
-            if (animationArr.getKey()[0].pathString().equals(next[0].pathString())) return;
+        for (Map.Entry<IPath, Integer> entry : animationQueue.entrySet()) {
+            // check for already added entry
+            if (entry.getKey()
+                    .pathString()
+                    .equals(
+                            Arrays.stream(next)
+                                    .min((x, y) -> y.priority() - x.priority())
+                                    .orElseThrow()
+                                    .pathString())) return;
         }
-        animationQueue.put(next, forFrames);
+        // add if not already in queue
+        animationQueue.put(
+                Arrays.stream(next).min((x, y) -> y.priority() - x.priority()).get(), forFrames);
     }
 
     /**
@@ -184,9 +197,8 @@ public final class DrawComponent implements Component {
      * @param prio priority to remove
      */
     public void deQueueByPriority(int prio) {
-        for (Map.Entry<IPath[], Integer> animationArr : animationQueue.entrySet()) {
-            if (animationArr.getKey()[0].priority() == prio)
-                animationQueue.remove(animationArr.getKey());
+        for (Map.Entry<IPath, Integer> entry : animationQueue.entrySet()) {
+            if (entry.getKey().priority() == prio) animationQueue.remove(entry.getKey());
         }
     }
 
@@ -246,6 +258,34 @@ public final class DrawComponent implements Component {
         return currentAnimation.isFinished();
     }
 
+    /**
+     * Check if Animation is queued up
+     *
+     * @return true if Animation is in queue
+     */
+    public boolean isAnimationQueued(IPath requestedAnimation) {
+        for (Map.Entry<IPath, Integer> animationArr : animationQueue.entrySet()) {
+            if (animationArr.getKey().pathString().equals(requestedAnimation.pathString()))
+                return true;
+        }
+        return false;
+    }
+
+    public Map<IPath, Integer> animationQueue() {
+        return animationQueue;
+    }
+
+    public void setAnimationQueue(Map<IPath, Integer> queue) {
+        animationQueue = queue;
+    }
+
+    public Map<String, Animation> animationMap() {
+        return animationMap;
+    }
+
+    /*
+     * Loading logic
+     */
     private void loadAnimationsFromDirectory(String path) throws IOException {
         File jarFile =
                 new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
@@ -338,30 +378,5 @@ public final class DrawComponent implements Component {
             } catch (URISyntaxException ignored) {
             }
         }
-    }
-
-    /**
-     * Check if Animation is queued up
-     *
-     * @return true if Animation is in queue
-     */
-    public boolean isAnimationQueued(IPath requestedAnimation) {
-        for (Map.Entry<IPath[], Integer> animationArr : animationQueue.entrySet()) {
-            if (animationArr.getKey()[0].pathString().equals(requestedAnimation.pathString()))
-                return true;
-        }
-        return false;
-    }
-
-    public Map<IPath[], Integer> animationQueue() {
-        return animationQueue;
-    }
-
-    public void setAnimationQueue(Map<IPath[], Integer> queue) {
-        animationQueue = queue;
-    }
-
-    public Map<String, Animation> animationMap() {
-        return animationMap;
     }
 }
