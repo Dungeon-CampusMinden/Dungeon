@@ -2506,7 +2506,7 @@ public class TestDSLInterpreter {
     @Test
     public void testChainedExtensionMethodCall() {
         String program =
-            """
+                """
     entity_type my_type {
         test_component1 {
             member1: 42,
@@ -2539,30 +2539,30 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
         env.getTypeBuilder()
-            .bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+                .bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
         env.getTypeBuilder()
-            .bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+                .bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
         env.getTypeBuilder().bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
 
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         var entity = config.entity();
 
         TestComponentEntityConsumerCallback componentWithConsumer =
-            (TestComponentEntityConsumerCallback)
-                entity.components.stream()
-                    .filter(c -> c instanceof TestComponentEntityConsumerCallback)
-                    .toList()
-                    .get(0);
+                (TestComponentEntityConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                                .toList()
+                                .get(0);
 
         componentWithConsumer.consumer.accept(entity);
 

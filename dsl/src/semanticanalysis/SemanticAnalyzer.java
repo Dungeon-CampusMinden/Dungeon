@@ -29,7 +29,6 @@ import runtime.nativefunctions.NativeFunction;
 
 import semanticanalysis.types.*;
 
-import java.lang.reflect.Member;
 import java.util.Stack;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
@@ -331,7 +330,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     public Void visit(FuncCallNode node) {
         Node parentNode = node.getParent();
         if (parentNode.type.equals(Node.Type.MemberAccess)) {
-            // symbol will be resolved in the visit-implementation of MemberAccessNode, as it requires
+            // symbol will be resolved in the visit-implementation of MemberAccessNode, as it
+            // requires
             // resolving in the datatype of the preceding member-access expression
         } else {
             Symbol funcSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
@@ -340,11 +340,12 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                 funcSymbol = currentScope().resolve(funcName, true);
                 if (funcSymbol.equals(Symbol.NULL)) {
                     throw new RuntimeException(
-                        "Function with name " + funcName + " could not be resolved!");
+                            "Function with name " + funcName + " could not be resolved!");
                 }
 
                 if (!(funcSymbol instanceof ICallable)) {
-                    throw new RuntimeException("Symbol with name " + funcName + " is not callable!");
+                    throw new RuntimeException(
+                            "Symbol with name " + funcName + " is not callable!");
                 }
 
                 this.symbolTable.addSymbolNodeRelation(funcSymbol, node, false);
@@ -453,11 +454,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         IScope scopeToUse = this.currentScope();
 
         while (currentNode.type.equals(Node.Type.MemberAccess)) {
-            lhs = ((MemberAccessNode)currentNode).getLhs();
-            rhs = ((MemberAccessNode)currentNode).getRhs();
+            lhs = ((MemberAccessNode) currentNode).getLhs();
+            rhs = ((MemberAccessNode) currentNode).getRhs();
 
             // resolve name of lhs in scope
-            //lhsDataType = BuiltInType.noType;
+            // lhsDataType = BuiltInType.noType;
             if (lhs.type.equals(Node.Type.Identifier)) {
                 String nameToResolve = ((IdNode) lhs).getName();
                 Symbol symbol = scopeToUse.resolve(nameToResolve);
@@ -482,9 +483,9 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
             if (!(lhsDataType instanceof ScopedSymbol lhsTypeScopedSymbol)) {
                 throw new RuntimeException(
-                    "Datatype "
-                        + lhsDataType.getName()
-                        + " of lhs in member access is no scoped symbol!");
+                        "Datatype "
+                                + lhsDataType.getName()
+                                + " of lhs in member access is no scoped symbol!");
             }
             scopeToUse = lhsTypeScopedSymbol;
         }
@@ -499,11 +500,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             scopeStack.pop();
         } else if (rhs.type.equals(Node.Type.FuncCall)) {
             // resolve function name in scope to use
-            String funcName = ((FuncCallNode)rhs).getIdName();
+            String funcName = ((FuncCallNode) rhs).getIdName();
             Symbol funcSymbol = scopeToUse.resolve(funcName, true);
             if (funcSymbol.equals(Symbol.NULL)) {
                 throw new RuntimeException(
-                    "Function with name " + funcName + " could not be resolved!");
+                        "Function with name " + funcName + " could not be resolved!");
             }
 
             if (!(funcSymbol instanceof ICallable)) {

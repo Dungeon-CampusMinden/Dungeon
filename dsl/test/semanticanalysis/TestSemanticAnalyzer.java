@@ -592,11 +592,10 @@ public class TestSemanticAnalyzer {
         Assert.assertEquals(member1Symbol, symbolForMember1Identifier);
     }
 
-
     @Test
     public void memberAccessFuncCallChainedMethod() {
         String program =
-            """
+                """
         fn other_func(test_component2 comp) -> test_component2 {
             return comp;
         }
@@ -609,9 +608,8 @@ public class TestSemanticAnalyzer {
 
         TestEnvironment env = new TestEnvironment();
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-        env.getTypeBuilder()
-            .bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder().bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
 
         var ast = Helpers.getASTFromString(program);
         var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
@@ -619,14 +617,14 @@ public class TestSemanticAnalyzer {
 
         FuncDefNode otherFuncDefNode = (FuncDefNode) ast.getChild(0);
         FunctionSymbol otherFuncSymbol =
-            (FunctionSymbol) symbolTable.getSymbolsForAstNode(otherFuncDefNode).get(0);
+                (FunctionSymbol) symbolTable.getSymbolsForAstNode(otherFuncDefNode).get(0);
         FuncDefNode testFuncDefNode = (FuncDefNode) ast.getChild(1);
 
         var stmtList = testFuncDefNode.getStmts();
         var printStmt = stmtList.get(0);
         var printStmtFuncCall = (FuncCallNode) printStmt;
         MemberAccessNode printParameterNode =
-            (MemberAccessNode) (printStmtFuncCall.getParameters().get(0));
+                (MemberAccessNode) (printStmtFuncCall.getParameters().get(0));
 
         Assert.assertEquals(Node.Type.MemberAccess, printParameterNode.type);
 
@@ -645,7 +643,7 @@ public class TestSemanticAnalyzer {
         Assert.assertEquals(1, symbolsForMethodCall.size());
 
         AggregateType testComponent2Type =
-            (AggregateType) symbolTable.globalScope.resolveType("test_component2");
+                (AggregateType) symbolTable.globalScope.resolveType("test_component2");
         Symbol methodDeclSymbol = testComponent2Type.resolve("my_method");
 
         var symbolForMethodCall = symbolsForMethodCall.get(0);
@@ -662,7 +660,6 @@ public class TestSemanticAnalyzer {
         var symbolForMember1Identifier = symbolsForMember1Identifier.get(0);
         Assert.assertEquals(member1Symbol, symbolForMember1Identifier);
     }
-
 
     @Test
     public void testVariableCreation() {

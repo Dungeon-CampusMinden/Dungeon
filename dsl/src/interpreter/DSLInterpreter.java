@@ -654,15 +654,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         Value lhsValue = Value.NONE;
         while (currentNode.type.equals(Node.Type.MemberAccess)) {
-            lhs = ((MemberAccessNode)currentNode).getLhs();
-            rhs = ((MemberAccessNode)currentNode).getRhs();
+            lhs = ((MemberAccessNode) currentNode).getLhs();
+            rhs = ((MemberAccessNode) currentNode).getRhs();
 
             if (lhs.type.equals(Node.Type.Identifier)) {
                 String nameToResolve = ((IdNode) lhs).getName();
                 lhsValue = memorySpaceToUse.resolve(nameToResolve);
             } else if (lhs.type.equals(Node.Type.FuncCall)) {
                 this.instanceMemoryStack.push(memorySpaceToUse);
-                lhsValue = (Value)lhs.accept(this);
+                lhsValue = (Value) lhs.accept(this);
                 this.instanceMemoryStack.pop();
             }
 
