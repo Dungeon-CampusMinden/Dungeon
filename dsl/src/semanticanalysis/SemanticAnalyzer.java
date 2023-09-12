@@ -330,7 +330,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     @Override
     public Void visit(FuncCallNode node) {
         Node parentNode = node.getParent();
-        if (parentNode.type.equals(Node.Type.MemberAccess) && ((MemberAccessNode)parentNode).getRhs().equals(node)) {
+        if (parentNode.type.equals(Node.Type.MemberAccess)) {
             // symbol will be resolved in the visit-implementation of MemberAccessNode, as it requires
             // resolving in the datatype of the preceding member-access expression
         } else {
@@ -470,10 +470,12 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
                 // resolve function definition
                 String functionName = ((FuncCallNode) lhs).getIdName();
-                FunctionSymbol functionSymbol =
-                    (FunctionSymbol) scopeToUse.resolve(functionName);
-                FunctionType functionType = (FunctionType) functionSymbol.getDataType();
+                Symbol resolvedFunction = scopeToUse.resolve(functionName);
+                ICallable callable = (ICallable) resolvedFunction;
+                FunctionType functionType = callable.getFunctionType();
                 lhsDataType = functionType.getReturnType();
+
+                symbolTable.addSymbolNodeRelation(resolvedFunction, lhs, false);
             }
 
             currentNode = rhs;
