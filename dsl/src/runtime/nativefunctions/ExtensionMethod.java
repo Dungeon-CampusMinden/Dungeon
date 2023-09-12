@@ -64,6 +64,6 @@ public class ExtensionMethod extends Symbol implements ICallable {
 
     @Override
     public FunctionType getFunctionType() {
-        return null;
+        return (FunctionType) this.dataType;
     }
 }

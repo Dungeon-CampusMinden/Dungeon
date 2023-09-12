@@ -55,6 +55,6 @@ public class NativeMethod extends Symbol implements ICallable {
 
     @Override
     public FunctionType getFunctionType() {
-        return null;
+        return (FunctionType) this.dataType;
     }
 }
