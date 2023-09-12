@@ -675,11 +675,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // 1. we resolve an IdNode at the rhs of the MemberAccessNode
         // 2. we resolve an FuncCallNode at the rhs of the MemberAccessNode
         if (rhs.type.equals(Node.Type.Identifier)) {
-            this.memoryStack.push(lhsValue.getMemorySpace());
+            this.memoryStack.push(memorySpaceToUse);
             rhsValue = (Value) rhs.accept(this);
             this.memoryStack.pop();
         } else if (rhs.type.equals(Node.Type.FuncCall)) {
-            this.instanceMemoryStack.push(lhsValue.getMemorySpace());
+            this.instanceMemoryStack.push(memorySpaceToUse);
             rhsValue = (Value) rhs.accept(this);
             this.instanceMemoryStack.pop();
         }
