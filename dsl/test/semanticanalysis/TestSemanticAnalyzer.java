@@ -592,6 +592,78 @@ public class TestSemanticAnalyzer {
         Assert.assertEquals(member1Symbol, symbolForMember1Identifier);
     }
 
+
+    @Test
+    public void memberAccessFuncCallChainedMethod() {
+        String program =
+            """
+        fn other_func(test_component2 comp) -> test_component2 {
+            return comp;
+        }
+
+        fn test_func(test_component2 comp)
+        {
+            print(other_func(comp).my_method(42,42).member1);
+        }
+        """;
+
+        TestEnvironment env = new TestEnvironment();
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+            .bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
+
+        var ast = Helpers.getASTFromString(program);
+        var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+        var symbolTable = result.symbolTable;
+
+        FuncDefNode otherFuncDefNode = (FuncDefNode) ast.getChild(0);
+        FunctionSymbol otherFuncSymbol =
+            (FunctionSymbol) symbolTable.getSymbolsForAstNode(otherFuncDefNode).get(0);
+        FuncDefNode testFuncDefNode = (FuncDefNode) ast.getChild(1);
+
+        var stmtList = testFuncDefNode.getStmts();
+        var printStmt = stmtList.get(0);
+        var printStmtFuncCall = (FuncCallNode) printStmt;
+        MemberAccessNode printParameterNode =
+            (MemberAccessNode) (printStmtFuncCall.getParameters().get(0));
+
+        Assert.assertEquals(Node.Type.MemberAccess, printParameterNode.type);
+
+        // check, whether the other_test-call in print-call is linked to the corresponding function
+        // symbol
+        Node memberAccessLhs = printParameterNode.getLhs();
+        var symbolsForFuncCall = symbolTable.getSymbolsForAstNode(memberAccessLhs);
+        Assert.assertEquals(1, symbolsForFuncCall.size());
+
+        var symbolForCompIdentifier = symbolsForFuncCall.get(0);
+        Assert.assertEquals(otherFuncSymbol, symbolForCompIdentifier);
+
+        MemberAccessNode parameterNodeRhs = (MemberAccessNode) printParameterNode.getRhs();
+        Node methodCallNode = parameterNodeRhs.getLhs();
+        var symbolsForMethodCall = symbolTable.getSymbolsForAstNode(methodCallNode);
+        Assert.assertEquals(1, symbolsForMethodCall.size());
+
+        AggregateType testComponent2Type =
+            (AggregateType) symbolTable.globalScope.resolveType("test_component2");
+        Symbol methodDeclSymbol = testComponent2Type.resolve("my_method");
+
+        var symbolForMethodCall = symbolsForMethodCall.get(0);
+        Assert.assertEquals(methodDeclSymbol, symbolForMethodCall);
+
+        // check, whether the 'member1' identifier in print-call is linked to the
+        // member symbol inside the test_component2 datatype
+        Symbol member1Symbol = testComponent2Type.resolve("member1");
+
+        IdNode memberAccessRhs = (IdNode) parameterNodeRhs.getRhs();
+        var symbolsForMember1Identifier = symbolTable.getSymbolsForAstNode(memberAccessRhs);
+        Assert.assertEquals(1, symbolsForMember1Identifier.size());
+
+        var symbolForMember1Identifier = symbolsForMember1Identifier.get(0);
+        Assert.assertEquals(member1Symbol, symbolForMember1Identifier);
+    }
+
+
     @Test
     public void testVariableCreation() {
         String program =

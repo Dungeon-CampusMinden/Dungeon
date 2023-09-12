@@ -51,20 +51,18 @@ public class TestComponent2 extends Component {
 
         @Override
         public TestComponent2 call(TestComponent2 instance, List<Object> params) {
-            String param1 = (String) params.get(0);
+            Integer param1 = (Integer) params.get(0);
             Integer param2 = (Integer) params.get(1);
-            String param3 = (String) params.get(2);
 
-            instance.member1 = param1;
-            instance.member2 = param2;
-            instance.member3 = param3;
+            instance.member2 = param1;
+            instance.member3 = param2.toString();
 
             return instance;
         }
 
         @Override
         public List<Class<?>> getParameterTypes() {
-            var arr = new Class<?>[] {String.class, Integer.class, String.class};
+            var arr = new Class<?>[] {Integer.class, Integer.class};
             return Arrays.stream(arr).toList();
         }
     }
