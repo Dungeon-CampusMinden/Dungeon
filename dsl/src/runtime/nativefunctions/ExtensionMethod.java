@@ -44,7 +44,7 @@ public class ExtensionMethod extends Symbol implements ICallable {
     @Override
     public Object call(DSLInterpreter interperter, List<Node> parameters) {
         // resolve "THIS_VALUE"
-        Value instance = interperter.getCurrentMemorySpace().resolve(Value.THIS_NAME);
+        Value instance = interperter.getCurrentInstanceMemorySpace().resolve(Value.THIS_NAME);
         Object instanceObject = instance.getInternalValue();
 
         // interpret parameters and extract internal values
