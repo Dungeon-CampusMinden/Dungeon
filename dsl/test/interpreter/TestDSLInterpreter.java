@@ -2540,4 +2540,27 @@ public class TestDSLInterpreter {
         String output = outputStream.toString();
         assertEquals("42" + System.lineSeparator(), output);
     }
+
+
+    @Test
+    public void testInstantiateEntityDrawComponent() {
+        String program =
+            """
+            entity_type wizard_type {
+                draw_component {
+                    path: "character/wizard"
+                },
+                hitbox_component {},
+                position_component{}
+            }
+
+            quest_config c {
+                entity: instantiate(wizard_type)
+            }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config  = (QuestConfig)interpreter.getQuestConfig(program);
+        var entity = config.entity();
+    }
 }

@@ -55,6 +55,23 @@ public class NativeInstantiate extends NativeFunction {
             var entityType = (AggregateType) rtEnv.getGlobalScope().resolve("entity");
             var entityObject = interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
 
+            // TODO: instantiate components
+            for (var memberEntry : dslEntityInstance.getValueSet()) {
+                Value memberValue = memberEntry.getValue();
+                if (memberValue instanceof AggregateValue) {
+                    // TODO: this is needed, because Prototype does not extend AggregateType currently,
+                    //  which should be fixed
+                    AggregateType membersOriginalType = interpreter.getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
+
+                    // instantiate object as a new java Object
+                    Object memberObject = interpreter.getRuntimeEnvironment().getTypeInstantiator().instantiateAsType(
+                            (AggregateValue) memberValue, membersOriginalType);
+                    
+                }
+            }
+
+            // TODO: could create custom logic here for instantiation of entity.. so that the TypeInstantiator does
+            //  not have to implement the custom logic!!
             return rtEnv.translateRuntimeObject(entityObject, interpreter.getCurrentMemorySpace());
         }
     }
