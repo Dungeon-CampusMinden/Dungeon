@@ -3,6 +3,9 @@ package interpreter;
 import static org.junit.Assert.*;
 
 import dungeonFiles.DungeonConfig;
+import contrib.components.CollideComponent;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
 
 import helpers.Helpers;
 
@@ -2562,5 +2565,8 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         var config  = (QuestConfig)interpreter.getQuestConfig(program);
         var entity = config.entity();
+        Assert.assertTrue(entity.isPresent(DrawComponent.class));
+        Assert.assertTrue(entity.isPresent(CollideComponent.class));
+        Assert.assertTrue(entity.isPresent(PositionComponent.class));
     }
 }
