@@ -238,12 +238,13 @@ public class TypeBuilder {
                     "Builder methods with zero arguments are currently not supported");
         }
 
-        if (adapterMethod.getParameterCount() == 1) {
+        // TODO: just a test
+        /*if (adapterMethod.getParameterCount() == 1) {
             var paramType = adapterMethod.getParameterTypes()[0];
             IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, paramType);
             return new AdaptedType(
                     dslTypeName, parentScope, forType, (BuiltInType) paramDSLType, adapterMethod);
-        } else {
+        } else {*/
             var typeAdapter =
                     new AggregateTypeAdapter(dslTypeName, parentScope, forType, adapterMethod);
             // bind symbol for each parameter in the adapterMethod
@@ -275,7 +276,7 @@ public class TypeBuilder {
                 typeAdapter.bind(parameterSymbol);
             }
             return typeAdapter;
-        }
+        /*}*/
     }
 
     public Set<Map.Entry<Class<?>, List<Method>>> getRegisteredTypeAdapters() {
