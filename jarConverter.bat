@@ -12,7 +12,7 @@ for %%A in (%*) do (
         endlocal
 
         rem Copy the file or directory to the "scripts" folder
-        xcopy /s /i "%%A" "scripts\!filename!"
+        xcopy /s /i "%%A" "scripts\"
     ) else (
         echo Das Argument '%%A' ist keine gültige Datei oder Verzeichnis.
     )
