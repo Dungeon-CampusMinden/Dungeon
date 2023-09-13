@@ -1,4 +1,4 @@
-package core.level.generator.graphBased.levelGraph;
+package contrib.level.generator.graphBased.levelGraph;
 
 /** The different directions in which nodes can be connected to each other. */
 public enum Direction {

@@ -1,9 +1,10 @@
-package core.level.generator;
+package contrib.level;
 
 import static org.junit.Assert.assertNotNull;
 
+import contrib.level.generator.perlinNoise.PerlinNoiseGenerator;
+
 import core.level.elements.ILevel;
-import core.level.generator.perlinNoise.PerlinNoiseGenerator;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

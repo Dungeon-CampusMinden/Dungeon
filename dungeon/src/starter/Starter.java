@@ -5,6 +5,7 @@ import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.hud.UITools;
+import contrib.level.generator.graphBased.RoombasedLevelGenerator;
 import contrib.systems.*;
 
 import core.Entity;
@@ -14,7 +15,6 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
-import core.level.generator.graphBased.RoombasedLevelGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 

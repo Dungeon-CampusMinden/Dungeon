@@ -1,4 +1,4 @@
-package core.level.generator.perlinNoise;
+package contrib.level.generator.perlinNoise;
 
 import java.util.Random;
 
