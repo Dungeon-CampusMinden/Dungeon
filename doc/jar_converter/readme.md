@@ -24,6 +24,11 @@ Nachdem die Dateien und Verzeichnisse kopiert wurden, erstellt das Skript eine J
 
 oder unter Windows
 
+   In der cmd: 
+   ```batch
+   jarConverter.bat datei1.dng verzeichnis1 datei2.dng
+   ```
+   in der PowerShell: 
    ```batch
    ./jarConverter.bat datei1.dng verzeichnis1 datei2.dng
    ```
