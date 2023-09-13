@@ -19,4 +19,8 @@ done
 # Erstelle die JAR-Datei
 jar -cvf scripts.jar scripts
 
+# Ausgeben der kopierten Dateien
+echo "Die folgenden Dateien wurden kopiert:"
+find scripts -type f
+
 echo "Die Dateien und Verzeichnisse wurden in den 'scripts'-Ordner kopiert und als 'scripts.jar' exportiert."
