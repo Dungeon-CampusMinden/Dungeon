@@ -2,7 +2,7 @@ package semanticanalysis.types;
 
 import static org.junit.Assert.*;
 
-import dslToGame.graph.Graph;
+import graph.Graph;
 
 import interpreter.TestEnvironment;
 import interpreter.mockecs.*;

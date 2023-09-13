@@ -1,7 +1,8 @@
 package semanticanalysis.types;
 
-import dslToGame.QuestConfig;
-import dslToGame.graph.Graph;
+import dungeonFiles.QuestConfig;
+
+import graph.Graph;
 
 import helpers.Helpers;
 

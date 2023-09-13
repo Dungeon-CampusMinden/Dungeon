@@ -1,6 +1,8 @@
-package task;
+package task.components;
 
 import core.Component;
+
+import task.TaskContent;
 
 import java.util.HashSet;
 import java.util.Set;

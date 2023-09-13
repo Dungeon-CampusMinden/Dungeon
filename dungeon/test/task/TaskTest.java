@@ -13,6 +13,8 @@ import org.mockito.Mockito;
 
 import petriNet.Place;
 
+import task.components.TaskComponent;
+
 import java.util.List;
 import java.util.function.BiFunction;
 

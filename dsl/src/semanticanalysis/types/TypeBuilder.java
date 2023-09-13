@@ -2,7 +2,7 @@ package semanticanalysis.types;
 
 import core.utils.TriConsumer;
 
-import dslToGame.graph.Graph;
+import graph.Graph;
 
 import runtime.nativefunctions.ExtensionMethod;
 

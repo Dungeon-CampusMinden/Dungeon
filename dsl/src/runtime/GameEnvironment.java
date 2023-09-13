@@ -7,11 +7,9 @@ import core.Entity;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
-import dslToGame.QuestConfig;
-import dslToGame.dsltypeproperties.EntityExtension;
-import dslToGame.taskdsltypes.MultipleChoiceTask;
-import dslToGame.taskdsltypes.SingleChoiceDescriptionProperty;
-import dslToGame.taskdsltypes.SingleChoiceTask;
+import dsltypeproperties.EntityExtension;
+
+import dungeonFiles.QuestConfig;
 
 import runtime.nativefunctions.NativeInstantiate;
 import runtime.nativefunctions.NativePrint;
@@ -24,6 +22,9 @@ import semanticanalysis.types.TypeBuilder;
 
 import task.Task;
 import task.quizquestion.Quiz;
+import task.taskdsltypes.MultipleChoiceTask;
+import task.taskdsltypes.SingleChoiceDescriptionProperty;
+import task.taskdsltypes.SingleChoiceTask;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

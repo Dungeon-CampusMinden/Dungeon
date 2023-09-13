@@ -1,4 +1,4 @@
-package dslToGame.graph;
+package graph;
 
 import java.util.HashMap;
 

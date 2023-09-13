@@ -1,5 +1,7 @@
 package task;
 
+import task.components.TaskContentComponent;
+
 /**
  * A part of the content of a complete task.
  *

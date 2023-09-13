@@ -1,4 +1,4 @@
-package dslToGame;
+package task.components;
 
 import core.Component;
 import core.level.elements.tile.DoorTile;
@@ -6,9 +6,9 @@ import core.level.elements.tile.DoorTile;
 /**
  * Associates a {@link DoorTile} to be connected with an entity.
  *
- * <p>Should be used in conjunction with the {@link task.TaskComponent}.
+ * <p>Should be used in conjunction with the {@link TaskComponent}.
  *
- * <p>In combination, the {@link task.TaskComponent#DOOR_OPENER} Consumer can be used to open the
+ * <p>In combination, the {@link TaskComponent#DOOR_OPENER} Consumer can be used to open the
  * corresponding door in the level when a task is activated.
  *
  * <p>To achieve this, store the resulting door from connecting the level graphs of individual tasks

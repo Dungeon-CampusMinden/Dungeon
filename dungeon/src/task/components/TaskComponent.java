@@ -1,9 +1,9 @@
-package task;
+package task.components;
 
 import core.Component;
 import core.Entity;
 
-import dslToGame.DoorComponent;
+import task.Task;
 
 import java.util.function.Consumer;
 

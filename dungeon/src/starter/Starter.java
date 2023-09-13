@@ -1,3 +1,5 @@
+package starter;
+
 import contrib.components.InteractionComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
@@ -16,8 +18,8 @@ import core.level.generator.graphBased.RoombasedLevelGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 
-import dslToGame.DSLEntryPoint;
-import dslToGame.loadFiles.DslFileLoader;
+import dungeonFiles.DSLEntryPoint;
+import dungeonFiles.DslFileLoader;
 
 import interpreter.DSLEntryPointFinder;
 
@@ -35,7 +37,7 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
- * Generic Game Starter for a game that uses DSL inputs.
+ * Generic Game starter.Starter for a game that uses DSL inputs.
  *
  * <p>This will set up a basic game with all systems and a hero.
  *

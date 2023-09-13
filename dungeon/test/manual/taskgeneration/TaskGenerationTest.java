@@ -12,14 +12,14 @@ import core.hud.UITools;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
-import dslToGame.QuestConfig;
-import dslToGame.loadFiles.DslFileLoader;
+import dungeonFiles.DslFileLoader;
+import dungeonFiles.QuestConfig;
 
 import interpreter.DSLInterpreter;
 
 import task.Task;
-import task.TaskComponent;
 import task.TaskContent;
+import task.components.TaskComponent;
 import task.quizquestion.Quiz;
 import task.quizquestion.UIAnswerCallback;
 
