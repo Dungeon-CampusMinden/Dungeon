@@ -7,8 +7,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
+import contrib.hud.UITools;
+
 import core.Game;
-import core.hud.UITools;
 
 /** Collection of Utility Methods for popups */
 public class HeroUITools {

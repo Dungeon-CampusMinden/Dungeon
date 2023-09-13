@@ -4,6 +4,7 @@ import contrib.components.InteractionComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
+import contrib.hud.UITools;
 import contrib.systems.*;
 
 import core.Entity;
@@ -11,7 +12,6 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.hud.UITools;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.generator.graphBased.RoombasedLevelGenerator;
@@ -194,6 +194,7 @@ public class Starter {
         Game.add(new ProjectileSystem());
         Game.add(new HealthbarSystem());
         Game.add(new HeroUISystem());
+        Game.add(new HudSystem());
     }
 
     private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws IOException {

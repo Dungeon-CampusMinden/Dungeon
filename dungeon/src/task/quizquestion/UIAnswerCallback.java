@@ -9,10 +9,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.utils.SnapshotArray;
 
+import contrib.hud.TextDialog;
+import contrib.hud.UITools;
+
 import core.Entity;
 import core.Game;
-import core.hud.TextDialog;
-import core.hud.UITools;
 
 import task.Task;
 import task.TaskContent;

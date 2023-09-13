@@ -139,5 +139,6 @@ public class Main {
         Game.add(new ProjectileSystem());
         Game.add(new HealthbarSystem());
         Game.add(new HeroUISystem());
+        Game.add(new HudSystem());
     }
 }

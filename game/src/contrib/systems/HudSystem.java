@@ -1,12 +1,13 @@
-package core.systems;
+package contrib.systems;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
+import contrib.components.UIComponent;
+
 import core.Entity;
 import core.Game;
 import core.System;
-import core.components.UIComponent;
 import core.utils.components.MissingComponentException;
 
 import java.util.HashMap;

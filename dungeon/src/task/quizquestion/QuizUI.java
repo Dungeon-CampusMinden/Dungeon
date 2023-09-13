@@ -3,10 +3,12 @@ package task.quizquestion;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
+import contrib.components.UIComponent;
+import contrib.hud.TextDialog;
+import contrib.hud.UITools;
+
 import core.Entity;
 import core.Game;
-import core.hud.TextDialog;
-import core.hud.UITools;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -29,8 +31,8 @@ public class QuizUI {
      *
      * @param question Question to show on the HUD
      * @param resulthandlerLinker callback function
-     * @return the Entity that stores the {@link core.components.UIComponent} with the UI-Elements
-     *     The entity will already be added to the game by this method.
+     * @return the Entity that stores the {@link UIComponent} with the UI-Elements The entity will
+     *     already be added to the game by this method.
      */
     public static Entity showQuizDialog(
             Quiz question,
@@ -40,8 +42,8 @@ public class QuizUI {
                 showQuizDialog(
                         question,
                         formatStringForDialogWindow(question.taskText()),
-                        core.hud.UITools.DEFAULT_DIALOG_CONFIRM,
-                        core.hud.UITools.DEFAULT_DIALOG_TITLE,
+                        UITools.DEFAULT_DIALOG_CONFIRM,
+                        UITools.DEFAULT_DIALOG_TITLE,
                         resulthandlerLinker);
         Game.add(entity);
         return entity;
@@ -54,14 +56,13 @@ public class QuizUI {
      * <p>Use default callback method, that will delete the hud-entity from the game.
      *
      * @param question Question to show on the HUD
-     * @return the Entity that stores the {@link core.components.UIComponent} with the UI-Elements
-     *     The entity will already be added to the game by this method.
+     * @return the Entity that stores the {@link UIComponent} with the UI-Elements The entity will
+     *     already be added to the game by this method.
      */
     public static Entity showQuizDialog(Quiz question) {
         return showQuizDialog(
                 question,
-                (entity) ->
-                        createResultHandlerQuiz(entity, core.hud.UITools.DEFAULT_DIALOG_CONFIRM));
+                (entity) -> createResultHandlerQuiz(entity, UITools.DEFAULT_DIALOG_CONFIRM));
     }
 
     /**
@@ -72,8 +73,8 @@ public class QuizUI {
      * text and picture, single or multiple choice ) in the Dialog
      *
      * @param question Various question configurations
-     * @return the Entity that stores the {@link core.components.UIComponent} with the UI-Elements
-     *     The entity will already be added to the game by this method.
+     * @return the Entity that stores the {@link UIComponent} with the UI-Elements The entity will
+     *     already be added to the game by this method.
      */
     private static Entity showQuizDialog(
             Quiz question,
@@ -83,7 +84,7 @@ public class QuizUI {
             Function<Entity, BiFunction<TextDialog, String, Boolean>> resulthandlerLinker) {
         Entity entity = new Entity();
 
-        core.hud.UITools.show(
+        UITools.show(
                 () -> {
                     Dialog quizDialog =
                             createQuizDialog(

@@ -6,7 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 
-import core.hud.DialogDesign;
+import contrib.hud.DialogDesign;
+
 import core.utils.Constants;
 
 public class QuizDialogDesign {
