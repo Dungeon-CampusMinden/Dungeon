@@ -146,9 +146,6 @@ Um ein eigenes System zu erstellen, muss von der abstrakten Klasse `System` abge
 die [bereits implementierten Systeme](ecs/systems/readme.md) an; hier finden Sie auch die Abhängigkeiten der Systeme zu
 bestimmten Components.
 
-*Hinweis:* Um mehr darüber zu erfahren, wie Sie eigene Entitäten, Components und Systeme erstellen, werfen Sie einen
-Blick in [Eigene Inhalte erstellen](ecs/create_own_content.md).
-
 ## Übung: Eigenen Helden erstellen
 
 Zwar gibt es in den Vorlagen bereits einen Helden (den schauen wir uns am Ende dieses Kapitels genauer an), trotzdem
@@ -263,7 +260,7 @@ speichert die Maximalgeschwindigkeit des Helden, sowie die aktuelle Geschwindigk
 Damit wir den Helden auch per Tastatur steuern können, benötigt er das `PlayableComponent`, denn dann wird das
 `PlayerSystem` die Werte des Helden auf Knopfdruck aktualisieren.
 
-*Hinweis*: Hier erfahren Sie mehr zur Konfiguration der [Tastenbelegung](configuration/readme.md).
+*Hinweis*: Hier erfahren Sie mehr zur Konfiguration der [Tastenbelegung](keyboard_configuration/readme.md).
 
 Genau wie die anderen `Component`s fügen wir das `VelocityComponent` und das `PlaybaleComponent` zum Konstruktor hinzu.
 
@@ -365,7 +362,7 @@ Wenn Sie wollen, können Sie mit Ihrem Helden weiterarbeiten, oder Sie holen sic
 zurück.
 
 Der vorgefertigte Held hat zwei weitere Besonderheiten, die Sie noch nicht kennen. Zum einen besitzt er einen
-Feuerball-[Skill](ecs/skills/readme.md). Dieser wird in `Hero#setupFireballSkill` erstellt.
+Feuerball-Skill. Dieser wird in `Hero#setupFireballSkill` erstellt.
 
 ``` java
     private void setupFireballSkill() {
@@ -377,7 +374,7 @@ Feuerball-[Skill](ecs/skills/readme.md). Dieser wird in `Hero#setupFireballSkill
 
 In der Standardkonfiguration können Sie den Feuerball in Richtung Ihres Mauscursors mit der Taste R abfeuern.
 
-Zusätzlich besitzt der Held ein [`HitboxComponent`](ecs/components/collision_component.md). Damit kann er mit anderen
+Zusätzlich besitzt der Held ein `HitboxComponent`. Damit kann er mit anderen
 Entitäten, die ebenfalls ein `HitboxComponent` haben, kollidieren.
 
 ``` java
@@ -394,12 +391,10 @@ Entitäten, die ebenfalls ein `HitboxComponent` haben, kollidieren.
 Hier finden Sie noch einige Links um Ihr Verständnis des Dungeons zu vertiefen:
 
 -   [ECS Basics](ecs/readme.md)
--   [Entitäten, Components und Systeme selbst erstellen](ecs/create_own_content.md)
 -   [Übersicht der Systeme](ecs/systems/readme.md)
 -   [Übersicht der Components](ecs/components/readme.md)
--   [Übersicht der Spielelemente](ecs/gameelements/)
 -   [Level Basics](level/readme.md)
 -   [HUD Basics](hud/readme.md)
--   [Config](configuration/readme.md)
+-   [Config](keyboard_configuration/readme.md)
 -   [Dungeon-Wiki](https://github.com/Programmiermethoden/Dungeon/wiki)
 -   [LibGDX Dokumentation](https://libgdx.com/wiki/)
