@@ -4,6 +4,7 @@ import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 
 import core.Entity;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
@@ -11,7 +12,8 @@ import dsltypeproperties.EntityExtension;
 
 import dungeonFiles.DungeonConfig;
 
-import runtime.nativefunctions.NativeInstantiate;
+import dslToGame.typeadapters.DrawComponentAdapter;
+import dslToGame.nativefunction.NativeInstantiate;
 import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.*;
@@ -62,6 +64,7 @@ public class GameEnvironment implements IEvironment {
                     VelocityComponent.class,
                     AIComponent.class,
                     CollideComponent.class,
+                    DrawComponent.class,
                     Task.class,
                     // SingleChoiceTask.class,
                     Quiz.Content.class
@@ -110,6 +113,9 @@ public class GameEnvironment implements IEvironment {
         /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
          * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
         // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
+        // TODO: test
+        typeBuilder.registerTypeAdapter(DrawComponentAdapter.class, this.globalScope);
+
         typeBuilder.registerTypeAdapter(SingleChoiceTask.class, this.globalScope);
         typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
     }
