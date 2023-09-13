@@ -2453,9 +2453,9 @@ public class TestDSLInterpreter {
         }
 
         fn func(entity ent) {
-            // in test_component2.my_method, `member` of the instance will be set to the first parameter
-            ent.test_component2.my_method("Hello, World!", 42, "Nope");
-            print(ent.test_component2.member1);
+            // in test_component2.my_method, `member2` of the instance will be set to the first parameter
+            ent.test_component2.my_method(ent.test_component1.member1, 42);
+            print(ent.test_component2.member2);
         }
 
         quest_config c {
@@ -2500,6 +2500,73 @@ public class TestDSLInterpreter {
         componentWithConsumer.consumer.accept(entity);
 
         String output = outputStream.toString();
-        assertEquals("Hello, World!" + System.lineSeparator(), output);
+        assertEquals("42" + System.lineSeparator(), output);
+    }
+
+    @Test
+    public void testChainedExtensionMethodCall() {
+        String program =
+                """
+    entity_type my_type {
+        test_component1 {
+            member1: 42,
+            member2: 3.14,
+            member3: "Hello, World!"
+        },
+        test_component2 {},
+        test_component_with_callback {
+            consumer: func
+        }
+    }
+
+    fn func(entity ent) {
+        // in test_component2.my_method, `member2` of the instance will be set to the first parameter
+        ent.test_component2.my_method(ent.test_component1.member1, 42).my_method(42, 42);
+        print(ent.test_component2.member2);
+    }
+
+    quest_config c {
+        entity: instantiate(my_type)
+    }
+    """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+        env.getTypeBuilder()
+                .bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+        env.getTypeBuilder()
+                .bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+        env.getTypeBuilder().bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
+
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+
+        TestComponentEntityConsumerCallback componentWithConsumer =
+                (TestComponentEntityConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                                .toList()
+                                .get(0);
+
+        componentWithConsumer.consumer.accept(entity);
+
+        String output = outputStream.toString();
+        assertEquals("42" + System.lineSeparator(), output);
     }
 }

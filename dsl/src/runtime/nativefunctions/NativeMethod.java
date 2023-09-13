@@ -44,7 +44,7 @@ public class NativeMethod extends Symbol implements ICallable {
     @Override
     public Object call(DSLInterpreter interperter, List<Node> parameters) {
         // resolve "THIS_VALUE"
-        Value instance = interperter.getCurrentMemorySpace().resolve(Value.THIS_NAME);
+        Value instance = interperter.getCurrentInstanceMemorySpace().resolve(Value.THIS_NAME);
         return this.instanceCallable.call(interperter, instance, parameters);
     }
 
@@ -55,6 +55,6 @@ public class NativeMethod extends Symbol implements ICallable {
 
     @Override
     public FunctionType getFunctionType() {
-        return null;
+        return (FunctionType) this.dataType;
     }
 }

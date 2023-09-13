@@ -12,7 +12,7 @@ public class PropertyDefNode extends Node {
      * @return the AstNode corresponding to the identifier (lhs) of the property definition
      */
     public Node getIdNode() {
-        return this.children.get(idIdx);
+        return this.getChild(idIdx);
     }
 
     /**
@@ -21,7 +21,7 @@ public class PropertyDefNode extends Node {
      * @return
      */
     public Node getStmtNode() {
-        return this.children.get(stmtIdx);
+        return this.getChild(stmtIdx);
     }
 
     /**
@@ -41,8 +41,8 @@ public class PropertyDefNode extends Node {
      */
     public PropertyDefNode(Node id, Node stmt) {
         super(Type.PropertyDefinition, new ArrayList<>(2));
-        this.children.add(id);
-        this.children.add(stmt);
+        this.addChild(id);
+        this.addChild(stmt);
     }
 
     @Override

@@ -9,7 +9,7 @@ public class SetDefinitionNode extends Node {
 
     public SetDefinitionNode(Node entryList) {
         super(Type.SetDefinitionNode, new ArrayList<>(1));
-        this.children.add(entryList);
+        this.addChild(entryList);
     }
 
     @Override

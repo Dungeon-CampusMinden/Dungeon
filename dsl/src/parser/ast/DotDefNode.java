@@ -18,7 +18,7 @@ public class DotDefNode extends Node {
      * @return the IdNode corresponding to the identifier of the graph
      */
     public Node getIdNode() {
-        return this.children.get(idNodeIdx);
+        return this.getChild(idNodeIdx);
     }
 
     /**
@@ -32,7 +32,7 @@ public class DotDefNode extends Node {
      * @return all dot statements in the graph definition as a list
      */
     public List<Node> getStmtNodes() {
-        return this.children.subList(dotStmtStartIdx, this.children.size());
+        return this.getChildren().subList(dotStmtStartIdx, this.getChildren().size());
     }
 
     public enum Type {
@@ -52,8 +52,8 @@ public class DotDefNode extends Node {
      */
     public DotDefNode(Type graphType, Node graphId, ArrayList<Node> dotStmts) {
         super(Node.Type.DotDefinition, new ArrayList<>(dotStmts.size() + 1));
-        this.children.add(graphId);
-        this.children.addAll(dotStmts);
+        this.addChild(graphId);
+        dotStmts.forEach(this::addChild);
         this.graphType = graphType;
     }
 

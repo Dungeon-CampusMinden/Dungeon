@@ -19,24 +19,24 @@ public class EdgeStmtNode extends Node {
      */
     public EdgeStmtNode(Node lhsID, ArrayList<Node> rhsStmts, Node attrList) {
         super(Type.DotEdgeStmt, new ArrayList<>());
-        this.children.add(lhsID);
-        this.children.addAll(rhsStmts);
-        this.attrListIdx = this.children.size();
-        this.children.add(attrList);
+        this.addChild(lhsID);
+        rhsStmts.forEach(this::addChild);
+        this.attrListIdx = this.getChildren().size();
+        this.addChild(attrList);
     }
 
     /**
      * @return The {@link IdNode} corresponding to the identifier on the left-hand-side
      */
     public Node getLhsId() {
-        return this.children.get(lhsIdIdx);
+        return this.getChild(lhsIdIdx);
     }
 
     /**
      * @return A list of {@link EdgeRhsNode}s of the statement
      */
     public List<Node> getRhsStmts() {
-        return this.children.subList(rhsStmtsStartIdx, attrListIdx);
+        return this.getChildren().subList(rhsStmtsStartIdx, attrListIdx);
     }
 
     /**
@@ -44,7 +44,7 @@ public class EdgeStmtNode extends Node {
      *     'Node.NONE', if there is no attribute list)
      */
     public Node getAttrList() {
-        return this.children.get(attrListIdx);
+        return this.getChild(attrListIdx);
     }
 
     @Override

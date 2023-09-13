@@ -35,6 +35,7 @@ import java.util.*;
 public class DSLInterpreter implements AstVisitor<Object> {
     private RuntimeEnvironment environment;
     private final ArrayDeque<IMemorySpace> memoryStack;
+    private final ArrayDeque<IMemorySpace> instanceMemoryStack;
     private final IMemorySpace globalSpace;
 
     private SymbolTable symbolTable() {
@@ -45,6 +46,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.memoryStack.peek();
     }
 
+    public IMemorySpace getCurrentInstanceMemorySpace() {
+        return this.instanceMemoryStack.peek();
+    }
+
     private final ArrayDeque<Node> statementStack;
 
     private static final String RETURN_VALUE_NAME = "$return_value$";
@@ -52,6 +57,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     /** Constructor. */
     public DSLInterpreter() {
         memoryStack = new ArrayDeque<>();
+        instanceMemoryStack = new ArrayDeque<>();
         globalSpace = new MemorySpace();
         statementStack = new ArrayDeque<>();
         memoryStack.push(globalSpace);
@@ -641,11 +647,42 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(MemberAccessNode node) {
-        Value lhs = (Value) node.getLhs().accept(this);
+        Node currentNode = node;
+        Node lhs;
+        Node rhs = Node.NONE;
+        IMemorySpace memorySpaceToUse = this.getCurrentMemorySpace();
 
-        this.memoryStack.push(lhs.getMemorySpace());
-        Value rhsValue = (Value) node.getRhs().accept(this);
-        this.memoryStack.pop();
+        Value lhsValue = Value.NONE;
+        while (currentNode.type.equals(Node.Type.MemberAccess)) {
+            lhs = ((MemberAccessNode) currentNode).getLhs();
+            rhs = ((MemberAccessNode) currentNode).getRhs();
+
+            if (lhs.type.equals(Node.Type.Identifier)) {
+                String nameToResolve = ((IdNode) lhs).getName();
+                lhsValue = memorySpaceToUse.resolve(nameToResolve);
+            } else if (lhs.type.equals(Node.Type.FuncCall)) {
+                this.instanceMemoryStack.push(memorySpaceToUse);
+                lhsValue = (Value) lhs.accept(this);
+                this.instanceMemoryStack.pop();
+            }
+
+            currentNode = rhs;
+            memorySpaceToUse = lhsValue.getMemorySpace();
+        }
+
+        Value rhsValue = Value.NONE;
+        // if we arrive here, we have got two options:
+        // 1. we resolve an IdNode at the rhs of the MemberAccessNode
+        // 2. we resolve an FuncCallNode at the rhs of the MemberAccessNode
+        if (rhs.type.equals(Node.Type.Identifier)) {
+            this.memoryStack.push(memorySpaceToUse);
+            rhsValue = (Value) rhs.accept(this);
+            this.memoryStack.pop();
+        } else if (rhs.type.equals(Node.Type.FuncCall)) {
+            this.instanceMemoryStack.push(memorySpaceToUse);
+            rhsValue = (Value) rhs.accept(this);
+            this.instanceMemoryStack.pop();
+        }
 
         return rhsValue;
     }

@@ -9,7 +9,7 @@ public class StmtBlockNode extends Node {
 
     public StmtBlockNode(Node stmtList) {
         super(Type.Block);
-        this.children.add(stmtList);
+        this.addChild(stmtList);
     }
 
     @Override

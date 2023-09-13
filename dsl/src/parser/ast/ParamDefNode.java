@@ -24,8 +24,8 @@ public class ParamDefNode extends Node {
 
     public ParamDefNode(Node typeIdNode, Node idNode) {
         super(Type.ParamDef, new ArrayList<>(2));
-        this.children.add(typeIdNode);
-        this.children.add(idNode);
+        this.addChild(typeIdNode);
+        this.addChild(idNode);
     }
 
     @Override

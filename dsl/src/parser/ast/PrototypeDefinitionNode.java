@@ -45,8 +45,8 @@ public class PrototypeDefinitionNode extends Node {
      */
     public PrototypeDefinitionNode(Node idNode, Node componentDefinitionList) {
         super(Type.PrototypeDefinition, new ArrayList<Node>(2));
-        this.children.add(idNode);
-        this.children.add(componentDefinitionList);
+        this.addChild(idNode);
+        this.addChild(componentDefinitionList);
     }
 
     @Override
