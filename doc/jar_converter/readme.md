@@ -11,7 +11,7 @@ Nachdem die Dateien und Verzeichnisse kopiert wurden, erstellt das Skript eine J
 
 `jarConverter.sh` kann genutzt werden, um verschiedene DSL-Skripte in einer JAR-Datei zu sammeln, um sie dann im Spiel einzulesen zu lassen.
 
-*Anmerkung:* Unter Windows muss `javConverter.bat` verwendet werden. Die Funktionalität ist identisch zum `jarConverter.sh`.
+*Anmerkung:* Unter Windows kann `javConverter.bat` verwendet werden. Die Funktionalität ist identisch zum `jarConverter.sh`.
 ## Anwenden
 
 1. Öffnen Sie Ihr Terminal.
