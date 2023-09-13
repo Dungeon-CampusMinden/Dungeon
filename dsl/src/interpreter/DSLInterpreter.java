@@ -340,7 +340,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return instance;
     }
 
-    private AggregateType getOriginalTypeOfPrototype(Prototype type) {
+    public AggregateType getOriginalTypeOfPrototype(Prototype type) {
         IType returnType = type;
         while (returnType instanceof Prototype) {
             returnType = ((Prototype) returnType).getInternalType();
@@ -383,23 +383,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             contextName = annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
             typeInstantiator.pushContextMember(contextName, entityObject);
         }
-
-        // an entity-object itself has no members, so add the components as "artificial members"
-        // to the aggregate dsl value of the entity
-        for (var memberEntry : dslValue.getValueSet()) {
-            Value memberValue = memberEntry.getValue();
-            if (memberValue instanceof AggregateValue) {
-                // TODO: this is needed, because Prototype does not extend AggregateType currently,
-                //  which should be fixed
-                AggregateType membersOriginalType =
-                        getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
-
-                // instantiate object as a new java Object
-                typeInstantiator.instantiateAsType(
-                        (AggregateValue) memberValue, membersOriginalType);
-            }
-        }
-
+        // TODO: this is a leftover and should be removed
         if (annot != null) {
             typeInstantiator.removeContextMember(contextName);
         }

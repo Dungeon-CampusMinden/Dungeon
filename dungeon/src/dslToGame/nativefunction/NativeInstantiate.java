@@ -1,5 +1,7 @@
-package runtime.nativefunctions;
+package dslToGame.nativefunction;
 
+import core.Entity;
+import core.Component;
 import interpreter.DSLInterpreter;
 
 import parser.ast.Node;
@@ -9,6 +11,7 @@ import runtime.Prototype;
 import runtime.RuntimeEnvironment;
 import runtime.Value;
 
+import runtime.nativefunctions.NativeFunction;
 import semanticanalysis.ICallable;
 import semanticanalysis.IScope;
 import semanticanalysis.Scope;
@@ -16,6 +19,7 @@ import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.FunctionType;
+import semanticanalysis.types.IType;
 
 import java.util.List;
 
@@ -55,10 +59,12 @@ public class NativeInstantiate extends NativeFunction {
             var entityType = (AggregateType) rtEnv.getGlobalScope().resolve("entity");
             var entityObject = interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
 
-            // TODO: instantiate components
-            for (var memberEntry : dslEntityInstance.getValueSet()) {
-                Value memberValue = memberEntry.getValue();
-                if (memberValue instanceof AggregateValue) {
+            for (var valueEntry : dslEntityInstance.getMemorySpace().getValueSet()) {
+                if (valueEntry.getKey().equals(Value.THIS_NAME)) {
+                    continue;
+                }
+                Value memberValue = valueEntry.getValue();
+                if (memberValue instanceof AggregateValue){
                     // TODO: this is needed, because Prototype does not extend AggregateType currently,
                     //  which should be fixed
                     AggregateType membersOriginalType = interpreter.getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
@@ -66,12 +72,16 @@ public class NativeInstantiate extends NativeFunction {
                     // instantiate object as a new java Object
                     Object memberObject = interpreter.getRuntimeEnvironment().getTypeInstantiator().instantiateAsType(
                             (AggregateValue) memberValue, membersOriginalType);
-                    
+                    try{
+                        Component component = (Component) memberObject;
+                        Entity entity = (Entity) entityObject;
+                        entity.addComponent(component);
+                    } catch (ClassCastException ex) {
+                        //
+                    }
                 }
             }
 
-            // TODO: could create custom logic here for instantiation of entity.. so that the TypeInstantiator does
-            //  not have to implement the custom logic!!
             return rtEnv.translateRuntimeObject(entityObject, interpreter.getCurrentMemorySpace());
         }
     }
