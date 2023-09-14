@@ -1,4 +1,4 @@
-package dslToGame.graph;
+package graph;
 
 public class Edge implements Comparable<Edge> {
     private static int _idx;

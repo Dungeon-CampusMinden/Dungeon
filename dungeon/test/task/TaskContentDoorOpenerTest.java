@@ -13,10 +13,11 @@ import core.level.utils.DesignLabel;
 import core.level.utils.GeneratorUtils;
 import core.utils.Tuple;
 
-import dslToGame.DoorComponent;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import task.components.DoorComponent;
+import task.components.TaskComponent;
 
 public class TaskContentDoorOpenerTest {
 

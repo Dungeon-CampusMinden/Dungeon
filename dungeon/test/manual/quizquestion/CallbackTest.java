@@ -16,8 +16,8 @@ import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
 import task.Task;
-import task.TaskComponent;
 import task.TaskContent;
+import task.components.TaskComponent;
 import task.quizquestion.*;
 
 import java.io.IOException;

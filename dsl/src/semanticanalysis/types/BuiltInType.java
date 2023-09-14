@@ -22,8 +22,7 @@ public class BuiltInType extends Symbol implements IType {
             new BuiltInType("float", Scope.NULL, (v) -> (float) v.getInternalValue() != 0.0);
     public static BuiltInType stringType = new BuiltInType("string", Scope.NULL, (v) -> true);
     // TODO: this should not be a basic type
-    public static BuiltInType graphType =
-            new BuiltInType("dslToGame/graph", Scope.NULL, (v) -> true);
+    public static BuiltInType graphType = new BuiltInType("graph", Scope.NULL, (v) -> true);
 
     public final AsBooleanFunction asBooleanFunction;
 

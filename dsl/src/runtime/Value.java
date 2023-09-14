@@ -1,6 +1,6 @@
 package runtime;
 
-import dslToGame.graph.Graph;
+import graph.Graph;
 
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;

@@ -74,7 +74,7 @@ task run(dependsOn: classes, type: JavaExec) {
 }
 
 task start(dependsOn: classes, type: JavaExec) {
-    mainClass = "Starter"
+    mainClass = "starter.Starter"
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     ignoreExitValue = true

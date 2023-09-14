@@ -1,4 +1,4 @@
-package dslToGame.dsltypeproperties;
+package dsltypeproperties;
 
 import core.Entity;
 import core.components.PositionComponent;

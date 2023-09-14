@@ -2,8 +2,9 @@ package interpreter;
 
 import static org.junit.Assert.*;
 
-import dslToGame.QuestConfig;
-import dslToGame.graph.Graph;
+import dungeonFiles.QuestConfig;
+
+import graph.Graph;
 
 import helpers.Helpers;
 

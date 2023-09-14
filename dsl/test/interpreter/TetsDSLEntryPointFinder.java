@@ -1,6 +1,6 @@
 package interpreter;
 
-import dslToGame.DSLEntryPoint;
+import dungeonFiles.DSLEntryPoint;
 
 import org.junit.Assert;
 import org.junit.Test;

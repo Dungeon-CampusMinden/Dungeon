@@ -1,4 +1,4 @@
-package dslToGame;
+package dsltypeproperties;
 
 import core.Entity;
 

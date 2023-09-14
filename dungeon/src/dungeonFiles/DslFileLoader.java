@@ -1,4 +1,4 @@
-package dslToGame.loadFiles;
+package dungeonFiles;
 
 import java.io.*;
 import java.nio.file.*;

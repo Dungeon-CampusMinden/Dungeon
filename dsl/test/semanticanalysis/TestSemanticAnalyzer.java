@@ -1,6 +1,6 @@
 package semanticanalysis;
 
-import dslToGame.graph.Graph;
+import graph.Graph;
 
 import helpers.Helpers;
 

@@ -1,4 +1,4 @@
-package dslToGame.taskdsltypes;
+package task.taskdsltypes;
 
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;

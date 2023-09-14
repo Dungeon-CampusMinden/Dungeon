@@ -1,8 +1,8 @@
-package dslToGame;
+package dungeonFiles;
 
 import core.Entity;
 
-import dslToGame.graph.Graph;
+import graph.Graph;
 
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;

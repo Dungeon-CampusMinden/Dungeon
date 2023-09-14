@@ -1,8 +1,8 @@
 package interpreter;
 
-import dslToGame.DSLEntryPoint;
-import dslToGame.ParsedFile;
-import dslToGame.QuestConfig;
+import dungeonFiles.DSLEntryPoint;
+import dungeonFiles.ParsedFile;
+import dungeonFiles.QuestConfig;
 
 import parser.DungeonASTConverter;
 import parser.ast.*;
