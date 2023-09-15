@@ -16,10 +16,7 @@ import semanticanalysis.ICallable;
 import semanticanalysis.IScope;
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
-import semanticanalysis.types.AggregateType;
-import semanticanalysis.types.BuiltInType;
-import semanticanalysis.types.FunctionType;
-import semanticanalysis.types.IType;
+import semanticanalysis.types.*;
 
 import java.util.List;
 
@@ -59,6 +56,12 @@ public class NativeInstantiate extends NativeFunction {
             var entityType = (AggregateType) rtEnv.getGlobalScope().resolve("entity");
             var entityObject = interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
 
+            TypeInstantiator instantiator = interpreter.getRuntimeEnvironment().getTypeInstantiator();
+
+            // TODO: for testing
+            String contextName = "entity";
+            instantiator.pushContextMember(contextName, entityObject);
+
             for (var valueEntry : dslEntityInstance.getMemorySpace().getValueSet()) {
                 if (valueEntry.getKey().equals(Value.THIS_NAME)) {
                     continue;
@@ -70,8 +73,7 @@ public class NativeInstantiate extends NativeFunction {
                     AggregateType membersOriginalType = interpreter.getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
 
                     // instantiate object as a new java Object
-                    Object memberObject = interpreter.getRuntimeEnvironment().getTypeInstantiator().instantiateAsType(
-                            (AggregateValue) memberValue, membersOriginalType);
+                    Object memberObject = interpreter.instantiateRuntimeValue((AggregateValue) memberValue, membersOriginalType);
                     try{
                         Component component = (Component) memberObject;
                         Entity entity = (Entity) entityObject;
@@ -81,6 +83,8 @@ public class NativeInstantiate extends NativeFunction {
                     }
                 }
             }
+
+            instantiator.removeContextMember(contextName);
 
             return rtEnv.translateRuntimeObject(entityObject, interpreter.getCurrentMemorySpace());
         }
