@@ -40,12 +40,6 @@ public class TaskGenerationTest {
     static DSLInterpreter interpreter = new DSLInterpreter();
 
     public static void main(String[] args) throws IOException {
-        if (args.length == 0) {
-            args = new String[1];
-            args[0] = "dungeon/assets/scripts/task_test.dng";
-        }
-        final String[] finalArgs = args;
-
         Game.initBaseLogger();
         LevelSystem.levelSize(LevelSize.MEDIUM);
         Game.loadConfig(
@@ -85,7 +79,7 @@ public class TaskGenerationTest {
 
                         Set<Path> dslFilePaths;
                         try {
-                            dslFilePaths = DslFileLoader.processArguments(finalArgs);
+                            dslFilePaths = DslFileLoader.processArguments(args);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
