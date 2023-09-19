@@ -119,7 +119,7 @@ public class TaskGenerationTest {
         Entity wizard = new Entity("Quest Wizard");
         wizard.addComponent(new PositionComponent());
         wizard.addComponent(new DrawComponent(texture));
-        wizard.addComponent(new TaskComponent(quiz));
+        wizard.addComponent(new TaskComponent(quiz, wizard));
         wizard.addComponent(
                 new InteractionComponent(
                         1, true, UIAnswerCallback.askOnInteraction(quiz, showAnswersOnHud())));

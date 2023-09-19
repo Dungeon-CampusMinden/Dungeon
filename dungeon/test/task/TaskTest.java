@@ -108,8 +108,7 @@ public class TaskTest {
         assertTrue(task.managerEntity().isEmpty());
         Entity e = new Entity();
         assertFalse(task.managerEntity(e));
-        e.addComponent(new TaskComponent(task));
-        task.managerEntity(e);
+        new TaskComponent(task, e);
         assertEquals(e, task.managerEntity().get());
     }
 
@@ -117,10 +116,8 @@ public class TaskTest {
     public void notify_managerEntity() {
         Entity e = new Entity();
         final int[] c = {0};
-        TaskComponent tc = new TaskComponent(task);
+        TaskComponent tc = new TaskComponent(task, e);
         tc.onActivate(entity -> c[0]++);
-        e.addComponent(tc);
-        task.managerEntity(e);
         task.state(Task.TaskState.ACTIVE);
         assertEquals(1, c[0]);
     }
