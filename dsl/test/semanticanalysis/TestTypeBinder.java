@@ -103,14 +103,13 @@ public class TestTypeBinder {
     }
 
     @Test
-    @Ignore
     public void testAdapterBinding() {
 
         String program =
                 """
             entity_type o {
                 test_record_user {
-                    component_member: "Hello"
+                    component_member: test_record_component { param: "Hello"}
                 }
             }
             """;
