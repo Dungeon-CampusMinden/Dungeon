@@ -572,7 +572,6 @@ public class TestDSLInterpreter {
 
     // TODO: should test resolving of member_external_type in the instantiated object
     @Test
-    @Ignore
     public void adaptedInstancing() {
         String program =
                 """
@@ -582,7 +581,7 @@ public class TestDSLInterpreter {
                         member2: 12
                     },
                     test_component_with_external_type {
-                        member_external_type: "Hello, World!"
+                        member_external_type: external_type { str: "Hello, World!" }
                     }
                 }
 
