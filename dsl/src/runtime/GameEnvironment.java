@@ -52,10 +52,6 @@ public class GameEnvironment implements IEvironment {
     protected final Scope globalScope;
     protected final RuntimeObjectTranslator runtimeObjectTranslator = new RuntimeObjectTranslator();
 
-    /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
-     * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
-    // var animationComponentType =
-    //      typeBuilder.createTypeFromClass(Scope.NULL, DrawComponent.class);
     public Class<?>[] getBuiltInAggregateTypeClasses() {
         return (Class<?>[])
                 new Class[] {
@@ -111,10 +107,6 @@ public class GameEnvironment implements IEvironment {
     }
 
     protected void registerDefaultTypeAdapters() {
-        /* The DrawComponent was fundamentally refactort and the DSL is not yet updated.
-         * see https://github.com/Programmiermethoden/Dungeon/pull/687 for more information*/
-        // typeBuilder.registerTypeAdapter(AnimationBuilder.class, Scope.NULL);
-        // TODO: test
         typeBuilder.registerTypeAdapter(DrawComponentAdapter.class, this.globalScope);
 
         typeBuilder.registerTypeAdapter(SingleChoiceTask.class, this.globalScope);
