@@ -2,7 +2,7 @@ package semanticanalysis.types;
 
 import dungeonFiles.DungeonConfig;
 
-import graph.Graph;
+import graph.TaskDependencyGraph;
 
 import helpers.Helpers;
 
@@ -53,7 +53,8 @@ public class TestTypeInstantiator {
                 setValues.put(member.getName(), str);
                 ms.resolve(member.getName()).setInternalValue(str);
             } else if (member.getDataType().equals(BuiltInType.graphType)) {
-                Graph<String> graph = new Graph<String>(new ArrayList<>(), new ArrayList<>());
+                TaskDependencyGraph graph =
+                        new TaskDependencyGraph(new ArrayList<>(), new ArrayList<>());
                 setValues.put(member.getName(), graph);
                 ms.resolve(member.getName()).setInternalValue(graph);
             }
@@ -115,7 +116,8 @@ public class TestTypeInstantiator {
                 setValues.put(member.getName(), str);
                 ms.resolve(member.getName()).setInternalValue(str);
             } else if (member.getDataType().equals(BuiltInType.graphType)) {
-                Graph<String> graph = new Graph<String>(new ArrayList<>(), new ArrayList<>());
+                TaskDependencyGraph graph =
+                        new TaskDependencyGraph(new ArrayList<>(), new ArrayList<>());
                 setValues.put(member.getName(), graph);
                 ms.resolve(member.getName()).setInternalValue(graph);
             }

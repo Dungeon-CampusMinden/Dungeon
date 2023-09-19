@@ -2,7 +2,7 @@ package semanticanalysis.types;
 
 import core.utils.TriConsumer;
 
-import graph.Graph;
+import graph.TaskDependencyGraph;
 
 import runtime.nativefunctions.ExtensionMethod;
 
@@ -96,7 +96,8 @@ public class TypeBuilder {
             return BuiltInType.boolType;
         } else if (String.class.equals(clazz) || String.class.isAssignableFrom(clazz)) {
             return BuiltInType.stringType;
-        } else if (Graph.class.equals(clazz) || Graph.class.isAssignableFrom(clazz)) {
+        } else if (TaskDependencyGraph.class.equals(clazz)
+                || TaskDependencyGraph.class.isAssignableFrom(clazz)) {
             return BuiltInType.graphType;
         }
 

@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import dungeonFiles.DungeonConfig;
 
-import graph.Graph;
+import graph.TaskDependencyGraph;
 
 import helpers.Helpers;
 
@@ -297,24 +297,6 @@ public class TestDSLInterpreter {
         assertEquals(Node.Type.ObjectDefinition, secondChild.type);
     }
 
-    @Test
-    public void questConfigPartial() {
-        // the quest_config type has also a quest_points and a password
-        // parameter, these should be set to default values
-        String program =
-                """
-                quest_config c {
-                    quest_desc: "Hello"
-                }
-                    """;
-        DSLInterpreter interpreter = new DSLInterpreter();
-
-        var questConfig = (DungeonConfig) interpreter.getQuestConfig(program);
-        assertEquals(0, questConfig.questPoints());
-        assertEquals("Hello", questConfig.questDesc());
-        assertEquals("", questConfig.password());
-    }
-
     /** Test, if the properties of the quest_config definition are correctly parsed */
     @Test
     public void questConfigFull() {
@@ -333,9 +315,6 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
 
         var questConfig = (DungeonConfig) interpreter.getQuestConfig(program);
-        assertEquals(42, questConfig.questPoints());
-        assertEquals("Hello", questConfig.questDesc());
-        assertEquals("TESTPW", questConfig.password());
         var graph = questConfig.dependencyGraph();
 
         var edgeIter = graph.edgeIterator();
@@ -360,7 +339,7 @@ public class TestDSLInterpreter {
 
     @DSLType
     private record OtherComponent(
-            @DSLTypeMember int member3, @DSLTypeMember Graph<String> member4) {}
+            @DSLTypeMember int member3, @DSLTypeMember TaskDependencyGraph member4) {}
 
     @Test
     public void aggregateTypeWithDefaults() {
@@ -740,7 +719,7 @@ public class TestDSLInterpreter {
         var graphValue =
                 new Value(
                         BuiltInType.graphType,
-                        new Graph<String>(new ArrayList<>(), new ArrayList<>()));
+                        new TaskDependencyGraph(new ArrayList<>(), new ArrayList<>()));
         Assert.assertTrue(DSLInterpreter.isBooleanTrue(graphValue));
     }
 
@@ -1351,7 +1330,7 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         var config = (DungeonConfig) interpreter.getQuestConfig(program);
 
-        Quiz singleChoiceTask = (Quiz) config.tasks().get(0);
+        Quiz singleChoiceTask = (Quiz) config.dependencyGraph().nodeIterator().next().task();
         Assert.assertTrue(singleChoiceTask instanceof SingleChoice);
         Assert.assertEquals("Hello", singleChoiceTask.taskText());
         Assert.assertTrue(singleChoiceTask.correctAnswerIndices().contains(1));
@@ -1360,7 +1339,7 @@ public class TestDSLInterpreter {
         Assert.assertEquals("2", ((Quiz.Content) answers.get(1)).content());
         Assert.assertEquals("3", ((Quiz.Content) answers.get(2)).content());
 
-        Quiz multipleChoiceTask = (Quiz) config.tasks().get(1);
+        Quiz multipleChoiceTask = (Quiz) config.dependencyGraph().nodeIterator().next().task();
         Assert.assertTrue(multipleChoiceTask instanceof MultipleChoice);
         Assert.assertEquals("Tschüss", multipleChoiceTask.taskText());
         Assert.assertTrue(multipleChoiceTask.correctAnswerIndices().contains(1));

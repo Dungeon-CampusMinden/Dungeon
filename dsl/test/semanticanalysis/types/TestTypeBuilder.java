@@ -2,7 +2,7 @@ package semanticanalysis.types;
 
 import static org.junit.Assert.*;
 
-import graph.Graph;
+import graph.TaskDependencyGraph;
 
 import interpreter.TestEnvironment;
 import interpreter.mockecs.*;
@@ -30,7 +30,7 @@ public class TestTypeBuilder {
 
         @DSLTypeMember public String stringMember;
 
-        @DSLTypeMember public Graph<String> graphMember;
+        @DSLTypeMember public TaskDependencyGraph graphMember;
     }
 
     /** Test class for testing conversion into DSL datatype */

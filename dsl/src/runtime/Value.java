@@ -1,6 +1,6 @@
 package runtime;
 
-import graph.Graph;
+import graph.TaskDependencyGraph;
 
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
@@ -138,7 +138,7 @@ public class Value implements IClonable {
         } else if (typeName.equals(BuiltInType.stringType.getName())) {
             return "";
         } else if (typeName.equals(BuiltInType.graphType.getName())) {
-            return new Graph<String>(null, null);
+            return new TaskDependencyGraph(null, null);
         } else {
             return null;
         }

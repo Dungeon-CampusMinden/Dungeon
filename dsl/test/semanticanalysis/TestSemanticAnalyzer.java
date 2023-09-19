@@ -1,6 +1,6 @@
 package semanticanalysis;
 
-import graph.Graph;
+import graph.TaskDependencyGraph;
 
 import helpers.Helpers;
 
@@ -56,7 +56,7 @@ public class TestSemanticAnalyzer {
     }
 
     @DSLType
-    private record TestComponent(@DSLTypeMember Graph<String> levelGraph) {}
+    private record TestComponent(@DSLTypeMember TaskDependencyGraph levelGraph) {}
 
     /**
      * Test, if the reference to a symbol is correctly resolved and that the symbol is linked to the

@@ -1,11 +1,9 @@
 package dungeonFiles;
 
-import graph.Graph;
+import graph.TaskDependencyGraph;
 
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
-
-import task.Task;
 
 /**
  * Stores information about a Task-based Game.
@@ -16,5 +14,5 @@ import task.Task;
  */
 @DSLType
 public record DungeonConfig(
-        @DSLTypeMember Graph<Task> dependencyGraph,
+        @DSLTypeMember TaskDependencyGraph dependencyGraph,
         @DSLTypeMember(name = "name") String displayName) {}

@@ -99,13 +99,16 @@ public class TaskGenerationTest {
 
     private static void buildScenarios(String dslFileContent) {
         DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(dslFileContent);
-        for (Task task : config.tasks()) {
-            try {
-                questWizard((Quiz) task);
-            } catch (IOException e) {
-                // oh well
-            }
-        }
+        config.dependencyGraph()
+                .nodeIterator()
+                .forEachRemaining(
+                        node -> {
+                            try {
+                                questWizard((Quiz) node.task());
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
     }
 
     // private static void questWizard(Quiz quiz) throws IOException {
