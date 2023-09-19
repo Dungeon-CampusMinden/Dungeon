@@ -3,7 +3,7 @@ package runtime;
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
 
-import taskDependencyGraph.TaskDependencyGraph;
+import taskdependencygraph.TaskDependencyGraph;
 
 // TODO: should this be able to be undefined?
 

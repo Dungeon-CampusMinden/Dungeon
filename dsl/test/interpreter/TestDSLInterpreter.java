@@ -23,7 +23,7 @@ import task.quizquestion.MultipleChoice;
 import task.quizquestion.Quiz;
 import task.quizquestion.SingleChoice;
 
-import taskDependencyGraph.TaskDependencyGraph;
+import taskdependencygraph.TaskDependencyGraph;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

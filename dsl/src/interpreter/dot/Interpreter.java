@@ -4,10 +4,10 @@ import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
 import task.quizquestion.SingleChoice;
-import taskDependencyGraph.TaskDependencyGraph;
+import taskdependencygraph.TaskDependencyGraph;
 // CHECKSTYLE:OFF: AvoidStarImport
-import taskDependencyGraph.TaskEdge;
-import taskDependencyGraph.TaskNode;
+import taskdependencygraph.TaskEdge;
+import taskdependencygraph.TaskNode;
 
 import java.util.ArrayList;
 import java.util.Collections;

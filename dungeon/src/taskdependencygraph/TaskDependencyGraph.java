@@ -1,4 +1,4 @@
-package taskDependencyGraph;
+package taskdependencygraph;
 
 import java.util.ArrayList;
 import java.util.Iterator;

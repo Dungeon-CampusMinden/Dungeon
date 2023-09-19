@@ -1,4 +1,4 @@
-package taskDependencyGraph;
+package taskdependencygraph;
 
 import task.Task;
 
