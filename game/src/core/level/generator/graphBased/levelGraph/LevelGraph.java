@@ -69,10 +69,6 @@ public final class LevelGraph {
 
         List<Node> nodesWhereCanBeAdded =
                 new ArrayList<>(nodes.stream().filter(n -> n.originGraph() == connectOn).toList());
-
-        // todo throw out all nodes that cant have any more deges
-        // if set not emtpy contiune
-        // else add adapter node on rando, node on nodesWhereCanBeAdded
         Collections.shuffle(nodesWhereCanBeAdded);
 
         for (Node node : nodesWhereCanBeAdded) {
@@ -152,10 +148,6 @@ public final class LevelGraph {
 
     private Optional<Tuple<Node, Direction>> add(Node node) {
         List<Node> shuffledNodes = new ArrayList<>(nodes().stream().toList());
-
-        // filter all out that can have no more neighbours
-        // if set is empty create random adapter node
-
         shuffledNodes.remove(node);
         Collections.shuffle(shuffledNodes);
         for (Node n : shuffledNodes) {
