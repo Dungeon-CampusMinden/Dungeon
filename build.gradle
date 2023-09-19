@@ -7,6 +7,14 @@ plugins {
     id 'antlr'
 }
 
+// store name of method parameter names in .class files (used to build
+// DSL-adapter types, which contain the names of the parameters as members)
+tasks.withType(JavaCompile) {
+    configure(options) {
+        options.compilerArgs << '-parameters'
+    }
+}
+
 repositories {
     mavenCentral()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
