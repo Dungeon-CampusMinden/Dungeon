@@ -20,8 +20,8 @@ import semanticanalysis.types.IDSLTypeProperty;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
+import task.Quiz;
 import task.Task;
-import task.quizquestion.Quiz;
 import task.taskdsltypes.MultipleChoiceTask;
 import task.taskdsltypes.SingleChoiceDescriptionProperty;
 import task.taskdsltypes.SingleChoiceTask;

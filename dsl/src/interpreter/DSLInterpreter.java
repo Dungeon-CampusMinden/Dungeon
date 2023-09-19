@@ -22,7 +22,7 @@ import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticanalysis.types.*;
 
-import task.quizquestion.Quiz;
+import task.Quiz;
 
 import java.util.*;
 

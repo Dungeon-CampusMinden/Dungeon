@@ -14,6 +14,7 @@ import core.Game;
 import core.hud.TextDialog;
 import core.hud.UITools;
 
+import task.Quiz;
 import task.Task;
 import task.TaskContent;
 

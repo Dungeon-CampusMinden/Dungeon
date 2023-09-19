@@ -15,6 +15,7 @@ import core.hud.UITools;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
+import task.Quiz;
 import task.Task;
 import task.TaskContent;
 import task.components.TaskComponent;

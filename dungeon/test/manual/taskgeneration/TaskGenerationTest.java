@@ -17,10 +17,10 @@ import dungeonFiles.DungeonConfig;
 
 import interpreter.DSLInterpreter;
 
+import task.Quiz;
 import task.Task;
 import task.TaskContent;
 import task.components.TaskComponent;
-import task.quizquestion.Quiz;
 import task.quizquestion.UIAnswerCallback;
 
 import java.io.IOException;

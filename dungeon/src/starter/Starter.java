@@ -23,9 +23,9 @@ import dungeonFiles.DslFileLoader;
 
 import interpreter.DSLEntryPointFinder;
 
+import task.Quiz;
 import task.Task;
 import task.TaskContent;
-import task.quizquestion.Quiz;
 import task.quizquestion.SingleChoice;
 import task.quizquestion.UIAnswerCallback;
 
