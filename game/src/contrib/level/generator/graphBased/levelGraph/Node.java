@@ -162,7 +162,7 @@ public final class Node {
      * @return A Tuple containing the node in the graph where the given node was connected, and the
      *     direction of the connection. Returns an empty result if the nodes could not be connected.
      */
-    private Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
+    Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
         if (this == node || neighbours[direction.value()] != null) return Optional.empty();
         neighbours[direction.value()] = node;
         // if a node of an other graph gets added, all nodes of the other graph a now part of
@@ -180,7 +180,22 @@ public final class Node {
         return freeDirections;
     }
 
-    private List<Direction> freeDirections() {
+    /**
+     * Set the given Node as neighbor of this node at the given direction.
+     *
+     * @param n Node to set as neighbor.
+     * @param direction The direction at which the neighbor should be added from this node's
+     *     perspective (in the neighbor's context, this corresponds to the opposite direction).
+     * @return Optional that contains the old neighbor if on existed.
+     */
+    protected Optional<Node> forceNeighbor(Node n, Direction direction) {
+        Node old = neighbours[direction.value()];
+        neighbours[direction.value()] = n;
+        if (old != null) old.forceNeighbor(null, Direction.opposite(direction));
+        return Optional.ofNullable(old);
+    }
+
+    protected List<Direction> freeDirections() {
         List<Direction> freeDirections = new ArrayList<>();
         if (neighbours[Direction.NORTH.value()] == null) freeDirections.add(Direction.NORTH);
         if (neighbours[Direction.EAST.value()] == null) freeDirections.add(Direction.EAST);

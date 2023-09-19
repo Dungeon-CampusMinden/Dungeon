@@ -66,15 +66,72 @@ public final class LevelGraph {
      */
     public Optional<Tuple<Node, Direction>> add(
             final LevelGraph other, final LevelGraph connectOn) {
+        List<Node> connectOnNodes =
+                nodes.stream().filter(n -> n.originGraph() == connectOn).toList();
+        // the graph is not connected with this graph
+        if (connectOnNodes.isEmpty()) return Optional.empty();
 
-        List<Node> nodesWhereCanBeAdded =
-                new ArrayList<>(nodes.stream().filter(n -> n.originGraph() == connectOn).toList());
-        Collections.shuffle(nodesWhereCanBeAdded);
+        List<Node> otherNodes =
+                other.nodes().stream().filter(n -> n.originGraph() == other).toList();
+        if (otherNodes.isEmpty()) return Optional.empty();
 
-        for (Node node : nodesWhereCanBeAdded) {
-            for (Node otherNode : other.nodes()) {
-                Optional<Tuple<Node, Direction>> tup = node.add(otherNode);
-                if (tup.isPresent()) return tup;
+        // Nodes that have free Edges
+        List<Node> connectOnNodesFree =
+                connectOnNodes.stream()
+                        .filter(n -> n.neighboursCount() < Direction.values().length)
+                        .toList();
+        List<Node> otherNodesFree =
+                otherNodes.stream()
+                        .filter(n -> n.neighboursCount() < Direction.values().length)
+                        .toList();
+
+        // Both graphs have nodes with free edges
+        if (!connectOnNodesFree.isEmpty() && !otherNodesFree.isEmpty()) {
+            // try to find a matching Node-Pair (two Nodes that can be connected without any
+            // changes)
+            Optional<Tuple<Node, Node>> match = matching(connectOnNodesFree, otherNodesFree);
+            if (match.isPresent()) {
+                // there is an easy way to connect them, so do it
+                Tuple<Node, Node> matchUnpacked = match.get();
+                return matchUnpacked.a().add(matchUnpacked.b());
+            }
+        }
+        Node adapterConnectOn = connectOn.addAdapterNode(connectOn, Direction.random());
+        Node adapterOther = other.addAdapterNode(other, Direction.random());
+        return adapterConnectOn.add(adapterOther);
+    }
+
+    private Node addAdapterNode(LevelGraph origin, Direction direction) {
+        List<Node> nodes = origin.nodes().stream().filter(n -> n.originGraph() == origin).toList();
+        Node adapter = new Node(new HashSet<>(), origin);
+        if (nodes.isEmpty()) {
+            origin.add(adapter);
+        } else {
+            Collections.shuffle(nodes);
+            Node on = nodes.get(0);
+
+            Optional<Node> old = on.forceNeighbor(adapter, direction);
+            adapter.forceNeighbor(on, Direction.opposite(direction));
+
+            // readd possible edge
+            old.ifPresent(
+                    node -> {
+                        node.forceNeighbor(adapter, Direction.opposite(direction));
+                        adapter.forceNeighbor(node, direction);
+                    });
+        }
+        origin.addNodes(Set.of(adapter));
+        return adapter;
+    }
+
+    private Optional<Tuple<Node, Node>> matching(List<Node> connectOn, List<Node> other) {
+        for (Node nodeA : connectOn) {
+            List<Direction> freeDirections = nodeA.freeDirections();
+            for (Direction direction : freeDirections) {
+                for (Node nodeB : other) {
+                    if (nodeB.at(Direction.opposite(direction)).isEmpty())
+                        return Optional.of(new Tuple<>(nodeA, nodeB));
+                }
             }
         }
         return Optional.empty();
@@ -147,6 +204,7 @@ public final class LevelGraph {
     }
 
     private Optional<Tuple<Node, Direction>> add(Node node) {
+        if (node.neighboursCount() == Direction.values().length) return Optional.empty();
         List<Node> shuffledNodes = new ArrayList<>(nodes().stream().toList());
         shuffledNodes.remove(node);
         Collections.shuffle(shuffledNodes);
@@ -154,7 +212,10 @@ public final class LevelGraph {
             Optional<Tuple<Node, Direction>> tup = n.add(node);
             if (tup.isPresent()) return tup;
         }
-        return Optional.empty();
+        // could not create a connection because no node has a free edge where the other node has a
+        // free edge
+        addAdapterNode(this, Direction.opposite(node.freeDirections().get(0)));
+        return add(node);
     }
 
     private void addNodes(final Set<Node> nodes, Set<LevelGraph> alreadyVisited) {
