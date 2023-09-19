@@ -41,6 +41,8 @@ public abstract class Task {
     private final Set<Place> observer = new HashSet<>();
     private Entity managementEntity;
 
+    private Set<Set<Entity>> entitySets = new HashSet<>();
+
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
 
@@ -155,6 +157,27 @@ public abstract class Task {
      */
     public void addContent(final TaskContent content) {
         this.content.add(content);
+    }
+
+    /**
+     * Set the Set of Entity-Sets.
+     *
+     * <p>For each Set<Entity> in the outer set, the level generator will generate a room for that
+     * where the entities of the inner collection are placed.
+     *
+     * @param entitySets Set that contains the Set of Entities that are related to the task.
+     */
+    public void entitieSets(Set<Set<Entity>> entitySets) {
+        this.entitySets = entitySets;
+    }
+
+    /**
+     * Get the collection of Entity Sets.
+     *
+     * @return A set that contains sets of entities related to the task.
+     */
+    public Set<Set<Entity>> entitySets() {
+        return new HashSet<>(entitySets);
     }
 
     /**

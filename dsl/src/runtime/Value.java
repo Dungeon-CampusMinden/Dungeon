@@ -1,9 +1,9 @@
 package runtime;
 
-import graph.Graph;
-
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
+
+import taskdependencygraph.TaskDependencyGraph;
 
 // TODO: should this be able to be undefined?
 
@@ -138,7 +138,7 @@ public class Value implements IClonable {
         } else if (typeName.equals(BuiltInType.stringType.getName())) {
             return "";
         } else if (typeName.equals(BuiltInType.graphType.getName())) {
-            return new Graph<String>(null, null);
+            return new TaskDependencyGraph(null, null);
         } else {
             return null;
         }

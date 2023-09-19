@@ -33,7 +33,7 @@ public class TestRuntimeObjectTranslator {
         Game.add(entity);
 
         String program = """
-            quest_config my_quest_config {}
+            dungeon_config my_quest_config {}
             """;
 
         var env = new GameEnvironment();
@@ -65,7 +65,7 @@ public class TestRuntimeObjectTranslator {
         Game.add(entity);
 
         String program = """
-            quest_config my_quest_config {}
+            dungeon_config my_quest_config {}
             """;
 
         var env = new GameEnvironment();

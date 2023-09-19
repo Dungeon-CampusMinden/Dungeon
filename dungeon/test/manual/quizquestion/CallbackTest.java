@@ -100,7 +100,7 @@ public class CallbackTest {
         Entity wizard = new Entity("Quest Wizard");
         wizard.addComponent(new PositionComponent());
         wizard.addComponent(new DrawComponent("character/wizard"));
-        wizard.addComponent(new TaskComponent(question));
+        wizard.addComponent(new TaskComponent(question, wizard));
         wizard.addComponent(
                 new InteractionComponent(
                         1,

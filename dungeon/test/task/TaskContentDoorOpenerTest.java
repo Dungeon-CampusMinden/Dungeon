@@ -29,9 +29,7 @@ public class TaskContentDoorOpenerTest {
     public void setup() {
         task = new DummyTask();
         manager = new Entity();
-        taskComponent = new TaskComponent(task);
-        manager.addComponent(taskComponent);
-        task.managerEntity(manager);
+        taskComponent = new TaskComponent(task, manager);
     }
 
     @Test

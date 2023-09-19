@@ -13,7 +13,7 @@ import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
 import dungeonFiles.DslFileLoader;
-import dungeonFiles.QuestConfig;
+import dungeonFiles.DungeonConfig;
 
 import interpreter.DSLInterpreter;
 
@@ -98,14 +98,17 @@ public class TaskGenerationTest {
     }
 
     private static void buildScenarios(String dslFileContent) {
-        QuestConfig config = (QuestConfig) interpreter.getQuestConfig(dslFileContent);
-        for (Task task : config.tasks()) {
-            try {
-                questWizard((Quiz) task);
-            } catch (IOException e) {
-                // oh well
-            }
-        }
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(dslFileContent);
+        config.dependencyGraph()
+                .nodeIterator()
+                .forEachRemaining(
+                        node -> {
+                            try {
+                                questWizard((Quiz) node.task());
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
     }
 
     // private static void questWizard(Quiz quiz) throws IOException {
@@ -119,7 +122,7 @@ public class TaskGenerationTest {
         Entity wizard = new Entity("Quest Wizard");
         wizard.addComponent(new PositionComponent());
         wizard.addComponent(new DrawComponent(texture));
-        wizard.addComponent(new TaskComponent(quiz));
+        wizard.addComponent(new TaskComponent(quiz, wizard));
         wizard.addComponent(
                 new InteractionComponent(
                         1, true, UIAnswerCallback.askOnInteraction(quiz, showAnswersOnHud())));

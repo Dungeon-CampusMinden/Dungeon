@@ -1,8 +1,6 @@
 package semanticanalysis.types;
 
-import dungeonFiles.QuestConfig;
-
-import graph.Graph;
+import dungeonFiles.DungeonConfig;
 
 import helpers.Helpers;
 
@@ -15,6 +13,8 @@ import runtime.AggregateValue;
 import runtime.MemorySpace;
 
 import semanticanalysis.Scope;
+
+import taskdependencygraph.TaskDependencyGraph;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -33,13 +33,13 @@ public class TestTypeInstantiator {
         TypeBuilder tb = new TypeBuilder();
         Scope scope = new Scope();
         DSLInterpreter interpreter = new DSLInterpreter();
-        var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, QuestConfig.class);
+        var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, DungeonConfig.class);
 
         // the fieldName does not necessary match the member name in the created DSLType, so store a
         // map from member to
         // field name
         HashMap<String, String> typeMemberNameToJavaFieldName =
-                tb.typeMemberNameToJavaFieldMap(QuestConfig.class);
+                tb.typeMemberNameToJavaFieldMap(DungeonConfig.class);
 
         int memberCounter = 0;
         for (var member : type.getSymbols()) {
@@ -53,7 +53,8 @@ public class TestTypeInstantiator {
                 setValues.put(member.getName(), str);
                 ms.resolve(member.getName()).setInternalValue(str);
             } else if (member.getDataType().equals(BuiltInType.graphType)) {
-                Graph<String> graph = new Graph<String>(new ArrayList<>(), new ArrayList<>());
+                TaskDependencyGraph graph =
+                        new TaskDependencyGraph(new ArrayList<>(), new ArrayList<>());
                 setValues.put(member.getName(), graph);
                 ms.resolve(member.getName()).setInternalValue(graph);
             }
@@ -71,7 +72,7 @@ public class TestTypeInstantiator {
         for (String typeMemberName : setValues.keySet()) {
             try {
                 var fieldName = typeMemberNameToJavaFieldName.get(typeMemberName);
-                var field = QuestConfig.class.getDeclaredField(fieldName);
+                var field = DungeonConfig.class.getDeclaredField(fieldName);
                 field.setAccessible(true);
                 var value = field.get(instance);
 
@@ -115,7 +116,8 @@ public class TestTypeInstantiator {
                 setValues.put(member.getName(), str);
                 ms.resolve(member.getName()).setInternalValue(str);
             } else if (member.getDataType().equals(BuiltInType.graphType)) {
-                Graph<String> graph = new Graph<String>(new ArrayList<>(), new ArrayList<>());
+                TaskDependencyGraph graph =
+                        new TaskDependencyGraph(new ArrayList<>(), new ArrayList<>());
                 setValues.put(member.getName(), graph);
                 ms.resolve(member.getName()).setInternalValue(graph);
             }

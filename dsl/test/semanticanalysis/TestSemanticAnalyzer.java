@@ -1,7 +1,5 @@
 package semanticanalysis;
 
-import graph.Graph;
-
 import helpers.Helpers;
 
 import interpreter.DummyNativeFunction;
@@ -21,6 +19,8 @@ import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.types.*;
 
+import taskdependencygraph.TaskDependencyGraph;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
@@ -34,7 +34,7 @@ public class TestSemanticAnalyzer {
                 graph g {
                     A -- B
                 }
-                quest_config c {
+                dungeon_config c {
                     level_graph: g
                 }
                 """;
@@ -42,7 +42,7 @@ public class TestSemanticAnalyzer {
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
 
-        // check the name of the symbol corresponding to the graph definition
+        // check the name of the symbol corresponding to the taksDependencyGraph definition
         var graphDefAstNode = ast.getChild(0);
         var symbolForDotDefNode =
                 symtableResult.symbolTable.getSymbolsForAstNode(graphDefAstNode).get(0);
@@ -56,7 +56,7 @@ public class TestSemanticAnalyzer {
     }
 
     @DSLType
-    private record TestComponent(@DSLTypeMember Graph<String> levelGraph) {}
+    private record TestComponent(@DSLTypeMember TaskDependencyGraph levelGraph) {}
 
     /**
      * Test, if the reference to a symbol is correctly resolved and that the symbol is linked to the
@@ -90,11 +90,12 @@ public class TestSemanticAnalyzer {
         symbolTableParser.setup(env);
         var symbolTable = symbolTableParser.walk(ast).symbolTable;
 
-        // check the name of the symbol corresponding to the graph definition
+        // check the name of the symbol corresponding to the taksDependencyGraph definition
         var graphDefAstNode = ast.getChild(0);
         var symbolForDotDefNode = symbolTable.getSymbolsForAstNode(graphDefAstNode).get(0);
 
-        // check, if the stmt of the propertyDefinition references the symbol of the graph
+        // check, if the stmt of the propertyDefinition references the symbol of the
+        // taksDependencyGraph
         // definition
         var gameObjDefNode = ast.getChild(1);
         var componentDefNode =
@@ -120,7 +121,7 @@ public class TestSemanticAnalyzer {
                 graph g {
                     A -- B
                 }
-                quest_config c {
+                dungeon_config c {
                     level_graph: g
                 }
                 """;
@@ -128,12 +129,13 @@ public class TestSemanticAnalyzer {
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
 
-        // check the name of the symbol corresponding to the graph definition
+        // check the name of the symbol corresponding to the taksDependencyGraph definition
         var graphDefAstNode = ast.getChild(0);
         var symbolForDotDefNode =
                 symtableResult.symbolTable.getSymbolsForAstNode(graphDefAstNode).get(0);
 
-        // check, if the stmt of the propertyDefinition references the symbol of the graph
+        // check, if the stmt of the propertyDefinition references the symbol of the
+        // taksDependencyGraph
         // definition
         var objDefNode = ast.getChild(1);
         var propertyDefList = objDefNode.getChild(2);
@@ -152,7 +154,7 @@ public class TestSemanticAnalyzer {
     public void testSetupNativeFunctions() {
         String program =
                 """
-                quest_config c {
+                dungeon_config c {
                     points: print("Hello")
                 }
                         """;
@@ -171,7 +173,7 @@ public class TestSemanticAnalyzer {
     public void testResolveNativeFunction() {
         String program =
                 """
-                quest_config c {
+                dungeon_config c {
                     points: print("Hello")
                 }
                         """;
@@ -207,11 +209,11 @@ public class TestSemanticAnalyzer {
                 graph g {
                     A -- B
                 }
-                quest_config c {
-                    level_graph: g
+                dungeon_config c {
+                    dependency_graph: g
                 }
-                quest_config d {
-                    level_graph: g
+                dungeon_config d {
+                    dependency_graph: g
                 }
                     """;
 
@@ -229,8 +231,9 @@ public class TestSemanticAnalyzer {
         assert (firstPropertyIdNode.type == Node.Type.Identifier);
 
         // resolve 'level_graph' property of quest_config type in the datatype
-        var questConfigType = symtableResult.symbolTable.globalScope.resolve("quest_config");
-        var levelGraphPropertySymbol = ((AggregateType) questConfigType).resolve("level_graph");
+        var questConfigType = symtableResult.symbolTable.globalScope.resolve("dungeon_config");
+        var levelGraphPropertySymbol =
+                ((AggregateType) questConfigType).resolve("dependency_graph");
         Assert.assertNotEquals(Symbol.NULL, levelGraphPropertySymbol);
 
         var symbolForPropertyIdNode =

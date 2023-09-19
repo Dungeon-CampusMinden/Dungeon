@@ -2,8 +2,6 @@ package semanticanalysis.types;
 
 import core.utils.TriConsumer;
 
-import graph.Graph;
-
 import runtime.nativefunctions.ExtensionMethod;
 
 import semanticanalysis.*;
@@ -11,6 +9,8 @@ import semanticanalysis.types.callbackadapter.BiFunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
+
+import taskdependencygraph.TaskDependencyGraph;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -96,7 +96,8 @@ public class TypeBuilder {
             return BuiltInType.boolType;
         } else if (String.class.equals(clazz) || String.class.isAssignableFrom(clazz)) {
             return BuiltInType.stringType;
-        } else if (Graph.class.equals(clazz) || Graph.class.isAssignableFrom(clazz)) {
+        } else if (TaskDependencyGraph.class.equals(clazz)
+                || TaskDependencyGraph.class.isAssignableFrom(clazz)) {
             return BuiltInType.graphType;
         }
 
