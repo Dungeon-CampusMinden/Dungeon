@@ -31,6 +31,7 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.LoggerConfig;
+import server.Server;
 
 import java.io.IOException;
 import java.util.*;
@@ -780,6 +781,13 @@ public final class Game extends ScreenAdapter {
         createSystems();
         setupStage();
         userOnSetup.execute();
+
+        Server blocklyServer = new Server(hero);
+        try {
+            blocklyServer.start();
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
     }
 
     /**
