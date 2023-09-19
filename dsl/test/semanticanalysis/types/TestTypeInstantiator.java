@@ -1,6 +1,6 @@
 package semanticanalysis.types;
 
-import dungeonFiles.QuestConfig;
+import dungeonFiles.DungeonConfig;
 
 import graph.Graph;
 
@@ -33,13 +33,13 @@ public class TestTypeInstantiator {
         TypeBuilder tb = new TypeBuilder();
         Scope scope = new Scope();
         DSLInterpreter interpreter = new DSLInterpreter();
-        var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, QuestConfig.class);
+        var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, DungeonConfig.class);
 
         // the fieldName does not necessary match the member name in the created DSLType, so store a
         // map from member to
         // field name
         HashMap<String, String> typeMemberNameToJavaFieldName =
-                tb.typeMemberNameToJavaFieldMap(QuestConfig.class);
+                tb.typeMemberNameToJavaFieldMap(DungeonConfig.class);
 
         int memberCounter = 0;
         for (var member : type.getSymbols()) {
@@ -71,7 +71,7 @@ public class TestTypeInstantiator {
         for (String typeMemberName : setValues.keySet()) {
             try {
                 var fieldName = typeMemberNameToJavaFieldName.get(typeMemberName);
-                var field = QuestConfig.class.getDeclaredField(fieldName);
+                var field = DungeonConfig.class.getDeclaredField(fieldName);
                 field.setAccessible(true);
                 var value = field.get(instance);
 

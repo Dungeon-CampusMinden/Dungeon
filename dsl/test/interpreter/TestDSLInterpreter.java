@@ -2,7 +2,7 @@ package interpreter;
 
 import static org.junit.Assert.*;
 
-import dungeonFiles.QuestConfig;
+import dungeonFiles.DungeonConfig;
 
 import graph.Graph;
 
@@ -309,7 +309,7 @@ public class TestDSLInterpreter {
                     """;
         DSLInterpreter interpreter = new DSLInterpreter();
 
-        var questConfig = (QuestConfig) interpreter.getQuestConfig(program);
+        var questConfig = (DungeonConfig) interpreter.getQuestConfig(program);
         assertEquals(0, questConfig.questPoints());
         assertEquals("Hello", questConfig.questDesc());
         assertEquals("", questConfig.password());
@@ -332,11 +332,11 @@ public class TestDSLInterpreter {
                     """;
         DSLInterpreter interpreter = new DSLInterpreter();
 
-        var questConfig = (QuestConfig) interpreter.getQuestConfig(program);
+        var questConfig = (DungeonConfig) interpreter.getQuestConfig(program);
         assertEquals(42, questConfig.questPoints());
         assertEquals("Hello", questConfig.questDesc());
         assertEquals("TESTPW", questConfig.password());
-        var graph = questConfig.levelGraph();
+        var graph = questConfig.dependencyGraph();
 
         var edgeIter = graph.edgeIterator();
         int edgeCount = 0;
@@ -1349,7 +1349,7 @@ public class TestDSLInterpreter {
                 """;
 
         DSLInterpreter interpreter = new DSLInterpreter();
-        var config = (QuestConfig) interpreter.getQuestConfig(program);
+        var config = (DungeonConfig) interpreter.getQuestConfig(program);
 
         Quiz singleChoiceTask = (Quiz) config.tasks().get(0);
         Assert.assertTrue(singleChoiceTask instanceof SingleChoice);

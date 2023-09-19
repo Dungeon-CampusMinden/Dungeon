@@ -131,8 +131,8 @@ die erste `quest_config`-Definition aus einem DSL Programm heraus und evaluiert 
 Eigenschaftszuweisungen. Hierdurch werden nur Objekte und Definitionen evaluiert, die in
 Eigenschaftszuweisungen dieser `quest_config`-Definition referenziert werden.
 
-Abschließend erzeugt der `DSLInterpreter` eine `dungeonFiles.QuestConfig`-Instanz und gibt diese an das
-Dungeon-Framework zurück. Die `dungeonFiles.QuestConfig`-Instanz enthält alle Informationen für das
+Abschließend erzeugt der `DSLInterpreter` eine `dungeonFiles.DungeonConfig`-Instanz und gibt diese an das
+Dungeon-Framework zurück. Die `dungeonFiles.DungeonConfig`-Instanz enthält alle Informationen für das
 Dungeon-Framework, um ein Dungeonlevel mit spezifizierten Entitäten (als
 `entity_type`-Definition) zu erzeugen.
 

@@ -9,7 +9,7 @@ import core.components.VelocityComponent;
 
 import dsltypeproperties.EntityExtension;
 
-import dungeonFiles.QuestConfig;
+import dungeonFiles.DungeonConfig;
 
 import runtime.nativefunctions.NativeInstantiate;
 import runtime.nativefunctions.NativePrint;
@@ -56,7 +56,7 @@ public class GameEnvironment implements IEvironment {
     public Class<?>[] getBuiltInAggregateTypeClasses() {
         return (Class<?>[])
                 new Class[] {
-                    QuestConfig.class,
+                    DungeonConfig.class,
                     Entity.class,
                     PositionComponent.class,
                     VelocityComponent.class,

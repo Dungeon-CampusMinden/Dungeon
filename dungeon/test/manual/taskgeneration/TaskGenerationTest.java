@@ -13,7 +13,7 @@ import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
 import dungeonFiles.DslFileLoader;
-import dungeonFiles.QuestConfig;
+import dungeonFiles.DungeonConfig;
 
 import interpreter.DSLInterpreter;
 
@@ -98,7 +98,7 @@ public class TaskGenerationTest {
     }
 
     private static void buildScenarios(String dslFileContent) {
-        QuestConfig config = (QuestConfig) interpreter.getQuestConfig(dslFileContent);
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(dslFileContent);
         for (Task task : config.tasks()) {
             try {
                 questWizard((Quiz) task);
