@@ -12,8 +12,9 @@ import dsltypeproperties.EntityExtension;
 
 import dungeonFiles.DungeonConfig;
 
-import dslToGame.typeadapters.DrawComponentAdapter;
 import dslToGame.nativefunction.NativeInstantiate;
+import dslToGame.typeadapters.DrawComponentAdapter;
+
 import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.*;

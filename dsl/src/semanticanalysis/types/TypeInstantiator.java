@@ -38,8 +38,8 @@ public class TypeInstantiator {
         if (value.getDataType() instanceof Prototype) {
             // TODO: switch it of for now
             return null;
-            //Prototype prototype = (Prototype) value.getDataType();
-            //type = prototype.getInternalType();
+            // Prototype prototype = (Prototype) value.getDataType();
+            // type = prototype.getInternalType();
         } else {
             type = (AggregateType) value.getDataType();
         }
@@ -200,7 +200,7 @@ public class TypeInstantiator {
                     if (valuesType instanceof Prototype) {
                         return null;
                     }
-                    var originalJavaClass = ((AggregateType)valuesType).getOriginType();
+                    var originalJavaClass = ((AggregateType) valuesType).getOriginType();
                     if (null == originalJavaClass) {
                         return null;
                     }
@@ -208,7 +208,9 @@ public class TypeInstantiator {
                     if (originalJavaClass.isRecord()) {
                         convertedObject = instantiateRecord(originalJavaClass, value);
                     } else {
-                        convertedObject = instantiateAggregateValueAsClass((AggregateType)valuesType, (AggregateValue)value);
+                        convertedObject =
+                                instantiateAggregateValueAsClass(
+                                        (AggregateType) valuesType, (AggregateValue) value);
                     }
                 }
             }

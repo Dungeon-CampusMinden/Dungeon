@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import dungeonFiles.DungeonConfig;
 import contrib.components.CollideComponent;
+
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 
@@ -12,7 +13,6 @@ import helpers.Helpers;
 import interpreter.mockecs.*;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import parser.ast.Node;
@@ -2544,11 +2544,10 @@ public class TestDSLInterpreter {
         assertEquals("42" + System.lineSeparator(), output);
     }
 
-
     @Test
     public void testInstantiateEntityDrawComponent() {
         String program =
-            """
+                """
             entity_type wizard_type {
                 draw_component {
                     path: "character/wizard"
@@ -2563,7 +2562,7 @@ public class TestDSLInterpreter {
             """;
 
         DSLInterpreter interpreter = new DSLInterpreter();
-        var config  = (QuestConfig)interpreter.getQuestConfig(program);
+        var config = (QuestConfig) interpreter.getQuestConfig(program);
         var entity = config.entity();
         Assert.assertTrue(entity.isPresent(DrawComponent.class));
         Assert.assertTrue(entity.isPresent(CollideComponent.class));

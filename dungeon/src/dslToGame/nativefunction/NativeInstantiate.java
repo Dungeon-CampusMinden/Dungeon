@@ -1,7 +1,8 @@
 package dslToGame.nativefunction;
 
-import core.Entity;
 import core.Component;
+import core.Entity;
+
 import interpreter.DSLInterpreter;
 
 import parser.ast.Node;
@@ -10,8 +11,8 @@ import runtime.AggregateValue;
 import runtime.Prototype;
 import runtime.RuntimeEnvironment;
 import runtime.Value;
-
 import runtime.nativefunctions.NativeFunction;
+
 import semanticanalysis.ICallable;
 import semanticanalysis.IScope;
 import semanticanalysis.Scope;
@@ -56,7 +57,8 @@ public class NativeInstantiate extends NativeFunction {
             var entityType = (AggregateType) rtEnv.getGlobalScope().resolve("entity");
             var entityObject = interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
 
-            TypeInstantiator instantiator = interpreter.getRuntimeEnvironment().getTypeInstantiator();
+            TypeInstantiator instantiator =
+                    interpreter.getRuntimeEnvironment().getTypeInstantiator();
 
             // TODO: for testing
             String contextName = "entity";
@@ -67,14 +69,19 @@ public class NativeInstantiate extends NativeFunction {
                     continue;
                 }
                 Value memberValue = valueEntry.getValue();
-                if (memberValue instanceof AggregateValue){
-                    // TODO: this is needed, because Prototype does not extend AggregateType currently,
+                if (memberValue instanceof AggregateValue) {
+                    // TODO: this is needed, because Prototype does not extend AggregateType
+                    // currently,
                     //  which should be fixed
-                    AggregateType membersOriginalType = interpreter.getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
+                    AggregateType membersOriginalType =
+                            interpreter.getOriginalTypeOfPrototype(
+                                    (Prototype) memberValue.getDataType());
 
                     // instantiate object as a new java Object
-                    Object memberObject = interpreter.instantiateRuntimeValue((AggregateValue) memberValue, membersOriginalType);
-                    try{
+                    Object memberObject =
+                            interpreter.instantiateRuntimeValue(
+                                    (AggregateValue) memberValue, membersOriginalType);
+                    try {
                         Component component = (Component) memberObject;
                         Entity entity = (Entity) entityObject;
                         entity.addComponent(component);
