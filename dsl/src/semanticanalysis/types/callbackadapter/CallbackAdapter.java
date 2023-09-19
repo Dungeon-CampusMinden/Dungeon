@@ -56,7 +56,6 @@ public class CallbackAdapter implements Consumer, TriConsumer {
                 }
                 return value.getInternalValue();
             case Aggregate:
-            case PODAdapted:
             case AggregateAdapted:
                 // TODO: does this always work?
                 return value.getInternalValue();

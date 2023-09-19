@@ -178,7 +178,7 @@ public class TestTypeBuilder {
         var memberSymbol = ((AggregateType) type).resolve("component_member");
         assertNotEquals(Symbol.NULL, memberSymbol);
         var membersDatatype = memberSymbol.getDataType();
-        assertEquals(IType.Kind.PODAdapted, membersDatatype.getTypeKind());
+        assertEquals(IType.Kind.AggregateAdapted, membersDatatype.getTypeKind());
     }
 
     @Test

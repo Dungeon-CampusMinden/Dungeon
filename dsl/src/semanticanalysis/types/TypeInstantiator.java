@@ -169,15 +169,7 @@ public class TypeInstantiator {
     private Object convertValueToObject(Value value, IType valuesType) {
         Object convertedObject = value.getInternalValue();
         try {
-            if (valuesType.getTypeKind().equals(IType.Kind.PODAdapted)) {
-                // call builder -> the type instantiator needs a reference to the
-                // builder or to the
-                // builder methods
-                var adaptedType = (AdaptedType) value.getDataType();
-                var method = adaptedType.getBuilderMethod();
-
-                convertedObject = method.invoke(null, convertedObject);
-            } else if (valuesType.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
+            if (valuesType.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
                 var aggregateFieldValue = (AggregateValue) value;
                 if (aggregateFieldValue.getMemorySpace() instanceof EncapsulatedObject) {
                     // if the memoryspace of the value already encapsulates an object,

@@ -4,7 +4,6 @@ public interface IType {
     enum Kind {
         Basic,
         Aggregate,
-        PODAdapted,
         AggregateAdapted,
         FunctionType,
         SetType,
