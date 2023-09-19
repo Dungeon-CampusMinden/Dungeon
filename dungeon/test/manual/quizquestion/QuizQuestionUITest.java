@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 import core.Game;
 
+import task.Quiz;
 import task.quizquestion.*;
 
 import java.util.Random;

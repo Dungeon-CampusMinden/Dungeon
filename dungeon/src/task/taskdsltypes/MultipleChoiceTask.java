@@ -3,10 +3,10 @@ package task.taskdsltypes;
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
 
+import task.Quiz;
 import task.Task;
 import task.TaskContent;
 import task.quizquestion.MultipleChoice;
-import task.quizquestion.Quiz;
 
 import java.util.List;
 import java.util.Set;

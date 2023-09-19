@@ -3,9 +3,9 @@ package task.taskdsltypes;
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
 
+import task.Quiz;
 import task.Task;
 import task.TaskContent;
-import task.quizquestion.Quiz;
 import task.quizquestion.SingleChoice;
 
 import java.util.List;

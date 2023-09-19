@@ -9,6 +9,8 @@ import com.badlogic.gdx.utils.Align;
 import core.hud.DialogDesign;
 import core.utils.Constants;
 
+import task.Quiz;
+
 public class QuizDialogDesign {
 
     public static final String ANSWERS_GROUP_NAME = "Answers";

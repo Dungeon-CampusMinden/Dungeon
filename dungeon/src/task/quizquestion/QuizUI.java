@@ -8,6 +8,8 @@ import core.Game;
 import core.hud.TextDialog;
 import core.hud.UITools;
 
+import task.Quiz;
+
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;

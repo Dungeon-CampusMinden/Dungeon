@@ -1,12 +1,14 @@
-package task.quizquestion;
+package task;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
 
-import task.Task;
-import task.TaskContent;
+import task.quizquestion.FreeText;
+import task.quizquestion.MultipleChoice;
+import task.quizquestion.QuizUI;
+import task.quizquestion.SingleChoice;
 
 import java.util.ArrayList;
 import java.util.HashSet;
