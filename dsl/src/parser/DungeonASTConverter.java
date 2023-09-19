@@ -824,7 +824,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     public void exitDot_def(DungeonDSLParser.Dot_defContext ctx) {
         // check, whether all edge_ops are correct for graph type
         DotDefNode.Type graphType =
-                ctx.graph_type.getText().equals("taksDependencyGraph")
+                ctx.graph_type.getText().equals("graph")
                         ? DotDefNode.Type.graph
                         : DotDefNode.Type.digraph;
 

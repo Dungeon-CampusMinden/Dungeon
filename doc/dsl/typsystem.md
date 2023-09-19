@@ -27,7 +27,7 @@ Abbildung aller Datentypen auf Wahrheitswerte sieht wie folgt aus:
 | int           | Value = `0`: `false`; Value != `0`: `true`                   |
 | float         | Value = `0.0`: `false`; Value != `0.0`: `true`               |
 | string        | Value = `Value.NONE`: `false`; Value != `Value.NONE`: `true` |
-| taksDependencyGraph         | Value = `Value.NONE`: `false`; Value != `Value.NONE`: `true` |
+| graph         | Value = `Value.NONE`: `false`; Value != `Value.NONE`: `true` |
 | AggregateType | Value = `Value.NONE`: `false`; Value != `Value.NONE`: `true` |
 | FunctionType  | Value = `Value.NONE`: `false`; Value != `Value.NONE`: `true` |
 | EntityType    | Value = `Value.NONE`: `false`; Value != `Value.NONE`: `true` |

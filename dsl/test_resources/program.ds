@@ -1,4 +1,4 @@
-taksDependencyGraph g {
+graph g {
     A -- B
 }
 

@@ -235,7 +235,7 @@ primary : ID
  * - don't support ports
  */
 
-dot_def : graph_type=('taksDependencyGraph'|'digraph') ID '{' dot_stmt_list? '}' ;
+dot_def : graph_type=('graph'|'digraph') ID '{' dot_stmt_list? '}' ;
 
 dot_stmt_list
         : dot_stmt ';'? dot_stmt_list?
@@ -263,7 +263,7 @@ dot_edge_RHS
 // dot specifies the keywords as case insensitive,
 // we require them to be lowercase for simplicity
 dot_attr_stmt
-        : ('taksDependencyGraph' | 'node' | 'edge') dot_attr_list
+        : ('graph' | 'node' | 'edge') dot_attr_list
         ;
 
 dot_node_stmt

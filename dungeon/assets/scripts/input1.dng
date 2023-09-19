@@ -1,4 +1,4 @@
-taksDependencyGraph g {
+graph g {
                         G -- T -- Q -- D
                         Q -- F
                         T -- X -- S
