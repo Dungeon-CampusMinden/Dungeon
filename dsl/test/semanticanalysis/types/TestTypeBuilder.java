@@ -11,7 +11,7 @@ import org.junit.Test;
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
 
-import taksDependencyGraph.TaskDependencyGraph;
+import taskDependencyGraph.TaskDependencyGraph;
 
 import java.lang.reflect.InvocationTargetException;
 

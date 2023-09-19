@@ -10,7 +10,7 @@ import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
 
-import taksDependencyGraph.TaskDependencyGraph;
+import taskDependencyGraph.TaskDependencyGraph;
 
 import java.lang.reflect.*;
 import java.util.*;

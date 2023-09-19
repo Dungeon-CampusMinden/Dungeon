@@ -3,10 +3,10 @@ package interpreter.dot;
 import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
-import taksDependencyGraph.TaskDependencyGraph;
+import taskDependencyGraph.TaskDependencyGraph;
 // CHECKSTYLE:OFF: AvoidStarImport
-import taksDependencyGraph.TaskEdge;
-import taksDependencyGraph.TaskNode;
+import taskDependencyGraph.TaskEdge;
+import taskDependencyGraph.TaskNode;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -14,7 +14,7 @@ import runtime.MemorySpace;
 
 import semanticanalysis.Scope;
 
-import taksDependencyGraph.TaskDependencyGraph;
+import taskDependencyGraph.TaskDependencyGraph;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;

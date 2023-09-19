@@ -19,7 +19,7 @@ import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.types.*;
 
-import taksDependencyGraph.TaskDependencyGraph;
+import taskDependencyGraph.TaskDependencyGraph;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

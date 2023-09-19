@@ -18,11 +18,11 @@ import runtime.*;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
-import taksDependencyGraph.TaskDependencyGraph;
-
 import task.quizquestion.MultipleChoice;
 import task.quizquestion.Quiz;
 import task.quizquestion.SingleChoice;
+
+import taskDependencyGraph.TaskDependencyGraph;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
