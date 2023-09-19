@@ -232,7 +232,8 @@ public class TestSemanticAnalyzer {
 
         // resolve 'level_graph' property of quest_config type in the datatype
         var questConfigType = symtableResult.symbolTable.globalScope.resolve("dungeon_config");
-        var levelGraphPropertySymbol = ((AggregateType) questConfigType).resolve("dependency_graph");
+        var levelGraphPropertySymbol =
+                ((AggregateType) questConfigType).resolve("dependency_graph");
         Assert.assertNotEquals(Symbol.NULL, levelGraphPropertySymbol);
 
         var symbolForPropertyIdNode =

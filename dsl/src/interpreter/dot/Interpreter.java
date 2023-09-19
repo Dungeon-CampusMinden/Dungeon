@@ -4,6 +4,7 @@ import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
 import task.quizquestion.SingleChoice;
+
 import taskdependencygraph.TaskDependencyGraph;
 // CHECKSTYLE:OFF: AvoidStarImport
 import taskdependencygraph.TaskEdge;
@@ -77,7 +78,8 @@ public class Interpreter implements AstVisitor<TaskNode> {
     @Override
     public TaskNode visit(IdNode node) {
         String name = node.getName();
-        // TODO: resolve name as task definition (see: https://github.com/Programmiermethoden/Dungeon/issues/520)
+        // TODO: resolve name as task definition (see:
+        // https://github.com/Programmiermethoden/Dungeon/issues/520)
         // lookup and create, if not present previously
         if (graphNodes.get(name) == null) {
             graphNodes.put(name, new TaskNode(new SingleChoice("")));
@@ -113,7 +115,8 @@ public class Interpreter implements AstVisitor<TaskNode> {
             EdgeRhsNode edgeRhs = (EdgeRhsNode) edge;
             rhsDotNode = (TaskNode) edgeRhs.getIdNode().accept(this);
 
-            // TODO: parse dependency type correctly (see: https://github.com/Programmiermethoden/Dungeon/issues/520)
+            // TODO: parse dependency type correctly (see:
+            // https://github.com/Programmiermethoden/Dungeon/issues/520)
             TaskEdge.Type edgeType = TaskEdge.Type.sequence;
 
             var graphEdge = new TaskEdge(edgeType, lhsDotNode, rhsDotNode);
