@@ -34,7 +34,7 @@ public class TestSemanticAnalyzer {
                 graph g {
                     A -- B
                 }
-                quest_config c {
+                dungeon_config c {
                     level_graph: g
                 }
                 """;
@@ -121,7 +121,7 @@ public class TestSemanticAnalyzer {
                 graph g {
                     A -- B
                 }
-                quest_config c {
+                dungeon_config c {
                     level_graph: g
                 }
                 """;
@@ -154,7 +154,7 @@ public class TestSemanticAnalyzer {
     public void testSetupNativeFunctions() {
         String program =
                 """
-                quest_config c {
+                dungeon_config c {
                     points: print("Hello")
                 }
                         """;
@@ -173,7 +173,7 @@ public class TestSemanticAnalyzer {
     public void testResolveNativeFunction() {
         String program =
                 """
-                quest_config c {
+                dungeon_config c {
                     points: print("Hello")
                 }
                         """;
@@ -209,11 +209,11 @@ public class TestSemanticAnalyzer {
                 graph g {
                     A -- B
                 }
-                quest_config c {
-                    level_graph: g
+                dungeon_config c {
+                    dependency_graph: g
                 }
-                quest_config d {
-                    level_graph: g
+                dungeon_config d {
+                    dependency_graph: g
                 }
                     """;
 
@@ -231,8 +231,8 @@ public class TestSemanticAnalyzer {
         assert (firstPropertyIdNode.type == Node.Type.Identifier);
 
         // resolve 'level_graph' property of quest_config type in the datatype
-        var questConfigType = symtableResult.symbolTable.globalScope.resolve("quest_config");
-        var levelGraphPropertySymbol = ((AggregateType) questConfigType).resolve("level_graph");
+        var questConfigType = symtableResult.symbolTable.globalScope.resolve("dungeon_config");
+        var levelGraphPropertySymbol = ((AggregateType) questConfigType).resolve("dependency_graph");
         Assert.assertNotEquals(Symbol.NULL, levelGraphPropertySymbol);
 
         var symbolForPropertyIdNode =

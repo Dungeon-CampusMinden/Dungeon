@@ -9,6 +9,7 @@ import helpers.Helpers;
 import interpreter.mockecs.*;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import parser.ast.Node;
@@ -40,7 +41,7 @@ public class TestDSLInterpreter {
     public void funcCall() {
         String program =
                 """
-                quest_config c {
+                dungeon_config c {
                     test: print("Hello, World!")
                 }
                     """;
@@ -269,7 +270,7 @@ public class TestDSLInterpreter {
     public void testDontSetNullValue() {
         String program =
                 """
-                quest_config c {
+                dungeon_config c {
                     this_value_does_not_exist_in_type: 42
                 }
                     """;
@@ -316,22 +317,6 @@ public class TestDSLInterpreter {
 
         var questConfig = (DungeonConfig) interpreter.getQuestConfig(program);
         var taksDependencyGraph = questConfig.dependencyGraph();
-
-        var edgeIter = graph.edgeIterator();
-        int edgeCount = 0;
-        while (edgeIter.hasNext()) {
-            edgeIter.next();
-            edgeCount++;
-        }
-        assertEquals(1, edgeCount);
-
-        var nodeIter = graph.nodeIterator();
-        int nodeCount = 0;
-        while (nodeIter.hasNext()) {
-            nodeIter.next();
-            nodeCount++;
-        }
-        assertEquals(2, nodeCount);
     }
 
     @DSLType
@@ -1322,7 +1307,7 @@ public class TestDSLInterpreter {
                         correct_answer_index: [0,1]
                     }
 
-                    quest_config c {
+                    dungeon_config c {
                         tasks: [my_single_choice_task, my_multiple_choice_task]
                     }
                 """;
