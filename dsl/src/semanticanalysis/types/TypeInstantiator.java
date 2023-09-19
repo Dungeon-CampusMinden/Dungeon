@@ -196,7 +196,9 @@ public class TypeInstantiator {
                 convertedObject = instantiateSet((SetValue) value);
             } else if (valuesType.getTypeKind().equals(IType.Kind.Aggregate)) {
                 if (convertedObject == null) {
-                    // TODO: this is a quick fix
+                    // if the value is a prototype, instantiation is handled by
+                    // DSLInterpreter::instantiateDSLValue and subsequent calls to
+                    // instantiateRuntimeValue; don't do it here
                     if (valuesType instanceof Prototype) {
                         return null;
                     }
