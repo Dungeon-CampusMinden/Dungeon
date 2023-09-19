@@ -3,6 +3,7 @@ package interpreter.dot;
 import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
+import task.quizquestion.SingleChoice;
 import taskDependencyGraph.TaskDependencyGraph;
 // CHECKSTYLE:OFF: AvoidStarImport
 import taskDependencyGraph.TaskEdge;
@@ -76,9 +77,10 @@ public class Interpreter implements AstVisitor<TaskNode> {
     @Override
     public TaskNode visit(IdNode node) {
         String name = node.getName();
+        // TODO: resolve name as task definition (see: https://github.com/Programmiermethoden/Dungeon/issues/520)
         // lookup and create, if not present previously
         if (graphNodes.get(name) == null) {
-            graphNodes.put(name, new TaskNode(name));
+            graphNodes.put(name, new TaskNode(new SingleChoice("")));
         }
 
         // return Dot-Node
@@ -111,10 +113,8 @@ public class Interpreter implements AstVisitor<TaskNode> {
             EdgeRhsNode edgeRhs = (EdgeRhsNode) edge;
             rhsDotNode = (TaskNode) edgeRhs.getIdNode().accept(this);
 
-            TaskEdge.Type edgeType =
-                    edgeRhs.getEdgeOpType().equals(EdgeOpNode.Type.arrow)
-                            ? TaskEdge.Type.directed
-                            : TaskEdge.Type.undirected;
+            // TODO: parse dependency type correctly (see: https://github.com/Programmiermethoden/Dungeon/issues/520)
+            TaskEdge.Type edgeType = TaskEdge.Type.sequence;
 
             var graphEdge = new TaskEdge(edgeType, lhsDotNode, rhsDotNode);
             graphEdges.put(graphEdge.name(), graphEdge);
