@@ -367,24 +367,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
         // instantiate entity_type
         var typeInstantiator = this.environment.getTypeInstantiator();
-        var entityObject = typeInstantiator.instantiateAsType(dslValue, asType);
-
-        // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would
-        //  enable creation of components with different parameters -> requires the ability to
-        //  store multiple builder-methods for one type, distinguished by their
-        //  signature
-        var annot = asType.getOriginType().getAnnotation(DSLContextPush.class);
-        String contextName = "";
-        if (annot != null) {
-            contextName = annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
-            typeInstantiator.pushContextMember(contextName, entityObject);
-        }
-        // TODO: this is a leftover and should be removed
-        if (annot != null) {
-            typeInstantiator.removeContextMember(contextName);
-        }
-
-        return entityObject;
+        return typeInstantiator.instantiateAsType(dslValue, asType);
     }
 
     @Override
