@@ -1,4 +1,10 @@
-package core.level.generator.graphBased;
+package contrib.level.generator.graphBased;
+
+import contrib.level.generator.GeneratorUtils;
+import contrib.level.generator.graphBased.levelGraph.Direction;
+import contrib.level.generator.graphBased.levelGraph.GraphGenerator;
+import contrib.level.generator.graphBased.levelGraph.LevelGraph;
+import contrib.level.generator.graphBased.levelGraph.Node;
 
 import core.Entity;
 import core.Game;
@@ -8,10 +14,6 @@ import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
-import core.level.generator.graphBased.levelGraph.Direction;
-import core.level.generator.graphBased.levelGraph.GraphGenerator;
-import core.level.generator.graphBased.levelGraph.LevelGraph;
-import core.level.generator.graphBased.levelGraph.Node;
 import core.level.utils.*;
 import core.utils.IVoidFunction;
 
@@ -121,16 +123,14 @@ public class RoombasedLevelGenerator {
      */
     private static void configureDoors(Node node) {
         for (DoorTile door : node.level().doorTiles()) {
-            Direction doorDirection =
-                    core.level.utils.GeneratorUtils.doorDirection(node.level(), door);
+            Direction doorDirection = GeneratorUtils.doorDirection(node.level(), door);
 
             // find neighbour door
             Node neighbour = node.neighbours()[doorDirection.value()];
             DoorTile neighbourDoor = null;
             for (DoorTile doorTile : neighbour.level().doorTiles())
                 if (Direction.opposite(doorDirection)
-                        == core.level.utils.GeneratorUtils.doorDirection(
-                                neighbour.level(), doorTile)) {
+                        == GeneratorUtils.doorDirection(neighbour.level(), doorTile)) {
                     neighbourDoor = doorTile;
                     break;
                 }

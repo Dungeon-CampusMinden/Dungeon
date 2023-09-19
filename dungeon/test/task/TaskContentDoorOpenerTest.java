@@ -2,15 +2,16 @@ package task;
 
 import static org.junit.Assert.assertTrue;
 
+import contrib.level.generator.GeneratorUtils;
+import contrib.level.generator.graphBased.RoombasedLevelGenerator;
+import contrib.level.generator.graphBased.levelGraph.Direction;
+import contrib.level.generator.graphBased.levelGraph.GraphGenerator;
+import contrib.level.generator.graphBased.levelGraph.LevelGraph;
+import contrib.level.generator.graphBased.levelGraph.Node;
+
 import core.Entity;
 import core.level.elements.tile.DoorTile;
-import core.level.generator.graphBased.RoombasedLevelGenerator;
-import core.level.generator.graphBased.levelGraph.Direction;
-import core.level.generator.graphBased.levelGraph.GraphGenerator;
-import core.level.generator.graphBased.levelGraph.LevelGraph;
-import core.level.generator.graphBased.levelGraph.Node;
 import core.level.utils.DesignLabel;
-import core.level.utils.GeneratorUtils;
 import core.utils.Tuple;
 
 import org.junit.Before;

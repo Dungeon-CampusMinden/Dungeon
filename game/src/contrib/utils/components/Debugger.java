@@ -5,7 +5,9 @@ import com.badlogic.gdx.Gdx;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
+import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
+import contrib.hud.UITools;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
@@ -192,6 +194,22 @@ public class Debugger {
         }
     }
 
+    private static Entity pauseMenu;
+
+    public static void PAUSE_GAME() {
+        if (pauseMenu == null
+                || pauseMenu
+                        .fetch(UIComponent.class)
+                        .map(x -> x.dialog().getStage() == null)
+                        .orElse(false)) pauseMenu = newPauseMenu();
+    }
+
+    private static Entity newPauseMenu() {
+        Entity entity = UITools.generateNewTextDialog("Pause", "Continue", "Pausemenu");
+        entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
+        return entity;
+    }
+
     /**
      * Checks for key input corresponding to Debugger functionalities, and executes the relevant
      * function if detected.
@@ -213,5 +231,6 @@ public class Debugger {
             Debugger.TOGGLE_LEVEL_SIZE();
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value()))
             Debugger.SPAWN_MONSTER_ON_CURSOR();
+        if (Gdx.input.isKeyJustPressed(KeyboardConfig.PAUSE.value())) Debugger.PAUSE_GAME();
     }
 }

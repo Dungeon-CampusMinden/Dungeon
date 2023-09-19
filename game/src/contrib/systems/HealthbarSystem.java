@@ -7,13 +7,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 
 import contrib.components.HealthComponent;
+import contrib.components.UIComponent;
 import contrib.hud.heroUI.HeroUITools;
 
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
-import core.components.UIComponent;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.logging.CustomLogLevel;

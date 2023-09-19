@@ -1,4 +1,4 @@
-package core.level.generator.graphBased.levelGraph;
+package contrib.level.generator.graphBased.levelGraph;
 
 import core.Entity;
 import core.utils.Tuple;

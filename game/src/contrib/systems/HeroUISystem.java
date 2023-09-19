@@ -5,15 +5,15 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 
+import contrib.components.UIComponent;
 import contrib.components.XPComponent;
+import contrib.hud.UITools;
 import contrib.hud.heroUI.HeroUITools;
 
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PlayerComponent;
-import core.components.UIComponent;
-import core.hud.UITools;
 import core.utils.components.MissingComponentException;
 
 import java.util.HashMap;

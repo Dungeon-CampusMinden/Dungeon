@@ -1,4 +1,4 @@
-package core.components;
+package contrib.components;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
 

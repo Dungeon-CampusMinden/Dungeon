@@ -2,13 +2,13 @@ package manual.taskgeneration;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
+import contrib.hud.UITools;
 import contrib.systems.*;
 
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.hud.UITools;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
@@ -58,6 +58,7 @@ public class TaskGenerationTest {
                         Game.add(new ProjectileSystem());
                         Game.add(new HealthbarSystem());
                         Game.add(new HeroUISystem());
+                        Game.add(new HudSystem());
                         Entity hero = EntityFactory.newHero();
                         Game.hero(hero);
                         Game.add(hero);

@@ -6,6 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
+import contrib.components.UIComponent;
+
 import core.Game;
 
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ import java.util.Arrays;
  *
  * <p>The class inherits from {@link Group} so it can be added to a {@link
  * com.badlogic.gdx.scenes.scene2d.Stage Stage} to be displayed. This should happen through the use
- * of a {@link core.components.UIComponent}.
+ * of a {@link UIComponent}.
  */
 public class GUICombination extends Group {
 

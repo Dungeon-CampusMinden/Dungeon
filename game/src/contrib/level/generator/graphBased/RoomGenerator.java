@@ -1,9 +1,10 @@
-package core.level.generator.graphBased;
+package contrib.level.generator.graphBased;
 
 import static core.level.elements.ILevel.RANDOM;
 
-import core.level.generator.graphBased.levelGraph.Direction;
-import core.level.generator.graphBased.levelGraph.Node;
+import contrib.level.generator.graphBased.levelGraph.Direction;
+import contrib.level.generator.graphBased.levelGraph.Node;
+
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
