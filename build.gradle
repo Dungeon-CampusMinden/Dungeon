@@ -47,7 +47,7 @@ dependencies {
     antlr "org.antlr:antlr4:4.11.1"
 }
 
-sourceCompatibility = 17
+sourceCompatibility = 21
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
 sourceSets.main.java.srcDirs = ["game/src/", "dsl/src/", "dungeon/src", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/"]

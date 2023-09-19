@@ -9,7 +9,7 @@ The Dungeon uses the [PM-Dungeon](https://github.com/Programmiermethoden/PM-Dung
 
 ## Requirements
 
--   Java SE Development Kit 17.0.x LTS
+-   Java SE Development Kit 21.0.x LTS
 
 ## Contributing
 
