@@ -1,9 +1,9 @@
 package dungeonFiles;
 
-import graph.TaskDependencyGraph;
-
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
+
+import taksDependencyGraph.TaskDependencyGraph;
 
 /**
  * Stores information about a Task-based Game.

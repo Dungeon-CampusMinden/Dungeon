@@ -1,4 +1,4 @@
-package graph;
+package taksDependencyGraph;
 
 /**
  * Represents an edge in a {@link TaskDependencyGraph} that connects two {@link TaskNode}s.

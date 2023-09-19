@@ -1,6 +1,6 @@
 package semanticanalysis.types;
 
-import graph.TaskDependencyGraph;
+import taksDependencyGraph.TaskDependencyGraph;
 
 @DSLType
 public class TestClassOuter {

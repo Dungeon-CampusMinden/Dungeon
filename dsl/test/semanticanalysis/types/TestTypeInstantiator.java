@@ -2,8 +2,6 @@ package semanticanalysis.types;
 
 import dungeonFiles.DungeonConfig;
 
-import graph.TaskDependencyGraph;
-
 import helpers.Helpers;
 
 import interpreter.DSLInterpreter;
@@ -15,6 +13,8 @@ import runtime.AggregateValue;
 import runtime.MemorySpace;
 
 import semanticanalysis.Scope;
+
+import taksDependencyGraph.TaskDependencyGraph;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;

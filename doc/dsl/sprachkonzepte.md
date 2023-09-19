@@ -480,7 +480,7 @@ repräsentiert wird), auch tatsächlich über ein `DrawComponent` verfügt.
 Per eingebetteter dot-Syntax können Graphen definiert werden.
 
 ```
-graph g {
+taksDependencyGraph g {
     A -- B
     B -- C
     A -- D

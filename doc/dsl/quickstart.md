@@ -89,7 +89,7 @@ task subtask4 {
 }
 
 // Definition von Task-Organisation über dot-Umgebung
-graph task_order {
+taksDependencyGraph task_order {
     TODO: Abbildung von Petri-Netzen über dot (wie genau?)
 }
 

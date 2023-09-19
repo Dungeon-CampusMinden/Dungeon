@@ -1,7 +1,5 @@
 package semanticanalysis;
 
-import graph.TaskDependencyGraph;
-
 import helpers.Helpers;
 
 import interpreter.DummyNativeFunction;
@@ -20,6 +18,8 @@ import runtime.GameEnvironment;
 import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.types.*;
+
+import taksDependencyGraph.TaskDependencyGraph;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -42,7 +42,7 @@ public class TestSemanticAnalyzer {
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
 
-        // check the name of the symbol corresponding to the graph definition
+        // check the name of the symbol corresponding to the taksDependencyGraph definition
         var graphDefAstNode = ast.getChild(0);
         var symbolForDotDefNode =
                 symtableResult.symbolTable.getSymbolsForAstNode(graphDefAstNode).get(0);
@@ -90,11 +90,12 @@ public class TestSemanticAnalyzer {
         symbolTableParser.setup(env);
         var symbolTable = symbolTableParser.walk(ast).symbolTable;
 
-        // check the name of the symbol corresponding to the graph definition
+        // check the name of the symbol corresponding to the taksDependencyGraph definition
         var graphDefAstNode = ast.getChild(0);
         var symbolForDotDefNode = symbolTable.getSymbolsForAstNode(graphDefAstNode).get(0);
 
-        // check, if the stmt of the propertyDefinition references the symbol of the graph
+        // check, if the stmt of the propertyDefinition references the symbol of the
+        // taksDependencyGraph
         // definition
         var gameObjDefNode = ast.getChild(1);
         var componentDefNode =
@@ -128,12 +129,13 @@ public class TestSemanticAnalyzer {
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
 
-        // check the name of the symbol corresponding to the graph definition
+        // check the name of the symbol corresponding to the taksDependencyGraph definition
         var graphDefAstNode = ast.getChild(0);
         var symbolForDotDefNode =
                 symtableResult.symbolTable.getSymbolsForAstNode(graphDefAstNode).get(0);
 
-        // check, if the stmt of the propertyDefinition references the symbol of the graph
+        // check, if the stmt of the propertyDefinition references the symbol of the
+        // taksDependencyGraph
         // definition
         var objDefNode = ast.getChild(1);
         var propertyDefList = objDefNode.getChild(2);

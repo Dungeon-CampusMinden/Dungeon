@@ -2,8 +2,6 @@ package semanticanalysis.types;
 
 import static org.junit.Assert.*;
 
-import graph.TaskDependencyGraph;
-
 import interpreter.TestEnvironment;
 import interpreter.mockecs.*;
 
@@ -12,6 +10,8 @@ import org.junit.Test;
 
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
+
+import taksDependencyGraph.TaskDependencyGraph;
 
 import java.lang.reflect.InvocationTargetException;
 

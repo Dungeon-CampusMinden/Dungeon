@@ -1,12 +1,12 @@
 package interpreter.dot;
 
-import graph.TaskDependencyGraph;
-// CHECKSTYLE:OFF: AvoidStarImport
-import graph.TaskEdge;
-import graph.TaskNode;
-
 import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
+
+import taksDependencyGraph.TaskDependencyGraph;
+// CHECKSTYLE:OFF: AvoidStarImport
+import taksDependencyGraph.TaskEdge;
+import taksDependencyGraph.TaskNode;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,9 +1,9 @@
 package runtime;
 
-import graph.TaskDependencyGraph;
-
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
+
+import taksDependencyGraph.TaskDependencyGraph;
 
 // TODO: should this be able to be undefined?
 

@@ -60,27 +60,27 @@ group=group-20</panel_attributes><additional_attributes></additional_attributes>
 group=group-20</panel_attributes><additional_attributes>10;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1326</x><y>533</y><w>65</w><h>65</h></coordinates><panel_attributes>lt=-
 group=group-20</panel_attributes><additional_attributes>30;30;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1001</x><y>455</y><w>312</w><h>65</h></coordinates><panel_attributes>lt=&lt;&lt;-
 initialen level supergraph erzeugen
-(mit task-graph Struktur)</panel_attributes><additional_attributes>220;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>767</x><y>871</y><w>520</w><h>689</h></coordinates><panel_attributes>DSL-Interpreter
+(mit task-taksDependencyGraph Struktur)</panel_attributes><additional_attributes>220;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>767</x><y>871</y><w>520</w><h>689</h></coordinates><panel_attributes>DSL-Interpreter
 layer=-1</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>819</x><y>923</y><w>143</w><h>65</h></coordinates><panel_attributes>build_task(task)
 --
 </panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>832</x><y>559</y><w>143</w><h>390</h></coordinates><panel_attributes>lt=&lt;&lt;-
 für jeden task 
-im task-graph
+im task-taksDependencyGraph
 
 
 
 </panel_attributes><additional_attributes>10;280;10;10</additional_attributes></element><element><id>UMLNote</id><coordinates><x>793</x><y>1625</y><w>234</w><h>104</h></coordinates><panel_attributes># my_taskbuilder1.dsl
-fn build_task1(task) -&gt; graph {
+fn build_task1(task) -&gt; taksDependencyGraph {
   ...
 }
 bg=white
 group=group-19</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>793</x><y>1755</y><w>234</w><h>104</h></coordinates><panel_attributes># my_taskbuilder2.dsl
-fn build_task2(task) -&gt; graph {
+fn build_task2(task) -&gt; taksDependencyGraph {
   ...
 }
 bg=white
 group=group-19</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>793</x><y>1885</y><w>234</w><h>104</h></coordinates><panel_attributes># my_taskbuilder3.dsl
-fn build_task3(task) -&gt; graph {
+fn build_task3(task) -&gt; taksDependencyGraph {
   ...
 }
 bg=white
@@ -96,7 +96,7 @@ group=group-19</panel_attributes><additional_attributes></additional_attributes>
 task_builder für
 task type suchen 
 </panel_attributes><additional_attributes>10;310;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>949</x><y>936</y><w>234</w><h>78</h></coordinates><panel_attributes>lt=&lt;&lt;-
-ausführen(task_builder)</panel_attributes><additional_attributes>160;40;160;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1027</x><y>988</y><w>247</w><h>169</h></coordinates><panel_attributes>fn task_builder(task) -&gt; graph
+ausführen(task_builder)</panel_attributes><additional_attributes>160;40;160;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1027</x><y>988</y><w>247</w><h>169</h></coordinates><panel_attributes>fn task_builder(task) -&gt; taksDependencyGraph
 --
 - Entitäten erzeugen
 - Räume erzeugen

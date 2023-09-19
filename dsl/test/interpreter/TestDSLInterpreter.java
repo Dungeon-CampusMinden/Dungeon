@@ -4,8 +4,6 @@ import static org.junit.Assert.*;
 
 import dungeonFiles.DungeonConfig;
 
-import graph.TaskDependencyGraph;
-
 import helpers.Helpers;
 
 import interpreter.mockecs.*;
@@ -19,6 +17,8 @@ import runtime.*;
 
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
+
+import taksDependencyGraph.TaskDependencyGraph;
 
 import task.quizquestion.MultipleChoice;
 import task.quizquestion.Quiz;
@@ -315,7 +315,7 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
 
         var questConfig = (DungeonConfig) interpreter.getQuestConfig(program);
-        var graph = questConfig.dependencyGraph();
+        var taksDependencyGraph = questConfig.dependencyGraph();
 
         var edgeIter = graph.edgeIterator();
         int edgeCount = 0;

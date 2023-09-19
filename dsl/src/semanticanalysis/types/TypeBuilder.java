@@ -2,8 +2,6 @@ package semanticanalysis.types;
 
 import core.utils.TriConsumer;
 
-import graph.TaskDependencyGraph;
-
 import runtime.nativefunctions.ExtensionMethod;
 
 import semanticanalysis.*;
@@ -11,6 +9,8 @@ import semanticanalysis.types.callbackadapter.BiFunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
+
+import taksDependencyGraph.TaskDependencyGraph;
 
 import java.lang.reflect.*;
 import java.util.*;
