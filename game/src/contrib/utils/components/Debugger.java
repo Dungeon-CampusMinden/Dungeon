@@ -201,7 +201,7 @@ public class Debugger {
                 || pauseMenu
                         .fetch(UIComponent.class)
                         .map(x -> x.dialog().getStage() == null)
-                        .orElse(false)) pauseMenu = newPauseMenu();
+                        .orElse(true)) pauseMenu = newPauseMenu();
     }
 
     private static Entity newPauseMenu() {
