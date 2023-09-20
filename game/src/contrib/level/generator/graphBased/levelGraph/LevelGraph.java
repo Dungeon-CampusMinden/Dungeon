@@ -80,29 +80,34 @@ public final class LevelGraph {
                 connectOnNodes.stream()
                         .filter(n -> n.neighboursCount() < Direction.values().length)
                         .toList();
+
+        if (connectOnNodesFree.isEmpty()) {
+            connectOn.createAdapterNode(connectOn, Direction.random());
+            return add(other, connectOn);
+        }
         List<Node> otherNodesFree =
                 otherNodes.stream()
                         .filter(n -> n.neighboursCount() < Direction.values().length)
                         .toList();
-
-        // Both graphs have nodes with free edges
-        if (!connectOnNodesFree.isEmpty() && !otherNodesFree.isEmpty()) {
-            // try to find a matching Node-Pair (two Nodes that can be connected without any
-            // changes)
-            Optional<Tuple<Node, Node>> match = matching(connectOnNodesFree, otherNodesFree);
-            if (match.isPresent()) {
-                // there is an easy way to connect them, so do it
-                Tuple<Node, Node> matchUnpacked = match.get();
-                addNodes(other.nodes());
-                other.addNodes(nodes());
-                return matchUnpacked.a().add(matchUnpacked.b());
-            }
+        if (otherNodesFree.isEmpty()) {
+            other.createAdapterNode(other, Direction.random());
+            return add(other, connectOn);
         }
-        Node adapterConnectOn = connectOn.createAdapterNode(connectOn, Direction.random());
-        Node adapterOther = other.createAdapterNode(other, Direction.random());
-        addNodes(other.nodes());
-        other.addNodes(nodes());
-        return adapterConnectOn.add(adapterOther);
+
+        // try to find a matching Node-Pair (two Nodes that can be connected without any
+        // changes)
+        Optional<Tuple<Node, Node>> match = matching(connectOnNodesFree, otherNodesFree);
+        if (match.isPresent()) {
+            // there is an easy way to connect them, so do it
+            Tuple<Node, Node> matchUnpacked = match.get();
+            addNodes(other.nodes());
+            other.addNodes(nodes());
+            return matchUnpacked.a().add(matchUnpacked.b());
+        }
+
+        // add adapter and try again
+        other.createAdapterNode(other, Direction.random());
+        return add(other, connectOn);
     }
 
     private Node createAdapterNode(LevelGraph origin, Direction direction) {

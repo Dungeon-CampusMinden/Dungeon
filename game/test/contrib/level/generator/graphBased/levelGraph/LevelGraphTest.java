@@ -1,12 +1,14 @@
 package contrib.level.generator.graphBased.levelGraph;
 
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.*;
 
 import core.Entity;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 public class LevelGraphTest {
@@ -23,20 +25,21 @@ public class LevelGraphTest {
     public void adapter_node_onNode() {
         // add new node
         graph.add(Set.of(new Entity()));
-        // 5 + adapter + new node
-        assertEquals(7, graph.nodes().size());
+
         // for manual check
         // System.out.println(graph.toDot());
+
+        // 5 + adapter + new node
+        assertEquals(7, graph.nodes().size());
     }
 
     @Test
     public void adapter_node_onTwoFullGraphs() {
         LevelGraph graph2 = generateFullGraph();
         graph.add(graph2, graph);
-        // 5+5 for each graph +2 adapter nodes
-        assertEquals(12, graph.nodes().size());
         // for manual check
         // System.out.println(graph.toDot());
+        assertTrue(checkIfReachable(graph.root(), graph, graph2));
     }
 
     @Test
@@ -45,10 +48,9 @@ public class LevelGraphTest {
         LevelGraph graph3 = generateFullGraph();
         graph.add(graph2, graph);
         graph.add(graph3, graph2);
-        // 5+5+5 for each graph +4 adapter nodes
-        assertEquals(19, graph.nodes().size());
         // for manual check
-        System.out.println(graph.toDot());
+        // System.out.println(graph.toDot());
+        assertTrue(checkIfReachable(graph.root(), graph, graph2, graph3));
     }
 
     @Test
@@ -57,10 +59,9 @@ public class LevelGraphTest {
         LevelGraph graph3 = generateFullGraph();
         graph.add(graph2, graph);
         graph.add(graph3, graph);
-        // 5+5+5 for each graph +4 adapter nodes
-        assertEquals(19, graph.nodes().size());
         // for manual check
-        System.out.println(graph.toDot());
+        // System.out.println(graph.toDot());
+        assertTrue(checkIfReachable(graph.root(), graph, graph2, graph3));
     }
 
     @Test
@@ -79,8 +80,7 @@ public class LevelGraphTest {
         g1.add(Set.of(new Entity()));
         g2.add(Set.of(new Entity()));
         g1.add(g2, g1);
-        // 1+1 for each graph, no adapter needed
-        assertEquals(2, g1.nodes().size());
+        assertTrue(checkIfReachable(g1.root(), g1, g2));
         // for manual check
         System.out.println(g1.toDot());
     }
@@ -121,5 +121,37 @@ public class LevelGraphTest {
         n5.forceNeighbor(n4, Direction.NORTH);
         levelgraph.addNodes(Set.of(n1, n2, n3, n4, n5));
         return levelgraph;
+    }
+    /**
+     * Checks if each Node in the given Graphs can be reached from the given root node.
+     *
+     * <p>Basically checks if the Graphs are connected.
+     *
+     * @param root root node
+     * @param connectedWith graphs that should be reachable
+     * @return true if the graphs are reachable from root, false if not
+     */
+    private boolean checkIfReachable(Node root, LevelGraph... connectedWith) {
+        Set<Node> needToBeVisited = new HashSet<>();
+        Arrays.stream(connectedWith).forEach(c -> needToBeVisited.addAll(c.nodes()));
+        Set<Node> visited = depthFirstSearch(root);
+        needToBeVisited.removeAll(visited);
+        return needToBeVisited.isEmpty();
+    }
+
+    public Set<Node> depthFirstSearch(Node rootNode) {
+        Set<Node> visitedNodes = new HashSet<>();
+        depthFirstSearchRecursive(rootNode, visitedNodes);
+        return visitedNodes;
+    }
+
+    private void depthFirstSearchRecursive(Node currentNode, Set<Node> visitedNodes) {
+        visitedNodes.add(currentNode);
+        for (Direction direction : Direction.values()) {
+            Node neighbor = currentNode.at(direction).orElse(null);
+            if (neighbor != null && !visitedNodes.contains(neighbor)) {
+                depthFirstSearchRecursive(neighbor, visitedNodes);
+            }
+        }
     }
 }
