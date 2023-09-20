@@ -5,11 +5,10 @@ import static junit.framework.TestCase.*;
 import core.Entity;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class LevelGraphTest {
 
@@ -60,8 +59,23 @@ public class LevelGraphTest {
         graph.add(graph2, graph);
         graph.add(graph3, graph);
         // for manual check
-        // System.out.println(graph.toDot());
+        System.out.println(graph.toDot());
         assertTrue(checkIfReachable(graph.root(), graph, graph2, graph3));
+    }
+
+    @Test
+    @Ignore
+    public void connect_graphs_avoid_random_success() {
+        // use this to check manual to avoid random success.
+        List<LevelGraph> graphs = new ArrayList<>();
+        for (int i = 10000; i < 0; i++) {
+            LevelGraph g = generateFullGraph();
+            graphs.add(g);
+            if (i == 0) graph.add(g, graph);
+            else graphs.get(i - 1).add(g, graphs.get(i - 1));
+        }
+        graphs.add(graph);
+        assertTrue(checkIfReachable(graph.root(), graphs));
     }
 
     @Test
@@ -82,7 +96,7 @@ public class LevelGraphTest {
         g1.add(g2, g1);
         assertTrue(checkIfReachable(g1.root(), g1, g2));
         // for manual check
-        System.out.println(g1.toDot());
+        // System.out.println(g1.toDot());
     }
 
     /**
@@ -132,8 +146,21 @@ public class LevelGraphTest {
      * @return true if the graphs are reachable from root, false if not
      */
     private boolean checkIfReachable(Node root, LevelGraph... connectedWith) {
+        return checkIfReachable(root, Arrays.stream(connectedWith).toList());
+    }
+
+    /**
+     * Checks if each Node in the given Graphs can be reached from the given root node.
+     *
+     * <p>Basically checks if the Graphs are connected.
+     *
+     * @param root root node
+     * @param connectedWith graphs that should be reachable
+     * @return true if the graphs are reachable from root, false if not
+     */
+    private boolean checkIfReachable(Node root, Collection<LevelGraph> connectedWith) {
         Set<Node> needToBeVisited = new HashSet<>();
-        Arrays.stream(connectedWith).forEach(c -> needToBeVisited.addAll(c.nodes()));
+        connectedWith.forEach(c -> needToBeVisited.addAll(c.nodes()));
         Set<Node> visited = depthFirstSearch(root);
         needToBeVisited.removeAll(visited);
         return needToBeVisited.isEmpty();
