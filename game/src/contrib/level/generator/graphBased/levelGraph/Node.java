@@ -183,15 +183,15 @@ public final class Node {
     /**
      * Set the given Node as neighbor of this node at the given direction.
      *
-     * @param n Node to set as neighbor.
+     * @param node Node to set as neighbor.
      * @param direction The direction at which the neighbor should be added from this node's
      *     perspective (in the neighbor's context, this corresponds to the opposite direction).
      * @return Optional that contains the old neighbor if on existed.
      */
-    protected Optional<Node> forceNeighbor(Node n, Direction direction) {
+    protected Optional<Node> forceNeighbor(Node node, Direction direction) {
         Node old = neighbours[direction.value()];
-        neighbours[direction.value()] = n;
-        if (old != null) old.forceNeighbor(null, Direction.opposite(direction));
+        neighbours[direction.value()] = node;
+        if (old != null && old != node) old.forceNeighbor(null, Direction.opposite(direction));
         return Optional.ofNullable(old);
     }
 

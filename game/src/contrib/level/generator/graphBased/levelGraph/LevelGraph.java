@@ -93,16 +93,22 @@ public final class LevelGraph {
             if (match.isPresent()) {
                 // there is an easy way to connect them, so do it
                 Tuple<Node, Node> matchUnpacked = match.get();
+                addNodes(other.nodes());
+                other.addNodes(nodes());
                 return matchUnpacked.a().add(matchUnpacked.b());
             }
         }
-        Node adapterConnectOn = connectOn.addAdapterNode(connectOn, Direction.random());
-        Node adapterOther = other.addAdapterNode(other, Direction.random());
+        Node adapterConnectOn = connectOn.createAdapterNode(connectOn, Direction.random());
+        Node adapterOther = other.createAdapterNode(other, Direction.random());
+        addNodes(other.nodes());
+        other.addNodes(nodes());
         return adapterConnectOn.add(adapterOther);
     }
 
-    private Node addAdapterNode(LevelGraph origin, Direction direction) {
-        List<Node> nodes = origin.nodes().stream().filter(n -> n.originGraph() == origin).toList();
+    private Node createAdapterNode(LevelGraph origin, Direction direction) {
+        List<Node> nodes =
+                new ArrayList<>(
+                        origin.nodes().stream().filter(n -> n.originGraph() == origin).toList());
         Node adapter = new Node(new HashSet<>(), origin);
         if (nodes.isEmpty()) {
             origin.add(adapter);
@@ -212,13 +218,16 @@ public final class LevelGraph {
             Optional<Tuple<Node, Direction>> tup = n.add(node);
             if (tup.isPresent()) return tup;
         }
+
         // could not create a connection because no node has a free edge where the other node has a
         // free edge
-        addAdapterNode(this, Direction.opposite(node.freeDirections().get(0)));
+        createAdapterNode(this, Direction.opposite(node.freeDirections().get(0)));
         return add(node);
     }
 
     private void addNodes(final Set<Node> nodes, Set<LevelGraph> alreadyVisited) {
+        if (nodes.isEmpty()) return;
+        if (root == null) root = nodes.stream().findFirst().get();
         this.nodes.addAll(nodes);
         alreadyVisited.add(this);
         // collect each other node
