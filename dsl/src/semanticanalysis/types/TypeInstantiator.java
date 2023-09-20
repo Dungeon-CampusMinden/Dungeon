@@ -36,10 +36,8 @@ public class TypeInstantiator {
     public Object instantiate(AggregateValue value) {
         AggregateType type;
         if (value.getDataType() instanceof Prototype) {
-            // TODO: switch it of for now
+            // instantiation of prototypes is handled by the native `instantiate` function
             return null;
-            // Prototype prototype = (Prototype) value.getDataType();
-            // type = prototype.getInternalType();
         } else {
             type = (AggregateType) value.getDataType();
         }
