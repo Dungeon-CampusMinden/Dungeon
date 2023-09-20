@@ -162,7 +162,7 @@ public final class Node {
      * @return A Tuple containing the node in the graph where the given node was connected, and the
      *     direction of the connection. Returns an empty result if the nodes could not be connected.
      */
-    Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
+    private Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
         if (this == node || neighbours[direction.value()] != null) return Optional.empty();
         neighbours[direction.value()] = node;
         // if a node of an other graph gets added, all nodes of the other graph a now part of
