@@ -59,7 +59,7 @@ public final class DrawComponent implements Component {
     // each Entry is running in parrallel
     // the value is how long the Entry should be contained
     // the key is all Animations which then get checked for highest Priority?
-    private Map<IPath, Integer> animationQueue = new HashMap<>();
+    private Map<IPath, Integer> animationQueue = new TreeMap<>(Comparator.comparingInt(IPath::priority));
 
     /**
      * Create a new DrawComponent.
@@ -182,13 +182,15 @@ public final class DrawComponent implements Component {
                     .pathString()
                     .equals(
                             Arrays.stream(next)
-                                    .min((x, y) -> y.priority() - x.priority())
+                                    .min(Comparator.comparingInt(IPath::priority))
                                     .orElseThrow()
-                                    .pathString())) return;
+                                    .pathString())){
+                return;
+            }
         }
         // add if not already in queue
         animationQueue.put(
-                Arrays.stream(next).min((x, y) -> y.priority() - x.priority()).get(), forFrames);
+                Arrays.stream(next).min(Comparator.comparingInt(IPath::priority)).get(), forFrames);
     }
 
     /**
