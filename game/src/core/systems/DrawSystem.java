@@ -108,7 +108,7 @@ public final class DrawSystem extends System {
             if (entry.getValue() < 0) {
                 // remove animation when there is no remaining frame time
                 dc.animationQueue().remove(entry.getKey());
-            }else if (highestPrio == null || highestPrio.priority() < entry.getKey().priority()) {
+            } else if (highestPrio == null || highestPrio.priority() < entry.getKey().priority()) {
                 highestPrio = entry.getKey();
             }
         }
