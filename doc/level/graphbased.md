@@ -59,7 +59,7 @@ Das Verbinden von Graphen funktioniert grundsätzlich wie das Hinzufügen eines 
 Beide Graphen werden nach Möglichkeiten zum Verbinden untersucht, also ob es Knoten gibt, die freie Kantenplätze haben, die miteinander verbunden werden können.
 Wenn ja, wird die Verbindung hergestellt, wenn nicht, wird ein Adapterknoten hinzugefügt und erneut gesucht.
 
-Graphen werden immer nur an Knoten verbunden, deren Ursprung in den zu verbindenden Graphen liegt. Haben Sie also einen Graphen G1 und G2 und G3, und G1 ist bereits mit G2 verbunden, wird beim Verbinden von G1 und G3 nur die Knoten betrachtet, die ursprünglich aus G1 und G3 stammen (kurz gesagt: G3 und G2 werden nicht direkt, sondern nur indirekt miteinander verbunden).
+Graphen werden immer nur an Knoten verbunden, deren Ursprung in den zu verbindenden Graphen liegt. Haben Sie also einen Graphen G1 und G2 und G3, und G1 ist bereits mit G2 verbunden, werden beim Verbinden von G1 und G3 nur die Knoten betrachtet, die ursprünglich aus G1 und G3 stammen (kurz gesagt: G3 und G2 werden nicht direkt, sondern nur indirekt miteinander verbunden).
 
 Wenn die beiden Graphen verbunden werden, wird die Knotenliste der Graphen um die Knoten des anderen Graphen ergänzt (dabei werden auch Knoten betrachtet, die aus einem anderen verbundenen Graphen stammen; G2 hält dann also auch die Knoten aus G3).
 Die beiden Grapheninstanzen sind nach dem Verbinden strukturell identisch.
