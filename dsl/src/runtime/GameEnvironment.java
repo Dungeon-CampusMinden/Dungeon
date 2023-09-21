@@ -8,8 +8,8 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
-import dslToGame.nativefunction.NativeInstantiate;
-import dslToGame.typeadapters.DrawComponentAdapter;
+import dslnativefunction.NativeInstantiate;
+import dsltypeadapters.DrawComponentAdapter;
 
 import dsltypeproperties.EntityExtension;
 

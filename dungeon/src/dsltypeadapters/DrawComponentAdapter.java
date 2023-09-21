@@ -1,4 +1,4 @@
-package dslToGame.typeadapters;
+package dsltypeadapters;
 
 import core.components.DrawComponent;
 

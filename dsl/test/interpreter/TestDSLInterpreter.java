@@ -7,7 +7,7 @@ import contrib.components.CollideComponent;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 
-import dslToGame.nativefunction.NativeInstantiate;
+import dslnativefunction.NativeInstantiate;
 
 import dungeonFiles.DungeonConfig;
 

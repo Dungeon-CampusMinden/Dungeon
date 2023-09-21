@@ -1,4 +1,4 @@
-package dslToGame.nativefunction;
+package dslnativefunction;
 
 import core.Component;
 import core.Entity;
