@@ -2,7 +2,6 @@ package contrib.crafting;
 
 import static org.junit.Assert.*;
 
-import contrib.item.Items;
 import contrib.utils.components.item.ItemData;
 
 import org.junit.Test;

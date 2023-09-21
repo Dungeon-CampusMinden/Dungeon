@@ -12,15 +12,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
 
 import contrib.components.InventoryComponent;
-import contrib.crafting.Crafting;
-import contrib.crafting.CraftingResult;
-import contrib.crafting.CraftingType;
-import contrib.crafting.Recipe;
+import contrib.crafting.*;
 import contrib.hud.CombinableGUI;
 import contrib.hud.GUICombination;
 import contrib.hud.ImageButton;
 import contrib.hud.inventory.ItemDragPayload;
-import contrib.utils.components.item.ItemData;
+import contrib.item.Item;
 
 import core.Game;
 import core.utils.components.draw.Animation;
@@ -119,7 +116,7 @@ public class CraftingGUI extends CombinableGUI {
                         false);
     }
 
-    private final ArrayList<ItemData> items = new ArrayList<>();
+    private final ArrayList<Item> items = new ArrayList<>();
     private Recipe currentRecipe = null;
     private final ImageButton buttonOk, buttonCancel;
     private final InventoryComponent targetInventory;
@@ -135,14 +132,8 @@ public class CraftingGUI extends CombinableGUI {
         this.buttonOk = new ImageButton(this, Animation.of(BUTTON_OK_TEXTURE_PATH), 0, 0, 1, 1);
         this.buttonCancel =
                 new ImageButton(this, Animation.of(BUTTON_CANCEL_TEXTURE_PATH), 0, 0, 1, 1);
-        this.buttonOk.onClick(
-                (button) -> {
-                    this.craft();
-                });
-        this.buttonCancel.onClick(
-                (button) -> {
-                    this.cancel();
-                });
+        this.buttonOk.onClick((button) -> this.craft());
+        this.buttonCancel.onClick((button) -> this.cancel());
     }
 
     // Init CraftingGUI as drag and drop target so that items can be dragged into the cauldron/ui
@@ -161,7 +152,7 @@ public class CraftingGUI extends CombinableGUI {
                             int pointer) {
                         if (payload != null
                                 && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-                            return itemDragPayload.itemData() != null;
+                            return itemDragPayload.item() != null;
                         }
                         return false;
                     }
@@ -175,7 +166,7 @@ public class CraftingGUI extends CombinableGUI {
                             int pointer) {
                         if (payload != null
                                 && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-                            CraftingGUI.this.items.add(itemDragPayload.itemData());
+                            CraftingGUI.this.items.add(itemDragPayload.item());
                             CraftingGUI.this.updateRecipe();
                         }
                     }
@@ -250,7 +241,6 @@ public class CraftingGUI extends CombinableGUI {
                                 .textureAt(
                                         this.items
                                                 .get(i)
-                                                .item()
                                                 .inventoryAnimation()
                                                 .nextAnimationTexturePath());
                 int textureX = startX + ITEM_GAP * (i + 1) + size * i;
@@ -289,7 +279,7 @@ public class CraftingGUI extends CombinableGUI {
                                     .filter(
                                             result ->
                                                     result.resultType() == CraftingType.ITEM
-                                                            && result instanceof ItemData)
+                                                            && result instanceof Item)
                                     .count();
             if (nrItemResults == 0) {
                 return;
@@ -305,19 +295,15 @@ public class CraftingGUI extends CombinableGUI {
 
             int i = 0;
             for (CraftingResult result : this.currentRecipe.results()) {
-                if (result.resultType() != CraftingType.ITEM
-                        || !(result instanceof ItemData item)) {
+                if (result.resultType() != CraftingType.ITEM || !(result instanceof Item item)) {
                     continue;
                 }
                 Texture itemTexture =
                         TextureMap.instance()
-                                .textureAt(
-                                        item.item()
-                                                .inventoryAnimation()
-                                                .nextAnimationTexturePath());
+                                .textureAt(item.inventoryAnimation().nextAnimationTexturePath());
                 batch.draw(itemTexture, x + ITEM_GAP * (i + 1) + size * i, y, size, size);
 
-                GlyphLayout layout = new GlyphLayout(bitmapFont, item.item().displayName());
+                GlyphLayout layout = new GlyphLayout(bitmapFont, item.displayName());
                 int boxX =
                         x
                                 + ITEM_GAP * (i + 1)
@@ -334,7 +320,7 @@ public class CraftingGUI extends CombinableGUI {
                         layout.height + 2 * NUMBER_PADDING);
                 bitmapFont.draw(
                         batch,
-                        item.item().displayName(),
+                        item.displayName(),
                         boxX + NUMBER_PADDING,
                         boxY + NUMBER_PADDING + layout.height,
                         layout.width,
@@ -347,7 +333,7 @@ public class CraftingGUI extends CombinableGUI {
     }
 
     private void updateRecipe() {
-        ItemData[] itemData = this.items.toArray(new ItemData[0]);
+        Item[] itemData = this.items.toArray(new Item[0]);
         this.currentRecipe = Crafting.recipeByIngredients(itemData).orElse(null);
     }
 
@@ -357,11 +343,10 @@ public class CraftingGUI extends CombinableGUI {
         Arrays.stream(results)
                 .filter(
                         result ->
-                                result.resultType() == CraftingType.ITEM
-                                        && result instanceof ItemData)
+                                result.resultType() == CraftingType.ITEM && result instanceof Item)
                 .forEach(
                         result -> {
-                            ItemData item = (ItemData) result;
+                            Item item = (Item) result;
                             this.targetInventory.add(item);
                         });
         this.items.clear();
