@@ -133,7 +133,7 @@ public class LevelGraphTest {
         n5.forceNeighbor(n3, Direction.EAST);
         n4.forceNeighbor(n5, Direction.SOUTH);
         n5.forceNeighbor(n4, Direction.NORTH);
-        levelgraph.addNodes(Set.of(n1, n2, n3, n4, n5));
+        levelgraph.addNodesToNodeList(Set.of(n1, n2, n3, n4, n5));
         return levelgraph;
     }
     /**

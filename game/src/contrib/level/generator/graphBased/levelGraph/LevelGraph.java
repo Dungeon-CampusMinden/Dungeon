@@ -97,8 +97,8 @@ public final class LevelGraph {
         if (match.isPresent()) {
             // there is an easy way to connect them, so do it
             Tuple<Node, Node> matchUnpacked = match.get();
-            addNodes(other.nodes());
-            other.addNodes(nodes());
+            addNodesToNodeList(other.nodes());
+            other.addNodesToNodeList(nodes());
             return matchUnpacked.a().add(matchUnpacked.b());
         }
 
@@ -128,7 +128,7 @@ public final class LevelGraph {
                         adapter.forceNeighbor(node, direction);
                     });
         }
-        origin.addNodes(Set.of(adapter));
+        origin.addNodesToNodeList(Set.of(adapter));
         return adapter;
     }
 
@@ -189,8 +189,8 @@ public final class LevelGraph {
      *
      * @param nodes Set of nodes to be added.
      */
-    public void addNodes(final Set<Node> nodes) {
-        addNodes(nodes, new HashSet<>());
+    public void addNodesToNodeList(final Set<Node> nodes) {
+        addNodesToNodeList(nodes, new HashSet<>());
     }
 
     /**
@@ -226,7 +226,7 @@ public final class LevelGraph {
         return add(node);
     }
 
-    private void addNodes(final Set<Node> nodes, Set<LevelGraph> alreadyVisited) {
+    private void addNodesToNodeList(final Set<Node> nodes, Set<LevelGraph> alreadyVisited) {
         if (nodes.isEmpty()) return;
         if (root == null) root = nodes.stream().findFirst().get();
         this.nodes.addAll(nodes);
@@ -235,7 +235,7 @@ public final class LevelGraph {
         Set<LevelGraph> otherGraphs = new HashSet<>();
         for (Node n : nodes) otherGraphs.add(n.originGraph());
         for (LevelGraph og : otherGraphs)
-            if (!alreadyVisited.contains(og)) og.addNodes(nodes, alreadyVisited);
+            if (!alreadyVisited.contains(og)) og.addNodesToNodeList(nodes, alreadyVisited);
     }
 
     /**

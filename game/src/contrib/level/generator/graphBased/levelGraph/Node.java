@@ -173,7 +173,8 @@ public final class Node {
         neighbours[direction.value()] = node;
         // if a node of an other graph gets added, all nodes of the other graph a now part of
         // this graph
-        if (originGraph != node.originGraph()) originGraph.addNodes(node.originGraph().nodes());
+        if (originGraph != node.originGraph())
+            originGraph.addNodesToNodeList(node.originGraph().nodes());
 
         return true;
     }
