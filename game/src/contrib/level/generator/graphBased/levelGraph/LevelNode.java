@@ -24,8 +24,10 @@ import java.util.*;
  * nodes are connected.
  */
 public class LevelNode {
+
+    protected static final int MAX_NEIGHBOURS = Direction.values().length;
     private final Set<Entity> entities;
-    private final LevelNode[] neighbours = new LevelNode[Direction.values().length];
+    private final LevelNode[] neighbours = new LevelNode[MAX_NEIGHBOURS];
     private final LevelGraph originGraph;
     private ILevel level;
 

@@ -59,29 +59,30 @@ public class LevelGraph {
      */
     public static boolean add(final LevelGraph graphA, final LevelGraph graphB) {
 
-        List<LevelNode> graphBNodes =
-                graphB.nodes().stream().filter(n -> n.originGraph() == graphB).toList();
-        if (graphBNodes.isEmpty()) return false;
-        List<LevelNode> graphBFreeNodes =
-                graphBNodes.stream()
-                        .filter(n -> n.neighboursCount() < Direction.values().length)
-                        .toList();
-
-        if (graphBFreeNodes.isEmpty()) {
-            createAdapter(graphB, Direction.random());
-            return add(graphA, graphB);
-        }
-
+        // check if graphA needs an adapter, add if needed
         List<LevelNode> graphANodes =
                 graphA.nodes().stream().filter(n -> n.originGraph() == graphA).toList();
         if (graphANodes.isEmpty()) return false;
 
         List<LevelNode> graphAFreeNodes =
                 graphANodes.stream()
-                        .filter(n -> n.neighboursCount() < Direction.values().length)
+                        .filter(n -> n.neighboursCount() < LevelNode.MAX_NEIGHBOURS)
                         .toList();
         if (graphAFreeNodes.isEmpty()) {
             createAdapter(graphA, Direction.random());
+            return add(graphA, graphB);
+        }
+
+        // check if graphB needs an adapter, add if needed
+        List<LevelNode> graphBNodes =
+                graphB.nodes().stream().filter(n -> n.originGraph() == graphB).toList();
+        if (graphBNodes.isEmpty()) return false;
+        List<LevelNode> graphBFreeNodes =
+                graphBNodes.stream()
+                        .filter(n -> n.neighboursCount() < LevelNode.MAX_NEIGHBOURS)
+                        .toList();
+        if (graphBFreeNodes.isEmpty()) {
+            createAdapter(graphB, Direction.random());
             return add(graphA, graphB);
         }
 
@@ -98,6 +99,14 @@ public class LevelGraph {
         return add(graphA, graphB);
     }
 
+    /**
+     * Search for the first pair of nodes (one from each list) that can be connected (have suitable
+     * available edges).
+     *
+     * @param connect List with nodes (for example, from graph A)
+     * @param with List with nodes (for example, from graph B)
+     * @return Tuple with the first found matching node pair Tuple<NodeFromListA, NodeFromListB>
+     */
     private static Optional<Tuple<LevelNode, LevelNode>> matchingEdges(
             final List<LevelNode> connect, final List<LevelNode> with) {
         for (LevelNode nodeA : connect) {
@@ -112,17 +121,29 @@ public class LevelGraph {
         return Optional.empty();
     }
 
+    /**
+     * Add a node with an empty Payload to the given graph.
+     *
+     * <p>If there is no way to connect the node to the given graph because no edge is free, an
+     * existing connection will be removed and replaced by the node. Then, the old connection will
+     * be reconstructed by adding the removed node as a neighbor to the newly created node.
+     *
+     * @param origin The graph to add the node to.
+     * @param direction The direction in which the adapter node should be connected (this direction
+     *     is from the perspective of the node in the graph, not the newly created node).
+     */
     private static void createAdapter(final LevelGraph origin, final Direction direction) {
         List<LevelNode> nodes =
                 new ArrayList<>(
                         origin.nodes().stream().filter(n -> n.originGraph() == origin).toList());
         LevelNode adapter = new LevelNode(origin);
         if (nodes.isEmpty()) {
+            // the graph is empty, so the adapter is the root
             origin.add(adapter);
         } else {
+            // connect the adapter
             Collections.shuffle(nodes);
             LevelNode on = nodes.get(0);
-
             Optional<LevelNode> old = on.forceNeighbor(adapter, direction);
             adapter.forceNeighbor(on, Direction.opposite(direction));
 
@@ -171,7 +192,7 @@ public class LevelGraph {
             // infinite loops).
 
             List<LevelNode> listA = new ArrayList<>(nodes().stream().toList());
-            listA.removeIf(n -> n.neighboursCount() == Direction.values().length);
+            listA.removeIf(n -> n.neighboursCount() == LevelNode.MAX_NEIGHBOURS);
             List<LevelNode> listB = new ArrayList<>(listA);
             Collections.shuffle(listA);
             Collections.shuffle(listB);
@@ -219,7 +240,7 @@ public class LevelGraph {
     }
 
     private boolean add(final LevelNode node) {
-        if (node.neighboursCount() == Direction.values().length) return false;
+        if (node.neighboursCount() == LevelNode.MAX_NEIGHBOURS) return false;
         List<LevelNode> shuffledNodes = new ArrayList<>(nodes().stream().toList());
         shuffledNodes.remove(node);
         Collections.shuffle(shuffledNodes);
