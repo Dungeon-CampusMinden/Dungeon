@@ -3,7 +3,6 @@ package contrib.utils.components.item;
 import static org.junit.Assert.*;
 
 import contrib.components.InventoryComponent;
-import contrib.item.Items;
 
 import core.Entity;
 import core.Game;

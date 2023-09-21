@@ -4,11 +4,11 @@ import com.badlogic.gdx.utils.Null;
 
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
-import contrib.item.IItemDroppable;
 import contrib.item.Item;
 
 import core.Entity;
-import core.components.*;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
@@ -35,6 +35,19 @@ import java.util.function.Consumer;
  * animation.
  */
 public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
+
+    /**
+     * small Helper to determine the Position of the dropped item simple circle drop
+     *
+     * @param positionComponent The PositionComponent of the Chest
+     * @param radian of the current Item
+     * @return a Point in a unit Vector around the Chest
+     */
+    private static Point calculateDropPosition(PositionComponent positionComponent, double radian) {
+        return new Point(
+                (float) Math.cos(radian * Math.PI) + positionComponent.position().x,
+                (float) Math.sin(radian * Math.PI) + positionComponent.position().y);
+    }
 
     /**
      * Will drop all the items inside the {@link InventoryComponent} of the associated entity on the
@@ -70,8 +83,6 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
         // used for calculation of drop position
         AtomicInteger index = new AtomicInteger();
         Arrays.stream(itemData)
-                .filter(IItemDroppable.class::isInstance)
-                .map(IItemDroppable.class::cast)
                 .forEach(
                         item ->
                                 item.drop(
@@ -82,18 +93,5 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
 
         entity.fetch(DrawComponent.class)
                 .ifPresent(x -> x.currentAnimation(CoreAnimations.IDLE_RIGHT));
-    }
-
-    /**
-     * small Helper to determine the Position of the dropped item simple circle drop
-     *
-     * @param positionComponent The PositionComponent of the Chest
-     * @param radian of the current Item
-     * @return a Point in a unit Vector around the Chest
-     */
-    private static Point calculateDropPosition(PositionComponent positionComponent, double radian) {
-        return new Point(
-                (float) Math.cos(radian * Math.PI) + positionComponent.position().x,
-                (float) Math.sin(radian * Math.PI) + positionComponent.position().y);
     }
 }

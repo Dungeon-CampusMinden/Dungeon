@@ -1,6 +1,6 @@
 package contrib.utils.components.item;
 
-import contrib.item.ItemDefault;
+import contrib.item.concreteItem.ItemDefault;
 
 import core.utils.components.draw.Animation;
 

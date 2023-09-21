@@ -2,7 +2,6 @@ package contrib.entities;
 
 import contrib.components.InteractionComponent;
 import contrib.components.ItemComponent;
-import contrib.item.IItemCollectable;
 import contrib.item.Item;
 
 import core.Entity;
@@ -26,11 +25,9 @@ public class WorldItemBuilder {
         droppedItem.addComponent(new DrawComponent(item.worldAnimation()));
         droppedItem.addComponent(new ItemComponent(item));
 
-        if (item instanceof IItemCollectable itemCollectable) {
-            droppedItem.addComponent(
-                    new InteractionComponent(
-                            Constants.DEFAULT_ITEM_PICKUP_RADIUS, false, itemCollectable::collect));
-        }
+        droppedItem.addComponent(
+                new InteractionComponent(
+                        Constants.DEFAULT_ITEM_PICKUP_RADIUS, false, item::collect));
 
         return droppedItem;
     }
