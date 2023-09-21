@@ -2,6 +2,7 @@ package interpreter;
 
 import static org.junit.Assert.*;
 
+import dslToGame.nativefunction.NativeInstantiate;
 import dungeonFiles.DungeonConfig;
 import contrib.components.CollideComponent;
 
@@ -13,8 +14,10 @@ import helpers.Helpers;
 import interpreter.mockecs.*;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import parser.ast.IdNode;
 import parser.ast.Node;
 
 import runtime.*;
@@ -2554,14 +2557,23 @@ public class TestDSLInterpreter {
                 position_component{}
             }
 
-            quest_config c {
-                entity: instantiate(wizard_type)
-            }
+            dungeon_config c { }
             """;
 
         DSLInterpreter interpreter = new DSLInterpreter();
-        var config = (QuestConfig) interpreter.getQuestConfig(program);
-        var entity = config.entity();
+        var config = (DungeonConfig) interpreter.getQuestConfig(program);
+
+        // call the native `instantiate` function manually
+        // resolve function in rtEnv
+        var runtimeEnvironment = interpreter.getRuntimeEnvironment();
+        NativeInstantiate instantiateFunc = (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
+        // create new IdNode for "wizard_type` to pass to native instantiate
+        IdNode node = new IdNode("wizard_type", null);
+        // call the function
+        var value = (AggregateValue)instantiateFunc.call(interpreter, List.of(node));
+        // extract the entity from the Value-instance
+        core.Entity entity = (core.Entity)value.getInternalValue();
+
         Assert.assertTrue(entity.isPresent(DrawComponent.class));
         Assert.assertTrue(entity.isPresent(CollideComponent.class));
         Assert.assertTrue(entity.isPresent(PositionComponent.class));
@@ -2583,25 +2595,30 @@ public class TestDSLInterpreter {
             print(ent.draw_component.path);
         }
 
-        quest_config c {
-            entity: instantiate(wizard_type)
-        }
+        dungeon_config c { }
         """;
 
         DSLInterpreter interpreter = new DSLInterpreter();
-        var config = (QuestConfig) interpreter.getQuestConfig(program);
-        var entity = config.entity();
-        Assert.assertTrue(entity.isPresent(DrawComponent.class));
-        Assert.assertTrue(entity.isPresent(CollideComponent.class));
-        Assert.assertTrue(entity.isPresent(PositionComponent.class));
+        var config = (DungeonConfig) interpreter.getQuestConfig(program);
+
+        // call the native `instantiate` function manually
+        // resolve function in rtEnv
+        var runtimeEnvironment = interpreter.getRuntimeEnvironment();
+        NativeInstantiate instantiateFunc = (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
+        // create new IdNode for "wizard_type` to pass to native instantiate
+        IdNode node = new IdNode("wizard_type", null);
+        // call the function
+        var value = (AggregateValue)instantiateFunc.call(interpreter, List.of(node));
+        // extract the entity from the Value-instance
+        core.Entity entity = (core.Entity)value.getInternalValue();
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
         var outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
 
-        var rtenv = interpreter.getRuntimeEnvironment();
-        FunctionSymbol fnSym = (FunctionSymbol) rtenv.getGlobalScope().resolve("test_func");
+        //var rtenv = interpreter.getRuntimeEnvironment();
+        FunctionSymbol fnSym = (FunctionSymbol) runtimeEnvironment.getGlobalScope().resolve("test_func");
         interpreter.executeUserDefinedFunctionRawParameters(
                 fnSym, Arrays.stream(new Object[] {entity}).toList());
 
