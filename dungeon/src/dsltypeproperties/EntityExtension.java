@@ -1,6 +1,7 @@
 package dsltypeproperties;
 
 import core.Entity;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
@@ -39,8 +40,7 @@ public class EntityExtension {
     @DSLTypeProperty(name = "position_component", extendedType = Entity.class)
     public static class PositionComponentProperty
             implements IDSLTypeProperty<Entity, PositionComponent> {
-        public static EntityExtension.PositionComponentProperty instance =
-                new EntityExtension.PositionComponentProperty();
+        public static PositionComponentProperty instance = new PositionComponentProperty();
 
         private PositionComponentProperty() {}
 
@@ -53,6 +53,25 @@ public class EntityExtension {
         @Override
         public PositionComponent get(Entity instance) {
             var optionalComponent = instance.fetch(PositionComponent.class);
+            return optionalComponent.orElse(null);
+        }
+    }
+
+    @DSLTypeProperty(name = "draw_component", extendedType = Entity.class)
+    public static class DrawComponentProperty implements IDSLTypeProperty<Entity, DrawComponent> {
+        public static DrawComponentProperty instance = new DrawComponentProperty();
+
+        private DrawComponentProperty() {}
+
+        @Override
+        public void set(Entity instance, DrawComponent valueToSet) {
+            instance.removeComponent(DrawComponent.class);
+            instance.addComponent(valueToSet);
+        }
+
+        @Override
+        public DrawComponent get(Entity instance) {
+            var optionalComponent = instance.fetch(DrawComponent.class);
             return optionalComponent.orElse(null);
         }
     }

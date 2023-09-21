@@ -19,6 +19,7 @@ import parser.ast.Node;
 
 import runtime.*;
 
+import semanticanalysis.FunctionSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
@@ -33,10 +34,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -2567,5 +2565,52 @@ public class TestDSLInterpreter {
         Assert.assertTrue(entity.isPresent(DrawComponent.class));
         Assert.assertTrue(entity.isPresent(CollideComponent.class));
         Assert.assertTrue(entity.isPresent(PositionComponent.class));
+    }
+
+    @Test
+    public void testInstantiateEntityDrawComponentAccessPath() {
+        String program =
+                """
+        entity_type wizard_type {
+            draw_component {
+                path: "character/wizard"
+            },
+            hitbox_component {},
+            position_component{}
+        }
+
+        fn test_func(entity ent) {
+            print(ent.draw_component.path);
+        }
+
+        quest_config c {
+            entity: instantiate(wizard_type)
+        }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config = (QuestConfig) interpreter.getQuestConfig(program);
+        var entity = config.entity();
+        Assert.assertTrue(entity.isPresent(DrawComponent.class));
+        Assert.assertTrue(entity.isPresent(CollideComponent.class));
+        Assert.assertTrue(entity.isPresent(PositionComponent.class));
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        var rtenv = interpreter.getRuntimeEnvironment();
+        FunctionSymbol fnSym = (FunctionSymbol) rtenv.getGlobalScope().resolve("test_func");
+        interpreter.executeUserDefinedFunctionRawParameters(
+                fnSym, Arrays.stream(new Object[] {entity}).toList());
+
+        // explanation: the `path`-property is just used as a parameter, which will be passed to the
+        // adapter-method used for constructing the DrawComponent instance, after that, the
+        // property will be null, because it is not stored in the DrawComponent instance
+        // -> it is expected, that Value.NONE (of which the String representation is "[no value]")
+        // is returned for `path` in that case
+        String output = outputStream.toString();
+        Assert.assertEquals("[no value]" + System.lineSeparator(), output);
     }
 }
