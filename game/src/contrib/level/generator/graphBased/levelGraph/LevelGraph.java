@@ -37,15 +37,14 @@ public final class LevelGraph {
      * graph.
      *
      * @param set The entity collection to be placed as payload in the new node.
-     * @return A Tuple containing the node in the graph where the given node was connected and the
-     *     direction of the connection.
+     * @return true if the connection was successful, false if not.
      */
-    public Optional<Tuple<Node, Direction>> add(Set<Entity> set) {
+    public boolean add(Set<Entity> set) {
         Node node = new Node(set, this);
         nodes.add(node);
         if (root == null) {
             root = node;
-            return Optional.of(new Tuple<>(node, null));
+            return true;
         } else return add(node);
     }
 
@@ -61,19 +60,17 @@ public final class LevelGraph {
      * @param other The level graph to be connected to this graph.
      * @param connectOn A new edge will only be created with a node in this graph whose origin graph
      *     is the given one.
-     * @return A tuple containing the node in this graph and the direction in which the given graph
-     *     was connected.
+     * @return true if the connection was successful, false if not.
      */
-    public Optional<Tuple<Node, Direction>> add(
-            final LevelGraph other, final LevelGraph connectOn) {
+    public boolean add(final LevelGraph other, final LevelGraph connectOn) {
         List<Node> connectOnNodes =
                 nodes.stream().filter(n -> n.originGraph() == connectOn).toList();
         // the graph is not connected with this graph
-        if (connectOnNodes.isEmpty()) return Optional.empty();
+        if (connectOnNodes.isEmpty()) return false;
 
         List<Node> otherNodes =
                 other.nodes().stream().filter(n -> n.originGraph() == other).toList();
-        if (otherNodes.isEmpty()) return Optional.empty();
+        if (otherNodes.isEmpty()) return false;
 
         // Nodes that have free Edges
         List<Node> connectOnNodesFree =
@@ -175,7 +172,7 @@ public final class LevelGraph {
             int connected = 0;
             for (Node a : listA)
                 for (Node b : listB)
-                    if (a != b && !a.isNeighbourWith(b) && a.add(b).isPresent()) {
+                    if (a != b && !a.isNeighbourWith(b) && a.add(b)) {
                         connected++;
                         if (connected >= howManyExtraEdges) return;
                     }
@@ -214,14 +211,13 @@ public final class LevelGraph {
         return new HashSet<>(nodes);
     }
 
-    private Optional<Tuple<Node, Direction>> add(Node node) {
-        if (node.neighboursCount() == Direction.values().length) return Optional.empty();
+    private boolean add(Node node) {
+        if (node.neighboursCount() == Direction.values().length) return false;
         List<Node> shuffledNodes = new ArrayList<>(nodes().stream().toList());
         shuffledNodes.remove(node);
         Collections.shuffle(shuffledNodes);
         for (Node n : shuffledNodes) {
-            Optional<Tuple<Node, Direction>> tup = n.add(node);
-            if (tup.isPresent()) return tup;
+            if (n.add(node)) return true;
         }
 
         // could not create a connection because no node has a free edge where the other node has a

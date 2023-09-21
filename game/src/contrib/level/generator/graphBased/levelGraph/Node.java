@@ -2,7 +2,6 @@ package contrib.level.generator.graphBased.levelGraph;
 
 import core.Entity;
 import core.level.elements.ILevel;
-import core.utils.Tuple;
 
 import java.util.*;
 
@@ -43,6 +42,16 @@ public final class Node {
     }
 
     /**
+     * Creates a new node with an empty collection as payload.
+     *
+     * @param originGraph is the graph in which this node was initially created and added. It helps
+     *     to differentiate nodes in connected graphs.
+     */
+    public Node(LevelGraph originGraph) {
+        this(new HashSet<>(), originGraph);
+    }
+
+    /**
      * Adds a neighbor in a random direction.
      *
      * <p>If the origin graph of the given node is not the same graph as the origin graph of this
@@ -52,18 +61,16 @@ public final class Node {
      * <p>This method establishes the connection from this node to the other, and vice versa.
      *
      * @param other The neighbor to be added.
-     * @return A Tuple containing the node in the graph where the given node was connected, and the
-     *     direction of the connection. Returns an empty result if the nodes could not be connected.
+     * @return true if the connection was successful, false if not.
      */
-    public Optional<Tuple<Node, Direction>> add(final Node other) {
+    public boolean add(final Node other) {
         List<Direction> freeDirections = possibleConnectDirections(other);
-        if (freeDirections.size() == 0) return Optional.empty();
-        else {
+        if (freeDirections.size() != 0) {
             Collections.shuffle(freeDirections);
-            if (other.add(this, Direction.opposite(freeDirections.get(0))).isPresent())
+            if (other.add(this, Direction.opposite(freeDirections.get(0))))
                 return add(other, freeDirections.get(0));
         }
-        return Optional.empty();
+        return false;
     }
 
     /**
@@ -94,7 +101,7 @@ public final class Node {
      * @return The entity collection of this node.
      */
     public Set<Entity> entities() {
-        return entities;
+        return new HashSet<>(entities);
     }
 
     /**
@@ -159,17 +166,16 @@ public final class Node {
      * @param node The neighbor to be added.
      * @param direction The direction at which the neighbor should be added from this node's
      *     perspective (in the neighbor's context, this corresponds to the opposite direction).
-     * @return A Tuple containing the node in the graph where the given node was connected, and the
-     *     direction of the connection. Returns an empty result if the nodes could not be connected.
+     * @return true if the connection was successful, false if not.
      */
-    private Optional<Tuple<Node, Direction>> add(final Node node, final Direction direction) {
-        if (this == node || neighbours[direction.value()] != null) return Optional.empty();
+    private boolean add(final Node node, final Direction direction) {
+        if (this == node || neighbours[direction.value()] != null) return false;
         neighbours[direction.value()] = node;
         // if a node of an other graph gets added, all nodes of the other graph a now part of
         // this graph
         if (originGraph != node.originGraph()) originGraph.addNodes(node.originGraph().nodes());
 
-        return Optional.of(new Tuple<>(this, direction));
+        return true;
     }
 
     private List<Direction> possibleConnectDirections(final Node other) {
