@@ -891,12 +891,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDot_assign_stmt(DungeonDSLParser.Dot_assign_stmtContext ctx) {}
-
-    @Override
-    public void exitDot_assign_stmt(DungeonDSLParser.Dot_assign_stmtContext ctx) {}
-
-    @Override
     public void enterDot_edge_stmt(DungeonDSLParser.Dot_edge_stmtContext ctx) {}
 
     @Override
@@ -941,19 +935,12 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDot_attr_stmt(DungeonDSLParser.Dot_attr_stmtContext ctx) {}
-
-    @Override
-    public void exitDot_attr_stmt(DungeonDSLParser.Dot_attr_stmtContext ctx) {
-        // TODO:
-    }
-
-    @Override
     public void enterDot_node_stmt(DungeonDSLParser.Dot_node_stmtContext ctx) {}
 
     @Override
     public void exitDot_node_stmt(DungeonDSLParser.Dot_node_stmtContext ctx) {
         // TODO:
+
     }
 
     @Override

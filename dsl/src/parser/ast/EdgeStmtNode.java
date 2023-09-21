@@ -3,6 +3,7 @@ package parser.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: refactor to store all IDs in plain list?
 public class EdgeStmtNode extends Node {
     private final int lhsIdIdx = 0;
 

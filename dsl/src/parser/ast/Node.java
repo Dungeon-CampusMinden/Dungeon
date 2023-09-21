@@ -1,6 +1,7 @@
 package parser.ast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Node {
     // used for running index to give every Node a unique identifier
@@ -31,7 +32,7 @@ public class Node {
         DotAttrStmt,
         DotNodeStmt,
         DotAttrList,
-        DotAList,
+        DotAttr,
         DotEdgeOp,
         DoubleLine,
         Arrow,
