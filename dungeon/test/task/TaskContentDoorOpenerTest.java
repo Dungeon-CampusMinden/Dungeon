@@ -2,8 +2,8 @@ package task;
 
 import static org.junit.Assert.assertTrue;
 
+import contrib.level.generator.graphBased.LevelGraphGenerator;
 import contrib.level.generator.graphBased.RoombasedLevelGenerator;
-import contrib.level.generator.graphBased.levelGraph.GraphGenerator;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 
 import core.Entity;
@@ -34,8 +34,8 @@ public class TaskContentDoorOpenerTest {
     @Ignore
     public void openDoor() {
         // will be fixed in #1030 because there a new way to find doors will be implemented
-        LevelGraph taskLevelGraph = GraphGenerator.generate(3);
-        LevelGraph nextLevelGraph = GraphGenerator.generate(2);
+        LevelGraph taskLevelGraph = LevelGraphGenerator.generate(3);
+        LevelGraph nextLevelGraph = LevelGraphGenerator.generate(2);
         taskLevelGraph.add(nextLevelGraph, taskLevelGraph);
         RoombasedLevelGenerator.level(taskLevelGraph, DesignLabel.DEFAULT);
         DoorTile door =

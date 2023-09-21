@@ -9,8 +9,8 @@ import java.util.*;
  * A level graph that can be further processed into a room-based level.
  *
  * <p>Each node in the graph corresponds to a potential room in the level and holds a collection of
- * entities as payload, which can be queried using {@link Node#entities()}. The stored entities must
- * be placed in the generated room during the processing.
+ * entities as payload, which can be queried using {@link LevelNode#entities()}. The stored entities
+ * must be placed in the generated room during the processing.
  *
  * <p>Each node can have a maximum of 4 neighbors, and each edge is oriented towards a {@link
  * Direction} within the node. The {@link Direction} indicates the side of the room where the door
@@ -19,7 +19,7 @@ import java.util.*;
  *
  * <p>Edges are unidirectional.
  *
- * <p>There is no separate data type for edges; instead, the {@link Node}s store an array of
+ * <p>There is no separate data type for edges; instead, the {@link LevelNode}s store an array of
  * neighboring nodes, and the index in the array indicates the {@link Direction} through which the
  * nodes are connected.
  *
@@ -29,8 +29,8 @@ import java.util.*;
  */
 public final class LevelGraph {
     private static final Random RANDOM = new Random();
-    private final Set<Node> nodes = new HashSet<>();
-    private Node root;
+    private final Set<LevelNode> nodes = new HashSet<>();
+    private LevelNode root;
 
     /**
      * Creates a new node with the given set as payload and adds it to a random position in the
@@ -40,7 +40,7 @@ public final class LevelGraph {
      * @return true if the connection was successful, false if not.
      */
     public boolean add(Set<Entity> set) {
-        Node node = new Node(set, this);
+        LevelNode node = new LevelNode(set, this);
         nodes.add(node);
         if (root == null) {
             root = node;
@@ -63,17 +63,17 @@ public final class LevelGraph {
      * @return true if the connection was successful, false if not.
      */
     public boolean add(final LevelGraph other, final LevelGraph connectOn) {
-        List<Node> connectOnNodes =
+        List<LevelNode> connectOnNodes =
                 nodes.stream().filter(n -> n.originGraph() == connectOn).toList();
         // the graph is not connected with this graph
         if (connectOnNodes.isEmpty()) return false;
 
-        List<Node> otherNodes =
+        List<LevelNode> otherNodes =
                 other.nodes().stream().filter(n -> n.originGraph() == other).toList();
         if (otherNodes.isEmpty()) return false;
 
         // Nodes that have free Edges
-        List<Node> connectOnNodesFree =
+        List<LevelNode> connectOnNodesFree =
                 connectOnNodes.stream()
                         .filter(n -> n.neighboursCount() < Direction.values().length)
                         .toList();
@@ -82,7 +82,7 @@ public final class LevelGraph {
             connectOn.createAdapterNode(connectOn, Direction.random());
             return add(other, connectOn);
         }
-        List<Node> otherNodesFree =
+        List<LevelNode> otherNodesFree =
                 otherNodes.stream()
                         .filter(n -> n.neighboursCount() < Direction.values().length)
                         .toList();
@@ -93,10 +93,10 @@ public final class LevelGraph {
 
         // try to find a matching Node-Pair (two Nodes that can be connected without any
         // changes)
-        Optional<Tuple<Node, Node>> match = matching(connectOnNodesFree, otherNodesFree);
+        Optional<Tuple<LevelNode, LevelNode>> match = matching(connectOnNodesFree, otherNodesFree);
         if (match.isPresent()) {
             // there is an easy way to connect them, so do it
-            Tuple<Node, Node> matchUnpacked = match.get();
+            Tuple<LevelNode, LevelNode> matchUnpacked = match.get();
             addNodesToNodeList(other.nodes());
             other.addNodesToNodeList(nodes());
             return matchUnpacked.a().add(matchUnpacked.b());
@@ -107,18 +107,18 @@ public final class LevelGraph {
         return add(other, connectOn);
     }
 
-    private Node createAdapterNode(LevelGraph origin, Direction direction) {
-        List<Node> nodes =
+    private LevelNode createAdapterNode(LevelGraph origin, Direction direction) {
+        List<LevelNode> nodes =
                 new ArrayList<>(
                         origin.nodes().stream().filter(n -> n.originGraph() == origin).toList());
-        Node adapter = new Node(new HashSet<>(), origin);
+        LevelNode adapter = new LevelNode(new HashSet<>(), origin);
         if (nodes.isEmpty()) {
             origin.add(adapter);
         } else {
             Collections.shuffle(nodes);
-            Node on = nodes.get(0);
+            LevelNode on = nodes.get(0);
 
-            Optional<Node> old = on.forceNeighbor(adapter, direction);
+            Optional<LevelNode> old = on.forceNeighbor(adapter, direction);
             adapter.forceNeighbor(on, Direction.opposite(direction));
 
             // readd possible edge
@@ -132,11 +132,12 @@ public final class LevelGraph {
         return adapter;
     }
 
-    private Optional<Tuple<Node, Node>> matching(List<Node> connectOn, List<Node> other) {
-        for (Node nodeA : connectOn) {
+    private Optional<Tuple<LevelNode, LevelNode>> matching(
+            List<LevelNode> connectOn, List<LevelNode> other) {
+        for (LevelNode nodeA : connectOn) {
             List<Direction> freeDirections = nodeA.freeDirections();
             for (Direction direction : freeDirections) {
-                for (Node nodeB : other) {
+                for (LevelNode nodeB : other) {
                     if (nodeB.at(Direction.opposite(direction)).isEmpty())
                         return Optional.of(new Tuple<>(nodeA, nodeB));
                 }
@@ -163,15 +164,15 @@ public final class LevelGraph {
             // Examine every possible combination (no random selection as it could lead to potential
             // infinite loops).
 
-            List<Node> listA = new ArrayList<>(nodes().stream().toList());
+            List<LevelNode> listA = new ArrayList<>(nodes().stream().toList());
             listA.removeIf(n -> n.neighboursCount() == Direction.values().length);
-            List<Node> listB = new ArrayList<>(listA);
+            List<LevelNode> listB = new ArrayList<>(listA);
             Collections.shuffle(listA);
             Collections.shuffle(listB);
 
             int connected = 0;
-            for (Node a : listA)
-                for (Node b : listB)
+            for (LevelNode a : listA)
+                for (LevelNode b : listB)
                     if (a != b && !a.isNeighbourWith(b) && a.add(b)) {
                         connected++;
                         if (connected >= howManyExtraEdges) return;
@@ -189,7 +190,7 @@ public final class LevelGraph {
      *
      * @param nodes Set of nodes to be added.
      */
-    public void addNodesToNodeList(final Set<Node> nodes) {
+    public void addNodesToNodeList(final Set<LevelNode> nodes) {
         addNodesToNodeList(nodes, new HashSet<>());
     }
 
@@ -198,7 +199,7 @@ public final class LevelGraph {
      *
      * @return the root node of this graph.
      */
-    public Node root() {
+    public LevelNode root() {
         return root;
     }
 
@@ -207,16 +208,16 @@ public final class LevelGraph {
      *
      * @return copy of the set with all nodes in this graph.
      */
-    public Set<Node> nodes() {
+    public Set<LevelNode> nodes() {
         return new HashSet<>(nodes);
     }
 
-    private boolean add(Node node) {
+    private boolean add(LevelNode node) {
         if (node.neighboursCount() == Direction.values().length) return false;
-        List<Node> shuffledNodes = new ArrayList<>(nodes().stream().toList());
+        List<LevelNode> shuffledNodes = new ArrayList<>(nodes().stream().toList());
         shuffledNodes.remove(node);
         Collections.shuffle(shuffledNodes);
-        for (Node n : shuffledNodes) {
+        for (LevelNode n : shuffledNodes) {
             if (n.add(node)) return true;
         }
 
@@ -226,14 +227,14 @@ public final class LevelGraph {
         return add(node);
     }
 
-    private void addNodesToNodeList(final Set<Node> nodes, Set<LevelGraph> alreadyVisited) {
+    private void addNodesToNodeList(final Set<LevelNode> nodes, Set<LevelGraph> alreadyVisited) {
         if (nodes.isEmpty()) return;
         if (root == null) root = nodes.stream().findFirst().get();
         this.nodes.addAll(nodes);
         alreadyVisited.add(this);
         // collect each other node
         Set<LevelGraph> otherGraphs = new HashSet<>();
-        for (Node n : nodes) otherGraphs.add(n.originGraph());
+        for (LevelNode n : nodes) otherGraphs.add(n.originGraph());
         for (LevelGraph og : otherGraphs)
             if (!alreadyVisited.contains(og)) og.addNodesToNodeList(nodes, alreadyVisited);
     }
@@ -244,14 +245,14 @@ public final class LevelGraph {
      * @return DOT representation of the graph as a string.
      */
     public String toDot() {
-        List<Node> nodeList = nodes.stream().toList();
+        List<LevelNode> nodeList = nodes.stream().toList();
 
         StringBuilder dotBuilder = new StringBuilder();
 
         dotBuilder.append("graph LevelGraph {\n");
         dotBuilder.append("    node [shape=box];\n");
 
-        for (Node node : nodeList) {
+        for (LevelNode node : nodeList) {
             int nodeId = nodeList.indexOf(node);
             dotBuilder.append("    node").append(nodeId).append(" [label=\"");
             for (Entity entity : node.entities()) {
@@ -260,7 +261,7 @@ public final class LevelGraph {
             dotBuilder.append("\"];\n");
 
             for (Direction direction : Direction.values()) {
-                Node neighbour = node.at(direction).orElse(null);
+                LevelNode neighbour = node.at(direction).orElse(null);
                 if (neighbour != null && nodeList.indexOf(neighbour) > nodeId) {
                     int neighbourId = nodeList.indexOf(neighbour);
                     dotBuilder

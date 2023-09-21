@@ -3,7 +3,7 @@ package contrib.level.generator.graphBased;
 import static core.level.elements.ILevel.RANDOM;
 
 import contrib.level.generator.graphBased.levelGraph.Direction;
-import contrib.level.generator.graphBased.levelGraph.Node;
+import contrib.level.generator.graphBased.levelGraph.LevelNode;
 
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
@@ -49,7 +49,7 @@ public class RoomGenerator {
      * @param doors Array of DoorDirections to specify where doors should be generated
      * @return The generated room layout
      */
-    public LevelElement[][] layout(LevelSize size, Node[] doors) {
+    public LevelElement[][] layout(LevelSize size, LevelNode[] doors) {
         return generateRoom(size, RANDOM.nextLong(), doors);
     }
 
@@ -61,7 +61,7 @@ public class RoomGenerator {
      * @param doors Array of DoorDirections to specify where doors should be generated
      * @return The generated room layout
      */
-    private LevelElement[][] generateRoom(LevelSize size, long seed, Node[] doors) {
+    private LevelElement[][] generateRoom(LevelSize size, long seed, LevelNode[] doors) {
         // Initialize random number generator with seed
         random = new Random(seed);
 
@@ -400,7 +400,7 @@ public class RoomGenerator {
      * @param maxArea Maximum area of the room on which FloorTiles can be placed
      * @param layout The layout of the level
      */
-    private void addDoors(Node[] doors, Area maxArea, LevelElement[][] layout) {
+    private void addDoors(LevelNode[] doors, Area maxArea, LevelElement[][] layout) {
         boolean upperDoor = doors[Direction.NORTH.value()] != null;
         boolean bottomDoor = doors[Direction.SOUTH.value()] != null;
         boolean leftDoor = doors[Direction.WEST.value()] != null;

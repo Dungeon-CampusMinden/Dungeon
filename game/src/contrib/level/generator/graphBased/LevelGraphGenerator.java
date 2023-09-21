@@ -1,4 +1,8 @@
-package contrib.level.generator.graphBased.levelGraph;
+package contrib.level.generator.graphBased;
+
+import contrib.level.generator.graphBased.levelGraph.Direction;
+import contrib.level.generator.graphBased.levelGraph.LevelGraph;
+import contrib.level.generator.graphBased.levelGraph.LevelNode;
 
 import core.Entity;
 
@@ -11,7 +15,7 @@ import java.util.Set;
  * <p>This generator is specifically designed to work in conjunction with the DSL concept and is
  * provided with a collection of entity collections. For each collection, a node in the graph is
  * created, and the collection is set as payload. The collection can be queried using {@link
- * Node#entities()}.
+ * LevelNode#entities()}.
  *
  * <p>The generator first generates a tree and then adds random edges to the tree to create a
  * diverse graph.
@@ -23,11 +27,11 @@ import java.util.Set;
  *
  * <p>Edges are unidirectional.
  *
- * <p>There is no separate data type for edges; instead, the {@link Node}s store an array of
+ * <p>There is no separate data type for edges; instead, the {@link LevelNode}s store an array of
  * neighboring nodes, and the index in the array indicates the {@link Direction} through which the
  * nodes are connected.
  */
-public class GraphGenerator {
+public class LevelGraphGenerator {
     private static final int RANGE_OF_RANDOM_EDGE_COUNT = 3;
 
     /**

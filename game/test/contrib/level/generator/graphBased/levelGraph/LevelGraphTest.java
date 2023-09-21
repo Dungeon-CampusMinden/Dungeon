@@ -107,11 +107,11 @@ public class LevelGraphTest {
     private LevelGraph generateFullGraph() {
         // create second graph
         LevelGraph levelgraph = new LevelGraph();
-        Node n1 = new Node(Set.of(new Entity()), levelgraph);
-        Node n2 = new Node(Set.of(new Entity()), levelgraph);
-        Node n3 = new Node(Set.of(new Entity()), levelgraph);
-        Node n4 = new Node(Set.of(new Entity()), levelgraph);
-        Node n5 = new Node(Set.of(new Entity()), levelgraph);
+        LevelNode n1 = new LevelNode(Set.of(new Entity()), levelgraph);
+        LevelNode n2 = new LevelNode(Set.of(new Entity()), levelgraph);
+        LevelNode n3 = new LevelNode(Set.of(new Entity()), levelgraph);
+        LevelNode n4 = new LevelNode(Set.of(new Entity()), levelgraph);
+        LevelNode n5 = new LevelNode(Set.of(new Entity()), levelgraph);
 
         n1.forceNeighbor(n2, Direction.EAST);
         n2.forceNeighbor(n1, Direction.WEST);
@@ -145,7 +145,7 @@ public class LevelGraphTest {
      * @param connectedWith graphs that should be reachable
      * @return true if the graphs are reachable from root, false if not
      */
-    private boolean checkIfReachable(Node root, LevelGraph... connectedWith) {
+    private boolean checkIfReachable(LevelNode root, LevelGraph... connectedWith) {
         return checkIfReachable(root, Arrays.stream(connectedWith).toList());
     }
 
@@ -158,24 +158,24 @@ public class LevelGraphTest {
      * @param connectedWith graphs that should be reachable
      * @return true if the graphs are reachable from root, false if not
      */
-    private boolean checkIfReachable(Node root, Collection<LevelGraph> connectedWith) {
-        Set<Node> needToBeVisited = new HashSet<>();
+    private boolean checkIfReachable(LevelNode root, Collection<LevelGraph> connectedWith) {
+        Set<LevelNode> needToBeVisited = new HashSet<>();
         connectedWith.forEach(c -> needToBeVisited.addAll(c.nodes()));
-        Set<Node> visited = depthFirstSearch(root);
+        Set<LevelNode> visited = depthFirstSearch(root);
         needToBeVisited.removeAll(visited);
         return needToBeVisited.isEmpty();
     }
 
-    public Set<Node> depthFirstSearch(Node rootNode) {
-        Set<Node> visitedNodes = new HashSet<>();
+    public Set<LevelNode> depthFirstSearch(LevelNode rootNode) {
+        Set<LevelNode> visitedNodes = new HashSet<>();
         depthFirstSearchRecursive(rootNode, visitedNodes);
         return visitedNodes;
     }
 
-    private void depthFirstSearchRecursive(Node currentNode, Set<Node> visitedNodes) {
+    private void depthFirstSearchRecursive(LevelNode currentNode, Set<LevelNode> visitedNodes) {
         visitedNodes.add(currentNode);
         for (Direction direction : Direction.values()) {
-            Node neighbor = currentNode.at(direction).orElse(null);
+            LevelNode neighbor = currentNode.at(direction).orElse(null);
             if (neighbor != null && !visitedNodes.contains(neighbor)) {
                 depthFirstSearchRecursive(neighbor, visitedNodes);
             }
