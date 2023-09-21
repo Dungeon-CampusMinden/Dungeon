@@ -8,12 +8,12 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
+import dslToGame.nativefunction.NativeInstantiate;
+import dslToGame.typeadapters.DrawComponentAdapter;
+
 import dsltypeproperties.EntityExtension;
 
 import dungeonFiles.DungeonConfig;
-
-import dslToGame.nativefunction.NativeInstantiate;
-import dslToGame.typeadapters.DrawComponentAdapter;
 
 import runtime.nativefunctions.NativePrint;
 

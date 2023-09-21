@@ -2,12 +2,14 @@ package interpreter;
 
 import static org.junit.Assert.*;
 
-import dslToGame.nativefunction.NativeInstantiate;
-import dungeonFiles.DungeonConfig;
 import contrib.components.CollideComponent;
 
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+
+import dslToGame.nativefunction.NativeInstantiate;
+
+import dungeonFiles.DungeonConfig;
 
 import helpers.Helpers;
 
@@ -2566,13 +2568,14 @@ public class TestDSLInterpreter {
         // call the native `instantiate` function manually
         // resolve function in rtEnv
         var runtimeEnvironment = interpreter.getRuntimeEnvironment();
-        NativeInstantiate instantiateFunc = (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
+        NativeInstantiate instantiateFunc =
+                (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
         // create new IdNode for "wizard_type` to pass to native instantiate
         IdNode node = new IdNode("wizard_type", null);
         // call the function
-        var value = (AggregateValue)instantiateFunc.call(interpreter, List.of(node));
+        var value = (AggregateValue) instantiateFunc.call(interpreter, List.of(node));
         // extract the entity from the Value-instance
-        core.Entity entity = (core.Entity)value.getInternalValue();
+        core.Entity entity = (core.Entity) value.getInternalValue();
 
         Assert.assertTrue(entity.isPresent(DrawComponent.class));
         Assert.assertTrue(entity.isPresent(CollideComponent.class));
@@ -2604,21 +2607,23 @@ public class TestDSLInterpreter {
         // call the native `instantiate` function manually
         // resolve function in rtEnv
         var runtimeEnvironment = interpreter.getRuntimeEnvironment();
-        NativeInstantiate instantiateFunc = (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
+        NativeInstantiate instantiateFunc =
+                (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
         // create new IdNode for "wizard_type` to pass to native instantiate
         IdNode node = new IdNode("wizard_type", null);
         // call the function
-        var value = (AggregateValue)instantiateFunc.call(interpreter, List.of(node));
+        var value = (AggregateValue) instantiateFunc.call(interpreter, List.of(node));
         // extract the entity from the Value-instance
-        core.Entity entity = (core.Entity)value.getInternalValue();
+        core.Entity entity = (core.Entity) value.getInternalValue();
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
         var outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
 
-        //var rtenv = interpreter.getRuntimeEnvironment();
-        FunctionSymbol fnSym = (FunctionSymbol) runtimeEnvironment.getGlobalScope().resolve("test_func");
+        // var rtenv = interpreter.getRuntimeEnvironment();
+        FunctionSymbol fnSym =
+                (FunctionSymbol) runtimeEnvironment.getGlobalScope().resolve("test_func");
         interpreter.executeUserDefinedFunctionRawParameters(
                 fnSym, Arrays.stream(new Object[] {entity}).toList());
 
