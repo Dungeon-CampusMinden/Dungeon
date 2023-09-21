@@ -60,7 +60,6 @@ public class NativeInstantiate extends NativeFunction {
             TypeInstantiator instantiator =
                     interpreter.getRuntimeEnvironment().getTypeInstantiator();
 
-            // TODO: for testing
             String contextName = "entity";
             instantiator.pushContextMember(contextName, entityObject);
 

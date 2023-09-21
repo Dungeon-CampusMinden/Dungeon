@@ -2621,7 +2621,6 @@ public class TestDSLInterpreter {
         var outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
 
-        // var rtenv = interpreter.getRuntimeEnvironment();
         FunctionSymbol fnSym =
                 (FunctionSymbol) runtimeEnvironment.getGlobalScope().resolve("test_func");
         interpreter.executeUserDefinedFunctionRawParameters(
