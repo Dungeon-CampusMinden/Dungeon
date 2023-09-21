@@ -154,6 +154,9 @@ public class Value implements IClonable {
     @Override
     public String toString() {
         var internalValue = this.getInternalValue();
+        if (this == Value.NONE) {
+            return "[no value]";
+        }
         if (internalValue == null) {
             return "[internal value of {Value@hc:" + this.hashCode() + "} is null]";
         } else {
