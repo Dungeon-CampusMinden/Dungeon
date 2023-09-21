@@ -52,8 +52,7 @@ public class AggregatePropertyValue extends AggregateValue {
                 environment
                         .getRuntimeObjectTranslator()
                         .translateRuntimeObject(internalValue, parentMemorySpace, environment);
-        assert runtimeObject instanceof AggregateValue;
-        return ((AggregateValue) runtimeObject).getMemorySpace();
+        return runtimeObject.getMemorySpace();
     }
 
     @Override
