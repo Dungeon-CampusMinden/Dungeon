@@ -52,23 +52,27 @@ public final class LevelNode {
     }
 
     /**
-     * Adds a neighbor in a random direction.
+     * Adds a neighbor in a random direction if possible.
      *
-     * <p>If the origin graph of the given node is not the same graph as the origin graph of this
-     * node, the graphs get connected. All nodes from this origin graph will be added to the given
+     * <p>A connection is possible when both nodes have at least one available neighboring slot, and
+     * the two slots are opposite each other. (For example, if in node A the neighbor to the NORTH
+     * is free, then in node B the neighbor to the SOUTH must be free).
+     *
+     * <p>If the origin graph of the given node is not the same as the origin graph of this node,
+     * the graphs will be connected. All nodes from this origin graph will be added to the given
      * node's origin graph, and vice versa.
      *
-     * <p>This method establishes the connection from this node to the other, and vice versa.
+     * <p>This method establishes the connection from this node to the other and vice versa.
      *
      * @param other The neighbor to be added.
      * @return true if the connection was successful, false if not.
      */
-    public boolean add(final LevelNode other) {
+    public boolean connect(final LevelNode other) {
         List<Direction> freeDirections = possibleConnectDirections(other);
         if (freeDirections.size() != 0) {
             Collections.shuffle(freeDirections);
-            if (other.add(this, Direction.opposite(freeDirections.get(0))))
-                return add(other, freeDirections.get(0));
+            if (other.connect(this, Direction.opposite(freeDirections.get(0))))
+                return connect(other, freeDirections.get(0));
         }
         return false;
     }
@@ -160,7 +164,7 @@ public final class LevelNode {
      * node's origin graph, and vice versa.
      *
      * <p>This method only establishes the connection from this node to the other. Remember to also
-     * call {@link #add(LevelNode, Direction)} for the given node with the opposite direction to
+     * call {@link #connect(LevelNode, Direction)} for the given node with the opposite direction to
      * complete the connection.
      *
      * @param node The neighbor to be added.
@@ -168,7 +172,7 @@ public final class LevelNode {
      *     perspective (in the neighbor's context, this corresponds to the opposite direction).
      * @return true if the connection was successful, false if not.
      */
-    private boolean add(final LevelNode node, final Direction direction) {
+    private boolean connect(final LevelNode node, final Direction direction) {
         if (this == node || neighbours[direction.value()] != null) return false;
         neighbours[direction.value()] = node;
         // if a node of an other graph gets added, all nodes of the other graph a now part of
@@ -188,12 +192,20 @@ public final class LevelNode {
     }
 
     /**
-     * Set the given Node as neighbor of this node at the given direction.
+     * Adds a neighbor in a random direction if possible.
      *
-     * @param node Node to set as neighbor.
-     * @param direction The direction at which the neighbor should be added from this node's
-     *     perspective (in the neighbor's context, this corresponds to the opposite direction).
-     * @return Optional that contains the old neighbor if on existed.
+     * <p>A connection is possible when both nodes have at least one available neighboring slot, and
+     * the two slots are opposite each other. (For example, if in node A the neighbor to the NORTH
+     * is free, then in node B the neighbor to the SOUTH must be free).
+     *
+     * <p>If the origin graph of the given node is not the same as the origin graph of this node,
+     * the graphs will be connected. All nodes from this origin graph will be added to the given
+     * node's origin graph, and vice versa.
+     *
+     * <p>This method establishes the connection from this node to the other and vice versa.
+     *
+     * @param node The neighbor to be added.
+     * @return true if the connection was successful, false if not.
      */
     protected Optional<LevelNode> forceNeighbor(LevelNode node, Direction direction) {
         LevelNode old = neighbours[direction.value()];

@@ -99,7 +99,7 @@ public final class LevelGraph {
             Tuple<LevelNode, LevelNode> matchUnpacked = match.get();
             addNodesToNodeList(other.nodes());
             other.addNodesToNodeList(nodes());
-            return matchUnpacked.a().add(matchUnpacked.b());
+            return matchUnpacked.a().connect(matchUnpacked.b());
         }
 
         // add adapter and try again
@@ -173,7 +173,7 @@ public final class LevelGraph {
             int connected = 0;
             for (LevelNode a : listA)
                 for (LevelNode b : listB)
-                    if (a != b && !a.isNeighbourWith(b) && a.add(b)) {
+                    if (a != b && !a.isNeighbourWith(b) && a.connect(b)) {
                         connected++;
                         if (connected >= howManyExtraEdges) return;
                     }
@@ -218,7 +218,7 @@ public final class LevelGraph {
         shuffledNodes.remove(node);
         Collections.shuffle(shuffledNodes);
         for (LevelNode n : shuffledNodes) {
-            if (n.add(node)) return true;
+            if (n.connect(node)) return true;
         }
 
         // could not create a connection because no node has a free edge where the other node has a
