@@ -9,6 +9,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
 import dslnativefunction.NativeInstantiate;
+
 import dsltypeadapters.DrawComponentAdapter;
 
 import dsltypeproperties.EntityExtension;
