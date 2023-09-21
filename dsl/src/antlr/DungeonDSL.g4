@@ -245,12 +245,6 @@ dot_stmt_list
 dot_stmt
         : dot_node_stmt
         | dot_edge_stmt
-        | dot_attr_stmt
-        | dot_assign_stmt
-        ;
-
-dot_assign_stmt
-        : ID '=' ID
         ;
 
 dot_edge_stmt
@@ -261,25 +255,18 @@ dot_edge_RHS
         : dot_edge_op ID
         ;
 
-// dot specifies the keywords as case insensitive,
-// we require them to be lowercase for simplicity
-dot_attr_stmt
-        : ('graph' | 'node' | 'edge') dot_attr_list
-        ;
-
 dot_node_stmt
         : ID dot_attr_list?
         ;
 
 dot_attr_list
-        : '[' dot_a_list? ']' dot_a_list?
+        : '[' dot_attr+ ']'
         ;
 
-dot_a_list
-        : ID '=' ID (';'|',')? dot_a_list?
+dot_attr
+        : ID '=' ID (';'|',')?
         ;
 
 dot_edge_op
         : ARROW
-        | DOUBLE_LINE
         ;
