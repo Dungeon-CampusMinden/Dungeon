@@ -35,7 +35,7 @@ public class LevelGraphTest {
     @Test
     public void adapter_node_onTwoFullGraphs() {
         LevelGraph graph2 = generateFullGraph();
-        graph.add(graph2, graph);
+        LevelGraph.add(graph2, graph);
         // for manual check
         // System.out.println(graph.toDot());
         assertTrue(checkIfReachable(graph.root(), graph, graph2));
@@ -45,8 +45,8 @@ public class LevelGraphTest {
     public void adapter_node_onThreeFullGraphs() {
         LevelGraph graph2 = generateFullGraph();
         LevelGraph graph3 = generateFullGraph();
-        graph.add(graph2, graph);
-        graph.add(graph3, graph2);
+        LevelGraph.add(graph2, graph);
+        LevelGraph.add(graph3, graph2);
         // for manual check
         // System.out.println(graph.toDot());
         assertTrue(checkIfReachable(graph.root(), graph, graph2, graph3));
@@ -56,8 +56,8 @@ public class LevelGraphTest {
     public void adapter_node_onThreeFullGraphs_connectOnOrigin() {
         LevelGraph graph2 = generateFullGraph();
         LevelGraph graph3 = generateFullGraph();
-        graph.add(graph2, graph);
-        graph.add(graph3, graph);
+        LevelGraph.add(graph2, graph);
+        LevelGraph.add(graph3, graph);
         // for manual check
         System.out.println(graph.toDot());
         assertTrue(checkIfReachable(graph.root(), graph, graph2, graph3));
@@ -72,7 +72,7 @@ public class LevelGraphTest {
             LevelGraph g = generateFullGraph();
             graphs.add(g);
             if (i == 0) graph.add(g, graph);
-            else graphs.get(i - 1).add(g, graphs.get(i - 1));
+            else LevelGraph.add(g, graphs.get(i - 1));
         }
         graphs.add(graph);
         assertTrue(checkIfReachable(graph.root(), graphs));
@@ -93,7 +93,7 @@ public class LevelGraphTest {
         LevelGraph g2 = new LevelGraph();
         g1.add(Set.of(new Entity()));
         g2.add(Set.of(new Entity()));
-        g1.add(g2, g1);
+        LevelGraph.add(g2, g1);
         assertTrue(checkIfReachable(g1.root(), g1, g2));
         // for manual check
         // System.out.println(g1.toDot());

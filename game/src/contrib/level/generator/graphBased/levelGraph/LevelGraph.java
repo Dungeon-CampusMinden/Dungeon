@@ -27,91 +27,96 @@ import java.util.*;
  *
  * <p>Use {@link #add(Set)} to add a new entity collection and thus a new node to the graph.
  */
-public final class LevelGraph {
+public class LevelGraph {
     private static final Random RANDOM = new Random();
     private final Set<LevelNode> nodes = new HashSet<>();
     private LevelNode root;
 
     /**
-     * Creates a new node with the given set as payload and adds it to a random position in the
-     * graph.
+     * Connects the provided level graph to this level graph.
      *
-     * @param set The entity collection to be placed as payload in the new node.
-     * @return true if the connection was successful, false if not.
-     */
-    public boolean add(Set<Entity> set) {
-        LevelNode node = new LevelNode(set, this);
-        nodes.add(node);
-        if (root == null) {
-            root = node;
-            return true;
-        } else return add(node);
-    }
-
-    /**
-     * Adds the provided level graph to this level graph.
-     *
-     * <p>This function searches for a free edge within this level graph and then connects the
+     * <p>This function searches for an available edge within this level graph and connects the
      * provided level graph to it.
+     *
+     * <p>If necessary, the graphs will be extended with adapter nodes. This is done when there is
+     * no other way to connect the graphs.
      *
      * <p>Note: This operation modifies both graphs and merges them into one. Both graphs (this and
      * the other) will be structurally identical.
      *
-     * @param other The level graph to be connected to this graph.
-     * @param connectOn A new edge will only be created with a node in this graph whose origin graph
-     *     is the given one.
+     * <p>Also note that this will connect the graphs with other graphs that are connected to the
+     * other graph (for example, if A is connected to B, and now C gets connected to A, this means C
+     * is connected to B via A).
+     *
+     * <p>The connection will only be established on the nodes originally created in the provided
+     * graph.
+     *
+     * <p>If the graphs are already connected, a new connection will still be created.
+     *
+     * @param graphA The level graph to be connected with the other one.
+     * @param graphB The level graph to be connected with the other one.
      * @return true if the connection was successful, false if not.
      */
-    public boolean add(final LevelGraph other, final LevelGraph connectOn) {
-        List<LevelNode> connectOnNodes =
-                nodes.stream().filter(n -> n.originGraph() == connectOn).toList();
-        // the graph is not connected with this graph
-        if (connectOnNodes.isEmpty()) return false;
+    public static boolean add(final LevelGraph graphA, final LevelGraph graphB) {
 
-        List<LevelNode> otherNodes =
-                other.nodes().stream().filter(n -> n.originGraph() == other).toList();
-        if (otherNodes.isEmpty()) return false;
-
-        // Nodes that have free Edges
-        List<LevelNode> connectOnNodesFree =
-                connectOnNodes.stream()
+        List<LevelNode> graphBNodes =
+                graphB.nodes().stream().filter(n -> n.originGraph() == graphB).toList();
+        if (graphBNodes.isEmpty()) return false;
+        List<LevelNode> graphBFreeNodes =
+                graphBNodes.stream()
                         .filter(n -> n.neighboursCount() < Direction.values().length)
                         .toList();
 
-        if (connectOnNodesFree.isEmpty()) {
-            connectOn.createAdapterNode(connectOn, Direction.random());
-            return add(other, connectOn);
-        }
-        List<LevelNode> otherNodesFree =
-                otherNodes.stream()
-                        .filter(n -> n.neighboursCount() < Direction.values().length)
-                        .toList();
-        if (otherNodesFree.isEmpty()) {
-            other.createAdapterNode(other, Direction.random());
-            return add(other, connectOn);
+        if (graphBFreeNodes.isEmpty()) {
+            createAdapter(graphB, Direction.random());
+            return add(graphA, graphB);
         }
 
-        // try to find a matching Node-Pair (two Nodes that can be connected without any
-        // changes)
-        Optional<Tuple<LevelNode, LevelNode>> match = matching(connectOnNodesFree, otherNodesFree);
+        List<LevelNode> graphANodes =
+                graphA.nodes().stream().filter(n -> n.originGraph() == graphA).toList();
+        if (graphANodes.isEmpty()) return false;
+
+        List<LevelNode> graphAFreeNodes =
+                graphANodes.stream()
+                        .filter(n -> n.neighboursCount() < Direction.values().length)
+                        .toList();
+        if (graphAFreeNodes.isEmpty()) {
+            createAdapter(graphA, Direction.random());
+            return add(graphA, graphB);
+        }
+
+        // try to find a matching Node-Pair (two Nodes that can be connected without any changes)
+        Optional<Tuple<LevelNode, LevelNode>> match =
+                matchingEdges(graphBFreeNodes, graphAFreeNodes);
         if (match.isPresent()) {
-            // there is an easy way to connect them, so do it
-            Tuple<LevelNode, LevelNode> matchUnpacked = match.get();
-            addNodesToNodeList(other.nodes());
-            other.addNodesToNodeList(nodes());
-            return matchUnpacked.a().connect(matchUnpacked.b());
+            Tuple<LevelNode, LevelNode> tuple = match.get();
+            return tuple.a().connect(tuple.b());
         }
 
         // add adapter and try again
-        other.createAdapterNode(other, Direction.random());
-        return add(other, connectOn);
+        createAdapter(graphA, Direction.random());
+        return add(graphA, graphB);
     }
 
-    private LevelNode createAdapterNode(LevelGraph origin, Direction direction) {
+    private static Optional<Tuple<LevelNode, LevelNode>> matchingEdges(
+            final List<LevelNode> connect, final List<LevelNode> with) {
+        for (LevelNode nodeA : connect) {
+            List<Direction> freeDirections = nodeA.freeDirections();
+            for (Direction direction : freeDirections) {
+                for (LevelNode nodeB : with) {
+                    if (nodeB.at(Direction.opposite(direction)).isEmpty())
+                        return Optional.of(new Tuple<>(nodeA, nodeB));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static void createAdapter(final LevelGraph origin, final Direction direction) {
         List<LevelNode> nodes =
                 new ArrayList<>(
                         origin.nodes().stream().filter(n -> n.originGraph() == origin).toList());
-        LevelNode adapter = new LevelNode(new HashSet<>(), origin);
+        LevelNode adapter = new LevelNode(origin);
         if (nodes.isEmpty()) {
             origin.add(adapter);
         } else {
@@ -121,7 +126,7 @@ public final class LevelGraph {
             Optional<LevelNode> old = on.forceNeighbor(adapter, direction);
             adapter.forceNeighbor(on, Direction.opposite(direction));
 
-            // readd possible edge
+            // re-add possible edge
             old.ifPresent(
                     node -> {
                         node.forceNeighbor(adapter, Direction.opposite(direction));
@@ -129,21 +134,22 @@ public final class LevelGraph {
                     });
         }
         origin.addNodesToNodeList(Set.of(adapter));
-        return adapter;
     }
 
-    private Optional<Tuple<LevelNode, LevelNode>> matching(
-            List<LevelNode> connectOn, List<LevelNode> other) {
-        for (LevelNode nodeA : connectOn) {
-            List<Direction> freeDirections = nodeA.freeDirections();
-            for (Direction direction : freeDirections) {
-                for (LevelNode nodeB : other) {
-                    if (nodeB.at(Direction.opposite(direction)).isEmpty())
-                        return Optional.of(new Tuple<>(nodeA, nodeB));
-                }
-            }
-        }
-        return Optional.empty();
+    /**
+     * Creates a new node with the given set as payload and adds it to a random position in the
+     * graph.
+     *
+     * @param set The entity collection to be placed as payload in the new node.
+     * @return true if the connection was successful, false if not.
+     */
+    public boolean add(final Set<Entity> set) {
+        LevelNode node = new LevelNode(set, this);
+        nodes.add(node);
+        if (root == null) {
+            root = node;
+            return true;
+        } else return add(node);
     }
 
     /**
@@ -212,7 +218,7 @@ public final class LevelGraph {
         return new HashSet<>(nodes);
     }
 
-    private boolean add(LevelNode node) {
+    private boolean add(final LevelNode node) {
         if (node.neighboursCount() == Direction.values().length) return false;
         List<LevelNode> shuffledNodes = new ArrayList<>(nodes().stream().toList());
         shuffledNodes.remove(node);
@@ -223,11 +229,12 @@ public final class LevelGraph {
 
         // could not create a connection because no node has a free edge where the other node has a
         // free edge
-        createAdapterNode(this, Direction.opposite(node.freeDirections().get(0)));
+        createAdapter(this, Direction.opposite(node.freeDirections().get(0)));
         return add(node);
     }
 
-    private void addNodesToNodeList(final Set<LevelNode> nodes, Set<LevelGraph> alreadyVisited) {
+    private void addNodesToNodeList(
+            final Set<LevelNode> nodes, final Set<LevelGraph> alreadyVisited) {
         if (nodes.isEmpty()) return;
         if (root == null) root = nodes.stream().findFirst().get();
         this.nodes.addAll(nodes);

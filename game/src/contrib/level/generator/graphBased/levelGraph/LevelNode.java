@@ -23,7 +23,7 @@ import java.util.*;
  * neighboring nodes, and the index in the array indicates the {@link Direction} through which the
  * nodes are connected.
  */
-public final class LevelNode {
+public class LevelNode {
     private final Set<Entity> entities;
     private final LevelNode[] neighbours = new LevelNode[Direction.values().length];
     private final LevelGraph originGraph;
@@ -36,7 +36,7 @@ public final class LevelNode {
      * @param originGraph is the graph in which this node was initially created and added. It helps
      *     to differentiate nodes in connected graphs.
      */
-    public LevelNode(final Set<Entity> entities, LevelGraph originGraph) {
+    public LevelNode(final Set<Entity> entities, final LevelGraph originGraph) {
         this.entities = entities;
         this.originGraph = originGraph;
     }
@@ -47,7 +47,7 @@ public final class LevelNode {
      * @param originGraph is the graph in which this node was initially created and added. It helps
      *     to differentiate nodes in connected graphs.
      */
-    public LevelNode(LevelGraph originGraph) {
+    public LevelNode(final LevelGraph originGraph) {
         this(new HashSet<>(), originGraph);
     }
 
@@ -55,8 +55,8 @@ public final class LevelNode {
      * Adds a neighbor in a random direction if possible.
      *
      * <p>A connection is possible when both nodes have at least one available neighboring slot, and
-     * the two slots are opposite each other. (For example, if in node A the neighbor to the NORTH
-     * is free, then in node B the neighbor to the SOUTH must be free).
+     * the two slots are opposite each other. (For example, if in node A neighbor to the NORTH is
+     * free, then in node B the neighbor to the SOUTH must be free).
      *
      * <p>If the origin graph of the given node is not the same as the origin graph of this node,
      * the graphs will be connected. All nodes from this origin graph will be added to the given
@@ -78,13 +78,13 @@ public final class LevelNode {
     }
 
     /**
-     * Retrieves the neighbor in the given direction.
+     * Retrieves the neighbor at the given direction.
      *
      * @param direction The direction to check.
      * @return An Optional containing the neighbor node in the given direction, or empty if there is
      *     no neighbor in that direction.
      */
-    public Optional<LevelNode> at(Direction direction) {
+    public Optional<LevelNode> at(final Direction direction) {
         return Optional.ofNullable(neighbours[direction.value()]);
     }
 
@@ -94,7 +94,7 @@ public final class LevelNode {
      * @param node The node to check for neighbor relationship.
      * @return True if the nodes are neighbors, false if not.
      */
-    public boolean isNeighbourWith(LevelNode node) {
+    public boolean isNeighbourWith(final LevelNode node) {
         for (LevelNode neighbour : neighbours) if (neighbour == node) return true;
         return false;
     }
@@ -131,7 +131,7 @@ public final class LevelNode {
      *
      * @param level The level/room that is represented by this node.
      */
-    public void level(ILevel level) {
+    public void level(final ILevel level) {
         this.level = level;
     }
 
@@ -175,7 +175,7 @@ public final class LevelNode {
     private boolean connect(final LevelNode node, final Direction direction) {
         if (this == node || neighbours[direction.value()] != null) return false;
         neighbours[direction.value()] = node;
-        // if a node of an other graph gets added, all nodes of the other graph a now part of
+        // if a node of another graph gets added, all nodes of the other graph a now part of
         // this graph
         if (originGraph != node.originGraph())
             originGraph.addNodesToNodeList(node.originGraph().nodes());
@@ -183,6 +183,16 @@ public final class LevelNode {
         return true;
     }
 
+    /**
+     * Searches for all possible directions at which the given node can be connected to this node.
+     *
+     * <p>This method searches for all available directions in this node where the other node has
+     * available directions at the opposite positions.
+     *
+     * @param other The node to be considered.
+     * @return List of possible connection directions, starting from this node (when connecting, the
+     *     opposite direction should be used for 'other').
+     */
     private List<Direction> possibleConnectDirections(final LevelNode other) {
         List<Direction> freeDirections = freeDirections();
         List<Direction> otherDirections = other.freeDirections();
@@ -195,8 +205,8 @@ public final class LevelNode {
      * Adds a neighbor in a random direction if possible.
      *
      * <p>A connection is possible when both nodes have at least one available neighboring slot, and
-     * the two slots are opposite each other. (For example, if in node A the neighbor to the NORTH
-     * is free, then in node B the neighbor to the SOUTH must be free).
+     * the two slots are opposite each other. (For example, if in node A neighbor to the NORTH is
+     * free, then in node B the neighbor to the SOUTH must be free).
      *
      * <p>If the origin graph of the given node is not the same as the origin graph of this node,
      * the graphs will be connected. All nodes from this origin graph will be added to the given
@@ -214,6 +224,11 @@ public final class LevelNode {
         return Optional.ofNullable(old);
     }
 
+    /**
+     * Returns a list of all directions where this node does not have neighbors.
+     *
+     * @return List of directions without neighbors.
+     */
     protected List<Direction> freeDirections() {
         List<Direction> freeDirections = new ArrayList<>();
         if (neighbours[Direction.NORTH.value()] == null) freeDirections.add(Direction.NORTH);
