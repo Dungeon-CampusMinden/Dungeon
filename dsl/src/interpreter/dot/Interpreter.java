@@ -1,8 +1,10 @@
 package interpreter.dot;
 
+import interpreter.DSLInterpreter;
 import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
+import runtime.IMemorySpace;
 import task.quizquestion.SingleChoice;
 
 import taskdependencygraph.TaskDependencyGraph;
@@ -16,6 +18,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 public class Interpreter implements AstVisitor<TaskNode> {
+    private final DSLInterpreter dslInterpreter;
     // how to build graph?
     // - need nodes -> hashset, quasi symboltable
     Dictionary<String, TaskNode> graphNodes = new Hashtable<>();
@@ -25,6 +28,10 @@ public class Interpreter implements AstVisitor<TaskNode> {
     Dictionary<String, TaskEdge> graphEdges = new Hashtable<>();
 
     ArrayList<TaskDependencyGraph> graphs = new ArrayList<>();
+
+    public Interpreter(DSLInterpreter dslInterpreter) {
+        this.dslInterpreter = dslInterpreter;
+    }
 
     /**
      * Parses a dot definition and creates a {@link TaskDependencyGraph} from it
@@ -79,6 +86,8 @@ public class Interpreter implements AstVisitor<TaskNode> {
     public TaskNode visit(IdNode node) {
         String name = node.getName();
         // TODO: resolve name as task definition (see:
+        var task = node.accept(dslInterpreter);
+
         // https://github.com/Programmiermethoden/Dungeon/issues/520)
         // lookup and create, if not present previously
         if (graphNodes.get(name) == null) {

@@ -2639,44 +2639,55 @@ public class TestDSLInterpreter {
         String program =
             """
             single_choice_task t1 {
-                description: "Hello",
+                description: "Hello1",
                 answers: ["1", "2", "3"],
                 correct_answer_index: 2
             }
 
             single_choice_task t2 {
-                description: "Hello",
+                description: "Hello2",
                 answers: ["1", "2", "3"],
                 correct_answer_index: 2
             }
 
             single_choice_task t3 {
-                description: "Hello",
+                description: "Hello3",
                 answers: ["1", "2", "3"],
                 correct_answer_index: 2
             }
 
             single_choice_task t4 {
-                description: "Hello",
+                description: "Hello4",
                 answers: ["1", "2", "3"],
                 correct_answer_index: 2
             }
 
             single_choice_task t5 {
-                description: "Hello",
+                description: "Hello5",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t6 {
+                description: "Hello6",
                 answers: ["1", "2", "3"],
                 correct_answer_index: 2
             }
 
             graph tdg {
-                t1 -> t2 [type=
+                t1 -> t2 [type=st_m]
+                t1 -> t3 [type=st_o]
+                t1 -> t4 [type=s]
+                t1 -> t5 [type=c_f]
+                t1 -> t6 [type=c_c]
             }
 
             dungeon_config c {
-                dependency_graph: instantiate(my_type)
+                dependency_graph: tdg
             }
             """;
 
         DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
     }
 }

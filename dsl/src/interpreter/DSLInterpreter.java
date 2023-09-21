@@ -473,7 +473,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(DotDefNode node) {
-        Interpreter dotInterpreter = new Interpreter();
+        Interpreter dotInterpreter = new Interpreter(this);
+        var ms = getGlobalMemorySpace();
         var graph = dotInterpreter.getGraph(node);
         return new Value(BuiltInType.graphType, graph);
     }

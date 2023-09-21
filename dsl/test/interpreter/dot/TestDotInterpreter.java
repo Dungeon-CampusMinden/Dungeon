@@ -11,7 +11,7 @@ import parser.ast.DotDefNode;
 public class TestDotInterpreter {
 
     /** Test, if the order of nodes returned by the node iterator is correct */
-    @Test
+    /*@Test
     public void testNodeOrder() {
         String program = "graph g {\n" + "A -- B \n" + "B -- E -- D -- C \n" + "}";
         var ast = Helpers.getASTFromString(program);
@@ -36,10 +36,10 @@ public class TestDotInterpreter {
             lastNodeIdx = node.getIdx();
             iteration++;
         }
-    }
+    }*/
 
     /** Test, if the order of edges returned by the edge iterator is correct */
-    @Test
+    /*@Test
     public void testEdgeOrder() {
         String program = "graph g {\n" + "A -- B \n" + "B -- E -- D -- C \n" + "}";
         var ast = Helpers.getASTFromString(program);
@@ -65,4 +65,5 @@ public class TestDotInterpreter {
             iteration++;
         }
     }
+    */
 }

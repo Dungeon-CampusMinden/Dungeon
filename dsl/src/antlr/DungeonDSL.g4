@@ -235,6 +235,7 @@ primary : ID
  * - don't support ports
  */
 
+// TODO: simplify for task dependency use case
 dot_def : graph_type=('graph'|'digraph') ID '{' dot_stmt_list? '}' ;
 
 dot_stmt_list
