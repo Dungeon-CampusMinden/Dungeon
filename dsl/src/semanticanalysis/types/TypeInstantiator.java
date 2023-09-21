@@ -174,6 +174,12 @@ public class TypeInstantiator {
                     // return this object
                     convertedObject = value.getInternalValue();
                 } else {
+                    // if the value is a prototype, instantiation is handled by
+                    // DSLInterpreter::instantiateDSLValue and subsequent calls to
+                    // instantiateRuntimeValue; don't do it here
+                    if (valuesType instanceof Prototype) {
+                        return null;
+                    }
                     // call builder -> store values from memory space in order of parameters
                     // of builder-method
                     var adaptedType = (AggregateTypeAdapter) valuesType;
