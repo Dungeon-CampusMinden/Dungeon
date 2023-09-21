@@ -2634,4 +2634,49 @@ public class TestDSLInterpreter {
         String output = outputStream.toString();
         Assert.assertEquals("[no value]" + System.lineSeparator(), output);
     }
+
+    public void testTaskDependencyGraph() {
+        String program =
+            """
+            single_choice_task t1 {
+                description: "Hello",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t2 {
+                description: "Hello",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t3 {
+                description: "Hello",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t4 {
+                description: "Hello",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t5 {
+                description: "Hello",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            graph tdg {
+                t1 -> t2 [type=
+            }
+
+            dungeon_config c {
+                dependency_graph: instantiate(my_type)
+            }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+    }
 }
