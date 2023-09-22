@@ -4,18 +4,24 @@ import contrib.level.generator.graphBased.LevelGraphGenerator;
 import contrib.level.generator.graphBased.RoombasedLevelGenerator;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 
+import core.Entity;
 import core.level.elements.ILevel;
+import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 
 import petriNet.Place;
 
+import task.Task;
 import task.components.DoorComponent;
+import task.components.TaskComponent;
 
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskNode;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * Offers functions to generate a {@link LevelGraph} or Petri-Net for a TaskGraph .
@@ -86,22 +92,31 @@ public class TaskGraphConverter {
     }
 
     private static void connectDoorsWithTaskManager(Map<TaskNode, LevelGraph> nodeToLevelGraph) {
-        // todo find other solution Close doors and add the door to the manager entity
-        /*for (Optional<Tuple<LevelNode, Direction>> tuple :
-                doorEdges.keySet()) {
-            tuple.flatMap(t -> GeneratorUtils.doorAt(t.a().level(), t.b()))
-                    .ifPresent(
-                            doorTile -> {
-                                doorTile.close();
-                                doorEdges
-                                        .get(tuple)
-                                        .managerEntity()
-                                        .ifPresent(
-                                                entity ->
-                                                        entity.addComponent(
-                                                                new DoorComponent(doorTile)));
-                            });
-        }*/
+        Map<DoorTile, Task> doorToTask = new HashMap<>();
+
+        // TODO find doorTiles
+
+        // Close Door and connect it with the task manager
+        doorToTask.forEach(
+                new BiConsumer<DoorTile, Task>() {
+                    @Override
+                    public void accept(DoorTile doorTile, Task task) {
+                        doorTile.close();
+                        task.managerEntity()
+                                .ifPresentOrElse(
+                                        entity -> {
+                                            if (entity.isPresent(DoorComponent.class))
+                                                throw new RuntimeException(
+                                                        "The Manager already has a DoorComponen, this shoudld not happen.");
+                                            else entity.addComponent(new DoorComponent(doorTile));
+                                        },
+                                        () -> {
+                                            Entity e = new Entity();
+                                            e.addComponent(new TaskComponent(task, e));
+                                            e.addComponent(new DoorComponent(doorTile));
+                                        });
+                    }
+                });
     }
 
     // TODO
