@@ -2,9 +2,8 @@ package contrib.level.generator.graphBased;
 
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.levelGraph.Direction;
-import contrib.level.generator.graphBased.levelGraph.GraphGenerator;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
-import contrib.level.generator.graphBased.levelGraph.Node;
+import contrib.level.generator.graphBased.levelGraph.LevelNode;
 
 import core.Entity;
 import core.Game;
@@ -24,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /**
- * This generator will use the {@link GraphGenerator} and {@link RoomGenerator} to generate a
+ * This generator will use the {@link LevelGraphGenerator} and {@link RoomGenerator} to generate a
  * room-based level.
  *
  * <p>Use {@link #level(Set, DesignLabel)} to generate a level. For each Entity-Set, there will be
@@ -64,7 +63,7 @@ public class RoombasedLevelGenerator {
      * @return The generated level.
      */
     public static ILevel level(Set<Set<Entity>> entities, DesignLabel designLabel) {
-        return level(GraphGenerator.generate(entities), designLabel);
+        return level(LevelGraphGenerator.generate(entities), designLabel);
     }
 
     /**
@@ -88,7 +87,7 @@ public class RoombasedLevelGenerator {
                                                 roomG.layout(sizeFor(node), node.neighbours()),
                                                 designLabel)));
 
-        for (Node node : graph.nodes()) {
+        for (LevelNode node : graph.nodes()) {
             ILevel level = node.level();
             // remove trapdoor exit, in rooms we only use doors
             List<Tile> exits = new ArrayList<>(level.exitTiles());
@@ -99,7 +98,7 @@ public class RoombasedLevelGenerator {
         return graph.root().level();
     }
 
-    private static LevelSize sizeFor(Node node) {
+    private static LevelSize sizeFor(LevelNode node) {
         AtomicInteger count = new AtomicInteger();
         node.entities()
                 .forEach(
@@ -121,12 +120,12 @@ public class RoombasedLevelGenerator {
      *
      * @param node Node to configure the doors for.
      */
-    private static void configureDoors(Node node) {
+    private static void configureDoors(LevelNode node) {
         for (DoorTile door : node.level().doorTiles()) {
             Direction doorDirection = GeneratorUtils.doorDirection(node.level(), door);
 
             // find neighbour door
-            Node neighbour = node.neighbours()[doorDirection.value()];
+            LevelNode neighbour = node.neighbours()[doorDirection.value()];
             DoorTile neighbourDoor = null;
             for (DoorTile doorTile : neighbour.level().doorTiles())
                 if (Direction.opposite(doorDirection)

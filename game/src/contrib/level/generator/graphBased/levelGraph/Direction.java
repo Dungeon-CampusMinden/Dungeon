@@ -1,5 +1,7 @@
 package contrib.level.generator.graphBased.levelGraph;
 
+import java.util.Random;
+
 /** The different directions in which nodes can be connected to each other. */
 public enum Direction {
     NORTH(0),
@@ -7,6 +9,7 @@ public enum Direction {
     SOUTH(2),
     WEST(3);
 
+    private static final Random RANDOM = new Random();
     private final int value;
 
     Direction(int value) {
@@ -26,6 +29,16 @@ public enum Direction {
             case SOUTH -> NORTH;
             case WEST -> EAST;
         };
+    }
+
+    /**
+     * Returns a random direction.
+     *
+     * @return A random direction.
+     */
+    public static Direction random() {
+        int randomValue = RANDOM.nextInt(Direction.values().length);
+        return Direction.values()[randomValue];
     }
 
     public int value() {
