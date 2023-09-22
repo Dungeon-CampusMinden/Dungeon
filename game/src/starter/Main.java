@@ -19,7 +19,7 @@ import java.util.Set;
 public class Main {
     public static void main(String[] args) throws IOException {
         // toggle this to off, if you want to use the default level generator
-        boolean useRoomBasedLevel = true;
+        boolean useRoomBasedLevel = false;
 
         Game.initBaseLogger();
         Debugger debugger = new Debugger();
