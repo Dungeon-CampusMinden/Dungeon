@@ -12,10 +12,10 @@ import petriNet.Place;
 import task.components.DoorComponent;
 
 import taskdependencygraph.TaskDependencyGraph;
-import taskdependencygraph.TaskEdge;
 import taskdependencygraph.TaskNode;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Offers functions to generate a {@link LevelGraph} or Petri-Net for a TaskGraph .
@@ -43,26 +43,26 @@ public class TaskGraphConverter {
      * <p>Note: The Edges in the graph should not be duplicated (so only one Edge from A to B and
      * not one from B to A as well).
      *
-     * @param taskGraph
+     * <p>Will call the TaskBuilder for each Task.
+     *
+     * @param taskGraph graph to create the level for
      * @return the start room
      * @see RoombasedLevelGenerator
      */
     public static ILevel levelGraphFor(TaskDependencyGraph taskGraph) {
         // Map the node of the task-graph to a levelGraph
         Map<TaskNode, LevelGraph> nodeToLevelGraph = new LinkedHashMap<>();
-        // TODO find other solution Store information to find the door to a task
-        // Map<Optional<Tuple<core.level.generator.graphBased.levelGraph.Node, Direction>>, Task>
-        //        doorEdges = new HashMap();
-
         // Create a Levelgraph for each Node in the TaskGraph
         taskGraph
                 .nodeIterator()
                 .forEachRemaining(
                         node -> {
+                            // TODO REPLACE @malte-r
+                            TaskBuilder.DUMMY_TASK_BUILDER(node.task());
+
                             LevelGraph levelGraph =
-                                    LevelGraphGenerator.generate(
-                                            ((TaskNode) node).task().entitySets());
-                            nodeToLevelGraph.put((TaskNode) node, levelGraph);
+                                    LevelGraphGenerator.generate(node.task().entitySets());
+                            nodeToLevelGraph.put(node, levelGraph);
                         });
 
         // Connect each LevelGraph based on the Edges in the TaskGraph
@@ -70,17 +70,9 @@ public class TaskGraphConverter {
                 .edgeIterator()
                 .forEachRemaining(
                         edge -> {
-                            TaskNode start = ((TaskEdge) edge).startNode();
-                            TaskNode end = ((TaskEdge) edge).endNode();
-
-                            // todo Store door information
-                            /* doorEdges.put(
-                            nodeToLevelGraph
-                                    .get(start)
-                                    .add(
-                                            nodeToLevelGraph.get(end),
-                                            nodeToLevelGraph.get(start)),
-                            end.task());*/
+                            TaskNode start = edge.startNode();
+                            TaskNode end = edge.endNode();
+                            LevelGraph.add(nodeToLevelGraph.get(start), nodeToLevelGraph.get(end));
                         });
 
         // Generate the level
@@ -88,7 +80,12 @@ public class TaskGraphConverter {
                 RoombasedLevelGenerator.level(
                         nodeToLevelGraph.values().stream().findFirst().get(),
                         DesignLabel.randomDesign());
+        connectDoorsWithTaskManager(nodeToLevelGraph);
 
+        return level;
+    }
+
+    private static void connectDoorsWithTaskManager(Map<TaskNode, LevelGraph> nodeToLevelGraph) {
         // todo find other solution Close doors and add the door to the manager entity
         /*for (Optional<Tuple<LevelNode, Direction>> tuple :
                 doorEdges.keySet()) {
@@ -105,8 +102,6 @@ public class TaskGraphConverter {
                                                                 new DoorComponent(doorTile)));
                             });
         }*/
-
-        return level;
     }
 
     // TODO
