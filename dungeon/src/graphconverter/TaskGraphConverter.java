@@ -84,22 +84,51 @@ public class TaskGraphConverter {
                             LevelGraph.add(nodeToLevelGraph.get(start), nodeToLevelGraph.get(end));
                         });
 
-        // todo what is with task that are not connected to the complete graph? could also contain
-        // Subgraph?
+        // the first levelgraph is set at the rootgraph (the game will start in this graph)
+        // each other node needs to be connected (directly, or indrectly) with this one.
+        LevelGraph rootGraph =
+                nodeToLevelGraph.values().stream()
+                        .findFirst()
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "There should be a Room to this Node but is not!"));
+
+        connectUnconnectedGraphs(rootGraph, nodeToLevelGraph.values());
 
         // Generate the level
-        ILevel level =
-                RoombasedLevelGenerator.level(
-                        nodeToLevelGraph.values().stream()
-                                .findFirst()
-                                .orElseThrow(
-                                        () ->
-                                                new RuntimeException(
-                                                        "There should be a Room to this Node but is not!")),
-                        DesignLabel.randomDesign());
+        ILevel level = RoombasedLevelGenerator.level(rootGraph, DesignLabel.randomDesign());
         connectDoorsWithTaskManager(graphToTask);
 
         return level;
+    }
+
+    /**
+     * Connects unconnected graphs by adding them to a root graph.
+     *
+     * <p>This method takes a root graph and a collection of level graphs. It checks if the nodes in
+     * the root graph are connected to any of the level graphs in the collection. If not, it adds
+     * the first unconnected level graph to the root graph and recursively continues to connect
+     * unconnected level graphs until all are connected.
+     *
+     * @param rootGraph The root graph to which unconnected level graphs will be connected.
+     * @param levelGraphs A collection of level graphs to be connected to the root graph.
+     * @return {@code true} if all level graphs are connected to the root graph, {@code false}
+     *     otherwise (never, return value is used for the recursion).
+     */
+    private static boolean connectUnconnectedGraphs(
+            LevelGraph rootGraph, Collection<LevelGraph> levelGraphs) {
+        for (LevelGraph levelGraph : levelGraphs) {
+            Set<LevelNode> tmp = rootGraph.nodes();
+            tmp.removeIf(n -> n.originGraph() != levelGraph);
+            // each graph contains all the nodes, also the nodes of each graph it is connected with,
+            // so if this set is empty it means root and graph are not connected
+            if (tmp.isEmpty()) {
+                LevelGraph.add(rootGraph, levelGraph);
+                return connectUnconnectedGraphs(rootGraph, levelGraphs);
+            }
+        }
+        return true;
     }
 
     /**
