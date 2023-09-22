@@ -21,6 +21,7 @@ import taskdependencygraph.TaskNode;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 /**
@@ -81,6 +82,9 @@ public class TaskGraphConverter {
                             LevelGraph.add(nodeToLevelGraph.get(start), nodeToLevelGraph.get(end));
                         });
 
+        // todo what is with task that are not connected to the comple graph? could also contain
+        // subgraphs?
+
         // Generate the level
         ILevel level =
                 RoombasedLevelGenerator.level(
@@ -108,12 +112,14 @@ public class TaskGraphConverter {
                                             if (entity.isPresent(DoorComponent.class))
                                                 throw new RuntimeException(
                                                         "The Manager already has a DoorComponen, this shoudld not happen.");
-                                            else entity.addComponent(new DoorComponent(doorTile));
+                                            else
+                                                entity.addComponent(
+                                                        new DoorComponent(Set.of(doorTile)));
                                         },
                                         () -> {
                                             Entity e = new Entity();
                                             e.addComponent(new TaskComponent(task, e));
-                                            e.addComponent(new DoorComponent(doorTile));
+                                            e.addComponent(new DoorComponent(Set.of(doorTile)));
                                         });
                     }
                 });
