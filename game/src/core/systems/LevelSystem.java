@@ -225,7 +225,9 @@ public final class LevelSystem extends System {
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
         for (DoorTile door : currentLevel.doorTiles()) {
-            if (door.isOpen() && door.equals(Game.tileAT(pc.position()))) {
+            if (door.isOpen()
+                    && door.getOtherDoor().isOpen()
+                    && door.equals(Game.tileAT(pc.position()))) {
                 door.onEntering(entity);
                 nextLevel = door.getOtherDoor().level();
             }
