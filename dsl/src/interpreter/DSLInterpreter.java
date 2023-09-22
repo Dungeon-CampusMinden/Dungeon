@@ -212,10 +212,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (type.getTypeKind().equals(IType.Kind.Basic)) {
             Object internalValue = Value.getDefaultValue(type);
             return new Value(type, internalValue);
-        } else if (type.getTypeKind().equals(IType.Kind.PODAdapted)) {
-            AdaptedType adaptedType = (AdaptedType) type;
-            var builderParamType = adaptedType.getBuildParameterType();
-            return createDefaultValue(builderParamType);
         } else if (type.getTypeKind().equals(IType.Kind.Aggregate)
                 || type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
             AggregateValue value = new AggregateValue(type, getCurrentMemorySpace());
@@ -340,7 +336,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return instance;
     }
 
-    private AggregateType getOriginalTypeOfPrototype(Prototype type) {
+    public AggregateType getOriginalTypeOfPrototype(Prototype type) {
         IType returnType = type;
         while (returnType instanceof Prototype) {
             returnType = ((Prototype) returnType).getInternalType();
@@ -371,40 +367,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
         // instantiate entity_type
         var typeInstantiator = this.environment.getTypeInstantiator();
-        var entityObject = typeInstantiator.instantiateAsType(dslValue, asType);
-
-        // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would
-        //  enable creation of components with different parameters -> requires the ability to
-        //  store multiple builder-methods for one type, distinguished by their
-        //  signature
-        var annot = asType.getOriginType().getAnnotation(DSLContextPush.class);
-        String contextName = "";
-        if (annot != null) {
-            contextName = annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
-            typeInstantiator.pushContextMember(contextName, entityObject);
-        }
-
-        // an entity-object itself has no members, so add the components as "artificial members"
-        // to the aggregate dsl value of the entity
-        for (var memberEntry : dslValue.getValueSet()) {
-            Value memberValue = memberEntry.getValue();
-            if (memberValue instanceof AggregateValue) {
-                // TODO: this is needed, because Prototype does not extend AggregateType currently,
-                //  which should be fixed
-                AggregateType membersOriginalType =
-                        getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
-
-                // instantiate object as a new java Object
-                typeInstantiator.instantiateAsType(
-                        (AggregateValue) memberValue, membersOriginalType);
-            }
-        }
-
-        if (annot != null) {
-            typeInstantiator.removeContextMember(contextName);
-        }
-
-        return entityObject;
+        return typeInstantiator.instantiateAsType(dslValue, asType);
     }
 
     @Override

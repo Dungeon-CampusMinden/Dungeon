@@ -34,7 +34,13 @@ public class TypeInstantiator {
      * @return the instantiated object
      */
     public Object instantiate(AggregateValue value) {
-        AggregateType type = (AggregateType) value.getDataType();
+        AggregateType type;
+        if (value.getDataType() instanceof Prototype) {
+            // instantiation of prototypes is handled by the native `instantiate` function
+            return null;
+        } else {
+            type = (AggregateType) value.getDataType();
+        }
 
         if (type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
             return convertValueToObject(value);
@@ -60,11 +66,12 @@ public class TypeInstantiator {
         }
         Object instance;
 
-        if (originalJavaClass.isRecord()) {
+        /*if (originalJavaClass.isRecord()) {
             instance = instantiateRecord(originalJavaClass, ms);
         } else {
-            instance = instantiateClass(originalJavaClass, ms);
-        }
+            instance = instantiateAggregateValueAsClass(type, value);
+        }*/
+        instance = convertValueToObject(value, type);
 
         // set properties
         setProperties(instance, type, ms);
@@ -86,7 +93,9 @@ public class TypeInstantiator {
                 Value value = ms.resolve(propertySymbol.getName());
                 if (value != Value.NONE) {
                     Object valueAsObject = convertValueToObject(value);
-                    property.set(instance, valueAsObject);
+                    if (valueAsObject != null) {
+                        property.set(instance, valueAsObject);
+                    }
                 }
             }
         }
@@ -144,6 +153,10 @@ public class TypeInstantiator {
         context.remove(name);
     }
 
+    private Object convertValueToObject(Value value) {
+        var valuesType = value.getDataType();
+        return convertValueToObject(value, valuesType);
+    }
     /**
      * Converts a {@link Value} to a regular Java Object. The conversion is dependent on the kind of
      * datatype of the {@link Value} instance.
@@ -151,28 +164,25 @@ public class TypeInstantiator {
      * @param value the Value to convert
      * @return the converted Object
      */
-    private Object convertValueToObject(Value value) {
+    private Object convertValueToObject(Value value, IType valuesType) {
         Object convertedObject = value.getInternalValue();
         try {
-            var fieldsDataType = value.getDataType();
-            if (fieldsDataType.getTypeKind().equals(IType.Kind.PODAdapted)) {
-                // call builder -> the type instantiator needs a reference to the
-                // builder or to the
-                // builder methods
-                var adaptedType = (AdaptedType) value.getDataType();
-                var method = adaptedType.getBuilderMethod();
-
-                convertedObject = method.invoke(null, convertedObject);
-            } else if (fieldsDataType.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
+            if (valuesType.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
                 var aggregateFieldValue = (AggregateValue) value;
                 if (aggregateFieldValue.getMemorySpace() instanceof EncapsulatedObject) {
                     // if the memoryspace of the value already encapsulates an object,
                     // return this object
                     convertedObject = value.getInternalValue();
                 } else {
+                    // if the value is a prototype, instantiation is handled by
+                    // DSLInterpreter::instantiateDSLValue and subsequent calls to
+                    // instantiateRuntimeValue; don't do it here
+                    if (valuesType instanceof Prototype) {
+                        return null;
+                    }
                     // call builder -> store values from memory space in order of parameters
                     // of builder-method
-                    var adaptedType = (AggregateTypeAdapter) fieldsDataType;
+                    var adaptedType = (AggregateTypeAdapter) valuesType;
                     var method = adaptedType.getBuilderMethod();
                     var parameters = new ArrayList<>(method.getParameterCount());
                     for (var parameter : method.getParameters()) {
@@ -184,13 +194,30 @@ public class TypeInstantiator {
 
                     convertedObject = method.invoke(null, parameters.toArray());
                 }
-            } else if (value.getDataType().getTypeKind().equals(IType.Kind.ListType)) {
+            } else if (valuesType.getTypeKind().equals(IType.Kind.ListType)) {
                 convertedObject = instantiateList((ListValue) value);
-            } else if (value.getDataType().getTypeKind().equals(IType.Kind.SetType)) {
+            } else if (valuesType.getTypeKind().equals(IType.Kind.SetType)) {
                 convertedObject = instantiateSet((SetValue) value);
-            } else if (value.getDataType().getTypeKind().equals(IType.Kind.Aggregate)) {
+            } else if (valuesType.getTypeKind().equals(IType.Kind.Aggregate)) {
                 if (convertedObject == null) {
-                    convertedObject = instantiate((AggregateValue) value);
+                    // if the value is a prototype, instantiation is handled by
+                    // DSLInterpreter::instantiateDSLValue and subsequent calls to
+                    // instantiateRuntimeValue; don't do it here
+                    if (valuesType instanceof Prototype) {
+                        return null;
+                    }
+                    var originalJavaClass = ((AggregateType) valuesType).getOriginType();
+                    if (null == originalJavaClass) {
+                        return null;
+                    }
+
+                    if (originalJavaClass.isRecord()) {
+                        convertedObject = instantiateRecord(originalJavaClass, value);
+                    } else {
+                        convertedObject =
+                                instantiateAggregateValueAsClass(
+                                        (AggregateType) valuesType, (AggregateValue) value);
+                    }
                 }
             }
         } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
@@ -199,7 +226,8 @@ public class TypeInstantiator {
         return convertedObject;
     }
 
-    private Object instantiateRecord(Class<?> originalJavaClass, IMemorySpace ms) {
+    private Object instantiateRecord(Class<?> originalJavaClass, Value value) {
+        IMemorySpace ms = value.getMemorySpace();
 
         Constructor<?> ctor = getConstructor(originalJavaClass);
         if (null == ctor) {
@@ -256,7 +284,11 @@ public class TypeInstantiator {
         }
     }
 
-    private Object instantiateClass(Class<?> originalJavaClass, IMemorySpace ms) {
+    private Object instantiateAggregateValueAsClass(AggregateType type, AggregateValue value) {
+        var originalJavaClass = type.getOriginType();
+        if (null == originalJavaClass) {
+            return null;
+        }
         if (originalJavaClass.isMemberClass()) {
             throw new RuntimeException("Cannot instantiate an inner class");
         }
@@ -267,9 +299,6 @@ public class TypeInstantiator {
                     "Could not find a suitable constructor to instantiate class "
                             + originalJavaClass.getName());
         }
-
-        // TODO: this does not take into account, that we maybe want to use a typeAdapter on this
-        // level!
 
         Object instance;
         try {
@@ -295,6 +324,7 @@ public class TypeInstantiator {
 
             // set values of the fields marked as DSLTypeMembers to corresponding values from
             // the memory space
+            IMemorySpace ms = value.getMemorySpace();
             for (Field field : originalJavaClass.getDeclaredFields()) {
                 String fieldName = TypeBuilder.getDSLFieldName(field);
                 var fieldValue = ms.resolve(fieldName);

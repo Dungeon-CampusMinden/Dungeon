@@ -108,7 +108,7 @@ public class TestTypeBinder {
                 """
             entity_type o {
                 test_record_user {
-                    component_member: "Hello"
+                    component_member: test_record_component { param: "Hello"}
                 }
             }
             """;
@@ -133,10 +133,9 @@ public class TestTypeBinder {
         var testRecordUserType = (AggregateType) testRecordUser.getDataType();
         var member = testRecordUserType.resolve("component_member");
         var memberType = member.getDataType();
-        Assert.assertTrue(memberType instanceof AdaptedType);
+        Assert.assertTrue(memberType instanceof AggregateTypeAdapter);
 
-        var adaptedType = (AdaptedType) memberType;
+        var adaptedType = (AggregateTypeAdapter) memberType;
         Assert.assertEquals(TestRecordComponent.class, adaptedType.getOriginType());
-        Assert.assertEquals(BuiltInType.stringType, adaptedType.getBuildParameterType());
     }
 }

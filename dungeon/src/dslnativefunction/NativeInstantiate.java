@@ -1,4 +1,7 @@
-package runtime.nativefunctions;
+package dslnativefunction;
+
+import core.Component;
+import core.Entity;
 
 import interpreter.DSLInterpreter;
 
@@ -8,14 +11,13 @@ import runtime.AggregateValue;
 import runtime.Prototype;
 import runtime.RuntimeEnvironment;
 import runtime.Value;
+import runtime.nativefunctions.NativeFunction;
 
 import semanticanalysis.ICallable;
 import semanticanalysis.IScope;
 import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
-import semanticanalysis.types.AggregateType;
-import semanticanalysis.types.BuiltInType;
-import semanticanalysis.types.FunctionType;
+import semanticanalysis.types.*;
 
 import java.util.List;
 
@@ -54,6 +56,41 @@ public class NativeInstantiate extends NativeFunction {
                     (AggregateValue) interpreter.instantiateDSLValue((Prototype) param);
             var entityType = (AggregateType) rtEnv.getGlobalScope().resolve("entity");
             var entityObject = interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
+
+            TypeInstantiator instantiator =
+                    interpreter.getRuntimeEnvironment().getTypeInstantiator();
+
+            String contextName = "entity";
+            instantiator.pushContextMember(contextName, entityObject);
+
+            for (var valueEntry : dslEntityInstance.getMemorySpace().getValueSet()) {
+                if (valueEntry.getKey().equals(Value.THIS_NAME)) {
+                    continue;
+                }
+                Value memberValue = valueEntry.getValue();
+                if (memberValue instanceof AggregateValue) {
+                    // TODO: this is needed, because Prototype does not extend AggregateType
+                    // currently,
+                    //  which should be fixed
+                    AggregateType membersOriginalType =
+                            interpreter.getOriginalTypeOfPrototype(
+                                    (Prototype) memberValue.getDataType());
+
+                    // instantiate object as a new java Object
+                    Object memberObject =
+                            interpreter.instantiateRuntimeValue(
+                                    (AggregateValue) memberValue, membersOriginalType);
+                    try {
+                        Component component = (Component) memberObject;
+                        Entity entity = (Entity) entityObject;
+                        entity.addComponent(component);
+                    } catch (ClassCastException ex) {
+                        //
+                    }
+                }
+            }
+
+            instantiator.removeContextMember(contextName);
 
             return rtEnv.translateRuntimeObject(entityObject, interpreter.getCurrentMemorySpace());
         }

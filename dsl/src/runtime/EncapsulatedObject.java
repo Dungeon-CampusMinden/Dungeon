@@ -109,7 +109,6 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                             returnValue =
                                     new EncapsulatedField(type, correspondingField, this.object);
                             break;
-                        case PODAdapted:
                         case AggregateAdapted:
                         case Aggregate:
                             returnValue =

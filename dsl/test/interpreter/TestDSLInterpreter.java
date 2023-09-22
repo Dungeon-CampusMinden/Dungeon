@@ -2,6 +2,13 @@ package interpreter;
 
 import static org.junit.Assert.*;
 
+import contrib.components.CollideComponent;
+
+import core.components.DrawComponent;
+import core.components.PositionComponent;
+
+import dslnativefunction.NativeInstantiate;
+
 import dungeonFiles.DungeonConfig;
 
 import helpers.Helpers;
@@ -12,10 +19,12 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import parser.ast.IdNode;
 import parser.ast.Node;
 
 import runtime.*;
 
+import semanticanalysis.FunctionSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
@@ -30,10 +39,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -578,7 +584,7 @@ public class TestDSLInterpreter {
                         member2: 12
                     },
                     test_component_with_external_type {
-                        member_external_type: "Hello, World!"
+                        member_external_type: external_type { str: "Hello, World!" }
                     }
                 }
 
@@ -614,7 +620,7 @@ public class TestDSLInterpreter {
         Value externalTypeMemberValue = component.getMemorySpace().resolve("member_external_type");
         Assert.assertNotEquals(externalTypeMemberValue, Value.NONE);
         Assert.assertEquals(
-                externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.PODAdapted);
+                externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.AggregateAdapted);
 
         var internalObject = (TestComponentWithExternalType) component.getInternalValue();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
@@ -2539,5 +2545,93 @@ public class TestDSLInterpreter {
 
         String output = outputStream.toString();
         assertEquals("42" + System.lineSeparator(), output);
+    }
+
+    @Test
+    public void testInstantiateEntityDrawComponent() {
+        String program =
+                """
+            entity_type wizard_type {
+                draw_component {
+                    path: "character/wizard"
+                },
+                hitbox_component {},
+                position_component{}
+            }
+
+            dungeon_config c { }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config = (DungeonConfig) interpreter.getQuestConfig(program);
+
+        // call the native `instantiate` function manually
+        // resolve function in rtEnv
+        var runtimeEnvironment = interpreter.getRuntimeEnvironment();
+        NativeInstantiate instantiateFunc =
+                (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
+        // create new IdNode for "wizard_type` to pass to native instantiate
+        IdNode node = new IdNode("wizard_type", null);
+        // call the function
+        var value = (AggregateValue) instantiateFunc.call(interpreter, List.of(node));
+        // extract the entity from the Value-instance
+        core.Entity entity = (core.Entity) value.getInternalValue();
+
+        Assert.assertTrue(entity.isPresent(DrawComponent.class));
+        Assert.assertTrue(entity.isPresent(CollideComponent.class));
+        Assert.assertTrue(entity.isPresent(PositionComponent.class));
+    }
+
+    @Test
+    public void testInstantiateEntityDrawComponentAccessPath() {
+        String program =
+                """
+        entity_type wizard_type {
+            draw_component {
+                path: "character/wizard"
+            },
+            hitbox_component {},
+            position_component{}
+        }
+
+        fn test_func(entity ent) {
+            print(ent.draw_component.path);
+        }
+
+        dungeon_config c { }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config = (DungeonConfig) interpreter.getQuestConfig(program);
+
+        // call the native `instantiate` function manually
+        // resolve function in rtEnv
+        var runtimeEnvironment = interpreter.getRuntimeEnvironment();
+        NativeInstantiate instantiateFunc =
+                (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
+        // create new IdNode for "wizard_type` to pass to native instantiate
+        IdNode node = new IdNode("wizard_type", null);
+        // call the function
+        var value = (AggregateValue) instantiateFunc.call(interpreter, List.of(node));
+        // extract the entity from the Value-instance
+        core.Entity entity = (core.Entity) value.getInternalValue();
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        FunctionSymbol fnSym =
+                (FunctionSymbol) runtimeEnvironment.getGlobalScope().resolve("test_func");
+        interpreter.executeUserDefinedFunctionRawParameters(
+                fnSym, Arrays.stream(new Object[] {entity}).toList());
+
+        // explanation: the `path`-property is just used as a parameter, which will be passed to the
+        // adapter-method used for constructing the DrawComponent instance, after that, the
+        // property will be null, because it is not stored in the DrawComponent instance
+        // -> it is expected, that Value.NONE (of which the String representation is "[no value]")
+        // is returned for `path` in that case
+        String output = outputStream.toString();
+        Assert.assertEquals("[no value]" + System.lineSeparator(), output);
     }
 }
