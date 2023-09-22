@@ -153,6 +153,19 @@ public final class InventoryComponent implements Component {
     }
 
     /**
+     * Get an array of items stored in this component that are an instance of the given class.
+     *
+     * @param klass Only return items that are an instance of this class.
+     * @return An array of items that are in this Inventory and are an instance of the given class.
+     */
+    public Item[] items(Class<? extends Item> klass) {
+        return (Item[])
+                Arrays.stream(this.inventory.clone())
+                        .filter(item -> klass.isInstance(item))
+                        .toArray();
+    }
+
+    /**
      * Set the item at the given index.
      *
      * @param index Index of item to get.
