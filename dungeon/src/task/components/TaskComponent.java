@@ -27,9 +27,7 @@ public final class TaskComponent implements Component {
     public static final Consumer<Entity> DOOR_OPENER =
             entity ->
                     entity.fetch(DoorComponent.class)
-                            .ifPresent(
-                                    component ->
-                                            component.doors().stream().forEach(DoorTile::open));
+                            .ifPresent(component -> component.doors().forEach(DoorTile::open));
 
     private Consumer<Entity> onActivate;
     private final Task task;

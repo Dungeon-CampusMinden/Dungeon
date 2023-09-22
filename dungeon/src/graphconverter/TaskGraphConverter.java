@@ -1,8 +1,11 @@
 package graphconverter;
 
+import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.LevelGraphGenerator;
 import contrib.level.generator.graphBased.RoombasedLevelGenerator;
+import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
+import contrib.level.generator.graphBased.levelGraph.LevelNode;
 
 import core.Entity;
 import core.level.elements.ILevel;
@@ -18,11 +21,7 @@ import task.components.TaskComponent;
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskNode;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
+import java.util.*;
 
 /**
  * Offers functions to generate a {@link LevelGraph} or Petri-Net for a TaskGraph .
@@ -58,8 +57,10 @@ public class TaskGraphConverter {
      */
     public static ILevel levelGraphFor(TaskDependencyGraph taskGraph) {
         // Map the node of the task-graph to a levelGraph
-        Map<TaskNode, LevelGraph> nodeToLevelGraph = new LinkedHashMap<>();
-        // Create a Levelgraph for each Node in the TaskGraph
+        Map<TaskNode, LevelGraph> nodeToLevelGraph = new HashMap<>();
+        // used to connect the doors to the task manager later
+        Map<LevelGraph, Task> graphToTask = new HashMap<>();
+        // Create a Level-graph for each Node in the TaskGraph
         taskGraph
                 .nodeIterator()
                 .forEachRemaining(
@@ -70,6 +71,7 @@ public class TaskGraphConverter {
                             LevelGraph levelGraph =
                                     LevelGraphGenerator.generate(node.task().entitySets());
                             nodeToLevelGraph.put(node, levelGraph);
+                            graphToTask.put(levelGraph, node.task());
                         });
 
         // Connect each LevelGraph based on the Edges in the TaskGraph
@@ -82,46 +84,86 @@ public class TaskGraphConverter {
                             LevelGraph.add(nodeToLevelGraph.get(start), nodeToLevelGraph.get(end));
                         });
 
-        // todo what is with task that are not connected to the comple graph? could also contain
-        // subgraphs?
+        // todo what is with task that are not connected to the complete graph? could also contain
+        // Subgraph?
 
         // Generate the level
         ILevel level =
                 RoombasedLevelGenerator.level(
-                        nodeToLevelGraph.values().stream().findFirst().get(),
+                        nodeToLevelGraph.values().stream()
+                                .findFirst()
+                                .orElseThrow(
+                                        () ->
+                                                new RuntimeException(
+                                                        "There should be a Room to this Node but is not!")),
                         DesignLabel.randomDesign());
-        connectDoorsWithTaskManager(nodeToLevelGraph);
+        connectDoorsWithTaskManager(graphToTask);
 
         return level;
     }
 
-    private static void connectDoorsWithTaskManager(Map<TaskNode, LevelGraph> nodeToLevelGraph) {
-        Map<DoorTile, Task> doorToTask = new HashMap<>();
+    /**
+     * Connects each door that connects two level graphs to the manager entity responsible for the
+     * respective graph part.
+     *
+     * <p>This function will find each door that connects tasks and will then add the task to the
+     * door component of the manager component of the task that is associated with the level graph
+     * part.
+     *
+     * <p>The doors will be closed, and the manager will have to open them (normally this will
+     * happen if the task of the manager is set to active).
+     *
+     * <p>The doors will be accessible for the player if both sides of the doors are open.
+     *
+     * @param levelGraphToTask Mapping of the Levelgraphs to the Tasks, so this function knows which
+     *     Task is associated with which level graph.
+     */
+    private static void connectDoorsWithTaskManager(Map<LevelGraph, Task> levelGraphToTask) {
+        Map<Task, Set<DoorTile>> taskToDoor = new HashMap<>();
+        // since all graphs are structurally the same, I just need on graph to start iterate over
+        LevelGraph lg =
+                levelGraphToTask.keySet().stream()
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("No Level-graph given"));
 
-        // TODO find doorTiles
+        // iterate over each node in the level-graph
+        for (LevelNode levelNode : lg.nodes()) {
 
-        // Close Door and connect it with the task manager
-        doorToTask.forEach(
-                new BiConsumer<DoorTile, Task>() {
-                    @Override
-                    public void accept(DoorTile doorTile, Task task) {
-                        doorTile.close();
-                        task.managerEntity()
-                                .ifPresentOrElse(
-                                        entity -> {
-                                            if (entity.isPresent(DoorComponent.class))
-                                                throw new RuntimeException(
-                                                        "The Manager already has a DoorComponen, this shoudld not happen.");
-                                            else
-                                                entity.addComponent(
-                                                        new DoorComponent(Set.of(doorTile)));
-                                        },
-                                        () -> {
-                                            Entity e = new Entity();
-                                            e.addComponent(new TaskComponent(task, e));
-                                            e.addComponent(new DoorComponent(Set.of(doorTile)));
-                                        });
-                    }
+            // find all edges that connect this node to a node of another graph (this is an edge
+            // between tasks)
+            Set<Direction> dirs = levelNode.whereNeighboursFromOtherGraphs();
+
+            // for each edge to another graph, find the door and at it to the Map.
+            for (Direction dir : dirs) {
+                DoorTile door =
+                        GeneratorUtils.doorAt(levelNode.level(), dir)
+                                .orElseThrow(
+                                        () ->
+                                                new RuntimeException(
+                                                        "There should be a door but is not!"));
+                Task t = levelGraphToTask.get(levelNode.originGraph());
+                if (taskToDoor.containsKey(t)) taskToDoor.get(t).add(door);
+                else {
+                    Set<DoorTile> set = new HashSet<>();
+                    set.add(door);
+                    taskToDoor.put(t, set);
+                }
+            }
+        }
+
+        // Close Doors and connect it with the task manager
+        taskToDoor.forEach(
+                (task, doorTiles) -> {
+                    DoorComponent doorComponent = new DoorComponent(doorTiles);
+                    doorTiles.forEach(DoorTile::close);
+                    task.managerEntity()
+                            .ifPresentOrElse(
+                                    entity -> entity.addComponent(doorComponent),
+                                    () -> {
+                                        Entity manager = new Entity();
+                                        manager.addComponent(new TaskComponent(task, manager));
+                                        manager.addComponent(doorComponent);
+                                    });
                 });
     }
 
