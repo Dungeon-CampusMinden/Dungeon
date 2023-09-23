@@ -939,8 +939,15 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitDot_node_stmt(DungeonDSLParser.Dot_node_stmtContext ctx) {
-        // TODO:
+        Node attrList = Node.NONE;
+        if (ctx.dot_attr_list() != null) {
+            attrList = astStack.pop();
+        }
 
+        Node id = astStack.pop();
+
+        Node nodeStmtNode = new DotNodeStmtNode(id, attrList);
+        astStack.push(nodeStmtNode);
     }
 
     @Override
@@ -948,20 +955,27 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitDot_attr_list(DungeonDSLParser.Dot_attr_listContext ctx) {
-        // TODO:
+        LinkedList<Node> attrNodes = new LinkedList<>();
+        for (int i = 0; i < ctx.dot_attr().size(); i++) {
+            Node attr = astStack.pop();
+            attrNodes.addFirst(attr);
+        }
+
+        Node attrListNode = new DotAttrListNode(attrNodes);
+        astStack.push(attrListNode);
     }
 
     @Override
-    public void enterDot_a_list(DungeonDSLParser.Dot_a_listContext ctx) {}
+    public void enterDot_attr(DungeonDSLParser.Dot_attrContext ctx) {
+
+    }
 
     @Override
-    public void exitDot_a_list(DungeonDSLParser.Dot_a_listContext ctx) {
-        // TODO:
-        var rhsList = Node.NONE;
-        if (ctx.dot_a_list() != null) {
-            rhsList = astStack.pop();
-        }
-
+    public void exitDot_attr(DungeonDSLParser.Dot_attrContext ctx) {
+        Node rhsId = astStack.pop();
+        Node lhsId = astStack.pop();
+        var attrNode = new DotAttrNode(lhsId, rhsId);
+        astStack.push(attrNode);
     }
 
     @Override

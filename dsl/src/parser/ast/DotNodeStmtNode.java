@@ -1,7 +1,7 @@
 package parser.ast;
 
 public class DotNodeStmtNode extends Node {
-    public DotNodeStmtNode(IdNode id, DotAttrListNode attrList) {
+    public DotNodeStmtNode(Node id, Node attrList) {
         super(Type.DotNodeStmt);
         addChild(id);
         addChild(attrList);

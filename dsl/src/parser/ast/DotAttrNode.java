@@ -2,7 +2,7 @@ package parser.ast;
 
 public class DotAttrNode extends BinaryNode {
 
-    DotAttrNode(IdNode lhs, IdNode rhs) {
+    public DotAttrNode(Node lhs, Node rhs) {
         super(Type.DotAttr, lhs, rhs);
     }
 
