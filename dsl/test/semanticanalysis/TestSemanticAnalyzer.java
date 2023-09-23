@@ -32,7 +32,7 @@ public class TestSemanticAnalyzer {
         String program =
                 """
                 graph g {
-                    A -- B
+                    A -> B
                 }
                 dungeon_config c {
                     level_graph: g
@@ -67,7 +67,7 @@ public class TestSemanticAnalyzer {
         String program =
                 """
                 graph g {
-                    A -- B
+                    A -> B
                 }
 
                 entity_type c {
@@ -119,7 +119,7 @@ public class TestSemanticAnalyzer {
         String program =
                 """
                 graph g {
-                    A -- B
+                    A -> B
                 }
                 dungeon_config c {
                     level_graph: g
@@ -207,7 +207,7 @@ public class TestSemanticAnalyzer {
         String program =
                 """
                 graph g {
-                    A -- B
+                    A -> B
                 }
                 dungeon_config c {
                     dependency_graph: g

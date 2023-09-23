@@ -21,7 +21,7 @@ public class TestDungeonASTConverter {
     /** Test AST structure of a simple dot definition */
     @Test
     public void testSimpleDotDef() {
-        String program = "graph g { a -- b }";
+        String program = "graph g { a -> b }";
 
         var ast = Helpers.getASTFromString(program);
 
@@ -53,7 +53,7 @@ public class TestDungeonASTConverter {
         assertEquals(Node.Type.DotEdgeOp, edgeOp.type);
 
         var edgeOpNode = (EdgeOpNode) edgeOp;
-        assertEquals(EdgeOpNode.Type.doubleLine, edgeOpNode.getEdgeOpType());
+        assertEquals(EdgeOpNode.Type.arrow, edgeOpNode.getEdgeOpType());
 
         var rhsId = rhsEdgeNode.getIdNode();
         assertEquals(Node.Type.Identifier, rhsId.type);
@@ -67,7 +67,7 @@ public class TestDungeonASTConverter {
      */
     @Test
     public void testChainedEdgeStmt() {
-        String program = "graph g { a -- b -- c }";
+        String program = "graph g { a -> b -> c }";
 
         var ast = Helpers.getASTFromString(program);
 

@@ -313,7 +313,7 @@ public class TestDSLInterpreter {
         String program =
                 """
                 graph g {
-                    A -- B
+                    A -> B
                 }
                 quest_config c {
                     level_graph: g,
@@ -340,7 +340,7 @@ public class TestDSLInterpreter {
         String program =
                 """
                 graph g {
-                    A -- B
+                    A -> B
                 }
 
                 entity_type c {
