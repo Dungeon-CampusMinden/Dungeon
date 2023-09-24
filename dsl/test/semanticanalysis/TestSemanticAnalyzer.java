@@ -772,4 +772,56 @@ public class TestSemanticAnalyzer {
         expectedToBeFunctionScope = declScope.getParent().getParent();
         Assert.assertEquals(funcSymbol, expectedToBeFunctionScope);
     }
+
+    @Test
+    public void testTaskReferenceInGraph() {
+        String program =
+                """
+            single_choice_task t1 {
+                description: "Hello",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 1
+            }
+
+            multiple_choice_task t2 {
+                description: "Tschüss",
+                answers: ["4", "5", "6"],
+                correct_answer_index: [0,1]
+            }
+
+            graph g {
+                t1 -> t2
+            }
+            """;
+
+        // setup
+        var ast = Helpers.getASTFromString(program);
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+
+        TypeBuilder tb = new TypeBuilder();
+        Scope scope = new Scope();
+        var testComponentType = tb.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
+
+        var env = new GameEnvironment();
+        env.loadTypes(testComponentType);
+        symbolTableParser.setup(env);
+        var symbolTable = symbolTableParser.walk(ast).symbolTable;
+
+        Symbol t1TaskSymbol = symbolTable.globalScope.resolve("t1");
+        Symbol t2TaskSymbol = symbolTable.globalScope.resolve("t2");
+
+        DotDefNode dotDefNode = (DotDefNode) ast.getChild(2);
+
+        IdNode t1Reference =
+                (IdNode) ((DotEdgeStmtNode) dotDefNode.getStmtNodes().get(0)).getIds().get(0);
+        var t1Symbol = symbolTable.getSymbolsForAstNode(t1Reference).get(0);
+        Assert.assertNotEquals(Symbol.NULL, t1Symbol);
+        Assert.assertEquals(t1TaskSymbol, t1Symbol);
+
+        IdNode t2Reference =
+                (IdNode) ((DotEdgeStmtNode) dotDefNode.getStmtNodes().get(0)).getIds().get(1);
+        var t2Symbol = symbolTable.getSymbolsForAstNode(t2Reference).get(0);
+        Assert.assertNotEquals(Symbol.NULL, t2Symbol);
+        Assert.assertEquals(t2TaskSymbol, t2Symbol);
+    }
 }
