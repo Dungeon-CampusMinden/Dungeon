@@ -673,6 +673,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(DotDefNode node) {
+        // TODO: should check, that all identifiers actually refer to task definitions
         for (Node stmt : node.getStmtNodes()) {
             stmt.accept(this);
         }
