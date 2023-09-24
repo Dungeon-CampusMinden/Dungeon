@@ -10,4 +10,14 @@ public class DotAttrNode extends BinaryNode {
     public <T> T accept(AstVisitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    public String getLhsIdName() {
+        IdNode lhs = (IdNode)this.getLhs();
+        return lhs.getName();
+    }
+
+    public String getRhsIdName() {
+        IdNode rhs = (IdNode)this.getRhs();
+        return rhs.getName();
+    }
 }

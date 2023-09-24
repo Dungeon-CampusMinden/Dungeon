@@ -959,7 +959,7 @@ public class TestDungeonASTConverter {
         String program =
             """
             graph g {
-                t1 -> t2 -> t3 [type=s]
+                t1 -> t2 [type=s]
             }
             """;
 
@@ -971,7 +971,16 @@ public class TestDungeonASTConverter {
         Assert.assertEquals(Node.Type.DotEdgeStmt, edgeDefinitionNode.type);
 
         DotEdgeStmtNode edgeStmtNode = (DotEdgeStmtNode) edgeDefinitionNode;
+        var attrList = edgeStmtNode.getAttrList();
 
-        boolean b= true;
+        Assert.assertEquals(Node.Type.DotAttrList, attrList.type);
+        DotAttrListNode attrListNode = (DotAttrListNode) attrList;
+
+        var firstAttr = attrListNode.getChildren().get(0);
+        Assert.assertEquals(Node.Type.DotAttr, firstAttr.type);
+
+        DotAttrNode attrNode = (DotAttrNode) firstAttr;
+        Assert.assertEquals("type", attrNode.getLhsIdName());
+        Assert.assertEquals("s", attrNode.getRhsIdName());
     }
 }
