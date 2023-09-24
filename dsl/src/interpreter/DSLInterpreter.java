@@ -1066,7 +1066,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(EdgeStmtNode node) {
+    public Object visit(DotEdgeStmtNode node) {
         return null;
     }
 

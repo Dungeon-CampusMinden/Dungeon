@@ -682,7 +682,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     }
 
     @Override
-    public Void visit(EdgeStmtNode node) {
+    public Void visit(DotEdgeStmtNode node) {
         return null;
     }
 

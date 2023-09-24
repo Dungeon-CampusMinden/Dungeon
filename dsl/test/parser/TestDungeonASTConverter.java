@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import parser.ast.*;
 
+import java.util.List;
+
 // CHECKSTYLE:ON: AvoidStarImport
 
 public class TestDungeonASTConverter {
@@ -35,31 +37,20 @@ public class TestDungeonASTConverter {
 
         var edgeStmt = dot_def.getChild(1);
         assertEquals(Node.Type.DotEdgeStmt, edgeStmt.type);
-        var edgeStmtNode = (EdgeStmtNode) edgeStmt;
+        var edgeStmtNode = (DotEdgeStmtNode) edgeStmt;
 
-        var lhsId = edgeStmtNode.getLhsId();
-        assertEquals(Node.Type.Identifier, lhsId.type);
-        var lhsIdNode = (IdNode) lhsId;
+        List<Node> ids = edgeStmtNode.getIds();
+        Node firstId = ids.get(0);
+
+        assertEquals(Node.Type.Identifier, firstId.type);
+        var lhsIdNode = (IdNode) firstId;
         assertEquals("a", lhsIdNode.getName());
 
-        var rhsStmts = edgeStmtNode.getRhsStmts();
-        assertEquals(1, rhsStmts.size());
+        var secondId = ids.get(1);
+        assertEquals(Node.Type.Identifier, secondId.type);
 
-        var rhsEdge = rhsStmts.get(0);
-        assertEquals(Node.Type.DotEdgeRHS, rhsEdge.type);
-
-        var rhsEdgeNode = (EdgeRhsNode) rhsEdge;
-        var edgeOp = rhsEdgeNode.getEdgeOpNode();
-        assertEquals(Node.Type.DotEdgeOp, edgeOp.type);
-
-        var edgeOpNode = (EdgeOpNode) edgeOp;
-        assertEquals(EdgeOpNode.Type.arrow, edgeOpNode.getEdgeOpType());
-
-        var rhsId = rhsEdgeNode.getIdNode();
-        assertEquals(Node.Type.Identifier, rhsId.type);
-
-        var rhsIdNode = (IdNode) rhsId;
-        assertEquals("b", rhsIdNode.getName());
+        var secondIdNode = (IdNode) secondId;
+        assertEquals("b", secondIdNode.getName());
     }
 
     /**
@@ -76,35 +67,24 @@ public class TestDungeonASTConverter {
 
         var edgeStmt = dot_def.getChild(1);
         assertEquals(Node.Type.DotEdgeStmt, edgeStmt.type);
-        var edgeStmtNode = (EdgeStmtNode) edgeStmt;
+        var edgeStmtNode = (DotEdgeStmtNode) edgeStmt;
 
-        var lhsId = edgeStmtNode.getLhsId();
-        assertEquals(Node.Type.Identifier, lhsId.type);
-        var lhsIdNode = (IdNode) lhsId;
+        var firstId = edgeStmtNode.getIds().get(0);
+        assertEquals(Node.Type.Identifier, firstId.type);
+        var lhsIdNode = (IdNode) firstId;
         assertEquals("a", lhsIdNode.getName());
 
-        var rhsStmts = edgeStmtNode.getRhsStmts();
-        assertEquals(2, rhsStmts.size());
+        var secondId = edgeStmtNode.getIds().get(1);
+        assertEquals(Node.Type.Identifier, secondId.type);
 
-        var rhsEdge = rhsStmts.get(0);
-        assertEquals(Node.Type.DotEdgeRHS, rhsEdge.type);
+        var secondIdNode = (IdNode) secondId;
+        assertEquals("b", secondIdNode.getName());
 
-        var rhsEdgeNode = (EdgeRhsNode) rhsEdge;
-        var rhsId = rhsEdgeNode.getIdNode();
-        assertEquals(Node.Type.Identifier, rhsId.type);
+        var thirdId = edgeStmtNode.getIds().get(2);
+        assertEquals(Node.Type.Identifier, thirdId.type);
 
-        var rhsIdNode = (IdNode) rhsId;
-        assertEquals("b", rhsIdNode.getName());
-
-        rhsEdge = rhsStmts.get(1);
-        assertEquals(Node.Type.DotEdgeRHS, rhsEdge.type);
-
-        rhsEdgeNode = (EdgeRhsNode) rhsEdge;
-        rhsId = rhsEdgeNode.getIdNode();
-        assertEquals(Node.Type.Identifier, rhsId.type);
-
-        rhsIdNode = (IdNode) rhsId;
-        assertEquals("c", rhsIdNode.getName());
+        IdNode thirdIdNode = (IdNode) thirdId;
+        assertEquals("c", thirdIdNode.getName());
     }
 
     /** Test AST of a function call inside a property definition */
@@ -972,5 +952,26 @@ public class TestDungeonASTConverter {
         Assert.assertEquals(1, ((NumNode) setDefinitionNode.getEntries().get(0)).getValue());
         Assert.assertEquals(2, ((NumNode) setDefinitionNode.getEntries().get(1)).getValue());
         Assert.assertEquals(3, ((NumNode) setDefinitionNode.getEntries().get(2)).getValue());
+    }
+
+    @Test
+    public void testGraphEdgeAttribute() {
+        String program =
+            """
+            graph g {
+                t1 -> t2 -> t3 [type=s]
+            }
+            """;
+
+        var ast = Helpers.getASTFromString(program);
+        var dotDefNode = (DotDefNode) ast.getChild(0);
+        var stmts = dotDefNode.getStmtNodes();
+
+        var edgeDefinitionNode = stmts.get(0);
+        Assert.assertEquals(Node.Type.DotEdgeStmt, edgeDefinitionNode.type);
+
+        DotEdgeStmtNode edgeStmtNode = (DotEdgeStmtNode) edgeDefinitionNode;
+
+        boolean b= true;
     }
 }

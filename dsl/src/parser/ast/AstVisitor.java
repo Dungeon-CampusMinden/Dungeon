@@ -91,7 +91,7 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    default T visit(EdgeStmtNode node) {
+    default T visit(DotEdgeStmtNode node) {
         throw new UnsupportedOperationException();
     }
 

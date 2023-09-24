@@ -903,19 +903,22 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             assert (attr_list.type == Node.Type.DotAttrList);
         }
 
+        LinkedList<Node> ids = new LinkedList<>();
+
         // pop all DotEdgeRHS Nodes from the stack and add them to one list
-        LinkedList<Node> rhsEdges = new LinkedList<>();
         for (int i = 0; i < ctx.dot_edge_RHS().size(); i++) {
             var rhs = astStack.pop();
             assert (rhs.type == Node.Type.DotEdgeRHS);
-            rhsEdges.addFirst(rhs);
+            Node idNode = ((EdgeRhsNode)rhs).getIdNode();
+            ids.addFirst(idNode);
         }
 
         // get the first identifier of the statement (left-hand-side)
         var lhsId = astStack.pop();
         assert (lhsId.type == Node.Type.Identifier);
+        ids.addFirst(lhsId);
 
-        var edgeStmtNode = new EdgeStmtNode(lhsId, new ArrayList<>(rhsEdges), attr_list);
+        var edgeStmtNode = new DotEdgeStmtNode(ids, attr_list);
         astStack.push(edgeStmtNode);
     }
 

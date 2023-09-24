@@ -4,7 +4,6 @@ import interpreter.DSLInterpreter;
 import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
-import runtime.IMemorySpace;
 import task.quizquestion.SingleChoice;
 
 import taskdependencygraph.TaskDependencyGraph;
@@ -12,10 +11,7 @@ import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
 import taskdependencygraph.TaskNode;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.*;
 
 public class Interpreter implements AstVisitor<TaskNode> {
     private final DSLInterpreter dslInterpreter;
@@ -111,18 +107,21 @@ public class Interpreter implements AstVisitor<TaskNode> {
     }
 
     @Override
-    public TaskNode visit(EdgeStmtNode node) {
+    public TaskNode visit(DotEdgeStmtNode node) {
         // TODO: add handling of edge-attributes
 
         // node will contain all edge definitions
-        var lhsDotNode = node.getLhsId().accept(this);
+        //var lhsDotNode = node.getLhsId().accept(this);
+        var lhsDotNode = node.getIds().get(0).accept(this);
         TaskNode rhsDotNode = null;
 
-        for (Node edge : node.getRhsStmts()) {
-            assert (edge.type.equals(Node.Type.DotEdgeRHS));
+        List<Node> rhsIds = node.getIds().subList(1, node.getIds().size());
 
-            EdgeRhsNode edgeRhs = (EdgeRhsNode) edge;
-            rhsDotNode = (TaskNode) edgeRhs.getIdNode().accept(this);
+        for (Node id : rhsIds) {
+            assert (id.type.equals(Node.Type.Identifier));
+
+            //EdgeRhsNode edgeRhs = (EdgeRhsNode) edge;
+            rhsDotNode = id.accept(this);
 
             // TODO: parse dependency type correctly (see:
             // https://github.com/Programmiermethoden/Dungeon/issues/520)
