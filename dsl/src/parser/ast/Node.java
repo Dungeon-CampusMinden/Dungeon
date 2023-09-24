@@ -29,7 +29,6 @@ public class Node {
         DotStmt,
         DotEdgeStmt,
         DotEdgeRHS,
-        DotAttrStmt,
         DotNodeStmt,
         DotAttrList,
         DotAttr,
