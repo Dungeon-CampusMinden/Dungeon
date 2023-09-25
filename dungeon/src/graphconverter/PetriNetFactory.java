@@ -57,7 +57,8 @@ public class PetriNetFactory {
                 end_correct,
                 end_false,
                 end,
-                finisehd);
+                finisehd,
+                task);
     }
 
     public static void connect(PetriNet a, PetriNet b, TaskEdge.Type type) {
@@ -84,36 +85,58 @@ public class PetriNetFactory {
                 connectConditionalCorrect(a, b);
                 break;
             default:
-                // Handle unsupported type
-                break;
+                throw new RuntimeException(
+                        "Unsported Edge-Type in TaskDepencyGraph. Can not convert into Petri-Net.");
         }
     }
 
     public static void connectSubtaskMandatory(PetriNet a, PetriNet b) {
-        // Implementation for subtask_mandatory
+        Place helperInput = new Place();
+        Place helperOutput = new Place();
+        b.activateTask().addDependency(helperInput);
+        b.finisehd().addTokenOnFire(helperOutput);
+        a.afterActivated().addTokenOnFire(helperInput);
+        a.activateprocessing().addDependency(helperOutput);
     }
 
     public static void connectSubtaskOptional(PetriNet a, PetriNet b) {
-        // Implementation for subtask_optional
+        Place helperInout = new Place();
+        a.activateprocessing().addTokenOnFire(helperInout);
+        Place helperOutput = new Place();
+        a.finisehd().addTokenOnFire(helperOutput);
+        Place subtaskNotSolvedPlace = new Place();
+        subtaskNotSolvedPlace.changeStateOnTokenAdd(b.task(), Task.TaskState.INACTIVE);
+        new Transition(
+                Set.of(helperOutput, b.processingActivated()), Set.of(subtaskNotSolvedPlace));
     }
 
     public static void connectSequence(PetriNet a, PetriNet b) {
-        // Implementation for sequence
+        // for now this is the same
+        connectSequenceAnd(a, b);
     }
 
     public static void connectSequenceAnd(PetriNet a, PetriNet b) {
-        // Implementation for sequence_and
+        Place helper = new Place();
+        b.finisehd().addTokenOnFire(helper);
+        a.activateTask().addDependency(helper);
     }
 
     public static void connectSequenceOr(PetriNet a, PetriNet b) {
-        // Implementation for sequence_or
+        Place or = new Place();
+        a.activateTask().addDependency(or);
+        Place helper = new Place();
+        b.finisehd().addTokenOnFire(helper);
     }
 
     public static void connectConditionalFalse(PetriNet a, PetriNet b) {
-        // Implementation for conditional_false
+        Place helper = new Place();
+        a.activateTask().addDependency(helper);
+        b.wrong().addTokenOnFire(helper);
     }
 
     public static void connectConditionalCorrect(PetriNet a, PetriNet b) {
-        // Implementation for conditional_correct
+        Place helper = new Place();
+        a.activateTask().addDependency(helper);
+        b.correct().addTokenOnFire(helper);
     }
 }

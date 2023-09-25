@@ -1,5 +1,7 @@
 package petriNet;
 
+import task.Task;
+
 public record PetriNet(
         Place taskNotActivated,
         Transition activateTask,
@@ -14,4 +16,5 @@ public record PetriNet(
         Place end_correct,
         Place end_false,
         Place end,
-        Transition finisehd) {}
+        Transition finisehd,
+        Task task) {}

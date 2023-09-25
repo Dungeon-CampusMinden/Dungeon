@@ -63,4 +63,13 @@ public class Transition {
         this.dependencyPlaces.put(place, place.tokenCount() > 0);
         place.register(this);
     }
+
+    /**
+     * Add a place to add a token to on fire
+     *
+     * @param place add token on fire
+     */
+    public void addTokenOnFire(Place place) {
+        this.addTokenOnFire.add(place);
+    }
 }
