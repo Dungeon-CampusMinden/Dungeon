@@ -1,0 +1,39 @@
+digraph simple {
+
+t_activate_task [shape=square, label="Acticate Task"]
+
+t_after_active[shape=square, label="After Acticate Task"]
+t_activate_bearbeitung [shape=square, label="Activate Bearbeitung"]
+t_beendet_f [shape=square, label="Beendet: Falsch"]
+t_beendet_c [shape=square, label="Beendet: Richtig"]
+t_beendet [shape=square, label="Beendet"]
+p_task_not_active [label="Task not activated", color=red]
+p_task_active [label="Task activated"]
+p_task_bactive [label="Task bearbeitung active"]
+p_task_end [label="Task beendet"]
+p_task_endc [label="Task richtig beendet"]
+p_task_endf [label="Task falsch beendet"]
+
+p_task_endc_input [label="richtig beendet", color=red]
+p_task_endf_input [label="falsch beendet", color=red]
+
+p_filler[label=""]
+
+p_task_not_active->t_activate_task
+t_activate_task->p_task_active
+p_task_active->t_after_active
+t_after_active->p_filler
+p_filler->t_activate_bearbeitung
+t_activate_bearbeitung->p_task_bactive
+p_task_bactive->t_beendet_c
+p_task_bactive->t_beendet_f
+t_beendet_c->p_task_endc
+t_beendet_f->p_task_endf
+p_task_endc_input->t_beendet_c
+p_task_endf_input->t_beendet_f
+t_beendet_c->p_task_end
+t_beendet_f->p_task_end
+p_task_end->t_beendet
+
+
+}
