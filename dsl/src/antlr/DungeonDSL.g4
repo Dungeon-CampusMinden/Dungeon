@@ -230,9 +230,8 @@ primary : ID
  * -------------------- dot related definitions --------------------
  * dot grammar: https://graphviz.org/doc/info/lang.html
  *
- * simplifications:
- * - don't support subgraphs
- * - don't support ports
+ * The regular dot-grammar was heavily simplified to be used as a
+ * definition language for task dependency graphs
  */
 
 dot_def : 'graph' ID '{' dot_stmt_list? '}' ;
