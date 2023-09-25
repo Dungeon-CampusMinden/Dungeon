@@ -86,12 +86,52 @@ public interface AstVisitor<T> {
     }
 
     /**
-     * Visitor method for EdgeStmtNodes
+     * Visitor method for DotEdgeStmtNodes
      *
      * @param node Node to visit
      * @return T
      */
     default T visit(DotEdgeStmtNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for DotAttrNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(DotAttrNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for DotNodeLists
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(DotNodeList node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for DotNodeStmtNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(DotNodeStmtNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for DotAttrListNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(DotAttrListNode node) {
         throw new UnsupportedOperationException();
     }
 

@@ -681,6 +681,13 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     }
 
     @Override
+    public Void visit(DotNodeList node) {
+        // visit all stored IdNodes
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
     public Void visit(EdgeRhsNode node) {
         return null;
     }
