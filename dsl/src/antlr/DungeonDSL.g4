@@ -235,8 +235,7 @@ primary : ID
  * - don't support ports
  */
 
-// TODO: simplify for task dependency use case
-dot_def : graph_type=('graph'|'digraph') ID '{' dot_stmt_list? '}' ;
+dot_def : 'graph' ID '{' dot_stmt_list? '}' ;
 
 dot_stmt_list
         : dot_stmt ';'? dot_stmt_list?
@@ -257,7 +256,7 @@ dot_node_list
         ;
 
 dot_edge_RHS
-        : dot_edge_op dot_node_list
+        : ARROW dot_node_list
         ;
 
 dot_node_stmt
@@ -281,8 +280,4 @@ dependency_type
         | ('c_f'|'conditional_false')   #dt_conditional_false
         | ('seq_and'|'sequence_and')    #dt_sequence_and
         | ('seq_or'|'sequence_or')      #dt_sequence_or
-        ;
-
-dot_edge_op
-        : ARROW
         ;

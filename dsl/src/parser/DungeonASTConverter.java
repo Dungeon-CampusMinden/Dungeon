@@ -824,17 +824,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
      */
     @Override
     public void exitDot_def(DungeonDSLParser.Dot_defContext ctx) {
-        // check, whether all edge_ops are correct for graph type
-        DotDefNode.Type graphType =
-                ctx.graph_type.getText().equals("graph")
-                        ? DotDefNode.Type.graph
-                        : DotDefNode.Type.digraph;
-
-        EdgeOpNode.Type edgeOpType =
-                graphType == DotDefNode.Type.graph
-                        ? EdgeOpNode.Type.doubleLine
-                        : EdgeOpNode.Type.arrow;
-
         // if dot_stmt_list is not empty, it will be on stack
         Node stmtList = Node.NONE;
         if (ctx.dot_stmt_list() != null) {
@@ -842,22 +831,11 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             assert (stmtList.type == Node.Type.DotStmtList);
         }
 
-        // check consistency of used edge operators with graph type
-        for (Node dotStmtList : stmtList.getChildren()) {
-            for (Node dotStmt : dotStmtList.getChildren()) {
-                if (dotStmt.type == Node.Type.DotEdgeRHS
-                        && !((EdgeRhsNode) dotStmt).getEdgeOpType().equals(edgeOpType)) {
-                    // TODO: sensible syntax error message
-                    System.out.println("Wrong syntax");
-                }
-            }
-        }
-
         // graph ID will be on stack
         Node idNode = astStack.pop();
 
         // create dotDefNode and directly add stmts as list
-        DotDefNode dotDef = new DotDefNode(graphType, idNode, stmtList.getChildren());
+        DotDefNode dotDef = new DotDefNode(idNode, stmtList.getChildren());
         astStack.push(dotDef);
     }
 
@@ -1008,28 +986,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         Node lhsId = astStack.pop();
         var attrNode = new DotAttrNode(lhsId, rhsId);
         astStack.push(attrNode);
-    }
-
-
-    @Override
-    public void enterDot_edge_op(DungeonDSLParser.Dot_edge_opContext ctx) {}
-
-    @Override
-    public void exitDot_edge_op(DungeonDSLParser.Dot_edge_opContext ctx) {
-        // get the Node corresponding to the literal operator (arrow or double line)
-        var inner = astStack.pop();
-        assert (inner.type == Node.Type.Arrow || inner.type == Node.Type.DoubleLine);
-
-        // determine EdgeOpType based on literal operator
-        EdgeOpNode.Type edgeOpNodeType;
-        if (inner.type == Node.Type.Arrow) {
-            edgeOpNodeType = EdgeOpNode.Type.arrow;
-        } else {
-            edgeOpNodeType = EdgeOpNode.Type.doubleLine;
-        }
-
-        var node = new EdgeOpNode(inner.getSourceFileReference(), edgeOpNodeType);
-        astStack.push(node);
     }
 
     private SourceFileReference getSourceFileReference(TerminalNode node) {
