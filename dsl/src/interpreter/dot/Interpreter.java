@@ -4,7 +4,9 @@ import interpreter.DSLInterpreter;
 import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
-import task.quizquestion.SingleChoice;
+import runtime.AggregateValue;
+import runtime.Value;
+import task.Task;
 
 import taskdependencygraph.TaskDependencyGraph;
 // CHECKSTYLE:OFF: AvoidStarImport
@@ -15,6 +17,7 @@ import java.util.*;
 
 public class Interpreter implements AstVisitor<TaskNode> {
     private final DSLInterpreter dslInterpreter;
+
     // how to build graph?
     // - need nodes -> hashset, quasi symboltable
     Dictionary<String, TaskNode> graphNodes = new Hashtable<>();
@@ -81,13 +84,15 @@ public class Interpreter implements AstVisitor<TaskNode> {
     @Override
     public TaskNode visit(IdNode node) {
         String name = node.getName();
-        // TODO: resolve name as task definition (see:
-        var task = node.accept(dslInterpreter);
+        var task = (Value)node.accept(dslInterpreter);
 
-        // https://github.com/Programmiermethoden/Dungeon/issues/520)
+        if (!(task.getInternalValue() instanceof Task)) {
+            throw new RuntimeException("Reference to undefined Task '" + name + "'");
+        }
+
         // lookup and create, if not present previously
         if (graphNodes.get(name) == null) {
-            graphNodes.put(name, new TaskNode(new SingleChoice("")));
+            graphNodes.put(name, new TaskNode((Task)task.getInternalValue()));
         }
 
         // return Dot-Node
@@ -106,32 +111,53 @@ public class Interpreter implements AstVisitor<TaskNode> {
         return null;
     }
 
+    protected TaskEdge.Type getEdgeType(DotEdgeStmtNode node) {
+        List<Node> attributes = node.getAttributes();
+        var typeAttributes = attributes.stream().filter(attrNode -> ((DotAttrNode)attrNode).getLhsIdName().equals("type")).toList();
+        if (typeAttributes.size() == 0) {
+            throw new RuntimeException("No type attribute found on graph edge!");
+        } else if (typeAttributes.size() > 1) {
+            throw new RuntimeException("Too many type attributes found on graph edge!");
+        }
+
+        DotDependencyTypeAttrNode attr = (DotDependencyTypeAttrNode) typeAttributes.get(0);
+        return attr.getDependencyType();
+    }
+
+    @Override
+    public TaskNode visit(DotNodeStmtNode node) {
+        visitChildren(node);
+        return null;
+    }
+
     @Override
     public TaskNode visit(DotEdgeStmtNode node) {
-        // TODO: add handling of edge-attributes
+        TaskEdge.Type edgeType = getEdgeType(node);
+
+        // TODO: handle id groups -> do it iteratively
 
         // node will contain all edge definitions
-        //var lhsDotNode = node.getLhsId().accept(this);
-        var lhsDotNode = node.getIds().get(0).accept(this);
-        TaskNode rhsDotNode = null;
+        int i = 0;
+        List<DotNodeList> dotIdGroups = node.getIdGroups();
+        var iter = dotIdGroups.iterator();
+        DotNodeList lhsDotNodeGroup = iter.next();
+        DotNodeList rhsDotNodeGroup;
 
-        List<Node> rhsIds = node.getIds().subList(1, node.getIds().size());
+        do {
+            rhsDotNodeGroup = iter.next();
 
-        for (Node id : rhsIds) {
-            assert (id.type.equals(Node.Type.Identifier));
+            for (Node lhsId : lhsDotNodeGroup.getIdNodes()) {
+                TaskNode taskNodeLhs = lhsId.accept(this);
+                for (Node rhsId : rhsDotNodeGroup.getIdNodes()) {
+                    TaskNode taskNodeRhs = rhsId.accept(this);
 
-            //EdgeRhsNode edgeRhs = (EdgeRhsNode) edge;
-            rhsDotNode = id.accept(this);
+                    var graphEdge = new TaskEdge(edgeType, taskNodeLhs, taskNodeRhs);
+                    graphEdges.put(graphEdge.name(), graphEdge);
+                }
+            }
 
-            // TODO: parse dependency type correctly (see:
-            // https://github.com/Programmiermethoden/Dungeon/issues/520)
-            TaskEdge.Type edgeType = TaskEdge.Type.sequence;
-
-            var graphEdge = new TaskEdge(edgeType, lhsDotNode, rhsDotNode);
-            graphEdges.put(graphEdge.name(), graphEdge);
-
-            lhsDotNode = rhsDotNode;
-        }
+            lhsDotNodeGroup = rhsDotNodeGroup;
+        } while (iter.hasNext());
 
         return null;
     }
