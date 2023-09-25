@@ -7,9 +7,11 @@ import petriNet.Place;
 import semanticanalysis.types.DSLType;
 
 import task.components.TaskComponent;
+import task.components.TaskContentComponent;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -205,6 +207,31 @@ public abstract class Task {
      */
     public static Stream<Task> allTasks() {
         return new HashSet<>(ALL_TASKS).stream();
+    }
+
+    /**
+     * Finds the entity that implements the TaskContentComponent linked to the given TaskContent.
+     *
+     * @param content The task content to find the entity for.
+     * @return The entity that implements the TaskContentComponent linked to the given content.
+     */
+    public Entity find(TaskContent content) {
+        final Entity[] found = {null};
+        entitySets.forEach(
+                set ->
+                        set.forEach(
+                                entity ->
+                                        entity.fetch(TaskContentComponent.class)
+                                                .ifPresent(
+                                                        taskContentComponent -> {
+                                                            if (taskContentComponent.stream()
+                                                                    .collect(Collectors.toSet())
+                                                                    .contains(content)) {
+                                                                found[0] = entity;
+                                                            }
+                                                        })));
+
+        return found[0];
     }
 
     /**
