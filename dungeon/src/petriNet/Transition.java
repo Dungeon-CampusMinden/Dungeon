@@ -53,4 +53,14 @@ public class Transition {
         dependencyPlaces.keySet().forEach(Place::removeToken);
         addTokenOnFire.forEach(Place::placeToken);
     }
+
+    /**
+     * Add a dependency place to this Transition
+     *
+     * @param place place to add
+     */
+    public void addDependency(Place place) {
+        this.dependencyPlaces.put(place, place.tokenCount() > 0);
+        place.register(this);
+    }
 }

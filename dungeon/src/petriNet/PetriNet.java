@@ -1,3 +1,3 @@
 package petriNet;
 
-public class PetriNet {}
+public record PetriNet(Transition activateTask) {}

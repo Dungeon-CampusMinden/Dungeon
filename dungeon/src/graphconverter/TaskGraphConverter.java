@@ -12,6 +12,7 @@ import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 
+import petriNet.PetriNet;
 import petriNet.Place;
 
 import task.Task;
@@ -57,9 +58,9 @@ public class TaskGraphConverter {
      */
     public static ILevel levelGraphFor(TaskDependencyGraph taskGraph) {
         // Map the node of the task-graph to a levelGraph
-        Map<TaskNode, LevelGraph> nodeToLevelGraph = new HashMap<>();
+        Map<TaskNode, LevelGraph> nodeToLevelGraph = new LinkedHashMap<>();
         // used to connect the doors to the task manager later
-        Map<LevelGraph, Task> graphToTask = new HashMap<>();
+        Map<LevelGraph, Task> graphToTask = new LinkedHashMap<>();
         // Create a Level-graph for each Node in the TaskGraph
         taskGraph
                 .nodeIterator()
@@ -196,8 +197,47 @@ public class TaskGraphConverter {
                 });
     }
 
-    // TODO
+    /**
+     * Creates the Petri-Net for the given {@link TaskDependencyGraph}.
+     *
+     * <p>For each Task, a basic Petri net will be created, and then the Petri nets will be
+     * connected based on the task dependency.
+     *
+     * @param taskGraph graph that defines the task dependencies
+     * @return the "start" place; add a token to this place to start the Petri-net logic.
+     * @see PetriNetFactory
+     */
     public static Place petriNetFor(TaskDependencyGraph taskGraph) {
-        return null;
+        Map<TaskNode, PetriNet> noteToNet = new LinkedHashMap<>();
+
+        // create a basic petri net for each task
+        taskGraph
+                .nodeIterator()
+                .forEachRemaining(
+                        taskNode ->
+                                noteToNet.put(
+                                        taskNode, PetriNetFactory.defaultNet(taskNode.task())));
+
+        // connect petri nets
+        taskGraph
+                .edgeIterator()
+                .forEachRemaining(
+                        taskEdge ->
+                                PetriNetFactory.connect(
+                                        noteToNet.get(taskEdge.startNode()),
+                                        noteToNet.get(taskEdge.endNode()),
+                                        taskEdge.edgeType()));
+
+        // find the root petri net and add the "Start"-Place to it.
+        PetriNet rootNet =
+                noteToNet.values().stream()
+                        .findFirst()
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "There should be a Petri Net but is not."));
+        Place start = new Place();
+        rootNet.activateTask().addDependency(start);
+        return start;
     }
 }
