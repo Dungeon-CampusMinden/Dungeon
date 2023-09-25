@@ -10,6 +10,7 @@ import org.junit.Test;
 // CHECKSTYLE:OFF: AvoidStarImport
 
 import parser.ast.*;
+import taskdependencygraph.TaskEdge;
 
 import java.util.List;
 
@@ -950,7 +951,7 @@ public class TestDungeonASTConverter {
         String program =
             """
             graph g {
-                t1 -> t2 [type=s]
+                t1 -> t2 [type=seq]
             }
             """;
 
@@ -968,10 +969,11 @@ public class TestDungeonASTConverter {
         DotAttrListNode attrListNode = (DotAttrListNode) attrList;
 
         var firstAttr = attrListNode.getChildren().get(0);
-        Assert.assertEquals(Node.Type.DotAttr, firstAttr.type);
+        Assert.assertEquals(Node.Type.DotDependencyTypeAttr, firstAttr.type);
 
-        DotAttrNode attrNode = (DotAttrNode) firstAttr;
+        var attrNode = (DotDependencyTypeAttrNode) firstAttr;
         Assert.assertEquals("type", attrNode.getLhsIdName());
-        Assert.assertEquals("s", attrNode.getRhsIdName());
+        Assert.assertEquals("seq", attrNode.getRhsIdName());
+        Assert.assertEquals(TaskEdge.Type.sequence, attrNode.getDependencyType());
     }
 }

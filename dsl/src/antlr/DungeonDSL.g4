@@ -269,7 +269,18 @@ dot_attr_list
         ;
 
 dot_attr
-        : ID '=' ID (';'|',')?
+        : ID '=' ID (';'|',')?                  #dot_attr_id
+        | 'type' '=' dependency_type (';'|',')? #dot_attr_dependency_type
+        ;
+
+dependency_type
+        : ('seq'|'sequence')            #dt_sequence
+        | ('st_m'|'subtask_mandatory')  #dt_subtask_mandatory
+        | ('st_o'|'subtask_optional')   #dt_subtask_optional
+        | ('c_c'|'conditional_correct') #dt_conditional_correct
+        | ('c_f'|'conditional_false')   #dt_conditional_false
+        | ('seq_and'|'sequence_and')    #dt_sequence_and
+        | ('seq_or'|'sequence_or')      #dt_sequence_or
         ;
 
 dot_edge_op

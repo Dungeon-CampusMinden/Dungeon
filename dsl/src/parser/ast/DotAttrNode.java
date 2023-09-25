@@ -1,9 +1,15 @@
 package parser.ast;
 
+import taskdependencygraph.TaskEdge;
+
 public class DotAttrNode extends BinaryNode {
 
     public DotAttrNode(Node lhs, Node rhs) {
         super(Type.DotAttr, lhs, rhs);
+    }
+
+    protected DotAttrNode(Type type, Node lhs, Node rhs) {
+        super(type, lhs, rhs);
     }
 
     @Override
@@ -21,3 +27,4 @@ public class DotAttrNode extends BinaryNode {
         return rhs.getName();
     }
 }
+

@@ -14,6 +14,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 // CHECKSTYLE:OFF: AvoidStarImport
 
 import parser.ast.*;
+import taskdependencygraph.TaskEdge;
 // CHECKSTYLE:ON: AvoidStarImport
 
 import java.util.ArrayList;
@@ -997,17 +998,18 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDot_attr(DungeonDSLParser.Dot_attrContext ctx) {
+    public void enterDot_attr_id(DungeonDSLParser.Dot_attr_idContext ctx) {
 
     }
 
     @Override
-    public void exitDot_attr(DungeonDSLParser.Dot_attrContext ctx) {
+    public void exitDot_attr_id(DungeonDSLParser.Dot_attr_idContext ctx) {
         Node rhsId = astStack.pop();
         Node lhsId = astStack.pop();
         var attrNode = new DotAttrNode(lhsId, rhsId);
         astStack.push(attrNode);
     }
+
 
     @Override
     public void enterDot_edge_op(DungeonDSLParser.Dot_edge_opContext ctx) {}
@@ -1098,4 +1100,96 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitEveryRule(ParserRuleContext ctx) {}
+
+// region dependency_type
+    @Override
+    public void enterDot_attr_dependency_type(DungeonDSLParser.Dot_attr_dependency_typeContext ctx) {
+
+    }
+
+    @Override
+    public void exitDot_attr_dependency_type(DungeonDSLParser.Dot_attr_dependency_typeContext ctx) {
+        var typeNode = astStack.pop();
+        assert typeNode.type.equals(Node.Type.DotDependencyType);
+        var attributeNode = new DotDependencyTypeAttrNode((DotDependencyTypeNode) typeNode);
+        astStack.push(attributeNode);
+    }
+
+    @Override
+    public void enterDt_sequence(DungeonDSLParser.Dt_sequenceContext ctx) {
+
+    }
+
+    @Override
+    public void exitDt_sequence(DungeonDSLParser.Dt_sequenceContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.sequence, text));
+    }
+
+    @Override
+    public void enterDt_subtask_mandatory(DungeonDSLParser.Dt_subtask_mandatoryContext ctx) {
+
+    }
+
+    @Override
+    public void exitDt_subtask_mandatory(DungeonDSLParser.Dt_subtask_mandatoryContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.subtask_mandatory, text));
+    }
+
+    @Override
+    public void enterDt_subtask_optional(DungeonDSLParser.Dt_subtask_optionalContext ctx) {
+
+    }
+
+    @Override
+    public void exitDt_subtask_optional(DungeonDSLParser.Dt_subtask_optionalContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.subtask_optional, text));
+    }
+
+    @Override
+    public void enterDt_conditional_correct(DungeonDSLParser.Dt_conditional_correctContext ctx) {
+
+    }
+
+    @Override
+    public void exitDt_conditional_correct(DungeonDSLParser.Dt_conditional_correctContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.conditional_correct, text));
+    }
+
+    @Override
+    public void enterDt_conditional_false(DungeonDSLParser.Dt_conditional_falseContext ctx) {
+
+    }
+
+    @Override
+    public void exitDt_conditional_false(DungeonDSLParser.Dt_conditional_falseContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.conditional_false, text));
+    }
+
+    @Override
+    public void enterDt_sequence_and(DungeonDSLParser.Dt_sequence_andContext ctx) {
+
+    }
+
+    @Override
+    public void exitDt_sequence_and(DungeonDSLParser.Dt_sequence_andContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.sequence_and, text));
+    }
+
+    @Override
+    public void enterDt_sequence_or(DungeonDSLParser.Dt_sequence_orContext ctx) {
+
+    }
+
+    @Override
+    public void exitDt_sequence_or(DungeonDSLParser.Dt_sequence_orContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.sequence_or, text));
+    }
+// endregion
 }

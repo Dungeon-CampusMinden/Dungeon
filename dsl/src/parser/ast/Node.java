@@ -34,6 +34,8 @@ public class Node {
         DotAttr,
         DotEdgeOp,
         DotNodeList,
+        DotDependencyType,
+        DotDependencyTypeAttr,
         DoubleLine,
         Arrow,
         Number,

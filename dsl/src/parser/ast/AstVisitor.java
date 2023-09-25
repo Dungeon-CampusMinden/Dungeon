@@ -136,6 +136,26 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for DotDependencyTypeNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(DotDependencyTypeNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for DotDependencyTypeAttrNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(DotDependencyTypeAttrNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Visitor method for EdgeOpNodes
      *
      * @param node Node to visit
