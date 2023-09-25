@@ -14,11 +14,9 @@ public class EdgeRhsNode extends Node {
     }
 
     /**
-     * @return The IdNode corresponding to the referenced identifier on the right-hand-side
+     * @return The IdNodeList corresponding to the referenced identifiers on the right-hand-side
      */
-    public Node getIdNode() {
-        return this.getChild(idNodeIdx);
-    }
+    public Node getIdNodeList() { return this.getChild(idNodeIdx); }
 
     /**
      * @return The {@link EdgeOpNode.Type} of the EdgeOperator
@@ -33,10 +31,10 @@ public class EdgeRhsNode extends Node {
      * @param edgeOpNode The EdgeOpNode corresponding to the EdgeOperator
      * @param idNode The IdNode corresponding to teh identifier on the right-hand-side
      */
-    public EdgeRhsNode(Node edgeOpNode, Node idNode) {
+    public EdgeRhsNode(Node edgeOpNode, Node idNodeList) {
         super(Type.DotEdgeRHS, new ArrayList<>(2));
         this.addChild(edgeOpNode);
-        this.addChild(idNode);
+        this.addChild(idNodeList);
     }
 
     @Override

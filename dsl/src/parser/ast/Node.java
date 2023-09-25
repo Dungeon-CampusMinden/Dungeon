@@ -33,6 +33,7 @@ public class Node {
         DotAttrList,
         DotAttr,
         DotEdgeOp,
+        DotNodeList,
         DoubleLine,
         Arrow,
         Number,

@@ -39,17 +39,13 @@ public class TestDungeonASTConverter {
         assertEquals(Node.Type.DotEdgeStmt, edgeStmt.type);
         var edgeStmtNode = (DotEdgeStmtNode) edgeStmt;
 
-        List<Node> ids = edgeStmtNode.getIds();
-        Node firstId = ids.get(0);
+        List<DotNodeList> idGroups = edgeStmtNode.getIdGroups();
+        DotNodeList firstIdGroup = idGroups.get(0);
+        var lhsId = firstIdGroup.getIdNodes().get(0);
+        assertEquals("a", lhsId.getName());
 
-        assertEquals(Node.Type.Identifier, firstId.type);
-        var lhsIdNode = (IdNode) firstId;
-        assertEquals("a", lhsIdNode.getName());
-
-        var secondId = ids.get(1);
-        assertEquals(Node.Type.Identifier, secondId.type);
-
-        var secondIdNode = (IdNode) secondId;
+        var secondIdGroup = idGroups.get(1);
+        var secondIdNode = secondIdGroup.getIdNodes().get(0);
         assertEquals("b", secondIdNode.getName());
     }
 
@@ -69,21 +65,16 @@ public class TestDungeonASTConverter {
         assertEquals(Node.Type.DotEdgeStmt, edgeStmt.type);
         var edgeStmtNode = (DotEdgeStmtNode) edgeStmt;
 
-        var firstId = edgeStmtNode.getIds().get(0);
-        assertEquals(Node.Type.Identifier, firstId.type);
-        var lhsIdNode = (IdNode) firstId;
+        var firstIdGroup = edgeStmtNode.getIdGroups().get(0);
+        var lhsIdNode = (IdNode) firstIdGroup.getIdNodes().get(0);
         assertEquals("a", lhsIdNode.getName());
 
-        var secondId = edgeStmtNode.getIds().get(1);
-        assertEquals(Node.Type.Identifier, secondId.type);
-
-        var secondIdNode = (IdNode) secondId;
+        var secondIdGroup = edgeStmtNode.getIdGroups().get(1);
+        var secondIdNode = (IdNode) secondIdGroup.getIdNodes().get(0);
         assertEquals("b", secondIdNode.getName());
 
-        var thirdId = edgeStmtNode.getIds().get(2);
-        assertEquals(Node.Type.Identifier, thirdId.type);
-
-        IdNode thirdIdNode = (IdNode) thirdId;
+        var thirdIdGroup = edgeStmtNode.getIdGroups().get(2);
+        IdNode thirdIdNode = (IdNode) thirdIdGroup.getIdNodes().get(0);
         assertEquals("c", thirdIdNode.getName());
     }
 
@@ -971,7 +962,7 @@ public class TestDungeonASTConverter {
         Assert.assertEquals(Node.Type.DotEdgeStmt, edgeDefinitionNode.type);
 
         DotEdgeStmtNode edgeStmtNode = (DotEdgeStmtNode) edgeDefinitionNode;
-        var attrList = edgeStmtNode.getAttrList();
+        var attrList = edgeStmtNode.getAttrListNode();
 
         Assert.assertEquals(Node.Type.DotAttrList, attrList.type);
         DotAttrListNode attrListNode = (DotAttrListNode) attrList;

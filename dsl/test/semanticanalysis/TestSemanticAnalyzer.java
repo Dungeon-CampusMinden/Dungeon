@@ -812,14 +812,14 @@ public class TestSemanticAnalyzer {
 
         DotDefNode dotDefNode = (DotDefNode) ast.getChild(2);
 
-        IdNode t1Reference =
-                (IdNode) ((DotEdgeStmtNode) dotDefNode.getStmtNodes().get(0)).getIds().get(0);
+        DotEdgeStmtNode stmtNode = (DotEdgeStmtNode) dotDefNode.getStmtNodes().get(0);
+
+        IdNode t1Reference = stmtNode.getIdGroups().get(0).getIdNodes().get(0);
         var t1Symbol = symbolTable.getSymbolsForAstNode(t1Reference).get(0);
         Assert.assertNotEquals(Symbol.NULL, t1Symbol);
         Assert.assertEquals(t1TaskSymbol, t1Symbol);
 
-        IdNode t2Reference =
-                (IdNode) ((DotEdgeStmtNode) dotDefNode.getStmtNodes().get(0)).getIds().get(1);
+        IdNode t2Reference = stmtNode.getIdGroups().get(1).getIdNodes().get(0);
         var t2Symbol = symbolTable.getSymbolsForAstNode(t2Reference).get(0);
         Assert.assertNotEquals(Symbol.NULL, t2Symbol);
         Assert.assertEquals(t2TaskSymbol, t2Symbol);
@@ -865,14 +865,14 @@ public class TestSemanticAnalyzer {
 
         DotDefNode dotDefNode = (DotDefNode) ast.getChild(0);
 
-        IdNode t1Reference =
-            (IdNode) ((DotEdgeStmtNode) dotDefNode.getStmtNodes().get(0)).getIds().get(0);
+        DotEdgeStmtNode stmtNode = (DotEdgeStmtNode) dotDefNode.getStmtNodes().get(0);
+
+        IdNode t1Reference = stmtNode.getIdGroups().get(0).getIdNodes().get(0);
         var t1Symbol = symbolTable.getSymbolsForAstNode(t1Reference).get(0);
         Assert.assertNotEquals(Symbol.NULL, t1Symbol);
         Assert.assertEquals(t1TaskSymbol, t1Symbol);
 
-        IdNode t2Reference =
-            (IdNode) ((DotEdgeStmtNode) dotDefNode.getStmtNodes().get(0)).getIds().get(1);
+        IdNode t2Reference = stmtNode.getIdGroups().get(1).getIdNodes().get(0);
         var t2Symbol = symbolTable.getSymbolsForAstNode(t2Reference).get(0);
         Assert.assertNotEquals(Symbol.NULL, t2Symbol);
         Assert.assertEquals(t2TaskSymbol, t2Symbol);

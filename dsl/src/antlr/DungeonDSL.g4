@@ -248,11 +248,16 @@ dot_stmt
         ;
 
 dot_edge_stmt
-        : ID dot_edge_RHS+ dot_attr_list?
+        : dot_node_list dot_edge_RHS+ dot_attr_list?
+        ;
+
+dot_node_list
+        : ID ',' dot_node_list
+        | ID
         ;
 
 dot_edge_RHS
-        : dot_edge_op ID
+        : dot_edge_op dot_node_list
         ;
 
 dot_node_stmt
