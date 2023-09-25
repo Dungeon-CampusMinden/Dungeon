@@ -85,18 +85,16 @@ public abstract class Task {
      * <p>Each registered {@link Place} will be notified.
      *
      * <p>A {@link TaskState#ACTIVE} cannot be changed to {@link TaskState#INACTIVE}, and a {@link
-     * TaskState#FINISHED_PERFECT} or {@link * TaskState#FINISHED_OKAY} or {@link *
-     * TaskState#FINISHED_BAD} cannot be changed to {@link TaskState#ACTIVE} or {@link
-     * TaskState#INACTIVE}.
+     * TaskState#FINISHED_CORRECT} or {@link TaskState#FINISHED_WRONG}} cannot be changed to {@link
+     * TaskState#ACTIVE} or {@link TaskState#INACTIVE}.
      *
      * @param state The new state of the task.
      * @return true if the state was changed successfully, false if not.
      */
     public boolean state(final TaskState state) {
         if (this.state == state
-                || this.state == TaskState.FINISHED_BAD
-                || this.state == TaskState.FINISHED_OKAY
-                || this.state == TaskState.FINISHED_PERFECT) return false;
+                || this.state == TaskState.FINISHED_CORRECT
+                || this.state == TaskState.FINISHED_WRONG) return false;
         if (this.state == TaskState.ACTIVE && state == TaskState.INACTIVE) return false;
         this.state = state;
 
@@ -250,8 +248,8 @@ public abstract class Task {
     public enum TaskState {
         ACTIVE,
         INACTIVE,
-        FINISHED_PERFECT,
-        FINISHED_OKAY,
-        FINISHED_BAD
+        PROCESSING_ACTIVE,
+        FINISHED_CORRECT,
+        FINISHED_WRONG;
     }
 }
