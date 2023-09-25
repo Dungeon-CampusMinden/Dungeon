@@ -17,6 +17,8 @@ import org.junit.Test;
 import task.components.DoorComponent;
 import task.components.TaskComponent;
 
+import java.util.Set;
+
 public class TaskContentDoorOpenerTest {
 
     private Task task;
@@ -41,7 +43,7 @@ public class TaskContentDoorOpenerTest {
         DoorTile door =
                 null; // = GeneratorUtils.doorAt(tuple.a().level(), tuple.b()).orElseThrow();
         door.close();
-        DoorComponent dc = new DoorComponent(door);
+        DoorComponent dc = new DoorComponent(Set.of(door));
         manager.addComponent(dc);
         taskComponent.onActivate(TaskComponent.DOOR_OPENER);
         task.state(Task.TaskState.ACTIVE);

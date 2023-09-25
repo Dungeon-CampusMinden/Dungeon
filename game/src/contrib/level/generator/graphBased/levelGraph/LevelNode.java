@@ -233,10 +233,33 @@ public class LevelNode {
      */
     protected List<Direction> freeDirections() {
         List<Direction> freeDirections = new ArrayList<>();
-        if (neighbours[Direction.NORTH.value()] == null) freeDirections.add(Direction.NORTH);
-        if (neighbours[Direction.EAST.value()] == null) freeDirections.add(Direction.EAST);
-        if (neighbours[Direction.SOUTH.value()] == null) freeDirections.add(Direction.SOUTH);
-        if (neighbours[Direction.WEST.value()] == null) freeDirections.add(Direction.WEST);
+        for (Direction direction : Direction.values()) {
+            int directionValue = direction.value();
+            if (neighbours[directionValue] == null) {
+                freeDirections.add(direction);
+            }
+        }
         return freeDirections;
+    }
+
+    /**
+     * Retrieves a set of directions indicating neighboring nodes from other graphs.
+     *
+     * <p>This method iterates through all possible directions and checks if the neighbor in that
+     * direction belongs to a different graph than the current node's graph. If a neighbor from
+     * another graph is found in a particular direction, that direction is added to the result set.
+     *
+     * @return A {@code Set} of directions indicating neighboring nodes from other graphs.
+     */
+    public Set<Direction> whereNeighboursFromOtherGraphs() {
+        Set<Direction> dirs = new HashSet<>();
+        for (Direction direction : Direction.values()) {
+            int directionValue = direction.value();
+            if (neighbours[directionValue] != null
+                    && neighbours[directionValue].originGraph() != originGraph) {
+                dirs.add(direction);
+            }
+        }
+        return dirs;
     }
 }
