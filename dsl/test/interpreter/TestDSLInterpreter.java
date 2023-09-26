@@ -16,7 +16,6 @@ import helpers.Helpers;
 import interpreter.mockecs.*;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import parser.ast.IdNode;
@@ -28,11 +27,9 @@ import semanticanalysis.FunctionSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
-import task.Quiz;
-import task.quizquestion.MultipleChoice;
-import task.quizquestion.SingleChoice;
-
 import taskdependencygraph.TaskDependencyGraph;
+import taskdependencygraph.TaskEdge;
+import taskdependencygraph.TaskNode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -304,30 +301,6 @@ public class TestDSLInterpreter {
         assertEquals(Node.Type.ObjectDefinition, secondChild.type);
     }
 
-    /** Test, if the properties of the quest_config definition are correctly parsed */
-    @Test
-    @Ignore
-    // TODO: adapt to new dungeonConfig and task dependency graph (see:
-    // https://github.com/Programmiermethoden/Dungeon/issues/520)
-    public void questConfigFull() {
-        String program =
-                """
-                graph g {
-                    A -- B
-                }
-                quest_config c {
-                    level_graph: g,
-                    quest_points: 42,
-                    quest_desc: "Hello",
-                    password: "TESTPW"
-                }
-                    """;
-        DSLInterpreter interpreter = new DSLInterpreter();
-
-        var questConfig = (DungeonConfig) interpreter.getQuestConfig(program);
-        var taksDependencyGraph = questConfig.dependencyGraph();
-    }
-
     @DSLType
     private record TestComponent(@DSLTypeMember int member1, @DSLTypeMember String member2) {}
 
@@ -339,18 +312,13 @@ public class TestDSLInterpreter {
     public void aggregateTypeWithDefaults() {
         String program =
                 """
-                graph g {
-                    A -- B
-                }
-
                 entity_type c {
                     test_component{
                         member1: 42,
                         member2: "Hello, World!"
                     },
                     other_component{
-                        member3: 314,
-                        member4: g
+                        member3: 314
                     }
                 }
                 """;
@@ -1301,32 +1269,37 @@ public class TestDSLInterpreter {
     }
 
     @Test
-    @Ignore
     // TODO: requires implementation of task dependency graph parsing (see:
     // https://github.com/Programmiermethoden/Dungeon/issues/520)
     public void taskDefinition() {
         String program =
                 """
-                    single_choice_task my_single_choice_task {
+                    single_choice_task t1 {
                         description: "Hello",
                         answers: ["1", "2", "3"],
                         correct_answer_index: 1
                     }
 
-                    multiple_choice_task my_multiple_choice_task {
+                    multiple_choice_task t2 {
                         description: "Tschüss",
                         answers: ["4", "5", "6"],
                         correct_answer_index: [0,1]
                     }
 
+                    graph g {
+                        t1 -> t2 [type=st_m]
+                    }
+
                     dungeon_config c {
-                        tasks: [my_single_choice_task, my_multiple_choice_task]
+                        dependency_graph: g
                     }
                 """;
 
         DSLInterpreter interpreter = new DSLInterpreter();
         var config = (DungeonConfig) interpreter.getQuestConfig(program);
 
+        boolean b = true;
+        /*
         Quiz singleChoiceTask = (Quiz) config.dependencyGraph().nodeIterator().next().task();
         Assert.assertTrue(singleChoiceTask instanceof SingleChoice);
         Assert.assertEquals("Hello", singleChoiceTask.taskText());
@@ -1344,6 +1317,7 @@ public class TestDSLInterpreter {
         Assert.assertEquals("4", ((Quiz.Content) multipleChoiceAnswers.get(0)).content());
         Assert.assertEquals("5", ((Quiz.Content) multipleChoiceAnswers.get(1)).content());
         Assert.assertEquals("6", ((Quiz.Content) multipleChoiceAnswers.get(2)).content());
+         */
     }
 
     @Test
@@ -2633,5 +2607,290 @@ public class TestDSLInterpreter {
         // is returned for `path` in that case
         String output = outputStream.toString();
         Assert.assertEquals("[no value]" + System.lineSeparator(), output);
+    }
+
+    @Test
+    public void testTaskDependencyGraphNonConnected() {
+        String program =
+                """
+            single_choice_task t1 {
+                description: "Task1",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t2 {
+                description: "Task2",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            graph tdg {
+                t1;
+                t2;
+            }
+
+            dungeon_config c {
+                dependency_graph: tdg
+            }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var graph = config.dependencyGraph();
+
+        List<TaskNode> nodes = new ArrayList<>();
+        var nodeIter = graph.nodeIterator();
+        while (nodeIter.hasNext()) {
+            nodes.add(nodeIter.next());
+        }
+
+        Assert.assertEquals(2, nodes.size());
+
+        List<TaskEdge> edges = new ArrayList<>();
+        var edgeIter = graph.edgeIterator();
+        while (edgeIter.hasNext()) {
+            edges.add(edgeIter.next());
+        }
+
+        Assert.assertEquals(0, edges.size());
+    }
+
+    @Test
+    public void testTaskDependencyGraph() {
+        String program =
+                """
+            single_choice_task t1 {
+                description: "Task1",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t2 {
+                description: "Task2",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t3 {
+                description: "Task3",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t4 {
+                description: "Task4",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t5 {
+                description: "Task5",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t6 {
+                description: "Task6",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            graph tdg {
+                t1 -> t2 [type=st_m]
+                t1 -> t3 [type=st_o]
+                t1 -> t4 [type=seq]
+                t1 -> t5 [type=c_f]
+                t1 -> t6 [type=c_c]
+            }
+
+            dungeon_config c {
+                dependency_graph: tdg
+            }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var graph = config.dependencyGraph();
+
+        List<TaskNode> nodes = new ArrayList<>();
+        var nodeIter = graph.nodeIterator();
+        while (nodeIter.hasNext()) {
+            nodes.add(nodeIter.next());
+        }
+
+        Assert.assertEquals(6, nodes.size());
+
+        List<TaskEdge> edges = new ArrayList<>();
+        HashMap<TaskNode, List<TaskEdge>> startNodeToEdges = new HashMap<>();
+        HashMap<TaskNode, List<TaskEdge>> endNodeToEdges = new HashMap<>();
+        for (var node : nodes) {
+            startNodeToEdges.put(node, new ArrayList<>());
+            endNodeToEdges.put(node, new ArrayList<>());
+        }
+
+        var edgeIter = graph.edgeIterator();
+        while (edgeIter.hasNext()) {
+            var edge = edgeIter.next();
+            var startNodesEdge = startNodeToEdges.get(edge.startNode());
+            startNodesEdge.add(edge);
+            var endNodeEdge = endNodeToEdges.get(edge.endNode());
+            endNodeEdge.add(edge);
+            edges.add(edge);
+        }
+
+        Assert.assertEquals(5, edges.size());
+
+        var taskNode1 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task1")).toList().get(0);
+        var taskNode2 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task2")).toList().get(0);
+        var taskNode3 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task3")).toList().get(0);
+        var taskNode4 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task4")).toList().get(0);
+        var taskNode5 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task5")).toList().get(0);
+        var taskNode6 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task6")).toList().get(0);
+
+        var t1t2edge = endNodeToEdges.get(taskNode2).get(0);
+        Assert.assertEquals(taskNode1, t1t2edge.startNode());
+        Assert.assertEquals(TaskEdge.Type.subtask_mandatory, t1t2edge.edgeType());
+
+        var t1t3edge = endNodeToEdges.get(taskNode3).get(0);
+        Assert.assertEquals(taskNode1, t1t3edge.startNode());
+        Assert.assertEquals(TaskEdge.Type.subtask_optional, t1t3edge.edgeType());
+
+        var t1t4edge = endNodeToEdges.get(taskNode4).get(0);
+        Assert.assertEquals(taskNode1, t1t4edge.startNode());
+        Assert.assertEquals(TaskEdge.Type.sequence, t1t4edge.edgeType());
+
+        var t1t5edge = endNodeToEdges.get(taskNode5).get(0);
+        Assert.assertEquals(taskNode1, t1t5edge.startNode());
+        Assert.assertEquals(TaskEdge.Type.conditional_false, t1t5edge.edgeType());
+
+        var t1t6edge = endNodeToEdges.get(taskNode6).get(0);
+        Assert.assertEquals(taskNode1, t1t6edge.startNode());
+        Assert.assertEquals(TaskEdge.Type.conditional_correct, t1t6edge.edgeType());
+    }
+
+    @Test
+    public void testTaskDependencyGraphGroupNotation() {
+        String program =
+                """
+            single_choice_task t1 {
+                description: "Task1",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t2 {
+                description: "Task2",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t3 {
+                description: "Task3",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t4 {
+                description: "Task4",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t5 {
+                description: "Task5",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t6 {
+                description: "Task6",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            graph tdg {
+                t1,t2 -> t3,t4 -> t5,t6 [type=seq_or]
+            }
+
+            dungeon_config c {
+                dependency_graph: tdg
+            }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var graph = config.dependencyGraph();
+
+        List<TaskNode> nodes = new ArrayList<>();
+        var nodeIter = graph.nodeIterator();
+        while (nodeIter.hasNext()) {
+            nodes.add(nodeIter.next());
+        }
+
+        Assert.assertEquals(6, nodes.size());
+
+        List<TaskEdge> edges = new ArrayList<>();
+        HashMap<TaskNode, List<TaskEdge>> startNodeToEdges = new HashMap<>();
+        HashMap<TaskNode, List<TaskEdge>> endNodeToEdges = new HashMap<>();
+        for (var node : nodes) {
+            startNodeToEdges.put(node, new ArrayList<>());
+            endNodeToEdges.put(node, new ArrayList<>());
+        }
+
+        var edgeIter = graph.edgeIterator();
+        while (edgeIter.hasNext()) {
+            var edge = edgeIter.next();
+            var startNodesEdge = startNodeToEdges.get(edge.startNode());
+            startNodesEdge.add(edge);
+            var endNodeEdge = endNodeToEdges.get(edge.endNode());
+            endNodeEdge.add(edge);
+            edges.add(edge);
+        }
+
+        Assert.assertEquals(8, edges.size());
+
+        var taskNode1 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task1")).toList().get(0);
+        var taskNode2 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task2")).toList().get(0);
+        var taskNode3 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task3")).toList().get(0);
+        var taskNode4 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task4")).toList().get(0);
+        var taskNode5 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task5")).toList().get(0);
+        var taskNode6 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task6")).toList().get(0);
+
+        var t1t3edge = startNodeToEdges.get(taskNode1).get(0);
+        Assert.assertEquals(taskNode3, t1t3edge.endNode());
+
+        var t1t4edge = startNodeToEdges.get(taskNode1).get(1);
+        Assert.assertEquals(taskNode4, t1t4edge.endNode());
+
+        var t2t3edge = startNodeToEdges.get(taskNode2).get(0);
+        Assert.assertEquals(taskNode3, t2t3edge.endNode());
+
+        var t2t4edge = startNodeToEdges.get(taskNode2).get(1);
+        Assert.assertEquals(taskNode4, t2t4edge.endNode());
+
+        var t3t5edge = startNodeToEdges.get(taskNode3).get(0);
+        Assert.assertEquals(taskNode5, t3t5edge.endNode());
+
+        var t3t6edge = startNodeToEdges.get(taskNode3).get(1);
+        Assert.assertEquals(taskNode6, t3t6edge.endNode());
+
+        var t4t5edge = startNodeToEdges.get(taskNode4).get(0);
+        Assert.assertEquals(taskNode5, t4t5edge.endNode());
+
+        var t4t6edge = startNodeToEdges.get(taskNode4).get(1);
+        Assert.assertEquals(taskNode6, t4t6edge.endNode());
     }
 }

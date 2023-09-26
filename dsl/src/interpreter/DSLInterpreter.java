@@ -174,16 +174,43 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
         }
 
+        Set<Map.Entry<Symbol, Value>> graphDefinitions = new HashSet<>();
+
         for (var entry : globalValues.entrySet()) {
             Symbol symbol = entry.getKey();
+            if (symbol.getDataType().equals(BuiltInType.graphType)) {
+                // store the graph definition; currently, we cannot ensure,
+                // that all tasks, which are referenced in the graph, are evaluated
+                // at this point -> store the graph definition for later and
+                // iterate over all graph definitions afterward, when all other
+                // definitions where evaluated -> a 'clean' solution for this problem
+                // requires some kind of symbolic execution in order to check for
+                // dependencies between different kinds of object definitions in the
+                // global scope
+                graphDefinitions.add(entry);
+                continue;
+            }
+
             // TODO: this is a temporary solution
-            if (!symbol.getDataType().getName().equals("quest_config")) {
+            if (!symbol.getDataType().getName().equals("quest_config")
+                    && !symbol.getDataType().getName().equals("dungeon_config")) {
                 Node astNode = symbolTable().getCreationAstNode(symbol);
                 if (astNode != Node.NONE) {
                     Value valueToAssign = (Value) astNode.accept(this);
                     Value assignee = entry.getValue();
                     setValue(assignee, valueToAssign);
                 }
+            }
+        }
+
+        // evaluate global graph definitions
+        for (var entry : graphDefinitions) {
+            Symbol symbol = entry.getKey();
+            Node astNode = symbolTable().getCreationAstNode(symbol);
+            if (astNode != Node.NONE) {
+                Value valueToAssign = (Value) astNode.accept(this);
+                Value assignee = entry.getValue();
+                setValue(assignee, valueToAssign);
             }
         }
     }
@@ -276,7 +303,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         for (var node : programAST.getChildren()) {
             if (node.type == Node.Type.ObjectDefinition) {
                 var objDefNode = (ObjectDefNode) node;
-                if (objDefNode.getTypeSpecifierName().equals("quest_config")) {
+                if (objDefNode.getTypeSpecifierName().equals("quest_config")
+                        || objDefNode.getTypeSpecifierName().equals("dungeon_config")) {
                     return objDefNode.accept(this);
                 }
             }
@@ -473,7 +501,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(DotDefNode node) {
-        Interpreter dotInterpreter = new Interpreter();
+        Interpreter dotInterpreter = new Interpreter(this);
+        var ms = getGlobalMemorySpace();
         var graph = dotInterpreter.getGraph(node);
         return new Value(BuiltInType.graphType, graph);
     }
@@ -1065,7 +1094,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(EdgeStmtNode node) {
+    public Object visit(DotEdgeStmtNode node) {
         return null;
     }
 

@@ -3,7 +3,7 @@ package parser.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EdgeStmtNode extends Node {
+public class DotEdgeStmtNode extends Node {
     private final int lhsIdIdx = 0;
 
     private final int rhsStmtsStartIdx = 1;
@@ -12,39 +12,38 @@ public class EdgeStmtNode extends Node {
     /**
      * Constructor
      *
-     * @param lhsID The {@link IdNode} corresponding to the identifier on the left-hand-side
-     * @param rhsStmts A list of all following {@link EdgeRhsNode}s of the statement
+     * @param idGroups A list of all {@link IdNode}s of the statement in order
      * @param attrList The {@link Node} corresponding to the attribute list of the statement (or
      *     'Node.NONE', if there is no attribute list)
      */
-    public EdgeStmtNode(Node lhsID, ArrayList<Node> rhsStmts, Node attrList) {
+    public DotEdgeStmtNode(List<Node> idGroups, Node attrList) {
         super(Type.DotEdgeStmt, new ArrayList<>());
-        this.addChild(lhsID);
-        rhsStmts.forEach(this::addChild);
+        idGroups.forEach(this::addChild);
         this.attrListIdx = this.getChildren().size();
         this.addChild(attrList);
     }
 
     /**
-     * @return The {@link IdNode} corresponding to the identifier on the left-hand-side
+     * Returns a list of the stored DotIdList-Nodes, in order of definition
+     *
+     * @return a list of the stored DotIdList-Nodes
      */
-    public Node getLhsId() {
-        return this.getChild(lhsIdIdx);
-    }
-
-    /**
-     * @return A list of {@link EdgeRhsNode}s of the statement
-     */
-    public List<Node> getRhsStmts() {
-        return this.getChildren().subList(rhsStmtsStartIdx, attrListIdx);
+    public List<DotIdList> getIdLists() {
+        return this.getChildren().subList(0, attrListIdx).stream()
+                .map(node -> (DotIdList) node)
+                .toList();
     }
 
     /**
      * @return The {@link Node} corresponding to the attribute list of the statement (or
      *     'Node.NONE', if there is no attribute list)
      */
-    public Node getAttrList() {
+    public Node getAttrListNode() {
         return this.getChild(attrListIdx);
+    }
+
+    public List<Node> getAttributes() {
+        return this.getChild(attrListIdx).getChildren();
     }
 
     @Override
