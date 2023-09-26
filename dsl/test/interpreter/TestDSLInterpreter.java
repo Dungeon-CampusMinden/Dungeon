@@ -306,30 +306,6 @@ public class TestDSLInterpreter {
         assertEquals(Node.Type.ObjectDefinition, secondChild.type);
     }
 
-    /** Test, if the properties of the quest_config definition are correctly parsed */
-    @Test
-    @Ignore
-    // TODO: adapt to new dungeonConfig and task dependency graph (see:
-    // https://github.com/Programmiermethoden/Dungeon/issues/520)
-    public void questConfigFull() {
-        String program =
-                """
-                graph g {
-                    A -> B
-                }
-                quest_config c {
-                    level_graph: g,
-                    quest_points: 42,
-                    quest_desc: "Hello",
-                    password: "TESTPW"
-                }
-                    """;
-        DSLInterpreter interpreter = new DSLInterpreter();
-
-        var questConfig = (DungeonConfig) interpreter.getQuestConfig(program);
-        var taksDependencyGraph = questConfig.dependencyGraph();
-    }
-
     @DSLType
     private record TestComponent(@DSLTypeMember int member1, @DSLTypeMember String member2) {}
 
