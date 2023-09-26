@@ -133,10 +133,6 @@ public class Interpreter implements AstVisitor<TaskNode> {
     public TaskNode visit(DotEdgeStmtNode node) {
         TaskEdge.Type edgeType = getEdgeType(node);
 
-        // TODO: handle id groups -> do it iteratively
-
-        // node will contain all edge definitions
-        int i = 0;
         List<DotIdList> dotIdLists = node.getIdLists();
         var iter = dotIdLists.iterator();
         DotIdList lhsDotIdList = iter.next();
