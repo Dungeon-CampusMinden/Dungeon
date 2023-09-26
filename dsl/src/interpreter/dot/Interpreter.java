@@ -4,7 +4,6 @@ import interpreter.DSLInterpreter;
 import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
-import runtime.AggregateValue;
 import runtime.Value;
 import task.Task;
 
@@ -138,17 +137,17 @@ public class Interpreter implements AstVisitor<TaskNode> {
 
         // node will contain all edge definitions
         int i = 0;
-        List<DotNodeList> dotIdGroups = node.getIdGroups();
-        var iter = dotIdGroups.iterator();
-        DotNodeList lhsDotNodeGroup = iter.next();
-        DotNodeList rhsDotNodeGroup;
+        List<DotIdList> dotIdLists = node.getIdLists();
+        var iter = dotIdLists.iterator();
+        DotIdList lhsDotIdList = iter.next();
+        DotIdList rhsDotIdList;
 
         do {
-            rhsDotNodeGroup = iter.next();
+            rhsDotIdList = iter.next();
 
-            for (Node lhsId : lhsDotNodeGroup.getIdNodes()) {
+            for (Node lhsId : lhsDotIdList.getIdNodes()) {
                 TaskNode taskNodeLhs = lhsId.accept(this);
-                for (Node rhsId : rhsDotNodeGroup.getIdNodes()) {
+                for (Node rhsId : rhsDotIdList.getIdNodes()) {
                     TaskNode taskNodeRhs = rhsId.accept(this);
 
                     var graphEdge = new TaskEdge(edgeType, taskNodeLhs, taskNodeRhs);
@@ -156,7 +155,7 @@ public class Interpreter implements AstVisitor<TaskNode> {
                 }
             }
 
-            lhsDotNodeGroup = rhsDotNodeGroup;
+            lhsDotIdList = rhsDotIdList;
         } while (iter.hasNext());
 
         return null;

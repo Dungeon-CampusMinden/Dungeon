@@ -895,7 +895,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         // get the first identifier of the statement (left-hand-side)
         var lhsIdNodeList = astStack.pop();
-        assert (lhsIdNodeList.type == Node.Type.DotNodeList);
+        assert (lhsIdNodeList.type == Node.Type.DotIdList);
         ids.addFirst(lhsIdNodeList);
 
         var edgeStmtNode = new DotEdgeStmtNode(ids, attr_list);
@@ -912,7 +912,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         Node nodeToPush;
         if (ctx.dot_node_list() != null) {
             Node rhsNodeList = astStack.pop();
-            assert rhsNodeList.type.equals(Node.Type.DotNodeList);
+            assert rhsNodeList.type.equals(Node.Type.DotIdList);
             List<Node> rhsChildren = rhsNodeList.getChildren();
 
             Node lhsIdNode = astStack.pop();
@@ -921,10 +921,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             ArrayList<Node> idNodes = new ArrayList<>(rhsChildren.size() + 1);
             idNodes.add(lhsIdNode);
             idNodes.addAll(rhsChildren);
-            nodeToPush = new DotNodeList(idNodes);
+            nodeToPush = new DotIdList(idNodes);
         } else {
             Node id = astStack.pop();
-            nodeToPush = new DotNodeList(List.of(id));
+            nodeToPush = new DotIdList(List.of(id));
         }
         astStack.push(nodeToPush);
     }

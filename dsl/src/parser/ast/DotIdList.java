@@ -2,7 +2,7 @@ package parser.ast;
 
 import java.util.List;
 
-public class DotNodeList extends Node {
+public class DotIdList extends Node {
 
     public List<IdNode> getIdNodes() {
         return this.getChildren().stream().map(node -> (IdNode) node).toList();
@@ -12,8 +12,8 @@ public class DotNodeList extends Node {
         return this.getIdNodes().stream().map(idNode -> idNode.getName()).toList();
     }
 
-    public DotNodeList(List<Node> idNodes) {
-        super(Type.DotNodeList);
+    public DotIdList(List<Node> idNodes) {
+        super(Type.DotIdList);
         idNodes.forEach(this::addChild);
     }
 

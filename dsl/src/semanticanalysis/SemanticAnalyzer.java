@@ -687,7 +687,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     }
 
     @Override
-    public Void visit(DotNodeList node) {
+    public Void visit(DotIdList node) {
         // visit all stored IdNodes
         visitChildren(node);
         return null;
@@ -700,7 +700,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(DotEdgeStmtNode node) {
-        for (Node id : node.getIdGroups()) {
+        for (Node id : node.getIdLists()) {
             id.accept(this);
         }
         return null;

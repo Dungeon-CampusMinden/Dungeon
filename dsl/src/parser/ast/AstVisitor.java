@@ -111,7 +111,7 @@ public interface AstVisitor<T> {
      * @param node Node to visit
      * @return T
      */
-    default T visit(DotNodeList node) {
+    default T visit(DotIdList node) {
         throw new UnsupportedOperationException();
     }
 

@@ -24,8 +24,8 @@ public class DotEdgeStmtNode extends Node {
     }
 
     // TODO: javadoc
-    public List<DotNodeList> getIdGroups() {
-        return this.getChildren().subList(0, attrListIdx).stream().map(node -> (DotNodeList)node).toList();
+    public List<DotIdList> getIdLists() {
+        return this.getChildren().subList(0, attrListIdx).stream().map(node -> (DotIdList)node).toList();
     }
 
     /**
