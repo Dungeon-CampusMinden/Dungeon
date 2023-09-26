@@ -8,10 +8,6 @@ public class DotIdList extends Node {
         return this.getChildren().stream().map(node -> (IdNode) node).toList();
     }
 
-    public List<String> getIdNames() {
-        return this.getIdNodes().stream().map(idNode -> idNode.getName()).toList();
-    }
-
     public DotIdList(List<Node> idNodes) {
         super(Type.DotIdList);
         idNodes.forEach(this::addChild);
