@@ -22,16 +22,53 @@ import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskNode;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Offers functions to generate a {@link LevelGraph} or Petri-Net for a TaskGraph .
+ *
+ * <p>Use {@link #callTaskBuilderFor(TaskDependencyGraph)} to execute the TaskBuilder for each
+ * {@link Task} in a {@link TaskDependencyGraph}.
  *
  * <p>Use {@link #levelGraphFor(TaskDependencyGraph)} to generate a room-based level for the
  * TaskGraph.
  *
  * <p>Use {@link #petriNetFor(TaskDependencyGraph)} to generate a Petri net for the TaskGraph to.
+ *
+ * <p>Use {@link #convert(TaskDependencyGraph)} to execute the complete chain.
  */
 public class TaskGraphConverter {
+
+    /**
+     * Execute the complete chain of {@link #callTaskBuilderFor(TaskDependencyGraph)}, {@link
+     * #levelGraphFor(TaskDependencyGraph)}, and {@link #petriNetFor(TaskDependencyGraph)}.
+     *
+     * @param graph Graph to execute the full chain of conversion on.
+     * @return the start room
+     */
+    public static ILevel convert(final TaskDependencyGraph graph) {
+        callTaskBuilderFor(graph);
+        ILevel level = levelGraphFor(graph);
+        petriNetFor(graph);
+        return level;
+    }
+
+    /**
+     * Execute the TaskBuilder for each {@link Task} in the given graph.
+     *
+     * @param graph graph that contains the tasks.
+     */
+    public static void callTaskBuilderFor(final TaskDependencyGraph graph) {
+        graph.nodeIterator()
+                .forEachRemaining(
+                        new Consumer<TaskNode>() {
+                            @Override
+                            public void accept(TaskNode taskNode) {
+                                // TODO REPLACE @malte-r
+                                TaskBuilder.DUMMY_TASK_BUILDER(taskNode.task());
+                            }
+                        });
+    }
 
     /**
      * Generate a room-based level for the given TaskGraph.
@@ -49,7 +86,7 @@ public class TaskGraphConverter {
      * <p>Note: The Edges in the graph should not be duplicated (so only one Edge from A to B and
      * not one from B to A as well).
      *
-     * <p>Will call the TaskBuilder for each Task.
+     * <p>Important: Call the TaskBuilder for each Task befor.
      *
      * @param taskGraph graph to create the level for
      * @return the start room
@@ -65,9 +102,6 @@ public class TaskGraphConverter {
                 .nodeIterator()
                 .forEachRemaining(
                         node -> {
-                            // TODO REPLACE @malte-r
-                            TaskBuilder.DUMMY_TASK_BUILDER(node.task());
-
                             LevelGraph levelGraph =
                                     LevelGraphGenerator.generate(node.task().entitySets());
                             nodeToLevelGraph.put(node, levelGraph);
