@@ -3,9 +3,9 @@ package starter;
 import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
-import contrib.level.generator.graphBased.RoombasedLevelGenerator;
 import contrib.item.concreteItem.ItemResourceIronOre;
 import contrib.item.concreteItem.ItemResourceWood;
+import contrib.level.generator.graphBased.RoombasedLevelGenerator;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 
@@ -57,12 +57,12 @@ public class Main {
                         ItemResourceIronOre ironOre = new ItemResourceIronOre();
                         ItemResourceWood wood = new ItemResourceWood();
                         Game.hero()
-                            .flatMap(entity -> entity.fetch(InventoryComponent.class))
-                            .ifPresent(
-                                inventoryComponent -> {
-                                    inventoryComponent.add(ironOre);
-                                    inventoryComponent.add(wood);
-                                });
+                                .flatMap(entity -> entity.fetch(InventoryComponent.class))
+                                .ifPresent(
+                                        inventoryComponent -> {
+                                            inventoryComponent.add(ironOre);
+                                            inventoryComponent.add(wood);
+                                        });
                     }
                 });
     }
