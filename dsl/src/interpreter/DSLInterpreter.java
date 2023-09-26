@@ -3,6 +3,9 @@ package interpreter;
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
 
+import dungeonFiles.DSLEntryPoint;
+import dungeonFiles.DungeonConfig;
+
 import interpreter.dot.Interpreter;
 
 import org.antlr.v4.runtime.CharStreams;
@@ -36,7 +39,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     private RuntimeEnvironment environment;
     private final ArrayDeque<IMemorySpace> memoryStack;
     private final ArrayDeque<IMemorySpace> instanceMemoryStack;
-    private final IMemorySpace globalSpace;
+    private IMemorySpace globalSpace;
 
     private SymbolTable symbolTable() {
         return environment.getSymbolTable();
@@ -61,6 +64,26 @@ public class DSLInterpreter implements AstVisitor<Object> {
         globalSpace = new MemorySpace();
         statementStack = new ArrayDeque<>();
         memoryStack.push(globalSpace);
+    }
+
+    /**
+     * Create a {@link DungeonConfig} instance for given {@link DSLEntryPoint}, this will reset the
+     * environment of this {@link DSLInterpreter}
+     *
+     * @param entryPoint the {@link DSLEntryPoint} to interpret.
+     * @return the interpreted {@link DungeonConfig}.
+     */
+    public DungeonConfig interpretEntryPoint(DSLEntryPoint entryPoint) {
+        Node filesRootASTNode = entryPoint.file().rootASTNode();
+
+        SemanticAnalyzer symTableParser = new SemanticAnalyzer();
+        var environment = new GameEnvironment();
+        symTableParser.setup(environment);
+        var result = symTableParser.walk(filesRootASTNode);
+
+        initializeRuntime(environment);
+
+        return generateQuestConfig(entryPoint.configDefinitionNode());
     }
 
     /**
@@ -159,6 +182,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param environment The environment to bind the functions, objects and data types from.
      */
     public void initializeRuntime(IEvironment environment) {
+        // reinitialize global memory space
+        this.memoryStack.clear();
+        this.globalSpace = new MemorySpace();
+        this.memoryStack.push(this.globalSpace);
+
         this.environment = new RuntimeEnvironment(environment, this);
 
         // bind all function definition and object definition symbols to values
@@ -310,6 +338,21 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
         }
         return Value.NONE;
+    }
+
+    protected DungeonConfig generateQuestConfig(ObjectDefNode configDefinitionNode) {
+        createGameObjectPrototypes(this.environment);
+        Value configValue = (Value) configDefinitionNode.accept(this);
+        Object config = configValue.getInternalValue();
+        if (config instanceof DungeonConfig) {
+            DungeonConfig dungeonConfig = (DungeonConfig) config;
+            if (dungeonConfig.displayName().isEmpty()) {
+                String objectName = configDefinitionNode.getIdName();
+                dungeonConfig = new DungeonConfig(dungeonConfig.dependencyGraph(), objectName);
+            }
+            return dungeonConfig;
+        }
+        return null;
     }
 
     protected Value instantiateDSLValue(AggregateType type) {
