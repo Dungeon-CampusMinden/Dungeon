@@ -20,7 +20,7 @@ Dieses Petri-Netz bildet den gesamten Ablauf von der Aktivierung bis zum Beenden
 
 Die verschiedenen Transitionen und Places werden später genutzt, um andere Petri-Netze anzuschließen.
 
-Der Place "Task not activated" wird initial mit einem Token belegt und dient dazu, eine eventuelle doppelte Aktivierung eines Tasks zu verhindern.
+Der Place "taskNotActivated" wird initial mit einem Token belegt und dient dazu, eine eventuelle doppelte Aktivierung eines Tasks zu verhindern.
 
 Der Place "or" wird initial mit einem Token belegt. Wird ein anderes Petri-Netz per OR verknüpft, wird dieses Token entfernt."
 ## Abhängigkeit Sequenz
@@ -43,7 +43,7 @@ Der initial platzierte Token im or-place wird entfernt.
 ![Teilaufgaben Schablone](./img/petri_net_schablone_subtask.png)
 
 In Orange sind die Änderungen zur Standardschablone zu sehen.
-Teilaufgaben müssen vor der Aktivierung des Haupttasks bearbeitet werden. Daher werden ihre "Task aktivieren"-Transitionen so mit dem Petri-Netz verbunden, dass sie durch einen Helper-Place, der an der "After activate Task"-Transition des Haupttasks angeschlossen ist, gesteuert werden. Wenn die Aufgaben beendet sind, legen die "Beendet"-Transitionen der Teilaufgaben ein Token in jeweils einen Helper-Place, der mit der "Activate Bearbeitung"-Transition des Haupttasks verbunden ist.
+Teilaufgaben müssen vor der Aktivierung des Haupttasks bearbeitet werden. Daher werden ihre "activateTask"-Transitionen so mit dem Petri-Netz verbunden, dass sie durch einen Helper-Place, der an der "afterActivated"-Transition des Haupttasks angeschlossen ist, gesteuert werden. Wenn die Aufgaben beendet sind, legen die "finished"-Transitionen der Teilaufgaben ein Token in jeweils einen Helper-Place, der mit der "activateProcessing"-Transition des Haupttasks verbunden ist.
 
 
 ## Optionale Teilaufgaben
@@ -52,9 +52,9 @@ Teilaufgaben müssen vor der Aktivierung des Haupttasks bearbeitet werden. Daher
 
 ![Optionale Teilaufgabe Schablone](./img/petri_net_schablone_optional.png)
 
-Optionale Teilaufgaben bleiben so lange aktiv, bis sie bearbeitet wurden oder der Haupttask abgeschlossen wurde. Die Aktivierung von optionalen Teilaufgaben erfolgt parallel zur Aktivierung der Bearbeitung des Haupttasks. Daher wird die Transition "Activate Task" über einen Helper-Place mit der Transition "Activate Bearbeitung" des Haupttasks verbunden.
+Optionale Teilaufgaben bleiben so lange aktiv, bis sie bearbeitet wurden oder der Haupttask abgeschlossen wurde. Die Aktivierung von optionalen Teilaufgaben erfolgt parallel zur Aktivierung der Bearbeitung des Haupttasks. Daher wird die Transition "activateTask" über einen Helper-Place mit der Transition "activateProcessing" des Haupttasks verbunden.
 
-Zusätzlich wird der Platz "Bearbeitung aktiviert" der Teilaufgabe und die Transition "Beendet" des Hauptaufgaben (über einen Helper-Place) mit einer neuen Transition "Teilaufgabe nicht gelöst" verbunden. Diese Transition feuert dann, wenn die Hauptaufgabe gelöst ist, aber die optionale Teilaufgabe noch in Bearbeitung ist, und legt dann ein Token in den Platz "Optionaler Task nicht gemacht", welcher den optionalen Task-Status auf "inactive" setzt.
+Zusätzlich wird der Platz "processingActivated" der Teilaufgabe und die Transition "finished" des Hauptaufgaben (über einen Helper-Place) mit einer neuen Transition "optionalAbort" verbunden. Diese Transition feuert dann, wenn die Hauptaufgabe gelöst ist, aber die optionale Teilaufgabe noch in Bearbeitung ist, und legt dann ein Token in den Platz "subtaskNotSolved", welcher den optionalen Task-Status auf "inactive" setzt.
 
 ## Kombination
 
