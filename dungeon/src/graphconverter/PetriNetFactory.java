@@ -40,9 +40,6 @@ public class PetriNetFactory {
                 new Transition(Set.of(processingActivated, finishedFalse), Set.of(end_false, end));
         Transition finisehd = new Transition(Set.of(end), Set.of(new Place()));
 
-        // init token
-        taskNotActivated.placeToken();
-
         return new PetriNet(
                 taskNotActivated,
                 activateTask,

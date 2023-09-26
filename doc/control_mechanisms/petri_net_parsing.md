@@ -22,10 +22,6 @@ Die verschiedenen Transitionen und Places werden später genutzt, um andere Petr
 
 Der Place "Task not activated" wird initial mit einem Token belegt und dient dazu, eine eventuelle doppelte Aktivierung eines Tasks zu verhindern.
 
-Falls der Task der erste Task im Spiel ist, würde ein Place "Start" in die Transition "Activate Task" führen, welcher von außen mit einem Token belegt wird.
-
-
-
 ## Abhängigkeit Sequenz
 
 *Anmerkung:* In den folgenden Abbildungen werden nur Ausschnitte des kombinierten Petri-Netzes angezeigt. Es ist immer zu beachten, dass jeder Task durch die Basis-Schablone abgebildet wird. Im Folgenden werden jedoch nur die Anbindgspunkte mit anderen Petri-Netzen betrachtet.

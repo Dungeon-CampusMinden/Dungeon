@@ -13,7 +13,6 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 
 import petriNet.PetriNet;
-import petriNet.Place;
 
 import task.Task;
 import task.components.DoorComponent;
@@ -204,10 +203,10 @@ public class TaskGraphConverter {
      * connected based on the task dependency.
      *
      * @param taskGraph graph that defines the task dependencies
-     * @return the "start" place; add a token to this place to start the Petri-net logic.
+     * @return Mapping of {@link TaskNode} to {@link PetriNet}
      * @see PetriNetFactory
      */
-    public static Place petriNetFor(TaskDependencyGraph taskGraph) {
+    public static Map<TaskNode, PetriNet> petriNetFor(TaskDependencyGraph taskGraph) {
         Map<TaskNode, PetriNet> noteToNet = new LinkedHashMap<>();
 
         // create a basic petri net for each task
@@ -228,16 +227,13 @@ public class TaskGraphConverter {
                                         noteToNet.get(taskEdge.endNode()),
                                         taskEdge.edgeType()));
 
-        // find the root petri net and add the "Start"-Place to it.
-        PetriNet rootNet =
-                noteToNet.values().stream()
-                        .findFirst()
-                        .orElseThrow(
-                                () ->
-                                        new RuntimeException(
-                                                "There should be a Petri Net but is not."));
-        Place start = new Place();
-        rootNet.activateTask().addDependency(start);
-        return start;
+        // init token
+        noteToNet
+                .values()
+                .forEach(
+                        petriNet -> {
+                            petriNet.taskNotActivated().placeToken();
+                        });
+        return noteToNet;
     }
 }
