@@ -18,8 +18,8 @@ import dungeonFiles.DungeonConfig;
 import graphconverter.TaskGraphConverter;
 
 import interpreter.DSLEntryPointFinder;
-
 import interpreter.DSLInterpreter;
+
 import task.Task;
 
 import java.io.IOException;
@@ -42,7 +42,7 @@ import java.util.function.Consumer;
  */
 public class Starter {
     private static boolean realGameStarted = false;
-    private final static DSLInterpreter dslInterpreter = new DSLInterpreter();
+    private static final DSLInterpreter dslInterpreter = new DSLInterpreter();
 
     private static final Consumer<Entity> showQuestLog =
             entity -> {
@@ -83,7 +83,9 @@ public class Starter {
                     if (!realGameStarted && WizardTaskSelector.selectedDSLEntryPoint != null) {
                         realGameStarted = true;
 
-                        DungeonConfig config = dslInterpreter.interpretEntryPoint(WizardTaskSelector.selectedDSLEntryPoint);
+                        DungeonConfig config =
+                                dslInterpreter.interpretEntryPoint(
+                                        WizardTaskSelector.selectedDSLEntryPoint);
                         ILevel level = TaskGraphConverter.convert(config.dependencyGraph());
                         Game.currentLevel(level);
                     }
