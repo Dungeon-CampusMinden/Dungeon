@@ -40,7 +40,7 @@ public class PetriNetFactoryTest {
         // finish task
         task.state(Task.TaskState.FINISHED_WRONG);
         assertEquals(0, net.processingActivated().tokenCount());
-        assertEquals(1, net.end_false().tokenCount());
+        assertEquals(1, net.end_wrong().tokenCount());
         assertEquals(Task.TaskState.INACTIVE, task.state());
     }
 
@@ -137,7 +137,7 @@ public class PetriNetFactoryTest {
 
         assertEquals(Task.TaskState.INACTIVE, sub1.state());
         assertEquals(0, sub1Net.end_correct().tokenCount());
-        assertEquals(0, sub1Net.end_false().tokenCount());
+        assertEquals(0, sub1Net.end_wrong().tokenCount());
         assertEquals(0, sub1Net.end().tokenCount());
     }
 
@@ -168,7 +168,7 @@ public class PetriNetFactoryTest {
 
         // finish second pre task should activate the main task
         pre2.state(Task.TaskState.FINISHED_WRONG);
-        assertEquals(1, preNet2.end_false().tokenCount());
+        assertEquals(1, preNet2.end_wrong().tokenCount());
         assertEquals(1, mainNet.processingActivated().tokenCount());
         assertEquals(Task.TaskState.PROCESSING_ACTIVE, mainTask.state());
     }
@@ -199,7 +199,7 @@ public class PetriNetFactoryTest {
         assertEquals(1, mainNet.processingActivated().tokenCount());
         assertEquals(Task.TaskState.PROCESSING_ACTIVE, mainTask.state());
         assertEquals(1, preNet1.processingActivated().tokenCount());
-        assertEquals(0, preNet1.end_false().tokenCount());
+        assertEquals(0, preNet1.end_wrong().tokenCount());
         assertEquals(0, preNet1.end_correct().tokenCount());
         assertEquals(Task.TaskState.PROCESSING_ACTIVE, pre1.state());
     }
@@ -221,7 +221,7 @@ public class PetriNetFactoryTest {
 
         // finish first task correct should activate this task
         pre1.state(Task.TaskState.FINISHED_WRONG);
-        assertEquals(1, preNet1.end_false().tokenCount());
+        assertEquals(1, preNet1.end_wrong().tokenCount());
         assertEquals(1, mainNet.processingActivated().tokenCount());
         assertEquals(Task.TaskState.PROCESSING_ACTIVE, mainTask.state());
         assertEquals(Task.TaskState.INACTIVE, pre1.state());
@@ -290,7 +290,7 @@ public class PetriNetFactoryTest {
 
         // finish first task false should not activate this task
         pre1.state(Task.TaskState.FINISHED_WRONG);
-        assertEquals(1, preNet1.end_false().tokenCount());
+        assertEquals(1, preNet1.end_wrong().tokenCount());
         assertEquals(0, mainNet.processingActivated().tokenCount());
         assertEquals(Task.TaskState.INACTIVE, mainTask.state());
         assertEquals(Task.TaskState.INACTIVE, pre1.state());

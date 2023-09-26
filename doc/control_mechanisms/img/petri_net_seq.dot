@@ -2,45 +2,42 @@ digraph seq {
     
     
 //and seq    
-t2_beendet [shape=square, label="Beendet Vortask Richtig",color="green"]
+t2_beendet [shape=square, label="correct (pretask 1)",color="green"]
 p_beendetInput1[label="",color="green"]
-t3_beendet [shape=square, label="Beendet Vortask",color="green"]
+t3_beendet [shape=square, label="finished (pretask 2)",color="green"]
 p_beendetInput2[label="",color="green"]
 t2_beendet->p_beendetInput1
 t3_beendet->p_beendetInput2
-p_beendetInput1->t_activate_task 
-p_beendetInput2->t_activate_task 
-    
+p_beendetInput1->t_activate_task
+p_beendetInput2->t_activate_task
+
 //or seq
-ot1_beendet [shape=square, label="Beendet Vortask",color="orange"]
-ot2_beendet [shape=square, label="Beendet Vortask",color="orange"]
-p_or[label="",color="orange"]
+ot1_beendet [shape=square, label="finished (pretask 3)",color="orange"]
+ot2_beendet [shape=square, label="finished (pretask 4)",color="orange"]
 ot1_beendet->p_or
 ot2_beendet->p_or
-p_or->t_activate_task 
 
 
+t_activate_task [shape=square, label="activateTask"]
 
-t_activate_task [shape=square, label="Acticate Task"]
+t_after_active[shape=square, label="afterActivated"]
+t_activate_bearbeitung [shape=square, label="activateProcessing"]
+t_beendet_f [shape=square, label="wrong"]
+t_beendet_c [shape=square, label="correct"]
+t_beendet [shape=square, label="finished"]
+p_task_not_active [label="taskNotActivated", color=red]
+p_task_active [label="taskActivated"]
+p_task_bactive [label="processingActivated"]
+p_task_end [label="end"]
+p_task_endc [label="end_correct"]
+p_task_endf [label="end_wrong"]
 
-t_after_active[shape=square, label="After Acticate Task"]
-t_activate_bearbeitung [shape=square, label="Activate Bearbeitung"]
-t_beendet_f [shape=square, label="Beendet: Falsch"]
-t_beendet_c [shape=square, label="Beendet: Richtig"]
-t_beendet [shape=square, label="Beendet"]
-
-p_task_not_active [label="Task not activated", color=red]
-p_task_active [label="Task activated"]
-p_task_bactive [label="Task bearbeitung active"]
-p_task_end [label="Task beendet"]
-p_task_endc [label="Task richtig beendet"]
-p_task_endf [label="Task falsch beendet"]
-
-p_task_endc_input [label="richtig beendet", color=red]
-p_task_endf_input [label="falsch beendet", color=red]
-
+p_task_endc_input [label="finishedCorrect", color=red]
+p_task_endf_input [label="finishedFalse", color=red]
+p_or[label="or"]
 p_filler[label=""]
 
+p_or->t_activate_task
 p_task_not_active->t_activate_task
 t_activate_task->p_task_active
 p_task_active->t_after_active

@@ -1,4 +1,4 @@
-digraph simple {
+digraph optional {
 
 t_activate_task [shape=square, label="activateTask"]
 
@@ -35,6 +35,26 @@ p_task_endf_input->t_beendet_f
 t_beendet_c->p_task_end
 t_beendet_f->p_task_end
 p_task_end->t_beendet
+
+
+p_tb0[label="",color="orange"]
+p_tb[label="",color="orange"]
+p_tb1[label="processingActivated (optional task)",color="orange"]
+t_fail [shape=square, label="optionalAbort",color="orange"]
+p_fail[label="subtaskNotSolvedPlace",color="orange"]
+t_oa [shape=square, label="activateTask (optional task)",color="orange"]
+t_ob [shape=square, label="finished (optional task)",color="orange"]
+
+
+p_tb1->t_ob
+t_activate_bearbeitung->p_tb0
+p_tb0->t_oa
+t_oa->p_tb1
+t_oa->t_ob
+p_tb1->t_fail
+t_beendet->p_tb
+p_tb->t_fail
+t_fail->p_fail
 
 
 }

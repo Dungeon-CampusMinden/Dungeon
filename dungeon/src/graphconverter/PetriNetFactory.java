@@ -139,7 +139,7 @@ public class PetriNetFactory {
         connect.activateTask().addDependency(helperInput);
         connect.finished().addTokenOnFire(helperOutput);
         on.afterActivated().addTokenOnFire(helperInput);
-        on.activateprocessing().addDependency(helperOutput);
+        on.activateProcessing().addDependency(helperOutput);
     }
 
     /**
@@ -150,14 +150,16 @@ public class PetriNetFactory {
      */
     public static void connectSubtaskOptional(final PetriNet on, final PetriNet connect) {
         Place helperInput = new Place();
-        on.activateprocessing().addTokenOnFire(helperInput);
+        on.activateProcessing().addTokenOnFire(helperInput);
         connect.activateTask().addDependency(helperInput);
         Place helperOutput = new Place();
         on.finished().addTokenOnFire(helperOutput);
         Place subtaskNotSolvedPlace = new Place();
         subtaskNotSolvedPlace.changeStateOnTokenAdd(connect.task(), Task.TaskState.INACTIVE);
-        new Transition(
-                Set.of(helperOutput, connect.processingActivated()), Set.of(subtaskNotSolvedPlace));
+        Transition optionalAbort =
+                new Transition(
+                        Set.of(helperOutput, connect.processingActivated()),
+                        Set.of(subtaskNotSolvedPlace));
     }
 
     /**

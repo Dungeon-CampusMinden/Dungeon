@@ -1,4 +1,4 @@
-digraph simple {
+digraph teilaufgaben {
 
 t_activate_task [shape=square, label="activateTask"]
 
@@ -37,4 +37,24 @@ t_beendet_f->p_task_end
 p_task_end->t_beendet
 
 
+//teilaufgaben
+p_t2_filler[label="",color="orange"]
+p_t3_filler[label="",color="orange"]
+p_t2_filler2[label="",color="orange"]
+p_t3_filler2[label="",color="orange"]
+t_activate_task2 [shape=square, label="activateTask (subtask 1)",color="orange"]
+t_activate_task3 [shape=square, label="activateTask (subtask 2)",color="orange"]
+t2_beendet [shape=square, label="finished (subtask 1)",color="orange"]
+t3_beendet [shape=square, label="finished (subtask 2)",color="orange"]
+
+t_after_active->p_t2_filler
+t_after_active->p_t3_filler
+p_t2_filler->t_activate_task2
+p_t3_filler->t_activate_task3
+t_activate_task2->t2_beendet
+t_activate_task3->t3_beendet
+t2_beendet->p_t2_filler2
+t3_beendet->p_t3_filler2
+p_t2_filler2->t_activate_bearbeitung
+p_t3_filler2->t_activate_bearbeitung
 }

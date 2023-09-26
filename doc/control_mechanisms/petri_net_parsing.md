@@ -22,6 +22,7 @@ Die verschiedenen Transitionen und Places werden später genutzt, um andere Petr
 
 Der Place "Task not activated" wird initial mit einem Token belegt und dient dazu, eine eventuelle doppelte Aktivierung eines Tasks zu verhindern.
 
+Der Place "or" wird initial mit einem Token belegt. Wird ein anderes Petri-Netz per OR verknüpft, wird dieses Token entfernt."
 ## Abhängigkeit Sequenz
 
 *Anmerkung:* In den folgenden Abbildungen werden nur Ausschnitte des kombinierten Petri-Netzes angezeigt. Es ist immer zu beachten, dass jeder Task durch die Basis-Schablone abgebildet wird. Im Folgenden werden jedoch nur die Anbindgspunkte mit anderen Petri-Netzen betrachtet.
@@ -33,15 +34,13 @@ Im Dungeon unterscheiden wir zwischen AND (in der Abbildung grün) und OR Sequen
 Alle Tasks, die Teil der AND-Sequenz sind, **müssen** vor dem Aktivieren des nächsten Tasks beendet werden. Dafür werden die "Beendet" (für bedingte Folgeaufgaben könnten hier auch "Richtig Beendet" oder "Falsch Beendet" verwendet werden) Transitionen dieser Tasks mithilfe eines Helper-Place an die Transition "Activate Task" des folgenden Tasks verbunden.
 
 Bei einer OR-Sequenz muss nur einer der beteiligten Vortasks erfüllt werden (beendet, richtig beendet, falsch beendet). In diesem Fall werden alle OR-Tasks mit einem "OR-Place" des Folgetasks verbunden. Wird eine der End-Transitionen der Vortasks ausgelöst, platziert dieser ein Token im Place.
-
-Dieser "OR-Place" wird erst dann erzeugt, wenn mindestens eine OR-Verbindung mit dem Petri-Netz hergestellt wird.
-
+Der initial platzierte Token im or-place wird entfernt.
 
 ## Teilaufgaben
 
 *Anmerkung:* In den folgenden Abbildungen werden nur Ausschnitte des kombinierten Petri-Netzes angezeigt. Es ist immer zu beachten, dass jeder Task durch die Basis-Schablone abgebildet wird. Im Folgenden werden jedoch nur die Anbindungen mit anderen Petri-Netzen betrachtet.
 
-![Teilaufgaben Schablone](./img/petri_net_schablone_teilaufgabe.png)
+![Teilaufgaben Schablone](./img/petri_net_schablone_subtask.png)
 
 In Orange sind die Änderungen zur Standardschablone zu sehen.
 Teilaufgaben müssen vor der Aktivierung des Haupttasks bearbeitet werden. Daher werden ihre "Task aktivieren"-Transitionen so mit dem Petri-Netz verbunden, dass sie durch einen Helper-Place, der an der "After activate Task"-Transition des Haupttasks angeschlossen ist, gesteuert werden. Wenn die Aufgaben beendet sind, legen die "Beendet"-Transitionen der Teilaufgaben ein Token in jeweils einen Helper-Place, der mit der "Activate Bearbeitung"-Transition des Haupttasks verbunden ist.

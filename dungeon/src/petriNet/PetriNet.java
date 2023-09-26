@@ -14,14 +14,14 @@ import task.Task;
  * @param activateTask
  * @param taskActivated
  * @param afterActivated
- * @param activateprocessing
+ * @param activateProcessing
  * @param processingActivated
  * @param finishedFalse
  * @param finishedCorrect
  * @param correct
  * @param wrong
  * @param end_correct
- * @param end_false
+ * @param end_wrong
  * @param end
  * @param finished
  * @param or
@@ -32,14 +32,14 @@ public record PetriNet(
         Transition activateTask,
         Place taskActivated,
         Transition afterActivated,
-        Transition activateprocessing,
+        Transition activateProcessing,
         Place processingActivated,
         Place finishedFalse,
         Place finishedCorrect,
         Transition correct,
         Transition wrong,
         Place end_correct,
-        Place end_false,
+        Place end_wrong,
         Place end,
         Transition finished,
         Place or,
