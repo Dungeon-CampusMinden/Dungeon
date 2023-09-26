@@ -6,15 +6,41 @@ import petriNet.Transition;
 
 import task.Task;
 
+import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
 
 import java.util.Set;
 
+/**
+ * Creates PetriNet for {@link Task} and connect it with other Petri-Nets.
+ *
+ * <p>Use {@link #defaultNet(Task)} to create the base Petri net.
+ *
+ * <p>Use {@link #connect(PetriNet, PetriNet, TaskEdge.Type)} to connect the second PetriNet to the
+ * first one, based on the dependency type defined in the given {@link TaskEdge.Type}.
+ *
+ * <p>To add more dependencies, first add a new {@link TaskEdge.Type} and then extend the switch
+ * statement in {@link #connect(PetriNet, PetriNet, TaskEdge.Type)}.
+ *
+ * <p>To get the PetriNet for a {@link taskdependencygraph.TaskDependencyGraph}, use {@link
+ * TaskGraphConverter#petriNetFor(TaskDependencyGraph)}.
+ *
+ * <p>See <a
+ * href="https://github.com/Programmiermethoden/Dungeon/tree/master/doc/control_mechanisms/petri_net_parsing.md">documentation</a>
+ * for more.
+ */
 public class PetriNetFactory {
 
-    public static PetriNet defaultNet(Task task) {
+    /**
+     * Create the base Petri net for a task.
+     *
+     * @param task Task to link to the Petri net
+     * @return Created Petri net
+     */
+    public static PetriNet defaultNet(final Task task) {
         // create places and link them to the tasks
         Place taskNotActivated = new Place();
+        Place or = new Place();
         Place taskActivated = new Place();
         taskActivated.changeStateOnTokenAdd(task, Task.TaskState.ACTIVE);
         Place dummy = new Place();
@@ -23,14 +49,15 @@ public class PetriNetFactory {
         Place finishedFalse = new Place();
         finishedFalse.observe(task, Task.TaskState.FINISHED_WRONG);
         Place finishedCorrect = new Place();
-        finishedFalse.observe(task, Task.TaskState.FINISHED_CORRECT);
+        finishedCorrect.observe(task, Task.TaskState.FINISHED_CORRECT);
         Place end_correct = new Place();
         Place end_false = new Place();
         Place end = new Place();
         end.changeStateOnTokenAdd(task, Task.TaskState.INACTIVE);
 
         // create transition and connect the to the places
-        Transition activateTask = new Transition(Set.of(taskNotActivated), Set.of(taskActivated));
+        Transition activateTask =
+                new Transition(Set.of(taskNotActivated, or), Set.of(taskActivated));
         Transition afterActivated = new Transition(Set.of(taskActivated), Set.of(dummy));
         Transition activateprocessing = new Transition(Set.of(dummy), Set.of(processingActivated));
         Transition correct =
@@ -38,7 +65,10 @@ public class PetriNetFactory {
                         Set.of(processingActivated, finishedCorrect), Set.of(end_correct, end));
         Transition wrong =
                 new Transition(Set.of(processingActivated, finishedFalse), Set.of(end_false, end));
-        Transition finisehd = new Transition(Set.of(end), Set.of(new Place()));
+        Transition finished = new Transition(Set.of(end), Set.of(new Place()));
+
+        // will be removed if a or connection is created
+        or.placeToken();
 
         return new PetriNet(
                 taskNotActivated,
@@ -54,32 +84,42 @@ public class PetriNetFactory {
                 end_correct,
                 end_false,
                 end,
-                finisehd,
+                finished,
+                or,
                 task);
     }
 
-    public static void connect(PetriNet a, PetriNet b, TaskEdge.Type type) {
+    /**
+     * Connect the given PetriNet to another PetriNet based on the given type.
+     *
+     * @param on "Main" net where the second net gets connected (for example, this is the base task)
+     * @param connect Second net that will be connected to the first net (for example, this is the
+     *     subtask)
+     * @param type Type of the dependency between the nets
+     */
+    public static void connect(
+            final PetriNet on, final PetriNet connect, final TaskEdge.Type type) {
         switch (type) {
             case subtask_mandatory:
-                connectSubtaskMandatory(a, b);
+                connectSubtaskMandatory(on, connect);
                 break;
             case subtask_optional:
-                connectSubtaskOptional(a, b);
+                connectSubtaskOptional(on, connect);
                 break;
             case sequence:
-                connectSequence(a, b);
+                connectSequence(on, connect);
                 break;
             case sequence_and:
-                connectSequenceAnd(a, b);
+                connectSequenceAnd(on, connect);
                 break;
             case sequence_or:
-                connectSequenceOr(a, b);
+                connectSequenceOr(on, connect);
                 break;
             case conditional_false:
-                connectConditionalFalse(a, b);
+                connectConditionalFalse(on, connect);
                 break;
             case conditional_correct:
-                connectConditionalCorrect(a, b);
+                connectConditionalCorrect(on, connect);
                 break;
             default:
                 throw new RuntimeException(
@@ -87,53 +127,98 @@ public class PetriNetFactory {
         }
     }
 
-    public static void connectSubtaskMandatory(PetriNet a, PetriNet b) {
+    /**
+     * Connect the given PetriNet to another PetriNet as a mandatory subtask.
+     *
+     * @param on "Main" net where the second net gets connected
+     * @param connect Second net that will be connected to the first net as a mandatory subtask.
+     */
+    public static void connectSubtaskMandatory(final PetriNet on, final PetriNet connect) {
         Place helperInput = new Place();
         Place helperOutput = new Place();
-        b.activateTask().addDependency(helperInput);
-        b.finisehd().addTokenOnFire(helperOutput);
-        a.afterActivated().addTokenOnFire(helperInput);
-        a.activateprocessing().addDependency(helperOutput);
+        connect.activateTask().addDependency(helperInput);
+        connect.finished().addTokenOnFire(helperOutput);
+        on.afterActivated().addTokenOnFire(helperInput);
+        on.activateprocessing().addDependency(helperOutput);
     }
 
-    public static void connectSubtaskOptional(PetriNet a, PetriNet b) {
-        Place helperInout = new Place();
-        a.activateprocessing().addTokenOnFire(helperInout);
+    /**
+     * Connect the given PetriNet to another PetriNet as a optional subtask.
+     *
+     * @param on "Main" net where the second net gets connected
+     * @param connect Second net that will be connected to the first net as a optional subtask.
+     */
+    public static void connectSubtaskOptional(final PetriNet on, final PetriNet connect) {
+        Place helperInput = new Place();
+        on.activateprocessing().addTokenOnFire(helperInput);
+        connect.activateTask().addDependency(helperInput);
         Place helperOutput = new Place();
-        a.finisehd().addTokenOnFire(helperOutput);
+        on.finished().addTokenOnFire(helperOutput);
         Place subtaskNotSolvedPlace = new Place();
-        subtaskNotSolvedPlace.changeStateOnTokenAdd(b.task(), Task.TaskState.INACTIVE);
+        subtaskNotSolvedPlace.changeStateOnTokenAdd(connect.task(), Task.TaskState.INACTIVE);
         new Transition(
-                Set.of(helperOutput, b.processingActivated()), Set.of(subtaskNotSolvedPlace));
+                Set.of(helperOutput, connect.processingActivated()), Set.of(subtaskNotSolvedPlace));
     }
 
-    public static void connectSequence(PetriNet a, PetriNet b) {
+    /**
+     * Connect the given PetriNet to another PetriNet as mandatory pretask.
+     *
+     * @param on "Main" net where the second net gets connected
+     * @param connect Second net that will be connected as mandatory pretask to the main task.
+     */
+    public static void connectSequence(final PetriNet on, PetriNet connect) {
         // for now this is the same
-        connectSequenceAnd(a, b);
+        connectSequenceAnd(on, connect);
     }
 
-    public static void connectSequenceAnd(PetriNet a, PetriNet b) {
+    /**
+     * Connect the given PetriNet to another PetriNet as mandatory pretask.
+     *
+     * @param on "Main" net where the second net gets connected
+     * @param connect Second net that will be connected as mandatory pretask to the main task.
+     */
+    public static void connectSequenceAnd(final PetriNet on, PetriNet connect) {
         Place helper = new Place();
-        b.finisehd().addTokenOnFire(helper);
-        a.activateTask().addDependency(helper);
+        connect.finished().addTokenOnFire(helper);
+        on.activateTask().addDependency(helper);
+    }
+    /**
+     * Connect the given PetriNet to another PetriNet as a mandatory pre-task.
+     *
+     * <p>You can connect multiple pre-tasks with "or"; only one is needed to trigger the
+     * transition.
+     *
+     * @param on "Main" net where the second net gets connected
+     * @param connect Second net that will be connected as a mandatory pre-task to the main task.
+     */
+    public static void connectSequenceOr(final PetriNet on, final PetriNet connect) {
+        on.or().removeToken();
+        connect.finished().addTokenOnFire(on.or());
     }
 
-    public static void connectSequenceOr(PetriNet a, PetriNet b) {
-        Place or = new Place();
-        a.activateTask().addDependency(or);
+    /**
+     * Connect the given PetriNet to another PetriNet as mandatory pretask that needs to be finished
+     * wrong.
+     *
+     * @param on "Main" net where the second net gets connected
+     * @param connect Second net that will be connected as mandatory pretask to the main task.
+     */
+    public static void connectConditionalFalse(final PetriNet on, final PetriNet connect) {
         Place helper = new Place();
-        b.finisehd().addTokenOnFire(helper);
+        on.activateTask().addDependency(helper);
+        connect.wrong().addTokenOnFire(helper);
     }
 
-    public static void connectConditionalFalse(PetriNet a, PetriNet b) {
+    /**
+     * Connect the given PetriNet to another PetriNet as mandatory pretask that needs to be finished
+     * correct.
+     *
+     * @param on "Main" net where the second net gets connected
+     * @param connect Second net that will be connected as mandatory pretask to the main task.
+     */
+    public static void connectConditionalCorrect(final PetriNet on, final PetriNet connect) {
         Place helper = new Place();
-        a.activateTask().addDependency(helper);
-        b.wrong().addTokenOnFire(helper);
-    }
-
-    public static void connectConditionalCorrect(PetriNet a, PetriNet b) {
-        Place helper = new Place();
-        a.activateTask().addDependency(helper);
-        b.correct().addTokenOnFire(helper);
+        on.activateTask().addDependency(helper);
+        connect.correct().addTokenOnFire(helper);
     }
 }

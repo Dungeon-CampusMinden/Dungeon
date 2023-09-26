@@ -55,7 +55,7 @@ public class TaskGraphConverter {
      * @return the start room
      * @see RoombasedLevelGenerator
      */
-    public static ILevel levelGraphFor(TaskDependencyGraph taskGraph) {
+    public static ILevel levelGraphFor(final TaskDependencyGraph taskGraph) {
         // Map the node of the task-graph to a levelGraph
         Map<TaskNode, LevelGraph> nodeToLevelGraph = new LinkedHashMap<>();
         // used to connect the doors to the task manager later
@@ -117,7 +117,7 @@ public class TaskGraphConverter {
      *     otherwise (never, return value is used for the recursion).
      */
     private static boolean connectUnconnectedGraphs(
-            LevelGraph rootGraph, Collection<LevelGraph> levelGraphs) {
+            final LevelGraph rootGraph, final Collection<LevelGraph> levelGraphs) {
         for (LevelGraph levelGraph : levelGraphs) {
             Set<LevelNode> tmp = rootGraph.nodes();
             tmp.removeIf(n -> n.originGraph() != levelGraph);
@@ -206,7 +206,7 @@ public class TaskGraphConverter {
      * @return Mapping of {@link TaskNode} to {@link PetriNet}
      * @see PetriNetFactory
      */
-    public static Map<TaskNode, PetriNet> petriNetFor(TaskDependencyGraph taskGraph) {
+    public static Map<TaskNode, PetriNet> petriNetFor(final TaskDependencyGraph taskGraph) {
         Map<TaskNode, PetriNet> noteToNet = new LinkedHashMap<>();
 
         // create a basic petri net for each task

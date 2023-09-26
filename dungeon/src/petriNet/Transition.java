@@ -1,6 +1,7 @@
 package petriNet;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,8 +28,8 @@ public class Transition {
      *     Place#placeToken()} will be called. These are all Places that have an incoming arc from
      *     this transition.
      */
-    public Transition(Set<Place> dependencyPlaces, Set<Place> addTokenOnFire) {
-        this.addTokenOnFire = addTokenOnFire;
+    public Transition(final Set<Place> dependencyPlaces, final Set<Place> addTokenOnFire) {
+        this.addTokenOnFire = new HashSet<>(addTokenOnFire);
         this.dependencyPlaces = new HashMap<>();
         for (Place place : dependencyPlaces) {
             this.dependencyPlaces.put(place, place.tokenCount() > 0);
@@ -41,7 +42,7 @@ public class Transition {
      *
      * @param place Place that has increased its token count.
      */
-    public void notify(Place place) {
+    public void notify(final Place place) {
         if (place.tokenCount() > 0) {
             dependencyPlaces.replace(place, true);
             // if all places have a token fire
@@ -59,7 +60,7 @@ public class Transition {
      *
      * @param place place to add
      */
-    public void addDependency(Place place) {
+    public void addDependency(final Place place) {
         this.dependencyPlaces.put(place, place.tokenCount() > 0);
         place.register(this);
     }
@@ -69,7 +70,7 @@ public class Transition {
      *
      * @param place add token on fire
      */
-    public void addTokenOnFire(Place place) {
+    public void addTokenOnFire(final Place place) {
         this.addTokenOnFire.add(place);
     }
 }
