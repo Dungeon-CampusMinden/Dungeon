@@ -673,7 +673,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(DotDefNode node) {
-        // TODO: should check, that all identifiers actually refer to task definitions
+        // TODO: should check, that all identifiers actually refer to
+        //  task definitions -> should be implemented with type checking
         for (Node stmt : node.getStmtNodes()) {
             stmt.accept(this);
         }
