@@ -1,11 +1,13 @@
 package interpreter;
 
 import dungeonFiles.DSLEntryPoint;
-
 import dungeonFiles.DungeonConfig;
+
 import org.junit.Assert;
 import org.junit.Test;
+
 import task.Task;
+
 import taskdependencygraph.TaskNode;
 
 import java.net.URISyntaxException;
