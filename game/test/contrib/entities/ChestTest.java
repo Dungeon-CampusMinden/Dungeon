@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import contrib.components.InventoryComponent;
-import contrib.utils.components.item.ItemData;
+import contrib.item.Item;
 
 import core.Entity;
 import core.Game;
@@ -35,7 +35,7 @@ public class ChestTest {
     /** checks the correct creation of the Chest */
     @Test
     public void checkCreation() throws IOException {
-        Set<ItemData> itemData = Set.of();
+        Set<Item> itemData = Set.of();
         Point position = new Point(0, 0);
         Entity c = null;
         c = EntityFactory.newChest(itemData, position);
@@ -47,7 +47,7 @@ public class ChestTest {
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertEquals(
                 "Chest should have the given Items",
-                new ItemData[] {},
+                new Item[] {},
                 inventoryComponent.get().items());
         Optional<PositionComponent> positionComponent = c.fetch(PositionComponent.class);
         assertTrue(
@@ -67,7 +67,6 @@ public class ChestTest {
      */
     /* @Test
     public void checkInteractionDroppingItems() {
-        List<ItemData> itemData = List.of(new ItemDataGenerator().generateItemData());
         Point position = new Point(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
 
@@ -85,9 +84,9 @@ public class ChestTest {
      * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
      * cant be tested.
      */
-    /* @Test
+    /*@Test
     public void checkInteractionOnDroppedItems() {
-        List<ItemData> itemData = List.of(new ItemDataGenerator().generateItemData());
+        List<Item> itemData = List.of(new ItemDataGenerator().generateItemData());
         Point position = new Point(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
         c.getComponent(InteractionComponent.class)
@@ -126,7 +125,7 @@ public class ChestTest {
         Optional<InventoryComponent> inventoryComponent = newChest.fetch(InventoryComponent.class);
         assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
         assertTrue(
-                "Chest should have atleast 1 Item",
+                "Chest should have at least 1 Item",
                 1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);
         assertEquals(
                 "x Position has to be 0. Only Tile is at 0,0",

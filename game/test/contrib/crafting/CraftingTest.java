@@ -2,7 +2,11 @@ package contrib.crafting;
 
 import static org.junit.Assert.*;
 
-import contrib.utils.components.item.ItemData;
+import contrib.item.Item;
+import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.item.concreteItem.ItemPotionWater;
+import contrib.item.concreteItem.ItemResourceFlowerRed;
+import contrib.item.concreteItem.ItemResourceMushroomRed;
 
 import org.junit.Test;
 
@@ -14,27 +18,23 @@ public class CraftingTest {
     public void testFindRecipeWithNoInputs() {
         assertTrue(
                 "No Recipe should be found with no ingredients.",
-                Crafting.recipeByIngredients(new ItemData[0]).isEmpty());
+                Crafting.recipeByIngredients(new Item[0]).isEmpty());
     }
 
     @Test
     public void testRecipeFoundUnordered() {
         // Prepare Recipe
         CraftingIngredient[] recipeIngredient = {
-            new ItemData(Items.BOTTLE_WATER, 1),
-            new ItemData(Items.RESOURCE_MUSHROOM_RED, 1),
-            new ItemData(Items.RESOURCE_FLOWER_RED, 1),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
         };
-        CraftingResult[] recipeResults = {new ItemData(Items.POTION_HEALTH, 1)};
+        CraftingResult[] recipeResults = {new ItemPotionHealth()};
         Recipe recipe = new Recipe(false, recipeIngredient, recipeResults);
         Crafting.addRecipe(recipe);
 
         // Test
 
         CraftingIngredient[] ingredients = {
-            new ItemData(Items.RESOURCE_FLOWER_RED, 1),
-            new ItemData(Items.RESOURCE_MUSHROOM_RED, 1),
-            new ItemData(Items.BOTTLE_WATER, 1),
+            new ItemResourceFlowerRed(), new ItemResourceMushroomRed(), new ItemPotionWater()
         };
 
         Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
@@ -50,20 +50,16 @@ public class CraftingTest {
     public void testRecipeOrdered_CorrectOrder() {
         // Prepare Recipe
         CraftingIngredient[] recipeIngredient = {
-            new ItemData(Items.BOTTLE_WATER, 1),
-            new ItemData(Items.RESOURCE_MUSHROOM_RED, 1),
-            new ItemData(Items.RESOURCE_FLOWER_RED, 1),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
         };
-        CraftingResult[] recipeResults = {new ItemData(Items.POTION_HEALTH, 1)};
+        CraftingResult[] recipeResults = {new ItemPotionHealth()};
         Recipe recipe = new Recipe(true, recipeIngredient, recipeResults);
         Crafting.addRecipe(recipe);
 
         // Test
 
         CraftingIngredient[] ingredients = {
-            new ItemData(Items.BOTTLE_WATER, 1),
-            new ItemData(Items.RESOURCE_MUSHROOM_RED, 1),
-            new ItemData(Items.RESOURCE_FLOWER_RED, 1),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
         };
 
         Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
@@ -79,20 +75,16 @@ public class CraftingTest {
     public void testRecipeOrdered_IncorrectOrder() {
         // Prepare Recipe
         CraftingIngredient[] recipeIngredient = {
-            new ItemData(Items.BOTTLE_WATER, 1),
-            new ItemData(Items.RESOURCE_MUSHROOM_RED, 1),
-            new ItemData(Items.RESOURCE_FLOWER_RED, 1),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
         };
-        CraftingResult[] recipeResults = {new ItemData(Items.POTION_HEALTH, 1)};
+        CraftingResult[] recipeResults = {new ItemPotionHealth()};
         Recipe recipe = new Recipe(true, recipeIngredient, recipeResults);
         Crafting.addRecipe(recipe);
 
         // Test
 
         CraftingIngredient[] ingredients = {
-            new ItemData(Items.RESOURCE_MUSHROOM_RED, 1),
-            new ItemData(Items.RESOURCE_FLOWER_RED, 1),
-            new ItemData(Items.BOTTLE_WATER, 1),
+            new ItemResourceMushroomRed(), new ItemResourceFlowerRed(), new ItemPotionWater(),
         };
 
         Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
@@ -107,11 +99,9 @@ public class CraftingTest {
     public void testPrioritizeOrderedRecipes() {
         // Prepare Recipe
         CraftingIngredient[] recipeIngredient = {
-            new ItemData(Items.BOTTLE_WATER, 1),
-            new ItemData(Items.RESOURCE_MUSHROOM_RED, 1),
-            new ItemData(Items.RESOURCE_FLOWER_RED, 1),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
         };
-        CraftingResult[] recipeResults = {new ItemData(Items.POTION_HEALTH, 1)};
+        CraftingResult[] recipeResults = {new ItemPotionHealth()};
         Recipe recipeOrdered = new Recipe(true, recipeIngredient, recipeResults);
         Recipe recipeUnordered = new Recipe(false, recipeIngredient, recipeResults);
         Crafting.addRecipe(recipeUnordered);
@@ -119,9 +109,7 @@ public class CraftingTest {
 
         // Test
         CraftingIngredient[] ingredients = {
-            new ItemData(Items.BOTTLE_WATER, 1),
-            new ItemData(Items.RESOURCE_MUSHROOM_RED, 1),
-            new ItemData(Items.RESOURCE_FLOWER_RED, 1),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
         };
         Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
 

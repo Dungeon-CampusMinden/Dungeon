@@ -43,6 +43,7 @@ public class Item implements CraftingIngredient, CraftingResult {
     static {
         items.put(ItemBookRed.class.getSimpleName(), ItemBookRed.class);
         items.put(ItemBookSpell.class.getSimpleName(), ItemBookSpell.class);
+        items.put(ItemDefault.class.getSimpleName(), ItemDefault.class);
         items.put(ItemGlovesFire.class.getSimpleName(), ItemGlovesFire.class);
         items.put(ItemGlovesSteel.class.getSimpleName(), ItemGlovesSteel.class);
         items.put(ItemKeyBlue.class.getSimpleName(), ItemKeyBlue.class);
@@ -117,7 +118,7 @@ public class Item implements CraftingIngredient, CraftingResult {
      * @param stackSize the stack size of the item
      * @param maxStackSize the max stack size of the item
      */
-    protected Item(
+    public Item(
             String displayName,
             String description,
             Animation inventoryAnimation,
@@ -150,7 +151,7 @@ public class Item implements CraftingIngredient, CraftingResult {
      * @param inventoryAnimation the inventory animation of the item
      * @param worldAnimation the world animation of the item
      */
-    protected Item(
+    public Item(
             String displayName,
             String description,
             Animation inventoryAnimation,
@@ -169,10 +170,15 @@ public class Item implements CraftingIngredient, CraftingResult {
      * @param description the description
      * @param animation the animation
      */
-    protected Item(String displayName, String description, Animation animation) {
+    public Item(String displayName, String description, Animation animation) {
         this(displayName, description, animation, animation, 1, 1);
     }
 
+    /**
+     * Get the class name of the specific item.
+     *
+     * @return The class name of the specific item.
+     */
     public static Class<? extends Item> getItem(String id) {
         return items.get(id);
     }
@@ -313,8 +319,31 @@ public class Item implements CraftingIngredient, CraftingResult {
     public boolean collect(Entity itemEntity, Entity collector) {
         return collector
                 .fetch(InventoryComponent.class)
-                .map(inventoryComponent -> inventoryComponent.add(this))
+                .map(
+                        inventoryComponent -> {
+                            if (inventoryComponent.add(this)) {
+                                Game.remove(itemEntity);
+                                return true;
+                            }
+                            return false;
+                        })
                 .orElse(false);
+    }
+
+    /**
+     * Defines the behavior when an item gets used. Prints a message to the console and removes the
+     * item from the inventory.
+     *
+     * @param e Entity that uses the item
+     * @param itemData Item that is used
+     */
+    public static void use(Entity e, Item itemData) {
+        e.fetch(InventoryComponent.class)
+                .ifPresent(
+                        component -> {
+                            component.remove(itemData);
+                        });
+        System.out.printf("Item \"%s\" used by entity %d\n", itemData.displayName, e.id());
     }
 
     @Override
