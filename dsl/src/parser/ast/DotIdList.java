@@ -4,6 +4,11 @@ import java.util.List;
 
 public class DotIdList extends Node {
 
+    /**
+     * Return the stored IdNodes of this DotIdList-Node, in order of definition.
+     * Will cast each stored Node to IdNode
+     * @return a List of IdNodes defined in this DotIdList-Node
+     */
     public List<IdNode> getIdNodes() {
         return this.getChildren().stream().map(node -> (IdNode) node).toList();
     }
