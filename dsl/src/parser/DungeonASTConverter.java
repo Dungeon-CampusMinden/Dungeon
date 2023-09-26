@@ -14,6 +14,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 // CHECKSTYLE:OFF: AvoidStarImport
 
 import parser.ast.*;
+
 import taskdependencygraph.TaskEdge;
 // CHECKSTYLE:ON: AvoidStarImport
 
@@ -889,7 +890,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         for (int i = 0; i < ctx.dot_edge_RHS().size(); i++) {
             var rhs = astStack.pop();
             assert (rhs.type == Node.Type.DotEdgeRHS);
-            Node idNodeList = ((EdgeRhsNode)rhs).getIdNodeList();
+            Node idNodeList = ((EdgeRhsNode) rhs).getIdNodeList();
             ids.addFirst(idNodeList);
         }
 
@@ -903,9 +904,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDot_node_list(DungeonDSLParser.Dot_node_listContext ctx) {
-
-    }
+    public void enterDot_node_list(DungeonDSLParser.Dot_node_listContext ctx) {}
 
     @Override
     public void exitDot_node_list(DungeonDSLParser.Dot_node_listContext ctx) {
@@ -976,9 +975,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDot_attr_id(DungeonDSLParser.Dot_attr_idContext ctx) {
-
-    }
+    public void enterDot_attr_id(DungeonDSLParser.Dot_attr_idContext ctx) {}
 
     @Override
     public void exitDot_attr_id(DungeonDSLParser.Dot_attr_idContext ctx) {
@@ -1057,11 +1054,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     @Override
     public void exitEveryRule(ParserRuleContext ctx) {}
 
-// region dependency_type
+    // region dependency_type
     @Override
-    public void enterDot_attr_dependency_type(DungeonDSLParser.Dot_attr_dependency_typeContext ctx) {
-
-    }
+    public void enterDot_attr_dependency_type(
+            DungeonDSLParser.Dot_attr_dependency_typeContext ctx) {}
 
     @Override
     public void exitDot_attr_dependency_type(DungeonDSLParser.Dot_attr_dependency_typeContext ctx) {
@@ -1072,9 +1068,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDt_sequence(DungeonDSLParser.Dt_sequenceContext ctx) {
-
-    }
+    public void enterDt_sequence(DungeonDSLParser.Dt_sequenceContext ctx) {}
 
     @Override
     public void exitDt_sequence(DungeonDSLParser.Dt_sequenceContext ctx) {
@@ -1083,9 +1077,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDt_subtask_mandatory(DungeonDSLParser.Dt_subtask_mandatoryContext ctx) {
-
-    }
+    public void enterDt_subtask_mandatory(DungeonDSLParser.Dt_subtask_mandatoryContext ctx) {}
 
     @Override
     public void exitDt_subtask_mandatory(DungeonDSLParser.Dt_subtask_mandatoryContext ctx) {
@@ -1094,9 +1086,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDt_subtask_optional(DungeonDSLParser.Dt_subtask_optionalContext ctx) {
-
-    }
+    public void enterDt_subtask_optional(DungeonDSLParser.Dt_subtask_optionalContext ctx) {}
 
     @Override
     public void exitDt_subtask_optional(DungeonDSLParser.Dt_subtask_optionalContext ctx) {
@@ -1105,9 +1095,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDt_conditional_correct(DungeonDSLParser.Dt_conditional_correctContext ctx) {
-
-    }
+    public void enterDt_conditional_correct(DungeonDSLParser.Dt_conditional_correctContext ctx) {}
 
     @Override
     public void exitDt_conditional_correct(DungeonDSLParser.Dt_conditional_correctContext ctx) {
@@ -1116,9 +1104,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDt_conditional_false(DungeonDSLParser.Dt_conditional_falseContext ctx) {
-
-    }
+    public void enterDt_conditional_false(DungeonDSLParser.Dt_conditional_falseContext ctx) {}
 
     @Override
     public void exitDt_conditional_false(DungeonDSLParser.Dt_conditional_falseContext ctx) {
@@ -1127,9 +1113,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDt_sequence_and(DungeonDSLParser.Dt_sequence_andContext ctx) {
-
-    }
+    public void enterDt_sequence_and(DungeonDSLParser.Dt_sequence_andContext ctx) {}
 
     @Override
     public void exitDt_sequence_and(DungeonDSLParser.Dt_sequence_andContext ctx) {
@@ -1138,14 +1122,12 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDt_sequence_or(DungeonDSLParser.Dt_sequence_orContext ctx) {
-
-    }
+    public void enterDt_sequence_or(DungeonDSLParser.Dt_sequence_orContext ctx) {}
 
     @Override
     public void exitDt_sequence_or(DungeonDSLParser.Dt_sequence_orContext ctx) {
         var text = ctx.getText();
         astStack.push(new DotDependencyTypeNode(TaskEdge.Type.sequence_or, text));
     }
-// endregion
+    // endregion
 }

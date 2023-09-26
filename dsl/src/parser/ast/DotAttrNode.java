@@ -1,7 +1,5 @@
 package parser.ast;
 
-import taskdependencygraph.TaskEdge;
-
 public class DotAttrNode extends BinaryNode {
 
     public DotAttrNode(Node lhs, Node rhs) {
@@ -18,13 +16,12 @@ public class DotAttrNode extends BinaryNode {
     }
 
     public String getLhsIdName() {
-        IdNode lhs = (IdNode)this.getLhs();
+        IdNode lhs = (IdNode) this.getLhs();
         return lhs.getName();
     }
 
     public String getRhsIdName() {
-        IdNode rhs = (IdNode)this.getRhs();
+        IdNode rhs = (IdNode) this.getRhs();
         return rhs.getName();
     }
 }
-

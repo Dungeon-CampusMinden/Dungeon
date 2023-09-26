@@ -192,8 +192,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
 
             // TODO: this is a temporary solution
-            if (!symbol.getDataType().getName().equals("quest_config") &&
-                !symbol.getDataType().getName().equals("dungeon_config")) {
+            if (!symbol.getDataType().getName().equals("quest_config")
+                    && !symbol.getDataType().getName().equals("dungeon_config")) {
                 Node astNode = symbolTable().getCreationAstNode(symbol);
                 if (astNode != Node.NONE) {
                     Value valueToAssign = (Value) astNode.accept(this);
@@ -303,8 +303,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         for (var node : programAST.getChildren()) {
             if (node.type == Node.Type.ObjectDefinition) {
                 var objDefNode = (ObjectDefNode) node;
-                if (objDefNode.getTypeSpecifierName().equals("quest_config") ||
-                    objDefNode.getTypeSpecifierName().equals("dungeon_config")) {
+                if (objDefNode.getTypeSpecifierName().equals("quest_config")
+                        || objDefNode.getTypeSpecifierName().equals("dungeon_config")) {
                     return objDefNode.accept(this);
                 }
             }

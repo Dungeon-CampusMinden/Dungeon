@@ -16,7 +16,6 @@ import helpers.Helpers;
 import interpreter.mockecs.*;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import parser.ast.IdNode;
@@ -27,10 +26,6 @@ import runtime.*;
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
-
-import task.Quiz;
-import task.quizquestion.MultipleChoice;
-import task.quizquestion.SingleChoice;
 
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
@@ -2617,7 +2612,7 @@ public class TestDSLInterpreter {
     @Test
     public void testTaskDependencyGraphNonConnected() {
         String program =
-            """
+                """
             single_choice_task t1 {
                 description: "Task1",
                 answers: ["1", "2", "3"],
@@ -2664,7 +2659,7 @@ public class TestDSLInterpreter {
     @Test
     public void testTaskDependencyGraph() {
         String program =
-            """
+                """
             single_choice_task t1 {
                 description: "Task1",
                 answers: ["1", "2", "3"],
@@ -2746,12 +2741,18 @@ public class TestDSLInterpreter {
 
         Assert.assertEquals(5, edges.size());
 
-        var taskNode1 = nodes.stream().filter(t -> t.task().taskText().equals("Task1")).toList().get(0);
-        var taskNode2 = nodes.stream().filter(t -> t.task().taskText().equals("Task2")).toList().get(0);
-        var taskNode3 = nodes.stream().filter(t -> t.task().taskText().equals("Task3")).toList().get(0);
-        var taskNode4 = nodes.stream().filter(t -> t.task().taskText().equals("Task4")).toList().get(0);
-        var taskNode5 = nodes.stream().filter(t -> t.task().taskText().equals("Task5")).toList().get(0);
-        var taskNode6 = nodes.stream().filter(t -> t.task().taskText().equals("Task6")).toList().get(0);
+        var taskNode1 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task1")).toList().get(0);
+        var taskNode2 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task2")).toList().get(0);
+        var taskNode3 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task3")).toList().get(0);
+        var taskNode4 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task4")).toList().get(0);
+        var taskNode5 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task5")).toList().get(0);
+        var taskNode6 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task6")).toList().get(0);
 
         var t1t2edge = endNodeToEdges.get(taskNode2).get(0);
         Assert.assertEquals(taskNode1, t1t2edge.startNode());
@@ -2777,7 +2778,7 @@ public class TestDSLInterpreter {
     @Test
     public void testTaskDependencyGraphGroupNotation() {
         String program =
-            """
+                """
             single_choice_task t1 {
                 description: "Task1",
                 answers: ["1", "2", "3"],
@@ -2855,12 +2856,18 @@ public class TestDSLInterpreter {
 
         Assert.assertEquals(8, edges.size());
 
-        var taskNode1 = nodes.stream().filter(t -> t.task().taskText().equals("Task1")).toList().get(0);
-        var taskNode2 = nodes.stream().filter(t -> t.task().taskText().equals("Task2")).toList().get(0);
-        var taskNode3 = nodes.stream().filter(t -> t.task().taskText().equals("Task3")).toList().get(0);
-        var taskNode4 = nodes.stream().filter(t -> t.task().taskText().equals("Task4")).toList().get(0);
-        var taskNode5 = nodes.stream().filter(t -> t.task().taskText().equals("Task5")).toList().get(0);
-        var taskNode6 = nodes.stream().filter(t -> t.task().taskText().equals("Task6")).toList().get(0);
+        var taskNode1 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task1")).toList().get(0);
+        var taskNode2 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task2")).toList().get(0);
+        var taskNode3 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task3")).toList().get(0);
+        var taskNode4 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task4")).toList().get(0);
+        var taskNode5 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task5")).toList().get(0);
+        var taskNode6 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task6")).toList().get(0);
 
         var t1t3edge = startNodeToEdges.get(taskNode1).get(0);
         Assert.assertEquals(taskNode3, t1t3edge.endNode());

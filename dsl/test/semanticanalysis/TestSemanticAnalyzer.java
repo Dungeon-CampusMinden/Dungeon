@@ -828,7 +828,7 @@ public class TestSemanticAnalyzer {
     @Test
     public void testTaskReferenceInGraphForwardReference() {
         String program =
-            """
+                """
             graph g {
                 t1 -> t2
             }

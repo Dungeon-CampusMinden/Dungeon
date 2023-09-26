@@ -16,7 +16,9 @@ public class EdgeRhsNode extends Node {
     /**
      * @return The IdNodeList corresponding to the referenced identifiers on the right-hand-side
      */
-    public Node getIdNodeList() { return this.getChild(idNodeIdx); }
+    public Node getIdNodeList() {
+        return this.getChild(idNodeIdx);
+    }
 
     /**
      * @return The {@link EdgeOpNode.Type} of the EdgeOperator

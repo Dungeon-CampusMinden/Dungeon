@@ -1,10 +1,12 @@
 package interpreter.dot;
 
 import interpreter.DSLInterpreter;
+
 import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
 import runtime.Value;
+
 import task.Task;
 
 import taskdependencygraph.TaskDependencyGraph;
@@ -83,7 +85,7 @@ public class Interpreter implements AstVisitor<TaskNode> {
     @Override
     public TaskNode visit(IdNode node) {
         String name = node.getName();
-        var task = (Value)node.accept(dslInterpreter);
+        var task = (Value) node.accept(dslInterpreter);
 
         if (!(task.getInternalValue() instanceof Task)) {
             throw new RuntimeException("Reference to undefined Task '" + name + "'");
@@ -91,7 +93,7 @@ public class Interpreter implements AstVisitor<TaskNode> {
 
         // lookup and create, if not present previously
         if (graphNodes.get(name) == null) {
-            graphNodes.put(name, new TaskNode((Task)task.getInternalValue()));
+            graphNodes.put(name, new TaskNode((Task) task.getInternalValue()));
         }
 
         // return Dot-Node
@@ -112,7 +114,10 @@ public class Interpreter implements AstVisitor<TaskNode> {
 
     protected TaskEdge.Type getEdgeType(DotEdgeStmtNode node) {
         List<Node> attributes = node.getAttributes();
-        var typeAttributes = attributes.stream().filter(attrNode -> ((DotAttrNode)attrNode).getLhsIdName().equals("type")).toList();
+        var typeAttributes =
+                attributes.stream()
+                        .filter(attrNode -> ((DotAttrNode) attrNode).getLhsIdName().equals("type"))
+                        .toList();
         if (typeAttributes.size() == 0) {
             throw new RuntimeException("No type attribute found on graph edge!");
         } else if (typeAttributes.size() > 1) {

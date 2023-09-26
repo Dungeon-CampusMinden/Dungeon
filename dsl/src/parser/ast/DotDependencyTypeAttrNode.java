@@ -4,7 +4,10 @@ import taskdependencygraph.TaskEdge;
 
 public class DotDependencyTypeAttrNode extends DotAttrNode {
     public DotDependencyTypeAttrNode(DotDependencyTypeNode dependencyTypeNode) {
-        super(Type.DotDependencyTypeAttr, new IdNode("type", SourceFileReference.NULL), dependencyTypeNode);
+        super(
+                Type.DotDependencyTypeAttr,
+                new IdNode("type", SourceFileReference.NULL),
+                dependencyTypeNode);
     }
 
     public TaskEdge.Type getDependencyType() {

@@ -10,6 +10,7 @@ import org.junit.Test;
 // CHECKSTYLE:OFF: AvoidStarImport
 
 import parser.ast.*;
+
 import taskdependencygraph.TaskEdge;
 
 import java.util.List;
@@ -978,7 +979,7 @@ public class TestDungeonASTConverter {
     @Test
     public void testGraphEdgeAttribute() {
         String program =
-            """
+                """
             graph g {
                 t1 -> t2 [type=seq]
             }
