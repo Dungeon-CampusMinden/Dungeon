@@ -33,8 +33,8 @@ public class TaskTest {
         Place onPerfect = new Place();
         Place onBad = new Place();
         onActive.observe(task, Task.TaskState.ACTIVE);
-        onPerfect.observe(task, Task.TaskState.FINISHED_PERFECT);
-        onBad.observe(task, Task.TaskState.FINISHED_BAD);
+        onPerfect.observe(task, Task.TaskState.FINISHED_CORRECT);
+        onBad.observe(task, Task.TaskState.FINISHED_WRONG);
 
         assertEquals(0, onActive.tokenCount());
         assertEquals(0, onBad.tokenCount());
@@ -45,7 +45,7 @@ public class TaskTest {
         assertEquals(0, onBad.tokenCount());
         assertEquals(0, onPerfect.tokenCount());
 
-        task.state(Task.TaskState.FINISHED_BAD);
+        task.state(Task.TaskState.FINISHED_WRONG);
         assertEquals(1, onActive.tokenCount());
         assertEquals(1, onBad.tokenCount());
         assertEquals(0, onPerfect.tokenCount());
@@ -56,29 +56,8 @@ public class TaskTest {
         assertEquals(Task.TaskState.INACTIVE, task.state());
         task.state(Task.TaskState.ACTIVE);
         assertEquals(Task.TaskState.ACTIVE, task.state());
-        task.state(Task.TaskState.INACTIVE);
-        assertEquals("Can not change state back.", Task.TaskState.ACTIVE, task.state());
-        task.state(Task.TaskState.FINISHED_PERFECT);
-        assertEquals(Task.TaskState.FINISHED_PERFECT, task.state());
-        task.state(Task.TaskState.INACTIVE);
-        assertEquals("Can not change state back.", Task.TaskState.FINISHED_PERFECT, task.state());
-        task.state(Task.TaskState.ACTIVE);
-        assertEquals("Can not change state back.", Task.TaskState.FINISHED_PERFECT, task.state());
-    }
-
-    @Test
-    public void state_okay() {
-        assertEquals(Task.TaskState.INACTIVE, task.state());
-        task.state(Task.TaskState.ACTIVE);
-        assertEquals(Task.TaskState.ACTIVE, task.state());
-        task.state(Task.TaskState.INACTIVE);
-        assertEquals("Can not change state back.", Task.TaskState.ACTIVE, task.state());
-        task.state(Task.TaskState.FINISHED_OKAY);
-        assertEquals(Task.TaskState.FINISHED_OKAY, task.state());
-        task.state(Task.TaskState.INACTIVE);
-        assertEquals("Can not change state back.", Task.TaskState.FINISHED_OKAY, task.state());
-        task.state(Task.TaskState.ACTIVE);
-        assertEquals("Can not change state back.", Task.TaskState.FINISHED_OKAY, task.state());
+        task.state(Task.TaskState.FINISHED_CORRECT);
+        assertEquals(Task.TaskState.FINISHED_CORRECT, task.state());
     }
 
     @Test
@@ -86,14 +65,8 @@ public class TaskTest {
         assertEquals(Task.TaskState.INACTIVE, task.state());
         task.state(Task.TaskState.ACTIVE);
         assertEquals(Task.TaskState.ACTIVE, task.state());
-        task.state(Task.TaskState.INACTIVE);
-        assertEquals("Can not change state back.", Task.TaskState.ACTIVE, task.state());
-        task.state(Task.TaskState.FINISHED_BAD);
-        assertEquals(Task.TaskState.FINISHED_BAD, task.state());
-        task.state(Task.TaskState.INACTIVE);
-        assertEquals("Can not change state back.", Task.TaskState.FINISHED_BAD, task.state());
-        task.state(Task.TaskState.ACTIVE);
-        assertEquals("Can not change state back.", Task.TaskState.FINISHED_BAD, task.state());
+        task.state(Task.TaskState.FINISHED_WRONG);
+        assertEquals(Task.TaskState.FINISHED_WRONG, task.state());
     }
 
     @Test

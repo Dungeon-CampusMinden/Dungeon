@@ -282,7 +282,7 @@ public class Starter {
         return (task, taskContents) -> {
             selectedPoint =
                     ((PayloadTaskContent) taskContents.stream().findFirst().get()).payload();
-            task.state(Task.TaskState.FINISHED_PERFECT);
+            task.state(Task.TaskState.FINISHED_CORRECT);
         };
     }
 

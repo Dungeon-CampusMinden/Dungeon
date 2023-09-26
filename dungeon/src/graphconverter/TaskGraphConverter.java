@@ -12,7 +12,7 @@ import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 
-import petriNet.Place;
+import petriNet.PetriNet;
 
 import task.Task;
 import task.components.DoorComponent;
@@ -55,11 +55,11 @@ public class TaskGraphConverter {
      * @return the start room
      * @see RoombasedLevelGenerator
      */
-    public static ILevel levelGraphFor(TaskDependencyGraph taskGraph) {
+    public static ILevel levelGraphFor(final TaskDependencyGraph taskGraph) {
         // Map the node of the task-graph to a levelGraph
-        Map<TaskNode, LevelGraph> nodeToLevelGraph = new HashMap<>();
+        Map<TaskNode, LevelGraph> nodeToLevelGraph = new LinkedHashMap<>();
         // used to connect the doors to the task manager later
-        Map<LevelGraph, Task> graphToTask = new HashMap<>();
+        Map<LevelGraph, Task> graphToTask = new LinkedHashMap<>();
         // Create a Level-graph for each Node in the TaskGraph
         taskGraph
                 .nodeIterator()
@@ -117,7 +117,7 @@ public class TaskGraphConverter {
      *     otherwise (never, return value is used for the recursion).
      */
     private static boolean connectUnconnectedGraphs(
-            LevelGraph rootGraph, Collection<LevelGraph> levelGraphs) {
+            final LevelGraph rootGraph, final Collection<LevelGraph> levelGraphs) {
         for (LevelGraph levelGraph : levelGraphs) {
             Set<LevelNode> tmp = rootGraph.nodes();
             tmp.removeIf(n -> n.originGraph() != levelGraph);
@@ -196,8 +196,44 @@ public class TaskGraphConverter {
                 });
     }
 
-    // TODO
-    public static Place petriNetFor(TaskDependencyGraph taskGraph) {
-        return null;
+    /**
+     * Creates the Petri-Net for the given {@link TaskDependencyGraph}.
+     *
+     * <p>For each Task, a basic Petri net will be created, and then the Petri nets will be
+     * connected based on the task dependency.
+     *
+     * @param taskGraph graph that defines the task dependencies
+     * @return Mapping of {@link TaskNode} to {@link PetriNet}
+     * @see PetriNetFactory
+     */
+    public static Map<TaskNode, PetriNet> petriNetFor(final TaskDependencyGraph taskGraph) {
+        Map<TaskNode, PetriNet> noteToNet = new LinkedHashMap<>();
+
+        // create a basic petri net for each task
+        taskGraph
+                .nodeIterator()
+                .forEachRemaining(
+                        taskNode ->
+                                noteToNet.put(
+                                        taskNode, PetriNetFactory.defaultNet(taskNode.task())));
+
+        // connect petri nets
+        taskGraph
+                .edgeIterator()
+                .forEachRemaining(
+                        taskEdge ->
+                                PetriNetFactory.connect(
+                                        noteToNet.get(taskEdge.startNode()),
+                                        noteToNet.get(taskEdge.endNode()),
+                                        taskEdge.edgeType()));
+
+        // init token
+        noteToNet
+                .values()
+                .forEach(
+                        petriNet -> {
+                            petriNet.taskNotActivated().placeToken();
+                        });
+        return noteToNet;
     }
 }

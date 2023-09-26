@@ -101,6 +101,8 @@ public class TaskEdge implements Comparable<TaskEdge> {
         subtask_mandatory,
         subtask_optional,
         sequence,
+        sequence_and,
+        sequence_or,
         conditional_false,
         conditional_correct
     }
