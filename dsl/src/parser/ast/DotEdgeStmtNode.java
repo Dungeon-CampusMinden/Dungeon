@@ -23,7 +23,10 @@ public class DotEdgeStmtNode extends Node {
         this.addChild(attrList);
     }
 
-    // TODO: javadoc
+    /**
+     * Returns a list of the stored DotIdList-Nodes, in order of definition
+     * @return a list of the stored DotIdList-Nodes
+     */
     public List<DotIdList> getIdLists() {
         return this.getChildren().subList(0, attrListIdx).stream().map(node -> (DotIdList)node).toList();
     }
