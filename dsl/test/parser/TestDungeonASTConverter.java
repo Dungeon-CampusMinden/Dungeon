@@ -79,6 +79,38 @@ public class TestDungeonASTConverter {
         assertEquals("c", thirdIdNode.getName());
     }
 
+    @Test
+    public void testChainedEdgeStmtIdGroups() {
+        String program = "graph g { a,b,c -> d,e,f -> g,h,j }";
+
+        var ast = Helpers.getASTFromString(program);
+
+        var dot_def = ast.getChild(0);
+        assertEquals(Node.Type.DotDefinition, dot_def.type);
+
+        var edgeStmt = dot_def.getChild(1);
+        assertEquals(Node.Type.DotEdgeStmt, edgeStmt.type);
+        var edgeStmtNode = (DotEdgeStmtNode) edgeStmt;
+
+        var firstIdGroup = edgeStmtNode.getIdGroups().get(0);
+        var idNodes = firstIdGroup.getIdNodes();
+        assertEquals("a", idNodes.get(0).getName());
+        assertEquals("b", idNodes.get(1).getName());
+        assertEquals("c", idNodes.get(2).getName());
+
+        var secondIdGroup = edgeStmtNode.getIdGroups().get(1);
+        idNodes = secondIdGroup.getIdNodes();
+        assertEquals("d", idNodes.get(0).getName());
+        assertEquals("e", idNodes.get(1).getName());
+        assertEquals("f", idNodes.get(2).getName());
+
+        var thirdIdGroup = edgeStmtNode.getIdGroups().get(2);
+        idNodes = thirdIdGroup.getIdNodes();
+        assertEquals("g", idNodes.get(0).getName());
+        assertEquals("h", idNodes.get(1).getName());
+        assertEquals("j", idNodes.get(2).getName());
+    }
+
     /** Test AST of a function call inside a property definition */
     @Test
     public void testFuncCall() {
