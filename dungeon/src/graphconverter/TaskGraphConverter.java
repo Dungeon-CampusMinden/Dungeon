@@ -46,6 +46,7 @@ public class TaskGraphConverter {
      * @param graph Graph to execute the full chain of conversion on.
      * @return the start room
      */
+    // TODO this needs the DSLInterpreter as parameter
     public static ILevel convert(final TaskDependencyGraph graph) {
         callTaskBuilderFor(graph);
         ILevel level = levelGraphFor(graph);
@@ -65,6 +66,7 @@ public class TaskGraphConverter {
                             @Override
                             public void accept(TaskNode taskNode) {
                                 // TODO REPLACE @malte-r
+                                // TODO this needs the DSLInterpreter
                                 TaskBuilder.DUMMY_TASK_BUILDER(taskNode.task());
                             }
                         });
