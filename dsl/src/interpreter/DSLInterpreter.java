@@ -66,6 +66,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
         memoryStack.push(globalSpace);
     }
 
+    /**
+     * Create a {@link DungeonConfig} instance for given {@link DSLEntryPoint}, this will reset the
+     * environment of this {@link DSLInterpreter}
+     *
+     * @param entryPoint the {@link DSLEntryPoint} to interpret.
+     * @return the interpreted {@link DungeonConfig}.
+     */
     public DungeonConfig interpretEntryPoint(DSLEntryPoint entryPoint) {
         Node filesRootASTNode = entryPoint.file().rootASTNode();
 
@@ -333,7 +340,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return Value.NONE;
     }
 
-    public DungeonConfig generateQuestConfig(ObjectDefNode configDefinitionNode) {
+    protected DungeonConfig generateQuestConfig(ObjectDefNode configDefinitionNode) {
         createGameObjectPrototypes(this.environment);
         Value configValue = (Value) configDefinitionNode.accept(this);
         Object config = configValue.getInternalValue();
