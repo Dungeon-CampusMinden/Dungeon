@@ -179,7 +179,7 @@ public final class DrawComponent implements Component {
     public void queueAnimation(int forFrames, IPath... next) {
         IPath lowest = null;
         // Streams lose ordering
-        for (IPath path: next) {
+        for (IPath path : next) {
             if (lowest == null) lowest = path;
             if (lowest.priority() > path.priority()) lowest = path;
         }
