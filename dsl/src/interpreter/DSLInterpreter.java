@@ -26,6 +26,9 @@ import semanticanalysis.*;
 import semanticanalysis.types.*;
 
 import task.Quiz;
+import task.Task;
+import task.quizquestion.MultipleChoice;
+import task.quizquestion.SingleChoice;
 
 import java.util.*;
 
@@ -57,12 +60,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     private static final String RETURN_VALUE_NAME = "$return_value$";
 
+    private final ScenarioBuilderStorage scenarioBuilderStorage;
+
     /** Constructor. */
     public DSLInterpreter() {
         memoryStack = new ArrayDeque<>();
         instanceMemoryStack = new ArrayDeque<>();
         globalSpace = new MemorySpace();
         statementStack = new ArrayDeque<>();
+        scenarioBuilderStorage = new ScenarioBuilderStorage();
         memoryStack.push(globalSpace);
     }
 
@@ -176,6 +182,82 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return componentPrototype;
     }
 
+    // TODO: do this in builder storage
+    public void initializeScenarioBuilderStorage() {
+        var symbols = this.environment.getGlobalScope().getSymbols();
+
+        symbols.stream()
+                .filter(
+                        symbol -> {
+                            if (symbol instanceof AggregateType type) {
+                                var originType = type.getOriginType();
+                                return originType != null
+                                        && Task.class.isAssignableFrom(originType);
+                            }
+                            return false;
+                        })
+                .forEach(
+                        symbol ->
+                                this.scenarioBuilderStorage.initializeStorageForType(
+                                        (IType) symbol));
+    }
+
+    public void scanScopeForScenarioBuilders(IScope scope) {
+        var symbols = scope.getSymbols();
+        Set<IType> taskTypes = this.scenarioBuilderStorage.getTypesWithStorage();
+        // TODO: this may be null
+        Symbol returnTypeSymbol = this.environment.getGlobalScope().resolve("entity<><>");
+        if (returnTypeSymbol == Symbol.NULL) {
+            return;
+        }
+        IType returnType = (IType) returnTypeSymbol;
+        symbols.stream()
+                .filter(
+                        symbol -> {
+                            if (symbol instanceof FunctionSymbol functionSymbol) {
+                                FunctionType functionType = functionSymbol.getFunctionType();
+                                if (!functionType.getReturnType().equals(returnType)) {
+                                    return false;
+                                }
+                                if (functionType.getParameterTypes().size() != 1) {
+                                    return false;
+                                }
+                                IType parameterType = functionType.getParameterTypes().get(0);
+                                if (!taskTypes.contains(parameterType)) {
+                                    return false;
+                                }
+                                return true;
+                            }
+                            return false;
+                        })
+                .map(symbol -> (FunctionSymbol) symbol)
+                .forEach(this.scenarioBuilderStorage::storeScenarioBuilder);
+    }
+
+    public Object buildTask(Task task) {
+        // TODO: this class is the actual class and there will be a direct correllation
+        //  between clazz and the type created by TypeBuilder (currently they all point to Task)
+        var clazz = task.getClass();
+
+        String typeName = "";
+        if (clazz.equals(SingleChoice.class)) {
+            typeName = "single_choice_task";
+        } else if (clazz.equals(MultipleChoice.class)) {
+            typeName = "multiple_choice_task";
+        }
+
+        Symbol potentialTaskType = this.environment.getGlobalScope().resolve(typeName);
+        if (potentialTaskType == Symbol.NULL || !(potentialTaskType instanceof IType)) {
+            throw new RuntimeException("Not a supported task type!");
+        }
+
+        FunctionSymbol scenarioBuilder = this.scenarioBuilderStorage.retrieveRandomScenarioBuilderForType((IType) potentialTaskType);
+
+        Value retValue = (Value) this.executeUserDefinedFunctionRawParameters(scenarioBuilder, List.of(task));
+        var typeInstantiator = this.environment.getTypeInstantiator();
+        return typeInstantiator.instantiate(retValue);
+    }
+
     /**
      * Binds all function definitions, object definitions and data types in a global memory space.
      *
@@ -194,6 +276,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // TODO: this should potentially done on a file basis, not globally for the whole
         // DSLInterpreter
         //  should define a file-scope...
+        // TODO: refactor in own method
         HashMap<Symbol, Value> globalValues = new HashMap<>();
         for (var symbol : symbolTable().getGlobalScope().getSymbols()) {
             var value = bindFromSymbol(symbol, memoryStack.peek());
@@ -241,6 +324,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 setValue(assignee, valueToAssign);
             }
         }
+
+        initializeScenarioBuilderStorage();
+        scanScopeForScenarioBuilders(this.environment.getGlobalScope());
     }
 
     private Value bindFromSymbol(Symbol symbol, IMemorySpace ms) {
