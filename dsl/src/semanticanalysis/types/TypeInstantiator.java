@@ -33,20 +33,26 @@ public class TypeInstantiator {
      * @param value the aggregateValue to instantiate an object from
      * @return the instantiated object
      */
-    public Object instantiate(AggregateValue value) {
-        AggregateType type;
-        if (value.getDataType() instanceof Prototype) {
+    public Object instantiate(Value value) {
+        IType valuesType = value.getDataType();
+
+        if (valuesType instanceof Prototype) {
             // instantiation of prototypes is handled by the native `instantiate` function
             return null;
-        } else {
-            type = (AggregateType) value.getDataType();
         }
 
-        if (type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
+        if (valuesType.getTypeKind().equals(IType.Kind.SetType) ||
+            valuesType.getTypeKind().equals(IType.Kind.ListType) ||
+            valuesType.getTypeKind().equals(IType.Kind.Basic)) {
             return convertValueToObject(value);
         }
 
-        return instantiateAsType(value, type);
+        AggregateType aggregateType = (AggregateType) valuesType;
+        if (aggregateType.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
+            return convertValueToObject(value);
+        }
+
+        return instantiateAsType((AggregateValue)value, aggregateType);
     }
 
     /**
@@ -65,12 +71,6 @@ public class TypeInstantiator {
             return null;
         }
         Object instance;
-
-        /*if (originalJavaClass.isRecord()) {
-            instance = instantiateRecord(originalJavaClass, ms);
-        } else {
-            instance = instantiateAggregateValueAsClass(type, value);
-        }*/
         instance = convertValueToObject(value, type);
 
         // set properties
@@ -339,16 +339,18 @@ public class TypeInstantiator {
                     }
                 }
                 if (field.isAnnotationPresent(DSLCallback.class)) {
-                    assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
-                    FunctionValue functionValue = (FunctionValue) fieldValue;
-                    if (!(functionValue.getCallable() instanceof FunctionSymbol functionSymbol)) {
-                        throw new RuntimeException(
+                    if (fieldValue != Value.NONE) {
+                        assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
+                        FunctionValue functionValue = (FunctionValue) fieldValue;
+                        if (!(functionValue.getCallable() instanceof FunctionSymbol functionSymbol)) {
+                            throw new RuntimeException(
                                 "Usage of non-FunctionSymbol callables as DSLCallback currently not supported");
-                    } else {
-                        CallbackAdapter adapter =
+                        } else {
+                            CallbackAdapter adapter =
                                 callbackAdapterBuilder.buildAdapter(functionSymbol);
-                        field.setAccessible(true);
-                        field.set(instance, adapter);
+                            field.setAccessible(true);
+                            field.set(instance, adapter);
+                        }
                     }
                 }
             }
