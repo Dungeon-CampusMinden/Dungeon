@@ -26,6 +26,7 @@ import semanticanalysis.types.TypeBuilder;
 
 import task.Quiz;
 import task.Task;
+import task.components.TaskComponent;
 import task.taskdsltypes.MultipleChoiceTask;
 import task.taskdsltypes.SingleChoiceDescriptionProperty;
 import task.taskdsltypes.SingleChoiceTask;
@@ -63,6 +64,7 @@ public class GameEnvironment implements IEvironment {
                     AIComponent.class,
                     CollideComponent.class,
                     DrawComponent.class,
+                    TaskComponent.class,
                     Task.class,
                     // SingleChoiceTask.class,
                     Quiz.Content.class
