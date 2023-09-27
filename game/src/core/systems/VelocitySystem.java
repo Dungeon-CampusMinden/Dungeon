@@ -14,6 +14,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.draw.CoreAnimations;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -144,7 +145,7 @@ public final class VelocitySystem extends System {
             else if (x < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
             else if (y > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
             else if (y < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
-            vsd.dc.deQueueByPriority(0);
+            vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
         }
 
         // idle
