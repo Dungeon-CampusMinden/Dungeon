@@ -2893,4 +2893,60 @@ public class TestDSLInterpreter {
         var t4t6edge = startNodeToEdges.get(taskNode4).get(1);
         Assert.assertEquals(taskNode6, t4t6edge.endNode());
     }
+
+    @Test
+    public void testScenarioBuilderIntegraion() {
+        String program =
+            """
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        entity_type wizard_type {
+            draw_component {
+                path: "character/wizard"
+            },
+            hitbox_component {},
+            position_component{},
+            task_component{}
+        }
+
+        fn build_scenario(single_choice_task t) -> entity<><> {
+            var ret_set : entity<><>;
+            var first_room_set : entity<>;
+            var wizard : entity;
+
+            wizard = instantiate(wizard_type);
+
+            // TODO:
+            // wizard.task_component.task = t;
+            // oder:
+            // set_manager(t, wizard);
+            // oder (als property umgesetzt, wobei das wahrscheinlich erfordert, dass
+            // SingleChoiceTask sich tatsächlich auch auf die Klasse SingleChoice bezieht):
+            // t.manager_entity = wizard;
+
+            first_room_set.add(wizard);
+            ret_set.add(first_room_set);
+            return ret_set;
+        }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+
+
+        boolean b = true;
+    }
+
 }
