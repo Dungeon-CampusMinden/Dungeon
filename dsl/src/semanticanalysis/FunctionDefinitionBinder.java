@@ -161,7 +161,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     public Void visit(ListTypeIdentifierNode node) {
         IScope globalScope = this.symbolTable.globalScope;
         String typeName = node.getName();
-        IType resolvedType = globalScope.resolveType(typeName);
+        Symbol resolvedType = globalScope.resolve(typeName);
 
         // construct a new ListType for the node, if it was not previously created
         if (resolvedType == Symbol.NULL) {
@@ -183,7 +183,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     public Void visit(SetTypeIdentifierNode node) {
         IScope globalScope = this.symbolTable.globalScope;
         String typeName = node.getName();
-        IType resolvedType = globalScope.resolveType(typeName);
+        Symbol resolvedType = globalScope.resolve(typeName);
 
         // construct a new ListType for the node, if it was not previously created
         if (resolvedType == Symbol.NULL) {
