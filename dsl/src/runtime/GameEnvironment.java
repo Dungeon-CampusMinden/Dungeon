@@ -78,6 +78,8 @@ public class GameEnvironment implements IEvironment {
         properties.add(EntityExtension.VelocityComponentProperty.instance);
         properties.add(EntityExtension.PositionComponentProperty.instance);
         properties.add(EntityExtension.DrawComponentProperty.instance);
+        properties.add(EntityExtension.TaskComponentProperty.instance);
+        properties.add(TaskComponent.TaskProperty.instance);
 
         return properties;
     }

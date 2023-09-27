@@ -57,7 +57,6 @@ public final class TaskComponent implements Component {
         onActivate = DOOR_OPENER;
     }
 
-
     /**
      * Returns the task managed by this component.
      *
@@ -95,7 +94,6 @@ public final class TaskComponent implements Component {
         public void set(TaskComponent instance, Task valueToSet) {
             instance.task = valueToSet;
             instance.task.managerEntity(instance.my_entity);
-            // TODO: how to get the entity of 'this'?
         }
 
         @Override

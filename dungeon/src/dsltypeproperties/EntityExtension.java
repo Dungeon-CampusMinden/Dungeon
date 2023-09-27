@@ -7,6 +7,7 @@ import core.components.VelocityComponent;
 
 import semanticanalysis.types.DSLTypeProperty;
 import semanticanalysis.types.IDSLTypeProperty;
+import task.components.TaskComponent;
 
 /**
  * This class implements {@link IDSLTypeProperty} for the {@link Entity} class, in order to access
@@ -72,6 +73,26 @@ public class EntityExtension {
         @Override
         public DrawComponent get(Entity instance) {
             var optionalComponent = instance.fetch(DrawComponent.class);
+            return optionalComponent.orElse(null);
+        }
+    }
+
+    @DSLTypeProperty(name = "task_component", extendedType = Entity.class)
+    public static class TaskComponentProperty implements IDSLTypeProperty<Entity, TaskComponent> {
+        public static TaskComponentProperty instance = new TaskComponentProperty();
+
+        private TaskComponentProperty() {}
+
+        @Override
+        public void set(Entity instance, TaskComponent valueToSet) {
+            // TODO: should validate this
+            instance.removeComponent(TaskComponent.class);
+            instance.addComponent(valueToSet);
+        }
+
+        @Override
+        public TaskComponent get(Entity instance) {
+            var optionalComponent = instance.fetch(TaskComponent.class);
             return optionalComponent.orElse(null);
         }
     }
