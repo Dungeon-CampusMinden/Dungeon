@@ -2897,7 +2897,7 @@ public class TestDSLInterpreter {
     @Test
     public void testScenarioBuilderIntegraion() {
         String program =
-            """
+                """
         single_choice_task t1 {
             description: "Task1",
             answers: ["1", "2", "3"],
@@ -2921,23 +2921,34 @@ public class TestDSLInterpreter {
             task_component{}
         }
 
-        fn build_scenario(single_choice_task t) -> entity<><> {
+        entity_type knight_type {
+            draw_component {
+                path: "character/knight"
+            },
+            hitbox_component {},
+            position_component{}
+        }
+
+        fn build_scenario1(single_choice_task t) -> entity<><> {
             var ret_set : entity<><>;
+
             var first_room_set : entity<>;
+            var second_room_set : entity<>;
+
             var wizard : entity;
+            var knight : entity;
 
             wizard = instantiate(wizard_type);
+            wizard.task_component.task = t;
 
-            // TODO:
-            // wizard.task_component.task = t;
-            // oder:
-            // set_manager(t, wizard);
-            // oder (als property umgesetzt, wobei das wahrscheinlich erfordert, dass
-            // SingleChoiceTask sich tatsächlich auch auf die Klasse SingleChoice bezieht):
-            // t.manager_entity = wizard;
+            knight = instantiate(knight_type);
 
             first_room_set.add(wizard);
+            second_room_set.add(knight);
+
             ret_set.add(first_room_set);
+            ret_set.add(second_room_set);
+
             return ret_set;
         }
         """;
@@ -2945,8 +2956,31 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
 
+        var task = config.dependencyGraph().nodeIterator().next().task();
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task);
+        var roomIter = builtTask.iterator();
 
-        boolean b = true;
+        var firstRoomSet = roomIter.next();
+        var entityInFirstRoom = firstRoomSet.iterator().next();
+
+        var secondRoomSet = roomIter.next();
+        var entityInSecondRoom = secondRoomSet.iterator().next();
+
+        DrawComponent drawComp1 = entityInFirstRoom.fetch(DrawComponent.class).get();
+        var frameDrawComp1 = drawComp1.currentAnimation().getAnimationFrames().get(0);
+
+        DrawComponent drawComp2 = entityInSecondRoom.fetch(DrawComponent.class).get();
+        var frameDrawComp2 = drawComp2.currentAnimation().getAnimationFrames().get(0);
+
+        int firstEntitiesId = entityInFirstRoom.id();
+        int secondEntitiesId = entityInSecondRoom.id();
+        // the entity with the smaller id should be the wizard
+        if (firstEntitiesId < secondEntitiesId) {
+            Assert.assertTrue(frameDrawComp1.contains("character/wizard"));
+            Assert.assertTrue(frameDrawComp2.contains("character/knight"));
+        } else {
+            Assert.assertTrue(frameDrawComp1.contains("character/knight"));
+            Assert.assertTrue(frameDrawComp2.contains("character/wizard"));
+        }
     }
-
 }
