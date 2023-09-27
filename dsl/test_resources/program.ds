@@ -1,5 +1,5 @@
 graph g {
-    A -- B
+    A -> B
 }
 
 quest_config c {

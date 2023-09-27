@@ -1,8 +1,8 @@
 package interpreter;
 
 import dungeonFiles.DSLEntryPoint;
+import dungeonFiles.DungeonConfig;
 import dungeonFiles.ParsedFile;
-import dungeonFiles.QuestConfig;
 
 import parser.DungeonASTConverter;
 import parser.ast.*;
@@ -30,7 +30,7 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
 
     /**
      * Constructor. Creates a GameEnvironment to get the {@link semanticanalysis.types.IType} for
-     * {@link QuestConfig}.
+     * {@link DungeonConfig}.
      */
     public DSLEntryPointFinder() {
         this.environment = new GameEnvironment();
@@ -38,7 +38,7 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
         var symbols = environment.getGlobalScope().getSymbols();
         for (Symbol symbol : symbols) {
             if (symbol instanceof AggregateType aggregateType) {
-                if (aggregateType.getOriginType().equals(QuestConfig.class)) {
+                if (aggregateType.getOriginType().equals(DungeonConfig.class)) {
                     this.questConfigDataType = aggregateType;
                 }
             }

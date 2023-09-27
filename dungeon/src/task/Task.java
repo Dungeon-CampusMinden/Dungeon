@@ -7,9 +7,11 @@ import petriNet.Place;
 import semanticanalysis.types.DSLType;
 
 import task.components.TaskComponent;
+import task.components.TaskContentComponent;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -40,6 +42,8 @@ public abstract class Task {
     private String taskText;
     private final Set<Place> observer = new HashSet<>();
     private Entity managementEntity;
+
+    private Set<Set<Entity>> entitySets = new HashSet<>();
 
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
@@ -80,22 +84,12 @@ public abstract class Task {
      *
      * <p>Each registered {@link Place} will be notified.
      *
-     * <p>A {@link TaskState#ACTIVE} cannot be changed to {@link TaskState#INACTIVE}, and a {@link
-     * TaskState#FINISHED_PERFECT} or {@link * TaskState#FINISHED_OKAY} or {@link *
-     * TaskState#FINISHED_BAD} cannot be changed to {@link TaskState#ACTIVE} or {@link
-     * TaskState#INACTIVE}.
-     *
      * @param state The new state of the task.
      * @return true if the state was changed successfully, false if not.
      */
     public boolean state(final TaskState state) {
-        if (this.state == state
-                || this.state == TaskState.FINISHED_BAD
-                || this.state == TaskState.FINISHED_OKAY
-                || this.state == TaskState.FINISHED_PERFECT) return false;
-        if (this.state == TaskState.ACTIVE && state == TaskState.INACTIVE) return false;
+        if (this.state == state) return false;
         this.state = state;
-
         observer.forEach(place -> place.notify(this, state));
 
         if (state == TaskState.ACTIVE && managementEntity != null)
@@ -158,6 +152,27 @@ public abstract class Task {
     }
 
     /**
+     * Set the Set of Entity-Sets.
+     *
+     * <p>For each Set<Entity> in the outer set, the level generator will generate a room for that
+     * where the entities of the inner collection are placed.
+     *
+     * @param entitySets Set that contains the Set of Entities that are related to the task.
+     */
+    public void entitieSets(Set<Set<Entity>> entitySets) {
+        this.entitySets = entitySets;
+    }
+
+    /**
+     * Get the collection of Entity Sets.
+     *
+     * @return A set that contains sets of entities related to the task.
+     */
+    public Set<Set<Entity>> entitySets() {
+        return new HashSet<>(entitySets);
+    }
+
+    /**
      * Callback function to score the task, given a Set of TaskContent
      *
      * @return the callback function
@@ -185,6 +200,31 @@ public abstract class Task {
     }
 
     /**
+     * Finds the entity that implements the TaskContentComponent linked to the given TaskContent.
+     *
+     * @param content The task content to find the entity for.
+     * @return The entity that implements the TaskContentComponent linked to the given content.
+     */
+    public Entity find(TaskContent content) {
+        final Entity[] found = {null};
+        entitySets.forEach(
+                set ->
+                        set.forEach(
+                                entity ->
+                                        entity.fetch(TaskContentComponent.class)
+                                                .ifPresent(
+                                                        taskContentComponent -> {
+                                                            if (taskContentComponent.stream()
+                                                                    .collect(Collectors.toSet())
+                                                                    .contains(content)) {
+                                                                found[0] = entity;
+                                                            }
+                                                        })));
+
+        return found[0];
+    }
+
+    /**
      * Status that a task can assume.
      *
      * <p>ACTIVE - The task can be actively worked on.
@@ -200,8 +240,8 @@ public abstract class Task {
     public enum TaskState {
         ACTIVE,
         INACTIVE,
-        FINISHED_PERFECT,
-        FINISHED_OKAY,
-        FINISHED_BAD
+        PROCESSING_ACTIVE,
+        FINISHED_CORRECT,
+        FINISHED_WRONG
     }
 }

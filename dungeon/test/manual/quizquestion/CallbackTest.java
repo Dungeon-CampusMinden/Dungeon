@@ -5,16 +5,17 @@ import com.badlogic.gdx.Input;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
+import contrib.hud.UITools;
 import contrib.systems.*;
 
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.hud.UITools;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
+import task.Quiz;
 import task.Task;
 import task.TaskContent;
 import task.components.TaskComponent;
@@ -71,6 +72,7 @@ public class CallbackTest {
                         Game.add(new HealthSystem());
                         Game.add(new XPSystem());
                         Game.add(new ProjectileSystem());
+                        Game.add(new HudSystem());
                         Entity hero = EntityFactory.newHero();
                         Game.hero(hero);
                         Game.add(hero);
@@ -100,7 +102,7 @@ public class CallbackTest {
         Entity wizard = new Entity("Quest Wizard");
         wizard.addComponent(new PositionComponent());
         wizard.addComponent(new DrawComponent("character/wizard"));
-        wizard.addComponent(new TaskComponent(question));
+        wizard.addComponent(new TaskComponent(question, wizard));
         wizard.addComponent(
                 new InteractionComponent(
                         1,

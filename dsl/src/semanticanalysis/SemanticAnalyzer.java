@@ -673,6 +673,24 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(DotDefNode node) {
+        // TODO: should check, that all identifiers actually refer to
+        //  task definitions -> should be implemented with type checking
+        for (Node stmt : node.getStmtNodes()) {
+            stmt.accept(this);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(DotNodeStmtNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Void visit(DotIdList node) {
+        // visit all stored IdNodes
+        visitChildren(node);
         return null;
     }
 
@@ -682,7 +700,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     }
 
     @Override
-    public Void visit(EdgeStmtNode node) {
+    public Void visit(DotEdgeStmtNode node) {
+        for (Node id : node.getIdLists()) {
+            id.accept(this);
+        }
         return null;
     }
 

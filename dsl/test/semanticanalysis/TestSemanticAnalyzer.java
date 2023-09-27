@@ -1,7 +1,5 @@
 package semanticanalysis;
 
-import graph.Graph;
-
 import helpers.Helpers;
 
 import interpreter.DummyNativeFunction;
@@ -21,6 +19,8 @@ import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.types.*;
 
+import taskdependencygraph.TaskDependencyGraph;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
@@ -32,9 +32,9 @@ public class TestSemanticAnalyzer {
         String program =
                 """
                 graph g {
-                    A -- B
+                    A -> B
                 }
-                quest_config c {
+                dungeon_config c {
                     level_graph: g
                 }
                 """;
@@ -42,7 +42,7 @@ public class TestSemanticAnalyzer {
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
 
-        // check the name of the symbol corresponding to the graph definition
+        // check the name of the symbol corresponding to the taksDependencyGraph definition
         var graphDefAstNode = ast.getChild(0);
         var symbolForDotDefNode =
                 symtableResult.symbolTable.getSymbolsForAstNode(graphDefAstNode).get(0);
@@ -56,7 +56,7 @@ public class TestSemanticAnalyzer {
     }
 
     @DSLType
-    private record TestComponent(@DSLTypeMember Graph<String> levelGraph) {}
+    private record TestComponent(@DSLTypeMember TaskDependencyGraph levelGraph) {}
 
     /**
      * Test, if the reference to a symbol is correctly resolved and that the symbol is linked to the
@@ -67,7 +67,7 @@ public class TestSemanticAnalyzer {
         String program =
                 """
                 graph g {
-                    A -- B
+                    A -> B
                 }
 
                 entity_type c {
@@ -90,11 +90,12 @@ public class TestSemanticAnalyzer {
         symbolTableParser.setup(env);
         var symbolTable = symbolTableParser.walk(ast).symbolTable;
 
-        // check the name of the symbol corresponding to the graph definition
+        // check the name of the symbol corresponding to the taksDependencyGraph definition
         var graphDefAstNode = ast.getChild(0);
         var symbolForDotDefNode = symbolTable.getSymbolsForAstNode(graphDefAstNode).get(0);
 
-        // check, if the stmt of the propertyDefinition references the symbol of the graph
+        // check, if the stmt of the propertyDefinition references the symbol of the
+        // taksDependencyGraph
         // definition
         var gameObjDefNode = ast.getChild(1);
         var componentDefNode =
@@ -118,9 +119,9 @@ public class TestSemanticAnalyzer {
         String program =
                 """
                 graph g {
-                    A -- B
+                    A -> B
                 }
-                quest_config c {
+                dungeon_config c {
                     level_graph: g
                 }
                 """;
@@ -128,12 +129,13 @@ public class TestSemanticAnalyzer {
         var ast = Helpers.getASTFromString(program);
         var symtableResult = Helpers.getSymtableForAST(ast);
 
-        // check the name of the symbol corresponding to the graph definition
+        // check the name of the symbol corresponding to the taksDependencyGraph definition
         var graphDefAstNode = ast.getChild(0);
         var symbolForDotDefNode =
                 symtableResult.symbolTable.getSymbolsForAstNode(graphDefAstNode).get(0);
 
-        // check, if the stmt of the propertyDefinition references the symbol of the graph
+        // check, if the stmt of the propertyDefinition references the symbol of the
+        // taksDependencyGraph
         // definition
         var objDefNode = ast.getChild(1);
         var propertyDefList = objDefNode.getChild(2);
@@ -152,7 +154,7 @@ public class TestSemanticAnalyzer {
     public void testSetupNativeFunctions() {
         String program =
                 """
-                quest_config c {
+                dungeon_config c {
                     points: print("Hello")
                 }
                         """;
@@ -171,7 +173,7 @@ public class TestSemanticAnalyzer {
     public void testResolveNativeFunction() {
         String program =
                 """
-                quest_config c {
+                dungeon_config c {
                     points: print("Hello")
                 }
                         """;
@@ -205,13 +207,13 @@ public class TestSemanticAnalyzer {
         String program =
                 """
                 graph g {
-                    A -- B
+                    A -> B
                 }
-                quest_config c {
-                    level_graph: g
+                dungeon_config c {
+                    dependency_graph: g
                 }
-                quest_config d {
-                    level_graph: g
+                dungeon_config d {
+                    dependency_graph: g
                 }
                     """;
 
@@ -229,8 +231,9 @@ public class TestSemanticAnalyzer {
         assert (firstPropertyIdNode.type == Node.Type.Identifier);
 
         // resolve 'level_graph' property of quest_config type in the datatype
-        var questConfigType = symtableResult.symbolTable.globalScope.resolve("quest_config");
-        var levelGraphPropertySymbol = ((AggregateType) questConfigType).resolve("level_graph");
+        var questConfigType = symtableResult.symbolTable.globalScope.resolve("dungeon_config");
+        var levelGraphPropertySymbol =
+                ((AggregateType) questConfigType).resolve("dependency_graph");
         Assert.assertNotEquals(Symbol.NULL, levelGraphPropertySymbol);
 
         var symbolForPropertyIdNode =
@@ -768,5 +771,110 @@ public class TestSemanticAnalyzer {
         declScope = elseStmtDeclSymbol.getScope();
         expectedToBeFunctionScope = declScope.getParent().getParent();
         Assert.assertEquals(funcSymbol, expectedToBeFunctionScope);
+    }
+
+    @Test
+    public void testTaskReferenceInGraph() {
+        String program =
+                """
+            single_choice_task t1 {
+                description: "Hello",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 1
+            }
+
+            multiple_choice_task t2 {
+                description: "Tschüss",
+                answers: ["4", "5", "6"],
+                correct_answer_index: [0,1]
+            }
+
+            graph g {
+                t1 -> t2
+            }
+            """;
+
+        // setup
+        var ast = Helpers.getASTFromString(program);
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+
+        TypeBuilder tb = new TypeBuilder();
+        Scope scope = new Scope();
+        var testComponentType = tb.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
+
+        var env = new GameEnvironment();
+        env.loadTypes(testComponentType);
+        symbolTableParser.setup(env);
+        var symbolTable = symbolTableParser.walk(ast).symbolTable;
+
+        Symbol t1TaskSymbol = symbolTable.globalScope.resolve("t1");
+        Symbol t2TaskSymbol = symbolTable.globalScope.resolve("t2");
+
+        DotDefNode dotDefNode = (DotDefNode) ast.getChild(2);
+
+        DotEdgeStmtNode stmtNode = (DotEdgeStmtNode) dotDefNode.getStmtNodes().get(0);
+
+        IdNode t1Reference = stmtNode.getIdLists().get(0).getIdNodes().get(0);
+        var t1Symbol = symbolTable.getSymbolsForAstNode(t1Reference).get(0);
+        Assert.assertNotEquals(Symbol.NULL, t1Symbol);
+        Assert.assertEquals(t1TaskSymbol, t1Symbol);
+
+        IdNode t2Reference = stmtNode.getIdLists().get(1).getIdNodes().get(0);
+        var t2Symbol = symbolTable.getSymbolsForAstNode(t2Reference).get(0);
+        Assert.assertNotEquals(Symbol.NULL, t2Symbol);
+        Assert.assertEquals(t2TaskSymbol, t2Symbol);
+    }
+
+    @Test
+    public void testTaskReferenceInGraphForwardReference() {
+        String program =
+                """
+            graph g {
+                t1 -> t2
+            }
+
+            single_choice_task t1 {
+                description: "Hello",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 1
+            }
+
+            multiple_choice_task t2 {
+                description: "Tschüss",
+                answers: ["4", "5", "6"],
+                correct_answer_index: [0,1]
+            }
+
+            """;
+
+        // setup
+        var ast = Helpers.getASTFromString(program);
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+
+        TypeBuilder tb = new TypeBuilder();
+        Scope scope = new Scope();
+        var testComponentType = tb.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
+
+        var env = new GameEnvironment();
+        env.loadTypes(testComponentType);
+        symbolTableParser.setup(env);
+        var symbolTable = symbolTableParser.walk(ast).symbolTable;
+
+        Symbol t1TaskSymbol = symbolTable.globalScope.resolve("t1");
+        Symbol t2TaskSymbol = symbolTable.globalScope.resolve("t2");
+
+        DotDefNode dotDefNode = (DotDefNode) ast.getChild(0);
+
+        DotEdgeStmtNode stmtNode = (DotEdgeStmtNode) dotDefNode.getStmtNodes().get(0);
+
+        IdNode t1Reference = stmtNode.getIdLists().get(0).getIdNodes().get(0);
+        var t1Symbol = symbolTable.getSymbolsForAstNode(t1Reference).get(0);
+        Assert.assertNotEquals(Symbol.NULL, t1Symbol);
+        Assert.assertEquals(t1TaskSymbol, t1Symbol);
+
+        IdNode t2Reference = stmtNode.getIdLists().get(1).getIdNodes().get(0);
+        var t2Symbol = symbolTable.getSymbolsForAstNode(t2Reference).get(0);
+        Assert.assertNotEquals(Symbol.NULL, t2Symbol);
+        Assert.assertEquals(t2TaskSymbol, t2Symbol);
     }
 }

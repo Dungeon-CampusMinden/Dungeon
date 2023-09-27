@@ -230,12 +230,11 @@ primary : ID
  * -------------------- dot related definitions --------------------
  * dot grammar: https://graphviz.org/doc/info/lang.html
  *
- * simplifications:
- * - don't support subgraphs
- * - don't support ports
+ * The regular dot-grammar was heavily simplified to be used as a
+ * definition language for task dependency graphs
  */
 
-dot_def : graph_type=('graph'|'digraph') ID '{' dot_stmt_list? '}' ;
+dot_def : 'graph' ID '{' dot_stmt_list? '}' ;
 
 dot_stmt_list
         : dot_stmt ';'? dot_stmt_list?
@@ -244,26 +243,19 @@ dot_stmt_list
 dot_stmt
         : dot_node_stmt
         | dot_edge_stmt
-        | dot_attr_stmt
-        | dot_assign_stmt
-        ;
-
-dot_assign_stmt
-        : ID '=' ID
         ;
 
 dot_edge_stmt
-        : ID dot_edge_RHS+ dot_attr_list?
+        : dot_node_list dot_edge_RHS+ dot_attr_list?
+        ;
+
+dot_node_list
+        : ID ',' dot_node_list
+        | ID
         ;
 
 dot_edge_RHS
-        : dot_edge_op ID
-        ;
-
-// dot specifies the keywords as case insensitive,
-// we require them to be lowercase for simplicity
-dot_attr_stmt
-        : ('graph' | 'node' | 'edge') dot_attr_list
+        : ARROW dot_node_list
         ;
 
 dot_node_stmt
@@ -271,14 +263,20 @@ dot_node_stmt
         ;
 
 dot_attr_list
-        : '[' dot_a_list? ']' dot_a_list?
+        : '[' dot_attr+ ']'
         ;
 
-dot_a_list
-        : ID '=' ID (';'|',')? dot_a_list?
+dot_attr
+        : ID '=' ID (';'|',')?                  #dot_attr_id
+        | 'type' '=' dependency_type (';'|',')? #dot_attr_dependency_type
         ;
 
-dot_edge_op
-        : ARROW
-        | DOUBLE_LINE
+dependency_type
+        : ('seq'|'sequence')            #dt_sequence
+        | ('st_m'|'subtask_mandatory')  #dt_subtask_mandatory
+        | ('st_o'|'subtask_optional')   #dt_subtask_optional
+        | ('c_c'|'conditional_correct') #dt_conditional_correct
+        | ('c_f'|'conditional_false')   #dt_conditional_false
+        | ('seq_and'|'sequence_and')    #dt_sequence_and
+        | ('seq_or'|'sequence_or')      #dt_sequence_or
         ;

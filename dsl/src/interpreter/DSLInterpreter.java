@@ -3,6 +3,9 @@ package interpreter;
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
 
+import dungeonFiles.DSLEntryPoint;
+import dungeonFiles.DungeonConfig;
+
 import interpreter.dot.Interpreter;
 
 import org.antlr.v4.runtime.CharStreams;
@@ -22,7 +25,7 @@ import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticanalysis.types.*;
 
-import task.quizquestion.Quiz;
+import task.Quiz;
 
 import java.util.*;
 
@@ -36,7 +39,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     private RuntimeEnvironment environment;
     private final ArrayDeque<IMemorySpace> memoryStack;
     private final ArrayDeque<IMemorySpace> instanceMemoryStack;
-    private final IMemorySpace globalSpace;
+    private IMemorySpace globalSpace;
 
     private SymbolTable symbolTable() {
         return environment.getSymbolTable();
@@ -61,6 +64,26 @@ public class DSLInterpreter implements AstVisitor<Object> {
         globalSpace = new MemorySpace();
         statementStack = new ArrayDeque<>();
         memoryStack.push(globalSpace);
+    }
+
+    /**
+     * Create a {@link DungeonConfig} instance for given {@link DSLEntryPoint}, this will reset the
+     * environment of this {@link DSLInterpreter}
+     *
+     * @param entryPoint the {@link DSLEntryPoint} to interpret.
+     * @return the interpreted {@link DungeonConfig}.
+     */
+    public DungeonConfig interpretEntryPoint(DSLEntryPoint entryPoint) {
+        Node filesRootASTNode = entryPoint.file().rootASTNode();
+
+        SemanticAnalyzer symTableParser = new SemanticAnalyzer();
+        var environment = new GameEnvironment();
+        symTableParser.setup(environment);
+        var result = symTableParser.walk(filesRootASTNode);
+
+        initializeRuntime(environment);
+
+        return generateQuestConfig(entryPoint.configDefinitionNode());
     }
 
     /**
@@ -159,6 +182,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param environment The environment to bind the functions, objects and data types from.
      */
     public void initializeRuntime(IEvironment environment) {
+        // reinitialize global memory space
+        this.memoryStack.clear();
+        this.globalSpace = new MemorySpace();
+        this.memoryStack.push(this.globalSpace);
+
         this.environment = new RuntimeEnvironment(environment, this);
 
         // bind all function definition and object definition symbols to values
@@ -174,16 +202,43 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
         }
 
+        Set<Map.Entry<Symbol, Value>> graphDefinitions = new HashSet<>();
+
         for (var entry : globalValues.entrySet()) {
             Symbol symbol = entry.getKey();
+            if (symbol.getDataType().equals(BuiltInType.graphType)) {
+                // store the graph definition; currently, we cannot ensure,
+                // that all tasks, which are referenced in the graph, are evaluated
+                // at this point -> store the graph definition for later and
+                // iterate over all graph definitions afterward, when all other
+                // definitions where evaluated -> a 'clean' solution for this problem
+                // requires some kind of symbolic execution in order to check for
+                // dependencies between different kinds of object definitions in the
+                // global scope
+                graphDefinitions.add(entry);
+                continue;
+            }
+
             // TODO: this is a temporary solution
-            if (!symbol.getDataType().getName().equals("quest_config")) {
+            if (!symbol.getDataType().getName().equals("quest_config")
+                    && !symbol.getDataType().getName().equals("dungeon_config")) {
                 Node astNode = symbolTable().getCreationAstNode(symbol);
                 if (astNode != Node.NONE) {
                     Value valueToAssign = (Value) astNode.accept(this);
                     Value assignee = entry.getValue();
                     setValue(assignee, valueToAssign);
                 }
+            }
+        }
+
+        // evaluate global graph definitions
+        for (var entry : graphDefinitions) {
+            Symbol symbol = entry.getKey();
+            Node astNode = symbolTable().getCreationAstNode(symbol);
+            if (astNode != Node.NONE) {
+                Value valueToAssign = (Value) astNode.accept(this);
+                Value assignee = entry.getValue();
+                setValue(assignee, valueToAssign);
             }
         }
     }
@@ -212,10 +267,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (type.getTypeKind().equals(IType.Kind.Basic)) {
             Object internalValue = Value.getDefaultValue(type);
             return new Value(type, internalValue);
-        } else if (type.getTypeKind().equals(IType.Kind.PODAdapted)) {
-            AdaptedType adaptedType = (AdaptedType) type;
-            var builderParamType = adaptedType.getBuildParameterType();
-            return createDefaultValue(builderParamType);
         } else if (type.getTypeKind().equals(IType.Kind.Aggregate)
                 || type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
             AggregateValue value = new AggregateValue(type, getCurrentMemorySpace());
@@ -280,12 +331,28 @@ public class DSLInterpreter implements AstVisitor<Object> {
         for (var node : programAST.getChildren()) {
             if (node.type == Node.Type.ObjectDefinition) {
                 var objDefNode = (ObjectDefNode) node;
-                if (objDefNode.getTypeSpecifierName().equals("quest_config")) {
+                if (objDefNode.getTypeSpecifierName().equals("quest_config")
+                        || objDefNode.getTypeSpecifierName().equals("dungeon_config")) {
                     return objDefNode.accept(this);
                 }
             }
         }
         return Value.NONE;
+    }
+
+    protected DungeonConfig generateQuestConfig(ObjectDefNode configDefinitionNode) {
+        createGameObjectPrototypes(this.environment);
+        Value configValue = (Value) configDefinitionNode.accept(this);
+        Object config = configValue.getInternalValue();
+        if (config instanceof DungeonConfig) {
+            DungeonConfig dungeonConfig = (DungeonConfig) config;
+            if (dungeonConfig.displayName().isEmpty()) {
+                String objectName = configDefinitionNode.getIdName();
+                dungeonConfig = new DungeonConfig(dungeonConfig.dependencyGraph(), objectName);
+            }
+            return dungeonConfig;
+        }
+        return null;
     }
 
     protected Value instantiateDSLValue(AggregateType type) {
@@ -340,7 +407,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return instance;
     }
 
-    private AggregateType getOriginalTypeOfPrototype(Prototype type) {
+    public AggregateType getOriginalTypeOfPrototype(Prototype type) {
         IType returnType = type;
         while (returnType instanceof Prototype) {
             returnType = ((Prototype) returnType).getInternalType();
@@ -371,40 +438,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
         // instantiate entity_type
         var typeInstantiator = this.environment.getTypeInstantiator();
-        var entityObject = typeInstantiator.instantiateAsType(dslValue, asType);
-
-        // TODO: substitute the whole DSLContextMember-stuff with Builder-Methods, which would
-        //  enable creation of components with different parameters -> requires the ability to
-        //  store multiple builder-methods for one type, distinguished by their
-        //  signature
-        var annot = asType.getOriginType().getAnnotation(DSLContextPush.class);
-        String contextName = "";
-        if (annot != null) {
-            contextName = annot.name().equals("") ? asType.getOriginType().getName() : annot.name();
-            typeInstantiator.pushContextMember(contextName, entityObject);
-        }
-
-        // an entity-object itself has no members, so add the components as "artificial members"
-        // to the aggregate dsl value of the entity
-        for (var memberEntry : dslValue.getValueSet()) {
-            Value memberValue = memberEntry.getValue();
-            if (memberValue instanceof AggregateValue) {
-                // TODO: this is needed, because Prototype does not extend AggregateType currently,
-                //  which should be fixed
-                AggregateType membersOriginalType =
-                        getOriginalTypeOfPrototype((Prototype) memberValue.getDataType());
-
-                // instantiate object as a new java Object
-                typeInstantiator.instantiateAsType(
-                        (AggregateValue) memberValue, membersOriginalType);
-            }
-        }
-
-        if (annot != null) {
-            typeInstantiator.removeContextMember(contextName);
-        }
-
-        return entityObject;
+        return typeInstantiator.instantiateAsType(dslValue, asType);
     }
 
     @Override
@@ -510,7 +544,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(DotDefNode node) {
-        Interpreter dotInterpreter = new Interpreter();
+        Interpreter dotInterpreter = new Interpreter(this);
+        var ms = getGlobalMemorySpace();
         var graph = dotInterpreter.getGraph(node);
         return new Value(BuiltInType.graphType, graph);
     }
@@ -1102,7 +1137,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(EdgeStmtNode node) {
+    public Object visit(DotEdgeStmtNode node) {
         return null;
     }
 

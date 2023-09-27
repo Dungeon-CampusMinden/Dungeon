@@ -64,7 +64,6 @@ public class RuntimeObjectTranslator {
         if (dslType != BuiltInType.noType) {
             switch (dslType.getTypeKind()) {
                 case Basic:
-                case PODAdapted:
                 case AggregateAdapted:
                     // if the type is adapted, it is an external type and therefore should be
                     // represented as a non-complex Value

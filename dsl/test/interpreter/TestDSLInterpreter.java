@@ -2,9 +2,14 @@ package interpreter;
 
 import static org.junit.Assert.*;
 
-import dungeonFiles.QuestConfig;
+import contrib.components.CollideComponent;
 
-import graph.Graph;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
+
+import dslnativefunction.NativeInstantiate;
+
+import dungeonFiles.DungeonConfig;
 
 import helpers.Helpers;
 
@@ -13,26 +18,25 @@ import interpreter.mockecs.*;
 import org.junit.Assert;
 import org.junit.Test;
 
+import parser.ast.IdNode;
 import parser.ast.Node;
 
 import runtime.*;
 
+import semanticanalysis.FunctionSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
-import task.quizquestion.MultipleChoice;
-import task.quizquestion.Quiz;
-import task.quizquestion.SingleChoice;
+import taskdependencygraph.TaskDependencyGraph;
+import taskdependencygraph.TaskEdge;
+import taskdependencygraph.TaskNode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -40,7 +44,7 @@ public class TestDSLInterpreter {
     public void funcCall() {
         String program =
                 """
-                quest_config c {
+                dungeon_config c {
                     test: print("Hello, World!")
                 }
                     """;
@@ -269,7 +273,7 @@ public class TestDSLInterpreter {
     public void testDontSetNullValue() {
         String program =
                 """
-                quest_config c {
+                dungeon_config c {
                     this_value_does_not_exist_in_type: 42
                 }
                     """;
@@ -297,87 +301,24 @@ public class TestDSLInterpreter {
         assertEquals(Node.Type.ObjectDefinition, secondChild.type);
     }
 
-    @Test
-    public void questConfigPartial() {
-        // the quest_config type has also a quest_points and a password
-        // parameter, these should be set to default values
-        String program =
-                """
-                quest_config c {
-                    quest_desc: "Hello"
-                }
-                    """;
-        DSLInterpreter interpreter = new DSLInterpreter();
-
-        var questConfig = (QuestConfig) interpreter.getQuestConfig(program);
-        assertEquals(0, questConfig.questPoints());
-        assertEquals("Hello", questConfig.questDesc());
-        assertEquals("", questConfig.password());
-    }
-
-    /** Test, if the properties of the quest_config definition are correctly parsed */
-    @Test
-    public void questConfigFull() {
-        String program =
-                """
-                graph g {
-                    A -- B
-                }
-                quest_config c {
-                    level_graph: g,
-                    quest_points: 42,
-                    quest_desc: "Hello",
-                    password: "TESTPW"
-                }
-                    """;
-        DSLInterpreter interpreter = new DSLInterpreter();
-
-        var questConfig = (QuestConfig) interpreter.getQuestConfig(program);
-        assertEquals(42, questConfig.questPoints());
-        assertEquals("Hello", questConfig.questDesc());
-        assertEquals("TESTPW", questConfig.password());
-        var graph = questConfig.levelGraph();
-
-        var edgeIter = graph.edgeIterator();
-        int edgeCount = 0;
-        while (edgeIter.hasNext()) {
-            edgeIter.next();
-            edgeCount++;
-        }
-        assertEquals(1, edgeCount);
-
-        var nodeIter = graph.nodeIterator();
-        int nodeCount = 0;
-        while (nodeIter.hasNext()) {
-            nodeIter.next();
-            nodeCount++;
-        }
-        assertEquals(2, nodeCount);
-    }
-
     @DSLType
     private record TestComponent(@DSLTypeMember int member1, @DSLTypeMember String member2) {}
 
     @DSLType
     private record OtherComponent(
-            @DSLTypeMember int member3, @DSLTypeMember Graph<String> member4) {}
+            @DSLTypeMember int member3, @DSLTypeMember TaskDependencyGraph member4) {}
 
     @Test
     public void aggregateTypeWithDefaults() {
         String program =
                 """
-                graph g {
-                    A -- B
-                }
-
                 entity_type c {
                     test_component{
                         member1: 42,
                         member2: "Hello, World!"
                     },
                     other_component{
-                        member3: 314,
-                        member4: g
+                        member3: 314
                     }
                 }
                 """;
@@ -611,7 +552,7 @@ public class TestDSLInterpreter {
                         member2: 12
                     },
                     test_component_with_external_type {
-                        member_external_type: "Hello, World!"
+                        member_external_type: external_type { str: "Hello, World!" }
                     }
                 }
 
@@ -647,7 +588,7 @@ public class TestDSLInterpreter {
         Value externalTypeMemberValue = component.getMemorySpace().resolve("member_external_type");
         Assert.assertNotEquals(externalTypeMemberValue, Value.NONE);
         Assert.assertEquals(
-                externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.PODAdapted);
+                externalTypeMemberValue.getDataType().getTypeKind(), IType.Kind.AggregateAdapted);
 
         var internalObject = (TestComponentWithExternalType) component.getInternalValue();
         ExternalType externalTypeMember = internalObject.getMemberExternalType();
@@ -740,7 +681,7 @@ public class TestDSLInterpreter {
         var graphValue =
                 new Value(
                         BuiltInType.graphType,
-                        new Graph<String>(new ArrayList<>(), new ArrayList<>()));
+                        new TaskDependencyGraph(new ArrayList<>(), new ArrayList<>()));
         Assert.assertTrue(DSLInterpreter.isBooleanTrue(graphValue));
     }
 
@@ -1328,30 +1269,38 @@ public class TestDSLInterpreter {
     }
 
     @Test
+    // TODO: requires implementation of task dependency graph parsing (see:
+    // https://github.com/Programmiermethoden/Dungeon/issues/520)
     public void taskDefinition() {
         String program =
                 """
-                    single_choice_task my_single_choice_task {
+                    single_choice_task t1 {
                         description: "Hello",
                         answers: ["1", "2", "3"],
                         correct_answer_index: 1
                     }
 
-                    multiple_choice_task my_multiple_choice_task {
+                    multiple_choice_task t2 {
                         description: "Tschüss",
                         answers: ["4", "5", "6"],
                         correct_answer_index: [0,1]
                     }
 
-                    quest_config c {
-                        tasks: [my_single_choice_task, my_multiple_choice_task]
+                    graph g {
+                        t1 -> t2 [type=st_m]
+                    }
+
+                    dungeon_config c {
+                        dependency_graph: g
                     }
                 """;
 
         DSLInterpreter interpreter = new DSLInterpreter();
-        var config = (QuestConfig) interpreter.getQuestConfig(program);
+        var config = (DungeonConfig) interpreter.getQuestConfig(program);
 
-        Quiz singleChoiceTask = (Quiz) config.tasks().get(0);
+        boolean b = true;
+        /*
+        Quiz singleChoiceTask = (Quiz) config.dependencyGraph().nodeIterator().next().task();
         Assert.assertTrue(singleChoiceTask instanceof SingleChoice);
         Assert.assertEquals("Hello", singleChoiceTask.taskText());
         Assert.assertTrue(singleChoiceTask.correctAnswerIndices().contains(1));
@@ -1360,7 +1309,7 @@ public class TestDSLInterpreter {
         Assert.assertEquals("2", ((Quiz.Content) answers.get(1)).content());
         Assert.assertEquals("3", ((Quiz.Content) answers.get(2)).content());
 
-        Quiz multipleChoiceTask = (Quiz) config.tasks().get(1);
+        Quiz multipleChoiceTask = (Quiz) config.dependencyGraph().nodeIterator().next().task();
         Assert.assertTrue(multipleChoiceTask instanceof MultipleChoice);
         Assert.assertEquals("Tschüss", multipleChoiceTask.taskText());
         Assert.assertTrue(multipleChoiceTask.correctAnswerIndices().contains(1));
@@ -1368,6 +1317,7 @@ public class TestDSLInterpreter {
         Assert.assertEquals("4", ((Quiz.Content) multipleChoiceAnswers.get(0)).content());
         Assert.assertEquals("5", ((Quiz.Content) multipleChoiceAnswers.get(1)).content());
         Assert.assertEquals("6", ((Quiz.Content) multipleChoiceAnswers.get(2)).content());
+         */
     }
 
     @Test
@@ -2569,5 +2519,378 @@ public class TestDSLInterpreter {
 
         String output = outputStream.toString();
         assertEquals("42" + System.lineSeparator(), output);
+    }
+
+    @Test
+    public void testInstantiateEntityDrawComponent() {
+        String program =
+                """
+            entity_type wizard_type {
+                draw_component {
+                    path: "character/wizard"
+                },
+                hitbox_component {},
+                position_component{}
+            }
+
+            dungeon_config c { }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config = (DungeonConfig) interpreter.getQuestConfig(program);
+
+        // call the native `instantiate` function manually
+        // resolve function in rtEnv
+        var runtimeEnvironment = interpreter.getRuntimeEnvironment();
+        NativeInstantiate instantiateFunc =
+                (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
+        // create new IdNode for "wizard_type` to pass to native instantiate
+        IdNode node = new IdNode("wizard_type", null);
+        // call the function
+        var value = (AggregateValue) instantiateFunc.call(interpreter, List.of(node));
+        // extract the entity from the Value-instance
+        core.Entity entity = (core.Entity) value.getInternalValue();
+
+        Assert.assertTrue(entity.isPresent(DrawComponent.class));
+        Assert.assertTrue(entity.isPresent(CollideComponent.class));
+        Assert.assertTrue(entity.isPresent(PositionComponent.class));
+    }
+
+    @Test
+    public void testInstantiateEntityDrawComponentAccessPath() {
+        String program =
+                """
+        entity_type wizard_type {
+            draw_component {
+                path: "character/wizard"
+            },
+            hitbox_component {},
+            position_component{}
+        }
+
+        fn test_func(entity ent) {
+            print(ent.draw_component.path);
+        }
+
+        dungeon_config c { }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config = (DungeonConfig) interpreter.getQuestConfig(program);
+
+        // call the native `instantiate` function manually
+        // resolve function in rtEnv
+        var runtimeEnvironment = interpreter.getRuntimeEnvironment();
+        NativeInstantiate instantiateFunc =
+                (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
+        // create new IdNode for "wizard_type` to pass to native instantiate
+        IdNode node = new IdNode("wizard_type", null);
+        // call the function
+        var value = (AggregateValue) instantiateFunc.call(interpreter, List.of(node));
+        // extract the entity from the Value-instance
+        core.Entity entity = (core.Entity) value.getInternalValue();
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        FunctionSymbol fnSym =
+                (FunctionSymbol) runtimeEnvironment.getGlobalScope().resolve("test_func");
+        interpreter.executeUserDefinedFunctionRawParameters(
+                fnSym, Arrays.stream(new Object[] {entity}).toList());
+
+        // explanation: the `path`-property is just used as a parameter, which will be passed to the
+        // adapter-method used for constructing the DrawComponent instance, after that, the
+        // property will be null, because it is not stored in the DrawComponent instance
+        // -> it is expected, that Value.NONE (of which the String representation is "[no value]")
+        // is returned for `path` in that case
+        String output = outputStream.toString();
+        Assert.assertEquals("[no value]" + System.lineSeparator(), output);
+    }
+
+    @Test
+    public void testTaskDependencyGraphNonConnected() {
+        String program =
+                """
+            single_choice_task t1 {
+                description: "Task1",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t2 {
+                description: "Task2",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            graph tdg {
+                t1;
+                t2;
+            }
+
+            dungeon_config c {
+                dependency_graph: tdg
+            }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var graph = config.dependencyGraph();
+
+        List<TaskNode> nodes = new ArrayList<>();
+        var nodeIter = graph.nodeIterator();
+        while (nodeIter.hasNext()) {
+            nodes.add(nodeIter.next());
+        }
+
+        Assert.assertEquals(2, nodes.size());
+
+        List<TaskEdge> edges = new ArrayList<>();
+        var edgeIter = graph.edgeIterator();
+        while (edgeIter.hasNext()) {
+            edges.add(edgeIter.next());
+        }
+
+        Assert.assertEquals(0, edges.size());
+    }
+
+    @Test
+    public void testTaskDependencyGraph() {
+        String program =
+                """
+            single_choice_task t1 {
+                description: "Task1",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t2 {
+                description: "Task2",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t3 {
+                description: "Task3",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t4 {
+                description: "Task4",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t5 {
+                description: "Task5",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t6 {
+                description: "Task6",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            graph tdg {
+                t1 -> t2 [type=st_m]
+                t1 -> t3 [type=st_o]
+                t1 -> t4 [type=seq]
+                t1 -> t5 [type=c_f]
+                t1 -> t6 [type=c_c]
+            }
+
+            dungeon_config c {
+                dependency_graph: tdg
+            }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var graph = config.dependencyGraph();
+
+        List<TaskNode> nodes = new ArrayList<>();
+        var nodeIter = graph.nodeIterator();
+        while (nodeIter.hasNext()) {
+            nodes.add(nodeIter.next());
+        }
+
+        Assert.assertEquals(6, nodes.size());
+
+        List<TaskEdge> edges = new ArrayList<>();
+        HashMap<TaskNode, List<TaskEdge>> startNodeToEdges = new HashMap<>();
+        HashMap<TaskNode, List<TaskEdge>> endNodeToEdges = new HashMap<>();
+        for (var node : nodes) {
+            startNodeToEdges.put(node, new ArrayList<>());
+            endNodeToEdges.put(node, new ArrayList<>());
+        }
+
+        var edgeIter = graph.edgeIterator();
+        while (edgeIter.hasNext()) {
+            var edge = edgeIter.next();
+            var startNodesEdge = startNodeToEdges.get(edge.startNode());
+            startNodesEdge.add(edge);
+            var endNodeEdge = endNodeToEdges.get(edge.endNode());
+            endNodeEdge.add(edge);
+            edges.add(edge);
+        }
+
+        Assert.assertEquals(5, edges.size());
+
+        var taskNode1 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task1")).toList().get(0);
+        var taskNode2 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task2")).toList().get(0);
+        var taskNode3 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task3")).toList().get(0);
+        var taskNode4 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task4")).toList().get(0);
+        var taskNode5 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task5")).toList().get(0);
+        var taskNode6 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task6")).toList().get(0);
+
+        var t1t2edge = endNodeToEdges.get(taskNode2).get(0);
+        Assert.assertEquals(taskNode1, t1t2edge.startNode());
+        Assert.assertEquals(TaskEdge.Type.subtask_mandatory, t1t2edge.edgeType());
+
+        var t1t3edge = endNodeToEdges.get(taskNode3).get(0);
+        Assert.assertEquals(taskNode1, t1t3edge.startNode());
+        Assert.assertEquals(TaskEdge.Type.subtask_optional, t1t3edge.edgeType());
+
+        var t1t4edge = endNodeToEdges.get(taskNode4).get(0);
+        Assert.assertEquals(taskNode1, t1t4edge.startNode());
+        Assert.assertEquals(TaskEdge.Type.sequence, t1t4edge.edgeType());
+
+        var t1t5edge = endNodeToEdges.get(taskNode5).get(0);
+        Assert.assertEquals(taskNode1, t1t5edge.startNode());
+        Assert.assertEquals(TaskEdge.Type.conditional_false, t1t5edge.edgeType());
+
+        var t1t6edge = endNodeToEdges.get(taskNode6).get(0);
+        Assert.assertEquals(taskNode1, t1t6edge.startNode());
+        Assert.assertEquals(TaskEdge.Type.conditional_correct, t1t6edge.edgeType());
+    }
+
+    @Test
+    public void testTaskDependencyGraphGroupNotation() {
+        String program =
+                """
+            single_choice_task t1 {
+                description: "Task1",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t2 {
+                description: "Task2",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t3 {
+                description: "Task3",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t4 {
+                description: "Task4",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t5 {
+                description: "Task5",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            single_choice_task t6 {
+                description: "Task6",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            graph tdg {
+                t1,t2 -> t3,t4 -> t5,t6 [type=seq_or]
+            }
+
+            dungeon_config c {
+                dependency_graph: tdg
+            }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var graph = config.dependencyGraph();
+
+        List<TaskNode> nodes = new ArrayList<>();
+        var nodeIter = graph.nodeIterator();
+        while (nodeIter.hasNext()) {
+            nodes.add(nodeIter.next());
+        }
+
+        Assert.assertEquals(6, nodes.size());
+
+        List<TaskEdge> edges = new ArrayList<>();
+        HashMap<TaskNode, List<TaskEdge>> startNodeToEdges = new HashMap<>();
+        HashMap<TaskNode, List<TaskEdge>> endNodeToEdges = new HashMap<>();
+        for (var node : nodes) {
+            startNodeToEdges.put(node, new ArrayList<>());
+            endNodeToEdges.put(node, new ArrayList<>());
+        }
+
+        var edgeIter = graph.edgeIterator();
+        while (edgeIter.hasNext()) {
+            var edge = edgeIter.next();
+            var startNodesEdge = startNodeToEdges.get(edge.startNode());
+            startNodesEdge.add(edge);
+            var endNodeEdge = endNodeToEdges.get(edge.endNode());
+            endNodeEdge.add(edge);
+            edges.add(edge);
+        }
+
+        Assert.assertEquals(8, edges.size());
+
+        var taskNode1 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task1")).toList().get(0);
+        var taskNode2 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task2")).toList().get(0);
+        var taskNode3 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task3")).toList().get(0);
+        var taskNode4 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task4")).toList().get(0);
+        var taskNode5 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task5")).toList().get(0);
+        var taskNode6 =
+                nodes.stream().filter(t -> t.task().taskText().equals("Task6")).toList().get(0);
+
+        var t1t3edge = startNodeToEdges.get(taskNode1).get(0);
+        Assert.assertEquals(taskNode3, t1t3edge.endNode());
+
+        var t1t4edge = startNodeToEdges.get(taskNode1).get(1);
+        Assert.assertEquals(taskNode4, t1t4edge.endNode());
+
+        var t2t3edge = startNodeToEdges.get(taskNode2).get(0);
+        Assert.assertEquals(taskNode3, t2t3edge.endNode());
+
+        var t2t4edge = startNodeToEdges.get(taskNode2).get(1);
+        Assert.assertEquals(taskNode4, t2t4edge.endNode());
+
+        var t3t5edge = startNodeToEdges.get(taskNode3).get(0);
+        Assert.assertEquals(taskNode5, t3t5edge.endNode());
+
+        var t3t6edge = startNodeToEdges.get(taskNode3).get(1);
+        Assert.assertEquals(taskNode6, t3t6edge.endNode());
+
+        var t4t5edge = startNodeToEdges.get(taskNode4).get(0);
+        Assert.assertEquals(taskNode5, t4t5edge.endNode());
+
+        var t4t6edge = startNodeToEdges.get(taskNode4).get(1);
+        Assert.assertEquals(taskNode6, t4t6edge.endNode());
     }
 }

@@ -2,8 +2,6 @@ package semanticanalysis.types;
 
 import core.utils.TriConsumer;
 
-import graph.Graph;
-
 import runtime.nativefunctions.ExtensionMethod;
 
 import semanticanalysis.*;
@@ -11,6 +9,8 @@ import semanticanalysis.types.callbackadapter.BiFunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
+
+import taskdependencygraph.TaskDependencyGraph;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -96,7 +96,8 @@ public class TypeBuilder {
             return BuiltInType.boolType;
         } else if (String.class.equals(clazz) || String.class.isAssignableFrom(clazz)) {
             return BuiltInType.stringType;
-        } else if (Graph.class.equals(clazz) || Graph.class.isAssignableFrom(clazz)) {
+        } else if (TaskDependencyGraph.class.equals(clazz)
+                || TaskDependencyGraph.class.isAssignableFrom(clazz)) {
             return BuiltInType.graphType;
         }
 
@@ -237,44 +238,37 @@ public class TypeBuilder {
                     "Builder methods with zero arguments are currently not supported");
         }
 
-        if (adapterMethod.getParameterCount() == 1) {
-            var paramType = adapterMethod.getParameterTypes()[0];
-            IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, paramType);
-            return new AdaptedType(
-                    dslTypeName, parentScope, forType, (BuiltInType) paramDSLType, adapterMethod);
-        } else {
-            var typeAdapter =
-                    new AggregateTypeAdapter(dslTypeName, parentScope, forType, adapterMethod);
-            // bind symbol for each parameter in the adapterMethod
-            for (var parameter : adapterMethod.getParameters()) {
-                String parameterName = getDSLParameterName(parameter);
-                Type parametersType = parameter.getType();
+        var typeAdapter =
+                new AggregateTypeAdapter(dslTypeName, parentScope, forType, adapterMethod);
+        // bind symbol for each parameter in the adapterMethod
+        for (var parameter : adapterMethod.getParameters()) {
+            String parameterName = getDSLParameterName(parameter);
+            Type parametersType = parameter.getType();
 
-                IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersType);
-                if (paramDSLType == null) {
-                    // TODO: refactor this to be included in createDSLTypeForJavaTypeInScope, see:
-                    //  https://github.com/Programmiermethoden/Dungeon/issues/917
+            IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersType);
+            if (paramDSLType == null) {
+                // TODO: refactor this to be included in createDSLTypeForJavaTypeInScope, see:
+                //  https://github.com/Programmiermethoden/Dungeon/issues/917
 
-                    var parametersAnnotatedType = parameter.getAnnotatedType();
-                    // if the cast fails, the type may be a parameterized type (e.g. list or set)
-                    if (List.class.isAssignableFrom((Class<?>) parametersType)) {
-                        paramDSLType =
-                                createListType(
-                                        (ParameterizedType) parametersAnnotatedType.getType(),
-                                        parentScope);
-                    } else if (Set.class.isAssignableFrom((Class<?>) parametersType)) {
-                        paramDSLType =
-                                createSetType(
-                                        (ParameterizedType) parametersAnnotatedType.getType(),
-                                        parentScope);
-                    }
+                var parametersAnnotatedType = parameter.getAnnotatedType();
+                // if the cast fails, the type may be a parameterized type (e.g. list or set)
+                if (List.class.isAssignableFrom((Class<?>) parametersType)) {
+                    paramDSLType =
+                            createListType(
+                                    (ParameterizedType) parametersAnnotatedType.getType(),
+                                    parentScope);
+                } else if (Set.class.isAssignableFrom((Class<?>) parametersType)) {
+                    paramDSLType =
+                            createSetType(
+                                    (ParameterizedType) parametersAnnotatedType.getType(),
+                                    parentScope);
                 }
-
-                Symbol parameterSymbol = new Symbol(parameterName, typeAdapter, paramDSLType);
-                typeAdapter.bind(parameterSymbol);
             }
-            return typeAdapter;
+
+            Symbol parameterSymbol = new Symbol(parameterName, typeAdapter, paramDSLType);
+            typeAdapter.bind(parameterSymbol);
         }
+        return typeAdapter;
     }
 
     public Set<Map.Entry<Class<?>, List<Method>>> getRegisteredTypeAdapters() {

@@ -2,13 +2,13 @@ package starter;
 
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
+import contrib.level.generator.graphBased.RoombasedLevelGenerator;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 
 import core.Entity;
 import core.Game;
 import core.level.elements.ILevel;
-import core.level.generator.graphBased.RoombasedLevelGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 
@@ -139,5 +139,6 @@ public class Main {
         Game.add(new ProjectileSystem());
         Game.add(new HealthbarSystem());
         Game.add(new HeroUISystem());
+        Game.add(new HudSystem());
     }
 }

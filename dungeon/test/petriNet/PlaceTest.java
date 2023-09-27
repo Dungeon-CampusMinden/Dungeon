@@ -39,7 +39,7 @@ public class PlaceTest {
         Task taskA = new DummyTask();
         Task taskB = new DummyTask();
         Task.TaskState changeATo = Task.TaskState.ACTIVE;
-        Task.TaskState changeBTo = Task.TaskState.FINISHED_BAD;
+        Task.TaskState changeBTo = Task.TaskState.FINISHED_WRONG;
         Place place = new Place();
         place.changeStateOnTokenAdd(taskA, changeATo);
         place.changeStateOnTokenAdd(taskB, changeBTo);
@@ -55,7 +55,7 @@ public class PlaceTest {
         Task taskA = new DummyTask();
         Task taskB = new DummyTask();
         Task.TaskState aAt = Task.TaskState.ACTIVE;
-        Task.TaskState bAt = Task.TaskState.FINISHED_BAD;
+        Task.TaskState bAt = Task.TaskState.FINISHED_WRONG;
         Place place = new Place();
         place.observe(taskA, aAt);
         place.observe(taskB, bAt);
@@ -71,7 +71,7 @@ public class PlaceTest {
     @Test
     public void cant_observe_and_change() {
         Place place = new Place();
-        place.observe(new DummyTask(), Task.TaskState.FINISHED_PERFECT);
+        place.observe(new DummyTask(), Task.TaskState.FINISHED_CORRECT);
 
         // Use assertThrows to check if RuntimeException is thrown
         RuntimeException exception =
@@ -79,7 +79,7 @@ public class PlaceTest {
                         RuntimeException.class,
                         () -> {
                             place.changeStateOnTokenAdd(
-                                    new DummyTask(), Task.TaskState.FINISHED_PERFECT);
+                                    new DummyTask(), Task.TaskState.FINISHED_CORRECT);
                         });
 
         // Optionally, you can check the exception message if needed
@@ -91,14 +91,14 @@ public class PlaceTest {
     @Test
     public void cant_change_and_observe() {
         Place place = new Place();
-        place.changeStateOnTokenAdd(new DummyTask(), Task.TaskState.FINISHED_PERFECT);
+        place.changeStateOnTokenAdd(new DummyTask(), Task.TaskState.FINISHED_CORRECT);
 
         // Use assertThrows to check if RuntimeException is thrown
         RuntimeException exception =
                 assertThrows(
                         RuntimeException.class,
                         () -> {
-                            place.observe(new DummyTask(), Task.TaskState.FINISHED_PERFECT);
+                            place.observe(new DummyTask(), Task.TaskState.FINISHED_CORRECT);
                         });
 
         // Optionally, you can check the exception message if needed

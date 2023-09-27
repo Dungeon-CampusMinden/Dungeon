@@ -4,6 +4,8 @@ import contrib.components.InteractionComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
+import contrib.hud.UITools;
+import contrib.level.generator.graphBased.RoombasedLevelGenerator;
 import contrib.systems.*;
 
 import core.Entity;
@@ -11,10 +13,8 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.hud.UITools;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
-import core.level.generator.graphBased.RoombasedLevelGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 
@@ -23,9 +23,9 @@ import dungeonFiles.DslFileLoader;
 
 import interpreter.DSLEntryPointFinder;
 
+import task.Quiz;
 import task.Task;
 import task.TaskContent;
-import task.quizquestion.Quiz;
 import task.quizquestion.SingleChoice;
 import task.quizquestion.UIAnswerCallback;
 
@@ -194,6 +194,7 @@ public class Starter {
         Game.add(new ProjectileSystem());
         Game.add(new HealthbarSystem());
         Game.add(new HeroUISystem());
+        Game.add(new HudSystem());
     }
 
     private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws IOException {
@@ -281,7 +282,7 @@ public class Starter {
         return (task, taskContents) -> {
             selectedPoint =
                     ((PayloadTaskContent) taskContents.stream().findFirst().get()).payload();
-            task.state(Task.TaskState.FINISHED_PERFECT);
+            task.state(Task.TaskState.FINISHED_CORRECT);
         };
     }
 

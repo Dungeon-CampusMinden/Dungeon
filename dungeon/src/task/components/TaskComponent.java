@@ -2,6 +2,7 @@ package task.components;
 
 import core.Component;
 import core.Entity;
+import core.level.elements.tile.DoorTile;
 
 import task.Task;
 
@@ -26,7 +27,7 @@ public final class TaskComponent implements Component {
     public static final Consumer<Entity> DOOR_OPENER =
             entity ->
                     entity.fetch(DoorComponent.class)
-                            .ifPresent(component -> component.door().open());
+                            .ifPresent(component -> component.doors().forEach(DoorTile::open));
 
     private Consumer<Entity> onActivate;
     private final Task task;
@@ -34,10 +35,17 @@ public final class TaskComponent implements Component {
     /**
      * Creates a new TaskManagerComponent and adds it to the associated entity.
      *
+     * <p>Automatically adds this component to the given entity and sets the entity as the manager
+     * entity of the given task.
+     *
      * @param task The task managed by this component.
+     * @param entity Entity that should contain the TaskComponent.
      */
-    public TaskComponent(final Task task) {
+    public TaskComponent(final Task task, final Entity entity) {
         this.task = task;
+        entity.addComponent(this);
+        task.managerEntity(entity);
+        onActivate = DOOR_OPENER;
     }
 
     /**

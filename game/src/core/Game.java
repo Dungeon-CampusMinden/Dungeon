@@ -14,9 +14,7 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 import core.components.PositionComponent;
-import core.components.UIComponent;
 import core.configuration.Configuration;
-import core.hud.UITools;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.generator.postGeneration.WallGenerator;
@@ -802,23 +800,9 @@ public final class Game extends ScreenAdapter {
         userOnFrame.execute();
     }
 
-    /**
-     * A Variable which only is used to check whether the UI still exists.
-     *
-     * <p>should be moved with the debug key for pause
-     */
-    private Entity pauseMenu;
     /** Just for debugging, remove later. */
     private void debugKeys() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-            // Text Dialogue (output of information texts)
-            if (pauseMenu == null
-                    || pauseMenu
-                            .fetch(UIComponent.class)
-                            .map(x -> x.dialog().getStage() == null)
-                            .orElse(false)) pauseMenu = newPauseMenu();
-
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             // toggle UI "debug rendering"
             stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
         }
@@ -833,12 +817,6 @@ public final class Game extends ScreenAdapter {
                 Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
             }
         }
-    }
-
-    private Entity newPauseMenu() {
-        Entity entity = UITools.generateNewTextDialog("Pause", "Continue", "Pausemenu");
-        entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
-        return entity;
     }
 
     /**
@@ -881,7 +859,6 @@ public final class Game extends ScreenAdapter {
         add(new DrawSystem());
         add(new VelocitySystem());
         add(new PlayerSystem());
-        add(new HudSystem());
     }
 
     @Override

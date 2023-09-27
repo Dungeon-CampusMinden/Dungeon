@@ -1,8 +1,9 @@
 package manual.level.generator.graphBased;
 
+import contrib.level.generator.graphBased.LevelGraphGenerator;
+import contrib.level.generator.graphBased.levelGraph.LevelGraph;
+
 import core.Entity;
-import core.level.generator.graphBased.levelGraph.GraphGenerator;
-import core.level.generator.graphBased.levelGraph.LevelGraph;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -27,7 +28,7 @@ public class GraphGeneratorTest {
             set.add(entities);
         }
 
-        LevelGraph g = GraphGenerator.generate(set);
+        LevelGraph g = LevelGraphGenerator.generate(set);
         String dot = g.toDot();
         // Get the system clipboard
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();

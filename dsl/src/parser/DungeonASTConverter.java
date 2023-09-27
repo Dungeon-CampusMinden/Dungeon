@@ -14,10 +14,13 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 // CHECKSTYLE:OFF: AvoidStarImport
 
 import parser.ast.*;
+
+import taskdependencygraph.TaskEdge;
 // CHECKSTYLE:ON: AvoidStarImport
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -822,17 +825,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
      */
     @Override
     public void exitDot_def(DungeonDSLParser.Dot_defContext ctx) {
-        // check, whether all edge_ops are correct for graph type
-        DotDefNode.Type graphType =
-                ctx.graph_type.getText().equals("graph")
-                        ? DotDefNode.Type.graph
-                        : DotDefNode.Type.digraph;
-
-        EdgeOpNode.Type edgeOpType =
-                graphType == DotDefNode.Type.graph
-                        ? EdgeOpNode.Type.doubleLine
-                        : EdgeOpNode.Type.arrow;
-
         // if dot_stmt_list is not empty, it will be on stack
         Node stmtList = Node.NONE;
         if (ctx.dot_stmt_list() != null) {
@@ -840,22 +832,11 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             assert (stmtList.type == Node.Type.DotStmtList);
         }
 
-        // check consistency of used edge operators with graph type
-        for (Node dotStmtList : stmtList.getChildren()) {
-            for (Node dotStmt : dotStmtList.getChildren()) {
-                if (dotStmt.type == Node.Type.DotEdgeRHS
-                        && !((EdgeRhsNode) dotStmt).getEdgeOpType().equals(edgeOpType)) {
-                    // TODO: sensible syntax error message
-                    System.out.println("Wrong syntax");
-                }
-            }
-        }
-
         // graph ID will be on stack
         Node idNode = astStack.pop();
 
         // create dotDefNode and directly add stmts as list
-        DotDefNode dotDef = new DotDefNode(graphType, idNode, stmtList.getChildren());
+        DotDefNode dotDef = new DotDefNode(idNode, stmtList.getChildren());
         astStack.push(dotDef);
     }
 
@@ -891,12 +872,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDot_assign_stmt(DungeonDSLParser.Dot_assign_stmtContext ctx) {}
-
-    @Override
-    public void exitDot_assign_stmt(DungeonDSLParser.Dot_assign_stmtContext ctx) {}
-
-    @Override
     public void enterDot_edge_stmt(DungeonDSLParser.Dot_edge_stmtContext ctx) {}
 
     @Override
@@ -909,20 +884,48 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             assert (attr_list.type == Node.Type.DotAttrList);
         }
 
+        LinkedList<Node> ids = new LinkedList<>();
+
         // pop all DotEdgeRHS Nodes from the stack and add them to one list
-        LinkedList<Node> rhsEdges = new LinkedList<>();
         for (int i = 0; i < ctx.dot_edge_RHS().size(); i++) {
             var rhs = astStack.pop();
             assert (rhs.type == Node.Type.DotEdgeRHS);
-            rhsEdges.addFirst(rhs);
+            Node idNodeList = ((EdgeRhsNode) rhs).getIdNodeList();
+            ids.addFirst(idNodeList);
         }
 
         // get the first identifier of the statement (left-hand-side)
-        var lhsId = astStack.pop();
-        assert (lhsId.type == Node.Type.Identifier);
+        var lhsIdNodeList = astStack.pop();
+        assert (lhsIdNodeList.type == Node.Type.DotIdList);
+        ids.addFirst(lhsIdNodeList);
 
-        var edgeStmtNode = new EdgeStmtNode(lhsId, new ArrayList<>(rhsEdges), attr_list);
+        var edgeStmtNode = new DotEdgeStmtNode(ids, attr_list);
         astStack.push(edgeStmtNode);
+    }
+
+    @Override
+    public void enterDot_node_list(DungeonDSLParser.Dot_node_listContext ctx) {}
+
+    @Override
+    public void exitDot_node_list(DungeonDSLParser.Dot_node_listContext ctx) {
+        Node nodeToPush;
+        if (ctx.dot_node_list() != null) {
+            Node rhsNodeList = astStack.pop();
+            assert rhsNodeList.type.equals(Node.Type.DotIdList);
+            List<Node> rhsChildren = rhsNodeList.getChildren();
+
+            Node lhsIdNode = astStack.pop();
+            assert lhsIdNode.type.equals(Node.Type.Identifier);
+
+            ArrayList<Node> idNodes = new ArrayList<>(rhsChildren.size() + 1);
+            idNodes.add(lhsIdNode);
+            idNodes.addAll(rhsChildren);
+            nodeToPush = new DotIdList(idNodes);
+        } else {
+            Node id = astStack.pop();
+            nodeToPush = new DotIdList(List.of(id));
+        }
+        astStack.push(nodeToPush);
     }
 
     @Override
@@ -941,48 +944,45 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterDot_attr_stmt(DungeonDSLParser.Dot_attr_stmtContext ctx) {}
-
-    @Override
-    public void exitDot_attr_stmt(DungeonDSLParser.Dot_attr_stmtContext ctx) {}
-
-    @Override
     public void enterDot_node_stmt(DungeonDSLParser.Dot_node_stmtContext ctx) {}
 
     @Override
-    public void exitDot_node_stmt(DungeonDSLParser.Dot_node_stmtContext ctx) {}
+    public void exitDot_node_stmt(DungeonDSLParser.Dot_node_stmtContext ctx) {
+        Node attrList = Node.NONE;
+        if (ctx.dot_attr_list() != null) {
+            attrList = astStack.pop();
+        }
+
+        Node id = astStack.pop();
+
+        Node nodeStmtNode = new DotNodeStmtNode(id, attrList);
+        astStack.push(nodeStmtNode);
+    }
 
     @Override
     public void enterDot_attr_list(DungeonDSLParser.Dot_attr_listContext ctx) {}
 
     @Override
-    public void exitDot_attr_list(DungeonDSLParser.Dot_attr_listContext ctx) {}
-
-    @Override
-    public void enterDot_a_list(DungeonDSLParser.Dot_a_listContext ctx) {}
-
-    @Override
-    public void exitDot_a_list(DungeonDSLParser.Dot_a_listContext ctx) {}
-
-    @Override
-    public void enterDot_edge_op(DungeonDSLParser.Dot_edge_opContext ctx) {}
-
-    @Override
-    public void exitDot_edge_op(DungeonDSLParser.Dot_edge_opContext ctx) {
-        // get the Node corresponding to the literal operator (arrow or double line)
-        var inner = astStack.pop();
-        assert (inner.type == Node.Type.Arrow || inner.type == Node.Type.DoubleLine);
-
-        // determine EdgeOpType based on literal operator
-        EdgeOpNode.Type edgeOpNodeType;
-        if (inner.type == Node.Type.Arrow) {
-            edgeOpNodeType = EdgeOpNode.Type.arrow;
-        } else {
-            edgeOpNodeType = EdgeOpNode.Type.doubleLine;
+    public void exitDot_attr_list(DungeonDSLParser.Dot_attr_listContext ctx) {
+        LinkedList<Node> attrNodes = new LinkedList<>();
+        for (int i = 0; i < ctx.dot_attr().size(); i++) {
+            Node attr = astStack.pop();
+            attrNodes.addFirst(attr);
         }
 
-        var node = new EdgeOpNode(inner.getSourceFileReference(), edgeOpNodeType);
-        astStack.push(node);
+        Node attrListNode = new DotAttrListNode(attrNodes);
+        astStack.push(attrListNode);
+    }
+
+    @Override
+    public void enterDot_attr_id(DungeonDSLParser.Dot_attr_idContext ctx) {}
+
+    @Override
+    public void exitDot_attr_id(DungeonDSLParser.Dot_attr_idContext ctx) {
+        Node rhsId = astStack.pop();
+        Node lhsId = astStack.pop();
+        var attrNode = new DotAttrNode(lhsId, rhsId);
+        astStack.push(attrNode);
     }
 
     private SourceFileReference getSourceFileReference(TerminalNode node) {
@@ -1053,4 +1053,81 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitEveryRule(ParserRuleContext ctx) {}
+
+    // region dependency_type
+    @Override
+    public void enterDot_attr_dependency_type(
+            DungeonDSLParser.Dot_attr_dependency_typeContext ctx) {}
+
+    @Override
+    public void exitDot_attr_dependency_type(DungeonDSLParser.Dot_attr_dependency_typeContext ctx) {
+        var typeNode = astStack.pop();
+        assert typeNode.type.equals(Node.Type.DotDependencyType);
+        var attributeNode = new DotDependencyTypeAttrNode((DotDependencyTypeNode) typeNode);
+        astStack.push(attributeNode);
+    }
+
+    @Override
+    public void enterDt_sequence(DungeonDSLParser.Dt_sequenceContext ctx) {}
+
+    @Override
+    public void exitDt_sequence(DungeonDSLParser.Dt_sequenceContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.sequence, text));
+    }
+
+    @Override
+    public void enterDt_subtask_mandatory(DungeonDSLParser.Dt_subtask_mandatoryContext ctx) {}
+
+    @Override
+    public void exitDt_subtask_mandatory(DungeonDSLParser.Dt_subtask_mandatoryContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.subtask_mandatory, text));
+    }
+
+    @Override
+    public void enterDt_subtask_optional(DungeonDSLParser.Dt_subtask_optionalContext ctx) {}
+
+    @Override
+    public void exitDt_subtask_optional(DungeonDSLParser.Dt_subtask_optionalContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.subtask_optional, text));
+    }
+
+    @Override
+    public void enterDt_conditional_correct(DungeonDSLParser.Dt_conditional_correctContext ctx) {}
+
+    @Override
+    public void exitDt_conditional_correct(DungeonDSLParser.Dt_conditional_correctContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.conditional_correct, text));
+    }
+
+    @Override
+    public void enterDt_conditional_false(DungeonDSLParser.Dt_conditional_falseContext ctx) {}
+
+    @Override
+    public void exitDt_conditional_false(DungeonDSLParser.Dt_conditional_falseContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.conditional_false, text));
+    }
+
+    @Override
+    public void enterDt_sequence_and(DungeonDSLParser.Dt_sequence_andContext ctx) {}
+
+    @Override
+    public void exitDt_sequence_and(DungeonDSLParser.Dt_sequence_andContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.sequence_and, text));
+    }
+
+    @Override
+    public void enterDt_sequence_or(DungeonDSLParser.Dt_sequence_orContext ctx) {}
+
+    @Override
+    public void exitDt_sequence_or(DungeonDSLParser.Dt_sequence_orContext ctx) {
+        var text = ctx.getText();
+        astStack.push(new DotDependencyTypeNode(TaskEdge.Type.sequence_or, text));
+    }
+    // endregion
 }

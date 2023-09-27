@@ -1,11 +1,11 @@
 package semanticanalysis.types;
 
-import graph.Graph;
+import taskdependencygraph.TaskDependencyGraph;
 
 @DSLType
 public class TestClassOuter {
     @DSLTypeMember private String member1;
     @DSLTypeMember private int member2;
-    @DSLTypeMember private Graph<String> member3;
+    @DSLTypeMember private TaskDependencyGraph member3;
     private Object member4;
 }

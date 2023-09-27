@@ -1,35 +1,45 @@
 package interpreter.dot;
 
-import graph.Edge;
-import graph.Graph;
-// CHECKSTYLE:OFF: AvoidStarImport
+import interpreter.DSLInterpreter;
 
 import parser.ast.*;
 // CHECKSTYLE:ON: AvoidStarImport
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import runtime.Value;
 
-public class Interpreter implements AstVisitor<graph.Node<String>> {
+import task.Task;
+
+import taskdependencygraph.TaskDependencyGraph;
+// CHECKSTYLE:OFF: AvoidStarImport
+import taskdependencygraph.TaskEdge;
+import taskdependencygraph.TaskNode;
+
+import java.util.*;
+
+public class Interpreter implements AstVisitor<TaskNode> {
+    private final DSLInterpreter dslInterpreter;
+
     // how to build graph?
     // - need nodes -> hashset, quasi symboltable
-    Dictionary<String, graph.Node<String>> graphNodes = new Hashtable<>();
+    Dictionary<String, TaskNode> graphNodes = new Hashtable<>();
 
     // - need edges (between two nodes)
     //      -> hashset with string-concat of Names with edge_op as key
-    Dictionary<String, Edge> graphEdges = new Hashtable<>();
+    Dictionary<String, TaskEdge> graphEdges = new Hashtable<>();
 
-    ArrayList<Graph<String>> graphs = new ArrayList<>();
+    ArrayList<TaskDependencyGraph> graphs = new ArrayList<>();
+
+    public Interpreter(DSLInterpreter dslInterpreter) {
+        this.dslInterpreter = dslInterpreter;
+    }
 
     /**
-     * Parses a dot definition and creates a {@link Graph} from it
+     * Parses a dot definition and creates a {@link TaskDependencyGraph} from it
      *
      * @param dotDefinition The DotDefNode to parse as a graph
-     * @return The {@link Graph} object created from the dotDefinition
+     * @return The {@link TaskDependencyGraph} object created from the dotDefinition
      */
-    public Graph<String> getGraph(DotDefNode dotDefinition) {
+    public TaskDependencyGraph getGraph(DotDefNode dotDefinition) {
         graphNodes = new Hashtable<>();
         graphEdges = new Hashtable<>();
 
@@ -37,7 +47,7 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
 
         // sort edges
         var edgeIter = graphEdges.elements().asIterator();
-        ArrayList<Edge> edgeList = new ArrayList<>(graphEdges.size());
+        ArrayList<TaskEdge> edgeList = new ArrayList<>(graphEdges.size());
 
         while (edgeIter.hasNext()) {
             edgeList.add(edgeIter.next());
@@ -47,7 +57,7 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
 
         // sort nodes
         var nodeIter = graphNodes.elements().asIterator();
-        ArrayList<graph.Node<String>> nodeList = new ArrayList<>(graphNodes.size());
+        ArrayList<TaskNode> nodeList = new ArrayList<>(graphNodes.size());
 
         while (nodeIter.hasNext()) {
             nodeList.add(nodeIter.next());
@@ -55,11 +65,11 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
 
         Collections.sort(nodeList);
 
-        return new Graph<>(edgeList, nodeList);
+        return new TaskDependencyGraph(edgeList, nodeList);
     }
 
     @Override
-    public graph.Node<String> visit(Node node) {
+    public TaskNode visit(Node node) {
         // traverse down..
         for (Node child : node.getChildren()) {
             if (child.type == Node.Type.DotDefinition) {
@@ -73,11 +83,17 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
     }
 
     @Override
-    public graph.Node<String> visit(IdNode node) {
+    public TaskNode visit(IdNode node) {
         String name = node.getName();
+        var task = (Value) node.accept(dslInterpreter);
+
+        if (!(task.getInternalValue() instanceof Task)) {
+            throw new RuntimeException("Reference to undefined Task '" + name + "'");
+        }
+
         // lookup and create, if not present previously
         if (graphNodes.get(name) == null) {
-            graphNodes.put(name, new graph.Node<>(name));
+            graphNodes.put(name, new TaskNode((Task) task.getInternalValue()));
         }
 
         // return Dot-Node
@@ -85,7 +101,7 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
     }
 
     @Override
-    public graph.Node<String> visit(DotDefNode node) {
+    public TaskNode visit(DotDefNode node) {
         this.graphEdges = new Hashtable<>();
         this.graphNodes = new Hashtable<>();
 
@@ -96,30 +112,52 @@ public class Interpreter implements AstVisitor<graph.Node<String>> {
         return null;
     }
 
-    @Override
-    public graph.Node<String> visit(EdgeStmtNode node) {
-        // TODO: add handling of edge-attributes
-
-        // node will contain all edge definitions
-        var lhsDotNode = node.getLhsId().accept(this);
-        graph.Node<String> rhsDotNode = null;
-
-        for (Node edge : node.getRhsStmts()) {
-            assert (edge.type.equals(Node.Type.DotEdgeRHS));
-
-            EdgeRhsNode edgeRhs = (EdgeRhsNode) edge;
-            rhsDotNode = (graph.Node<String>) edgeRhs.getIdNode().accept(this);
-
-            Edge.Type edgeType =
-                    edgeRhs.getEdgeOpType().equals(EdgeOpNode.Type.arrow)
-                            ? Edge.Type.directed
-                            : Edge.Type.undirected;
-
-            var graphEdge = new Edge(edgeType, lhsDotNode, rhsDotNode);
-            graphEdges.put(graphEdge.name(), graphEdge);
-
-            lhsDotNode = rhsDotNode;
+    protected TaskEdge.Type getEdgeType(DotEdgeStmtNode node) {
+        List<Node> attributes = node.getAttributes();
+        var typeAttributes =
+                attributes.stream()
+                        .filter(attrNode -> ((DotAttrNode) attrNode).getLhsIdName().equals("type"))
+                        .toList();
+        if (typeAttributes.size() == 0) {
+            throw new RuntimeException("No type attribute found on graph edge!");
+        } else if (typeAttributes.size() > 1) {
+            throw new RuntimeException("Too many type attributes found on graph edge!");
         }
+
+        DotDependencyTypeAttrNode attr = (DotDependencyTypeAttrNode) typeAttributes.get(0);
+        return attr.getDependencyType();
+    }
+
+    @Override
+    public TaskNode visit(DotNodeStmtNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public TaskNode visit(DotEdgeStmtNode node) {
+        TaskEdge.Type edgeType = getEdgeType(node);
+
+        List<DotIdList> dotIdLists = node.getIdLists();
+        var iter = dotIdLists.iterator();
+        DotIdList lhsDotIdList = iter.next();
+        DotIdList rhsDotIdList;
+
+        do {
+            rhsDotIdList = iter.next();
+
+            for (Node lhsId : lhsDotIdList.getIdNodes()) {
+                TaskNode taskNodeLhs = lhsId.accept(this);
+                for (Node rhsId : rhsDotIdList.getIdNodes()) {
+                    TaskNode taskNodeRhs = rhsId.accept(this);
+
+                    var graphEdge = new TaskEdge(edgeType, taskNodeLhs, taskNodeRhs);
+                    graphEdges.put(graphEdge.name(), graphEdge);
+                }
+            }
+
+            lhsDotIdList = rhsDotIdList;
+        } while (iter.hasNext());
 
         return null;
     }
