@@ -10,7 +10,7 @@ import java.util.List;
 
 public class AnimationTest {
 
-    @Test(expected = AssertionError.class)
+    @Test(expected = NullPointerException.class)
     public void test_constructor_1() {
         new Animation(null, 10);
     }
