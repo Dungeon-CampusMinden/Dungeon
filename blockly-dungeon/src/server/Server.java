@@ -4,10 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+
 import contrib.utils.components.Debugger;
-import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
+
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -27,12 +28,13 @@ public class Server {
     private static Entity hero;
     private static boolean if_flag = false;
     private static boolean else_flag = false;
+
     public Server(Entity hero) {
         Server.hero = hero;
     }
 
     public void start() throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress("localhost",8080), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 0);
         HttpContext startContext = server.createContext("/start");
         startContext.setHandler(Server::handleStartRequest);
         HttpContext resetContext = server.createContext("/reset");
@@ -46,7 +48,7 @@ public class Server {
 
         String[] actions = text.split("\n");
 
-        for (String action: actions) {
+        for (String action : actions) {
             ifEvaluation(action);
 
             if (if_flag || else_flag) {
@@ -114,7 +116,7 @@ public class Server {
             case "unten();" -> down();
             case "links();" -> left();
             case "rechts();" -> right();
-            //case "interagieren();" -> interact();
+                // case "interagieren();" -> interact();
             case "feuerballOben();" -> fireballUp();
             case "feuerballUnten();" -> fireballDown();
             case "feuerballLinks();" -> fireballLeft();
@@ -123,32 +125,48 @@ public class Server {
     }
 
     private static void up() {
-        VelocityComponent vc = hero.fetch(VelocityComponent.class).orElseThrow(() -> MissingComponentException.build(
-            hero, VelocityComponent.class));
+        VelocityComponent vc =
+                hero.fetch(VelocityComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                hero, VelocityComponent.class));
         vc.currentYVelocity(1 * vc.yVelocity());
 
         waitDelta();
     }
 
     private static void down() {
-        VelocityComponent vc = hero.fetch(VelocityComponent.class).orElseThrow(() -> MissingComponentException.build(
-            hero, VelocityComponent.class));
+        VelocityComponent vc =
+                hero.fetch(VelocityComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                hero, VelocityComponent.class));
         vc.currentYVelocity(-1 * vc.yVelocity());
 
         waitDelta();
     }
 
     private static void left() {
-        VelocityComponent vc = hero.fetch(VelocityComponent.class).orElseThrow(() -> MissingComponentException.build(
-            hero, VelocityComponent.class));
+        VelocityComponent vc =
+                hero.fetch(VelocityComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                hero, VelocityComponent.class));
         vc.currentXVelocity(-1 * vc.xVelocity());
 
         waitDelta();
     }
 
     private static void right() {
-        VelocityComponent vc = hero.fetch(VelocityComponent.class).orElseThrow(() -> MissingComponentException.build(
-            hero, VelocityComponent.class));
+        VelocityComponent vc =
+                hero.fetch(VelocityComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                hero, VelocityComponent.class));
         vc.currentXVelocity(1 * vc.xVelocity());
 
         waitDelta();
@@ -211,59 +229,86 @@ public class Server {
     }
 
     public static PositionComponent getHeroPosition() {
-        return hero.fetch(PositionComponent.class).orElseThrow(() -> MissingComponentException.build(
-            hero, PositionComponent.class
-        ));
+        return hero.fetch(PositionComponent.class)
+                .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     }
 
     public static void fireballUp() {
-        Skill fireball = new Skill(new FireballSkill(new Supplier<Point>() {
-            @Override
-            public Point get() {
-                Point heroPoint = new Point(getHeroPosition().position().x, getHeroPosition().position().y);
-                heroPoint.y += 1;
-                return heroPoint;
-            }
-        }), 1);
+        Skill fireball =
+                new Skill(
+                        new FireballSkill(
+                                new Supplier<Point>() {
+                                    @Override
+                                    public Point get() {
+                                        Point heroPoint =
+                                                new Point(
+                                                        getHeroPosition().position().x,
+                                                        getHeroPosition().position().y);
+                                        heroPoint.y += 1;
+                                        return heroPoint;
+                                    }
+                                }),
+                        1);
         fireball.execute(hero);
         waitDelta();
     }
 
     public static void fireballDown() {
-        Skill fireball = new Skill(new FireballSkill(new Supplier<Point>() {
-            @Override
-            public Point get() {
-                Point heroPoint = new Point(getHeroPosition().position().x, getHeroPosition().position().y);
-                heroPoint.y -= 1;
-                return heroPoint;
-            }
-        }), 1);
+        Skill fireball =
+                new Skill(
+                        new FireballSkill(
+                                new Supplier<Point>() {
+                                    @Override
+                                    public Point get() {
+                                        Point heroPoint =
+                                                new Point(
+                                                        getHeroPosition().position().x,
+                                                        getHeroPosition().position().y);
+                                        heroPoint.y -= 1;
+                                        return heroPoint;
+                                    }
+                                }),
+                        1);
         fireball.execute(hero);
         waitDelta();
     }
 
     public static void fireballLeft() {
-        Skill fireball = new Skill(new FireballSkill(new Supplier<Point>() {
-            @Override
-            public Point get() {
-                Point heroPoint = new Point(getHeroPosition().position().x, getHeroPosition().position().y);
-                heroPoint.x -= 1;
-                return heroPoint;
-            }
-        }), 1);
+        Skill fireball =
+                new Skill(
+                        new FireballSkill(
+                                new Supplier<Point>() {
+                                    @Override
+                                    public Point get() {
+                                        Point heroPoint =
+                                                new Point(
+                                                        getHeroPosition().position().x,
+                                                        getHeroPosition().position().y);
+                                        heroPoint.x -= 1;
+                                        return heroPoint;
+                                    }
+                                }),
+                        1);
         fireball.execute(hero);
         waitDelta();
     }
 
     public static void fireballRight() {
-        Skill fireball = new Skill(new FireballSkill(new Supplier<Point>() {
-            @Override
-            public Point get() {
-                Point heroPoint = new Point(getHeroPosition().position().x, getHeroPosition().position().y);
-                heroPoint.x += 1;
-                return heroPoint;
-            }
-        }), 1);
+        Skill fireball =
+                new Skill(
+                        new FireballSkill(
+                                new Supplier<Point>() {
+                                    @Override
+                                    public Point get() {
+                                        Point heroPoint =
+                                                new Point(
+                                                        getHeroPosition().position().x,
+                                                        getHeroPosition().position().y);
+                                        heroPoint.x += 1;
+                                        return heroPoint;
+                                    }
+                                }),
+                        1);
         fireball.execute(hero);
         waitDelta();
     }

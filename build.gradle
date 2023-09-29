@@ -94,6 +94,19 @@ task start(dependsOn: classes, type: JavaExec) {
     }
 }
 
+task blocky(dependsOn: classes, type: JavaExec) {
+    mainClass = "client.Client"
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
 task debug(dependsOn: classes, type: JavaExec) {
     mainClass = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
@@ -159,6 +172,9 @@ task taskGenerationTest(dependsOn: classes, type: JavaExec) {
         println(DefaultNativePlatform.currentOperatingSystem)
     }
 }
+
+
+
 
 
 test {
