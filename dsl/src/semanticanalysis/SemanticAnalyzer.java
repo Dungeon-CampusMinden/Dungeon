@@ -91,6 +91,18 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
      *
      * @param environment environment to use for setup of built in types and native functions
      */
+    public void setup(IEvironment environment) {
+        setup(environment, false);
+    }
+
+    /**
+     * Setup environment for semantic analysis (setup builtin types and native functions); use an
+     * externally provided symbol table, which will be used and extended during semantic analysis
+     *
+     * @param environment environment to use for setup of built in types and native functions
+     * @param force force the initialization of this {@link SemanticAnalyzer} with the given
+     *              {@link IEvironment} (ignore and overwrite previous initializations).
+     */
     public void setup(IEvironment environment, boolean force) {
         if (!force && setup) {
             return;
