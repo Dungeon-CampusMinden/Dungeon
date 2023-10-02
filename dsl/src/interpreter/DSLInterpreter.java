@@ -182,7 +182,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return componentPrototype;
     }
 
-    public void initializeScenarioBuilderStorage() {
+    protected void initializeScenarioBuilderStorage() {
         this.scenarioBuilderStorage.initializeScenarioBuilderStorage(this.environment);
     }
 
@@ -235,6 +235,21 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 .forEach(this.scenarioBuilderStorage::storeScenarioBuilder);
     }
 
+    /**
+     * Execute a scenario builder method for the given {@link Task}.
+     * The {@link DSLInterpreter} will lookup a random scenario builder method
+     * in its internal {@link ScenarioBuilderStorage} corresponding to the
+     * {@link Class} of the passed {@link Task}.
+     *
+     * @param task The {@link Task} to execute a scenario builder method for.
+     * @return An {@link Optional} containing the Java-Object which was instantiated
+     * from the return value of the scenario builder. If no custom {@link IEvironment}
+     * implementation apart from {@link GameEnvironment} is used (this is the default case),
+     * the content inside the {@link Optional} will be of type HashSet<HashSet<core.Entity>>.
+     * If the execution of the scenario builder method was unsuccessful or no fitting
+     * scenario builder method for the given {@link Task} could be found, an empty
+     * {@link Optional} will be returned.
+     */
     public Optional<Object> buildTask(Task task) {
         // TODO: this class is the actual class and there will be a direct correllation
         //  between clazz and the type created by TypeBuilder (currently they all point to Task)
