@@ -91,8 +91,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
      *
      * @param environment environment to use for setup of built in types and native functions
      */
-    public void setup(IEvironment environment) {
-        if (setup) {
+    public void setup(IEvironment environment, boolean force) {
+        if (!force && setup) {
             return;
         }
 

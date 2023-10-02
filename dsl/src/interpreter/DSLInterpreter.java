@@ -82,10 +82,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public DungeonConfig interpretEntryPoint(DSLEntryPoint entryPoint) {
         Node filesRootASTNode = entryPoint.file().rootASTNode();
 
-        SemanticAnalyzer symTableParser = new SemanticAnalyzer();
         var environment = new GameEnvironment();
-        symTableParser.setup(environment);
-        var result = symTableParser.walk(filesRootASTNode);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+        semanticAnalyzer.setup(environment);
+        var result = semanticAnalyzer.walk(filesRootASTNode);
 
         initializeRuntime(environment);
 
@@ -202,13 +202,30 @@ public class DSLInterpreter implements AstVisitor<Object> {
                                         (IType) symbol));
     }
 
-    public void scanScopeForScenarioBuilders(IScope scope) {
-        var symbols = scope.getSymbols();
-        Set<IType> taskTypes = this.scenarioBuilderStorage.getTypesWithStorage();
-        // TODO: this may be null
+    protected Symbol getScenarioBuilderReturnType() {
         Symbol returnTypeSymbol = this.environment.getGlobalScope().resolve("entity<><>");
         if (returnTypeSymbol == Symbol.NULL) {
-            return;
+            IdNode entityId = new IdNode("entity", SourceFileReference.NULL);
+            SetTypeIdentifierNode entitySetType = new SetTypeIdentifierNode(entityId);
+            SetTypeIdentifierNode returnTypeIdentifier = new SetTypeIdentifierNode(entitySetType);
+
+            // let the semantic analyzer traverse over the type identifier nodes to create type
+            // SemanticAnalyzer and DSLInterpreter share the same global scope and symbol table in
+            // the environment
+            SemanticAnalyzer analyzer = new SemanticAnalyzer();
+            analyzer.setup(this.environment);
+            returnTypeIdentifier.accept(analyzer);
+            returnTypeSymbol = this.environment.getGlobalScope().resolve("entity<><>");
+        }
+        return returnTypeSymbol;
+    }
+
+    protected void scanScopeForScenarioBuilders(IScope scope) {
+        var symbols = scope.getSymbols();
+        Set<IType> taskTypes = this.scenarioBuilderStorage.getTypesWithStorage();
+        Symbol returnTypeSymbol = getScenarioBuilderReturnType();
+        if (returnTypeSymbol == Symbol.NULL) {
+            throw new RuntimeException("Cannot build return type of scenario builders!");
         }
         IType returnType = (IType) returnTypeSymbol;
         symbols.stream()
@@ -234,7 +251,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 .forEach(this.scenarioBuilderStorage::storeScenarioBuilder);
     }
 
-    public Object buildTask(Task task) {
+    public Optional<Object> buildTask(Task task) {
         // TODO: this class is the actual class and there will be a direct correllation
         //  between clazz and the type created by TypeBuilder (currently they all point to Task)
         var clazz = task.getClass();
@@ -251,11 +268,17 @@ public class DSLInterpreter implements AstVisitor<Object> {
             throw new RuntimeException("Not a supported task type!");
         }
 
-        FunctionSymbol scenarioBuilder = this.scenarioBuilderStorage.retrieveRandomScenarioBuilderForType((IType) potentialTaskType);
+        Optional<FunctionSymbol> scenarioBuilder = this.scenarioBuilderStorage.retrieveRandomScenarioBuilderForType((IType) potentialTaskType);
+        if (scenarioBuilder.isEmpty()) {
+            // TODO: this should fall back on a hard coded Java builder method
+            return Optional.empty();
+        }
 
-        Value retValue = (Value) this.executeUserDefinedFunctionRawParameters(scenarioBuilder, List.of(task));
+        Value retValue = (Value) this.executeUserDefinedFunctionRawParameters(scenarioBuilder.get(), List.of(task));
         var typeInstantiator = this.environment.getTypeInstantiator();
-        return typeInstantiator.instantiate(retValue);
+
+        // create the java representation of the return Value
+        return Optional.of(typeInstantiator.instantiate(retValue));
     }
 
     /**
@@ -396,10 +419,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
         DungeonASTConverter astConverter = new DungeonASTConverter();
         var programAST = astConverter.walk(programParseTree);
 
-        SemanticAnalyzer symTableParser = new SemanticAnalyzer();
         var environment = new GameEnvironment();
-        symTableParser.setup(environment);
-        var result = symTableParser.walk(programAST);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+        semanticAnalyzer.setup(environment);
+        var result = semanticAnalyzer.walk(programAST);
 
         initializeRuntime(environment);
 

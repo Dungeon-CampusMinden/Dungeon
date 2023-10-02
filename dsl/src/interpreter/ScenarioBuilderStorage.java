@@ -5,6 +5,7 @@ import semanticanalysis.types.IType;
 
 import java.util.*;
 
+// TODO: javadoc
 public class ScenarioBuilderStorage {
     HashMap<IType, List<FunctionSymbol>> storedScenarioBuilders;
 
@@ -34,19 +35,20 @@ public class ScenarioBuilderStorage {
         }
     }
 
-    public FunctionSymbol retrieveRandomScenarioBuilderForType(IType type) {
-        Random random = new Random();
-
+    public Optional<FunctionSymbol> retrieveRandomScenarioBuilderForType(IType type) {
+        Optional<FunctionSymbol> returnSymbol = Optional.empty();
         if (!storedScenarioBuilders.containsKey(type)) {
-            throw new RuntimeException("No scenario builders for given type " + type + " stored!");
+            return returnSymbol;
         }
 
         List<FunctionSymbol> list = storedScenarioBuilders.get(type);
         if (list.size() == 0) {
-            throw new RuntimeException("No scenario builders for given type " + type + " stored!");
+            return returnSymbol;
         }
 
+        Random random = new Random();
         int idx = random.nextInt(list.size());
-        return list.get(idx);
+        FunctionSymbol symbol = list.get(idx);
+        return Optional.of(symbol);
     }
 }

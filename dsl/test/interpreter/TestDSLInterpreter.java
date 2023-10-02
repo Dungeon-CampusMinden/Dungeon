@@ -2957,7 +2957,7 @@ public class TestDSLInterpreter {
         DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
 
         var task = config.dependencyGraph().nodeIterator().next().task();
-        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task);
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
         var roomIter = builtTask.iterator();
 
         var firstRoomSet = roomIter.next();
@@ -2982,5 +2982,38 @@ public class TestDSLInterpreter {
             Assert.assertTrue(frameDrawComp1.contains("character/knight"));
             Assert.assertTrue(frameDrawComp2.contains("character/wizard"));
         }
+    }
+
+    @Test
+    public void testScenarioBuilderTypeCreation() {
+        String program =
+            """
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+
+        var task = config.dependencyGraph().nodeIterator().next().task();
+
+        // because the program does not declare any functions returning the `entity<><>` type
+        // (e.g. no scenario builder function), the type for `entity<><>` won't be created before
+        // scanning for scenario builders. It should be created on demand by the DSLInterpreter.
+        // if this fails, this call will throw a RuntimeException, if not, it returns an
+        Optional<Object> builtTask = interpreter.buildTask(task);
+        Assert.assertTrue(builtTask.isEmpty());
     }
 }
