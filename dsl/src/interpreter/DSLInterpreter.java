@@ -182,24 +182,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return componentPrototype;
     }
 
-    // TODO: do this in builder storage
     public void initializeScenarioBuilderStorage() {
-        var symbols = this.environment.getGlobalScope().getSymbols();
-
-        symbols.stream()
-                .filter(
-                        symbol -> {
-                            if (symbol instanceof AggregateType type) {
-                                var originType = type.getOriginType();
-                                return originType != null
-                                        && Task.class.isAssignableFrom(originType);
-                            }
-                            return false;
-                        })
-                .forEach(
-                        symbol ->
-                                this.scenarioBuilderStorage.initializeStorageForType(
-                                        (IType) symbol));
+        this.scenarioBuilderStorage.initializeScenarioBuilderStorage(this.environment);
     }
 
     protected Symbol getScenarioBuilderReturnType() {

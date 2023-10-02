@@ -1,7 +1,10 @@
 package interpreter;
 
+import runtime.IEvironment;
 import semanticanalysis.FunctionSymbol;
+import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.IType;
+import task.Task;
 
 import java.util.*;
 
@@ -11,6 +14,25 @@ public class ScenarioBuilderStorage {
 
     public ScenarioBuilderStorage() {
         storedScenarioBuilders = new HashMap<>();
+    }
+
+    public void initializeScenarioBuilderStorage(IEvironment environment) {
+        var symbols = environment.getGlobalScope().getSymbols();
+
+        // filter all global symbols for Task-types and initialize the
+        // scenario builder storage for each of those types
+        symbols.stream()
+            .filter(
+                symbol -> {
+                    if (symbol instanceof AggregateType type) {
+                        Class<?> originType = type.getOriginType();
+                        return originType != null
+                            && Task.class.isAssignableFrom(originType);
+                    }
+                    return false;
+                })
+            .map(symbol -> (IType) symbol)
+            .forEach(this::initializeStorageForType);
     }
 
     public void initializeStorageForType(IType type) {
