@@ -12,6 +12,7 @@ import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 
+import interpreter.DSLInterpreter;
 import petriNet.PetriNet;
 
 import task.Task;
@@ -27,7 +28,7 @@ import java.util.function.Consumer;
 /**
  * Offers functions to generate a {@link LevelGraph} or Petri-Net for a TaskGraph .
  *
- * <p>Use {@link #callTaskBuilderFor(TaskDependencyGraph)} to execute the TaskBuilder for each
+ * <p>Use {@link #callTaskBuilderFor(TaskDependencyGraph, DSLInterpreter)} to execute the TaskBuilder for each
  * {@link Task} in a {@link TaskDependencyGraph}.
  *
  * <p>Use {@link #levelGraphFor(TaskDependencyGraph)} to generate a room-based level for the
@@ -35,20 +36,20 @@ import java.util.function.Consumer;
  *
  * <p>Use {@link #petriNetFor(TaskDependencyGraph)} to generate a Petri net for the TaskGraph to.
  *
- * <p>Use {@link #convert(TaskDependencyGraph)} to execute the complete chain.
+ * <p>Use {@link #convert(TaskDependencyGraph, DSLInterpreter)} to execute the complete chain.
  */
 public class TaskGraphConverter {
 
     /**
-     * Execute the complete chain of {@link #callTaskBuilderFor(TaskDependencyGraph)}, {@link
+     * Execute the complete chain of {@link #callTaskBuilderFor(TaskDependencyGraph, DSLInterpreter)}, {@link
      * #levelGraphFor(TaskDependencyGraph)}, and {@link #petriNetFor(TaskDependencyGraph)}.
      *
      * @param graph Graph to execute the full chain of conversion on.
      * @return the start room
      */
     // TODO this needs the DSLInterpreter as parameter
-    public static ILevel convert(final TaskDependencyGraph graph) {
-        callTaskBuilderFor(graph);
+    public static ILevel convert(final TaskDependencyGraph graph, final DSLInterpreter dslInterpreter) {
+        callTaskBuilderFor(graph, dslInterpreter);
         ILevel level = levelGraphFor(graph);
         petriNetFor(graph);
         return level;
@@ -59,15 +60,14 @@ public class TaskGraphConverter {
      *
      * @param graph graph that contains the tasks.
      */
-    public static void callTaskBuilderFor(final TaskDependencyGraph graph) {
+    public static void callTaskBuilderFor(final TaskDependencyGraph graph, final DSLInterpreter interpreter) {
         graph.nodeIterator()
                 .forEachRemaining(
                         new Consumer<TaskNode>() {
                             @Override
                             public void accept(TaskNode taskNode) {
-                                // TODO REPLACE @malte-r
-                                // TODO this needs the DSLInterpreter
-                                TaskBuilder.DUMMY_TASK_BUILDER(taskNode.task());
+                                var entities = (Set<Set<Entity>>)interpreter.buildTask(taskNode.task());
+                                taskNode.task().entitieSets(entities);
                             }
                         });
     }
