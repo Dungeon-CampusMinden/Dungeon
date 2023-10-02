@@ -271,14 +271,21 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         this.environment = new RuntimeEnvironment(environment, this);
 
+        evaluateGlobalSymbols();
+        initializeScenarioBuilderStorage();
+
+        scanScopeForScenarioBuilders(this.environment.getGlobalScope());
+    }
+
+    private void evaluateGlobalSymbols() {
         // bind all function definition and object definition symbols to values
         // in global memorySpace
+
         // TODO: this should potentially done on a file basis, not globally for the whole
-        // DSLInterpreter
-        //  should define a file-scope...
-        // TODO: refactor in own method
+        //  DSLInterpreter; should define a file-scope...
         HashMap<Symbol, Value> globalValues = new HashMap<>();
-        for (var symbol : symbolTable().getGlobalScope().getSymbols()) {
+        List<Symbol> globalSymbols = symbolTable().getGlobalScope().getSymbols();
+        for (var symbol : globalSymbols) {
             var value = bindFromSymbol(symbol, memoryStack.peek());
             if (value != Value.NONE) {
                 globalValues.put(symbol, value);
@@ -286,7 +293,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
 
         Set<Map.Entry<Symbol, Value>> graphDefinitions = new HashSet<>();
-
         for (var entry : globalValues.entrySet()) {
             Symbol symbol = entry.getKey();
             if (symbol.getDataType().equals(BuiltInType.graphType)) {
@@ -303,8 +309,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
 
             // TODO: this is a temporary solution
-            if (!symbol.getDataType().getName().equals("quest_config")
-                    && !symbol.getDataType().getName().equals("dungeon_config")) {
+            String symbolsTypeName = symbol.getDataType().getName();
+            if (!symbolsTypeName.equals("quest_config")
+                && !symbolsTypeName.equals("dungeon_config")) {
                 Node astNode = symbolTable().getCreationAstNode(symbol);
                 if (astNode != Node.NONE) {
                     Value valueToAssign = (Value) astNode.accept(this);
@@ -324,9 +331,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 setValue(assignee, valueToAssign);
             }
         }
-
-        initializeScenarioBuilderStorage();
-        scanScopeForScenarioBuilders(this.environment.getGlobalScope());
     }
 
     private Value bindFromSymbol(Symbol symbol, IMemorySpace ms) {
