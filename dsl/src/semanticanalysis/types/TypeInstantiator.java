@@ -41,9 +41,9 @@ public class TypeInstantiator {
             return null;
         }
 
-        if (valuesType.getTypeKind().equals(IType.Kind.SetType) ||
-            valuesType.getTypeKind().equals(IType.Kind.ListType) ||
-            valuesType.getTypeKind().equals(IType.Kind.Basic)) {
+        if (valuesType.getTypeKind().equals(IType.Kind.SetType)
+                || valuesType.getTypeKind().equals(IType.Kind.ListType)
+                || valuesType.getTypeKind().equals(IType.Kind.Basic)) {
             return convertValueToObject(value);
         }
 
@@ -52,7 +52,7 @@ public class TypeInstantiator {
             return convertValueToObject(value);
         }
 
-        return instantiateAsType((AggregateValue)value, aggregateType);
+        return instantiateAsType((AggregateValue) value, aggregateType);
     }
 
     /**
@@ -342,12 +342,13 @@ public class TypeInstantiator {
                     if (fieldValue != Value.NONE) {
                         assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
                         FunctionValue functionValue = (FunctionValue) fieldValue;
-                        if (!(functionValue.getCallable() instanceof FunctionSymbol functionSymbol)) {
+                        if (!(functionValue.getCallable()
+                                instanceof FunctionSymbol functionSymbol)) {
                             throw new RuntimeException(
-                                "Usage of non-FunctionSymbol callables as DSLCallback currently not supported");
+                                    "Usage of non-FunctionSymbol callables as DSLCallback currently not supported");
                         } else {
                             CallbackAdapter adapter =
-                                callbackAdapterBuilder.buildAdapter(functionSymbol);
+                                    callbackAdapterBuilder.buildAdapter(functionSymbol);
                             field.setAccessible(true);
                             field.set(instance, adapter);
                         }

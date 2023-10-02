@@ -2,33 +2,34 @@ package interpreter;
 
 import runtime.IEvironment;
 import runtime.Value;
+
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.types.AggregateType;
 import semanticanalysis.types.IType;
+
 import task.Task;
 
 import java.util.*;
 
 /**
- * This class stores {@link FunctionSymbol}s, which refer to scenario builder
- * methods (which take a `task` definition as an argument and return `entity<><>`)
- * in a Map, in which the concrete task type is the key (as {@link IType}).
+ * This class stores {@link FunctionSymbol}s, which refer to scenario builder methods (which take a
+ * `task` definition as an argument and return `entity<><>`) in a Map, in which the concrete task
+ * type is the key (as {@link IType}).
  */
 public class ScenarioBuilderStorage {
     HashMap<IType, List<FunctionSymbol>> storedScenarioBuilders;
 
-    /**
-     * Constructor.
-     */
+    /** Constructor. */
     public ScenarioBuilderStorage() {
         storedScenarioBuilders = new HashMap<>();
     }
 
     /**
-     * Initialize this {@link ScenarioBuilderStorage} from an existing {@link IEvironment}.
-     * The environment's global symbols will be scanned for {@link AggregateType} instances,
-     * which map to a {@link Task} implementation. For each such {@link AggregateType} a
-     * new key is inserted into the internal HashMap.
+     * Initialize this {@link ScenarioBuilderStorage} from an existing {@link IEvironment}. The
+     * environment's global symbols will be scanned for {@link AggregateType} instances, which map
+     * to a {@link Task} implementation. For each such {@link AggregateType} a new key is inserted
+     * into the internal HashMap.
+     *
      * @param environment The {@link IEvironment} to scan for {@link Task} related types.
      */
     public void initializeScenarioBuilderStorage(IEvironment environment) {
@@ -37,17 +38,17 @@ public class ScenarioBuilderStorage {
         // filter all global symbols for Task-types and initialize the
         // scenario builder storage for each of those types
         symbols.stream()
-            .filter(
-                symbol -> {
-                    if (symbol instanceof AggregateType type) {
-                        Class<?> originType = type.getOriginType();
-                        return originType != null
-                            && Task.class.isAssignableFrom(originType);
-                    }
-                    return false;
-                })
-            .map(symbol -> (IType) symbol)
-            .forEach(this::initializeStorageForType);
+                .filter(
+                        symbol -> {
+                            if (symbol instanceof AggregateType type) {
+                                Class<?> originType = type.getOriginType();
+                                return originType != null
+                                        && Task.class.isAssignableFrom(originType);
+                            }
+                            return false;
+                        })
+                .map(symbol -> (IType) symbol)
+                .forEach(this::initializeStorageForType);
     }
 
     protected void initializeStorageForType(IType type) {
@@ -58,8 +59,9 @@ public class ScenarioBuilderStorage {
     }
 
     /**
-     * Get all {@link IType}s, for which this {@link ScenarioBuilderStorage} currently
-     * can store scenario builder methods as {@link FunctionSymbol}s.
+     * Get all {@link IType}s, for which this {@link ScenarioBuilderStorage} currently can store
+     * scenario builder methods as {@link FunctionSymbol}s.
+     *
      * @return a {@link Set} of {@link IType}s.
      */
     public Set<IType> getTypesWithStorage() {
@@ -67,12 +69,11 @@ public class ScenarioBuilderStorage {
     }
 
     /**
-     * Store a {@link FunctionSymbol} as a scenario builder method. The
-     * task type will be determined from the {@link semanticanalysis.types.FunctionType}
-     * of the passed functionSymbol. The passed {@link FunctionSymbol} should have
-     * a {@link semanticanalysis.types.FunctionType} which accepts a single parameter
-     * of a {@link IType}, which maps to {@link Task} and return an `entity<><>` {@link Value}.
-     * The client code is responsible to ensure this!
+     * Store a {@link FunctionSymbol} as a scenario builder method. The task type will be determined
+     * from the {@link semanticanalysis.types.FunctionType} of the passed functionSymbol. The passed
+     * {@link FunctionSymbol} should have a {@link semanticanalysis.types.FunctionType} which
+     * accepts a single parameter of a {@link IType}, which maps to {@link Task} and return an
+     * `entity<><>` {@link Value}. The client code is responsible to ensure this!
      *
      * @param functionSymbol the {@link FunctionSymbol} to store as a scenario builder method.
      */
@@ -88,13 +89,13 @@ public class ScenarioBuilderStorage {
     }
 
     /**
-     * Get a random {@link Optional} of a {@link FunctionSymbol} for a scenario builder method for a given
-     * {@link IType}, which maps to {@link Task}.
+     * Get a random {@link Optional} of a {@link FunctionSymbol} for a scenario builder method for a
+     * given {@link IType}, which maps to {@link Task}.
      *
      * @param type The {@link IType}, to retrieve a random scenario builder method for.
      * @return An {@link Optional} containing a scenario builder method as {@link FunctionSymbol}
-     * for the given {@link IType}. If this {@link ScenarioBuilderStorage} does not store
-     * such a scenario builder, an empty {@link Optional} is returned.
+     *     for the given {@link IType}. If this {@link ScenarioBuilderStorage} does not store such a
+     *     scenario builder, an empty {@link Optional} is returned.
      */
     public Optional<FunctionSymbol> retrieveRandomScenarioBuilderForType(IType type) {
         Optional<FunctionSymbol> returnSymbol = Optional.empty();

@@ -7,6 +7,7 @@ import core.components.VelocityComponent;
 
 import semanticanalysis.types.DSLTypeProperty;
 import semanticanalysis.types.IDSLTypeProperty;
+
 import task.components.TaskComponent;
 
 /**
