@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class MultipleChoiceTask {
     @DSLTypeAdapter(name = "multiple_choice_task")
-    public static Task buildQuizFromMultipleChoiceTask(
+    public static MultipleChoice buildQuizFromMultipleChoiceTask(
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
             @DSLTypeMember(name = "correct_answer_index") List<Integer> correctAnswerIndices // ,
@@ -21,19 +21,18 @@ public class MultipleChoiceTask {
             //  @DSLTypeMember(name="score_function") BiFunction<Task, Set<Quiz.Content>, Float>
             //  scoreFunction
             ) {
-        Quiz quiz = new MultipleChoice(description);
+        MultipleChoice mc = new MultipleChoice(description);
 
         for (Quiz.Content answer : answers) {
-            quiz.addAnswer(answer);
+            mc.addAnswer(answer);
         }
 
         for (var index : correctAnswerIndices) {
-            quiz.addCorrectAnswerIndex(index);
+            mc.addCorrectAnswerIndex(index);
         }
+        mc.scoringFunction(MultipleChoiceTask::score);
 
-        quiz.scoringFunction(MultipleChoiceTask::score);
-
-        return quiz;
+        return mc;
     }
 
     static Float score(Task t, Set<TaskContent> answers) {

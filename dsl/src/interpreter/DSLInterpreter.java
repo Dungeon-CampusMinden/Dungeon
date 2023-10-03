@@ -253,12 +253,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
         //  between clazz and the type created by TypeBuilder (currently they all point to Task)
         var clazz = task.getClass();
 
-        String typeName = "";
+        //String typeName = "";
+        IType type = this.environment.getTypeBuilder().createDSLTypeForJavaTypeInScope(this.environment.getGlobalScope(), clazz);
+        String typeName = type.getName();
+        /*
         if (clazz.equals(SingleChoice.class)) {
-            typeName = "single_choice_task";
+            typeName = type.getName();
         } else if (clazz.equals(MultipleChoice.class)) {
             typeName = "multiple_choice_task";
-        }
+        }*/
 
         Symbol potentialTaskType = this.environment.getGlobalScope().resolve(typeName);
         if (potentialTaskType == Symbol.NULL || !(potentialTaskType instanceof IType)) {
