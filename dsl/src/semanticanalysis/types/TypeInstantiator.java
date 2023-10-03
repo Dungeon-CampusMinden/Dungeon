@@ -91,7 +91,12 @@ public class TypeInstantiator {
             if (propertySymbol.isSettable()) {
                 // get corresponding value from memorySpace
                 Value value = ms.resolve(propertySymbol.getName());
-                if (value != Value.NONE) {
+
+                boolean isNoneOrEmptyAggregateValue =
+                    value == Value.NONE ||
+                        (value instanceof AggregateValue aggregateValue &&
+                        aggregateValue.isEmpty());
+                if (!isNoneOrEmptyAggregateValue) {
                     Object valueAsObject = convertValueToObject(value);
                     if (valueAsObject != null) {
                         property.set(instance, valueAsObject);
