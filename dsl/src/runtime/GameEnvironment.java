@@ -14,7 +14,6 @@ import dsltypeadapters.DrawComponentAdapter;
 
 import dsltypeproperties.EntityExtension;
 
-import dsltypeproperties.TaskTranslator;
 import dungeonFiles.DungeonConfig;
 
 import runtime.nativefunctions.NativePrint;
@@ -120,9 +119,7 @@ public class GameEnvironment implements IEvironment {
         typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
     }
 
-    protected void registerDefaultRuntimeObjectTranslators() {
-        //runtimeObjectTranslator.loadObjectToValueTranslator(Task.class, TaskTranslator.instance);
-    }
+    protected void registerDefaultRuntimeObjectTranslators() { }
 
     protected void bindNativeFunctions() {
         for (Symbol func : NATIVE_FUNCTIONS) {
