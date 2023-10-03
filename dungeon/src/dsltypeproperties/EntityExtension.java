@@ -8,6 +8,7 @@ import core.components.VelocityComponent;
 import semanticanalysis.types.DSLTypeProperty;
 import semanticanalysis.types.IDSLTypeProperty;
 
+import task.Task;
 import task.components.TaskComponent;
 
 /**
@@ -86,9 +87,15 @@ public class EntityExtension {
 
         @Override
         public void set(Entity instance, TaskComponent valueToSet) {
-            // TODO: should validate this
             instance.removeComponent(TaskComponent.class);
             instance.addComponent(valueToSet);
+
+            // if the task component references a Task, the manager entity should
+            // be updated to the instance entity
+            Task task = valueToSet.task();
+            if (task != null) {
+                task.managerEntity(instance);
+            }
         }
 
         @Override
