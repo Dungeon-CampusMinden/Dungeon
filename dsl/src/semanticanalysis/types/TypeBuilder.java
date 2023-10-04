@@ -464,26 +464,50 @@ public class TypeBuilder {
             return null;
         }
 
-        // create new AggregateType for clazz
-        var aggregateType = new AggregateType(typeName, globalScope, clazz);
+        IType returnType;
+        if (clazz.isEnum()) {
+            // because we check, that the clazz is an Enum (by `.isEnum()`)
+            // we can ignore the unchecked warning
+            @SuppressWarnings("unchecked")
+            Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>)clazz;
 
-        this.currentLookedUpTypes.add(clazz);
-        for (Field field : clazz.getDeclaredFields()) {
-            // bind new Symbol
-            if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                var fieldSymbol = createDataMemberSymbol(field, clazz, aggregateType, globalScope);
-                aggregateType.bind(fieldSymbol);
+            var enumType = new EnumType(typeName, globalScope, enumClass);
+            var variants = clazz.getDeclaredFields();
+            for (var variant : variants) {
+                var variantsType = variant.getType();
+                if (variantsType.isArray()) {
+                    continue;
+                }
+
+                String name = variant.getName();
+                Symbol variantSymbol = new Symbol(name, enumType, enumType);
+                enumType.bind(variantSymbol);
             }
-            if (field.isAnnotationPresent(DSLCallback.class)) {
-                var callbackSymbol = createCallbackMemberSymbol(field, aggregateType, globalScope);
-                aggregateType.bind(callbackSymbol);
+            returnType = enumType;
+        } else {
+            // create new AggregateType for clazz
+            var aggregateType = new AggregateType(typeName, globalScope, clazz);
+
+            this.currentLookedUpTypes.add(clazz);
+            for (Field field : clazz.getDeclaredFields()) {
+                // bind new Symbol
+                if (field.isAnnotationPresent(DSLTypeMember.class)) {
+                    var fieldSymbol = createDataMemberSymbol(field, clazz, aggregateType, globalScope);
+                    aggregateType.bind(fieldSymbol);
+                }
+                if (field.isAnnotationPresent(DSLCallback.class)) {
+                    var callbackSymbol = createCallbackMemberSymbol(field, aggregateType, globalScope);
+                    aggregateType.bind(callbackSymbol);
+                }
             }
+            this.currentLookedUpTypes.remove(clazz);
+
+            returnType = aggregateType;
         }
-        this.currentLookedUpTypes.remove(clazz);
 
-        this.javaTypeToDSLType.put(clazz, aggregateType);
-        globalScope.bind(aggregateType);
-        return aggregateType;
+        this.javaTypeToDSLType.put(clazz, returnType);
+        globalScope.bind((Symbol)returnType);
+        return returnType;
     }
 
     /**
