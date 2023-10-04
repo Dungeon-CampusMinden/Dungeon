@@ -3,13 +3,14 @@ package contrib.crafting;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
-import contrib.utils.components.item.ItemData;
+import contrib.item.Item;
 
 import core.utils.logging.CustomLogLevel;
 
 import starter.Main;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -154,7 +155,6 @@ public class Crafting {
      * @return The parsed recipe.
      */
     private static Recipe parseRecipe(InputStream stream, String name) {
-
         try {
             BufferedReader reader =
                     new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
@@ -175,16 +175,17 @@ public class Crafting {
             // Load Ingredients
             CraftingIngredient[] ingredientsArray = new CraftingIngredient[ingredients.size];
             for (int i = 0; i < ingredients.size; i++) {
+
                 JsonValue ingredient = ingredients.get(i);
+                JsonValue item = ingredient.get("item");
+                String id = item.getString("id");
+
                 String type = ingredient.getString("type");
-                switch (type) {
-                    case "item":
-                        CraftingIngredient ci = new ItemData();
-                        ci.parseCraftingIngredient(ingredients.get(i).get("item"));
-                        ingredientsArray[i] = ci;
-                        break;
-                    default:
-                        throw new RuntimeException("Unknown ingredient type: " + type);
+                if (type.equals("item")) {
+                    CraftingIngredient ci = Item.getItem(id).getDeclaredConstructor().newInstance();
+                    ingredientsArray[i] = ci;
+                } else {
+                    throw new RuntimeException("Unknown ingredient type: " + type);
                 }
             }
 
@@ -192,15 +193,15 @@ public class Crafting {
             CraftingResult[] resultsArray = new CraftingResult[results.size];
             for (int i = 0; i < results.size; i++) {
                 JsonValue result = results.get(i);
+                JsonValue item = result.get("item");
+                String id = item.getString("id");
+
                 String type = result.getString("type");
-                switch (type) {
-                    case "item":
-                        CraftingResult cr = new ItemData();
-                        cr.parseCraftingResult(results.get(i).get("item"));
-                        resultsArray[i] = cr;
-                        break;
-                    default:
-                        throw new RuntimeException("Unknown result type: " + type);
+                if (type.equals("item")) {
+                    CraftingResult cr = Item.getItem(id).getDeclaredConstructor().newInstance();
+                    resultsArray[i] = cr;
+                } else {
+                    throw new RuntimeException("Unknown result type: " + type);
                 }
             }
             Recipe recipe = new Recipe(orderedRecipe, ingredientsArray, resultsArray);
@@ -214,9 +215,26 @@ public class Crafting {
                     CustomLogLevel.ERROR,
                     "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
         } catch (IllegalArgumentException ex) {
+            ex.printStackTrace();
             LOGGER.log(
                     CustomLogLevel.WARNING,
                     "Error parsing recipe (" + name + "): " + ex.getMessage()); // Warning
+        } catch (InvocationTargetException ex) {
+            LOGGER.log(
+                    CustomLogLevel.ERROR,
+                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
+        } catch (InstantiationException ex) {
+            LOGGER.log(
+                    CustomLogLevel.ERROR,
+                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
+        } catch (IllegalAccessException ex) {
+            LOGGER.log(
+                    CustomLogLevel.ERROR,
+                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
+        } catch (NoSuchMethodException ex) {
+            LOGGER.log(
+                    CustomLogLevel.ERROR,
+                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
         }
 
         return null;

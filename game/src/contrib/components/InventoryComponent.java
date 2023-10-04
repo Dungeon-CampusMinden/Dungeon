@@ -2,7 +2,7 @@ package contrib.components;
 
 import com.badlogic.gdx.utils.Null;
 
-import contrib.utils.components.item.ItemData;
+import contrib.item.Item;
 
 import core.Component;
 import core.utils.logging.CustomLogLevel;
@@ -14,21 +14,21 @@ import java.util.logging.Logger;
 /**
  * Allows the entity to collect items in an inventory.
  *
- * <p>The component stores a set of {@link ItemData} that the associated entity has collected.
+ * <p>The component stores a set of {@link Item} that the associated entity has collected.
  *
  * <p>Each inventory has a maximum number of item instances (items do not get stacked) that can be
  * carried.
  *
  * <p>Carried items can be retrieved using {@link #items() getItems}.
  *
- * <p>Items can be added via {@link #add(ItemData) addItem} and removed via {@link #remove(ItemData)
+ * <p>Items can be added via {@link #add(Item) addItem} and removed via {@link #remove(Item)
  * removeItem}.
  *
  * <p>The number of items in the inventory can be retrieved using {@link #count()}.
  */
 public final class InventoryComponent implements Component {
 
-    private final ItemData[] inventory;
+    private final Item[] inventory;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
     /**
@@ -37,7 +37,7 @@ public final class InventoryComponent implements Component {
      * @param maxSize The number of items that can be stored in the inventory.
      */
     public InventoryComponent(int maxSize) {
-        inventory = new ItemData[maxSize];
+        inventory = new Item[maxSize];
     }
 
     /**
@@ -50,10 +50,10 @@ public final class InventoryComponent implements Component {
      * <p>Items are stored as a set, so an item instance cannot be stored twice in the same
      * inventory at the same time.
      *
-     * @param itemData The item to be added.
+     * @param item The item to be added.
      * @return True if the item was added, false if not.
      */
-    public boolean add(final ItemData itemData) {
+    public boolean add(final Item item) {
         int firstEmpty = -1;
         for (int i = 0; i < this.inventory.length; i++) {
             if (this.inventory[i] == null) {
@@ -68,22 +68,22 @@ public final class InventoryComponent implements Component {
                         + this.getClass().getSimpleName()
                         + "' was added to the inventory of entity '"
                         + "'.");
-        inventory[firstEmpty] = itemData;
+        inventory[firstEmpty] = item;
         return true;
     }
 
     /**
      * Remove the given item from the inventory.
      *
-     * @param itemData The item to be removed.
+     * @param item The item to be removed.
      * @return True if the item was removed, false otherwise.
      */
-    public boolean remove(final ItemData itemData) {
+    public boolean remove(final Item item) {
         LOGGER.log(
                 CustomLogLevel.DEBUG,
                 "Removing item '" + this.getClass().getSimpleName() + "' from inventory.");
         for (int i = 0; i < inventory.length; i++) {
-            if (inventory[i] != null && inventory[i].equals(itemData)) {
+            if (inventory[i] != null && inventory[i].equals(item)) {
                 inventory[i] = null;
                 return true;
             }
@@ -98,8 +98,8 @@ public final class InventoryComponent implements Component {
      * @return Item removed. May be null.
      */
     @Null
-    public ItemData remove(int index) {
-        ItemData itemData = inventory[index];
+    public Item remove(int index) {
+        Item itemData = inventory[index];
         inventory[index] = null;
         return itemData;
     }
@@ -107,12 +107,12 @@ public final class InventoryComponent implements Component {
     /**
      * Check if the inventory contains the given item.
      *
-     * @param itemData Item to check for.
+     * @param item Item to check for.
      * @return True if the inventory contains the item, false otherwise.
      */
-    public boolean hasItem(ItemData itemData) {
+    public boolean hasItem(Item item) {
         return Arrays.stream(this.inventory)
-                .anyMatch(item -> item != null && item.equals(itemData));
+                .anyMatch(invItem -> invItem != null && invItem.equals(item));
     }
 
     /**
@@ -123,17 +123,14 @@ public final class InventoryComponent implements Component {
      *
      * <p>If the transfer was successful, the given item will be removed from this inventory.
      *
-     * <p>Will not trigger {@link ItemData#onCollect()} or {@link ItemData#onDrop()}.
-     *
      * <p>Cannot transfer the item to itself.
      *
-     * @param itemData Item to transfer.
+     * @param item Item to transfer.
      * @param other {@link InventoryComponent} to transfer the item to.
      * @return true if the transfer was successful, false if not.
      */
-    public boolean transfer(final ItemData itemData, final InventoryComponent other) {
-        if (!other.equals(this) && this.hasItem(itemData) && other.add(itemData))
-            return this.remove(itemData);
+    public boolean transfer(final Item item, final InventoryComponent other) {
+        if (!other.equals(this) && this.hasItem(item) && other.add(item)) return this.remove(item);
         return false;
     }
 
@@ -151,19 +148,32 @@ public final class InventoryComponent implements Component {
      *
      * @return A copy of the inventory.
      */
-    public ItemData[] items() {
+    public Item[] items() {
         return this.inventory.clone();
+    }
+
+    /**
+     * Get an array of items stored in this component that are an instance of the given class.
+     *
+     * @param klass Only return items that are an instance of this class.
+     * @return An array of items that are in this Inventory and are an instance of the given class.
+     */
+    public Item[] items(Class<? extends Item> klass) {
+        return (Item[])
+                Arrays.stream(this.inventory.clone())
+                        .filter(item -> klass.isInstance(item))
+                        .toArray();
     }
 
     /**
      * Set the item at the given index.
      *
      * @param index Index of item to get.
-     * @param itemData Item to set at index.
+     * @param item Item to set at index.
      */
-    public void set(int index, @Null ItemData itemData) {
+    public void set(int index, @Null Item item) {
         if (index >= this.inventory.length || index < 0) return;
-        this.inventory[index % this.inventory.length] = itemData;
+        this.inventory[index % this.inventory.length] = item;
     }
 
     /**
@@ -173,7 +183,7 @@ public final class InventoryComponent implements Component {
      * @return Item at index. May be null.
      */
     @Null
-    public ItemData get(int index) {
+    public Item get(int index) {
         if (index >= this.inventory.length || index < 0) return null;
         return this.inventory[index];
     }

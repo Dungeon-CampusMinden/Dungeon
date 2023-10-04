@@ -4,14 +4,14 @@
         {
             "type": "item",
             "item": {
-                "id": "RESOURCE_IRON_ORE",
+                "id": "ItemResourceIronOre",
                 "count": 1
             }
         },
         {
             "type": "item",
             "item": {
-                "id": "RESOURCE_WOOD",
+                "id": "ItemResourceWood",
                 "count": 1
             }
         }
@@ -20,7 +20,7 @@
         {
             "type": "item",
             "item": {
-                "id": "RESOURCE_STEEL",
+                "id": "ItemResourceSteel",
                 "count": 1
             }
         }

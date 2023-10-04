@@ -1,7 +1,5 @@
 package contrib.crafting;
 
-import com.badlogic.gdx.utils.JsonValue;
-
 import core.Entity;
 
 /**
@@ -32,11 +30,4 @@ public interface CraftingResult {
      * @param entity Entity to execute the result on.
      */
     void executeCrafting(Entity entity);
-
-    /**
-     * Parses the crafting result from the specified JSON value.
-     *
-     * @param value The JSON value to parse.
-     */
-    void parseCraftingResult(JsonValue value);
 }
