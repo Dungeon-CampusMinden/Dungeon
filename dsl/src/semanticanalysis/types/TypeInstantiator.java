@@ -36,8 +36,8 @@ public class TypeInstantiator {
     public Object instantiate(Value value) {
         IType valuesType = value.getDataType();
 
+        // instantiation of prototypes is handled by the native `instantiate` function
         if (valuesType instanceof Prototype) {
-            // instantiation of prototypes is handled by the native `instantiate` function
             return null;
         }
 
@@ -64,16 +64,10 @@ public class TypeInstantiator {
      * @return the instantiated object
      */
     public Object instantiateAsType(AggregateValue value, AggregateType type) {
-        IMemorySpace ms = value.getMemorySpace();
-
-        var originalJavaClass = type.getOriginType();
-        if (null == originalJavaClass) {
-            return null;
-        }
-        Object instance;
-        instance = convertValueToObject(value, type);
+        Object instance = convertValueToObject(value, type);
 
         // set properties
+        IMemorySpace ms = value.getMemorySpace();
         setProperties(instance, type, ms);
 
         return instance;
