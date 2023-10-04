@@ -86,7 +86,9 @@ public class Starter {
                         DungeonConfig config =
                                 dslInterpreter.interpretEntryPoint(
                                         WizardTaskSelector.selectedDSLEntryPoint);
-                        ILevel level = TaskGraphConverter.convert(config.dependencyGraph(), dslInterpreter);
+                        ILevel level =
+                                TaskGraphConverter.convert(
+                                        config.dependencyGraph(), dslInterpreter);
                         Game.currentLevel(level);
                     }
                 });
