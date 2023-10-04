@@ -474,7 +474,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             if (lhs.type.equals(Node.Type.Identifier)) {
                 String nameToResolve = ((IdNode) lhs).getName();
                 Symbol symbol = scopeToUse.resolve(nameToResolve);
-                lhsDataType = symbol.getDataType();
+                if (symbol instanceof EnumType) {
+                    lhsDataType = (IType)symbol;
+                } else {
+                    lhsDataType = symbol.getDataType();
+                }
 
                 symbolTable.addSymbolNodeRelation(symbol, lhs, false);
             } else if (lhs.type.equals(Node.Type.FuncCall)) {
