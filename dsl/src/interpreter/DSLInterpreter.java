@@ -554,7 +554,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
-        // instantiate entity_type
         var typeInstantiator = this.environment.getTypeInstantiator();
         return typeInstantiator.instantiateAsType(dslValue, asType);
     }
