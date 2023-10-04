@@ -119,7 +119,7 @@ public class GameEnvironment implements IEvironment {
         typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
     }
 
-    protected void registerDefaultRuntimeObjectTranslators() { }
+    protected void registerDefaultRuntimeObjectTranslators() {}
 
     protected void bindNativeFunctions() {
         for (Symbol func : NATIVE_FUNCTIONS) {

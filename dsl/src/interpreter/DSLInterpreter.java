@@ -27,8 +27,6 @@ import semanticanalysis.types.*;
 
 import task.Quiz;
 import task.Task;
-import task.quizquestion.MultipleChoice;
-import task.quizquestion.SingleChoice;
 
 import java.util.*;
 
@@ -253,8 +251,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         //  between clazz and the type created by TypeBuilder (currently they all point to Task)
         var clazz = task.getClass();
 
-        //String typeName = "";
-        IType type = this.environment.getTypeBuilder().createDSLTypeForJavaTypeInScope(this.environment.getGlobalScope(), clazz);
+        // String typeName = "";
+        IType type =
+                this.environment
+                        .getTypeBuilder()
+                        .createDSLTypeForJavaTypeInScope(this.environment.getGlobalScope(), clazz);
         String typeName = type.getName();
         /*
         if (clazz.equals(SingleChoice.class)) {

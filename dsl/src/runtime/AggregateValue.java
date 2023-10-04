@@ -66,20 +66,21 @@ public class AggregateValue extends Value {
     }
 
     /**
-     * Is this {@link AggregateValue} empty, e.g. is the internal value null
-     * and has it no other member-Values than the {@link Value#THIS_NAME}-Value
+     * Is this {@link AggregateValue} empty, e.g. is the internal value null and has it no other
+     * member-Values than the {@link Value#THIS_NAME}-Value
      *
      * @return true, if this {@link AggregateValue} is empty, false otherwise
      */
     public boolean isEmpty() {
-        boolean internalValueNull =  this.getInternalValue() == null;
+        boolean internalValueNull = this.getInternalValue() == null;
 
         var valueSet = this.memorySpace.getValueSet();
 
         // has this AggregateValue either no values or no values other than the "$THIS$"-value
         boolean noMemberValues =
-            valueSet.size() == 0 ||
-                (valueSet.size() == 1 && valueSet.iterator().next().getKey().equals(Value.THIS_NAME));
+                valueSet.size() == 0
+                        || (valueSet.size() == 1
+                                && valueSet.iterator().next().getKey().equals(Value.THIS_NAME));
 
         return internalValueNull && noMemberValues;
     }

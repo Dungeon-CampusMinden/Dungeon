@@ -87,9 +87,9 @@ public class TypeInstantiator {
                 Value value = ms.resolve(propertySymbol.getName());
 
                 boolean isNoneOrEmptyAggregateValue =
-                    value == Value.NONE ||
-                        (value instanceof AggregateValue aggregateValue &&
-                        aggregateValue.isEmpty());
+                        value == Value.NONE
+                                || (value instanceof AggregateValue aggregateValue
+                                        && aggregateValue.isEmpty());
                 if (!isNoneOrEmptyAggregateValue) {
                     Object valueAsObject = convertValueToObject(value);
                     if (valueAsObject != null) {
