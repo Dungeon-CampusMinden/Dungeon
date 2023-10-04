@@ -2895,7 +2895,7 @@ public class TestDSLInterpreter {
     }
 
     @Test
-    public void testScenarioBuilderIntegraion() {
+    public void testScenarioBuilderIntegration() {
         String program =
                 """
         single_choice_task t1 {
