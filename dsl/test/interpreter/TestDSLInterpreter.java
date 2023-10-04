@@ -2976,11 +2976,11 @@ public class TestDSLInterpreter {
         int secondEntitiesId = entityInSecondRoom.id();
         // the entity with the smaller id should be the wizard
         if (firstEntitiesId < secondEntitiesId) {
-            Assert.assertTrue(frameDrawComp1.contains("character/wizard"));
-            Assert.assertTrue(frameDrawComp2.contains("character/knight"));
+            Assert.assertTrue(frameDrawComp1.contains("wizard"));
+            Assert.assertTrue(frameDrawComp2.contains("knight"));
         } else {
-            Assert.assertTrue(frameDrawComp1.contains("character/knight"));
-            Assert.assertTrue(frameDrawComp2.contains("character/wizard"));
+            Assert.assertTrue(frameDrawComp1.contains("knight"));
+            Assert.assertTrue(frameDrawComp2.contains("wizard"));
         }
     }
 
