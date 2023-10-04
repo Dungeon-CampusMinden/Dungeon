@@ -774,6 +774,45 @@ public class TestSemanticAnalyzer {
     }
 
     @Test
+    public void testEnumVariantBinding() {
+        String program =
+            """
+        entity_type my_type {
+            test_component_with_string_consumer_callback {
+                on_interaction: callback
+            }
+        }
+
+        fn callback(entity ent) -> my_enum {
+            return my_enum.A;
+        }
+
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentWithStringConsumerCallback.MyEnum.class);
+
+        var ast = Helpers.getASTFromString(program);
+        var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+        var symbolTable = result.symbolTable;
+    }
+
+    @Test
     public void testTaskReferenceInGraph() {
         String program =
                 """
