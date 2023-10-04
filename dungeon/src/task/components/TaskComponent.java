@@ -4,6 +4,8 @@ import core.Component;
 import core.Entity;
 import core.level.elements.tile.DoorTile;
 
+import semanticanalysis.types.*;
+
 import task.Task;
 
 import java.util.function.Consumer;
@@ -19,6 +21,7 @@ import java.util.function.Consumer;
  *
  * <p>{@link TaskComponent} stores a reference to the corresponding {@link Task}
  */
+@DSLType
 public final class TaskComponent implements Component {
 
     private static final Consumer<Entity> EMPTY_ON_ACTIVATE = (taskmanager) -> {};
@@ -29,8 +32,14 @@ public final class TaskComponent implements Component {
                     entity.fetch(DoorComponent.class)
                             .ifPresent(component -> component.doors().forEach(DoorTile::open));
 
-    private Consumer<Entity> onActivate;
-    private final Task task;
+    @DSLCallback private Consumer<Entity> onActivate;
+    private Task task;
+    private Entity my_entity;
+
+    public TaskComponent(@DSLContextMember(name = "entity") final Entity entity) {
+        this.my_entity = entity;
+        onActivate = DOOR_OPENER;
+    }
 
     /**
      * Creates a new TaskManagerComponent and adds it to the associated entity.
@@ -41,7 +50,7 @@ public final class TaskComponent implements Component {
      * @param task The task managed by this component.
      * @param entity Entity that should contain the TaskComponent.
      */
-    public TaskComponent(final Task task, final Entity entity) {
+    public TaskComponent(Task task, final Entity entity) {
         this.task = task;
         entity.addComponent(this);
         task.managerEntity(entity);
@@ -73,5 +82,23 @@ public final class TaskComponent implements Component {
      */
     public void activate(Entity taskManager) {
         onActivate.accept(taskManager);
+    }
+
+    @DSLTypeProperty(name = "task", extendedType = TaskComponent.class)
+    public static class TaskProperty implements IDSLTypeProperty<TaskComponent, Task> {
+        public static TaskComponent.TaskProperty instance = new TaskComponent.TaskProperty();
+
+        private TaskProperty() {}
+
+        @Override
+        public void set(TaskComponent instance, Task valueToSet) {
+            instance.task = valueToSet;
+            instance.task.managerEntity(instance.my_entity);
+        }
+
+        @Override
+        public Task get(TaskComponent instance) {
+            return instance.task();
+        }
     }
 }

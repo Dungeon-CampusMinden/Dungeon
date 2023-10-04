@@ -2893,4 +2893,127 @@ public class TestDSLInterpreter {
         var t4t6edge = startNodeToEdges.get(taskNode4).get(1);
         Assert.assertEquals(taskNode6, t4t6edge.endNode());
     }
+
+    @Test
+    public void testScenarioBuilderIntegration() {
+        String program =
+                """
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        entity_type wizard_type {
+            draw_component {
+                path: "character/wizard"
+            },
+            hitbox_component {},
+            position_component{},
+            task_component{}
+        }
+
+        entity_type knight_type {
+            draw_component {
+                path: "character/knight"
+            },
+            hitbox_component {},
+            position_component{}
+        }
+
+        fn build_scenario1(single_choice_task t) -> entity<><> {
+            var ret_set : entity<><>;
+
+            var first_room_set : entity<>;
+            var second_room_set : entity<>;
+
+            var wizard : entity;
+            var knight : entity;
+
+            wizard = instantiate(wizard_type);
+            wizard.task_component.task = t;
+
+            knight = instantiate(knight_type);
+
+            first_room_set.add(wizard);
+            second_room_set.add(knight);
+
+            ret_set.add(first_room_set);
+            ret_set.add(second_room_set);
+
+            return ret_set;
+        }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+
+        var task = config.dependencyGraph().nodeIterator().next().task();
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+        var roomIter = builtTask.iterator();
+
+        var firstRoomSet = roomIter.next();
+        var entityInFirstRoom = firstRoomSet.iterator().next();
+
+        var secondRoomSet = roomIter.next();
+        var entityInSecondRoom = secondRoomSet.iterator().next();
+
+        DrawComponent drawComp1 = entityInFirstRoom.fetch(DrawComponent.class).get();
+        var frameDrawComp1 = drawComp1.currentAnimation().getAnimationFrames().get(0);
+
+        DrawComponent drawComp2 = entityInSecondRoom.fetch(DrawComponent.class).get();
+        var frameDrawComp2 = drawComp2.currentAnimation().getAnimationFrames().get(0);
+
+        int firstEntitiesId = entityInFirstRoom.id();
+        int secondEntitiesId = entityInSecondRoom.id();
+        // the entity with the smaller id should be the wizard
+        if (firstEntitiesId < secondEntitiesId) {
+            Assert.assertTrue(frameDrawComp1.contains("wizard"));
+            Assert.assertTrue(frameDrawComp2.contains("knight"));
+        } else {
+            Assert.assertTrue(frameDrawComp1.contains("knight"));
+            Assert.assertTrue(frameDrawComp2.contains("wizard"));
+        }
+    }
+
+    @Test
+    public void testScenarioBuilderTypeCreation() {
+        String program =
+                """
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+
+        var task = config.dependencyGraph().nodeIterator().next().task();
+
+        // because the program does not declare any functions returning the `entity<><>` type
+        // (e.g. no scenario builder function), the type for `entity<><>` won't be created before
+        // scanning for scenario builders. It should be created on demand by the DSLInterpreter.
+        // if this fails, this call will throw a RuntimeException, if not, it returns an
+        Optional<Object> builtTask = interpreter.buildTask(task);
+        Assert.assertTrue(builtTask.isEmpty());
+    }
 }

@@ -8,6 +8,9 @@ import core.components.VelocityComponent;
 import semanticanalysis.types.DSLTypeProperty;
 import semanticanalysis.types.IDSLTypeProperty;
 
+import task.Task;
+import task.components.TaskComponent;
+
 /**
  * This class implements {@link IDSLTypeProperty} for the {@link Entity} class, in order to access
  * the Components of an entity from a DSL-program.
@@ -72,6 +75,32 @@ public class EntityExtension {
         @Override
         public DrawComponent get(Entity instance) {
             var optionalComponent = instance.fetch(DrawComponent.class);
+            return optionalComponent.orElse(null);
+        }
+    }
+
+    @DSLTypeProperty(name = "task_component", extendedType = Entity.class)
+    public static class TaskComponentProperty implements IDSLTypeProperty<Entity, TaskComponent> {
+        public static TaskComponentProperty instance = new TaskComponentProperty();
+
+        private TaskComponentProperty() {}
+
+        @Override
+        public void set(Entity instance, TaskComponent valueToSet) {
+            instance.removeComponent(TaskComponent.class);
+            instance.addComponent(valueToSet);
+
+            // if the task component references a Task, the manager entity should
+            // be updated to the instance entity
+            Task task = valueToSet.task();
+            if (task != null) {
+                task.managerEntity(instance);
+            }
+        }
+
+        @Override
+        public TaskComponent get(Entity instance) {
+            var optionalComponent = instance.fetch(TaskComponent.class);
             return optionalComponent.orElse(null);
         }
     }

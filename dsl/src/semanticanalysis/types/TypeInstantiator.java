@@ -33,20 +33,26 @@ public class TypeInstantiator {
      * @param value the aggregateValue to instantiate an object from
      * @return the instantiated object
      */
-    public Object instantiate(AggregateValue value) {
-        AggregateType type;
-        if (value.getDataType() instanceof Prototype) {
-            // instantiation of prototypes is handled by the native `instantiate` function
+    public Object instantiate(Value value) {
+        IType valuesType = value.getDataType();
+
+        // instantiation of prototypes is handled by the native `instantiate` function
+        if (valuesType instanceof Prototype) {
             return null;
-        } else {
-            type = (AggregateType) value.getDataType();
         }
 
-        if (type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
+        if (valuesType.getTypeKind().equals(IType.Kind.SetType)
+                || valuesType.getTypeKind().equals(IType.Kind.ListType)
+                || valuesType.getTypeKind().equals(IType.Kind.Basic)) {
             return convertValueToObject(value);
         }
 
-        return instantiateAsType(value, type);
+        AggregateType aggregateType = (AggregateType) valuesType;
+        if (aggregateType.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
+            return convertValueToObject(value);
+        }
+
+        return instantiateAsType((AggregateValue) value, aggregateType);
     }
 
     /**
@@ -58,22 +64,10 @@ public class TypeInstantiator {
      * @return the instantiated object
      */
     public Object instantiateAsType(AggregateValue value, AggregateType type) {
-        IMemorySpace ms = value.getMemorySpace();
-
-        var originalJavaClass = type.getOriginType();
-        if (null == originalJavaClass) {
-            return null;
-        }
-        Object instance;
-
-        /*if (originalJavaClass.isRecord()) {
-            instance = instantiateRecord(originalJavaClass, ms);
-        } else {
-            instance = instantiateAggregateValueAsClass(type, value);
-        }*/
-        instance = convertValueToObject(value, type);
+        Object instance = convertValueToObject(value, type);
 
         // set properties
+        IMemorySpace ms = value.getMemorySpace();
         setProperties(instance, type, ms);
 
         return instance;
@@ -91,7 +85,12 @@ public class TypeInstantiator {
             if (propertySymbol.isSettable()) {
                 // get corresponding value from memorySpace
                 Value value = ms.resolve(propertySymbol.getName());
-                if (value != Value.NONE) {
+
+                boolean isNoneOrEmptyAggregateValue =
+                        value == Value.NONE
+                                || (value instanceof AggregateValue aggregateValue
+                                        && aggregateValue.isEmpty());
+                if (!isNoneOrEmptyAggregateValue) {
                     Object valueAsObject = convertValueToObject(value);
                     if (valueAsObject != null) {
                         property.set(instance, valueAsObject);
@@ -339,16 +338,19 @@ public class TypeInstantiator {
                     }
                 }
                 if (field.isAnnotationPresent(DSLCallback.class)) {
-                    assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
-                    FunctionValue functionValue = (FunctionValue) fieldValue;
-                    if (!(functionValue.getCallable() instanceof FunctionSymbol functionSymbol)) {
-                        throw new RuntimeException(
-                                "Usage of non-FunctionSymbol callables as DSLCallback currently not supported");
-                    } else {
-                        CallbackAdapter adapter =
-                                callbackAdapterBuilder.buildAdapter(functionSymbol);
-                        field.setAccessible(true);
-                        field.set(instance, adapter);
+                    if (fieldValue != Value.NONE) {
+                        assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
+                        FunctionValue functionValue = (FunctionValue) fieldValue;
+                        if (!(functionValue.getCallable()
+                                instanceof FunctionSymbol functionSymbol)) {
+                            throw new RuntimeException(
+                                    "Usage of non-FunctionSymbol callables as DSLCallback currently not supported");
+                        } else {
+                            CallbackAdapter adapter =
+                                    callbackAdapterBuilder.buildAdapter(functionSymbol);
+                            field.setAccessible(true);
+                            field.set(instance, adapter);
+                        }
                     }
                 }
             }

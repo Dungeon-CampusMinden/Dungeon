@@ -14,7 +14,7 @@ import java.util.Set;
 public class SingleChoiceTask {
 
     @DSLTypeAdapter(name = "single_choice_task")
-    public static Task buildQuizFromSingleChoiceTask(
+    public static SingleChoice buildQuizFromSingleChoiceTask(
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
             @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex // ,
@@ -22,17 +22,16 @@ public class SingleChoiceTask {
             //  @DSLTypeMember(name="score_function") BiFunction<Task, Set<Quiz.Content>, Float>
             //  scoreFunction
             ) {
-        Quiz quiz = new SingleChoice(description);
+        SingleChoice sc = new SingleChoice(description);
 
         for (Quiz.Content answer : answers) {
-            quiz.addAnswer(answer);
+            sc.addAnswer(answer);
         }
 
-        quiz.addCorrectAnswerIndex(correctAnswerIndex);
+        sc.addCorrectAnswerIndex(correctAnswerIndex);
+        sc.scoringFunction(SingleChoiceTask::score);
 
-        quiz.scoringFunction(SingleChoiceTask::score);
-
-        return quiz;
+        return sc;
     }
 
     static Float score(Task t, Set<TaskContent> answers) {

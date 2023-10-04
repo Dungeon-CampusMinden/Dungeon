@@ -26,6 +26,7 @@ import semanticanalysis.types.TypeBuilder;
 
 import task.Quiz;
 import task.Task;
+import task.components.TaskComponent;
 import task.taskdsltypes.MultipleChoiceTask;
 import task.taskdsltypes.SingleChoiceDescriptionProperty;
 import task.taskdsltypes.SingleChoiceTask;
@@ -63,6 +64,7 @@ public class GameEnvironment implements IEvironment {
                     AIComponent.class,
                     CollideComponent.class,
                     DrawComponent.class,
+                    TaskComponent.class,
                     Task.class,
                     // SingleChoiceTask.class,
                     Quiz.Content.class
@@ -76,6 +78,8 @@ public class GameEnvironment implements IEvironment {
         properties.add(EntityExtension.VelocityComponentProperty.instance);
         properties.add(EntityExtension.PositionComponentProperty.instance);
         properties.add(EntityExtension.DrawComponentProperty.instance);
+        properties.add(EntityExtension.TaskComponentProperty.instance);
+        properties.add(TaskComponent.TaskProperty.instance);
 
         return properties;
     }

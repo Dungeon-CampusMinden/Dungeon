@@ -64,11 +64,9 @@ public class RuntimeObjectTranslator {
         if (dslType != BuiltInType.noType) {
             switch (dslType.getTypeKind()) {
                 case Basic:
-                case AggregateAdapted:
-                    // if the type is adapted, it is an external type and therefore should be
-                    // represented as a non-complex Value
                     returnValue = new Value(dslType, object);
                     break;
+                case AggregateAdapted:
                 case Aggregate:
                     var aggregateType = (AggregateType) dslType;
 

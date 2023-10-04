@@ -26,6 +26,7 @@ import semanticanalysis.*;
 import semanticanalysis.types.*;
 
 import task.Quiz;
+import task.Task;
 
 import java.util.*;
 
@@ -57,12 +58,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     private static final String RETURN_VALUE_NAME = "$return_value$";
 
+    private final ScenarioBuilderStorage scenarioBuilderStorage;
+
     /** Constructor. */
     public DSLInterpreter() {
         memoryStack = new ArrayDeque<>();
         instanceMemoryStack = new ArrayDeque<>();
         globalSpace = new MemorySpace();
         statementStack = new ArrayDeque<>();
+        scenarioBuilderStorage = new ScenarioBuilderStorage();
         memoryStack.push(globalSpace);
     }
 
@@ -76,10 +80,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public DungeonConfig interpretEntryPoint(DSLEntryPoint entryPoint) {
         Node filesRootASTNode = entryPoint.file().rootASTNode();
 
-        SemanticAnalyzer symTableParser = new SemanticAnalyzer();
         var environment = new GameEnvironment();
-        symTableParser.setup(environment);
-        var result = symTableParser.walk(filesRootASTNode);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+        semanticAnalyzer.setup(environment);
+        var result = semanticAnalyzer.walk(filesRootASTNode);
 
         initializeRuntime(environment);
 
@@ -176,6 +180,113 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return componentPrototype;
     }
 
+    protected void initializeScenarioBuilderStorage() {
+        this.scenarioBuilderStorage.initializeScenarioBuilderStorage(this.environment);
+    }
+
+    protected Symbol getScenarioBuilderReturnType() {
+        Symbol returnTypeSymbol = this.environment.getGlobalScope().resolve("entity<><>");
+        if (returnTypeSymbol == Symbol.NULL) {
+            IdNode entityId = new IdNode("entity", SourceFileReference.NULL);
+            SetTypeIdentifierNode entitySetType = new SetTypeIdentifierNode(entityId);
+            SetTypeIdentifierNode returnTypeIdentifier = new SetTypeIdentifierNode(entitySetType);
+
+            // let the semantic analyzer traverse over the type identifier nodes to create type
+            // SemanticAnalyzer and DSLInterpreter share the same global scope and symbol table in
+            // the environment
+            SemanticAnalyzer analyzer = new SemanticAnalyzer();
+            analyzer.setup(this.environment);
+            returnTypeIdentifier.accept(analyzer);
+            returnTypeSymbol = this.environment.getGlobalScope().resolve("entity<><>");
+        }
+        return returnTypeSymbol;
+    }
+
+    protected void scanScopeForScenarioBuilders(IScope scope) {
+        var symbols = scope.getSymbols();
+        Set<IType> taskTypes = this.scenarioBuilderStorage.getTypesWithStorage();
+        Symbol returnTypeSymbol = getScenarioBuilderReturnType();
+        if (returnTypeSymbol == Symbol.NULL) {
+            throw new RuntimeException("Cannot build return type of scenario builders!");
+        }
+        IType returnType = (IType) returnTypeSymbol;
+        symbols.stream()
+                .filter(
+                        symbol -> {
+                            if (symbol instanceof FunctionSymbol functionSymbol) {
+                                FunctionType functionType = functionSymbol.getFunctionType();
+                                if (!functionType.getReturnType().equals(returnType)) {
+                                    return false;
+                                }
+                                if (functionType.getParameterTypes().size() != 1) {
+                                    return false;
+                                }
+                                IType parameterType = functionType.getParameterTypes().get(0);
+                                if (!taskTypes.contains(parameterType)) {
+                                    return false;
+                                }
+                                return true;
+                            }
+                            return false;
+                        })
+                .map(symbol -> (FunctionSymbol) symbol)
+                .forEach(this.scenarioBuilderStorage::storeScenarioBuilder);
+    }
+
+    /**
+     * Execute a scenario builder method for the given {@link Task}. The {@link DSLInterpreter} will
+     * lookup a random scenario builder method in its internal {@link ScenarioBuilderStorage}
+     * corresponding to the {@link Class} of the passed {@link Task}.
+     *
+     * @param task The {@link Task} to execute a scenario builder method for.
+     * @return An {@link Optional} containing the Java-Object which was instantiated from the return
+     *     value of the scenario builder. If no custom {@link IEvironment} implementation apart from
+     *     {@link GameEnvironment} is used (this is the default case), the content inside the {@link
+     *     Optional} will be of type HashSet<HashSet<core.Entity>>. If the execution of the scenario
+     *     builder method was unsuccessful or no fitting scenario builder method for the given
+     *     {@link Task} could be found, an empty {@link Optional} will be returned.
+     */
+    public Optional<Object> buildTask(Task task) {
+        // TODO: this class is the actual class and there will be a direct correllation
+        //  between clazz and the type created by TypeBuilder (currently they all point to Task)
+        var clazz = task.getClass();
+
+        // String typeName = "";
+        IType type =
+                this.environment
+                        .getTypeBuilder()
+                        .createDSLTypeForJavaTypeInScope(this.environment.getGlobalScope(), clazz);
+        String typeName = type.getName();
+        /*
+        if (clazz.equals(SingleChoice.class)) {
+            typeName = type.getName();
+        } else if (clazz.equals(MultipleChoice.class)) {
+            typeName = "multiple_choice_task";
+        }*/
+
+        Symbol potentialTaskType = this.environment.getGlobalScope().resolve(typeName);
+        if (potentialTaskType == Symbol.NULL || !(potentialTaskType instanceof IType)) {
+            throw new RuntimeException("Not a supported task type!");
+        }
+
+        Optional<FunctionSymbol> scenarioBuilder =
+                this.scenarioBuilderStorage.retrieveRandomScenarioBuilderForType(
+                        (IType) potentialTaskType);
+        if (scenarioBuilder.isEmpty()) {
+            // TODO: this should fall back on a hard coded Java builder method
+            return Optional.empty();
+        }
+
+        Value retValue =
+                (Value)
+                        this.executeUserDefinedFunctionRawParameters(
+                                scenarioBuilder.get(), List.of(task));
+        var typeInstantiator = this.environment.getTypeInstantiator();
+
+        // create the java representation of the return Value
+        return Optional.of(typeInstantiator.instantiate(retValue));
+    }
+
     /**
      * Binds all function definitions, object definitions and data types in a global memory space.
      *
@@ -189,13 +300,21 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         this.environment = new RuntimeEnvironment(environment, this);
 
+        evaluateGlobalSymbols();
+        initializeScenarioBuilderStorage();
+
+        scanScopeForScenarioBuilders(this.environment.getGlobalScope());
+    }
+
+    private void evaluateGlobalSymbols() {
         // bind all function definition and object definition symbols to values
         // in global memorySpace
+
         // TODO: this should potentially done on a file basis, not globally for the whole
-        // DSLInterpreter
-        //  should define a file-scope...
+        //  DSLInterpreter; should define a file-scope...
         HashMap<Symbol, Value> globalValues = new HashMap<>();
-        for (var symbol : symbolTable().getGlobalScope().getSymbols()) {
+        List<Symbol> globalSymbols = symbolTable().getGlobalScope().getSymbols();
+        for (var symbol : globalSymbols) {
             var value = bindFromSymbol(symbol, memoryStack.peek());
             if (value != Value.NONE) {
                 globalValues.put(symbol, value);
@@ -203,7 +322,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
 
         Set<Map.Entry<Symbol, Value>> graphDefinitions = new HashSet<>();
-
         for (var entry : globalValues.entrySet()) {
             Symbol symbol = entry.getKey();
             if (symbol.getDataType().equals(BuiltInType.graphType)) {
@@ -220,8 +338,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
 
             // TODO: this is a temporary solution
-            if (!symbol.getDataType().getName().equals("quest_config")
-                    && !symbol.getDataType().getName().equals("dungeon_config")) {
+            String symbolsTypeName = symbol.getDataType().getName();
+            if (!symbolsTypeName.equals("quest_config")
+                    && !symbolsTypeName.equals("dungeon_config")) {
                 Node astNode = symbolTable().getCreationAstNode(symbol);
                 if (astNode != Node.NONE) {
                     Value valueToAssign = (Value) astNode.accept(this);
@@ -306,10 +425,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
         DungeonASTConverter astConverter = new DungeonASTConverter();
         var programAST = astConverter.walk(programParseTree);
 
-        SemanticAnalyzer symTableParser = new SemanticAnalyzer();
         var environment = new GameEnvironment();
-        symTableParser.setup(environment);
-        var result = symTableParser.walk(programAST);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+        semanticAnalyzer.setup(environment);
+        var result = semanticAnalyzer.walk(programAST);
 
         initializeRuntime(environment);
 
@@ -436,7 +555,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
-        // instantiate entity_type
         var typeInstantiator = this.environment.getTypeInstantiator();
         return typeInstantiator.instantiateAsType(dslValue, asType);
     }
