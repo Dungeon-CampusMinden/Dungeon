@@ -891,6 +891,7 @@ public class TestSemanticAnalyzer {
 
         var ast = Helpers.getASTFromString(program);
         try {
+            // the member access operation `variable.B` should throw an exception, because it is not allowed
             var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
             Assert.fail("Should throw");
         } catch (RuntimeException ex) {
