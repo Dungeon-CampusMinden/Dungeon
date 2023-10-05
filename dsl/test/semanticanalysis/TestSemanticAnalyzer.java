@@ -858,7 +858,43 @@ public class TestSemanticAnalyzer {
             var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
             Assert.fail("Should throw");
         } catch (RuntimeException ex) {
-            Assert.assertEquals(ex.getMessage(), "Member access on enum variant is not allowed!");
+            Assert.assertEquals(ex.getMessage(), "Member access on enum value is not allowed: my_enum.A");
+        }
+    }
+
+    @Test
+    public void testEnumVariantBindingIllegalAccessVariable() {
+        String program =
+            """
+        fn callback(entity ent) -> my_enum {
+            var variable :  my_enum;
+            variable = my_enum.A;
+            var other_variable : my_enum;
+            other_variable = variable.B;
+        }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentWithStringConsumerCallback.MyEnum.class);
+
+        var ast = Helpers.getASTFromString(program);
+        try {
+            var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+            Assert.fail("Should throw");
+        } catch (RuntimeException ex) {
+            Assert.assertEquals(ex.getMessage(), "Member access on enum value is not allowed: variable");
         }
     }
 
