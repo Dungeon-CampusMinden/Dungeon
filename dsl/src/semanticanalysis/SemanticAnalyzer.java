@@ -474,10 +474,17 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             if (lhs.type.equals(Node.Type.Identifier)) {
                 String nameToResolve = ((IdNode) lhs).getName();
                 Symbol symbol = scopeToUse.resolve(nameToResolve);
+                IType symbolsType = symbol.getDataType();
+
+                if (symbolsType != null && symbolsType.getTypeKind().equals(IType.Kind.EnumType)) {
+                    // this is an illegal case, we can't resolve members inside an enum's variant
+                    throw new RuntimeException("Member access on enum variant is not allowed!");
+                }
+
                 if (symbol instanceof EnumType) {
                     lhsDataType = (IType)symbol;
                 } else {
-                    lhsDataType = symbol.getDataType();
+                    lhsDataType = symbolsType;
                 }
 
                 symbolTable.addSymbolNodeRelation(symbol, lhs, false);

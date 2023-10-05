@@ -830,6 +830,39 @@ public class TestSemanticAnalyzer {
     }
 
     @Test
+    public void testEnumVariantBindingIllegalAccess() {
+        String program =
+            """
+        fn callback(entity ent) -> my_enum {
+            return my_enum.A.B;
+        }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentWithStringConsumerCallback.MyEnum.class);
+
+        var ast = Helpers.getASTFromString(program);
+        try {
+            var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+            Assert.fail("Should throw");
+        } catch (RuntimeException ex) {
+            Assert.assertEquals(ex.getMessage(), "Member access on enum variant is not allowed!");
+        }
+    }
+
+    @Test
     public void testTaskReferenceInGraph() {
         String program =
                 """
