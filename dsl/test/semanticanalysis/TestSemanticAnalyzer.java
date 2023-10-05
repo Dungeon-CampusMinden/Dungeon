@@ -777,18 +777,8 @@ public class TestSemanticAnalyzer {
     public void testEnumVariantBinding() {
         String program =
             """
-        entity_type my_type {
-            test_component_with_string_consumer_callback {
-                on_interaction: callback
-            }
-        }
-
         fn callback(entity ent) -> my_enum {
             return my_enum.A;
-        }
-
-        quest_config c {
-            entity: instantiate(my_type)
         }
         """;
 
@@ -810,6 +800,33 @@ public class TestSemanticAnalyzer {
         var ast = Helpers.getASTFromString(program);
         var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
         var symbolTable = result.symbolTable;
+
+        // check creation and binding of enum type in global scope
+        Symbol myEnumType = symbolTable.globalScope.resolve("my_enum");
+        Assert.assertNotEquals(Symbol.NULL, myEnumType);
+        Assert.assertTrue(myEnumType instanceof EnumType);
+
+        // get the function definition as symbol and AST-Node
+        FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("callback");
+        FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
+
+        // check, if the return type id is bound to enum type
+        IdNode retTypeId = (IdNode) funcDefNode.getRetTypeId();
+        Symbol retTypeSymbol = symbolTable.getSymbolsForAstNode(retTypeId).get(0);
+        Assert.assertEquals(myEnumType, retTypeSymbol);
+
+        // check, that the `my_enum` in return stmt is bound to enum type
+        ReturnStmtNode stmt = (ReturnStmtNode) funcDefNode.getStmts().get(0);
+        MemberAccessNode stmtExpression = (MemberAccessNode) stmt.getInnerStmtNode();
+        IdNode enumNameIdNode = (IdNode) stmtExpression.getLhs();
+        Symbol enumNameIdSymbol = symbolTable.getSymbolsForAstNode(enumNameIdNode).get(0);
+        Assert.assertEquals(myEnumType, enumNameIdSymbol);
+
+        // check, that the `A` in return stmt is bound to enum variant
+        IdNode enumVariantIdNode = (IdNode) stmtExpression.getRhs();
+        Symbol enumVariantIdSymbol = symbolTable.getSymbolsForAstNode(enumVariantIdNode).get(0);
+        Symbol enumVariantSymbolExpected = ((EnumType) myEnumType).resolve("A");
+        Assert.assertEquals(enumVariantSymbolExpected, enumVariantIdSymbol);
     }
 
     @Test
