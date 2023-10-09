@@ -89,6 +89,10 @@ public class DslFileLoader {
         return dngPaths;
     }
 
+    public static String fileToString(Path path) {
+        if (path.toString().contains(JAR_FILE_ENDING)) return fileToStringFromJar(path);
+        else return fileToString(path.toFile());
+    }
     /**
      * Read the given file as a string.
      *
@@ -108,5 +112,43 @@ public class DslFileLoader {
             e.printStackTrace();
         }
         return stringBuilder.toString();
+    }
+
+    public static String fileToStringFromJar(Path path) {
+
+        String jarFilePath =
+                path.toString().split(JAR_FILE_ENDING)[0] + JAR_FILE_ENDING.replace("\\", "/");
+        String jarFileContent =
+                path.toString().split(JAR_FILE_ENDING)[1].replace("\\", "/").substring(1);
+
+        try (JarFile jarFile = new JarFile(jarFilePath)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                if (entryName.equals(jarFileContent)) {
+
+                    try (InputStream inputStream = jarFile.getInputStream(entry);
+                            BufferedReader reader =
+                                    new BufferedReader(new InputStreamReader(inputStream))) {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        String line;
+
+                        while ((line = reader.readLine()) != null) {
+                            stringBuilder.append(line);
+                        }
+                        System.out.println("_____HIER!!!!");
+                        System.out.println(stringBuilder.toString());
+                        return stringBuilder.toString();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

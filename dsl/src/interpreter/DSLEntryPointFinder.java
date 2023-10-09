@@ -1,6 +1,7 @@
 package interpreter;
 
 import dungeonFiles.DSLEntryPoint;
+import dungeonFiles.DslFileLoader;
 import dungeonFiles.DungeonConfig;
 import dungeonFiles.ParsedFile;
 
@@ -12,8 +13,6 @@ import runtime.GameEnvironment;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.AggregateType;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,30 +53,26 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
      *     quest_config definitions, the list of found quest_config objects otherwise
      */
     public Optional<List<DSLEntryPoint>> getEntryPoints(Path filePath) {
-        try {
-            Node programAST;
-            if (this.parsedFiles.containsKey(filePath)) {
-                this.parsedFile = this.parsedFiles.get(filePath);
-                programAST = parsedFile.rootASTNode();
-            } else {
-                String content = Files.readString(filePath);
-                programAST = DungeonASTConverter.getProgramAST(content);
-
-                ParsedFile parsedFile = new ParsedFile(filePath, programAST);
-                this.parsedFiles.put(filePath, parsedFile);
-                this.parsedFile = parsedFile;
-            }
-
-            // we don't want to do the whole interpretation here...
-            // we only want to know, which (well formed) entry points exist
-            // would be enough to do this in a light AST-Visitor..
-            List<DSLEntryPoint> list = findEntryPoints(programAST);
-            if (list.size() != 0) {
-                return Optional.of(list);
-            }
-        } catch (IOException e) {
-            // ok, be like that then..
+        Node programAST;
+        if (this.parsedFiles.containsKey(filePath)) {
+            this.parsedFile = this.parsedFiles.get(filePath);
+            programAST = parsedFile.rootASTNode();
+        } else {
+            String content = DslFileLoader.fileToString(filePath);
+            programAST = DungeonASTConverter.getProgramAST(content);
+            ParsedFile parsedFile = new ParsedFile(filePath, programAST);
+            this.parsedFiles.put(filePath, parsedFile);
+            this.parsedFile = parsedFile;
         }
+
+        // we don't want to do the whole interpretation here...
+        // we only want to know, which (well formed) entry points exist
+        // would be enough to do this in a light AST-Visitor..
+        List<DSLEntryPoint> list = findEntryPoints(programAST);
+        if (list.size() != 0) {
+            return Optional.of(list);
+        }
+
         return Optional.empty();
     }
 
@@ -149,6 +144,11 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
 
     @Override
     public Object visit(FuncDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(PrototypeDefinitionNode node) {
         return null;
     }
 }

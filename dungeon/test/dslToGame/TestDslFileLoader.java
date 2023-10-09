@@ -141,7 +141,10 @@ public class TestDslFileLoader {
         File f =
                 new File(
                         Objects.requireNonNull(
-                                        classLoader.getResource(PATH_TO_EMPTY_DNGFILE.toString().replace("\\", "/")))
+                                        classLoader.getResource(
+                                                PATH_TO_EMPTY_DNGFILE
+                                                        .toString()
+                                                        .replace("\\", "/")))
                                 .getFile());
         String expectedContent = "";
         String read = DslFileLoader.fileToString(f);

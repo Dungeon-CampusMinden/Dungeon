@@ -85,11 +85,7 @@ public class TaskGenerationTest {
                         }
 
                         List<String> fileContents =
-                                dslFilePaths.stream()
-                                        .map(Path::toFile)
-                                        .filter(f -> f.getName().endsWith("task_test.dng"))
-                                        .map(DslFileLoader::fileToString)
-                                        .toList();
+                                dslFilePaths.stream().map(DslFileLoader::fileToString).toList();
                         buildScenarios(fileContents.get(0));
                     }
                 });
