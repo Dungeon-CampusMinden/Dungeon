@@ -139,8 +139,6 @@ public class DslFileLoader {
                         while ((line = reader.readLine()) != null) {
                             stringBuilder.append(line);
                         }
-                        System.out.println("_____HIER!!!!");
-                        System.out.println(stringBuilder.toString());
                         return stringBuilder.toString();
                     }
                 }
