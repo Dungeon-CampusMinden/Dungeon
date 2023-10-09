@@ -26,11 +26,5 @@ public class TestComponentWithStringConsumerCallback extends Component {
         onInteraction.accept(text);
     }
 
-    @DSLType
-    public enum MyEnum {
-        A,
-        B,
-        C
-    }
 }
 

@@ -4,10 +4,7 @@ import helpers.Helpers;
 
 import interpreter.DummyNativeFunction;
 import interpreter.TestEnvironment;
-import interpreter.mockecs.Entity;
-import interpreter.mockecs.TestComponent2;
-import interpreter.mockecs.TestComponentEntityConsumerCallback;
-import interpreter.mockecs.TestComponentWithStringConsumerCallback;
+import interpreter.mockecs.*;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -795,7 +792,7 @@ public class TestSemanticAnalyzer {
 
         env.getTypeBuilder()
             .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentWithStringConsumerCallback.MyEnum.class);
+                env.getGlobalScope(), MyEnum.class);
 
         var ast = Helpers.getASTFromString(program);
         var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
@@ -851,7 +848,7 @@ public class TestSemanticAnalyzer {
 
         env.getTypeBuilder()
             .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentWithStringConsumerCallback.MyEnum.class);
+                env.getGlobalScope(), MyEnum.class);
 
         var ast = Helpers.getASTFromString(program);
         try {
@@ -887,7 +884,7 @@ public class TestSemanticAnalyzer {
 
         env.getTypeBuilder()
             .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentWithStringConsumerCallback.MyEnum.class);
+                env.getGlobalScope(), MyEnum.class);
 
         var ast = Helpers.getASTFromString(program);
         try {

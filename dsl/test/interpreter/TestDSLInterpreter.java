@@ -3016,4 +3016,55 @@ public class TestDSLInterpreter {
         Optional<Object> builtTask = interpreter.buildTask(task);
         Assert.assertTrue(builtTask.isEmpty());
     }
+
+    @Test
+    public void testEnumVariantInstantiation() {
+        String program =
+            """
+                entity_type my_type {
+                    test_component_with_function_callback {
+                        get_enum: func
+                    }
+                }
+
+                fn func(entity ent) -> my_enum {
+                    return my_enum.A;
+                }
+
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentWithFunctionCallback.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), MyEnum.class);
+
+        var config =
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+
+        TestComponentWithFunctionCallback componentWithConsumer =
+            (TestComponentWithFunctionCallback)
+                entity.components.stream()
+                    .filter(c -> c instanceof TestComponentWithFunctionCallback)
+                    .toList()
+                    .get(0);
+
+        var enumValue = componentWithConsumer.getGetEnum().apply(entity);
+        boolean b = true;
+    }
 }
