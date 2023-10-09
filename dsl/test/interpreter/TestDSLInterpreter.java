@@ -3064,7 +3064,7 @@ public class TestDSLInterpreter {
                     .toList()
                     .get(0);
 
-        var enumValue = componentWithConsumer.getGetEnum().apply(entity);
-        boolean b = true;
+        MyEnum enumValue = componentWithConsumer.getGetEnum().apply(entity);
+        Assert.assertEquals(MyEnum.A, enumValue);
     }
 }

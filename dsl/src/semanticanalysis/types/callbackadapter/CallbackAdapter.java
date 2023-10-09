@@ -47,6 +47,7 @@ public class CallbackAdapter implements Consumer, TriConsumer {
         return convertValueToObject(returnValue);
     }
 
+    // TODO: just use the TypeInstantiator from the rtEnv?
     protected Object convertValueToObject(Value value) {
         var valuesType = value.getDataType();
         switch (valuesType.getTypeKind()) {
@@ -78,6 +79,8 @@ public class CallbackAdapter implements Consumer, TriConsumer {
                     list.add(entryObject);
                 }
                 return list;
+            case EnumType:
+                return this.rtEnv.getTypeInstantiator().instantiate(value);
         }
         return null;
     }
