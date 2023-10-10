@@ -47,42 +47,8 @@ public class CallbackAdapter implements Consumer, TriConsumer {
         return convertValueToObject(returnValue);
     }
 
-    // TODO: just use the TypeInstantiator from the rtEnv?
     protected Object convertValueToObject(Value value) {
-        var valuesType = value.getDataType();
-        switch (valuesType.getTypeKind()) {
-            case Basic:
-                if (valuesType.equals(Prototype.PROTOTYPE)) {
-                    throw new RuntimeException("Can't convert prototype to object");
-                }
-                return value.getInternalValue();
-            case Aggregate:
-            case AggregateAdapted:
-                // TODO: does this always work?
-                return value.getInternalValue();
-            case FunctionType:
-                // TODO: convert to callback adapter?
-                break;
-            case SetType:
-                var set = new HashSet<>();
-                SetValue setValue = (SetValue) value;
-                for (var entry : setValue.getValues()) {
-                    Object entryObject = convertValueToObject(entry);
-                    set.add(entryObject);
-                }
-                return set;
-            case ListType:
-                var list = new ArrayList<>();
-                ListValue listValue = (ListValue) value;
-                for (var entry : listValue.getValues()) {
-                    Object entryObject = convertValueToObject(entry);
-                    list.add(entryObject);
-                }
-                return list;
-            case EnumType:
-                return this.rtEnv.getTypeInstantiator().instantiate(value);
-        }
-        return null;
+        return this.rtEnv.getTypeInstantiator().instantiate(value);
     }
 
     // region interface implementation
