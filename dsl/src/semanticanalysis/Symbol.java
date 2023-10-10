@@ -55,16 +55,15 @@ public class Symbol {
     }
 
     /**
-     *
-     * Getter for the full name of the symbol, which is the name of the symbol
-     * prepended by the names of its parent symbols, if it has any
+     * Getter for the full name of the symbol, which is the name of the symbol prepended by the
+     * names of its parent symbols, if it has any
      *
      * @return the full name of the symbol
      */
     public String getFullName() {
         String prefix = "";
         if (this.scope != null && this.scope instanceof Symbol) {
-            prefix = ((Symbol)this.scope).getFullName();
+            prefix = ((Symbol) this.scope).getFullName();
             prefix += ".";
         }
         return prefix + this.getName();

@@ -97,7 +97,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
             ArrayList<IType> parameterTypes = new ArrayList<>(node.getParameters().size());
             for (Node paramDefNode : node.getParameters()) {
                 // if the parameters type is a list or set type, the datatype must be created
-                IdNode paramIdNode = (IdNode) ((ParamDefNode)paramDefNode).getTypeIdNode();
+                IdNode paramIdNode = (IdNode) ((ParamDefNode) paramDefNode).getTypeIdNode();
                 paramIdNode.accept(this);
 
                 var paramTypeName = ((ParamDefNode) paramDefNode).getTypeName();

@@ -3020,7 +3020,7 @@ public class TestDSLInterpreter {
     @Test
     public void testEnumVariantInstantiation() {
         String program =
-            """
+                """
                 entity_type my_type {
                     test_component_with_function_callback {
                         get_enum: func
@@ -3045,24 +3045,22 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentWithFunctionCallback.class);
-        env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), MyEnum.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithFunctionCallback.class);
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
 
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         var entity = config.entity();
 
         TestComponentWithFunctionCallback componentWithConsumer =
-            (TestComponentWithFunctionCallback)
-                entity.components.stream()
-                    .filter(c -> c instanceof TestComponentWithFunctionCallback)
-                    .toList()
-                    .get(0);
+                (TestComponentWithFunctionCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentWithFunctionCallback)
+                                .toList()
+                                .get(0);
 
         MyEnum enumValue = componentWithConsumer.getGetEnum().apply(entity);
         Assert.assertEquals(MyEnum.A, enumValue);

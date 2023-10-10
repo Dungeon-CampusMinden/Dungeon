@@ -773,7 +773,7 @@ public class TestSemanticAnalyzer {
     @Test
     public void testEnumVariantBinding() {
         String program =
-            """
+                """
         fn callback(entity ent) -> my_enum {
             return my_enum.A;
         }
@@ -787,12 +787,10 @@ public class TestSemanticAnalyzer {
         TestEnvironment env = new TestEnvironment();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
-        env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), MyEnum.class);
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
 
         var ast = Helpers.getASTFromString(program);
         var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
@@ -829,7 +827,7 @@ public class TestSemanticAnalyzer {
     @Test
     public void testEnumVariantBindingIllegalAccess() {
         String program =
-            """
+                """
         fn callback(entity ent) -> my_enum {
             return my_enum.A.B;
         }
@@ -843,26 +841,25 @@ public class TestSemanticAnalyzer {
         TestEnvironment env = new TestEnvironment();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
-        env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), MyEnum.class);
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
 
         var ast = Helpers.getASTFromString(program);
         try {
             var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
             Assert.fail("Should throw");
         } catch (RuntimeException ex) {
-            Assert.assertEquals(ex.getMessage(), "Member access on enum value is not allowed: my_enum.A");
+            Assert.assertEquals(
+                    ex.getMessage(), "Member access on enum value is not allowed: my_enum.A");
         }
     }
 
     @Test
     public void testEnumVariantBindingIllegalAccessVariable() {
         String program =
-            """
+                """
         fn callback(entity ent) -> my_enum {
             var variable :  my_enum;
             variable = my_enum.A;
@@ -879,20 +876,20 @@ public class TestSemanticAnalyzer {
         TestEnvironment env = new TestEnvironment();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
-        env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), MyEnum.class);
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
 
         var ast = Helpers.getASTFromString(program);
         try {
-            // the member access operation `variable.B` should throw an exception, because it is not allowed
+            // the member access operation `variable.B` should throw an exception, because it is not
+            // allowed
             var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
             Assert.fail("Should throw");
         } catch (RuntimeException ex) {
-            Assert.assertEquals(ex.getMessage(), "Member access on enum value is not allowed: variable");
+            Assert.assertEquals(
+                    ex.getMessage(), "Member access on enum value is not allowed: variable");
         }
     }
 

@@ -402,7 +402,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         } else if (type.getTypeKind().equals(IType.Kind.SetType)) {
             return new SetValue((SetType) type);
         } else if (type.getTypeKind().equals(IType.Kind.EnumType)) {
-            return new EnumValue((EnumType)type, null);
+            return new EnumValue((EnumType) type, null);
         } else if (type.getTypeKind().equals(IType.Kind.FunctionType)) {
             return Value.NONE;
         }

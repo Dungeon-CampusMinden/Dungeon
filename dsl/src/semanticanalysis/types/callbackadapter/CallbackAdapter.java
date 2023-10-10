@@ -11,9 +11,7 @@ import runtime.*;
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.types.FunctionType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.function.Consumer;
 
 /**

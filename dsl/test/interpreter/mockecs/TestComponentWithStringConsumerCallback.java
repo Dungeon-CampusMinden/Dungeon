@@ -25,6 +25,4 @@ public class TestComponentWithStringConsumerCallback extends Component {
     public void executeCallbackWithText(String text) {
         onInteraction.accept(text);
     }
-
 }
-

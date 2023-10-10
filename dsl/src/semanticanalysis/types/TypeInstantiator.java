@@ -16,12 +16,12 @@ import java.util.*;
 
 public class TypeInstantiator {
     private static final Set<IType.Kind> directlyConvertableTypeKinds =
-        Collections.unmodifiableSet(
-            EnumSet.of(
-                IType.Kind.SetType,
-                IType.Kind.ListType,
-                IType.Kind.Basic,
-                IType.Kind.EnumType));
+            Collections.unmodifiableSet(
+                    EnumSet.of(
+                            IType.Kind.SetType,
+                            IType.Kind.ListType,
+                            IType.Kind.Basic,
+                            IType.Kind.EnumType));
     private final HashMap<String, Object> context = new HashMap<>();
     private final CallbackAdapterBuilder callbackAdapterBuilder;
 
@@ -102,7 +102,7 @@ public class TypeInstantiator {
     }
 
     private Object instantiateEnum(EnumValue value) {
-        var valuesDataType = (EnumType)value.getDataType();
+        var valuesDataType = (EnumType) value.getDataType();
         Class<? extends Enum> originType = valuesDataType.getOriginType();
         var variantSymbol = value.getEnumVariantSymbol();
         String variantName = variantSymbol.getName();
@@ -212,7 +212,7 @@ public class TypeInstantiator {
             } else if (valuesType.getTypeKind().equals(IType.Kind.SetType)) {
                 convertedObject = instantiateSet((SetValue) value);
             } else if (valuesType.getTypeKind().equals(IType.Kind.EnumType)) {
-                convertedObject = instantiateEnum((EnumValue)value);
+                convertedObject = instantiateEnum((EnumValue) value);
             } else if (valuesType.getTypeKind().equals(IType.Kind.Aggregate)) {
                 if (convertedObject == null) {
                     // if the value is a prototype, instantiation is handled by
@@ -240,7 +240,6 @@ public class TypeInstantiator {
         }
         return convertedObject;
     }
-
 
     private Object instantiateRecord(Class<?> originalJavaClass, Value value) {
         IMemorySpace ms = value.getMemorySpace();

@@ -469,7 +469,7 @@ public class TypeBuilder {
             // because we check, that the clazz is an Enum (by `.isEnum()`)
             // we can ignore the unchecked warning
             @SuppressWarnings("unchecked")
-            Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>)clazz;
+            Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) clazz;
 
             var enumType = new EnumType(typeName, globalScope, enumClass);
             var variants = clazz.getDeclaredFields();
@@ -492,11 +492,13 @@ public class TypeBuilder {
             for (Field field : clazz.getDeclaredFields()) {
                 // bind new Symbol
                 if (field.isAnnotationPresent(DSLTypeMember.class)) {
-                    var fieldSymbol = createDataMemberSymbol(field, clazz, aggregateType, globalScope);
+                    var fieldSymbol =
+                            createDataMemberSymbol(field, clazz, aggregateType, globalScope);
                     aggregateType.bind(fieldSymbol);
                 }
                 if (field.isAnnotationPresent(DSLCallback.class)) {
-                    var callbackSymbol = createCallbackMemberSymbol(field, aggregateType, globalScope);
+                    var callbackSymbol =
+                            createCallbackMemberSymbol(field, aggregateType, globalScope);
                     aggregateType.bind(callbackSymbol);
                 }
             }
@@ -506,7 +508,7 @@ public class TypeBuilder {
         }
 
         this.javaTypeToDSLType.put(clazz, returnType);
-        globalScope.bind((Symbol)returnType);
+        globalScope.bind((Symbol) returnType);
         return returnType;
     }
 

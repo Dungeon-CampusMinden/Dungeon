@@ -16,6 +16,7 @@ public class TestComponentWithFunctionCallback extends Component {
 
     @DSLCallback private Function<Entity, Boolean> onInteraction;
     @DSLCallback private Function<Entity, MyEnum> getEnum;
+    @DSLCallback private Function<MyEnum, Boolean> functionWithEnumParam;
 
     public Function<Entity, Boolean> getOnInteraction() {
         return onInteraction;
@@ -23,6 +24,10 @@ public class TestComponentWithFunctionCallback extends Component {
 
     public Function<Entity, MyEnum> getGetEnum() {
         return getEnum;
+    }
+
+    public Function<MyEnum, Boolean> getFunctionWithEnumParam() {
+        return functionWithEnumParam;
     }
 
     public TestComponentWithFunctionCallback(@DSLContextMember(name = "entity") Entity entity) {

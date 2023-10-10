@@ -2,7 +2,6 @@ package semanticanalysis.types;
 
 import semanticanalysis.IScope;
 import semanticanalysis.ScopedSymbol;
-import semanticanalysis.Symbol;
 
 public class EnumType extends ScopedSymbol implements IType {
     protected Class<? extends Enum<?>> originType;
@@ -21,4 +20,3 @@ public class EnumType extends ScopedSymbol implements IType {
         return Kind.EnumType;
     }
 }
-
