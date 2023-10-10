@@ -3067,4 +3067,58 @@ public class TestDSLInterpreter {
         MyEnum enumValue = componentWithConsumer.getGetEnum().apply(entity);
         Assert.assertEquals(MyEnum.A, enumValue);
     }
+
+    @Test
+    public void testEnumCallbackParameter() {
+        String program =
+                """
+                entity_type my_type {
+                    test_component_with_function_callback {
+                        function_with_enum_param: func
+                    }
+                }
+
+                fn func(my_enum value) -> bool {
+                    if value {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithFunctionCallback.class);
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
+
+        var config =
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+
+        TestComponentWithFunctionCallback componentWithConsumer =
+                (TestComponentWithFunctionCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentWithFunctionCallback)
+                                .toList()
+                                .get(0);
+
+        MyEnum parameter = MyEnum.A;
+        boolean returnValue = componentWithConsumer.getFunctionWithEnumParam().apply(parameter);
+        Assert.assertTrue(returnValue);
+    }
 }
