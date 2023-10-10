@@ -539,13 +539,22 @@ public class DSLInterpreter implements AstVisitor<Object> {
     static boolean isBooleanTrue(Value value) {
         var valuesType = value.getDataType();
         var typeKind = valuesType.getTypeKind();
-        if (!typeKind.equals(IType.Kind.Basic) && !value.equals(Value.NONE)) {
-            return true;
-        } else if (value.equals(Value.NONE)) {
+
+        if (value.equals(Value.NONE)) {
+            // NONE = false
             return false;
-        } else {
+        } else if (typeKind.equals(IType.Kind.Aggregate))  {
+            // if it is empty = false
+            return !((AggregateValue)value).isEmpty();
+        } else if (typeKind.equals(IType.Kind.EnumType)) {
+            // if the internal value is null = false
+            return value.getInternalValue() != null;
+        } else if (typeKind.equals(IType.Kind.Basic)) {
             // basically check if zero
             return ((BuiltInType) valuesType).asBooleanFunction.run(value);
+        } else {
+            // in any other case, true
+            return true;
         }
     }
 
