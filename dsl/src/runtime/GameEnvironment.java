@@ -8,6 +8,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
+import core.level.Tile;
 import dslnativefunction.NativeInstantiate;
 
 import dsltypeadapters.DrawComponentAdapter;
@@ -67,7 +68,8 @@ public class GameEnvironment implements IEvironment {
                     TaskComponent.class,
                     Task.class,
                     // SingleChoiceTask.class,
-                    Quiz.Content.class
+                    Quiz.Content.class,
+                    Tile.Direction.class
                 };
     }
 

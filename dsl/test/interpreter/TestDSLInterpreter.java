@@ -7,6 +7,7 @@ import contrib.components.CollideComponent;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 
+import core.level.Tile;
 import dslnativefunction.NativeInstantiate;
 
 import dungeonFiles.DungeonConfig;
@@ -3118,5 +3119,74 @@ public class TestDSLInterpreter {
         MyEnum parameter = MyEnum.A;
         boolean returnValue = componentWithConsumer.getFunctionWithEnumParam().apply(parameter);
         Assert.assertTrue(returnValue);
+    }
+
+    @Test
+    public void testCollisionCallback() {
+        String program =
+            """
+            single_choice_task t {
+                description: "hello",
+                answers: [1,2,3],
+                correct_answer_index: 1
+            }
+
+            graph g {
+                t;
+            }
+
+            dungeon_config c {
+                dependency_graph: g
+            }
+
+            entity_type my_type {
+                hitbox_component {
+                    collide_enter: callback
+                }
+            }
+
+            fn callback(entity ent1, entity ent2, tile_direction dir) {
+                print(dir);
+            }
+
+
+            fn build_scenario(single_choice_task t) -> entity<><> {
+                var main_set : entity<><>;
+                var room_set : entity<>;
+
+                var wizard1 : entity;
+                var wizard2 : entity;
+                wizard1 = instantiate(my_type);
+                wizard2 = instantiate(my_type);
+
+                room_set.add(wizard1);
+                room_set.add(wizard2);
+                main_set.add(room_set);
+                return main_set;
+            }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        var config = (DungeonConfig)interpreter.getQuestConfig(program);
+
+        var task = config.dependencyGraph().nodeIterator().next().task();
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+        var roomIter = builtTask.iterator();
+
+        var firstRoomSet = roomIter.next();
+        var firstRoomIterator = firstRoomSet.iterator();
+        core.Entity entityInFirstRoom1 = firstRoomIterator.next();
+        core.Entity entityInFirstRoom2 = firstRoomIterator.next();
+
+        CollideComponent component = entityInFirstRoom1.fetch(CollideComponent.class).get();
+        component.onEnter(entityInFirstRoom1, entityInFirstRoom2, Tile.Direction.N);
+
+        String output = outputStream.toString();
+        Assert.assertTrue(output.contains("N"));
     }
 }
