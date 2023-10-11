@@ -141,18 +141,21 @@ public final class VelocitySystem extends System {
         float x = vsd.vc.currentXVelocity();
         float y = vsd.vc.currentYVelocity();
         if (x != 0 || y != 0) {
+            vsd.dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
             if (x > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
             else if (x < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
             else if (y > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
             else if (y < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
+            vsd.vc.previousXVelocity(x);
+            vsd.vc.previousYVelocity(y);
+
             vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
         }
 
         // idle
         else {
             // each drawComponent has an idle animation, so no check is needed
-            if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
-                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_LEFT))
+            if (vsd.vc.previousXVelocity() < 0)
                 vsd.dc.queueAnimation(
                         2,
                         CoreAnimations.IDLE_LEFT,
@@ -160,8 +163,7 @@ public final class VelocitySystem extends System {
                         CoreAnimations.IDLE_RIGHT,
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE_UP);
-            else if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_RIGHT)
-                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_RIGHT))
+            else if (vsd.vc.previousXVelocity() > 0)
                 vsd.dc.queueAnimation(
                         2,
                         CoreAnimations.IDLE_RIGHT,
@@ -169,8 +171,7 @@ public final class VelocitySystem extends System {
                         CoreAnimations.IDLE_LEFT,
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE_UP);
-            else if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_UP)
-                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_DOWN))
+            else if (vsd.vc.previousYVelocity() > 0)
                 vsd.dc.queueAnimation(
                         2,
                         CoreAnimations.IDLE_UP,
