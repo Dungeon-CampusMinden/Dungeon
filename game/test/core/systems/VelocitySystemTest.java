@@ -158,7 +158,7 @@ public class VelocitySystemTest {
          * does a full movement set and checks whether the correct Animation is queued after Velocity Change
          */
         Mockito.when(tile.isAccessible()).thenReturn(true);
-        // right
+        // right up
         velocityComponent.currentXVelocity(xVelocity);
         velocityComponent.currentYVelocity(yVelocity);
         velocitySystem.execute();
