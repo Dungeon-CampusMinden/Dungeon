@@ -190,8 +190,7 @@ public final class DrawComponent implements Component {
             }
         }
         // add if not already in queue
-        animationQueue.put(
-                Arrays.stream(next).min(Comparator.comparingInt(IPath::priority)).get(), forFrames);
+        animationQueue.put(lowest, forFrames);
     }
 
     /**
