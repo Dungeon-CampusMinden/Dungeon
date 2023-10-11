@@ -55,10 +55,7 @@ public final class DrawComponent implements Component {
     private Map<String, Animation> animationMap = null;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
-    // ??? what is this neither queue nor map
-    // each Entry is running in parrallel
-    // the value is how long the Entry should be contained
-    // the key is all Animations which then get checked for highest Priority?
+    /** allows only one Element from a certain priority and orders them */
     private Map<IPath, Integer> animationQueue =
             new TreeMap<>(Comparator.comparingInt(IPath::priority));
 
@@ -199,9 +196,7 @@ public final class DrawComponent implements Component {
      * @param prio priority to remove
      */
     public void deQueueByPriority(int prio) {
-        for (Map.Entry<IPath, Integer> entry : animationQueue.entrySet()) {
-            if (entry.getKey().priority() == prio) animationQueue.remove(entry.getKey());
-        }
+        animationQueue.keySet().removeIf(e -> e.priority() == prio);
     }
 
     /**
