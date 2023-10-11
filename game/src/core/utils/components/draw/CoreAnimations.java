@@ -10,7 +10,7 @@ public enum CoreAnimations implements IPath {
     IDLE_RIGHT("idle_right", CoreAnimationPriorities.IDLE.priority()),
     IDLE_UP("idle_up", CoreAnimationPriorities.IDLE.priority()),
     IDLE_DOWN("idle_down", CoreAnimationPriorities.IDLE.priority()),
-    RUN("RUN", CoreAnimationPriorities.RUN.priority()),
+    RUN("run", CoreAnimationPriorities.RUN.priority()),
     RUN_LEFT("run_left", CoreAnimationPriorities.RUN.priority()),
     RUN_RIGHT("run_right", CoreAnimationPriorities.RUN.priority()),
     RUN_UP("run_up", CoreAnimationPriorities.RUN.priority()),
