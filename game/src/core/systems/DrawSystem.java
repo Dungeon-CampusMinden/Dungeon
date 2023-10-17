@@ -105,13 +105,14 @@ public final class DrawSystem extends System {
         for (Map.Entry<IPath, Integer> entry : dc.animationQueue().entrySet()) {
             // reduce remaining frame time of animation by 1
             entry.setValue(entry.getValue() - 1);
-            if (entry.getValue() < 0) {
-                // remove animation when there is no remaining frame time
-                dc.animationQueue().remove(entry.getKey());
-            } else if (highestPrio == null || highestPrio.priority() < entry.getKey().priority()) {
+            if (entry.getValue() >= 0
+                    && (highestPrio == null
+                            || highestPrio.priority() < entry.getKey().priority())) {
                 highestPrio = entry.getKey();
             }
         }
+        // remove animations when there is no remaining frame time
+        dc.animationQueue().entrySet().removeIf(x -> x.getValue() < 0);
         // when there is an animation load it
         if (highestPrio != null) {
             // making sure the animation exists
