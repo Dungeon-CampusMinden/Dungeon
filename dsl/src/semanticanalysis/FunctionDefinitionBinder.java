@@ -143,7 +143,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
         IScope currentScope = scopeStack.peek();
         String parameterName = node.getIdName();
         Node parameterIdNode = node.getIdNode();
-        var resolvedParameter = currentScope.resolve(parameterName);
+        var resolvedParameter = currentScope.resolve(parameterName, false);
         if (resolvedParameter != Symbol.NULL) {
             throw new RuntimeException(
                     "Parameter with name " + node.getIdName() + " was already defined");
