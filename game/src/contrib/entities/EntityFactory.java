@@ -5,6 +5,7 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.GUICombination;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemData;
@@ -253,8 +254,15 @@ public class EntityFactory {
                                             });
                         }));
         DrawComponent dc = new DrawComponent("objects/treasurechest");
+        var mapping = dc.animationMap();
+        // set the closed chest as default idle
+        mapping.put(CoreAnimations.IDLE.pathString(), mapping.get(ChestAnimations.CLOSED.pathString()));
+        // make opening animation not looping
+        mapping.get(ChestAnimations.opening.pathString()).setLoop(false);
+
+
         chest.addComponent(dc);
-        dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
+
 
         return chest;
     }
