@@ -631,6 +631,28 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
+    public void enterItem_type_def(DungeonDSLParser.Item_type_defContext ctx) {
+
+    }
+
+    @Override
+    public void exitItem_type_def(DungeonDSLParser.Item_type_defContext ctx) {
+        // if we have a component definition list, it will be on the stack
+        var propertyDefList = Node.NONE;
+        if (ctx.property_def_list() != null) {
+            propertyDefList = astStack.pop();
+            assert propertyDefList.type == Node.Type.PropertyDefinitionList;
+        }
+
+        // id will be on the stack
+        var idNode = astStack.pop();
+        assert idNode.type == Node.Type.Identifier;
+
+        var itemPrototypeDefinitionNode = new ItemPrototypeDefinitionNode(idNode, propertyDefList);
+        astStack.push(itemPrototypeDefinitionNode);
+    }
+
+    @Override
     public void enterComponent_def_list(DungeonDSLParser.Component_def_listContext ctx) {}
 
     @Override

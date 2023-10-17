@@ -52,6 +52,7 @@ definition
         : dot_def
         | object_def
         | entity_type_def
+        | item_type_def
         | fn_def
         ;
 
@@ -180,6 +181,9 @@ param_def_list
 
 entity_type_def
         : 'entity_type' ID '{' component_def_list? '}' ;
+
+item_type_def
+        : 'item_type' ID '{' property_def_list? '}' ;
 
 // used to specify, which components should be used in a game object
 component_def_list

@@ -183,6 +183,39 @@ public class TestDungeonASTConverter {
         assertEquals(Node.NONE, propertyDefinitionListNode);
     }
 
+    /** Test the definition of a game object with one trivial component definition */
+    @Test
+    public void testItemTypeDefinition() {
+        String program =
+            """
+            item_type test_object {
+                value1: 1,
+                value2: 2,
+                value3: 3
+            }
+            """;
+        var ast = Helpers.getASTFromString(program);
+
+        var objDef = ast.getChild(0);
+        assertEquals(Node.Type.ItemPrototypeDefinition, objDef.type);
+
+        var propertyDefinitionListNode =
+            ((ItemPrototypeDefinitionNode) objDef).getPropertyDefinitionListNode();
+        assertEquals(Node.Type.PropertyDefinitionList, propertyDefinitionListNode.type);
+
+        var propertyDefinitions = propertyDefinitionListNode.getChildren();
+        assertEquals(3, propertyDefinitions.size());
+
+        var property1 = (PropertyDefNode)propertyDefinitions.get(0);
+        assertEquals("value1", property1.getIdName());
+
+        var property2 = (PropertyDefNode)propertyDefinitions.get(1);
+        assertEquals("value2", property2.getIdName());
+
+        var property3 = (PropertyDefNode)propertyDefinitions.get(2);
+        assertEquals("value3", property3.getIdName());
+    }
+
     /**
      * Test the definition of a game object with one component definition with property definitions
      */
