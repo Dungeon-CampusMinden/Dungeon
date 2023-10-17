@@ -33,7 +33,7 @@ public class NativeInstantiate extends NativeFunction {
         super(
                 "instantiate",
                 parentScope,
-                new FunctionType(BuiltInType.noType, BuiltInType.stringType));
+                new FunctionType(BuiltInType.noType, Prototype.PROTOTYPE));
 
         // bind parameters
         Symbol param = new Symbol("param", this, Prototype.PROTOTYPE);
@@ -101,3 +101,4 @@ public class NativeInstantiate extends NativeFunction {
         return ICallable.Type.Native;
     }
 }
+

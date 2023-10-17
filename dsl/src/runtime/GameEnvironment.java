@@ -9,6 +9,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 
+import dslnativefunction.NativeBuildQuestItem;
 import dslnativefunction.NativeInstantiate;
 
 import dsltypeadapters.DrawComponentAdapter;
@@ -219,12 +220,14 @@ public class GameEnvironment implements IEvironment {
         this.globalScope.bind(BuiltInType.stringType);
         this.globalScope.bind(BuiltInType.graphType);
         this.globalScope.bind(Prototype.PROTOTYPE);
+        this.globalScope.bind(Prototype.ITEM_PROTOTYPE);
     }
 
     private static ArrayList<Symbol> buildNativeFunctions() {
         ArrayList<Symbol> nativeFunctions = new ArrayList<>();
         nativeFunctions.add(NativePrint.func);
         nativeFunctions.add(NativeInstantiate.func);
+        nativeFunctions.add(NativeBuildQuestItem.func);
         return nativeFunctions;
     }
 }
