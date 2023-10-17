@@ -118,7 +118,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // create a prototype for it
                 var creationAstNode = symbolTable().getCreationAstNode((Symbol) type);
                 if (creationAstNode.type.equals(Node.Type.PrototypeDefinition)) {
-                    var prototype = new Prototype((AggregateType) type);
+                    var prototype = new Prototype(Prototype.PROTOTYPE, (AggregateType) type);
 
                     var gameObjDefNode = (PrototypeDefinitionNode) creationAstNode;
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
@@ -144,7 +144,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // evaluate rhs and store the value in the member of
         // the prototype
         AggregateType prototypesType = (AggregateType) componentSymbol.getDataType();
-        Prototype componentPrototype = new Prototype(prototypesType);
+        Prototype componentPrototype = new Prototype(Prototype.PROTOTYPE, prototypesType);
         for (var propDef : node.getPropertyDefinitionNodes()) {
             var propertyDefNode = (PropertyDefNode) propDef;
             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
