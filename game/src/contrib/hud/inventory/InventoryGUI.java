@@ -20,6 +20,7 @@ import contrib.hud.GUICombination;
 import contrib.item.Item;
 
 import core.Game;
+import core.components.PositionComponent;
 
 public class InventoryGUI extends CombinableGUI {
 
@@ -256,10 +257,15 @@ public class InventoryGUI extends CombinableGUI {
                         if (target == null
                                 && payload != null
                                 && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-                            InventoryGUI.this.inventoryComponent.set(
-                                    itemDragPayload.slot(),
-                                    (itemDragPayload.item())); // reset item to original slot if not
-                            // dropped on target
+                            itemDragPayload
+                                    .item()
+                                    .drop(
+                                            Game.hero().get(),
+                                            Game.hero()
+                                                    .get()
+                                                    .fetch(PositionComponent.class)
+                                                    .get()
+                                                    .position());
                         }
                     }
                 });
