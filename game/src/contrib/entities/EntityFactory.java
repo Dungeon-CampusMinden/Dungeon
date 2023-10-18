@@ -22,7 +22,6 @@ import core.utils.Constants;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
@@ -262,7 +261,7 @@ public class EntityFactory {
                                                 // finished
                                                 if (interactedDC
                                                         .getAnimation(ChestAnimations.OPENING)
-                                                        .map(Animation::isFinished)
+                                                        .map(animation -> !animation.isFinished())
                                                         .orElse(true)) {
                                                     interactedDC.queueAnimation(
                                                             ChestAnimations.OPENING);
