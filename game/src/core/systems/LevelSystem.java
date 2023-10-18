@@ -173,7 +173,7 @@ public final class LevelSystem extends System {
                 if (t.levelElement() != LevelElement.SKIP) {
                     String texturePath = t.texturePath();
                     if (!mapping.containsKey(texturePath)) {
-                        mapping.put(texturePath, new PainterConfig(texturePath));
+                        mapping.put(texturePath, new PainterConfig(texturePath, 0.5f, 0.25f));
                     }
                     painter.draw(t.position(), texturePath, mapping.get(texturePath));
                 }
