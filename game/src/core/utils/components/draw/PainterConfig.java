@@ -25,7 +25,7 @@ public class PainterConfig {
     }
 
     private PainterConfig(Texture texture) {
-        this(-0.85f, -0.5f, 1, texture);
+        this(0f, 0f, 1, texture);
     }
 
     /**
@@ -36,6 +36,17 @@ public class PainterConfig {
      */
     public PainterConfig(String texturePath) {
         this(TextureMap.instance().textureAt(texturePath));
+    }
+
+    /**
+     * Paints the given texture at the given position on the given batch with default offset and
+     * default scaling.
+     *
+     * @param texturePath path to the texture
+     */
+    public PainterConfig(String texturePath, float xOffset, float yOffset) {
+        // half the texture xOffset, yOffset is a quarter texture down
+        this(xOffset, yOffset, 1, TextureMap.instance().textureAt(texturePath));
     }
 
     /**
