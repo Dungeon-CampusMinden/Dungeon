@@ -22,6 +22,7 @@ import core.utils.Constants;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
@@ -241,28 +242,55 @@ public class EntityFactory {
                 new InteractionComponent(
                         defaultInteractionRadius,
                         true,
-                        (entity, who) -> {
-                            who.fetch(InventoryComponent.class)
+                        (interacted, interactor) -> {
+                            interactor
+                                    .fetch(InventoryComponent.class)
                                     .ifPresent(
                                             whoIc -> {
-                                                who.addComponent(
+                                                interactor.addComponent(
                                                         new UIComponent(
                                                                 new GUICombination(
                                                                         new InventoryGUI(whoIc),
                                                                         new InventoryGUI(ic)),
                                                                 false));
                                             });
+                            interacted
+                                    .fetch(DrawComponent.class)
+                                    .ifPresent(
+                                            interactedDC -> {
+                                                // only add opening animation when it is not
+                                                // finished
+                                                if (interactedDC
+                                                        .getAnimation(ChestAnimations.OPENING)
+                                                        .map(Animation::isFinished)
+                                                        .orElse(true)) {
+                                                    interactedDC.queueAnimation(
+                                                            ChestAnimations.OPENING);
+                                                }
+                                                // remove all prior opened animations
+                                                interactedDC.deQueueByPriority(
+                                                        ChestAnimations.OPEN_FULL.priority());
+                                                if (ic.count() > 0) {
+                                                    // aslong as there is an item inside the chest
+                                                    // show a full chest
+                                                    interactedDC.queueAnimation(
+                                                            ChestAnimations.OPEN_FULL);
+                                                } else {
+                                                    // empty chest show the empty animation
+                                                    interactedDC.queueAnimation(
+                                                            ChestAnimations.OPEN_EMPTY);
+                                                }
+                                            });
                         }));
         DrawComponent dc = new DrawComponent("objects/treasurechest");
         var mapping = dc.animationMap();
         // set the closed chest as default idle
-        mapping.put(CoreAnimations.IDLE.pathString(), mapping.get(ChestAnimations.CLOSED.pathString()));
+        mapping.put(
+                CoreAnimations.IDLE.pathString(), mapping.get(ChestAnimations.CLOSED.pathString()));
         // make opening animation not looping
-        mapping.get(ChestAnimations.opening.pathString()).setLoop(false);
-
+        mapping.get(ChestAnimations.OPENING.pathString()).setLoop(false);
 
         chest.addComponent(dc);
-
 
         return chest;
     }
