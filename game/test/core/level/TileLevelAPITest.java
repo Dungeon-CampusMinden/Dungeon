@@ -7,10 +7,9 @@ import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.graphics.Texture;
 
-import contrib.entities.EntityFactory;
-
 import core.Entity;
 import core.Game;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.elements.ILevel;
 import core.level.generator.IGenerator;
@@ -200,7 +199,9 @@ public class TileLevelAPITest {
     public void test_execute_heroOnEndTile() throws IOException {
         when(generator.level(any(), Mockito.any())).thenReturn(level);
         api.loadLevel();
-        Entity hero = EntityFactory.newHero();
+        Entity hero = new Entity();
+        hero.addComponent(new PositionComponent());
+        hero.addComponent(new PlayerComponent());
         Game.add(hero);
 
         Tile end = Mockito.mock(Tile.class);
