@@ -36,7 +36,7 @@ public class MeleeAI implements Consumer<Entity> {
         if (LevelUtils.playerInRange(entity, attackRange)) {
             fightSkill.execute(entity);
         } else {
-            if (timeSinceLastUpdate >= delay) {
+            if (path == null || timeSinceLastUpdate >= delay) {
                 path = LevelUtils.calculatePathToHero(entity);
                 timeSinceLastUpdate = -1;
             }

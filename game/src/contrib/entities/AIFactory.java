@@ -3,6 +3,7 @@ package contrib.entities;
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.fight.MeleeAI;
 import contrib.utils.components.ai.fight.RangeAI;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
@@ -48,9 +49,9 @@ public class AIFactory {
     private static final float DISTANCE_HIGH = 2f;
 
     // IdleAi Parameters:
-    // PatrouilleWalk
-    private static final float PATROUILLE_RADIUS_LOW = 2f;
-    private static final float PATROUILLE_RADIUS_HIGH = 6f;
+    // PatrolWalk
+    private static final float PATROL_RADIUS_LOW = 2f;
+    private static final float PATROL_RADIUS_HIGH = 6f;
     private static final int CHECKPOINTS_LOW = 2;
     private static final int CHECKPOINTS_HIGH = 6;
     private static final int PAUSE_TIME_LOW = 1;
@@ -81,27 +82,19 @@ public class AIFactory {
      * Constructs a random FightAI with random parameters. Needs to be Updated whenever a new
      * FightAI is added.
      *
-     * @return the generated FightAI NOTE: MeleeAI currently gets excluded from generation due to a
-     *     bug that crashes the Game. The MeleeAI seems to have trouble with Pathing as it often has
-     *     null as its path, causing the crash.
+     * @return the generated FightAI
      */
     public static Consumer<Entity> generateRandomFightAI() {
-        int index = RANDOM.nextInt(0, 2);
+        int index = RANDOM.nextInt(0, 3);
 
         return switch (index) {
             case 0 -> new CollideAI(RANDOM.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH));
-            default -> new RangeAI(
+            case 1 -> new RangeAI(
                     RANDOM.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
                     RANDOM.nextFloat(DISTANCE_LOW, DISTANCE_HIGH),
                     new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), 1));
-                // siehe Bug https://github.com/Programmiermethoden/Dungeon/issues/812
-                /*
-                case 2 -> new MeleeAI(
-                    1f,
-                    new Skill(
-                        new FireballSkill(SkillTools::getHeroPositionAsPoint),
-                        1)
-                );*/
+            default -> new MeleeAI(
+                    1f, new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), 1));
         };
     }
 
@@ -118,7 +111,7 @@ public class AIFactory {
             case 0 -> {
                 PatrolWalk.MODE[] modes = PatrolWalk.MODE.values();
                 return new PatrolWalk(
-                        RANDOM.nextFloat(PATROUILLE_RADIUS_LOW, PATROUILLE_RADIUS_HIGH),
+                        RANDOM.nextFloat(PATROL_RADIUS_LOW, PATROL_RADIUS_HIGH),
                         RANDOM.nextInt(CHECKPOINTS_LOW, CHECKPOINTS_HIGH + 1),
                         RANDOM.nextInt(PAUSE_TIME_LOW, PAUSE_TIME_HIGH + 1),
                         modes[RANDOM.nextInt(0, modes.length)]);
@@ -183,7 +176,7 @@ public class AIFactory {
         List<Entity> monsterList = monsterStream.toList();
         Entity monster = null;
 
-        if (monsterList.size() > 0) {
+        if (!monsterList.isEmpty()) {
             monster = monsterList.get(RANDOM.nextInt(monsterList.size()));
         }
         return Optional.ofNullable(monster);
