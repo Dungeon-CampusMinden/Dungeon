@@ -52,11 +52,10 @@ public class CameraSystemTest {
     public void executeWithEntity() {
         Game.currentLevel(level);
         Entity entity = new Entity();
-        PositionComponent positionComponent = new PositionComponent();
+        expectedFocusPoint = new Point(3, 3);
+        PositionComponent positionComponent = new PositionComponent(expectedFocusPoint);
         entity.addComponent(positionComponent);
         entity.addComponent(new CameraComponent());
-
-        expectedFocusPoint = positionComponent.position();
 
         cameraSystem.execute();
         assertEquals(expectedFocusPoint.x, CameraSystem.camera().position.x, 0.001);
