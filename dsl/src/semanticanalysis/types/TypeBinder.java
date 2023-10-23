@@ -80,8 +80,8 @@ public class TypeBinder implements AstVisitor<Object> {
             return null;
         }
 
-        var newType = new AggregateType(newTypeName, this.symbolTable().getGlobalScope());
-        symbolTable().addSymbolNodeRelation(newType, node, true);
+        var itemType = new AggregateType(newTypeName, this.symbolTable().getGlobalScope());
+        symbolTable().addSymbolNodeRelation(itemType, node, true);
 
         Symbol questItemTypeSymbol = this.environment.resolveInGlobalScope("quest_item");
         if (Symbol.NULL == questItemTypeSymbol) {
@@ -103,11 +103,16 @@ public class TypeBinder implements AstVisitor<Object> {
             if (propertySymbol == Symbol.NULL) {
                 throw new RuntimeException("Cannot resolve property of name '" + propertyName + "' in type '" + questItemType + "'");
             }
-            this.symbolTable().addSymbolNodeRelation(propertySymbol, propertyDefinitionNode, false);
+
+            // the itemType will be its own independent datatype, so create a new symbol for the property definition
+            // in the new itemType
+            var memberSymbol = new Symbol(propertyName, itemType, propertySymbol.getDataType());
+            itemType.bind(memberSymbol);
+            symbolTable().addSymbolNodeRelation(memberSymbol, propertyDefinitionNode, true);
         }
 
-        this.environment.loadTypes(newType);
-        return newType;
+        this.environment.loadTypes(itemType);
+        return itemType;
     }
 
     @Override
