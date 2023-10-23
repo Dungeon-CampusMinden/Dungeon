@@ -14,8 +14,10 @@ import dslnativefunction.NativeInstantiate;
 
 import dsltypeadapters.DrawComponentAdapter;
 
+import dsltypeadapters.QuestItemAdapter;
 import dsltypeproperties.EntityExtension;
 
+import dsltypeproperties.QuestItemExtension;
 import dungeonFiles.DungeonConfig;
 
 import runtime.nativefunctions.NativePrint;
@@ -26,6 +28,7 @@ import semanticanalysis.types.IDSLTypeProperty;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
+import task.QuestItem;
 import task.Quiz;
 import task.Task;
 import task.components.TaskComponent;
@@ -61,6 +64,7 @@ public class GameEnvironment implements IEvironment {
                 new Class[] {
                     DungeonConfig.class,
                     Entity.class,
+                    QuestItem.class,
                     PositionComponent.class,
                     VelocityComponent.class,
                     AIComponent.class,
@@ -83,6 +87,7 @@ public class GameEnvironment implements IEvironment {
         properties.add(EntityExtension.DrawComponentProperty.instance);
         properties.add(EntityExtension.TaskComponentProperty.instance);
         properties.add(TaskComponent.TaskProperty.instance);
+        properties.add(QuestItemExtension.TaskContentComponentProperty.instance);
 
         return properties;
     }
@@ -120,6 +125,7 @@ public class GameEnvironment implements IEvironment {
 
         typeBuilder.registerTypeAdapter(SingleChoiceTask.class, this.globalScope);
         typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
+        typeBuilder.registerTypeAdapter(QuestItemAdapter.class, this.globalScope);
     }
 
     protected void registerDefaultRuntimeObjectTranslators() {}
