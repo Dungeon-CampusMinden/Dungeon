@@ -3124,47 +3124,47 @@ public class TestDSLInterpreter {
     @Test
     public void testCollisionCallback() {
         String program =
-                """
-            single_choice_task t {
-                description: "hello",
-                answers: [1,2,3],
-                correct_answer_index: 1
-            }
-
-            graph g {
-                t;
-            }
-
-            dungeon_config c {
-                dependency_graph: g
-            }
-
-            entity_type my_type {
-                hitbox_component {
-                    collide_enter: callback
+            """
+                single_choice_task t {
+                    description: "hello",
+                    answers: [1,2,3],
+                    correct_answer_index: 1
                 }
-            }
 
-            fn callback(entity ent1, entity ent2, tile_direction dir) {
-                print(dir);
-            }
+                graph g {
+                    t;
+                }
+
+                dungeon_config c {
+                    dependency_graph: g
+                }
+
+                entity_type my_type {
+                    hitbox_component {
+                        collide_enter: callback
+                    }
+                }
+
+                fn callback(entity ent1, entity ent2, tile_direction dir) {
+                    print(dir);
+                }
 
 
-            fn build_scenario(single_choice_task t) -> entity<><> {
-                var main_set : entity<><>;
-                var room_set : entity<>;
+                fn build_scenario(single_choice_task t) -> entity<><> {
+                    var main_set : entity<><>;
+                    var room_set : entity<>;
 
-                var wizard1 : entity;
-                var wizard2 : entity;
-                wizard1 = instantiate(my_type);
-                wizard2 = instantiate(my_type);
+                    var wizard1 : entity;
+                    var wizard2 : entity;
+                    wizard1 = instantiate(my_type);
+                    wizard2 = instantiate(my_type);
 
-                room_set.add(wizard1);
-                room_set.add(wizard2);
-                main_set.add(room_set);
-                return main_set;
-            }
-            """;
+                    room_set.add(wizard1);
+                    room_set.add(wizard2);
+                    main_set.add(room_set);
+                    return main_set;
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -3399,39 +3399,39 @@ public class TestDSLInterpreter {
     @Test
     public void testWhileLoop() {
         String program =
-                """
-            entity_type my_type {
-                test_component1 {},
-                test_component_with_callback {
-                    consumer: func
+            """
+                entity_type my_type {
+                    test_component1 {},
+                    test_component_with_callback {
+                        consumer: func
+                    }
                 }
-            }
 
-            fn func(entity ent) {
-                var my_list : int[];
-                my_list.add(1);
-                my_list.add(2);
-                my_list.add(3);
-                my_list.add(0);
+                fn func(entity ent) {
+                    var my_list : int[];
+                    my_list.add(1);
+                    my_list.add(2);
+                    my_list.add(3);
+                    my_list.add(0);
 
-                var list_entry : int;
-                list_entry = my_list.get(0);
+                    var list_entry : int;
+                    list_entry = my_list.get(0);
 
-                // as arithmetic operations are not supported at the time this test is written,
-                // we need some way of updating the condition of the loop;
-                // the `my_list` is setup in a way, that the entries used as the index will
-                // return the next list-entry, until the entry with value `0` is returned,
-                // which will be interpreted as boolean false in the condition of the loop
-                while list_entry {
-                    print(list_entry);
-                    list_entry = my_list.get(list_entry);
+                    // as arithmetic operations are not supported at the time this test is written,
+                    // we need some way of updating the condition of the loop;
+                    // the `my_list` is setup in a way, that the entries used as the index will
+                    // return the next list-entry, until the entry with value `0` is returned,
+                    // which will be interpreted as boolean false in the condition of the loop
+                    while list_entry {
+                        print(list_entry);
+                        list_entry = my_list.get(list_entry);
+                    }
                 }
-            }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-            """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -3442,35 +3442,105 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-                .createDSLTypeForJavaTypeInScope(
-                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
         env.getTypeBuilder()
-                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
+            .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
 
         var config =
-                (CustomQuestConfig)
-                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         var entity = config.entity();
 
         TestComponentEntityConsumerCallback componentWithConsumer =
-                (TestComponentEntityConsumerCallback)
-                        entity.components.stream()
-                                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
-                                .toList()
-                                .get(0);
+            (TestComponentEntityConsumerCallback)
+                entity.components.stream()
+                    .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                    .toList()
+                    .get(0);
 
         componentWithConsumer.consumer.accept(entity);
 
         String output = outputStream.toString();
         boolean b = true;
         assertEquals(
-                "1"
-                        + System.lineSeparator()
-                        + "2"
-                        + System.lineSeparator()
-                        + "3"
-                        + System.lineSeparator(),
-                output);
+            "1"
+                + System.lineSeparator()
+                + "2"
+                + System.lineSeparator()
+                + "3"
+                + System.lineSeparator(),
+            output);
+    }
+
+    @Test
+    public void testItemTypeInstantiation() {
+        String program =
+        """
+        single_choice_task t1 {
+            description: "Task1",
+                answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        entity_type wizard_type {
+            draw_component {
+                path: "character/wizard"
+            },
+            hitbox_component {},
+            position_component{},
+            task_component{}
+        }
+
+        entity_type knight_type {
+            draw_component {
+                path: "character/knight"
+            },
+            hitbox_component {},
+            position_component{}
+        }
+
+        item_type item_type1 {
+            display_name: "MyName",
+            description: "Hello, this is a description",
+            texture_path: "items/book/wisdom_scroll.png"
+        }
+
+
+        fn build_scenario1(single_choice_task t) -> entity<><> {
+            var ret_set : entity<><>;
+
+            // setup
+            var first_room_set : entity<>;
+            var wizard : entity;
+            wizard = instantiate(wizard_type);
+            wizard.task_component.task = t;
+            first_room_set.add(wizard);
+            ret_set.add(first_room_set);
+
+            var item : quest_item;
+            item = build_quest_item(item_type1);
+
+            return ret_set;
+        }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+        // currenlty, the created item is not placed in the dungeon and therefore not part of the returned entities;
+        // -> this should fail
+        Assert.fail();
     }
 }
