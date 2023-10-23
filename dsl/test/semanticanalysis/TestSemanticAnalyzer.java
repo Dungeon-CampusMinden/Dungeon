@@ -107,6 +107,38 @@ public class TestSemanticAnalyzer {
         Assert.assertEquals(symbolForDotDefNode, symbolForStmtNode);
     }
 
+    @Test
+    public void testItemTypeDeclaration() {
+        String program =
+            """
+            item_type item_type1 {
+                display_name: "MyName",
+                description: "Hello, this is a description",
+                texture_path: "texture/path"
+            }
+            """;
+
+        // setup
+        var ast = Helpers.getASTFromString(program);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+
+        var env = new GameEnvironment();
+        semanticAnalyzer.setup(env);
+        var result = semanticAnalyzer.walk(ast);
+        SymbolTable symbolTable = result.symbolTable;
+        Symbol itemTypeSymbol = symbolTable.globalScope.resolve("item_type1");
+        Assert.assertNotEquals(Symbol.NULL, itemTypeSymbol);
+        Assert.assertTrue(itemTypeSymbol instanceof ScopedSymbol);
+
+        ScopedSymbol scopedItemTypeSymbol = (ScopedSymbol) itemTypeSymbol;
+        Symbol displayNameSymbol = scopedItemTypeSymbol.resolve("display_name");
+        Assert.assertNotEquals(Symbol.NULL, displayNameSymbol);
+        Symbol descriptionSymbol = scopedItemTypeSymbol.resolve("description");
+        Assert.assertNotEquals(Symbol.NULL, descriptionSymbol);
+        Symbol texturePathSymbol = scopedItemTypeSymbol.resolve("texture_path");
+        Assert.assertNotEquals(Symbol.NULL, texturePathSymbol);
+    }
+
     /**
      * Test, if the reference to a symbol is correctly resolved and that the symbol is linked to the
      * identifier
