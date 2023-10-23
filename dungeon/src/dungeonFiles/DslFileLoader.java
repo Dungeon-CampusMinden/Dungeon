@@ -90,6 +90,20 @@ public class DslFileLoader {
     }
 
     /**
+     * Reads the content of a file specified by the given path.
+     *
+     * <p>If the path points to a JAR file, it reads its content using {@link
+     * #fileToStringFromJar(Path)}, else its using {@link #fileToString(File)}.
+     *
+     * @param path Path to file to read.
+     * @return Read-in string.
+     */
+    public static String fileToString(Path path) {
+        if (path.toString().contains(JAR_FILE_ENDING)) return fileToStringFromJar(path);
+        else return fileToString(path.toFile());
+    }
+
+    /**
      * Read the given file as a string.
      *
      * <p>Note: This only works if the program is running in the IDE, not in the jar.
@@ -108,5 +122,47 @@ public class DslFileLoader {
             e.printStackTrace();
         }
         return stringBuilder.toString();
+    }
+
+    /**
+     * Read the dng files in the given JAR file as a string.
+     *
+     * @param path Path to JAR file.
+     * @return Read-in string.
+     */
+    public static String fileToStringFromJar(Path path) {
+
+        String jarFilePath =
+                path.toString().split(JAR_FILE_ENDING)[0] + JAR_FILE_ENDING.replace("\\", "/");
+        String jarFileContent =
+                path.toString().split(JAR_FILE_ENDING)[1].replace("\\", "/").substring(1);
+
+        try (JarFile jarFile = new JarFile(jarFilePath)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                if (entryName.equals(jarFileContent)) {
+
+                    try (InputStream inputStream = jarFile.getInputStream(entry);
+                            BufferedReader reader =
+                                    new BufferedReader(new InputStreamReader(inputStream))) {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        String line;
+
+                        while ((line = reader.readLine()) != null) {
+                            stringBuilder.append(line);
+                        }
+                        return stringBuilder.toString();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

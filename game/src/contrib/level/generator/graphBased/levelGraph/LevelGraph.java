@@ -63,7 +63,6 @@ public class LevelGraph {
         List<LevelNode> graphANodes =
                 graphA.nodes().stream().filter(n -> n.originGraph() == graphA).toList();
         if (graphANodes.isEmpty()) return false;
-
         List<LevelNode> graphAFreeNodes =
                 graphANodes.stream()
                         .filter(n -> n.neighboursCount() < LevelNode.MAX_NEIGHBOURS)

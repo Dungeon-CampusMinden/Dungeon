@@ -158,7 +158,8 @@ public class TaskGraphConverter {
             // each graph contains all the nodes, also the nodes of each graph it is connected with,
             // so if this set is empty it means root and graph are not connected
             if (tmp.isEmpty()) {
-                LevelGraph.add(rootGraph, levelGraph);
+                if (!LevelGraph.add(rootGraph, levelGraph))
+                    throw new RuntimeException("Could not connects Graphs");
                 return connectUnconnectedGraphs(rootGraph, levelGraphs);
             }
         }
