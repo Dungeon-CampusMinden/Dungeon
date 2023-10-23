@@ -64,7 +64,6 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
             this.parsedFiles.put(filePath, parsedFile);
             this.parsedFile = parsedFile;
         }
-
         // we don't want to do the whole interpretation here...
         // we only want to know, which (well formed) entry points exist
         // would be enough to do this in a light AST-Visitor..
@@ -72,7 +71,6 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
         if (list.size() != 0) {
             return Optional.of(list);
         }
-
         return Optional.empty();
     }
 
