@@ -32,7 +32,7 @@ public class ItemPrototypeDefinitionNode extends Node {
      * @return a List of nodes representing individual component definitions of this game object
      * definition node
      */
-    public List<Node> getValueDefinitionNodes() {
+    public List<Node> getPropertyDefinitionNodes() {
         return getPropertyDefinitionListNode().getChildren();
     }
 
