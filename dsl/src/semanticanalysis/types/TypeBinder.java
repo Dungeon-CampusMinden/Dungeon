@@ -68,6 +68,25 @@ public class TypeBinder implements AstVisitor<Object> {
     }
 
     @Override
+    public Object visit(ItemPrototypeDefinitionNode node) {
+        // create new type with name of definition node and load it in environment
+        var newTypeName = node.getIdName();
+        if (resolveGlobal(newTypeName) != Symbol.NULL) {
+            // TODO: reference file and location of definition
+            this.errorStringBuilder.append(
+                "Symbol with name '" + newTypeName + "' already defined");
+            // TODO: return explicit null-Type?
+            return null;
+        }
+
+        var newType = new AggregateType(newTypeName, this.symbolTable().getGlobalScope());
+        symbolTable().addSymbolNodeRelation(newType, node, true);
+
+        this.environment.loadTypes(newType);
+        return newType;
+    }
+
+    @Override
     public Object visit(AggregateValueDefinitionNode node) {
         // resolve components name in global scope
         var componentName = node.getIdName();
