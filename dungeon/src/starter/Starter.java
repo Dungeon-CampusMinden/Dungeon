@@ -122,8 +122,6 @@ public class Starter {
         DslFileLoader.processArguments(args)
                 .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
 
-        System.out.println("Entry Points:");
-        entryPoints.forEach(e -> System.out.println(e));
         return entryPoints;
     }
 
