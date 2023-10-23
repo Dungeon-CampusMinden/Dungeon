@@ -224,6 +224,11 @@ public class VariableBinder implements AstVisitor<Void> {
     }
 
     @Override
+    public Void visit(ItemPrototypeDefinitionNode node) {
+        return null;
+    }
+
+    @Override
     public Void visit(ReturnStmtNode node) {
         return null;
     }
