@@ -4,6 +4,7 @@ import parser.ast.*;
 
 import runtime.IEvironment;
 
+import semanticanalysis.ScopedSymbol;
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
 
@@ -81,6 +82,29 @@ public class TypeBinder implements AstVisitor<Object> {
 
         var newType = new AggregateType(newTypeName, this.symbolTable().getGlobalScope());
         symbolTable().addSymbolNodeRelation(newType, node, true);
+
+        Symbol questItemTypeSymbol = this.environment.resolveInGlobalScope("quest_item");
+        if (Symbol.NULL == questItemTypeSymbol) {
+            throw new RuntimeException("'quest_item' cannot be resolved in global scope!");
+        }
+
+        if (!(questItemTypeSymbol instanceof IType questItemType)) {
+            throw new RuntimeException("Symbol with name 'quest_item' is no type!");
+        }
+
+        if (!(questItemType instanceof ScopedSymbol scopedQuestItemType)) {
+            throw new RuntimeException("Symbol with name 'quest_item' is no scoped symbol!");
+        }
+
+        for (Node propertyDefinition : node.getPropertyDefinitionNodes()) {
+            var propertyDefinitionNode = (PropertyDefNode)propertyDefinition;
+            String propertyName = ((PropertyDefNode) propertyDefinition).getIdName();
+            Symbol propertySymbol = scopedQuestItemType.resolve(propertyName, false);
+            if (propertySymbol == Symbol.NULL) {
+                throw new RuntimeException("Cannot resolve property of name '" + propertyName + "' in type '" + questItemType + "'");
+            }
+            this.symbolTable().addSymbolNodeRelation(propertySymbol, propertyDefinitionNode, false);
+        }
 
         this.environment.loadTypes(newType);
         return newType;
