@@ -89,10 +89,20 @@ public class DslFileLoader {
         return dngPaths;
     }
 
+    /**
+     * Reads the content of a file specified by the given path.
+     *
+     * <p>If the path points to a JAR file, it reads its content using {@link
+     * #fileToStringFromJar(Path)}, else its using {@link #fileToString(File)}.
+     *
+     * @param path Path to file to read.
+     * @return Read-in string.
+     */
     public static String fileToString(Path path) {
         if (path.toString().contains(JAR_FILE_ENDING)) return fileToStringFromJar(path);
         else return fileToString(path.toFile());
     }
+
     /**
      * Read the given file as a string.
      *
@@ -114,6 +124,12 @@ public class DslFileLoader {
         return stringBuilder.toString();
     }
 
+    /**
+     * Read the dng files in the given JAR file as a string.
+     *
+     * @param path Path to JAR file.
+     * @return Read-in string.
+     */
     public static String fileToStringFromJar(Path path) {
 
         String jarFilePath =
