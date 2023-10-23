@@ -1,13 +1,8 @@
+---
+title: "Blockly: Verwendete Ressorucen"
+---
+
 # Ressourcen
-
-## Inhaltsverzeichnis
-
-- [Ressourcen](#ressourcen)
-  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
-  - [Nützliche Links](#nützliche-links)
-    - [Blockly](#blockly)
-    - [TypeScript](#typescript)
-    - [Vite](#vite)
 
 ## Nützliche Links
 

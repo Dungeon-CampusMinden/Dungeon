@@ -1,15 +1,8 @@
+---
+title: "Blockly: Intro"
+---
+
 # Einleitung
-
-## Inhaltsverzeichnis
-
-- [Einleitung](#einleitung)
-  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
-  - [Einführung](#einführung)
-    - [Spielerisches Programmieren mit "Blockly-Dungeon"](#spielerisches-programmieren-mit-blockly-dungeon)
-    - [Blockly](#blockly)
-    - [TypeScript](#typescript)
-    - [Vite](#vite)
-    - [Warum "Blockly-Dungeon"?](#warum-blockly-dungeon)
 
 ## Einführung
 

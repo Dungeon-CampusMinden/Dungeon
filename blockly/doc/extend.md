@@ -1,24 +1,8 @@
+---
+title: "Blockly: How to: Erweitern der Anwendung"
+---
+
 # Erweitern der Applikation
-
-## Inhaltsverzeichnis
-
-- [Erweitern der Applikation](#erweitern-der-applikation)
-  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
-  - [Architektur der Applikation](#architektur-der-applikation)
-    - [1. Blockly-Bibliothek](#1-blockly-bibliothek)
-    - [2. TypeScript](#2-typescript)
-    - [3. Vite.js](#3-vitejs)
-      - [Entwicklungsserver](#entwicklungsserver)
-      - [Build-System](#build-system)
-    - [4. Anwendungslogik](#4-anwendungslogik)
-    - [5. Benutzeroberfläche](#5-benutzeroberfläche)
-    - [6. Kommunikation mit dem Server](#6-kommunikation-mit-dem-server)
-    - [7. Dungeon-Server](#7-dungeon-server)
-  - [Hinzufügen neuer Blöcke](#hinzufügen-neuer-blöcke)
-    - [Schritt 1: Toolbox erweitern (toolbox.ts)](#schritt-1-toolbox-erweitern-toolboxts)
-    - [Schritt 2: Block beschreiben (./blocks/dungeon.ts)](#schritt-2-block-beschreiben-blocksdungeonts)
-    - [Schritt 3: Funktion für den Java Codegenerator erstellen (./generators/java/...)](#schritt-3-funktion-für-den-java-codegenerator-erstellen-generatorsjava)
-    - [Schritt 4: Funktionalität im Dungeon-Server implementieren](#schritt-4-funktionalität-im-dungeon-server-implementieren)
 
 ## Architektur der Applikation
 

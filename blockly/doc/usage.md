@@ -1,11 +1,8 @@
+---
+title: "Blockly: How to use"
+---
+
 # Verwendung
-
-## Inhaltsverzeichnis
-
-- [Verwendung](#verwendung)
-  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
-  - [Grundlagen](#grundlagen)
-  - [Fortgeschrittene Nutzung](#fortgeschrittene-nutzung)
 
 ## Grundlagen
 
@@ -13,7 +10,7 @@
 2. **Drag-and-Drop Programmierung:** Ziehen Sie Code-Blöcke aus der Toolbox in den Programmierbereich, um Aktionen festzulegen. Verbinden Sie die Blöcke in der richtigen Reihenfolge, um die gewünschte Logik zu erstellen.
 3. **Aktionen ausführen:** Nachdem die Blöcke platziert wurden, kann durch Drücken des Start-Buttons der Code ausgeführt werden und der `Dungeon-Charakter` wird entsprechend der Logik bewegt. Durch Drücken des Reset-Buttons wird der `Dungeon-Charakter` an seine Startposition zurückgesetzt.
 
-![Blockly-Dungeon](../img/Blockly_App.png)
+![Blockly](img/Blockly_App.png)
 
 ## Fortgeschrittene Nutzung
 

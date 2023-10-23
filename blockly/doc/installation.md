@@ -1,15 +1,8 @@
+---
+title: "Blockly: How to install"
+---
+
 # Installation
-
-## Inhaltsverzeichnis
-
-- [Installation](#installation)
-  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
-  - [Voraussetzungen](#voraussetzungen)
-  - [Schritt 1: Repository klonen](#schritt-1-repository-klonen)
-  - [Schritt 2: Wechsel in den Projektordner](#schritt-2-wechsel-in-den-projektordner)
-  - [Schritt 3: Installation der Abhängigkeiten](#schritt-3-installation-der-abhängigkeiten)
-  - [Schritt 4: Starten der Applikation](#schritt-4-starten-der-applikation)
-  - [Schritt 5 (Optional): Applikation bauen](#schritt-5-optional-applikation-bauen)
 
 ## Voraussetzungen
 

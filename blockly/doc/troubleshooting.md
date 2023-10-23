@@ -1,12 +1,8 @@
+---
+title: "Blockly: Troubleshooting"
+---
+
 # Fehlerbehebung
-
-## Inhaltsverzeichnis
-
-- [Fehlerbehebung](#fehlerbehebung)
-  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
-  - [Fehleranalyse](#fehleranalyse)
-    - [Generierter Code](#generierter-code)
-    - [Server Response](#server-response)
 
 ## Fehleranalyse
 
