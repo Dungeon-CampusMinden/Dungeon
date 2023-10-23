@@ -104,6 +104,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.globalSpace;
     }
 
+    public void createPrototypes(IEvironment environment) {
+        createGameObjectPrototypes(environment);
+        createItemPrototypes(environment);
+    }
+
     /**
      * Iterates over all types in the passed IEnvironment and creates a {@link Prototype} for any
      * game object definition, which was defined by the user
@@ -133,6 +138,69 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 }
             }
         }
+    }
+
+    public void createItemPrototypes(IEvironment environment) {
+        // iterate over all types
+        for (var type : environment.getTypes()) {
+            if (type.getTypeKind().equals(IType.Kind.Aggregate)) {
+                // if the type has a creation node, it is user defined, and we need to
+                // create a prototype for it
+                var creationAstNode = symbolTable().getCreationAstNode((Symbol) type);
+                if (creationAstNode.type.equals(Node.Type.ItemPrototypeDefinition)) {
+                    var prototype = createItemPrototype((ItemPrototypeDefinitionNode) creationAstNode);
+
+                    this.environment.addPrototype(prototype);
+                    this.getGlobalMemorySpace().bindValue(prototype.getName(), prototype);
+                }
+            }
+        }
+    }
+
+    private Prototype createItemPrototype(ItemPrototypeDefinitionNode node) {
+        var itemPrototypeDefinitionSymbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
+        assert itemPrototypeDefinitionSymbol instanceof AggregateType;
+        AggregateType itemType = (AggregateType) itemPrototypeDefinitionSymbol;
+
+        // the Prototype for a component does only live inside the
+        // datatype definition, because it is part of the definition
+        // evaluate rhs and store the value in the member of
+        // the prototype
+        AggregateType questItemType = (AggregateType) this.environment.resolveInGlobalScope("quest_item");
+        Prototype itemPrototype = new Prototype(Prototype.ITEM_PROTOTYPE, itemType);
+        for (var propDef : node.getPropertyDefinitionNodes()) {
+            var propertyDefNode = (PropertyDefNode) propDef;
+            var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
+
+            // get type of lhs (the assignee)
+            var propertyName = propertyDefNode.getIdName();
+            Symbol propertySymbol = symbolTable().getSymbolsForAstNode(propDef).get(0);
+            if (propertySymbol.equals(Symbol.NULL)) {
+                throw new RuntimeException(
+                    "Property of name '"
+                        + propertyName
+                        + "' cannot be resolved in type '"
+                        + questItemType.getName()
+                        + "'");
+            }
+            var propertiesType = propertySymbol.getDataType();
+
+            // clone value
+            Value value = (Value) rhsValue.clone();
+
+            // promote value to property's datatype
+            // TODO: typechecking must be performed before this
+            value.setDataType((IType) propertiesType);
+
+            // indicate, that the value is "dirty", which means it was set
+            // explicitly and needs to be set in the java object corresponding
+            // to the component
+            value.setDirty();
+
+            var valueName = propertyDefNode.getIdName();
+            itemPrototype.addDefaultValue(valueName, value);
+        }
+        return itemPrototype;
     }
 
     private Prototype createComponentPrototype(AggregateValueDefinitionNode node) {
@@ -446,7 +514,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      *     #initializeRuntime(IEvironment)})
      */
     public Object generateQuestConfig(Node programAST) {
-        createGameObjectPrototypes(this.environment);
+        createPrototypes(this.environment);
 
         // find quest_config definition
         for (var node : programAST.getChildren()) {
@@ -462,7 +530,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     protected DungeonConfig generateQuestConfig(ObjectDefNode configDefinitionNode) {
-        createGameObjectPrototypes(this.environment);
+        createPrototypes(this.environment);
         Value configValue = (Value) configDefinitionNode.accept(this);
         Object config = configValue.getInternalValue();
         if (config instanceof DungeonConfig) {
