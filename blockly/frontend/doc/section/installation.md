@@ -15,8 +15,8 @@
 
 Bevor mit der Installation begonnen werden kann, müssen folgende Voraussetzungen erfüllt sein:
 
-1. **Node.js und npm:** Blockly-Dungeon benötigt Node.js und npm, um die Applikation zu installieren und zu starten. Node.js und npm können von der [offiziellen Website](https://nodejs.org/en/) heruntergeladen werden. Die Installation von Node.js beinhaltet auch die Installation von npm.
-2. **Git:** Blockly-Dungeon benötigt Git, um das Repository zu klonen. Git kann von der [offiziellen Website](https://git-scm.com/downloads) heruntergeladen werden.
+1. **Node.js und npm:** Blockly benötigt Node.js und npm, um die Applikation zu installieren und zu starten. Node.js und npm können von der [offiziellen Website](https://nodejs.org/en/) heruntergeladen werden. Die Installation von Node.js beinhaltet auch die Installation von npm.
+2. **Git:** Blockly benötigt Git, um das Repository zu klonen. Git kann von der [offiziellen Website](https://git-scm.com/downloads) heruntergeladen werden.
 
 ## Schritt 1: Repository klonen
 
@@ -31,7 +31,7 @@ git clone https://github.com/Programmiermethoden/Dungeon.git
 Navigieren Sie in das Verzeichnis, in dem das Repository geklont wurde:
 
 ```bash
-cd Dungeon/blockly-dungeon
+cd Dungeon/blockly/frontend
 ```
 
 ## Schritt 3: Installation der Abhängigkeiten
