@@ -94,7 +94,7 @@ task start(dependsOn: classes, type: JavaExec) {
     }
 }
 
-task blocky(dependsOn: classes, type: JavaExec) {
+task blockly(dependsOn: classes, type: JavaExec) {
     mainClass = "client.Client"
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in

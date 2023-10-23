@@ -29,7 +29,7 @@ cd Dungeon/blockly/frontend
 
 ## Schritt 3: Installation der Abhängigkeiten
 
-Verwenden Sie npm, um die benötigten Abhängigkeiten für "Blocky-Dungeon" zu installieren:
+Verwenden Sie npm, um die benötigten Abhängigkeiten für "Blocky" zu installieren:
 
 ```bash
 npm install
@@ -37,7 +37,7 @@ npm install
 
 ## Schritt 4: Starten der Applikation
 
-Starten Sie den Vite.js-Entwicklungsserver, um "Blocky-Dungeon" lokal auszuführen:
+Starten Sie den Vite.js-Entwicklungsserver, um "Blocky" lokal auszuführen:
 
 ```bash
 npm run dev
