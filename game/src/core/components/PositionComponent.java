@@ -1,9 +1,7 @@
 package core.components;
 
 import core.Component;
-import core.Game;
 import core.level.Tile;
-import core.level.utils.LevelElement;
 import core.utils.Point;
 
 import semanticanalysis.types.DSLType;
@@ -54,18 +52,12 @@ public final class PositionComponent implements Component {
     /**
      * Creates a new PositionComponent with a random position.
      *
-     * <p>Sets the position of this entity on a random floor tile in the level. If no level is
-     * loaded, the position is set to {@link #ILLEGAL_POSITION}. Keep in mind that if the associated
-     * entity is processed by the {@link core.systems.PositionSystem}, {@link #ILLEGAL_POSITION}
-     * will be replaced with a random accessible position.
+     * <p>Sets the position of this entity to {@link #ILLEGAL_POSITION}. Keep in mind that if the
+     * associated entity is processed by the {@link core.systems.PositionSystem}, {@link
+     * #ILLEGAL_POSITION} will be replaced with a random accessible position.
      */
     public PositionComponent() {
-
-        if (Game.currentLevel() != null) {
-            position = Game.randomTilePoint(LevelElement.FLOOR);
-        } else {
-            position = ILLEGAL_POSITION;
-        }
+        position = ILLEGAL_POSITION;
     }
 
     /**
