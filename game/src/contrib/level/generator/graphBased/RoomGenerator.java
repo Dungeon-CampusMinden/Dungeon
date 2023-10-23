@@ -173,9 +173,6 @@ public class RoomGenerator {
         }
 
         addDoors(doors, maxArea, layout, size);
-        // TODO Check if holes block access to doors
-
-        // printLayout(layout, size);
         return layout;
     }
 
@@ -189,24 +186,23 @@ public class RoomGenerator {
      */
     private void extendToSides(
             LevelElement[][] layout, Area maxArea, Area baseFloorPadding, Area baseFloor) {
-        boolean up = false;
-        boolean down = false;
-        boolean left = false;
-        boolean right = false;
+        boolean north = false;
+        boolean south = false;
+        boolean west = false;
+        boolean east = false;
         if (random.nextFloat() < PROBABILITY_SIDE) {
-            up = true;
+            north = true;
         }
         if (random.nextFloat() < PROBABILITY_SIDE) {
-            down = true;
+            south = true;
         }
         if (random.nextFloat() < PROBABILITY_SIDE) {
-            left = true;
+            west = true;
         }
         if (random.nextFloat() < PROBABILITY_SIDE) {
-            right = true;
+            east = true;
         }
-        if (up) {
-            // System.out.println("UP");
+        if (north) {
             for (int y = WALL_BUFFER + baseFloorPadding.y + baseFloor.y;
                     y < WALL_BUFFER + maxArea.y;
                     y++) {
@@ -217,8 +213,7 @@ public class RoomGenerator {
                 }
             }
         }
-        if (down) {
-            // System.out.println("DOWN");
+        if (south) {
             for (int y = WALL_BUFFER; y < WALL_BUFFER + baseFloorPadding.y; y++) {
                 for (int x = WALL_BUFFER + baseFloorPadding.x;
                         x < WALL_BUFFER + baseFloorPadding.x + baseFloor.x;
@@ -227,8 +222,7 @@ public class RoomGenerator {
                 }
             }
         }
-        if (left) {
-            // System.out.println("LEFT");
+        if (west) {
             for (int y = WALL_BUFFER + baseFloorPadding.y;
                     y < WALL_BUFFER + baseFloorPadding.y + baseFloor.y;
                     y++) {
@@ -237,8 +231,7 @@ public class RoomGenerator {
                 }
             }
         }
-        if (right) {
-            // System.out.println("RIGHT");
+        if (east) {
             for (int y = WALL_BUFFER + baseFloorPadding.y;
                     y < WALL_BUFFER + baseFloorPadding.y + baseFloor.y;
                     y++) {
@@ -278,7 +271,6 @@ public class RoomGenerator {
             lowerRight = true;
         }
         if (upperLeft) {
-            // System.out.println("UPPER LEFT");
             for (int y = WALL_BUFFER + baseFloorPadding.y + baseFloor.y - baseFloor.y / 2 + 1;
                     y < WALL_BUFFER + maxArea.y;
                     y++) {
@@ -290,7 +282,6 @@ public class RoomGenerator {
             }
         }
         if (upperRight) {
-            // System.out.println("UPPER RIGHT");
             for (int y = WALL_BUFFER + baseFloorPadding.y + baseFloor.y - baseFloor.y / 2 + 1;
                     y < WALL_BUFFER + maxArea.y;
                     y++) {
@@ -302,7 +293,6 @@ public class RoomGenerator {
             }
         }
         if (lowerLeft) {
-            // System.out.println("LOWER LEFT");
             for (int y = WALL_BUFFER;
                     y < WALL_BUFFER + baseFloorPadding.y + baseFloor.y / 2 - 1;
                     y++) {
@@ -314,7 +304,6 @@ public class RoomGenerator {
             }
         }
         if (lowerRight) {
-            // System.out.println("LOWER RIGHT");
             for (int y = WALL_BUFFER;
                     y < WALL_BUFFER + baseFloorPadding.y + baseFloor.y / 2 - 1;
                     y++) {
@@ -403,12 +392,12 @@ public class RoomGenerator {
      */
     private void addDoors(
             LevelNode[] doors, Area maxArea, LevelElement[][] layout, LevelSize size) {
-        boolean upperDoor = doors[Direction.NORTH.value()] != null;
-        boolean bottomDoor = doors[Direction.SOUTH.value()] != null;
-        boolean leftDoor = doors[Direction.WEST.value()] != null;
-        boolean rightDoor = doors[Direction.EAST.value()] != null;
+        boolean north = doors[Direction.NORTH.value()] != null;
+        boolean south = doors[Direction.SOUTH.value()] != null;
+        boolean west = doors[Direction.WEST.value()] != null;
+        boolean east = doors[Direction.EAST.value()] != null;
 
-        if (upperDoor) {
+        if (north) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
             for (int y = WALL_BUFFER + maxArea.y; y > WALL_BUFFER; y--) {
                 for (int x = WALL_BUFFER; x < WALL_BUFFER + maxArea.x; x++) {
@@ -430,8 +419,10 @@ public class RoomGenerator {
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            // make sure the door is accessible
+            layout[doorCoordinate.y - 1][doorCoordinate.x] = LevelElement.FLOOR;
         }
-        if (bottomDoor) {
+        if (south) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
             for (int y = WALL_BUFFER - 1; y < WALL_BUFFER + maxArea.y; y++) {
                 for (int x = WALL_BUFFER; x < WALL_BUFFER + maxArea.x; x++) {
@@ -453,8 +444,10 @@ public class RoomGenerator {
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            // make sure the door is accessible
+            layout[doorCoordinate.y + 1][doorCoordinate.x] = LevelElement.FLOOR;
         }
-        if (leftDoor) {
+        if (west) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
             for (int x = WALL_BUFFER - 1; x < WALL_BUFFER + maxArea.x; x++) {
                 for (int y = WALL_BUFFER; y < WALL_BUFFER + maxArea.y; y++) {
@@ -476,8 +469,10 @@ public class RoomGenerator {
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            // make sure the door is accessible
+            layout[doorCoordinate.y][doorCoordinate.x + 1] = LevelElement.FLOOR;
         }
-        if (rightDoor) {
+        if (east) {
             ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
             for (int x = WALL_BUFFER + maxArea.x; x > WALL_BUFFER; x--) {
                 for (int y = WALL_BUFFER; y < WALL_BUFFER + maxArea.y; y++) {
@@ -499,6 +494,8 @@ public class RoomGenerator {
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+            // make sure the door is accessible
+            layout[doorCoordinate.y][doorCoordinate.x - 1] = LevelElement.FLOOR;
         }
     }
 
