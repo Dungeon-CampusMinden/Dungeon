@@ -174,9 +174,6 @@ task taskGenerationTest(dependsOn: classes, type: JavaExec) {
 }
 
 
-
-
-
 test {
     testLogging {
         events "passed", "skipped", "failed"
