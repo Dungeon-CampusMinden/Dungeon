@@ -172,7 +172,7 @@ public class RoomGenerator {
             addSupports(layout, baseFloorPadding, baseFloor);
         }
 
-        addDoors(doors, maxArea, layout);
+        addDoors(doors, maxArea, layout, size);
         // TODO Check if holes block access to doors
 
         // printLayout(layout, size);
@@ -399,8 +399,10 @@ public class RoomGenerator {
      * @param doors Array of DoorDirections to specify where doors should be generated
      * @param maxArea Maximum area of the room on which FloorTiles can be placed
      * @param layout The layout of the level
+     * @param size Size of the level
      */
-    private void addDoors(LevelNode[] doors, Area maxArea, LevelElement[][] layout) {
+    private void addDoors(
+            LevelNode[] doors, Area maxArea, LevelElement[][] layout, LevelSize size) {
         boolean upperDoor = doors[Direction.NORTH.value()] != null;
         boolean bottomDoor = doors[Direction.SOUTH.value()] != null;
         boolean leftDoor = doors[Direction.WEST.value()] != null;
@@ -423,8 +425,8 @@ public class RoomGenerator {
                     break;
                 }
             }
-            // TODO throw exception if possibleDoorCoordinates.size() == 0
-            if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
+            if (possibleDoorCoordinates.size() == 0)
+                throw new CantPlaceDoorException(layout, Direction.NORTH, size);
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
@@ -446,8 +448,8 @@ public class RoomGenerator {
                     break;
                 }
             }
-            // TODO throw exception if possibleDoorCoordinates.size() == 0
-            if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
+            if (possibleDoorCoordinates.size() == 0)
+                throw new CantPlaceDoorException(layout, Direction.SOUTH, size);
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
@@ -469,8 +471,8 @@ public class RoomGenerator {
                     break;
                 }
             }
-            // TODO throw exception if possibleDoorCoordinates.size() == 0
-            if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
+            if (possibleDoorCoordinates.size() == 0)
+                throw new CantPlaceDoorException(layout, Direction.WEST, size);
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
@@ -492,8 +494,8 @@ public class RoomGenerator {
                     break;
                 }
             }
-            // TODO throw exception if possibleDoorCoordinates.size() == 0
-            if (possibleDoorCoordinates.size() == 0) System.out.println("Cant place door");
+            if (possibleDoorCoordinates.size() == 0)
+                throw new CantPlaceDoorException(layout, Direction.EAST, size);
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
             layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
@@ -538,28 +540,31 @@ public class RoomGenerator {
     }
 
     /**
-     * Prints the layout of the room for debugging.
+     * Get the layout of the room for debugging as String.
      *
      * @param layout The layout of the room
      * @param size The size of the room
      */
-    private void printLayout(LevelElement[][] layout, LevelSize size) {
-        System.out.println("LevelSize: " + size.name());
-        System.out.println("xSize: " + layout[0].length);
-        System.out.println("ySize: " + layout.length);
+    public static String layoutToString(LevelElement[][] layout, LevelSize size) {
+        StringBuilder result = new StringBuilder();
+        result.append("LevelSize: ").append(size.name()).append("\n");
+        result.append("xSize: ").append(layout[0].length).append("\n");
+        result.append("ySize: ").append(layout.length).append("\n");
+
         for (int y = layout.length - 1; y >= 0; y--) {
             for (int x = 0; x < layout[0].length; x++) {
                 switch (layout[y][x]) {
-                    case SKIP -> System.out.print("  ");
-                    case FLOOR -> System.out.print(". ");
-                    case WALL -> System.out.print("W ");
-                    case EXIT -> System.out.print("E ");
-                    case HOLE -> System.out.println("H ");
-                    case DOOR -> System.out.println("D ");
+                    case SKIP -> result.append("  ");
+                    case FLOOR -> result.append(". ");
+                    case WALL -> result.append("W ");
+                    case EXIT -> result.append("E ");
+                    case HOLE -> result.append("H ");
+                    case DOOR -> result.append("D ");
                 }
             }
-            System.out.println();
+            result.append("\n");
         }
+        return result.toString();
     }
 
     private record MinMaxValue(int min, int max) {}
