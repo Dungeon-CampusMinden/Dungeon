@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class DrawComponentAdapter {
     @DSLTypeAdapter(name = "draw_component")
-    public static DrawComponent buildQuizFromSingleChoiceTask(
+    public static DrawComponent buildDrawComponentFromPath(
             @DSLTypeMember(name = "path") String path) {
         DrawComponent comp = null;
         try {
