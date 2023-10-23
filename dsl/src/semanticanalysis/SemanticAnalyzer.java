@@ -233,6 +233,23 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     }
 
     @Override
+    public Void visit(ItemPrototypeDefinitionNode node) {
+        // resolve datatype of definition
+        var typeName = node.getIdName();
+        var typeSymbol = this.globalScope().resolve(typeName);
+        if (typeSymbol.equals(Symbol.NULL) || typeSymbol == null) {
+            errorStringBuilder.append("Could not resolve type " + typeName);
+        } else {
+            scopeStack.push((AggregateType) typeSymbol);
+            for (var propertyDef : node.getPropertyDefinitionNodes()) {
+                propertyDef.accept(this);
+            }
+            scopeStack.pop();
+        }
+        return null;
+    }
+
+    @Override
     public Void visit(PrototypeDefinitionNode node) {
         // resolve datatype of definition
         var typeName = node.getIdName();
