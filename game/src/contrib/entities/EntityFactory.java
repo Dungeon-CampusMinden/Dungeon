@@ -44,7 +44,18 @@ public class EntityFactory {
     private static final float Y_SPEED_HERO = 7.5f;
     private static final int FIREBALL_COOL_DOWN = 1;
     private static final String[] MONSTER_FILE_PATHS = {
-        "character/monster/chort", "character/monster/imp"
+        "character/monster/chort",
+        "character/monster/imp",
+        "character/monster/big_deamon",
+        "character/monster/big_zombie",
+        "character/monster/doc",
+        "character/monster/goblin",
+        "character/monster/ice_zombie",
+        "character/monster/ogre",
+        "character/monster/orc_shaman",
+        "character/monster/orc_warrior",
+        "character/monster/pumpkin_dude",
+        "character/monster/zombie"
     };
 
     private static final int MIN_MONSTER_HEALTH = 2;
