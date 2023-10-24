@@ -152,5 +152,6 @@ public class Main {
         Game.add(new HealthbarSystem());
         Game.add(new HeroUISystem());
         Game.add(new HudSystem());
+        Game.add(new SpikeSystem());
     }
 }
