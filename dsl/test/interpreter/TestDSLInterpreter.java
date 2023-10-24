@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import contrib.components.CollideComponent;
 
+import contrib.components.ItemComponent;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
@@ -28,6 +29,7 @@ import semanticanalysis.FunctionSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
+import task.QuestItem;
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
 import taskdependencygraph.TaskNode;
@@ -3515,21 +3517,16 @@ public class TestDSLInterpreter {
             texture_path: "items/book/wisdom_scroll.png"
         }
 
-
         fn build_scenario1(single_choice_task t) -> entity<><> {
             var ret_set : entity<><>;
 
-            // setup
             var first_room_set : entity<>;
-            var wizard : entity;
-            wizard = instantiate(wizard_type);
-            wizard.task_component.task = t;
-            first_room_set.add(wizard);
-            ret_set.add(first_room_set);
 
             var item : quest_item;
             item = build_quest_item(item_type1);
+            place_quest_item(item, first_room_set);
 
+            ret_set.add(first_room_set);
             return ret_set;
         }
         """;
@@ -3539,8 +3536,11 @@ public class TestDSLInterpreter {
         var task = config.dependencyGraph().nodeIterator().next().task();
         var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
 
-        // currenlty, the created item is not placed in the dungeon and therefore not part of the returned entities;
-        // -> this should fail
-        Assert.fail();
+        var entityIterator = builtTask.iterator().next().iterator();
+        // this will be the placed quest item
+        var questItem = entityIterator.next();
+        ItemComponent itemComponent = questItem.fetch(ItemComponent.class).get();
+        QuestItem item = (QuestItem) itemComponent.item();
+        Assert.assertEquals("MyName", item.displayName());
     }
 }
