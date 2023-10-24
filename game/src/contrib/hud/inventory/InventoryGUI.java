@@ -102,6 +102,13 @@ public class InventoryGUI extends CombinableGUI {
         this.drawItemInfo(batch);
     }
 
+    private int getSlotByMousePosition() {
+        Vector2 mousePos =
+                new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+        Vector2 relMousePos = new Vector2(mousePos.x - this.x(), mousePos.y - this.y());
+        return getSlotByCoordinates(relMousePos.x, relMousePos.y);
+    }
+
     private int getSlotByCoordinates(int x, int y) {
         return (x / this.slotSize) + (y / this.slotSize) * this.slotsPerRow;
     }
@@ -319,12 +326,18 @@ public class InventoryGUI extends CombinableGUI {
                             @Override
                             public boolean keyTyped(InputEvent event, char character) {
                                 if (character == 'e' || character == 'E') {
-                                    System.out.println("USING ITEM");
+                                    useItem(
+                                            InventoryGUI.this.inventoryComponent.get(
+                                                    getSlotByMousePosition()));
                                     return true;
                                 }
                                 return false;
                             }
                         });
+    }
+
+    private void useItem(Item item) {
+        if (item != null) item.use(Game.hero().get(), item);
     }
 
     @Override
