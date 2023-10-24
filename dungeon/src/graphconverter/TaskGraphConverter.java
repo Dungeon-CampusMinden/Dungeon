@@ -48,7 +48,6 @@ public class TaskGraphConverter {
      * @param graph Graph to execute the full chain of conversion on.
      * @return the start room
      */
-    // TODO this needs the DSLInterpreter as parameter
     public static ILevel convert(
             final TaskDependencyGraph graph, final DSLInterpreter dslInterpreter) {
         callTaskBuilderFor(graph, dslInterpreter);
