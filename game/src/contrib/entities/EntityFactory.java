@@ -33,7 +33,6 @@ import java.util.Comparator;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -42,7 +41,6 @@ import java.util.stream.IntStream;
  * static methods to construct various types of entities with different components.
  */
 public class EntityFactory {
-    private static final Logger LOGGER = Logger.getLogger(EntityFactory.class.getName());
     private static final Random RANDOM = new Random();
     private static final String HERO_FILE_PATH = "character/knight";
     private static final float X_SPEED_HERO = 7.5f;
@@ -209,7 +207,13 @@ public class EntityFactory {
                                                     new Tuple<>(
                                                             x,
                                                             x.fetch(UIComponent.class)
-                                                                    .get())) // create a tuple to
+                                                                    .orElseThrow(
+                                                                            () ->
+                                                                                    MissingComponentException
+                                                                                            .build(
+                                                                                                    x,
+                                                                                                    UIComponent
+                                                                                                            .class)))) // create a tuple to
                                     // still have access to
                                     // the UI Entity
                                     .filter(x -> x.b().closeOnUICloseKey())
@@ -384,10 +388,7 @@ public class EntityFactory {
                         new DropItemsInteraction().accept(e, who);
                     };
         } else {
-            onDeath =
-                    (e, who) -> {
-                        playMonsterDieSound();
-                    };
+            onDeath = (e, who) -> playMonsterDieSound();
         }
         monster.addComponent(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
         monster.addComponent(new PositionComponent());
@@ -404,6 +405,7 @@ public class EntityFactory {
                         MONSTER_COLLIDE_DAMAGE,
                         MONSTER_COLLIDE_DAMAGE_TYPE,
                         MONSTER_COLLIDE_COOL_DOWN));
+        monster.addComponent(new IdleSoundComponent(randomMonsterIdleSound()));
         return monster;
     }
 
@@ -418,5 +420,22 @@ public class EntityFactory {
         dieSoundEffect.setLooping(false);
         dieSoundEffect.play();
         dieSoundEffect.setVolume(.35f);
+    }
+
+    private static String randomMonsterIdleSound() {
+        switch (RANDOM.nextInt(4)) {
+            case 0 -> {
+                return "sounds/monster1.ogg";
+            }
+            case 1 -> {
+                return "sounds/monster2.ogg";
+            }
+            case 2 -> {
+                return "sounds/monster3.ogg";
+            }
+            default -> {
+                return "sounds/monster4.ogg";
+            }
+        }
     }
 }

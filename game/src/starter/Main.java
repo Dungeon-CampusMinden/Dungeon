@@ -76,7 +76,7 @@ public class Main {
     }
 
     private static void onSetup() {
-        Game.userOnSetup(Main::basicSetuo);
+        Game.userOnSetup(Main::basicSetup);
     }
 
     private static void setupMusic() {
@@ -89,12 +89,12 @@ public class Main {
     private static void onSetupRoomBasedLevel(int roomcount, int monstercount, int chestcount) {
         Game.userOnSetup(
                 () -> {
-                    basicSetuo();
+                    basicSetup();
                     createRoomBasedLevel(roomcount, monstercount, chestcount);
                 });
     }
 
-    private static void basicSetuo() {
+    private static void basicSetup() {
         createSystems();
         createHero();
         Crafting.loadRecipes();
@@ -164,5 +164,6 @@ public class Main {
         Game.add(new HeroUISystem());
         Game.add(new HudSystem());
         Game.add(new SpikeSystem());
+        Game.add(new IdleSoundSystem());
     }
 }
