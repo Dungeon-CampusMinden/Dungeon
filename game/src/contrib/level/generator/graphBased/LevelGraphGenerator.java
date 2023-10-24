@@ -46,7 +46,8 @@ public class LevelGraphGenerator {
         // this will generate a tree
         entityCollections.forEach(graph::add);
         // draw some random edges to make it more fun
-        graph.addRandomEdges(RANGE_OF_RANDOM_EDGE_COUNT);
+        // TODO add some more rules so the level graph are more fun and less confusing
+        // graph.addRandomEdges(RANGE_OF_RANDOM_EDGE_COUNT);
         return graph;
     }
 
