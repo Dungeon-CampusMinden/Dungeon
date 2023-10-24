@@ -1,5 +1,8 @@
 package core.systems;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+
 import core.Entity;
 import core.Game;
 import core.System;
@@ -49,6 +52,9 @@ import java.util.logging.Logger;
 public final class LevelSystem extends System {
     /** Currently used level-size configuration for generating new level. */
     private static LevelSize levelSize = LevelSize.MEDIUM;
+
+    private static final String SOUND_EFFECT = "sounds/enterDoor.ogg";
+
     /**
      * The currently loaded level of the game.
      *
@@ -235,6 +241,13 @@ public final class LevelSystem extends System {
         return Optional.ofNullable(nextLevel);
     }
 
+    private void playSound() {
+        Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(SOUND_EFFECT));
+        backgroundMusic.setLooping(false);
+        backgroundMusic.play();
+        backgroundMusic.setVolume(.3f);
+    }
+
     /**
      * Execute the system logic.
      *
@@ -247,7 +260,16 @@ public final class LevelSystem extends System {
     public void execute() {
         if (currentLevel == null) loadLevel(levelSize);
         else if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(levelSize);
-        else entityStream().forEach(e -> isOnDoor(e).ifPresent(this::loadLevel));
+        else
+            entityStream()
+                    .forEach(
+                            e ->
+                                    isOnDoor(e)
+                                            .ifPresent(
+                                                    iLevel -> {
+                                                        loadLevel(iLevel);
+                                                        playSound();
+                                                    }));
         drawLevel();
     }
 
