@@ -1,5 +1,8 @@
 package starter;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+
 import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
@@ -20,6 +23,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Main {
+
+    private static final String BACKGROUND_MUSIC = "sounds/background.ogg";
+
     public static void main(String[] args) throws IOException {
         // toggle this to off, if you want to use the default level generator
         boolean useRoomBasedLevel = true;
@@ -28,13 +34,11 @@ public class Main {
         Debugger debugger = new Debugger();
         // start the game
         configGame();
-
         if (useRoomBasedLevel) onSetupRoomBasedLevel(10, 5, 1);
         else {
             onSetup();
             onLevelLoad(5, 1);
         }
-
         onFrame(debugger);
 
         // build and start game
@@ -72,22 +76,29 @@ public class Main {
     }
 
     private static void onSetup() {
-        Game.userOnSetup(
-                () -> {
-                    createSystems();
-                    createHero();
-                    Crafting.loadRecipes();
-                });
+        Game.userOnSetup(Main::basicSetuo);
+    }
+
+    private static void setupMusic() {
+        Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
+        backgroundMusic.setLooping(true);
+        backgroundMusic.play();
+        backgroundMusic.setVolume(.1f);
     }
 
     private static void onSetupRoomBasedLevel(int roomcount, int monstercount, int chestcount) {
         Game.userOnSetup(
                 () -> {
-                    createSystems();
-                    createHero();
-                    Crafting.loadRecipes();
+                    basicSetuo();
                     createRoomBasedLevel(roomcount, monstercount, chestcount);
                 });
+    }
+
+    private static void basicSetuo() {
+        createSystems();
+        createHero();
+        Crafting.loadRecipes();
+        setupMusic();
     }
 
     private static void configGame() throws IOException {
@@ -96,7 +107,7 @@ public class Main {
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.frameRate(30);
-        Game.disableAudio(true);
+        Game.disableAudio(false);
         Game.windowTitle("My Dungeon");
     }
 
