@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
@@ -67,6 +68,8 @@ public class InventoryGUI extends CombinableGUI {
         this.inventoryComponent = inventoryComponent;
         this.title = title;
         this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
+
+        addInputListener();
     }
 
     /**
@@ -303,6 +306,25 @@ public class InventoryGUI extends CombinableGUI {
                         }
                     }
                 });
+    }
+
+    private void addInputListener() {
+        Game.stage().orElseThrow().setKeyboardFocus(this.actor());
+
+        this.actor().setBounds(0, 0, this.width(), this.height());
+
+        this.actor()
+                .addListener(
+                        new InputListener() {
+                            @Override
+                            public boolean keyTyped(InputEvent event, char character) {
+                                if (character == 'e' || character == 'E') {
+                                    System.out.println("USING ITEM");
+                                    return true;
+                                }
+                                return false;
+                            }
+                        });
     }
 
     @Override
