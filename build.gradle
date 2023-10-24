@@ -57,7 +57,7 @@ dependencies {
 
 sourceCompatibility = 17
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
-sourceSets.main.java.srcDirs = ["game/src/", "dsl/src/", "dungeon/src", "blockly/src", "$projectDir/build/generated-src/"]
+sourceSets.main.java.srcDirs = ["game/src/", "dsl/src/", "dungeon/src/", "blockly/src/", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/"]
 sourceSets.test.resources.srcDirs = ["dsl/test_resources", "dungeon/assets/", "game/test_resources", "dungeon/test_resources"]
 sourceSets.test.java.srcDirs = ["game/test/", "dsl/test/", "dungeon/test"]
