@@ -3,6 +3,8 @@ package runtime;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 
+import contrib.entities.WorldItemBuilder;
+import contrib.item.Item;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -20,13 +22,13 @@ import dsltypeproperties.EntityExtension;
 import dsltypeproperties.QuestItemExtension;
 import dungeonFiles.DungeonConfig;
 
+import interpreter.DSLInterpreter;
+import parser.ast.Node;
+import runtime.nativefunctions.NativeFunction;
 import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.*;
-import semanticanalysis.types.BuiltInType;
-import semanticanalysis.types.IDSLTypeProperty;
-import semanticanalysis.types.IType;
-import semanticanalysis.types.TypeBuilder;
+import semanticanalysis.types.*;
 
 import task.QuestItem;
 import task.Quiz;
@@ -106,9 +108,6 @@ public class GameEnvironment implements IEvironment {
         this.globalScope = new Scope();
         this.symbolTable = new SymbolTable(this.globalScope);
 
-        // create built in types and native functions
-        this.NATIVE_FUNCTIONS = buildNativeFunctions();
-
         bindBuiltInTypes();
 
         registerDefaultTypeAdapters();
@@ -117,6 +116,8 @@ public class GameEnvironment implements IEvironment {
 
         bindBuiltInProperties();
 
+        // create built in types and native functions
+        this.NATIVE_FUNCTIONS = buildNativeFunctions();
         bindNativeFunctions();
     }
 
@@ -229,11 +230,64 @@ public class GameEnvironment implements IEvironment {
         this.globalScope.bind(Prototype.ITEM_PROTOTYPE);
     }
 
-    private static ArrayList<Symbol> buildNativeFunctions() {
+    private ArrayList<Symbol> buildNativeFunctions() {
         ArrayList<Symbol> nativeFunctions = new ArrayList<>();
         nativeFunctions.add(NativePrint.func);
         nativeFunctions.add(NativeInstantiate.func);
         nativeFunctions.add(NativeBuildQuestItem.func);
+
+        // build functions with dependency on specific non-builtin types
+        IType questItemType = (IType) this.globalScope.resolve("quest_item");
+        IType entityType = (IType) this.globalScope.resolve("entity");
+        IType entitySetType = new SetType(entityType, this.globalScope);
+
+        NativeFunction placeQuestItem = new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
+        nativeFunctions.add(placeQuestItem);
+
         return nativeFunctions;
     }
+
+    // region native functions with dependency on specific types
+
+    private static class NativePlaceQuestItem extends NativeFunction {
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public NativePlaceQuestItem(IScope parentScope, IType questItemType, IType entitySetType) {
+            super(
+                "place_quest_item",
+                parentScope,
+                new FunctionType(BuiltInType.noType, questItemType, entitySetType));
+
+            // bind parameters
+            Symbol param = new Symbol("", this, questItemType);
+            this.bind(param);
+        }
+
+        // TODO: finish
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            RuntimeEnvironment rtEnv = interpreter.getRuntimeEnvironment();
+            Value questItemValue = (Value) parameters.get(0).accept(interpreter);
+            SetValue entitySetValue = (SetValue) parameters.get(1).accept(interpreter);
+
+            var questItemObject = questItemValue.getInternalValue();
+            var worldEntity = WorldItemBuilder.buildWorldItem((Item)questItemObject);
+            var worldEntityValue = (Value) rtEnv.translateRuntimeObject(worldEntity, interpreter.getCurrentMemorySpace());
+            entitySetValue.addValue(worldEntityValue);
+
+            return null;
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    // endregion
 }
