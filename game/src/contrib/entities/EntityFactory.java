@@ -1,5 +1,8 @@
 package contrib.entities;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.GUICombination;
@@ -30,6 +33,7 @@ import java.util.Comparator;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -85,7 +89,20 @@ public class EntityFactory {
         hero.addComponent(new PositionComponent());
         hero.addComponent(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO));
         hero.addComponent(new DrawComponent(HERO_FILE_PATH));
-        HealthComponent hc = new HealthComponent(200, Game::remove);
+        HealthComponent hc =
+                new HealthComponent(
+                        200,
+                        new Consumer<Entity>() {
+                            @Override
+                            public void accept(Entity entity) {
+                                Music dieSoundEffect =
+                                        Gdx.audio.newMusic(Gdx.files.internal("sounds/death.mp3"));
+                                dieSoundEffect.setLooping(false);
+                                dieSoundEffect.play();
+                                dieSoundEffect.setVolume(.9f);
+                                Game.remove(entity);
+                            }
+                        });
         hero.addComponent(hc);
         hero.addComponent(
                 new CollideComponent(
