@@ -33,7 +33,6 @@ import java.util.Comparator;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -92,16 +91,12 @@ public class EntityFactory {
         HealthComponent hc =
                 new HealthComponent(
                         200,
-                        new Consumer<Entity>() {
-                            @Override
-                            public void accept(Entity entity) {
-                                Music dieSoundEffect =
-                                        Gdx.audio.newMusic(Gdx.files.internal("sounds/death.mp3"));
-                                dieSoundEffect.setLooping(false);
-                                dieSoundEffect.play();
-                                dieSoundEffect.setVolume(.9f);
-                                Game.remove(entity);
-                            }
+                        entity -> {
+                            Music dieSoundEffect =
+                                    Gdx.audio.newMusic(Gdx.files.internal("sounds/death.mp3"));
+                            dieSoundEffect.setLooping(false);
+                            dieSoundEffect.play();
+                            dieSoundEffect.setVolume(.9f);
                         });
         hero.addComponent(hc);
         hero.addComponent(
@@ -383,9 +378,16 @@ public class EntityFactory {
             InventoryComponent ic = new InventoryComponent(1);
             monster.addComponent(ic);
             ic.add(item);
-            onDeath = new DropItemsInteraction();
+            onDeath =
+                    (e, who) -> {
+                        playMonsterDieSound();
+                        new DropItemsInteraction().accept(e, who);
+                    };
         } else {
-            onDeath = (e, who) -> {};
+            onDeath =
+                    (e, who) -> {
+                        playMonsterDieSound();
+                    };
         }
         monster.addComponent(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
         monster.addComponent(new PositionComponent());
@@ -403,5 +405,18 @@ public class EntityFactory {
                         MONSTER_COLLIDE_DAMAGE_TYPE,
                         MONSTER_COLLIDE_COOL_DOWN));
         return monster;
+    }
+
+    private static void playMonsterDieSound() {
+        Music dieSoundEffect;
+        switch (RANDOM.nextInt(4)) {
+            case 0 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_01.ogg"));
+            case 1 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_02.ogg"));
+            case 2 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_03.ogg"));
+            default -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_04.ogg"));
+        }
+        dieSoundEffect.setLooping(false);
+        dieSoundEffect.play();
+        dieSoundEffect.setVolume(.35f);
     }
 }
