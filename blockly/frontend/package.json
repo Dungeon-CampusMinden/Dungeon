@@ -1,0 +1,19 @@
+{
+  "name": "blockly-dungeon",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "author": "Kevin Ratschinski",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "vite": "^4.4.9"
+  },
+  "dependencies": {
+    "blockly": "^10.1.3"
+  }
+}
