@@ -24,7 +24,6 @@ import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskNode;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * Offers functions to generate a {@link LevelGraph} or Petri-Net for a TaskGraph .
@@ -67,16 +66,15 @@ public class TaskGraphConverter {
             final TaskDependencyGraph graph, final DSLInterpreter interpreter) {
         graph.nodeIterator()
                 .forEachRemaining(
-                        new Consumer<TaskNode>() {
-                            @Override
-                            public void accept(TaskNode taskNode) {
-                                Optional<Object> builtTask = interpreter.buildTask(taskNode.task());
-                                if (builtTask.isPresent()) {
-                                    var entities = (Set<Set<Entity>>) builtTask.get();
-                                    taskNode.task().entitieSets(entities);
-                                }
-                            }
-                        });
+                        taskNode ->
+                                interpreter
+                                        .buildTask(taskNode.task())
+                                        .ifPresent(
+                                                buildTask ->
+                                                        taskNode.task()
+                                                                .entitieSets(
+                                                                        (Set<Set<Entity>>)
+                                                                                buildTask)));
     }
 
     /**
@@ -95,7 +93,7 @@ public class TaskGraphConverter {
      * <p>Note: The Edges in the graph should not be duplicated (so only one Edge from A to B and
      * not one from B to A as well).
      *
-     * <p>Important: Call the TaskBuilder for each Task befor.
+     * <p>Important: Call the TaskBuilder for each Task before.
      *
      * @param taskGraph graph to create the level for
      * @return the start room
@@ -127,8 +125,8 @@ public class TaskGraphConverter {
                             LevelGraph.add(nodeToLevelGraph.get(start), nodeToLevelGraph.get(end));
                         });
 
-        // the first levelgraph is set at the rootgraph (the game will start in this graph)
-        // each other node needs to be connected (directly, or indrectly) with this one.
+        // the first level-graph is set at the root-graph (the game will start in this graph)
+        // each other node needs to be connected (directly, or indirectly) with this one.
         LevelGraph rootGraph =
                 nodeToLevelGraph.values().stream()
                         .findFirst()
@@ -188,8 +186,8 @@ public class TaskGraphConverter {
      *
      * <p>The doors will be accessible for the player if both sides of the doors are open.
      *
-     * @param levelGraphToTask Mapping of the Levelgraphs to the Tasks, so this function knows which
-     *     Task is associated with which level graph.
+     * @param levelGraphToTask Mapping of the Level-graphs to the Tasks, so this function knows
+     *     which Task is associated with which level graph.
      */
     private static void connectDoorsWithTaskManager(Map<LevelGraph, Task> levelGraphToTask) {
         Map<Task, Set<DoorTile>> taskToDoor = new HashMap<>();
@@ -272,12 +270,7 @@ public class TaskGraphConverter {
                                         taskEdge.edgeType()));
 
         // init token
-        noteToNet
-                .values()
-                .forEach(
-                        petriNet -> {
-                            petriNet.taskNotActivated().placeToken();
-                        });
+        noteToNet.values().forEach(petriNet -> petriNet.taskNotActivated().placeToken());
         return noteToNet;
     }
 }

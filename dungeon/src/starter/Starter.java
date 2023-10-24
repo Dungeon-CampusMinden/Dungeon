@@ -65,7 +65,7 @@ public class Starter {
 
         // some game Setup
         configGame();
-        // will load the level to select the task/DSLentrypoint on Game start
+        // will load the level to select the task/DSL-Entrypoint on Game start
         wizardSelectorOnSetup(entryPoints);
 
         // will generate the TaskDependencyGraph, execute the TaskBuilder, generate and set the
@@ -127,7 +127,7 @@ public class Starter {
     }
 
     private static void createHero() {
-        Entity hero = null;
+        Entity hero;
         try {
             hero = (EntityFactory.newHero());
             hero.fetch(PlayerComponent.class)
