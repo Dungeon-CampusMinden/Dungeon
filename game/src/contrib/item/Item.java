@@ -344,16 +344,11 @@ public class Item implements CraftingIngredient, CraftingResult {
      * Defines the behavior when an item gets used. Prints a message to the console and removes the
      * item from the inventory.
      *
-     * @param e Entity that uses the item
-     * @param itemData Item that is used
+     * @param user Entity that uses the item.
      */
-    public static void use(Entity e, Item itemData) {
-        e.fetch(InventoryComponent.class)
-                .ifPresent(
-                        component -> {
-                            component.remove(itemData);
-                        });
-        System.out.printf("Item \"%s\" used by entity %d\n", itemData.displayName, e.id());
+    public void use(Entity user) {
+        user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
+        System.out.printf("Item \"%s\" used by entity %d\n", this.displayName, user.id());
     }
 
     @Override

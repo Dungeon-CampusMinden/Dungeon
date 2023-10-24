@@ -35,6 +35,7 @@ public class InventoryGUI extends CombinableGUI {
     private static final BitmapFont bitmapFont;
     private static final Texture texture;
     private static final TextureRegion background, hoverBackground;
+    public static boolean inHeroInventory = false;
 
     static {
         // Prepare background texture
@@ -325,7 +326,7 @@ public class InventoryGUI extends CombinableGUI {
                         new InputListener() {
                             @Override
                             public boolean keyTyped(InputEvent event, char character) {
-                                if (character == 'e' || character == 'E') {
+                                if (inHeroInventory && (character == 'e' || character == 'E')) {
                                     useItem(
                                             InventoryGUI.this.inventoryComponent.get(
                                                     getSlotByMousePosition()));
@@ -337,7 +338,7 @@ public class InventoryGUI extends CombinableGUI {
     }
 
     private void useItem(Item item) {
-        if (item != null) item.use(Game.hero().get(), item);
+        if (item != null) item.use(Game.hero().get());
     }
 
     @Override

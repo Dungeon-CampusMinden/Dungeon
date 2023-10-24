@@ -147,9 +147,11 @@ public class EntityFactory {
                     UIComponent uiComponent = e.fetch(UIComponent.class).orElse(null);
                     if (uiComponent != null) {
                         if (uiComponent.dialog() instanceof GUICombination) {
+                            InventoryGUI.inHeroInventory = false;
                             e.removeComponent(UIComponent.class);
                         }
                     } else {
+                        InventoryGUI.inHeroInventory = true;
                         e.addComponent(
                                 new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
                     }
@@ -185,6 +187,7 @@ public class EntityFactory {
                                     // zindex
                                     .orElse(null);
                     if (firstUI != null) {
+                        InventoryGUI.inHeroInventory = false;
                         firstUI.a().removeComponent(UIComponent.class);
                         if (firstUI.a().componentStream().findAny().isEmpty()) {
                             Game.remove(firstUI.a()); // delete unused Entity
@@ -251,18 +254,18 @@ public class EntityFactory {
                 new InteractionComponent(
                         defaultInteractionRadius,
                         true,
-                        (entity, who) -> {
-                            who.fetch(InventoryComponent.class)
-                                    .ifPresent(
-                                            whoIc -> {
-                                                who.addComponent(
-                                                        new UIComponent(
-                                                                new GUICombination(
-                                                                        new InventoryGUI(whoIc),
-                                                                        new InventoryGUI(ic)),
-                                                                false));
-                                            });
-                        }));
+                        (entity, who) ->
+                                who.fetch(InventoryComponent.class)
+                                        .ifPresent(
+                                                whoIc ->
+                                                        who.addComponent(
+                                                                new UIComponent(
+                                                                        new GUICombination(
+                                                                                new InventoryGUI(
+                                                                                        whoIc),
+                                                                                new InventoryGUI(
+                                                                                        ic)),
+                                                                        false)))));
         DrawComponent dc = new DrawComponent("objects/treasurechest");
         chest.addComponent(dc);
         dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
@@ -285,17 +288,18 @@ public class EntityFactory {
                 new InteractionComponent(
                         1f,
                         true,
-                        (entity, who) -> {
-                            who.fetch(InventoryComponent.class)
-                                    .ifPresent(
-                                            ic ->
-                                                    who.addComponent(
-                                                            new UIComponent(
-                                                                    new GUICombination(
-                                                                            new InventoryGUI(ic),
-                                                                            new CraftingGUI(ic)),
-                                                                    true)));
-                        }));
+                        (entity, who) ->
+                                who.fetch(InventoryComponent.class)
+                                        .ifPresent(
+                                                ic ->
+                                                        who.addComponent(
+                                                                new UIComponent(
+                                                                        new GUICombination(
+                                                                                new InventoryGUI(
+                                                                                        ic),
+                                                                                new CraftingGUI(
+                                                                                        ic)),
+                                                                        true)))));
         return cauldron;
     }
 

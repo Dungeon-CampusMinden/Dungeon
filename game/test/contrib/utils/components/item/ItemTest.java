@@ -99,7 +99,7 @@ public class ItemTest {
     }
 
     @Test
-    public void testWorldAnimatiob() {
+    public void testWorldAnimation() {
         Item item = new Item("Test item", "Test description", defaultAnimation);
         item.worldAnimation(worldAnimation);
 
@@ -178,7 +178,7 @@ public class ItemTest {
 
     /** Tests if item can be collected from entity with full inventory. */
     @Test
-    public void testCollectFullInevntory() {
+    public void testCollectFullInventory() {
         assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
 
         Item item = new Item("Test item", "Test description", defaultAnimation);
@@ -204,7 +204,7 @@ public class ItemTest {
         assertTrue(
                 "ItemActive needs to be in entities inventory.",
                 Arrays.asList(inventoryComponent.items()).contains(item));
-        item.use(entity, item);
+        item.use(entity);
         assertFalse(
                 "Item was not removed from inventory after use.",
                 Arrays.asList(inventoryComponent.items()).contains(item));
