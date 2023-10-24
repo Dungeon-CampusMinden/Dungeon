@@ -21,7 +21,7 @@ public class WorldItemBuilder {
      */
     public static Entity buildWorldItem(Item item) {
         Entity droppedItem = new Entity();
-        droppedItem.addComponent(new PositionComponent(new Point(0, 0)));
+        droppedItem.addComponent(new PositionComponent(PositionComponent.ILLEGAL_POSITION));
         droppedItem.addComponent(new DrawComponent(item.worldAnimation()));
         droppedItem.addComponent(new ItemComponent(item));
 
