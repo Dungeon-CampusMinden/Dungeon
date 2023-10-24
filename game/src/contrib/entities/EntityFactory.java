@@ -6,6 +6,8 @@ import contrib.hud.GUICombination;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
+import contrib.utils.components.health.Damage;
+import contrib.utils.components.health.DamageType;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemDataGenerator;
@@ -65,6 +67,10 @@ public class EntityFactory {
     private static final float MIN_MONSTER_SPEED = 3.0f;
     private static final float MAX_MONSTER_SPEED = 7.5f;
 
+    private static final DamageType MONSTER_COLLIDE_DAMAGE_TYPE = DamageType.PHYSICAL;
+    private static final int MONSTER_COLLIDE_DAMAGE = 10;
+    private static final int MONSTER_COLLIDE_COOL_DOWN = 2 * Game.frameRate();
+
     /**
      * Create a new Entity that can be used as a playable character. It will have a {@link
      * CameraComponent}, {@link PlayerComponent}. {@link PositionComponent}, {@link
@@ -79,11 +85,26 @@ public class EntityFactory {
         hero.addComponent(new PositionComponent());
         hero.addComponent(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO));
         hero.addComponent(new DrawComponent(HERO_FILE_PATH));
+        HealthComponent hc = new HealthComponent(200, Game::remove);
+        hero.addComponent(hc);
         hero.addComponent(
                 new CollideComponent(
-                        (you, other, direction) -> System.out.println("heroCollisionEnter"),
-                        (you, other, direction) -> System.out.println("heroCollisionLeave")));
-        hero.addComponent(new HealthComponent(200, Game::remove));
+                        (you, other, direction) ->
+                                other.fetch(SpikyComponent.class)
+                                        .ifPresent(
+                                                spikyComponent -> {
+                                                    if (spikyComponent.isActive()) {
+                                                        hc.receiveHit(
+                                                                new Damage(
+                                                                        spikyComponent
+                                                                                .damageAmount(),
+                                                                        spikyComponent.damageType(),
+                                                                        other));
+                                                        spikyComponent.activateCoolDown();
+                                                    }
+                                                }),
+                        (you, other, direction) -> {}));
+
         hero.addComponent(new XPComponent((e) -> {}));
         PlayerComponent pc = new PlayerComponent();
         hero.addComponent(pc);
@@ -355,6 +376,11 @@ public class EntityFactory {
         monster.addComponent(new DrawComponent(pathToTexture));
         monster.addComponent(new VelocityComponent(speed, speed));
         monster.addComponent(new CollideComponent());
+        monster.addComponent(
+                new SpikyComponent(
+                        MONSTER_COLLIDE_DAMAGE,
+                        MONSTER_COLLIDE_DAMAGE_TYPE,
+                        MONSTER_COLLIDE_COOL_DOWN));
         return monster;
     }
 }

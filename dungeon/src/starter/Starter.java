@@ -195,6 +195,7 @@ public class Starter {
         Game.add(new HealthbarSystem());
         Game.add(new HeroUISystem());
         Game.add(new HudSystem());
+        Game.add(new SpikeSystem());
     }
 
     private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws IOException {
