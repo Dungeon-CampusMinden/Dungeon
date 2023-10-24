@@ -142,5 +142,10 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         projectile.addComponent(
                 new CollideComponent(new Point(0.25f, 0.25f), projectileHitboxSize, collide, null));
         Game.add(projectile);
+        playSound();
     }
+
+    /** Override this method to play a Sound-effect on spawning the projectile if you want. */
+    protected void playSound() {}
+    ;
 }

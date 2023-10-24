@@ -1,5 +1,8 @@
 package contrib.utils.components.skill;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+
 import contrib.utils.components.health.DamageType;
 
 import core.utils.Point;
@@ -15,6 +18,7 @@ import java.util.function.Supplier;
 public class FireballSkill extends DamageProjectile {
 
     private static final String PROJECTILE_TEXTURES = "skills/fireball";
+    private static final String PROJECTILE_SOUND = "sounds/fireball.wav";
     private static final float PROJECTILE_SPEED = 15.0f;
     private static final int DAMAGE_AMOUNT = 1;
     private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
@@ -37,5 +41,13 @@ public class FireballSkill extends DamageProjectile {
                 HITBOX_SIZE,
                 targetSelection,
                 PROJECTILE_RANGE);
+    }
+
+    @Override
+    protected void playSound() {
+        Music soundEffect = Gdx.audio.newMusic(Gdx.files.internal(PROJECTILE_SOUND));
+        soundEffect.setLooping(false);
+        soundEffect.play();
+        soundEffect.setVolume(.15f);
     }
 }
