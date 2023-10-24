@@ -1,8 +1,6 @@
 package contrib.utils.components.item;
 
-import contrib.item.concreteItem.ItemDefault;
-
-import core.utils.components.draw.Animation;
+import contrib.item.concreteItem.*;
 
 import java.util.Random;
 
@@ -15,10 +13,12 @@ public class ItemDataGenerator {
      * @return a new randomItemData
      */
     public contrib.item.Item generateItemData() {
-        return new ItemDefault(
-                "Default Item",
-                "Default Item description",
-                new Animation("animation/missing_texture.png"),
-                new Animation("animation/missing_texture.png"));
+        return switch (rand.nextInt(8)) {
+            case 0 -> new ItemPotionHealth();
+            case 1, 2 -> new ItemPotionWater();
+            case 3, 4 -> new ItemResourceBerry();
+            case 5, 6 -> new ItemResourceEgg();
+            default -> new ItemResourceMushroomRed();
+        };
     }
 }
