@@ -115,6 +115,7 @@ public class GameEnvironment implements IEvironment {
         bindBuiltInAggregateTypes();
 
         bindBuiltInProperties();
+        bindBuiltInMethods();
 
         // create built in types and native functions
         this.NATIVE_FUNCTIONS = buildNativeFunctions();
@@ -216,6 +217,12 @@ public class GameEnvironment implements IEvironment {
     protected void bindBuiltInProperties() {
         for (IDSLTypeProperty<?, ?> property : getBuiltInProperties()) {
             this.typeBuilder.bindProperty(this.globalScope, property);
+        }
+    }
+
+    protected void bindBuiltInMethods() {
+        for (IDSLExtensionMethod<?, ?> method : getBuiltInMethods()) {
+            this.typeBuilder.bindMethod(this.globalScope, method);
         }
     }
 
