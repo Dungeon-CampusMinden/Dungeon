@@ -98,7 +98,10 @@ public class QuizDialogDesign {
         switch (questionContent.type()) {
             case TEXT -> vg.addActor(
                     DialogDesign.createScrollPane(
-                            skin, new Label(questionContent.content(), skin)));
+                            skin,
+                            new Label(
+                                    QuizUI.formatStringForDialogWindow(questionContent.content()),
+                                    skin)));
             case IMAGE -> vg.addActor(
                     DialogDesign.createScrollPane(
                             skin,
