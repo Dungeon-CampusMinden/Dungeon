@@ -289,5 +289,9 @@ com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
 		background: window_fire1
 		titleFont: myFont
 	}
+	Letter: {
+		background: Paper
+		titleFont: myFont
+	}
 }
 }

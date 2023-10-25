@@ -213,22 +213,6 @@ progress-bar
   orig: 46, 46
   offset: 0, 0
   index: -1
-progress-bar
-  rotate: false
-  xy: 820, 915
-  size: 46, 46
-  split: 10, 10, 10, 10
-  pad: 6, 6, 6, 6
-  orig: 46, 46
-  offset: 0, 0
-  index: -1
-progress-bar-fill
-  rotate: false
-  xy: 207, 142
-  size: 1, 34
-  orig: 1, 34
-  offset: 0, 0
-  index: -1
 progress-bar-fill
   rotate: false
   xy: 207, 142
@@ -289,24 +273,6 @@ round-white
   split: 13, 13, 13, 13
   pad: 9, 9, 5, 5
   orig: 42, 42
-  offset: 0, 0
-  index: -1
-round-white
-  rotate: false
-  xy: 515, 592
-  size: 42, 42
-  split: 13, 13, 13, 13
-  pad: 9, 9, 5, 5
-  orig: 42, 42
-  offset: 0, 0
-  index: -1
-round-white-small
-  rotate: false
-  xy: 718, 824
-  size: 24, 24
-  split: 10, 10, 10, 10
-  pad: 10, 10, 2, 2
-  orig: 24, 24
   offset: 0, 0
   index: -1
 round-white-small
@@ -407,13 +373,6 @@ vertical-split-pane
   split: 2, 2, 1, 1
   pad: 1, 1, 1, 1
   orig: 11, 5
-  offset: 0, 0
-  index: -1
-white
-  rotate: false
-  xy: 458, 456
-  size: 1, 1
-  orig: 1, 1
   offset: 0, 0
   index: -1
 white
