@@ -37,6 +37,12 @@ public class InventoryGUI extends CombinableGUI {
     private static final BitmapFont bitmapFont;
     private static final Texture texture;
     private static final TextureRegion background, hoverBackground;
+    /**
+     * Boolean to check if the opened inventory belongs to the hero. Items that are in an inventory
+     * which does not belong to the hero, e.g. a treasure chest, are not usable.
+     *
+     * <p>Will be set to true if the hero inventory is opened and set to false if it's closed.
+     */
     public static boolean inHeroInventory = false;
 
     static {
