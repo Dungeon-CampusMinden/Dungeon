@@ -26,6 +26,20 @@ public final class TextDialog extends Dialog {
     }
 
     /**
+     * creates a Textdialog with the given title and skin and stores the functional interface for
+     * Button events.
+     *
+     * @param title Title of the dialog
+     * @param skin Skin for the dialog (resources that can be used by UI widgets)
+     * @param windowStyleName the name of the style which should be used
+     * @param resultHandler controls the button presses
+     */
+    public TextDialog(
+            String title, Skin skin, String windowStyleName, BiFunction<TextDialog, String, Boolean> resultHandler) {
+        super(title, skin, windowStyleName);
+        this.resultHandler = resultHandler;
+    }
+    /**
      * when a Button event happened calls the stored resultHandler and when the resultHandler
      * returns a false stops the default hide on button press.
      *
