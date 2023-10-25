@@ -309,9 +309,11 @@ public class EntityFactory {
         // set the closed chest as default idle
         mapping.put(
                 CoreAnimations.IDLE.pathString(), mapping.get(ChestAnimations.CLOSED.pathString()));
-        // make opening animation not looping
+        // opening animation should not loop
         mapping.get(ChestAnimations.OPENING.pathString()).setLoop(false);
-
+        // reset Idle Animation
+        dc.deQueueByPriority(CoreAnimations.IDLE.priority());
+        dc.currentAnimation(CoreAnimations.IDLE);
         chest.addComponent(dc);
 
         return chest;
