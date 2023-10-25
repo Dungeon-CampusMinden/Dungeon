@@ -77,5 +77,4 @@ public class SingleChoiceTask {
             return Arrays.stream(arr).toList();
         }
     }
-
 }
