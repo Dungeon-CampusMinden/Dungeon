@@ -543,9 +543,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (value.equals(Value.NONE)) {
             // NONE = false
             return false;
-        } else if (typeKind.equals(IType.Kind.Aggregate))  {
+        } else if (typeKind.equals(IType.Kind.Aggregate)) {
             // if it is empty = false
-            return !((AggregateValue)value).isEmpty();
+            return !((AggregateValue) value).isEmpty();
         } else if (typeKind.equals(IType.Kind.EnumType)) {
             // if the internal value is null = false
             return value.getInternalValue() != null;

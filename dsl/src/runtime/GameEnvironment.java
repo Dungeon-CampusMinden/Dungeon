@@ -7,8 +7,8 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-
 import core.level.Tile;
+
 import dslnativefunction.NativeInstantiate;
 
 import dsltypeadapters.DrawComponentAdapter;

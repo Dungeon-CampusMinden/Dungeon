@@ -50,8 +50,7 @@ public final class CollideComponent implements Component {
 
     private final Point offset;
     private final Point size;
-    @DSLCallback
-    private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
+    @DSLCallback private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
     private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 

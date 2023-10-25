@@ -6,8 +6,8 @@ import contrib.components.CollideComponent;
 
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-
 import core.level.Tile;
+
 import dslnativefunction.NativeInstantiate;
 
 import dungeonFiles.DungeonConfig;
@@ -3124,7 +3124,7 @@ public class TestDSLInterpreter {
     @Test
     public void testCollisionCallback() {
         String program =
-            """
+                """
             single_choice_task t {
                 description: "hello",
                 answers: [1,2,3],
@@ -3172,7 +3172,7 @@ public class TestDSLInterpreter {
         System.setOut(new PrintStream(outputStream));
 
         DSLInterpreter interpreter = new DSLInterpreter();
-        var config = (DungeonConfig)interpreter.getQuestConfig(program);
+        var config = (DungeonConfig) interpreter.getQuestConfig(program);
 
         var task = config.dependencyGraph().nodeIterator().next().task();
         var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
