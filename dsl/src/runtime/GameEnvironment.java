@@ -11,7 +11,6 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 
-import dslnativefunction.NativeBuildQuestItem;
 import dslnativefunction.NativeInstantiate;
 
 import dsltypeadapters.DrawComponentAdapter;
@@ -251,7 +250,6 @@ public class GameEnvironment implements IEvironment {
         ArrayList<Symbol> nativeFunctions = new ArrayList<>();
         nativeFunctions.add(NativePrint.func);
         nativeFunctions.add(NativeInstantiate.func);
-        nativeFunctions.add(NativeBuildQuestItem.func);
 
         // build functions with dependency on specific non-builtin types
         IType questItemType = (IType) this.globalScope.resolve("quest_item");
@@ -260,6 +258,10 @@ public class GameEnvironment implements IEvironment {
 
         NativeFunction placeQuestItem = new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
         nativeFunctions.add(placeQuestItem);
+
+        IType taskContentType = (IType) this.globalScope.resolve("task_content");
+        NativeFunction nativeBuildQuestItem = new NativeBuildQuestItem(Scope.NULL, questItemType, taskContentType);
+        nativeFunctions.add(nativeBuildQuestItem);
 
         return nativeFunctions;
     }
@@ -277,13 +279,8 @@ public class GameEnvironment implements IEvironment {
                 "place_quest_item",
                 parentScope,
                 new FunctionType(BuiltInType.noType, questItemType, entitySetType));
-
-            // bind parameters
-            Symbol param = new Symbol("", this, questItemType);
-            this.bind(param);
         }
 
-        // TODO: finish
         @Override
         public Object call(DSLInterpreter interpreter, List<Node> parameters) {
             assert parameters != null && parameters.size() > 0;
@@ -298,6 +295,54 @@ public class GameEnvironment implements IEvironment {
             entitySetValue.addValue(worldEntityValue);
 
             return null;
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+
+    private class NativeBuildQuestItem extends NativeFunction {
+        //public static NativeBuildQuestItem func = new NativeBuildQuestItem(Scope.NULL);
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        private NativeBuildQuestItem(IScope parentScope, IType questItemType, IType contentType) {
+            super(
+                "build_quest_item",
+                parentScope,
+                new FunctionType(questItemType, Prototype.ITEM_PROTOTYPE, contentType));
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            RuntimeEnvironment rtEnv = interpreter.getRuntimeEnvironment();
+            Value prototypeValue = (Value) parameters.get(0).accept(interpreter);
+            Value contentValue = (Value) parameters.get(1).accept(interpreter);
+            if (prototypeValue.getDataType() != Prototype.ITEM_PROTOTYPE) {
+                throw new RuntimeException(
+                    "Wrong type ('"
+                        + prototypeValue.getDataType().getName()
+                        + "') of parameter for call of build_quest_item()!");
+            } else {
+                // TODO: make this work
+                var dslItemInstance =
+                    (AggregateValue) interpreter.instantiateDSLValue((Prototype) prototypeValue);
+                var questItemType = (AggregateType) rtEnv.getGlobalScope().resolve("quest_item");
+                var questItemObject = (QuestItem) interpreter.instantiateRuntimeValue(dslItemInstance, questItemType);
+
+                var contentObject = (TaskContent)contentValue.getInternalValue();
+                questItemObject.taskContentComponent().addContent(contentObject);
+
+                return questItemObject;
+            }
         }
 
         @Override
