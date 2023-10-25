@@ -246,12 +246,50 @@ public class EntityFactory {
                                     .fetch(InventoryComponent.class)
                                     .ifPresent(
                                             whoIc -> {
-                                                interactor.addComponent(
+                                                UIComponent uiComponent =
                                                         new UIComponent(
                                                                 new GUICombination(
                                                                         new InventoryGUI(whoIc),
                                                                         new InventoryGUI(ic)),
-                                                                false));
+                                                                false);
+                                                uiComponent.onClose(
+                                                        () -> {
+                                                            interacted
+                                                                    .fetch(DrawComponent.class)
+                                                                    .ifPresent(
+                                                                            interactedDC -> {
+                                                                                // remove all prior
+                                                                                // opened animations
+                                                                                interactedDC
+                                                                                        .deQueueByPriority(
+                                                                                                ChestAnimations
+                                                                                                        .OPEN_FULL
+                                                                                                        .priority());
+                                                                                if (ic.count()
+                                                                                        > 0) {
+                                                                                    // aslong as
+                                                                                    // there is an
+                                                                                    // item inside
+                                                                                    // the chest
+                                                                                    // show a full
+                                                                                    // chest
+                                                                                    interactedDC
+                                                                                            .queueAnimation(
+                                                                                                    ChestAnimations
+                                                                                                            .OPEN_FULL);
+                                                                                } else {
+                                                                                    // empty chest
+                                                                                    // show the
+                                                                                    // empty
+                                                                                    // animation
+                                                                                    interactedDC
+                                                                                            .queueAnimation(
+                                                                                                    ChestAnimations
+                                                                                                            .OPEN_EMPTY);
+                                                                                }
+                                                                            });
+                                                        });
+                                                interactor.addComponent(uiComponent);
                                             });
                             interacted
                                     .fetch(DrawComponent.class)
@@ -265,19 +303,6 @@ public class EntityFactory {
                                                         .orElse(true)) {
                                                     interactedDC.queueAnimation(
                                                             ChestAnimations.OPENING);
-                                                }
-                                                // remove all prior opened animations
-                                                interactedDC.deQueueByPriority(
-                                                        ChestAnimations.OPEN_FULL.priority());
-                                                if (ic.count() > 0) {
-                                                    // aslong as there is an item inside the chest
-                                                    // show a full chest
-                                                    interactedDC.queueAnimation(
-                                                            ChestAnimations.OPEN_FULL);
-                                                } else {
-                                                    // empty chest show the empty animation
-                                                    interactedDC.queueAnimation(
-                                                            ChestAnimations.OPEN_EMPTY);
                                                 }
                                             });
                         }));
