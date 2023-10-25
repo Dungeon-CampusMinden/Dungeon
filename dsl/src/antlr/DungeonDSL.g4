@@ -65,6 +65,13 @@ stmt
     | stmt_block
     | conditional_stmt
     | return_stmt
+    | loop_stmt
+    ;
+
+loop_stmt
+    : 'for' type_id=ID var_id=ID 'in' iteratable_id=ID stmt                         #for_loop
+    | 'for' type_id=ID var_id=ID 'in' iteratable_id=ID 'count' counter_id=ID stmt   #for_loop_counting
+    | 'while' expression stmt                                                       #while_loop
     ;
 
 var_decl

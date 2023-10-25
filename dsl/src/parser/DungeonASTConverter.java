@@ -133,6 +133,30 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
+    public void enterFor_loop(DungeonDSLParser.For_loopContext ctx) {}
+
+    @Override
+    public void exitFor_loop(DungeonDSLParser.For_loopContext ctx) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void enterFor_loop_counting(DungeonDSLParser.For_loop_countingContext ctx) {}
+
+    @Override
+    public void exitFor_loop_counting(DungeonDSLParser.For_loop_countingContext ctx) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void enterWhile_loop(DungeonDSLParser.While_loopContext ctx) {}
+
+    @Override
+    public void exitWhile_loop(DungeonDSLParser.While_loopContext ctx) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void enterVar_decl_assignment(DungeonDSLParser.Var_decl_assignmentContext ctx) {}
 
     @Override
