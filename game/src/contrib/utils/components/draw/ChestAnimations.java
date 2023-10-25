@@ -3,6 +3,7 @@ package contrib.utils.components.draw;
 import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.draw.IPath;
 
+/** A collection of Animations which are special for a chest and not used by any other Entities. */
 public enum ChestAnimations implements IPath {
     CLOSED("idle_closed", CoreAnimationPriorities.IDLE.priority()),
     // once the chest is open there are two states with items or without
