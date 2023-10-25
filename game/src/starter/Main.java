@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class Main {
 
-    private static final String BACKGROUND_MUSIC = "sounds/background.ogg";
+    private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
     public static void main(String[] args) throws IOException {
         // toggle this to off, if you want to use the default level generator

@@ -53,7 +53,7 @@ public final class LevelSystem extends System {
     /** Currently used level-size configuration for generating new level. */
     private static LevelSize levelSize = LevelSize.MEDIUM;
 
-    private static final String SOUND_EFFECT = "sounds/enterDoor.ogg";
+    private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
 
     /**
      * The currently loaded level of the game.

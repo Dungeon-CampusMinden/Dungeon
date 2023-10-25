@@ -91,7 +91,7 @@ public class EntityFactory {
                         200,
                         entity -> {
                             Music dieSoundEffect =
-                                    Gdx.audio.newMusic(Gdx.files.internal("sounds/death.mp3"));
+                                    Gdx.audio.newMusic(Gdx.files.internal("sounds/death.wav"));
                             dieSoundEffect.setLooping(false);
                             dieSoundEffect.play();
                             dieSoundEffect.setVolume(.9f);
@@ -412,10 +412,10 @@ public class EntityFactory {
     private static void playMonsterDieSound() {
         Music dieSoundEffect;
         switch (RANDOM.nextInt(4)) {
-            case 0 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_01.ogg"));
-            case 1 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_02.ogg"));
-            case 2 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_03.ogg"));
-            default -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_04.ogg"));
+            case 0 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_01.wav"));
+            case 1 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_02.wav"));
+            case 2 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_03.wav"));
+            default -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_04.wav"));
         }
         dieSoundEffect.setLooping(false);
         dieSoundEffect.play();
@@ -425,16 +425,16 @@ public class EntityFactory {
     private static String randomMonsterIdleSound() {
         switch (RANDOM.nextInt(4)) {
             case 0 -> {
-                return "sounds/monster1.ogg";
+                return "sounds/monster1.wav";
             }
             case 1 -> {
-                return "sounds/monster2.ogg";
+                return "sounds/monster2.wav";
             }
             case 2 -> {
-                return "sounds/monster3.ogg";
+                return "sounds/monster3.wav";
             }
             default -> {
-                return "sounds/monster4.ogg";
+                return "sounds/monster4.wav";
             }
         }
     }
