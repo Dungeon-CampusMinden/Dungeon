@@ -1,14 +1,13 @@
 package contrib.systems;
 
-import com.badlogic.gdx.graphics.Color;
+import static contrib.hud.UITools.DEFAULT_SKIN;
+
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 
 import contrib.components.UIComponent;
 import contrib.components.XPComponent;
-import contrib.hud.UITools;
-import contrib.hud.heroUI.HeroUITools;
 
 import core.Entity;
 import core.Game;
@@ -61,14 +60,10 @@ public final class HeroUISystem extends System {
         long level = xc.characterLevel();
         Entity entity = new Entity();
 
-        ProgressBar.ProgressBarStyle experienceStyle =
-                HeroUITools.createNewPBStyleWhichShouldBeInAtlasAndIsAToDoYesItIsUglyToAnnoyAll(
-                        Color.GREEN);
-
         HeroUI ui =
                 new HeroUI(
-                        new ProgressBar(0f, 1f, 0.01f, false, experienceStyle),
-                        new Label("Level: " + level, UITools.DEFAULT_SKIN),
+                        new ProgressBar(0f, 1f, 0.01f, false, DEFAULT_SKIN, "experiencebar"),
+                        new Label("Level: " + level, DEFAULT_SKIN),
                         entity);
         ui.pb.setValue(xpPercentage);
         Group uiGroup = new Group();

@@ -1,6 +1,7 @@
 package contrib.systems;
 
-import com.badlogic.gdx.graphics.Color;
+import static contrib.hud.UITools.DEFAULT_SKIN;
+
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
@@ -8,7 +9,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 
 import contrib.components.HealthComponent;
 import contrib.components.UIComponent;
-import contrib.hud.heroUI.HeroUITools;
 
 import core.Entity;
 import core.Game;
@@ -91,11 +91,8 @@ public final class HealthbarSystem extends System {
     }
 
     private ProgressBar createNewHealthbar(PositionComponent pc) {
-        ProgressBar.ProgressBarStyle healthstyle =
-                HeroUITools.createNewPBStyleWhichShouldBeInAtlasAndIsAToDoYesItIsUglyToAnnoyAll(
-                        Color.RED);
-
-        ProgressBar progressBar = new ProgressBar(MIN, MAX, STEP_SIZE, false, healthstyle);
+        ProgressBar progressBar =
+                new ProgressBar(MIN, MAX, STEP_SIZE, false, DEFAULT_SKIN, "healthbar");
         progressBar.setAnimateDuration(HEALTHBAR_UPDATE_DURATION);
         progressBar.setSize(HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT);
         progressBar.setVisible(true);
