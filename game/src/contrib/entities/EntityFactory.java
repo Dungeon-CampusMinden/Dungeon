@@ -17,7 +17,6 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.*;
-import core.level.utils.LevelElement;
 import core.utils.Constants;
 import core.utils.Point;
 import core.utils.Tuple;
@@ -213,8 +212,7 @@ public class EntityFactory {
                 IntStream.range(0, RANDOM.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .collect(Collectors.toSet());
-        if (Game.currentLevel() == null) return newChest(itemData, null);
-        else return newChest(itemData, Game.randomTile(LevelElement.FLOOR).position());
+        return newChest(itemData, null);
     }
 
     /**
