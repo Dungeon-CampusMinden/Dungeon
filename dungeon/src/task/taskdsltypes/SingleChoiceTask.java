@@ -1,13 +1,17 @@
 package task.taskdsltypes;
 
+import semanticanalysis.types.DSLExtensionMethod;
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
 
+import semanticanalysis.types.IDSLExtensionMethod;
 import task.Quiz;
 import task.Task;
 import task.TaskContent;
 import task.quizquestion.SingleChoice;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -52,4 +56,26 @@ public class SingleChoiceTask {
             return 0.0f;
         }
     }
+
+    @DSLExtensionMethod(name = "get_content", extendedType = SingleChoice.class)
+    public static class GetContentMethod implements IDSLExtensionMethod<SingleChoice, List<TaskContent>> {
+        public static GetContentMethod instance = new GetContentMethod();
+
+        @Override
+        public List<TaskContent> call(SingleChoice instance, List<Object> params) {
+            // This has to return an ArrayList. Calling the `.toList()`-Method on the result of
+            // the `map()`-call bellow will create an `java.util.ImmutableCollections$ListN`-instance,
+            // for which the TypeBuilder cannot create a corresponding dsl-type.
+            List<TaskContent> returnList = new ArrayList<>();
+            instance.contentStream().forEach(returnList::add);
+            return returnList;
+        }
+
+        @Override
+        public List<Class<?>> getParameterTypes() {
+            var arr = new Class<?>[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
 }
