@@ -785,15 +785,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
             if (!(returnValue instanceof Value)) {
                 // package it into value
-                var valueClass = returnValue.getClass();
-
-                // try to resolve the objects type as primitive built in type
-                var dslType = this.environment.getDSLTypeForClass(valueClass);
-                if (dslType == null) {
-                    throw new RuntimeException(
-                            "No DSL Type representation for java type '" + valueClass + "'");
-                }
-                returnValue = new Value(dslType, returnValue);
+                IType targetType = callable.getFunctionType().getReturnType();
+                returnValue = this.environment.translateRuntimeObject(returnValue, this.getCurrentMemorySpace(), targetType);
             }
             return returnValue;
         }
