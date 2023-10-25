@@ -176,7 +176,6 @@ public class TypeInstantiator {
      * @param value the Value to convert
      * @return the converted Object
      */
-    // TODO: enum variant!
     private Object convertValueToObject(Value value, IType valuesType) {
         Object convertedObject = value.getInternalValue();
         try {
