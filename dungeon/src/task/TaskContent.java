@@ -1,5 +1,6 @@
 package task;
 
+import semanticanalysis.types.DSLType;
 import task.components.TaskContentComponent;
 
 /**
@@ -11,6 +12,7 @@ import task.components.TaskContentComponent;
  * <p>A TaskContent can, for example, be an answer option for a quiz question or a rule for
  * replacement tasks.
  */
+@DSLType
 public abstract class TaskContent {
     private Task task;
 
