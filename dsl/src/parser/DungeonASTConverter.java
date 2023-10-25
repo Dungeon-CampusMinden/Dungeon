@@ -137,7 +137,19 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitFor_loop(DungeonDSLParser.For_loopContext ctx) {
-        throw new UnsupportedOperationException();
+        Node stmtNode = astStack.pop();
+
+        Node iterableIdNode = astStack.pop();
+        assert iterableIdNode.type.equals(Node.Type.Identifier);
+
+        Node varIdNode = astStack.pop();
+        assert varIdNode.type.equals(Node.Type.Identifier);
+
+        Node varTypeIdNode = astStack.pop();
+        assert varTypeIdNode.type.equals(Node.Type.Identifier);
+
+        ForLoopStmtNode loopStmtNode = new ForLoopStmtNode(varTypeIdNode, varIdNode, iterableIdNode, stmtNode);
+        astStack.push(loopStmtNode);
     }
 
     @Override
@@ -145,7 +157,22 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitFor_loop_counting(DungeonDSLParser.For_loop_countingContext ctx) {
-        throw new UnsupportedOperationException();
+        Node stmtNode = astStack.pop();
+
+        Node counterIdNode = astStack.pop();
+        assert counterIdNode.type.equals(Node.Type.Identifier);
+
+        Node iterableIdNode = astStack.pop();
+        assert iterableIdNode.type.equals(Node.Type.Identifier);
+
+        Node varIdNode = astStack.pop();
+        assert varIdNode.type.equals(Node.Type.Identifier);
+
+        Node varTypeIdNode = astStack.pop();
+        assert varTypeIdNode.type.equals(Node.Type.Identifier);
+
+        CountingLoopStmtNode loopStmtNode = new CountingLoopStmtNode(varTypeIdNode, varIdNode, iterableIdNode, counterIdNode, stmtNode);
+        astStack.push(loopStmtNode);
     }
 
     @Override
@@ -153,7 +180,11 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     @Override
     public void exitWhile_loop(DungeonDSLParser.While_loopContext ctx) {
-        throw new UnsupportedOperationException();
+        Node stmtNode = astStack.pop();
+        Node expressionNode = astStack.pop();
+
+        WhileLoopStmtNode loopStmtNode = new WhileLoopStmtNode(expressionNode, stmtNode);
+        astStack.push(loopStmtNode);
     }
 
     @Override

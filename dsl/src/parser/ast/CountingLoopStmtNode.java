@@ -7,7 +7,7 @@ public class CountingLoopStmtNode extends ForLoopStmtNode {
         return this.getChild(counterIdIdx);
     }
 
-    public CountingLoopStmtNode(Node typeIdNode, Node varIdNode, Node iterableIdNode, Node stmtNode, Node counterIdNode) {
+    public CountingLoopStmtNode(Node typeIdNode, Node varIdNode, Node iterableIdNode, Node counterIdNode, Node stmtNode) {
         super(LoopType.countingForLoop, typeIdNode, varIdNode, iterableIdNode, stmtNode);
         this.addChild(counterIdNode);
     }

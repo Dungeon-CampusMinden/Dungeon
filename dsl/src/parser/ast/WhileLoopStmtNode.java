@@ -8,7 +8,7 @@ public class WhileLoopStmtNode extends LoopStmtNode {
     }
 
     public WhileLoopStmtNode(Node expressionNode, Node stmtNode) {
-        super(LoopType.countingForLoop, stmtNode);
+        super(LoopType.whileLoop, stmtNode);
         this.addChild(expressionNode);
     }
 
