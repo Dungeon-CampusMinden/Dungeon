@@ -1,6 +1,7 @@
 package contrib.hud.inventory;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -11,10 +12,12 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
 import contrib.components.InventoryComponent;
+import contrib.configuration.KeyboardConfig;
 import contrib.hud.CombinableGUI;
 import contrib.hud.GUICombination;
 import contrib.item.Item;
@@ -34,6 +37,13 @@ public class InventoryGUI extends CombinableGUI {
     private static final BitmapFont bitmapFont;
     private static final Texture texture;
     private static final TextureRegion background, hoverBackground;
+    /**
+     * Boolean to check if the opened inventory belongs to the hero. Items that are in an inventory
+     * which does not belong to the hero, e.g. a treasure chest, are not usable.
+     *
+     * <p>Will be set to true if the hero inventory is opened and set to false if it's closed.
+     */
+    public static boolean inHeroInventory = false;
 
     static {
         // Prepare background texture
@@ -67,6 +77,8 @@ public class InventoryGUI extends CombinableGUI {
         this.inventoryComponent = inventoryComponent;
         this.title = title;
         this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
+
+        addInputListener();
     }
 
     /**
@@ -97,6 +109,13 @@ public class InventoryGUI extends CombinableGUI {
     @Override
     protected void drawTopLayer(Batch batch) {
         this.drawItemInfo(batch);
+    }
+
+    private int getSlotByMousePosition() {
+        Vector2 mousePos =
+                new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+        Vector2 relMousePos = new Vector2(mousePos.x - this.x(), mousePos.y - this.y());
+        return getSlotByCoordinates(relMousePos.x, relMousePos.y);
     }
 
     private int getSlotByCoordinates(int x, int y) {
@@ -303,6 +322,37 @@ public class InventoryGUI extends CombinableGUI {
                         }
                     }
                 });
+    }
+
+    private void addInputListener() {
+        Game.stage().orElseThrow().setKeyboardFocus(this.actor());
+
+        this.actor().setBounds(0, 0, this.width(), this.height());
+
+        this.actor()
+                .addListener(
+                        new InputListener() {
+                            @Override
+                            public boolean keyTyped(InputEvent event, char character) {
+                                if (inHeroInventory
+                                        && (Character.toLowerCase(character)
+                                                == Input.Keys.toString(
+                                                                KeyboardConfig.USE_ITEM.value())
+                                                        .toLowerCase()
+                                                        .toCharArray()[0])) {
+                                    useItem(
+                                            InventoryGUI.this.inventoryComponent.get(
+                                                    getSlotByMousePosition()));
+                                    return true;
+                                }
+                                return false;
+                            }
+                        });
+    }
+
+    private void useItem(Item item) {
+        if (item != null)
+            item.use(Game.hero().orElseThrow(() -> new NullPointerException("There is no hero")));
     }
 
     @Override
