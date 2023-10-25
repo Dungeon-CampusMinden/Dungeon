@@ -147,5 +147,4 @@ public abstract class DamageProjectile implements Consumer<Entity> {
 
     /** Override this method to play a Sound-effect on spawning the projectile if you want. */
     protected void playSound() {}
-    ;
 }
