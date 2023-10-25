@@ -3479,7 +3479,7 @@ public class TestDSLInterpreter {
     }
 
     @Test
-    public void testItemTypeInstantiation() {
+    public void testItemTypeInstantiationSingleChoice() {
         String program =
         """
         single_choice_task t1 {
@@ -3494,23 +3494,6 @@ public class TestDSLInterpreter {
 
         dungeon_config c {
             dependency_graph: g
-        }
-
-        entity_type wizard_type {
-            draw_component {
-                path: "character/wizard"
-            },
-            hitbox_component {},
-            position_component{},
-            task_component{}
-        }
-
-        entity_type knight_type {
-            draw_component {
-                path: "character/knight"
-            },
-            hitbox_component {},
-            position_component{}
         }
 
         item_type item_type1 {
@@ -3548,6 +3531,62 @@ public class TestDSLInterpreter {
         QuestItem item = (QuestItem) itemComponent.item();
         Assert.assertEquals("MyName", item.displayName());
         Quiz.Content content = (Quiz.Content)item.taskContentComponent().contentStream().toList().get(0);
+        Assert.assertEquals("2", content.content());
+    }
+
+    @Test
+    public void testItemTypeInstantiationMultipleChoice() {
+        String program =
+            """
+            multiple_choice_task t1 {
+                description: "Task1",
+                answers: ["1", "2", "3"],
+                correct_answer_index: [1,2]
+            }
+
+            graph g {
+                t1
+            }
+
+            dungeon_config c {
+                dependency_graph: g
+            }
+
+            item_type item_type1 {
+                display_name: "MyName",
+                description: "Hello, this is a description",
+                texture_path: "items/book/wisdom_scroll.png"
+            }
+
+            fn build_scenario1(multiple_choice_task t) -> entity<><> {
+                var ret_set : entity<><>;
+
+                var first_room_set : entity<>;
+
+                var item : quest_item;
+                var content : task_content[];
+                content = t.get_content();
+
+                item = build_quest_item(item_type1, content.get(1));
+                place_quest_item(item, first_room_set);
+
+                ret_set.add(first_room_set);
+                return ret_set;
+            }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+        var entityIterator = builtTask.iterator().next().iterator();
+        // this will be the placed quest item
+        var questItem = entityIterator.next();
+        ItemComponent itemComponent = questItem.fetch(ItemComponent.class).get();
+        QuestItem item = (QuestItem) itemComponent.item();
+        Assert.assertEquals("MyName", item.displayName());
+        Quiz.Content content = (Quiz.Content)item.taskContentComponent().content();
         Assert.assertEquals("2", content.content());
     }
 }
