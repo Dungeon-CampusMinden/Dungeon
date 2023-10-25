@@ -1,6 +1,7 @@
 package contrib.hud.inventory;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -16,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
 import contrib.components.InventoryComponent;
+import contrib.configuration.KeyboardConfig;
 import contrib.hud.CombinableGUI;
 import contrib.hud.GUICombination;
 import contrib.item.Item;
@@ -326,7 +328,12 @@ public class InventoryGUI extends CombinableGUI {
                         new InputListener() {
                             @Override
                             public boolean keyTyped(InputEvent event, char character) {
-                                if (inHeroInventory && (character == 'e' || character == 'E')) {
+                                if (inHeroInventory
+                                        && (Character.toLowerCase(character)
+                                                == Input.Keys.toString(
+                                                                KeyboardConfig.USE_ITEM.value())
+                                                        .toLowerCase()
+                                                        .toCharArray()[0])) {
                                     useItem(
                                             InventoryGUI.this.inventoryComponent.get(
                                                     getSlotByMousePosition()));
