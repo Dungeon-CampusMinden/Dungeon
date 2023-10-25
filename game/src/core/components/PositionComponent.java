@@ -62,7 +62,7 @@ public final class PositionComponent implements Component {
     public PositionComponent() {
 
         if (Game.currentLevel() != null) {
-            position = Game.randomTilePoint(LevelElement.FLOOR).add(new Point(0.5f, 0.25f));
+            position = Game.randomTilePoint(LevelElement.FLOOR);
         } else {
             position = ILLEGAL_POSITION;
         }
