@@ -99,6 +99,7 @@ public class GameEnvironment implements IEvironment {
         ArrayList<IDSLExtensionMethod<?, ?>> methods = new ArrayList<>();
 
         methods.add(SingleChoiceTask.GetContentMethod.instance);
+        methods.add(MultipleChoiceTask.GetContentMethod.instance);
 
         return methods;
     }
