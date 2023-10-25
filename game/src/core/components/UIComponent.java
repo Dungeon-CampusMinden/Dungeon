@@ -14,7 +14,6 @@ public class UIComponent implements Component {
     private final Group dialog;
     private final boolean willPauseGame;
     private final boolean closeOnUICloseKey;
-
     private IVoidFunction onClose = () -> {};
 
     /**
@@ -70,10 +69,16 @@ public class UIComponent implements Component {
         return closeOnUICloseKey;
     }
 
+    /**
+     * @return the functions which should be called once the UI gets closed/removed
+     */
     public IVoidFunction onClose() {
         return onClose;
     }
 
+    /**
+     * @param onClose the function which should be called once the UI gets closed/removed
+     */
     public void onClose(IVoidFunction onClose) {
         this.onClose = onClose;
     }
