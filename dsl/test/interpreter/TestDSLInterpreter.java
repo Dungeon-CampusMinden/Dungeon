@@ -30,6 +30,8 @@ import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
 import task.QuestItem;
+import task.Quiz;
+import task.TaskContent;
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
 import taskdependencygraph.TaskNode;
@@ -3523,7 +3525,10 @@ public class TestDSLInterpreter {
             var first_room_set : entity<>;
 
             var item : quest_item;
-            item = build_quest_item(item_type1);
+            var content : task_content[];
+            content = t.get_content();
+
+            item = build_quest_item(item_type1, content.get(1));
             place_quest_item(item, first_room_set);
 
             ret_set.add(first_room_set);
@@ -3542,5 +3547,7 @@ public class TestDSLInterpreter {
         ItemComponent itemComponent = questItem.fetch(ItemComponent.class).get();
         QuestItem item = (QuestItem) itemComponent.item();
         Assert.assertEquals("MyName", item.displayName());
+        Quiz.Content content = (Quiz.Content)item.taskContentComponent().contentStream().toList().get(0);
+        Assert.assertEquals("2", content.content());
     }
 }
