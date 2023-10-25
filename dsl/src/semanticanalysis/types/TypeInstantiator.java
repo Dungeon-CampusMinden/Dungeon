@@ -107,7 +107,9 @@ public class TypeInstantiator {
         var variantSymbol = value.getEnumVariantSymbol();
         String variantName = variantSymbol.getName();
 
-        // TODO: explain
+        // It is ensured in the TypeBuilder that the origin type of the EnumType
+        // is actually an enum and the names of the Symbols representing the variants
+        // do directly correlate to the name of the original enum variants
         @SuppressWarnings("unchecked")
         var enumInstance = Enum.valueOf(originType, variantName);
         return enumInstance;
