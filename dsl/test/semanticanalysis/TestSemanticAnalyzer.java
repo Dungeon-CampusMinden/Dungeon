@@ -4,10 +4,7 @@ import helpers.Helpers;
 
 import interpreter.DummyNativeFunction;
 import interpreter.TestEnvironment;
-import interpreter.mockecs.Entity;
-import interpreter.mockecs.TestComponent2;
-import interpreter.mockecs.TestComponentEntityConsumerCallback;
-import interpreter.mockecs.TestComponentWithStringConsumerCallback;
+import interpreter.mockecs.*;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -771,6 +768,129 @@ public class TestSemanticAnalyzer {
         declScope = elseStmtDeclSymbol.getScope();
         expectedToBeFunctionScope = declScope.getParent().getParent();
         Assert.assertEquals(funcSymbol, expectedToBeFunctionScope);
+    }
+
+    @Test
+    public void testEnumVariantBinding() {
+        String program =
+                """
+        fn callback(entity ent) -> my_enum {
+            return my_enum.A;
+        }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
+
+        var ast = Helpers.getASTFromString(program);
+        var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+        var symbolTable = result.symbolTable;
+
+        // check creation and binding of enum type in global scope
+        Symbol myEnumType = symbolTable.globalScope.resolve("my_enum");
+        Assert.assertNotEquals(Symbol.NULL, myEnumType);
+        Assert.assertTrue(myEnumType instanceof EnumType);
+
+        // get the function definition as symbol and AST-Node
+        FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("callback");
+        FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
+
+        // check, if the return type id is bound to enum type
+        IdNode retTypeId = (IdNode) funcDefNode.getRetTypeId();
+        Symbol retTypeSymbol = symbolTable.getSymbolsForAstNode(retTypeId).get(0);
+        Assert.assertEquals(myEnumType, retTypeSymbol);
+
+        // check, that the `my_enum` in return stmt is bound to enum type
+        ReturnStmtNode stmt = (ReturnStmtNode) funcDefNode.getStmts().get(0);
+        MemberAccessNode stmtExpression = (MemberAccessNode) stmt.getInnerStmtNode();
+        IdNode enumNameIdNode = (IdNode) stmtExpression.getLhs();
+        Symbol enumNameIdSymbol = symbolTable.getSymbolsForAstNode(enumNameIdNode).get(0);
+        Assert.assertEquals(myEnumType, enumNameIdSymbol);
+
+        // check, that the `A` in return stmt is bound to enum variant
+        IdNode enumVariantIdNode = (IdNode) stmtExpression.getRhs();
+        Symbol enumVariantIdSymbol = symbolTable.getSymbolsForAstNode(enumVariantIdNode).get(0);
+        Symbol enumVariantSymbolExpected = ((EnumType) myEnumType).resolve("A");
+        Assert.assertEquals(enumVariantSymbolExpected, enumVariantIdSymbol);
+    }
+
+    @Test
+    public void testEnumVariantBindingIllegalAccess() {
+        String program =
+                """
+        fn callback(entity ent) -> my_enum {
+            return my_enum.A.B;
+        }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
+
+        var ast = Helpers.getASTFromString(program);
+        try {
+            var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+            Assert.fail("Should throw");
+        } catch (RuntimeException ex) {
+            Assert.assertEquals(
+                    ex.getMessage(), "Member access on enum value is not allowed: my_enum.A");
+        }
+    }
+
+    @Test
+    public void testEnumVariantBindingIllegalAccessVariable() {
+        String program =
+                """
+        fn callback(entity ent) -> my_enum {
+            var variable :  my_enum;
+            variable = my_enum.A;
+            var other_variable : my_enum;
+            other_variable = variable.B;
+        }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
+
+        var ast = Helpers.getASTFromString(program);
+        try {
+            // the member access operation `variable.B` should throw an exception, because it is not
+            // allowed
+            var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+            Assert.fail("Should throw");
+        } catch (RuntimeException ex) {
+            Assert.assertEquals(
+                    ex.getMessage(), "Member access on enum value is not allowed: variable");
+        }
     }
 
     @Test

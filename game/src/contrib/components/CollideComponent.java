@@ -9,6 +9,7 @@ import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
 
+import semanticanalysis.types.DSLCallback;
 import semanticanalysis.types.DSLType;
 
 import java.util.logging.Logger;
@@ -49,7 +50,7 @@ public final class CollideComponent implements Component {
 
     private final Point offset;
     private final Point size;
-    private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
+    @DSLCallback private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
     private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 

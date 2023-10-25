@@ -7,7 +7,8 @@ public interface IType {
         AggregateAdapted,
         FunctionType,
         SetType,
-        ListType
+        ListType,
+        EnumType
     }
 
     /**

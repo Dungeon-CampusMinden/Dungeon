@@ -1,5 +1,6 @@
 package runtime;
 
+import semanticanalysis.Symbol;
 import semanticanalysis.types.*;
 
 import java.util.HashMap;
@@ -113,7 +114,21 @@ public class RuntimeObjectTranslator {
                         setValue.addValue(elementValue);
                     }
                     returnValue = setValue;
-                    boolean c = true;
+                    break;
+                case EnumType:
+                    // find symbol corresponding to the passed variant
+                    EnumType enumType = (EnumType) dslType;
+                    Enum objectAsEnum = (Enum) object;
+                    String variantsName = objectAsEnum.name();
+
+                    List<Symbol> symbolsWithVariantsName =
+                            enumType.getSymbols().stream()
+                                    .filter(symbol -> symbol.getName().equals(variantsName))
+                                    .toList();
+                    assert symbolsWithVariantsName.size() == 1;
+
+                    Symbol variantSymbol = symbolsWithVariantsName.get(0);
+                    returnValue = new EnumValue(enumType, variantSymbol);
                     break;
             }
         }

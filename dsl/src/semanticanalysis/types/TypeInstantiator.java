@@ -12,13 +12,16 @@ import semanticanalysis.types.callbackadapter.CallbackAdapterBuilder;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TypeInstantiator {
+    private static final Set<IType.Kind> directlyConvertableTypeKinds =
+            Collections.unmodifiableSet(
+                    EnumSet.of(
+                            IType.Kind.SetType,
+                            IType.Kind.ListType,
+                            IType.Kind.Basic,
+                            IType.Kind.EnumType));
     private final HashMap<String, Object> context = new HashMap<>();
     private final CallbackAdapterBuilder callbackAdapterBuilder;
 
@@ -41,9 +44,7 @@ public class TypeInstantiator {
             return null;
         }
 
-        if (valuesType.getTypeKind().equals(IType.Kind.SetType)
-                || valuesType.getTypeKind().equals(IType.Kind.ListType)
-                || valuesType.getTypeKind().equals(IType.Kind.Basic)) {
+        if (directlyConvertableTypeKinds.contains(valuesType.getTypeKind())) {
             return convertValueToObject(value);
         }
 
@@ -98,6 +99,20 @@ public class TypeInstantiator {
                 }
             }
         }
+    }
+
+    private Object instantiateEnum(EnumValue value) {
+        var valuesDataType = (EnumType) value.getDataType();
+        Class<? extends Enum> originType = valuesDataType.getOriginType();
+        var variantSymbol = value.getEnumVariantSymbol();
+        String variantName = variantSymbol.getName();
+
+        // It is ensured in the TypeBuilder that the origin type of the EnumType
+        // is actually an enum and the names of the Symbols representing the variants
+        // do directly correlate to the name of the original enum variants
+        @SuppressWarnings("unchecked")
+        var enumInstance = Enum.valueOf(originType, variantName);
+        return enumInstance;
     }
 
     /**
@@ -197,6 +212,8 @@ public class TypeInstantiator {
                 convertedObject = instantiateList((ListValue) value);
             } else if (valuesType.getTypeKind().equals(IType.Kind.SetType)) {
                 convertedObject = instantiateSet((SetValue) value);
+            } else if (valuesType.getTypeKind().equals(IType.Kind.EnumType)) {
+                convertedObject = instantiateEnum((EnumValue) value);
             } else if (valuesType.getTypeKind().equals(IType.Kind.Aggregate)) {
                 if (convertedObject == null) {
                     // if the value is a prototype, instantiation is handled by

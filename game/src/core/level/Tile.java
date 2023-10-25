@@ -12,6 +12,8 @@ import core.level.utils.LevelElement;
 import core.utils.Constants;
 import core.utils.Point;
 
+import semanticanalysis.types.DSLType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -214,6 +216,7 @@ public abstract class Tile {
     public abstract boolean isAccessible();
 
     // --------------------------- For LibGDX Pathfinding ---------------------------
+    @DSLType(name = "tile_direction")
     public enum Direction {
         N,
         E,

@@ -401,6 +401,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
             return new ListValue((ListType) type);
         } else if (type.getTypeKind().equals(IType.Kind.SetType)) {
             return new SetValue((SetType) type);
+        } else if (type.getTypeKind().equals(IType.Kind.EnumType)) {
+            return new EnumValue((EnumType) type, null);
         } else if (type.getTypeKind().equals(IType.Kind.FunctionType)) {
             return Value.NONE;
         }
@@ -537,13 +539,22 @@ public class DSLInterpreter implements AstVisitor<Object> {
     static boolean isBooleanTrue(Value value) {
         var valuesType = value.getDataType();
         var typeKind = valuesType.getTypeKind();
-        if (!typeKind.equals(IType.Kind.Basic) && !value.equals(Value.NONE)) {
-            return true;
-        } else if (value.equals(Value.NONE)) {
+
+        if (value.equals(Value.NONE)) {
+            // NONE = false
             return false;
-        } else {
+        } else if (typeKind.equals(IType.Kind.Aggregate)) {
+            // if it is empty = false
+            return !((AggregateValue) value).isEmpty();
+        } else if (typeKind.equals(IType.Kind.EnumType)) {
+            // if the internal value is null = false
+            return value.getInternalValue() != null;
+        } else if (typeKind.equals(IType.Kind.Basic)) {
             // basically check if zero
             return ((BuiltInType) valuesType).asBooleanFunction.run(value);
+        } else {
+            // in any other case, true
+            return true;
         }
     }
 
@@ -806,11 +817,20 @@ public class DSLInterpreter implements AstVisitor<Object> {
         IMemorySpace memorySpaceToUse = this.getCurrentMemorySpace();
 
         Value lhsValue = Value.NONE;
+        Value rhsValue = Value.NONE;
         while (currentNode.type.equals(Node.Type.MemberAccess)) {
             lhs = ((MemberAccessNode) currentNode).getLhs();
             rhs = ((MemberAccessNode) currentNode).getRhs();
 
-            if (lhs.type.equals(Node.Type.Identifier)) {
+            Symbol lhsSymbol = symbolTable().getSymbolsForAstNode(lhs).get(0);
+            if (lhsSymbol != Symbol.NULL && lhsSymbol instanceof EnumType enumType) {
+                Symbol rhsSymbol = symbolTable().getSymbolsForAstNode(rhs).get(0);
+                if (rhsSymbol == Symbol.NULL) {
+                    throw new RuntimeException("Could not find enum variant for Node: " + rhs);
+                }
+                assert rhsSymbol.getDataType().getTypeKind().equals(IType.Kind.EnumType);
+                rhsValue = new EnumValue(enumType, rhsSymbol);
+            } else if (lhs.type.equals(Node.Type.Identifier)) {
                 String nameToResolve = ((IdNode) lhs).getName();
                 lhsValue = memorySpaceToUse.resolve(nameToResolve);
             } else if (lhs.type.equals(Node.Type.FuncCall)) {
@@ -823,18 +843,19 @@ public class DSLInterpreter implements AstVisitor<Object> {
             memorySpaceToUse = lhsValue.getMemorySpace();
         }
 
-        Value rhsValue = Value.NONE;
-        // if we arrive here, we have got two options:
-        // 1. we resolve an IdNode at the rhs of the MemberAccessNode
-        // 2. we resolve an FuncCallNode at the rhs of the MemberAccessNode
-        if (rhs.type.equals(Node.Type.Identifier)) {
-            this.memoryStack.push(memorySpaceToUse);
-            rhsValue = (Value) rhs.accept(this);
-            this.memoryStack.pop();
-        } else if (rhs.type.equals(Node.Type.FuncCall)) {
-            this.instanceMemoryStack.push(memorySpaceToUse);
-            rhsValue = (Value) rhs.accept(this);
-            this.instanceMemoryStack.pop();
+        if (rhsValue == Value.NONE) {
+            // if we arrive here, we have got two options:
+            // 1. we resolve an IdNode at the rhs of the MemberAccessNode
+            // 2. we resolve an FuncCallNode at the rhs of the MemberAccessNode
+            if (rhs.type.equals(Node.Type.Identifier)) {
+                this.memoryStack.push(memorySpaceToUse);
+                rhsValue = (Value) rhs.accept(this);
+                this.memoryStack.pop();
+            } else if (rhs.type.equals(Node.Type.FuncCall)) {
+                this.instanceMemoryStack.push(memorySpaceToUse);
+                rhsValue = (Value) rhs.accept(this);
+                this.instanceMemoryStack.pop();
+            }
         }
 
         return rhsValue;

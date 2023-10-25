@@ -90,17 +90,21 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
                                     + " of function "
                                     + funcName);
                 }
+                symbolTable.addSymbolNodeRelation((Symbol) returnType, returnTypeIdNode, false);
             }
 
             // get types of parameters
             ArrayList<IType> parameterTypes = new ArrayList<>(node.getParameters().size());
             for (Node paramDefNode : node.getParameters()) {
                 // if the parameters type is a list or set type, the datatype must be created
-                ((ParamDefNode) paramDefNode).getTypeIdNode().accept(this);
+                IdNode paramIdNode = (IdNode) ((ParamDefNode) paramDefNode).getTypeIdNode();
+                paramIdNode.accept(this);
 
                 var paramTypeName = ((ParamDefNode) paramDefNode).getTypeName();
                 IType paramType = globalScope.resolveType(paramTypeName);
                 parameterTypes.add(paramType);
+
+                symbolTable.addSymbolNodeRelation((Symbol) paramType, paramIdNode, false);
             }
 
             // create function signature type (as needed)
@@ -139,7 +143,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
         IScope currentScope = scopeStack.peek();
         String parameterName = node.getIdName();
         Node parameterIdNode = node.getIdNode();
-        var resolvedParameter = currentScope.resolve(parameterName);
+        var resolvedParameter = currentScope.resolve(parameterName, false);
         if (resolvedParameter != Symbol.NULL) {
             throw new RuntimeException(
                     "Parameter with name " + node.getIdName() + " was already defined");
