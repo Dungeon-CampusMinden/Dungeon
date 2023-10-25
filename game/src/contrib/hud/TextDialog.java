@@ -35,7 +35,10 @@ public final class TextDialog extends Dialog {
      * @param resultHandler controls the button presses
      */
     public TextDialog(
-            String title, Skin skin, String windowStyleName, BiFunction<TextDialog, String, Boolean> resultHandler) {
+            String title,
+            Skin skin,
+            String windowStyleName,
+            BiFunction<TextDialog, String, Boolean> resultHandler) {
         super(title, skin, windowStyleName);
         this.resultHandler = resultHandler;
     }
