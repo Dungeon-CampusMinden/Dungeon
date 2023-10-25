@@ -345,7 +345,8 @@ public class InventoryGUI extends CombinableGUI {
     }
 
     private void useItem(Item item) {
-        if (item != null) item.use(Game.hero().get());
+        if (item != null)
+            item.use(Game.hero().orElseThrow(() -> new NullPointerException("There is no hero")));
     }
 
     @Override
