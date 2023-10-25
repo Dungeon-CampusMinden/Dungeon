@@ -33,6 +33,7 @@ import semanticanalysis.types.*;
 import task.QuestItem;
 import task.Quiz;
 import task.Task;
+import task.TaskContent;
 import task.components.TaskComponent;
 import task.taskdsltypes.MultipleChoiceTask;
 import task.taskdsltypes.SingleChoiceDescriptionProperty;
@@ -74,6 +75,7 @@ public class GameEnvironment implements IEvironment {
                     DrawComponent.class,
                     TaskComponent.class,
                     Task.class,
+                    TaskContent.class,
                     // SingleChoiceTask.class,
                     Quiz.Content.class,
                     Tile.Direction.class
@@ -92,6 +94,14 @@ public class GameEnvironment implements IEvironment {
         properties.add(QuestItemExtension.TaskContentComponentProperty.instance);
 
         return properties;
+    }
+
+    public List<IDSLExtensionMethod<?, ?>> getBuiltInMethods() {
+        ArrayList<IDSLExtensionMethod<?, ?>> methods = new ArrayList<>();
+
+        methods.add(SingleChoiceTask.GetContentMethod.instance);
+
+        return methods;
     }
 
     @Override
