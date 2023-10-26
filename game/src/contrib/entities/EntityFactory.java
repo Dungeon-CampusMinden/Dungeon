@@ -8,9 +8,7 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.GUICombination;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
-import contrib.item.Item;
-import contrib.utils.components.health.Damage;
-import contrib.utils.components.health.DamageType;
+import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemDataGenerator;
@@ -21,7 +19,6 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.*;
-import core.level.utils.LevelElement;
 import core.utils.Constants;
 import core.utils.Point;
 import core.utils.Tuple;
@@ -266,8 +263,7 @@ public class EntityFactory {
                 IntStream.range(0, RANDOM.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .collect(Collectors.toSet());
-        if (Game.currentLevel() == null) return newChest(items, null);
-        else return newChest(items, Game.randomTile(LevelElement.FLOOR).position());
+        return newChest(itemData, null);
     }
 
     /**
@@ -294,21 +290,82 @@ public class EntityFactory {
                 new InteractionComponent(
                         defaultInteractionRadius,
                         true,
-                        (entity, who) ->
-                                who.fetch(InventoryComponent.class)
-                                        .ifPresent(
-                                                whoIc ->
-                                                        who.addComponent(
-                                                                new UIComponent(
-                                                                        new GUICombination(
-                                                                                new InventoryGUI(
-                                                                                        whoIc),
-                                                                                new InventoryGUI(
-                                                                                        ic)),
-                                                                        false)))));
+                        (interacted, interactor) -> {
+                            interactor
+                                    .fetch(InventoryComponent.class)
+                                    .ifPresent(
+                                            whoIc -> {
+                                                UIComponent uiComponent =
+                                                        new UIComponent(
+                                                                new GUICombination(
+                                                                        new InventoryGUI(whoIc),
+                                                                        new InventoryGUI(ic)),
+                                                                false);
+                                                uiComponent.onClose(
+                                                        () -> {
+                                                            interacted
+                                                                    .fetch(DrawComponent.class)
+                                                                    .ifPresent(
+                                                                            interactedDC -> {
+                                                                                // remove all prior
+                                                                                // opened animations
+                                                                                interactedDC
+                                                                                        .deQueueByPriority(
+                                                                                                ChestAnimations
+                                                                                                        .OPEN_FULL
+                                                                                                        .priority());
+                                                                                if (ic.count()
+                                                                                        > 0) {
+                                                                                    // aslong as
+                                                                                    // there is an
+                                                                                    // item inside
+                                                                                    // the chest
+                                                                                    // show a full
+                                                                                    // chest
+                                                                                    interactedDC
+                                                                                            .queueAnimation(
+                                                                                                    ChestAnimations
+                                                                                                            .OPEN_FULL);
+                                                                                } else {
+                                                                                    // empty chest
+                                                                                    // show the
+                                                                                    // empty
+                                                                                    // animation
+                                                                                    interactedDC
+                                                                                            .queueAnimation(
+                                                                                                    ChestAnimations
+                                                                                                            .OPEN_EMPTY);
+                                                                                }
+                                                                            });
+                                                        });
+                                                interactor.addComponent(uiComponent);
+                                            });
+                            interacted
+                                    .fetch(DrawComponent.class)
+                                    .ifPresent(
+                                            interactedDC -> {
+                                                // only add opening animation when it is not
+                                                // finished
+                                                if (interactedDC
+                                                        .getAnimation(ChestAnimations.OPENING)
+                                                        .map(animation -> !animation.isFinished())
+                                                        .orElse(true)) {
+                                                    interactedDC.queueAnimation(
+                                                            ChestAnimations.OPENING);
+                                                }
+                                            });
+                        }));
         DrawComponent dc = new DrawComponent("objects/treasurechest");
+        var mapping = dc.animationMap();
+        // set the closed chest as default idle
+        mapping.put(
+                CoreAnimations.IDLE.pathString(), mapping.get(ChestAnimations.CLOSED.pathString()));
+        // opening animation should not loop
+        mapping.get(ChestAnimations.OPENING.pathString()).setLoop(false);
+        // reset Idle Animation
+        dc.deQueueByPriority(CoreAnimations.IDLE.priority());
+        dc.currentAnimation(CoreAnimations.IDLE);
         chest.addComponent(dc);
-        dc.getAnimation(CoreAnimations.IDLE_RIGHT).ifPresent(a -> a.setLoop(false));
 
         return chest;
     }

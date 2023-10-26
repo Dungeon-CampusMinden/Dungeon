@@ -3,6 +3,7 @@ package contrib.components;
 import com.badlogic.gdx.scenes.scene2d.Group;
 
 import core.Component;
+import core.utils.IVoidFunction;
 
 /**
  * A simple implementation for a UI Component which allows to define a Group of
@@ -13,6 +14,7 @@ public class UIComponent implements Component {
     private final Group dialog;
     private final boolean willPauseGame;
     private final boolean closeOnUICloseKey;
+    private IVoidFunction onClose = () -> {};
 
     /**
      * @param dialog a Group of Elements which should be shown
@@ -65,5 +67,19 @@ public class UIComponent implements Component {
      */
     public boolean closeOnUICloseKey() {
         return closeOnUICloseKey;
+    }
+
+    /**
+     * @return the functions which should be called once the UI gets closed/removed
+     */
+    public IVoidFunction onClose() {
+        return onClose;
+    }
+
+    /**
+     * @param onClose the function which should be called once the UI gets closed/removed
+     */
+    public void onClose(IVoidFunction onClose) {
+        this.onClose = onClose;
     }
 }
