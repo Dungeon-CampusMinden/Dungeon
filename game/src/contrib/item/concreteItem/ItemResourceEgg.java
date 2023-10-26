@@ -21,11 +21,11 @@ public class ItemResourceEgg extends Item {
     }
 
     @Override
-    public void use(Entity e, Item itemData) {
+    public void use(Entity e) {
         e.fetch(InventoryComponent.class)
                 .ifPresent(
                         component -> {
-                            component.remove(itemData);
+                            component.remove(this);
                             try {
                                 Entity monster = EntityFactory.randomMonster();
                                 monster.fetch(PositionComponent.class)

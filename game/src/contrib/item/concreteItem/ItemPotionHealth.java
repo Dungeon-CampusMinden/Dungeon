@@ -21,11 +21,11 @@ public class ItemPotionHealth extends Item {
     }
 
     @Override
-    public void use(Entity e, Item itemData) {
+    public void use(Entity e) {
         e.fetch(InventoryComponent.class)
                 .ifPresent(
                         component -> {
-                            component.remove(itemData);
+                            component.remove(this);
                             e.fetch(HealthComponent.class)
                                     .ifPresent(
                                             hc ->
