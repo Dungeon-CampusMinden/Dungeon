@@ -1,17 +1,24 @@
 {
-    "ordered": true,
+    "ordered": false,
     "ingredients": [
         {
             "type": "item",
             "item": {
-                "id": "ItemResourceIronOre",
+                "id": "ItemResourceBerry",
                 "count": 1
             }
         },
         {
             "type": "item",
             "item": {
-                "id": "ItemResourceWood",
+                "id": "ItemResourceBerry",
+                "count": 1
+            }
+        },
+        {
+            "type": "item",
+            "item": {
+                "id": "ItemPotionWater",
                 "count": 1
             }
         }
@@ -20,7 +27,7 @@
         {
             "type": "item",
             "item": {
-                "id": "ItemResourceSteel",
+                "id": "ItemPotionHealth",
                 "count": 1
             }
         }
