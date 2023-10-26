@@ -38,6 +38,8 @@ public abstract class Task {
     private static final Set<Task> ALL_TASKS = new HashSet<>();
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
+
+    private static final float DEFAULT_POINTS = 1f;
     private TaskState state;
     private String taskText;
     private final Set<Place> observer = new HashSet<>();
@@ -48,6 +50,8 @@ public abstract class Task {
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
 
+    protected float points;
+
     /**
      * Create a new Task with the {@link #DEFAULT_TASK_TEXT} in the {@link #DEFAULT_TASK_STATE},
      * with an empty content-collection and without an {@link TaskComponent}.
@@ -57,6 +61,7 @@ public abstract class Task {
         state = DEFAULT_TASK_STATE;
         taskText = DEFAULT_TASK_TEXT;
         content = new LinkedList<>();
+        points = DEFAULT_POINTS;
     }
     /**
      * Register a {@link Place} with this task.
@@ -143,6 +148,16 @@ public abstract class Task {
     }
 
     /**
+     * Get the TaskContent instance at the given index.
+     *
+     * @param index index of the wanted task content
+     * @return the task content at the given index.
+     */
+    public TaskContent contentByIndex(int index) {
+        return content.get(index);
+    }
+
+    /**
      * Add given element to the internal {@link #content} collection.
      *
      * @param content element to add to the internal collection
@@ -188,6 +203,23 @@ public abstract class Task {
      */
     public void scoringFunction(BiFunction<Task, Set<TaskContent>, Float> scoringFunction) {
         this.scoringFunction = scoringFunction;
+    }
+
+    /**
+     * Get the amount of points that this task is worth.
+     *
+     * @return points that this task is worth.
+     */
+    public float points() {
+        return points;
+    }
+    /**
+     * Set the amount of points that this task is worth.
+     *
+     * @param points points that this task is worth.
+     */
+    public void points(float points) {
+        this.points = points;
     }
 
     /**
