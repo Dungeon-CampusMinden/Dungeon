@@ -97,7 +97,7 @@ public final class DrawSystem extends System {
 
     // checks the status of animations in the animationQueue and selects the next animation by
     // priority
-    public void setNextAnimation(DrawComponent dc) {
+    private void setNextAnimation(DrawComponent dc) {
 
         IPath highestPrio = null;
 
