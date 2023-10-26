@@ -241,6 +241,11 @@ public abstract class Task {
         return new HashSet<>(ALL_TASKS).stream();
     }
 
+    /** Clear the {@link #ALL_TASKS} Set. */
+    public static void cleanupAllTask() {
+        ALL_TASKS.clear();
+    }
+
     /**
      * Finds the entity that implements the TaskContentComponent linked to the given TaskContent.
      *
