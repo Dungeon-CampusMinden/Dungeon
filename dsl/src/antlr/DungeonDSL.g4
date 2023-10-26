@@ -68,6 +68,7 @@ stmt
     | loop_stmt
     ;
 
+// TODO: iterable should actually be an expression
 loop_stmt
     : 'for' type_id=ID var_id=ID 'in' iteratable_id=ID stmt                         #for_loop
     | 'for' type_id=ID var_id=ID 'in' iteratable_id=ID 'count' counter_id=ID stmt   #for_loop_counting

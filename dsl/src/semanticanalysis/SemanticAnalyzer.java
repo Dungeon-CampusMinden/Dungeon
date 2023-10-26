@@ -680,6 +680,109 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(LoopStmtNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Void visit(WhileLoopStmtNode node) {
+        // visit expression
+        node.getExpressionNode().accept(this);
+
+        var whileScope = new Scope(scopeStack.peek());
+        scopeStack.push(whileScope);
+        node.getStmtNode().accept(this);
+        scopeStack.pop();
+
+        return null;
+    }
+
+    @Override
+    public Void visit(CountingLoopStmtNode node) {
+        // visit iterable expression
+        node.getIterableIdNode().accept(this);
+
+        // create loop scope
+        Scope loopScope = new Scope(scopeStack.peek());
+
+        // create loop variable
+        Node typeIdNode = node.getTypeIdNode();
+        assert typeIdNode.type.equals(Node.Type.Identifier);
+
+        typeIdNode.accept(this);
+        Symbol typeSymbol = this.symbolTable.getSymbolsForAstNode(typeIdNode).get(0);
+        if (typeSymbol == Symbol.NULL || !(typeSymbol instanceof IType type)) {
+            throw new RuntimeException("Type of name '" + ((IdNode)typeIdNode).getName() + "' cannot be resolved");
+        }
+
+        Node varIdNode = node.getVarIdNode();
+        assert varIdNode.type.equals(Node.Type.Identifier);
+
+        String variableName = ((IdNode)varIdNode).getName();
+        Symbol variableSymbol = new Symbol(variableName, loopScope, type);
+
+        // bind loop variable
+        this.symbolTable.addSymbolNodeRelation(variableSymbol, varIdNode, true);
+        loopScope.bind(variableSymbol);
+
+        // create counter variable
+
+        Node counterIdNode = node.getCounterIdNode();
+        assert counterIdNode.type.equals(Node.Type.Identifier);
+
+        String counterName = ((IdNode)counterIdNode).getName();
+        Symbol counterVarSymbol = new Symbol(counterName, loopScope, BuiltInType.intType);
+
+        // bind counter variable
+        this.symbolTable.addSymbolNodeRelation(counterVarSymbol, counterIdNode, true);
+        loopScope.bind(counterVarSymbol);
+
+        // visit stmt node of loop
+        scopeStack.push(loopScope);
+        node.getStmtNode().accept(this);
+        scopeStack.pop();
+
+        return null;
+    }
+
+    // TODO: refactor variable creation
+    @Override
+    public Void visit(ForLoopStmtNode node) {
+        // visit iterable expression
+        node.getIterableIdNode().accept(this);
+
+        // create loop scope
+        Scope loopScope = new Scope(scopeStack.peek());
+
+        // create loop variable
+        Node typeIdNode = node.getTypeIdNode();
+        assert typeIdNode.type.equals(Node.Type.Identifier);
+
+        typeIdNode.accept(this);
+        Symbol typeSymbol = this.symbolTable.getSymbolsForAstNode(typeIdNode).get(0);
+        if (typeSymbol == Symbol.NULL || !(typeSymbol instanceof IType type)) {
+            throw new RuntimeException("Type of name '" + ((IdNode)typeIdNode).getName() + "' cannot be resolved");
+        }
+
+        Node varIdNode = node.getVarIdNode();
+        assert varIdNode.type.equals(Node.Type.Identifier);
+
+        String variableName = ((IdNode)varIdNode).getName();
+        Symbol variableSymbol = new Symbol(variableName, loopScope, type);
+
+        // bind loop variable
+        this.symbolTable.addSymbolNodeRelation(variableSymbol, varIdNode, true);
+        loopScope.bind(variableSymbol);
+
+        // visit stmt node of loop
+        scopeStack.push(loopScope);
+        node.getStmtNode().accept(this);
+        scopeStack.pop();
+
+        return null;
+    }
+
     // region ASTVisitor implementation for nodes unrelated to semantic analysis
     @Override
     public Void visit(DecNumNode node) {
