@@ -15,5 +15,6 @@ public class SingleChoice extends Quiz {
 
     public SingleChoice(String questionText) {
         super(questionText);
+        scoringFunction(GradingFunctions.singleChoiceGrading());
     }
 }

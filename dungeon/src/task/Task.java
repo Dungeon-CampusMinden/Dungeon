@@ -206,6 +206,16 @@ public abstract class Task {
     }
 
     /**
+     * Execute the scoring function.
+     *
+     * @param givenAnswers the given answers to the question of this tak.
+     * @return reached points.
+     */
+    public float executeScoringFunction(Set<TaskContent> givenAnswers) {
+        return scoringFunction.apply(this, givenAnswers);
+    }
+
+    /**
      * Get the amount of points that this task is worth.
      *
      * @return points that this task is worth.

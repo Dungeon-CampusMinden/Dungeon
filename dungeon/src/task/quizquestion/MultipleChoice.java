@@ -18,5 +18,6 @@ public class MultipleChoice extends Quiz {
 
     public MultipleChoice(String questionText) {
         super(questionText);
+        scoringFunction(GradingFunctions.multipeChoiceGrading());
     }
 }
