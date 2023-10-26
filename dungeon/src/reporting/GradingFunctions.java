@@ -1,11 +1,14 @@
 package reporting;
 
+import task.Element;
+import task.ReplacementTask;
 import task.Task;
 import task.TaskContent;
 import task.quizquestion.MultipleChoice;
 import task.quizquestion.SingleChoice;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -64,5 +67,28 @@ public class GradingFunctions {
                     }
                     return Math.max(0, reachedPoints);
                 };
+    }
+
+    /**
+     * A simple grading function for {@link ReplacementTask}.
+     *
+     * <p>Will give points for each correct answer.
+     *
+     * <p>The amount of points given per answer is calculated by the number of points the Task is
+     * worth divided by the count of correct answers.
+     *
+     * @return a BiFunction that can be used for {@link Task#scoringFunction(BiFunction)}
+     */
+    public static BiFunction<Task, Set<TaskContent>, Float> replacementGrading() {
+        return (task, answers) -> {
+            ReplacementTask replacementTask = (ReplacementTask) task;
+
+            List<Element> solution = replacementTask.solution();
+            float pointPerAnswer = replacementTask.points() / solution.size();
+            float reachedPoints = 0f;
+            for (TaskContent answer : answers)
+                if (solution.contains(answer)) reachedPoints += pointPerAnswer;
+            return reachedPoints;
+        };
     }
 }

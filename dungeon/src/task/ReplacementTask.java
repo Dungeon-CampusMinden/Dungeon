@@ -1,5 +1,7 @@
 package task;
 
+import reporting.GradingFunctions;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +24,7 @@ public class ReplacementTask extends Task {
         super();
         this.solution = solution;
         this.rules = rules;
+        scoringFunction(GradingFunctions.replacementGrading());
     }
 
     public List<Element> solution() {
