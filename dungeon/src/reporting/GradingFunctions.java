@@ -1,15 +1,10 @@
 package reporting;
 
-import task.Element;
-import task.ReplacementTask;
-import task.Task;
-import task.TaskContent;
+import task.*;
 import task.quizquestion.MultipleChoice;
 import task.quizquestion.SingleChoice;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 
 /** Contanins different grading functions for the different task types. */
@@ -59,11 +54,11 @@ public class GradingFunctions {
                     for (int index : multipleChoice.correctAnswerIndices())
                         correctAnswers.add(multipleChoice.contentByIndex(index));
 
-                    float pointPerAnswer = multipleChoice.points() / correctAnswers.size();
+                    float pointsPerAnswer = multipleChoice.points() / correctAnswers.size();
                     float reachedPoints = 0f;
                     for (TaskContent answer : givenAnswers) {
-                        if (correctAnswers.contains(answer)) reachedPoints += pointPerAnswer;
-                        else reachedPoints -= pointPerAnswer;
+                        if (correctAnswers.contains(answer)) reachedPoints += pointsPerAnswer;
+                        else reachedPoints -= pointsPerAnswer;
                     }
                     return Math.max(0, reachedPoints);
                 };
@@ -84,11 +79,73 @@ public class GradingFunctions {
             ReplacementTask replacementTask = (ReplacementTask) task;
 
             List<Element> solution = replacementTask.solution();
-            float pointPerAnswer = replacementTask.points() / solution.size();
+            float pointsPerAnswer = replacementTask.points() / solution.size();
             float reachedPoints = 0f;
             for (TaskContent answer : answers)
-                if (solution.contains(answer)) reachedPoints += pointPerAnswer;
+                if (solution.contains(answer)) reachedPoints += pointsPerAnswer;
             return reachedPoints;
+        };
+    }
+
+    /**
+     * A simple grading function for the {@link AssignTask}.
+     *
+     * <p>For each correct answer, points will be added
+     *
+     * <p>The amount of points given per answer is calculated by the number of points the Task is
+     * worth divided by the count of correct answers.
+     *
+     * @return a BiFunction that can be used for {@link Task#scoringFunction(BiFunction)}
+     */
+    public static BiFunction<Task, Set<TaskContent>, Float> assignGradingEasy() {
+        return (task, containers) -> {
+            AssignTask assignTask = (AssignTask) task;
+            Map<Element, Set<Element>> solution = assignTask.solution();
+            float pointsPerAnswer = assignTask.points() / solution.values().size();
+            float reachedPoints = 0f;
+            // TODO Wie komm ich an die gegebene antort Map? Lösung: Signatur der BiFunction müsste
+            // für jeden aufgabentyp unterschiedlich sein dürfen
+            Map<Element, Set<Element>> givenAnswers = new HashMap<>();
+
+            for (Element container : givenAnswers.keySet()) {
+                Set<Element> correctSolSet = solution.get(container);
+                for (Element content : givenAnswers.get(container))
+                    if (correctSolSet.contains(content)) reachedPoints += pointsPerAnswer;
+            }
+            return reachedPoints;
+        };
+    }
+
+    /**
+     * A simple grading function for the {@link AssignTask}.
+     *
+     * <p>For each correct answer, points will be added; for each wrong answer, points will be
+     * removed.
+     *
+     * <p>The amount of points given/removed per answer is calculated by the number of points the
+     * Task is worth divided by the count of correct answers.
+     *
+     * <p>The return value cannot be lower than 0.
+     *
+     * @return a BiFunction that can be used for {@link Task#scoringFunction(BiFunction)}
+     */
+    public static BiFunction<Task, Set<TaskContent>, Float> assignGradingHard() {
+        return (task, containers) -> {
+            AssignTask assignTask = (AssignTask) task;
+            Map<Element, Set<Element>> solution = assignTask.solution();
+            float pointsPerAnswer = assignTask.points() / solution.values().size();
+            float reachedPoints = 0f;
+            // TODO Wie komm ich an die gegebene antort Map? Lösung: Signatur der BiFunction müsste
+            // für jeden aufgabentyp unterschiedlich sein dürfen
+            Map<Element, Set<Element>> givenAnswers = new HashMap<>();
+
+            for (Element container : givenAnswers.keySet()) {
+                Set<Element> correctSolSet = solution.get(container);
+                for (Element content : givenAnswers.get(container))
+                    if (correctSolSet.contains(content)) reachedPoints += pointsPerAnswer;
+                    else reachedPoints -= pointsPerAnswer;
+            }
+            return Math.max(0, reachedPoints);
         };
     }
 }
