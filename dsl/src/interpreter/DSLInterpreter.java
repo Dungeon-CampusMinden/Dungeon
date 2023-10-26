@@ -1102,6 +1102,54 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
         return true;
     }
+
+    @Override
+    public Object visit(WhileLoopStmtNode node) {
+        // TODO
+
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(CountingLoopStmtNode node) {
+        // TODO
+
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object visit(ForLoopStmtNode node) {
+        // TODO
+        // evaluate iterable expression
+        Value iterableValue = (Value)node.getIterableIdNode().accept(this);
+        IType iterableType = iterableValue.getDataType();
+
+        Iterator internalIterator;
+        if (iterableType.getTypeKind().equals(IType.Kind.ListType)) {
+            var listValue = (ListValue)iterableValue;
+            List internalList = (List)listValue.getInternalValue();
+            internalIterator = internalList.iterator();
+        } else if (iterableType.getTypeKind().equals(IType.Kind.SetType)) {
+            var setValue = (SetValue)iterableValue;
+            Set internalSet = (Set)setValue.getInternalValue();
+            internalIterator = internalSet.iterator();
+        } else {
+            throw new RuntimeException("Non iterable type '" + iterableType + "' used in for loop!");
+        }
+
+        // create new loop-variable in surrounding memoryspace
+        // TODO!
+
+        // add some kind of loop-bottom-marker node for checking
+        // and updating the loop condition and variable(s)
+        // -> should store the internal iterator
+
+        // add stmt node on top of execution stack
+
+
+        throw new UnsupportedOperationException();
+    }
+
     // endregion
 
     // region user defined function execution
