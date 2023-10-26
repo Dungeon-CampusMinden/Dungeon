@@ -997,4 +997,50 @@ public class TestSemanticAnalyzer {
         Assert.assertNotEquals(Symbol.NULL, t2Symbol);
         Assert.assertEquals(t2TaskSymbol, t2Symbol);
     }
+
+    @Test
+    public void testLoopVariableBinding() {
+        String program =
+            """
+        fn test() {
+            var my_list : int[];
+            for int entry in my_list {
+                print(entry);
+            }
+        }
+
+        """;
+
+        // setup
+        var ast = Helpers.getASTFromString(program);
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+
+        var env = new GameEnvironment();
+        symbolTableParser.setup(env);
+        var symbolTable = symbolTableParser.walk(ast).symbolTable;
+
+        // get variable declaration
+        FunctionSymbol funcSymbol =
+            (FunctionSymbol) symbolTable.globalScope.resolve("test");
+        FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
+        VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
+        Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
+
+        // get iterableIdNode and check, that it references the variable symbol
+        ForLoopStmtNode loopNode = (ForLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
+        Node iterableIdNode = loopNode.getIterableIdNode();
+        Symbol iterableIdNodeRefSymbol = symbolTable.getSymbolsForAstNode(iterableIdNode).get(0);
+        Assert.assertEquals(myListSymbol, iterableIdNodeRefSymbol);
+
+        // get the loop variable id node and the linked symbol
+        Node loopVariableIdNode = loopNode.getVarIdNode();
+        Symbol loopVariableSymbol = symbolTable.getSymbolsForAstNode(loopVariableIdNode).get(0);
+        Assert.assertNotEquals(Symbol.NULL, loopVariableSymbol);
+
+        // get the print call and check, that the parameter references the loop variable symbol
+        FuncCallNode printCallNode = (FuncCallNode)loopNode.getStmtNode().getChild(0).getChild(0);
+        IdNode parameterIdNode = (IdNode) printCallNode.getParameters().get(0);
+        Symbol parameterSymbol = symbolTable.getSymbolsForAstNode(parameterIdNode).get(0);
+        Assert.assertEquals(loopVariableSymbol, parameterSymbol);
+    }
 }

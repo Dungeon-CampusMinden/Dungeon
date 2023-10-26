@@ -288,5 +288,25 @@ public class VariableBinder implements AstVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visit(LoopStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(WhileLoopStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(CountingLoopStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Void visit(ForLoopStmtNode node) {
+        return null;
+    }
+
     // endregion
 }
