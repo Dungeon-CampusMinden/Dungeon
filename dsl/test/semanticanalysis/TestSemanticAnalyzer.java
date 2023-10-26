@@ -1101,4 +1101,39 @@ public class TestSemanticAnalyzer {
         Symbol secondPrintParameterSymbol = symbolTable.getSymbolsForAstNode(secondPrintParameterIdNode).get(0);
         Assert.assertEquals(counterVariableSymbol, secondPrintParameterSymbol);
     }
+
+    @Test
+    public void testWhileLoop() {
+        String program =
+            """
+        fn test() {
+            var my_list : int[];
+            while my_list {
+                print(my_list);
+            }
+        }
+
+        """;
+
+        // setup
+        var ast = Helpers.getASTFromString(program);
+        SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+
+        var env = new GameEnvironment();
+        symbolTableParser.setup(env);
+        var symbolTable = symbolTableParser.walk(ast).symbolTable;
+
+        // get variable declaration
+        FunctionSymbol funcSymbol =
+            (FunctionSymbol) symbolTable.globalScope.resolve("test");
+        FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
+        VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
+        Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
+
+        // get iterableIdNode and check, that it references the variable symbol
+        WhileLoopStmtNode loopNode = (WhileLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
+        Node expressionIdNode = loopNode.getExpressionNode();
+        Symbol expressionRefNode = symbolTable.getSymbolsForAstNode(expressionIdNode).get(0);
+        Assert.assertEquals(myListSymbol, expressionRefNode);
+    }
 }
