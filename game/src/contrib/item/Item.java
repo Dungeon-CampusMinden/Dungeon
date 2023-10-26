@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 public class Item implements CraftingIngredient, CraftingResult {
 
     protected static final Animation DEFAULT_ANIMATION =
-            new Animation("animation/missing_texture.png");
+            Animation.of("animation/missing_texture.png");
     private static final Logger LOGGER = Logger.getLogger(Item.class.getName());
 
     /**

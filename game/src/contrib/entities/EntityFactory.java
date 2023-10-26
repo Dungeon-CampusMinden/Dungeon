@@ -8,7 +8,10 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.GUICombination;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.item.Item;
 import contrib.utils.components.draw.ChestAnimations;
+import contrib.utils.components.health.Damage;
+import contrib.utils.components.health.DamageType;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.item.ItemDataGenerator;
@@ -263,7 +266,7 @@ public class EntityFactory {
                 IntStream.range(0, RANDOM.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .collect(Collectors.toSet());
-        return newChest(itemData, null);
+        return newChest(items, null);
     }
 
     /**

@@ -102,8 +102,8 @@ public final class Animation {
     /**
      * Create an animation from the files in the given path and the given configuration.
      *
-     * <p>Will sort the the textures in lexicographic order. This is the order in which the
-     * animations will be shown.
+     * <p>Will sort the textures in lexicographic order. This is the order in which the animations
+     * will be shown.
      *
      * @param subDir Path to the subdirectory where the animation frames are stored
      * @param frameTime How many frames to wait, before switching to the next texture?
@@ -120,15 +120,16 @@ public final class Animation {
                         // will be played in order
                         .sorted()
                         .collect(Collectors.toList());
-
-        return new Animation(fileNames, frameTime, loop);
+        Animation animation = new Animation(fileNames, frameTime, prio);
+        animation.setLoop(loop);
+        return animation;
     }
 
     /**
      * Create an animation from the files in the given path and the default configuration.
      *
-     * <p>Will sort the the textures in lexicographic order. This is the order in which the
-     * animations will be shown.
+     * <p>Will sort the textures in lexicographic order. This is the order in which the animations
+     * will be shown.
      *
      * @param subDir Path to the subdirectory where the animation frames are stored
      * @return The created Animation instance
