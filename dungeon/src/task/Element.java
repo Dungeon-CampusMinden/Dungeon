@@ -28,4 +28,9 @@ public class Element<T> extends TaskContent {
     public T content() {
         return content;
     }
+
+    @Override
+    public String toString() {
+        return content.toString();
+    }
 }

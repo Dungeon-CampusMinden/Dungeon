@@ -47,58 +47,53 @@ public class GradingFunctionsTest {
     public void singlechoice_correctAnswer() {
         SingleChoice sc = setupSingleChoiceTask();
         float points = 5f;
-        sc.points(points);
-        assertEquals(points, sc.executeScoringFunction(Set.of(sc.contentByIndex(1))), 0.00001f);
+        sc.points(points, points);
+        assertEquals(points, sc.gradeTask(Set.of(sc.contentByIndex(1))), 0.00001f);
     }
 
     @Test
     public void singlechoice_wrongAnswer() {
         SingleChoice sc = setupSingleChoiceTask();
         float points = 5f;
-        sc.points(points);
-        assertEquals(0, sc.executeScoringFunction(Set.of(sc.contentByIndex(0))), 0.00001f);
+        sc.points(points, points);
+        assertEquals(0, sc.gradeTask(Set.of(sc.contentByIndex(0))), 0.00001f);
     }
 
     @Test
     public void multipechoice_correctAnswer() {
         MultipleChoice mc = setupMultipleChoiceTask();
         float points = 4f;
-        mc.points(points);
+        mc.points(points, points);
         assertEquals(
-                points,
-                mc.executeScoringFunction(Set.of(mc.contentByIndex(0), mc.contentByIndex(1))),
-                0.00001f);
+                points, mc.gradeTask(Set.of(mc.contentByIndex(0), mc.contentByIndex(1))), 0.00001f);
     }
 
     @Test
     public void multipechoice_wrongAnswer() {
         MultipleChoice mc = setupMultipleChoiceTask();
         float points = 4f;
-        mc.points(points);
-        assertEquals(
-                0,
-                mc.executeScoringFunction(Set.of(mc.contentByIndex(2), mc.contentByIndex(3))),
-                0.00001f);
+        mc.points(points, points);
+        assertEquals(0, mc.gradeTask(Set.of(mc.contentByIndex(2), mc.contentByIndex(3))), 0.00001f);
     }
 
     @Test
     public void multipechoice_someRightSomeWrongAnswer() {
         MultipleChoice mc = setupMultipleChoiceTask();
         float points = 4f;
-        mc.points(points);
+        mc.points(points, points);
         assertEquals(
                 2,
-                mc.executeScoringFunction(
+                mc.gradeTask(
                         Set.of(mc.contentByIndex(0), mc.contentByIndex(1), mc.contentByIndex(2))),
                 0.00001f);
     }
 
     @Test
-    public void multipechoice_oneRightAnswer() {
+    public void multiplechoice_oneRightAnswer() {
         MultipleChoice mc = setupMultipleChoiceTask();
         float points = 4f;
-        mc.points(points);
-        assertEquals(2, mc.executeScoringFunction(Set.of(mc.contentByIndex(0))), 0.00001f);
+        mc.points(points, points);
+        assertEquals(2, mc.gradeTask(Set.of(mc.contentByIndex(0))), 0.00001f);
     }
 
     @Test
@@ -110,8 +105,8 @@ public class GradingFunctionsTest {
         rt.addSolution(a);
         rt.addSolution(b);
         float points = 4f;
-        rt.points(points);
-        assertEquals(points, rt.executeScoringFunction(Set.of(a, b)), 0.00001f);
+        rt.points(points, points);
+        assertEquals(points, rt.gradeTask(Set.of(a, b)), 0.00001f);
     }
 
     @Test
@@ -123,7 +118,34 @@ public class GradingFunctionsTest {
         rt.addSolution(a);
         rt.addSolution(b);
         float points = 4f;
-        rt.points(points);
-        assertEquals(2, rt.executeScoringFunction(Set.of(a)), 0.00001f);
+        rt.points(points, points);
+        assertEquals(2, rt.gradeTask(Set.of(a)), 0.00001f);
+    }
+
+    @Test
+    public void changeState_correct() {
+        SingleChoice sc = setupSingleChoiceTask();
+        sc.points(1, 1);
+        sc.scoringFunction(GradingFunctions.singleChoiceGrading());
+        sc.gradeTask(Set.of(sc.contentByIndex(1)));
+        assertEquals(Task.TaskState.FINISHED_CORRECT, sc.state());
+    }
+
+    @Test
+    public void changeState_wrong() {
+        SingleChoice sc = setupSingleChoiceTask();
+        sc.points(1, 1);
+        sc.scoringFunction(GradingFunctions.singleChoiceGrading());
+        sc.gradeTask(Set.of(sc.contentByIndex(0)));
+        assertEquals(Task.TaskState.FINISHED_WRONG, sc.state());
+    }
+
+    @Test
+    public void changeState_notEnoughCorrect() {
+        MultipleChoice mc = setupMultipleChoiceTask();
+        float points = 4f;
+        mc.points(points, points);
+        mc.gradeTask(Set.of(mc.contentByIndex(0)));
+        assertEquals(Task.TaskState.FINISHED_WRONG, mc.state());
     }
 }
