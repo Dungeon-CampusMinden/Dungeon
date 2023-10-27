@@ -1110,10 +1110,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public Object visit(CountingLoopStmtNode node) {
+    protected void setupForLoopExecution(LoopStmtNode node) {
+        assert node.loopType().equals(LoopStmtNode.LoopType.forLoop) || node.loopType().equals(LoopStmtNode.LoopType.countingForLoop);
+
+        ForLoopStmtNode forLoopStmtNode = (ForLoopStmtNode) node;
+
         // evaluate iterable expression
-        Value iterableValue = (Value)node.getIterableIdNode().accept(this);
+        Value iterableValue = (Value)forLoopStmtNode.getIterableIdNode().accept(this);
         IType iterableType = iterableValue.getDataType();
 
         Iterator<Value> internalIterator;
@@ -1134,55 +1137,34 @@ public class DSLInterpreter implements AstVisitor<Object> {
         this.memoryStack.push(loopMemorySpace);
 
         // get the symbol for the loop variable
-        Node variableIdNode = node.getVarIdNode();
+        Node variableIdNode = forLoopStmtNode.getVarIdNode();
         Symbol variableSymbol = this.symbolTable().getSymbolsForAstNode(variableIdNode).get(0);
 
-        // get the symbol for the counter variable
-        Node counterIdNode = node.getCounterIdNode();
-        Symbol counterVariableSymbol = this.symbolTable().getSymbolsForAstNode(counterIdNode).get(0);
-        Value counterValue = bindFromSymbol(counterVariableSymbol, loopMemorySpace);
-        counterValue.setInternalValue(-1);
+        Symbol counterVariableSymbol = Symbol.NULL;
+        if (node.loopType().equals(LoopStmtNode.LoopType.countingForLoop)) {
+            // get the symbol for the counter variable
+            Node counterIdNode = ((CountingLoopStmtNode)node).getCounterIdNode();
+            counterVariableSymbol = this.symbolTable().getSymbolsForAstNode(counterIdNode).get(0);
+            Value counterValue = bindFromSymbol(counterVariableSymbol, loopMemorySpace);
+            counterValue.setInternalValue(-1);
+        }
 
         // add loop-bottom-mark node for checking
         // and updating the loop condition and variable(s)
         LoopBottomMark loopBottomMark = new LoopBottomMark(node, internalIterator, variableSymbol, counterVariableSymbol);
         this.statementStack.push(loopBottomMark);
-
-        return null;
     }
 
     @Override
+    public Object visit(CountingLoopStmtNode node) {
+        setupForLoopExecution(node);
+        return null;
+    }
+
+
+    @Override
     public Object visit(ForLoopStmtNode node) {
-        // evaluate iterable expression
-        Value iterableValue = (Value)node.getIterableIdNode().accept(this);
-        IType iterableType = iterableValue.getDataType();
-
-        Iterator<Value> internalIterator;
-        if (iterableType.getTypeKind().equals(IType.Kind.ListType)) {
-            var listValue = (ListValue)iterableValue;
-            List<Value> internalList = listValue.internalList();
-            internalIterator = internalList.iterator();
-        } else if (iterableType.getTypeKind().equals(IType.Kind.SetType)) {
-            var setValue = (SetValue)iterableValue;
-            Set<Value> internalSet = setValue.internalSet();
-            internalIterator = internalSet.iterator();
-        } else {
-            throw new RuntimeException("Non iterable type '" + iterableType + "' used in for loop!");
-        }
-
-        // create new loop-variable in surrounding (or loops?) memoryspace
-        MemorySpace loopMemorySpace = new MemorySpace(this.getCurrentMemorySpace());
-        this.memoryStack.push(loopMemorySpace);
-
-        // get the symbol for the loop variable
-        Node variableIdNode = node.getVarIdNode();
-        Symbol variableSymbol = this.symbolTable().getSymbolsForAstNode(variableIdNode).get(0);
-
-        // add loop-bottom-mark node for checking
-        // and updating the loop condition and variable(s)
-        LoopBottomMark loopBottomMark = new LoopBottomMark(node, internalIterator, variableSymbol, Symbol.NULL);
-        this.statementStack.push(loopBottomMark);
-
+        setupForLoopExecution(node);
         return null;
     }
 
