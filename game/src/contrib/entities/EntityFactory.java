@@ -44,7 +44,7 @@ public class EntityFactory {
     private static final String HERO_FILE_PATH = "character/knight";
     private static final float X_SPEED_HERO = 7.5f;
     private static final float Y_SPEED_HERO = 7.5f;
-    private static final int FIREBALL_COOL_DOWN = 1;
+    private static final int FIREBALL_COOL_DOWN = 500;
     private static final String[] MONSTER_FILE_PATHS = {
         "character/monster/chort",
         "character/monster/imp",

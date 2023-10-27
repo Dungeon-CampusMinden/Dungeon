@@ -17,13 +17,13 @@ public class SkillTest {
     private static int value = 0;
     private Entity entity;
     private Skill skill;
-    private final int baseCoolDownInSeconds = 2;
+    private final int baseCoolDownInMilliSeconds = 2000;
     private Consumer<Entity> skillFunction = entity -> value++;
 
     @Before
     public void setup() {
         entity = new Entity();
-        skill = new Skill(skillFunction, baseCoolDownInSeconds);
+        skill = new Skill(skillFunction, baseCoolDownInMilliSeconds);
     }
 
     @After
