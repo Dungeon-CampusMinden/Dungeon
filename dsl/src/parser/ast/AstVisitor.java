@@ -456,6 +456,16 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for LoopBottomMarks
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(LoopBottomMark node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Visitor method for VarDeclNodes
      *
      * @param node Node to visit
