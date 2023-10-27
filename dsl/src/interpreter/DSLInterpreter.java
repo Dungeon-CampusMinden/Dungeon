@@ -1105,9 +1105,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(WhileLoopStmtNode node) {
-        // TODO
+        MemorySpace loopsMemorySpace = new MemorySpace(this.getCurrentMemorySpace());
+        this.memoryStack.push(loopsMemorySpace);
 
-        throw new UnsupportedOperationException();
+        // add loop-bottom-mark node for checking
+        // and updating the loop condition and variable(s)
+        LoopBottomMark loopBottomMark = new LoopBottomMark(node);
+        this.statementStack.push(loopBottomMark);
+
+        return null;
     }
 
     protected void setupForLoopExecution(LoopStmtNode node) {
@@ -1207,14 +1213,23 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // clean up the memoryspace
         IMemorySpace loopsMemorySpace = this.memoryStack.pop();
         switch (loopNode.loopType()) {
-            case whileLoop:
-                break;
-            case forLoop:
-            case countingForLoop:
-                updateForLoopState(loopsMemorySpace, node);
-                break;
-            default:
-                break;
+            case whileLoop -> {
+                WhileLoopStmtNode whileLoopStmtNode = (WhileLoopStmtNode) loopNode;
+
+                // evaluate condition
+                Value conditionValue = (Value) whileLoopStmtNode.getExpressionNode().accept(this);
+                if (isBooleanTrue(conditionValue)) {
+                    // setup memory space for next iteration
+                    MemorySpace newIterationMemorySpace = new MemorySpace(this.getCurrentMemorySpace());
+                    this.memoryStack.push(newIterationMemorySpace);
+
+                    // prepare execution of next iteration
+                    this.statementStack.push(node);
+                    this.statementStack.push(loopNode.getStmtNode());
+                }
+            }
+            case forLoop, countingForLoop -> updateForLoopState(loopsMemorySpace, node);
+            default -> { }
         }
 
         return null;
