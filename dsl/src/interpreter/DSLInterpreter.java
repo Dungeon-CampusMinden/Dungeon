@@ -1112,45 +1112,128 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(CountingLoopStmtNode node) {
-        // TODO
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object visit(ForLoopStmtNode node) {
-        // TODO
         // evaluate iterable expression
         Value iterableValue = (Value)node.getIterableIdNode().accept(this);
         IType iterableType = iterableValue.getDataType();
 
-        Iterator internalIterator;
+        Iterator<Value> internalIterator;
         if (iterableType.getTypeKind().equals(IType.Kind.ListType)) {
             var listValue = (ListValue)iterableValue;
-            List internalList = (List)listValue.getInternalValue();
+            List<Value> internalList = listValue.internalList();
             internalIterator = internalList.iterator();
         } else if (iterableType.getTypeKind().equals(IType.Kind.SetType)) {
             var setValue = (SetValue)iterableValue;
-            Set internalSet = (Set)setValue.getInternalValue();
+            Set<Value> internalSet = setValue.internalSet();
             internalIterator = internalSet.iterator();
         } else {
             throw new RuntimeException("Non iterable type '" + iterableType + "' used in for loop!");
         }
 
-        // create new loop-variable in surrounding memoryspace
-        // TODO!
+        // create new loop-variable in surrounding (or loops?) memoryspace
+        MemorySpace loopMemorySpace = new MemorySpace(this.getCurrentMemorySpace());
+        this.memoryStack.push(loopMemorySpace);
 
-        // add some kind of loop-bottom-marker node for checking
+        // get the symbol for the loop variable
+        Node variableIdNode = node.getVarIdNode();
+        Symbol variableSymbol = this.symbolTable().getSymbolsForAstNode(variableIdNode).get(0);
+
+        // get the symbol for the counter variable
+        Node counterIdNode = node.getCounterIdNode();
+        Symbol counterVariableSymbol = this.symbolTable().getSymbolsForAstNode(counterIdNode).get(0);
+        Value counterValue = bindFromSymbol(counterVariableSymbol, loopMemorySpace);
+        counterValue.setInternalValue(-1);
+
+        // add loop-bottom-mark node for checking
         // and updating the loop condition and variable(s)
-        // -> should store the internal iterator
+        LoopBottomMark loopBottomMark = new LoopBottomMark(node, internalIterator, variableSymbol, counterVariableSymbol);
+        this.statementStack.push(loopBottomMark);
 
-        // add stmt node on top of execution stack
-
-
-        throw new UnsupportedOperationException();
+        return null;
     }
 
-    // endregion
+    @Override
+    public Object visit(ForLoopStmtNode node) {
+        // evaluate iterable expression
+        Value iterableValue = (Value)node.getIterableIdNode().accept(this);
+        IType iterableType = iterableValue.getDataType();
+
+        Iterator<Value> internalIterator;
+        if (iterableType.getTypeKind().equals(IType.Kind.ListType)) {
+            var listValue = (ListValue)iterableValue;
+            List<Value> internalList = listValue.internalList();
+            internalIterator = internalList.iterator();
+        } else if (iterableType.getTypeKind().equals(IType.Kind.SetType)) {
+            var setValue = (SetValue)iterableValue;
+            Set<Value> internalSet = setValue.internalSet();
+            internalIterator = internalSet.iterator();
+        } else {
+            throw new RuntimeException("Non iterable type '" + iterableType + "' used in for loop!");
+        }
+
+        // create new loop-variable in surrounding (or loops?) memoryspace
+        MemorySpace loopMemorySpace = new MemorySpace(this.getCurrentMemorySpace());
+        this.memoryStack.push(loopMemorySpace);
+
+        // get the symbol for the loop variable
+        Node variableIdNode = node.getVarIdNode();
+        Symbol variableSymbol = this.symbolTable().getSymbolsForAstNode(variableIdNode).get(0);
+
+        // add loop-bottom-mark node for checking
+        // and updating the loop condition and variable(s)
+        LoopBottomMark loopBottomMark = new LoopBottomMark(node, internalIterator, variableSymbol, Symbol.NULL);
+        this.statementStack.push(loopBottomMark);
+
+        return null;
+    }
+
+    @Override
+    public Object visit(LoopBottomMark node) {
+        LoopStmtNode loopNode = node.getLoopStmtNode();
+
+        // clean up the memoryspace
+        IMemorySpace loopsMemorySpace = this.memoryStack.pop();
+
+        Iterator<Value> loopIterator = node.getInternalIterator();
+        switch (loopNode.loopType()) {
+            case whileLoop:
+                break;
+            case forLoop:
+                if (loopIterator.hasNext()) {
+                    MemorySpace newLoopMemorySpace = new MemorySpace(this.getCurrentMemorySpace());
+                    Value nextIterationValue = loopIterator.next();
+                    Value valueInMemorySpace = bindFromSymbol(node.getLoopVariableSymbol(), newLoopMemorySpace);
+                    setValue(valueInMemorySpace, nextIterationValue);
+                    this.memoryStack.push(newLoopMemorySpace);
+                    this.statementStack.push(node);
+                    this.statementStack.push(loopNode.getStmtNode());
+                }
+                break;
+            case countingForLoop:
+                if (loopIterator.hasNext()) {
+                    MemorySpace newLoopMemorySpace = new MemorySpace(this.getCurrentMemorySpace());
+                    Value nextIterationValue = loopIterator.next();
+                    Value valueInMemorySpace = bindFromSymbol(node.getLoopVariableSymbol(), newLoopMemorySpace);
+                    setValue(valueInMemorySpace, nextIterationValue);
+
+                    // update counter variable
+                    Symbol counterSymbol = node.getCounterVariableSymbol();
+                    Value counterValue = loopsMemorySpace.resolve(counterSymbol.getName());
+                    counterValue.setInternalValue((Integer)counterValue.getInternalValue() + 1);
+                    newLoopMemorySpace.bindValue(counterSymbol.getName(), counterValue);
+
+                    this.memoryStack.push(newLoopMemorySpace);
+                    this.statementStack.push(node);
+                    this.statementStack.push(loopNode.getStmtNode());
+                }
+                break;
+            default:
+                break;
+        }
+
+        return null;
+    }
+
+// endregion
 
     // region user defined function execution
 
