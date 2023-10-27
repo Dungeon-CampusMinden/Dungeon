@@ -97,7 +97,10 @@ public class AIFactory {
                             new FireballSkill(SkillTools::heroPositionAsPoint),
                             FIREBALL_COOL_DOWN));
             default -> new MeleeAI(
-                    1f, new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), 1));
+                    1f,
+                    new Skill(
+                            new FireballSkill(SkillTools::heroPositionAsPoint),
+                            FIREBALL_COOL_DOWN));
         };
     }
 
