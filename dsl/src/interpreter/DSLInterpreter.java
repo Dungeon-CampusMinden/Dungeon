@@ -1111,7 +1111,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     protected void setupForLoopExecution(LoopStmtNode node) {
-        assert node.loopType().equals(LoopStmtNode.LoopType.forLoop) || node.loopType().equals(LoopStmtNode.LoopType.countingForLoop);
+        var loopType = node.loopType();
+        assert loopType.equals(LoopStmtNode.LoopType.forLoop) || loopType.equals(LoopStmtNode.LoopType.countingForLoop);
 
         ForLoopStmtNode forLoopStmtNode = (ForLoopStmtNode) node;
 
@@ -1145,6 +1146,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             // get the symbol for the counter variable
             Node counterIdNode = ((CountingLoopStmtNode)node).getCounterIdNode();
             counterVariableSymbol = this.symbolTable().getSymbolsForAstNode(counterIdNode).get(0);
+            // initialize counter variable
             Value counterValue = bindFromSymbol(counterVariableSymbol, loopMemorySpace);
             counterValue.setInternalValue(-1);
         }
@@ -1168,45 +1170,48 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return null;
     }
 
+    protected void updateForLoopState(IMemorySpace previosIterationsLoopMemorySpace, LoopBottomMark node) {
+        LoopStmtNode loopNode = node.getLoopStmtNode();
+        var loopType = loopNode.loopType();
+        assert loopType.equals(LoopStmtNode.LoopType.forLoop) || loopType.equals(LoopStmtNode.LoopType.countingForLoop);
+
+        Iterator<Value> loopIterator = node.getInternalIterator();
+        if (loopIterator.hasNext()) {
+            // create loops-memory space for next iteration
+            MemorySpace newLoopMemorySpace = new MemorySpace(this.getCurrentMemorySpace());
+
+            // update loop variable
+            Value nextIterationValue = loopIterator.next();
+            Value valueInMemorySpace = bindFromSymbol(node.getLoopVariableSymbol(), newLoopMemorySpace);
+            setValue(valueInMemorySpace, nextIterationValue);
+
+            if (loopType.equals(LoopStmtNode.LoopType.countingForLoop)) {
+                // update counter variable
+                Symbol counterSymbol = node.getCounterVariableSymbol();
+                Value counterValue = previosIterationsLoopMemorySpace.resolve(counterSymbol.getName());
+                counterValue.setInternalValue((Integer)counterValue.getInternalValue() + 1);
+                newLoopMemorySpace.bindValue(counterSymbol.getName(), counterValue);
+            }
+
+            // prepare next iteration
+            this.memoryStack.push(newLoopMemorySpace);
+            this.statementStack.push(node);
+            this.statementStack.push(loopNode.getStmtNode());
+        }
+    }
+
     @Override
     public Object visit(LoopBottomMark node) {
         LoopStmtNode loopNode = node.getLoopStmtNode();
 
         // clean up the memoryspace
         IMemorySpace loopsMemorySpace = this.memoryStack.pop();
-
-        Iterator<Value> loopIterator = node.getInternalIterator();
         switch (loopNode.loopType()) {
             case whileLoop:
                 break;
             case forLoop:
-                if (loopIterator.hasNext()) {
-                    MemorySpace newLoopMemorySpace = new MemorySpace(this.getCurrentMemorySpace());
-                    Value nextIterationValue = loopIterator.next();
-                    Value valueInMemorySpace = bindFromSymbol(node.getLoopVariableSymbol(), newLoopMemorySpace);
-                    setValue(valueInMemorySpace, nextIterationValue);
-                    this.memoryStack.push(newLoopMemorySpace);
-                    this.statementStack.push(node);
-                    this.statementStack.push(loopNode.getStmtNode());
-                }
-                break;
             case countingForLoop:
-                if (loopIterator.hasNext()) {
-                    MemorySpace newLoopMemorySpace = new MemorySpace(this.getCurrentMemorySpace());
-                    Value nextIterationValue = loopIterator.next();
-                    Value valueInMemorySpace = bindFromSymbol(node.getLoopVariableSymbol(), newLoopMemorySpace);
-                    setValue(valueInMemorySpace, nextIterationValue);
-
-                    // update counter variable
-                    Symbol counterSymbol = node.getCounterVariableSymbol();
-                    Value counterValue = loopsMemorySpace.resolve(counterSymbol.getName());
-                    counterValue.setInternalValue((Integer)counterValue.getInternalValue() + 1);
-                    newLoopMemorySpace.bindValue(counterSymbol.getName(), counterValue);
-
-                    this.memoryStack.push(newLoopMemorySpace);
-                    this.statementStack.push(node);
-                    this.statementStack.push(loopNode.getStmtNode());
-                }
+                updateForLoopState(loopsMemorySpace, node);
                 break;
             default:
                 break;
