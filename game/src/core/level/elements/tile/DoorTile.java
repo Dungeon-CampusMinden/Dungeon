@@ -20,6 +20,8 @@ public class DoorTile extends Tile {
     private DoorTile otherDoor;
     private Tile doorstep;
 
+    private final String closedTexturePath;
+
     private boolean open;
 
     /**
@@ -35,6 +37,8 @@ public class DoorTile extends Tile {
     public DoorTile(
             String texturePath, Coordinate globalPosition, DesignLabel designLabel, ILevel level) {
         super(texturePath, globalPosition, designLabel, level);
+        String[] splittedPath = texturePath.split("\\.");
+        closedTexturePath = splittedPath[0] + "_closed." + splittedPath[1];
         levelElement = LevelElement.DOOR;
         open = true;
     }
@@ -133,5 +137,11 @@ public class DoorTile extends Tile {
      */
     public boolean isOpen() {
         return open;
+    }
+
+    @Override
+    public String texturePath() {
+        if (open) return texturePath;
+        else return closedTexturePath;
     }
 }
