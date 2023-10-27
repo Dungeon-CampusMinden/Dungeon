@@ -81,7 +81,7 @@ public class TileFactoryTest {
     public void createDOORTile() {
         Tile t =
                 TileFactory.createTile(
-                        "", new Coordinate(0, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
+                        ".png", new Coordinate(0, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
         assertEquals(DoorTile.class, t.getClass());
         assertEquals(0, t.coordinate().x);
         assertEquals(0, t.coordinate().y);
