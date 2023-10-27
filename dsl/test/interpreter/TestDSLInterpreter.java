@@ -3321,4 +3321,82 @@ public class TestDSLInterpreter {
                 + System.lineSeparator(),
             output);
     }
+
+    @Test
+    public void testWhileLoop() {
+        String program =
+            """
+            entity_type my_type {
+                test_component1 {},
+                test_component_with_callback {
+                    consumer: func
+                }
+            }
+
+            fn func(entity ent) {
+                var my_list : int[];
+                my_list.add(1);
+                my_list.add(2);
+                my_list.add(3);
+                my_list.add(0);
+
+                var list_entry : int;
+                list_entry = my_list.get(0);
+
+                // as arithmetic operations are not supported at the time this test is written,
+                // we need some way of updating the condition of the loop;
+                // the `my_list` is setup in a way, that the entries used as the index will
+                // return the next list-entry, until the entry with value `0` is returned,
+                // which will be interpreted as boolean false in the condition of the loop
+                while list_entry {
+                    print(list_entry);
+                    list_entry = my_list.get(list_entry);
+                }
+            }
+
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        TestEnvironment env = new TestEnvironment();
+        DSLInterpreter interpreter = new DSLInterpreter();
+        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(
+                env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+        env.getTypeBuilder()
+            .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
+
+        var config =
+            (CustomQuestConfig)
+                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+        var entity = config.entity();
+
+        TestComponentEntityConsumerCallback componentWithConsumer =
+            (TestComponentEntityConsumerCallback)
+                entity.components.stream()
+                    .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                    .toList()
+                    .get(0);
+
+        componentWithConsumer.consumer.accept(entity);
+
+        String output = outputStream.toString();
+        boolean b = true;
+        assertEquals(
+            "1"
+                + System.lineSeparator()
+                + "2"
+                + System.lineSeparator()
+                + "3"
+                + System.lineSeparator(),
+            output);
+    }
 }
