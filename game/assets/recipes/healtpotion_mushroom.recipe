@@ -1,0 +1,28 @@
+{
+    "ordered": false,
+    "ingredients": [
+        {
+            "type": "item",
+            "item": {
+                "id": "ItemResourceMushroomRed",
+                "count": 1
+            }
+        },
+        {
+            "type": "item",
+            "item": {
+                "id": "ItemPotionWater",
+                "count": 1
+            }
+        }
+    ],
+    "results": [
+        {
+            "type": "item",
+            "item": {
+                "id": "ItemPotionHealth",
+                "count": 1
+            }
+        }
+    ]
+}

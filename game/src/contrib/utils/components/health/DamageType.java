@@ -4,5 +4,7 @@ package contrib.utils.components.health;
 public enum DamageType {
     PHYSICAL,
     MAGIC,
-    FIRE
+    FIRE,
+    HEAL,
+    POISON,
 }

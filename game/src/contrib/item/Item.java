@@ -348,7 +348,6 @@ public class Item implements CraftingIngredient, CraftingResult {
      */
     public void use(Entity user) {
         user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
-        System.out.printf("Item \"%s\" used by entity %d\n", this.displayName, user.id());
     }
 
     @Override
