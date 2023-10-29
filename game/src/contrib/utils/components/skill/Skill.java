@@ -21,18 +21,18 @@ import java.util.function.Consumer;
 public class Skill {
 
     private Consumer<Entity> skillFunction;
-    private long coolDownInSeconds;
+    private long coolDownInMilliSeconds;
     private Instant lastUsed;
     private Instant nextUsableAt = Instant.now();
 
     /**
      * @param skillFunction functionality of the skill
-     * @param coolDownInSeconds the time that needs to pass between use of the skill and the next
-     *     possible use of the skill
+     * @param coolDownInMilliSeconds the time that needs to pass between use of the skill and the
+     *     next possible use of the skill
      */
-    public Skill(Consumer<Entity> skillFunction, long coolDownInSeconds) {
+    public Skill(Consumer<Entity> skillFunction, long coolDownInMilliSeconds) {
         this.skillFunction = skillFunction;
-        this.coolDownInSeconds = coolDownInSeconds;
+        this.coolDownInMilliSeconds = coolDownInMilliSeconds;
     }
 
     /**
@@ -65,6 +65,6 @@ public class Skill {
      * used again
      */
     private void activateCoolDown() {
-        nextUsableAt = lastUsed.plusSeconds(coolDownInSeconds);
+        nextUsableAt = lastUsed.plusMillis(coolDownInMilliSeconds);
     }
 }

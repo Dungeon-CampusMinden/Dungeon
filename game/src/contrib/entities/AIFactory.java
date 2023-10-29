@@ -41,6 +41,7 @@ public class AIFactory {
     // CollideAI
     private static final float RUSH_RANGE_LOW = 0.5f;
     private static final float RUSH_RANGE_HIGH = 2.0f;
+    private static final int FIREBALL_COOL_DOWN = 750;
 
     // RangeAI
     private static final float ATTACK_RANGE_LOW = 2.1f;
@@ -92,9 +93,14 @@ public class AIFactory {
             case 1 -> new RangeAI(
                     RANDOM.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
                     RANDOM.nextFloat(DISTANCE_LOW, DISTANCE_HIGH),
-                    new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), 1));
+                    new Skill(
+                            new FireballSkill(SkillTools::heroPositionAsPoint),
+                            FIREBALL_COOL_DOWN));
             default -> new MeleeAI(
-                    1f, new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), 1));
+                    1f,
+                    new Skill(
+                            new FireballSkill(SkillTools::heroPositionAsPoint),
+                            FIREBALL_COOL_DOWN));
         };
     }
 
