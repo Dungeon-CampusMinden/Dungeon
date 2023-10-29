@@ -28,8 +28,7 @@ public final class Constants {
         return Game.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
     }
 
-    /** 200% zoom. */
-    public static final float DEFAULT_ZOOM_FACTOR = 0.5f;
+    public static final float DEFAULT_ZOOM_FACTOR = 0.35f;
 
     /** Value for LevelElements that are accessible */
     public static final boolean LEVELELEMENT_IS_ACCESSIBLE = true;
