@@ -5,14 +5,13 @@ import static org.junit.Assert.assertEquals;
 import org.junit.After;
 import org.junit.Test;
 
-import task.Element;
-import task.Quiz;
-import task.ReplacementTask;
-import task.Task;
+import task.*;
 import task.quizquestion.MultipleChoice;
 import task.quizquestion.SingleChoice;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class GradingFunctionsTest {
@@ -57,6 +56,14 @@ public class GradingFunctionsTest {
         float points = 5f;
         sc.points(points, points);
         assertEquals(0, sc.gradeTask(Set.of(sc.contentByIndex(0))), 0.00001f);
+    }
+
+    @Test
+    public void singlechoice_multipleAnswers() {
+        SingleChoice sc = setupSingleChoiceTask();
+        float points = 5f;
+        sc.points(points, points);
+        assertEquals(0, sc.gradeTask(Set.of(sc.contentByIndex(0), sc.contentByIndex(1))), 0.00001f);
     }
 
     @Test
@@ -120,6 +127,200 @@ public class GradingFunctionsTest {
         float points = 4f;
         rt.points(points, points);
         assertEquals(2, rt.gradeTask(Set.of(a)), 0.00001f);
+    }
+
+    @Test
+    public void assign_correct_easy() {
+        AssignTask task = new AssignTask();
+        Element c = new Element(task, "container 1");
+        Element e1 = new Element(task, "e1");
+        Element e2 = new Element(task, "e2");
+        Element c2 = new Element(task, "container 2");
+        Element e3 = new Element(task, "e3");
+        Element e4 = new Element(task, "e4");
+        Map<Element, Set<Element>> sol = new HashMap<>();
+        sol.put(c, Set.of(e1, e2));
+        sol.put(c2, Set.of(e3, e4));
+
+        Map<Element, Set<Element>> solCopy = new HashMap<>(sol);
+        Element givenSol = new Element(task, solCopy);
+        task.solution(sol);
+        float points = 4f;
+        task.points(points, points);
+        task.scoringFunction(GradingFunctions.assignGradingEasy());
+        assertEquals(points, task.gradeTask(Set.of(givenSol)), 0.00001f);
+    }
+
+    @Test
+    public void assign_wrong_easy() {
+        AssignTask task = new AssignTask();
+        Element c = new Element(task, "container 1");
+        Element e1 = new Element(task, "e1");
+        Element e2 = new Element(task, "e2");
+        Element c2 = new Element(task, "container 2");
+        Element e3 = new Element(task, "e3");
+        Element e4 = new Element(task, "e4");
+        Map<Element, Set<Element>> sol = new HashMap<>();
+        sol.put(c, Set.of(e1, e2));
+        sol.put(c2, Set.of(e3, e4));
+
+        Map<Element, Set<Element>> wrongSol = new HashMap<>();
+        wrongSol.put(c, Set.of(e3, e4));
+        wrongSol.put(c2, Set.of(e1, e2));
+
+        Element givenSol = new Element(task, wrongSol);
+        task.solution(sol);
+        float points = 4f;
+        task.points(points, points);
+        task.scoringFunction(GradingFunctions.assignGradingEasy());
+        assertEquals(0, task.gradeTask(Set.of(givenSol)), 0.00001f);
+    }
+
+    @Test
+    public void assign_oneCorrectOneWrong_easy() {
+        AssignTask task = new AssignTask();
+        Element c = new Element(task, "container 1");
+        Element e1 = new Element(task, "e1");
+        Element e2 = new Element(task, "e2");
+        Element c2 = new Element(task, "container 2");
+        Element e3 = new Element(task, "e3");
+        Element e4 = new Element(task, "e4");
+        Map<Element, Set<Element>> sol = new HashMap<>();
+        sol.put(c, Set.of(e1, e2));
+        sol.put(c2, Set.of(e3, e4));
+
+        Map<Element, Set<Element>> wrongSol = new HashMap<>();
+        wrongSol.put(c, Set.of(e1, e2));
+        wrongSol.put(c2, Set.of(e1, e2));
+
+        Element givenSol = new Element(task, wrongSol);
+        task.solution(sol);
+        float points = 4f;
+        task.points(points, points);
+        task.scoringFunction(GradingFunctions.assignGradingEasy());
+        assertEquals(2, task.gradeTask(Set.of(givenSol)), 0.00001f);
+    }
+
+    @Test
+    public void assign_oneCorrectOneWrongPerContainer_easy() {
+        AssignTask task = new AssignTask();
+        Element c = new Element(task, "container 1");
+        Element e1 = new Element(task, "e1");
+        Element e2 = new Element(task, "e2");
+        Element c2 = new Element(task, "container 2");
+        Element e3 = new Element(task, "e3");
+        Element e4 = new Element(task, "e4");
+        Map<Element, Set<Element>> sol = new HashMap<>();
+        sol.put(c, Set.of(e1, e2));
+        sol.put(c2, Set.of(e3, e4));
+
+        Map<Element, Set<Element>> wrongSol = new HashMap<>();
+        wrongSol.put(c, Set.of(e1, e3));
+        wrongSol.put(c2, Set.of(e4, e2));
+
+        Element givenSol = new Element(task, wrongSol);
+        task.solution(sol);
+        float points = 4f;
+        task.points(points, points);
+        task.scoringFunction(GradingFunctions.assignGradingEasy());
+        assertEquals(2, task.gradeTask(Set.of(givenSol)), 0.00001f);
+    }
+
+    @Test
+    public void assign_correct_hard() {
+        AssignTask task = new AssignTask();
+        Element c = new Element(task, "container 1");
+        Element e1 = new Element(task, "e1");
+        Element e2 = new Element(task, "e2");
+        Element c2 = new Element(task, "container 2");
+        Element e3 = new Element(task, "e3");
+        Element e4 = new Element(task, "e4");
+        Map<Element, Set<Element>> sol = new HashMap<>();
+        sol.put(c, Set.of(e1, e2));
+        sol.put(c2, Set.of(e3, e4));
+
+        Map<Element, Set<Element>> solCopy = new HashMap<>(sol);
+        Element givenSol = new Element(task, solCopy);
+        task.solution(sol);
+        float points = 4f;
+        task.points(points, points);
+        task.scoringFunction(GradingFunctions.assignGradingHard());
+        assertEquals(points, task.gradeTask(Set.of(givenSol)), 0.00001f);
+    }
+
+    @Test
+    public void assign_wrong_hard() {
+        AssignTask task = new AssignTask();
+        Element c = new Element(task, "container 1");
+        Element e1 = new Element(task, "e1");
+        Element e2 = new Element(task, "e2");
+        Element c2 = new Element(task, "container 2");
+        Element e3 = new Element(task, "e3");
+        Element e4 = new Element(task, "e4");
+        Map<Element, Set<Element>> sol = new HashMap<>();
+        sol.put(c, Set.of(e1, e2));
+        sol.put(c2, Set.of(e3, e4));
+
+        Map<Element, Set<Element>> wrongSol = new HashMap<>();
+        wrongSol.put(c, Set.of(e3, e4));
+        wrongSol.put(c2, Set.of(e1, e2));
+
+        Element givenSol = new Element(task, wrongSol);
+        task.solution(sol);
+        float points = 4f;
+        task.points(points, points);
+        task.scoringFunction(GradingFunctions.assignGradingHard());
+        assertEquals(0, task.gradeTask(Set.of(givenSol)), 0.00001f);
+    }
+
+    @Test
+    public void assign_oneCorrectOneWrong_hard() {
+        AssignTask task = new AssignTask();
+        Element c = new Element(task, "container 1");
+        Element e1 = new Element(task, "e1");
+        Element e2 = new Element(task, "e2");
+        Element c2 = new Element(task, "container 2");
+        Element e3 = new Element(task, "e3");
+        Element e4 = new Element(task, "e4");
+        Map<Element, Set<Element>> sol = new HashMap<>();
+        sol.put(c, Set.of(e1, e2));
+        sol.put(c2, Set.of(e3, e4));
+
+        Map<Element, Set<Element>> wrongSol = new HashMap<>();
+        wrongSol.put(c, Set.of(e1, e2));
+        wrongSol.put(c2, Set.of(e1, e2));
+
+        Element givenSol = new Element(task, wrongSol);
+        task.solution(sol);
+        float points = 4f;
+        task.points(points, points);
+        task.scoringFunction(GradingFunctions.assignGradingHard());
+        assertEquals(0, task.gradeTask(Set.of(givenSol)), 0.00001f);
+    }
+
+    @Test
+    public void assign_oneCorrectOneWrongPerContainer_hard() {
+        AssignTask task = new AssignTask();
+        Element c = new Element(task, "container 1");
+        Element e1 = new Element(task, "e1");
+        Element e2 = new Element(task, "e2");
+        Element c2 = new Element(task, "container 2");
+        Element e3 = new Element(task, "e3");
+        Element e4 = new Element(task, "e4");
+        Map<Element, Set<Element>> sol = new HashMap<>();
+        sol.put(c, Set.of(e1, e2));
+        sol.put(c2, Set.of(e3, e4));
+
+        Map<Element, Set<Element>> wrongSol = new HashMap<>();
+        wrongSol.put(c, Set.of(e1, e3));
+        wrongSol.put(c2, Set.of(e4, e2));
+
+        Element givenSol = new Element(task, wrongSol);
+        task.solution(sol);
+        float points = 4f;
+        task.points(points, points);
+        task.scoringFunction(GradingFunctions.assignGradingHard());
+        assertEquals(0, task.gradeTask(Set.of(givenSol)), 0.00001f);
     }
 
     @Test

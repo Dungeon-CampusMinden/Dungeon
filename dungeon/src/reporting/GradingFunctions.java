@@ -20,6 +20,7 @@ public class GradingFunctions {
      */
     public static BiFunction<Task, Set<TaskContent>, Float> singleChoiceGrading() {
         return (task, answer) -> {
+            if (answer.size() != 1) return 0f;
             SingleChoice singleChoice = (SingleChoice) task;
             int index = singleChoice.correctAnswerIndices().get(0);
             TaskContent correctAnswer = singleChoice.contentByIndex(index);
@@ -46,22 +47,21 @@ public class GradingFunctions {
      * @return a BiFunction that can be used for {@link Task#scoringFunction(BiFunction)}
      */
     public static BiFunction<Task, Set<TaskContent>, Float> multipeChoiceGrading() {
-        return (BiFunction<Task, Set<TaskContent>, Float>)
-                (task, givenAnswers) -> {
-                    MultipleChoice multipleChoice = (MultipleChoice) task;
+        return (task, givenAnswers) -> {
+            MultipleChoice multipleChoice = (MultipleChoice) task;
 
-                    Set<TaskContent> correctAnswers = new HashSet<>();
-                    for (int index : multipleChoice.correctAnswerIndices())
-                        correctAnswers.add(multipleChoice.contentByIndex(index));
+            Set<TaskContent> correctAnswers = new HashSet<>();
+            for (int index : multipleChoice.correctAnswerIndices())
+                correctAnswers.add(multipleChoice.contentByIndex(index));
 
-                    float pointsPerAnswer = multipleChoice.points() / correctAnswers.size();
-                    float reachedPoints = 0f;
-                    for (TaskContent answer : givenAnswers) {
-                        if (correctAnswers.contains(answer)) reachedPoints += pointsPerAnswer;
-                        else reachedPoints -= pointsPerAnswer;
-                    }
-                    return Math.max(0, reachedPoints);
-                };
+            float pointsPerAnswer = multipleChoice.points() / correctAnswers.size();
+            float reachedPoints = 0f;
+            for (TaskContent answer : givenAnswers) {
+                if (correctAnswers.contains(answer)) reachedPoints += pointsPerAnswer;
+                else reachedPoints -= pointsPerAnswer;
+            }
+            return Math.max(0, reachedPoints);
+        };
     }
 
     /**
@@ -101,11 +101,12 @@ public class GradingFunctions {
         return (task, containers) -> {
             AssignTask assignTask = (AssignTask) task;
             Map<Element, Set<Element>> solution = assignTask.solution();
-            float pointsPerAnswer = assignTask.points() / solution.values().size();
+            int elementCount = solution.values().stream().mapToInt(Set::size).sum();
+            float pointsPerAnswer = assignTask.points() / elementCount;
             float reachedPoints = 0f;
-            // TODO Wie komm ich an die gegebene antort Map? Lösung: Signatur der BiFunction müsste
-            // für jeden aufgabentyp unterschiedlich sein dürfen
-            Map<Element, Set<Element>> givenAnswers = new HashMap<>();
+
+            Element wrap = (Element) containers.stream().findFirst().orElseThrow();
+            Map<Element, Set<Element>> givenAnswers = (Map<Element, Set<Element>>) wrap.content();
 
             for (Element container : givenAnswers.keySet()) {
                 Set<Element> correctSolSet = solution.get(container);
@@ -133,11 +134,13 @@ public class GradingFunctions {
         return (task, containers) -> {
             AssignTask assignTask = (AssignTask) task;
             Map<Element, Set<Element>> solution = assignTask.solution();
-            float pointsPerAnswer = assignTask.points() / solution.values().size();
+            int elementCount = solution.values().stream().mapToInt(Set::size).sum();
+            float pointsPerAnswer = assignTask.points() / elementCount;
+            System.out.println(pointsPerAnswer);
             float reachedPoints = 0f;
-            // TODO Wie komm ich an die gegebene antort Map? Lösung: Signatur der BiFunction müsste
-            // für jeden aufgabentyp unterschiedlich sein dürfen
-            Map<Element, Set<Element>> givenAnswers = new HashMap<>();
+
+            Element wrap = (Element) containers.stream().findFirst().orElseThrow();
+            Map<Element, Set<Element>> givenAnswers = (Map<Element, Set<Element>>) wrap.content();
 
             for (Element container : givenAnswers.keySet()) {
                 Set<Element> correctSolSet = solution.get(container);
