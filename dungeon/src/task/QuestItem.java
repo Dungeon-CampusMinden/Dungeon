@@ -32,8 +32,8 @@ public class QuestItem extends Item {
             Animation worldAnimation,
             TaskContentComponent taskContentComponent) {
         super(
-                DEFAULT_NAME + taskContentComponent.stream().findFirst().get().task().id(),
-                taskContentComponent.stream().findFirst().get().toString(),
+                DEFAULT_NAME + taskContentComponent.content().task().id(),
+                taskContentComponent.content().toString(),
                 inventoryAnimation,
                 worldAnimation);
         this.taskContentComponent = taskContentComponent;
