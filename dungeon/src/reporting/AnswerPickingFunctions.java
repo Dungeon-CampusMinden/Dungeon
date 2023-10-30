@@ -35,9 +35,9 @@ public class AnswerPickingFunctions {
      * <p>This function assumes that the container is an Entity that has an {@link
      * InventoryComponent}
      *
-     * <p>This function assumes that the given Answers are {@link QuestItem}s
+     * <p>This function assumes that the given answers are {@link QuestItem}s
      *
-     * <p>This function ignores other Items in the container.
+     * <p>This function ignores other items in the container.
      *
      * <p>Use this function as a callback for {@link task.quizquestion.SingleChoice} and {@link
      * task.quizquestion.MultipleChoice} Tasks.
@@ -46,37 +46,68 @@ public class AnswerPickingFunctions {
      *     Task#answerPickingFunction(Function)}
      */
     public static Function<Task, Set<TaskContent>> singleChestPicker() {
-        return new Function<Task, Set<TaskContent>>() {
-            @Override
-            public Set<TaskContent> apply(Task task) {
-                TaskContent containerContent =
-                        (TaskContent) task.containerStream().findFirst().orElseThrow();
-                Entity container = task.find(containerContent);
-                InventoryComponent ic =
-                        container
-                                .fetch(InventoryComponent.class)
-                                .orElseThrow(
-                                        () ->
-                                                MissingComponentException.build(
-                                                        container, InventoryComponent.class));
-                Item[] answerItems = ic.items(QuestItem.class);
-                Set<TaskContent> res = new HashSet<>();
-                for (Item i : answerItems) {
-                    res.add(((QuestItem) i).taskContentComponent().content());
-                }
-                return res;
+        return task -> {
+            TaskContent containerContent =
+                    (TaskContent) task.containerStream().findFirst().orElseThrow();
+            Entity container = task.find(containerContent);
+            InventoryComponent ic =
+                    container
+                            .fetch(InventoryComponent.class)
+                            .orElseThrow(
+                                    () ->
+                                            MissingComponentException.build(
+                                                    container, InventoryComponent.class));
+            Item[] answerItems = ic.items(QuestItem.class);
+            Set<TaskContent> res = new HashSet<>();
+            for (Item i : answerItems) {
+                res.add(((QuestItem) i).taskContentComponent().content());
             }
+            return res;
         };
     }
 
+    /**
+     * This Callback will check all containers of the given {@link Task} and will return a single
+     * wrapper {@link Element} that stores a {@link Map<TaskContent, Set<TaskContent>>}.
+     *
+     * <p>Use the wrapper Element's content to get the answer map.
+     *
+     * <p>This function assumes that the containers are Entities with {@link InventoryComponent}s.
+     *
+     * <p>This function assumes that the given answers are {@link QuestItem}s
+     *
+     * <p>This function ignores other items in the container.
+     *
+     * <p>Use this function as a callback for {@link task.AssignTask}s.
+     *
+     * @return Function that can be used as a callback for {@link
+     *     Task#answerPickingFunction(Function)}
+     */
     public static Function<Task, Set<TaskContent>> multipleChestPicker() {
-        return new Function<Task, Set<TaskContent>>() {
-            @Override
-            public Set<TaskContent> apply(Task task) {
-                Map<Element, Set<Element>> givenSolution = new HashMap<>();
-                // todo
-                return Set.of(new Element<>(task, givenSolution));
-            }
+        return task -> {
+            Map<TaskContent, Set<TaskContent>> answerMap = new HashMap<>();
+            Element wrapperElement = new Element(task, answerMap);
+
+            task.containerStream()
+                    .forEach(
+                            containerContent -> {
+                                Entity container = task.find((TaskContent) containerContent);
+                                InventoryComponent ic =
+                                        container
+                                                .fetch(InventoryComponent.class)
+                                                .orElseThrow(
+                                                        () ->
+                                                                MissingComponentException.build(
+                                                                        container,
+                                                                        InventoryComponent.class));
+                                Item[] answerItems = ic.items(QuestItem.class);
+                                Set<TaskContent> res = new HashSet<>();
+                                for (Item i : answerItems) {
+                                    res.add(((QuestItem) i).taskContentComponent().content());
+                                }
+                                answerMap.put((TaskContent) containerContent, res);
+                            });
+            return Set.of(wrapperElement);
         };
     }
 }
