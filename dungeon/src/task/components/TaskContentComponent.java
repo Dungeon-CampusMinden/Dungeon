@@ -2,6 +2,9 @@ package task.components;
 
 import core.Component;
 
+import semanticanalysis.types.DSLTypeProperty;
+import semanticanalysis.types.IDSLTypeProperty;
+import task.Task;
 import task.TaskContent;
 
 /**
@@ -16,7 +19,7 @@ import task.TaskContent;
  */
 public final class TaskContentComponent implements Component {
 
-    private final TaskContent content;
+    private TaskContent content;
 
     /**
      * Create a new TaskContentComponent and add it to the associated entity.
@@ -26,6 +29,11 @@ public final class TaskContentComponent implements Component {
     public TaskContentComponent(final TaskContent content) {
         this.content = content;
     }
+
+    /**
+     * Create a new TaskContentComponent.
+     */
+    public TaskContentComponent() { }
 
     /**
      * Return the internal Set of represented {@link TaskContent}s as Stream.
