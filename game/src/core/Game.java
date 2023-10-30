@@ -1,5 +1,7 @@
 package core;
 
+import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
@@ -10,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+
 import core.components.PositionComponent;
 import core.configuration.Configuration;
 import core.level.Tile;
@@ -33,11 +36,7 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
-
-/**
- * The heart of the framework. From here all strings are pulled.
- */
+/** The heart of the framework. From here all strings are pulled. */
 public final class Game extends ScreenAdapter {
 
     /**
@@ -46,9 +45,7 @@ public final class Game extends ScreenAdapter {
      * <p>The Key-Value is the Class of the system
      */
     private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
-    /**
-     * Maps the level with the different {@link EntitySystemMapper} for that level.
-     */
+    /** Maps the level with the different {@link EntitySystemMapper} for that level. */
     private static final Map<ILevel, Set<EntitySystemMapper>> levelStorageMap = new HashMap<>();
 
     private static final Logger LOGGER = Logger.getLogger("Game");
@@ -100,15 +97,13 @@ public final class Game extends ScreenAdapter {
      * <p> Use this, if you want to execute some logic outside of a system.</p>
      * <p> Will not replace {@link #onFrame )</p>
      */
-    private static IVoidFunction userOnFrame = () -> {
-    };
+    private static IVoidFunction userOnFrame = () -> {};
     /**
      * Part of the pre-run configuration. This function will be called after the libgdx-setup once.
      *
      * <p>Will not replace {@link #onSetup()}
      */
-    private static IVoidFunction userOnSetup = () -> {
-    };
+    private static IVoidFunction userOnSetup = () -> {};
     /**
      * Part of the pre-run configuration. This function will be called after a level was loaded.
      *
@@ -121,8 +116,7 @@ public final class Game extends ScreenAdapter {
      *
      * <p>Will not replace {@link #onLevelLoad}
      */
-    private static Consumer<Boolean> userOnLevelLoad = (b) -> {
-    };
+    private static Consumer<Boolean> userOnLevelLoad = (b) -> {};
     /**
      * Part of the pre-run configuration. If this value is true, the audio for the game will be
      * disabled.
@@ -130,12 +124,14 @@ public final class Game extends ScreenAdapter {
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
     private static boolean DISABLE_AUDIO = false;
+
     private static Entity hero;
     private static Stage stage;
 
-    //initial entityStorage has no level
+    // initial entityStorage has no level
     static {
         levelStorageMap.put(null, activeEntityStorage);
+        activeEntityStorage.add(new EntitySystemMapper());
     }
 
     private boolean doSetup = true;
@@ -176,8 +172,7 @@ public final class Game extends ScreenAdapter {
             };
 
     // for singleton
-    private Game() {
-    }
+    private Game() {}
 
     /**
      * @return the currently loaded level
@@ -366,7 +361,7 @@ public final class Game extends ScreenAdapter {
      * some Monsters.
      *
      * @param userOnLevelLoad the function that will be executed after a new level was loaded
-     *                        <p>Will not replace {@link #onLevelLoad}
+     *     <p>Will not replace {@link #onLevelLoad}
      */
     public static void userOnLevelLoad(Consumer<Boolean> userOnLevelLoad) {
         Game.userOnLevelLoad = userOnLevelLoad;
@@ -449,7 +444,7 @@ public final class Game extends ScreenAdapter {
      * Components to be processed by the given system.
      *
      * @return a stream of all entities currently in the game that should be processed by the given
-     * system.
+     *     system.
      */
     public static Stream<Entity> entityStream(System system) {
         return entityStream(system.filterRules());
@@ -519,16 +514,14 @@ public final class Game extends ScreenAdapter {
      * cached version will be used.
      *
      * @param pathAsString the path to the config file as a string
-     * @param klass        the class where the ConfigKey fields are located
+     * @param klass the class where the ConfigKey fields are located
      * @throws IOException if the file could not be read
      */
     public static void loadConfig(String pathAsString, Class<?>... klass) throws IOException {
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 
-    /**
-     * Starts the dungeon and requires a {@link Game}.
-     */
+    /** Starts the dungeon and requires a {@link Game}. */
     public static void run() {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setWindowSizeLimits(WINDOW_WIDTH, WINDOW_HEIGHT, 9999, 9999);
@@ -571,7 +564,7 @@ public final class Game extends ScreenAdapter {
      *
      * @param system the System to add
      * @return an optional that contains the previous existing system of the given system class, if
-     * one exists
+     *     one exists
      * @see System
      * @see Optional
      */
@@ -621,7 +614,6 @@ public final class Game extends ScreenAdapter {
      */
     public static Stream<Entity> allEntities() {
         Set<Entity> allEntities = new HashSet<>();
-        java.lang.System.out.println(levelStorageMap.values().size());
         levelStorageMap
                 .values()
                 .forEach(
@@ -631,7 +623,6 @@ public final class Game extends ScreenAdapter {
                                                 entitySystemMapper.stream()
                                                         .forEach(e -> allEntities.add(e))));
 
-        java.lang.System.out.println(allEntities.size());
         return allEntities.stream();
     }
 
@@ -752,7 +743,7 @@ public final class Game extends ScreenAdapter {
      * <p>Throws an IllegalArgumentException if start or end is non-accessible.
      *
      * @param start Start tile
-     * @param end   End tile
+     * @param end End tile
      * @return Generated path
      */
     public static GraphPath<Tile> findPath(Tile start, Tile end) {
@@ -841,9 +832,7 @@ public final class Game extends ScreenAdapter {
         userOnFrame.execute();
     }
 
-    /**
-     * Just for debugging, remove later.
-     */
+    /** Just for debugging, remove later. */
     private void debugKeys() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             // toggle UI "debug rendering"
@@ -890,9 +879,7 @@ public final class Game extends ScreenAdapter {
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    /**
-     * Create the systems.
-     */
+    /** Create the systems. */
     private void createSystems() {
         add(new PositionSystem());
         add(new CameraSystem());
@@ -910,9 +897,9 @@ public final class Game extends ScreenAdapter {
     public void resize(int width, int height) {
         super.resize(width, height);
         stage().ifPresent(
-                x -> {
-                    x.getViewport().setWorldSize(width, height);
-                    x.getViewport().update(width, height, true);
-                });
+                        x -> {
+                            x.getViewport().setWorldSize(width, height);
+                            x.getViewport().update(width, height, true);
+                        });
     }
 }
