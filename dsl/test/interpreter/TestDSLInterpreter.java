@@ -3128,7 +3128,7 @@ public class TestDSLInterpreter {
     @Test
     public void testCollisionCallback() {
         String program =
-            """
+                """
                 single_choice_task t {
                     description: "hello",
                     answers: [1,2,3],
@@ -3530,8 +3530,7 @@ public class TestDSLInterpreter {
         ItemComponent itemComponent = questItem.fetch(ItemComponent.class).get();
         QuestItem item = (QuestItem) itemComponent.item();
         Assert.assertEquals("MyName", item.displayName());
-        Quiz.Content content =
-                (Quiz.Content) item.taskContentComponent().content();
+        Quiz.Content content = (Quiz.Content) item.taskContentComponent().content();
         Assert.assertEquals("2", content.content());
     }
 
@@ -3587,7 +3586,7 @@ public class TestDSLInterpreter {
         ItemComponent itemComponent = questItem.fetch(ItemComponent.class).get();
         QuestItem item = (QuestItem) itemComponent.item();
         Assert.assertEquals("MyName", item.displayName());
-        Quiz.Content content = (Quiz.Content)item.taskContentComponent().content();
+        Quiz.Content content = (Quiz.Content) item.taskContentComponent().content();
         Assert.assertEquals("2", content.content());
     }
 }

@@ -27,10 +27,8 @@ public final class TaskContentComponent implements Component {
         this.content = content;
     }
 
-    /**
-     * Create a new TaskContentComponent.
-     */
-    public TaskContentComponent() { }
+    /** Create a new TaskContentComponent. */
+    public TaskContentComponent() {}
 
     /**
      * Return the internal represented {@link TaskContent}.
@@ -41,9 +39,7 @@ public final class TaskContentComponent implements Component {
         return content;
     }
 
-    /**
-     * Set the internal represented {@link TaskContent}.
-     */
+    /** Set the internal represented {@link TaskContent}. */
     public void content(TaskContent content) {
         this.content = content;
     }
