@@ -25,6 +25,10 @@ public class ListValue extends Value {
         return (ListType) this.dataType;
     }
 
+    /**
+     *
+     * @return the internal ArrayList of this {@link ListValue}.
+     */
     public ArrayList<Value> internalList() {
         return (ArrayList<Value>) this.object;
     }

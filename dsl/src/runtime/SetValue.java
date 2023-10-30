@@ -31,6 +31,9 @@ public class SetValue extends Value {
         return (SetType) this.dataType;
     }
 
+    /**
+     * @return the internal HashSet of this {@link SetValue}.
+     */
     public HashSet<Value> internalSet() {
         return ((HashSet<Value>) this.object);
     }
