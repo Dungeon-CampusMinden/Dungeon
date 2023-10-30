@@ -15,44 +15,39 @@ import task.components.TaskContentComponent;
  * <p>Use {@link #taskContentComponent()} to retrieve it.
  */
 public class QuestItem extends Item {
+
+    private static final String DEFAULT_NAME = "QuestItem for the Quest: ";
     private final TaskContentComponent taskContentComponent;
 
     /**
      * Create a new QuestItem.
      *
-     * @param displayName Name of the item, will be shown in the inventory UI.
-     * @param description Description of the item, will be shown in the inventory UI.
      * @param inventoryAnimation Texture to show in the inventory.
      * @param worldAnimation Texture to show if the item is dropped on the floor.
      * @param taskContentComponent The TaskContentComponent that stores the Task to which this item
      *     belongs.
      */
     public QuestItem(
-            String displayName,
-            String description,
             Animation inventoryAnimation,
             Animation worldAnimation,
             TaskContentComponent taskContentComponent) {
-        super(displayName, description, inventoryAnimation, worldAnimation);
+        super(
+                DEFAULT_NAME + taskContentComponent.stream().findFirst().get().task().id(),
+                taskContentComponent.stream().findFirst().get().toString(),
+                inventoryAnimation,
+                worldAnimation);
         this.taskContentComponent = taskContentComponent;
     }
 
     /**
      * Create a new QuestItem.
      *
-     * @param displayName Name of the item, will be shown in the inventory UI.
-     * @param description Description of the item, will be shown in the inventory UI.
      * @param animation Texture to show in the inventory and on the floor.
      * @param taskContentComponent The TaskContentComponent that stores the Task to which this item
      *     belongs.
      */
-    public QuestItem(
-            String displayName,
-            String description,
-            Animation animation,
-            TaskContentComponent taskContentComponent) {
-        super(displayName, description, animation);
-        this.taskContentComponent = taskContentComponent;
+    public QuestItem(Animation animation, TaskContentComponent taskContentComponent) {
+        this(animation, animation, taskContentComponent);
     }
 
     /**
