@@ -117,5 +117,12 @@ public class TaskTest {
         assertEquals(scoring, task.scoringFunction());
     }
 
+    @Test
+    public void id() {
+        Task t1 = new DummyTask();
+        Task t2 = new DummyTask();
+        assertTrue(t1.id() != t2.id());
+    }
+
     private static class DummyTask extends Task {}
 }

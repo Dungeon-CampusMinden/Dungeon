@@ -39,12 +39,14 @@ public abstract class Task {
 
     private static final Logger LOGGER = Logger.getLogger(Task.class.getSimpleName());
 
+    private static int _id = 0;
     private static final Set<Task> ALL_TASKS = new HashSet<>();
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
 
     private static final float DEFAULT_POINTS = 1f;
     private static final float DEFAULT_POINTS_TO_SOLVE = DEFAULT_POINTS;
+    private final int id;
     private TaskState state;
     private String taskText;
     private final Set<Place> observer = new HashSet<>();
@@ -63,6 +65,7 @@ public abstract class Task {
      * with an empty content-collection and without an {@link TaskComponent}.
      */
     public Task() {
+        this.id = _id++;
         ALL_TASKS.add(this);
         state = DEFAULT_TASK_STATE;
         taskText = DEFAULT_TASK_TEXT;
@@ -313,6 +316,10 @@ public abstract class Task {
                                                         })));
 
         return found[0];
+    }
+
+    public int id() {
+        return id;
     }
 
     /**
