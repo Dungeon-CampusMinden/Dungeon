@@ -315,22 +315,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
      *     {@link Task} could be found, an empty {@link Optional} will be returned.
      */
     public Optional<Object> buildTask(Task task) {
-        // TODO: this class is the actual class and there will be a direct correllation
-        //  between clazz and the type created by TypeBuilder (currently they all point to Task)
-        var clazz = task.getClass();
+        var taskClass = task.getClass();
 
-        // String typeName = "";
         IType type =
                 this.environment
                         .getTypeBuilder()
-                        .createDSLTypeForJavaTypeInScope(this.environment.getGlobalScope(), clazz);
+                        .createDSLTypeForJavaTypeInScope(this.environment.getGlobalScope(), taskClass);
         String typeName = type.getName();
-        /*
-        if (clazz.equals(SingleChoice.class)) {
-            typeName = type.getName();
-        } else if (clazz.equals(MultipleChoice.class)) {
-            typeName = "multiple_choice_task";
-        }*/
 
         Symbol potentialTaskType = this.environment.getGlobalScope().resolve(typeName);
         if (potentialTaskType == Symbol.NULL || !(potentialTaskType instanceof IType)) {
