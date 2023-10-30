@@ -878,7 +878,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                     "Assignment declaration currently not supported");
         } else {
             // get variable symbol
-            //Node variableIdentifierNode = node.getIdentifier();
+            // Node variableIdentifierNode = node.getIdentifier();
             Symbol variableSymbol = symbolTable().getSymbolsForAstNode(node).get(0);
             value = bindFromSymbol(variableSymbol, this.getCurrentMemorySpace());
         }
@@ -1119,25 +1119,27 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     protected void setupForLoopExecution(LoopStmtNode node) {
         var loopType = node.loopType();
-        assert loopType.equals(LoopStmtNode.LoopType.forLoop) || loopType.equals(LoopStmtNode.LoopType.countingForLoop);
+        assert loopType.equals(LoopStmtNode.LoopType.forLoop)
+                || loopType.equals(LoopStmtNode.LoopType.countingForLoop);
 
         ForLoopStmtNode forLoopStmtNode = (ForLoopStmtNode) node;
 
         // evaluate iterable expression
-        Value iterableValue = (Value)forLoopStmtNode.getIterableIdNode().accept(this);
+        Value iterableValue = (Value) forLoopStmtNode.getIterableIdNode().accept(this);
         IType iterableType = iterableValue.getDataType();
 
         Iterator<Value> internalIterator;
         if (iterableType.getTypeKind().equals(IType.Kind.ListType)) {
-            var listValue = (ListValue)iterableValue;
+            var listValue = (ListValue) iterableValue;
             List<Value> internalList = listValue.internalList();
             internalIterator = internalList.iterator();
         } else if (iterableType.getTypeKind().equals(IType.Kind.SetType)) {
-            var setValue = (SetValue)iterableValue;
+            var setValue = (SetValue) iterableValue;
             Set<Value> internalSet = setValue.internalSet();
             internalIterator = internalSet.iterator();
         } else {
-            throw new RuntimeException("Non iterable type '" + iterableType + "' used in for loop!");
+            throw new RuntimeException(
+                    "Non iterable type '" + iterableType + "' used in for loop!");
         }
 
         // create new loop-variable in surrounding (or loops?) memoryspace
@@ -1151,7 +1153,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         Symbol counterVariableSymbol = Symbol.NULL;
         if (node.loopType().equals(LoopStmtNode.LoopType.countingForLoop)) {
             // get the symbol for the counter variable
-            Node counterIdNode = ((CountingLoopStmtNode)node).getCounterIdNode();
+            Node counterIdNode = ((CountingLoopStmtNode) node).getCounterIdNode();
             counterVariableSymbol = this.symbolTable().getSymbolsForAstNode(counterIdNode).get(0);
             // initialize counter variable
             Value counterValue = bindFromSymbol(counterVariableSymbol, loopMemorySpace);
@@ -1160,7 +1162,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         // add loop-bottom-mark node for checking
         // and updating the loop condition and variable(s)
-        LoopBottomMark loopBottomMark = new LoopBottomMark(node, internalIterator, variableSymbol, counterVariableSymbol);
+        LoopBottomMark loopBottomMark =
+                new LoopBottomMark(node, internalIterator, variableSymbol, counterVariableSymbol);
         this.statementStack.push(loopBottomMark);
     }
 
@@ -1170,17 +1173,18 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return null;
     }
 
-
     @Override
     public Object visit(ForLoopStmtNode node) {
         setupForLoopExecution(node);
         return null;
     }
 
-    protected void updateForLoopState(IMemorySpace previosIterationsLoopMemorySpace, LoopBottomMark node) {
+    protected void updateForLoopState(
+            IMemorySpace previosIterationsLoopMemorySpace, LoopBottomMark node) {
         LoopStmtNode loopNode = node.getLoopStmtNode();
         var loopType = loopNode.loopType();
-        assert loopType.equals(LoopStmtNode.LoopType.forLoop) || loopType.equals(LoopStmtNode.LoopType.countingForLoop);
+        assert loopType.equals(LoopStmtNode.LoopType.forLoop)
+                || loopType.equals(LoopStmtNode.LoopType.countingForLoop);
 
         Iterator<Value> loopIterator = node.getInternalIterator();
         if (loopIterator.hasNext()) {
@@ -1189,14 +1193,16 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
             // update loop variable
             Value nextIterationValue = loopIterator.next();
-            Value valueInMemorySpace = bindFromSymbol(node.getLoopVariableSymbol(), newLoopMemorySpace);
+            Value valueInMemorySpace =
+                    bindFromSymbol(node.getLoopVariableSymbol(), newLoopMemorySpace);
             setValue(valueInMemorySpace, nextIterationValue);
 
             if (loopType.equals(LoopStmtNode.LoopType.countingForLoop)) {
                 // update counter variable
                 Symbol counterSymbol = node.getCounterVariableSymbol();
-                Value counterValue = previosIterationsLoopMemorySpace.resolve(counterSymbol.getName());
-                counterValue.setInternalValue((Integer)counterValue.getInternalValue() + 1);
+                Value counterValue =
+                        previosIterationsLoopMemorySpace.resolve(counterSymbol.getName());
+                counterValue.setInternalValue((Integer) counterValue.getInternalValue() + 1);
                 newLoopMemorySpace.bindValue(counterSymbol.getName(), counterValue);
             }
 
@@ -1221,7 +1227,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 Value conditionValue = (Value) whileLoopStmtNode.getExpressionNode().accept(this);
                 if (isBooleanTrue(conditionValue)) {
                     // setup memory space for next iteration
-                    MemorySpace newIterationMemorySpace = new MemorySpace(this.getCurrentMemorySpace());
+                    MemorySpace newIterationMemorySpace =
+                            new MemorySpace(this.getCurrentMemorySpace());
                     this.memoryStack.push(newIterationMemorySpace);
 
                     // prepare execution of next iteration
@@ -1230,13 +1237,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 }
             }
             case forLoop, countingForLoop -> updateForLoopState(loopsMemorySpace, node);
-            default -> { }
+            default -> {}
         }
 
         return null;
     }
 
-// endregion
+    // endregion
 
     // region user defined function execution
 

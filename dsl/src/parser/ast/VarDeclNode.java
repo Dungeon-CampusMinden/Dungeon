@@ -22,7 +22,7 @@ public class VarDeclNode extends BinaryNode {
     }
 
     public String getVariableName() {
-        return ((IdNode)this.getIdentifier()).getName();
+        return ((IdNode) this.getIdentifier()).getName();
     }
 
     @Override

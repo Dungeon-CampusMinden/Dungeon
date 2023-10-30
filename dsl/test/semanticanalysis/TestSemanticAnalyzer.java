@@ -1001,7 +1001,7 @@ public class TestSemanticAnalyzer {
     @Test
     public void testForLoopVariableBinding() {
         String program =
-            """
+                """
         fn test() {
             var my_list : int[];
             for int entry in my_list {
@@ -1020,14 +1020,14 @@ public class TestSemanticAnalyzer {
         var symbolTable = symbolTableParser.walk(ast).symbolTable;
 
         // get variable declaration
-        FunctionSymbol funcSymbol =
-            (FunctionSymbol) symbolTable.globalScope.resolve("test");
+        FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("test");
         FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
         VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
         Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
 
         // get iterableIdNode and check, that it references the variable symbol
-        ForLoopStmtNode loopNode = (ForLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
+        ForLoopStmtNode loopNode =
+                (ForLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
         Node iterableIdNode = loopNode.getIterableIdNode();
         Symbol iterableIdNodeRefSymbol = symbolTable.getSymbolsForAstNode(iterableIdNode).get(0);
         Assert.assertEquals(myListSymbol, iterableIdNodeRefSymbol);
@@ -1038,7 +1038,7 @@ public class TestSemanticAnalyzer {
         Assert.assertNotEquals(Symbol.NULL, loopVariableSymbol);
 
         // get the print call and check, that the parameter references the loop variable symbol
-        FuncCallNode printCallNode = (FuncCallNode)loopNode.getStmtNode().getChild(0).getChild(0);
+        FuncCallNode printCallNode = (FuncCallNode) loopNode.getStmtNode().getChild(0).getChild(0);
         IdNode parameterIdNode = (IdNode) printCallNode.getParameters().get(0);
         Symbol parameterSymbol = symbolTable.getSymbolsForAstNode(parameterIdNode).get(0);
         Assert.assertEquals(loopVariableSymbol, parameterSymbol);
@@ -1047,7 +1047,7 @@ public class TestSemanticAnalyzer {
     @Test
     public void testCountingLoopVariableBinding() {
         String program =
-            """
+                """
         fn test() {
             var my_list : int[];
             for int entry in my_list count i{
@@ -1067,14 +1067,14 @@ public class TestSemanticAnalyzer {
         var symbolTable = symbolTableParser.walk(ast).symbolTable;
 
         // get variable declaration
-        FunctionSymbol funcSymbol =
-            (FunctionSymbol) symbolTable.globalScope.resolve("test");
+        FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("test");
         FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
         VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
         Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
 
         // get iterableIdNode and check, that it references the variable symbol
-        CountingLoopStmtNode loopNode = (CountingLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
+        CountingLoopStmtNode loopNode =
+                (CountingLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
         Node iterableIdNode = loopNode.getIterableIdNode();
         Symbol iterableIdNodeRefSymbol = symbolTable.getSymbolsForAstNode(iterableIdNode).get(0);
         Assert.assertEquals(myListSymbol, iterableIdNodeRefSymbol);
@@ -1085,27 +1085,31 @@ public class TestSemanticAnalyzer {
         Assert.assertNotEquals(Symbol.NULL, loopVariableSymbol);
 
         // get the print call and check, that the parameter references the loop variable symbol
-        FuncCallNode printCallNode = (FuncCallNode)loopNode.getStmtNode().getChild(0).getChild(0);
+        FuncCallNode printCallNode = (FuncCallNode) loopNode.getStmtNode().getChild(0).getChild(0);
         IdNode parameterIdNode = (IdNode) printCallNode.getParameters().get(0);
         Symbol parameterSymbol = symbolTable.getSymbolsForAstNode(parameterIdNode).get(0);
         Assert.assertEquals(loopVariableSymbol, parameterSymbol);
 
         // get the loop variable id node and the linked symbol
         Node counterVariableIdNode = loopNode.getCounterIdNode();
-        Symbol counterVariableSymbol = symbolTable.getSymbolsForAstNode(counterVariableIdNode).get(0);
+        Symbol counterVariableSymbol =
+                symbolTable.getSymbolsForAstNode(counterVariableIdNode).get(0);
         Assert.assertNotEquals(Symbol.NULL, counterVariableSymbol);
 
-        // get the second print call and check, that the parameter references the counter variable symbol
-        FuncCallNode secondPrintCall = (FuncCallNode)loopNode.getStmtNode().getChild(0).getChild(1);
+        // get the second print call and check, that the parameter references the counter variable
+        // symbol
+        FuncCallNode secondPrintCall =
+                (FuncCallNode) loopNode.getStmtNode().getChild(0).getChild(1);
         IdNode secondPrintParameterIdNode = (IdNode) secondPrintCall.getParameters().get(0);
-        Symbol secondPrintParameterSymbol = symbolTable.getSymbolsForAstNode(secondPrintParameterIdNode).get(0);
+        Symbol secondPrintParameterSymbol =
+                symbolTable.getSymbolsForAstNode(secondPrintParameterIdNode).get(0);
         Assert.assertEquals(counterVariableSymbol, secondPrintParameterSymbol);
     }
 
     @Test
     public void testWhileLoop() {
         String program =
-            """
+                """
         fn test() {
             var my_list : int[];
             while my_list {
@@ -1124,14 +1128,14 @@ public class TestSemanticAnalyzer {
         var symbolTable = symbolTableParser.walk(ast).symbolTable;
 
         // get variable declaration
-        FunctionSymbol funcSymbol =
-            (FunctionSymbol) symbolTable.globalScope.resolve("test");
+        FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("test");
         FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
         VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
         Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
 
         // get iterableIdNode and check, that it references the variable symbol
-        WhileLoopStmtNode loopNode = (WhileLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
+        WhileLoopStmtNode loopNode =
+                (WhileLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
         Node expressionIdNode = loopNode.getExpressionNode();
         Symbol expressionRefNode = symbolTable.getSymbolsForAstNode(expressionIdNode).get(0);
         Assert.assertEquals(myListSymbol, expressionRefNode);

@@ -979,7 +979,7 @@ public class TestDungeonASTConverter {
     @Test
     public void testForLoop() {
         String program =
-            """
+                """
         fn test_func() {
             for var_type var_name in iterable {
                 print(id);
@@ -1009,7 +1009,7 @@ public class TestDungeonASTConverter {
     @Test
     public void testCountingForLoop() {
         String program =
-            """
+                """
         fn test_func() {
             for var_type var_name in iterable count i {
                 print(id);
@@ -1042,7 +1042,7 @@ public class TestDungeonASTConverter {
     @Test
     public void testWhileLoop() {
         String program =
-            """
+                """
         fn test_func() {
             while expr {
                 print(id);

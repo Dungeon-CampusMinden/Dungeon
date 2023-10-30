@@ -26,7 +26,6 @@ public class ListValue extends Value {
     }
 
     /**
-     *
      * @return the internal ArrayList of this {@link ListValue}.
      */
     public ArrayList<Value> internalList() {

@@ -31,4 +31,3 @@ public abstract class LoopStmtNode extends Node {
         return visitor.visit(this);
     }
 }
-

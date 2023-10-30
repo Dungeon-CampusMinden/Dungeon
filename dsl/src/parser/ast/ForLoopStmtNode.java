@@ -17,12 +17,18 @@ public class ForLoopStmtNode extends LoopStmtNode {
         return this.getChild(iterableIdx);
     }
 
-    public ForLoopStmtNode(Node typeIdNode, Node varIdNode, Node iterabelExpressionNode, Node stmtNode) {
+    public ForLoopStmtNode(
+            Node typeIdNode, Node varIdNode, Node iterabelExpressionNode, Node stmtNode) {
         super(LoopType.forLoop, stmtNode);
         addChildren(typeIdNode, varIdNode, iterabelExpressionNode);
     }
 
-    protected ForLoopStmtNode(LoopType loopType, Node typeIdNode, Node varIdNode, Node iterableExpressionNode, Node stmtNode) {
+    protected ForLoopStmtNode(
+            LoopType loopType,
+            Node typeIdNode,
+            Node varIdNode,
+            Node iterableExpressionNode,
+            Node stmtNode) {
         super(loopType, stmtNode);
         addChildren(typeIdNode, varIdNode, iterableExpressionNode);
     }

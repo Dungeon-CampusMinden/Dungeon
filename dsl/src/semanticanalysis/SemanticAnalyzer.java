@@ -721,11 +721,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         // create loop variable
         Node typeIdNode = node.getTypeIdNode();
         Node varIdNode = node.getVarIdNode();
-        createVariableSymbolInScope((IdNode)typeIdNode, (IdNode)varIdNode, loopScope);
+        createVariableSymbolInScope((IdNode) typeIdNode, (IdNode) varIdNode, loopScope);
 
         // create counter variable
         Node counterIdNode = node.getCounterIdNode();
-        createVariableSymbolInScope(BuiltInType.intType, (IdNode)counterIdNode, loopScope);
+        createVariableSymbolInScope(BuiltInType.intType, (IdNode) counterIdNode, loopScope);
 
         // visit stmt node of loop
         scopeStack.push(loopScope);
@@ -746,7 +746,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         // create loop variable
         Node typeIdNode = node.getTypeIdNode();
         Node varIdNode = node.getVarIdNode();
-        createVariableSymbolInScope((IdNode)typeIdNode, (IdNode)varIdNode, loopScope);
+        createVariableSymbolInScope((IdNode) typeIdNode, (IdNode) varIdNode, loopScope);
 
         // visit stmt node of loop
         scopeStack.push(loopScope);
