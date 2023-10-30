@@ -154,9 +154,4 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
     public Object visit(FuncDefNode node) {
         return null;
     }
-
-    @Override
-    public Object visit(PrototypeDefinitionNode node) {
-        return null;
-    }
 }

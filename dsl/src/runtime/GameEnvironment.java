@@ -349,7 +349,7 @@ public class GameEnvironment implements IEvironment {
                                 interpreter.instantiateRuntimeValue(dslItemInstance, questItemType);
 
                 var contentObject = (TaskContent) contentValue.getInternalValue();
-                questItemObject.taskContentComponent().addContent(contentObject);
+                questItemObject.taskContentComponent().content(contentObject);
 
                 return questItemObject;
             }

@@ -33,11 +33,18 @@ public final class TaskContentComponent implements Component {
     public TaskContentComponent() { }
 
     /**
-     * Return the internal Set of represented {@link TaskContent}s as Stream.
+     * Return the internal represented {@link TaskContent}.
      *
-     * @return internal Set as stream
+     * @return internal {@link TaskContent}
      */
     public TaskContent content() {
         return content;
+    }
+
+    /**
+     * Set the internal represented {@link TaskContent}.
+     */
+    public void content(TaskContent content) {
+        this.content = content;
     }
 }
