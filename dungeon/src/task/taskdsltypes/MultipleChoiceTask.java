@@ -3,13 +3,12 @@ package task.taskdsltypes;
 import semanticanalysis.types.DSLExtensionMethod;
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
-
 import semanticanalysis.types.IDSLExtensionMethod;
+
 import task.Quiz;
 import task.Task;
 import task.TaskContent;
 import task.quizquestion.MultipleChoice;
-import task.quizquestion.SingleChoice;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,15 +58,17 @@ public class MultipleChoiceTask {
         return (float) givenCorrectAnswers / (float) totalCorrectAnswers;
     }
 
-
     @DSLExtensionMethod(name = "get_content", extendedType = MultipleChoice.class)
-    public static class GetContentMethod implements IDSLExtensionMethod<MultipleChoice, List<TaskContent>> {
-        public static MultipleChoiceTask.GetContentMethod instance = new MultipleChoiceTask.GetContentMethod();
+    public static class GetContentMethod
+            implements IDSLExtensionMethod<MultipleChoice, List<TaskContent>> {
+        public static MultipleChoiceTask.GetContentMethod instance =
+                new MultipleChoiceTask.GetContentMethod();
 
         @Override
         public List<TaskContent> call(MultipleChoice instance, List<Object> params) {
             // This has to return an ArrayList. Calling the `.toList()`-Method on the result of
-            // the `map()`-call bellow will create an `java.util.ImmutableCollections$ListN`-instance,
+            // the `map()`-call bellow will create an
+            // `java.util.ImmutableCollections$ListN`-instance,
             // for which the TypeBuilder cannot create a corresponding dsl-type.
             List<TaskContent> returnList = new ArrayList<>();
             instance.contentStream().forEach(returnList::add);

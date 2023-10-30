@@ -101,4 +101,3 @@ public class NativeInstantiate extends NativeFunction {
         return ICallable.Type.Native;
     }
 }
-

@@ -14,8 +14,10 @@ import java.util.Set;
 // TODO: add class description
 public class Prototype extends Value implements IType {
     public static BuiltInType PROTOTYPE = new BuiltInType("prototype", Scope.NULL, (v) -> false);
-    public static BuiltInType ITEM_PROTOTYPE = new BuiltInType("item_prototype", Scope.NULL, (v) -> false);
-    public static Prototype NONE = new Prototype(PROTOTYPE, new AggregateType("NO_TYPE_NAME", Scope.NULL));
+    public static BuiltInType ITEM_PROTOTYPE =
+            new BuiltInType("item_prototype", Scope.NULL, (v) -> false);
+    public static Prototype NONE =
+            new Prototype(PROTOTYPE, new AggregateType("NO_TYPE_NAME", Scope.NULL));
     private final AggregateType internalType;
 
     private final HashMap<String, Value> defaultValues;
@@ -23,8 +25,8 @@ public class Prototype extends Value implements IType {
     /**
      * Constructor
      *
-     * @param prototypeType the {@link BuiltInType} of this Prototype
-     *                      (either {@link Prototype#ITEM_PROTOTYPE} or {@link Prototype#PROTOTYPE}
+     * @param prototypeType the {@link BuiltInType} of this Prototype (either {@link
+     *     Prototype#ITEM_PROTOTYPE} or {@link Prototype#PROTOTYPE}
      */
     public Prototype(BuiltInType prototypeType, AggregateType internalType) {
         // an Prototype is a value and a type at the same time

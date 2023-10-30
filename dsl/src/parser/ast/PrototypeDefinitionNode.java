@@ -54,4 +54,3 @@ public class PrototypeDefinitionNode extends Node {
         return visitor.visit(this);
     }
 }
-

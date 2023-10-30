@@ -187,7 +187,7 @@ public class TestDungeonASTConverter {
     @Test
     public void testItemTypeDefinition() {
         String program =
-            """
+                """
             item_type test_object {
                 value1: 1,
                 value2: 2,
@@ -200,19 +200,19 @@ public class TestDungeonASTConverter {
         assertEquals(Node.Type.ItemPrototypeDefinition, objDef.type);
 
         var propertyDefinitionListNode =
-            ((ItemPrototypeDefinitionNode) objDef).getPropertyDefinitionListNode();
+                ((ItemPrototypeDefinitionNode) objDef).getPropertyDefinitionListNode();
         assertEquals(Node.Type.PropertyDefinitionList, propertyDefinitionListNode.type);
 
         var propertyDefinitions = propertyDefinitionListNode.getChildren();
         assertEquals(3, propertyDefinitions.size());
 
-        var property1 = (PropertyDefNode)propertyDefinitions.get(0);
+        var property1 = (PropertyDefNode) propertyDefinitions.get(0);
         assertEquals("value1", property1.getIdName());
 
-        var property2 = (PropertyDefNode)propertyDefinitions.get(1);
+        var property2 = (PropertyDefNode) propertyDefinitions.get(1);
         assertEquals("value2", property2.getIdName());
 
-        var property3 = (PropertyDefNode)propertyDefinitions.get(2);
+        var property3 = (PropertyDefNode) propertyDefinitions.get(2);
         assertEquals("value3", property3.getIdName());
     }
 

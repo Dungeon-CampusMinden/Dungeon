@@ -30,7 +30,7 @@ public class ItemPrototypeDefinitionNode extends Node {
 
     /**
      * @return a List of nodes representing individual component definitions of this game object
-     * definition node
+     *     definition node
      */
     public List<Node> getPropertyDefinitionNodes() {
         return getPropertyDefinitionListNode().getChildren();
@@ -39,9 +39,9 @@ public class ItemPrototypeDefinitionNode extends Node {
     /**
      * Constructor
      *
-     * @param idNode                  node representing the identifier of the game object definition
+     * @param idNode node representing the identifier of the game object definition
      * @param valueDefinitionListNode node representing the component definition list of the game
-     *                                object definition
+     *     object definition
      */
     public ItemPrototypeDefinitionNode(Node idNode, Node valueDefinitionListNode) {
         super(Type.ItemPrototypeDefinition, new ArrayList<Node>(2));

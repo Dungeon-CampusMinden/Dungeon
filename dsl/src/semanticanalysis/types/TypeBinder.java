@@ -75,7 +75,7 @@ public class TypeBinder implements AstVisitor<Object> {
         if (resolveGlobal(newTypeName) != Symbol.NULL) {
             // TODO: reference file and location of definition
             this.errorStringBuilder.append(
-                "Symbol with name '" + newTypeName + "' already defined");
+                    "Symbol with name '" + newTypeName + "' already defined");
             // TODO: return explicit null-Type?
             return null;
         }
@@ -97,14 +97,20 @@ public class TypeBinder implements AstVisitor<Object> {
         }
 
         for (Node propertyDefinition : node.getPropertyDefinitionNodes()) {
-            var propertyDefinitionNode = (PropertyDefNode)propertyDefinition;
+            var propertyDefinitionNode = (PropertyDefNode) propertyDefinition;
             String propertyName = ((PropertyDefNode) propertyDefinition).getIdName();
             Symbol propertySymbol = scopedQuestItemType.resolve(propertyName, false);
             if (propertySymbol == Symbol.NULL) {
-                throw new RuntimeException("Cannot resolve property of name '" + propertyName + "' in type '" + questItemType + "'");
+                throw new RuntimeException(
+                        "Cannot resolve property of name '"
+                                + propertyName
+                                + "' in type '"
+                                + questItemType
+                                + "'");
             }
 
-            // the itemType will be its own independent datatype, so create a new symbol for the property definition
+            // the itemType will be its own independent datatype, so create a new symbol for the
+            // property definition
             // in the new itemType
             var memberSymbol = new Symbol(propertyName, itemType, propertySymbol.getDataType());
             itemType.bind(memberSymbol);

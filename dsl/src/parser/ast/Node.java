@@ -69,10 +69,10 @@ public class Node {
         SetDefinitionNode,
         ListTypeIdentifierNode,
         SetTypeIdentifierNode,
-        VarDeclNode,
         LoopStmtNode,
         LoopBottomMark,
-        ItemPrototypeDefinition
+        ItemPrototypeDefinition,
+        VarDeclNode
     }
 
     public static Node NONE = new Node(Type.NONE, new ArrayList<>());

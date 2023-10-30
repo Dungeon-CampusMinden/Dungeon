@@ -1,6 +1,7 @@
 package task;
 
 import semanticanalysis.types.DSLType;
+
 import task.components.TaskContentComponent;
 
 /**

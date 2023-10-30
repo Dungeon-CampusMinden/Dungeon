@@ -631,9 +631,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterItem_type_def(DungeonDSLParser.Item_type_defContext ctx) {
-
-    }
+    public void enterItem_type_def(DungeonDSLParser.Item_type_defContext ctx) {}
 
     @Override
     public void exitItem_type_def(DungeonDSLParser.Item_type_defContext ctx) {

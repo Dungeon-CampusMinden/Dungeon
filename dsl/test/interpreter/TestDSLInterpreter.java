@@ -3,8 +3,8 @@ package interpreter;
 import static org.junit.Assert.*;
 
 import contrib.components.CollideComponent;
-
 import contrib.components.ItemComponent;
+
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
@@ -31,7 +31,7 @@ import semanticanalysis.types.*;
 
 import task.QuestItem;
 import task.Quiz;
-import task.TaskContent;
+
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
 import taskdependencygraph.TaskNode;
@@ -3481,7 +3481,7 @@ public class TestDSLInterpreter {
     @Test
     public void testItemTypeInstantiationSingleChoice() {
         String program =
-        """
+                """
         single_choice_task t1 {
             description: "Task1",
                 answers: ["1", "2", "3"],
@@ -3530,14 +3530,15 @@ public class TestDSLInterpreter {
         ItemComponent itemComponent = questItem.fetch(ItemComponent.class).get();
         QuestItem item = (QuestItem) itemComponent.item();
         Assert.assertEquals("MyName", item.displayName());
-        Quiz.Content content = (Quiz.Content)item.taskContentComponent().contentStream().toList().get(0);
+        Quiz.Content content =
+                (Quiz.Content) item.taskContentComponent().content();
         Assert.assertEquals("2", content.content());
     }
 
     @Test
     public void testItemTypeInstantiationMultipleChoice() {
         String program =
-            """
+                """
             multiple_choice_task t1 {
                 description: "Task1",
                 answers: ["1", "2", "3"],

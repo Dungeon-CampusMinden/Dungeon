@@ -110,7 +110,7 @@ public class TestSemanticAnalyzer {
     @Test
     public void testItemTypeDeclaration() {
         String program =
-            """
+                """
             item_type item_type1 {
                 display_name: "MyName",
                 description: "Hello, this is a description",

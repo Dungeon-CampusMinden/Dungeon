@@ -2,9 +2,6 @@ package task.components;
 
 import core.Component;
 
-import semanticanalysis.types.DSLTypeProperty;
-import semanticanalysis.types.IDSLTypeProperty;
-import task.Task;
 import task.TaskContent;
 
 /**

@@ -148,7 +148,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // create a prototype for it
                 var creationAstNode = symbolTable().getCreationAstNode((Symbol) type);
                 if (creationAstNode.type.equals(Node.Type.ItemPrototypeDefinition)) {
-                    var prototype = createItemPrototype((ItemPrototypeDefinitionNode) creationAstNode);
+                    var prototype =
+                            createItemPrototype((ItemPrototypeDefinitionNode) creationAstNode);
 
                     this.environment.addPrototype(prototype);
                     this.getGlobalMemorySpace().bindValue(prototype.getName(), prototype);
@@ -166,7 +167,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // datatype definition, because it is part of the definition
         // evaluate rhs and store the value in the member of
         // the prototype
-        AggregateType questItemType = (AggregateType) this.environment.resolveInGlobalScope("quest_item");
+        AggregateType questItemType =
+                (AggregateType) this.environment.resolveInGlobalScope("quest_item");
         Prototype itemPrototype = new Prototype(Prototype.ITEM_PROTOTYPE, itemType);
         for (var propDef : node.getPropertyDefinitionNodes()) {
             var propertyDefNode = (PropertyDefNode) propDef;
@@ -177,11 +179,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
             Symbol propertySymbol = symbolTable().getSymbolsForAstNode(propDef).get(0);
             if (propertySymbol.equals(Symbol.NULL)) {
                 throw new RuntimeException(
-                    "Property of name '"
-                        + propertyName
-                        + "' cannot be resolved in type '"
-                        + questItemType.getName()
-                        + "'");
+                        "Property of name '"
+                                + propertyName
+                                + "' cannot be resolved in type '"
+                                + questItemType.getName()
+                                + "'");
             }
             var propertiesType = propertySymbol.getDataType();
 
@@ -320,7 +322,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         IType type =
                 this.environment
                         .getTypeBuilder()
-                        .createDSLTypeForJavaTypeInScope(this.environment.getGlobalScope(), taskClass);
+                        .createDSLTypeForJavaTypeInScope(
+                                this.environment.getGlobalScope(), taskClass);
         String typeName = type.getName();
 
         Symbol potentialTaskType = this.environment.getGlobalScope().resolve(typeName);
@@ -777,7 +780,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
             if (!(returnValue instanceof Value)) {
                 // package it into value
                 IType targetType = callable.getFunctionType().getReturnType();
-                returnValue = this.environment.translateRuntimeObject(returnValue, this.getCurrentMemorySpace(), targetType);
+                returnValue =
+                        this.environment.translateRuntimeObject(
+                                returnValue, this.getCurrentMemorySpace(), targetType);
             }
             return returnValue;
         }

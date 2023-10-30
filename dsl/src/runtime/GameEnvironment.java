@@ -2,9 +2,9 @@ package runtime;
 
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
-
 import contrib.entities.WorldItemBuilder;
 import contrib.item.Item;
+
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -14,15 +14,17 @@ import core.level.Tile;
 import dslnativefunction.NativeInstantiate;
 
 import dsltypeadapters.DrawComponentAdapter;
-
 import dsltypeadapters.QuestItemAdapter;
-import dsltypeproperties.EntityExtension;
 
+import dsltypeproperties.EntityExtension;
 import dsltypeproperties.QuestItemExtension;
+
 import dungeonFiles.DungeonConfig;
 
 import interpreter.DSLInterpreter;
+
 import parser.ast.Node;
+
 import runtime.nativefunctions.NativeFunction;
 import runtime.nativefunctions.NativePrint;
 
@@ -257,11 +259,13 @@ public class GameEnvironment implements IEvironment {
         IType entityType = (IType) this.globalScope.resolve("entity");
         IType entitySetType = new SetType(entityType, this.globalScope);
 
-        NativeFunction placeQuestItem = new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
+        NativeFunction placeQuestItem =
+                new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
         nativeFunctions.add(placeQuestItem);
 
         IType taskContentType = (IType) this.globalScope.resolve("task_content");
-        NativeFunction nativeBuildQuestItem = new NativeBuildQuestItem(Scope.NULL, questItemType, taskContentType);
+        NativeFunction nativeBuildQuestItem =
+                new NativeBuildQuestItem(Scope.NULL, questItemType, taskContentType);
         nativeFunctions.add(nativeBuildQuestItem);
 
         return nativeFunctions;
@@ -277,9 +281,9 @@ public class GameEnvironment implements IEvironment {
          */
         public NativePlaceQuestItem(IScope parentScope, IType questItemType, IType entitySetType) {
             super(
-                "place_quest_item",
-                parentScope,
-                new FunctionType(BuiltInType.noType, questItemType, entitySetType));
+                    "place_quest_item",
+                    parentScope,
+                    new FunctionType(BuiltInType.noType, questItemType, entitySetType));
         }
 
         @Override
@@ -291,8 +295,11 @@ public class GameEnvironment implements IEvironment {
             SetValue entitySetValue = (SetValue) parameters.get(1).accept(interpreter);
 
             var questItemObject = questItemValue.getInternalValue();
-            var worldEntity = WorldItemBuilder.buildWorldItem((Item)questItemObject);
-            var worldEntityValue = (Value) rtEnv.translateRuntimeObject(worldEntity, interpreter.getCurrentMemorySpace());
+            var worldEntity = WorldItemBuilder.buildWorldItem((Item) questItemObject);
+            var worldEntityValue =
+                    (Value)
+                            rtEnv.translateRuntimeObject(
+                                    worldEntity, interpreter.getCurrentMemorySpace());
             entitySetValue.addValue(worldEntityValue);
 
             return null;
@@ -304,9 +311,8 @@ public class GameEnvironment implements IEvironment {
         }
     }
 
-
     private class NativeBuildQuestItem extends NativeFunction {
-        //public static NativeBuildQuestItem func = new NativeBuildQuestItem(Scope.NULL);
+        // public static NativeBuildQuestItem func = new NativeBuildQuestItem(Scope.NULL);
 
         /**
          * Constructor
@@ -315,9 +321,9 @@ public class GameEnvironment implements IEvironment {
          */
         private NativeBuildQuestItem(IScope parentScope, IType questItemType, IType contentType) {
             super(
-                "build_quest_item",
-                parentScope,
-                new FunctionType(questItemType, Prototype.ITEM_PROTOTYPE, contentType));
+                    "build_quest_item",
+                    parentScope,
+                    new FunctionType(questItemType, Prototype.ITEM_PROTOTYPE, contentType));
         }
 
         @Override
@@ -329,17 +335,20 @@ public class GameEnvironment implements IEvironment {
             Value contentValue = (Value) parameters.get(1).accept(interpreter);
             if (prototypeValue.getDataType() != Prototype.ITEM_PROTOTYPE) {
                 throw new RuntimeException(
-                    "Wrong type ('"
-                        + prototypeValue.getDataType().getName()
-                        + "') of parameter for call of build_quest_item()!");
+                        "Wrong type ('"
+                                + prototypeValue.getDataType().getName()
+                                + "') of parameter for call of build_quest_item()!");
             } else {
                 // TODO: make this work
                 var dslItemInstance =
-                    (AggregateValue) interpreter.instantiateDSLValue((Prototype) prototypeValue);
+                        (AggregateValue)
+                                interpreter.instantiateDSLValue((Prototype) prototypeValue);
                 var questItemType = (AggregateType) rtEnv.getGlobalScope().resolve("quest_item");
-                var questItemObject = (QuestItem) interpreter.instantiateRuntimeValue(dslItemInstance, questItemType);
+                var questItemObject =
+                        (QuestItem)
+                                interpreter.instantiateRuntimeValue(dslItemInstance, questItemType);
 
-                var contentObject = (TaskContent)contentValue.getInternalValue();
+                var contentObject = (TaskContent) contentValue.getInternalValue();
                 questItemObject.taskContentComponent().addContent(contentObject);
 
                 return questItemObject;
