@@ -8,7 +8,6 @@ import petriNet.Place;
 import semanticanalysis.types.DSLType;
 
 import task.components.TaskComponent;
-import task.components.TaskContentComponent;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -290,31 +289,6 @@ public abstract class Task {
     /** Clear the {@link #ALL_TASKS} Set. */
     public static void cleanupAllTask() {
         ALL_TASKS.clear();
-    }
-
-    /**
-     * Finds the entity that implements the TaskContentComponent linked to the given TaskContent.
-     *
-     * @param content The task content to find the entity for.
-     * @return The entity that implements the TaskContentComponent linked to the given content.
-     */
-    public Entity find(TaskContent content) {
-        final Entity[] found = {null};
-        entitySets.forEach(
-                set ->
-                        set.forEach(
-                                entity ->
-                                        entity.fetch(TaskContentComponent.class)
-                                                .ifPresent(
-                                                        taskContentComponent -> {
-                                                            if (taskContentComponent
-                                                                    .content()
-                                                                    .equals(content)) {
-                                                                found[0] = entity;
-                                                            }
-                                                        })));
-
-        return found[0];
     }
 
     public int id() {
