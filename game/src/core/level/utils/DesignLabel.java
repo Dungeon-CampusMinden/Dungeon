@@ -7,11 +7,11 @@ import java.util.Random;
 /** Specifies which textures and layouts should be used for the room. */
 public enum DesignLabel {
     DEFAULT(50), // 50% chance
-    FIRE(10), // 10% chance
+    FIRE(0), // 0% chance //we have no cloesd doors texture
     FOREST(9), // 9% chance
     ICE(10), // 10% chance
-    TEMPLE(10), // 10% chance
-    DARK(10), // 10% chance
+    TEMPLE(30), // 30% chance
+    DARK(0), // 0% chance //we have no cloesd doors texture
     RAINBOW(1); // 1% chance
 
     private final int chance;

@@ -40,7 +40,7 @@ public class DoorTile extends Tile {
         String[] splitPath = texturePath.split("\\.");
         closedTexturePath = splitPath[0] + "_closed." + splitPath[1];
         levelElement = LevelElement.DOOR;
-        open = true;
+        open = false;
     }
 
     @Override
