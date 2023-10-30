@@ -8,6 +8,7 @@ public class CustomLogLevel extends Level {
     public static CustomLogLevel ERROR = new CustomLogLevel("ERROR", 950);
     public static CustomLogLevel DEBUG = new CustomLogLevel("DEBUG", 200);
     public static CustomLogLevel TRACE = new CustomLogLevel("TRACE", 100);
+    public static CustomLogLevel TASK = new CustomLogLevel("TASK", 500);
 
     protected CustomLogLevel(String name, int value) {
         super(name, value);

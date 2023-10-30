@@ -1,6 +1,7 @@
 package task;
 
 import core.Entity;
+import core.utils.logging.CustomLogLevel;
 
 import petriNet.Place;
 
@@ -11,6 +12,7 @@ import task.components.TaskContentComponent;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,9 +37,14 @@ import java.util.stream.Stream;
 @DSLType
 public abstract class Task {
 
+    private static final Logger LOGGER = Logger.getLogger(Task.class.getSimpleName());
+
     private static final Set<Task> ALL_TASKS = new HashSet<>();
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
+
+    private static final float DEFAULT_POINTS = 1f;
+    private static final float DEFAULT_POINTS_TO_SOLVE = DEFAULT_POINTS;
     private TaskState state;
     private String taskText;
     private final Set<Place> observer = new HashSet<>();
@@ -48,6 +55,9 @@ public abstract class Task {
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
 
+    protected float points;
+    private float pointsToSolve;
+
     /**
      * Create a new Task with the {@link #DEFAULT_TASK_TEXT} in the {@link #DEFAULT_TASK_STATE},
      * with an empty content-collection and without an {@link TaskComponent}.
@@ -57,6 +67,8 @@ public abstract class Task {
         state = DEFAULT_TASK_STATE;
         taskText = DEFAULT_TASK_TEXT;
         content = new LinkedList<>();
+        points = DEFAULT_POINTS;
+        pointsToSolve = DEFAULT_POINTS_TO_SOLVE;
     }
     /**
      * Register a {@link Place} with this task.
@@ -143,6 +155,16 @@ public abstract class Task {
     }
 
     /**
+     * Get the TaskContent instance at the given index.
+     *
+     * @param index index of the wanted task content
+     * @return the task content at the given index.
+     */
+    public TaskContent contentByIndex(int index) {
+        return content.get(index);
+    }
+
+    /**
      * Add given element to the internal {@link #content} collection.
      *
      * @param content element to add to the internal collection
@@ -191,12 +213,81 @@ public abstract class Task {
     }
 
     /**
+     * Execute the scoring function.
+     *
+     * <p>This will mark the task as done.
+     *
+     * <p>This will change the task state.
+     *
+     * <p>This will inform the petri net about the task state changes.
+     *
+     * <p>This will log the result.
+     *
+     * <p>This will give the player a reward, if the task was solved correctly.
+     *
+     * @param givenAnswers the given answers to the question of this tak.
+     * @return reached points.
+     */
+    public float gradeTask(Set<TaskContent> givenAnswers) {
+        float score = scoringFunction.apply(this, givenAnswers);
+        StringBuilder msgBuilder = new StringBuilder();
+        msgBuilder
+                .append("Task: ")
+                .append(taskText)
+                .append(" was solved with ")
+                .append(score)
+                .append("/")
+                .append(points)
+                .append(" Points");
+        msgBuilder.append("The task was solved");
+        if (score >= pointsToSolve) msgBuilder.append(" successfully");
+        else msgBuilder.append(" unsuccessfully");
+
+        msgBuilder.append(" Given answers: ");
+
+        for (TaskContent answer : givenAnswers) {
+            msgBuilder.append(answer.toString());
+        }
+        String msg = msgBuilder.toString();
+        LOGGER.log(CustomLogLevel.TASK, msg);
+
+        if (score >= pointsToSolve) state(TaskState.FINISHED_CORRECT);
+        else state(TaskState.FINISHED_WRONG);
+
+        return score;
+    }
+
+    /**
+     * Get the amount of points that this task is worth.
+     *
+     * @return points that this task is worth.
+     */
+    public float points() {
+        return points;
+    }
+    /**
+     * Set the amount of points that this task is worth.
+     *
+     * @param points points that this task is worth.
+     * @param pointsToSolve amount of points that is needed to solve this task sucessfully.
+     */
+    public void points(float points, float pointsToSolve) {
+        this.points = points;
+        this.pointsToSolve = pointsToSolve;
+    }
+
+    /**
      * Get a stream of all Task-Objects that exist.
      *
      * @return Stream of all Task-Objects that ever exist.
      */
     public static Stream<Task> allTasks() {
         return new HashSet<>(ALL_TASKS).stream();
+    }
+
+    /** Clear the {@link #ALL_TASKS} Set. */
+    public static void cleanupAllTask() {
+        ALL_TASKS.clear();
     }
 
     /**

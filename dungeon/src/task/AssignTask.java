@@ -1,8 +1,11 @@
 package task;
 
+import reporting.GradingFunctions;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 /**
  * Assignment Task.
@@ -11,15 +14,23 @@ import java.util.Set;
  * as values that should be assigned to the keys.
  */
 public class AssignTask extends Task {
-    private final Map<Element, Set<Element>> solution;
+    private static final BiFunction<Task, Set<TaskContent>, Float> DEFAULT_SCORING_FUNCTION =
+            GradingFunctions.assignGradingEasy();
+    private Map<Element, Set<Element>> solution;
+
+    /** Create an Assignment Task with the given solution map. */
+    public AssignTask() {
+        super();
+        scoringFunction(DEFAULT_SCORING_FUNCTION);
+    }
 
     /**
-     * Create an Assignment Task with the given solution map.
+     * Add the solution to this task.
      *
-     * @param solution The map containing Elements as keys and Sets of Elements as values.
+     * @param solution A Map where the keys are the containers and the values are the elements that
+     *     must be matched to the containers.
      */
-    public AssignTask(Map<Element, Set<Element>> solution) {
-        super();
+    public void solution(Map<Element, Set<Element>> solution) {
         this.solution = solution;
     }
 

@@ -1,5 +1,7 @@
 package task;
 
+import reporting.GradingFunctions;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,13 +17,17 @@ public class ReplacementTask extends Task {
     /**
      * Create a new Replacement Task.
      *
-     * @param solution This List contains the final Element-Set that is the solution of the task.
      * @param rules Rules that define which and how elements can be replaced.
      */
-    public ReplacementTask(List<Element> solution, List<Rule> rules) {
+    public ReplacementTask(List<Rule> rules) {
         super();
-        this.solution = solution;
+        this.solution = new ArrayList<>();
         this.rules = rules;
+        scoringFunction(GradingFunctions.replacementGrading());
+    }
+
+    public void addSolution(Element e) {
+        solution.add(e);
     }
 
     public List<Element> solution() {
