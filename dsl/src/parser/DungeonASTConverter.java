@@ -197,7 +197,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         assert identifier.type == Node.Type.Identifier;
 
         Node varDeclNode =
-                new VarDeclNode(VarDeclNode.DeclType.assignmentDecl, identifier, expression);
+                new VarDeclNode(VarDeclNode.DeclType.assignmentDecl, (IdNode)identifier, expression);
         astStack.push(varDeclNode);
     }
 
@@ -210,7 +210,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         Node identifier = astStack.pop();
         assert identifier.type == Node.Type.Identifier;
 
-        Node varDeclNode = new VarDeclNode(VarDeclNode.DeclType.typeDecl, identifier, typeDecl);
+        Node varDeclNode = new VarDeclNode(VarDeclNode.DeclType.typeDecl, (IdNode)identifier, typeDecl);
         astStack.push(varDeclNode);
     }
 

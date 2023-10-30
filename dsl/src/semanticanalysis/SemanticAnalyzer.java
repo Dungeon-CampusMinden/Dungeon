@@ -643,7 +643,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         return null;
     }
 
-    private Symbol createVariableSymbolInScope(IType type, IdNode nameIdNode, Node nodeToLinkToSymbol, IScope scope) {
+    private Symbol createVariableSymbolInScope(IType type, IdNode nameIdNode, IScope scope) {
         String name = nameIdNode.getName();
 
         // check if a variable is already defined in the current scope
@@ -655,12 +655,12 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         // create variable symbol
         Symbol variableSymbol = new Symbol(name, scope, type);
         scope.bind(variableSymbol);
-        this.symbolTable.addSymbolNodeRelation(variableSymbol, nodeToLinkToSymbol, true);
+        this.symbolTable.addSymbolNodeRelation(variableSymbol, nameIdNode, true);
 
         return variableSymbol;
     }
 
-    private Symbol createVariableSymbolInScope(IdNode typeIdNode, IdNode nameIdNode, Node nodeToLinkToSymbol, IScope scope) {
+    private Symbol createVariableSymbolInScope(IdNode typeIdNode, IdNode nameIdNode, IScope scope) {
         // resolve the type name
         String typeName = typeIdNode.getName();
         if (!typeIdNode.type.equals(Node.Type.Identifier)) {
@@ -673,7 +673,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             throw new RuntimeException("Type of name '" + typeName + "' cannot be resolved!");
         }
 
-        return createVariableSymbolInScope(variableType, nameIdNode, nodeToLinkToSymbol, scope);
+        return createVariableSymbolInScope(variableType, nameIdNode, scope);
     }
 
     @Override
@@ -686,7 +686,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
         IdNode typeDeclNode = (IdNode) node.getRhs();
         IdNode nameIdNode = (IdNode) node.getIdentifier();
-        createVariableSymbolInScope(typeDeclNode, nameIdNode, node, this.currentScope());
+        Symbol symbol = createVariableSymbolInScope(typeDeclNode, nameIdNode, this.currentScope());
 
         return null;
     }
@@ -720,11 +720,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         // create loop variable
         Node typeIdNode = node.getTypeIdNode();
         Node varIdNode = node.getVarIdNode();
-        createVariableSymbolInScope((IdNode)typeIdNode, (IdNode)varIdNode, varIdNode, loopScope);
+        createVariableSymbolInScope((IdNode)typeIdNode, (IdNode)varIdNode, loopScope);
 
         // create counter variable
         Node counterIdNode = node.getCounterIdNode();
-        createVariableSymbolInScope(BuiltInType.intType, (IdNode)counterIdNode, counterIdNode, loopScope);
+        createVariableSymbolInScope(BuiltInType.intType, (IdNode)counterIdNode, loopScope);
 
         // visit stmt node of loop
         scopeStack.push(loopScope);
@@ -745,7 +745,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         // create loop variable
         Node typeIdNode = node.getTypeIdNode();
         Node varIdNode = node.getVarIdNode();
-        createVariableSymbolInScope((IdNode)typeIdNode, (IdNode)varIdNode, varIdNode, loopScope);
+        createVariableSymbolInScope((IdNode)typeIdNode, (IdNode)varIdNode, loopScope);
 
         // visit stmt node of loop
         scopeStack.push(loopScope);

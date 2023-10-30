@@ -863,7 +863,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(VarDeclNode node) {
-        String variableName = ((IdNode) node.getIdentifier()).getName();
+        String variableName = node.getVariableName();
 
         // check, if the current memory space already contains a value of the same name
         Value value = getCurrentMemorySpace().resolve(variableName, false);
@@ -877,8 +877,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
             throw new UnsupportedOperationException(
                     "Assignment declaration currently not supported");
         } else {
-            // get datatype
-            Symbol variableSymbol = symbolTable().getSymbolsForAstNode(node).get(0);
+            // get variable symbol
+            Node variableIdentifierNode = node.getIdentifier();
+            Symbol variableSymbol = symbolTable().getSymbolsForAstNode(variableIdentifierNode).get(0);
             value = bindFromSymbol(variableSymbol, this.getCurrentMemorySpace());
         }
         return value;

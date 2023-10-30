@@ -699,7 +699,7 @@ public class TestSemanticAnalyzer {
                 (FunctionSymbol) symbolTable.globalScope.resolve("get_property");
         FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
         VarDeclNode declNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
-        Symbol testVariableSymbol = symbolTable.getSymbolsForAstNode(declNode).get(0);
+        Symbol testVariableSymbol = symbolTable.getSymbolsForAstNode(declNode.getIdentifier()).get(0);
 
         Assert.assertNotEquals(Symbol.NULL, testVariableSymbol);
         Assert.assertEquals(BuiltInType.stringType, testVariableSymbol.dataType);
@@ -750,7 +750,7 @@ public class TestSemanticAnalyzer {
         VarDeclNode ifStmtDeclNode = (VarDeclNode) conditional.getIfStmt();
         VarDeclNode elseStmtDeclNode = (VarDeclNode) conditional.getElseStmt();
 
-        Symbol ifStmtDeclSymbol = symbolTable.getSymbolsForAstNode(ifStmtDeclNode).get(0);
+        Symbol ifStmtDeclSymbol = symbolTable.getSymbolsForAstNode(ifStmtDeclNode.getIdentifier()).get(0);
         Assert.assertNotEquals(Symbol.NULL, ifStmtDeclSymbol);
 
         // test correct scope relation
@@ -762,7 +762,7 @@ public class TestSemanticAnalyzer {
         var expectedToBeFunctionScope = declScope.getParent().getParent();
         Assert.assertEquals(funcSymbol, expectedToBeFunctionScope);
 
-        Symbol elseStmtDeclSymbol = symbolTable.getSymbolsForAstNode(elseStmtDeclNode).get(0);
+        Symbol elseStmtDeclSymbol = symbolTable.getSymbolsForAstNode(elseStmtDeclNode.getIdentifier()).get(0);
         Assert.assertNotEquals(Symbol.NULL, ifStmtDeclSymbol);
         // test correct scope relation
         declScope = elseStmtDeclSymbol.getScope();
@@ -1024,7 +1024,7 @@ public class TestSemanticAnalyzer {
             (FunctionSymbol) symbolTable.globalScope.resolve("test");
         FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
         VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
-        Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
+        Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode.getIdentifier()).get(0);
 
         // get iterableIdNode and check, that it references the variable symbol
         ForLoopStmtNode loopNode = (ForLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
@@ -1071,7 +1071,7 @@ public class TestSemanticAnalyzer {
             (FunctionSymbol) symbolTable.globalScope.resolve("test");
         FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
         VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
-        Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
+        Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode.getIdentifier()).get(0);
 
         // get iterableIdNode and check, that it references the variable symbol
         CountingLoopStmtNode loopNode = (CountingLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
@@ -1128,7 +1128,7 @@ public class TestSemanticAnalyzer {
             (FunctionSymbol) symbolTable.globalScope.resolve("test");
         FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
         VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
-        Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
+        Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode.getIdentifier()).get(0);
 
         // get iterableIdNode and check, that it references the variable symbol
         WhileLoopStmtNode loopNode = (WhileLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
