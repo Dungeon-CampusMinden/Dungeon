@@ -11,6 +11,7 @@ import task.components.TaskComponent;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -54,6 +55,7 @@ public abstract class Task {
 
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
+    protected Function<Task, Set<TaskContent>> answerPickingFunction;
 
     protected float points;
     private float pointsToSolve;
@@ -205,6 +207,24 @@ public abstract class Task {
     }
 
     /**
+     * Set the function to pick the given answers out of the game.
+     *
+     * @param answerPickingFunction the answer picking function to set.
+     */
+    public void answerPickingFunction(Function<Task, Set<TaskContent>> answerPickingFunction) {
+        this.scoringFunction = scoringFunction;
+    }
+
+    /**
+     * Callback function to pick the given answers out of the game.
+     *
+     * @return the callback function
+     */
+    public Function<Task, Set<TaskContent>> answerPickingFunction() {
+        return answerPickingFunction;
+    }
+
+    /**
      * Set the scoring function for this Task.
      *
      * @param scoringFunction the scoring function to set.
@@ -213,6 +233,24 @@ public abstract class Task {
         this.scoringFunction = scoringFunction;
     }
 
+    /**
+     * Execute the scoring function.
+     *
+     * <p>This will mark the task as done.
+     *
+     * <p>This will change the task state.
+     *
+     * <p>This will inform the petri net about the task state changes.
+     *
+     * <p>This will log the result.
+     *
+     * <p>This will give the player a reward, if the task was solved correctly.
+     *
+     * @return reached points.
+     */
+    public float gradeTask() {
+        return gradeTask(answerPickingFunction.apply(this));
+    }
     /**
      * Execute the scoring function.
      *
