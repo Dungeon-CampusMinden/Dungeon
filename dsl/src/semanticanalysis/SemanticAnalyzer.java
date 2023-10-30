@@ -687,6 +687,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         IdNode typeDeclNode = (IdNode) node.getRhs();
         IdNode nameIdNode = (IdNode) node.getIdentifier();
         Symbol symbol = createVariableSymbolInScope(typeDeclNode, nameIdNode, this.currentScope());
+        this.symbolTable.addSymbolNodeRelation(symbol, node, true);
 
         return null;
     }

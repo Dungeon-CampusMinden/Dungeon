@@ -878,8 +878,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                     "Assignment declaration currently not supported");
         } else {
             // get variable symbol
-            Node variableIdentifierNode = node.getIdentifier();
-            Symbol variableSymbol = symbolTable().getSymbolsForAstNode(variableIdentifierNode).get(0);
+            //Node variableIdentifierNode = node.getIdentifier();
+            Symbol variableSymbol = symbolTable().getSymbolsForAstNode(node).get(0);
             value = bindFromSymbol(variableSymbol, this.getCurrentMemorySpace());
         }
         return value;
