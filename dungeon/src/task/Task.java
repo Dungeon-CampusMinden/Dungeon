@@ -37,27 +37,23 @@ import java.util.stream.Stream;
 public abstract class Task {
 
     private static final Logger LOGGER = Logger.getLogger(Task.class.getSimpleName());
-
-    private static int _id = 0;
     private static final Set<Task> ALL_TASKS = new HashSet<>();
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
-
     private static final float DEFAULT_POINTS = 1f;
     private static final float DEFAULT_POINTS_TO_SOLVE = DEFAULT_POINTS;
+    private static int _id = 0;
     private final int id;
-    private TaskState state;
-    private String taskText;
     private final Set<Place> observer = new HashSet<>();
-    private Entity managementEntity;
-
-    private Set<Set<Entity>> entitySets = new HashSet<>();
-
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
     protected Function<Task, Set<TaskContent>> answerPickingFunction;
-
     protected float points;
+    protected Set<TaskContent> container;
+    private TaskState state;
+    private String taskText;
+    private Entity managementEntity;
+    private Set<Set<Entity>> entitySets = new HashSet<>();
     private float pointsToSolve;
 
     /**
@@ -72,7 +68,23 @@ public abstract class Task {
         content = new LinkedList<>();
         points = DEFAULT_POINTS;
         pointsToSolve = DEFAULT_POINTS_TO_SOLVE;
+        container = new HashSet<>();
     }
+
+    /**
+     * Get a stream of all Task-Objects that exist.
+     *
+     * @return Stream of all Task-Objects that ever exist.
+     */
+    public static Stream<Task> allTasks() {
+        return new HashSet<>(ALL_TASKS).stream();
+    }
+
+    /** Clear the {@link #ALL_TASKS} Set. */
+    public static void cleanupAllTask() {
+        ALL_TASKS.clear();
+    }
+
     /**
      * Register a {@link Place} with this task.
      *
@@ -83,6 +95,26 @@ public abstract class Task {
      */
     public void registerPlace(Place place) {
         observer.add(place);
+    }
+
+    /**
+     * Add a {@link TaskContent} as container to this task.
+     *
+     * <p>A container (like a chest) will be used to find the given answers of a player in the game.
+     *
+     * @param container container to add.
+     */
+    public void addContainer(TaskContent container) {
+        this.container.add(container);
+    }
+
+    /**
+     * Get the Container of this task.
+     *
+     * @return Container of this task as stream.
+     */
+    public Stream containerStream() {
+        return new HashSet<>(container).stream();
     }
 
     /**
@@ -251,6 +283,7 @@ public abstract class Task {
     public float gradeTask() {
         return gradeTask(answerPickingFunction.apply(this));
     }
+
     /**
      * Execute the scoring function.
      *
@@ -304,6 +337,7 @@ public abstract class Task {
     public float points() {
         return points;
     }
+
     /**
      * Set the amount of points that this task is worth.
      *
@@ -313,20 +347,6 @@ public abstract class Task {
     public void points(float points, float pointsToSolve) {
         this.points = points;
         this.pointsToSolve = pointsToSolve;
-    }
-
-    /**
-     * Get a stream of all Task-Objects that exist.
-     *
-     * @return Stream of all Task-Objects that ever exist.
-     */
-    public static Stream<Task> allTasks() {
-        return new HashSet<>(ALL_TASKS).stream();
-    }
-
-    /** Clear the {@link #ALL_TASKS} Set. */
-    public static void cleanupAllTask() {
-        ALL_TASKS.clear();
     }
 
     public int id() {
