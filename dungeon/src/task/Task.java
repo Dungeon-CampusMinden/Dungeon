@@ -13,7 +13,6 @@ import task.components.TaskContentComponent;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -308,9 +307,9 @@ public abstract class Task {
                                         entity.fetch(TaskContentComponent.class)
                                                 .ifPresent(
                                                         taskContentComponent -> {
-                                                            if (taskContentComponent.stream()
-                                                                    .collect(Collectors.toSet())
-                                                                    .contains(content)) {
+                                                            if (taskContentComponent
+                                                                    .content()
+                                                                    .equals(content)) {
                                                                 found[0] = entity;
                                                             }
                                                         })));
