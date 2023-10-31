@@ -643,28 +643,29 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         return null;
     }
 
-    @Override
-    public Void visit(VarDeclNode node) {
-        String name = ((IdNode) node.getIdentifier()).getName();
+    private Symbol createVariableSymbolInScope(IType type, IdNode nameIdNode, IScope scope) {
+        String name = nameIdNode.getName();
 
         // check if a variable is already defined in the current scope
-        Symbol resolvedName = this.currentScope().resolve(name, false);
+        Symbol resolvedName = scope.resolve(name, false);
         if (!resolvedName.equals(Symbol.NULL)) {
             throw new RuntimeException("Redefinition of variable '" + name + "'");
         }
 
-        // create new symbol for the variable
-        // get the type of the variable
-        if (node.getDeclType().equals(VarDeclNode.DeclType.assignmentDecl)) {
-            throw new RuntimeException("Inference of variable type currently not supported!");
-        }
+        // create variable symbol
+        Symbol variableSymbol = new Symbol(name, scope, type);
+        scope.bind(variableSymbol);
+        this.symbolTable.addSymbolNodeRelation(variableSymbol, nameIdNode, true);
 
+        return variableSymbol;
+    }
+
+    private Symbol createVariableSymbolInScope(IdNode typeIdNode, IdNode nameIdNode, IScope scope) {
         // resolve the type name
-        IdNode typeDeclNode = (IdNode) node.getRhs();
-        String typeName = typeDeclNode.getName();
-        if (!typeDeclNode.type.equals(Node.Type.Identifier)) {
+        String typeName = typeIdNode.getName();
+        if (!typeIdNode.type.equals(Node.Type.Identifier)) {
             // list or set type -> create type
-            typeDeclNode.accept(this);
+            typeIdNode.accept(this);
         }
 
         Symbol typeSymbol = this.globalScope().resolve(typeName);
@@ -672,10 +673,85 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             throw new RuntimeException("Type of name '" + typeName + "' cannot be resolved!");
         }
 
-        // create variable symbol
-        Symbol variableSymbol = new Symbol(name, this.currentScope(), variableType);
-        this.currentScope().bind(variableSymbol);
-        this.symbolTable.addSymbolNodeRelation(variableSymbol, node, true);
+        return createVariableSymbolInScope(variableType, nameIdNode, scope);
+    }
+
+    @Override
+    public Void visit(VarDeclNode node) {
+        // create new symbol for the variable
+        // get the type of the variable
+        if (node.getDeclType().equals(VarDeclNode.DeclType.assignmentDecl)) {
+            throw new RuntimeException("Inference of variable type currently not supported!");
+        }
+
+        IdNode typeDeclNode = (IdNode) node.getRhs();
+        IdNode nameIdNode = (IdNode) node.getIdentifier();
+        Symbol symbol = createVariableSymbolInScope(typeDeclNode, nameIdNode, this.currentScope());
+        this.symbolTable.addSymbolNodeRelation(symbol, node, true);
+
+        return null;
+    }
+
+    @Override
+    public Void visit(LoopStmtNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Void visit(WhileLoopStmtNode node) {
+        // visit expression
+        node.getExpressionNode().accept(this);
+
+        var whileScope = new Scope(scopeStack.peek());
+        scopeStack.push(whileScope);
+        node.getStmtNode().accept(this);
+        scopeStack.pop();
+
+        return null;
+    }
+
+    @Override
+    public Void visit(CountingLoopStmtNode node) {
+        // visit iterable expression
+        node.getIterableIdNode().accept(this);
+
+        // create loop scope
+        Scope loopScope = new Scope(scopeStack.peek());
+
+        // create loop variable
+        Node typeIdNode = node.getTypeIdNode();
+        Node varIdNode = node.getVarIdNode();
+        createVariableSymbolInScope((IdNode) typeIdNode, (IdNode) varIdNode, loopScope);
+
+        // create counter variable
+        Node counterIdNode = node.getCounterIdNode();
+        createVariableSymbolInScope(BuiltInType.intType, (IdNode) counterIdNode, loopScope);
+
+        // visit stmt node of loop
+        scopeStack.push(loopScope);
+        node.getStmtNode().accept(this);
+        scopeStack.pop();
+
+        return null;
+    }
+
+    @Override
+    public Void visit(ForLoopStmtNode node) {
+        // visit iterable expression
+        node.getIterableIdNode().accept(this);
+
+        // create loop scope
+        Scope loopScope = new Scope(scopeStack.peek());
+
+        // create loop variable
+        Node typeIdNode = node.getTypeIdNode();
+        Node varIdNode = node.getVarIdNode();
+        createVariableSymbolInScope((IdNode) typeIdNode, (IdNode) varIdNode, loopScope);
+
+        // visit stmt node of loop
+        scopeStack.push(loopScope);
+        node.getStmtNode().accept(this);
+        scopeStack.pop();
 
         return null;
     }

@@ -416,6 +416,56 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for LoopStmtNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(LoopStmtNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for WhileLoopStmtNode
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(WhileLoopStmtNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for CountingForLoopStmtNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(CountingLoopStmtNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for ForLoopStmtNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ForLoopStmtNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Visitor method for LoopBottomMarks
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(LoopBottomMark node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Visitor method for VarDeclNodes
      *
      * @param node Node to visit

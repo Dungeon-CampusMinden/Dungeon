@@ -25,7 +25,10 @@ public class ListValue extends Value {
         return (ListType) this.dataType;
     }
 
-    protected ArrayList<Value> list() {
+    /**
+     * @return the internal ArrayList of this {@link ListValue}.
+     */
+    public ArrayList<Value> internalList() {
         return (ArrayList<Value>) this.object;
     }
 
@@ -35,7 +38,7 @@ public class ListValue extends Value {
      * @param value the value to add
      */
     public void addValue(Value value) {
-        list().add(value);
+        internalList().add(value);
     }
 
     /**
@@ -45,7 +48,7 @@ public class ListValue extends Value {
      * @return the Value at specified index
      */
     public Value getValue(int index) {
-        return list().get(index);
+        return internalList().get(index);
     }
 
     /**
@@ -54,11 +57,11 @@ public class ListValue extends Value {
      * @return the stored Values
      */
     public List<Value> getValues() {
-        return list();
+        return internalList();
     }
 
     public void clearList() {
-        list().clear();
+        internalList().clear();
     }
 
     // region native_methods
@@ -79,7 +82,7 @@ public class ListValue extends Value {
             Node paramNode = parameters.get(0);
             Value paramValue = (Value) paramNode.accept(interpreter);
 
-            listValue.list().add(paramValue);
+            listValue.internalList().add(paramValue);
             return null;
         }
     }
@@ -98,7 +101,7 @@ public class ListValue extends Value {
         public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
             ListValue listValue = (ListValue) instance;
 
-            return listValue.list().size();
+            return listValue.internalList().size();
         }
     }
 
@@ -121,10 +124,10 @@ public class ListValue extends Value {
             Value indexValue = (Value) indexParameterNode.accept(interpreter);
             int index = (int) indexValue.getInternalValue();
 
-            if (index >= listValue.list().size()) {
+            if (index >= listValue.internalList().size()) {
                 return Value.NONE;
             } else {
-                return listValue.list().get(index);
+                return listValue.internalList().get(index);
             }
         }
     }

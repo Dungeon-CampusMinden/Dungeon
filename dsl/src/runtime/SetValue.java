@@ -31,7 +31,10 @@ public class SetValue extends Value {
         return (SetType) this.dataType;
     }
 
-    protected HashSet<Value> set() {
+    /**
+     * @return the internal HashSet of this {@link SetValue}.
+     */
+    public HashSet<Value> internalSet() {
         return ((HashSet<Value>) this.object);
     }
     /**
@@ -47,7 +50,7 @@ public class SetValue extends Value {
             return false;
         }
         internalValueSet.add(internalValue);
-        set().add(value);
+        internalSet().add(value);
         return true;
     }
 
@@ -55,11 +58,11 @@ public class SetValue extends Value {
      * @return all stored values
      */
     public Set<Value> getValues() {
-        return set();
+        return internalSet();
     }
 
     public void clearSet() {
-        set().clear();
+        internalSet().clear();
     }
 
     // region native_methods
@@ -97,7 +100,7 @@ public class SetValue extends Value {
         public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
             SetValue setValue = (SetValue) instance;
 
-            return setValue.set().size();
+            return setValue.internalSet().size();
         }
     }
 

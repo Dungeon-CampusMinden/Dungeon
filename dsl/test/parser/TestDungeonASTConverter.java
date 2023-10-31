@@ -977,6 +977,93 @@ public class TestDungeonASTConverter {
     }
 
     @Test
+    public void testForLoop() {
+        String program =
+                """
+        fn test_func() {
+            for var_type var_name in iterable {
+                print(id);
+            }
+        }
+    """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var loopStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.LoopStmtNode, loopStmt.type);
+        ForLoopStmtNode forLoopStmtNode = (ForLoopStmtNode) loopStmt;
+        Assert.assertEquals(LoopStmtNode.LoopType.forLoop, forLoopStmtNode.loopType());
+
+        IdNode typeIdNode = (IdNode) forLoopStmtNode.getTypeIdNode();
+        Assert.assertEquals("var_type", typeIdNode.getName());
+
+        IdNode varNameIdNode = (IdNode) forLoopStmtNode.getVarIdNode();
+        Assert.assertEquals("var_name", varNameIdNode.getName());
+
+        IdNode iterableIdNode = (IdNode) forLoopStmtNode.getIterableIdNode();
+        Assert.assertEquals("iterable", iterableIdNode.getName());
+    }
+
+    @Test
+    public void testCountingForLoop() {
+        String program =
+                """
+        fn test_func() {
+            for var_type var_name in iterable count i {
+                print(id);
+            }
+        }
+    """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var loopStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.LoopStmtNode, loopStmt.type);
+        CountingLoopStmtNode forLoopStmtNode = (CountingLoopStmtNode) loopStmt;
+        Assert.assertEquals(LoopStmtNode.LoopType.countingForLoop, forLoopStmtNode.loopType());
+
+        IdNode typeIdNode = (IdNode) forLoopStmtNode.getTypeIdNode();
+        Assert.assertEquals("var_type", typeIdNode.getName());
+
+        IdNode varNameIdNode = (IdNode) forLoopStmtNode.getVarIdNode();
+        Assert.assertEquals("var_name", varNameIdNode.getName());
+
+        IdNode iterableIdNode = (IdNode) forLoopStmtNode.getIterableIdNode();
+        Assert.assertEquals("iterable", iterableIdNode.getName());
+
+        IdNode counterIdNode = (IdNode) forLoopStmtNode.getCounterIdNode();
+        Assert.assertEquals("i", counterIdNode.getName());
+    }
+
+    @Test
+    public void testWhileLoop() {
+        String program =
+                """
+        fn test_func() {
+            while expr {
+                print(id);
+            }
+        }
+    """;
+
+        var ast = Helpers.getASTFromString(program);
+        var funcDefNode = (FuncDefNode) ast.getChild(0);
+        var stmts = funcDefNode.getStmts();
+
+        var loopStmt = stmts.get(0);
+        Assert.assertEquals(Node.Type.LoopStmtNode, loopStmt.type);
+        WhileLoopStmtNode forLoopStmtNode = (WhileLoopStmtNode) loopStmt;
+        Assert.assertEquals(LoopStmtNode.LoopType.whileLoop, forLoopStmtNode.loopType());
+
+        IdNode counterIdNode = (IdNode) forLoopStmtNode.getExpressionNode();
+        Assert.assertEquals("expr", counterIdNode.getName());
+    }
+
+    @Test
     public void testGraphEdgeAttribute() {
         String program =
                 """
