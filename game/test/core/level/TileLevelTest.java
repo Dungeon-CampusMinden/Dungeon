@@ -563,7 +563,7 @@ public class TileLevelTest {
                         DesignLabel.DEFAULT);
         Tile tile =
                 TileFactory.createTile(
-                        "", new Coordinate(1, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
+                        ".png", new Coordinate(1, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
