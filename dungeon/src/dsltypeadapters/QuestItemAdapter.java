@@ -26,6 +26,6 @@ public class QuestItemAdapter {
             @DSLTypeMember(name = "texture_path") String texturePath) {
         Animation animation = new Animation(texturePath);
         TaskContentComponent tcc = new TaskContentComponent();
-        return new QuestItem(displayName, description, animation, tcc);
+        return new QuestItem(animation, tcc);
     }
 }
