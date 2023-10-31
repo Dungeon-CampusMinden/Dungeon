@@ -77,7 +77,6 @@ public class InventoryGUI extends CombinableGUI {
         this.inventoryComponent = inventoryComponent;
         this.title = title;
         this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
-
         addInputListener();
     }
 
@@ -87,7 +86,11 @@ public class InventoryGUI extends CombinableGUI {
      * @param inventoryComponent the inventory component on which the GUI is based.
      */
     public InventoryGUI(InventoryComponent inventoryComponent) {
-        this("Inventory", inventoryComponent);
+        this.inventoryComponent = inventoryComponent;
+        Game.find(inventoryComponent)
+                .ifPresentOrElse(e -> this.title = e.toString(), () -> this.title = "Inventory");
+        this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
+        addInputListener();
     }
 
     @Override
