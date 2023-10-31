@@ -72,7 +72,6 @@ public final class Game extends ScreenAdapter {
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
     private static int FRAME_RATE = 30;
-
     /**
      * Part of the pre-run configuration. If this value is true, the game will be started in full
      * screen mode.
@@ -80,7 +79,6 @@ public final class Game extends ScreenAdapter {
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
     private static boolean FULL_SCREEN = false;
-
     /**
      * Part of the pre-run configuration. The title of the Game-Window.
      *
@@ -100,11 +98,10 @@ public final class Game extends ScreenAdapter {
      * <p> Will not replace {@link #onFrame )</p>
      */
     private static IVoidFunction userOnFrame = () -> {};
-
     /**
      * Part of the pre-run configuration. This function will be called after the libgdx-setup once.
      *
-     * <p>Will not replace {@link #onSetup()} )
+     * <p>Will not replace {@link #onSetup()}
      */
     private static IVoidFunction userOnSetup = () -> {};
     /**
@@ -129,8 +126,14 @@ public final class Game extends ScreenAdapter {
     private static boolean DISABLE_AUDIO = false;
 
     private static Entity hero;
-
     private static Stage stage;
+
+    // initial entityStorage has no level
+    static {
+        levelStorageMap.put(null, activeEntityStorage);
+        activeEntityStorage.add(new EntitySystemMapper());
+    }
+
     private boolean doSetup = true;
     private boolean uiDebugFlag = false;
     private boolean newLevelWasLoadedInThisLoop = false;
@@ -154,7 +157,7 @@ public final class Game extends ScreenAdapter {
                 removeAllSystems();
                 activeEntityStorage =
                         levelStorageMap.computeIfAbsent(currentLevel(), k -> new HashSet<>());
-                // Readd the systems so that each triggerOnAdd(entity) will be called (basically
+                // readd the systems so that each triggerOnAdd(entity) will be called (basically
                 // setup). This will also create new EntitySystemMapper if needed.
                 s.values().forEach(Game::add);
 
@@ -338,7 +341,7 @@ public final class Game extends ScreenAdapter {
     /**
      * Set the function that will be executed once after the libgdx-setup.
      *
-     * <p>Will not replace {@link #onSetup()} )
+     * <p>Will not replace {@link #onSetup()}
      *
      * @param userOnSetup function that will be once after the libgdx-setup.
      * @see IVoidFunction
@@ -598,8 +601,45 @@ public final class Game extends ScreenAdapter {
      * <p>This will also remove all entities from each system.
      */
     public static void removeAllEntities() {
-        Game.entityStream().forEach(Game::remove);
+        allEntities().forEach(Game::remove);
         LOGGER.info("All entities will be removed from the game.");
+    }
+
+    /**
+     * Use this stream if you want to iterate over all active entities.
+     *
+     * <p>Use {@link #entityStream()} if you want to iterate over all active entities.
+     *
+     * @return a stream of all entities currently in the game
+     */
+    public static Stream<Entity> allEntities() {
+        Set<Entity> allEntities = new HashSet<>();
+        levelStorageMap
+                .values()
+                .forEach(
+                        entitySystemMappers ->
+                                entitySystemMappers.forEach(
+                                        entitySystemMapper ->
+                                                entitySystemMapper.stream()
+                                                        .forEach(e -> allEntities.add(e))));
+
+        return allEntities.stream();
+    }
+
+    /**
+     * Find the entity that contains the given component instance.
+     *
+     * @param component Component instance where the entity is searched for.
+     * @return An Optional containing the found Entity, or an empty Optional if not found.
+     */
+    public static Optional<Entity> find(Component component) {
+        return allEntities()
+                .filter(
+                        entity ->
+                                entity.fetch(component.getClass())
+                                        .map(component::equals)
+                                        .orElse(false))
+                .findFirst();
     }
 
     public static Optional<Stage> stage() {
