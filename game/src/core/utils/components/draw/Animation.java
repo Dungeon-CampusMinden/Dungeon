@@ -76,7 +76,7 @@ public final class Animation {
      * @param prio priority for playing this animation
      */
     public Animation(Collection<String> animationFrames, int frameTime, int prio) {
-        this(animationFrames, frameTime, true, prio);
+        this(animationFrames, frameTime, DEFAULT_IS_LOOP, prio);
     }
 
     /**
@@ -85,17 +85,18 @@ public final class Animation {
      * @param animationFrames The list of textures that builds the animation. Must be in order.
      */
     public Animation(Collection<String> animationFrames) {
-        this(animationFrames, DEFAULT_FRAME_TIME, true, CoreAnimationPriorities.DEFAULT.priority());
+        this(animationFrames, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, CoreAnimationPriorities.DEFAULT.priority());
     }
 
     /**
      * Creates an animation containing only one frame. repeats forever
      *
+     *
      * @param animationFrame The texture that builds the animation.
      * @param prio priority for playing this animation
      */
     public Animation(String animationFrame, int prio) {
-        this(Set.of(animationFrame), 1, true, prio);
+        this(Set.of(animationFrame), Animation.DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, prio);
     }
 
     /**
