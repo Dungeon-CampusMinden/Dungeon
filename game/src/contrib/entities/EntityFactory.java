@@ -1,5 +1,8 @@
 package contrib.entities;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.GUICombination;
@@ -30,7 +33,6 @@ import java.util.Comparator;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -39,7 +41,6 @@ import java.util.stream.IntStream;
  * static methods to construct various types of entities with different components.
  */
 public class EntityFactory {
-    private static final Logger LOGGER = Logger.getLogger(EntityFactory.class.getName());
     private static final Random RANDOM = new Random();
     private static final String HERO_FILE_PATH = "character/knight";
     private static final float X_SPEED_HERO = 7.5f;
@@ -85,7 +86,19 @@ public class EntityFactory {
         hero.addComponent(new PositionComponent());
         hero.addComponent(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO));
         hero.addComponent(new DrawComponent(HERO_FILE_PATH));
-        HealthComponent hc = new HealthComponent(200, Game::remove);
+        HealthComponent hc =
+                new HealthComponent(
+                        200,
+                        entity -> {
+                            Sound sound =
+                                    Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
+                            long soundId = sound.play();
+                            sound.setLooping(soundId, false);
+                            sound.setVolume(soundId, 0.3f);
+                            sound.setLooping(soundId, false);
+                            sound.play();
+                            sound.setVolume(soundId, 0.9f);
+                        });
         hero.addComponent(hc);
         hero.addComponent(
                 new CollideComponent(
@@ -197,7 +210,13 @@ public class EntityFactory {
                                                     new Tuple<>(
                                                             x,
                                                             x.fetch(UIComponent.class)
-                                                                    .get())) // create a tuple to
+                                                                    .orElseThrow(
+                                                                            () ->
+                                                                                    MissingComponentException
+                                                                                            .build(
+                                                                                                    x,
+                                                                                                    UIComponent
+                                                                                                            .class)))) // create a tuple to
                                     // still have access to
                                     // the UI Entity
                                     .filter(x -> x.b().closeOnUICloseKey())
@@ -366,9 +385,13 @@ public class EntityFactory {
             InventoryComponent ic = new InventoryComponent(1);
             monster.addComponent(ic);
             ic.add(item);
-            onDeath = new DropItemsInteraction();
+            onDeath =
+                    (e, who) -> {
+                        playMonsterDieSound();
+                        new DropItemsInteraction().accept(e, who);
+                    };
         } else {
-            onDeath = (e, who) -> {};
+            onDeath = (e, who) -> playMonsterDieSound();
         }
         monster.addComponent(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
         monster.addComponent(new PositionComponent());
@@ -385,6 +408,37 @@ public class EntityFactory {
                         MONSTER_COLLIDE_DAMAGE,
                         MONSTER_COLLIDE_DAMAGE_TYPE,
                         MONSTER_COLLIDE_COOL_DOWN));
+        monster.addComponent(new IdleSoundComponent(randomMonsterIdleSound()));
         return monster;
+    }
+
+    private static void playMonsterDieSound() {
+        Sound dieSoundEffect;
+        switch (RANDOM.nextInt(4)) {
+            case 0 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_01.wav"));
+            case 1 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_02.wav"));
+            case 2 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_03.wav"));
+            default -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_04.wav"));
+        }
+        long soundid = dieSoundEffect.play();
+        dieSoundEffect.setLooping(soundid, false);
+        dieSoundEffect.setVolume(soundid, 0.35f);
+    }
+
+    private static String randomMonsterIdleSound() {
+        switch (RANDOM.nextInt(4)) {
+            case 0 -> {
+                return "sounds/monster1.wav";
+            }
+            case 1 -> {
+                return "sounds/monster2.wav";
+            }
+            case 2 -> {
+                return "sounds/monster3.wav";
+            }
+            default -> {
+                return "sounds/monster4.wav";
+            }
+        }
     }
 }
