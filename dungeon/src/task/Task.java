@@ -351,6 +351,12 @@ public abstract class Task {
         this.pointsToSolve = pointsToSolve;
     }
 
+    /**
+     * Find the entity that stores the given content.
+     *
+     * @param taskContent Content we are looking for.
+     * @return the entity that stores the given content, empty if no entity stores the content.
+     */
     public Optional<Entity> find(TaskContent taskContent) {
         return Game.allEntities()
                 .filter(e -> e.isPresent(TaskContentComponent.class))
