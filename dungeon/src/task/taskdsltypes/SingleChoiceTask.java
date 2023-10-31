@@ -8,6 +8,7 @@ import semanticanalysis.types.IDSLExtensionMethod;
 import task.Quiz;
 import task.Task;
 import task.TaskContent;
+import task.quizquestion.MultipleChoice;
 import task.quizquestion.SingleChoice;
 
 import java.util.ArrayList;
@@ -15,6 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Typeadapter for the creation of {@link SingleChoice} instances via dsl.
+ */
 public class SingleChoiceTask {
 
     @DSLTypeAdapter(name = "single_choice_task")
@@ -57,6 +61,10 @@ public class SingleChoiceTask {
         }
     }
 
+    /**
+     * {@link IDSLExtensionMethod} to get the stored {@link TaskContent} of a
+     * {@link SingleChoice} instance
+     */
     @DSLExtensionMethod(name = "get_content", extendedType = SingleChoice.class)
     public static class GetContentMethod
             implements IDSLExtensionMethod<SingleChoice, List<TaskContent>> {

@@ -15,6 +15,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Typeadapter for creation of {@link MultipleChoice} instances via dsl.
+ */
 public class MultipleChoiceTask {
     @DSLTypeAdapter(name = "multiple_choice_task")
     public static MultipleChoice buildQuizFromMultipleChoiceTask(
@@ -58,6 +61,10 @@ public class MultipleChoiceTask {
         return (float) givenCorrectAnswers / (float) totalCorrectAnswers;
     }
 
+    /**
+     * {@link IDSLExtensionMethod} to get the stored {@link TaskContent} of a
+     * {@link MultipleChoice} instance
+     */
     @DSLExtensionMethod(name = "get_content", extendedType = MultipleChoice.class)
     public static class GetContentMethod
             implements IDSLExtensionMethod<MultipleChoice, List<TaskContent>> {
