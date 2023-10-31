@@ -31,9 +31,7 @@ multiple_choice_task wuppie4 {
 }
 
 graph g_one{
-    aufgabe_1;
-    wuppie1;
-    wuppie2;
+    aufgabe_1->wuppie1->wuppie2[type=seq];
 }
 
 graph g_two{

@@ -87,7 +87,7 @@ public class WizardTaskSelector {
     protected static SingleChoice selectTaskQuestion(Set<DSLEntryPoint> entryPoints) {
         SingleChoice question = new SingleChoice("Wähle deine Mission:");
         entryPoints.forEach(ep -> question.addAnswer(new PayloadTaskContent(ep)));
-        question.state(Task.TaskState.ACTIVE);
+        question.state(Task.TaskState.PROCESSING_ACTIVE);
         return question;
     }
 

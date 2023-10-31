@@ -1,5 +1,9 @@
 package starter;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
+
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
@@ -41,6 +45,7 @@ import java.util.function.Consumer;
  * paths.
  */
 public class Starter {
+    private static final String BACKGROUND_MUSIC = "sounds/background.wav";
     private static boolean realGameStarted = false;
     private static final DSLInterpreter dslInterpreter = new DSLInterpreter();
 
@@ -48,7 +53,7 @@ public class Starter {
             entity -> {
                 StringBuilder questLogBuilder = new StringBuilder();
                 Task.allTasks()
-                        .filter(t -> t.state() == Task.TaskState.ACTIVE)
+                        .filter(t -> t.state() == Task.TaskState.PROCESSING_ACTIVE)
                         .forEach(
                                 task ->
                                         questLogBuilder
@@ -81,7 +86,7 @@ public class Starter {
     private static void onEntryPointSelection() {
         Game.userOnFrame(
                 () -> {
-
+                    debugKey();
                     // the player selected a Task/DSL-Entrypoint but it´s not loaded yet:
                     if (!realGameStarted && WizardTaskSelector.selectedDSLEntryPoint != null) {
                         realGameStarted = true;
@@ -92,6 +97,7 @@ public class Starter {
                         ILevel level =
                                 TaskGraphConverter.convert(
                                         config.dependencyGraph(), dslInterpreter);
+
                         Game.currentLevel(level);
                     }
                 });
@@ -103,6 +109,7 @@ public class Starter {
                     createHero();
                     createSystems();
                     Game.currentLevel(WizardTaskSelector.wizardLevel());
+                    setupMusic();
                 });
 
         // load the wizard task selector level
@@ -153,7 +160,7 @@ public class Starter {
         Game.initBaseLogger();
         Game.windowTitle("DSL Dungeon");
         Game.frameRate(30);
-        Game.disableAudio(true);
+        Game.disableAudio(false);
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
@@ -171,5 +178,24 @@ public class Starter {
         Game.add(new HeroUISystem());
         Game.add(new HudSystem());
         Game.add(new SpikeSystem());
+        Game.add(new IdleSoundSystem());
+    }
+
+    private static void setupMusic() {
+        Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
+        backgroundMusic.setLooping(true);
+        backgroundMusic.play();
+        backgroundMusic.setVolume(.1f);
+    }
+
+    private static void debugKey() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            Task.allTasks()
+                    .filter(t -> t.state() == Task.TaskState.PROCESSING_ACTIVE)
+                    .findFirst()
+                    .get()
+                    .state(Task.TaskState.FINISHED_CORRECT);
+            System.out.println(Task.allTasks());
+        }
     }
 }

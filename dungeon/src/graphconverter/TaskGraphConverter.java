@@ -264,8 +264,8 @@ public class TaskGraphConverter {
                 .forEachRemaining(
                         taskEdge ->
                                 PetriNetFactory.connect(
-                                        noteToNet.get(taskEdge.startNode()),
                                         noteToNet.get(taskEdge.endNode()),
+                                        noteToNet.get(taskEdge.startNode()),
                                         taskEdge.edgeType()));
 
         // init token
