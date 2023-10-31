@@ -10,8 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-// TODO: make this a subclass of AggregateType
-// TODO: add class description
+/**
+ * A Prototype stores default values for some AggregateValue.
+ */
 public class Prototype extends Value implements IType {
     public static BuiltInType PROTOTYPE = new BuiltInType("prototype", Scope.NULL, (v) -> false);
     public static BuiltInType ITEM_PROTOTYPE =
