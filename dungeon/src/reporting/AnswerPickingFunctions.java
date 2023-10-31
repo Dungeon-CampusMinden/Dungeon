@@ -49,7 +49,12 @@ public class AnswerPickingFunctions {
         return task -> {
             TaskContent containerContent =
                     (TaskContent) task.containerStream().findFirst().orElseThrow();
-            Entity container = task.find(containerContent);
+            Entity container =
+                    task.find((TaskContent) containerContent)
+                            .orElseThrow(
+                                    () ->
+                                            new NullPointerException(
+                                                    "The container does not exist in the game."));
             InventoryComponent ic =
                     container
                             .fetch(InventoryComponent.class)
@@ -57,7 +62,7 @@ public class AnswerPickingFunctions {
                                     () ->
                                             MissingComponentException.build(
                                                     container, InventoryComponent.class));
-            Item[] answerItems = ic.items(QuestItem.class);
+            Set<Item> answerItems = ic.items(QuestItem.class);
             Set<TaskContent> res = new HashSet<>();
             for (Item i : answerItems) {
                 res.add(((QuestItem) i).taskContentComponent().content());
@@ -91,7 +96,12 @@ public class AnswerPickingFunctions {
             task.containerStream()
                     .forEach(
                             containerContent -> {
-                                Entity container = task.find((TaskContent) containerContent);
+                                Entity container =
+                                        task.find((TaskContent) containerContent)
+                                                .orElseThrow(
+                                                        () ->
+                                                                new NullPointerException(
+                                                                        "The container does not exist in the game."));
                                 InventoryComponent ic =
                                         container
                                                 .fetch(InventoryComponent.class)
@@ -100,7 +110,7 @@ public class AnswerPickingFunctions {
                                                                 MissingComponentException.build(
                                                                         container,
                                                                         InventoryComponent.class));
-                                Item[] answerItems = ic.items(QuestItem.class);
+                                Set<Item> answerItems = ic.items(QuestItem.class);
                                 Set<TaskContent> res = new HashSet<>();
                                 for (Item i : answerItems) {
                                     res.add(((QuestItem) i).taskContentComponent().content());
