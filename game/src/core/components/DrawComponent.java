@@ -280,7 +280,7 @@ public final class DrawComponent implements Component {
      *
      * @param queue
      */
-    public void setAnimationQueue(Map<IPath, Integer> queue) {
+    public void animationQueue(Map<IPath, Integer> queue) {
         animationQueue = queue;
     }
 
