@@ -1,6 +1,7 @@
 package task;
 
 import core.Entity;
+import core.Game;
 import core.utils.logging.CustomLogLevel;
 
 import petriNet.Place;
@@ -8,6 +9,7 @@ import petriNet.Place;
 import semanticanalysis.types.DSLType;
 
 import task.components.TaskComponent;
+import task.components.TaskContentComponent;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -347,6 +349,18 @@ public abstract class Task {
     public void points(float points, float pointsToSolve) {
         this.points = points;
         this.pointsToSolve = pointsToSolve;
+    }
+
+    public Optional<Entity> find(TaskContent taskContent) {
+        return Game.allEntities()
+                .filter(e -> e.isPresent(TaskContentComponent.class))
+                .filter(
+                        e -> {
+                            TaskContentComponent taskContentComponent =
+                                    e.fetch(TaskContentComponent.class).get();
+                            return taskContentComponent.content().equals(taskContent);
+                        })
+                .findFirst();
     }
 
     public int id() {
