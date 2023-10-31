@@ -16,7 +16,7 @@ import task.TaskContent;
  */
 public final class TaskContentComponent implements Component {
 
-    private final TaskContent content;
+    private TaskContent content;
 
     /**
      * Create a new TaskContentComponent and add it to the associated entity.
@@ -27,12 +27,20 @@ public final class TaskContentComponent implements Component {
         this.content = content;
     }
 
+    /** Create a new TaskContentComponent. */
+    public TaskContentComponent() {}
+
     /**
-     * Return the internal Set of represented {@link TaskContent}s as Stream.
+     * Return the internal represented {@link TaskContent}.
      *
-     * @return internal Set as stream
+     * @return internal {@link TaskContent}
      */
     public TaskContent content() {
         return content;
+    }
+
+    /** Set the internal represented {@link TaskContent}. */
+    public void content(TaskContent content) {
+        this.content = content;
     }
 }

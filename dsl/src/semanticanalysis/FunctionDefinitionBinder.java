@@ -62,6 +62,11 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     }
 
     @Override
+    public Void visit(ItemPrototypeDefinitionNode node) {
+        return null;
+    }
+
+    @Override
     public Void visit(FuncDefNode node) {
         // check, if symbol with the name was already bound
         var funcName = node.getIdName();

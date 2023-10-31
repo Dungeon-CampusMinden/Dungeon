@@ -4,6 +4,7 @@ import parser.ast.*;
 
 import runtime.IEvironment;
 
+import semanticanalysis.ScopedSymbol;
 import semanticanalysis.Symbol;
 import semanticanalysis.SymbolTable;
 
@@ -65,6 +66,59 @@ public class TypeBinder implements AstVisitor<Object> {
 
         this.environment.loadTypes(newType);
         return newType;
+    }
+
+    @Override
+    public Object visit(ItemPrototypeDefinitionNode node) {
+        // create new type with name of definition node and load it in environment
+        var newTypeName = node.getIdName();
+        if (resolveGlobal(newTypeName) != Symbol.NULL) {
+            // TODO: reference file and location of definition
+            this.errorStringBuilder.append(
+                    "Symbol with name '" + newTypeName + "' already defined");
+            // TODO: return explicit null-Type?
+            return null;
+        }
+
+        var itemType = new AggregateType(newTypeName, this.symbolTable().getGlobalScope());
+        symbolTable().addSymbolNodeRelation(itemType, node, true);
+
+        Symbol questItemTypeSymbol = this.environment.resolveInGlobalScope("quest_item");
+        if (Symbol.NULL == questItemTypeSymbol) {
+            throw new RuntimeException("'quest_item' cannot be resolved in global scope!");
+        }
+
+        if (!(questItemTypeSymbol instanceof IType questItemType)) {
+            throw new RuntimeException("Symbol with name 'quest_item' is no type!");
+        }
+
+        if (!(questItemType instanceof ScopedSymbol scopedQuestItemType)) {
+            throw new RuntimeException("Symbol with name 'quest_item' is no scoped symbol!");
+        }
+
+        for (Node propertyDefinition : node.getPropertyDefinitionNodes()) {
+            var propertyDefinitionNode = (PropertyDefNode) propertyDefinition;
+            String propertyName = ((PropertyDefNode) propertyDefinition).getIdName();
+            Symbol propertySymbol = scopedQuestItemType.resolve(propertyName, false);
+            if (propertySymbol == Symbol.NULL) {
+                throw new RuntimeException(
+                        "Cannot resolve property of name '"
+                                + propertyName
+                                + "' in type '"
+                                + questItemType
+                                + "'");
+            }
+
+            // the itemType will be its own independent datatype, so create a new symbol for the
+            // property definition
+            // in the new itemType
+            var memberSymbol = new Symbol(propertyName, itemType, propertySymbol.getDataType());
+            itemType.bind(memberSymbol);
+            symbolTable().addSymbolNodeRelation(memberSymbol, propertyDefinitionNode, true);
+        }
+
+        this.environment.loadTypes(itemType);
+        return itemType;
     }
 
     @Override

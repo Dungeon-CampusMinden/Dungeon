@@ -476,6 +476,16 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for ItemPrototypeDefinitionNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(ItemPrototypeDefinitionNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Visit all children of the passed node
      *
      * @param node The node to visit all children of

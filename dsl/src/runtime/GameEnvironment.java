@@ -2,6 +2,8 @@ package runtime;
 
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
+import contrib.entities.WorldItemBuilder;
+import contrib.item.Item;
 
 import core.Entity;
 import core.components.DrawComponent;
@@ -12,21 +14,27 @@ import core.level.Tile;
 import dslnativefunction.NativeInstantiate;
 
 import dsltypeadapters.DrawComponentAdapter;
+import dsltypeadapters.QuestItemAdapter;
 
 import dsltypeproperties.EntityExtension;
+import dsltypeproperties.QuestItemExtension;
 
 import dungeonFiles.DungeonConfig;
 
+import interpreter.DSLInterpreter;
+
+import parser.ast.Node;
+
+import runtime.nativefunctions.NativeFunction;
 import runtime.nativefunctions.NativePrint;
 
 import semanticanalysis.*;
-import semanticanalysis.types.BuiltInType;
-import semanticanalysis.types.IDSLTypeProperty;
-import semanticanalysis.types.IType;
-import semanticanalysis.types.TypeBuilder;
+import semanticanalysis.types.*;
 
+import task.QuestItem;
 import task.Quiz;
 import task.Task;
+import task.TaskContent;
 import task.components.TaskComponent;
 import task.taskdsltypes.MultipleChoiceTask;
 import task.taskdsltypes.SingleChoiceDescriptionProperty;
@@ -60,6 +68,7 @@ public class GameEnvironment implements IEvironment {
                 new Class[] {
                     DungeonConfig.class,
                     Entity.class,
+                    QuestItem.class,
                     PositionComponent.class,
                     VelocityComponent.class,
                     AIComponent.class,
@@ -67,6 +76,7 @@ public class GameEnvironment implements IEvironment {
                     DrawComponent.class,
                     TaskComponent.class,
                     Task.class,
+                    TaskContent.class,
                     // SingleChoiceTask.class,
                     Quiz.Content.class,
                     Tile.Direction.class
@@ -82,8 +92,18 @@ public class GameEnvironment implements IEvironment {
         properties.add(EntityExtension.DrawComponentProperty.instance);
         properties.add(EntityExtension.TaskComponentProperty.instance);
         properties.add(TaskComponent.TaskProperty.instance);
+        properties.add(QuestItemExtension.TaskContentComponentProperty.instance);
 
         return properties;
+    }
+
+    public List<IDSLExtensionMethod<?, ?>> getBuiltInMethods() {
+        ArrayList<IDSLExtensionMethod<?, ?>> methods = new ArrayList<>();
+
+        methods.add(SingleChoiceTask.GetContentMethod.instance);
+        methods.add(MultipleChoiceTask.GetContentMethod.instance);
+
+        return methods;
     }
 
     @Override
@@ -100,9 +120,6 @@ public class GameEnvironment implements IEvironment {
         this.globalScope = new Scope();
         this.symbolTable = new SymbolTable(this.globalScope);
 
-        // create built in types and native functions
-        this.NATIVE_FUNCTIONS = buildNativeFunctions();
-
         bindBuiltInTypes();
 
         registerDefaultTypeAdapters();
@@ -110,7 +127,10 @@ public class GameEnvironment implements IEvironment {
         bindBuiltInAggregateTypes();
 
         bindBuiltInProperties();
+        bindBuiltInMethods();
 
+        // create built in types and native functions
+        this.NATIVE_FUNCTIONS = buildNativeFunctions();
         bindNativeFunctions();
     }
 
@@ -119,6 +139,7 @@ public class GameEnvironment implements IEvironment {
 
         typeBuilder.registerTypeAdapter(SingleChoiceTask.class, this.globalScope);
         typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
+        typeBuilder.registerTypeAdapter(QuestItemAdapter.class, this.globalScope);
     }
 
     protected void registerDefaultRuntimeObjectTranslators() {}
@@ -211,6 +232,12 @@ public class GameEnvironment implements IEvironment {
         }
     }
 
+    protected void bindBuiltInMethods() {
+        for (IDSLExtensionMethod<?, ?> method : getBuiltInMethods()) {
+            this.typeBuilder.bindMethod(this.globalScope, method);
+        }
+    }
+
     private void bindBuiltInTypes() {
         this.globalScope.bind(BuiltInType.noType);
         this.globalScope.bind(BuiltInType.boolType);
@@ -219,12 +246,136 @@ public class GameEnvironment implements IEvironment {
         this.globalScope.bind(BuiltInType.stringType);
         this.globalScope.bind(BuiltInType.graphType);
         this.globalScope.bind(Prototype.PROTOTYPE);
+        this.globalScope.bind(Prototype.ITEM_PROTOTYPE);
     }
 
-    private static ArrayList<Symbol> buildNativeFunctions() {
+    private ArrayList<Symbol> buildNativeFunctions() {
         ArrayList<Symbol> nativeFunctions = new ArrayList<>();
         nativeFunctions.add(NativePrint.func);
         nativeFunctions.add(NativeInstantiate.func);
+
+        // build functions with dependency on specific non-builtin types
+        IType questItemType = (IType) this.globalScope.resolve("quest_item");
+        IType entityType = (IType) this.globalScope.resolve("entity");
+        IType entitySetType = new SetType(entityType, this.globalScope);
+
+        NativeFunction placeQuestItem =
+                new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
+        nativeFunctions.add(placeQuestItem);
+
+        IType taskContentType = (IType) this.globalScope.resolve("task_content");
+        NativeFunction nativeBuildQuestItem =
+                new NativeBuildQuestItem(Scope.NULL, questItemType, taskContentType);
+        nativeFunctions.add(nativeBuildQuestItem);
+
         return nativeFunctions;
     }
+
+    // region native functions with dependency on specific types
+
+    /** Native function to place a quest item in a "room" (which is represented by an entity set) */
+    private static class NativePlaceQuestItem extends NativeFunction {
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         * @param questItemType the {@link IType} representing quest items
+         * @param entitySetType the {@link IType} representing a {@link SetValue} of entities
+         */
+        public NativePlaceQuestItem(IScope parentScope, IType questItemType, IType entitySetType) {
+            super(
+                    "place_quest_item",
+                    parentScope,
+                    new FunctionType(BuiltInType.noType, questItemType, entitySetType));
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            // evaluate parameters
+            RuntimeEnvironment rtEnv = interpreter.getRuntimeEnvironment();
+            Value questItemValue = (Value) parameters.get(0).accept(interpreter);
+            SetValue entitySetValue = (SetValue) parameters.get(1).accept(interpreter);
+
+            // build an entity for the quest item with the WorldItemBuilder
+            var questItemObject = questItemValue.getInternalValue();
+            var worldEntity = WorldItemBuilder.buildWorldItem((Item) questItemObject);
+
+            // add the world entity to the SetValue passed to this function
+            var worldEntityValue =
+                    (Value)
+                            rtEnv.translateRuntimeObject(
+                                    worldEntity, interpreter.getCurrentMemorySpace());
+            entitySetValue.addValue(worldEntityValue);
+
+            return null;
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    /**
+     * Native function to create a {@link QuestItem} from an item prototype; will link a passed task
+     * content automatically to the internal {@link task.components.TaskContentComponent} of the
+     * newly created {@link QuestItem}.
+     */
+    private class NativeBuildQuestItem extends NativeFunction {
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         * @param questItemType {@link IType} representing quest items
+         * @param contentType {@link IType} representing task content
+         */
+        private NativeBuildQuestItem(IScope parentScope, IType questItemType, IType contentType) {
+            super(
+                    "build_quest_item",
+                    parentScope,
+                    new FunctionType(questItemType, Prototype.ITEM_PROTOTYPE, contentType));
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            // evaluate parameters
+            RuntimeEnvironment rtEnv = interpreter.getRuntimeEnvironment();
+            Value prototypeValue = (Value) parameters.get(0).accept(interpreter);
+            Value contentValue = (Value) parameters.get(1).accept(interpreter);
+
+            // check for correct parameter type
+            if (prototypeValue.getDataType() != Prototype.ITEM_PROTOTYPE) {
+                throw new RuntimeException(
+                        "Wrong type ('"
+                                + prototypeValue.getDataType().getName()
+                                + "') of parameter for call of build_quest_item()!");
+            } else {
+                // instantiate new QuestItem from passed item prototype
+                var dslItemInstance =
+                        (AggregateValue)
+                                interpreter.instantiateDSLValue((Prototype) prototypeValue);
+                var questItemType = (AggregateType) rtEnv.getGlobalScope().resolve("quest_item");
+                var questItemObject =
+                        (QuestItem)
+                                interpreter.instantiateRuntimeValue(dslItemInstance, questItemType);
+
+                // link the passed TaskContent to the newly created QuestItem
+                var contentObject = (TaskContent) contentValue.getInternalValue();
+                questItemObject.taskContentComponent().content(contentObject);
+
+                return questItemObject;
+            }
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    // endregion
 }

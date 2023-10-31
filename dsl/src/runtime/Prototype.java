@@ -10,29 +10,49 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-// TODO: make this a subclass of AggregateType
-// TODO: add class description
+/** A Prototype stores default values for some AggregateValue. */
 public class Prototype extends Value implements IType {
-    public static Prototype NONE = new Prototype(new AggregateType("NO_TYPE_NAME", Scope.NULL));
     public static BuiltInType PROTOTYPE = new BuiltInType("prototype", Scope.NULL, (v) -> false);
+    public static BuiltInType ITEM_PROTOTYPE =
+            new BuiltInType("item_prototype", Scope.NULL, (v) -> false);
+    public static Prototype NONE =
+            new Prototype(PROTOTYPE, new AggregateType("NO_TYPE_NAME", Scope.NULL));
+    private final AggregateType internalType;
+
     private final HashMap<String, Value> defaultValues;
 
-    private final AggregateType internalType;
+    /**
+     * Constructor
+     *
+     * @param prototypeType the {@link BuiltInType} of this Prototype (either {@link
+     *     Prototype#ITEM_PROTOTYPE} or {@link Prototype#PROTOTYPE}
+     */
+    public Prototype(BuiltInType prototypeType, AggregateType internalType) {
+        // an Prototype is a value and a type at the same time
+        super(prototypeType, Value.NONE);
+        assert prototypeType == PROTOTYPE || prototypeType == ITEM_PROTOTYPE;
+        this.internalType = internalType;
+        defaultValues = new HashMap<>();
+    }
 
     public AggregateType getInternalType() {
         return internalType;
     }
 
     /**
-     * Constructor
-     *
-     * @param internalType the {@link AggregateType} of which this is a Prototype
+     * @return the name of the internal datatype
      */
-    public Prototype(AggregateType internalType) {
-        // an Prototype is a value and a type at the same time
-        super(PROTOTYPE, Value.NONE);
-        this.internalType = internalType;
-        defaultValues = new HashMap<>();
+    @Override
+    public String getName() {
+        return internalType.getName();
+    }
+
+    /**
+     * @return the {@link IType.Kind} of the internal datatype
+     */
+    @Override
+    public Kind getTypeKind() {
+        return internalType.getTypeKind();
     }
 
     /**
@@ -65,21 +85,5 @@ public class Prototype extends Value implements IType {
      */
     public Set<Map.Entry<String, Value>> getDefaultValues() {
         return this.defaultValues.entrySet();
-    }
-
-    /**
-     * @return the name of the internal datatype
-     */
-    @Override
-    public String getName() {
-        return internalType.getName();
-    }
-
-    /**
-     * @return the {@link IType.Kind} of the internal datatype
-     */
-    @Override
-    public Kind getTypeKind() {
-        return internalType.getTypeKind();
     }
 }

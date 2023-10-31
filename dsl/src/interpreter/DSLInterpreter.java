@@ -105,6 +105,18 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
+     * Creates {@link Prototype} instances for all `entity_type` and `item_type` definitions in the
+     * global scope of the passed {@link IEvironment}.
+     *
+     * @param environment the {@link IEvironment} in which's global scope to search for prototype
+     *     definitions.
+     */
+    public void createPrototypes(IEvironment environment) {
+        createGameObjectPrototypes(environment);
+        createItemPrototypes(environment);
+    }
+
+    /**
      * Iterates over all types in the passed IEnvironment and creates a {@link Prototype} for any
      * game object definition, which was defined by the user
      *
@@ -118,7 +130,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // create a prototype for it
                 var creationAstNode = symbolTable().getCreationAstNode((Symbol) type);
                 if (creationAstNode.type.equals(Node.Type.PrototypeDefinition)) {
-                    var prototype = new Prototype((AggregateType) type);
+                    var prototype = new Prototype(Prototype.PROTOTYPE, (AggregateType) type);
 
                     var gameObjDefNode = (PrototypeDefinitionNode) creationAstNode;
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
@@ -135,6 +147,79 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
     }
 
+    /**
+     * Create {@link Prototype} instances for {@link ItemPrototypeDefinitionNode}s in the global
+     * scope of passed {@link IEvironment}. The created prototypes will be registered in the {@link
+     * RuntimeEnvironment} of this {@link DSLInterpreter} and is stored as a {@link Value} in the
+     * global {@link IMemorySpace} of the interpreter.
+     *
+     * @param environment the {@link IEvironment} to search for item prototype definitions
+     */
+    public void createItemPrototypes(IEvironment environment) {
+        // iterate over all types
+        for (var type : environment.getTypes()) {
+            if (type.getTypeKind().equals(IType.Kind.Aggregate)) {
+                // if the type has a creation node, it is user defined, and we need to
+                // create a prototype for it
+                var creationAstNode = symbolTable().getCreationAstNode((Symbol) type);
+                if (creationAstNode.type.equals(Node.Type.ItemPrototypeDefinition)) {
+                    var prototype =
+                            createItemPrototype((ItemPrototypeDefinitionNode) creationAstNode);
+
+                    this.environment.addPrototype(prototype);
+                    this.getGlobalMemorySpace().bindValue(prototype.getName(), prototype);
+                }
+            }
+        }
+    }
+
+    private Prototype createItemPrototype(ItemPrototypeDefinitionNode node) {
+        var itemPrototypeDefinitionSymbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
+        assert itemPrototypeDefinitionSymbol instanceof AggregateType;
+        AggregateType itemType = (AggregateType) itemPrototypeDefinitionSymbol;
+
+        // the Prototype for a component does only live inside the
+        // datatype definition, because it is part of the definition
+        // evaluate rhs and store the value in the member of
+        // the prototype
+        AggregateType questItemType =
+                (AggregateType) this.environment.resolveInGlobalScope("quest_item");
+        Prototype itemPrototype = new Prototype(Prototype.ITEM_PROTOTYPE, itemType);
+        for (var propDef : node.getPropertyDefinitionNodes()) {
+            var propertyDefNode = (PropertyDefNode) propDef;
+            var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
+
+            // get type of lhs (the assignee)
+            var propertyName = propertyDefNode.getIdName();
+            Symbol propertySymbol = symbolTable().getSymbolsForAstNode(propDef).get(0);
+            if (propertySymbol.equals(Symbol.NULL)) {
+                throw new RuntimeException(
+                        "Property of name '"
+                                + propertyName
+                                + "' cannot be resolved in type '"
+                                + questItemType.getName()
+                                + "'");
+            }
+            var propertiesType = propertySymbol.getDataType();
+
+            // clone value
+            Value value = (Value) rhsValue.clone();
+
+            // promote value to property's datatype
+            // TODO: typechecking must be performed before this
+            value.setDataType((IType) propertiesType);
+
+            // indicate, that the value is "dirty", which means it was set
+            // explicitly and needs to be set in the java object corresponding
+            // to the component
+            value.setDirty();
+
+            var valueName = propertyDefNode.getIdName();
+            itemPrototype.addDefaultValue(valueName, value);
+        }
+        return itemPrototype;
+    }
+
     private Prototype createComponentPrototype(AggregateValueDefinitionNode node) {
         var componentSymbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
         assert componentSymbol.getDataType() instanceof AggregateType;
@@ -144,7 +229,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // evaluate rhs and store the value in the member of
         // the prototype
         AggregateType prototypesType = (AggregateType) componentSymbol.getDataType();
-        Prototype componentPrototype = new Prototype(prototypesType);
+        Prototype componentPrototype = new Prototype(Prototype.PROTOTYPE, prototypesType);
         for (var propDef : node.getPropertyDefinitionNodes()) {
             var propertyDefNode = (PropertyDefNode) propDef;
             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
@@ -247,22 +332,14 @@ public class DSLInterpreter implements AstVisitor<Object> {
      *     {@link Task} could be found, an empty {@link Optional} will be returned.
      */
     public Optional<Object> buildTask(Task task) {
-        // TODO: this class is the actual class and there will be a direct correllation
-        //  between clazz and the type created by TypeBuilder (currently they all point to Task)
-        var clazz = task.getClass();
+        var taskClass = task.getClass();
 
-        // String typeName = "";
         IType type =
                 this.environment
                         .getTypeBuilder()
-                        .createDSLTypeForJavaTypeInScope(this.environment.getGlobalScope(), clazz);
+                        .createDSLTypeForJavaTypeInScope(
+                                this.environment.getGlobalScope(), taskClass);
         String typeName = type.getName();
-        /*
-        if (clazz.equals(SingleChoice.class)) {
-            typeName = type.getName();
-        } else if (clazz.equals(MultipleChoice.class)) {
-            typeName = "multiple_choice_task";
-        }*/
 
         Symbol potentialTaskType = this.environment.getGlobalScope().resolve(typeName);
         if (potentialTaskType == Symbol.NULL || !(potentialTaskType instanceof IType)) {
@@ -446,7 +523,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      *     #initializeRuntime(IEvironment)})
      */
     public Object generateQuestConfig(Node programAST) {
-        createGameObjectPrototypes(this.environment);
+        createPrototypes(this.environment);
 
         // find quest_config definition
         for (var node : programAST.getChildren()) {
@@ -462,7 +539,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     protected DungeonConfig generateQuestConfig(ObjectDefNode configDefinitionNode) {
-        createGameObjectPrototypes(this.environment);
+        createPrototypes(this.environment);
         Value configValue = (Value) configDefinitionNode.accept(this);
         Object config = configValue.getInternalValue();
         if (config instanceof DungeonConfig) {
@@ -717,15 +794,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
             if (!(returnValue instanceof Value)) {
                 // package it into value
-                var valueClass = returnValue.getClass();
-
-                // try to resolve the objects type as primitive built in type
-                var dslType = this.environment.getDSLTypeForClass(valueClass);
-                if (dslType == null) {
-                    throw new RuntimeException(
-                            "No DSL Type representation for java type '" + valueClass + "'");
-                }
-                returnValue = new Value(dslType, returnValue);
+                IType targetType = callable.getFunctionType().getReturnType();
+                returnValue =
+                        this.environment.translateRuntimeObject(
+                                returnValue, this.getCurrentMemorySpace(), targetType);
             }
             return returnValue;
         }

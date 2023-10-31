@@ -3,6 +3,7 @@ package interpreter;
 import static org.junit.Assert.*;
 
 import contrib.components.CollideComponent;
+import contrib.components.ItemComponent;
 
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -27,6 +28,9 @@ import runtime.*;
 import semanticanalysis.FunctionSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
+
+import task.QuestItem;
+import task.Quiz;
 
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
@@ -3125,46 +3129,46 @@ public class TestDSLInterpreter {
     public void testCollisionCallback() {
         String program =
                 """
-            single_choice_task t {
-                description: "hello",
-                answers: [1,2,3],
-                correct_answer_index: 1
-            }
-
-            graph g {
-                t;
-            }
-
-            dungeon_config c {
-                dependency_graph: g
-            }
-
-            entity_type my_type {
-                hitbox_component {
-                    collide_enter: callback
+                single_choice_task t {
+                    description: "hello",
+                    answers: [1,2,3],
+                    correct_answer_index: 1
                 }
-            }
 
-            fn callback(entity ent1, entity ent2, tile_direction dir) {
-                print(dir);
-            }
+                graph g {
+                    t;
+                }
+
+                dungeon_config c {
+                    dependency_graph: g
+                }
+
+                entity_type my_type {
+                    hitbox_component {
+                        collide_enter: callback
+                    }
+                }
+
+                fn callback(entity ent1, entity ent2, tile_direction dir) {
+                    print(dir);
+                }
 
 
-            fn build_scenario(single_choice_task t) -> entity<><> {
-                var main_set : entity<><>;
-                var room_set : entity<>;
+                fn build_scenario(single_choice_task t) -> entity<><> {
+                    var main_set : entity<><>;
+                    var room_set : entity<>;
 
-                var wizard1 : entity;
-                var wizard2 : entity;
-                wizard1 = instantiate(my_type);
-                wizard2 = instantiate(my_type);
+                    var wizard1 : entity;
+                    var wizard2 : entity;
+                    wizard1 = instantiate(my_type);
+                    wizard2 = instantiate(my_type);
 
-                room_set.add(wizard1);
-                room_set.add(wizard2);
-                main_set.add(room_set);
-                return main_set;
-            }
-            """;
+                    room_set.add(wizard1);
+                    room_set.add(wizard2);
+                    main_set.add(room_set);
+                    return main_set;
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -3400,38 +3404,38 @@ public class TestDSLInterpreter {
     public void testWhileLoop() {
         String program =
                 """
-            entity_type my_type {
-                test_component1 {},
-                test_component_with_callback {
-                    consumer: func
+                entity_type my_type {
+                    test_component1 {},
+                    test_component_with_callback {
+                        consumer: func
+                    }
                 }
-            }
 
-            fn func(entity ent) {
-                var my_list : int[];
-                my_list.add(1);
-                my_list.add(2);
-                my_list.add(3);
-                my_list.add(0);
+                fn func(entity ent) {
+                    var my_list : int[];
+                    my_list.add(1);
+                    my_list.add(2);
+                    my_list.add(3);
+                    my_list.add(0);
 
-                var list_entry : int;
-                list_entry = my_list.get(0);
+                    var list_entry : int;
+                    list_entry = my_list.get(0);
 
-                // as arithmetic operations are not supported at the time this test is written,
-                // we need some way of updating the condition of the loop;
-                // the `my_list` is setup in a way, that the entries used as the index will
-                // return the next list-entry, until the entry with value `0` is returned,
-                // which will be interpreted as boolean false in the condition of the loop
-                while list_entry {
-                    print(list_entry);
-                    list_entry = my_list.get(list_entry);
+                    // as arithmetic operations are not supported at the time this test is written,
+                    // we need some way of updating the condition of the loop;
+                    // the `my_list` is setup in a way, that the entries used as the index will
+                    // return the next list-entry, until the entry with value `0` is returned,
+                    // which will be interpreted as boolean false in the condition of the loop
+                    while list_entry {
+                        print(list_entry);
+                        list_entry = my_list.get(list_entry);
+                    }
                 }
-            }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-            """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -3472,5 +3476,117 @@ public class TestDSLInterpreter {
                         + "3"
                         + System.lineSeparator(),
                 output);
+    }
+
+    @Test
+    public void testItemTypeInstantiationSingleChoice() {
+        String program =
+                """
+        single_choice_task t1 {
+            description: "Task1",
+                answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        item_type item_type1 {
+            display_name: "MyName",
+            description: "Hello, this is a description",
+            texture_path: "items/book/wisdom_scroll.png"
+        }
+
+        fn build_scenario1(single_choice_task t) -> entity<><> {
+            var ret_set : entity<><>;
+
+            var first_room_set : entity<>;
+
+            var item : quest_item;
+            var content : task_content[];
+            content = t.get_content();
+
+            item = build_quest_item(item_type1, content.get(1));
+            place_quest_item(item, first_room_set);
+
+            ret_set.add(first_room_set);
+            return ret_set;
+        }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+        var entityIterator = builtTask.iterator().next().iterator();
+        // this will be the placed quest item
+        var questItem = entityIterator.next();
+        ItemComponent itemComponent = questItem.fetch(ItemComponent.class).get();
+        QuestItem item = (QuestItem) itemComponent.item();
+        Assert.assertEquals("MyName", item.displayName());
+        Quiz.Content content = (Quiz.Content) item.taskContentComponent().content();
+        Assert.assertEquals("2", content.content());
+    }
+
+    @Test
+    public void testItemTypeInstantiationMultipleChoice() {
+        String program =
+                """
+            multiple_choice_task t1 {
+                description: "Task1",
+                answers: ["1", "2", "3"],
+                correct_answer_index: [1,2]
+            }
+
+            graph g {
+                t1
+            }
+
+            dungeon_config c {
+                dependency_graph: g
+            }
+
+            item_type item_type1 {
+                display_name: "MyName",
+                description: "Hello, this is a description",
+                texture_path: "items/book/wisdom_scroll.png"
+            }
+
+            fn build_scenario1(multiple_choice_task t) -> entity<><> {
+                var ret_set : entity<><>;
+
+                var first_room_set : entity<>;
+
+                var item : quest_item;
+                var content : task_content[];
+                content = t.get_content();
+
+                item = build_quest_item(item_type1, content.get(1));
+                place_quest_item(item, first_room_set);
+
+                ret_set.add(first_room_set);
+                return ret_set;
+            }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+        var entityIterator = builtTask.iterator().next().iterator();
+        // this will be the placed quest item
+        var questItem = entityIterator.next();
+        ItemComponent itemComponent = questItem.fetch(ItemComponent.class).get();
+        QuestItem item = (QuestItem) itemComponent.item();
+        Assert.assertEquals("MyName", item.displayName());
+        Quiz.Content content = (Quiz.Content) item.taskContentComponent().content();
+        Assert.assertEquals("2", content.content());
     }
 }
