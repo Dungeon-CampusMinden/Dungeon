@@ -273,11 +273,16 @@ public class GameEnvironment implements IEvironment {
 
     // region native functions with dependency on specific types
 
+    /**
+     * Native function to place a quest item in a "room" (which is represented by an entity set)
+     */
     private static class NativePlaceQuestItem extends NativeFunction {
         /**
          * Constructor
          *
          * @param parentScope parent scope of this function
+         * @param questItemType the {@link IType} representing quest items
+         * @param entitySetType the {@link IType} representing a {@link SetValue} of entities
          */
         public NativePlaceQuestItem(IScope parentScope, IType questItemType, IType entitySetType) {
             super(
@@ -290,12 +295,16 @@ public class GameEnvironment implements IEvironment {
         public Object call(DSLInterpreter interpreter, List<Node> parameters) {
             assert parameters != null && parameters.size() > 0;
 
+            // evaluate parameters
             RuntimeEnvironment rtEnv = interpreter.getRuntimeEnvironment();
             Value questItemValue = (Value) parameters.get(0).accept(interpreter);
             SetValue entitySetValue = (SetValue) parameters.get(1).accept(interpreter);
 
+            // build an entity for the quest item with the WorldItemBuilder
             var questItemObject = questItemValue.getInternalValue();
             var worldEntity = WorldItemBuilder.buildWorldItem((Item) questItemObject);
+
+            // add the world entity to the SetValue passed to this function
             var worldEntityValue =
                     (Value)
                             rtEnv.translateRuntimeObject(
@@ -311,13 +320,17 @@ public class GameEnvironment implements IEvironment {
         }
     }
 
+    /**
+     * Native function to create a {@link QuestItem} from an item prototype; will link a passed task content automatically
+     * to the internal {@link task.components.TaskContentComponent} of the newly created {@link QuestItem}.
+     */
     private class NativeBuildQuestItem extends NativeFunction {
-        // public static NativeBuildQuestItem func = new NativeBuildQuestItem(Scope.NULL);
-
         /**
          * Constructor
          *
          * @param parentScope parent scope of this function
+         * @param questItemType {@link IType} representing quest items
+         * @param contentType {@link IType} representing task content
          */
         private NativeBuildQuestItem(IScope parentScope, IType questItemType, IType contentType) {
             super(
@@ -330,15 +343,19 @@ public class GameEnvironment implements IEvironment {
         public Object call(DSLInterpreter interpreter, List<Node> parameters) {
             assert parameters != null && parameters.size() > 0;
 
+            // evaluate parameters
             RuntimeEnvironment rtEnv = interpreter.getRuntimeEnvironment();
             Value prototypeValue = (Value) parameters.get(0).accept(interpreter);
             Value contentValue = (Value) parameters.get(1).accept(interpreter);
+
+            // check for correct parameter type
             if (prototypeValue.getDataType() != Prototype.ITEM_PROTOTYPE) {
                 throw new RuntimeException(
                         "Wrong type ('"
                                 + prototypeValue.getDataType().getName()
                                 + "') of parameter for call of build_quest_item()!");
             } else {
+                // instantiate new QuestItem from passed item prototype
                 var dslItemInstance =
                         (AggregateValue)
                                 interpreter.instantiateDSLValue((Prototype) prototypeValue);
@@ -347,6 +364,7 @@ public class GameEnvironment implements IEvironment {
                         (QuestItem)
                                 interpreter.instantiateRuntimeValue(dslItemInstance, questItemType);
 
+                // link the passed TaskContent to the newly created QuestItem
                 var contentObject = (TaskContent) contentValue.getInternalValue();
                 questItemObject.taskContentComponent().content(contentObject);
 
