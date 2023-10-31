@@ -60,13 +60,13 @@ public class EntityFactory {
         "character/monster/pumpkin_dude",
         "character/monster/zombie"
     };
-
-    private static final int MIN_MONSTER_HEALTH = 2;
+    private static final int HERO_HP = 100;
+    private static final int MIN_MONSTER_HEALTH = 10;
 
     // NOTE: +1 for health as nextInt() is exclusive
-    private static final int MAX_MONSTER_HEALTH = 5 + 1;
-    private static final float MIN_MONSTER_SPEED = 3.0f;
-    private static final float MAX_MONSTER_SPEED = 7.5f;
+    private static final int MAX_MONSTER_HEALTH = 50 + 1;
+    private static final float MIN_MONSTER_SPEED = 5.0f;
+    private static final float MAX_MONSTER_SPEED = 8.5f;
 
     private static final DamageType MONSTER_COLLIDE_DAMAGE_TYPE = DamageType.PHYSICAL;
     private static final int MONSTER_COLLIDE_DAMAGE = 10;
@@ -88,7 +88,7 @@ public class EntityFactory {
         hero.addComponent(new DrawComponent(HERO_FILE_PATH));
         HealthComponent hc =
                 new HealthComponent(
-                        200,
+                        HERO_HP,
                         entity -> {
                             Sound sound =
                                     Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
