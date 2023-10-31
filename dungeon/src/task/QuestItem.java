@@ -17,6 +17,8 @@ import task.components.TaskContentComponent;
 public class QuestItem extends Item {
 
     private static final String DEFAULT_NAME = "QuestItem for the Quest: ";
+    private static final String DEFAULT_DESCRIPTION = "no description";
+    private static final String UNDEFINED_QUEST_NAME = DEFAULT_NAME + "undefined Quest";
     private final TaskContentComponent taskContentComponent;
 
     /**
@@ -31,12 +33,26 @@ public class QuestItem extends Item {
             Animation inventoryAnimation,
             Animation worldAnimation,
             TaskContentComponent taskContentComponent) {
-        super(
-                DEFAULT_NAME + taskContentComponent.content().task().id(),
-                taskContentComponent.content().toString(),
-                inventoryAnimation,
-                worldAnimation);
+        super(UNDEFINED_QUEST_NAME, DEFAULT_DESCRIPTION, inventoryAnimation, worldAnimation);
         this.taskContentComponent = taskContentComponent;
+    }
+
+    @Override
+    public String displayName() {
+        if (taskContentComponent.content() == null) {
+            return UNDEFINED_QUEST_NAME;
+        } else {
+            return DEFAULT_NAME + taskContentComponent.content().task().id();
+        }
+    }
+
+    @Override
+    public String description() {
+        if (taskContentComponent.content() == null) {
+            return DEFAULT_DESCRIPTION;
+        } else {
+            return taskContentComponent.content().toString();
+        }
     }
 
     /**
