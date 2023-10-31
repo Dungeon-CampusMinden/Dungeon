@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 public class UITools {
     public static final Skin DEFAULT_SKIN = new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG));
     public static final String DEFAULT_DIALOG_CONFIRM = "confirm";
+    public static final String DEFAULT_DIALOG_ABORT = "abort";
     public static final String DEFAULT_DIALOG_TITLE = "Question";
 
     /**

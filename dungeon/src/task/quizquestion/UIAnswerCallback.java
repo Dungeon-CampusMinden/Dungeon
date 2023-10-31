@@ -64,6 +64,9 @@ public final class UIAnswerCallback {
                 dslCallback.accept(quest, getAnswer(quest, answerSection(textDialog)));
                 Game.remove(hudEntity);
                 return true;
+            } else if (Objects.equals(id, UITools.DEFAULT_DIALOG_ABORT)) {
+                Game.remove(hudEntity);
+                return true;
             }
             return false;
         };

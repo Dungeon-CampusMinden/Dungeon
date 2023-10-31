@@ -64,7 +64,11 @@ public class QuizUI {
     public static Entity showQuizDialog(Quiz question) {
         return showQuizDialog(
                 question,
-                (entity) -> createResultHandlerQuiz(entity, UITools.DEFAULT_DIALOG_CONFIRM));
+                (entity) ->
+                        createResultHandlerQuiz(
+                                entity,
+                                UITools.DEFAULT_DIALOG_CONFIRM,
+                                UITools.DEFAULT_DIALOG_ABORT));
     }
 
     /**
@@ -128,8 +132,8 @@ public class QuizUI {
                 .add(QuizDialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg))
                 .grow()
                 .fill(); // changes size based on childrens;
+        textDialog.button(UITools.DEFAULT_DIALOG_ABORT, UITools.DEFAULT_DIALOG_ABORT);
         textDialog.button(buttonMsg, buttonMsg);
-
         textDialog.pack(); // resizes to size
         return textDialog;
     }
@@ -161,9 +165,13 @@ public class QuizUI {
      * Create a default callback-function that will delete the entity that stores the hud-component.
      */
     public static BiFunction<TextDialog, String, Boolean> createResultHandlerQuiz(
-            final Entity entity, final String closeButtonID) {
+            final Entity entity, final String confirmButtonID, String abortButtonID) {
         return (d, id) -> {
-            if (Objects.equals(id, closeButtonID)) {
+            if (Objects.equals(id, confirmButtonID)) {
+                Game.remove(entity);
+                return true;
+            }
+            if (Objects.equals(id, abortButtonID)) {
                 Game.remove(entity);
                 return true;
             }
