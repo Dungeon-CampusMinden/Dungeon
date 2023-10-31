@@ -1,7 +1,6 @@
 package task;
 
 import core.Entity;
-import core.Game;
 import core.utils.logging.CustomLogLevel;
 
 import petriNet.Place;
@@ -349,6 +348,7 @@ public abstract class Task {
         this.points = points;
         this.pointsToSolve = pointsToSolve;
     }
+
     public int id() {
         return id;
     }
