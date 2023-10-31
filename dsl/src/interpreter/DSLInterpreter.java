@@ -104,6 +104,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return this.globalSpace;
     }
 
+    /**
+     * Creates {@link Prototype} instances for all `entity_type` and `item_type`
+     * definitions in the global scope of the passed {@link IEvironment}.
+     * @param environment the {@link IEvironment} in which's global scope to search
+     *                    for prototype definitions.
+     */
     public void createPrototypes(IEvironment environment) {
         createGameObjectPrototypes(environment);
         createItemPrototypes(environment);
@@ -140,6 +146,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
     }
 
+    /**
+     * Create {@link Prototype} instances for {@link ItemPrototypeDefinitionNode}s in the global scope
+     * of passed {@link IEvironment}. The created prototypes will be registered in the
+     * {@link RuntimeEnvironment} of this {@link DSLInterpreter} and is stored as a {@link Value}
+     * in the global {@link IMemorySpace} of the interpreter.
+     * @param environment the {@link IEvironment} to search for item prototype definitions
+     */
     public void createItemPrototypes(IEvironment environment) {
         // iterate over all types
         for (var type : environment.getTypes()) {
