@@ -1,7 +1,8 @@
 package contrib.utils.components.skill;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.MathUtils;
 
 import contrib.utils.components.health.DamageType;
 
@@ -45,9 +46,18 @@ public class FireballSkill extends DamageProjectile {
 
     @Override
     protected void playSound() {
-        Music soundEffect = Gdx.audio.newMusic(Gdx.files.internal(PROJECTILE_SOUND));
-        soundEffect.setLooping(false);
-        soundEffect.play();
-        soundEffect.setVolume(.15f);
+        Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(PROJECTILE_SOUND));
+
+        // Generate a random pitch between 1.5f and 2.0f
+        float minPitch = 2f;
+        float maxPitch = 3f;
+        float randomPitch = MathUtils.random(minPitch, maxPitch);
+
+        // Play the sound with the adjusted pitch
+        long soundId = soundEffect.play();
+        soundEffect.setPitch(soundId, randomPitch);
+
+        // Set the volume
+        soundEffect.setVolume(soundId, 0.05f);
     }
 }
