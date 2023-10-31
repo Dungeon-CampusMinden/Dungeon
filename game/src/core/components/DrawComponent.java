@@ -268,14 +268,27 @@ public final class DrawComponent implements Component {
         return false;
     }
 
+    /**
+     * @return the whole queue of animations
+     */
     public Map<IPath, Integer> animationQueue() {
         return animationQueue;
     }
 
+    /**
+     * Allows replacing the whole AnimationQueue with a new one
+     *
+     * @param queue
+     */
     public void setAnimationQueue(Map<IPath, Integer> queue) {
         animationQueue = queue;
     }
 
+    /**
+     * Allows replacing and adding Entries.
+     *
+     * @return the whole animationMap
+     */
     public Map<String, Animation> animationMap() {
         return animationMap;
     }
