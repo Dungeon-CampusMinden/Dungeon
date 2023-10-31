@@ -54,8 +54,8 @@ public class AnswerPickingFunctionsTest {
         // setup quest items
         TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
         TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
-        QuestItem answerAItem = new QuestItem(null, null, null, answerAComponent);
-        QuestItem answerBItem = new QuestItem(null, null, null, answerBComponent);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
 
         Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.singleChestPicker();
         // add answer to chest
@@ -88,8 +88,8 @@ public class AnswerPickingFunctionsTest {
         // setup quest items
         TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
         TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
-        QuestItem answerAItem = new QuestItem(null, null, null, answerAComponent);
-        QuestItem answerBItem = new QuestItem(null, null, null, answerBComponent);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
 
         Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.singleChestPicker();
         // add answer to chest
@@ -123,8 +123,8 @@ public class AnswerPickingFunctionsTest {
         // setup quest items
         TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
         TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
-        QuestItem answerAItem = new QuestItem(null, null, null, answerAComponent);
-        QuestItem answerBItem = new QuestItem(null, null, null, answerBComponent);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
 
         Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.singleChestPicker();
 
@@ -155,8 +155,8 @@ public class AnswerPickingFunctionsTest {
         // setup quest items
         TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
         TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
-        QuestItem answerAItem = new QuestItem(null, null, null, answerAComponent);
-        QuestItem answerBItem = new QuestItem(null, null, null, answerBComponent);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
 
         Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.singleChestPicker();
         ic.add(Mockito.mock(Item.class));
@@ -188,8 +188,8 @@ public class AnswerPickingFunctionsTest {
         // setup quest items
         TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
         TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
-        QuestItem answerAItem = new QuestItem(null, null, null, answerAComponent);
-        QuestItem answerBItem = new QuestItem(null, null, null, answerBComponent);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
 
         Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.singleChestPicker();
         assertEquals(0, callback.apply(sc).size());
@@ -240,10 +240,10 @@ public class AnswerPickingFunctionsTest {
         TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
         TaskContentComponent answerCComponent = new TaskContentComponent(answerC);
         TaskContentComponent answerDComponent = new TaskContentComponent(answerD);
-        QuestItem answerAItem = new QuestItem(null, null, null, answerAComponent);
-        QuestItem answerBItem = new QuestItem(null, null, null, answerBComponent);
-        QuestItem answerCItem = new QuestItem(null, null, null, answerCComponent);
-        QuestItem answerDItem = new QuestItem(null, null, null, answerDComponent);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+        QuestItem answerCItem = new QuestItem(null, answerCComponent);
+        QuestItem answerDItem = new QuestItem(null, answerDComponent);
 
         Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.multipleChestPicker();
         // add answer to chest
@@ -305,10 +305,10 @@ public class AnswerPickingFunctionsTest {
         TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
         TaskContentComponent answerCComponent = new TaskContentComponent(answerC);
         TaskContentComponent answerDComponent = new TaskContentComponent(answerD);
-        QuestItem answerAItem = new QuestItem(null, null, null, answerAComponent);
-        QuestItem answerBItem = new QuestItem(null, null, null, answerBComponent);
-        QuestItem answerCItem = new QuestItem(null, null, null, answerCComponent);
-        QuestItem answerDItem = new QuestItem(null, null, null, answerDComponent);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+        QuestItem answerCItem = new QuestItem(null, answerCComponent);
+        QuestItem answerDItem = new QuestItem(null, answerDComponent);
 
         Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.multipleChestPicker();
 
@@ -368,10 +368,10 @@ public class AnswerPickingFunctionsTest {
         TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
         TaskContentComponent answerCComponent = new TaskContentComponent(answerC);
         TaskContentComponent answerDComponent = new TaskContentComponent(answerD);
-        QuestItem answerAItem = new QuestItem(null, null, null, answerAComponent);
-        QuestItem answerBItem = new QuestItem(null, null, null, answerBComponent);
-        QuestItem answerCItem = new QuestItem(null, null, null, answerCComponent);
-        QuestItem answerDItem = new QuestItem(null, null, null, answerDComponent);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+        QuestItem answerCItem = new QuestItem(null, answerCComponent);
+        QuestItem answerDItem = new QuestItem(null, answerDComponent);
 
         Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.multipleChestPicker();
 
@@ -436,10 +436,10 @@ public class AnswerPickingFunctionsTest {
         TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
         TaskContentComponent answerCComponent = new TaskContentComponent(answerC);
         TaskContentComponent answerDComponent = new TaskContentComponent(answerD);
-        QuestItem answerAItem = new QuestItem(null, null, null, answerAComponent);
-        QuestItem answerBItem = new QuestItem(null, null, null, answerBComponent);
-        QuestItem answerCItem = new QuestItem(null, null, null, answerCComponent);
-        QuestItem answerDItem = new QuestItem(null, null, null, answerDComponent);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+        QuestItem answerCItem = new QuestItem(null, answerCComponent);
+        QuestItem answerDItem = new QuestItem(null, answerDComponent);
 
         Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.multipleChestPicker();
         // add answer to chest
