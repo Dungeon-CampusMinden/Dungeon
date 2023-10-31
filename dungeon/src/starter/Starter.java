@@ -1,5 +1,8 @@
 package starter;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
@@ -41,6 +44,7 @@ import java.util.function.Consumer;
  * paths.
  */
 public class Starter {
+    private static final String BACKGROUND_MUSIC = "sounds/background.wav";
     private static boolean realGameStarted = false;
     private static final DSLInterpreter dslInterpreter = new DSLInterpreter();
 
@@ -103,6 +107,7 @@ public class Starter {
                     createHero();
                     createSystems();
                     Game.currentLevel(WizardTaskSelector.wizardLevel());
+                    setupMusic();
                 });
 
         // load the wizard task selector level
@@ -153,7 +158,7 @@ public class Starter {
         Game.initBaseLogger();
         Game.windowTitle("DSL Dungeon");
         Game.frameRate(30);
-        Game.disableAudio(true);
+        Game.disableAudio(false);
         Game.loadConfig(
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
@@ -171,5 +176,13 @@ public class Starter {
         Game.add(new HeroUISystem());
         Game.add(new HudSystem());
         Game.add(new SpikeSystem());
+        Game.add(new IdleSoundSystem());
+    }
+
+    private static void setupMusic() {
+        Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
+        backgroundMusic.setLooping(true);
+        backgroundMusic.play();
+        backgroundMusic.setVolume(.1f);
     }
 }
