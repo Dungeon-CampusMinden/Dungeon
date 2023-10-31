@@ -85,12 +85,15 @@ public final class Animation {
      * @param animationFrames The list of textures that builds the animation. Must be in order.
      */
     public Animation(Collection<String> animationFrames) {
-        this(animationFrames, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, CoreAnimationPriorities.DEFAULT.priority());
+        this(
+                animationFrames,
+                DEFAULT_FRAME_TIME,
+                DEFAULT_IS_LOOP,
+                CoreAnimationPriorities.DEFAULT.priority());
     }
 
     /**
      * Creates an animation containing only one frame. repeats forever
-     *
      *
      * @param animationFrame The texture that builds the animation.
      * @param prio priority for playing this animation
@@ -232,7 +235,12 @@ public final class Animation {
         this.looping = loop;
     }
 
-    public int getPriority() {
+    /**
+     * Higher Priority means the Animation is more likely to be used.
+     *
+     * @return the priority of the animation
+     */
+    public int priority() {
         return priority;
     }
 }
