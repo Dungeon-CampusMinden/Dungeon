@@ -89,6 +89,8 @@ public class InventoryGUI extends CombinableGUI {
         this.inventoryComponent = inventoryComponent;
         Game.find(inventoryComponent)
                 .ifPresentOrElse(e -> this.title = e.toString(), () -> this.title = "Inventory");
+        title = title.split("_(?=\\d+)")[0]; // remove id
+        title = title.toUpperCase();
         this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
         addInputListener();
     }
