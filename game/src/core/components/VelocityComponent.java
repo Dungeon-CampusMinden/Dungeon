@@ -169,19 +169,26 @@ public final class VelocityComponent implements Component {
     public void previousXVelocity(float previousXVelocity) {
         this.previousXVelocity = previousXVelocity;
     }
+
     /**
-     * contains the last moved x velocity the entity moved. This helps once the entity stops to keep
+     * @return the x velocity from the last movement
+     */
+    public float previousXVelocity() {
+        return previousXVelocity;
+    }
+
+    /**
+     * contains the last moved y velocity the entity moved. This helps once the entity stops to keep
      * the direction.
      */
     public void previousYVelocity(float previousYVelocity) {
         this.previousYVelocity = previousYVelocity;
     }
 
+    /**
+     * @return the y velocity from the last movement
+     */
     public float previousYVelocity() {
         return previousYVelocity;
-    }
-
-    public float previousXVelocity() {
-        return previousXVelocity;
     }
 }
