@@ -1,6 +1,7 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 
 import contrib.configuration.KeyboardConfig;
@@ -52,7 +53,7 @@ public class Starter {
             entity -> {
                 StringBuilder questLogBuilder = new StringBuilder();
                 Task.allTasks()
-                        .filter(t -> t.state() == Task.TaskState.ACTIVE)
+                        .filter(t -> t.state() == Task.TaskState.PROCESSING_ACTIVE)
                         .forEach(
                                 task ->
                                         questLogBuilder
@@ -85,7 +86,7 @@ public class Starter {
     private static void onEntryPointSelection() {
         Game.userOnFrame(
                 () -> {
-
+                    debugKey();
                     // the player selected a Task/DSL-Entrypoint but it´s not loaded yet:
                     if (!realGameStarted && WizardTaskSelector.selectedDSLEntryPoint != null) {
                         realGameStarted = true;
@@ -96,6 +97,7 @@ public class Starter {
                         ILevel level =
                                 TaskGraphConverter.convert(
                                         config.dependencyGraph(), dslInterpreter);
+
                         Game.currentLevel(level);
                     }
                 });
@@ -184,5 +186,16 @@ public class Starter {
         backgroundMusic.setLooping(true);
         backgroundMusic.play();
         backgroundMusic.setVolume(.1f);
+    }
+
+    private static void debugKey() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            Task.allTasks()
+                    .filter(t -> t.state() == Task.TaskState.PROCESSING_ACTIVE)
+                    .findFirst()
+                    .get()
+                    .state(Task.TaskState.FINISHED_CORRECT);
+            System.out.println(Task.allTasks());
+        }
     }
 }
