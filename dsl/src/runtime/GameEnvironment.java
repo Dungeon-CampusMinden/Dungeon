@@ -339,7 +339,6 @@ public class GameEnvironment implements IEvironment {
                                 + prototypeValue.getDataType().getName()
                                 + "') of parameter for call of build_quest_item()!");
             } else {
-                // TODO: make this work
                 var dslItemInstance =
                         (AggregateValue)
                                 interpreter.instantiateDSLValue((Prototype) prototypeValue);
