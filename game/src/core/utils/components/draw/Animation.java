@@ -85,8 +85,7 @@ public final class Animation {
      * @param animationFrames The list of textures that builds the animation. Must be in order.
      */
     public Animation(Collection<String> animationFrames) {
-        // TODO remove magic number
-        this(animationFrames, DEFAULT_FRAME_TIME, true, 1);
+        this(animationFrames, DEFAULT_FRAME_TIME, true, CoreAnimationPriorities.DEFAULT.priority());
     }
 
     /**
