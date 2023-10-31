@@ -1,7 +1,7 @@
 package contrib.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 
 import contrib.components.IdleSoundComponent;
 
@@ -45,10 +45,11 @@ public final class IdleSoundSystem extends System {
 
     private void playSound(IdleSoundComponent component) {
         if (RANDOM.nextFloat(0f, 1f) < CHANCE_TO_PLAY_SOUND) {
-            Music soundEffect = Gdx.audio.newMusic(Gdx.files.internal(component.soundEffect()));
-            soundEffect.setLooping(false);
-            soundEffect.play();
-            soundEffect.setVolume(.35f);
+            Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(component.soundEffect()));
+            long soundid = soundEffect.play();
+
+            soundEffect.setLooping(soundid, false);
+            soundEffect.setVolume(soundid, 0.35f);
         }
     }
 }

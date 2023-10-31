@@ -1,7 +1,7 @@
 package core.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 
 import core.Entity;
 import core.Game;
@@ -242,10 +242,10 @@ public final class LevelSystem extends System {
     }
 
     private void playSound() {
-        Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(SOUND_EFFECT));
-        backgroundMusic.setLooping(false);
-        backgroundMusic.play();
-        backgroundMusic.setVolume(.3f);
+        Sound doorSound = Gdx.audio.newSound(Gdx.files.internal(SOUND_EFFECT));
+        long soundId = doorSound.play();
+        doorSound.setLooping(soundId, false);
+        doorSound.setVolume(soundId, 0.3f);
     }
 
     /**

@@ -1,7 +1,7 @@
 package contrib.entities;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
@@ -90,11 +90,14 @@ public class EntityFactory {
                 new HealthComponent(
                         200,
                         entity -> {
-                            Music dieSoundEffect =
-                                    Gdx.audio.newMusic(Gdx.files.internal("sounds/death.wav"));
-                            dieSoundEffect.setLooping(false);
-                            dieSoundEffect.play();
-                            dieSoundEffect.setVolume(.9f);
+                            Sound sound =
+                                    Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
+                            long soundId = sound.play();
+                            sound.setLooping(soundId, false);
+                            sound.setVolume(soundId, 0.3f);
+                            sound.setLooping(soundId, false);
+                            sound.play();
+                            sound.setVolume(soundId, 0.9f);
                         });
         hero.addComponent(hc);
         hero.addComponent(
@@ -410,16 +413,16 @@ public class EntityFactory {
     }
 
     private static void playMonsterDieSound() {
-        Music dieSoundEffect;
+        Sound dieSoundEffect;
         switch (RANDOM.nextInt(4)) {
-            case 0 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_01.wav"));
-            case 1 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_02.wav"));
-            case 2 -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_03.wav"));
-            default -> dieSoundEffect = Gdx.audio.newMusic(Gdx.files.internal("sounds/die_04.wav"));
+            case 0 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_01.wav"));
+            case 1 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_02.wav"));
+            case 2 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_03.wav"));
+            default -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_04.wav"));
         }
-        dieSoundEffect.setLooping(false);
-        dieSoundEffect.play();
-        dieSoundEffect.setVolume(.35f);
+        long soundid = dieSoundEffect.play();
+        dieSoundEffect.setLooping(soundid, false);
+        dieSoundEffect.setVolume(soundid, 0.35f);
     }
 
     private static String randomMonsterIdleSound() {
