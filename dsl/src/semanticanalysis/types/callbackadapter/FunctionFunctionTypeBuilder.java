@@ -21,8 +21,7 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
 
     @Override
     public FunctionType buildFunctionType(
-            Field field, TypeBuilder typeBuilder, IScope globalScope) {
-        var genericType = field.getGenericType();
+            Type genericType, TypeBuilder typeBuilder, IScope globalScope) {
 
         var parameterizedType = (ParameterizedType) genericType;
         Type[] typeArray = parameterizedType.getActualTypeArguments();
