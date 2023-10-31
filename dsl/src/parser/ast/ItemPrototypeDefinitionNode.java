@@ -3,33 +3,36 @@ package parser.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents an `item_type`-definition.
+ */
 public class ItemPrototypeDefinitionNode extends Node {
     public final int idIdx = 0;
     public final int valueDefinitionListIdx = 1;
 
     /**
-     * @return literal String of the identifier of the game object definition node
+     * @return literal String of the identifier of the item type definition node
      */
     public String getIdName() {
         return ((IdNode) getIdNode()).getName();
     }
 
     /**
-     * @return the node representing the identifier of this game object definition node
+     * @return the node representing the identifier of this item type definition node
      */
     public Node getIdNode() {
         return getChild(idIdx);
     }
 
     /**
-     * @return the node representing the component definitions of this game object definition node
+     * @return the node representing the component definitions of this item type definition node
      */
     public Node getPropertyDefinitionListNode() {
         return getChild(valueDefinitionListIdx);
     }
 
     /**
-     * @return a List of nodes representing individual component definitions of this game object
+     * @return a List of nodes representing individual property definitions of this item type
      *     definition node
      */
     public List<Node> getPropertyDefinitionNodes() {
@@ -39,14 +42,14 @@ public class ItemPrototypeDefinitionNode extends Node {
     /**
      * Constructor
      *
-     * @param idNode node representing the identifier of the game object definition
-     * @param valueDefinitionListNode node representing the component definition list of the game
+     * @param idNode node representing the identifier of the item type definition
+     * @param propertyDefinitionListNode node representing the property definition list of the game
      *     object definition
      */
-    public ItemPrototypeDefinitionNode(Node idNode, Node valueDefinitionListNode) {
-        super(Type.ItemPrototypeDefinition, new ArrayList<Node>(2));
+    public ItemPrototypeDefinitionNode(Node idNode, Node propertyDefinitionListNode) {
+        super(Type.ItemPrototypeDefinition, new ArrayList<>(2));
         this.addChild(idNode);
-        this.addChild(valueDefinitionListNode);
+        this.addChild(propertyDefinitionListNode);
     }
 
     @Override
