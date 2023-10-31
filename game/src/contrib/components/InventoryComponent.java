@@ -9,7 +9,9 @@ import core.utils.logging.CustomLogLevel;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Allows the entity to collect items in an inventory.
@@ -153,16 +155,15 @@ public final class InventoryComponent implements Component {
     }
 
     /**
-     * Get an array of items stored in this component that are an instance of the given class.
+     * Get an Set of items stored in this component that are an instance of the given class.
      *
      * @param klass Only return items that are an instance of this class.
-     * @return An array of items that are in this Inventory and are an instance of the given class.
+     * @return An Set of items that are in this Inventory and are an instance of the given class.
      */
-    public Item[] items(Class<? extends Item> klass) {
-        return (Item[])
-                Arrays.stream(this.inventory.clone())
-                        .filter(item -> klass.isInstance(item))
-                        .toArray();
+    public Set<Item> items(Class<? extends Item> klass) {
+        return Arrays.stream(this.inventory.clone())
+                .filter(item -> klass.isInstance(item))
+                .collect(Collectors.toSet());
     }
 
     /**

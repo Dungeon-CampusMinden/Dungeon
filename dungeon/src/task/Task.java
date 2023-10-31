@@ -1,6 +1,7 @@
 package task;
 
 import core.Entity;
+import core.Game;
 import core.utils.logging.CustomLogLevel;
 
 import petriNet.Place;
@@ -8,9 +9,11 @@ import petriNet.Place;
 import semanticanalysis.types.DSLType;
 
 import task.components.TaskComponent;
+import task.components.TaskContentComponent;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -36,26 +39,23 @@ import java.util.stream.Stream;
 public abstract class Task {
 
     private static final Logger LOGGER = Logger.getLogger(Task.class.getSimpleName());
-
-    private static int _id = 0;
     private static final Set<Task> ALL_TASKS = new HashSet<>();
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
-
     private static final float DEFAULT_POINTS = 1f;
     private static final float DEFAULT_POINTS_TO_SOLVE = DEFAULT_POINTS;
+    private static int _id = 0;
     private final int id;
-    private TaskState state;
-    private String taskText;
     private final Set<Place> observer = new HashSet<>();
-    private Entity managementEntity;
-
-    private Set<Set<Entity>> entitySets = new HashSet<>();
-
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
-
+    protected Function<Task, Set<TaskContent>> answerPickingFunction;
     protected float points;
+    protected Set<TaskContent> container;
+    private TaskState state;
+    private String taskText;
+    private Entity managementEntity;
+    private Set<Set<Entity>> entitySets = new HashSet<>();
     private float pointsToSolve;
 
     /**
@@ -70,7 +70,23 @@ public abstract class Task {
         content = new LinkedList<>();
         points = DEFAULT_POINTS;
         pointsToSolve = DEFAULT_POINTS_TO_SOLVE;
+        container = new HashSet<>();
     }
+
+    /**
+     * Get a stream of all Task-Objects that exist.
+     *
+     * @return Stream of all Task-Objects that ever exist.
+     */
+    public static Stream<Task> allTasks() {
+        return new HashSet<>(ALL_TASKS).stream();
+    }
+
+    /** Clear the {@link #ALL_TASKS} Set. */
+    public static void cleanupAllTask() {
+        ALL_TASKS.clear();
+    }
+
     /**
      * Register a {@link Place} with this task.
      *
@@ -81,6 +97,26 @@ public abstract class Task {
      */
     public void registerPlace(Place place) {
         observer.add(place);
+    }
+
+    /**
+     * Add a {@link TaskContent} as container to this task.
+     *
+     * <p>A container (like a chest) will be used to find the given answers of a player in the game.
+     *
+     * @param container container to add.
+     */
+    public void addContainer(TaskContent container) {
+        this.container.add(container);
+    }
+
+    /**
+     * Get the Container of this task.
+     *
+     * @return Container of this task as stream.
+     */
+    public Stream containerStream() {
+        return new HashSet<>(container).stream();
     }
 
     /**
@@ -205,12 +241,49 @@ public abstract class Task {
     }
 
     /**
+     * Set the function to pick the given answers out of the game.
+     *
+     * @param answerPickingFunction the answer picking function to set.
+     */
+    public void answerPickingFunction(Function<Task, Set<TaskContent>> answerPickingFunction) {
+        this.scoringFunction = scoringFunction;
+    }
+
+    /**
+     * Callback function to pick the given answers out of the game.
+     *
+     * @return the callback function
+     */
+    public Function<Task, Set<TaskContent>> answerPickingFunction() {
+        return answerPickingFunction;
+    }
+
+    /**
      * Set the scoring function for this Task.
      *
      * @param scoringFunction the scoring function to set.
      */
     public void scoringFunction(BiFunction<Task, Set<TaskContent>, Float> scoringFunction) {
         this.scoringFunction = scoringFunction;
+    }
+
+    /**
+     * Execute the scoring function.
+     *
+     * <p>This will mark the task as done.
+     *
+     * <p>This will change the task state.
+     *
+     * <p>This will inform the petri net about the task state changes.
+     *
+     * <p>This will log the result.
+     *
+     * <p>This will give the player a reward, if the task was solved correctly.
+     *
+     * @return reached points.
+     */
+    public float gradeTask() {
+        return gradeTask(answerPickingFunction.apply(this));
     }
 
     /**
@@ -266,6 +339,7 @@ public abstract class Task {
     public float points() {
         return points;
     }
+
     /**
      * Set the amount of points that this task is worth.
      *
@@ -278,17 +352,21 @@ public abstract class Task {
     }
 
     /**
-     * Get a stream of all Task-Objects that exist.
+     * Find the entity that stores the given content.
      *
-     * @return Stream of all Task-Objects that ever exist.
+     * @param taskContent Content we are looking for.
+     * @return the entity that stores the given content, empty if no entity stores the content.
      */
-    public static Stream<Task> allTasks() {
-        return new HashSet<>(ALL_TASKS).stream();
-    }
-
-    /** Clear the {@link #ALL_TASKS} Set. */
-    public static void cleanupAllTask() {
-        ALL_TASKS.clear();
+    public Optional<Entity> find(TaskContent taskContent) {
+        return Game.allEntities()
+                .filter(e -> e.isPresent(TaskContentComponent.class))
+                .filter(
+                        e -> {
+                            TaskContentComponent taskContentComponent =
+                                    e.fetch(TaskContentComponent.class).get();
+                            return taskContentComponent.content().equals(taskContent);
+                        })
+                .findFirst();
     }
 
     public int id() {
