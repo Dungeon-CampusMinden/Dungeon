@@ -3,9 +3,7 @@ package parser.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents an `item_type`-definition.
- */
+/** Represents an `item_type`-definition. */
 public class ItemPrototypeDefinitionNode extends Node {
     public final int idIdx = 0;
     public final int valueDefinitionListIdx = 1;

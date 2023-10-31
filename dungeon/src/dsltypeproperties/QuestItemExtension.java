@@ -7,16 +7,16 @@ import task.QuestItem;
 import task.components.TaskContentComponent;
 
 /**
- * Class, which stores dsl-extensions (e.g. {@link IDSLTypeProperty} or {@link semanticanalysis.types.IDSLExtensionMethod})
- * for {@link QuestItem}s
+ * Class, which stores dsl-extensions (e.g. {@link IDSLTypeProperty} or {@link
+ * semanticanalysis.types.IDSLExtensionMethod}) for {@link QuestItem}s
  */
 public class QuestItemExtension {
     // private ctor, because this class should not be instantiated
     private QuestItemExtension() {}
 
     /**
-     * {@link IDSLTypeProperty} extension to access the {@link TaskContentComponent} of a
-     * {@link QuestItem} instance. Not settable.
+     * {@link IDSLTypeProperty} extension to access the {@link TaskContentComponent} of a {@link
+     * QuestItem} instance. Not settable.
      */
     @DSLTypeProperty(
             name = "task_content_component",

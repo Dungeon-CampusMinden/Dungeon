@@ -3403,7 +3403,7 @@ public class TestDSLInterpreter {
     @Test
     public void testWhileLoop() {
         String program =
-            """
+                """
                 entity_type my_type {
                     test_component1 {},
                     test_component_with_callback {
@@ -3446,36 +3446,36 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(
-                env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+                .createDSLTypeForJavaTypeInScope(
+                        env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
         env.getTypeBuilder()
-            .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
+                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
 
         var config =
-            (CustomQuestConfig)
-                Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+                (CustomQuestConfig)
+                        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
         var entity = config.entity();
 
         TestComponentEntityConsumerCallback componentWithConsumer =
-            (TestComponentEntityConsumerCallback)
-                entity.components.stream()
-                    .filter(c -> c instanceof TestComponentEntityConsumerCallback)
-                    .toList()
-                    .get(0);
+                (TestComponentEntityConsumerCallback)
+                        entity.components.stream()
+                                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                                .toList()
+                                .get(0);
 
         componentWithConsumer.consumer.accept(entity);
 
         String output = outputStream.toString();
         boolean b = true;
         assertEquals(
-            "1"
-                + System.lineSeparator()
-                + "2"
-                + System.lineSeparator()
-                + "3"
-                + System.lineSeparator(),
-            output);
+                "1"
+                        + System.lineSeparator()
+                        + "2"
+                        + System.lineSeparator()
+                        + "3"
+                        + System.lineSeparator(),
+                output);
     }
 
     @Test

@@ -273,9 +273,7 @@ public class GameEnvironment implements IEvironment {
 
     // region native functions with dependency on specific types
 
-    /**
-     * Native function to place a quest item in a "room" (which is represented by an entity set)
-     */
+    /** Native function to place a quest item in a "room" (which is represented by an entity set) */
     private static class NativePlaceQuestItem extends NativeFunction {
         /**
          * Constructor
@@ -321,8 +319,9 @@ public class GameEnvironment implements IEvironment {
     }
 
     /**
-     * Native function to create a {@link QuestItem} from an item prototype; will link a passed task content automatically
-     * to the internal {@link task.components.TaskContentComponent} of the newly created {@link QuestItem}.
+     * Native function to create a {@link QuestItem} from an item prototype; will link a passed task
+     * content automatically to the internal {@link task.components.TaskContentComponent} of the
+     * newly created {@link QuestItem}.
      */
     private class NativeBuildQuestItem extends NativeFunction {
         /**

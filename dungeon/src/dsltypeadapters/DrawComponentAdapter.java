@@ -7,12 +7,11 @@ import semanticanalysis.types.DSLTypeMember;
 
 import java.io.IOException;
 
-/**
- * Typeadapter for creation of {@link DrawComponent}s.
- */
+/** Typeadapter for creation of {@link DrawComponent}s. */
 public class DrawComponentAdapter {
     /**
      * Buildermethod for creating a new {@link DrawComponent} from a path, pointing to animations.
+     *
      * @param path A String containing a path to a directory containing animations.
      * @return the created {@link DrawComponent}
      */
