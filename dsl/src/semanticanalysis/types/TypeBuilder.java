@@ -304,17 +304,23 @@ public class TypeBuilder {
     protected Symbol createCallbackMemberSymbol(
             Field field, AggregateType parentType, IScope globalScope) {
         String callbackName = getDSLFieldName(field);
+        IType callbackType = getCallbackType((ParameterizedType) field.getGenericType(), parentType, globalScope);
+
+        return new Symbol(callbackName, parentType, callbackType);
+    }
+
+    protected IType getCallbackType(
+        ParameterizedType parameterizedType, AggregateType parentType, IScope globalScope) {
+        var rawType = parameterizedType.getRawType();
+        var functionTypeBuilder = functionTypeBuilders.get(rawType);
 
         IType callbackType = BuiltInType.noType;
-        var fieldsClass = field.getType();
-        var functionTypeBuilder = functionTypeBuilders.get(fieldsClass);
-
         if (functionTypeBuilder != null) {
-            callbackType = functionTypeBuilder.buildFunctionType(field.getGenericType(), this, globalScope);
+            callbackType = functionTypeBuilder.buildFunctionType(parameterizedType, this, globalScope);
             callbackType = bindOrResolveTypeInScope(callbackType, globalScope);
         }
 
-        return new Symbol(callbackName, parentType, callbackType);
+        return callbackType;
     }
 
     /**
