@@ -25,6 +25,8 @@ import interpreter.DSLInterpreter;
 
 import parser.ast.Node;
 
+import reporting.GradingFunctions;
+
 import runtime.nativefunctions.NativeFunction;
 import runtime.nativefunctions.NativePrint;
 
@@ -41,10 +43,8 @@ import task.taskdsltypes.SingleChoiceDescriptionProperty;
 import task.taskdsltypes.SingleChoiceTask;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiFunction;
 
 public class GameEnvironment implements IEvironment {
     // TODO: the TypeBuilder should be completely encapsulated, so that types can only
@@ -268,6 +268,20 @@ public class GameEnvironment implements IEvironment {
                 new NativeBuildQuestItem(Scope.NULL, questItemType, taskContentType);
         nativeFunctions.add(nativeBuildQuestItem);
 
+        // grading functions
+        var taskSymbol = this.globalScope.resolve("task");
+        if (!taskSymbol.equals(Symbol.NULL)) {
+            IType taskType = (IType) taskSymbol;
+            IType taskContentSetType = new SetType(taskContentType, this.globalScope);
+            NativeFunction nativeGradeSingleChoice =
+                    new SingleChoiceGrading(this.globalScope, taskType, taskContentSetType);
+            nativeFunctions.add(nativeGradeSingleChoice);
+
+            NativeFunction nativeGradeMultipleChoice =
+                new MultipleChoiceGrading(this.globalScope, taskType, taskContentSetType);
+            nativeFunctions.add(nativeGradeMultipleChoice);
+        }
+
         return nativeFunctions;
     }
 
@@ -369,6 +383,80 @@ public class GameEnvironment implements IEvironment {
 
                 return questItemObject;
             }
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    // endregion
+
+    // region native grading functions
+
+    private static class SingleChoiceGrading extends NativeFunction {
+        private BiFunction<Task, Set<TaskContent>, Float> func;
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public SingleChoiceGrading(IScope parentScope, IType taskType, IType taskContentSetType) {
+            super(
+                    "grade_single_choice_task",
+                    parentScope,
+                    new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+            this.func = GradingFunctions.singleChoiceGrading();
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = this.evaluateParameters(interpreter, parameters);
+            var parameterObjects = this.translateValuesToObjects(interpreter, parameterValues);
+            Task task = (Task) parameterObjects.get(0);
+            Set<TaskContent> taskContentSet = (Set<TaskContent>) parameterObjects.get(1);
+
+            // call func
+            return func.apply(task, taskContentSet);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class MultipleChoiceGrading extends NativeFunction {
+        private BiFunction<Task, Set<TaskContent>, Float> func;
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public MultipleChoiceGrading(IScope parentScope, IType taskType, IType taskContentSetType) {
+            super(
+                "grade_multiple_choice_task",
+                parentScope,
+                new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+            this.func = GradingFunctions.multipeChoiceGrading();
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = this.evaluateParameters(interpreter, parameters);
+            var parameterObjects = this.translateValuesToObjects(interpreter, parameterValues);
+            Task task = (Task) parameterObjects.get(0);
+            Set<TaskContent> taskContentSet = (Set<TaskContent>) parameterObjects.get(1);
+
+            // call func
+            return func.apply(task, taskContentSet);
         }
 
         @Override

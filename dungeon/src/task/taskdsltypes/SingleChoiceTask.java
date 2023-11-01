@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 /** Typeadapter for the creation of {@link SingleChoice} instances via dsl. */
 public class SingleChoiceTask {
@@ -22,11 +23,9 @@ public class SingleChoiceTask {
     public static SingleChoice buildQuizFromSingleChoiceTask(
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
-            @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex // ,
-            // TODO: siehe https://github.com/Programmiermethoden/Dungeon/issues/916
-            //  @DSLTypeMember(name="score_function") BiFunction<Task, Set<Quiz.Content>, Float>
-            //  scoreFunction
-            ) {
+            @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex,
+            @DSLTypeMember(name = "grading_function")
+                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
         SingleChoice sc = new SingleChoice(description);
 
         for (Quiz.Content answer : answers) {
@@ -34,7 +33,8 @@ public class SingleChoiceTask {
         }
 
         sc.addCorrectAnswerIndex(correctAnswerIndex);
-        sc.scoringFunction(SingleChoiceTask::score);
+        // sc.scoringFunction(SingleChoiceTask::score);
+        sc.scoringFunction(gradingFunction);
 
         return sc;
     }
