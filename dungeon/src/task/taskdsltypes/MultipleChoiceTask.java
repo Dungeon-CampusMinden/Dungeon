@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 /** Typeadapter for creation of {@link MultipleChoice} instances via dsl. */
 public class MultipleChoiceTask {
@@ -21,9 +22,8 @@ public class MultipleChoiceTask {
     public static MultipleChoice buildQuizFromMultipleChoiceTask(
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
-            @DSLTypeMember(name = "correct_answer_index") List<Integer> correctAnswerIndices // ,
-            // TODO: siehe https://github.com/Programmiermethoden/Dungeon/issues/916
-            //  @DSLTypeMember(name="score_function") BiFunction<Task, Set<Quiz.Content>, Float>
+            @DSLTypeMember(name = "correct_answer_index") List<Integer> correctAnswerIndices,
+            @DSLTypeMember(name="grading_function") BiFunction<Task, Set<TaskContent>, Float> gradingFunction
             //  scoreFunction
             ) {
         MultipleChoice mc = new MultipleChoice(description);
@@ -35,7 +35,7 @@ public class MultipleChoiceTask {
         for (var index : correctAnswerIndices) {
             mc.addCorrectAnswerIndex(index);
         }
-        mc.scoringFunction(MultipleChoiceTask::score);
+        mc.scoringFunction(gradingFunction);
 
         return mc;
     }
