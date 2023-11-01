@@ -22,7 +22,8 @@ public class TypeInstantiator {
                             IType.Kind.SetType,
                             IType.Kind.ListType,
                             IType.Kind.Basic,
-                            IType.Kind.EnumType));
+                            IType.Kind.EnumType,
+                            IType.Kind.FunctionType));
     private final HashMap<String, Object> context = new HashMap<>();
     private final CallbackAdapterBuilder callbackAdapterBuilder;
 
