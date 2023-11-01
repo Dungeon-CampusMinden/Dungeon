@@ -231,7 +231,6 @@ public class TypeBuilder {
 
     public IType createAdapterType(
             Class<?> forType, String dslTypeName, Method adapterMethod, IScope parentScope) {
-        // get parameters, if only one: PODType, otherwise: AggregateType
         if (adapterMethod.getParameterCount() == 0) {
             // TODO: handle
             throw new RuntimeException(
@@ -240,19 +239,28 @@ public class TypeBuilder {
 
         var typeAdapter =
                 new AggregateTypeAdapter(dslTypeName, parentScope, forType, adapterMethod);
+
         // bind symbol for each parameter in the adapterMethod
         for (var parameter : adapterMethod.getParameters()) {
-            String parameterName = getDSLParameterName(parameter);
+            // translate parameters type into DSL type system
             Type parametersType = parameter.getType();
-
             IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersType);
             if (paramDSLType == null) {
-                // TODO: refactor this to be included in createDSLTypeForJavaTypeInScope, see:
-                //  https://github.com/Programmiermethoden/Dungeon/issues/917
-
                 var parametersAnnotatedType = parameter.getAnnotatedType();
-                // if the cast fails, the type may be a parameterized type (e.g. list or set)
-                if (List.class.isAssignableFrom((Class<?>) parametersType)) {
+                Class<?> parametersClass = (Class<?>) parametersType;
+                if (parametersClass.isAnnotationPresent(FunctionalInterface.class)) {
+                    // If the parameters class is annotated with @FunctionalInterface, we need to
+                    // create a FunctionType for the parameter. For this we
+                    // need the *Parameterized* Type of the parameter (which stores the information about the
+                    // types used in the declaration of the generic type, i.e. `Integer` in `List<Integer>`).
+                    // This CANNOT be integrated in `createDSLTypeForJavaTypeInScope` (see below), because
+                    // the *Parameterized* Type is ONLY accessible via the Parameter of the method, which is
+                    // not available in the `createDSLTypeForJavaTypeInScope`-method!
+                    var parameterizedParameterType = (ParameterizedType) parameter.getParameterizedType();
+                    paramDSLType = createFunctionType(parameterizedParameterType, parentScope);
+                } else if (List.class.isAssignableFrom((Class<?>) parametersType)) {
+                    // TODO: refactor this to be included in createDSLTypeForJavaTypeInScope, see:
+                    //  https://github.com/Programmiermethoden/Dungeon/issues/917
                     paramDSLType =
                             createListType(
                                     (ParameterizedType) parametersAnnotatedType.getType(),
@@ -265,6 +273,7 @@ public class TypeBuilder {
                 }
             }
 
+            String parameterName = getDSLParameterName(parameter);
             Symbol parameterSymbol = new Symbol(parameterName, typeAdapter, paramDSLType);
             typeAdapter.bind(parameterSymbol);
         }
@@ -304,23 +313,26 @@ public class TypeBuilder {
     protected Symbol createCallbackMemberSymbol(
             Field field, AggregateType parentType, IScope globalScope) {
         String callbackName = getDSLFieldName(field);
-        IType callbackType = getCallbackType((ParameterizedType) field.getGenericType(), parentType, globalScope);
+        IType callbackType =
+                createFunctionType(
+                        (ParameterizedType) field.getGenericType(), globalScope);
 
         return new Symbol(callbackName, parentType, callbackType);
     }
 
-    protected IType getCallbackType(
-        ParameterizedType parameterizedType, AggregateType parentType, IScope globalScope) {
-        var rawType = parameterizedType.getRawType();
+    protected IType createFunctionType(
+            ParameterizedType parameterizedFunctionalInterfaceType, IScope globalScope) {
+        var rawType = parameterizedFunctionalInterfaceType.getRawType();
         var functionTypeBuilder = functionTypeBuilders.get(rawType);
 
-        IType callbackType = BuiltInType.noType;
+        IType functionType = BuiltInType.noType;
         if (functionTypeBuilder != null) {
-            callbackType = functionTypeBuilder.buildFunctionType(parameterizedType, this, globalScope);
-            callbackType = bindOrResolveTypeInScope(callbackType, globalScope);
+            functionType =
+                    functionTypeBuilder.buildFunctionType(parameterizedFunctionalInterfaceType, this, globalScope);
+            functionType = bindOrResolveTypeInScope(functionType, globalScope);
         }
 
-        return callbackType;
+        return functionType;
     }
 
     /**
@@ -406,6 +418,7 @@ public class TypeBuilder {
      * @param type the java {@link Type} to create a DSL {@link IType} from
      */
     public IType createDSLTypeForJavaTypeInScope(IScope globalScope, Type type) {
+        IType returnType;
         if (type == null) {
             return BuiltInType.noType;
         }
@@ -449,7 +462,7 @@ public class TypeBuilder {
             }
         }
 
-        // trye to resolve the typename in global scope
+        // try to resolve the typename in global scope
         String typeName = getDSLTypeName(clazz);
         Symbol resolved = globalScope.resolve(typeName);
         if (resolved != Symbol.NULL) {
@@ -470,7 +483,6 @@ public class TypeBuilder {
             return null;
         }
 
-        IType returnType;
         if (clazz.isEnum()) {
             // because we check, that the clazz is an Enum (by `.isEnum()`)
             // we can ignore the unchecked warning
