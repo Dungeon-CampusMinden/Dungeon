@@ -48,11 +48,8 @@ public class ExtensionMethod extends Symbol implements ICallable {
         Object instanceObject = instance.getInternalValue();
 
         // interpret parameters and extract internal values
-        List<Object> parameterObjects =
-                parameters.stream()
-                        .map(p -> p.accept(interperter))
-                        .map(o -> ((Value) o).getInternalValue())
-                        .toList();
+        var parameterValues = interperter.evaluateNodes(parameters);
+        List<Object> parameterObjects = interperter.translateValuesToObjects(parameterValues);
 
         return this.extensionMethod.call(instanceObject, parameterObjects);
     }
