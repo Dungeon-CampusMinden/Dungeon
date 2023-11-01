@@ -44,8 +44,7 @@ public class NativeTaskBuilder implements ITaskBuilder {
             throw new RuntimeException(e);
         }
         questowner.addComponent(askOnInteraction(quiz));
-        TaskComponent tc = new TaskComponent(questowner);
-        quiz.managerEntity(questowner);
+        new TaskComponent(quiz, questowner);
 
         Set<Set<Entity>> outerSet = new HashSet<>();
         Set<Entity> innerSet = new HashSet<>();
@@ -68,7 +67,8 @@ public class NativeTaskBuilder implements ITaskBuilder {
 
     private BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
         return (task, taskContents) -> {
-            float score = task.scoringFunction().apply(task, taskContents);
+            float score = task.gradeTask(taskContents);
+            task.managerEntity().get().removeComponent(InteractionComponent.class);
             UITools.generateNewTextDialog("Your score: " + score, "Ok", "Given answer");
         };
     }
