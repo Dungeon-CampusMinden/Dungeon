@@ -1,19 +1,18 @@
 package task.taskdsltypes;
 
-import semanticanalysis.types.DSLExtensionMethod;
-import semanticanalysis.types.DSLTypeAdapter;
-import semanticanalysis.types.DSLTypeMember;
-import semanticanalysis.types.IDSLExtensionMethod;
+import reporting.GradingFunctions;
+import semanticanalysis.types.*;
 
+import task.QuestItem;
 import task.Quiz;
 import task.Task;
 import task.TaskContent;
+import task.components.TaskContentComponent;
 import task.quizquestion.SingleChoice;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.function.BiFunction;
 
 /** Typeadapter for the creation of {@link SingleChoice} instances via dsl. */
@@ -33,8 +32,8 @@ public class SingleChoiceTask {
         }
 
         sc.addCorrectAnswerIndex(correctAnswerIndex);
-        // sc.scoringFunction(SingleChoiceTask::score);
-        sc.scoringFunction(gradingFunction);
+        // default value
+        sc.scoringFunction(Objects.requireNonNullElseGet(gradingFunction, GradingFunctions::singleChoiceGrading));
 
         return sc;
     }
@@ -79,8 +78,8 @@ public class SingleChoiceTask {
         }
 
         @Override
-        public List<Class<?>> getParameterTypes() {
-            var arr = new Class<?>[] {};
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
             return Arrays.stream(arr).toList();
         }
     }

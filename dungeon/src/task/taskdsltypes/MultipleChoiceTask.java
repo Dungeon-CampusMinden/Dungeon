@@ -1,5 +1,6 @@
 package task.taskdsltypes;
 
+import reporting.GradingFunctions;
 import semanticanalysis.types.DSLExtensionMethod;
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
@@ -10,10 +11,8 @@ import task.Task;
 import task.TaskContent;
 import task.quizquestion.MultipleChoice;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.function.BiFunction;
 
 /** Typeadapter for creation of {@link MultipleChoice} instances via dsl. */
@@ -35,7 +34,9 @@ public class MultipleChoiceTask {
         for (var index : correctAnswerIndices) {
             mc.addCorrectAnswerIndex(index);
         }
-        mc.scoringFunction(gradingFunction);
+
+        // default value
+        mc.scoringFunction(Objects.requireNonNullElseGet(gradingFunction, GradingFunctions::multipeChoiceGrading));
 
         return mc;
     }
@@ -81,8 +82,8 @@ public class MultipleChoiceTask {
         }
 
         @Override
-        public List<Class<?>> getParameterTypes() {
-            var arr = new Class<?>[] {};
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
             return Arrays.stream(arr).toList();
         }
     }
