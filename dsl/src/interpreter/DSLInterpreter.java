@@ -1584,4 +1584,26 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return null;
     }
     // endregion
+
+
+    // region helpers for native functions/methods
+    public List<Value> evaluateNodes(List<Node> nodes) {
+        ArrayList<Value> values = new ArrayList<>(nodes.size());
+        for (Node node : nodes) {
+            Value value = (Value) node.accept(this);
+            values.add(value);
+        }
+        return values;
+    }
+
+    public List<Object> translateValuesToObjects(List<Value> values) {
+        ArrayList<Object> objects = new ArrayList<>(values.size());
+        var instantiator = this.getRuntimeEnvironment().getTypeInstantiator();
+        for (Value value : values) {
+            Object object = instantiator.instantiate(value);
+            objects.add(object);
+        }
+        return objects;
+    }
+    // endregion
 }
