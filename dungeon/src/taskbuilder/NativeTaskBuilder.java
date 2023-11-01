@@ -23,10 +23,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+/**
+ * A {@link ITaskBuilder} written native in Java. Can be used as an alternativ to the {@link
+ * interpreter.DSLInterpreter}.
+ */
 public class NativeTaskBuilder implements ITaskBuilder {
     @Override
     public Optional<Object> buildTask(Task task) {
-
         if (task instanceof SingleChoice) return Optional.ofNullable(quizOnHud((Quiz) task));
         else if (task instanceof MultipleChoice) return Optional.ofNullable(quizOnHud((Quiz) task));
         else if (task instanceof AssignTask)
