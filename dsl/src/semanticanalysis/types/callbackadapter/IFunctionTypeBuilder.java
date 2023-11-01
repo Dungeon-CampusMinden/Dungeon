@@ -4,7 +4,6 @@ import semanticanalysis.IScope;
 import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.TypeBuilder;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 /** Builder interface for a {@link FunctionType} for a callback method */
@@ -16,6 +15,6 @@ public interface IFunctionTypeBuilder {
      * @param typeBuilder {@link TypeBuilder} instance to lookup parameter types
      * @return {@link FunctionType} corresponding to the callback signature
      */
-    //FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder, IScope globalScope);
+    // FunctionType buildFunctionType(Field field, TypeBuilder typeBuilder, IScope globalScope);
     FunctionType buildFunctionType(Type genericType, TypeBuilder typeBuilder, IScope globalScope);
 }

@@ -4,11 +4,9 @@ import core.utils.TriConsumer;
 
 import interpreter.DSLInterpreter;
 
-import parser.ast.FuncDefNode;
-
 import runtime.*;
 
-import semanticanalysis.FunctionSymbol;
+import semanticanalysis.ICallable;
 import semanticanalysis.types.FunctionType;
 
 import java.util.Arrays;
@@ -23,24 +21,21 @@ public class CallbackAdapter implements Consumer, TriConsumer {
 
     private final RuntimeEnvironment rtEnv;
     private final FunctionType functionType;
-    private final FuncDefNode funcDefNode;
+    private final ICallable callable;
     private final DSLInterpreter interpreter;
 
-    CallbackAdapter(
-            RuntimeEnvironment rtEnv, FunctionSymbol functionSymbol, DSLInterpreter interpreter) {
+    CallbackAdapter(RuntimeEnvironment rtEnv, ICallable callable, DSLInterpreter interpreter) {
         this.rtEnv = rtEnv;
-        this.functionType = (FunctionType) functionSymbol.getDataType();
-        this.funcDefNode = functionSymbol.getAstRootNode();
+        this.functionType = callable.getFunctionType();
+        this.callable = callable;
         this.interpreter = interpreter;
     }
 
     public Object call(Object... params) {
-        var functionSymbol = rtEnv.getSymbolTable().getSymbolsForAstNode(funcDefNode).get(0);
-
-        var returnValue =
+        Value returnValue =
                 (Value)
-                        interpreter.executeUserDefinedFunctionRawParameters(
-                                (FunctionSymbol) functionSymbol, Arrays.stream(params).toList());
+                        interpreter.callCallableRawParameters(
+                                this.callable, Arrays.stream(params).toList());
 
         return convertValueToObject(returnValue);
     }

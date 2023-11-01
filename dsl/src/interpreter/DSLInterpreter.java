@@ -20,6 +20,7 @@ import parser.ast.*;
 import runtime.*;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
+import runtime.nativefunctions.NativeFunction;
 
 import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
@@ -392,6 +393,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         HashMap<Symbol, Value> globalValues = new HashMap<>();
         List<Symbol> globalSymbols = symbolTable().getGlobalScope().getSymbols();
         for (var symbol : globalSymbols) {
+            IType type = symbol.getDataType();
+            if (type != null && type.getTypeKind().equals(IType.Kind.FunctionType)) {
+                // we don't build global values for functions by default
+                continue;
+            }
             var value = bindFromSymbol(symbol, memoryStack.peek());
             if (value != Value.NONE) {
                 globalValues.put(symbol, value);
@@ -481,7 +487,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         } else if (type.getTypeKind().equals(IType.Kind.EnumType)) {
             return new EnumValue((EnumType) type, null);
         } else if (type.getTypeKind().equals(IType.Kind.FunctionType)) {
-            return Value.NONE;
+            return FunctionValue.NONE;
         }
         return Value.NONE;
     }
@@ -704,8 +710,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     @Override
     public Object visit(PropertyDefNode node) {
-        Value value = (Value) node.getStmtNode().accept(this);
         var propertyName = node.getIdName();
+        Value value = (Value) node.getStmtNode().accept(this);
         Value assigneeValue = getCurrentMemorySpace().resolve(propertyName);
         boolean setValue = setValue(assigneeValue, value);
         if (!setValue) {
@@ -733,9 +739,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
     @Override
     public Object visit(IdNode node) {
         var symbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
+        if (symbol instanceof NativeFunction nativeFunction) {
+            return new FunctionValue(nativeFunction.getFunctionType(), nativeFunction);
+        }
         if (symbol instanceof FunctionSymbol functionSymbol) {
-            return new FunctionValue(
-                    functionSymbol.getFunctionType().getReturnType(), functionSymbol);
+            return new FunctionValue(functionSymbol.getFunctionType(), functionSymbol);
         }
 
         return this.getCurrentMemorySpace().resolve(node.getName(), true);
@@ -787,19 +795,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             throw new RuntimeException("Symbol for name '" + funcName + "' is not callable!");
         } else {
             // execute function call
-            var returnValue = callable.call(this, node.getParameters());
-            if (returnValue == null) {
-                return Value.NONE;
-            }
-
-            if (!(returnValue instanceof Value)) {
-                // package it into value
-                IType targetType = callable.getFunctionType().getReturnType();
-                returnValue =
-                        this.environment.translateRuntimeObject(
-                                returnValue, this.getCurrentMemorySpace(), targetType);
-            }
-            return returnValue;
+            return callCallable(callable, node.getParameters());
         }
     }
 
@@ -1158,6 +1154,20 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return true;
     }
 
+    private boolean setFunctionValue(FunctionValue assignee, Value valueToAssign) {
+        if (!(valueToAssign instanceof FunctionValue functionValueToAssign)) {
+            throw new RuntimeException(
+                    "Can't assign value "
+                            + valueToAssign
+                            + " to FunctionValue, it is not a FunctionValue itself!");
+        }
+
+        assignee.setDataType(functionValueToAssign.getDataType());
+        assignee.setInternalValue(functionValueToAssign.getCallable());
+
+        return true;
+    }
+
     private boolean setValue(Value assignee, Value valueToAssign) {
         if (assignee == Value.NONE) {
             return false;
@@ -1170,6 +1180,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
             setListValue(assigneeListValue, valueToAssign);
         } else if (assignee instanceof SetValue assigneeSetValue) {
             setSetValue(assigneeSetValue, valueToAssign);
+        } else if (assignee instanceof FunctionValue assigneeFunctionValue) {
+            setFunctionValue(assigneeFunctionValue, valueToAssign);
         } else {
             assignee.setInternalValue(valueToAssign.getInternalValue());
         }
@@ -1314,10 +1326,79 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         return null;
     }
-
     // endregion
 
-    // region user defined function execution
+    // region function execution
+
+    /**
+     * Implements the call of a {@link ICallable} with parameters given as a {@link List} of {@link
+     * Node}s representing the parameters of the call. This function will automatically package the
+     * returned object of the call into an {@link Value} instance, if the call did return an
+     * arbitrary {@link Object}.
+     *
+     * @param callable The {@link ICallable} to call.
+     * @param parameterNodes The list of parameter {@link Node}s to call the {@link ICallable} with.
+     * @return The returned {@link Value} of the call.
+     */
+    protected Value callCallable(ICallable callable, List<Node> parameterNodes) {
+        // execute function call
+        var returnObject = callable.call(this, parameterNodes);
+        Value returnValue = Value.NONE;
+        if (returnObject == null) {
+            return returnValue;
+        }
+
+        if (!(returnObject instanceof Value returnObjectAsValue)) {
+            // package it into value
+            IType targetType = callable.getFunctionType().getReturnType();
+            returnValue =
+                    (Value)
+                            this.environment.translateRuntimeObject(
+                                    returnObject, this.getCurrentMemorySpace(), targetType);
+        } else {
+            returnValue = returnObjectAsValue;
+        }
+
+        return returnValue;
+    }
+
+    /**
+     * Implement a call of an {@link ICallable} with raw {@link Object}s for the parameters. This
+     * method will create a new {@link IMemorySpace}, create {@link Value}s for each parameter of
+     * the {@link ICallable} and set these {@link Value}s to the passed {@link Objects}. It will
+     * also create new {@link IdNode}s with names, which match the parameter names of the {@link
+     * ICallable} and pass these IdNodes to the call.
+     *
+     * @param callable The {@link ICallable} to call.
+     * @param parameterObjects The raw {@link Object}s to call the callable with.
+     * @return The returned {@link Object} of the call.
+     */
+    public Object callCallableRawParameters(ICallable callable, List<Object> parameterObjects) {
+        if (callable.getCallableType().equals(ICallable.Type.Native)) {
+            NativeFunction func = (NativeFunction) callable;
+
+            IMemorySpace functionMemorySpace = createFunctionMemorySpace(func);
+            setupFunctionParametersRaw(func, functionMemorySpace, parameterObjects);
+
+            // create mock ID-nodes
+            var parameterSymbols = func.getSymbols();
+            List<Node> mockIdNodes = new ArrayList<>(parameterSymbols.size());
+            for (Symbol parameterSymbol : parameterSymbols) {
+                mockIdNodes.add(new IdNode(parameterSymbol.getName(), SourceFileReference.NULL));
+            }
+
+            this.memoryStack.push(functionMemorySpace);
+            // call callable
+            Value returnValue = callCallable(callable, mockIdNodes);
+            this.memoryStack.pop();
+
+            return returnValue;
+        } else if (callable.getCallableType().equals(ICallable.Type.UserDefined)) {
+            FunctionSymbol functionSymbol = (FunctionSymbol) callable;
+            return executeUserDefinedFunctionRawParameters(functionSymbol, parameterObjects);
+        }
+        return null;
+    }
 
     /**
      * This implements a call to a user defined dsl-function
@@ -1326,7 +1407,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param parameterObjects The concrete raw objects to use as parameters of the function call
      * @return The return value of the function call
      */
-    public Object executeUserDefinedFunctionRawParameters(
+    protected Object executeUserDefinedFunctionRawParameters(
             FunctionSymbol symbol, List<Object> parameterObjects) {
         IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol);
         setupFunctionParametersRaw(symbol, functionMemorySpace, parameterObjects);
@@ -1367,7 +1448,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param parameterObjects Raw objects to use as values for the function's parameters
      */
     private void setupFunctionParametersRaw(
-            FunctionSymbol functionSymbol,
+            ScopedSymbol functionSymbol,
             IMemorySpace functionsMemorySpace,
             List<Object> parameterObjects) {
         var currentMemorySpace = getCurrentMemorySpace();
@@ -1421,7 +1502,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param functionSymbol The Symbol representing the function definition
      * @return The created IMemorySpace
      */
-    private IMemorySpace createFunctionMemorySpace(FunctionSymbol functionSymbol) {
+    private IMemorySpace createFunctionMemorySpace(ScopedSymbol functionSymbol) {
         // push new memorySpace and parameters on spaceStack
         var functionMemSpace = new MemorySpace(memoryStack.peek());
 

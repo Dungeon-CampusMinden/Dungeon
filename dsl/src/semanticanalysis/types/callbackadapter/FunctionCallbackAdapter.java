@@ -4,15 +4,15 @@ import interpreter.DSLInterpreter;
 
 import runtime.RuntimeEnvironment;
 
-import semanticanalysis.FunctionSymbol;
+import semanticanalysis.ICallable;
 
 import java.util.function.Function;
 
 public class FunctionCallbackAdapter extends CallbackAdapter implements Function {
 
     FunctionCallbackAdapter(
-            RuntimeEnvironment rtEnv, FunctionSymbol functionSymbol, DSLInterpreter interpreter) {
-        super(rtEnv, functionSymbol, interpreter);
+            RuntimeEnvironment rtEnv, ICallable callable, DSLInterpreter interpreter) {
+        super(rtEnv, callable, interpreter);
     }
 
     @Override

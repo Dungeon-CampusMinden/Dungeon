@@ -2,7 +2,7 @@ package semanticanalysis.types.callbackadapter;
 
 import interpreter.DSLInterpreter;
 
-import semanticanalysis.FunctionSymbol;
+import semanticanalysis.ICallable;
 import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.FunctionType;
 
@@ -21,22 +21,21 @@ public class CallbackAdapterBuilder {
      * Build a {@link CallbackAdapter} for a concrete DSL function for assigning to a callback-Field
      * in a Component of the Dungeons ECS.
      *
-     * @param functionSymbol The Symbol representing the function definition
+     * @param callable The {@link ICallable} representing the function
      * @return The created {@link CallbackAdapter}
      */
-    public CallbackAdapter buildAdapter(FunctionSymbol functionSymbol) {
-        FunctionType functionType = (FunctionType) functionSymbol.getDataType();
+    public CallbackAdapter buildAdapter(ICallable callable) {
+        FunctionType functionType = callable.getFunctionType();
         if (functionType.getReturnType() != BuiltInType.noType
                 && functionType.getParameterTypes().size() == 1) {
             return new FunctionCallbackAdapter(
-                    interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+                    interpreter.getRuntimeEnvironment(), callable, interpreter);
         } else if (functionType.getReturnType() != BuiltInType.noType
                 && functionType.getParameterTypes().size() == 2) {
             return new BiFunctionCallbackAdapter(
-                    interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+                    interpreter.getRuntimeEnvironment(), callable, interpreter);
         } else {
-            return new CallbackAdapter(
-                    interpreter.getRuntimeEnvironment(), functionSymbol, interpreter);
+            return new CallbackAdapter(interpreter.getRuntimeEnvironment(), callable, interpreter);
         }
     }
 }

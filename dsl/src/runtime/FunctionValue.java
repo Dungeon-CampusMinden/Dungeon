@@ -1,18 +1,19 @@
 package runtime;
 
 import semanticanalysis.ICallable;
+import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.IType;
 
 /** This Value represents the instance of an {@link ICallable}. */
 public class FunctionValue extends Value {
-    ICallable callable;
+    public static FunctionValue NONE = new FunctionValue(BuiltInType.noType, null);
 
     /**
      * @return index of the symbol representing the function definition, which is called by this
      *     Value
      */
     public ICallable getCallable() {
-        return callable;
+        return (ICallable) this.getInternalValue();
     }
 
     /**
@@ -23,11 +24,10 @@ public class FunctionValue extends Value {
      */
     public FunctionValue(IType functionReturnValue, ICallable callable) {
         super(functionReturnValue, callable);
-        this.callable = callable;
     }
 
     @Override
     public Object clone() {
-        return new FunctionValue(this.dataType, this.callable);
+        return new FunctionValue(this.dataType, this.getCallable());
     }
 }

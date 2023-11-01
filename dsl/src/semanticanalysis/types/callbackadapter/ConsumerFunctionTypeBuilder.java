@@ -6,7 +6,6 @@ import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
 
     @Override
     public FunctionType buildFunctionType(
-        Type genericType, TypeBuilder typeBuilder, IScope globalScope) {
+            Type genericType, TypeBuilder typeBuilder, IScope globalScope) {
 
         var parameterizedType = (ParameterizedType) genericType;
         // the parameters will be the arguments for the function
