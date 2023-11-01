@@ -553,7 +553,21 @@ public class TypeBuilder {
 
                 // get properties datatype
                 var valueType = parameterizedType.getActualTypeArguments()[1];
-                IType valueDSLType = createDSLTypeForJavaTypeInScope(globalScope, valueType);
+                IType valueDSLType = null;
+                if (valueType instanceof ParameterizedType parameterizedParameterType) {
+                    try {
+                        Class<?> rawType = (Class<?>) parameterizedParameterType.getRawType();
+                        if (rawType.isAnnotationPresent(FunctionalInterface.class)) {
+                            valueDSLType = this.createFunctionType(parameterizedParameterType, globalScope);
+                        }
+                    } catch (ClassCastException ex){
+                        //
+                    }
+                }
+                if (valueDSLType == null) {
+                    valueDSLType = createDSLTypeForJavaTypeInScope(globalScope, valueType);
+                }
+
 
                 // create and bind property symbol
                 PropertySymbol propertySymbol =
