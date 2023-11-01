@@ -102,6 +102,7 @@ public class GameEnvironment implements IEvironment {
 
         methods.add(SingleChoiceTask.GetContentMethod.instance);
         methods.add(MultipleChoiceTask.GetContentMethod.instance);
+        methods.add(SingleChoiceTask.SingleChoiceSetGradingFunction.instance);
 
         return methods;
     }
