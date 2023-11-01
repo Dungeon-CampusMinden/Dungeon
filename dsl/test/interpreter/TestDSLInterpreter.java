@@ -31,6 +31,7 @@ import semanticanalysis.types.*;
 
 import task.QuestItem;
 import task.Quiz;
+import task.TaskContent;
 
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
@@ -3588,5 +3589,59 @@ public class TestDSLInterpreter {
         // Assert.assertEquals("MyName", item.displayName());
         Quiz.Content content = (Quiz.Content) item.taskContentComponent().content();
         Assert.assertEquals("2", content.content());
+    }
+
+    @Test
+    public void testSetGradingFuncSingleChoice() {
+        String program =
+                """
+            single_choice_task t1 {
+                description: "Task1",
+                    answers: ["1", "2", "3"],
+                correct_answer_index: 2,
+                grading_function: grade_single_choice_task
+            }
+
+            graph g {
+                t1
+            }
+
+            dungeon_config c {
+                dependency_graph: g
+            }
+
+            item_type item_type1 {
+                display_name: "MyName",
+                description: "Hello, this is a description",
+                texture_path: "items/book/wisdom_scroll.png"
+            }
+
+            fn build_scenario1(single_choice_task t) -> entity<><> {
+                var ret_set : entity<><>;
+
+                var first_room_set : entity<>;
+
+                var item : quest_item;
+                var content : task_content[];
+                content = t.get_content();
+
+                item = build_quest_item(item_type1, content.get(1));
+                place_quest_item(item, first_room_set);
+
+                ret_set.add(first_room_set);
+                return ret_set;
+            }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+        TaskContent content = task.contentByIndex(2);
+        HashSet<TaskContent> tcSet = new HashSet<>();
+        tcSet.add(content);
+        var score = (Float) task.scoringFunction().apply(task, tcSet);
+        Assert.assertEquals((Float) 1.0f, score);
     }
 }
