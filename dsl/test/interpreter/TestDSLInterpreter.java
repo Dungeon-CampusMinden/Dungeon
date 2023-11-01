@@ -3651,4 +3651,50 @@ public class TestDSLInterpreter {
         var score = (Float) task.scoringFunction().apply(task, tcSet);
         Assert.assertEquals((Float) 0.5f, score);
     }
+
+    @Test
+    public void testSetGradingFunctionInScenarioBuilderSingleChoice() {
+        String program =
+            """
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        fn build_scenario1(single_choice_task t) -> entity<><> {
+            var ret_set : entity<><>;
+            var first_room_set : entity<>;
+
+            t.set_grading_function(grade_single_choice_task);
+
+            ret_set.add(first_room_set);
+            return ret_set;
+        }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+
+        // force scoring function to be un-assigned
+        task.scoringFunction(null);
+
+        // execute scenario builder, in which the grading function will be setk
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+        TaskContent content = task.contentByIndex(2);
+        HashSet<TaskContent> tcSet = new HashSet<>();
+        tcSet.add(content);
+        var score = (Float) task.scoringFunction().apply(task, tcSet);
+        Assert.assertEquals((Float) 1.0f, score);
+    }
 }
