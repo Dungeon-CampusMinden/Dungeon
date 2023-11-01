@@ -31,27 +31,10 @@ public abstract class NativeFunction extends ScopedSymbol implements ICallable {
         this.dataType = type;
     }
 
-    protected List<Value> evaluateParameters(DSLInterpreter interpreter, List<Node> parameterNodes) {
-        ArrayList<Value> parameterValues = new ArrayList<>(parameterNodes.size());
-        for (Node node : parameterNodes) {
-            Value taskValue = (Value) node.accept(interpreter);
-            parameterValues.add(taskValue);
-        }
-        return parameterValues;
-    }
-
-    protected List<Object> translateValuesToObjects(DSLInterpreter interpreter, List<Value> values) {
-        ArrayList<Object> objects = new ArrayList<>(values.size());
-        var instantiator = interpreter.getRuntimeEnvironment().getTypeInstantiator();
-        for (Value value : values) {
-            Object object = instantiator.instantiate(value);
-            objects.add(object);
-        }
-        return objects;
-    }
 
     @Override
     public FunctionType getFunctionType() {
         return (FunctionType) this.getDataType();
     }
 }
+
