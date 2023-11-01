@@ -587,11 +587,25 @@ public class TypeBuilder {
                 Type returnType = parameterizedType.getActualTypeArguments()[1];
                 IType returnDSLType = createDSLTypeForJavaTypeInScope(globalScope, returnType);
 
-                List<Class<?>> parameterTypes = method.getParameterTypes();
-                List<IType> parameterDSLTypes =
-                        parameterTypes.stream()
-                                .map(t -> createDSLTypeForJavaTypeInScope(globalScope, t))
-                                .toList();
+                List<Type> parameterTypes = method.getParameterTypes();
+                List<IType> parameterDSLTypes = new ArrayList<>(parameterTypes.size());
+                for (Type parameterType : parameterTypes) {
+                    IType dslType = null;
+                    if (parameterType instanceof ParameterizedType parameterizedParameterType) {
+                        try {
+                            Class<?> rawType = (Class<?>) parameterizedParameterType.getRawType();
+                            if (rawType.isAnnotationPresent(FunctionalInterface.class)) {
+                                dslType = this.createFunctionType(parameterizedParameterType, globalScope);
+                            }
+                        } catch (ClassCastException ex) {
+                            //
+                        }
+                    }
+                    if (dslType == null) {
+                        dslType = createDSLTypeForJavaTypeInScope(globalScope, parameterType);
+                    }
+                    parameterDSLTypes.add(dslType);
+                }
 
                 FunctionType functionType = new FunctionType(returnDSLType, parameterDSLTypes);
 
