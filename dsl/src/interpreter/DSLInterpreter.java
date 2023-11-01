@@ -1182,6 +1182,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
             setSetValue(assigneeSetValue, valueToAssign);
         } else if (assignee instanceof FunctionValue assigneeFunctionValue) {
             setFunctionValue(assigneeFunctionValue, valueToAssign);
+        } else if (assignee instanceof PropertyValue propertyValue) {
+            var instantiatedValue = this.environment.getTypeInstantiator().instantiate(valueToAssign);
+            assignee.setInternalValue(instantiatedValue);
         } else {
             assignee.setInternalValue(valueToAssign.getInternalValue());
         }
