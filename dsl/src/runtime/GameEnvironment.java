@@ -415,8 +415,8 @@ public class GameEnvironment implements IEvironment {
         public Object call(DSLInterpreter interpreter, List<Node> parameters) {
             assert parameters != null && parameters.size() > 0;
 
-            var parameterValues = this.evaluateParameters(interpreter, parameters);
-            var parameterObjects = this.translateValuesToObjects(interpreter, parameterValues);
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
             Task task = (Task) parameterObjects.get(0);
             Set<TaskContent> taskContentSet = (Set<TaskContent>) parameterObjects.get(1);
 
@@ -450,8 +450,8 @@ public class GameEnvironment implements IEvironment {
         public Object call(DSLInterpreter interpreter, List<Node> parameters) {
             assert parameters != null && parameters.size() > 0;
 
-            var parameterValues = this.evaluateParameters(interpreter, parameters);
-            var parameterObjects = this.translateValuesToObjects(interpreter, parameterValues);
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
             Task task = (Task) parameterObjects.get(0);
             Set<TaskContent> taskContentSet = (Set<TaskContent>) parameterObjects.get(1);
 
