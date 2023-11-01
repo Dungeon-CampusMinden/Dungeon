@@ -49,7 +49,7 @@ import java.util.function.Consumer;
 public class Starter {
     private static final String BACKGROUND_MUSIC = "sounds/background.wav";
     private static boolean realGameStarted = false;
-    private static final boolean USE_DSL_TASKBUILDER = true;
+    private static final boolean USE_DSL_TASKBUILDER = false;
     private static final DSLInterpreter dslInterpreter = new DSLInterpreter();
 
     private static final Consumer<Entity> showQuestLog =
