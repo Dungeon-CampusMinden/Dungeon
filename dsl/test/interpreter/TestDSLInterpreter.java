@@ -3626,7 +3626,7 @@ public class TestDSLInterpreter {
     @Test
     public void testSetGradingFuncMultipleChoice() {
         String program =
-            """
+                """
         multiple_choice_task t1 {
             description: "Task1",
             answers: ["1", "2", "3"],
@@ -3655,7 +3655,7 @@ public class TestDSLInterpreter {
     @Test
     public void testSetGradingFunctionInScenarioBuilderSingleChoice() {
         String program =
-            """
+                """
         single_choice_task t1 {
             description: "Task1",
             answers: ["1", "2", "3"],

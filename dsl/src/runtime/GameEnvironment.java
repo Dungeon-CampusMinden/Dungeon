@@ -279,7 +279,7 @@ public class GameEnvironment implements IEvironment {
             nativeFunctions.add(nativeGradeSingleChoice);
 
             NativeFunction nativeGradeMultipleChoice =
-                new MultipleChoiceGrading(this.globalScope, taskType, taskContentSetType);
+                    new MultipleChoiceGrading(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeMultipleChoice);
         }
 
@@ -441,9 +441,9 @@ public class GameEnvironment implements IEvironment {
          */
         public MultipleChoiceGrading(IScope parentScope, IType taskType, IType taskContentSetType) {
             super(
-                "grade_multiple_choice_task",
-                parentScope,
-                new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+                    "grade_multiple_choice_task",
+                    parentScope,
+                    new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
             this.func = GradingFunctions.multipeChoiceGrading();
         }
 

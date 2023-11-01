@@ -253,12 +253,17 @@ public class TypeBuilder {
                 if (parametersClass.isAnnotationPresent(FunctionalInterface.class)) {
                     // If the parameters class is annotated with @FunctionalInterface, we need to
                     // create a FunctionType for the parameter. For this we
-                    // need the *Parameterized* Type of the parameter (which stores the information about the
-                    // types used in the declaration of the generic type, i.e. `Integer` in `List<Integer>`).
-                    // This CANNOT be integrated in `createDSLTypeForJavaTypeInScope` (see below), because
-                    // the *Parameterized* Type is ONLY accessible via the Parameter of the method, which is
+                    // need the *Parameterized* Type of the parameter (which stores the information
+                    // about the
+                    // types used in the declaration of the generic type, i.e. `Integer` in
+                    // `List<Integer>`).
+                    // This CANNOT be integrated in `createDSLTypeForJavaTypeInScope` (see below),
+                    // because
+                    // the *Parameterized* Type is ONLY accessible via the Parameter of the method,
+                    // which is
                     // not available in the `createDSLTypeForJavaTypeInScope`-method!
-                    var parameterizedParameterType = (ParameterizedType) parameter.getParameterizedType();
+                    var parameterizedParameterType =
+                            (ParameterizedType) parameter.getParameterizedType();
                     paramDSLType = createFunctionType(parameterizedParameterType, parentScope);
                 } else if (List.class.isAssignableFrom((Class<?>) parametersType)) {
                     // TODO: refactor this to be included in createDSLTypeForJavaTypeInScope, see:
@@ -316,8 +321,7 @@ public class TypeBuilder {
             Field field, AggregateType parentType, IScope globalScope) {
         String callbackName = getDSLFieldName(field);
         IType callbackType =
-                createFunctionType(
-                        (ParameterizedType) field.getGenericType(), globalScope);
+                createFunctionType((ParameterizedType) field.getGenericType(), globalScope);
 
         return new Symbol(callbackName, parentType, callbackType);
     }
@@ -330,7 +334,8 @@ public class TypeBuilder {
         IType functionType = BuiltInType.noType;
         if (functionTypeBuilder != null) {
             functionType =
-                    functionTypeBuilder.buildFunctionType(parameterizedFunctionalInterfaceType, this, globalScope);
+                    functionTypeBuilder.buildFunctionType(
+                            parameterizedFunctionalInterfaceType, this, globalScope);
             functionType = bindOrResolveTypeInScope(functionType, globalScope);
         }
 
@@ -558,16 +563,17 @@ public class TypeBuilder {
                     try {
                         Class<?> rawType = (Class<?>) parameterizedParameterType.getRawType();
                         if (rawType.isAnnotationPresent(FunctionalInterface.class)) {
-                            valueDSLType = this.createFunctionType(parameterizedParameterType, globalScope);
+                            valueDSLType =
+                                    this.createFunctionType(
+                                            parameterizedParameterType, globalScope);
                         }
-                    } catch (ClassCastException ex){
+                    } catch (ClassCastException ex) {
                         //
                     }
                 }
                 if (valueDSLType == null) {
                     valueDSLType = createDSLTypeForJavaTypeInScope(globalScope, valueType);
                 }
-
 
                 // create and bind property symbol
                 PropertySymbol propertySymbol =
@@ -609,7 +615,9 @@ public class TypeBuilder {
                         try {
                             Class<?> rawType = (Class<?>) parameterizedParameterType.getRawType();
                             if (rawType.isAnnotationPresent(FunctionalInterface.class)) {
-                                dslType = this.createFunctionType(parameterizedParameterType, globalScope);
+                                dslType =
+                                        this.createFunctionType(
+                                                parameterizedParameterType, globalScope);
                             }
                         } catch (ClassCastException ex) {
                             //

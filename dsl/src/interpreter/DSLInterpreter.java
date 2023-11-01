@@ -1183,7 +1183,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         } else if (assignee instanceof FunctionValue assigneeFunctionValue) {
             setFunctionValue(assigneeFunctionValue, valueToAssign);
         } else if (assignee instanceof PropertyValue propertyValue) {
-            var instantiatedValue = this.environment.getTypeInstantiator().instantiate(valueToAssign);
+            var instantiatedValue =
+                    this.environment.getTypeInstantiator().instantiate(valueToAssign);
             assignee.setInternalValue(instantiatedValue);
         } else {
             assignee.setInternalValue(valueToAssign.getInternalValue());
@@ -1587,7 +1588,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return null;
     }
     // endregion
-
 
     // region helpers for native functions/methods
     public List<Value> evaluateNodes(List<Node> nodes) {

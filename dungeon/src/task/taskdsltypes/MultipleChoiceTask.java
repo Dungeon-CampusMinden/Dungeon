@@ -1,6 +1,7 @@
 package task.taskdsltypes;
 
 import reporting.GradingFunctions;
+
 import semanticanalysis.types.DSLExtensionMethod;
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
@@ -22,7 +23,8 @@ public class MultipleChoiceTask {
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
             @DSLTypeMember(name = "correct_answer_index") List<Integer> correctAnswerIndices,
-            @DSLTypeMember(name="grading_function") BiFunction<Task, Set<TaskContent>, Float> gradingFunction
+            @DSLTypeMember(name = "grading_function")
+                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction
             //  scoreFunction
             ) {
         MultipleChoice mc = new MultipleChoice(description);
@@ -36,7 +38,9 @@ public class MultipleChoiceTask {
         }
 
         // default value
-        mc.scoringFunction(Objects.requireNonNullElseGet(gradingFunction, GradingFunctions::multipeChoiceGrading));
+        mc.scoringFunction(
+                Objects.requireNonNullElseGet(
+                        gradingFunction, GradingFunctions::multipeChoiceGrading));
 
         return mc;
     }

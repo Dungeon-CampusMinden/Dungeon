@@ -1,18 +1,11 @@
 package runtime.nativefunctions;
 
-import interpreter.DSLInterpreter;
-import parser.ast.Node;
-import runtime.SetValue;
-import runtime.Value;
 import semanticanalysis.ICallable;
 import semanticanalysis.IScope;
 import semanticanalysis.ScopedSymbol;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.IType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class NativeFunction extends ScopedSymbol implements ICallable {
     protected NativeFunction(String name, IScope parentScope, FunctionType type) {
@@ -31,10 +24,8 @@ public abstract class NativeFunction extends ScopedSymbol implements ICallable {
         this.dataType = type;
     }
 
-
     @Override
     public FunctionType getFunctionType() {
         return (FunctionType) this.getDataType();
     }
 }
-
