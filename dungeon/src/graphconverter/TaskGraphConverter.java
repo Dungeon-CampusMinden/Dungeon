@@ -12,13 +12,13 @@ import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 
-import interpreter.DSLInterpreter;
-
 import petriNet.PetriNet;
 
 import task.Task;
 import task.components.DoorComponent;
 import task.components.TaskComponent;
+
+import taskbuilder.ITaskBuilder;
 
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskNode;
@@ -28,29 +28,27 @@ import java.util.*;
 /**
  * Offers functions to generate a {@link LevelGraph} or Petri-Net for a TaskGraph .
  *
- * <p>Use {@link #callTaskBuilderFor(TaskDependencyGraph, DSLInterpreter)} to execute the
- * TaskBuilder for each {@link Task} in a {@link TaskDependencyGraph}.
+ * <p>Use {@link #callTaskBuilderFor(TaskDependencyGraph, ITaskBuilder)} to execute the TaskBuilder
+ * for each {@link Task} in a {@link TaskDependencyGraph}.
  *
  * <p>Use {@link #levelGraphFor(TaskDependencyGraph)} to generate a room-based level for the
  * TaskGraph.
  *
  * <p>Use {@link #petriNetFor(TaskDependencyGraph)} to generate a Petri net for the TaskGraph to.
  *
- * <p>Use {@link #convert(TaskDependencyGraph, DSLInterpreter)} to execute the complete chain.
+ * <p>Use {@link #convert(TaskDependencyGraph, ITaskBuilder)} to execute the complete chain.
  */
 public class TaskGraphConverter {
 
     /**
-     * Execute the complete chain of {@link #callTaskBuilderFor(TaskDependencyGraph,
-     * DSLInterpreter)}, {@link #levelGraphFor(TaskDependencyGraph)}, and {@link
-     * #petriNetFor(TaskDependencyGraph)}.
+     * Execute the complete chain of {@link #callTaskBuilderFor(TaskDependencyGraph, ITaskBuilder)},
+     * {@link #levelGraphFor(TaskDependencyGraph)}, and {@link #petriNetFor(TaskDependencyGraph)}.
      *
      * @param graph Graph to execute the full chain of conversion on.
      * @return the start room
      */
-    public static ILevel convert(
-            final TaskDependencyGraph graph, final DSLInterpreter dslInterpreter) {
-        callTaskBuilderFor(graph, dslInterpreter);
+    public static ILevel convert(final TaskDependencyGraph graph, final ITaskBuilder builder) {
+        callTaskBuilderFor(graph, builder);
         ILevel level = levelGraphFor(graph);
         petriNetFor(graph);
         return level;
@@ -62,12 +60,11 @@ public class TaskGraphConverter {
      * @param graph graph that contains the tasks.
      */
     public static void callTaskBuilderFor(
-            final TaskDependencyGraph graph, final DSLInterpreter interpreter) {
+            final TaskDependencyGraph graph, final ITaskBuilder builder) {
         graph.nodeIterator()
                 .forEachRemaining(
                         taskNode ->
-                                interpreter
-                                        .buildTask(taskNode.task())
+                                builder.buildTask(taskNode.task())
                                         .ifPresent(
                                                 buildTask ->
                                                         taskNode.task()

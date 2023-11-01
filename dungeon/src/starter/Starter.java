@@ -26,6 +26,8 @@ import interpreter.DSLInterpreter;
 
 import task.Task;
 
+import taskbuilder.NativeTaskBuilder;
+
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,6 +49,7 @@ import java.util.function.Consumer;
 public class Starter {
     private static final String BACKGROUND_MUSIC = "sounds/background.wav";
     private static boolean realGameStarted = false;
+    private static final boolean USE_DSL_TASKBUILDER = true;
     private static final DSLInterpreter dslInterpreter = new DSLInterpreter();
 
     private static final Consumer<Entity> showQuestLog =
@@ -94,10 +97,15 @@ public class Starter {
                         DungeonConfig config =
                                 dslInterpreter.interpretEntryPoint(
                                         WizardTaskSelector.selectedDSLEntryPoint);
-                        ILevel level =
-                                TaskGraphConverter.convert(
-                                        config.dependencyGraph(), dslInterpreter);
-
+                        ILevel level;
+                        if (USE_DSL_TASKBUILDER)
+                            level =
+                                    TaskGraphConverter.convert(
+                                            config.dependencyGraph(), dslInterpreter);
+                        else
+                            level =
+                                    TaskGraphConverter.convert(
+                                            config.dependencyGraph(), new NativeTaskBuilder());
                         Game.currentLevel(level);
                     }
                 });

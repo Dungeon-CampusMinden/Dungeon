@@ -29,6 +29,8 @@ import semanticanalysis.types.*;
 import task.Quiz;
 import task.Task;
 
+import taskbuilder.ITaskBuilder;
+
 import java.util.*;
 
 // TODO: specify EXACT semantics of value copying and setting
@@ -37,7 +39,7 @@ import java.util.*;
 // abstraction coupling
 // will be high naturally
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
-public class DSLInterpreter implements AstVisitor<Object> {
+public class DSLInterpreter implements AstVisitor<Object>, ITaskBuilder {
     private RuntimeEnvironment environment;
     private final ArrayDeque<IMemorySpace> memoryStack;
     private final ArrayDeque<IMemorySpace> instanceMemoryStack;
