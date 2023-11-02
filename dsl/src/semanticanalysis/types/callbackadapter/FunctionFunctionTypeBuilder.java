@@ -5,7 +5,6 @@ import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -21,11 +20,11 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
 
     @Override
     public FunctionType buildFunctionType(
-            Field field, TypeBuilder typeBuilder, IScope globalScope) {
-        var genericType = field.getGenericType();
+            ParameterizedType parameterizedFunctionType,
+            TypeBuilder typeBuilder,
+            IScope globalScope) {
 
-        var parameterizedType = (ParameterizedType) genericType;
-        Type[] typeArray = parameterizedType.getActualTypeArguments();
+        Type[] typeArray = parameterizedFunctionType.getActualTypeArguments();
 
         // the first type parameter of the Function<T,R> interface will correspond to
         // the type of the single parameter of the function

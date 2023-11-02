@@ -5,6 +5,7 @@ import interpreter.DSLInterpreter;
 import runtime.*;
 
 import semanticanalysis.FunctionSymbol;
+import semanticanalysis.ICallable;
 import semanticanalysis.PropertySymbol;
 import semanticanalysis.types.callbackadapter.CallbackAdapter;
 import semanticanalysis.types.callbackadapter.CallbackAdapterBuilder;
@@ -21,7 +22,8 @@ public class TypeInstantiator {
                             IType.Kind.SetType,
                             IType.Kind.ListType,
                             IType.Kind.Basic,
-                            IType.Kind.EnumType));
+                            IType.Kind.EnumType,
+                            IType.Kind.FunctionType));
     private final HashMap<String, Object> context = new HashMap<>();
     private final CallbackAdapterBuilder callbackAdapterBuilder;
 
@@ -113,6 +115,11 @@ public class TypeInstantiator {
         @SuppressWarnings("unchecked")
         var enumInstance = Enum.valueOf(originType, variantName);
         return enumInstance;
+    }
+
+    private Object instantiateFunctionValue(FunctionValue value) {
+        ICallable callable = value.getCallable();
+        return this.callbackAdapterBuilder.buildAdapter(callable);
     }
 
     /**
@@ -214,6 +221,8 @@ public class TypeInstantiator {
                 convertedObject = instantiateSet((SetValue) value);
             } else if (valuesType.getTypeKind().equals(IType.Kind.EnumType)) {
                 convertedObject = instantiateEnum((EnumValue) value);
+            } else if (valuesType.getTypeKind().equals(IType.Kind.FunctionType)) {
+                convertedObject = instantiateFunctionValue((FunctionValue) value);
             } else if (valuesType.getTypeKind().equals(IType.Kind.Aggregate)) {
                 if (convertedObject == null) {
                     // if the value is a prototype, instantiation is handled by
@@ -355,7 +364,7 @@ public class TypeInstantiator {
                     }
                 }
                 if (field.isAnnotationPresent(DSLCallback.class)) {
-                    if (fieldValue != Value.NONE) {
+                    if (fieldValue != Value.NONE && fieldValue != FunctionValue.NONE) {
                         assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
                         FunctionValue functionValue = (FunctionValue) fieldValue;
                         if (!(functionValue.getCallable()

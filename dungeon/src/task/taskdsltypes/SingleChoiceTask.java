@@ -1,19 +1,18 @@
 package task.taskdsltypes;
 
-import semanticanalysis.types.DSLExtensionMethod;
-import semanticanalysis.types.DSLTypeAdapter;
-import semanticanalysis.types.DSLTypeMember;
-import semanticanalysis.types.IDSLExtensionMethod;
+import reporting.GradingFunctions;
+
+import semanticanalysis.types.*;
 
 import task.Quiz;
 import task.Task;
 import task.TaskContent;
 import task.quizquestion.SingleChoice;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.function.BiFunction;
 
 /** Typeadapter for the creation of {@link SingleChoice} instances via dsl. */
 public class SingleChoiceTask {
@@ -22,11 +21,9 @@ public class SingleChoiceTask {
     public static SingleChoice buildQuizFromSingleChoiceTask(
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
-            @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex // ,
-            // TODO: siehe https://github.com/Programmiermethoden/Dungeon/issues/916
-            //  @DSLTypeMember(name="score_function") BiFunction<Task, Set<Quiz.Content>, Float>
-            //  scoreFunction
-            ) {
+            @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex,
+            @DSLTypeMember(name = "grading_function")
+                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
         SingleChoice sc = new SingleChoice(description);
 
         for (Quiz.Content answer : answers) {
@@ -34,7 +31,10 @@ public class SingleChoiceTask {
         }
 
         sc.addCorrectAnswerIndex(correctAnswerIndex);
-        sc.scoringFunction(SingleChoiceTask::score);
+        // default value
+        sc.scoringFunction(
+                Objects.requireNonNullElseGet(
+                        gradingFunction, GradingFunctions::singleChoiceGrading));
 
         return sc;
     }
@@ -79,9 +79,77 @@ public class SingleChoiceTask {
         }
 
         @Override
-        public List<Class<?>> getParameterTypes() {
-            var arr = new Class<?>[] {};
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
             return Arrays.stream(arr).toList();
+        }
+    }
+
+    /**
+     * {@link IDSLExtensionMethod} to set the grading function of a {@link SingleChoice} instance.
+     */
+    @DSLExtensionMethod(name = "set_grading_function", extendedType = SingleChoice.class)
+    public static class SingleChoiceSetGradingFunction
+            implements IDSLExtensionMethod<SingleChoice, Void> {
+        public static SingleChoiceTask.SingleChoiceSetGradingFunction instance =
+                new SingleChoiceTask.SingleChoiceSetGradingFunction();
+
+        @Override
+        public Void call(SingleChoice instance, List<Object> params) {
+            var func = (BiFunction<Task, Set<TaskContent>, Float>) params.get(0);
+            instance.scoringFunction(func);
+            return null;
+        }
+
+        // region parameterized parameter type declaration
+
+        // The TypeBuilder needs an implementation of ParameterizedType (with the actual type
+        // information)
+        // to create a FunctionType for the method parameter. As this method will accept a
+        // BiFunction<Task, Set<TaskContent>, Float> as a parameter, we need to build this
+        // ParameterizedType here by ourselves.
+        private static final ParameterizedType biFuncType =
+                new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return new Type[] {Task.class, setType, Float.class};
+                    }
+
+                    @Override
+                    public Type getRawType() {
+                        return BiFunction.class;
+                    }
+
+                    @Override
+                    public Type getOwnerType() {
+                        return null;
+                    }
+                };
+
+        private static final ParameterizedType setType =
+                new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return new Type[] {TaskContent.class};
+                    }
+
+                    @Override
+                    public Type getRawType() {
+                        return Set.class;
+                    }
+
+                    @Override
+                    public Type getOwnerType() {
+                        return null;
+                    }
+                };
+
+        // endregion
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var typeArr = new Type[] {biFuncType};
+            return Arrays.stream(typeArr).toList();
         }
     }
 }

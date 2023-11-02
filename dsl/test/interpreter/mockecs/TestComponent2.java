@@ -2,6 +2,7 @@ package interpreter.mockecs;
 
 import semanticanalysis.types.*;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,8 +62,8 @@ public class TestComponent2 extends Component {
         }
 
         @Override
-        public List<Class<?>> getParameterTypes() {
-            var arr = new Class<?>[] {Integer.class, Integer.class};
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {Integer.class, Integer.class};
             return Arrays.stream(arr).toList();
         }
     }

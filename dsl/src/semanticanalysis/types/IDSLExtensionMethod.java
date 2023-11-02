@@ -2,6 +2,7 @@ package semanticanalysis.types;
 
 import interpreter.DSLInterpreter;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 /**
@@ -26,5 +27,5 @@ public interface IDSLExtensionMethod<T, R> {
     R call(T instance, List<Object> params);
 
     /** Should return an in-order list of the classes, which will be used for the parameters. */
-    List<Class<?>> getParameterTypes();
+    List<Type> getParameterTypes();
 }

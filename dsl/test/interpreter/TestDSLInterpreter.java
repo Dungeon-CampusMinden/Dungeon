@@ -31,6 +31,7 @@ import semanticanalysis.types.*;
 
 import task.QuestItem;
 import task.Quiz;
+import task.TaskContent;
 
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
@@ -42,6 +43,7 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */
@@ -3588,5 +3590,111 @@ public class TestDSLInterpreter {
         // Assert.assertEquals("MyName", item.displayName());
         Quiz.Content content = (Quiz.Content) item.taskContentComponent().content();
         Assert.assertEquals("2", content.content());
+    }
+
+    @Test
+    public void testSetGradingFuncSingleChoice() {
+        String program =
+                """
+            single_choice_task t1 {
+                description: "Task1",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2,
+                grading_function: grade_single_choice_task
+            }
+
+            graph g {
+                t1
+            }
+
+            dungeon_config c {
+                dependency_graph: g
+            }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+
+        TaskContent content = task.contentByIndex(2);
+        HashSet<TaskContent> tcSet = new HashSet<>();
+        tcSet.add(content);
+        var score = (Float) task.scoringFunction().apply(task, tcSet);
+        Assert.assertEquals((Float) 1.0f, score);
+    }
+
+    @Test
+    public void testSetGradingFuncMultipleChoice() {
+        String program =
+                """
+        multiple_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "2", "3"],
+            correct_answer_index: [2,1],
+            grading_function: grade_multiple_choice_task
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+    """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+
+        var tcSet = task.contentStream().collect(Collectors.toSet());
+        var score = (Float) task.scoringFunction().apply(task, tcSet);
+        Assert.assertEquals((Float) 0.5f, score);
+    }
+
+    @Test
+    public void testSetGradingFunctionInScenarioBuilderSingleChoice() {
+        String program =
+                """
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        fn build_scenario1(single_choice_task t) -> entity<><> {
+            var ret_set : entity<><>;
+            var first_room_set : entity<>;
+
+            t.set_grading_function(grade_single_choice_task);
+
+            ret_set.add(first_room_set);
+            return ret_set;
+        }
+        """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+
+        // force scoring function to be un-assigned
+        task.scoringFunction(null);
+
+        // execute scenario builder, in which the grading function will be setk
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+        TaskContent content = task.contentByIndex(2);
+        HashSet<TaskContent> tcSet = new HashSet<>();
+        tcSet.add(content);
+        var score = (Float) task.scoringFunction().apply(task, tcSet);
+        Assert.assertEquals((Float) 1.0f, score);
     }
 }
