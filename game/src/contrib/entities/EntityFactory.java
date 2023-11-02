@@ -82,14 +82,17 @@ public class EntityFactory {
      */
     public static Entity newHero() throws IOException {
         Entity hero = new Entity("hero");
-        hero.addComponent(new CameraComponent());
-        hero.addComponent(new PositionComponent());
+        CameraComponent cc = new CameraComponent();
+        hero.addComponent(cc);
+        PositionComponent poc = new PositionComponent();
+        hero.addComponent(poc);
         hero.addComponent(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO));
         hero.addComponent(new DrawComponent(HERO_FILE_PATH));
         HealthComponent hc =
                 new HealthComponent(
                         200,
                         entity -> {
+                            // play sound
                             Sound sound =
                                     Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
                             long soundId = sound.play();
@@ -98,6 +101,12 @@ public class EntityFactory {
                             sound.setLooping(soundId, false);
                             sound.play();
                             sound.setVolume(soundId, 0.9f);
+
+                            // relink components for camera
+                            Entity cameraDummy = new Entity();
+                            cameraDummy.addComponent(cc);
+                            cameraDummy.addComponent(poc);
+                            Game.add(cameraDummy);
                         });
         hero.addComponent(hc);
         hero.addComponent(
