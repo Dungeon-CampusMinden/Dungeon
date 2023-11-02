@@ -1,6 +1,6 @@
 package contrib.hud.crafting;
 
-import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -48,6 +48,9 @@ import java.util.Arrays;
  * percentage of the height of the crafting GUI.
  */
 public class CraftingGUI extends CombinableGUI {
+
+    private static final String FONT_FNT = "skin/myFont.fnt";
+    private static final String FONT_PNG = "skin/myFont.png";
 
     // Position settings
     private static final int NUMBER_PADDING = 5;
@@ -110,10 +113,7 @@ public class CraftingGUI extends CombinableGUI {
 
         // Init Font
         bitmapFont =
-                new BitmapFont(
-                        new FileHandle("./game/assets/skin/myFont.fnt"),
-                        new FileHandle("./game/assets/skin/myFont.png"),
-                        false);
+                new BitmapFont(Gdx.files.internal(FONT_FNT), Gdx.files.internal(FONT_PNG), false);
     }
 
     private final ArrayList<Item> items = new ArrayList<>();
