@@ -1,24 +1,27 @@
 package core.utils.components.draw;
 
 /**
- * This enum stores the default paths to the animations used by the systems inside the core package.
+ * This enum stores the default paths to the animations, and their priority, used by the systems
+ * inside the core package.
  */
 public enum CoreAnimations implements IPath {
-    IDLE("idle"),
-    IDLE_LEFT("idle_left"),
-    IDLE_RIGHT("idle_right"),
-    IDLE_UP("idle_up"),
-    IDLE_DOWN("idle_down"),
-    RUN("RUN"),
-    RUN_LEFT("run_left"),
-    RUN_RIGHT("run_right"),
-    RUN_UP("run_up"),
-    RUN_DOWN("run_down");
+    IDLE("idle", CoreAnimationPriorities.IDLE.priority()),
+    IDLE_LEFT("idle_left", CoreAnimationPriorities.IDLE.priority()),
+    IDLE_RIGHT("idle_right", CoreAnimationPriorities.IDLE.priority()),
+    IDLE_UP("idle_up", CoreAnimationPriorities.IDLE.priority()),
+    IDLE_DOWN("idle_down", CoreAnimationPriorities.IDLE.priority()),
+    RUN("run", CoreAnimationPriorities.RUN.priority()),
+    RUN_LEFT("run_left", CoreAnimationPriorities.RUN.priority()),
+    RUN_RIGHT("run_right", CoreAnimationPriorities.RUN.priority()),
+    RUN_UP("run_up", CoreAnimationPriorities.RUN.priority()),
+    RUN_DOWN("run_down", CoreAnimationPriorities.RUN.priority());
 
     private final String value;
+    private final int priority;
 
-    CoreAnimations(String value) {
+    CoreAnimations(String value, int priority) {
         this.value = value;
+        this.priority = priority;
     }
 
     @Override
@@ -29,5 +32,10 @@ public enum CoreAnimations implements IPath {
     @Override
     public String toString() {
         return "CoreAnimation[" + this.value + "]";
+    }
+
+    @Override
+    public int priority() {
+        return priority;
     }
 }

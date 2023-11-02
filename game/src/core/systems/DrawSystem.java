@@ -8,11 +8,14 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
+import core.utils.components.draw.IPath;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This system draws the entities on the screen.
@@ -66,13 +69,26 @@ public final class DrawSystem extends System {
     }
 
     private void draw(DSData dsd) {
-        final Animation animation = dsd.ac.currentAnimation();
+        reduceFrameTimer(dsd.dc);
+        setNextAnimation(dsd.dc);
+        final Animation animation = dsd.dc.currentAnimation();
         String currentAnimationTexture = animation.nextAnimationTexturePath();
         if (!configs.containsKey(currentAnimationTexture)) {
             configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
         }
         painter.draw(
                 dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
+    }
+
+    private void reduceFrameTimer(DrawComponent dc) {
+
+        // iterate through animationQueue
+        for (Map.Entry<IPath, Integer> entry : dc.animationQueue().entrySet()) {
+            // reduce remaining frame time of animation by 1
+            entry.setValue(entry.getValue() - 1);
+        }
+        // remove animations when there is no remaining frame time
+        dc.animationQueue().entrySet().removeIf(x -> x.getValue() < 0);
     }
 
     private DSData buildDataObject(Entity e) {
@@ -93,7 +109,25 @@ public final class DrawSystem extends System {
         run = true;
     }
 
-    private record DSData(Entity e, DrawComponent ac, PositionComponent pc) {}
+    // checks the status of animations in the animationQueue and selects the next animation by
+    // priority
+    private void setNextAnimation(DrawComponent dc) {
+
+        Optional<Map.Entry<IPath, Integer>> highestfind =
+                dc.animationQueue().entrySet().stream()
+                        .max(Comparator.comparingInt(x -> x.getKey().priority()));
+
+        // when there is an animation load it
+        if (highestfind.isPresent()) {
+            IPath highestPrio = highestfind.get().getKey();
+            // making sure the animation exists
+            dc.animationMap().get(highestPrio.pathString());
+            // changing the Animation
+            dc.currentAnimation(highestPrio);
+        }
+    }
+
+    private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {}
 
     /**
      * @return the {@link #painter} of the Drawsystem

@@ -44,7 +44,7 @@ public class HealthSystemTest {
         component.currentHealthpoints(0);
 
         system.execute();
-        assertTrue(ac.isCurrentAnimation(AdditionalAnimations.DIE));
+        assertTrue(ac.isAnimationQueued(AdditionalAnimations.DIE));
         assertFalse(Game.entityStream().anyMatch(e -> e == entity));
     }
 
@@ -65,7 +65,7 @@ public class HealthSystemTest {
 
         system.execute();
         assertEquals(3, component.currentHealthpoints());
-        assertTrue(ac.isCurrentAnimation(AdditionalAnimations.HIT));
+        assertTrue(ac.isAnimationQueued(AdditionalAnimations.HIT));
     }
 
     @Test

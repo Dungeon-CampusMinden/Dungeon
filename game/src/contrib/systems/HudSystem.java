@@ -25,6 +25,8 @@ public final class HudSystem extends System {
      */
     private Map<Entity, Group> entityGroupMap = new HashMap<>();
 
+    private Map<Entity, UIComponent> entityUIComponentMap = new HashMap<>();
+
     /** The HudSystem needs the UIComponent to work. */
     public HudSystem() {
         super(UIComponent.class);
@@ -42,6 +44,10 @@ public final class HudSystem extends System {
         if (remove != null) {
             remove.remove();
         }
+        UIComponent component = entityUIComponentMap.remove(entity);
+        if (component != null) {
+            component.onClose().execute();
+        }
     }
 
     /**
@@ -51,24 +57,29 @@ public final class HudSystem extends System {
      * @param entity which now has a UIComponent
      */
     private void addListener(Entity entity) {
-        Group dialog =
+
+        UIComponent component =
                 entity.fetch(UIComponent.class)
                         .orElseThrow(
-                                () -> MissingComponentException.build(entity, UIComponent.class))
-                        .dialog();
+                                () -> MissingComponentException.build(entity, UIComponent.class));
+        Group dialog = component.dialog();
 
         Game.stage()
                 .ifPresent(
                         stage -> {
                             addDialogToStage(dialog, stage);
-                            addMapping(entity, dialog);
+                            addMapping(entity, dialog, component);
                         });
     }
 
-    private void addMapping(Entity entity, Group dialog) {
+    private void addMapping(Entity entity, Group dialog, UIComponent component) {
         Group previous = entityGroupMap.put(entity, dialog);
         if (previous != null) {
             previous.remove();
+        }
+        UIComponent previousuicomponent = entityUIComponentMap.put(entity, component);
+        if (previousuicomponent != null) {
+            previousuicomponent.onClose().execute();
         }
     }
 

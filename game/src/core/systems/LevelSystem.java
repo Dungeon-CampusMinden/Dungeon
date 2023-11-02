@@ -50,6 +50,13 @@ import java.util.logging.Logger;
  * onLevelLoad callback.
  */
 public final class LevelSystem extends System {
+    /** offset the coordinate by half a tile, it makes every Entity not walk on the sidewalls */
+    private static final float X_OFFSET = 0.5f;
+    /**
+     * offset the coordinate by a quarter tile,it looks a bit more like every Entity is not walking
+     * over walls
+     */
+    private static final float Y_OFFSET = 0.25f;
     /** Currently used level-size configuration for generating new level. */
     private static LevelSize levelSize = LevelSize.MEDIUM;
 
@@ -179,7 +186,8 @@ public final class LevelSystem extends System {
                 if (t.levelElement() != LevelElement.SKIP) {
                     String texturePath = t.texturePath();
                     if (!mapping.containsKey(texturePath)) {
-                        mapping.put(texturePath, new PainterConfig(texturePath));
+                        mapping.put(
+                                texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET));
                     }
                     painter.draw(t.position(), texturePath, mapping.get(texturePath));
                 }

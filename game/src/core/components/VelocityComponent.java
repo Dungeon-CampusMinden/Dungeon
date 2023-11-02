@@ -34,6 +34,9 @@ public final class VelocityComponent implements Component {
     private @DSLTypeMember(name = "x_velocity") float xVelocity;
     private @DSLTypeMember(name = "y_velocity") float yVelocity;
 
+    private float previousXVelocity;
+    private float previousYVelocity;
+
     /**
      * Create a new VelocityComponent with the given configuration.
      *
@@ -157,5 +160,35 @@ public final class VelocityComponent implements Component {
      */
     public void yVelocity(float yVelocity) {
         this.yVelocity = yVelocity;
+    }
+
+    /**
+     * contains the last moved x velocity the entity moved. This helps once the entity stops to keep
+     * the direction.
+     */
+    public void previousXVelocity(float previousXVelocity) {
+        this.previousXVelocity = previousXVelocity;
+    }
+
+    /**
+     * @return the x velocity from the last movement
+     */
+    public float previousXVelocity() {
+        return previousXVelocity;
+    }
+
+    /**
+     * contains the last moved y velocity the entity moved. This helps once the entity stops to keep
+     * the direction.
+     */
+    public void previousYVelocity(float previousYVelocity) {
+        this.previousYVelocity = previousYVelocity;
+    }
+
+    /**
+     * @return the y velocity from the last movement
+     */
+    public float previousYVelocity() {
+        return previousYVelocity;
     }
 }

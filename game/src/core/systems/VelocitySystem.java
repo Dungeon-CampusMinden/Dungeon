@@ -14,6 +14,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.draw.CoreAnimations;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,6 +45,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @see core.level.elements.ILevel
  */
 public final class VelocitySystem extends System {
+
+    // default time an Animation should be enqueued
+    private static final int FOR_FRAMES = 1;
 
     /** Create a new VelocitySystem */
     public VelocitySystem() {
@@ -139,39 +143,48 @@ public final class VelocitySystem extends System {
 
         float x = vsd.vc.currentXVelocity();
         float y = vsd.vc.currentYVelocity();
-        if (x > 0) vsd.dc.currentAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-        else if (x < 0) vsd.dc.currentAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-        else if (y > 0) vsd.dc.currentAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
-        else if (y < 0) vsd.dc.currentAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
+        if (x != 0 || y != 0) {
+            vsd.dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
+            if (x > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
+            else if (x < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
+            else if (y > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
+            else if (y < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
+            vsd.vc.previousXVelocity(x);
+            vsd.vc.previousYVelocity(y);
+
+            vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+        }
+
         // idle
         else {
             // each drawComponent has an idle animation, so no check is needed
-            if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_LEFT)
-                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_LEFT))
-                vsd.dc.currentAnimation(
+            if (vsd.vc.previousXVelocity() < 0)
+                vsd.dc.queueAnimation(
+                        FOR_FRAMES,
                         CoreAnimations.IDLE_LEFT,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_RIGHT,
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE_UP);
-            else if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_RIGHT)
-                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_RIGHT))
-                vsd.dc.currentAnimation(
+            else if (vsd.vc.previousXVelocity() > 0)
+                vsd.dc.queueAnimation(
+                        FOR_FRAMES,
                         CoreAnimations.IDLE_RIGHT,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_LEFT,
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE_UP);
-            else if (vsd.dc.isCurrentAnimation(CoreAnimations.IDLE_UP)
-                    || vsd.dc.isCurrentAnimation(CoreAnimations.RUN_UP))
-                vsd.dc.currentAnimation(
+            else if (vsd.vc.previousYVelocity() > 0)
+                vsd.dc.queueAnimation(
+                        FOR_FRAMES,
                         CoreAnimations.IDLE_UP,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE_LEFT,
                         CoreAnimations.IDLE_RIGHT);
             else
-                vsd.dc.currentAnimation(
+                vsd.dc.queueAnimation(
+                        FOR_FRAMES,
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_UP,

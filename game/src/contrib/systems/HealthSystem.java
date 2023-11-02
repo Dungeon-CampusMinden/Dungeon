@@ -11,7 +11,9 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.Animation;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -71,8 +73,9 @@ public final class HealthSystem extends System {
 
     private HSData activateDeathAnimation(HSData hsd) {
         // set DeathAnimation as active animation
-        hsd.dc.currentAnimation(AdditionalAnimations.DIE);
-
+        Optional<Animation> deathAnimation = hsd.dc.getAnimation(AdditionalAnimations.DIE);
+        deathAnimation.ifPresent(
+                animation -> hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.DIE));
         return hsd;
     }
 
@@ -123,8 +126,11 @@ public final class HealthSystem extends System {
 
     private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
         if (dmgAmount > 0) {
+            Optional<Animation> hitanimation = hsd.dc.getAnimation(AdditionalAnimations.HIT);
             // we have some damage - let's show a little dance
-            hsd.dc.currentAnimation(AdditionalAnimations.HIT);
+            hitanimation.ifPresent(
+                    animation ->
+                            hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.HIT));
         }
         // reset all damage objects in health component and apply damage
         hsd.hc.clearDamage();

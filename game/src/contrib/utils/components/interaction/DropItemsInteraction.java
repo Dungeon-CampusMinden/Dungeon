@@ -92,6 +92,13 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
                                                 index.getAndIncrement() / count)));
 
         entity.fetch(DrawComponent.class)
-                .ifPresent(x -> x.currentAnimation(CoreAnimations.IDLE_RIGHT));
+                .ifPresent(
+                        x ->
+                                x.getAnimation(CoreAnimations.IDLE_RIGHT)
+                                        .ifPresent(
+                                                y ->
+                                                        x.queueAnimation(
+                                                                y.duration(),
+                                                                CoreAnimations.IDLE_RIGHT)));
     }
 }

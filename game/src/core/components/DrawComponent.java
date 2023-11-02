@@ -55,12 +55,18 @@ public final class DrawComponent implements Component {
     private Map<String, Animation> animationMap = null;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private Animation currentAnimation;
+    /** allows only one Element from a certain priority and orders them */
+    private Map<IPath, Integer> animationQueue =
+            new TreeMap<>(Comparator.comparingInt(IPath::priority));
 
     /**
      * Create a new DrawComponent.
      *
      * <p>Will read in all subdirectories of the given path and use each file in the subdirectory to
      * create an animation. So each subdirectory should contain only the files for one animation.
+     *
+     * <p>Animations should not be set directly via {@link #currentAnimation()} but rather be queued
+     * via {@link #queueAnimation(IPath...)} or {@link #queueAnimation(int, IPath...)}
      *
      * <p>Will set the current animation to either idle down, idle left, idle right, idle up or
      * idle, depending on which one of these animations exist.
@@ -150,6 +156,50 @@ public final class DrawComponent implements Component {
     }
 
     /**
+     * Queue up an Animation to be considered as the next played Animation. Animations are given as
+     * an IPath Array, or multiple variables. Animation length is set as one frame. If you need to
+     * queue longer Animations use {@link #queueAnimation(int, IPath...)}
+     *
+     * @param next Array of IPaths to Animation
+     */
+    public void queueAnimation(IPath... next) {
+        queueAnimation(1, next);
+    }
+
+    /**
+     * Queue up an Animation to be considered as the next played Animation. Animations are given as
+     * an IPath Array, or multiple variables. Animation length is set to given parameter.
+     *
+     * @param forFrames number of Frames to play Animation for
+     * @param next Array of IPaths to Animation
+     */
+    public void queueAnimation(int forFrames, IPath... next) {
+        IPath lowest = null;
+        // Streams lose ordering
+        for (IPath path : next) {
+            if (lowest == null) lowest = path;
+            if (lowest.priority() > path.priority()) lowest = path;
+        }
+        for (Map.Entry<IPath, Integer> entry : animationQueue.entrySet()) {
+            // check for already added entry
+            if (entry.getKey().equals(lowest)) {
+                return;
+            }
+        }
+        // add if not already in queue
+        animationQueue.put(lowest, forFrames);
+    }
+
+    /**
+     * removes all animations with given priority
+     *
+     * @param prio priority to remove
+     */
+    public void deQueueByPriority(int prio) {
+        animationQueue.keySet().removeIf(e -> e.priority() == prio);
+    }
+
+    /**
      * Get the Animation at the given path.
      *
      * <p>Can be null if the component does not store an animation with this path.
@@ -205,6 +255,47 @@ public final class DrawComponent implements Component {
         return currentAnimation.isFinished();
     }
 
+    /**
+     * Check if Animation is queued up
+     *
+     * @return true if Animation is in queue
+     */
+    public boolean isAnimationQueued(IPath requestedAnimation) {
+        for (Map.Entry<IPath, Integer> animationArr : animationQueue.entrySet()) {
+            if (animationArr.getKey().pathString().equals(requestedAnimation.pathString()))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return the whole queue of animations
+     */
+    public Map<IPath, Integer> animationQueue() {
+        return animationQueue;
+    }
+
+    /**
+     * Allows replacing the whole AnimationQueue with a new one
+     *
+     * @param queue
+     */
+    public void animationQueue(Map<IPath, Integer> queue) {
+        animationQueue = queue;
+    }
+
+    /**
+     * Allows replacing and adding Entries.
+     *
+     * @return the whole animationMap
+     */
+    public Map<String, Animation> animationMap() {
+        return animationMap;
+    }
+
+    /*
+     * Loading logic
+     */
     private void loadAnimationsFromDirectory(String path) throws IOException {
         File jarFile =
                 new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());

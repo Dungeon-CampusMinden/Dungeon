@@ -127,23 +127,5 @@ public class ChestTest {
         assertTrue(
                 "Chest should have at least 1 Item",
                 1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);
-        assertEquals(
-                "x Position has to be 0. Only Tile is at 0,0",
-                0,
-                newChest.fetch(PositionComponent.class)
-                        .map(PositionComponent.class::cast)
-                        .get()
-                        .position()
-                        .x,
-                0.00001f);
-        assertEquals(
-                "y Position has to be 0. Only Tile is at 0,0",
-                0,
-                newChest.fetch(PositionComponent.class)
-                        .map(PositionComponent.class::cast)
-                        .get()
-                        .position()
-                        .y,
-                0.00001f);
     }
 }

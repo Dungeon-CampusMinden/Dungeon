@@ -154,31 +154,34 @@ public class VelocitySystemTest {
 
     @Test
     public void changeAnimation() {
+        /*
+         * does a full movement set and checks whether the correct Animation is queued after Velocity Change
+         */
         Mockito.when(tile.isAccessible()).thenReturn(true);
-        // right
+        // right up
         velocityComponent.currentXVelocity(xVelocity);
         velocityComponent.currentYVelocity(yVelocity);
         velocitySystem.execute();
-        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.RUN_RIGHT));
+        assertTrue(animationComponent.isAnimationQueued(CoreAnimations.RUN_RIGHT));
 
         // idleRight
         velocityComponent.currentXVelocity(0);
         velocityComponent.currentYVelocity(0);
-
+        // no change in currentAnimation bug im VelocitySystem
         velocitySystem.execute();
-        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_RIGHT));
+        assertTrue(animationComponent.isAnimationQueued(CoreAnimations.IDLE_RIGHT));
 
         // left
         velocityComponent.currentXVelocity(-1);
         velocityComponent.currentYVelocity(0);
         velocitySystem.execute();
-        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.RUN_LEFT));
+        assertTrue(animationComponent.isAnimationQueued(CoreAnimations.RUN_LEFT));
 
         // idleLeft
         velocityComponent.currentXVelocity(0);
         velocityComponent.currentYVelocity(0);
 
         velocitySystem.execute();
-        assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_LEFT));
+        assertTrue(animationComponent.isAnimationQueued(CoreAnimations.IDLE_LEFT));
     }
 }

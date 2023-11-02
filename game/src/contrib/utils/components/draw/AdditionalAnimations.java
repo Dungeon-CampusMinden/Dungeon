@@ -3,7 +3,8 @@ package contrib.utils.components.draw;
 import core.utils.components.draw.IPath;
 
 /**
- * This enum stores the paths to the animations used by the systems inside the contrib package.
+ * This enum stores the paths to the animations, and their priority, used by the systems inside the
+ * contrib package.
  *
  * <p>Add your own path, if you need a new animation-type (like jumping)
  *
@@ -12,22 +13,24 @@ import core.utils.components.draw.IPath;
  * @see core.utils.components.draw.CoreAnimations
  */
 public enum AdditionalAnimations implements IPath {
-    DIE("die"),
-    DIE_LEFT("die_left"),
-    DIE_RIGHT("die_right"),
-    DIE_UP("die_up"),
-    DIE_DOWN("die_down"),
-    HIT("hit"),
-    ATTACK("attack"),
-    FIGHT_LEFT("fight_left"),
-    FIGHT_RIGHT("fight_right"),
-    FIGHT_UP("fight_up"),
-    FIGHT_DOWN("fight_down");
+    DIE("die", AdditionalAnimationsPriorities.DIE.priority()),
+    DIE_LEFT("die_left", AdditionalAnimationsPriorities.DIE.priority()),
+    DIE_RIGHT("die_right", AdditionalAnimationsPriorities.DIE.priority()),
+    DIE_UP("die_up", AdditionalAnimationsPriorities.DIE.priority()),
+    DIE_DOWN("die_down", AdditionalAnimationsPriorities.DIE.priority()),
+    HIT("hit", AdditionalAnimationsPriorities.HIT.priority()),
+    ATTACK("attack", AdditionalAnimationsPriorities.FIGHT.priority()),
+    FIGHT_LEFT("fight_left", AdditionalAnimationsPriorities.FIGHT.priority()),
+    FIGHT_RIGHT("fight_right", AdditionalAnimationsPriorities.FIGHT.priority()),
+    FIGHT_UP("fight_up", AdditionalAnimationsPriorities.FIGHT.priority()),
+    FIGHT_DOWN("fight_down", AdditionalAnimationsPriorities.FIGHT.priority());
 
     private final String value;
+    private final int priority;
 
-    AdditionalAnimations(String value) {
+    AdditionalAnimations(String value, int prio) {
         this.value = value;
+        this.priority = prio;
     }
 
     @Override
@@ -38,5 +41,10 @@ public enum AdditionalAnimations implements IPath {
     @Override
     public String toString() {
         return "AdditionalAnimation[" + this.value + "]";
+    }
+
+    @Override
+    public int priority() {
+        return priority;
     }
 }

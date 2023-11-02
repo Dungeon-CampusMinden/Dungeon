@@ -2,6 +2,8 @@ package core.components;
 
 import static org.junit.Assert.*;
 
+import contrib.utils.components.draw.ChestAnimations;
+
 import core.utils.components.draw.CoreAnimations;
 
 import org.junit.Before;
@@ -63,6 +65,6 @@ public class DrawComponentTest {
     @Test
     public void hasAnimations() {
         assertTrue(animationComponent.hasAnimation(CoreAnimations.RUN_LEFT));
-        assertFalse(animationComponent.hasAnimation(() -> "DUMMY"));
+        assertFalse(animationComponent.hasAnimation(ChestAnimations.OPENING));
     }
 }
