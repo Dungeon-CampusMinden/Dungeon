@@ -1590,6 +1590,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
     // endregion
 
     // region helpers for native functions/methods
+
+    /**
+     * Evaluates a List of {@link Node}s in the current {@link IMemorySpace} of this {@link
+     * DSLInterpreter}.
+     *
+     * @param nodes The {@link Node}s to evaluate.
+     * @return a List of {@link Value}s, which holds the evaluated Nodes. In the same order as
+     *     passed Nodes.
+     */
     public List<Value> evaluateNodes(List<Node> nodes) {
         ArrayList<Value> values = new ArrayList<>(nodes.size());
         for (Node node : nodes) {
@@ -1599,6 +1608,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return values;
     }
 
+    /**
+     * Convert a List of {@link Value}s to Objects by using the internal {@link TypeInstantiator}.
+     *
+     * @param values The List of {@link Value}s to convert.
+     * @return a List of Objects, which holds the converted values. In the same order as passed
+     *     Values.
+     */
     public List<Object> translateValuesToObjects(List<Value> values) {
         ArrayList<Object> objects = new ArrayList<>(values.size());
         var instantiator = this.getRuntimeEnvironment().getTypeInstantiator();
