@@ -7,7 +7,6 @@ import semanticanalysis.types.IType;
 import semanticanalysis.types.TypeBuilder;
 
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 /**
@@ -22,13 +21,14 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
 
     @Override
     public FunctionType buildFunctionType(
-            Type genericType, TypeBuilder typeBuilder, IScope globalScope) {
+            ParameterizedType parameterizedFunctionType,
+            TypeBuilder typeBuilder,
+            IScope globalScope) {
 
-        var parameterizedType = (ParameterizedType) genericType;
         // the parameters will be the arguments for the function
         ArrayList<IType> parameterTypes =
-                new ArrayList<>(parameterizedType.getActualTypeArguments().length);
-        for (var parameterType : parameterizedType.getActualTypeArguments()) {
+                new ArrayList<>(parameterizedFunctionType.getActualTypeArguments().length);
+        for (var parameterType : parameterizedFunctionType.getActualTypeArguments()) {
             IType dslType = typeBuilder.createDSLTypeForJavaTypeInScope(globalScope, parameterType);
             if (null == dslType) {
                 throw new RuntimeException("Type of parameter of Consumer could not be translated");

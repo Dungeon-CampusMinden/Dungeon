@@ -16,10 +16,11 @@ public class BiFunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
 
     @Override
     public FunctionType buildFunctionType(
-            Type genericType, TypeBuilder typeBuilder, IScope globalScope) {
+            ParameterizedType parameterizedFunctionType,
+            TypeBuilder typeBuilder,
+            IScope globalScope) {
 
-        var parameterizedType = (ParameterizedType) genericType;
-        Type[] typeArray = parameterizedType.getActualTypeArguments();
+        Type[] typeArray = parameterizedFunctionType.getActualTypeArguments();
 
         // the first type parameter of the BiFunction<T,U,R> interface will correspond to
         // the type of the first parameter of the function
