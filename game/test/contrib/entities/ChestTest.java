@@ -127,5 +127,24 @@ public class ChestTest {
         assertTrue(
                 "Chest should have at least 1 Item",
                 1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);
+
+        assertEquals(
+                "x Position has to be ILLEGAL",
+                PositionComponent.ILLEGAL_POSITION.x,
+                newChest.fetch(PositionComponent.class)
+                        .map(PositionComponent.class::cast)
+                        .get()
+                        .position()
+                        .x,
+                0.00001f);
+        assertEquals(
+                "y Position has to be ILLEGAL",
+                PositionComponent.ILLEGAL_POSITION.y,
+                newChest.fetch(PositionComponent.class)
+                        .map(PositionComponent.class::cast)
+                        .get()
+                        .position()
+                        .y,
+                0.00001f);
     }
 }
