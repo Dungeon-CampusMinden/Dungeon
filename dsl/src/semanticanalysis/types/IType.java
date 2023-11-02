@@ -8,6 +8,7 @@ public interface IType {
         FunctionType,
         SetType,
         ListType,
+        MapType,
         EnumType
     }
 

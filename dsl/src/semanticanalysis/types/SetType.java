@@ -7,7 +7,6 @@ import semanticanalysis.IScope;
 import semanticanalysis.ScopedSymbol;
 
 public class SetType extends ScopedSymbol implements IType {
-    // private final IType elementType;
     public IType getElementType() {
         return this.dataType;
     }
@@ -49,3 +48,4 @@ public class SetType extends ScopedSymbol implements IType {
         return Kind.SetType;
     }
 }
+
