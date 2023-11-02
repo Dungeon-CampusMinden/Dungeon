@@ -46,6 +46,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class VelocitySystem extends System {
 
+    // default time an Animation should be enqueued
+    private static final int FOR_FRAMES = 1;
+
     /** Create a new VelocitySystem */
     public VelocitySystem() {
         super(VelocityComponent.class, PositionComponent.class, DrawComponent.class);
@@ -157,7 +160,7 @@ public final class VelocitySystem extends System {
             // each drawComponent has an idle animation, so no check is needed
             if (vsd.vc.previousXVelocity() < 0)
                 vsd.dc.queueAnimation(
-                        2,
+                        FOR_FRAMES,
                         CoreAnimations.IDLE_LEFT,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_RIGHT,
@@ -165,7 +168,7 @@ public final class VelocitySystem extends System {
                         CoreAnimations.IDLE_UP);
             else if (vsd.vc.previousXVelocity() > 0)
                 vsd.dc.queueAnimation(
-                        2,
+                        FOR_FRAMES,
                         CoreAnimations.IDLE_RIGHT,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_LEFT,
@@ -173,7 +176,7 @@ public final class VelocitySystem extends System {
                         CoreAnimations.IDLE_UP);
             else if (vsd.vc.previousYVelocity() > 0)
                 vsd.dc.queueAnimation(
-                        2,
+                        FOR_FRAMES,
                         CoreAnimations.IDLE_UP,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_DOWN,
@@ -181,7 +184,7 @@ public final class VelocitySystem extends System {
                         CoreAnimations.IDLE_RIGHT);
             else
                 vsd.dc.queueAnimation(
-                        2,
+                        FOR_FRAMES,
                         CoreAnimations.IDLE_DOWN,
                         CoreAnimations.IDLE,
                         CoreAnimations.IDLE_UP,

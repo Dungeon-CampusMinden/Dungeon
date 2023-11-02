@@ -243,4 +243,11 @@ public final class Animation {
     public int priority() {
         return priority;
     }
+
+    /**
+     * @return the amount of frames it would take to finish one loop of the Animation
+     */
+    public int duration() {
+        return timeBetweenFrames * animationFrames.size();
+    }
 }
