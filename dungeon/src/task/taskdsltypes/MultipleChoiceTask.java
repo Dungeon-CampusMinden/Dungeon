@@ -2,10 +2,7 @@ package task.taskdsltypes;
 
 import reporting.GradingFunctions;
 
-import semanticanalysis.types.DSLExtensionMethod;
-import semanticanalysis.types.DSLTypeAdapter;
-import semanticanalysis.types.DSLTypeMember;
-import semanticanalysis.types.IDSLExtensionMethod;
+import semanticanalysis.types.*;
 
 import task.Quiz;
 import task.Task;
@@ -21,6 +18,7 @@ import java.util.function.BiFunction;
 public class MultipleChoiceTask {
     @DSLTypeAdapter(name = "multiple_choice_task")
     public static MultipleChoice buildQuizFromMultipleChoiceTask(
+            @DSLTypeNameMember String name,
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
             @DSLTypeMember(name = "correct_answer_index") List<Integer> correctAnswerIndices,
@@ -29,6 +27,7 @@ public class MultipleChoiceTask {
             //  scoreFunction
             ) {
         MultipleChoice mc = new MultipleChoice(description);
+        mc.taskName(name);
 
         for (Quiz.Content answer : answers) {
             mc.addAnswer(answer);

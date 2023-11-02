@@ -26,6 +26,7 @@ public class SingleChoiceTask {
             @DSLTypeMember(name = "grading_function")
                     BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
         SingleChoice sc = new SingleChoice(description);
+        sc.taskName(name);
 
         for (Quiz.Content answer : answers) {
             sc.addAnswer(answer);
