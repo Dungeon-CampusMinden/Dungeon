@@ -44,6 +44,8 @@ public final class HealthComponent implements Component {
     private int currentHealthpoints;
     private @Null Entity lastCause = null;
 
+    private boolean godMode = false;
+
     /**
      * Create a new HealthComponent.
      *
@@ -128,6 +130,7 @@ public final class HealthComponent implements Component {
      */
     public void currentHealthpoints(int amount) {
         this.currentHealthpoints = Math.min(maximalHealthpoints, amount);
+        if (godMode) this.currentHealthpoints = Math.max(currentHealthpoints, 1);
     }
 
     /**
@@ -177,5 +180,16 @@ public final class HealthComponent implements Component {
      */
     public boolean isDead() {
         return currentHealthpoints <= 0;
+    }
+
+    /**
+     * Activate or deactivate the god mode-
+     *
+     * <p>in god mode the entity can not die.
+     *
+     * @param status true to actiavte, false to deactivate.
+     */
+    public void godMode(boolean status) {
+        this.godMode = status;
     }
 }
