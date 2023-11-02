@@ -85,6 +85,9 @@ public class SingleChoiceTask {
         }
     }
 
+    /**
+     * {@link IDSLExtensionMethod} to set the grading function of a {@link SingleChoice} instance.
+     */
     @DSLExtensionMethod(name = "set_grading_function", extendedType = SingleChoice.class)
     public static class SingleChoiceSetGradingFunction
             implements IDSLExtensionMethod<SingleChoice, Void> {
