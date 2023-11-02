@@ -275,7 +275,7 @@ public class EntityFactory {
                 IntStream.range(0, RANDOM.nextInt(1, 3))
                         .mapToObj(i -> itemDataGenerator.generateItemData())
                         .collect(Collectors.toSet());
-        return newChest(items, null);
+        return newChest(items, PositionComponent.ILLEGAL_POSITION);
     }
 
     /**
