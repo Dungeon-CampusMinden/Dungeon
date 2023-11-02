@@ -33,11 +33,9 @@ import runtime.nativefunctions.NativePrint;
 import semanticanalysis.*;
 import semanticanalysis.types.*;
 
-import task.QuestItem;
-import task.Quiz;
-import task.Task;
-import task.TaskContent;
+import task.*;
 import task.components.TaskComponent;
+import task.taskdsltypes.AssignTaskDSLType;
 import task.taskdsltypes.MultipleChoiceTask;
 import task.taskdsltypes.SingleChoiceDescriptionProperty;
 import task.taskdsltypes.SingleChoiceTask;
@@ -77,8 +75,8 @@ public class GameEnvironment implements IEvironment {
                     TaskComponent.class,
                     Task.class,
                     TaskContent.class,
-                    // SingleChoiceTask.class,
                     Quiz.Content.class,
+                    Element.class,
                     Tile.Direction.class
                 };
     }
@@ -141,6 +139,7 @@ public class GameEnvironment implements IEvironment {
 
         typeBuilder.registerTypeAdapter(SingleChoiceTask.class, this.globalScope);
         typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
+        typeBuilder.registerTypeAdapter(AssignTaskDSLType.class, this.globalScope);
         typeBuilder.registerTypeAdapter(QuestItemAdapter.class, this.globalScope);
     }
 

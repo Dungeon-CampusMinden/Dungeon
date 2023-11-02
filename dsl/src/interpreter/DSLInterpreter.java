@@ -26,6 +26,7 @@ import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticanalysis.types.*;
 
+import task.Element;
 import task.Quiz;
 import task.Task;
 
@@ -1096,8 +1097,18 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 String stringValue = valueToAssign.getInternalValue().toString();
                 Quiz.Content content = new Quiz.Content(stringValue);
                 EncapsulatedObject encapsulatedObject =
-                        new EncapsulatedObject(
-                                content, (AggregateType) assigneesType, this.environment);
+                    new EncapsulatedObject(
+                        content, (AggregateType) assigneesType, this.environment);
+
+                aggregateAssignee.setMemorySpace(encapsulatedObject);
+                aggregateAssignee.setInternalValue(content);
+            } else if (assigneesType.getName().equals("element")) {
+                // TODO: how to handle "empty" element: _ ?
+                String stringValue = valueToAssign.getInternalValue().toString();
+                Element<String> content = new Element<>(stringValue);
+                EncapsulatedObject encapsulatedObject =
+                    new EncapsulatedObject(
+                        content, (AggregateType) assigneesType, this.environment);
 
                 aggregateAssignee.setMemorySpace(encapsulatedObject);
                 aggregateAssignee.setInternalValue(content);

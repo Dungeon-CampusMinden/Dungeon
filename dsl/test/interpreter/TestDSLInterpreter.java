@@ -3701,21 +3701,21 @@ public class TestDSLInterpreter {
     @Test
     public void testNameSymbol() {
         String program =
-                """
-            single_choice_task t1 {
-                description: "Task1",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+            """
+                single_choice_task t1 {
+                    description: "Task1",
+                    answers: ["1", "2", "3"],
+                    correct_answer_index: 2
+                }
 
-            graph g {
-                t1
-            }
+                graph g {
+                    t1
+                }
 
-            dungeon_config c {
-                dependency_graph: g
-            }
-            """;
+                dungeon_config c {
+                    dependency_graph: g
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -3727,5 +3727,29 @@ public class TestDSLInterpreter {
         var task = config.dependencyGraph().nodeIterator().next().task();
 
         Assert.assertEquals("t1", task.taskName());
+    }
+
+    @Test
+    public void testDeclareAssignmentTask() {
+        String program =
+            """
+                assign_task t1 {
+                    description: "Task1",
+                    solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"]>
+                }
+
+                graph g {
+                    t1
+                }
+
+                dungeon_config c {
+                    dependency_graph: g
+                }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+        boolean b = true;
     }
 }
