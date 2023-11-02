@@ -50,7 +50,8 @@ public class DoorTile extends Tile {
 
     @Override
     public boolean isAccessible() {
-        return levelElement.value();
+        if (!open || (otherDoor != null && !otherDoor.isOpen())) return false;
+        else return levelElement.value();
     }
 
     /**
@@ -141,7 +142,7 @@ public class DoorTile extends Tile {
 
     @Override
     public String texturePath() {
-        if (open) return texturePath;
+        if (open && (otherDoor == null || otherDoor.isOpen())) return texturePath;
         else return closedTexturePath;
     }
 }
