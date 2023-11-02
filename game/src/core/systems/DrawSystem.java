@@ -12,8 +12,10 @@ import core.utils.components.draw.IPath;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This system draws the entities on the screen.
@@ -67,6 +69,7 @@ public final class DrawSystem extends System {
     }
 
     private void draw(DSData dsd) {
+        reduceFrameTimer(dsd.dc);
         setNextAnimation(dsd.dc);
         final Animation animation = dsd.dc.currentAnimation();
         String currentAnimationTexture = animation.nextAnimationTexturePath();
@@ -75,6 +78,17 @@ public final class DrawSystem extends System {
         }
         painter.draw(
                 dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
+    }
+
+    private void reduceFrameTimer(DrawComponent dc) {
+
+        // iterate through animationQueue
+        for (Map.Entry<IPath, Integer> entry : dc.animationQueue().entrySet()) {
+            // reduce remaining frame time of animation by 1
+            entry.setValue(entry.getValue() - 1);
+        }
+        // remove animations when there is no remaining frame time
+        dc.animationQueue().entrySet().removeIf(x -> x.getValue() < 0);
     }
 
     private DSData buildDataObject(Entity e) {
@@ -99,22 +113,13 @@ public final class DrawSystem extends System {
     // priority
     private void setNextAnimation(DrawComponent dc) {
 
-        IPath highestPrio = null;
+        Optional<Map.Entry<IPath, Integer>> highestfind =
+                dc.animationQueue().entrySet().stream()
+                        .max(Comparator.comparingInt(x -> x.getKey().priority()));
 
-        // iterate through animationQueue
-        for (Map.Entry<IPath, Integer> entry : dc.animationQueue().entrySet()) {
-            // reduce remaining frame time of animation by 1
-            entry.setValue(entry.getValue() - 1);
-            if (entry.getValue() >= 0
-                    && (highestPrio == null
-                            || highestPrio.priority() < entry.getKey().priority())) {
-                highestPrio = entry.getKey();
-            }
-        }
-        // remove animations when there is no remaining frame time
-        dc.animationQueue().entrySet().removeIf(x -> x.getValue() < 0);
         // when there is an animation load it
-        if (highestPrio != null) {
+        if (highestfind.isPresent()) {
+            IPath highestPrio = highestfind.get().getKey();
             // making sure the animation exists
             dc.animationMap().get(highestPrio.pathString());
             // changing the Animation
