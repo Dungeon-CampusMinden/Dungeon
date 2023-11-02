@@ -5,6 +5,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
+import contrib.systems.HudSystem;
+
 import core.Game;
 
 import task.Quiz;
@@ -23,6 +25,7 @@ public class QuizQuestionUITest {
 
     public static void main(String[] args) {
         Game.initBaseLogger();
+        Game.add(new HudSystem());
         Game.userOnFrame(
                 () -> {
                     if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {

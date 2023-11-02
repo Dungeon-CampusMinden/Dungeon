@@ -122,7 +122,7 @@ public class QuizUI {
             String buttonMsg,
             String title,
             BiFunction<TextDialog, String, Boolean> resultHandler) {
-        Dialog textDialog = new TextDialog(title, skin, resultHandler);
+        Dialog textDialog = new TextDialog(title, skin, "Letter", resultHandler);
         textDialog
                 .getContentTable()
                 .add(QuizDialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg))

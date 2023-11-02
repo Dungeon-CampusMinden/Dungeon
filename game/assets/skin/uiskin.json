@@ -38,6 +38,30 @@ com.badlogic.gdx.graphics.Color: {
 		b: 0.039215688
 		a: 1
 	}
+	RGBA_255_0_0_0: {
+		r: 1
+		g: 0
+		b: 0
+		a: 0
+	}
+}
+com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable: {
+	progress-bar-fill: {
+		region: progress-bar-fill
+		minWidth: 1
+		minHeight: 10
+	}
+}
+com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable: {
+	progress-bar-smaller: {
+		patch: progress-bar-smaller
+		minWidth: 12
+		minHeight: 12
+		leftWidth: 1
+		rightWidth: 1
+		topHeight: 1
+		bottomHeight: 1
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 	round-dark-gray: {
@@ -85,19 +109,23 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 			a: 1
 		}
 	}
-	experience-bar: {
-		name: progress-bar
-		color: green
-	}
 	progress-bar-fill-experience: {
 		name: progress-bar-fill
 		color: experience_green
 		minWidth: 1
-		minHeight: 12
+		minHeight: 10
 	}
 	progress-bar-fill-health: {
 		name: progress-bar-fill
 		color: health_red
+		minWidth: 1
+		minHeight: 10
+	}
+}
+com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable: {
+	healthbar: {
+		region: progress-bar
+		color: experience_green
 		minWidth: 1
 		minHeight: 12
 	}
@@ -174,12 +202,12 @@ com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 		background: progress-bar
 		knobBefore: progress-bar-fill-vert
 	}
-	health: {
-		background: progress-bar-small
+	healthbar: {
+		background: progress-bar-smaller
 		knobBefore: progress-bar-fill-health
 	}
-	experience: {
-		background: progress-bar-small
+	experiencebar: {
+		background: progress-bar-smaller
 		knobBefore: progress-bar-fill-experience
 	}
 }
@@ -259,6 +287,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Tree$TreeStyle: {
 com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
 	default: {
 		background: window_fire1
+		titleFont: myFont
+	}
+	Letter: {
+		background: Paper
 		titleFont: myFont
 	}
 }
