@@ -10,7 +10,6 @@ import semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
 import semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
 
-import task.Element;
 import taskdependencygraph.TaskDependencyGraph;
 
 import java.lang.reflect.*;
@@ -386,7 +385,11 @@ public class TypeBuilder {
     }
 
     protected Symbol createDataMemberSymbolWithTemplateType(
-        Field field, Class<?> parentClass, AggregateType parentType, IScope globalScope, Type[] templateTypes) {
+            Field field,
+            Class<?> parentClass,
+            AggregateType parentType,
+            IScope globalScope,
+            Type[] templateTypes) {
 
         var genericType = field.getGenericType();
         var typeParameters = parentClass.getTypeParameters();
@@ -412,10 +415,10 @@ public class TypeBuilder {
             // is list or set?
             if (List.class.isAssignableFrom(fieldsType)) {
                 memberDSLType =
-                    createListType((ParameterizedType) field.getGenericType(), globalScope);
+                        createListType((ParameterizedType) field.getGenericType(), globalScope);
             } else if (Set.class.isAssignableFrom(fieldsType)) {
                 memberDSLType =
-                    createSetType((ParameterizedType) field.getGenericType(), globalScope);
+                        createSetType((ParameterizedType) field.getGenericType(), globalScope);
             }
         }
         if (memberDSLType == null) {
@@ -577,13 +580,19 @@ public class TypeBuilder {
                 if (field.isAnnotationPresent(DSLTypeMember.class)
                         || field.isAnnotationPresent(DSLTypeNameMember.class)) {
                     var genericType = field.getGenericType();
-                    if (genericType instanceof TypeVariable<?> && dslTypeAnnotation.templateArguments().length > 0) {
+                    if (genericType instanceof TypeVariable<?>
+                            && dslTypeAnnotation.templateArguments().length > 0) {
                         var fieldSymbol =
-                            createDataMemberSymbolWithTemplateType(field, clazz, aggregateType, globalScope, dslTypeAnnotation.templateArguments());
+                                createDataMemberSymbolWithTemplateType(
+                                        field,
+                                        clazz,
+                                        aggregateType,
+                                        globalScope,
+                                        dslTypeAnnotation.templateArguments());
                         aggregateType.bind(fieldSymbol);
                     } else {
                         var fieldSymbol =
-                            createDataMemberSymbol(field, clazz, aggregateType, globalScope);
+                                createDataMemberSymbol(field, clazz, aggregateType, globalScope);
                         aggregateType.bind(fieldSymbol);
                     }
                 }

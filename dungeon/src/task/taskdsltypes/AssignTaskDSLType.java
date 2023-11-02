@@ -2,21 +2,23 @@ package task.taskdsltypes;
 
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
-import semanticanalysis.types.IDSLExtensionMethod;
+
 import task.AssignTask;
 import task.Element;
-import task.TaskContent;
-import task.quizquestion.SingleChoice;
 
 import java.util.*;
 
 public class AssignTaskDSLType {
+    public static Element<String> EMPTY_ELEMENT = new Element<>("");
+    public static String EMPTY_ELEMENT_NAME = "$EMPTY_ELEMENT$";
+
     @DSLTypeAdapter(name = "assign_task")
     public static AssignTask buildAssignTask(
-        @DSLTypeMember(name = "description") String description,
-        @DSLTypeMember(name = "solution") Set<List<Element<String>>> solution
-    ) {
+            @DSLTypeMember(name = "description") String description,
+            @DSLTypeMember(name = "solution") Set<List<Element<String>>> solution) {
         AssignTask task = new AssignTask();
+
+        // TODO: handle EMPTY_ELEMENT_NAME
 
         // scan for duplicates
         HashMap<String, Element<String>> elementMap = new HashMap<>();
@@ -28,6 +30,8 @@ public class AssignTaskDSLType {
                     // get element from element map
                     var substituationElement = elementMap.get(content);
                     substitutionMap.put(element, substituationElement);
+                } else if (content.equals(EMPTY_ELEMENT_NAME)) {
+                    substitutionMap.put(element, EMPTY_ELEMENT);
                 } else {
                     elementMap.put(content, element);
                 }
@@ -59,9 +63,11 @@ public class AssignTaskDSLType {
             }
 
             if (definitionElementToTermElement.containsKey(definitionElement)) {
-                var definitionElementsAssignedTermElement = definitionElementToTermElement.get(definitionElement);
+                var definitionElementsAssignedTermElement =
+                        definitionElementToTermElement.get(definitionElement);
                 if (!definitionElementsAssignedTermElement.equals(termElement)) {
-                    throw new RuntimeException("Definition element was assigned to two different term elements!");
+                    throw new RuntimeException(
+                            "Definition element was assigned to two different term elements!");
                 }
             }
 

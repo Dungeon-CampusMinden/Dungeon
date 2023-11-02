@@ -3732,10 +3732,10 @@ public class TestDSLInterpreter {
     @Test
     public void testDeclareAssignmentTask() {
         String program =
-            """
+                """
                 assign_task t1 {
                     description: "Task1",
-                    solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"]>
+                    solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["derp", _]>
                 }
 
                 graph g {
@@ -3750,6 +3750,8 @@ public class TestDSLInterpreter {
         DSLInterpreter interpreter = new DSLInterpreter();
         DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
         var task = config.dependencyGraph().nodeIterator().next().task();
+
+        // TODO: asserts
         boolean b = true;
     }
 }

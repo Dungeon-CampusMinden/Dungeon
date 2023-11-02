@@ -29,6 +29,7 @@ import semanticanalysis.types.*;
 import task.Element;
 import task.Quiz;
 import task.Task;
+import task.taskdsltypes.AssignTaskDSLType;
 
 import java.util.*;
 
@@ -667,6 +668,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (!(ms instanceof EncapsulatedObject)) {
             memoryStack.push(ms);
 
+            if (objectsValue.getDataType().getName().equals("assign_task")) {
+                // create "_" Value
+                ms.bindValue(
+                        "_",
+                        new Value(BuiltInType.stringType, AssignTaskDSLType.EMPTY_ELEMENT_NAME));
+            }
+
             // accept every propertyDefinition
             for (var propDefNode : node.getPropertyDefinitions()) {
                 propDefNode.accept(this);
@@ -1097,8 +1105,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 String stringValue = valueToAssign.getInternalValue().toString();
                 Quiz.Content content = new Quiz.Content(stringValue);
                 EncapsulatedObject encapsulatedObject =
-                    new EncapsulatedObject(
-                        content, (AggregateType) assigneesType, this.environment);
+                        new EncapsulatedObject(
+                                content, (AggregateType) assigneesType, this.environment);
 
                 aggregateAssignee.setMemorySpace(encapsulatedObject);
                 aggregateAssignee.setInternalValue(content);
@@ -1107,8 +1115,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 String stringValue = valueToAssign.getInternalValue().toString();
                 Element<String> content = new Element<>(stringValue);
                 EncapsulatedObject encapsulatedObject =
-                    new EncapsulatedObject(
-                        content, (AggregateType) assigneesType, this.environment);
+                        new EncapsulatedObject(
+                                content, (AggregateType) assigneesType, this.environment);
 
                 aggregateAssignee.setMemorySpace(encapsulatedObject);
                 aggregateAssignee.setInternalValue(content);
