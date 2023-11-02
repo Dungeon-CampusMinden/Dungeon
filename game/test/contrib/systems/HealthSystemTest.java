@@ -49,6 +49,28 @@ public class HealthSystemTest {
     }
 
     @Test
+    public void updateEntityDiesGodMode() throws IOException {
+        Game.removeAllEntities();
+        Entity entity = new Entity();
+        Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
+        DrawComponent ac = new DrawComponent(ANIMATION_PATH);
+        HealthComponent component = new HealthComponent(1, onDeath);
+        component.godMode(true);
+        entity.addComponent(ac);
+        entity.addComponent(component);
+        Game.add(entity);
+        HealthSystem system = new HealthSystem();
+        Game.add(system);
+        component.currentHealthpoints(0);
+        system.execute();
+        assertFalse(
+                "Entity can not die, so dont show die animation",
+                ac.isCurrentAnimation(AdditionalAnimations.DIE));
+        assertTrue(
+                "Entity should still be in game.", Game.entityStream().anyMatch(e -> e == entity));
+    }
+
+    @Test
     public void updateEntityGetDamage() throws IOException {
         Game.removeAllEntities();
         Entity entity = new Entity();
