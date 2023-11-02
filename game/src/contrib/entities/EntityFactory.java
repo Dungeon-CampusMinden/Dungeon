@@ -42,7 +42,7 @@ import java.util.stream.IntStream;
  */
 public class EntityFactory {
     private static final Random RANDOM = new Random();
-    private static final String HERO_FILE_PATH = "character/knight";
+    private static final String HERO_FILE_PATH = "character/wizard";
     private static final float X_SPEED_HERO = 7.5f;
     private static final float Y_SPEED_HERO = 7.5f;
     private static final int FIREBALL_COOL_DOWN = 500;
