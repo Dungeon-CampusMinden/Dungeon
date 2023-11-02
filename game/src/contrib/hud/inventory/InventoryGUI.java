@@ -2,7 +2,6 @@ package contrib.hud.inventory;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,6 +26,8 @@ import core.components.PositionComponent;
 
 public class InventoryGUI extends CombinableGUI {
 
+    private static final String FONT_FNT = "skin/myFont.fnt";
+    private static final String FONT_PNG = "skin/myFont.png";
     private static final int MAX_ITEMS_PER_ROW = 8;
     private static final int BORDER_COLOR = 0x9dc1ebff;
     private static final int BACKGROUND_COLOR = 0x3e3e63e1;
@@ -54,10 +55,7 @@ public class InventoryGUI extends CombinableGUI {
         background = new TextureRegion(texture, 0, 0, 1, 1);
         hoverBackground = new TextureRegion(texture, 1, 0, 1, 1);
         bitmapFont =
-                new BitmapFont(
-                        new FileHandle("./game/assets/skin/myFont.fnt"),
-                        new FileHandle("./game/assets/skin/myFont.png"),
-                        false);
+                new BitmapFont(Gdx.files.internal(FONT_FNT), Gdx.files.internal(FONT_PNG), false);
     }
 
     private final InventoryComponent inventoryComponent;
