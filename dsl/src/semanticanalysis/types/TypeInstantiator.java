@@ -154,6 +154,21 @@ public class TypeInstantiator {
         return hashSetInstance;
     }
 
+    public Map<?,?> instantiateMap(MapValue mapValue) {
+        HashMap<Object, Object> hashMapInstance = new HashMap<>();
+        HashMap<Value, Value> internalValue = mapValue.internalMap();
+
+        // TODO: rename!!!
+        for (var mapEntry : internalValue.entrySet()) {
+            Value keyValue = mapEntry.getKey();
+            var convertedKeyValue = convertValueToObject(keyValue);
+            Value valueValue = mapEntry.getValue();
+            var convertedValueValue = convertValueToObject(valueValue);
+            hashMapInstance.put(convertedKeyValue, convertedValueValue);
+        }
+        return hashMapInstance;
+    }
+
     /**
      * Push an object as part of the context (so it can be looked up, if it is referenced by {@link
      * DSLContextMember} by a constructor parameter)
@@ -224,6 +239,8 @@ public class TypeInstantiator {
                 convertedObject = instantiateList((ListValue) value);
             } else if (valuesType.getTypeKind().equals(IType.Kind.SetType)) {
                 convertedObject = instantiateSet((SetValue) value);
+            } else if (valuesType.getTypeKind().equals(IType.Kind.MapType)) {
+                convertedObject = instantiateMap((MapValue) value);
             } else if (valuesType.getTypeKind().equals(IType.Kind.EnumType)) {
                 convertedObject = instantiateEnum((EnumValue) value);
             } else if (valuesType.getTypeKind().equals(IType.Kind.FunctionType)) {

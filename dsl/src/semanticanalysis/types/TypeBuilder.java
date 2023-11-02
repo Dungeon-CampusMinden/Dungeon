@@ -277,6 +277,11 @@ public class TypeBuilder {
                             createSetType(
                                     (ParameterizedType) parametersAnnotatedType.getType(),
                                     parentScope);
+                } else if (Map.class.isAssignableFrom((Class<?>) parametersType)) {
+                    paramDSLType =
+                        createMapType(
+                            (ParameterizedType) parametersAnnotatedType.getType(),
+                            parentScope);
                 }
             }
 
@@ -366,6 +371,21 @@ public class TypeBuilder {
         return javaTypeToDSLType.get(setType);
     }
 
+    public IType createMapType(ParameterizedType mapType, IScope globalScope) {
+        var keyType = mapType.getActualTypeArguments()[0];
+        IType keyDSLType = this.createDSLTypeForJavaTypeInScope(globalScope, keyType);
+
+        var elementType = mapType.getActualTypeArguments()[1];
+        IType elementDSLType = this.createDSLTypeForJavaTypeInScope(globalScope, elementType);
+
+        if (javaTypeToDSLType.get(mapType) == null) {
+            IType dslMapType = new MapType(keyDSLType, elementDSLType, globalScope);
+            dslMapType = bindOrResolveTypeInScope(dslMapType, globalScope);
+            javaTypeToDSLType.put(mapType, dslMapType);
+        }
+        return javaTypeToDSLType.get(mapType);
+    }
+
     /**
      * Create a new {@link ListType} from the passed {@link ParameterizedType}.
      *
@@ -394,6 +414,8 @@ public class TypeBuilder {
         var genericType = field.getGenericType();
         var typeParameters = parentClass.getTypeParameters();
 
+        // TODO: refactor common stuff with createDataMemberSymbol
+
         // find index of type parameter
         Type declaredTemplateType = null;
         for (int i = 0; i < typeParameters.length && i < templateTypes.length; i++) {
@@ -419,6 +441,9 @@ public class TypeBuilder {
             } else if (Set.class.isAssignableFrom(fieldsType)) {
                 memberDSLType =
                         createSetType((ParameterizedType) field.getGenericType(), globalScope);
+            } else if (Map.class.isAssignableFrom(fieldsType)) {
+                memberDSLType =
+                    createMapType((ParameterizedType) field.getGenericType(), globalScope);
             }
         }
         if (memberDSLType == null) {
@@ -454,6 +479,9 @@ public class TypeBuilder {
             } else if (Set.class.isAssignableFrom(fieldsType)) {
                 memberDSLType =
                         createSetType((ParameterizedType) field.getGenericType(), globalScope);
+            } else if (Map.class.isAssignableFrom(fieldsType)) {
+                memberDSLType =
+                        createMapType((ParameterizedType) field.getGenericType(), globalScope);
             }
         }
         if (memberDSLType == null) {
@@ -525,6 +553,8 @@ public class TypeBuilder {
                     return createListType((ParameterizedType) type, globalScope);
                 } else if (Set.class.isAssignableFrom(clazz)) {
                     return createSetType((ParameterizedType) type, globalScope);
+                } else if (Map.class.isAssignableFrom(clazz)) {
+                    return createMapType((ParameterizedType) type, globalScope);
                 }
             }
         }

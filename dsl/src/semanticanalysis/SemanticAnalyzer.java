@@ -649,6 +649,34 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     }
 
     @Override
+    public Void visit(MapTypeIdentifierNode node) {
+        IScope globalScope = this.symbolTable.globalScope;
+        String typeName = node.getName();
+        Symbol resolvedType = globalScope.resolve(typeName);
+
+        // construct a new MapType for the node, if it was not previously created
+        if (resolvedType == Symbol.NULL) {
+            // create key type
+            IdNode keyTypeNode = node.getKeyTypeNode();
+            if (keyTypeNode.type != Node.Type.Identifier) {
+                keyTypeNode.accept(this);
+            }
+
+            // create element type
+            IdNode elementTypeNode = node.getElementTypeNode();
+            if (elementTypeNode.type != Node.Type.Identifier) {
+                elementTypeNode.accept(this);
+            }
+
+            var keyType = globalScope.resolveType(keyTypeNode.getName());
+            var elementType = globalScope.resolveType(elementTypeNode.getName());
+            MapType setType = new MapType(keyType, elementType, globalScope);
+            globalScope.bind(setType);
+        }
+        return null;
+    }
+
+    @Override
     public Void visit(ListDefinitionNode node) {
         visitChildren(node);
         return null;

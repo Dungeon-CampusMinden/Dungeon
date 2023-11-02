@@ -113,6 +113,11 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
     }
 
     @Override
+    public Object visit(MapTypeIdentifierNode node) {
+        return node.getName();
+    }
+
+    @Override
     public Object visit(DotDefNode node) {
         return null;
     }

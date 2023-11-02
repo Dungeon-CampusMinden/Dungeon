@@ -416,6 +416,16 @@ public interface AstVisitor<T> {
     }
 
     /**
+     * Visitor method for MapTypeDefinitionNodes
+     *
+     * @param node Node to visit
+     * @return T
+     */
+    default T visit(MapTypeIdentifierNode node) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Visitor method for LoopStmtNodes
      *
      * @param node Node to visit

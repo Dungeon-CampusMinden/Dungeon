@@ -169,9 +169,10 @@ param_def
     ;
 
 type_decl
-    : type_decl '<>'   #set_param_type
-    | type_decl '[]'   #list_param_type
-    | ID                #id_param_type
+    : type_decl '<>'                        #set_param_type
+    | type_decl '[]'                        #list_param_type
+    | '[' type_decl ARROW  type_decl ']'    #map_param_type
+    | ID                                    #id_param_type
     ;
 
 param_def_list
