@@ -19,6 +19,7 @@ public class SingleChoiceTask {
 
     @DSLTypeAdapter(name = "single_choice_task")
     public static SingleChoice buildQuizFromSingleChoiceTask(
+            @DSLTypeNameMember String name,
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
             @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex,

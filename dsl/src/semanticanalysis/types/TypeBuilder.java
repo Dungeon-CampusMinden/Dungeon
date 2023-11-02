@@ -280,7 +280,13 @@ public class TypeBuilder {
                 }
             }
 
-            String parameterName = getDSLParameterName(parameter);
+            String parameterName;
+            if (parameter.isAnnotationPresent(DSLTypeNameMember.class)) {
+                parameterName = AggregateType.NAME_SYMBOL_NAME;
+            } else {
+                parameterName = getDSLParameterName(parameter);
+            }
+
             Symbol parameterSymbol = new Symbol(parameterName, typeAdapter, paramDSLType);
             typeAdapter.bind(parameterSymbol);
         }
@@ -520,6 +526,14 @@ public class TypeBuilder {
                     var fieldSymbol =
                             createDataMemberSymbol(field, clazz, aggregateType, globalScope);
                     aggregateType.bind(fieldSymbol);
+                }
+                if (field.isAnnotationPresent(DSLTypeNameMember.class)) {
+                    // TODO: or do it in createDataMemberSymbol!
+                    /*
+                    var fieldSymbol =
+                        createDataMemberSymbol(field, clazz, aggregateType, globalScope);
+                    aggregateType.bind(fieldSymbol);
+                    */
                 }
                 if (field.isAnnotationPresent(DSLCallback.class)) {
                     var callbackSymbol =

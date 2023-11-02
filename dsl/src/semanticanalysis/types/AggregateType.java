@@ -4,6 +4,7 @@ import semanticanalysis.IScope;
 import semanticanalysis.ScopedSymbol;
 
 public class AggregateType extends ScopedSymbol implements IType {
+    public static String NAME_SYMBOL_NAME = "$NAME$";
 
     protected Class<?> originType;
 
