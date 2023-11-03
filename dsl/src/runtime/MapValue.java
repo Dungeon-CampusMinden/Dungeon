@@ -1,9 +1,11 @@
 package runtime;
 
+import interpreter.DSLInterpreter;
+import parser.ast.Node;
+import semanticanalysis.IInstanceCallable;
 import semanticanalysis.types.MapType;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MapValue extends Value {
 
@@ -91,8 +93,6 @@ public class MapValue extends Value {
      * Native method, which implements adding a Value to the internal {@link Map} of a {@link
      * MapValue}.
      */
-    // TODO:
-    /*
     public static class AddMethod implements IInstanceCallable {
 
         public static MapValue.AddMethod instance = new MapValue.AddMethod();
@@ -101,59 +101,45 @@ public class MapValue extends Value {
 
         @Override
         public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
-            MapValue setValue = (SetValue) instance;
-            Node paramNode = parameters.get(0);
-            Value paramValue = (Value) paramNode.accept(interpreter);
+            MapValue mapValue = (MapValue) instance;
+            Node keyNode = parameters.get(0);
+            Node elementNode = parameters.get(1);
+            Value keyValue = (Value) keyNode.accept(interpreter);
+            Value elementValue = (Value) elementNode.accept(interpreter);
 
-            return setValue.addValue(paramValue);
-        }
-    }*/
-
-    /**
-     * Native method, which implements calculating the size (i.e. the number of stored elements of a
-     * {@link MapValue}.
-     */
-    /*
-    public static class SizeMethod implements IInstanceCallable {
-
-        public static MapValue.SizeMethod instance = new SetValue.SizeMethod();
-
-        private SizeMethod() {}
-
-        @Override
-        public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
-            MapValue setValue = (SetValue) instance;
-
-            return setValue.internalMap().size();
+            return mapValue.addValue(keyValue, elementValue);
         }
     }
 
-     */
+    public static class GetKeysMethod implements IInstanceCallable {
 
-    /**
-     * Native method, which checks whether a given Value is present in the internal value set of a
-     * {@link MapValue}. Because different instances of {@link Value} can refer to the same internal
-     * value, the internal values are used for the lookup.
-     */
-    /*
-    public static class ContainsMethod implements IInstanceCallable {
+        public static MapValue.GetKeysMethod instance = new MapValue.GetKeysMethod();
 
-        public static MapValue.ContainsMethod instance = new SetValue.ContainsMethod();
-
-        private ContainsMethod() {}
+        private GetKeysMethod() {}
 
         @Override
         public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
-            MapValue setValue = (SetValue) instance;
-
-            Node valueToCheckNode = parameters.get(0);
-            Value valueToCheck = (Value) valueToCheckNode.accept(interpreter);
-
-            return setValue.internalValueMap.contains(valueToCheck.getInternalValue());
+            MapValue mapValue = (MapValue) instance;
+            ArrayList<Value> keys = new ArrayList<>();
+            keys.addAll(mapValue.internalMap().keySet());
+            return keys;
         }
     }
 
-     */
+    public static class GetElementsMethod implements IInstanceCallable {
+
+        public static MapValue.GetElementsMethod instance = new MapValue.GetElementsMethod();
+
+        private GetElementsMethod() {}
+
+        @Override
+        public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+            MapValue mapValue = (MapValue) instance;
+            ArrayList<Value> values = new ArrayList<>();
+            values.addAll(mapValue.internalMap().values());
+            return values;
+        }
+    }
     // endregion
 
 }
