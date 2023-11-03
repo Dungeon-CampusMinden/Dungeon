@@ -97,6 +97,7 @@ public class GameEnvironment implements IEvironment {
         properties.add(EntityExtension.DrawComponentProperty.instance);
         properties.add(EntityExtension.TaskComponentProperty.instance);
         properties.add(EntityExtension.TaskContentComponentProperty.instance);
+        properties.add(EntityExtension.InventoryComponentProperty.instance);
         properties.add(TaskComponent.TaskProperty.instance);
         properties.add(QuestItemExtension.TaskContentComponentProperty.instance);
         properties.add(TaskContentComponent.ContentProperty.instance);
@@ -119,6 +120,8 @@ public class GameEnvironment implements IEvironment {
         methods.add(ElementContentMethod.instance);
         methods.add(QuizContentContentMethod.instance);
         methods.add(TaskContentContentMethod.instance);
+        methods.add(EntityExtension.OpenInventoryMethod.instance);
+        methods.add(EntityExtension.AddNamedTaskContentMethod.instance);
 
         return methods;
     }
