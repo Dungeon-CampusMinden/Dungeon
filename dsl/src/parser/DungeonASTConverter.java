@@ -145,7 +145,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         assert varIdNode.type.equals(Node.Type.Identifier);
 
         Node varTypeIdNode = astStack.pop();
-        assert varTypeIdNode.type.equals(Node.Type.Identifier);
 
         ForLoopStmtNode loopStmtNode =
                 new ForLoopStmtNode(varTypeIdNode, varIdNode, iterableNode, stmtNode);
@@ -168,7 +167,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         assert varIdNode.type.equals(Node.Type.Identifier);
 
         Node varTypeIdNode = astStack.pop();
-        assert varTypeIdNode.type.equals(Node.Type.Identifier);
 
         CountingLoopStmtNode loopStmtNode =
                 new CountingLoopStmtNode(
