@@ -7,7 +7,7 @@ import com.badlogic.gdx.audio.Music;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
-import contrib.hud.UITools;
+import contrib.hud.OkDialog;
 import contrib.systems.*;
 
 import core.Entity;
@@ -64,7 +64,7 @@ public class Starter {
                                                 .append(System.lineSeparator())
                                                 .append(System.lineSeparator()));
                 String questLog = questLogBuilder.toString();
-                UITools.generateNewTextDialog(questLog, "Weiter gehts!", "Questlog");
+                OkDialog.showOkDialog(questLog, "Questlog", () -> {});
             };
 
     public static void main(String[] args) throws IOException {
