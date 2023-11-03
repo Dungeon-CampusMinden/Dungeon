@@ -176,7 +176,6 @@ public abstract class Task {
         this.taskName = taskName;
     }
 
-
     /**
      * Set the task text.
      *

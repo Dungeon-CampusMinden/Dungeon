@@ -7,4 +7,4 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.RECORD_COMPONENT})
-public @interface DSLTypeNameMember { }
+public @interface DSLTypeNameMember {}

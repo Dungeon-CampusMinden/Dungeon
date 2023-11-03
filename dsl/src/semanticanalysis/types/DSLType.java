@@ -16,4 +16,3 @@ public @interface DSLType {
      */
     public String name() default "";
 }
-

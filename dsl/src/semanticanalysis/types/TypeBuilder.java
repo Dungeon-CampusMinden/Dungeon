@@ -527,7 +527,8 @@ public class TypeBuilder {
             this.currentLookedUpTypes.add(clazz);
             for (Field field : clazz.getDeclaredFields()) {
                 // bind new Symbol
-                if (field.isAnnotationPresent(DSLTypeMember.class) || field.isAnnotationPresent(DSLTypeNameMember.class)) {
+                if (field.isAnnotationPresent(DSLTypeMember.class)
+                        || field.isAnnotationPresent(DSLTypeNameMember.class)) {
                     var fieldSymbol =
                             createDataMemberSymbol(field, clazz, aggregateType, globalScope);
                     aggregateType.bind(fieldSymbol);

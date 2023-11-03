@@ -3701,7 +3701,7 @@ public class TestDSLInterpreter {
     @Test
     public void testNameSymbol() {
         String program =
-            """
+                """
             single_choice_task t1 {
                 description: "Task1",
                 answers: ["1", "2", "3"],
