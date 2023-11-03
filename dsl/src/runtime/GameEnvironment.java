@@ -14,6 +14,7 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 
 import dslnativefunction.NativeInstantiate;
+import dslnativefunction.NativeInstantiateNamed;
 
 import dsltypeadapters.DrawComponentAdapter;
 import dsltypeadapters.QuestItemAdapter;
@@ -112,6 +113,9 @@ public class GameEnvironment implements IEvironment {
         methods.add(MultipleChoiceTask.MultipleChoiceSetGradingFunction.instance);
         methods.add(AssignTaskDSLType.GetSolutionMethod.instance);
         methods.add(IsElementEmptyMethod.instance);
+        methods.add(ElementContentMethod.instance);
+        methods.add(QuizContentContentMethod.instance);
+        methods.add(TaskContentContentMethod.instance);
 
         return methods;
     }
@@ -264,6 +268,7 @@ public class GameEnvironment implements IEvironment {
         ArrayList<Symbol> nativeFunctions = new ArrayList<>();
         nativeFunctions.add(NativePrint.func);
         nativeFunctions.add(NativeInstantiate.func);
+        nativeFunctions.add(NativeInstantiateNamed.func);
 
         // build functions with dependency on specific non-builtin types
         IType questItemType = (IType) this.globalScope.resolve("quest_item");
@@ -422,6 +427,62 @@ public class GameEnvironment implements IEvironment {
                 return true;
             }
             return false;
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    @DSLExtensionMethod(name = "text", extendedType = Quiz.Content.class)
+    public static class QuizContentContentMethod
+            implements IDSLExtensionMethod<Quiz.Content, String> {
+        public static QuizContentContentMethod instance = new QuizContentContentMethod();
+
+        @Override
+        public String call(Quiz.Content instance, List<Object> params) {
+            return instance.content();
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    @DSLExtensionMethod(name = "text", extendedType = Element.class)
+    public static class ElementContentMethod implements IDSLExtensionMethod<Element, String> {
+        public static ElementContentMethod instance = new ElementContentMethod();
+
+        @Override
+        public String call(Element instance, List<Object> params) {
+            return instance.content().toString();
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    @DSLExtensionMethod(name = "text", extendedType = TaskContent.class)
+    public static class TaskContentContentMethod
+            implements IDSLExtensionMethod<TaskContent, String> {
+        public static TaskContentContentMethod instance = new TaskContentContentMethod();
+
+        @Override
+        public String call(TaskContent instance, List<Object> params) {
+            if (instance instanceof Quiz.Content quizcontent) {
+                return quizcontent.content();
+            } else if (instance instanceof Element element) {
+                return element.content().toString();
+            } else {
+                return "undefined TaskContent";
+            }
         }
 
         @Override
