@@ -3,6 +3,7 @@ package interpreter;
 import static org.junit.Assert.*;
 
 import contrib.components.CollideComponent;
+import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 
 import core.components.DrawComponent;
@@ -29,11 +30,9 @@ import semanticanalysis.FunctionSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
-import task.AssignTask;
-import task.QuestItem;
-import task.Quiz;
-import task.TaskContent;
+import task.*;
 
+import task.components.TaskContentComponent;
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
 import taskdependencygraph.TaskNode;
@@ -3817,7 +3816,7 @@ public class TestDSLInterpreter {
             """
             assign_task t1 {
                 description: "Task1",
-                solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["derp", _]>
+                solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["!", _]>
             }
 
             graph g {
@@ -3828,6 +3827,23 @@ public class TestDSLInterpreter {
                 dependency_graph: g
             }
 
+            entity_type chest_type {
+                inventory_component {},
+                draw_component {
+                    path: "objects/treasurechest"
+                },
+                hitbox_component {},
+                position_component{},
+                interaction_component{},
+                task_content_component{}
+            }
+
+            item_type scroll_type {
+                display_name: "A scroll",
+                description: "Please read me",
+                texture_path: "items/book/wisdom_scroll.png"
+            }
+
             fn build_task(assign_task t) -> entity<><> {
                 var return_set : entity<><>;
                 var room_set : entity<>;
@@ -3835,7 +3851,34 @@ public class TestDSLInterpreter {
                 var solution_map : [element -> element<>];
                 solution_map = t.get_solution();
 
-                print(solution_map);
+                // instantiate chests
+                for element key in solution_map.get_keys() {
+                    if key.is_empty() {
+                        // skip
+                    } else {
+                        // if this variable is declared outside of the for-loop,
+                        // it is not correctly placed in the set, because the internal
+                        // Value will be still the same Object (with the same HashCode!!)
+                        var chest : entity;
+                        chest = instantiate(chest_type);
+                        chest.task_content_component.content = key;
+                        room_set.add(chest);
+                    }
+                }
+
+                var item : quest_item;
+                // instantiate all answer elements as scrolls
+                for element<> element_set in solution_map.get_elements() {
+                    for element element in element_set {
+                        if element.is_empty() {
+                            // skip
+                        } else {
+                            print(element);
+                            item = build_quest_item(scroll_type, element);
+                            place_quest_item(item, room_set);
+                        }
+                    }
+                }
 
                 return_set.add(room_set);
                 return return_set;
@@ -3853,6 +3896,44 @@ public class TestDSLInterpreter {
 
         var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
 
-        String output = outputStream.toString();
+        // find all "scrolls"
+        HashSet<String> elementContents = new HashSet<>();
+        for (var roomSet : builtTask) {
+            for (core.Entity entity : roomSet) {
+                var optionalItemComp = entity.fetch(ItemComponent.class);
+                if (optionalItemComp.isPresent()) {
+                    ItemComponent itemComp = optionalItemComp.get();
+                    QuestItem questItem = (QuestItem) itemComp.item();
+                    var element = (Element<String>)questItem.taskContentComponent().content();
+                    elementContents.add(element.content());
+                }
+            }
+        }
+
+        Assert.assertEquals(5, elementContents.size());
+        Assert.assertTrue(elementContents.contains("b"));
+        Assert.assertTrue(elementContents.contains("d"));
+        Assert.assertTrue(elementContents.contains("x"));
+        Assert.assertTrue(elementContents.contains("hallo"));
+        Assert.assertTrue(elementContents.contains("world"));
+
+        // find all chests
+        HashSet<String> keyContents = new HashSet<>();
+        for (var roomSet : builtTask) {
+            for (core.Entity entity : roomSet) {
+                var optionalInventoryComponent = entity.fetch(InventoryComponent.class);
+                if (optionalInventoryComponent.isPresent()) {
+                    TaskContentComponent tcc = entity.fetch(TaskContentComponent.class).get();
+                    Element<String> element = (Element<String>)tcc.content();
+                    keyContents.add(element.content());
+                }
+            }
+        }
+
+        Assert.assertEquals(4, keyContents.size());
+        Assert.assertTrue(keyContents.contains("a"));
+        Assert.assertTrue(keyContents.contains("c"));
+        Assert.assertTrue(keyContents.contains("y"));
+        Assert.assertTrue(keyContents.contains("!"));
     }
 }

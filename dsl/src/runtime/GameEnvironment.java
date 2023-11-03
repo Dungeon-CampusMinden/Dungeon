@@ -2,6 +2,8 @@ package runtime;
 
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
+import contrib.components.InteractionComponent;
+import contrib.components.InventoryComponent;
 import contrib.entities.WorldItemBuilder;
 import contrib.item.Item;
 
@@ -35,6 +37,8 @@ import semanticanalysis.types.*;
 
 import task.*;
 import task.components.TaskComponent;
+import task.components.TaskContentComponent;
+import task.quizquestion.SingleChoice;
 import task.taskdsltypes.AssignTaskDSLType;
 import task.taskdsltypes.MultipleChoiceTask;
 import task.taskdsltypes.SingleChoiceDescriptionProperty;
@@ -73,6 +77,9 @@ public class GameEnvironment implements IEvironment {
                     CollideComponent.class,
                     DrawComponent.class,
                     TaskComponent.class,
+                    TaskContentComponent.class,
+                    InventoryComponent.class,
+                    InteractionComponent.class,
                     Task.class,
                     TaskContent.class,
                     Quiz.Content.class,
@@ -89,8 +96,10 @@ public class GameEnvironment implements IEvironment {
         properties.add(EntityExtension.PositionComponentProperty.instance);
         properties.add(EntityExtension.DrawComponentProperty.instance);
         properties.add(EntityExtension.TaskComponentProperty.instance);
+        properties.add(EntityExtension.TaskContentComponentProperty.instance);
         properties.add(TaskComponent.TaskProperty.instance);
         properties.add(QuestItemExtension.TaskContentComponentProperty.instance);
+        properties.add(TaskContentComponent.ContentProperty.instance);
 
         return properties;
     }
@@ -103,6 +112,7 @@ public class GameEnvironment implements IEvironment {
         methods.add(SingleChoiceTask.SingleChoiceSetGradingFunction.instance);
         methods.add(MultipleChoiceTask.MultipleChoiceSetGradingFunction.instance);
         methods.add(AssignTaskDSLType.GetSolutionMethod.instance);
+        methods.add(IsElementEmptyMethod.instance);
 
         return methods;
     }
@@ -400,6 +410,28 @@ public class GameEnvironment implements IEvironment {
             return ICallable.Type.Native;
         }
     }
+
+    @DSLExtensionMethod(name = "is_empty", extendedType = Element.class)
+    public static class IsElementEmptyMethod
+        implements IDSLExtensionMethod<Element, Boolean> {
+        public static IsElementEmptyMethod instance = new IsElementEmptyMethod();
+
+        @Override
+        public Boolean call(Element instance, List<Object> params) {
+            if (instance.equals(AssignTask.EMPTY_ELEMENT) || instance.content() == null || instance.content().equals("")) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+
 
     // endregion
 
