@@ -486,6 +486,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
             return new ListValue((ListType) type);
         } else if (type.getTypeKind().equals(IType.Kind.SetType)) {
             return new SetValue((SetType) type);
+        } else if (type.getTypeKind().equals(IType.Kind.MapType)) {
+            return new MapValue((MapType) type);
         } else if (type.getTypeKind().equals(IType.Kind.EnumType)) {
             return new EnumValue((EnumType) type, null);
         } else if (type.getTypeKind().equals(IType.Kind.FunctionType)) {
@@ -1157,6 +1159,35 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return true;
     }
 
+    private boolean setMapValue(MapValue assignee, Value valueToAssign) {
+        if (!(valueToAssign instanceof MapValue mapValueToAssign)) {
+            throw new RuntimeException(
+                "Can't assign value "
+                    + valueToAssign
+                    + " to MapValue, it is not a MapValue itself!");
+        }
+
+        assignee.clearMap();
+
+        IType keyType = assignee.getDataType().getKeyType();
+        IType entryType = assignee.getDataType().getElementType();
+
+        Map<Value, Value> valuesToAdd = mapValueToAssign.internalMap();
+        for (var entryToAdd : valuesToAdd.entrySet()) {
+
+            Value entryKeyValue = createDefaultValue(keyType);
+            Value entryElementValue = createDefaultValue(entryType);
+
+            // we cannot directly set the entryValueToAssign, because we potentially
+            // have to do type conversions (convert a String into a Content-Object)
+            setValue(entryKeyValue, entryToAdd.getKey());
+            setValue(entryElementValue, entryToAdd.getValue());
+
+            assignee.addValue(entryKeyValue, entryElementValue);
+        }
+        return true;
+    }
+
     private boolean setListValue(ListValue assignee, Value valueToAssign) {
         if (!(valueToAssign instanceof ListValue listValueToAssign)) {
             throw new RuntimeException(
@@ -1206,6 +1237,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
             setListValue(assigneeListValue, valueToAssign);
         } else if (assignee instanceof SetValue assigneeSetValue) {
             setSetValue(assigneeSetValue, valueToAssign);
+        } else if (assignee instanceof MapValue assigneeMapValue) {
+            setMapValue(assigneeMapValue, valueToAssign);
         } else if (assignee instanceof FunctionValue assigneeFunctionValue) {
             setFunctionValue(assigneeFunctionValue, valueToAssign);
         } else if (assignee instanceof PropertyValue propertyValue) {
