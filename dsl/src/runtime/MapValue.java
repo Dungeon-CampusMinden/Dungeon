@@ -1,7 +1,6 @@
 package runtime;
 
 import semanticanalysis.types.MapType;
-import semanticanalysis.types.SetType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,14 +9,14 @@ public class MapValue extends Value {
 
     // stores the internal values of the Value-instances in order to ensure,
     // that only Value-instances with distinct internal values are stored
-    private HashMap<Object, Object> internalValueSet = new HashMap<>();
+    private HashMap<Object, Object> internalObjectMap = new HashMap<>();
 
     /**
      * Constructor
      *
      * @param dataType type of the set
      */
-    public MapValue(SetType dataType) {
+    public MapValue(MapType dataType) {
         super(dataType, new HashMap<Value, Value>());
     }
 
@@ -36,23 +35,54 @@ public class MapValue extends Value {
      * Add a Value to the set. The Value will only be added to the set, if no other Value with the
      * same internal value of the passed Value is already stored in this set.
      *
-     * @param value the Value to store in the set
+     * @param entry the Value to store in the set
      * @return true, if the Value was added, false otherwise
      */
-    public boolean addValue(Value key, Value value) {
-        // TODO
-        throw new UnsupportedOperationException();
+    public boolean addValue(Value key, Value entry) {
+        var internalKeyValue = key.getInternalValue();
+        var internalEntryValue = entry.getInternalValue();
+
+        if (internalObjectMap.containsKey(internalKeyValue)) {
+            // don't add value
+            return false;
+        }
+
+        internalObjectMap.put(internalKeyValue, internalEntryValue);
+        internalMap().put(key,entry);
+
+        return true;
+    }
+
+    public boolean removeKeyValue(Value key) {
+        var internalKeyValue = key.getInternalValue();
+
+        if (!internalObjectMap.containsKey(internalKeyValue)) {
+            return false;
+        }
+
+        internalObjectMap.remove(internalKeyValue);
+        internalMap().remove(key);
+        return true;
+    }
+
+    public Value getValue(Value key) {
+        var value = internalMap().get(key);
+        if (value == null) {
+            return Value.NONE;
+        } else {
+            return value;
+        }
     }
 
     /**
      * @return all stored values
      */
     public Map<Value, Value> getValues() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return new HashMap<>(this.internalMap());
     }
 
     public void clearMap() {
+        internalObjectMap.clear();
         internalMap().clear();
     }
 

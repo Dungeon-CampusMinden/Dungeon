@@ -5,6 +5,7 @@ import semanticanalysis.types.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -106,14 +107,41 @@ public class RuntimeObjectTranslator {
                     Set<?> passedSet = (Set<?>) object;
                     for (Object element : passedSet) {
                         Value elementValue =
-                                translateRuntimeObject(
-                                        element,
-                                        parentMemorySpace,
-                                        environment,
-                                        setType.getElementType());
+                            translateRuntimeObject(
+                                element,
+                                parentMemorySpace,
+                                environment,
+                                setType.getElementType());
                         setValue.addValue(elementValue);
                     }
                     returnValue = setValue;
+                    break;
+                case MapType:
+                    MapType mapType = (MapType) dslType;
+                    // create new map value
+                    MapValue mapValue = new MapValue(mapType);
+
+                    // translate each element to target type
+                    Map<?,?> passedMap = (Map<?,?>) object;
+                    for (var entry : passedMap.entrySet()) {
+                        var key = entry.getKey();
+                        var element = entry.getValue();
+
+                        Value keyValue =
+                                translateRuntimeObject(
+                                        key,
+                                        parentMemorySpace,
+                                        environment,
+                                        mapType.getKeyType());
+                        Value elementValue =
+                            translateRuntimeObject(
+                                element,
+                                parentMemorySpace,
+                                environment,
+                                mapType.getElementType());
+                        mapValue.addValue(keyValue, elementValue);
+                    }
+                    returnValue = mapValue;
                     break;
                 case EnumType:
                     // find symbol corresponding to the passed variant
