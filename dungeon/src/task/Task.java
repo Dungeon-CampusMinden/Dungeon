@@ -61,6 +61,7 @@ public abstract class Task {
     protected Set<TaskContent> container;
     private TaskState state;
     private String taskText;
+    private String scenarioText;
     private String taskName;
     private Entity managementEntity;
     private Set<Set<Entity>> entitySets = new HashSet<>();
@@ -202,6 +203,24 @@ public abstract class Task {
      */
     public String taskName() {
         return taskName;
+    }
+
+    /**
+     * Get the scenario text.
+     *
+     * @return scenario text
+     */
+    public String scenarioText() {
+        return scenarioText;
+    }
+
+    /**
+     * Set the scenario text.
+     *
+     * @param scenarioText new scenario text
+     */
+    public void scenarioText(String scenarioText) {
+        this.scenarioText = scenarioText;
     }
 
     /**

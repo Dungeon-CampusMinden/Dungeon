@@ -108,10 +108,13 @@ public class GameEnvironment implements IEvironment {
         ArrayList<IDSLExtensionMethod<?, ?>> methods = new ArrayList<>();
 
         methods.add(SingleChoiceTask.GetContentMethod.instance);
+        methods.add(SingleChoiceTask.SetScenarioText.instance);
         methods.add(MultipleChoiceTask.GetContentMethod.instance);
+        methods.add(MultipleChoiceTask.SetScenarioText.instance);
         methods.add(SingleChoiceTask.SingleChoiceSetGradingFunction.instance);
         methods.add(MultipleChoiceTask.MultipleChoiceSetGradingFunction.instance);
         methods.add(AssignTaskDSLType.GetSolutionMethod.instance);
+        methods.add(AssignTaskDSLType.SetScenarioText.instance);
         methods.add(IsElementEmptyMethod.instance);
         methods.add(ElementContentMethod.instance);
         methods.add(QuizContentContentMethod.instance);

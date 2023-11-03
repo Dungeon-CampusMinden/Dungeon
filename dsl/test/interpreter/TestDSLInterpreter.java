@@ -3980,6 +3980,7 @@ public class TestDSLInterpreter {
             content = t.get_content().get(1);
             ent = instantiate_named(chest_type, content.text());
             room_set.add(ent);
+            t.set_scenario_text("CUSTOM TEXT");
 
             return_set.add(room_set);
             return return_set;
@@ -3998,5 +3999,6 @@ public class TestDSLInterpreter {
         var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
         core.Entity entity = builtTask.stream().toList().get(0).stream().findFirst().get();
         Assert.assertEquals("HELLO_0", entity.toString());
+        Assert.assertEquals("CUSTOM TEXT", task.scenarioText());
     }
 }

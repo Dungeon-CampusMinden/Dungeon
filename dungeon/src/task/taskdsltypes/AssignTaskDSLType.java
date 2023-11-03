@@ -10,6 +10,7 @@ import task.AssignTask;
 import task.Element;
 import task.Task;
 import task.TaskContent;
+import task.quizquestion.MultipleChoice;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -111,6 +112,28 @@ public class AssignTaskDSLType {
         @Override
         public List<Type> getParameterTypes() {
             var arr = new Type[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    /**
+     * {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance
+     */
+    @DSLExtensionMethod(name = "set_scenario_text", extendedType = AssignTask.class)
+    public static class SetScenarioText
+        implements IDSLExtensionMethod<AssignTask, Void> {
+        public static AssignTaskDSLType.SetScenarioText instance = new AssignTaskDSLType.SetScenarioText();
+
+        @Override
+        public Void call(AssignTask instance, List<Object> params) {
+            String valueToSet = (String)params.get(0);
+            instance.scenarioText(valueToSet);
+            return null;
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {String.class};
             return Arrays.stream(arr).toList();
         }
     }

@@ -8,6 +8,7 @@ import task.Quiz;
 import task.Task;
 import task.TaskContent;
 import task.quizquestion.MultipleChoice;
+import task.quizquestion.SingleChoice;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -88,6 +89,28 @@ public class MultipleChoiceTask {
         @Override
         public List<Type> getParameterTypes() {
             var arr = new Type[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    /**
+     * {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance
+     */
+    @DSLExtensionMethod(name = "set_scenario_text", extendedType = MultipleChoice.class)
+    public static class SetScenarioText
+        implements IDSLExtensionMethod<MultipleChoice, Void> {
+        public static MultipleChoiceTask.SetScenarioText instance = new MultipleChoiceTask.SetScenarioText();
+
+        @Override
+        public Void call(MultipleChoice instance, List<Object> params) {
+            String valueToSet = (String)params.get(0);
+            instance.scenarioText(valueToSet);
+            return null;
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {String.class};
             return Arrays.stream(arr).toList();
         }
     }

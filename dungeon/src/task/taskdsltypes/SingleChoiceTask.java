@@ -88,6 +88,28 @@ public class SingleChoiceTask {
     }
 
     /**
+     * {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance
+     */
+    @DSLExtensionMethod(name = "set_scenario_text", extendedType = SingleChoice.class)
+    public static class SetScenarioText
+        implements IDSLExtensionMethod<SingleChoice, Void> {
+        public static SetScenarioText instance = new SetScenarioText();
+
+        @Override
+        public Void call(SingleChoice instance, List<Object> params) {
+            String valueToSet = (String)params.get(0);
+            instance.scenarioText(valueToSet);
+            return null;
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {String.class};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    /**
      * {@link IDSLExtensionMethod} to set the grading function of a {@link SingleChoice} instance.
      */
     @DSLExtensionMethod(name = "set_grading_function", extendedType = SingleChoice.class)
