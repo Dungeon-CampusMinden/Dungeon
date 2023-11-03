@@ -1,12 +1,16 @@
 package task.taskdsltypes;
 
+import reporting.GradingFunctions;
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
 
 import task.AssignTask;
 import task.Element;
+import task.Task;
+import task.TaskContent;
 
 import java.util.*;
+import java.util.function.BiFunction;
 
 public class AssignTaskDSLType {
     public static Element<String> EMPTY_ELEMENT = new Element<>("");
@@ -15,8 +19,14 @@ public class AssignTaskDSLType {
     @DSLTypeAdapter(name = "assign_task")
     public static AssignTask buildAssignTask(
             @DSLTypeMember(name = "description") String description,
-            @DSLTypeMember(name = "solution") Set<List<Element<String>>> solution) {
+            @DSLTypeMember(name = "solution") Set<List<Element<String>>> solution,
+            @DSLTypeMember(name = "grading_function") BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
+
+        // TODO: description?!
         AssignTask task = new AssignTask();
+
+        // set scoring function either to parameter or default value
+        task.scoringFunction(Objects.requireNonNullElseGet(gradingFunction, GradingFunctions::assignGradingEasy));
 
         // TODO: handle EMPTY_ELEMENT_NAME
 

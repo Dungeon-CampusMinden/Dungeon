@@ -281,6 +281,12 @@ public class GameEnvironment implements IEvironment {
             NativeFunction nativeGradeMultipleChoice =
                     new MultipleChoiceGrading(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeMultipleChoice);
+
+            NativeFunction nativeGradeAssignEasy = new AssignmentGradingEasy(this.globalScope, taskType, taskContentSetType);
+            nativeFunctions.add(nativeGradeAssignEasy);
+
+            NativeFunction nativeGradeAssignHard = new AssignmentGradingHard(this.globalScope, taskType, taskContentSetType);
+            nativeFunctions.add(nativeGradeAssignHard);
         }
 
         return nativeFunctions;
@@ -466,5 +472,74 @@ public class GameEnvironment implements IEvironment {
         }
     }
 
+    private static class AssignmentGradingEasy extends NativeFunction {
+        private BiFunction<Task, Set<TaskContent>, Float> func;
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public AssignmentGradingEasy(IScope parentScope, IType taskType, IType taskContentSetType) {
+            super(
+                "grade_assign_task_easy",
+                parentScope,
+                new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+            this.func = GradingFunctions.assignGradingEasy();
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Task task = (Task) parameterObjects.get(0);
+            Set<TaskContent> taskContentSet = (Set<TaskContent>) parameterObjects.get(1);
+
+            // call func
+            return func.apply(task, taskContentSet);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class AssignmentGradingHard extends NativeFunction {
+        private BiFunction<Task, Set<TaskContent>, Float> func;
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public AssignmentGradingHard(IScope parentScope, IType taskType, IType taskContentSetType) {
+            super(
+                "grade_assign_task_hard",
+                parentScope,
+                new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+            this.func = GradingFunctions.assignGradingHard();
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Task task = (Task) parameterObjects.get(0);
+            Set<TaskContent> taskContentSet = (Set<TaskContent>) parameterObjects.get(1);
+
+            // call func
+            return func.apply(task, taskContentSet);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
     // endregion
 }
