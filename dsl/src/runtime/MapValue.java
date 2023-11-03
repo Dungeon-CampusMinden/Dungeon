@@ -56,7 +56,6 @@ public class MapValue extends Value {
         internalMap().clear();
     }
 
-
     // region native_methods
     /**
      * Native method, which implements adding a Value to the internal {@link Map} of a {@link

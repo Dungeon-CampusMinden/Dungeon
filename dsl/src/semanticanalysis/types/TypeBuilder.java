@@ -279,9 +279,9 @@ public class TypeBuilder {
                                     parentScope);
                 } else if (Map.class.isAssignableFrom((Class<?>) parametersType)) {
                     paramDSLType =
-                        createMapType(
-                            (ParameterizedType) parametersAnnotatedType.getType(),
-                            parentScope);
+                            createMapType(
+                                    (ParameterizedType) parametersAnnotatedType.getType(),
+                                    parentScope);
                 }
             }
 
@@ -443,7 +443,7 @@ public class TypeBuilder {
                         createSetType((ParameterizedType) field.getGenericType(), globalScope);
             } else if (Map.class.isAssignableFrom(fieldsType)) {
                 memberDSLType =
-                    createMapType((ParameterizedType) field.getGenericType(), globalScope);
+                        createMapType((ParameterizedType) field.getGenericType(), globalScope);
             }
         }
         if (memberDSLType == null) {

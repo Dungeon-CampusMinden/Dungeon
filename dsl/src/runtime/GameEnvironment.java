@@ -282,10 +282,12 @@ public class GameEnvironment implements IEvironment {
                     new MultipleChoiceGrading(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeMultipleChoice);
 
-            NativeFunction nativeGradeAssignEasy = new AssignmentGradingEasy(this.globalScope, taskType, taskContentSetType);
+            NativeFunction nativeGradeAssignEasy =
+                    new AssignmentGradingEasy(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeAssignEasy);
 
-            NativeFunction nativeGradeAssignHard = new AssignmentGradingHard(this.globalScope, taskType, taskContentSetType);
+            NativeFunction nativeGradeAssignHard =
+                    new AssignmentGradingHard(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeAssignHard);
         }
 
@@ -482,9 +484,9 @@ public class GameEnvironment implements IEvironment {
          */
         public AssignmentGradingEasy(IScope parentScope, IType taskType, IType taskContentSetType) {
             super(
-                "grade_assign_task_easy",
-                parentScope,
-                new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+                    "grade_assign_task_easy",
+                    parentScope,
+                    new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
             this.func = GradingFunctions.assignGradingEasy();
         }
 
@@ -517,9 +519,9 @@ public class GameEnvironment implements IEvironment {
          */
         public AssignmentGradingHard(IScope parentScope, IType taskType, IType taskContentSetType) {
             super(
-                "grade_assign_task_hard",
-                parentScope,
-                new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+                    "grade_assign_task_hard",
+                    parentScope,
+                    new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
             this.func = GradingFunctions.assignGradingHard();
         }
 

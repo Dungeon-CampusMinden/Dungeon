@@ -5,7 +5,6 @@ import interpreter.DSLInterpreter;
 import parser.ast.Node;
 
 import semanticanalysis.IInstanceCallable;
-import semanticanalysis.types.MapType;
 import semanticanalysis.types.SetType;
 
 import java.util.*;
@@ -127,4 +126,3 @@ public class SetValue extends Value {
     // endregion
 
 }
-

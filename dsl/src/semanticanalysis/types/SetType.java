@@ -48,4 +48,3 @@ public class SetType extends ScopedSymbol implements IType {
         return Kind.SetType;
     }
 }
-

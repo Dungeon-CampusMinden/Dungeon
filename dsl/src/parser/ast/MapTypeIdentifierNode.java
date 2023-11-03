@@ -2,14 +2,12 @@ package parser.ast;
 
 public class MapTypeIdentifierNode extends IdNode {
 
-    /**
-     * Constructor
-     */
+    /** Constructor */
     public MapTypeIdentifierNode(IdNode keyTypeNode, IdNode elementTypeNode) {
         super(
-            Type.ListTypeIdentifierNode,
-            "[" + keyTypeNode.getName() + "->" +
-                elementTypeNode + "]", keyTypeNode.getSourceFileReference());
+                Type.ListTypeIdentifierNode,
+                "[" + keyTypeNode.getName() + "->" + elementTypeNode + "]",
+                keyTypeNode.getSourceFileReference());
         this.addChild(keyTypeNode);
         this.addChild(elementTypeNode);
     }

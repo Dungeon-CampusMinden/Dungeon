@@ -154,7 +154,7 @@ public class TypeInstantiator {
         return hashSetInstance;
     }
 
-    public Map<?,?> instantiateMap(MapValue mapValue) {
+    public Map<?, ?> instantiateMap(MapValue mapValue) {
         HashMap<Object, Object> hashMapInstance = new HashMap<>();
         HashMap<Value, Value> internalValue = mapValue.internalMap();
 

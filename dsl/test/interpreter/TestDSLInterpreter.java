@@ -29,6 +29,7 @@ import semanticanalysis.FunctionSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
+import task.AssignTask;
 import task.QuestItem;
 import task.Quiz;
 import task.TaskContent;
@@ -3701,7 +3702,7 @@ public class TestDSLInterpreter {
     @Test
     public void testNameSymbol() {
         String program =
-            """
+                """
                 single_choice_task t1 {
                     description: "Task1",
                     answers: ["1", "2", "3"],
@@ -3749,9 +3750,64 @@ public class TestDSLInterpreter {
 
         DSLInterpreter interpreter = new DSLInterpreter();
         DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
-        var task = config.dependencyGraph().nodeIterator().next().task();
+        var task = (AssignTask) config.dependencyGraph().nodeIterator().next().task();
 
-        // TODO: asserts
-        boolean b = true;
+        var solutionMap = task.solution();
+
+        // asserts
+        var emptyElementSet = solutionMap.get(AssignTask.EMPTY_ELEMENT);
+        Assert.assertNotEquals(null, emptyElementSet);
+        Assert.assertEquals(1, emptyElementSet.size());
+
+        var worldElement = emptyElementSet.stream().toList().get(0);
+        Assert.assertEquals("world", worldElement.content());
+
+        var aElement =
+                solutionMap.keySet().stream()
+                        .filter(e -> e.content().equals("a"))
+                        .findFirst()
+                        .get();
+        var aElementSet = solutionMap.get(aElement);
+        Assert.assertEquals(1, aElementSet.size());
+
+        var bElement = aElementSet.stream().toList().get(0);
+        Assert.assertEquals("b", bElement.content());
+
+        var cElement =
+                solutionMap.keySet().stream()
+                        .filter(e -> e.content().equals("c"))
+                        .findFirst()
+                        .get();
+        var cElementSet = solutionMap.get(cElement);
+        Assert.assertEquals(2, cElementSet.size());
+
+        var dElement = cElementSet.stream().filter(e -> e.content().equals("d")).findFirst().get();
+        Assert.assertNotNull(dElement);
+
+        var helloElement =
+                cElementSet.stream().filter(e -> e.content().equals("hallo")).findFirst().get();
+        Assert.assertNotNull(helloElement);
+
+        var yElement =
+                solutionMap.keySet().stream()
+                        .filter(e -> e.content().equals("y"))
+                        .findFirst()
+                        .get();
+        var yElementSet = solutionMap.get(yElement);
+        Assert.assertEquals(1, yElementSet.size());
+
+        var xElement = yElementSet.stream().toList().get(0);
+        Assert.assertEquals("x", xElement.content());
+
+        var derpElement =
+                solutionMap.keySet().stream()
+                        .filter(e -> e.content().equals("derp"))
+                        .findFirst()
+                        .get();
+        var derpElementSet = solutionMap.get(derpElement);
+        Assert.assertEquals(1, derpElementSet.size());
+
+        var derpElementSetEntry = derpElementSet.stream().toList().get(0);
+        Assert.assertEquals(AssignTask.EMPTY_ELEMENT, derpElementSetEntry);
     }
 }

@@ -1,35 +1,39 @@
 package task.taskdsltypes;
 
-import reporting.GradingFunctions;
-import semanticanalysis.types.DSLTypeAdapter;
-import semanticanalysis.types.DSLTypeMember;
+import static task.AssignTask.EMPTY_ELEMENT;
 
-import semanticanalysis.types.DSLTypeNameMember;
+import reporting.GradingFunctions;
+
+import semanticanalysis.types.*;
+
 import task.AssignTask;
 import task.Element;
 import task.Task;
 import task.TaskContent;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.BiFunction;
 
 public class AssignTaskDSLType {
-    public static Element<String> EMPTY_ELEMENT = new Element<>("");
-    public static String EMPTY_ELEMENT_NAME = "$EMPTY_ELEMENT$";
+    public static final String EMPTY_ELEMENT_NAME = AssignTask.EMPTY_ELEMENT_NAME;
 
     @DSLTypeAdapter(name = "assign_task")
     public static AssignTask buildAssignTask(
             @DSLTypeNameMember String name,
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "solution") Set<List<Element<String>>> solution,
-            @DSLTypeMember(name = "grading_function") BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
+            @DSLTypeMember(name = "grading_function")
+                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
 
         AssignTask task = new AssignTask();
         task.taskText(description);
         task.taskName(name);
 
         // set scoring function either to parameter or default value
-        task.scoringFunction(Objects.requireNonNullElseGet(gradingFunction, GradingFunctions::assignGradingEasy));
+        task.scoringFunction(
+                Objects.requireNonNullElseGet(
+                        gradingFunction, GradingFunctions::assignGradingEasy));
 
         // TODO: handle EMPTY_ELEMENT_NAME
 
@@ -93,31 +97,26 @@ public class AssignTaskDSLType {
     }
 
     /**
-     * {@link IDSLExtensionMethod} to get the stored {@link TaskContent} of a {@link SingleChoice}
+     * {@link IDSLExtensionMethod} to get the stored {@link TaskContent} of a {@link AssignTask}
      * instance
      */
-    /*
-    @DSLExtensionMethod(name = "get_content", extendedType = SingleChoice.class)
+    @DSLExtensionMethod(name = "get_solution", extendedType = AssignTask.class)
     public static class GetContentMethod
-        implements IDSLExtensionMethod<SingleChoice, List<TaskContent>> {
+            implements IDSLExtensionMethod<AssignTask, Map<Element, Set<Element>>> {
         public static GetContentMethod instance = new GetContentMethod();
 
         @Override
-        public List<TaskContent> call(SingleChoice instance, List<Object> params) {
-            // This has to return an ArrayList. Calling the `.toList()`-Method on the result of
-            // the `map()`-call bellow will create an
-            // `java.util.ImmutableCollections$ListN`-instance,
-            // for which the TypeBuilder cannot create a corresponding dsl-type.
-            List<TaskContent> returnList = new ArrayList<>();
-            instance.contentStream().forEach(returnList::add);
-            return returnList;
+        public Map<Element, Set<Element>> call(AssignTask instance, List<Object> params) {
+            return instance.solution();
         }
 
         @Override
-        public List<Class<?>> getParameterTypes() {
-            var arr = new Class<?>[]{};
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
             return Arrays.stream(arr).toList();
         }
     }
-     */
+
+    // TODO: get term content
+    // TODO: get definition content
 }
