@@ -553,6 +553,8 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     @Override
     public void exitMap_param_type(DungeonDSLParser.Map_param_typeContext ctx) {
         Node rhsTypeNode = astStack.pop();
+        // pop the arrow
+        astStack.pop();
         Node lhsTypeNode = astStack.pop();
         MapTypeIdentifierNode mapTypeIdentifierNode =
                 new MapTypeIdentifierNode((IdNode) lhsTypeNode, (IdNode) rhsTypeNode);

@@ -5,8 +5,8 @@ public class MapTypeIdentifierNode extends IdNode {
     /** Constructor */
     public MapTypeIdentifierNode(IdNode keyTypeNode, IdNode elementTypeNode) {
         super(
-                Type.ListTypeIdentifierNode,
-                "[" + keyTypeNode.getName() + "->" + elementTypeNode + "]",
+                Type.MapTypeIdentifierNode,
+                "[" + keyTypeNode.getName() + "->" + elementTypeNode.getName() + "]",
                 keyTypeNode.getSourceFileReference());
         this.addChild(keyTypeNode);
         this.addChild(elementTypeNode);
