@@ -4,6 +4,7 @@ import reporting.GradingFunctions;
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
 
+import semanticanalysis.types.DSLTypeNameMember;
 import task.AssignTask;
 import task.Element;
 import task.Task;
@@ -18,12 +19,14 @@ public class AssignTaskDSLType {
 
     @DSLTypeAdapter(name = "assign_task")
     public static AssignTask buildAssignTask(
+            @DSLTypeNameMember String name,
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "solution") Set<List<Element<String>>> solution,
             @DSLTypeMember(name = "grading_function") BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
 
         AssignTask task = new AssignTask();
         task.taskText(description);
+        task.taskName(name);
 
         // set scoring function either to parameter or default value
         task.scoringFunction(Objects.requireNonNullElseGet(gradingFunction, GradingFunctions::assignGradingEasy));
