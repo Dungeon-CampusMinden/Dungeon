@@ -4,8 +4,14 @@ single_choice_task t1 {
     correct_answer_index: 2
 }
 
+assign_task t2 {
+    description: "Task1",
+    solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["!", _]>
+}
+
 graph g {
-    t1
+    t1;
+    t2;
 }
 
 dungeon_config c {
@@ -74,6 +80,47 @@ fn build_task(single_choice_task t) -> entity<><> {
     wizard = instantiate_named(wizard_type, "I am the wizard");
     wizard.task_component.task = t;
     room_set.add(wizard);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+// TODO: fix
+fn build_task_assign(assign_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    var solution_map : [element -> element<>];
+    solution_map = t.get_solution();
+
+    // instantiate chests
+    for element key in solution_map.get_keys() {
+        if key.is_empty() {
+            // skip
+        } else {
+            // if this variable is declared outside of the for-loop,
+            // it is not correctly placed in the set, because the internal
+            // Value will be still the same Object (with the same HashCode!!)
+            var chest : entity;
+            chest = instantiate(chest_type);
+            chest.task_content_component.content = key;
+            room_set.add(chest);
+        }
+    }
+
+    var item : quest_item;
+    // instantiate all answer elements as scrolls
+    for element<> element_set in solution_map.get_elements() {
+        for element element in element_set {
+            if element.is_empty() {
+                // skip
+            } else {
+                print(element);
+                item = build_quest_item(scroll_type, element);
+                place_quest_item(item, room_set);
+            }
+        }
+    }
 
     return_set.add(room_set);
     return return_set;
