@@ -411,13 +411,13 @@ public class TypeBuilder {
             // is list or set?
             if (List.class.isAssignableFrom(fieldsType)) {
                 fieldsDSLType =
-                    createListType((ParameterizedType) field.getGenericType(), globalScope);
+                        createListType((ParameterizedType) field.getGenericType(), globalScope);
             } else if (Set.class.isAssignableFrom(fieldsType)) {
                 fieldsDSLType =
-                    createSetType((ParameterizedType) field.getGenericType(), globalScope);
+                        createSetType((ParameterizedType) field.getGenericType(), globalScope);
             } else if (Map.class.isAssignableFrom(fieldsType)) {
                 fieldsDSLType =
-                    createMapType((ParameterizedType) field.getGenericType(), globalScope);
+                        createMapType((ParameterizedType) field.getGenericType(), globalScope);
             }
         }
         if (fieldsDSLType == null) {
@@ -598,12 +598,13 @@ public class TypeBuilder {
                     Symbol fieldSymbol;
                     if (genericType instanceof TypeVariable<?>
                             && dslTypeAnnotation.templateArguments().length > 0) {
-                        fieldSymbol = createDataMemberSymbolWithTemplateType(
-                            field,
-                            clazz,
-                            aggregateType,
-                            globalScope,
-                            dslTypeAnnotation.templateArguments());
+                        fieldSymbol =
+                                createDataMemberSymbolWithTemplateType(
+                                        field,
+                                        clazz,
+                                        aggregateType,
+                                        globalScope,
+                                        dslTypeAnnotation.templateArguments());
                     } else {
                         fieldSymbol = createDataMemberSymbol(field, aggregateType, globalScope);
                     }
