@@ -57,7 +57,7 @@ public final class UIAnswerCallback {
      *
      * @see UITools
      */
-    private static BiFunction<TextDialog, String, Boolean> uiCallback(
+    static BiFunction<TextDialog, String, Boolean> uiCallback(
             Quiz quest, Entity hudEntity, BiConsumer<Task, Set<TaskContent>> dslCallback) {
         return (textDialog, id) -> {
             if (Objects.equals(id, UITools.DEFAULT_DIALOG_CONFIRM)) {

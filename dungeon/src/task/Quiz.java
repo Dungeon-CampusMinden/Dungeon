@@ -186,6 +186,11 @@ public abstract class Quiz extends Task {
             return type;
         }
 
+        @Override
+        public String toString() {
+            return content;
+        }
+
         /**
          * The QuizQuestionContentType enum represents the different types of content that can be
          * associated with a quiz question. The available types are TEXT, IMAGE, and TEXT_AND_IMAGE.
