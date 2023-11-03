@@ -85,6 +85,10 @@ public class RuntimeObjectTranslator {
                     // create new list value
                     ListValue listValue = new ListValue((ListType) dslType);
 
+                    if (object instanceof ListValue) {
+                        return (ListValue)object;
+                    }
+
                     // translate each element to target type
                     List<?> passedList = (List<?>) object;
                     for (Object element : passedList) {
@@ -103,6 +107,10 @@ public class RuntimeObjectTranslator {
                     // create new list value
                     SetValue setValue = new SetValue((SetType) dslType);
 
+                    if (object instanceof SetValue) {
+                        return (SetValue)object;
+                    }
+
                     // translate each element to target type
                     Set<?> passedSet = (Set<?>) object;
                     for (Object element : passedSet) {
@@ -120,6 +128,10 @@ public class RuntimeObjectTranslator {
                     MapType mapType = (MapType) dslType;
                     // create new map value
                     MapValue mapValue = new MapValue(mapType);
+
+                    if (object instanceof MapValue) {
+                        return (MapValue)object;
+                    }
 
                     // translate each element to target type
                     Map<?,?> passedMap = (Map<?,?>) object;
