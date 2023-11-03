@@ -156,15 +156,14 @@ public class TypeInstantiator {
 
     public Map<?, ?> instantiateMap(MapValue mapValue) {
         HashMap<Object, Object> hashMapInstance = new HashMap<>();
-        HashMap<Value, Value> internalValue = mapValue.internalMap();
+        HashMap<Value, Value> internalMap = mapValue.internalMap();
 
-        // TODO: rename!!!
-        for (var mapEntry : internalValue.entrySet()) {
+        for (var mapEntry : internalMap.entrySet()) {
             Value keyValue = mapEntry.getKey();
             var convertedKeyValue = convertValueToObject(keyValue);
-            Value valueValue = mapEntry.getValue();
-            var convertedValueValue = convertValueToObject(valueValue);
-            hashMapInstance.put(convertedKeyValue, convertedValueValue);
+            Value entryValue = mapEntry.getValue();
+            var convertedEntryValue = convertValueToObject(entryValue);
+            hashMapInstance.put(convertedKeyValue, convertedEntryValue);
         }
         return hashMapInstance;
     }
