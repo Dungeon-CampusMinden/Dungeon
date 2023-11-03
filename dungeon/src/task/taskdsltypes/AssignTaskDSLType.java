@@ -35,8 +35,6 @@ public class AssignTaskDSLType {
                 Objects.requireNonNullElseGet(
                         gradingFunction, GradingFunctions::assignGradingEasy));
 
-        // TODO: handle EMPTY_ELEMENT_NAME
-
         // scan for duplicates
         HashMap<String, Element<String>> elementMap = new HashMap<>();
         HashMap<Element<String>, Element<String>> substitutionMap = new HashMap<>();
