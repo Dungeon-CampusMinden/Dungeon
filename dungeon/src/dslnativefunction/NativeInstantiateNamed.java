@@ -2,13 +2,17 @@ package dslnativefunction;
 
 import core.Component;
 import core.Entity;
+
 import interpreter.DSLInterpreter;
+
 import parser.ast.Node;
+
 import runtime.AggregateValue;
 import runtime.Prototype;
 import runtime.RuntimeEnvironment;
 import runtime.Value;
 import runtime.nativefunctions.NativeFunction;
+
 import semanticanalysis.ICallable;
 import semanticanalysis.IScope;
 import semanticanalysis.Scope;
@@ -29,9 +33,9 @@ public class NativeInstantiateNamed extends NativeFunction {
      */
     private NativeInstantiateNamed(IScope parentScope) {
         super(
-            "instantiate_named",
-            parentScope,
-            new FunctionType(BuiltInType.noType, Prototype.PROTOTYPE, BuiltInType.stringType));
+                "instantiate_named",
+                parentScope,
+                new FunctionType(BuiltInType.noType, Prototype.PROTOTYPE, BuiltInType.stringType));
     }
 
     @Override
@@ -46,17 +50,20 @@ public class NativeInstantiateNamed extends NativeFunction {
 
         if (prototypeValue.getDataType() != Prototype.PROTOTYPE) {
             throw new RuntimeException(
-                "Wrong type ('"
-                    + prototypeValue.getDataType().getName()
-                    + "') of parameter for call of instantiate()!");
+                    "Wrong type ('"
+                            + prototypeValue.getDataType().getName()
+                            + "') of parameter for call of instantiate()!");
         } else {
             var dslEntityInstance =
-                (AggregateValue) interpreter.instantiateDSLValue((Prototype) prototypeValue);
+                    (AggregateValue) interpreter.instantiateDSLValue((Prototype) prototypeValue);
             var entityType = (AggregateType) rtEnv.getGlobalScope().resolve("entity");
-            var entityObject = interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
+            var entityObject =
+                    (core.Entity)
+                            interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
+            entityObject.name(nameValue.toString());
 
             TypeInstantiator instantiator =
-                interpreter.getRuntimeEnvironment().getTypeInstantiator();
+                    interpreter.getRuntimeEnvironment().getTypeInstantiator();
 
             String contextName = "entity";
             instantiator.pushContextMember(contextName, entityObject);
@@ -71,13 +78,13 @@ public class NativeInstantiateNamed extends NativeFunction {
                     // currently,
                     //  which should be fixed
                     AggregateType membersOriginalType =
-                        interpreter.getOriginalTypeOfPrototype(
-                            (Prototype) memberValue.getDataType());
+                            interpreter.getOriginalTypeOfPrototype(
+                                    (Prototype) memberValue.getDataType());
 
                     // instantiate object as a new java Object
                     Object memberObject =
-                        interpreter.instantiateRuntimeValue(
-                            (AggregateValue) memberValue, membersOriginalType);
+                            interpreter.instantiateRuntimeValue(
+                                    (AggregateValue) memberValue, membersOriginalType);
                     try {
                         Component component = (Component) memberObject;
                         Entity entity = (Entity) entityObject;
