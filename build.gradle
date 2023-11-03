@@ -134,6 +134,19 @@ task runManualQuizTest(dependsOn: classes, type: JavaExec) {
     }
 }
 
+task runYesNoDialogTest(dependsOn: classes, type: JavaExec) {
+    mainClass = "manual.YesNoDialogTest"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
 task runCallbackTest(dependsOn: classes, type: JavaExec) {
     mainClass = "manual.quizquestion.CallbackTest"
     classpath = sourceSets.test.runtimeClasspath
