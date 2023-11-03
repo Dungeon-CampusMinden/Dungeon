@@ -22,8 +22,8 @@ public class AssignTaskDSLType {
             @DSLTypeMember(name = "solution") Set<List<Element<String>>> solution,
             @DSLTypeMember(name = "grading_function") BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
 
-        // TODO: description?!
         AssignTask task = new AssignTask();
+        task.taskText(description);
 
         // set scoring function either to parameter or default value
         task.scoringFunction(Objects.requireNonNullElseGet(gradingFunction, GradingFunctions::assignGradingEasy));
