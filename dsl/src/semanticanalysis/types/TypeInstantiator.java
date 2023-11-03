@@ -207,7 +207,12 @@ public class TypeInstantiator {
                     var method = adaptedType.getBuilderMethod();
                     var parameters = new ArrayList<>(method.getParameterCount());
                     for (var parameter : method.getParameters()) {
-                        var memberName = TypeBuilder.getDSLParameterName(parameter);
+                        String memberName;
+                        if (parameter.isAnnotationPresent(DSLTypeNameMember.class)) {
+                            memberName = AggregateType.NAME_SYMBOL_NAME;
+                        } else {
+                            memberName = TypeBuilder.getDSLParameterName(parameter);
+                        }
                         var memberValue = aggregateFieldValue.getMemorySpace().resolve(memberName);
                         var internalObject = convertValueToObject(memberValue);
                         parameters.add(internalObject);

@@ -672,6 +672,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
             }
 
             memoryStack.pop();
+
+            Value nameValue = objectsValue.getMemorySpace().resolve(AggregateType.NAME_SYMBOL_NAME);
+            if (nameValue != Value.NONE) {
+                Value nameToSet = new Value(BuiltInType.stringType, node.getIdName());
+                setValue(nameValue, nameToSet);
+            }
+
             // convert from memorySpace to concrete object
             Object createdObject = createObjectFromValue((AggregateValue) objectsValue);
             EncapsulatedObject encapsulatedObject =

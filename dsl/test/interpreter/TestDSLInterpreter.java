@@ -3697,4 +3697,35 @@ public class TestDSLInterpreter {
         var score = (Float) task.scoringFunction().apply(task, tcSet);
         Assert.assertEquals((Float) 1.0f, score);
     }
+
+    @Test
+    public void testNameSymbol() {
+        String program =
+                """
+            single_choice_task t1 {
+                description: "Task1",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
+
+            graph g {
+                t1
+            }
+
+            dungeon_config c {
+                dependency_graph: g
+            }
+            """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+
+        Assert.assertEquals("t1", task.taskName());
+    }
 }

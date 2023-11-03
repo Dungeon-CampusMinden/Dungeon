@@ -19,12 +19,14 @@ public class SingleChoiceTask {
 
     @DSLTypeAdapter(name = "single_choice_task")
     public static SingleChoice buildQuizFromSingleChoiceTask(
+            @DSLTypeNameMember String name,
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
             @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex,
             @DSLTypeMember(name = "grading_function")
                     BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
         SingleChoice sc = new SingleChoice(description);
+        sc.taskName(name);
 
         for (Quiz.Content answer : answers) {
             sc.addAnswer(answer);

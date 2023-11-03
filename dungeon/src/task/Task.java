@@ -54,6 +54,7 @@ public abstract class Task {
     protected Set<TaskContent> container;
     private TaskState state;
     private String taskText;
+    private String taskName;
     private Entity managementEntity;
     private Set<Set<Entity>> entitySets = new HashSet<>();
     private float pointsToSolve;
@@ -155,6 +156,24 @@ public abstract class Task {
      */
     public String taskText() {
         return taskText;
+    }
+
+    /**
+     * Get the task name.
+     *
+     * @return task name
+     */
+    public String taskName() {
+        return taskName;
+    }
+
+    /**
+     * Set the task name.
+     *
+     * @param taskName new task name
+     */
+    public void taskName(String taskName) {
+        this.taskName = taskName;
     }
 
     /**

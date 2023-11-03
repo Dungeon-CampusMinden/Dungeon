@@ -280,7 +280,13 @@ public class TypeBuilder {
                 }
             }
 
-            String parameterName = getDSLParameterName(parameter);
+            String parameterName;
+            if (parameter.isAnnotationPresent(DSLTypeNameMember.class)) {
+                parameterName = AggregateType.NAME_SYMBOL_NAME;
+            } else {
+                parameterName = getDSLParameterName(parameter);
+            }
+
             Symbol parameterSymbol = new Symbol(parameterName, typeAdapter, paramDSLType);
             typeAdapter.bind(parameterSymbol);
         }
@@ -381,7 +387,12 @@ public class TypeBuilder {
     // create a symbol in parentType for given field, representing data in parentClass
     protected Symbol createDataMemberSymbol(
             Field field, Class<?> parentClass, AggregateType parentType, IScope globalScope) {
-        String fieldName = getDSLFieldName(field);
+        String fieldName;
+        if (field.isAnnotationPresent(DSLTypeNameMember.class)) {
+            fieldName = AggregateType.NAME_SYMBOL_NAME;
+        } else {
+            fieldName = getDSLFieldName(field);
+        }
 
         Class<?> fieldsType = field.getType();
 
@@ -516,7 +527,8 @@ public class TypeBuilder {
             this.currentLookedUpTypes.add(clazz);
             for (Field field : clazz.getDeclaredFields()) {
                 // bind new Symbol
-                if (field.isAnnotationPresent(DSLTypeMember.class)) {
+                if (field.isAnnotationPresent(DSLTypeMember.class)
+                        || field.isAnnotationPresent(DSLTypeNameMember.class)) {
                     var fieldSymbol =
                             createDataMemberSymbol(field, clazz, aggregateType, globalScope);
                     aggregateType.bind(fieldSymbol);
