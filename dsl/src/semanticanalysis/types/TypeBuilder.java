@@ -404,6 +404,32 @@ public class TypeBuilder {
         return javaTypeToDSLType.get(listType);
     }
 
+    protected IType getFieldsDSLType(Field field, Class<?> fieldsType, IScope globalScope) {
+        // get datatype
+        var fieldsDSLType = getBuiltInDSLType(fieldsType);
+        if (fieldsDSLType == null) {
+            // is list or set?
+            if (List.class.isAssignableFrom(fieldsType)) {
+                fieldsDSLType =
+                    createListType((ParameterizedType) field.getGenericType(), globalScope);
+            } else if (Set.class.isAssignableFrom(fieldsType)) {
+                fieldsDSLType =
+                    createSetType((ParameterizedType) field.getGenericType(), globalScope);
+            } else if (Map.class.isAssignableFrom(fieldsType)) {
+                fieldsDSLType =
+                    createMapType((ParameterizedType) field.getGenericType(), globalScope);
+            }
+        }
+        if (fieldsDSLType == null) {
+            // lookup the type in already converted types
+            // if it is not already in the converted types, try to convert it -> check for
+            // DSLType
+            // annotation
+            fieldsDSLType = createDSLTypeForJavaTypeInScope(globalScope, field.getType());
+        }
+        return fieldsDSLType;
+    }
+
     protected Symbol createDataMemberSymbolWithTemplateType(
             Field field,
             Class<?> parentClass,
@@ -413,8 +439,6 @@ public class TypeBuilder {
 
         var genericType = field.getGenericType();
         var typeParameters = parentClass.getTypeParameters();
-
-        // TODO: refactor common stuff with createDataMemberSymbol
 
         // find index of type parameter
         Type declaredTemplateType = null;
@@ -429,70 +453,31 @@ public class TypeBuilder {
         }
 
         Class<?> fieldsType = (Class<?>) declaredTemplateType;
+        IType fieldsDSLType = getFieldsDSLType(field, fieldsType, globalScope);
 
-        String fieldName = getDSLFieldName(field);
-        // get datatype
-        var memberDSLType = getBuiltInDSLType(fieldsType);
-        if (memberDSLType == null) {
-            // is list or set?
-            if (List.class.isAssignableFrom(fieldsType)) {
-                memberDSLType =
-                        createListType((ParameterizedType) field.getGenericType(), globalScope);
-            } else if (Set.class.isAssignableFrom(fieldsType)) {
-                memberDSLType =
-                        createSetType((ParameterizedType) field.getGenericType(), globalScope);
-            } else if (Map.class.isAssignableFrom(fieldsType)) {
-                memberDSLType =
-                        createMapType((ParameterizedType) field.getGenericType(), globalScope);
-            }
-        }
-        if (memberDSLType == null) {
-            // lookup the type in already converted types
-            // if it is not already in the converted types, try to convert it -> check for
-            // DSLType
-            // annotation
-            memberDSLType = createDSLTypeForJavaTypeInScope(globalScope, field.getType());
-        }
-
-        return new Symbol(fieldName, parentType, memberDSLType);
-    }
-
-    // create a symbol in parentType for given field, representing data in parentClass
-    protected Symbol createDataMemberSymbol(
-            Field field, Class<?> parentClass, AggregateType parentType, IScope globalScope) {
         String fieldName;
         if (field.isAnnotationPresent(DSLTypeNameMember.class)) {
             fieldName = AggregateType.NAME_SYMBOL_NAME;
         } else {
             fieldName = getDSLFieldName(field);
         }
+        return new Symbol(fieldName, parentType, fieldsDSLType);
+    }
+
+    // create a symbol in parentType for given field, representing data in parentClass
+    protected Symbol createDataMemberSymbol(
+            Field field, AggregateType parentType, IScope globalScope) {
 
         Class<?> fieldsType = field.getType();
+        IType fieldsDSLType = getFieldsDSLType(field, fieldsType, globalScope);
 
-        // get datatype
-        var memberDSLType = getBuiltInDSLType(fieldsType);
-        if (memberDSLType == null) {
-            // is list or set?
-            if (List.class.isAssignableFrom(fieldsType)) {
-                memberDSLType =
-                        createListType((ParameterizedType) field.getGenericType(), globalScope);
-            } else if (Set.class.isAssignableFrom(fieldsType)) {
-                memberDSLType =
-                        createSetType((ParameterizedType) field.getGenericType(), globalScope);
-            } else if (Map.class.isAssignableFrom(fieldsType)) {
-                memberDSLType =
-                        createMapType((ParameterizedType) field.getGenericType(), globalScope);
-            }
+        String fieldName;
+        if (field.isAnnotationPresent(DSLTypeNameMember.class)) {
+            fieldName = AggregateType.NAME_SYMBOL_NAME;
+        } else {
+            fieldName = getDSLFieldName(field);
         }
-        if (memberDSLType == null) {
-            // lookup the type in already converted types
-            // if it is not already in the converted types, try to convert it -> check for
-            // DSLType
-            // annotation
-            memberDSLType = createDSLTypeForJavaTypeInScope(globalScope, field.getType());
-        }
-
-        return new Symbol(fieldName, parentType, memberDSLType);
+        return new Symbol(fieldName, parentType, fieldsDSLType);
     }
 
     /**
@@ -610,21 +595,19 @@ public class TypeBuilder {
                 if (field.isAnnotationPresent(DSLTypeMember.class)
                         || field.isAnnotationPresent(DSLTypeNameMember.class)) {
                     var genericType = field.getGenericType();
+                    Symbol fieldSymbol;
                     if (genericType instanceof TypeVariable<?>
                             && dslTypeAnnotation.templateArguments().length > 0) {
-                        var fieldSymbol =
-                                createDataMemberSymbolWithTemplateType(
-                                        field,
-                                        clazz,
-                                        aggregateType,
-                                        globalScope,
-                                        dslTypeAnnotation.templateArguments());
-                        aggregateType.bind(fieldSymbol);
+                        fieldSymbol = createDataMemberSymbolWithTemplateType(
+                            field,
+                            clazz,
+                            aggregateType,
+                            globalScope,
+                            dslTypeAnnotation.templateArguments());
                     } else {
-                        var fieldSymbol =
-                                createDataMemberSymbol(field, clazz, aggregateType, globalScope);
-                        aggregateType.bind(fieldSymbol);
+                        fieldSymbol = createDataMemberSymbol(field, aggregateType, globalScope);
                     }
+                    aggregateType.bind(fieldSymbol);
                 }
                 if (field.isAnnotationPresent(DSLCallback.class)) {
                     var callbackSymbol =
