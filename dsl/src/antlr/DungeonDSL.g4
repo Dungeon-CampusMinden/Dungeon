@@ -70,8 +70,8 @@ stmt
     ;
 
 loop_stmt
-    : 'for' type_id=ID var_id=ID 'in' iteratable_id=expression stmt                         #for_loop
-    | 'for' type_id=ID var_id=ID 'in' iteratable_id=expression 'count' counter_id=ID stmt   #for_loop_counting
+    : 'for' type_id=type_decl var_id=ID 'in' iteratable_id=expression stmt                         #for_loop
+    | 'for' type_id=type_decl var_id=ID 'in' iteratable_id=expression 'count' counter_id=ID stmt   #for_loop_counting
     | 'while' expression stmt                                                               #while_loop
     ;
 
@@ -169,9 +169,10 @@ param_def
     ;
 
 type_decl
-    : type_decl '<>'   #set_param_type
-    | type_decl '[]'   #list_param_type
-    | ID                #id_param_type
+    : type_decl '<>'                        #set_param_type
+    | type_decl '[]'                        #list_param_type
+    | '[' type_decl ARROW  type_decl ']'    #map_param_type
+    | ID                                    #id_param_type
     ;
 
 param_def_list

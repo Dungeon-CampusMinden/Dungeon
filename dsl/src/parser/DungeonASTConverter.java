@@ -145,7 +145,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         assert varIdNode.type.equals(Node.Type.Identifier);
 
         Node varTypeIdNode = astStack.pop();
-        assert varTypeIdNode.type.equals(Node.Type.Identifier);
 
         ForLoopStmtNode loopStmtNode =
                 new ForLoopStmtNode(varTypeIdNode, varIdNode, iterableNode, stmtNode);
@@ -168,7 +167,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         assert varIdNode.type.equals(Node.Type.Identifier);
 
         Node varTypeIdNode = astStack.pop();
-        assert varTypeIdNode.type.equals(Node.Type.Identifier);
 
         CountingLoopStmtNode loopStmtNode =
                 new CountingLoopStmtNode(
@@ -545,6 +543,20 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
         var paramNode = new ParamDefNode(typeId, id);
         astStack.push(paramNode);
+    }
+
+    @Override
+    public void enterMap_param_type(DungeonDSLParser.Map_param_typeContext ctx) {}
+
+    @Override
+    public void exitMap_param_type(DungeonDSLParser.Map_param_typeContext ctx) {
+        Node rhsTypeNode = astStack.pop();
+        // pop the arrow
+        astStack.pop();
+        Node lhsTypeNode = astStack.pop();
+        MapTypeIdentifierNode mapTypeIdentifierNode =
+                new MapTypeIdentifierNode((IdNode) lhsTypeNode, (IdNode) rhsTypeNode);
+        astStack.push(mapTypeIdentifierNode);
     }
 
     @Override

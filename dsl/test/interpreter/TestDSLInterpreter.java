@@ -3,6 +3,7 @@ package interpreter;
 import static org.junit.Assert.*;
 
 import contrib.components.CollideComponent;
+import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 
 import core.components.DrawComponent;
@@ -29,9 +30,8 @@ import semanticanalysis.FunctionSymbol;
 import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
-import task.QuestItem;
-import task.Quiz;
-import task.TaskContent;
+import task.*;
+import task.components.TaskContentComponent;
 
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
@@ -3702,20 +3702,20 @@ public class TestDSLInterpreter {
     public void testNameSymbol() {
         String program =
                 """
-            single_choice_task t1 {
-                description: "Task1",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+                single_choice_task t1 {
+                    description: "Task1",
+                    answers: ["1", "2", "3"],
+                    correct_answer_index: 2
+                }
 
-            graph g {
-                t1
-            }
+                graph g {
+                    t1
+                }
 
-            dungeon_config c {
-                dependency_graph: g
-            }
-            """;
+                dungeon_config c {
+                    dependency_graph: g
+                }
+                """;
 
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
@@ -3727,5 +3727,213 @@ public class TestDSLInterpreter {
         var task = config.dependencyGraph().nodeIterator().next().task();
 
         Assert.assertEquals("t1", task.taskName());
+    }
+
+    @Test
+    public void testDeclareAssignmentTask() {
+        String program =
+                """
+                assign_task t1 {
+                    description: "Task1",
+                    solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["derp", _]>
+                }
+
+                graph g {
+                    t1
+                }
+
+                dungeon_config c {
+                    dependency_graph: g
+                }
+            """;
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = (AssignTask) config.dependencyGraph().nodeIterator().next().task();
+
+        var solutionMap = task.solution();
+
+        // asserts
+        var emptyElementSet = solutionMap.get(AssignTask.EMPTY_ELEMENT);
+        Assert.assertNotEquals(null, emptyElementSet);
+        Assert.assertEquals(1, emptyElementSet.size());
+
+        var worldElement = emptyElementSet.stream().toList().get(0);
+        Assert.assertEquals("world", worldElement.content());
+
+        var aElement =
+                solutionMap.keySet().stream()
+                        .filter(e -> e.content().equals("a"))
+                        .findFirst()
+                        .get();
+        var aElementSet = solutionMap.get(aElement);
+        Assert.assertEquals(1, aElementSet.size());
+
+        var bElement = aElementSet.stream().toList().get(0);
+        Assert.assertEquals("b", bElement.content());
+
+        var cElement =
+                solutionMap.keySet().stream()
+                        .filter(e -> e.content().equals("c"))
+                        .findFirst()
+                        .get();
+        var cElementSet = solutionMap.get(cElement);
+        Assert.assertEquals(2, cElementSet.size());
+
+        var dElement = cElementSet.stream().filter(e -> e.content().equals("d")).findFirst().get();
+        Assert.assertNotNull(dElement);
+
+        var helloElement =
+                cElementSet.stream().filter(e -> e.content().equals("hallo")).findFirst().get();
+        Assert.assertNotNull(helloElement);
+
+        var yElement =
+                solutionMap.keySet().stream()
+                        .filter(e -> e.content().equals("y"))
+                        .findFirst()
+                        .get();
+        var yElementSet = solutionMap.get(yElement);
+        Assert.assertEquals(1, yElementSet.size());
+
+        var xElement = yElementSet.stream().toList().get(0);
+        Assert.assertEquals("x", xElement.content());
+
+        var derpElement =
+                solutionMap.keySet().stream()
+                        .filter(e -> e.content().equals("derp"))
+                        .findFirst()
+                        .get();
+        var derpElementSet = solutionMap.get(derpElement);
+        Assert.assertEquals(1, derpElementSet.size());
+
+        var derpElementSetEntry = derpElementSet.stream().toList().get(0);
+        Assert.assertEquals(AssignTask.EMPTY_ELEMENT, derpElementSetEntry);
+    }
+
+    @Test
+    public void testAssignmentTaskScenarioBuilder() {
+        String program =
+                """
+            assign_task t1 {
+                description: "Task1",
+                solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["!", _]>
+            }
+
+            graph g {
+                t1
+            }
+
+            dungeon_config c {
+                dependency_graph: g
+            }
+
+            entity_type chest_type {
+                inventory_component {},
+                draw_component {
+                    path: "objects/treasurechest"
+                },
+                hitbox_component {},
+                position_component{},
+                interaction_component{},
+                task_content_component{}
+            }
+
+            item_type scroll_type {
+                display_name: "A scroll",
+                description: "Please read me",
+                texture_path: "items/book/wisdom_scroll.png"
+            }
+
+            fn build_task(assign_task t) -> entity<><> {
+                var return_set : entity<><>;
+                var room_set : entity<>;
+
+                var solution_map : [element -> element<>];
+                solution_map = t.get_solution();
+
+                // instantiate chests
+                for element key in solution_map.get_keys() {
+                    if key.is_empty() {
+                        // skip
+                    } else {
+                        // if this variable is declared outside of the for-loop,
+                        // it is not correctly placed in the set, because the internal
+                        // Value will be still the same Object (with the same HashCode!!)
+                        var chest : entity;
+                        chest = instantiate(chest_type);
+                        chest.task_content_component.content = key;
+                        room_set.add(chest);
+                    }
+                }
+
+                var item : quest_item;
+                // instantiate all answer elements as scrolls
+                for element<> element_set in solution_map.get_elements() {
+                    for element element in element_set {
+                        if element.is_empty() {
+                            // skip
+                        } else {
+                            print(element);
+                            item = build_quest_item(scroll_type, element);
+                            place_quest_item(item, room_set);
+                        }
+                    }
+                }
+
+                return_set.add(room_set);
+                return return_set;
+            }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = (AssignTask) config.dependencyGraph().nodeIterator().next().task();
+
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+        // find all "scrolls"
+        HashSet<String> elementContents = new HashSet<>();
+        for (var roomSet : builtTask) {
+            for (core.Entity entity : roomSet) {
+                var optionalItemComp = entity.fetch(ItemComponent.class);
+                if (optionalItemComp.isPresent()) {
+                    ItemComponent itemComp = optionalItemComp.get();
+                    QuestItem questItem = (QuestItem) itemComp.item();
+                    var element = (Element<String>) questItem.taskContentComponent().content();
+                    elementContents.add(element.content());
+                }
+            }
+        }
+
+        Assert.assertEquals(5, elementContents.size());
+        Assert.assertTrue(elementContents.contains("b"));
+        Assert.assertTrue(elementContents.contains("d"));
+        Assert.assertTrue(elementContents.contains("x"));
+        Assert.assertTrue(elementContents.contains("hallo"));
+        Assert.assertTrue(elementContents.contains("world"));
+
+        // find all chests
+        HashSet<String> keyContents = new HashSet<>();
+        for (var roomSet : builtTask) {
+            for (core.Entity entity : roomSet) {
+                var optionalInventoryComponent = entity.fetch(InventoryComponent.class);
+                if (optionalInventoryComponent.isPresent()) {
+                    TaskContentComponent tcc = entity.fetch(TaskContentComponent.class).get();
+                    Element<String> element = (Element<String>) tcc.content();
+                    keyContents.add(element.content());
+                }
+            }
+        }
+
+        Assert.assertEquals(4, keyContents.size());
+        Assert.assertTrue(keyContents.contains("a"));
+        Assert.assertTrue(keyContents.contains("c"));
+        Assert.assertTrue(keyContents.contains("y"));
+        Assert.assertTrue(keyContents.contains("!"));
     }
 }

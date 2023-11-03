@@ -7,9 +7,7 @@ import parser.ast.Node;
 import semanticanalysis.IInstanceCallable;
 import semanticanalysis.types.SetType;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /** Implements a set value */
 public class SetValue extends Value {
@@ -62,6 +60,7 @@ public class SetValue extends Value {
     }
 
     public void clearSet() {
+        internalValueSet.clear();
         internalSet().clear();
     }
 

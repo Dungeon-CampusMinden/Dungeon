@@ -5,6 +5,7 @@ import semanticanalysis.types.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -71,6 +72,13 @@ public class RuntimeObjectTranslator {
                 case Aggregate:
                     var aggregateType = (AggregateType) dslType;
 
+                    // might already be an aggregateValue
+                    if (object instanceof AggregateValue aggregateValue) {
+                        if (aggregateValue.getDataType().equals(aggregateType)) {
+                            return aggregateValue;
+                        }
+                    }
+
                     returnValue = new AggregateValue(aggregateType, parentMemorySpace, object);
                     var encapsulatedObject =
                             new EncapsulatedObject(object, aggregateType, environment);
@@ -83,6 +91,10 @@ public class RuntimeObjectTranslator {
                     ListType listType = (ListType) dslType;
                     // create new list value
                     ListValue listValue = new ListValue((ListType) dslType);
+
+                    if (object instanceof ListValue) {
+                        return (ListValue) object;
+                    }
 
                     // translate each element to target type
                     List<?> passedList = (List<?>) object;
@@ -102,6 +114,10 @@ public class RuntimeObjectTranslator {
                     // create new list value
                     SetValue setValue = new SetValue((SetType) dslType);
 
+                    if (object instanceof SetValue) {
+                        return (SetValue) object;
+                    }
+
                     // translate each element to target type
                     Set<?> passedSet = (Set<?>) object;
                     for (Object element : passedSet) {
@@ -114,6 +130,34 @@ public class RuntimeObjectTranslator {
                         setValue.addValue(elementValue);
                     }
                     returnValue = setValue;
+                    break;
+                case MapType:
+                    MapType mapType = (MapType) dslType;
+                    // create new map value
+                    MapValue mapValue = new MapValue(mapType);
+
+                    if (object instanceof MapValue) {
+                        return (MapValue) object;
+                    }
+
+                    // translate each element to target type
+                    Map<?, ?> passedMap = (Map<?, ?>) object;
+                    for (var entry : passedMap.entrySet()) {
+                        var key = entry.getKey();
+                        var element = entry.getValue();
+
+                        Value keyValue =
+                                translateRuntimeObject(
+                                        key, parentMemorySpace, environment, mapType.getKeyType());
+                        Value elementValue =
+                                translateRuntimeObject(
+                                        element,
+                                        parentMemorySpace,
+                                        environment,
+                                        mapType.getElementType());
+                        mapValue.addValue(keyValue, elementValue);
+                    }
+                    returnValue = mapValue;
                     break;
                 case EnumType:
                     // find symbol corresponding to the passed variant

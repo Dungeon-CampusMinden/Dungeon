@@ -2,6 +2,8 @@ package runtime;
 
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
+import contrib.components.InteractionComponent;
+import contrib.components.InventoryComponent;
 import contrib.entities.WorldItemBuilder;
 import contrib.item.Item;
 
@@ -33,11 +35,10 @@ import runtime.nativefunctions.NativePrint;
 import semanticanalysis.*;
 import semanticanalysis.types.*;
 
-import task.QuestItem;
-import task.Quiz;
-import task.Task;
-import task.TaskContent;
+import task.*;
 import task.components.TaskComponent;
+import task.components.TaskContentComponent;
+import task.taskdsltypes.AssignTaskDSLType;
 import task.taskdsltypes.MultipleChoiceTask;
 import task.taskdsltypes.SingleChoiceDescriptionProperty;
 import task.taskdsltypes.SingleChoiceTask;
@@ -75,10 +76,13 @@ public class GameEnvironment implements IEvironment {
                     CollideComponent.class,
                     DrawComponent.class,
                     TaskComponent.class,
+                    TaskContentComponent.class,
+                    InventoryComponent.class,
+                    InteractionComponent.class,
                     Task.class,
                     TaskContent.class,
-                    // SingleChoiceTask.class,
                     Quiz.Content.class,
+                    Element.class,
                     Tile.Direction.class
                 };
     }
@@ -91,8 +95,10 @@ public class GameEnvironment implements IEvironment {
         properties.add(EntityExtension.PositionComponentProperty.instance);
         properties.add(EntityExtension.DrawComponentProperty.instance);
         properties.add(EntityExtension.TaskComponentProperty.instance);
+        properties.add(EntityExtension.TaskContentComponentProperty.instance);
         properties.add(TaskComponent.TaskProperty.instance);
         properties.add(QuestItemExtension.TaskContentComponentProperty.instance);
+        properties.add(TaskContentComponent.ContentProperty.instance);
 
         return properties;
     }
@@ -104,6 +110,8 @@ public class GameEnvironment implements IEvironment {
         methods.add(MultipleChoiceTask.GetContentMethod.instance);
         methods.add(SingleChoiceTask.SingleChoiceSetGradingFunction.instance);
         methods.add(MultipleChoiceTask.MultipleChoiceSetGradingFunction.instance);
+        methods.add(AssignTaskDSLType.GetSolutionMethod.instance);
+        methods.add(IsElementEmptyMethod.instance);
 
         return methods;
     }
@@ -141,6 +149,7 @@ public class GameEnvironment implements IEvironment {
 
         typeBuilder.registerTypeAdapter(SingleChoiceTask.class, this.globalScope);
         typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
+        typeBuilder.registerTypeAdapter(AssignTaskDSLType.class, this.globalScope);
         typeBuilder.registerTypeAdapter(QuestItemAdapter.class, this.globalScope);
     }
 
@@ -282,6 +291,14 @@ public class GameEnvironment implements IEvironment {
             NativeFunction nativeGradeMultipleChoice =
                     new MultipleChoiceGrading(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeMultipleChoice);
+
+            NativeFunction nativeGradeAssignEasy =
+                    new AssignmentGradingEasy(this.globalScope, taskType, taskContentSetType);
+            nativeFunctions.add(nativeGradeAssignEasy);
+
+            NativeFunction nativeGradeAssignHard =
+                    new AssignmentGradingHard(this.globalScope, taskType, taskContentSetType);
+            nativeFunctions.add(nativeGradeAssignHard);
         }
 
         return nativeFunctions;
@@ -393,6 +410,27 @@ public class GameEnvironment implements IEvironment {
         }
     }
 
+    @DSLExtensionMethod(name = "is_empty", extendedType = Element.class)
+    public static class IsElementEmptyMethod implements IDSLExtensionMethod<Element, Boolean> {
+        public static IsElementEmptyMethod instance = new IsElementEmptyMethod();
+
+        @Override
+        public Boolean call(Element instance, List<Object> params) {
+            if (instance.equals(AssignTask.EMPTY_ELEMENT)
+                    || instance.content() == null
+                    || instance.content().equals("")) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
     // endregion
 
     // region native grading functions
@@ -467,5 +505,74 @@ public class GameEnvironment implements IEvironment {
         }
     }
 
+    private static class AssignmentGradingEasy extends NativeFunction {
+        private BiFunction<Task, Set<TaskContent>, Float> func;
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public AssignmentGradingEasy(IScope parentScope, IType taskType, IType taskContentSetType) {
+            super(
+                    "grade_assign_task_easy",
+                    parentScope,
+                    new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+            this.func = GradingFunctions.assignGradingEasy();
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Task task = (Task) parameterObjects.get(0);
+            Set<TaskContent> taskContentSet = (Set<TaskContent>) parameterObjects.get(1);
+
+            // call func
+            return func.apply(task, taskContentSet);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class AssignmentGradingHard extends NativeFunction {
+        private BiFunction<Task, Set<TaskContent>, Float> func;
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public AssignmentGradingHard(IScope parentScope, IType taskType, IType taskContentSetType) {
+            super(
+                    "grade_assign_task_hard",
+                    parentScope,
+                    new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+            this.func = GradingFunctions.assignGradingHard();
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Task task = (Task) parameterObjects.get(0);
+            Set<TaskContent> taskContentSet = (Set<TaskContent>) parameterObjects.get(1);
+
+            // call func
+            return func.apply(task, taskContentSet);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
     // endregion
 }

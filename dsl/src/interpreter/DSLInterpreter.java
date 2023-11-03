@@ -26,8 +26,10 @@ import semanticanalysis.*;
 // CHECKSTYLE:ON: AvoidStarImport
 import semanticanalysis.types.*;
 
+import task.Element;
 import task.Quiz;
 import task.Task;
+import task.taskdsltypes.AssignTaskDSLType;
 
 import java.util.*;
 
@@ -484,6 +486,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
             return new ListValue((ListType) type);
         } else if (type.getTypeKind().equals(IType.Kind.SetType)) {
             return new SetValue((SetType) type);
+        } else if (type.getTypeKind().equals(IType.Kind.MapType)) {
+            return new MapValue((MapType) type);
         } else if (type.getTypeKind().equals(IType.Kind.EnumType)) {
             return new EnumValue((EnumType) type, null);
         } else if (type.getTypeKind().equals(IType.Kind.FunctionType)) {
@@ -665,6 +669,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
         if (!(ms instanceof EncapsulatedObject)) {
             memoryStack.push(ms);
+
+            if (objectsValue.getDataType().getName().equals("assign_task")) {
+                // create "_" Value
+                ms.bindValue(
+                        "_",
+                        new Value(BuiltInType.stringType, AssignTaskDSLType.EMPTY_ELEMENT_NAME));
+            }
 
             // accept every propertyDefinition
             for (var propDefNode : node.getPropertyDefinitions()) {
@@ -1101,6 +1112,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
                 aggregateAssignee.setMemorySpace(encapsulatedObject);
                 aggregateAssignee.setInternalValue(content);
+            } else if (assigneesType.getName().equals("element")) {
+                String stringValue = valueToAssign.getInternalValue().toString();
+                Element<String> content = new Element<>(stringValue);
+                EncapsulatedObject encapsulatedObject =
+                        new EncapsulatedObject(
+                                content, (AggregateType) assigneesType, this.environment);
+
+                aggregateAssignee.setMemorySpace(encapsulatedObject);
+                aggregateAssignee.setInternalValue(content);
             } else {
                 throw new RuntimeException(
                         "Can't assign Value of type "
@@ -1134,6 +1154,35 @@ public class DSLInterpreter implements AstVisitor<Object> {
             setValue(entryAssigneeValue, valueToAdd);
 
             assignee.addValue(entryAssigneeValue);
+        }
+        return true;
+    }
+
+    private boolean setMapValue(MapValue assignee, Value valueToAssign) {
+        if (!(valueToAssign instanceof MapValue mapValueToAssign)) {
+            throw new RuntimeException(
+                    "Can't assign value "
+                            + valueToAssign
+                            + " to MapValue, it is not a MapValue itself!");
+        }
+
+        assignee.clearMap();
+
+        IType keyType = assignee.getDataType().getKeyType();
+        IType entryType = assignee.getDataType().getElementType();
+
+        Map<Value, Value> valuesToAdd = mapValueToAssign.internalMap();
+        for (var entryToAdd : valuesToAdd.entrySet()) {
+
+            Value entryKeyValue = createDefaultValue(keyType);
+            Value entryElementValue = createDefaultValue(entryType);
+
+            // we cannot directly set the entryValueToAssign, because we potentially
+            // have to do type conversions (convert a String into a Content-Object)
+            setValue(entryKeyValue, entryToAdd.getKey());
+            setValue(entryElementValue, entryToAdd.getValue());
+
+            assignee.addValue(entryKeyValue, entryElementValue);
         }
         return true;
     }
@@ -1187,6 +1236,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
             setListValue(assigneeListValue, valueToAssign);
         } else if (assignee instanceof SetValue assigneeSetValue) {
             setSetValue(assigneeSetValue, valueToAssign);
+        } else if (assignee instanceof MapValue assigneeMapValue) {
+            setMapValue(assigneeMapValue, valueToAssign);
         } else if (assignee instanceof FunctionValue assigneeFunctionValue) {
             setFunctionValue(assigneeFunctionValue, valueToAssign);
         } else if (assignee instanceof PropertyValue propertyValue) {

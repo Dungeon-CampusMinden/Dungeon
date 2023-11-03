@@ -3,6 +3,8 @@ package contrib.components;
 import core.Component;
 import core.Entity;
 
+import semanticanalysis.types.DSLType;
+
 import java.util.function.BiConsumer;
 
 /**
@@ -21,6 +23,7 @@ import java.util.function.BiConsumer;
  *
  * <p>The interaction radius can be queried with {@link #radius()}.
  */
+@DSLType
 public final class InteractionComponent implements Component {
     public static final int DEFAULT_INTERACTION_RADIUS = 5;
     public static final boolean DEFAULT_REPEATABLE = true;

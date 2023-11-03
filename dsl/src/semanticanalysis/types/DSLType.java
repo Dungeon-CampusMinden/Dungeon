@@ -15,4 +15,6 @@ public @interface DSLType {
      * @return
      */
     public String name() default "";
+
+    public Class<?>[] templateArguments() default {};
 }

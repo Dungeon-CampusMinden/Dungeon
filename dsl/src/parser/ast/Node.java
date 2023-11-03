@@ -69,6 +69,7 @@ public class Node {
         SetDefinitionNode,
         ListTypeIdentifierNode,
         SetTypeIdentifierNode,
+        MapTypeIdentifierNode,
         LoopStmtNode,
         LoopBottomMark,
         ItemPrototypeDefinition,

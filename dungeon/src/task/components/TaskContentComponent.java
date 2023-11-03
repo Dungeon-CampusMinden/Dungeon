@@ -2,6 +2,10 @@ package task.components;
 
 import core.Component;
 
+import semanticanalysis.types.DSLType;
+import semanticanalysis.types.DSLTypeProperty;
+import semanticanalysis.types.IDSLTypeProperty;
+
 import task.TaskContent;
 
 /**
@@ -14,6 +18,7 @@ import task.TaskContent;
  *
  * <p>The collection can be queried as a stream using {@link #content()}
  */
+@DSLType
 public final class TaskContentComponent implements Component {
 
     private TaskContent content;
@@ -42,5 +47,24 @@ public final class TaskContentComponent implements Component {
     /** Set the internal represented {@link TaskContent}. */
     public void content(TaskContent content) {
         this.content = content;
+    }
+
+    @DSLTypeProperty(name = "content", extendedType = TaskContentComponent.class)
+    public static class ContentProperty
+            implements IDSLTypeProperty<TaskContentComponent, TaskContent> {
+        public static TaskContentComponent.ContentProperty instance =
+                new TaskContentComponent.ContentProperty();
+
+        private ContentProperty() {}
+
+        @Override
+        public void set(TaskContentComponent instance, TaskContent valueToSet) {
+            instance.content(valueToSet);
+        }
+
+        @Override
+        public TaskContent get(TaskContentComponent instance) {
+            return instance.content();
+        }
     }
 }

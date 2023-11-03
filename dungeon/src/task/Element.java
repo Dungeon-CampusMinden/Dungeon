@@ -1,12 +1,16 @@
 package task;
 
+import semanticanalysis.types.DSLType;
+import semanticanalysis.types.DSLTypeMember;
+
 /**
  * Generic storage for a single value that is a {@link TaskContent}.
  *
  * @param <T>
  */
+@DSLType(templateArguments = String.class)
 public class Element<T> extends TaskContent {
-    private final T content;
+    @DSLTypeMember private final T content;
 
     /**
      * Create a new element that can be used as {@link TaskContent}.
@@ -19,6 +23,10 @@ public class Element<T> extends TaskContent {
      */
     public Element(Task task, T content) {
         super(task);
+        this.content = content;
+    }
+
+    public Element(T content) {
         this.content = content;
     }
 
