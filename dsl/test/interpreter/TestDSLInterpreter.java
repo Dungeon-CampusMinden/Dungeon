@@ -3814,77 +3814,76 @@ public class TestDSLInterpreter {
     public void testAssignmentTaskScenarioBuilder() {
         String program =
                 """
-            assign_task t1 {
-                description: "Task1",
-                solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["!", _]>
+        assign_task t1 {
+            description: "Task1",
+            solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["!", _]>
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        entity_type chest_type {
+            inventory_component {},
+            draw_component {
+                path: "objects/treasurechest"
+            },
+            hitbox_component {},
+            position_component{},
+            interaction_component{},
+            task_content_component{}
+        }
+
+        item_type scroll_type {
+            display_name: "A scroll",
+            description: "Please read me",
+            texture_path: "items/book/wisdom_scroll.png"
+        }
+
+        fn build_task(assign_task t) -> entity<><> {
+            var return_set : entity<><>;
+            var room_set : entity<>;
+
+            var solution_map : [element -> element<>];
+            solution_map = t.get_solution();
+
+            // instantiate chests
+            for element key in solution_map.get_keys() {
+                if key.is_empty() {
+                    // skip
+                } else {
+                    // if this variable is declared outside of the for-loop,
+                    // it is not correctly placed in the set, because the internal
+                    // Value will be still the same Object (with the same HashCode!!)
+                    var chest : entity;
+                    chest = instantiate(chest_type);
+                    chest.task_content_component.content = key;
+                    room_set.add(chest);
+                }
             }
 
-            graph g {
-                t1
-            }
-
-            dungeon_config c {
-                dependency_graph: g
-            }
-
-            entity_type chest_type {
-                inventory_component {},
-                draw_component {
-                    path: "objects/treasurechest"
-                },
-                hitbox_component {},
-                position_component{},
-                interaction_component{},
-                task_content_component{}
-            }
-
-            item_type scroll_type {
-                display_name: "A scroll",
-                description: "Please read me",
-                texture_path: "items/book/wisdom_scroll.png"
-            }
-
-            fn build_task(assign_task t) -> entity<><> {
-                var return_set : entity<><>;
-                var room_set : entity<>;
-
-                var solution_map : [element -> element<>];
-                solution_map = t.get_solution();
-
-                // instantiate chests
-                for element key in solution_map.get_keys() {
-                    if key.is_empty() {
+            var item : quest_item;
+            // instantiate all answer elements as scrolls
+            for element<> element_set in solution_map.get_elements() {
+                for element element in element_set {
+                    if element.is_empty() {
                         // skip
                     } else {
-                        // if this variable is declared outside of the for-loop,
-                        // it is not correctly placed in the set, because the internal
-                        // Value will be still the same Object (with the same HashCode!!)
-                        var chest : entity;
-                        chest = instantiate(chest_type);
-                        chest.task_content_component.content = key;
-                        room_set.add(chest);
+                        print(element);
+                        item = build_quest_item(scroll_type, element);
+                        place_quest_item(item, room_set);
                     }
                 }
-
-                var item : quest_item;
-                // instantiate all answer elements as scrolls
-                for element<> element_set in solution_map.get_elements() {
-                    for element element in element_set {
-                        if element.is_empty() {
-                            // skip
-                        } else {
-                            print(element);
-                            item = build_quest_item(scroll_type, element);
-                            place_quest_item(item, room_set);
-                        }
-                    }
-                }
-
-                return_set.add(room_set);
-                return return_set;
             }
-        """;
 
+            return_set.add(room_set);
+            return return_set;
+        }
+        """;
         // print currently just prints to system.out, so we need to
         // check the contents for the printed string
         var outputStream = new ByteArrayOutputStream();
@@ -3935,5 +3934,69 @@ public class TestDSLInterpreter {
         Assert.assertTrue(keyContents.contains("c"));
         Assert.assertTrue(keyContents.contains("y"));
         Assert.assertTrue(keyContents.contains("!"));
+    }
+
+    @Test
+    public void testNamedInstantiate() {
+        String program =
+                """
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "HELLO", "3"],
+            correct_answer_index: 2
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        entity_type chest_type {
+            inventory_component {},
+            draw_component {
+                path: "objects/treasurechest"
+            },
+            hitbox_component {},
+            position_component{},
+            interaction_component{},
+            task_content_component{}
+        }
+
+        item_type scroll_type {
+            display_name: "A scroll",
+            description: "Please read me",
+            texture_path: "items/book/wisdom_scroll.png"
+        }
+
+        fn build_task(single_choice_task t) -> entity<><> {
+            var return_set : entity<><>;
+            var room_set : entity<>;
+
+            var ent : entity;
+            var content : task_content;
+            content = t.get_content().get(1);
+            ent = instantiate_named(chest_type, content.text());
+            room_set.add(ent);
+
+            return_set.add(room_set);
+            return return_set;
+        }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = config.dependencyGraph().nodeIterator().next().task();
+
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+        core.Entity entity = builtTask.stream().toList().get(0).stream().findFirst().get();
+        Assert.assertEquals("HELLO_0", entity.toString());
     }
 }
