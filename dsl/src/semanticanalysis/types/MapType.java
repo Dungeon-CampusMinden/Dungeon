@@ -1,8 +1,8 @@
 package semanticanalysis.types;
 
-import runtime.ListValue;
 import runtime.MapValue;
 import runtime.nativefunctions.NativeMethod;
+
 import semanticanalysis.IScope;
 import semanticanalysis.ScopedSymbol;
 
@@ -28,29 +28,29 @@ public class MapType extends ScopedSymbol implements IType {
         this.elementType = elementType;
 
         NativeMethod addMethod =
-            new NativeMethod(
-                "add",
-                this,
-                new FunctionType(BuiltInType.noType, keyType, elementType),
-                MapValue.AddMethod.instance);
+                new NativeMethod(
+                        "add",
+                        this,
+                        new FunctionType(BuiltInType.noType, keyType, elementType),
+                        MapValue.AddMethod.instance);
         this.bind(addMethod);
 
         var keyListType = new ListType(keyType, parentScope);
         NativeMethod getKeysMethod =
-            new NativeMethod(
-                "get_keys",
-                this,
-                new FunctionType(keyListType),
-                MapValue.GetKeysMethod.instance);
+                new NativeMethod(
+                        "get_keys",
+                        this,
+                        new FunctionType(keyListType),
+                        MapValue.GetKeysMethod.instance);
         this.bind(getKeysMethod);
 
         var elementListType = new ListType(elementType, parentScope);
         NativeMethod getElementsMethod =
-            new NativeMethod(
-                "get_elements",
-                this,
-                new FunctionType(elementListType),
-                MapValue.GetElementsMethod.instance);
+                new NativeMethod(
+                        "get_elements",
+                        this,
+                        new FunctionType(elementListType),
+                        MapValue.GetElementsMethod.instance);
         this.bind(getElementsMethod);
     }
 

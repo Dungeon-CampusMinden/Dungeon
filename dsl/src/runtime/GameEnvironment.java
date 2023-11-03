@@ -38,7 +38,6 @@ import semanticanalysis.types.*;
 import task.*;
 import task.components.TaskComponent;
 import task.components.TaskContentComponent;
-import task.quizquestion.SingleChoice;
 import task.taskdsltypes.AssignTaskDSLType;
 import task.taskdsltypes.MultipleChoiceTask;
 import task.taskdsltypes.SingleChoiceDescriptionProperty;
@@ -412,13 +411,14 @@ public class GameEnvironment implements IEvironment {
     }
 
     @DSLExtensionMethod(name = "is_empty", extendedType = Element.class)
-    public static class IsElementEmptyMethod
-        implements IDSLExtensionMethod<Element, Boolean> {
+    public static class IsElementEmptyMethod implements IDSLExtensionMethod<Element, Boolean> {
         public static IsElementEmptyMethod instance = new IsElementEmptyMethod();
 
         @Override
         public Boolean call(Element instance, List<Object> params) {
-            if (instance.equals(AssignTask.EMPTY_ELEMENT) || instance.content() == null || instance.content().equals("")) {
+            if (instance.equals(AssignTask.EMPTY_ELEMENT)
+                    || instance.content() == null
+                    || instance.content().equals("")) {
                 return true;
             }
             return false;
@@ -430,8 +430,6 @@ public class GameEnvironment implements IEvironment {
             return Arrays.stream(arr).toList();
         }
     }
-
-
 
     // endregion
 

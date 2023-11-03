@@ -2,11 +2,10 @@ package task.components;
 
 import core.Component;
 
-import dsltypeproperties.QuestItemExtension;
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeProperty;
 import semanticanalysis.types.IDSLTypeProperty;
-import task.Task;
+
 import task.TaskContent;
 
 /**
@@ -51,8 +50,10 @@ public final class TaskContentComponent implements Component {
     }
 
     @DSLTypeProperty(name = "content", extendedType = TaskContentComponent.class)
-    public static class ContentProperty implements IDSLTypeProperty<TaskContentComponent, TaskContent> {
-        public static TaskContentComponent.ContentProperty instance = new TaskContentComponent.ContentProperty();
+    public static class ContentProperty
+            implements IDSLTypeProperty<TaskContentComponent, TaskContent> {
+        public static TaskContentComponent.ContentProperty instance =
+                new TaskContentComponent.ContentProperty();
 
         private ContentProperty() {}
 

@@ -93,7 +93,7 @@ public class RuntimeObjectTranslator {
                     ListValue listValue = new ListValue((ListType) dslType);
 
                     if (object instanceof ListValue) {
-                        return (ListValue)object;
+                        return (ListValue) object;
                     }
 
                     // translate each element to target type
@@ -115,18 +115,18 @@ public class RuntimeObjectTranslator {
                     SetValue setValue = new SetValue((SetType) dslType);
 
                     if (object instanceof SetValue) {
-                        return (SetValue)object;
+                        return (SetValue) object;
                     }
 
                     // translate each element to target type
                     Set<?> passedSet = (Set<?>) object;
                     for (Object element : passedSet) {
                         Value elementValue =
-                            translateRuntimeObject(
-                                element,
-                                parentMemorySpace,
-                                environment,
-                                setType.getElementType());
+                                translateRuntimeObject(
+                                        element,
+                                        parentMemorySpace,
+                                        environment,
+                                        setType.getElementType());
                         setValue.addValue(elementValue);
                     }
                     returnValue = setValue;
@@ -137,27 +137,24 @@ public class RuntimeObjectTranslator {
                     MapValue mapValue = new MapValue(mapType);
 
                     if (object instanceof MapValue) {
-                        return (MapValue)object;
+                        return (MapValue) object;
                     }
 
                     // translate each element to target type
-                    Map<?,?> passedMap = (Map<?,?>) object;
+                    Map<?, ?> passedMap = (Map<?, ?>) object;
                     for (var entry : passedMap.entrySet()) {
                         var key = entry.getKey();
                         var element = entry.getValue();
 
                         Value keyValue =
                                 translateRuntimeObject(
-                                        key,
+                                        key, parentMemorySpace, environment, mapType.getKeyType());
+                        Value elementValue =
+                                translateRuntimeObject(
+                                        element,
                                         parentMemorySpace,
                                         environment,
-                                        mapType.getKeyType());
-                        Value elementValue =
-                            translateRuntimeObject(
-                                element,
-                                parentMemorySpace,
-                                environment,
-                                mapType.getElementType());
+                                        mapType.getElementType());
                         mapValue.addValue(keyValue, elementValue);
                     }
                     returnValue = mapValue;

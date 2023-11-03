@@ -6,6 +6,7 @@ import contrib.item.Item;
 
 import core.Component;
 import core.utils.logging.CustomLogLevel;
+
 import semanticanalysis.types.DSLType;
 
 import java.util.Arrays;
@@ -48,7 +49,6 @@ public final class InventoryComponent implements Component {
     public InventoryComponent(int maxSize) {
         inventory = new Item[maxSize];
     }
-
 
     /**
      * Add the given item to the inventory.

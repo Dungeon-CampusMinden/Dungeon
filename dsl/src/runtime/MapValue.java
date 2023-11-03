@@ -1,7 +1,9 @@
 package runtime;
 
 import interpreter.DSLInterpreter;
+
 import parser.ast.Node;
+
 import semanticanalysis.IInstanceCallable;
 import semanticanalysis.types.MapType;
 
@@ -50,7 +52,7 @@ public class MapValue extends Value {
         }
 
         internalObjectMap.put(internalKeyValue, internalEntryValue);
-        internalMap().put(key,entry);
+        internalMap().put(key, entry);
 
         return true;
     }

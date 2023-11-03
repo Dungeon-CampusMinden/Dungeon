@@ -1162,9 +1162,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
     private boolean setMapValue(MapValue assignee, Value valueToAssign) {
         if (!(valueToAssign instanceof MapValue mapValueToAssign)) {
             throw new RuntimeException(
-                "Can't assign value "
-                    + valueToAssign
-                    + " to MapValue, it is not a MapValue itself!");
+                    "Can't assign value "
+                            + valueToAssign
+                            + " to MapValue, it is not a MapValue itself!");
         }
 
         assignee.clearMap();

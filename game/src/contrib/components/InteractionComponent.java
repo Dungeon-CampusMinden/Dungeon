@@ -2,6 +2,7 @@ package contrib.components;
 
 import core.Component;
 import core.Entity;
+
 import semanticanalysis.types.DSLType;
 
 import java.util.function.BiConsumer;

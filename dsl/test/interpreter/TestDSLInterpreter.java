@@ -31,8 +31,8 @@ import semanticanalysis.SemanticAnalyzer;
 import semanticanalysis.types.*;
 
 import task.*;
-
 import task.components.TaskContentComponent;
+
 import taskdependencygraph.TaskDependencyGraph;
 import taskdependencygraph.TaskEdge;
 import taskdependencygraph.TaskNode;
@@ -3813,7 +3813,7 @@ public class TestDSLInterpreter {
     @Test
     public void testAssignmentTaskScenarioBuilder() {
         String program =
-            """
+                """
             assign_task t1 {
                 description: "Task1",
                 solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["!", _]>
@@ -3904,7 +3904,7 @@ public class TestDSLInterpreter {
                 if (optionalItemComp.isPresent()) {
                     ItemComponent itemComp = optionalItemComp.get();
                     QuestItem questItem = (QuestItem) itemComp.item();
-                    var element = (Element<String>)questItem.taskContentComponent().content();
+                    var element = (Element<String>) questItem.taskContentComponent().content();
                     elementContents.add(element.content());
                 }
             }
@@ -3924,7 +3924,7 @@ public class TestDSLInterpreter {
                 var optionalInventoryComponent = entity.fetch(InventoryComponent.class);
                 if (optionalInventoryComponent.isPresent()) {
                     TaskContentComponent tcc = entity.fetch(TaskContentComponent.class).get();
-                    Element<String> element = (Element<String>)tcc.content();
+                    Element<String> element = (Element<String>) tcc.content();
                     keyContents.add(element.content());
                 }
             }

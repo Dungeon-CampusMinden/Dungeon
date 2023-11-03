@@ -63,7 +63,7 @@ public class EntityExtension {
 
     @DSLTypeProperty(name = "task_content_component", extendedType = Entity.class)
     public static class TaskContentComponentProperty
-        implements IDSLTypeProperty<Entity, TaskContentComponent> {
+            implements IDSLTypeProperty<Entity, TaskContentComponent> {
         public static TaskContentComponentProperty instance = new TaskContentComponentProperty();
 
         private TaskContentComponentProperty() {}
