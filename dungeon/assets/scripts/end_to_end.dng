@@ -1,0 +1,80 @@
+single_choice_task t1 {
+    description: "Task1",
+    answers: ["1", "2", "3"],
+    correct_answer_index: 2
+}
+
+graph g {
+    t1
+}
+
+dungeon_config c {
+    dependency_graph: g
+}
+
+entity_type chest_type {
+    inventory_component {},
+    draw_component {
+        path: "objects/treasurechest"
+    },
+    hitbox_component {},
+    position_component{},
+    interaction_component{
+        on_interaction: on_interact_chest
+    },
+    task_content_component{}
+}
+
+entity_type wizard_type {
+    draw_component {
+        path: "character/wizard"
+    },
+    hitbox_component {},
+    position_component{},
+    interaction_component{
+        on_interaction: on_interact_wizard
+    },
+    task_component{}
+}
+
+fn on_interact_chest(entity chest, entity who) {
+    print("I AM BEING OPENED!!");
+    chest.inventory_component.open(who);
+}
+
+fn on_interact_wizard(entity chest, entity who) {
+    print("I AM BEING TALKED TO!!");
+}
+
+item_type scroll_type {
+    display_name: "A scroll",
+    description: "Please read me",
+    texture_path: "items/book/wisdom_scroll.png"
+}
+
+fn build_task(single_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    for task_content content in t.get_content() {
+        var item : entity;
+        item = build_quest_item(scroll_type, content);
+        place_quest_item(item, room_set);
+    }
+
+    var chest : entity;
+    chest = instantiate_named(chest_type, "This is the main chest!");
+    chest.add_named_task_content("This is a quest chest", t);
+
+    room_set.add(chest);
+    t.set_scenario_text("CUSTOM TEXT");
+
+    // wizard
+    var wizard : entity;
+    wizard = instantiate_named(wizard_type, "I am the wizard");
+    wizard.task_component.task = t;
+    room_set.add(wizard);
+
+    return_set.add(room_set);
+    return return_set;
+}
