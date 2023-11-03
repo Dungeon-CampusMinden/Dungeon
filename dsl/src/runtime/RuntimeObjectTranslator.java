@@ -72,6 +72,13 @@ public class RuntimeObjectTranslator {
                 case Aggregate:
                     var aggregateType = (AggregateType) dslType;
 
+                    // might already be an aggregateValue
+                    if (object instanceof AggregateValue aggregateValue) {
+                        if (aggregateValue.getDataType().equals(aggregateType)) {
+                            return aggregateValue;
+                        }
+                    }
+
                     returnValue = new AggregateValue(aggregateType, parentMemorySpace, object);
                     var encapsulatedObject =
                             new EncapsulatedObject(object, aggregateType, environment);
