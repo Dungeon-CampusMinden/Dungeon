@@ -60,6 +60,7 @@ public class SetValue extends Value {
     }
 
     public void clearSet() {
+        internalValueSet.clear();
         internalSet().clear();
     }
 

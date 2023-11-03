@@ -101,9 +101,9 @@ public class AssignTaskDSLType {
      * instance
      */
     @DSLExtensionMethod(name = "get_solution", extendedType = AssignTask.class)
-    public static class GetContentMethod
+    public static class GetSolutionMethod
             implements IDSLExtensionMethod<AssignTask, Map<Element, Set<Element>>> {
-        public static GetContentMethod instance = new GetContentMethod();
+        public static GetSolutionMethod instance = new GetSolutionMethod();
 
         @Override
         public Map<Element, Set<Element>> call(AssignTask instance, List<Object> params) {

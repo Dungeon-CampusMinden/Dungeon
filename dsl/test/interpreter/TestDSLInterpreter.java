@@ -3810,4 +3810,49 @@ public class TestDSLInterpreter {
         var derpElementSetEntry = derpElementSet.stream().toList().get(0);
         Assert.assertEquals(AssignTask.EMPTY_ELEMENT, derpElementSetEntry);
     }
+
+    @Test
+    public void testAssignmentTaskScenarioBuilder() {
+        String program =
+            """
+            assign_task t1 {
+                description: "Task1",
+                solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["derp", _]>
+            }
+
+            graph g {
+                t1
+            }
+
+            dungeon_config c {
+                dependency_graph: g
+            }
+
+            fn build_task(assign_task t) -> entity<><> {
+                var return_set : entity<><>;
+                var room_set : entity<>;
+
+                var solution_map : [element -> element<>];
+                solution_map = t.get_solution();
+
+                print(solution_map);
+
+                return_set.add(room_set);
+                return return_set;
+            }
+        """;
+
+        // print currently just prints to system.out, so we need to
+        // check the contents for the printed string
+        var outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        DSLInterpreter interpreter = new DSLInterpreter();
+        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+        var task = (AssignTask) config.dependencyGraph().nodeIterator().next().task();
+
+        var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+        String output = outputStream.toString();
+    }
 }
