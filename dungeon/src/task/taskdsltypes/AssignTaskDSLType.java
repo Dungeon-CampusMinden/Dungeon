@@ -116,7 +116,4 @@ public class AssignTaskDSLType {
             return Arrays.stream(arr).toList();
         }
     }
-
-    // TODO: get term content
-    // TODO: get definition content
 }

@@ -1113,7 +1113,6 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 aggregateAssignee.setMemorySpace(encapsulatedObject);
                 aggregateAssignee.setInternalValue(content);
             } else if (assigneesType.getName().equals("element")) {
-                // TODO: how to handle "empty" element: _ ?
                 String stringValue = valueToAssign.getInternalValue().toString();
                 Element<String> content = new Element<>(stringValue);
                 EncapsulatedObject encapsulatedObject =
