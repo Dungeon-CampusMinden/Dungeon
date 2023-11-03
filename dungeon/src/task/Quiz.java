@@ -203,5 +203,10 @@ public abstract class Quiz extends Task {
             IMAGE,
             TEXT_AND_IMAGE
         }
+
+        @Override
+        public String toString() {
+            return this.content;
+        }
     }
 }

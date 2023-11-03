@@ -42,7 +42,7 @@ public class QuestItem extends Item {
         if (taskContentComponent.content() == null) {
             return UNDEFINED_QUEST_NAME;
         } else {
-            return DEFAULT_NAME + taskContentComponent.content().task().id();
+            return DEFAULT_NAME + "'" + taskContentComponent.content().task().taskName() + "'";
         }
     }
 

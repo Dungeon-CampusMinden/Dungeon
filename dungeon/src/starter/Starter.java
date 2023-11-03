@@ -62,9 +62,9 @@ public class Starter {
                                 task ->
                                         questLogBuilder
                                                 .append(task.taskText())
-                                                .append(" ID(")
-                                                .append(task.id())
-                                                .append(")")
+                                                .append(" (name '")
+                                                .append(task.taskName())
+                                                .append("')")
                                                 .append(System.lineSeparator())
                                                 .append(System.lineSeparator()));
                 String questLog = questLogBuilder.toString();

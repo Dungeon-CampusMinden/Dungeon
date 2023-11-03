@@ -1,16 +1,33 @@
 package dsltypeproperties;
 
+import contrib.components.InteractionComponent;
+import contrib.components.InventoryComponent;
+import contrib.components.UIComponent;
+import contrib.hud.GUICombination;
+import contrib.hud.inventory.InventoryGUI;
+import contrib.utils.components.draw.ChestAnimations;
 import core.Entity;
+import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
+import semanticanalysis.types.DSLExtensionMethod;
 import semanticanalysis.types.DSLTypeProperty;
+import semanticanalysis.types.IDSLExtensionMethod;
 import semanticanalysis.types.IDSLTypeProperty;
 
+import task.Element;
 import task.Task;
+import task.TaskContent;
 import task.components.TaskComponent;
 import task.components.TaskContentComponent;
+import task.quizquestion.MultipleChoice;
+import task.taskdsltypes.MultipleChoiceTask;
+
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class implements {@link IDSLTypeProperty} for the {@link Entity} class, in order to access
@@ -37,6 +54,27 @@ public class EntityExtension {
         @Override
         public VelocityComponent get(Entity instance) {
             var optionalComponent = instance.fetch(VelocityComponent.class);
+            return optionalComponent.orElse(null);
+        }
+    }
+
+    @DSLTypeProperty(name = "inventory_component", extendedType = Entity.class)
+    public static class InventoryComponentProperty
+        implements IDSLTypeProperty<Entity, InventoryComponent> {
+        public static EntityExtension.InventoryComponentProperty instance =
+            new EntityExtension.InventoryComponentProperty();
+
+        private InventoryComponentProperty() {}
+
+        @Override
+        public void set(Entity instance, InventoryComponent valueToSet) {
+            instance.removeComponent(InventoryComponent.class);
+            instance.addComponent(valueToSet);
+        }
+
+        @Override
+        public InventoryComponent get(Entity instance) {
+            var optionalComponent = instance.fetch(InventoryComponent.class);
             return optionalComponent.orElse(null);
         }
     }
@@ -123,6 +161,131 @@ public class EntityExtension {
         public TaskComponent get(Entity instance) {
             var optionalComponent = instance.fetch(TaskComponent.class);
             return optionalComponent.orElse(null);
+        }
+    }
+
+    @DSLExtensionMethod(name = "open", extendedType = InventoryComponent.class)
+    public static class OpenInventoryMethod
+        implements IDSLExtensionMethod<InventoryComponent, Void> {
+        public static EntityExtension.OpenInventoryMethod instance = new EntityExtension.OpenInventoryMethod();
+
+        @Override
+        public Void call(InventoryComponent instance, List<Object> params) {
+            // interacted = chest
+            // interactor = andere entity (spieler)
+            Entity chest = Game.find(instance).get();
+            Entity other = (Entity)params.get(0);
+            InventoryComponent otherIc = other.fetch(InventoryComponent.class).get();
+
+            var optionalTcc = chest.fetch(TaskContentComponent.class);
+            InventoryGUI inventory;
+            if (optionalTcc.isEmpty()) {
+                inventory = new InventoryGUI(instance);
+            } else {
+                TaskContent content = optionalTcc.get().content();
+                Task task = content.task();
+                inventory = new InventoryGUI(content + " (Quest: '" + task.taskName() + "')", instance);
+            }
+
+            UIComponent uiComponent =
+                new UIComponent(
+                    new GUICombination(
+                        inventory,
+                        new InventoryGUI(otherIc)),
+                    false);
+            uiComponent.onClose(
+                () -> chest
+                    .fetch(DrawComponent.class)
+                    .ifPresent(
+                        interactedDC -> {
+                            // remove all prior
+                            // opened animations
+                            interactedDC
+                                .deQueueByPriority(
+                                    ChestAnimations
+                                        .OPEN_FULL
+                                        .priority());
+                            if (instance.count()
+                                > 0) {
+                                // aslong as
+                                // there is an
+                                // item inside
+                                // the chest
+                                // show a full
+                                // chest
+                                interactedDC
+                                    .queueAnimation(
+                                        ChestAnimations
+                                            .OPEN_FULL);
+                            } else {
+                                // empty chest
+                                // show the
+                                // empty
+                                // animation
+                                interactedDC
+                                    .queueAnimation(
+                                        ChestAnimations
+                                            .OPEN_EMPTY);
+                            }
+                        }));
+            chest.addComponent(uiComponent);
+            chest
+                .fetch(DrawComponent.class)
+                .ifPresent(
+                    interactedDC -> {
+                        // only add opening animation when it is not
+                        // finished
+                        if (interactedDC
+                            .getAnimation(ChestAnimations.OPENING)
+                            .map(animation -> !animation.isFinished())
+                            .orElse(true)) {
+                            interactedDC.queueAnimation(
+                                ChestAnimations.OPENING);
+                        }
+                    });
+
+            return null;
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {core.Entity.class};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    @DSLExtensionMethod(name = "add_named_task_content", extendedType = Entity.class)
+    public static class AddNamedTaskContentMethod
+        implements IDSLExtensionMethod<Entity, Void> {
+        public static EntityExtension.AddNamedTaskContentMethod instance = new EntityExtension.AddNamedTaskContentMethod();
+
+        @Override
+        public Void call(Entity instance, List<Object> params) {
+            var optionalTcc = instance.fetch(TaskContentComponent.class);
+            TaskContentComponent tcc;
+
+            if (optionalTcc.isEmpty()) {
+                tcc = new TaskContentComponent();
+            } else {
+                tcc = optionalTcc.get();
+            }
+
+            String name = (String)params.get(0);
+            Task task = (Task) params.get(1);
+            Element<String> content = new Element<>(task, name);
+            tcc.content(content);
+            instance.addComponent(tcc);
+
+            task.addContent(content);
+            task.addContainer(content);
+
+            return null;
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {String.class, Task.class};
+            return Arrays.stream(arr).toList();
         }
     }
 }

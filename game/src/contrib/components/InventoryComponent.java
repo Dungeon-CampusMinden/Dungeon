@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @DSLType
 public final class InventoryComponent implements Component {
 
-    private static final int DEFAULT_MAX_SIZE = 20;
+    private static final int DEFAULT_MAX_SIZE = 24;
     private final Item[] inventory;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
@@ -196,4 +196,7 @@ public final class InventoryComponent implements Component {
         if (index >= this.inventory.length || index < 0) return null;
         return this.inventory[index];
     }
+
+
+
 }
