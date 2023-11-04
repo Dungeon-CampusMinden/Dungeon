@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import contrib.hud.DialogDesign;
+import contrib.hud.OkDialog;
 import contrib.hud.TextDialog;
 import contrib.hud.UITools;
 
@@ -35,7 +36,7 @@ public class YesNoDialog {
      * @return The Entity that stores the HUD components.
      */
     public static Entity showYesNoDialog(final Task task) {
-        String text = task.taskText() + System.lineSeparator() + task.scenarioText() + System.lineSeparator() + "Bist du fertig?";
+        String text = task.taskText() + System.lineSeparator() + System.lineSeparator() + task.scenarioText() + System.lineSeparator() + System.lineSeparator() + "Bist du fertig?";
         return showYesNoDialog(text, task.taskName(), gradeOn(task), () -> {});
     }
 
@@ -137,6 +138,20 @@ public class YesNoDialog {
     }
 
     private static IVoidFunction gradeOn(final Task t) {
-        return t::gradeTask;
+        return () -> {
+            float score = t.gradeTask();
+            StringBuilder output = new StringBuilder();
+            output.append("Du hast ")
+                .append(score)
+                .append("/")
+                .append(t.points())
+                .append(" Punkte erreicht")
+                .append(System.lineSeparator())
+                .append("Die Aufgabe ist damit ");
+            if (t.state() == Task.TaskState.FINISHED_CORRECT) output.append("korrekt ");
+            else output.append("falsch ");
+            output.append("gelöst");
+            OkDialog.showOkDialog(output.toString(), "Ergebnis", () -> {});
+        };
     }
 }
