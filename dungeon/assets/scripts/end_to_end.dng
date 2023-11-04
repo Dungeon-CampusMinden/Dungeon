@@ -32,15 +32,15 @@ entity_type chest_type {
     task_content_component{}
 }
 
-entity_type wizard_type {
+entity_type knight_type {
     draw_component {
-        path: "character/wizard"
+        path: "character/knight"
     },
     hitbox_component {},
     position_component{},
     interaction_component{
         radius: 1.5,
-        on_interaction: on_interact_wizard
+        on_interaction: on_interact_knight
     },
     task_component{}
 }
@@ -50,14 +50,15 @@ fn on_interact_chest(entity chest, entity who) {
     chest.inventory_component.open(who);
 }
 
-fn on_interact_wizard(entity wizard, entity who) {
+fn on_interact_knight(entity knight, entity who) {
     // für sc/mc -> askOnHud/uiAnswerCallback -> Andre baut da was
     print("I AM BEING TALKED TO!!");
 
         var my_task : task;
-        my_task =  wizard.task_component.task;
+        my_task =  knight.task_component.task;
         if my_task.is_active() {
-            ask_task_yes_no(my_task); // -> askForFinishedTask(my_task);
+            //ask_task_yes_no(my_task); // -> askForFinishedTask(my_task);
+            show_task_on_ui(my_task); // -> askForFinishedTask(my_task);
         //askOnHud(task);
         } else {
             show_info("Du hast die Aufgabe schon bearbeitet.");
@@ -89,11 +90,11 @@ fn build_task(single_choice_task t) -> entity<><> {
     t.set_scenario_text("CUSTOM TEXT");
     t.set_answer_picker_function(answer_picker_single_chest);
 
-    // wizard
-    var wizard : entity;
-    wizard = instantiate_named(wizard_type, "I am the wizard");
-    wizard.task_component.task = t;
-    room_set.add(wizard);
+    // knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "I am the knight");
+    knight.task_component.task = t;
+    room_set.add(knight);
 
     return_set.add(room_set);
     return return_set;

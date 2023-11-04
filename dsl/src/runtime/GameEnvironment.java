@@ -41,6 +41,7 @@ import semanticanalysis.types.*;
 import task.*;
 import task.components.TaskComponent;
 import task.components.TaskContentComponent;
+import task.quizquestion.QuizUI;
 import task.taskdsltypes.AssignTaskDSLType;
 import task.taskdsltypes.MultipleChoiceTask;
 import task.taskdsltypes.SingleChoiceDescriptionProperty;
@@ -310,6 +311,9 @@ public class GameEnvironment implements IEvironment {
             NativeFunction showYesNoTask = new AskYesNoDialogFunction(this.globalScope, taskType);
             nativeFunctions.add(showYesNoTask);
 
+            NativeFunction showTaskOnUI = new ShowQuizOnUI(this.globalScope, taskType);
+            nativeFunctions.add(showTaskOnUI);
+
             // grading functions
             NativeFunction nativeGradeSingleChoice =
                     new SingleChoiceGrading(this.globalScope, taskType, taskContentSetType);
@@ -564,6 +568,38 @@ public class GameEnvironment implements IEvironment {
             Task task = (Task) parameterObjects.get(0);
 
             YesNoDialog.showYesNoDialog(task);
+            return null;
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class ShowQuizOnUI extends NativeFunction {
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public ShowQuizOnUI(IScope parentScope, IType taskType) {
+            super(
+                "show_task_on_ui",
+                parentScope,
+                new FunctionType(BuiltInType.noType, taskType));
+
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Quiz task = (Quiz) parameterObjects.get(0);
+
+            QuizUI.askQuizOnHud(task);
             return null;
         }
 
