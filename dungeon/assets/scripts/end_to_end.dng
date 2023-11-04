@@ -58,6 +58,8 @@ fn on_interact_wizard(entity wizard, entity who) {
         if my_task.is_active() {
             ask_task_yes_no(my_task); // -> askForFinishedTask(my_task);
         //askOnHud(task);
+        } else {
+            show_info("Du hast die Aufgabe schon bearbeitet.");
         }
 }
 

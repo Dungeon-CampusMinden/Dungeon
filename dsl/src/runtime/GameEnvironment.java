@@ -5,6 +5,7 @@ import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.WorldItemBuilder;
+import contrib.hud.OkDialog;
 import contrib.item.Item;
 
 import core.Entity;
@@ -279,6 +280,7 @@ public class GameEnvironment implements IEvironment {
         nativeFunctions.add(NativePrint.func);
         nativeFunctions.add(NativeInstantiate.func);
         nativeFunctions.add(NativeInstantiateNamed.func);
+        nativeFunctions.add(ShowInfoFunction.func);
 
         // build functions with dependency on specific non-builtin types
         IType questItemType = (IType) this.globalScope.resolve("quest_item");
@@ -556,6 +558,40 @@ public class GameEnvironment implements IEvironment {
             Task task = (Task) parameterObjects.get(0);
 
             YesNoDialog.showYesNoDialog(task);
+            return null;
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class ShowInfoFunction extends NativeFunction {
+        public static ShowInfoFunction func = new ShowInfoFunction(Scope.NULL);
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        private ShowInfoFunction(IScope parentScope) {
+            super(
+                "show_info",
+                parentScope,
+                new FunctionType(BuiltInType.noType, BuiltInType.stringType));
+
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            String text = (String)parameterObjects.get(0);
+
+            OkDialog.showOkDialog(text, "Info", () -> {});
             return null;
         }
 
