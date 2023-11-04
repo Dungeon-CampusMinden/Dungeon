@@ -81,7 +81,8 @@ fn build_task(single_choice_task t) -> entity<><> {
 
     var chest : entity;
     chest = instantiate(chest_type);
-    chest.add_named_task_content("This is a quest chest", t);
+    //chest.add_named_task_content("This is a quest chest", t);
+    chest.mark_as_task_container(t, "Quest-Truhe");
 
     room_set.add(chest);
     t.set_scenario_text("CUSTOM TEXT");

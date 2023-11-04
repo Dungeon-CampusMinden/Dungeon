@@ -254,7 +254,7 @@ public class EntityExtension {
         }
     }
 
-    @DSLExtensionMethod(name = "add_named_task_content", extendedType = Entity.class)
+    @DSLExtensionMethod(name = "mark_as_task_container", extendedType = Entity.class)
     public static class AddNamedTaskContentMethod
         implements IDSLExtensionMethod<Entity, Void> {
         public static EntityExtension.AddNamedTaskContentMethod instance = new EntityExtension.AddNamedTaskContentMethod();
@@ -270,8 +270,8 @@ public class EntityExtension {
                 tcc = optionalTcc.get();
             }
 
-            String name = (String)params.get(0);
-            Task task = (Task) params.get(1);
+            Task task = (Task) params.get(0);
+            String name = (String)params.get(1);
             Element<String> content = new Element<>(task, name);
             tcc.content(content);
             instance.addComponent(tcc);
@@ -284,7 +284,7 @@ public class EntityExtension {
 
         @Override
         public List<Type> getParameterTypes() {
-            var arr = new Type[] {String.class, Task.class};
+            var arr = new Type[] {Task.class, String.class};
             return Arrays.stream(arr).toList();
         }
     }
