@@ -159,19 +159,24 @@ public class QuizUI {
      * @param string which should be reformatted.
      */
     public static String formatStringForDialogWindow(String string) {
-        String[] words = string.split(" ");
-        StringBuilder formattedMsg = new StringBuilder(string.length());
-        int sumLength = 0;
+        StringBuilder formattedMsg = new StringBuilder();
+        String[] lines = string.split(System.lineSeparator());
 
-        for (String word : words) {
-            sumLength += word.length();
-            formattedMsg.append(word);
-            formattedMsg.append(" ");
+        for (String line : lines) {
+            String[] words = line.split(" ");
+            int sumLength = 0;
 
-            if (sumLength > MAX_ROW_LENGTH) {
-                formattedMsg.append("\n");
-                sumLength = 0;
+            for (String word : words) {
+                sumLength += word.length();
+                formattedMsg.append(word);
+                formattedMsg.append(" ");
+
+                if (sumLength > MAX_ROW_LENGTH) {
+                    formattedMsg.append(System.lineSeparator());
+                    sumLength = 0;
+                }
             }
+            formattedMsg.append(System.lineSeparator());
         }
         return formattedMsg.toString().trim();
     }
