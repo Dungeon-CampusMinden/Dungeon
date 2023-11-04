@@ -3,7 +3,6 @@ package core.systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 
-import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
 
 import core.Entity;
@@ -16,8 +15,6 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.draw.CoreAnimations;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The VelocitySystem controls the movement of the entities in the game.
@@ -128,18 +125,6 @@ public final class VelocitySystem extends System {
     }
 
     private void movementAnimation(VSData vsd) {
-
-        AtomicBoolean isDead = new AtomicBoolean(false);
-        vsd.e
-                .fetch(HealthComponent.class)
-                .ifPresent(
-                        component -> {
-                            isDead.set(component.isDead());
-                        });
-
-        if (isDead.get()) {
-            return;
-        }
 
         float x = vsd.vc.currentXVelocity();
         float y = vsd.vc.currentYVelocity();
