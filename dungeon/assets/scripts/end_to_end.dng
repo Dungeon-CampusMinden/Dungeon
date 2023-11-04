@@ -1,8 +1,7 @@
 single_choice_task t1 {
     description: "3 ist die richtige Antwort!",
     answers: ["1", "2", "3"],
-    correct_answer_index: 2,
-    grading_function: grade_single_choice_task
+    correct_answer_index: 2
 }
 
 assign_task t2 {
@@ -27,6 +26,7 @@ entity_type chest_type {
     hitbox_component {},
     position_component{},
     interaction_component{
+        radius: 1.5,
         on_interaction: on_interact_chest
     },
     task_content_component{}
@@ -39,6 +39,7 @@ entity_type wizard_type {
     hitbox_component {},
     position_component{},
     interaction_component{
+        radius: 1.5,
         on_interaction: on_interact_wizard
     },
     task_component{}
