@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
@@ -12,10 +13,8 @@ import core.utils.components.draw.IPath;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This system draws the entities on the screen.
@@ -65,7 +64,17 @@ public final class DrawSystem extends System {
      */
     @Override
     public void execute() {
-        entityStream().map(this::buildDataObject).forEach(this::draw);
+        Map<Boolean, List<Entity>> partitionedEntities =
+                entityStream()
+                        .collect(
+                                Collectors.partitioningBy(
+                                        entity -> entity.isPresent(PlayerComponent.class)));
+
+        List<Entity> players = partitionedEntities.get(true);
+        List<Entity> npcs = partitionedEntities.get(false);
+
+        npcs.forEach(entity -> draw(buildDataObject(entity)));
+        players.forEach(entity -> draw(buildDataObject(entity)));
     }
 
     private void draw(DSData dsd) {
