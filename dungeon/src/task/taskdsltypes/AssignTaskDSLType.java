@@ -93,6 +93,14 @@ public class AssignTaskDSLType {
             definitionElementToTermElement.put(definitionElement, termElement);
         }
 
+        // add link to task
+        for (var entrySet : solutionMap.entrySet()) {
+            task.addContent(entrySet.getKey());
+            for (var entry : entrySet.getValue()) {
+                task.addContent(entry);
+            }
+        }
+
         task.solution(solutionMap);
         return task;
     }

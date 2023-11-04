@@ -282,6 +282,7 @@ public abstract class Task {
      * @param content element to add to the internal collection
      */
     public void addContent(final TaskContent content) {
+        content.task(this);
         this.content.add(content);
     }
 
