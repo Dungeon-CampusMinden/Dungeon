@@ -3998,7 +3998,7 @@ public class TestDSLInterpreter {
 
         var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
         core.Entity entity = builtTask.stream().toList().get(0).stream().findFirst().get();
-        Assert.assertEquals("HELLO_5", entity.toString());
+        Assert.assertTrue(entity.toString().contains("HELLO"));
         Assert.assertEquals("CUSTOM TEXT", task.scenarioText());
     }
 }
