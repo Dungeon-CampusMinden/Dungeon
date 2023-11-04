@@ -11,6 +11,7 @@ import core.Entity;
 import core.Game;
 
 import task.Quiz;
+import task.Task;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -26,6 +27,20 @@ public class QuizUI {
      * = MAX_ROW_LENGTH 480 / 12 = 40
      */
     private static final int MAX_ROW_LENGTH = 40;
+
+    /**
+     * Ask a Quizquestion on the HUD and trigger the grading function, after the player confirmed
+     * the answers.
+     *
+     * @param quiz Question to ask
+     * @return the entity that stores the hud elements for the dialog window.
+     */
+    public static Entity askQuizOnHud(final Quiz quiz) {
+        return QuizUI.showQuizDialog(
+                quiz,
+                (Entity hudEntity) ->
+                        UIAnswerCallback.uiCallback(quiz, hudEntity, Task::gradeTask));
+    }
 
     /**
      * Display the Question-Content (Question and answer options (no pictures) as text, picture,

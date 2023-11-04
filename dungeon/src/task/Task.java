@@ -326,27 +326,32 @@ public abstract class Task {
         StringBuilder msgBuilder = new StringBuilder();
         msgBuilder
                 .append("Task: ")
+                .append(id)
+                .append(System.lineSeparator())
+                .append(taskName)
+                .append(System.lineSeparator())
                 .append(taskText)
+                .append(System.lineSeparator())
                 .append(" was solved with ")
                 .append(score)
                 .append("/")
                 .append(points)
-                .append(" Points");
+                .append(" Points.")
+                .append(System.lineSeparator());
         msgBuilder.append("The task was solved");
-        if (score >= pointsToSolve) msgBuilder.append(" successfully");
-        else msgBuilder.append(" unsuccessfully");
-
-        msgBuilder.append(" Given answers: ");
+        if (score >= pointsToSolve) msgBuilder.append(" successfully.");
+        else msgBuilder.append(" unsuccessfully.");
+        msgBuilder.append(System.lineSeparator());
+        msgBuilder.append("Given answers: ");
 
         for (TaskContent answer : givenAnswers) {
-            msgBuilder.append(answer.toString());
+            msgBuilder.append(answer.toString()).append(System.lineSeparator());
         }
         String msg = msgBuilder.toString();
         LOGGER.log(CustomLogLevel.TASK, msg);
 
         if (score >= pointsToSolve) state(TaskState.FINISHED_CORRECT);
         else state(TaskState.FINISHED_WRONG);
-
         return score;
     }
 

@@ -10,9 +10,13 @@ import contrib.systems.HudSystem;
 import core.Game;
 
 import task.Quiz;
+import task.Task;
+import task.TaskContent;
 import task.quizquestion.*;
 
 import java.util.Random;
+import java.util.Set;
+import java.util.function.BiFunction;
 
 /**
  * This is a manual test for the QuizQuestion-UI.
@@ -20,6 +24,8 @@ import java.util.Random;
  * <p>It sets up a basic game and will show a random QuizQuestion if "F" is pressed.
  *
  * <p>Use this to check if the UI is displayed correctly.
+ *
+ * <p>Use ./gradlew runManualQuizTest
  */
 public class QuizQuestionUITest {
 
@@ -32,7 +38,15 @@ public class QuizQuestionUITest {
                         // Dialogue for quiz questions (display of quiz questions and the answer
                         // area in test
                         // mode)
-                        QuizUI.showQuizDialog(DummyQuizQuestionList.getRandomQuestion());
+                        Quiz question = DummyQuizQuestionList.getRandomQuestion();
+                        question.scoringFunction(
+                                (BiFunction<Task, Set<TaskContent>, Float>)
+                                        (task, contents) -> {
+                                            System.out.println("Given answers");
+                                            contents.forEach(System.out::println);
+                                            return 1f;
+                                        });
+                        QuizUI.askQuizOnHud(question);
                     }
                 });
 
