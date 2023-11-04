@@ -25,9 +25,9 @@ public class SingleChoiceTask {
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
             @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex,
             @DSLTypeMember(name = "grading_function")
-                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction//,
+                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction // ,
             /*@DSLTypeMember(name = "answer_picker_function")
-                    Function<Task, Set<TaskContent>> answerPickerFunction*/) {
+            Function<Task, Set<TaskContent>> answerPickerFunction*/ ) {
         SingleChoice sc = new SingleChoice(description);
         sc.taskName(name);
 
@@ -90,17 +90,14 @@ public class SingleChoiceTask {
         }
     }
 
-    /**
-     * {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance
-     */
+    /** {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance */
     @DSLExtensionMethod(name = "set_scenario_text", extendedType = SingleChoice.class)
-    public static class SetScenarioText
-        implements IDSLExtensionMethod<SingleChoice, Void> {
+    public static class SetScenarioText implements IDSLExtensionMethod<SingleChoice, Void> {
         public static SetScenarioText instance = new SetScenarioText();
 
         @Override
         public Void call(SingleChoice instance, List<Object> params) {
-            String valueToSet = (String)params.get(0);
+            String valueToSet = (String) params.get(0);
             instance.scenarioText(valueToSet);
             return null;
         }
@@ -185,9 +182,9 @@ public class SingleChoiceTask {
      */
     @DSLExtensionMethod(name = "set_answer_picker_function", extendedType = SingleChoice.class)
     public static class SingleChoiceSetAnswerPickerFunction
-        implements IDSLExtensionMethod<SingleChoice, Void> {
+            implements IDSLExtensionMethod<SingleChoice, Void> {
         public static SingleChoiceTask.SingleChoiceSetAnswerPickerFunction instance =
-            new SingleChoiceTask.SingleChoiceSetAnswerPickerFunction();
+                new SingleChoiceTask.SingleChoiceSetAnswerPickerFunction();
 
         @Override
         public Void call(SingleChoice instance, List<Object> params) {
@@ -204,40 +201,40 @@ public class SingleChoiceTask {
         // BiFunction<Task, Set<TaskContent>, Float> as a parameter, we need to build this
         // ParameterizedType here by ourselves.
         private static final ParameterizedType funcType =
-            new ParameterizedType() {
-                @Override
-                public Type[] getActualTypeArguments() {
-                    return new Type[] {Task.class, setType};
-                }
+                new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return new Type[] {Task.class, setType};
+                    }
 
-                @Override
-                public Type getRawType() {
-                    return Function.class;
-                }
+                    @Override
+                    public Type getRawType() {
+                        return Function.class;
+                    }
 
-                @Override
-                public Type getOwnerType() {
-                    return null;
-                }
-            };
+                    @Override
+                    public Type getOwnerType() {
+                        return null;
+                    }
+                };
 
         private static final ParameterizedType setType =
-            new ParameterizedType() {
-                @Override
-                public Type[] getActualTypeArguments() {
-                    return new Type[] {TaskContent.class};
-                }
+                new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return new Type[] {TaskContent.class};
+                    }
 
-                @Override
-                public Type getRawType() {
-                    return Set.class;
-                }
+                    @Override
+                    public Type getRawType() {
+                        return Set.class;
+                    }
 
-                @Override
-                public Type getOwnerType() {
-                    return null;
-                }
-            };
+                    @Override
+                    public Type getOwnerType() {
+                        return null;
+                    }
+                };
 
         // endregion
 

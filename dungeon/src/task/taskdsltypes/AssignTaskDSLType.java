@@ -10,7 +10,6 @@ import task.AssignTask;
 import task.Element;
 import task.Task;
 import task.TaskContent;
-import task.quizquestion.MultipleChoice;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -126,17 +125,15 @@ public class AssignTaskDSLType {
         }
     }
 
-    /**
-     * {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance
-     */
+    /** {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance */
     @DSLExtensionMethod(name = "set_scenario_text", extendedType = AssignTask.class)
-    public static class SetScenarioText
-        implements IDSLExtensionMethod<AssignTask, Void> {
-        public static AssignTaskDSLType.SetScenarioText instance = new AssignTaskDSLType.SetScenarioText();
+    public static class SetScenarioText implements IDSLExtensionMethod<AssignTask, Void> {
+        public static AssignTaskDSLType.SetScenarioText instance =
+                new AssignTaskDSLType.SetScenarioText();
 
         @Override
         public Void call(AssignTask instance, List<Object> params) {
-            String valueToSet = (String)params.get(0);
+            String valueToSet = (String) params.get(0);
             instance.scenarioText(valueToSet);
             return null;
         }
@@ -148,14 +145,12 @@ public class AssignTaskDSLType {
         }
     }
 
-    /**
-     * {@link IDSLExtensionMethod} to set the grading function of a {@link AssignTask} instance.
-     */
+    /** {@link IDSLExtensionMethod} to set the grading function of a {@link AssignTask} instance. */
     @DSLExtensionMethod(name = "set_grading_function", extendedType = AssignTask.class)
     public static class AssignTaskSetGradingFunction
-        implements IDSLExtensionMethod<AssignTask, Void> {
+            implements IDSLExtensionMethod<AssignTask, Void> {
         public static AssignTaskDSLType.AssignTaskSetGradingFunction instance =
-            new AssignTaskDSLType.AssignTaskSetGradingFunction();
+                new AssignTaskDSLType.AssignTaskSetGradingFunction();
 
         @Override
         public Void call(AssignTask instance, List<Object> params) {
@@ -172,40 +167,40 @@ public class AssignTaskDSLType {
         // BiFunction<Task, Set<TaskContent>, Float> as a parameter, we need to build this
         // ParameterizedType here by ourselves.
         private static final ParameterizedType biFuncType =
-            new ParameterizedType() {
-                @Override
-                public Type[] getActualTypeArguments() {
-                    return new Type[] {Task.class, setType, Float.class};
-                }
+                new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return new Type[] {Task.class, setType, Float.class};
+                    }
 
-                @Override
-                public Type getRawType() {
-                    return BiFunction.class;
-                }
+                    @Override
+                    public Type getRawType() {
+                        return BiFunction.class;
+                    }
 
-                @Override
-                public Type getOwnerType() {
-                    return null;
-                }
-            };
+                    @Override
+                    public Type getOwnerType() {
+                        return null;
+                    }
+                };
 
         private static final ParameterizedType setType =
-            new ParameterizedType() {
-                @Override
-                public Type[] getActualTypeArguments() {
-                    return new Type[] {TaskContent.class};
-                }
+                new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return new Type[] {TaskContent.class};
+                    }
 
-                @Override
-                public Type getRawType() {
-                    return Set.class;
-                }
+                    @Override
+                    public Type getRawType() {
+                        return Set.class;
+                    }
 
-                @Override
-                public Type getOwnerType() {
-                    return null;
-                }
-            };
+                    @Override
+                    public Type getOwnerType() {
+                        return null;
+                    }
+                };
 
         // endregion
 
@@ -216,14 +211,12 @@ public class AssignTaskDSLType {
         }
     }
 
-    /**
-     * {@link IDSLExtensionMethod} to set the grading function of a {@link AssignTask} instance.
-     */
+    /** {@link IDSLExtensionMethod} to set the grading function of a {@link AssignTask} instance. */
     @DSLExtensionMethod(name = "set_answer_picker_function", extendedType = AssignTask.class)
     public static class AssignTaskSetAnswerPickerFunction
-        implements IDSLExtensionMethod<AssignTask, Void> {
+            implements IDSLExtensionMethod<AssignTask, Void> {
         public static AssignTaskDSLType.AssignTaskSetAnswerPickerFunction instance =
-            new AssignTaskDSLType.AssignTaskSetAnswerPickerFunction();
+                new AssignTaskDSLType.AssignTaskSetAnswerPickerFunction();
 
         @Override
         public Void call(AssignTask instance, List<Object> params) {
@@ -240,40 +233,40 @@ public class AssignTaskDSLType {
         // BiFunction<Task, Set<TaskContent>, Float> as a parameter, we need to build this
         // ParameterizedType here by ourselves.
         private static final ParameterizedType funcType =
-            new ParameterizedType() {
-                @Override
-                public Type[] getActualTypeArguments() {
-                    return new Type[] {Task.class, setType};
-                }
+                new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return new Type[] {Task.class, setType};
+                    }
 
-                @Override
-                public Type getRawType() {
-                    return Function.class;
-                }
+                    @Override
+                    public Type getRawType() {
+                        return Function.class;
+                    }
 
-                @Override
-                public Type getOwnerType() {
-                    return null;
-                }
-            };
+                    @Override
+                    public Type getOwnerType() {
+                        return null;
+                    }
+                };
 
         private static final ParameterizedType setType =
-            new ParameterizedType() {
-                @Override
-                public Type[] getActualTypeArguments() {
-                    return new Type[] {TaskContent.class};
-                }
+                new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return new Type[] {TaskContent.class};
+                    }
 
-                @Override
-                public Type getRawType() {
-                    return Set.class;
-                }
+                    @Override
+                    public Type getRawType() {
+                        return Set.class;
+                    }
 
-                @Override
-                public Type getOwnerType() {
-                    return null;
-                }
-            };
+                    @Override
+                    public Type getOwnerType() {
+                        return null;
+                    }
+                };
 
         // endregion
 

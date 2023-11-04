@@ -333,14 +333,14 @@ public class GameEnvironment implements IEvironment {
             nativeFunctions.add(nativeGradeAssignHard);
 
             // answer picker functions
-            NativeFunction answerPickerSingleChest = new AnswerPickerSingleChest(this.globalScope, taskType, taskContentSetType);
+            NativeFunction answerPickerSingleChest =
+                    new AnswerPickerSingleChest(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(answerPickerSingleChest);
 
-            NativeFunction answerPickerMultiChest = new AnswerPickerMultiChest(this.globalScope, taskType, taskContentSetType);
+            NativeFunction answerPickerMultiChest =
+                    new AnswerPickerMultiChest(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(answerPickerMultiChest);
         }
-
-
 
         return nativeFunctions;
     }
@@ -529,13 +529,13 @@ public class GameEnvironment implements IEvironment {
     }
 
     @DSLExtensionMethod(name = "is_active", extendedType = Task.class)
-    public static class IsTaskActiveMethod
-        implements IDSLExtensionMethod<Task, Boolean> {
+    public static class IsTaskActiveMethod implements IDSLExtensionMethod<Task, Boolean> {
         public static IsTaskActiveMethod instance = new IsTaskActiveMethod();
 
         @Override
         public Boolean call(Task instance, List<Object> params) {
-            return instance.state().equals(Task.TaskState.ACTIVE) || instance.state().equals(Task.TaskState.PROCESSING_ACTIVE);
+            return instance.state().equals(Task.TaskState.ACTIVE)
+                    || instance.state().equals(Task.TaskState.PROCESSING_ACTIVE);
         }
 
         @Override
@@ -545,7 +545,6 @@ public class GameEnvironment implements IEvironment {
         }
     }
 
-
     private static class AskYesNoDialogFunction extends NativeFunction {
         /**
          * Constructor
@@ -553,11 +552,7 @@ public class GameEnvironment implements IEvironment {
          * @param parentScope parent scope of this function
          */
         public AskYesNoDialogFunction(IScope parentScope, IType taskType) {
-            super(
-                "ask_task_yes_no",
-                parentScope,
-                new FunctionType(BuiltInType.noType, taskType));
-
+            super("ask_task_yes_no", parentScope, new FunctionType(BuiltInType.noType, taskType));
         }
 
         @Override
@@ -585,11 +580,7 @@ public class GameEnvironment implements IEvironment {
          * @param parentScope parent scope of this function
          */
         public ShowQuizOnUI(IScope parentScope, IType taskType) {
-            super(
-                "show_task_on_ui",
-                parentScope,
-                new FunctionType(BuiltInType.noType, taskType));
-
+            super("show_task_on_ui", parentScope, new FunctionType(BuiltInType.noType, taskType));
         }
 
         @Override
@@ -620,10 +611,9 @@ public class GameEnvironment implements IEvironment {
          */
         private ShowInfoFunction(IScope parentScope) {
             super(
-                "show_info",
-                parentScope,
-                new FunctionType(BuiltInType.noType, BuiltInType.stringType));
-
+                    "show_info",
+                    parentScope,
+                    new FunctionType(BuiltInType.noType, BuiltInType.stringType));
         }
 
         @Override
@@ -632,7 +622,7 @@ public class GameEnvironment implements IEvironment {
 
             var parameterValues = interpreter.evaluateNodes(parameters);
             var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
-            String text = (String)parameterObjects.get(0);
+            String text = (String) parameterObjects.get(0);
 
             OkDialog.showOkDialog(text, "Info", () -> {});
             return null;
@@ -798,11 +788,12 @@ public class GameEnvironment implements IEvironment {
          *
          * @param parentScope parent scope of this function
          */
-        public AnswerPickerSingleChest(IScope parentScope, IType taskType, IType taskContentSetType) {
+        public AnswerPickerSingleChest(
+                IScope parentScope, IType taskType, IType taskContentSetType) {
             super(
-                "answer_picker_single_chest",
-                parentScope,
-                new FunctionType(taskContentSetType, taskType));
+                    "answer_picker_single_chest",
+                    parentScope,
+                    new FunctionType(taskContentSetType, taskType));
             this.func = AnswerPickingFunctions.singleChestPicker();
         }
 
@@ -832,11 +823,12 @@ public class GameEnvironment implements IEvironment {
          *
          * @param parentScope parent scope of this function
          */
-        public AnswerPickerMultiChest(IScope parentScope, IType taskType, IType taskContentSetType) {
+        public AnswerPickerMultiChest(
+                IScope parentScope, IType taskType, IType taskContentSetType) {
             super(
-                "answer_picker_multi_chest",
-                parentScope,
-                new FunctionType(taskContentSetType, taskType));
+                    "answer_picker_multi_chest",
+                    parentScope,
+                    new FunctionType(taskContentSetType, taskType));
             this.func = AnswerPickingFunctions.multipleChestPicker();
         }
 

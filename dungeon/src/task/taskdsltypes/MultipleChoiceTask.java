@@ -8,7 +8,6 @@ import task.Quiz;
 import task.Task;
 import task.TaskContent;
 import task.quizquestion.MultipleChoice;
-import task.quizquestion.SingleChoice;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -94,17 +93,15 @@ public class MultipleChoiceTask {
         }
     }
 
-    /**
-     * {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance
-     */
+    /** {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance */
     @DSLExtensionMethod(name = "set_scenario_text", extendedType = MultipleChoice.class)
-    public static class SetScenarioText
-        implements IDSLExtensionMethod<MultipleChoice, Void> {
-        public static MultipleChoiceTask.SetScenarioText instance = new MultipleChoiceTask.SetScenarioText();
+    public static class SetScenarioText implements IDSLExtensionMethod<MultipleChoice, Void> {
+        public static MultipleChoiceTask.SetScenarioText instance =
+                new MultipleChoiceTask.SetScenarioText();
 
         @Override
         public Void call(MultipleChoice instance, List<Object> params) {
-            String valueToSet = (String)params.get(0);
+            String valueToSet = (String) params.get(0);
             instance.scenarioText(valueToSet);
             return null;
         }
@@ -184,15 +181,14 @@ public class MultipleChoiceTask {
         }
     }
 
-
     /**
      * {@link IDSLExtensionMethod} to set the grading function of a {@link MultipleChoice} instance.
      */
     @DSLExtensionMethod(name = "set_answer_picker_function", extendedType = MultipleChoice.class)
     public static class MultipleChoiceSetAnswerPickerFunction
-        implements IDSLExtensionMethod<MultipleChoice, Void> {
+            implements IDSLExtensionMethod<MultipleChoice, Void> {
         public static MultipleChoiceTask.MultipleChoiceSetAnswerPickerFunction instance =
-            new MultipleChoiceTask.MultipleChoiceSetAnswerPickerFunction();
+                new MultipleChoiceTask.MultipleChoiceSetAnswerPickerFunction();
 
         @Override
         public Void call(MultipleChoice instance, List<Object> params) {
@@ -209,40 +205,40 @@ public class MultipleChoiceTask {
         // BiFunction<Task, Set<TaskContent>, Float> as a parameter, we need to build this
         // ParameterizedType here by ourselves.
         private static final ParameterizedType funcType =
-            new ParameterizedType() {
-                @Override
-                public Type[] getActualTypeArguments() {
-                    return new Type[] {Task.class, setType};
-                }
+                new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return new Type[] {Task.class, setType};
+                    }
 
-                @Override
-                public Type getRawType() {
-                    return Function.class;
-                }
+                    @Override
+                    public Type getRawType() {
+                        return Function.class;
+                    }
 
-                @Override
-                public Type getOwnerType() {
-                    return null;
-                }
-            };
+                    @Override
+                    public Type getOwnerType() {
+                        return null;
+                    }
+                };
 
         private static final ParameterizedType setType =
-            new ParameterizedType() {
-                @Override
-                public Type[] getActualTypeArguments() {
-                    return new Type[] {TaskContent.class};
-                }
+                new ParameterizedType() {
+                    @Override
+                    public Type[] getActualTypeArguments() {
+                        return new Type[] {TaskContent.class};
+                    }
 
-                @Override
-                public Type getRawType() {
-                    return Set.class;
-                }
+                    @Override
+                    public Type getRawType() {
+                        return Set.class;
+                    }
 
-                @Override
-                public Type getOwnerType() {
-                    return null;
-                }
-            };
+                    @Override
+                    public Type getOwnerType() {
+                        return null;
+                    }
+                };
 
         // endregion
 
@@ -252,5 +248,4 @@ public class MultipleChoiceTask {
             return Arrays.stream(typeArr).toList();
         }
     }
-
 }

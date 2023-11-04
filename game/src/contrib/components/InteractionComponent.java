@@ -31,8 +31,7 @@ public final class InteractionComponent implements Component {
     public static final boolean DEFAULT_REPEATABLE = true;
 
     private static final BiConsumer<Entity, Entity> DEFAULT_INTERACTION = (entity, who) -> {};
-    @DSLTypeMember
-    private final float radius;
+    @DSLTypeMember private final float radius;
     private final boolean repeatable;
     @DSLCallback private final BiConsumer<Entity, Entity> onInteraction;
 

@@ -196,7 +196,4 @@ public final class InventoryComponent implements Component {
         if (index >= this.inventory.length || index < 0) return null;
         return this.inventory[index];
     }
-
-
-
 }

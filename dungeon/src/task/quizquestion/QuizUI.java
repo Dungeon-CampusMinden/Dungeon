@@ -43,24 +43,29 @@ public class QuizUI {
         return QuizUI.showQuizDialog(
                 quiz,
                 (Entity hudEntity) ->
-                        UIAnswerCallback.uiCallback(quiz, hudEntity, new BiConsumer<Task, Set<TaskContent>>() {
-                            @Override
-                            public void accept(Task task, Set<TaskContent> taskContents) {
-                                float score = task.gradeTask(taskContents);
-                                StringBuilder output = new StringBuilder();
-                                output.append("Du hast ")
-                                    .append(score)
-                                    .append("/")
-                                    .append(task.points())
-                                    .append(" Punkte erreicht")
-                                    .append(System.lineSeparator())
-                                    .append("Die Aufgabe ist damit ");
-                                if (task.state() == Task.TaskState.FINISHED_CORRECT) output.append("korrekt ");
-                                else output.append("falsch ");
-                                output.append("gelöst");
-                                OkDialog.showOkDialog(output.toString(), "Ergebnis", () -> {});
-                            }
-                        }));
+                        UIAnswerCallback.uiCallback(
+                                quiz,
+                                hudEntity,
+                                new BiConsumer<Task, Set<TaskContent>>() {
+                                    @Override
+                                    public void accept(Task task, Set<TaskContent> taskContents) {
+                                        float score = task.gradeTask(taskContents);
+                                        StringBuilder output = new StringBuilder();
+                                        output.append("Du hast ")
+                                                .append(score)
+                                                .append("/")
+                                                .append(task.points())
+                                                .append(" Punkte erreicht")
+                                                .append(System.lineSeparator())
+                                                .append("Die Aufgabe ist damit ");
+                                        if (task.state() == Task.TaskState.FINISHED_CORRECT)
+                                            output.append("korrekt ");
+                                        else output.append("falsch ");
+                                        output.append("gelöst");
+                                        OkDialog.showOkDialog(
+                                                output.toString(), "Ergebnis", () -> {});
+                                    }
+                                }));
     }
 
     /**

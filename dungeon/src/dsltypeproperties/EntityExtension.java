@@ -1,11 +1,11 @@
 package dsltypeproperties;
 
-import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.draw.ChestAnimations;
+
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -22,8 +22,6 @@ import task.Task;
 import task.TaskContent;
 import task.components.TaskComponent;
 import task.components.TaskContentComponent;
-import task.quizquestion.MultipleChoice;
-import task.taskdsltypes.MultipleChoiceTask;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -60,9 +58,9 @@ public class EntityExtension {
 
     @DSLTypeProperty(name = "inventory_component", extendedType = Entity.class)
     public static class InventoryComponentProperty
-        implements IDSLTypeProperty<Entity, InventoryComponent> {
+            implements IDSLTypeProperty<Entity, InventoryComponent> {
         public static EntityExtension.InventoryComponentProperty instance =
-            new EntityExtension.InventoryComponentProperty();
+                new EntityExtension.InventoryComponentProperty();
 
         private InventoryComponentProperty() {}
 
@@ -166,15 +164,16 @@ public class EntityExtension {
 
     @DSLExtensionMethod(name = "open", extendedType = InventoryComponent.class)
     public static class OpenInventoryMethod
-        implements IDSLExtensionMethod<InventoryComponent, Void> {
-        public static EntityExtension.OpenInventoryMethod instance = new EntityExtension.OpenInventoryMethod();
+            implements IDSLExtensionMethod<InventoryComponent, Void> {
+        public static EntityExtension.OpenInventoryMethod instance =
+                new EntityExtension.OpenInventoryMethod();
 
         @Override
         public Void call(InventoryComponent instance, List<Object> params) {
             // interacted = chest
             // interactor = andere entity (spieler)
             Entity chest = Game.find(instance).get();
-            Entity other = (Entity)params.get(0);
+            Entity other = (Entity) params.get(0);
             InventoryComponent otherIc = other.fetch(InventoryComponent.class).get();
 
             var optionalTcc = chest.fetch(TaskContentComponent.class);
@@ -184,65 +183,53 @@ public class EntityExtension {
             } else {
                 TaskContent content = optionalTcc.get().content();
                 Task task = content.task();
-                inventory = new InventoryGUI(content + " (Quest: '" + task.taskName() + "')", instance);
+                inventory =
+                        new InventoryGUI(content + " (Quest: '" + task.taskName() + "')", instance);
             }
 
             UIComponent uiComponent =
-                new UIComponent(
-                    new GUICombination(
-                        inventory,
-                        new InventoryGUI(otherIc)),
-                    false);
+                    new UIComponent(
+                            new GUICombination(inventory, new InventoryGUI(otherIc)), false);
             uiComponent.onClose(
-                () -> chest
-                    .fetch(DrawComponent.class)
-                    .ifPresent(
-                        interactedDC -> {
-                            // remove all prior
-                            // opened animations
-                            interactedDC
-                                .deQueueByPriority(
-                                    ChestAnimations
-                                        .OPEN_FULL
-                                        .priority());
-                            if (instance.count()
-                                > 0) {
-                                // aslong as
-                                // there is an
-                                // item inside
-                                // the chest
-                                // show a full
-                                // chest
-                                interactedDC
-                                    .queueAnimation(
-                                        ChestAnimations
-                                            .OPEN_FULL);
-                            } else {
-                                // empty chest
-                                // show the
-                                // empty
-                                // animation
-                                interactedDC
-                                    .queueAnimation(
-                                        ChestAnimations
-                                            .OPEN_EMPTY);
-                            }
-                        }));
+                    () ->
+                            chest.fetch(DrawComponent.class)
+                                    .ifPresent(
+                                            interactedDC -> {
+                                                // remove all prior
+                                                // opened animations
+                                                interactedDC.deQueueByPriority(
+                                                        ChestAnimations.OPEN_FULL.priority());
+                                                if (instance.count() > 0) {
+                                                    // aslong as
+                                                    // there is an
+                                                    // item inside
+                                                    // the chest
+                                                    // show a full
+                                                    // chest
+                                                    interactedDC.queueAnimation(
+                                                            ChestAnimations.OPEN_FULL);
+                                                } else {
+                                                    // empty chest
+                                                    // show the
+                                                    // empty
+                                                    // animation
+                                                    interactedDC.queueAnimation(
+                                                            ChestAnimations.OPEN_EMPTY);
+                                                }
+                                            }));
             chest.addComponent(uiComponent);
-            chest
-                .fetch(DrawComponent.class)
-                .ifPresent(
-                    interactedDC -> {
-                        // only add opening animation when it is not
-                        // finished
-                        if (interactedDC
-                            .getAnimation(ChestAnimations.OPENING)
-                            .map(animation -> !animation.isFinished())
-                            .orElse(true)) {
-                            interactedDC.queueAnimation(
-                                ChestAnimations.OPENING);
-                        }
-                    });
+            chest.fetch(DrawComponent.class)
+                    .ifPresent(
+                            interactedDC -> {
+                                // only add opening animation when it is not
+                                // finished
+                                if (interactedDC
+                                        .getAnimation(ChestAnimations.OPENING)
+                                        .map(animation -> !animation.isFinished())
+                                        .orElse(true)) {
+                                    interactedDC.queueAnimation(ChestAnimations.OPENING);
+                                }
+                            });
 
             return null;
         }
@@ -255,9 +242,9 @@ public class EntityExtension {
     }
 
     @DSLExtensionMethod(name = "mark_as_task_container", extendedType = Entity.class)
-    public static class AddNamedTaskContentMethod
-        implements IDSLExtensionMethod<Entity, Void> {
-        public static EntityExtension.AddNamedTaskContentMethod instance = new EntityExtension.AddNamedTaskContentMethod();
+    public static class AddNamedTaskContentMethod implements IDSLExtensionMethod<Entity, Void> {
+        public static EntityExtension.AddNamedTaskContentMethod instance =
+                new EntityExtension.AddNamedTaskContentMethod();
 
         @Override
         public Void call(Entity instance, List<Object> params) {
@@ -271,7 +258,7 @@ public class EntityExtension {
             }
 
             Task task = (Task) params.get(0);
-            String name = (String)params.get(1);
+            String name = (String) params.get(1);
             Element<String> content = new Element<>(task, name);
             tcc.content(content);
             instance.addComponent(tcc);
@@ -290,9 +277,9 @@ public class EntityExtension {
     }
 
     @DSLExtensionMethod(name = "mark_as_task_container_with_element", extendedType = Entity.class)
-    public static class AddTaskContentMethod
-        implements IDSLExtensionMethod<Entity, Void> {
-        public static EntityExtension.AddTaskContentMethod instance = new EntityExtension.AddTaskContentMethod();
+    public static class AddTaskContentMethod implements IDSLExtensionMethod<Entity, Void> {
+        public static EntityExtension.AddTaskContentMethod instance =
+                new EntityExtension.AddTaskContentMethod();
 
         @Override
         public Void call(Entity instance, List<Object> params) {
@@ -306,7 +293,7 @@ public class EntityExtension {
             }
 
             Task task = (Task) params.get(0);
-            Element<String> content = (Element<String>)params.get(1);
+            Element<String> content = (Element<String>) params.get(1);
             tcc.content(content);
             instance.addComponent(tcc);
 
