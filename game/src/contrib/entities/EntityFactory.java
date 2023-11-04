@@ -312,7 +312,7 @@ public class EntityFactory {
                                                                 new GUICombination(
                                                                         new InventoryGUI(whoIc),
                                                                         new InventoryGUI(ic)),
-                                                                false);
+                                                                true);
                                                 uiComponent.onClose(
                                                         () -> {
                                                             interacted
