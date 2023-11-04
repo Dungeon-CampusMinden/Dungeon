@@ -321,7 +321,7 @@ public abstract class Task {
      * @param answerPickingFunction the answer picking function to set.
      */
     public void answerPickingFunction(Function<Task, Set<TaskContent>> answerPickingFunction) {
-        this.scoringFunction = scoringFunction;
+        this.answerPickingFunction = answerPickingFunction;
     }
 
     /**

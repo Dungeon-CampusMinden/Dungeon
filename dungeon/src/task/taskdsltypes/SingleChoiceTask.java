@@ -13,6 +13,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /** Typeadapter for the creation of {@link SingleChoice} instances via dsl. */
 public class SingleChoiceTask {
@@ -24,7 +25,9 @@ public class SingleChoiceTask {
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
             @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex,
             @DSLTypeMember(name = "grading_function")
-                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
+                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction//,
+            /*@DSLTypeMember(name = "answer_picker_function")
+                    Function<Task, Set<TaskContent>> answerPickerFunction*/) {
         SingleChoice sc = new SingleChoice(description);
         sc.taskName(name);
 
@@ -173,6 +176,74 @@ public class SingleChoiceTask {
         @Override
         public List<Type> getParameterTypes() {
             var typeArr = new Type[] {biFuncType};
+            return Arrays.stream(typeArr).toList();
+        }
+    }
+
+    /**
+     * {@link IDSLExtensionMethod} to set the grading function of a {@link SingleChoice} instance.
+     */
+    @DSLExtensionMethod(name = "set_answer_picker_function", extendedType = SingleChoice.class)
+    public static class SingleChoiceSetAnswerPickerFunction
+        implements IDSLExtensionMethod<SingleChoice, Void> {
+        public static SingleChoiceTask.SingleChoiceSetAnswerPickerFunction instance =
+            new SingleChoiceTask.SingleChoiceSetAnswerPickerFunction();
+
+        @Override
+        public Void call(SingleChoice instance, List<Object> params) {
+            var func = (Function<Task, Set<TaskContent>>) params.get(0);
+            instance.answerPickingFunction(func);
+            return null;
+        }
+
+        // region parameterized parameter type declaration
+
+        // The TypeBuilder needs an implementation of ParameterizedType (with the actual type
+        // information)
+        // to create a FunctionType for the method parameter. As this method will accept a
+        // BiFunction<Task, Set<TaskContent>, Float> as a parameter, we need to build this
+        // ParameterizedType here by ourselves.
+        private static final ParameterizedType funcType =
+            new ParameterizedType() {
+                @Override
+                public Type[] getActualTypeArguments() {
+                    return new Type[] {Task.class, setType};
+                }
+
+                @Override
+                public Type getRawType() {
+                    return Function.class;
+                }
+
+                @Override
+                public Type getOwnerType() {
+                    return null;
+                }
+            };
+
+        private static final ParameterizedType setType =
+            new ParameterizedType() {
+                @Override
+                public Type[] getActualTypeArguments() {
+                    return new Type[] {TaskContent.class};
+                }
+
+                @Override
+                public Type getRawType() {
+                    return Set.class;
+                }
+
+                @Override
+                public Type getOwnerType() {
+                    return null;
+                }
+            };
+
+        // endregion
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var typeArr = new Type[] {funcType};
             return Arrays.stream(typeArr).toList();
         }
     }

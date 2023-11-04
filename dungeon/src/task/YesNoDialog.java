@@ -35,7 +35,8 @@ public class YesNoDialog {
      * @return The Entity that stores the HUD components.
      */
     public static Entity showYesNoDialog(final Task task) {
-        return showYesNoDialog(task.taskText(), task.taskName(), gradeOn(task), () -> {});
+        String text = task.taskText() + System.lineSeparator() + task.scenarioText() + System.lineSeparator() + "Bist du fertig?";
+        return showYesNoDialog(text, task.taskName(), gradeOn(task), () -> {});
     }
 
     /**

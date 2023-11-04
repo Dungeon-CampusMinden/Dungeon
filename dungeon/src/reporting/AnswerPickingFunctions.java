@@ -4,12 +4,14 @@ import contrib.components.InventoryComponent;
 import contrib.item.Item;
 
 import core.Entity;
+import core.Game;
 import core.utils.components.MissingComponentException;
 
 import task.Element;
 import task.QuestItem;
 import task.Task;
 import task.TaskContent;
+import task.components.TaskContentComponent;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +51,7 @@ public class AnswerPickingFunctions {
         return task -> {
             TaskContent containerContent =
                     (TaskContent) task.containerStream().findFirst().orElseThrow();
+
             Entity container =
                     task.find((TaskContent) containerContent)
                             .orElseThrow(

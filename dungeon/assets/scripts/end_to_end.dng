@@ -1,7 +1,8 @@
 single_choice_task t1 {
-    description: "Task1",
+    description: "3 ist die richtige Antwort!",
     answers: ["1", "2", "3"],
-    correct_answer_index: 2
+    correct_answer_index: 2,
+    grading_function: grade_single_choice_task
 }
 
 assign_task t2 {
@@ -11,7 +12,7 @@ assign_task t2 {
 
 graph g {
     t1;
-    t2;
+    //t2;
 }
 
 dungeon_config c {
@@ -48,8 +49,16 @@ fn on_interact_chest(entity chest, entity who) {
     chest.inventory_component.open(who);
 }
 
-fn on_interact_wizard(entity chest, entity who) {
+fn on_interact_wizard(entity wizard, entity who) {
+    // für sc/mc -> askOnHud/uiAnswerCallback -> Andre baut da was
     print("I AM BEING TALKED TO!!");
+
+        var my_task : task;
+        my_task =  wizard.task_component.task;
+        if my_task.is_active() {
+            ask_task_yes_no(my_task); // -> askForFinishedTask(my_task);
+        //askOnHud(task);
+        }
 }
 
 item_type scroll_type {
@@ -69,11 +78,12 @@ fn build_task(single_choice_task t) -> entity<><> {
     }
 
     var chest : entity;
-    chest = instantiate_named(chest_type, "This is the main chest!");
+    chest = instantiate(chest_type);
     chest.add_named_task_content("This is a quest chest", t);
 
     room_set.add(chest);
     t.set_scenario_text("CUSTOM TEXT");
+    t.set_answer_picker_function(answer_picker_single_chest);
 
     // wizard
     var wizard : entity;
@@ -86,7 +96,7 @@ fn build_task(single_choice_task t) -> entity<><> {
 }
 
 // TODO: fix
-fn build_task_assign(assign_task t) -> entity<><> {
+/*fn build_task_assign(assign_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
 
@@ -125,3 +135,4 @@ fn build_task_assign(assign_task t) -> entity<><> {
     return_set.add(room_set);
     return return_set;
 }
+*/
