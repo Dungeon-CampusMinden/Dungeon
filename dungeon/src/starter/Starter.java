@@ -25,7 +25,6 @@ import interpreter.DSLEntryPointFinder;
 import interpreter.DSLInterpreter;
 
 import task.Task;
-import task.YesNoDialog;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -104,8 +103,7 @@ public class Starter {
                                 });
 
                 String tableString = infos.toString();
-                YesNoDialog.showYesNoDialog(
-                        tableString, "Szenario ID " + scenarioID, () -> {}, () -> {});
+                OkDialog.showOkDialog(tableString, "Szenario ID " + scenarioID, () -> {});
                 // show scenario id
                 // show list for task: reached points
             };
