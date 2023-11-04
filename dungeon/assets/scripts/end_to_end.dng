@@ -21,9 +21,8 @@ multiple_choice_task t3 {
 }
 
 graph g {
-    t1;
-    t2;
-    t3;
+    t1 -> t2 [type=c_c];
+    t1 -> t3 [type=c_f];
 }
 
 dungeon_config c {
