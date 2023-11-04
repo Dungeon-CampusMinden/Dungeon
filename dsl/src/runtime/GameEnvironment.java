@@ -134,6 +134,7 @@ public class GameEnvironment implements IEvironment {
         methods.add(TaskContentContentMethod.instance);
         methods.add(EntityExtension.OpenInventoryMethod.instance);
         methods.add(EntityExtension.AddNamedTaskContentMethod.instance);
+        methods.add(EntityExtension.AddTaskContentMethod.instance);
 
         return methods;
     }

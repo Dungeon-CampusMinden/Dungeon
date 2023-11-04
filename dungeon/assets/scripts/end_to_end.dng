@@ -4,14 +4,26 @@ single_choice_task t1 {
     correct_answer_index: 2
 }
 
-assign_task t2 {
-    description: "Task1",
+/*assign_task t2 {
+    description: "AssignmentTask",
     solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["!", _]>
+}*/
+
+assign_task t2 {
+    description: "AssignmentTask, a->b, c->d",
+    solution: <["a", "b"], ["c", "d"]>
+}
+
+multiple_choice_task t3 {
+    description: "2 und 3 sind die richtige Antwort!",
+    answers: ["1", "2", "3"],
+    correct_answer_index: [1,2]
 }
 
 graph g {
-    t1;
-    //t2;
+    //t1;
+    t2;
+    //t3;
 }
 
 dungeon_config c {
@@ -57,8 +69,8 @@ fn on_interact_knight(entity knight, entity who) {
         var my_task : task;
         my_task =  knight.task_component.task;
         if my_task.is_active() {
-            //ask_task_yes_no(my_task); // -> askForFinishedTask(my_task);
-            show_task_on_ui(my_task); // -> askForFinishedTask(my_task);
+            ask_task_yes_no(my_task); // -> askForFinishedTask(my_task);
+            //show_task_on_ui(my_task); // -> askForFinishedTask(my_task);
         //askOnHud(task);
         } else {
             show_info("Du hast die Aufgabe schon bearbeitet.");
@@ -87,7 +99,7 @@ fn build_task(single_choice_task t) -> entity<><> {
     chest.mark_as_task_container(t, "Quest-Truhe");
 
     room_set.add(chest);
-    t.set_scenario_text("CUSTOM TEXT");
+    t.set_scenario_text("Platziere die richtige Schriftrolle in der Truhe");
     t.set_answer_picker_function(answer_picker_single_chest);
 
     // knight
@@ -100,13 +112,46 @@ fn build_task(single_choice_task t) -> entity<><> {
     return return_set;
 }
 
-// TODO: fix
-/*fn build_task_assign(assign_task t) -> entity<><> {
+fn build_task_multi(multiple_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    // build items from content
+    for task_content content in t.get_content() {
+        var item : entity;
+        item = build_quest_item(scroll_type, content);
+        place_quest_item(item, room_set);
+    }
+
+    // build answer chest
+    var chest : entity;
+    chest = instantiate(chest_type);
+    chest.mark_as_task_container(t, "Quest-Truhe");
+    room_set.add(chest);
+
+    // setup task
+    t.set_scenario_text("Platziere die richtigen Schriftrollen in der Truhe");
+    t.set_answer_picker_function(answer_picker_single_chest);
+
+    // knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "I am the knight");
+    knight.task_component.task = t;
+    room_set.add(knight);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+fn build_task_assign(assign_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
 
     var solution_map : [element -> element<>];
     solution_map = t.get_solution();
+
+    t.set_scenario_text("Platziere die richtige Schriftrolle in der richtigen Truhe");
+    t.set_answer_picker_function(answer_picker_multi_chest);
 
     // instantiate chests
     for element key in solution_map.get_keys() {
@@ -118,7 +163,7 @@ fn build_task(single_choice_task t) -> entity<><> {
             // Value will be still the same Object (with the same HashCode!!)
             var chest : entity;
             chest = instantiate(chest_type);
-            chest.task_content_component.content = key;
+            chest.mark_as_task_container_with_element(t, key);
             room_set.add(chest);
         }
     }
@@ -137,7 +182,12 @@ fn build_task(single_choice_task t) -> entity<><> {
         }
     }
 
+    // quest giver knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "I am the knight");
+    knight.task_component.task = t;
+    room_set.add(knight);
+
     return_set.add(room_set);
     return return_set;
 }
-*/

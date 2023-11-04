@@ -288,4 +288,38 @@ public class EntityExtension {
             return Arrays.stream(arr).toList();
         }
     }
+
+    @DSLExtensionMethod(name = "mark_as_task_container_with_element", extendedType = Entity.class)
+    public static class AddTaskContentMethod
+        implements IDSLExtensionMethod<Entity, Void> {
+        public static EntityExtension.AddTaskContentMethod instance = new EntityExtension.AddTaskContentMethod();
+
+        @Override
+        public Void call(Entity instance, List<Object> params) {
+            var optionalTcc = instance.fetch(TaskContentComponent.class);
+            TaskContentComponent tcc;
+
+            if (optionalTcc.isEmpty()) {
+                tcc = new TaskContentComponent();
+            } else {
+                tcc = optionalTcc.get();
+            }
+
+            Task task = (Task) params.get(0);
+            Element<String> content = (Element<String>)params.get(1);
+            tcc.content(content);
+            instance.addComponent(tcc);
+
+            task.addContent(content);
+            task.addContainer(content);
+
+            return null;
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {Task.class, Element.class};
+            return Arrays.stream(arr).toList();
+        }
+    }
 }
