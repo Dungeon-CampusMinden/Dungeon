@@ -67,4 +67,6 @@ public class KeyboardConfig {
             new ConfigKey<>(new String[] {"menue", "questlog"}, new ConfigIntValue(Input.Keys.M));
     public static final ConfigKey<Integer> PAUSE =
             new ConfigKey<>(new String[] {"pause", "pause_game"}, new ConfigIntValue(Input.Keys.P));
+    public static final ConfigKey<Integer> INFOS =
+            new ConfigKey<>(new String[] {"info", "game_infos"}, new ConfigIntValue(Input.Keys.L));
 }

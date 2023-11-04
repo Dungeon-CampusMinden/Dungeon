@@ -40,6 +40,7 @@ public abstract class Task {
 
     private static final Logger LOGGER = Logger.getLogger(Task.class.getSimpleName());
     private static final Set<Task> ALL_TASKS = new HashSet<>();
+    private static final List<Task> SOLVED_TASK_IN_ORDER = new ArrayList<>();
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
     private static final float DEFAULT_POINTS = 1f;
@@ -58,6 +59,8 @@ public abstract class Task {
     private Entity managementEntity;
     private Set<Set<Entity>> entitySets = new HashSet<>();
     private float pointsToSolve;
+
+    private float achievedPoints;
 
     /**
      * Create a new Task with the {@link #DEFAULT_TASK_TEXT} in the {@link #DEFAULT_TASK_STATE},
@@ -81,6 +84,15 @@ public abstract class Task {
      */
     public static Stream<Task> allTasks() {
         return new HashSet<>(ALL_TASKS).stream();
+    }
+
+    /**
+     * Get a stream of all solved tasks, in order of solving.
+     *
+     * @return Stream of all solved tasks.
+     */
+    public static Stream<Task> allSolvedTaskInOrder() {
+        return new ArrayList<>(SOLVED_TASK_IN_ORDER).stream();
     }
 
     /** Clear the {@link #ALL_TASKS} Set. */
@@ -141,11 +153,14 @@ public abstract class Task {
         if (this.state == state) return false;
         this.state = state;
         observer.forEach(place -> place.notify(this, state));
-
-        if (state == TaskState.ACTIVE && managementEntity != null)
+        if (state == TaskState.FINISHED_CORRECT || state == TaskState.FINISHED_WRONG)
+            SOLVED_TASK_IN_ORDER.add(this);
+        else if (state == TaskState.ACTIVE && managementEntity != null) {
             managementEntity
                     .fetch(TaskComponent.class)
                     .ifPresent(tc -> tc.activate(managementEntity));
+        }
+
         return true;
     }
 
@@ -352,6 +367,7 @@ public abstract class Task {
 
         if (score >= pointsToSolve) state(TaskState.FINISHED_CORRECT);
         else state(TaskState.FINISHED_WRONG);
+        achievedPoints = score;
         return score;
     }
 
@@ -391,6 +407,18 @@ public abstract class Task {
                             return taskContentComponent.content().equals(taskContent);
                         })
                 .findFirst();
+    }
+
+    /**
+     * Get the achieved points for the solution of this task.
+     *
+     * <p>Make sure to check if the Task state is {@link TaskState#FINISHED_CORRECT} or {@link
+     * TaskState#FINISHED_WRONG} before.
+     *
+     * @return the achieved points for the task.
+     */
+    public float achievedPoints() {
+        return achievedPoints;
     }
 
     public int id() {

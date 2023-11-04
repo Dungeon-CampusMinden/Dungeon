@@ -25,11 +25,13 @@ import interpreter.DSLEntryPointFinder;
 import interpreter.DSLInterpreter;
 
 import task.Task;
+import task.YesNoDialog;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Generic Game starter.Starter for a game that uses DSL inputs.
@@ -46,9 +48,10 @@ import java.util.function.Consumer;
  */
 public class Starter {
     private static final String BACKGROUND_MUSIC = "sounds/background.wav";
-    private static boolean realGameStarted = false;
     private static final DSLInterpreter dslInterpreter = new DSLInterpreter();
 
+    private static boolean realGameStarted = false;
+    private static long startTime = 0;
     private static final Consumer<Entity> showQuestLog =
             entity -> {
                 StringBuilder questLogBuilder = new StringBuilder();
@@ -66,6 +69,46 @@ public class Starter {
                 String questLog = questLogBuilder.toString();
                 OkDialog.showOkDialog(questLog, "Questlog", () -> {});
             };
+    private static final Consumer<Entity> showInfos =
+            entity -> {
+                StringBuilder infos = new StringBuilder();
+                long playTime = (System.currentTimeMillis() - startTime) / 60000;
+                infos.append("Spielzeit: ")
+                        .append(playTime)
+                        .append(" min")
+                        .append("          ") // for better hud scale
+                        .append(System.lineSeparator());
+
+                // the task with the id=0 is the quest selector task we will not show that
+                String scenarioID =
+                        Task.allSolvedTaskInOrder()
+                                .filter(task -> task.id() != 0) // Exclude task with ID 0
+                                .map(
+                                        task ->
+                                                task.taskName()
+                                                        .substring(
+                                                                0,
+                                                                1)) // Extract the first character
+                                .collect(Collectors.joining());
+
+                Task.allSolvedTaskInOrder()
+                        .forEach(
+                                task -> {
+                                    if (task.id() != 0) { // Exclude task with ID 0
+                                        infos.append(task.taskName())
+                                                .append(" ")
+                                                .append(task.achievedPoints())
+                                                .append(" P")
+                                                .append(System.lineSeparator());
+                                    }
+                                });
+
+                String tableString = infos.toString();
+                YesNoDialog.showYesNoDialog(
+                        tableString, "Szenario ID " + scenarioID, () -> {}, () -> {});
+                // show scenario id
+                // show list for task: reached points
+            };
 
     public static void main(String[] args) throws IOException {
         // read in DSL-Files
@@ -79,7 +122,7 @@ public class Starter {
         // will generate the TaskDependencyGraph, execute the TaskBuilder, generate and set the
         // Level and generate the PetriNet after the player selected an DSLEntryPoint
         onEntryPointSelection();
-
+        startTime = System.currentTimeMillis();
         Game.run();
     }
 
@@ -148,6 +191,11 @@ public class Starter {
                                             showQuestLog,
                                             false,
                                             true));
+            hero.fetch(PlayerComponent.class)
+                    .flatMap(
+                            fetch ->
+                                    fetch.registerCallback(
+                                            KeyboardConfig.INFOS.value(), showInfos, false, true));
 
         } catch (IOException e) {
             throw new RuntimeException(e);
