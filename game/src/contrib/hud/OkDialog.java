@@ -38,7 +38,7 @@ public class OkDialog {
     }
 
     /**
-     * Show a Yes or No Dialog.
+     * Show a Ok-Dialog.
      *
      * @param skin UI skin to use
      * @param text text to show in the dialog
