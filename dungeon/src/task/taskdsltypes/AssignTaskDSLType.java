@@ -12,9 +12,11 @@ import task.Task;
 import task.TaskContent;
 import task.quizquestion.MultipleChoice;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class AssignTaskDSLType {
     public static final String EMPTY_ELEMENT_NAME = AssignTask.EMPTY_ELEMENT_NAME;
@@ -135,6 +137,142 @@ public class AssignTaskDSLType {
         public List<Type> getParameterTypes() {
             var arr = new Type[] {String.class};
             return Arrays.stream(arr).toList();
+        }
+    }
+
+    /**
+     * {@link IDSLExtensionMethod} to set the grading function of a {@link AssignTask} instance.
+     */
+    @DSLExtensionMethod(name = "set_grading_function", extendedType = AssignTask.class)
+    public static class AssignTaskSetGradingFunction
+        implements IDSLExtensionMethod<AssignTask, Void> {
+        public static AssignTaskDSLType.AssignTaskSetGradingFunction instance =
+            new AssignTaskDSLType.AssignTaskSetGradingFunction();
+
+        @Override
+        public Void call(AssignTask instance, List<Object> params) {
+            var func = (BiFunction<Task, Set<TaskContent>, Float>) params.get(0);
+            instance.scoringFunction(func);
+            return null;
+        }
+
+        // region parameterized parameter type declaration
+
+        // The TypeBuilder needs an implementation of ParameterizedType (with the actual type
+        // information)
+        // to create a FunctionType for the method parameter. As this method will accept a
+        // BiFunction<Task, Set<TaskContent>, Float> as a parameter, we need to build this
+        // ParameterizedType here by ourselves.
+        private static final ParameterizedType biFuncType =
+            new ParameterizedType() {
+                @Override
+                public Type[] getActualTypeArguments() {
+                    return new Type[] {Task.class, setType, Float.class};
+                }
+
+                @Override
+                public Type getRawType() {
+                    return BiFunction.class;
+                }
+
+                @Override
+                public Type getOwnerType() {
+                    return null;
+                }
+            };
+
+        private static final ParameterizedType setType =
+            new ParameterizedType() {
+                @Override
+                public Type[] getActualTypeArguments() {
+                    return new Type[] {TaskContent.class};
+                }
+
+                @Override
+                public Type getRawType() {
+                    return Set.class;
+                }
+
+                @Override
+                public Type getOwnerType() {
+                    return null;
+                }
+            };
+
+        // endregion
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var typeArr = new Type[] {biFuncType};
+            return Arrays.stream(typeArr).toList();
+        }
+    }
+
+    /**
+     * {@link IDSLExtensionMethod} to set the grading function of a {@link AssignTask} instance.
+     */
+    @DSLExtensionMethod(name = "set_answer_picker_function", extendedType = AssignTask.class)
+    public static class AssignTaskSetAnswerPickerFunction
+        implements IDSLExtensionMethod<AssignTask, Void> {
+        public static AssignTaskDSLType.AssignTaskSetAnswerPickerFunction instance =
+            new AssignTaskDSLType.AssignTaskSetAnswerPickerFunction();
+
+        @Override
+        public Void call(AssignTask instance, List<Object> params) {
+            var func = (Function<Task, Set<TaskContent>>) params.get(0);
+            instance.answerPickingFunction(func);
+            return null;
+        }
+
+        // region parameterized parameter type declaration
+
+        // The TypeBuilder needs an implementation of ParameterizedType (with the actual type
+        // information)
+        // to create a FunctionType for the method parameter. As this method will accept a
+        // BiFunction<Task, Set<TaskContent>, Float> as a parameter, we need to build this
+        // ParameterizedType here by ourselves.
+        private static final ParameterizedType funcType =
+            new ParameterizedType() {
+                @Override
+                public Type[] getActualTypeArguments() {
+                    return new Type[] {Task.class, setType};
+                }
+
+                @Override
+                public Type getRawType() {
+                    return Function.class;
+                }
+
+                @Override
+                public Type getOwnerType() {
+                    return null;
+                }
+            };
+
+        private static final ParameterizedType setType =
+            new ParameterizedType() {
+                @Override
+                public Type[] getActualTypeArguments() {
+                    return new Type[] {TaskContent.class};
+                }
+
+                @Override
+                public Type getRawType() {
+                    return Set.class;
+                }
+
+                @Override
+                public Type getOwnerType() {
+                    return null;
+                }
+            };
+
+        // endregion
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var typeArr = new Type[] {funcType};
+            return Arrays.stream(typeArr).toList();
         }
     }
 }

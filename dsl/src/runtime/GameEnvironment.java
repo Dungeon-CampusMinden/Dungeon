@@ -113,13 +113,19 @@ public class GameEnvironment implements IEvironment {
 
         methods.add(SingleChoiceTask.GetContentMethod.instance);
         methods.add(SingleChoiceTask.SetScenarioText.instance);
-        methods.add(MultipleChoiceTask.GetContentMethod.instance);
-        methods.add(MultipleChoiceTask.SetScenarioText.instance);
         methods.add(SingleChoiceTask.SingleChoiceSetGradingFunction.instance);
         methods.add(SingleChoiceTask.SingleChoiceSetAnswerPickerFunction.instance);
+
+        methods.add(MultipleChoiceTask.GetContentMethod.instance);
+        methods.add(MultipleChoiceTask.SetScenarioText.instance);
         methods.add(MultipleChoiceTask.MultipleChoiceSetGradingFunction.instance);
+        methods.add(MultipleChoiceTask.MultipleChoiceSetAnswerPickerFunction.instance);
+
         methods.add(AssignTaskDSLType.GetSolutionMethod.instance);
         methods.add(AssignTaskDSLType.SetScenarioText.instance);
+        methods.add(AssignTaskDSLType.AssignTaskSetGradingFunction.instance);
+        methods.add(AssignTaskDSLType.AssignTaskSetAnswerPickerFunction.instance);
+
         methods.add(IsElementEmptyMethod.instance);
         methods.add(IsTaskActiveMethod.instance);
         methods.add(ElementContentMethod.instance);
