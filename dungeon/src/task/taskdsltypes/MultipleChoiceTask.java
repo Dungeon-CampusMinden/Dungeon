@@ -22,6 +22,8 @@ public class MultipleChoiceTask {
             @DSLTypeNameMember String name,
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
+            @DSLTypeMember(name = "points") float points,
+            @DSLTypeMember(name = "points_to_pass") float pointsToPass,
             @DSLTypeMember(name = "correct_answer_index") List<Integer> correctAnswerIndices,
             @DSLTypeMember(name = "grading_function")
                     BiFunction<Task, Set<TaskContent>, Float> gradingFunction
@@ -29,6 +31,10 @@ public class MultipleChoiceTask {
             ) {
         MultipleChoice mc = new MultipleChoice(description);
         mc.taskName(name);
+
+        if (points > 0.0f && pointsToPass > 0.0f) {
+            mc.points(points, pointsToPass);
+        }
 
         for (Quiz.Content answer : answers) {
             mc.addAnswer(answer);

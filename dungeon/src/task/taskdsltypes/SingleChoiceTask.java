@@ -23,13 +23,17 @@ public class SingleChoiceTask {
             @DSLTypeNameMember String name,
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
+            @DSLTypeMember(name = "points") float points,
+            @DSLTypeMember(name = "points_to_pass") float pointsToPass,
             @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex,
             @DSLTypeMember(name = "grading_function")
-                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction // ,
-            /*@DSLTypeMember(name = "answer_picker_function")
-            Function<Task, Set<TaskContent>> answerPickerFunction*/ ) {
+                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
         SingleChoice sc = new SingleChoice(description);
         sc.taskName(name);
+
+        if (points > 0.0f && pointsToPass > 0.0f) {
+            sc.points(points, pointsToPass);
+        }
 
         for (Quiz.Content answer : answers) {
             sc.addAnswer(answer);

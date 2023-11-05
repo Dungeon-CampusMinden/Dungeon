@@ -1,6 +1,8 @@
 single_choice_task t1 {
     description: "3 ist die richtige Antwort!",
     answers: ["1", "2", "3"],
+    points: 3.0,
+    points_to_pass: 1.0,
     correct_answer_index: 2
 }
 
