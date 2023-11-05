@@ -1,6 +1,7 @@
 package runtime;
 
 import contrib.components.*;
+import contrib.entities.EntityFactory;
 import contrib.entities.WorldItemBuilder;
 import contrib.hud.OkDialog;
 import contrib.item.Item;
@@ -301,6 +302,10 @@ public class GameEnvironment implements IEvironment {
         NativeFunction placeQuestItem =
                 new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
         nativeFunctions.add(placeQuestItem);
+
+        NativeFunction addFillerContent =
+            new GenerateRandomFillerContent(Scope.NULL, entityType);
+        nativeFunctions.add(addFillerContent);
 
         IType taskContentType = (IType) this.globalScope.resolve("task_content");
         NativeFunction nativeBuildQuestItem =
@@ -773,6 +778,46 @@ public class GameEnvironment implements IEvironment {
 
             // call func
             return func.apply(task, taskContentSet);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class GenerateRandomFillerContent extends NativeFunction {
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public GenerateRandomFillerContent(IScope parentScope, IType entityType) {
+            super(
+                "get_random_content",
+                parentScope,
+                new FunctionType(entityType, BuiltInType.noType));
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            Random rand = new Random();
+            int randVal = rand.nextInt();
+            Entity randomContent = null;
+            try {
+                if (randVal % 2 == 0) {
+                    randomContent = EntityFactory.randomMonster();
+                } else {
+                    randomContent = EntityFactory.newChest();
+                }
+            } catch (Exception ex) {
+                //
+            }
+
+            return randomContent;
         }
 
         @Override

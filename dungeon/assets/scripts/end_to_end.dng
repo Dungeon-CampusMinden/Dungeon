@@ -6,11 +6,6 @@ single_choice_task t1 {
     correct_answer_index: 2
 }
 
-/*assign_task t2 {
-    description: "AssignmentTask",
-    solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["!", _]>
-}*/
-
 assign_task t2 {
     description: "AssignmentTask, a->b, c->d",
     solution: <["a", "b"], ["c", "d"]>
@@ -68,8 +63,7 @@ entity_type knight_type {
     hitbox_component {},
     position_component{},
     interaction_component{
-        radius: 1.5//,
-        //on_interaction: ask_task_finished
+        radius: 1.5
     },
     task_component{}
 }
@@ -108,7 +102,6 @@ item_type scroll_type {
     texture_path: "items/book/wisdom_scroll.png"
 }
 
-/*
 fn build_task_single_ui(single_choice_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
@@ -126,9 +119,7 @@ fn build_task_single_ui(single_choice_task t) -> entity<><> {
     return_set.add(room_set);
     return return_set;
 }
-*/
 
-/*
 fn build_task_single_chest(single_choice_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
@@ -158,7 +149,6 @@ fn build_task_single_chest(single_choice_task t) -> entity<><> {
     return_set.add(room_set);
     return return_set;
 }
-*/
 
 fn build_task_single_chest_with_monster(single_choice_task t) -> entity<><> {
     var return_set : entity<><>;
@@ -172,7 +162,6 @@ fn build_task_single_chest_with_monster(single_choice_task t) -> entity<><> {
         var monster: entity;
         monster = instantiate(monster_type);
         monster.inventory_component.add_item(item);
-        // TODO: should drop inventory on floor on death
         room_set.add(monster);
     }
 
@@ -192,7 +181,12 @@ fn build_task_single_chest_with_monster(single_choice_task t) -> entity<><> {
     knight.interaction_component.on_interaction = ask_task_finished;
     room_set.add(knight);
 
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
+
     return_set.add(room_set);
+
     return return_set;
 }
 
@@ -224,6 +218,10 @@ fn build_task_multi_chest(multiple_choice_task t) -> entity<><> {
     knight.interaction_component.on_interaction = ask_task_finished;
     room_set.add(knight);
 
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
+
     return_set.add(room_set);
     return return_set;
 }
@@ -242,6 +240,10 @@ fn build_task_multi_ui(multiple_choice_task t) -> entity<><> {
     knight.task_component.task = t;
     knight.interaction_component.on_interaction = ask_task_on_ui;
     room_set.add(knight);
+
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
 
     return_set.add(room_set);
     return return_set;
@@ -290,9 +292,12 @@ fn build_task_assign(assign_task t) -> entity<><> {
     var knight : entity;
     knight = instantiate_named(knight_type, "I am the knight");
     knight.task_component.task = t;
-    // this does not work! why?
     knight.interaction_component.on_interaction = ask_task_finished;
     room_set.add(knight);
+
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
 
     return_set.add(room_set);
     return return_set;
