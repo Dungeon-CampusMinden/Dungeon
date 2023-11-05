@@ -1,29 +1,137 @@
-single_choice_task t1 {
-    description: "3 ist die richtige Antwort!",
-    answers: ["1", "2", "3"],
-    points: 3.0,
-    points_to_pass: 1.0,
-    correct_answer_index: 2
+// +++++++++++++ MORGEN +++++++++++++++
+
+single_choice_task task1 {
+  description: "Bitte suchen Sie die eine richtige Ausage:",
+  answers: [
+  "Man kann nicht auf den Betriebssystemen Windows, MACOS und Linux in Python programmieren.",
+  "Man kann auf externen Datenträgern schnell sortieren.",
+  "Schlüsselfelder eignen sich nicht zum Indizieren von Daten.",
+  "Keine davon ist richtig."]
 }
 
-assign_task t2 {
-    description: "AssignmentTask, a->b, c->d",
-    solution: <["a", "b"], ["c", "d"]>
+single_choice_task task2_1 {
+  description: "Sie sollen eine Liste mit den Zahlen 8,4,3,2,0 mit dem QuickSort aufsteigend sortieren. Sie wählen als Pivot das erste Element. Wie sieht die Liste aus, wenn die Funktion 'Zerlege' einmal gelaufen ist?",
+  answers: ["1,4,3,2,7", "1,2,3,4,7", "1,2,3,7,4", "1,2,4,3,7", "2,1,4,7,3", "7,1,3,4,2", "4,2,7,1,3",
+  "Keine davon ist richtig."],
+  correct_answer_index: 0
 }
 
-multiple_choice_task t3 {
-    description: "2 und 3 sind die richtige Antwort!",
-    answers: ["1", "2", "3"],
-    correct_answer_index: [1,2]
+single_choice_task task2_2 {
+  description: "Sie sollen eine Liste mit den Zahlen 7,4,3,2,1 mit dem QuickSort aufsteigend sortieren. Sie wählen als Pivot das mittlere Element. Wie sieht die Liste aus, wenn die Funktion 'Zerlege' einmal gelaufen ist?",
+  answers: ["1,2,3,4,7", "1,2,3,7,4", "1,2,4,3,7", "2,1,4,7,3", "7,1,3,4, 2", "4,2,7,1,3",
+  "Keine davon ist richtig."],
+  correct_answer_index: 0
 }
 
-graph g {
-    t1 -> t2 [type=c_c];
-    t1 -> t3 [type=c_f];
+single_choice_task task3_1 {
+  description: "Sie sollen eine Liste mit den Zahlen 7,4,3,2,1 mit dem SelectionSort aufsteigend sortieren. Wie sieht die Liste nach der dritten Vertauschung aus?",
+  answers: ["1,2,3,4,7", "1,2,3,7,4", "1,2,4,3,7", "2,1,4,7,3", "7,1,3,4, 2", "4,2,7,1,3",
+  "Keine davon ist richtig."],
+  correct_answer_index: 0
 }
 
-dungeon_config c {
-    dependency_graph: g
+single_choice_task task3_2 {
+  description: "Sie sollen eine Liste mit den Zahlen 7,4,3,2,1 mit dem SelectionSort aufsteigend sortieren. Wie sieht die Liste nach der ersten Vertauschung aus?",
+  answers: ["1,2,3,4,7", "1,4,2,3,7", "1,2,4,3,7", "2,1,4,7,3", "7,1,3,4,2", "4,2,7,1,3",
+  "Keine davon ist richtig."],
+  correct_answer_index: 6
+}
+
+single_choice_task task4_1 {
+  description: "Sie sollen eine Liste mit den Zahlen 7,4,3,2,1 mit dem BubbleSort aufsteigend sortieren. Wie sieht die Liste nach der dritten Vertauschung aus?",
+ answers: ["1,2,3,4,7", "1,4,2,3,7", "4,3,2,7,1", "2,1,4,7,3", "7,1,3,4,2", "4,2,7,1,3",
+
+  "Keine davon ist richtig."],
+  correct_answer_index: 2
+}
+
+single_choice_task task4_2 {
+  description: "Sie sollen eine Liste mit den Zahlen 7,4,3,2,1 mit dem BubbleSort aufsteigend sortieren. Wie sieht die Liste nach der ersten Vertauschung aus?",
+ answers: ["1,2,3,4,7", "1,4,2,3,7", "4,3,2,7,1", "2,1,4,7,3", "7,1,3,4,2", "4,2,7,1,3",
+
+  "Keine davon ist richtig."],
+  correct_answer_index: 6
+}
+
+multiple_choice_task task5 {
+  description: "Bitte suchen Sie die richtige Ausage:",
+  answers: [
+  "Eine Ordnungsrelation erlaubt gleichen Schlüssel.",
+  "Man kann Datensätze nach dem Datum sortieren lassen.",
+  "Sortierung ist immer aufsteigend.",
+  "Keine davon ist richtig."],
+  correct_answer_index: [0, 1]
+}
+
+multiple_choice_task task6 {
+  description: "Bitte suchen Sie die richtige Ausage:",
+  answers: [
+  "Stabile Sortierverfahren sollten gemieden werden.",
+  "MergeSort braucht viel Speicherplatz.",
+  "Python ist für Anfänger gut geeignet.",
+  "Keine davon ist richtig."],
+  correct_answer_index: [1, 2]
+}
+
+multiple_choice_task task7 {
+  description: "Wählen Sie die Elemente aus, mit denen man jeden Algorithmus darstellen kann.",
+  answers: ["Basisanweisungen", "Kontrollstrukturen", "Elementaroperationen", "Fallunterschiedungen", "Schleifen", "Sequenzen", "Nichts davon"],
+  correct_answer_index: [1, 2, 3, 4, 5]
+}
+
+multiple_choice_task task8 {
+  description: "Welche der folgenden Sortierverfahren sind rekursive Verfahren (in unserer Vorlesung)?",
+  answers: ["BubbleSort", "MergeSort", "QuickSort", "InsertionSort", "SelectionSort",  "Nichts davon"],
+  correct_answer_index: [0, 1] // kann auch leer bleiben
+}
+
+
+assign_task task9{
+  description: "Bitte ordne Elemente einander zu! Die Fragen beziehen ich auf Programmierung.",
+  solution: <
+      ["Elementaroperation", "anzahl = 0"],
+      ["Elementaroperation", "sinus(30)"],
+      ["Kontrollstruktur", "if"],
+      ["Kontrollstruktur", "if - else"],
+      ["Kontrollstruktur", "while"],
+      ["Kontrollstruktur", "do - while"],
+      ["Kontrollstruktur", "repeat - until"],
+      ["Basisanweisung", _],
+      [_, "Öffne die Tür."]
+
+  >
+}
+
+multiple_choice_task task10 {
+  description: "Welchen Aussagen aus der Vorlesung stimmen Sie zu?",
+  answers: [
+  "Eine Spezifikation enthält die Wahl des Algorithmus",
+  "Unterprogramme sind nicht unbedingt nötig.",
+  "Mit Struktogrammen lassen sich gut Algorithmen entwickeln.",
+  "Die Syntax von Pseudocode ist eindeutig festgelegt.",
+  "Hochsprachen werden immer compiliert.",
+  "Nichts davon"],
+  correct_answer_index: [1]
+}
+
+// +++++++++++++++++++++++++++++++++++++++++++++
+
+graph morning_graph {
+    task1 -> task2_1 [type=seq];
+    task2_1 -> task2_2 [type=c_f];
+    task2_1 -> task3_1 [type=seq];
+
+    task3_1 -> task3_2 [type=c_f];
+    task3_1 -> task4_1 [type=seq];
+
+    task4_1 -> task4_2 [type=c_f];
+    task4_1 -> task5 [type=seq];
+
+    task5 -> task6 -> task7 -> task8 -> task9 -> task10 [type=seq];
+}
+
+dungeon_config morgens {
+    dependency_graph: morning_graph
 }
 
 entity_type monster_type {
@@ -261,7 +369,6 @@ fn build_task_assign(assign_task t) -> entity<><> {
 
     // instantiate chests
     for element key in solution_map.get_keys() {
-        // TODO: does this make sense?
         if key.is_empty() {
             // skip
         } else {
