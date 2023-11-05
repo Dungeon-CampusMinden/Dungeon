@@ -1,9 +1,9 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 
+import contrib.components.HealthComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
@@ -14,6 +14,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.level.elements.ILevel;
+import core.utils.components.MissingComponentException;
 
 import dungeonFiles.DSLEntryPoint;
 import dungeonFiles.DslFileLoader;
@@ -27,6 +28,7 @@ import interpreter.DSLInterpreter;
 import task.Task;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -96,7 +98,9 @@ public class Starter {
                                     if (task.id() != 0) { // Exclude task with ID 0
                                         infos.append(task.taskName())
                                                 .append(" ")
-                                                .append(task.achievedPoints())
+                                                .append(
+                                                        new DecimalFormat("#.#")
+                                                                .format(task.achievedPoints()))
                                                 .append(" P")
                                                 .append(System.lineSeparator());
                                     }
@@ -127,7 +131,6 @@ public class Starter {
     private static void onEntryPointSelection() {
         Game.userOnFrame(
                 () -> {
-                    debugKey();
                     // the player selected a Task/DSL-Entrypoint but it´s not loaded yet:
                     if (!realGameStarted && TaskSelector.selectedDSLEntryPoint != null) {
                         realGameStarted = true;
@@ -193,7 +196,9 @@ public class Starter {
                             fetch ->
                                     fetch.registerCallback(
                                             KeyboardConfig.INFOS.value(), showInfos, false, true));
-
+            hero.fetch(HealthComponent.class)
+                    .orElseThrow(() -> MissingComponentException.build(hero, HealthComponent.class))
+                    .godMode(true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -217,10 +222,8 @@ public class Starter {
         Game.add(new AISystem());
         Game.add(new CollisionSystem());
         Game.add(new HealthSystem());
-        Game.add(new XPSystem());
         Game.add(new ProjectileSystem());
         Game.add(new HealthbarSystem());
-        Game.add(new HeroUISystem());
         Game.add(new HudSystem());
         Game.add(new SpikeSystem());
         Game.add(new IdleSoundSystem());
@@ -231,16 +234,5 @@ public class Starter {
         backgroundMusic.setLooping(true);
         backgroundMusic.play();
         backgroundMusic.setVolume(.1f);
-    }
-
-    private static void debugKey() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            Task.allTasks()
-                    .filter(t -> t.state() == Task.TaskState.PROCESSING_ACTIVE)
-                    .findFirst()
-                    .get()
-                    .state(Task.TaskState.FINISHED_CORRECT);
-            System.out.println(Task.allTasks());
-        }
     }
 }

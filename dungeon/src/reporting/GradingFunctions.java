@@ -136,7 +136,6 @@ public class GradingFunctions {
             Map<Element, Set<Element>> solution = assignTask.solution();
             int elementCount = solution.values().stream().mapToInt(Set::size).sum();
             float pointsPerAnswer = assignTask.points() / elementCount;
-            System.out.println(pointsPerAnswer);
             float reachedPoints = 0f;
 
             Element wrap = (Element) containers.stream().findFirst().orElseThrow();
