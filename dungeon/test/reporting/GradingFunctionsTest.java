@@ -2,19 +2,34 @@ package reporting;
 
 import static org.junit.Assert.assertEquals;
 
+import contrib.entities.EntityFactory;
+
+import core.Game;
+
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import task.*;
 import task.quizquestion.MultipleChoice;
 import task.quizquestion.SingleChoice;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class GradingFunctionsTest {
+
+    @Before
+    public void setup() {
+        try {
+            Game.hero(EntityFactory.newHero());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @After
     public void cleanup() {
