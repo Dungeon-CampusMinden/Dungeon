@@ -86,7 +86,25 @@ item_type scroll_type {
     texture_path: "items/book/wisdom_scroll.png"
 }
 
-fn build_task(single_choice_task t) -> entity<><> {
+fn build_task_single_ui(single_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    //t.set_scenario_text("Platziere die richtige Schriftrolle in der Truhe");
+    //t.set_answer_picker_function(answer_picker_single_chest);
+
+    // quest giver knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "I am the knight");
+    knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_on_ui;
+    room_set.add(knight);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+fn build_task_single_chest(single_choice_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
 
@@ -116,7 +134,7 @@ fn build_task(single_choice_task t) -> entity<><> {
     return return_set;
 }
 
-fn build_task_multi(multiple_choice_task t) -> entity<><> {
+fn build_task_multi_chest(multiple_choice_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
 
@@ -142,6 +160,25 @@ fn build_task_multi(multiple_choice_task t) -> entity<><> {
     knight = instantiate_named(knight_type, "I am the knight");
     knight.task_component.task = t;
     knight.interaction_component.on_interaction = ask_task_finished;
+    room_set.add(knight);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+fn build_task_multi_ui(multiple_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    // setup task
+    //t.set_scenario_text("Platziere die richtigen Schriftrollen in der Truhe");
+    //t.set_answer_picker_function(answer_picker_single_chest);
+
+    // knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "I am the knight");
+    knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_on_ui;
     room_set.add(knight);
 
     return_set.add(room_set);
