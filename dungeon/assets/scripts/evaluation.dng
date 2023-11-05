@@ -214,9 +214,6 @@ fn build_task_single_ui(single_choice_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
 
-    //t.set_scenario_text("Platziere die richtige Schriftrolle in der Truhe");
-    //t.set_answer_picker_function(answer_picker_single_chest);
-
     // quest giver knight
     var knight : entity;
     knight = instantiate_named(knight_type, "I am the knight");

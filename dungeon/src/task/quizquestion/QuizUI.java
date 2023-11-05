@@ -81,12 +81,13 @@ public class QuizUI {
             Quiz question,
             Function<Entity, BiFunction<TextDialog, String, Boolean>> resulthandlerLinker) {
 
+        String title = question.taskName();
         Entity entity =
                 showQuizDialog(
                         question,
                         formatStringForDialogWindow(question.taskText()),
                         UITools.DEFAULT_DIALOG_CONFIRM,
-                        UITools.DEFAULT_DIALOG_TITLE,
+                        title,
                         resulthandlerLinker);
         Game.add(entity);
         return entity;

@@ -44,7 +44,8 @@ public class YesNoDialog {
                         + System.lineSeparator()
                         + System.lineSeparator()
                         + "Bist du fertig?";
-        return showYesNoDialog(text, task.taskName(), gradeOn(task), () -> {});
+        String title = task.taskName();
+        return showYesNoDialog(text, title, gradeOn(task), () -> {});
     }
 
     /**
