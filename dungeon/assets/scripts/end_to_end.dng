@@ -37,12 +37,12 @@ entity_type monster_type {
         on_death: drop_items
     },
     position_component {},
-    // TODO: AI component
     draw_component {
         path: "character/monster/goblin"
     },
     velocity_component {},
-    hitbox_component {}
+    hitbox_component {},
+    ai_component{}
     // TODO: spiky component
     // TODO: add sound component
 }
@@ -108,6 +108,7 @@ item_type scroll_type {
     texture_path: "items/book/wisdom_scroll.png"
 }
 
+/*
 fn build_task_single_ui(single_choice_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
@@ -125,7 +126,9 @@ fn build_task_single_ui(single_choice_task t) -> entity<><> {
     return_set.add(room_set);
     return return_set;
 }
+*/
 
+/*
 fn build_task_single_chest(single_choice_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
@@ -155,6 +158,7 @@ fn build_task_single_chest(single_choice_task t) -> entity<><> {
     return_set.add(room_set);
     return return_set;
 }
+*/
 
 fn build_task_single_chest_with_monster(single_choice_task t) -> entity<><> {
     var return_set : entity<><>;

@@ -21,7 +21,9 @@ import semanticanalysis.types.BuiltInType;
 import semanticanalysis.types.FunctionType;
 import semanticanalysis.types.TypeInstantiator;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class NativeInstantiateNamed extends NativeFunction {
     public static NativeInstantiateNamed func = new NativeInstantiateNamed(Scope.NULL);
@@ -68,11 +70,20 @@ public class NativeInstantiateNamed extends NativeFunction {
             String contextName = "entity";
             instantiator.pushContextMember(contextName, entityObject);
 
+            List<Map.Entry<String, Value>> laterEntries = new ArrayList<>();
+
             for (var valueEntry : dslEntityInstance.getMemorySpace().getValueSet()) {
                 if (valueEntry.getKey().equals(Value.THIS_NAME)) {
                     continue;
                 }
+
                 Value memberValue = valueEntry.getValue();
+                // TODO: temporary fix!!!
+                if (memberValue.getDataType().getName().equals("ai_component")) {
+                    laterEntries.add(valueEntry);
+                    continue;
+                }
+
                 if (memberValue instanceof AggregateValue) {
                     // TODO: this is needed, because Prototype does not extend AggregateType
                     // currently,
@@ -92,6 +103,25 @@ public class NativeInstantiateNamed extends NativeFunction {
                     } catch (ClassCastException ex) {
                         //
                     }
+                }
+            }
+
+            for (var entry : laterEntries) {
+                AggregateValue memberValue = (AggregateValue) entry.getValue();
+                AggregateType membersOriginalType =
+                    interpreter.getOriginalTypeOfPrototype(
+                        (Prototype) memberValue.getDataType());
+
+                // instantiate object as a new java Object
+                Object memberObject =
+                    interpreter.instantiateRuntimeValue(
+                        (AggregateValue) memberValue, membersOriginalType);
+                try {
+                    Component component = (Component) memberObject;
+                    Entity entity = (Entity) entityObject;
+                    entity.addComponent(component);
+                } catch (ClassCastException ex) {
+                    //
                 }
             }
 

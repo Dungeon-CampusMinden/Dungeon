@@ -19,7 +19,9 @@ import semanticanalysis.Scope;
 import semanticanalysis.Symbol;
 import semanticanalysis.types.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class NativeInstantiate extends NativeFunction {
     public static NativeInstantiate func = new NativeInstantiate(Scope.NULL);
@@ -46,6 +48,8 @@ public class NativeInstantiate extends NativeFunction {
 
         RuntimeEnvironment rtEnv = interpreter.getRuntimeEnvironment();
         Value param = (Value) parameters.get(0).accept(interpreter);
+
+
         if (param.getDataType() != Prototype.PROTOTYPE) {
             throw new RuntimeException(
                     "Wrong type ('"
@@ -63,6 +67,8 @@ public class NativeInstantiate extends NativeFunction {
             String contextName = "entity";
             instantiator.pushContextMember(contextName, entityObject);
 
+            List<Map.Entry<String, Value>> laterEntries = new ArrayList<>();
+
             for (var valueEntry : dslEntityInstance.getMemorySpace().getValueSet()) {
                 if (valueEntry.getKey().equals(Value.THIS_NAME)) {
                     continue;
@@ -72,6 +78,12 @@ public class NativeInstantiate extends NativeFunction {
                     // TODO: this is needed, because Prototype does not extend AggregateType
                     // currently,
                     //  which should be fixed
+
+                    // TODO: temporary fix!!!
+                    if (memberValue.getDataType().getName().equals("ai_component")) {
+                        laterEntries.add(valueEntry);
+                        continue;
+                    }
                     AggregateType membersOriginalType =
                             interpreter.getOriginalTypeOfPrototype(
                                     (Prototype) memberValue.getDataType());
@@ -87,6 +99,25 @@ public class NativeInstantiate extends NativeFunction {
                     } catch (ClassCastException ex) {
                         //
                     }
+                }
+            }
+
+            for (var entry : laterEntries) {
+                AggregateValue memberValue = (AggregateValue) entry.getValue();
+                AggregateType membersOriginalType =
+                    interpreter.getOriginalTypeOfPrototype(
+                        (Prototype) memberValue.getDataType());
+
+                // instantiate object as a new java Object
+                Object memberObject =
+                    interpreter.instantiateRuntimeValue(
+                        (AggregateValue) memberValue, membersOriginalType);
+                try {
+                    Component component = (Component) memberObject;
+                    Entity entity = (Entity) entityObject;
+                    entity.addComponent(component);
+                } catch (ClassCastException ex) {
+                    //
                 }
             }
 

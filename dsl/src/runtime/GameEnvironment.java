@@ -14,6 +14,7 @@ import core.level.Tile;
 import dslnativefunction.NativeInstantiate;
 import dslnativefunction.NativeInstantiateNamed;
 
+import dsltypeadapters.AIComponentAdapter;
 import dsltypeadapters.DrawComponentAdapter;
 import dsltypeadapters.QuestItemAdapter;
 
@@ -170,6 +171,7 @@ public class GameEnvironment implements IEvironment {
 
     protected void registerDefaultTypeAdapters() {
         typeBuilder.registerTypeAdapter(DrawComponentAdapter.class, this.globalScope);
+        typeBuilder.registerTypeAdapter(AIComponentAdapter.class, this.globalScope);
 
         typeBuilder.registerTypeAdapter(SingleChoiceTask.class, this.globalScope);
         typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
