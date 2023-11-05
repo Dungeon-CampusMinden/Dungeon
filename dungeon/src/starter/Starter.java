@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 
+import contrib.components.HealthComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
@@ -15,6 +16,7 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.level.elements.ILevel;
 
+import core.utils.components.MissingComponentException;
 import dungeonFiles.DSLEntryPoint;
 import dungeonFiles.DslFileLoader;
 import dungeonFiles.DungeonConfig;
@@ -193,7 +195,7 @@ public class Starter {
                             fetch ->
                                     fetch.registerCallback(
                                             KeyboardConfig.INFOS.value(), showInfos, false, true));
-
+            hero.fetch(HealthComponent.class).orElseThrow(()-> MissingComponentException.build(hero,HealthComponent.class)).godMode(true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
