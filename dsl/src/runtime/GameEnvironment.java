@@ -287,11 +287,8 @@ public class GameEnvironment implements IEvironment {
         this.globalScope.bind(Prototype.ITEM_PROTOTYPE);
     }
 
-    private ArrayList<Symbol> buildNativeFunctions() {
+    protected ArrayList<Symbol> buildDependantNativeFunctions() {
         ArrayList<Symbol> nativeFunctions = new ArrayList<>();
-        nativeFunctions.add(NativePrint.func);
-        nativeFunctions.add(NativeInstantiate.func);
-        nativeFunctions.add(NativeInstantiateNamed.func);
         nativeFunctions.add(ShowInfoFunction.func);
 
         // build functions with dependency on specific non-builtin types
@@ -300,7 +297,7 @@ public class GameEnvironment implements IEvironment {
         IType entitySetType = new SetType(entityType, this.globalScope);
 
         NativeFunction placeQuestItem =
-                new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
+            new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
         nativeFunctions.add(placeQuestItem);
 
         NativeFunction addFillerContent = new GenerateRandomFillerContent(Scope.NULL, entityType);
@@ -308,7 +305,7 @@ public class GameEnvironment implements IEvironment {
 
         IType taskContentType = (IType) this.globalScope.resolve("task_content");
         NativeFunction nativeBuildQuestItem =
-                new NativeBuildQuestItem(Scope.NULL, questItemType, taskContentType);
+            new NativeBuildQuestItem(Scope.NULL, questItemType, taskContentType);
         nativeFunctions.add(nativeBuildQuestItem);
 
         var taskSymbol = this.globalScope.resolve("task");
@@ -324,31 +321,42 @@ public class GameEnvironment implements IEvironment {
 
             // grading functions
             NativeFunction nativeGradeSingleChoice =
-                    new SingleChoiceGrading(this.globalScope, taskType, taskContentSetType);
+                new SingleChoiceGrading(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeSingleChoice);
 
             NativeFunction nativeGradeMultipleChoice =
-                    new MultipleChoiceGrading(this.globalScope, taskType, taskContentSetType);
+                new MultipleChoiceGrading(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeMultipleChoice);
 
             NativeFunction nativeGradeAssignEasy =
-                    new AssignmentGradingEasy(this.globalScope, taskType, taskContentSetType);
+                new AssignmentGradingEasy(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeAssignEasy);
 
             NativeFunction nativeGradeAssignHard =
-                    new AssignmentGradingHard(this.globalScope, taskType, taskContentSetType);
+                new AssignmentGradingHard(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeAssignHard);
 
             // answer picker functions
             NativeFunction answerPickerSingleChest =
-                    new AnswerPickerSingleChest(this.globalScope, taskType, taskContentSetType);
+                new AnswerPickerSingleChest(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(answerPickerSingleChest);
 
             NativeFunction answerPickerMultiChest =
-                    new AnswerPickerMultiChest(this.globalScope, taskType, taskContentSetType);
+                new AnswerPickerMultiChest(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(answerPickerMultiChest);
         }
 
+        return nativeFunctions;
+    }
+
+    protected ArrayList<Symbol> buildNativeFunctions() {
+        ArrayList<Symbol> nativeFunctions = new ArrayList<>();
+        nativeFunctions.add(NativePrint.func);
+        nativeFunctions.add(NativeInstantiate.func);
+        nativeFunctions.add(NativeInstantiateNamed.func);
+
+        var dependantNativeFunctions = buildDependantNativeFunctions();
+        nativeFunctions.addAll(dependantNativeFunctions);
         return nativeFunctions;
     }
 
