@@ -1,6 +1,7 @@
 package task;
 
 import contrib.components.InventoryComponent;
+import contrib.item.Item;
 
 import core.Entity;
 import core.Game;
@@ -21,6 +22,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -421,7 +423,7 @@ public abstract class Task {
     }
 
     private void dropQuestItems() {
-        Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
+        Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
         InventoryComponent ic =
                 hero.fetch(InventoryComponent.class)
                         .orElseThrow(
@@ -434,7 +436,19 @@ public abstract class Task {
                                 () ->
                                         MissingComponentException.build(
                                                 hero, PositionComponent.class));
-        ic.items(QuestItem.class).forEach(q -> q.drop(hero, pc.position()));
+        Task t = this;
+        ic.items(QuestItem.class)
+                .forEach(
+                        new Consumer<>() {
+                            @Override
+                            public void accept(Item item) {
+                                if (((QuestItem) item)
+                                        .taskContentComponent()
+                                        .content()
+                                        .task()
+                                        .equals(t)) item.drop(hero, pc.position());
+                            }
+                        });
     }
 
     /**
