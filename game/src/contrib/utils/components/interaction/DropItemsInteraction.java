@@ -84,12 +84,15 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
         AtomicInteger index = new AtomicInteger();
         Arrays.stream(itemData)
                 .forEach(
-                        item ->
+                        item -> {
+                            if (item != null) {
                                 item.drop(
                                         entity,
                                         calculateDropPosition(
                                                 positionComponent,
-                                                index.getAndIncrement() / count)));
+                                                index.getAndIncrement() / count));
+                            }
+                        });
 
         entity.fetch(DrawComponent.class)
                 .ifPresent(
