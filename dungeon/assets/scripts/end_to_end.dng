@@ -38,7 +38,7 @@ entity_type chest_type {
     position_component{},
     interaction_component{
         radius: 1.5,
-        on_interaction: on_interact_chest
+        on_interaction: open_container
     },
     task_content_component{}
 }
@@ -50,30 +50,34 @@ entity_type knight_type {
     hitbox_component {},
     position_component{},
     interaction_component{
-        radius: 1.5,
-        on_interaction: on_interact_knight
+        radius: 1.5//,
+        //on_interaction: ask_task_finished
     },
     task_component{}
 }
 
-fn on_interact_chest(entity chest, entity who) {
-    print("I AM BEING OPENED!!");
+fn open_container(entity chest, entity who) {
     chest.inventory_component.open(who);
 }
 
-fn on_interact_knight(entity knight, entity who) {
-    // für sc/mc -> askOnHud/uiAnswerCallback -> Andre baut da was
-    print("I AM BEING TALKED TO!!");
+fn ask_task_finished(entity knight, entity who) {
+    var my_task : task;
+    my_task =  knight.task_component.task;
+    if my_task.is_active() {
+        ask_task_yes_no(my_task);
+    } else {
+        show_info("Du hast die Aufgabe schon bearbeitet.");
+    }
+}
 
-        var my_task : task;
-        my_task =  knight.task_component.task;
-        if my_task.is_active() {
-            ask_task_yes_no(my_task); // -> askForFinishedTask(my_task);
-            //show_task_on_ui(my_task); // -> askForFinishedTask(my_task);
-        //askOnHud(task);
-        } else {
-            show_info("Du hast die Aufgabe schon bearbeitet.");
-        }
+fn ask_task_on_ui(entity knight, entity who) {
+    var my_task : task;
+    my_task =  knight.task_component.task;
+    if my_task.is_active() {
+        show_task_on_ui(my_task);
+    } else {
+        show_info("Du hast die Aufgabe schon bearbeitet.");
+    }
 }
 
 item_type scroll_type {
@@ -101,10 +105,11 @@ fn build_task(single_choice_task t) -> entity<><> {
     t.set_scenario_text("Platziere die richtige Schriftrolle in der Truhe");
     t.set_answer_picker_function(answer_picker_single_chest);
 
-    // knight
+    // quest giver knight
     var knight : entity;
     knight = instantiate_named(knight_type, "I am the knight");
     knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_finished;
     room_set.add(knight);
 
     return_set.add(room_set);
@@ -136,6 +141,7 @@ fn build_task_multi(multiple_choice_task t) -> entity<><> {
     var knight : entity;
     knight = instantiate_named(knight_type, "I am the knight");
     knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_finished;
     room_set.add(knight);
 
     return_set.add(room_set);
@@ -185,6 +191,8 @@ fn build_task_assign(assign_task t) -> entity<><> {
     var knight : entity;
     knight = instantiate_named(knight_type, "I am the knight");
     knight.task_component.task = t;
+    // this does not work! why?
+    knight.interaction_component.on_interaction = ask_task_finished;
     room_set.add(knight);
 
     return_set.add(room_set);

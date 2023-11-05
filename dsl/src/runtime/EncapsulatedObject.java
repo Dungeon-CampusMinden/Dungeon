@@ -93,12 +93,22 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                     return Value.NONE;
                 }
 
+                IType memberDSLType = null;
+                if (this.dataType instanceof AggregateType aggregateType)  {
+                    Symbol memberSymbol = aggregateType.resolve(name);
+                    memberDSLType = memberSymbol.getDataType();
+                }
+                if (memberDSLType == null) {
+                    memberDSLType = this.environment.getDSLTypeForClass(fieldValue.getClass());
+                }
+
                 // convert the read field value to a DSL 'Value'
                 // this may require recursive creation of encapsulated objects,
                 // if the field is a component for example
-                var type = this.environment.getDSLTypeForClass(fieldValue.getClass());
-                if (type != BuiltInType.noType) {
-                    switch (type.getTypeKind()) {
+
+                // TODO: this does not work for FunctionalInterfaces!
+                if (memberDSLType != BuiltInType.noType) {
+                    switch (memberDSLType.getTypeKind()) {
                         case Basic:
                             // create encapsulated value (because the field is a POD-field, or
                             // "basic type") -> linking the value to the field is only required
@@ -107,7 +117,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                             // RuntimeObjectTranslator, because we know in this case, that the
                             // resolved name is a member of the underlying object
                             returnValue =
-                                    new EncapsulatedField(type, correspondingField, this.object);
+                                    new EncapsulatedField(memberDSLType, correspondingField, this.object);
                             break;
                         case AggregateAdapted:
                         case Aggregate:
@@ -118,6 +128,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                                                     fieldValue, this, this.environment);
                             break;
                         case FunctionType:
+                            returnValue = new EncapsulatedField(memberDSLType, correspondingField, this.object);
                             break;
                     }
                     // cache it

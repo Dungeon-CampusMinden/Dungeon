@@ -1,5 +1,6 @@
 package dsltypeproperties;
 
+import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.GUICombination;
@@ -132,6 +133,25 @@ public class EntityExtension {
         @Override
         public DrawComponent get(Entity instance) {
             var optionalComponent = instance.fetch(DrawComponent.class);
+            return optionalComponent.orElse(null);
+        }
+    }
+
+    @DSLTypeProperty(name = "interaction_component", extendedType = Entity.class)
+    public static class InteractionComponentProperty implements IDSLTypeProperty<Entity, InteractionComponent> {
+        public static InteractionComponentProperty instance = new InteractionComponentProperty();
+
+        private InteractionComponentProperty() {}
+
+        @Override
+        public void set(Entity instance, InteractionComponent valueToSet) {
+            instance.removeComponent(InteractionComponent.class);
+            instance.addComponent(valueToSet);
+        }
+
+        @Override
+        public InteractionComponent get(Entity instance) {
+            var optionalComponent = instance.fetch(InteractionComponent.class);
             return optionalComponent.orElse(null);
         }
     }
