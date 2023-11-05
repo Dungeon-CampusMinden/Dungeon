@@ -2,6 +2,7 @@ package task;
 
 import contrib.item.Item;
 
+import core.Entity;
 import core.utils.components.draw.Animation;
 
 import task.components.TaskContentComponent;
@@ -74,4 +75,7 @@ public class QuestItem extends Item {
     public TaskContentComponent taskContentComponent() {
         return taskContentComponent;
     }
+
+    @Override
+    public void use(Entity e) {}
 }
