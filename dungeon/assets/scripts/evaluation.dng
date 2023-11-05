@@ -1,6 +1,6 @@
 // +++++++++++++ MORGEN +++++++++++++++
 
-single_choice_task task1 {
+single_choice_task task1_m {
   description: "Bitte suchen Sie die eine richtige Ausage:",
   answers: [
   "Man kann nicht auf den Betriebssystemen Windows, MACOS und Linux in Python programmieren.",
@@ -9,35 +9,35 @@ single_choice_task task1 {
   "Keine davon ist richtig."]
 }
 
-single_choice_task task2_1 {
+single_choice_task task2_1_m {
   description: "Sie sollen eine Liste mit den Zahlen 8,4,3,2,0 mit dem QuickSort aufsteigend sortieren. Sie wählen als Pivot das erste Element. Wie sieht die Liste aus, wenn die Funktion 'Zerlege' einmal gelaufen ist?",
   answers: ["1,4,3,2,7", "1,2,3,4,7", "1,2,3,7,4", "1,2,4,3,7", "2,1,4,7,3", "7,1,3,4,2", "4,2,7,1,3",
   "Keine davon ist richtig."],
   correct_answer_index: 0
 }
 
-single_choice_task task2_2 {
+single_choice_task task2_2_m {
   description: "Sie sollen eine Liste mit den Zahlen 7,4,3,2,1 mit dem QuickSort aufsteigend sortieren. Sie wählen als Pivot das mittlere Element. Wie sieht die Liste aus, wenn die Funktion 'Zerlege' einmal gelaufen ist?",
   answers: ["1,2,3,4,7", "1,2,3,7,4", "1,2,4,3,7", "2,1,4,7,3", "7,1,3,4, 2", "4,2,7,1,3",
   "Keine davon ist richtig."],
   correct_answer_index: 0
 }
 
-single_choice_task task3_1 {
+single_choice_task task3_1_m {
   description: "Sie sollen eine Liste mit den Zahlen 7,4,3,2,1 mit dem SelectionSort aufsteigend sortieren. Wie sieht die Liste nach der dritten Vertauschung aus?",
   answers: ["1,2,3,4,7", "1,2,3,7,4", "1,2,4,3,7", "2,1,4,7,3", "7,1,3,4, 2", "4,2,7,1,3",
   "Keine davon ist richtig."],
   correct_answer_index: 0
 }
 
-single_choice_task task3_2 {
+single_choice_task task3_2_m {
   description: "Sie sollen eine Liste mit den Zahlen 7,4,3,2,1 mit dem SelectionSort aufsteigend sortieren. Wie sieht die Liste nach der ersten Vertauschung aus?",
   answers: ["1,2,3,4,7", "1,4,2,3,7", "1,2,4,3,7", "2,1,4,7,3", "7,1,3,4,2", "4,2,7,1,3",
   "Keine davon ist richtig."],
   correct_answer_index: 6
 }
 
-single_choice_task task4_1 {
+single_choice_task task4_1_m {
   description: "Sie sollen eine Liste mit den Zahlen 7,4,3,2,1 mit dem BubbleSort aufsteigend sortieren. Wie sieht die Liste nach der dritten Vertauschung aus?",
  answers: ["1,2,3,4,7", "1,4,2,3,7", "4,3,2,7,1", "2,1,4,7,3", "7,1,3,4,2", "4,2,7,1,3",
 
@@ -45,7 +45,7 @@ single_choice_task task4_1 {
   correct_answer_index: 2
 }
 
-single_choice_task task4_2 {
+single_choice_task task4_2_m {
   description: "Sie sollen eine Liste mit den Zahlen 7,4,3,2,1 mit dem BubbleSort aufsteigend sortieren. Wie sieht die Liste nach der ersten Vertauschung aus?",
  answers: ["1,2,3,4,7", "1,4,2,3,7", "4,3,2,7,1", "2,1,4,7,3", "7,1,3,4,2", "4,2,7,1,3",
 
@@ -53,7 +53,7 @@ single_choice_task task4_2 {
   correct_answer_index: 6
 }
 
-multiple_choice_task task5 {
+multiple_choice_task task5_m {
   description: "Bitte suchen Sie die richtige Ausage:",
   answers: [
   "Eine Ordnungsrelation erlaubt gleichen Schlüssel.",
@@ -63,7 +63,7 @@ multiple_choice_task task5 {
   correct_answer_index: [0, 1]
 }
 
-multiple_choice_task task6 {
+multiple_choice_task task6_m {
   description: "Bitte suchen Sie die richtige Ausage:",
   answers: [
   "Stabile Sortierverfahren sollten gemieden werden.",
@@ -73,20 +73,20 @@ multiple_choice_task task6 {
   correct_answer_index: [1, 2]
 }
 
-multiple_choice_task task7 {
+multiple_choice_task task7_m {
   description: "Wählen Sie die Elemente aus, mit denen man jeden Algorithmus darstellen kann.",
   answers: ["Basisanweisungen", "Kontrollstrukturen", "Elementaroperationen", "Fallunterschiedungen", "Schleifen", "Sequenzen", "Nichts davon"],
   correct_answer_index: [1, 2, 3, 4, 5]
 }
 
-multiple_choice_task task8 {
+multiple_choice_task task8_m {
   description: "Welche der folgenden Sortierverfahren sind rekursive Verfahren (in unserer Vorlesung)?",
   answers: ["BubbleSort", "MergeSort", "QuickSort", "InsertionSort", "SelectionSort",  "Nichts davon"],
   correct_answer_index: [0, 1] // kann auch leer bleiben
 }
 
 
-assign_task task9{
+assign_task task9_m {
   description: "Bitte ordne Elemente einander zu! Die Fragen beziehen ich auf Programmierung.",
   solution: <
       ["Elementaroperation", "anzahl = 0"],
@@ -102,7 +102,7 @@ assign_task task9{
   >
 }
 
-multiple_choice_task task10 {
+multiple_choice_task task10_m {
   description: "Welchen Aussagen aus der Vorlesung stimmen Sie zu?",
   answers: [
   "Eine Spezifikation enthält die Wahl des Algorithmus",
@@ -114,25 +114,149 @@ multiple_choice_task task10 {
   correct_answer_index: [1]
 }
 
-// +++++++++++++++++++++++++++++++++++++++++++++
-
 graph morning_graph {
-    task1 -> task2_1 [type=seq];
-    task2_1 -> task2_2 [type=c_f];
-    task2_1 -> task3_1 [type=seq];
+    task1_m -> task2_1_m [type=seq];
+    task2_1_m -> task2_2_m [type=c_f];
+    task2_1_m -> task3_1_m [type=seq];
 
-    task3_1 -> task3_2 [type=c_f];
-    task3_1 -> task4_1 [type=seq];
+    task3_1_m -> task3_2_m [type=c_f];
+    task3_1_m -> task4_1_m [type=seq];
 
-    task4_1 -> task4_2 [type=c_f];
-    task4_1 -> task5 [type=seq];
+    task4_1_m -> task4_2_m [type=c_f];
+    task4_1_m -> task5_m [type=seq];
 
-    task5 -> task6 -> task7 -> task8 -> task9 -> task10 [type=seq];
+    task5_m -> task6_m -> task7_m -> task8_m -> task9_m -> task10_m [type=seq];
 }
 
 dungeon_config morgens {
     dependency_graph: morning_graph
 }
+
+// ++++++++++++++++++++ ENDE MORGENS ++++++++++++++++++++++++
+
+// ++++++++++++++++++++ NACHMITTAGS +++++++++++++++++++++++++
+
+single_choice_task task1_a {
+  description: "Bitte suchen Sie die eine richtige Ausage:",
+  answers: [
+  "Man kann nicht auf den  Betriebssystemen Windows, MACOS und Linux in Python programmieren.",
+  "Man kann in Python-Programmen die Zeilen einrücken, wie man möchte.", "Schlüsselfelder eignen sich nicht zum Indizieren von Daten.",
+  "Keine davon ist richtig."],
+  correct_answer_index: 3
+}
+
+
+single_choice_task task2_1_a {
+  description: "Sie sollen eine Liste mit den Zahlen 8,4,3,2,0 mit dem QuickSort aufsteigend sortieren. Sie wählen als Pivot das erste Element. Wie sieht die Liste aus, wenn die Funktion 'Zerlege' einmal gelaufen ist?",
+answers: ["0.4.3.2.8", "0,2,3,4,8", "0,2,3,8,4", "0,2,4,3,8", "2,0,4,8,3", "8,0,3,4,2", "4,2,8,0,3",
+
+  "Keine davon ist richtig."],
+  correct_answer_index: 0
+}
+
+single_choice_task task2_2_a {
+  description: "Sie sollen eine Liste mit den Zahlen 8,4,3,2,0 mit dem QuickSort aufsteigend sortieren. Sie wählen als Pivot das mittlere Element. Wie sieht die Liste aus, wenn die Funktion 'Zerlege' einmal gelaufen ist?",
+  answers: ["0,2,3,4,8", "0,2,3,8,4", "0,2,4,3,8", "2,0,4,8,3", "8,0,3,4,2", "4,2,8,0,3",
+  "Keine davon ist richtig."],
+  correct_answer_index: 0
+}
+
+single_choice_task task3_1_a {
+  description: "Sie sollen eine Liste mit den Zahlen 8,4,3,2,0 mit dem SelectionSort aufsteigend sortieren. Wie sieht die Liste nach der dritten Vertauschung aus?",
+  answers: ["0,2,3,4,8", "0,2,3,8,4", "0,2,4,3,8", "2,0,4,8,3", "8,0,3,4,2", "4,2,8,0,3",
+  "Keine davon ist richtig."],
+  correct_answer_index: 0
+}
+
+single_choice_task task3_2_a {
+  description: "Sie sollen eine Liste mit den Zahlen 8,4,3,2,0 mit dem SelectionSort aufsteigend sortieren. Wie sieht die Liste nach der ersten Vertauschung aus?",
+  answers: ["0,2,3,4,8", "0,4,2,3,8", "0,2,4,3,8", "2,0,4,8,3", "8,0,3,4,2", "4,2,8,0,3",
+  "Keine davon ist richtig."],
+  correct_answer_index: 6
+}
+
+single_choice_task task4_1_a {
+  description: "Sie sollen eine Liste mit den Zahlen 8,4,3,2,0 mit dem BubbleSort aufsteigend sortieren. Wie sieht die Liste nach der dritten Vertauschung aus?",
+ answers: ["0,2,3,4,8", "0,4,2,3,8", "4,3,2,7,1", "2,0,4,8,3", "8,0,3,4,2", "4,2,8,0,3",
+  "Keine davon ist richtig."],
+  correct_answer_index: 2
+}
+
+single_choice_task task4_2_a {
+  description: "Sie sollen eine Liste mit den Zahlen 8,4,3,2,0 mit dem BubbleSort aufsteigend sortieren. Wie sieht die Liste nach der ersten Vertauschung aus?",
+  answers: ["0,2,3,4,8", "0,4,2,3,8", "4,3,2,7,1", "2,0,4,8,3", "8,0,3,4,2", "4,2,8,0,3",
+  "Keine davon ist richtig."],
+  correct_answer_index: 6
+}
+
+multiple_choice_task task5_a {
+  description: "Bitte suchen Sie die richtige Ausage:",
+  answers: ["Eine Ordnungsrelation erlaubt gleichen Schlüssel.","Man kann Datensätze nach dem Datum sortieren lassen.", "Sortierung ist immer aufsteigend.",
+  "Keine davon ist richtig."],
+  correct_answer_index: [0, 1]
+}
+
+
+multiple_choice_task task6_a {
+  description: "Bitte suchen Sie die richtige Ausage:",
+  answers: ["Pseudocode ist grundsätzlich maschinenlesbar.","MergeSort braucht viel Speicherplatz.", "Python ist für Anfänger gut geeignet.",
+  "Keine davon ist richtig."],
+  correct_answer_index: [1, 2]
+}
+
+multiple_choice_task task7_a {
+  description: "Wählen Sie die Elemente aus, mit denen man jeden Algorithmus darstellen kann.",
+  answers: ["Basisanweisungen", "Kontrollstrukturen", "Elementaroperationen", "Fallunterschiedungen", "Schleifen", "Sequenzen", "Nichts davon"],
+  correct_answer_index: [1, 2, 3, 4, 5]
+}
+
+
+multiple_choice_task task8_a {
+  description: "Welche der folgenden Sortierverfahren sind rekursive Verfahren (in unserer Vorlesung)?",
+  answers: ["BubbleSort", "MergeSort", "QuickSort", "InsertionSort", "SelectionSort",  "Nichts davon"],
+  correct_answer_index: [0, 1]
+}
+
+assign_task task9_a {
+  description: "Bitte ordne Elemente einander zu! Die Fragen beziehen ich auf Programmierung.",
+  solution: <
+      ["Elementaroperation", "anzahl = 0"],
+      ["Elementaroperation", "sinus(30)"],
+      ["Kontrollstruktur", "if"],
+      ["Kontrollstruktur", "if - else"],
+      ["Kontrollstruktur", "while"],
+      ["Kontrollstruktur", "do - while"],
+      ["Kontrollstruktur", "repeat - until"],
+      ["Basisanweisung", _],
+      [_, "Öffne die Tür."]
+  >
+}
+
+multiple_choice_task task10_a {
+  description: "Welchen Aussagen aus der Vorlesung stimmen Sie zu?",
+  answers: ["Eine Spezifikation enthält die Wahl des Algorithmus", "Unterprogramme sind nicht unbedingt nötig.", "Mit Struktogrammen lassen sich gut Algorithmen entwickeln.", "Die Syntax von Pseudocode ist eindeutig festgelegt.", "Hochsprachen werden immer compiliert.",  "Nichts davon"],
+  correct_answer_index: [1]
+}
+
+graph afternoon_graph {
+    task1_a -> task2_1_a [type=seq];
+    task2_1_a -> task2_2_a [type=c_f];
+    task2_1_a -> task3_1_a [type=seq];
+
+    task3_1_a -> task3_2_a [type=c_f];
+    task3_1_a -> task4_1_a [type=seq];
+
+    task4_1_a -> task4_2_a [type=c_f];
+    task4_1_a -> task5_a [type=seq];
+
+    task5_a -> task6_a -> task7_a -> task8_a -> task9_a -> task10_a [type=seq];
+}
+
+dungeon_config nachmittags {
+    dependency_graph: afternoon_graph
+}
+// ++++++++++++++++++++ ENDE NACHMITTAGS ++++++++++++++++++++
+
 
 entity_type monster_type {
     inventory_component {},
@@ -205,8 +329,8 @@ fn ask_task_on_ui(entity knight, entity who) {
 }
 
 item_type scroll_type {
-    display_name: "A scroll",
-    description: "Please read me",
+    display_name: "Eine Schriftrolle",
+    description: "Lies mich",
     texture_path: "items/book/wisdom_scroll.png"
 }
 
@@ -216,7 +340,7 @@ fn build_task_single_ui(single_choice_task t) -> entity<><> {
 
     // quest giver knight
     var knight : entity;
-    knight = instantiate_named(knight_type, "I am the knight");
+    knight = instantiate_named(knight_type, "Questgeber");
     knight.task_component.task = t;
     knight.interaction_component.on_interaction = ask_task_on_ui;
     room_set.add(knight);
@@ -241,12 +365,12 @@ fn build_task_single_chest(single_choice_task t) -> entity<><> {
     chest.mark_as_task_container(t, "Quest-Truhe");
 
     room_set.add(chest);
-    t.set_scenario_text("Platziere die richtige Schriftrolle in der Truhe");
+    t.set_scenario_text("Platziere die richtige Schriftrolle in der Quest-Truhe");
     t.set_answer_picker_function(answer_picker_single_chest);
 
     // quest giver knight
     var knight : entity;
-    knight = instantiate_named(knight_type, "I am the knight");
+    knight = instantiate_named(knight_type, "Questgeber");
     knight.task_component.task = t;
     knight.interaction_component.on_interaction = ask_task_finished;
     room_set.add(knight);
@@ -262,7 +386,6 @@ fn build_task_single_chest_with_monster(single_choice_task t) -> entity<><> {
     for task_content content in t.get_content() {
         var item : quest_item;
         item = build_quest_item(scroll_type, content);
-        //place_quest_item(item, room_set);
 
         var monster: entity;
         monster = instantiate(monster_type);
@@ -272,16 +395,15 @@ fn build_task_single_chest_with_monster(single_choice_task t) -> entity<><> {
 
     var chest : entity;
     chest = instantiate(chest_type);
-    //chest.add_named_task_content("This is a quest chest", t);
     chest.mark_as_task_container(t, "Quest-Truhe");
 
     room_set.add(chest);
-    t.set_scenario_text("Platziere die richtige Schriftrolle in der Truhe, Monster haben die Schriftrolle!");
+    t.set_scenario_text("Hilfe! Monster haben die Schriftrollen geklaut! Platziere die richtige Schriftrolle in der Quest-Truhe!");
     t.set_answer_picker_function(answer_picker_single_chest);
 
     // quest giver knight
     var knight : entity;
-    knight = instantiate_named(knight_type, "I am the knight");
+    knight = instantiate_named(knight_type, "Questgeber");
     knight.task_component.task = t;
     knight.interaction_component.on_interaction = ask_task_finished;
     room_set.add(knight);
@@ -313,12 +435,12 @@ fn build_task_multi_chest(multiple_choice_task t) -> entity<><> {
     room_set.add(chest);
 
     // setup task
-    t.set_scenario_text("Platziere die richtigen Schriftrollen in der Truhe");
+    t.set_scenario_text("Platziere die richtigen Schriftrollen in der Quest-Truhe");
     t.set_answer_picker_function(answer_picker_single_chest);
 
     // knight
     var knight : entity;
-    knight = instantiate_named(knight_type, "I am the knight");
+    knight = instantiate_named(knight_type, "Questgeber");
     knight.task_component.task = t;
     knight.interaction_component.on_interaction = ask_task_finished;
     room_set.add(knight);
@@ -336,12 +458,12 @@ fn build_task_multi_ui(multiple_choice_task t) -> entity<><> {
     var room_set : entity<>;
 
     // setup task
-    //t.set_scenario_text("Platziere die richtigen Schriftrollen in der Truhe");
+    //t.set_scenario_text("Platziere die richtigen Schriftrollen in der Quest-Truhe");
     //t.set_answer_picker_function(answer_picker_single_chest);
 
     // knight
     var knight : entity;
-    knight = instantiate_named(knight_type, "I am the knight");
+    knight = instantiate_named(knight_type, "Questgeber");
     knight.task_component.task = t;
     knight.interaction_component.on_interaction = ask_task_on_ui;
     room_set.add(knight);
@@ -361,7 +483,7 @@ fn build_task_assign(assign_task t) -> entity<><> {
     var solution_map : [element -> element<>];
     solution_map = t.get_solution();
 
-    t.set_scenario_text("Platziere die richtige Schriftrolle in der richtigen Truhe");
+    t.set_scenario_text("Platziere die richtige Schriftrolle in der richtigen Quest-Truhe");
     t.set_answer_picker_function(answer_picker_multi_chest);
 
     // instantiate chests
@@ -395,7 +517,7 @@ fn build_task_assign(assign_task t) -> entity<><> {
 
     // quest giver knight
     var knight : entity;
-    knight = instantiate_named(knight_type, "I am the knight");
+    knight = instantiate_named(knight_type, "Questgeber");
     knight.task_component.task = t;
     knight.interaction_component.on_interaction = ask_task_finished;
     room_set.add(knight);
