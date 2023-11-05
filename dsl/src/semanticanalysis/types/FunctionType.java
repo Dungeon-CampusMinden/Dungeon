@@ -55,7 +55,7 @@ public class FunctionType extends Symbol implements IType {
         for (int i = 0; i < parameterTypes.size(); i++) {
             IType parameterType = parameterTypes.get(i);
             if (parameterType == null) {
-                boolean b= true;
+                boolean b = true;
             }
             nameBuilder.append(parameterType.getName());
             if (i != parameterTypes.size() - 1) {

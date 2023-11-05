@@ -3,7 +3,6 @@ package interpreter;
 import runtime.GameEnvironment;
 
 import semanticanalysis.Symbol;
-import semanticanalysis.types.IDSLExtensionMethod;
 import semanticanalysis.types.IDSLTypeProperty;
 import semanticanalysis.types.TypeBuilder;
 
@@ -38,7 +37,7 @@ public class TestEnvironment extends GameEnvironment {
     protected void registerDefaultRuntimeObjectTranslators() {}
 
     @Override
-    protected void registerDefaultTypeAdapters() { }
+    protected void registerDefaultTypeAdapters() {}
 
     @Override
     protected ArrayList<Symbol> buildDependantNativeFunctions() {
@@ -46,10 +45,8 @@ public class TestEnvironment extends GameEnvironment {
     }
 
     @Override
-    protected void bindBuiltInProperties() {
-    }
+    protected void bindBuiltInProperties() {}
 
     @Override
-    protected void bindBuiltInMethods() {
-    }
+    protected void bindBuiltInMethods() {}
 }
