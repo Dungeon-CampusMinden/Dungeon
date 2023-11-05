@@ -22,7 +22,6 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.*;
-import core.utils.Constants;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
@@ -41,6 +40,7 @@ import java.util.stream.IntStream;
  * static methods to construct various types of entities with different components.
  */
 public class EntityFactory {
+    public static final int DEFAULT_INVENTORY_SIZE = 10;
     private static final Random RANDOM = new Random();
     private static final String HERO_FILE_PATH = "character/wizard";
     private static final float X_SPEED_HERO = 7.5f;
@@ -130,7 +130,7 @@ public class EntityFactory {
         hero.addComponent(new XPComponent((e) -> {}));
         PlayerComponent pc = new PlayerComponent();
         hero.addComponent(pc);
-        InventoryComponent ic = new InventoryComponent(Constants.DEFAULT_INVENTORY_SIZE);
+        InventoryComponent ic = new InventoryComponent(DEFAULT_INVENTORY_SIZE);
         hero.addComponent(ic);
         Skill fireball =
                 new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
