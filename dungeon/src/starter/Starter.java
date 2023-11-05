@@ -28,6 +28,7 @@ import interpreter.DSLInterpreter;
 import task.Task;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -97,7 +98,9 @@ public class Starter {
                                     if (task.id() != 0) { // Exclude task with ID 0
                                         infos.append(task.taskName())
                                                 .append(" ")
-                                                .append(task.achievedPoints())
+                                                .append(
+                                                        new DecimalFormat("#.#")
+                                                                .format(task.achievedPoints()))
                                                 .append(" P")
                                                 .append(System.lineSeparator());
                                     }
