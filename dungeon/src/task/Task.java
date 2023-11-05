@@ -1,7 +1,13 @@
 package task;
 
+import contrib.components.InventoryComponent;
+import contrib.item.Item;
+
 import core.Entity;
 import core.Game;
+import core.components.PositionComponent;
+import core.utils.MissingHeroException;
+import core.utils.components.MissingComponentException;
 
 import petriNet.Place;
 
@@ -16,6 +22,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -410,7 +417,41 @@ public abstract class Task {
         if (score >= pointsToSolve) state(TaskState.FINISHED_CORRECT);
         else state(TaskState.FINISHED_WRONG);
         achievedPoints = score;
+
+        dropQuestItems();
         return score;
+    }
+
+    private void dropQuestItems() {
+        Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+        InventoryComponent ic =
+                hero.fetch(InventoryComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                hero, InventoryComponent.class));
+        PositionComponent pc =
+                hero.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                hero, PositionComponent.class));
+        Task t = this;
+        ic.items(QuestItem.class)
+                .forEach(
+                        new Consumer<>() {
+                            @Override
+                            public void accept(Item item) {
+                                if (((QuestItem) item)
+                                        .taskContentComponent()
+                                        .content()
+                                        .task()
+                                        .equals(t)) {
+                                    item.drop(hero, pc.position());
+                                    ic.remove(item);
+                                }
+                            }
+                        });
     }
 
     /**
