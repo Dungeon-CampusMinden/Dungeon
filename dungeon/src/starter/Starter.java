@@ -48,6 +48,8 @@ import java.util.stream.Collectors;
  * paths.
  */
 public class Starter {
+
+    private static int loadCounter = 0;
     private static final String BACKGROUND_MUSIC = "sounds/background.wav";
     private static final DSLInterpreter dslInterpreter = new DSLInterpreter();
 
@@ -131,6 +133,7 @@ public class Starter {
     private static void onEntryPointSelection() {
         Game.userOnFrame(
                 () -> {
+
                     // the player selected a Task/DSL-Entrypoint but it´s not loaded yet:
                     if (!realGameStarted && TaskSelector.selectedDSLEntryPoint != null) {
                         realGameStarted = true;
@@ -159,11 +162,18 @@ public class Starter {
         // load the task selector level
         Game.userOnLevelLoad(
                 (firstTime) -> {
+                    loadCounter++;
                     // this will be at the start of the game
                     if (firstTime && TaskSelector.selectedDSLEntryPoint == null) {
                         try {
                             Game.add(
                                     TaskSelector.npc(TaskSelector.selectTaskQuestion(entryPoints)));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else if (loadCounter == 5) {
+                        try {
+                            Game.add(EntityFactory.newCraftingCauldron());
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
