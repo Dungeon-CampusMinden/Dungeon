@@ -49,6 +49,7 @@ public class AnswerPickingFunctions {
         return task -> {
             TaskContent containerContent =
                     (TaskContent) task.containerStream().findFirst().orElseThrow();
+
             Entity container =
                     task.find((TaskContent) containerContent)
                             .orElseThrow(

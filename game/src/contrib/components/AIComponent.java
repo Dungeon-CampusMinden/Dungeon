@@ -9,8 +9,6 @@ import contrib.utils.components.ai.transition.RangeTransition;
 import core.Component;
 import core.Entity;
 
-import semanticanalysis.types.DSLType;
-
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -34,7 +32,6 @@ import java.util.function.Function;
  *
  * @see AISystem
  */
-@DSLType(name = "ai_component")
 public final class AIComponent implements Component {
     private final Consumer<Entity> fightBehavior;
     private final Consumer<Entity> idleBehavior;

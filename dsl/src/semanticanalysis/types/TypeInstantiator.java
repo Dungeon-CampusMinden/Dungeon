@@ -227,8 +227,15 @@ public class TypeInstantiator {
                         } else {
                             memberName = TypeBuilder.getDSLParameterName(parameter);
                         }
-                        var memberValue = aggregateFieldValue.getMemorySpace().resolve(memberName);
-                        var internalObject = convertValueToObject(memberValue);
+                        Value memberValue =
+                                aggregateFieldValue.getMemorySpace().resolve(memberName);
+                        Object internalObject;
+                        if (parameter.isAnnotationPresent(DSLContextMember.class)) {
+                            String name = parameter.getAnnotation(DSLContextMember.class).name();
+                            internalObject = context.get(name);
+                        } else {
+                            internalObject = convertValueToObject(memberValue);
+                        }
                         parameters.add(internalObject);
                     }
 

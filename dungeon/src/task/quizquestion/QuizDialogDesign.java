@@ -36,6 +36,7 @@ public class QuizDialogDesign {
         else style = skin.get("default", CheckBox.CheckBoxStyle.class);
         quizQuestion
                 .contentStream()
+                .filter(answer -> answer instanceof Quiz.Content)
                 .map(answer -> (Quiz.Content) answer)
                 .filter(answer -> answer.type() != Quiz.Content.Type.IMAGE)
                 .map(

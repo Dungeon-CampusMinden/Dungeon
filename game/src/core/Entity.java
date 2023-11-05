@@ -37,7 +37,7 @@ public final class Entity implements Comparable<Entity> {
     private static final Logger LOGGER = Logger.getLogger(Entity.class.getName());
     private static int nextId = 0;
     private final int id;
-    private final String name;
+    private String name;
     private final HashMap<Class<? extends Component>, Component> components;
 
     /**
@@ -119,6 +119,15 @@ public final class Entity implements Comparable<Entity> {
      */
     public int id() {
         return id;
+    }
+
+    /**
+     * Set the name of this entity
+     *
+     * @param name the new name of this entity
+     */
+    public void name(String name) {
+        this.name = name;
     }
 
     @Override

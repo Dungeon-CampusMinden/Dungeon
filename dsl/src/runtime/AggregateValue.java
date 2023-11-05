@@ -77,11 +77,14 @@ public class AggregateValue extends Value {
         var valueSet = this.memorySpace.getValueSet();
 
         // has this AggregateValue either no values or no values other than the "$THIS$"-value
-        boolean noMemberValues =
-                valueSet.size() == 0
-                        || (valueSet.size() == 1
-                                && valueSet.iterator().next().getKey().equals(Value.THIS_NAME));
+        long dataMemberCount =
+                valueSet.stream()
+                        .filter(
+                                v ->
+                                        !v.getKey().equals(Value.THIS_NAME)
+                                                && !(v.getValue() instanceof FunctionValue))
+                        .count();
 
-        return internalValueNull && noMemberValues;
+        return internalValueNull && dataMemberCount == 0;
     }
 }

@@ -53,7 +53,7 @@ public class PetriNetFactory {
         Place end_correct = new Place();
         Place end_false = new Place();
         Place end = new Place();
-        end.changeStateOnTokenAdd(task, Task.TaskState.INACTIVE);
+        // end.changeStateOnTokenAdd(task, Task.TaskState.INACTIVE);
 
         // create transition and connect the to the places
         Transition activateTask =

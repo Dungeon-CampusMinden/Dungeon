@@ -61,6 +61,7 @@ public abstract class Task {
     protected Set<TaskContent> container;
     private TaskState state;
     private String taskText;
+    private String scenarioText;
     private String taskName;
     private Entity managementEntity;
     private Set<Set<Entity>> entitySets = new HashSet<>();
@@ -205,6 +206,24 @@ public abstract class Task {
     }
 
     /**
+     * Get the scenario text.
+     *
+     * @return scenario text
+     */
+    public String scenarioText() {
+        return scenarioText;
+    }
+
+    /**
+     * Set the scenario text.
+     *
+     * @param scenarioText new scenario text
+     */
+    public void scenarioText(String scenarioText) {
+        this.scenarioText = scenarioText;
+    }
+
+    /**
      * Set the task name.
      *
      * @param taskName new task name
@@ -263,6 +282,7 @@ public abstract class Task {
      * @param content element to add to the internal collection
      */
     public void addContent(final TaskContent content) {
+        content.task(this);
         this.content.add(content);
     }
 
@@ -302,7 +322,7 @@ public abstract class Task {
      * @param answerPickingFunction the answer picking function to set.
      */
     public void answerPickingFunction(Function<Task, Set<TaskContent>> answerPickingFunction) {
-        this.scoringFunction = scoringFunction;
+        this.answerPickingFunction = answerPickingFunction;
     }
 
     /**

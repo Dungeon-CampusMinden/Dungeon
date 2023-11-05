@@ -10,6 +10,7 @@ import semanticanalysis.ICallable;
 import semanticanalysis.types.FunctionType;
 
 import java.util.Arrays;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
  * callback-function defined in the DSL. Implements the functional interfaces needed for assigning
  * an instance of this class to the callback-fields in the components of the Dungeons ECS.
  */
-public class CallbackAdapter implements Consumer, TriConsumer {
+public class CallbackAdapter implements Consumer, TriConsumer, BiConsumer {
 
     private final RuntimeEnvironment rtEnv;
     private final FunctionType functionType;
@@ -53,6 +54,11 @@ public class CallbackAdapter implements Consumer, TriConsumer {
     @Override
     public void accept(Object o, Object o2, Object o3) {
         this.call(o, o2, o3);
+    }
+
+    @Override
+    public void accept(Object o, Object o2) {
+        this.call(o, o2);
     }
     // endregion
 }

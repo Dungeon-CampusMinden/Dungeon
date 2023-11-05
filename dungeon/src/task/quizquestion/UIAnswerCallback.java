@@ -93,6 +93,7 @@ public final class UIAnswerCallback {
     private static Set<TaskContent> stringToContent(Quiz quiz, Set<String> answers) {
         Set<TaskContent> contentSet = new HashSet<>();
         quiz.contentStream()
+                .filter(answer -> answer instanceof Quiz.Content)
                 .map(answer -> (Quiz.Content) answer)
                 .filter(answer -> answers.contains(answer.content()))
                 .forEach(contentSet::add);

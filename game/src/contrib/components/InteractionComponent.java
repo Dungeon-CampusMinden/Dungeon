@@ -3,7 +3,9 @@ package contrib.components;
 import core.Component;
 import core.Entity;
 
+import semanticanalysis.types.DSLCallback;
 import semanticanalysis.types.DSLType;
+import semanticanalysis.types.DSLTypeMember;
 
 import java.util.function.BiConsumer;
 
@@ -29,9 +31,9 @@ public final class InteractionComponent implements Component {
     public static final boolean DEFAULT_REPEATABLE = true;
 
     private static final BiConsumer<Entity, Entity> DEFAULT_INTERACTION = (entity, who) -> {};
-    private final float radius;
+    @DSLTypeMember private final float radius;
     private final boolean repeatable;
-    private final BiConsumer<Entity, Entity> onInteraction;
+    @DSLCallback private final BiConsumer<Entity, Entity> onInteraction;
 
     /**
      * Create a new {@link InteractionComponent}.

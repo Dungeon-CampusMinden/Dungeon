@@ -14,6 +14,7 @@ import taskdependencygraph.TaskDependencyGraph;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -39,6 +40,7 @@ public class TypeBuilder {
     private void setupFunctionTypeBuilders() {
         functionTypeBuilders.put(Consumer.class, ConsumerFunctionTypeBuilder.instance);
         functionTypeBuilders.put(TriConsumer.class, ConsumerFunctionTypeBuilder.instance);
+        functionTypeBuilders.put(BiConsumer.class, ConsumerFunctionTypeBuilder.instance);
         functionTypeBuilders.put(Function.class, FunctionFunctionTypeBuilder.instance);
         functionTypeBuilders.put(BiFunction.class, BiFunctionFunctionTypeBuilder.instance);
     }

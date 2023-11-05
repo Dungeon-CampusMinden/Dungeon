@@ -16,30 +16,28 @@ import runtime.nativefunctions.NativeFunction;
 import semanticanalysis.ICallable;
 import semanticanalysis.IScope;
 import semanticanalysis.Scope;
-import semanticanalysis.Symbol;
-import semanticanalysis.types.*;
+import semanticanalysis.types.AggregateType;
+import semanticanalysis.types.BuiltInType;
+import semanticanalysis.types.FunctionType;
+import semanticanalysis.types.TypeInstantiator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class NativeInstantiate extends NativeFunction {
-    public static NativeInstantiate func = new NativeInstantiate(Scope.NULL);
+public class NativeInstantiateNamed extends NativeFunction {
+    public static NativeInstantiateNamed func = new NativeInstantiateNamed(Scope.NULL);
 
     /**
      * Constructor
      *
      * @param parentScope parent scope of this function
      */
-    private NativeInstantiate(IScope parentScope) {
+    private NativeInstantiateNamed(IScope parentScope) {
         super(
-                "instantiate",
+                "instantiate_named",
                 parentScope,
-                new FunctionType(BuiltInType.noType, Prototype.PROTOTYPE));
-
-        // bind parameters
-        Symbol param = new Symbol("param", this, Prototype.PROTOTYPE);
-        this.bind(param);
+                new FunctionType(BuiltInType.noType, Prototype.PROTOTYPE, BuiltInType.stringType));
     }
 
     @Override
@@ -47,18 +45,24 @@ public class NativeInstantiate extends NativeFunction {
         assert parameters != null && parameters.size() > 0;
 
         RuntimeEnvironment rtEnv = interpreter.getRuntimeEnvironment();
-        Value param = (Value) parameters.get(0).accept(interpreter);
 
-        if (param.getDataType() != Prototype.PROTOTYPE) {
+        var parameterValues = interpreter.evaluateNodes(parameters);
+        Value prototypeValue = parameterValues.get(0);
+        Value nameValue = parameterValues.get(1);
+
+        if (prototypeValue.getDataType() != Prototype.PROTOTYPE) {
             throw new RuntimeException(
                     "Wrong type ('"
-                            + param.getDataType().getName()
+                            + prototypeValue.getDataType().getName()
                             + "') of parameter for call of instantiate()!");
         } else {
             var dslEntityInstance =
-                    (AggregateValue) interpreter.instantiateDSLValue((Prototype) param);
+                    (AggregateValue) interpreter.instantiateDSLValue((Prototype) prototypeValue);
             var entityType = (AggregateType) rtEnv.getGlobalScope().resolve("entity");
-            var entityObject = interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
+            var entityObject =
+                    (core.Entity)
+                            interpreter.instantiateRuntimeValue(dslEntityInstance, entityType);
+            entityObject.name(nameValue.toString());
 
             TypeInstantiator instantiator =
                     interpreter.getRuntimeEnvironment().getTypeInstantiator();
@@ -72,17 +76,18 @@ public class NativeInstantiate extends NativeFunction {
                 if (valueEntry.getKey().equals(Value.THIS_NAME)) {
                     continue;
                 }
+
                 Value memberValue = valueEntry.getValue();
+                // TODO: temporary fix!!!
+                if (memberValue.getDataType().getName().equals("ai_component")) {
+                    laterEntries.add(valueEntry);
+                    continue;
+                }
+
                 if (memberValue instanceof AggregateValue) {
                     // TODO: this is needed, because Prototype does not extend AggregateType
                     // currently,
                     //  which should be fixed
-
-                    // TODO: temporary fix!!!
-                    if (memberValue.getDataType().getName().equals("ai_component")) {
-                        laterEntries.add(valueEntry);
-                        continue;
-                    }
                     AggregateType membersOriginalType =
                             interpreter.getOriginalTypeOfPrototype(
                                     (Prototype) memberValue.getDataType());

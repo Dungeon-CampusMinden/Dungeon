@@ -54,6 +54,9 @@ public class FunctionType extends Symbol implements IType {
         nameBuilder.append("$fn(");
         for (int i = 0; i < parameterTypes.size(); i++) {
             IType parameterType = parameterTypes.get(i);
+            if (parameterType == null) {
+                boolean b = true;
+            }
             nameBuilder.append(parameterType.getName());
             if (i != parameterTypes.size() - 1) {
                 nameBuilder.append(", ");

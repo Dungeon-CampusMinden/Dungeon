@@ -1,10 +1,9 @@
 package runtime;
 
-import contrib.components.AIComponent;
-import contrib.components.CollideComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.InventoryComponent;
+import contrib.components.*;
+import contrib.entities.EntityFactory;
 import contrib.entities.WorldItemBuilder;
+import contrib.hud.OkDialog;
 import contrib.item.Item;
 
 import core.Entity;
@@ -14,7 +13,9 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 
 import dslnativefunction.NativeInstantiate;
+import dslnativefunction.NativeInstantiateNamed;
 
+import dsltypeadapters.AIComponentAdapter;
 import dsltypeadapters.DrawComponentAdapter;
 import dsltypeadapters.QuestItemAdapter;
 
@@ -27,6 +28,7 @@ import interpreter.DSLInterpreter;
 
 import parser.ast.Node;
 
+import reporting.AnswerPickingFunctions;
 import reporting.GradingFunctions;
 
 import runtime.nativefunctions.NativeFunction;
@@ -38,6 +40,7 @@ import semanticanalysis.types.*;
 import task.*;
 import task.components.TaskComponent;
 import task.components.TaskContentComponent;
+import task.quizquestion.QuizUI;
 import task.taskdsltypes.AssignTaskDSLType;
 import task.taskdsltypes.MultipleChoiceTask;
 import task.taskdsltypes.SingleChoiceDescriptionProperty;
@@ -46,6 +49,7 @@ import task.taskdsltypes.SingleChoiceTask;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class GameEnvironment implements IEvironment {
     // TODO: the TypeBuilder should be completely encapsulated, so that types can only
@@ -72,6 +76,7 @@ public class GameEnvironment implements IEvironment {
                     QuestItem.class,
                     PositionComponent.class,
                     VelocityComponent.class,
+                    HealthComponent.class,
                     AIComponent.class,
                     CollideComponent.class,
                     DrawComponent.class,
@@ -96,6 +101,8 @@ public class GameEnvironment implements IEvironment {
         properties.add(EntityExtension.DrawComponentProperty.instance);
         properties.add(EntityExtension.TaskComponentProperty.instance);
         properties.add(EntityExtension.TaskContentComponentProperty.instance);
+        properties.add(EntityExtension.InventoryComponentProperty.instance);
+        properties.add(EntityExtension.InteractionComponentProperty.instance);
         properties.add(TaskComponent.TaskProperty.instance);
         properties.add(QuestItemExtension.TaskContentComponentProperty.instance);
         properties.add(TaskContentComponent.ContentProperty.instance);
@@ -107,11 +114,30 @@ public class GameEnvironment implements IEvironment {
         ArrayList<IDSLExtensionMethod<?, ?>> methods = new ArrayList<>();
 
         methods.add(SingleChoiceTask.GetContentMethod.instance);
-        methods.add(MultipleChoiceTask.GetContentMethod.instance);
+        methods.add(SingleChoiceTask.SetScenarioText.instance);
         methods.add(SingleChoiceTask.SingleChoiceSetGradingFunction.instance);
+        methods.add(SingleChoiceTask.SingleChoiceSetAnswerPickerFunction.instance);
+
+        methods.add(MultipleChoiceTask.GetContentMethod.instance);
+        methods.add(MultipleChoiceTask.SetScenarioText.instance);
         methods.add(MultipleChoiceTask.MultipleChoiceSetGradingFunction.instance);
+        methods.add(MultipleChoiceTask.MultipleChoiceSetAnswerPickerFunction.instance);
+
         methods.add(AssignTaskDSLType.GetSolutionMethod.instance);
+        methods.add(AssignTaskDSLType.SetScenarioText.instance);
+        methods.add(AssignTaskDSLType.AssignTaskSetGradingFunction.instance);
+        methods.add(AssignTaskDSLType.AssignTaskSetAnswerPickerFunction.instance);
+
         methods.add(IsElementEmptyMethod.instance);
+        methods.add(IsTaskActiveMethod.instance);
+        methods.add(ElementContentMethod.instance);
+        methods.add(QuizContentContentMethod.instance);
+        methods.add(TaskContentContentMethod.instance);
+        methods.add(EntityExtension.OpenInventoryMethod.instance);
+        methods.add(EntityExtension.AddNamedTaskContentMethod.instance);
+        methods.add(EntityExtension.AddTaskContentMethod.instance);
+        methods.add(EntityExtension.AddItemToInventoryMethod.instance);
+        methods.add(EntityExtension.DropItemsMethod.instance);
 
         return methods;
     }
@@ -146,6 +172,7 @@ public class GameEnvironment implements IEvironment {
 
     protected void registerDefaultTypeAdapters() {
         typeBuilder.registerTypeAdapter(DrawComponentAdapter.class, this.globalScope);
+        typeBuilder.registerTypeAdapter(AIComponentAdapter.class, this.globalScope);
 
         typeBuilder.registerTypeAdapter(SingleChoiceTask.class, this.globalScope);
         typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
@@ -260,10 +287,9 @@ public class GameEnvironment implements IEvironment {
         this.globalScope.bind(Prototype.ITEM_PROTOTYPE);
     }
 
-    private ArrayList<Symbol> buildNativeFunctions() {
+    protected ArrayList<Symbol> buildDependantNativeFunctions() {
         ArrayList<Symbol> nativeFunctions = new ArrayList<>();
-        nativeFunctions.add(NativePrint.func);
-        nativeFunctions.add(NativeInstantiate.func);
+        nativeFunctions.add(ShowInfoFunction.func);
 
         // build functions with dependency on specific non-builtin types
         IType questItemType = (IType) this.globalScope.resolve("quest_item");
@@ -274,16 +300,26 @@ public class GameEnvironment implements IEvironment {
                 new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
         nativeFunctions.add(placeQuestItem);
 
+        NativeFunction addFillerContent = new GenerateRandomFillerContent(Scope.NULL, entityType);
+        nativeFunctions.add(addFillerContent);
+
         IType taskContentType = (IType) this.globalScope.resolve("task_content");
         NativeFunction nativeBuildQuestItem =
                 new NativeBuildQuestItem(Scope.NULL, questItemType, taskContentType);
         nativeFunctions.add(nativeBuildQuestItem);
 
-        // grading functions
         var taskSymbol = this.globalScope.resolve("task");
         if (!taskSymbol.equals(Symbol.NULL)) {
             IType taskType = (IType) taskSymbol;
             IType taskContentSetType = new SetType(taskContentType, this.globalScope);
+
+            NativeFunction showYesNoTask = new AskYesNoDialogFunction(this.globalScope, taskType);
+            nativeFunctions.add(showYesNoTask);
+
+            NativeFunction showTaskOnUI = new ShowQuizOnUI(this.globalScope, taskType);
+            nativeFunctions.add(showTaskOnUI);
+
+            // grading functions
             NativeFunction nativeGradeSingleChoice =
                     new SingleChoiceGrading(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeSingleChoice);
@@ -299,8 +335,28 @@ public class GameEnvironment implements IEvironment {
             NativeFunction nativeGradeAssignHard =
                     new AssignmentGradingHard(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(nativeGradeAssignHard);
+
+            // answer picker functions
+            NativeFunction answerPickerSingleChest =
+                    new AnswerPickerSingleChest(this.globalScope, taskType, taskContentSetType);
+            nativeFunctions.add(answerPickerSingleChest);
+
+            NativeFunction answerPickerMultiChest =
+                    new AnswerPickerMultiChest(this.globalScope, taskType, taskContentSetType);
+            nativeFunctions.add(answerPickerMultiChest);
         }
 
+        return nativeFunctions;
+    }
+
+    protected ArrayList<Symbol> buildNativeFunctions() {
+        ArrayList<Symbol> nativeFunctions = new ArrayList<>();
+        nativeFunctions.add(NativePrint.func);
+        nativeFunctions.add(NativeInstantiate.func);
+        nativeFunctions.add(NativeInstantiateNamed.func);
+
+        var dependantNativeFunctions = buildDependantNativeFunctions();
+        nativeFunctions.addAll(dependantNativeFunctions);
         return nativeFunctions;
     }
 
@@ -428,6 +484,168 @@ public class GameEnvironment implements IEvironment {
         public List<Type> getParameterTypes() {
             var arr = new Type[] {};
             return Arrays.stream(arr).toList();
+        }
+    }
+
+    @DSLExtensionMethod(name = "text", extendedType = Quiz.Content.class)
+    public static class QuizContentContentMethod
+            implements IDSLExtensionMethod<Quiz.Content, String> {
+        public static QuizContentContentMethod instance = new QuizContentContentMethod();
+
+        @Override
+        public String call(Quiz.Content instance, List<Object> params) {
+            return instance.content();
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    @DSLExtensionMethod(name = "text", extendedType = Element.class)
+    public static class ElementContentMethod implements IDSLExtensionMethod<Element, String> {
+        public static ElementContentMethod instance = new ElementContentMethod();
+
+        @Override
+        public String call(Element instance, List<Object> params) {
+            return instance.content().toString();
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    @DSLExtensionMethod(name = "text", extendedType = TaskContent.class)
+    public static class TaskContentContentMethod
+            implements IDSLExtensionMethod<TaskContent, String> {
+        public static TaskContentContentMethod instance = new TaskContentContentMethod();
+
+        @Override
+        public String call(TaskContent instance, List<Object> params) {
+            if (instance instanceof Quiz.Content quizcontent) {
+                return quizcontent.content();
+            } else if (instance instanceof Element element) {
+                return element.content().toString();
+            } else {
+                return "undefined TaskContent";
+            }
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    @DSLExtensionMethod(name = "is_active", extendedType = Task.class)
+    public static class IsTaskActiveMethod implements IDSLExtensionMethod<Task, Boolean> {
+        public static IsTaskActiveMethod instance = new IsTaskActiveMethod();
+
+        @Override
+        public Boolean call(Task instance, List<Object> params) {
+            return instance.state().equals(Task.TaskState.ACTIVE)
+                    || instance.state().equals(Task.TaskState.PROCESSING_ACTIVE);
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    private static class AskYesNoDialogFunction extends NativeFunction {
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public AskYesNoDialogFunction(IScope parentScope, IType taskType) {
+            super("ask_task_yes_no", parentScope, new FunctionType(BuiltInType.noType, taskType));
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Task task = (Task) parameterObjects.get(0);
+
+            YesNoDialog.showYesNoDialog(task);
+            return null;
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class ShowQuizOnUI extends NativeFunction {
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public ShowQuizOnUI(IScope parentScope, IType taskType) {
+            super("show_task_on_ui", parentScope, new FunctionType(BuiltInType.noType, taskType));
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Quiz task = (Quiz) parameterObjects.get(0);
+
+            QuizUI.askQuizOnHud(task);
+            return null;
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class ShowInfoFunction extends NativeFunction {
+        public static ShowInfoFunction func = new ShowInfoFunction(Scope.NULL);
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        private ShowInfoFunction(IScope parentScope) {
+            super(
+                    "show_info",
+                    parentScope,
+                    new FunctionType(BuiltInType.noType, BuiltInType.stringType));
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            String text = (String) parameterObjects.get(0);
+
+            OkDialog.showOkDialog(text, "Info", () -> {});
+            return null;
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
         }
     }
 
@@ -567,6 +785,118 @@ public class GameEnvironment implements IEvironment {
 
             // call func
             return func.apply(task, taskContentSet);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class GenerateRandomFillerContent extends NativeFunction {
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public GenerateRandomFillerContent(IScope parentScope, IType entityType) {
+            super(
+                    "get_random_content",
+                    parentScope,
+                    new FunctionType(entityType, BuiltInType.noType));
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            Random rand = new Random();
+            int randVal = rand.nextInt();
+            Entity randomContent = null;
+            try {
+                if (randVal % 2 == 0) {
+                    randomContent = EntityFactory.randomMonster();
+                } else {
+                    randomContent = EntityFactory.newChest();
+                }
+            } catch (Exception ex) {
+                //
+            }
+
+            return randomContent;
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+    // endregion
+
+    // region native answer picking
+    private static class AnswerPickerSingleChest extends NativeFunction {
+        private Function<Task, Set<TaskContent>> func;
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public AnswerPickerSingleChest(
+                IScope parentScope, IType taskType, IType taskContentSetType) {
+            super(
+                    "answer_picker_single_chest",
+                    parentScope,
+                    new FunctionType(taskContentSetType, taskType));
+            this.func = AnswerPickingFunctions.singleChestPicker();
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Task task = (Task) parameterObjects.get(0);
+
+            // call func
+            return func.apply(task);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class AnswerPickerMultiChest extends NativeFunction {
+        private Function<Task, Set<TaskContent>> func;
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public AnswerPickerMultiChest(
+                IScope parentScope, IType taskType, IType taskContentSetType) {
+            super(
+                    "answer_picker_multi_chest",
+                    parentScope,
+                    new FunctionType(taskContentSetType, taskType));
+            this.func = AnswerPickingFunctions.multipleChestPicker();
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Task task = (Task) parameterObjects.get(0);
+
+            // call func
+            return func.apply(task);
         }
 
         @Override
