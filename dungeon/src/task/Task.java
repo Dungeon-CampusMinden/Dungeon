@@ -446,7 +446,10 @@ public abstract class Task {
                                         .taskContentComponent()
                                         .content()
                                         .task()
-                                        .equals(t)) item.drop(hero, pc.position());
+                                        .equals(t)) {
+                                    item.drop(hero, pc.position());
+                                    ic.remove(item);
+                                }
                             }
                         });
     }
