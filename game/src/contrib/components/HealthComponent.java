@@ -41,8 +41,8 @@ public final class HealthComponent implements Component {
     private final List<Damage> damageToGet;
     private @DSLCallback(name = "on_death") final Consumer<Entity> onDeath;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
-    private @DSLTypeMember(name = "maximal_health_points") int maximalHealthpoints;
-    private int currentHealthpoints;
+    private @DSLTypeMember(name = "max_health") int maximalHealthpoints;
+    private @DSLTypeMember(name = "start_health") int currentHealthpoints;
     private @Null Entity lastCause = null;
 
     private boolean godMode = false;

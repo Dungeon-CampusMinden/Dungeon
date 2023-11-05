@@ -261,6 +261,8 @@ dungeon_config nachmittags {
 entity_type monster_type {
     inventory_component {},
     health_component {
+        max_health: 10,
+        start_health: 10,
         on_death: drop_items
     },
     position_component {},
