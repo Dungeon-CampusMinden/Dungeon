@@ -29,7 +29,7 @@ import java.util.function.BiConsumer;
  * <p>This class is part of the {@link Starter} and should not be used otherwise. The code is
  * extracted into this class for better code readability.
  */
-public class WizardTaskSelector {
+public class TaskSelector {
     protected static DSLEntryPoint selectedDSLEntryPoint = null;
 
     protected static ILevel wizardLevel() {
@@ -92,9 +92,9 @@ public class WizardTaskSelector {
         return question;
     }
 
-    protected static Entity wizard(SingleChoice selectionQuestion) throws IOException {
-        Entity wizard = new Entity("Selection Wizard");
-        wizard.addComponent(new DrawComponent("character/wizard"));
+    protected static Entity npc(SingleChoice selectionQuestion) throws IOException {
+        Entity wizard = new Entity("Selection NPC");
+        wizard.addComponent(new DrawComponent("character/blue_knight"));
         wizard.addComponent(new PositionComponent());
         wizard.addComponent(
                 new InteractionComponent(
@@ -108,6 +108,7 @@ public class WizardTaskSelector {
 
     private static BiConsumer<Task, Set<TaskContent>> setSelectedEntryPoint() {
         return (task, taskContents) -> {
+            if (taskContents.isEmpty()) return;
             selectedDSLEntryPoint =
                     ((PayloadTaskContent)
                                     taskContents.stream()

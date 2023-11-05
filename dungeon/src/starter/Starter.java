@@ -129,12 +129,12 @@ public class Starter {
                 () -> {
                     debugKey();
                     // the player selected a Task/DSL-Entrypoint but it´s not loaded yet:
-                    if (!realGameStarted && WizardTaskSelector.selectedDSLEntryPoint != null) {
+                    if (!realGameStarted && TaskSelector.selectedDSLEntryPoint != null) {
                         realGameStarted = true;
 
                         DungeonConfig config =
                                 dslInterpreter.interpretEntryPoint(
-                                        WizardTaskSelector.selectedDSLEntryPoint);
+                                        TaskSelector.selectedDSLEntryPoint);
                         ILevel level =
                                 TaskGraphConverter.convert(
                                         config.dependencyGraph(), dslInterpreter);
@@ -149,7 +149,7 @@ public class Starter {
                 () -> {
                     createHero();
                     createSystems();
-                    Game.currentLevel(WizardTaskSelector.wizardLevel());
+                    Game.currentLevel(TaskSelector.wizardLevel());
                     setupMusic();
                 });
 
@@ -157,11 +157,10 @@ public class Starter {
         Game.userOnLevelLoad(
                 (firstTime) -> {
                     // this will be at the start of the game
-                    if (firstTime && WizardTaskSelector.selectedDSLEntryPoint == null) {
+                    if (firstTime && TaskSelector.selectedDSLEntryPoint == null) {
                         try {
                             Game.add(
-                                    WizardTaskSelector.wizard(
-                                            WizardTaskSelector.selectTaskQuestion(entryPoints)));
+                                    TaskSelector.npc(TaskSelector.selectTaskQuestion(entryPoints)));
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
