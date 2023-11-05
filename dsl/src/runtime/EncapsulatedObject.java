@@ -94,7 +94,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                 }
 
                 IType memberDSLType = null;
-                if (this.dataType instanceof AggregateType aggregateType)  {
+                if (this.dataType instanceof AggregateType aggregateType) {
                     Symbol memberSymbol = aggregateType.resolve(name);
                     memberDSLType = memberSymbol.getDataType();
                 }
@@ -117,7 +117,8 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                             // RuntimeObjectTranslator, because we know in this case, that the
                             // resolved name is a member of the underlying object
                             returnValue =
-                                    new EncapsulatedField(memberDSLType, correspondingField, this.object);
+                                    new EncapsulatedField(
+                                            memberDSLType, correspondingField, this.object);
                             break;
                         case AggregateAdapted:
                         case Aggregate:
@@ -128,7 +129,9 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                                                     fieldValue, this, this.environment);
                             break;
                         case FunctionType:
-                            returnValue = new EncapsulatedField(memberDSLType, correspondingField, this.object);
+                            returnValue =
+                                    new EncapsulatedField(
+                                            memberDSLType, correspondingField, this.object);
                             break;
                     }
                     // cache it

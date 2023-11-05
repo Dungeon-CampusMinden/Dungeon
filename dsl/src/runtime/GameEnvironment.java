@@ -1,9 +1,6 @@
 package runtime;
 
-import contrib.components.AIComponent;
-import contrib.components.CollideComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.InventoryComponent;
+import contrib.components.*;
 import contrib.entities.WorldItemBuilder;
 import contrib.hud.OkDialog;
 import contrib.item.Item;
@@ -77,6 +74,7 @@ public class GameEnvironment implements IEvironment {
                     QuestItem.class,
                     PositionComponent.class,
                     VelocityComponent.class,
+                    HealthComponent.class,
                     AIComponent.class,
                     CollideComponent.class,
                     DrawComponent.class,
@@ -136,6 +134,8 @@ public class GameEnvironment implements IEvironment {
         methods.add(EntityExtension.OpenInventoryMethod.instance);
         methods.add(EntityExtension.AddNamedTaskContentMethod.instance);
         methods.add(EntityExtension.AddTaskContentMethod.instance);
+        methods.add(EntityExtension.AddItemToInventoryMethod.instance);
+        methods.add(EntityExtension.DropItemsMethod.instance);
 
         return methods;
     }

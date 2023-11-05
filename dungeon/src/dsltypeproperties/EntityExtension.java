@@ -5,7 +5,9 @@ import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.hud.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.item.Item;
 import contrib.utils.components.draw.ChestAnimations;
+import contrib.utils.components.interaction.DropItemsInteraction;
 
 import core.Entity;
 import core.Game;
@@ -19,6 +21,7 @@ import semanticanalysis.types.IDSLExtensionMethod;
 import semanticanalysis.types.IDSLTypeProperty;
 
 import task.Element;
+import task.QuestItem;
 import task.Task;
 import task.TaskContent;
 import task.components.TaskComponent;
@@ -27,6 +30,7 @@ import task.components.TaskContentComponent;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This class implements {@link IDSLTypeProperty} for the {@link Entity} class, in order to access
@@ -138,7 +142,8 @@ public class EntityExtension {
     }
 
     @DSLTypeProperty(name = "interaction_component", extendedType = Entity.class)
-    public static class InteractionComponentProperty implements IDSLTypeProperty<Entity, InteractionComponent> {
+    public static class InteractionComponentProperty
+            implements IDSLTypeProperty<Entity, InteractionComponent> {
         public static InteractionComponentProperty instance = new InteractionComponentProperty();
 
         private InteractionComponentProperty() {}
@@ -326,6 +331,45 @@ public class EntityExtension {
         @Override
         public List<Type> getParameterTypes() {
             var arr = new Type[] {Task.class, Element.class};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    @DSLExtensionMethod(name = "add_item", extendedType = InventoryComponent.class)
+    public static class AddItemToInventoryMethod
+            implements IDSLExtensionMethod<InventoryComponent, Void> {
+        public static EntityExtension.AddItemToInventoryMethod instance =
+                new EntityExtension.AddItemToInventoryMethod();
+
+        @Override
+        public Void call(InventoryComponent instance, List<Object> params) {
+            Item item = (Item) params.get(0);
+            instance.add(item);
+            return null;
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {QuestItem.class};
+            return Arrays.stream(arr).toList();
+        }
+    }
+
+    @DSLExtensionMethod(name = "drop_items", extendedType = InventoryComponent.class)
+    public static class DropItemsMethod implements IDSLExtensionMethod<InventoryComponent, Void> {
+        public static EntityExtension.DropItemsMethod instance =
+                new EntityExtension.DropItemsMethod();
+
+        @Override
+        public Void call(InventoryComponent instance, List<Object> params) {
+            Optional<Entity> optionalEntity = Game.find(instance);
+            optionalEntity.ifPresent(entity -> new DropItemsInteraction().accept(entity, null));
+            return null;
+        }
+
+        @Override
+        public List<Type> getParameterTypes() {
+            var arr = new Type[] {};
             return Arrays.stream(arr).toList();
         }
     }

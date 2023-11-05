@@ -31,6 +31,22 @@ dungeon_config c {
     dependency_graph: g
 }
 
+entity_type monster_type {
+    inventory_component {},
+    health_component {
+        on_death: drop_items
+    },
+    position_component {},
+    // TODO: AI component
+    draw_component {
+        path: "character/monster/goblin"
+    },
+    velocity_component {},
+    hitbox_component {}
+    // TODO: spiky component
+    // TODO: add sound component
+}
+
 entity_type chest_type {
     inventory_component {},
     draw_component {
@@ -56,6 +72,10 @@ entity_type knight_type {
         //on_interaction: ask_task_finished
     },
     task_component{}
+}
+
+fn drop_items(entity me) {
+    me.inventory_component.drop_items();
 }
 
 fn open_container(entity chest, entity who) {
@@ -123,6 +143,42 @@ fn build_task_single_chest(single_choice_task t) -> entity<><> {
 
     room_set.add(chest);
     t.set_scenario_text("Platziere die richtige Schriftrolle in der Truhe");
+    t.set_answer_picker_function(answer_picker_single_chest);
+
+    // quest giver knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "I am the knight");
+    knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_finished;
+    room_set.add(knight);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+fn build_task_single_chest_with_monster(single_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    for task_content content in t.get_content() {
+        var item : quest_item;
+        item = build_quest_item(scroll_type, content);
+        //place_quest_item(item, room_set);
+
+        var monster: entity;
+        monster = instantiate(monster_type);
+        monster.inventory_component.add_item(item);
+        // TODO: should drop inventory on floor on death
+        room_set.add(monster);
+    }
+
+    var chest : entity;
+    chest = instantiate(chest_type);
+    //chest.add_named_task_content("This is a quest chest", t);
+    chest.mark_as_task_container(t, "Quest-Truhe");
+
+    room_set.add(chest);
+    t.set_scenario_text("Platziere die richtige Schriftrolle in der Truhe, Monster haben die Schriftrolle!");
     t.set_answer_picker_function(answer_picker_single_chest);
 
     // quest giver knight
