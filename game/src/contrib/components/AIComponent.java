@@ -9,8 +9,6 @@ import contrib.utils.components.ai.transition.RangeTransition;
 import core.Component;
 import core.Entity;
 
-import semanticanalysis.types.DSLType;
-
 import java.util.function.Consumer;
 import java.util.function.Function;
 

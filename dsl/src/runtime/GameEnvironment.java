@@ -303,8 +303,7 @@ public class GameEnvironment implements IEvironment {
                 new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
         nativeFunctions.add(placeQuestItem);
 
-        NativeFunction addFillerContent =
-            new GenerateRandomFillerContent(Scope.NULL, entityType);
+        NativeFunction addFillerContent = new GenerateRandomFillerContent(Scope.NULL, entityType);
         nativeFunctions.add(addFillerContent);
 
         IType taskContentType = (IType) this.globalScope.resolve("task_content");
@@ -795,9 +794,9 @@ public class GameEnvironment implements IEvironment {
          */
         public GenerateRandomFillerContent(IScope parentScope, IType entityType) {
             super(
-                "get_random_content",
-                parentScope,
-                new FunctionType(entityType, BuiltInType.noType));
+                    "get_random_content",
+                    parentScope,
+                    new FunctionType(entityType, BuiltInType.noType));
         }
 
         @Override

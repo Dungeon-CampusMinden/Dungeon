@@ -109,13 +109,13 @@ public class NativeInstantiateNamed extends NativeFunction {
             for (var entry : laterEntries) {
                 AggregateValue memberValue = (AggregateValue) entry.getValue();
                 AggregateType membersOriginalType =
-                    interpreter.getOriginalTypeOfPrototype(
-                        (Prototype) memberValue.getDataType());
+                        interpreter.getOriginalTypeOfPrototype(
+                                (Prototype) memberValue.getDataType());
 
                 // instantiate object as a new java Object
                 Object memberObject =
-                    interpreter.instantiateRuntimeValue(
-                        (AggregateValue) memberValue, membersOriginalType);
+                        interpreter.instantiateRuntimeValue(
+                                (AggregateValue) memberValue, membersOriginalType);
                 try {
                     Component component = (Component) memberObject;
                     Entity entity = (Entity) entityObject;

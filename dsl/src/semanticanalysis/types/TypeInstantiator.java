@@ -227,7 +227,8 @@ public class TypeInstantiator {
                         } else {
                             memberName = TypeBuilder.getDSLParameterName(parameter);
                         }
-                        Value memberValue = aggregateFieldValue.getMemorySpace().resolve(memberName);
+                        Value memberValue =
+                                aggregateFieldValue.getMemorySpace().resolve(memberName);
                         Object internalObject;
                         if (parameter.isAnnotationPresent(DSLContextMember.class)) {
                             String name = parameter.getAnnotation(DSLContextMember.class).name();

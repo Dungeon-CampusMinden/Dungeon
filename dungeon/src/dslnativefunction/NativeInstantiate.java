@@ -49,7 +49,6 @@ public class NativeInstantiate extends NativeFunction {
         RuntimeEnvironment rtEnv = interpreter.getRuntimeEnvironment();
         Value param = (Value) parameters.get(0).accept(interpreter);
 
-
         if (param.getDataType() != Prototype.PROTOTYPE) {
             throw new RuntimeException(
                     "Wrong type ('"
@@ -105,13 +104,13 @@ public class NativeInstantiate extends NativeFunction {
             for (var entry : laterEntries) {
                 AggregateValue memberValue = (AggregateValue) entry.getValue();
                 AggregateType membersOriginalType =
-                    interpreter.getOriginalTypeOfPrototype(
-                        (Prototype) memberValue.getDataType());
+                        interpreter.getOriginalTypeOfPrototype(
+                                (Prototype) memberValue.getDataType());
 
                 // instantiate object as a new java Object
                 Object memberObject =
-                    interpreter.instantiateRuntimeValue(
-                        (AggregateValue) memberValue, membersOriginalType);
+                        interpreter.instantiateRuntimeValue(
+                                (AggregateValue) memberValue, membersOriginalType);
                 try {
                     Component component = (Component) memberObject;
                     Entity entity = (Entity) entityObject;

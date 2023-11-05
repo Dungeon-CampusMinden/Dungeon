@@ -1,11 +1,7 @@
 package dsltypeadapters;
 
-import contrib.components.AIComponent;
-import contrib.entities.AIFactory;
-import core.Entity;
 import core.components.DrawComponent;
 
-import semanticanalysis.types.DSLContextMember;
 import semanticanalysis.types.DSLTypeAdapter;
 import semanticanalysis.types.DSLTypeMember;
 
@@ -31,4 +27,3 @@ public class DrawComponentAdapter {
         return comp;
     }
 }
-
