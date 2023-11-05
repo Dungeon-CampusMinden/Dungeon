@@ -268,7 +268,7 @@ entity_type monster_type {
     },
     position_component {},
     draw_component {
-        path: "character/monster/goblin"
+        path: "character/monster/chort"
     },
     velocity_component {
         x_velocity: 4.0,
