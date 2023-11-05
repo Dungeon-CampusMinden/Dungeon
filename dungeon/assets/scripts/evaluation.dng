@@ -6,7 +6,8 @@ single_choice_task task1_m {
   "Man kann nicht auf den Betriebssystemen Windows, MACOS und Linux in Python programmieren.",
   "Man kann auf externen Datenträgern schnell sortieren.",
   "Schlüsselfelder eignen sich nicht zum Indizieren von Daten.",
-  "Keine davon ist richtig."]
+  "Keine davon ist richtig."],
+  correct_answer_index: 3
 }
 
 single_choice_task task2_1_m {
