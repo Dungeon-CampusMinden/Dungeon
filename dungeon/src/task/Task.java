@@ -2,7 +2,6 @@ package task;
 
 import core.Entity;
 import core.Game;
-import core.utils.logging.CustomLogLevel;
 
 import petriNet.Place;
 
@@ -11,10 +10,16 @@ import semanticanalysis.types.DSLType;
 import task.components.TaskComponent;
 import task.components.TaskContentComponent;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.stream.Stream;
 
 /**
@@ -38,7 +43,8 @@ import java.util.stream.Stream;
 @DSLType
 public abstract class Task {
 
-    private static final Logger LOGGER = Logger.getLogger(Task.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger(Task.class.getName());
+    private static final Logger SOL_LOGGER = Logger.getLogger("TaskSolutionLogger");
     private static final Set<Task> ALL_TASKS = new HashSet<>();
     private static final List<Task> SOLVED_TASK_IN_ORDER = new ArrayList<>();
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
@@ -61,6 +67,22 @@ public abstract class Task {
     private float pointsToSolve;
 
     private float achievedPoints;
+
+    static {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy'T'HH-mm-ss");
+            String timestamp = dateFormat.format(new Date());
+            String directoryPath = "./logs/solutions/";
+            String filepath = directoryPath + timestamp + ".log";
+            Files.createDirectories(Paths.get(directoryPath));
+            FileHandler fileHandler = new FileHandler(filepath);
+            fileHandler.setFormatter(new SimpleFormatter());
+
+            SOL_LOGGER.addHandler(fileHandler);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Create a new Task with the {@link #DEFAULT_TASK_TEXT} in the {@link #DEFAULT_TASK_STATE},
@@ -363,7 +385,7 @@ public abstract class Task {
             msgBuilder.append(answer.toString()).append(System.lineSeparator());
         }
         String msg = msgBuilder.toString();
-        LOGGER.log(CustomLogLevel.TASK, msg);
+        SOL_LOGGER.info(msg);
 
         if (score >= pointsToSolve) state(TaskState.FINISHED_CORRECT);
         else state(TaskState.FINISHED_WRONG);
