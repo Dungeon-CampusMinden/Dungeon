@@ -270,7 +270,10 @@ entity_type monster_type {
     draw_component {
         path: "character/monster/goblin"
     },
-    velocity_component {},
+    velocity_component {
+        x_velocity: 4.0,
+        y_velocity: 4.0
+    },
     hitbox_component {},
     ai_component{}
     // TODO: spiky component
@@ -530,7 +533,6 @@ fn build_task_multi_kettle(multiple_choice_task t) -> entity<><> {
     return return_set;
 }
 
-/*
 fn build_task_multi_chest(multiple_choice_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
@@ -589,7 +591,6 @@ fn build_task_multi_ui(multiple_choice_task t) -> entity<><> {
     return_set.add(room_set);
     return return_set;
 }
-*/
 
 fn build_task_assign(assign_task t) -> entity<><> {
     var return_set : entity<><>;
