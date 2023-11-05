@@ -1,7 +1,12 @@
 package task;
 
+import contrib.components.InventoryComponent;
+
 import core.Entity;
 import core.Game;
+import core.components.PositionComponent;
+import core.utils.MissingHeroException;
+import core.utils.components.MissingComponentException;
 
 import petriNet.Place;
 
@@ -410,7 +415,26 @@ public abstract class Task {
         if (score >= pointsToSolve) state(TaskState.FINISHED_CORRECT);
         else state(TaskState.FINISHED_WRONG);
         achievedPoints = score;
+
+        dropQuestItems();
         return score;
+    }
+
+    private void dropQuestItems() {
+        Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
+        InventoryComponent ic =
+                hero.fetch(InventoryComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                hero, InventoryComponent.class));
+        PositionComponent pc =
+                hero.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                hero, PositionComponent.class));
+        ic.items(QuestItem.class).forEach(q -> q.drop(hero, pc.position()));
     }
 
     /**
