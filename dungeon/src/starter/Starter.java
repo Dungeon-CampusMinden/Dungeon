@@ -15,8 +15,8 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.level.elements.ILevel;
-
 import core.utils.components.MissingComponentException;
+
 import dungeonFiles.DSLEntryPoint;
 import dungeonFiles.DslFileLoader;
 import dungeonFiles.DungeonConfig;
@@ -195,7 +195,9 @@ public class Starter {
                             fetch ->
                                     fetch.registerCallback(
                                             KeyboardConfig.INFOS.value(), showInfos, false, true));
-            hero.fetch(HealthComponent.class).orElseThrow(()-> MissingComponentException.build(hero,HealthComponent.class)).godMode(true);
+            hero.fetch(HealthComponent.class)
+                    .orElseThrow(() -> MissingComponentException.build(hero, HealthComponent.class))
+                    .godMode(true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -219,10 +221,8 @@ public class Starter {
         Game.add(new AISystem());
         Game.add(new CollisionSystem());
         Game.add(new HealthSystem());
-        Game.add(new XPSystem());
         Game.add(new ProjectileSystem());
         Game.add(new HealthbarSystem());
-        Game.add(new HeroUISystem());
         Game.add(new HudSystem());
         Game.add(new SpikeSystem());
         Game.add(new IdleSoundSystem());
