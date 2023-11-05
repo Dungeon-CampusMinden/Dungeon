@@ -23,8 +23,8 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 /**
- * This class contains static methods to create the Wizard-Level to select the tasks at the start of
- * the game.
+ * This class contains static methods to create the TaskSelector-Level to select the tasks at the
+ * start of the game.
  *
  * <p>This class is part of the {@link Starter} and should not be used otherwise. The code is
  * extracted into this class for better code readability.
@@ -32,7 +32,7 @@ import java.util.function.BiConsumer;
 public class TaskSelector {
     protected static DSLEntryPoint selectedDSLEntryPoint = null;
 
-    protected static ILevel wizardLevel() {
+    protected static ILevel taskSelectorLevel() {
         // default layout is:
         //
         // W W W W W
@@ -93,17 +93,17 @@ public class TaskSelector {
     }
 
     protected static Entity npc(SingleChoice selectionQuestion) throws IOException {
-        Entity wizard = new Entity("Selection NPC");
-        wizard.addComponent(new DrawComponent("character/blue_knight"));
-        wizard.addComponent(new PositionComponent());
-        wizard.addComponent(
+        Entity npc = new Entity("Selection NPC");
+        npc.addComponent(new DrawComponent("character/blue_knight"));
+        npc.addComponent(new PositionComponent());
+        npc.addComponent(
                 new InteractionComponent(
                         1,
                         true,
                         UIAnswerCallback.askOnInteraction(
                                 selectionQuestion, setSelectedEntryPoint())));
 
-        return wizard;
+        return npc;
     }
 
     private static BiConsumer<Task, Set<TaskContent>> setSelectedEntryPoint() {

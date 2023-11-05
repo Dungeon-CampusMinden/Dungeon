@@ -115,7 +115,7 @@ public class Starter {
         // some game Setup
         configGame();
         // will load the level to select the task/DSL-Entrypoint on Game start
-        wizardSelectorOnSetup(entryPoints);
+        taskSelectorOnSetup(entryPoints);
 
         // will generate the TaskDependencyGraph, execute the TaskBuilder, generate and set the
         // Level and generate the PetriNet after the player selected an DSLEntryPoint
@@ -144,16 +144,16 @@ public class Starter {
                 });
     }
 
-    private static void wizardSelectorOnSetup(Set<DSLEntryPoint> entryPoints) {
+    private static void taskSelectorOnSetup(Set<DSLEntryPoint> entryPoints) {
         Game.userOnSetup(
                 () -> {
                     createHero();
                     createSystems();
-                    Game.currentLevel(TaskSelector.wizardLevel());
+                    Game.currentLevel(TaskSelector.taskSelectorLevel());
                     setupMusic();
                 });
 
-        // load the wizard task selector level
+        // load the task selector level
         Game.userOnLevelLoad(
                 (firstTime) -> {
                     // this will be at the start of the game
