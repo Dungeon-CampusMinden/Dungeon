@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 
 import contrib.components.ProjectileComponent;
-import contrib.hud.UITools;
 
 import core.Entity;
 import core.Game;
@@ -110,7 +109,6 @@ public final class VelocitySystem extends System {
             // for some reason the entity is out of bound
             vsd.pc().position(PositionComponent.ILLEGAL_POSITION);
             LOGGER.warning("Entity " + e + " is out of bound");
-            UITools.generateNewTextDialog(e.toString(), "ok", vsd.e().toString());
         }
     }
 
