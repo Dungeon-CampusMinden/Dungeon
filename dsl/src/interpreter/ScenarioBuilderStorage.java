@@ -128,7 +128,7 @@ public class ScenarioBuilderStorage {
 
         // initialize count storage
         HashMap<Integer, Float> counts = new HashMap<>();
-        for (int i = 0;i < list.size(); i++) {
+        for (int i = 0; i < list.size(); i++) {
             counts.put(i, 0.0f);
         }
 
