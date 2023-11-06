@@ -1,6 +1,6 @@
-package contrib.utils.math;
+package core.utils.math;
 
-public class Vector {
+public class VectorF {
 
     public float[] components;
 
@@ -9,8 +9,17 @@ public class Vector {
      *
      * @param components The components of the vector.
      */
-    public Vector(float... components) {
+    public VectorF(float... components) {
         this.components = components;
+    }
+
+    /**
+     * Copy a vector.
+     *
+     * @param v The vector to copy.
+     */
+    public VectorF(VectorF v) {
+        this.components = v.components;
     }
 
     /**
@@ -19,14 +28,14 @@ public class Vector {
      * @param other The vector to add to this one.
      * @return The sum of the two vectors.
      */
-    public Vector add(Vector other) {
+    public VectorF add(VectorF other) {
         if (other.components.length != components.length)
             throw new IllegalArgumentException("Vectors must have the same length.");
         float[] result = new float[components.length];
         for (int i = 0; i < components.length; i++) {
             result[i] = components[i] + other.components[i];
         }
-        return new Vector(result);
+        return new VectorF(result);
     }
 
     /**
@@ -35,12 +44,12 @@ public class Vector {
      * @param other The vector to subtract from this one.
      * @return The difference of the two vectors.
      */
-    public Vector subtract(Vector other) {
+    public VectorF subtract(VectorF other) {
         float[] result = new float[components.length];
         for (int i = 0; i < components.length; i++) {
             result[i] = components[i] - other.components[i];
         }
-        return new Vector(result);
+        return new VectorF(result);
     }
 
     /**
@@ -49,12 +58,12 @@ public class Vector {
      * @param scalar The scalar to multiply the vector by.
      * @return The product of the vector and the scalar.
      */
-    public Vector multiply(float scalar) {
+    public VectorF multiply(float scalar) {
         float[] result = new float[components.length];
         for (int i = 0; i < components.length; i++) {
             result[i] = components[i] * scalar;
         }
-        return new Vector(result);
+        return new VectorF(result);
     }
 
     /**
@@ -63,12 +72,12 @@ public class Vector {
      * @param scalar The scalar to divide the vector by.
      * @return The quotient of the vector and the scalar.
      */
-    public Vector divide(float scalar) {
+    public VectorF divide(float scalar) {
         float[] result = new float[components.length];
         for (int i = 0; i < components.length; i++) {
             result[i] = components[i] / scalar;
         }
-        return new Vector(result);
+        return new VectorF(result);
     }
 
     /**
@@ -77,7 +86,7 @@ public class Vector {
      * @param other The vector to dot with this one.
      * @return The dot product of the two vectors.
      */
-    public float dot(Vector other) {
+    public float dot(VectorF other) {
         float result = 0;
         for (int i = 0; i < components.length; i++) {
             result += components[i] * other.components[i];
@@ -119,7 +128,38 @@ public class Vector {
      *
      * @return The normalized vector.
      */
-    public Vector normalize() {
+    public VectorF normalize() {
         return divide(length());
+    }
+
+    /**
+     * Get the component of the vector at the given index.
+     *
+     * @param index The index of the component to get.
+     * @return The component at the given index.
+     */
+    public float get(int index) {
+        return components[index];
+    }
+
+    /**
+     * Set the component of the vector at the given index and return itself.
+     *
+     * @param index The index of the component to set.
+     * @param value The value to set the component to.
+     * @return The vector itself.
+     */
+    public VectorF set(int index, float value) {
+        components[index] = value;
+        return this;
+    }
+
+    /**
+     * Copy the vector.
+     *
+     * @return A copy of the vector.
+     */
+    public VectorF copy() {
+        return new VectorF(this.components);
     }
 }
