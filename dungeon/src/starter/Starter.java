@@ -1,9 +1,11 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 
 import contrib.components.HealthComponent;
+import contrib.components.InventoryComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
@@ -25,10 +27,12 @@ import graphconverter.TaskGraphConverter;
 import interpreter.DSLEntryPointFinder;
 import interpreter.DSLInterpreter;
 
+import task.QuestItem;
 import task.Task;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -133,6 +137,26 @@ public class Starter {
     private static void onEntryPointSelection() {
         Game.userOnFrame(
                 () -> {
+                    if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
+                        System.out.println(
+                                Game.hero().get().fetch(InventoryComponent.class).get().count());
+                        Arrays.stream(
+                                        Game.hero()
+                                                .get()
+                                                .fetch(InventoryComponent.class)
+                                                .get()
+                                                .items())
+                                .filter(i -> i != null)
+                                .forEach(i -> System.out.println(i.toString()));
+                        Arrays.stream(
+                                        Game.hero()
+                                                .get()
+                                                .fetch(InventoryComponent.class)
+                                                .get()
+                                                .items())
+                                .filter(i -> i != null)
+                                .forEach(i -> System.out.println(i instanceof QuestItem));
+                    }
 
                     // the player selected a Task/DSL-Entrypoint but it´s not loaded yet:
                     if (!realGameStarted && TaskSelector.selectedDSLEntryPoint != null) {

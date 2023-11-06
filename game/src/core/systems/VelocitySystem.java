@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 
 import contrib.components.ProjectileComponent;
+import contrib.hud.UITools;
 
 import core.Entity;
 import core.Game;
@@ -72,38 +73,45 @@ public final class VelocitySystem extends System {
         float newX = vsd.pc.position().x + velocity.x;
         float newY = vsd.pc.position().y + velocity.y;
         boolean hitwall = false;
-        if (Game.tileAT(new Point(newX, newY)).isAccessible()) {
-            // no change in direction
-            vsd.pc.position(new Point(newX, newY));
-            this.movementAnimation(vsd);
-        } else if (Game.tileAT(new Point(newX, vsd.pc.position().y)).isAccessible()) {
-            // redirect not moving along y
-            hitwall = true;
-            vsd.pc.position(new Point(newX, vsd.pc.position().y));
-            this.movementAnimation(vsd);
-            vsd.vc.currentYVelocity(0.0f);
-        } else if (Game.tileAT(new Point(vsd.pc.position().x, newY)).isAccessible()) {
-            // redirect not moving along x
-            hitwall = true;
-            vsd.pc.position(new Point(vsd.pc.position().x, newY));
-            this.movementAnimation(vsd);
-            vsd.vc.currentXVelocity(0.0f);
-        } else {
-            hitwall = true;
+        try {
+            if (Game.tileAT(new Point(newX, newY)).isAccessible()) {
+                // no change in direction
+                vsd.pc.position(new Point(newX, newY));
+                this.movementAnimation(vsd);
+            } else if (Game.tileAT(new Point(newX, vsd.pc.position().y)).isAccessible()) {
+                // redirect not moving along y
+                hitwall = true;
+                vsd.pc.position(new Point(newX, vsd.pc.position().y));
+                this.movementAnimation(vsd);
+                vsd.vc.currentYVelocity(0.0f);
+            } else if (Game.tileAT(new Point(vsd.pc.position().x, newY)).isAccessible()) {
+                // redirect not moving along x
+                hitwall = true;
+                vsd.pc.position(new Point(vsd.pc.position().x, newY));
+                this.movementAnimation(vsd);
+                vsd.vc.currentXVelocity(0.0f);
+            } else {
+                hitwall = true;
+            }
+
+            // remove projectiles that hit the wall or other non-accessible
+            // tiles
+            if (vsd.e.fetch(ProjectileComponent.class).isPresent() && hitwall) Game.remove(vsd.e);
+
+            float friction = Game.tileAT(vsd.pc.position()).friction();
+            float newVX = vsd.vc.currentXVelocity() * (Math.min(1.0f, 1.0f - friction));
+            if (Math.abs(newVX) < 0.01f) newVX = 0.0f;
+            float newVY = vsd.vc.currentYVelocity() * (Math.min(1.0f, 1.0f - friction));
+            if (Math.abs(newVY) < 0.01f) newVY = 0.0f;
+
+            vsd.vc.currentYVelocity(newVY);
+            vsd.vc.currentXVelocity(newVX);
+        } catch (NullPointerException e) {
+            // for some reason the entity is out of bound
+            vsd.pc().position(PositionComponent.ILLEGAL_POSITION);
+            LOGGER.warning("Entity " + e + " is out of bound");
+            UITools.generateNewTextDialog(e.toString(), "ok", vsd.e().toString());
         }
-
-        // remove projectiles that hit the wall or other non-accessible
-        // tiles
-        if (vsd.e.fetch(ProjectileComponent.class).isPresent() && hitwall) Game.remove(vsd.e);
-
-        float friction = Game.tileAT(vsd.pc.position()).friction();
-        float newVX = vsd.vc.currentXVelocity() * (Math.min(1.0f, 1.0f - friction));
-        if (Math.abs(newVX) < 0.01f) newVX = 0.0f;
-        float newVY = vsd.vc.currentYVelocity() * (Math.min(1.0f, 1.0f - friction));
-        if (Math.abs(newVY) < 0.01f) newVY = 0.0f;
-
-        vsd.vc.currentYVelocity(newVY);
-        vsd.vc.currentXVelocity(newVX);
     }
 
     private VSData buildDataObject(Entity e) {

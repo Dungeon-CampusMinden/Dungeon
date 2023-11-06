@@ -4,6 +4,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
+import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
 
@@ -36,7 +37,15 @@ public class PositionSystem extends System {
     }
 
     private void randomPosition(PSData data) {
-        if (Game.currentLevel() != null) data.pc.position(Game.randomTile(LevelElement.FLOOR));
+        if (Game.currentLevel() != null) {
+            Coordinate c = Game.randomTile(LevelElement.FLOOR).coordinate();
+            boolean b =
+                    entityStream()
+                            .map(this::buildDataObject)
+                            .anyMatch(psData -> psData.pc().position().toCoordinate().equals(c));
+            if (!b) data.pc().position(c.toPoint());
+            else randomPosition(data);
+        }
     }
 
     private PSData buildDataObject(Entity e) {
