@@ -4,13 +4,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class GUIContainer extends GUIElement {
+public class GUIContainer extends GUIElement {
 
     protected final List<GUIElement> elements = new ArrayList<>();
 
     /** Create a new GUIContainer */
     public GUIContainer() {
         super();
+    }
+
+    @Override
+    public void pack() {
+        // Pack elements based in layout and its own size.
+        // TODO
+    }
+
+    @Override
+    public void event(GUIEvent event) {
+        // Handle events
+        this.elements.forEach(element -> element.event(event));
     }
 
     /**

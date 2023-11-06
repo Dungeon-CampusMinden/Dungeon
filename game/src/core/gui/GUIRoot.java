@@ -9,10 +9,11 @@ public class GUIRoot {
 
     public GUIRoot(IGUIBackend backend) {
         this.backend = backend;
+        this.rootContainer = new GUIContainer();
     }
 
     public void render(float delta) {
-        // Render elements
+        this.backend.render(this.rootContainer.elements);
     }
 
     public void event(GUIEvent event) {

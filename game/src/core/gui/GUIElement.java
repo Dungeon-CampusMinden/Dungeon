@@ -8,6 +8,7 @@ public abstract class GUIElement {
     protected VectorF size;
     protected GUIElement parent;
     protected LayoutHint layoutHint;
+    protected boolean valid = false;
 
     public GUIElement() {
         this.position = new VectorF(0.0f, 0.0f);
@@ -62,6 +63,15 @@ public abstract class GUIElement {
      */
     public void layoutHint(LayoutHint hint) {
         this.layoutHint = hint;
+    }
+
+    /**
+     * This method should be called when something about the element changes (e.g. size change) that
+     * requires a redraw.
+     */
+    public final void invalidate() {
+        this.valid = false;
+        if (this.parent != null) this.parent.invalidate();
     }
 
     /** Packs the element to its preferred or minimum size */
