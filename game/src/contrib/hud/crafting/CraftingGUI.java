@@ -353,7 +353,7 @@ public class CraftingGUI extends CombinableGUI {
         this.updateRecipe();
     }
 
-    private void cancel() {
+    public void cancel() {
         this.items.forEach(this.targetInventory::add);
         this.items.clear();
         this.updateRecipe();
