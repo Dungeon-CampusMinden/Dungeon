@@ -153,9 +153,11 @@ public class GradingFunctionsTest {
         Element c2 = new Element(task, "container 2");
         Element e3 = new Element(task, "e3");
         Element e4 = new Element(task, "e4");
+        Element e5 = new Element(task, "dummy");
         Map<Element, Set<Element>> sol = new HashMap<>();
         sol.put(c, Set.of(e1, e2));
         sol.put(c2, Set.of(e3, e4));
+        sol.put(null, Set.of(e5));
 
         Map<Element, Set<Element>> solCopy = new HashMap<>(sol);
         Element givenSol = new Element(task, solCopy);
@@ -189,6 +191,32 @@ public class GradingFunctionsTest {
         task.points(points, points);
         task.scoringFunction(GradingFunctions.assignGradingEasy());
         assertEquals(0, task.gradeTask(Set.of(givenSol)), 0.00001f);
+    }
+
+    @Test
+    public void assign_wrong_easy_assignNotToAssing() {
+        AssignTask task = new AssignTask();
+        Element c = new Element(task, "container 1");
+        Element e1 = new Element(task, "e1");
+        Element e2 = new Element(task, "e2");
+        Element c2 = new Element(task, "container 2");
+        Element e3 = new Element(task, "e3");
+        Element e4 = new Element(task, "e4");
+        Element e5 = new Element(task, "dummy");
+        Element c3 = new Element(task, "");
+        Map<Element, Set<Element>> sol = new HashMap<>();
+        sol.put(c, Set.of(e1, e2));
+        sol.put(c2, Set.of(e3, e4));
+        sol.put(c3, Set.of(e5));
+        Map<Element, Set<Element>> wrongSol = new HashMap<>();
+        wrongSol.put(c, Set.of(e1, e2));
+        wrongSol.put(c2, Set.of(e3, e4, e5));
+        Element givenSol = new Element(task, wrongSol);
+        task.solution(sol);
+        float points = 5f;
+        task.points(points, points);
+        task.scoringFunction(GradingFunctions.assignGradingEasy());
+        assertEquals(4f, task.gradeTask(Set.of(givenSol)), 0.00001f);
     }
 
     @Test
@@ -311,6 +339,33 @@ public class GradingFunctionsTest {
         task.points(points, points);
         task.scoringFunction(GradingFunctions.assignGradingHard());
         assertEquals(0, task.gradeTask(Set.of(givenSol)), 0.00001f);
+    }
+
+    @Test
+    public void assign_wrong_hard_assignNotToAssing() {
+        AssignTask task = new AssignTask();
+        Element c = new Element(task, "container 1");
+        Element e1 = new Element(task, "e1");
+        Element e2 = new Element(task, "e2");
+        Element c2 = new Element(task, "container 2");
+        Element e3 = new Element(task, "e3");
+        Element e4 = new Element(task, "e4");
+
+        Element c3 = new Element(task, "");
+        Element e5 = new Element(task, "dummy");
+        Map<Element, Set<Element>> sol = new HashMap<>();
+        sol.put(c, Set.of(e1, e2));
+        sol.put(c2, Set.of(e3, e4));
+        sol.put(c3, Set.of(e5));
+        Map<Element, Set<Element>> wrongSol = new HashMap<>();
+        wrongSol.put(c, Set.of(e1, e2));
+        wrongSol.put(c2, Set.of(e3, e4, e5));
+        Element givenSol = new Element(task, wrongSol);
+        task.solution(sol);
+        float points = 5f;
+        task.points(points, points);
+        task.scoringFunction(GradingFunctions.assignGradingHard());
+        assertEquals(3f, task.gradeTask(Set.of(givenSol)), 0.00001f);
     }
 
     @Test
