@@ -296,5 +296,10 @@ public class PetriNetFactoryTest {
         // assertEquals(Task.TaskState.INACTIVE, pre1.state());
     }
 
-    private static class DummyTask extends Task {}
+    private static class DummyTask extends Task {
+        @Override
+        public String correctAnswersAsString() {
+            return null;
+        }
+    }
 }

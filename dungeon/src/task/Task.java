@@ -508,6 +508,13 @@ public abstract class Task {
     }
 
     /**
+     * Get a String represnation of the correct answers, to show on the HUD.
+     *
+     * @return String represnation of the correct answers
+     */
+    public abstract String correctAnswersAsString();
+
+    /**
      * Status that a task can assume.
      *
      * <p>ACTIVE - The task can be actively worked on.

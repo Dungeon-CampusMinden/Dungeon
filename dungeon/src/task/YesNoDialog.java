@@ -159,7 +159,16 @@ public class YesNoDialog {
             if (t.state() == Task.TaskState.FINISHED_CORRECT) output.append("korrekt ");
             else output.append("falsch ");
             output.append("gelöst");
-            OkDialog.showOkDialog(output.toString(), "Ergebnis", () -> {});
+            OkDialog.showOkDialog(
+                    output.toString(),
+                    "Ergebnis",
+                    () -> {
+                        // if task was finisehd wrong show correct answers
+                        if (score < t.points()) {
+                            OkDialog.showOkDialog(
+                                    t.correctAnswersAsString(), "Korrekte Antwort", () -> {});
+                        }
+                    });
         };
     }
 }

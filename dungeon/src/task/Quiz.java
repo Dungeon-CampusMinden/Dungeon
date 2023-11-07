@@ -121,6 +121,14 @@ public abstract class Quiz extends Task {
         return question;
     }
 
+    @Override
+    public String correctAnswersAsString() {
+        StringBuilder answers = new StringBuilder();
+        correctAnswerIndices.forEach(
+                i -> answers.append(contentByIndex(i).toString()).append(System.lineSeparator()));
+        return answers.toString();
+    }
+
     /**
      * Content for a {@link Quiz}-
      *
