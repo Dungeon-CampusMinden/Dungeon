@@ -8,6 +8,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.FloorTile;
+import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 
@@ -39,6 +40,7 @@ public class PositionSystemTest {
 
         Mockito.when(level.randomTile(LevelElement.FLOOR)).thenReturn(mock);
         Mockito.when(mock.position()).thenReturn(point);
+        Mockito.when(mock.coordinate()).thenReturn(new Coordinate(3, 3));
     }
 
     @After

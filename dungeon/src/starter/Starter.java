@@ -133,7 +133,6 @@ public class Starter {
     private static void onEntryPointSelection() {
         Game.userOnFrame(
                 () -> {
-
                     // the player selected a Task/DSL-Entrypoint but it´s not loaded yet:
                     if (!realGameStarted && TaskSelector.selectedDSLEntryPoint != null) {
                         realGameStarted = true;
