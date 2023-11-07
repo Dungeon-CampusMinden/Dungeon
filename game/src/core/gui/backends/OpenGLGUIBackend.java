@@ -59,22 +59,20 @@ public class OpenGLGUIBackend implements IGUIBackend {
     }
 
     public void render(List<GUIElement> elements) {
-        // Bind Framebuffer (-> draw to buffer not screen)
 
-        GL33.glEnable(GL33.GL_BLEND);
-        GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+        GL33.glClear(GL33.GL_DEPTH_BUFFER_BIT);
+        { // Render to Framebuffer
+            GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, this.bufferRenderContext.frameBuffer);
+            GL33.glViewport(0, 0, this.size.get(0), this.size.get(1));
+            GL33.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            GL33.glClear(GL33.GL_COLOR_BUFFER_BIT);
 
-        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, this.bufferRenderContext.frameBuffer);
-        GL33.glViewport(0, 0, this.size.get(0), this.size.get(1));
-        // GL33.glClear(GL33.GL_COLOR_BUFFER_BIT);
+            // this.renderGUI(elements);
+            this.renderDebug();
 
-        this.renderGUI(elements);
-        this.renderDebug();
+            GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
+        }
 
-        // Unbind Framebuffer (-> draw to screen)
-        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
-
-        // Draw Framebuffer to screen
         this.renderBuffer();
 
         // Screenshot
@@ -84,6 +82,8 @@ public class OpenGLGUIBackend implements IGUIBackend {
     }
 
     private void renderGUI(List<GUIElement> elements) {
+        GLBlendState blendState = GLBlendState.capture();
+
         GL33.glUseProgram(this.guiRenderContext.shader);
         GL33.glUniformMatrix4fv(
                 this.guiRenderContext.getUniformLocation("uProjection"),
@@ -96,12 +96,16 @@ public class OpenGLGUIBackend implements IGUIBackend {
                 element -> {
                     // TODO: Render Elements
                 });
+
+        blendState.apply();
     }
 
     private void renderBuffer() {
+        GLBlendState blendState = GLBlendState.capture();
+
         // Enable Alpha Blending
         GL33.glEnable(GL33.GL_BLEND);
-        GL33.glBlendFunc(GL33.GL_ZERO, GL33.GL_ONE_MINUS_SRC_ALPHA);
+        GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
 
         // Bind Shader Program
         GL33.glUseProgram(this.bufferRenderContext.shader);
@@ -119,9 +123,16 @@ public class OpenGLGUIBackend implements IGUIBackend {
 
         // Unbind VAO
         GL33.glBindVertexArray(0);
+
+        blendState.apply();
     }
 
     private void renderDebug() {
+        GLBlendState blendState = GLBlendState.capture();
+
+        GL33.glEnable(GL33.GL_BLEND);
+        GL33.glBlendFuncSeparate(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA, 1, 1);
+
         GL33.glUseProgram(this.debugRenderContext.shader);
         GL33.glUniformMatrix4fv(
                 this.debugRenderContext.getUniformLocation("uProjection"),
@@ -137,10 +148,11 @@ public class OpenGLGUIBackend implements IGUIBackend {
         GL33.glBindVertexArray(this.debugRenderContext.vao);
         GL33.glDrawElements(GL33.GL_TRIANGLE_STRIP, 4, GL33.GL_UNSIGNED_SHORT, 0);
         GL33.glBindVertexArray(0);
+
+        blendState.apply();
     }
 
     private void init() {
-
         this.initOpenGLDebugging();
 
         this.projection = Matrix4f.identity();
@@ -253,7 +265,7 @@ public class OpenGLGUIBackend implements IGUIBackend {
                 GL33.glGetAttribLocation(this.bufferRenderContext.shader, "aTexCoord");
         GL33.glEnableVertexAttribArray(aTexCoordLocation);
         GL33.glVertexAttribPointer(
-                aTexCoordLocation, 2, GL33.GL_FLOAT, false, 4 * Float.BYTES, 2 * 4 * Float.BYTES);
+                aTexCoordLocation, 2, GL33.GL_FLOAT, false, 4 * Float.BYTES, 2 * Float.BYTES);
 
         GL33.glBindVertexArray(0);
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
@@ -274,8 +286,8 @@ public class OpenGLGUIBackend implements IGUIBackend {
                 0);
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, GL33.GL_NEAREST);
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, GL33.GL_NEAREST);
-        GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, GL33.GL_CLAMP_TO_BORDER);
-        GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, GL33.GL_CLAMP_TO_BORDER);
+        GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, GL33.GL_CLAMP_TO_EDGE);
+        GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, GL33.GL_CLAMP_TO_EDGE);
         GL33.glTexParameterfv(
                 GL33.GL_TEXTURE_2D,
                 GL33.GL_TEXTURE_BORDER_COLOR,
@@ -310,10 +322,10 @@ public class OpenGLGUIBackend implements IGUIBackend {
 
         float[] vertices =
                 new float[] {
-                    0.75f, 0.75f, 1.0f, 1.0f, // top right
-                    -0.75f, 0.75f, 0.0f, 1.0f, // top left
-                    0.75f, -0.75f, 1.0f, 0.0f, // bottom right
-                    -0.75f, -0.75f, 0.0f, 0.0f // bottom left
+                    0.5f, 0.5f, 1.0f, 0.0f, // top right
+                    -0.5f, 0.5f, 0.0f, 0.0f, // top left
+                    0.5f, -0.5f, 1.0f, 1.0f, // bottom right
+                    -0.5f, -0.5f, 0.0f, 1.0f // bottom left
                 };
         short[] indices = new short[] {0, 1, 2, 3};
 
@@ -509,9 +521,36 @@ public class OpenGLGUIBackend implements IGUIBackend {
         }
     }
 
+    private record GLBlendState(
+            boolean enabled, int srcRGB, int dstRGB, int srcAlpha, int dstAlpha) {
+        public static GLBlendState capture() {
+            boolean enabled;
+            int[] srcRGB = new int[1],
+                    dstRGB = new int[1],
+                    srcAlpha = new int[1],
+                    dstAlpha = new int[1];
+            GL33.glGetIntegerv(GL33.GL_BLEND_SRC_RGB, srcRGB);
+            GL33.glGetIntegerv(GL33.GL_BLEND_DST_RGB, dstRGB);
+            GL33.glGetIntegerv(GL33.GL_BLEND_SRC_ALPHA, srcAlpha);
+            GL33.glGetIntegerv(GL33.GL_BLEND_DST_ALPHA, dstAlpha);
+            enabled = GL33.glIsEnabled(GL33.GL_BLEND);
+            return new GLBlendState(enabled, srcRGB[0], dstRGB[0], srcAlpha[0], dstAlpha[0]);
+        }
+
+        public void apply() {
+            if (this.enabled) {
+                GL33.glEnable(GL33.GL_BLEND);
+            } else {
+                GL33.glDisable(GL33.GL_BLEND);
+            }
+            GL33.glBlendFuncSeparate(this.srcRGB, this.dstRGB, this.srcAlpha, this.dstAlpha);
+        }
+    }
+
     private static class RenderStructure {
 
         private final HashMap<String, Integer> uniformLocations = new HashMap<>();
+
         public int vao, vbo, ebo, frameBuffer, texture, shader;
 
         public RenderStructure() {
