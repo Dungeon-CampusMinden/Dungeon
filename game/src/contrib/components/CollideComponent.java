@@ -50,16 +50,16 @@ public final class CollideComponent implements Component {
 
     private final Point offset;
     private final Point size;
+    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     @DSLCallback private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
     private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
     /**
      * Create a new CollisionComponent.
      *
      * @param offset the offset for the hitbox to the position; use {@link #DEFAULT_OFFSET} for the
      *     default offset,
-     * @param size the size for the hitboxUse {@link #DEFAULT_SIZE} for the default size.
+     * @param size the size for the hitbox Use {@link #DEFAULT_SIZE} for the default size.
      * @param collideEnter behaviour if a collision started; use {@link #DEFAULT_COLLIDER} for an
      *     empty function.
      * @param collideLeave behaviour if a collision stopped; use {@link #DEFAULT_COLLIDER} for an
@@ -196,5 +196,14 @@ public final class CollideComponent implements Component {
      */
     public void collideLeave(TriConsumer<Entity, Entity, Tile.Direction> collideLeave) {
         this.collideLeave = collideLeave;
+    }
+
+    /**
+     * Get the size of the hitbox.
+     *
+     * @return the size of the component
+     */
+    public Point size() {
+        return new Point(size);
     }
 }

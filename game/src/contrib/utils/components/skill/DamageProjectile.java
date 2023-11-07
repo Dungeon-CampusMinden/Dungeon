@@ -8,7 +8,9 @@ import contrib.utils.components.health.DamageType;
 
 import core.Entity;
 import core.Game;
-import core.components.*;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
@@ -26,16 +28,16 @@ import java.util.logging.Logger;
  */
 public abstract class DamageProjectile implements Consumer<Entity> {
     private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getName());
-    private String pathToTexturesOfProjectile;
-    private float projectileSpeed;
+    private final String pathToTexturesOfProjectile;
+    private final float projectileSpeed;
 
-    private float projectileRange;
+    private final float projectileRange;
 
-    private int damageAmount;
-    private DamageType damageType;
-    private Point projectileHitboxSize;
+    private final int damageAmount;
+    private final DamageType damageType;
+    private final Point projectileHitboxSize;
 
-    private Supplier<Point> selectionFunction;
+    private final Supplier<Point> selectionFunction;
 
     /**
      * The DamageProjectile constructor sets the path to the textures of the projectile, the speed
@@ -99,26 +101,42 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         } catch (IOException e) {
             LOGGER.warning(
                     "The DrawComponent for the projectile "
-                            + entity.toString()
+                            + entity
                             + " cant be created. "
                             + e.getMessage());
             throw new RuntimeException();
         }
 
-        // Get the target point based on the selection function and projectile range
-        Point aimedOn = selectionFunction.get();
+        Point offset = new Point(0, 0);
+        entity.fetch(CollideComponent.class)
+                .ifPresent(
+                        collideComponent -> {
+                            offset.x = collideComponent.size().x / 2;
+                            offset.y = collideComponent.size().y / 2;
+                        });
+
+        Point startPoint = new Point(epc.position());
+        startPoint.x += offset.x;
+        startPoint.y += offset.y;
+
+        // Get the target point based on the selection function and projectile range.
+        // Use a copy, so you do not change the actual value (for example the hero position)
+        Point aimedOn = new Point(selectionFunction.get());
         Point targetPoint =
-                SkillTools.calculateLastPositionInRange(epc.position(), aimedOn, projectileRange);
+                SkillTools.calculateLastPositionInRange(startPoint, aimedOn, projectileRange);
+
+        targetPoint.x = targetPoint.x - (projectileHitboxSize.x / 2);
+        targetPoint.y = targetPoint.y - (projectileHitboxSize.y / 2);
 
         // Calculate the velocity of the projectile
-        Point velocity = SkillTools.calculateVelocity(epc.position(), targetPoint, projectileSpeed);
+        Point velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
 
         // Add the VelocityComponent to the projectile
         VelocityComponent vc = new VelocityComponent(velocity.x, velocity.y);
         projectile.addComponent(vc);
 
         // Add the ProjectileComponent with the initial and target positions to the projectile
-        projectile.addComponent(new ProjectileComponent(epc.position(), targetPoint));
+        projectile.addComponent(new ProjectileComponent(startPoint, targetPoint));
 
         // Create a collision handler for the projectile
         TriConsumer<Entity, Entity, Tile.Direction> collide =
