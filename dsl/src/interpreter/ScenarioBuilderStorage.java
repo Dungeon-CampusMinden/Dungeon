@@ -18,10 +18,12 @@ import java.util.*;
  */
 public class ScenarioBuilderStorage {
     HashMap<IType, List<FunctionSymbol>> storedScenarioBuilders;
+    HashMap<IType, ArrayDeque<Integer>> lastRetrievedBuilderIdxs;
 
     /** Constructor. */
     public ScenarioBuilderStorage() {
         storedScenarioBuilders = new HashMap<>();
+        lastRetrievedBuilderIdxs = new HashMap<>();
     }
 
     /**
@@ -56,6 +58,7 @@ public class ScenarioBuilderStorage {
             throw new RuntimeException("Storage for type " + type + " is already initialized");
         }
         storedScenarioBuilders.put(type, new ArrayList<>());
+        lastRetrievedBuilderIdxs.put(type, new ArrayDeque<>());
     }
 
     /**
@@ -86,6 +89,10 @@ public class ScenarioBuilderStorage {
             var list = storedScenarioBuilders.get(taskType);
             list.add(functionSymbol);
         }
+
+        // clear last retrieved builders for this type
+        var dequeue = lastRetrievedBuilderIdxs.get(taskType);
+        dequeue.clear();
     }
 
     /**
@@ -108,9 +115,59 @@ public class ScenarioBuilderStorage {
             return returnSymbol;
         }
 
+        // we only consider the last 4 retrieved scenario builders
+        // so pop the one which was retrieved the longest ago
+        var lastRetrievedIdxs = lastRetrievedBuilderIdxs.get(type);
+        if (lastRetrievedIdxs.size() == 5) {
+            // remove last entry
+            lastRetrievedIdxs.pop();
+        }
+
+        // store weighted counts for the last retrieved scenario builders
+        // the latest will be weighted the highest
+
+        // initialize count storage
+        HashMap<Integer, Float> counts = new HashMap<>();
+        for (int i = 0; i < list.size(); i++) {
+            counts.put(i, 0.0f);
+        }
+
+        // do the counting
+        float modifier = 3.0f;
+        var iterator = lastRetrievedIdxs.descendingIterator();
+        while (iterator.hasNext()) {
+            var idx = iterator.next();
+            var currentCount = counts.get(idx);
+            // add 1 * modifier to the current count
+            currentCount = currentCount + modifier;
+            counts.put(idx, currentCount);
+
+            // update modifier
+            modifier = modifier * 0.65f;
+        }
+
+        // order by lowest count
+        var sortedList = counts.entrySet().stream().sorted(Map.Entry.comparingByValue()).toList();
+        List<Integer> idxsWithLowestCount = new ArrayList<>();
+        float lowestCount = sortedList.get(0).getValue();
+
+        // find lowest counts
+        for (var sortedEntry : sortedList) {
+            if (sortedEntry.getValue() == lowestCount) {
+                idxsWithLowestCount.add(sortedEntry.getKey());
+            } else {
+                break;
+            }
+        }
+
+        // select random idx from within the lowest counts
         Random random = new Random();
-        int idx = random.nextInt(list.size());
+        int randomInt = random.nextInt(idxsWithLowestCount.size());
+        int idx = idxsWithLowestCount.get(randomInt);
+
+        // retrieve the function symbol by idx
         FunctionSymbol symbol = list.get(idx);
+        lastRetrievedIdxs.add(idx);
         return Optional.of(symbol);
     }
 }
