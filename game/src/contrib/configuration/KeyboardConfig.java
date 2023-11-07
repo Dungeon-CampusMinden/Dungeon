@@ -23,6 +23,9 @@ public class KeyboardConfig {
             new ConfigKey<>(new String[] {"ui", "close"}, new ConfigIntValue(Input.Keys.ESCAPE));
     public static final ConfigKey<Integer> INTERACT_WORLD =
             new ConfigKey<>(new String[] {"interact", "world"}, new ConfigIntValue(Input.Keys.E));
+    public static final ConfigKey<Integer> MOUSE_INTERACT_WORLD =
+            new ConfigKey<>(
+                    new String[] {"interact", "mouse"}, new ConfigIntValue(Input.Buttons.LEFT));
     public static final ConfigKey<Integer> USE_ITEM =
             new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Input.Keys.E));
     public static final ConfigKey<Integer> FIRST_SKILL =

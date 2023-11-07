@@ -131,8 +131,10 @@ public final class PlayerComponent implements Component {
     }
 
     private void execute(Entity entity, int key, final InputData data) {
-        if ((!data.repeat() && Gdx.input.isKeyJustPressed(key))
-                || (data.repeat() && Gdx.input.isKeyPressed(key))) {
+        if ((!data.repeat()
+                        && (Gdx.input.isKeyJustPressed(key) || Gdx.input.isButtonJustPressed(key)))
+                || (data.repeat()
+                        && (Gdx.input.isKeyPressed(key) || Gdx.input.isButtonJustPressed(key)))) {
             data.callback().accept(entity);
         }
     }

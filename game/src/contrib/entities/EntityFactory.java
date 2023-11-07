@@ -251,6 +251,11 @@ public class EntityFactory {
                 InteractionTool::interactWithClosestInteractable,
                 false);
 
+        pc.registerCallback(
+                KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
+                InteractionTool::interactWithClosestInteractable,
+                false);
+
         // skills
         pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
