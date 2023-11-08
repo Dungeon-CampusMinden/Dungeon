@@ -18,6 +18,7 @@ import java.util.*;
 
 public class OpenGLGUIBackend implements IGUIBackend {
 
+    private static final boolean OPENGL_DEBUG = true, DRAW_DEBUG_IMAGE = false;
     private static final Map<Assets.Images, OpenGLImage> LOADED_IMAGES = new HashMap<>();
     private final VectorI size;
     private final OpenGLRenderStructure guiRenderContext = new OpenGLRenderStructure();
@@ -63,8 +64,9 @@ public class OpenGLGUIBackend implements IGUIBackend {
             GL33.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             GL33.glClear(GL33.GL_COLOR_BUFFER_BIT);
 
-            // this.renderGUI(elements);
-            this.renderDebug();
+            this.renderGUI(elements);
+
+            if (DRAW_DEBUG_IMAGE) this.renderDebug();
 
             GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
         }
@@ -171,14 +173,14 @@ public class OpenGLGUIBackend implements IGUIBackend {
     }
 
     private void init() {
-        this.initOpenGLDebugging();
+        if (OPENGL_DEBUG) this.initOpenGLDebugging();
 
         this.projection = Matrix4f.identity();
         this.view = Matrix4f.identity();
 
         this.initGUI();
         this.initBuffer();
-        this.initDebug();
+        if (DRAW_DEBUG_IMAGE) this.initDebug();
     }
 
     private void initOpenGLDebugging() {
