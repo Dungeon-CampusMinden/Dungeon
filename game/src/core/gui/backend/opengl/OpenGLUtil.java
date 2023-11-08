@@ -5,13 +5,12 @@ import core.utils.logging.CustomLogLevel;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.stb.STBImage;
+import org.lwjgl.stb.STBImageWrite;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -21,6 +20,8 @@ import java.util.regex.Pattern;
 public class OpenGLUtil {
 
     private static final Logger LOGGER = Logger.getLogger(OpenGLUtil.class.getName());
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT =
+            new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
 
     /**
      * Load a shader source from a resource file.
@@ -140,8 +141,26 @@ public class OpenGLUtil {
      * @return Path to the screenshot file.
      */
     public static String screenshot() {
-        // TODO: Implement screenshot functionality
-        return null;
+        int[] viewport = new int[4];
+        GL33.glGetIntegerv(GL33.GL_VIEWPORT, viewport);
+        int width = viewport[2];
+        int height = viewport[3];
+        ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4);
+        GL33.glReadPixels(0, 0, width, height, GL33.GL_RGBA, GL33.GL_UNSIGNED_BYTE, buffer);
+
+        File screenshotDirectory = new File("screenshots");
+        if (!screenshotDirectory.exists()) {
+            screenshotDirectory.mkdir();
+        }
+        String fileName =
+                screenshotDirectory.getAbsolutePath()
+                        + File.separator
+                        + SIMPLE_DATE_FORMAT.format(System.currentTimeMillis())
+                        + ".png";
+
+        STBImageWrite.stbi_flip_vertically_on_write(true);
+        STBImageWrite.stbi_write_png(fileName, width, height, 4, buffer, width * 4);
+        return fileName;
     }
 
     public static int[] getOpenGLVersion() {
@@ -195,6 +214,7 @@ public class OpenGLUtil {
         ByteBuffer bytes = ByteBuffer.allocateDirect(imageFileBytes.length);
         bytes.put(imageFileBytes);
         bytes.position(0);
+        STBImage.stbi_set_flip_vertically_on_load(true);
         ByteBuffer rawImage = STBImage.stbi_load_from_memory(bytes, width, height, channels, 4);
         if (rawImage == null) {
             throw new RuntimeException("Failed to load image: " + STBImage.stbi_failure_reason());
