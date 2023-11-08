@@ -1,13 +1,14 @@
 package core.gui;
 
 import core.gui.backend.BackendImage;
+import core.utils.math.Vector2f;
 import core.utils.math.Vector3f;
 import core.utils.math.Vector4f;
 
 public abstract class GUIElement {
 
-    protected Vector3f position;
-    protected Vector3f size;
+    protected Vector2f position;
+    protected Vector2f size;
     protected Vector3f rotation;
     protected GUIElement parent;
     protected LayoutHint layoutHint;
@@ -16,12 +17,12 @@ public abstract class GUIElement {
     protected boolean valid = false;
 
     public GUIElement() {
-        this.position = new Vector3f(0, 0, 0);
-        this.size = new Vector3f(0, 0, 0);
+        this.position = new Vector2f(0, 0);
+        this.size = new Vector2f(0, 0);
         this.rotation = new Vector3f(0, 0, 0);
     }
 
-    public GUIElement(Vector3f position, Vector3f size, Vector3f rotation) {
+    public GUIElement(Vector2f position, Vector2f size, Vector3f rotation) {
         this.position = position;
         this.size = size;
         this.rotation = rotation;
@@ -32,8 +33,18 @@ public abstract class GUIElement {
      *
      * @return Vector
      */
-    public final Vector3f position() {
+    public final Vector2f position() {
         return this.position;
+    }
+
+    /**
+     * Get the absolute position vector
+     *
+     * @return Vector
+     */
+    public final Vector2f absolutePosition() {
+        if (this.parent == null) return this.position;
+        return this.parent.absolutePosition().copy().add(this.position);
     }
 
     /**
@@ -41,7 +52,7 @@ public abstract class GUIElement {
      *
      * @return Vector
      */
-    public final Vector3f size() {
+    public final Vector2f size() {
         return this.size;
     }
 
@@ -59,7 +70,7 @@ public abstract class GUIElement {
      *
      * @param position Vector
      */
-    public final void position(Vector3f position) {
+    public final void position(Vector2f position) {
         this.position = position;
     }
 
@@ -68,7 +79,7 @@ public abstract class GUIElement {
      *
      * @param size Vector
      */
-    public final void size(Vector3f size) {
+    public final void size(Vector2f size) {
         this.size = size;
     }
 
@@ -104,8 +115,9 @@ public abstract class GUIElement {
      *
      * @param hint LayoutHint
      */
-    public final void layoutHint(LayoutHint hint) {
+    public final GUIElement layoutHint(LayoutHint hint) {
         this.layoutHint = hint;
+        return this;
     }
 
     /**

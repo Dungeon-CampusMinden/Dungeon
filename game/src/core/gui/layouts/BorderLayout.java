@@ -76,11 +76,11 @@ public class BorderLayout implements IGUILayout {
 
         Vector2f[] sizes =
                 new Vector2f[] {
-                    array[0] != null ? array[0].preferredSize() : Vector2f.zero(),
-                    array[1] != null ? array[1].preferredSize() : Vector2f.zero(),
-                    array[2] != null ? array[2].preferredSize() : Vector2f.zero(),
-                    array[3] != null ? array[3].preferredSize() : Vector2f.zero(),
-                    array[4] != null ? array[4].preferredSize() : Vector2f.zero()
+                    array[0] != null ? array[0].size() : Vector2f.zero(),
+                    array[1] != null ? array[1].size() : Vector2f.zero(),
+                    array[2] != null ? array[2].size() : Vector2f.zero(),
+                    array[3] != null ? array[3].size() : Vector2f.zero(),
+                    array[4] != null ? array[4].size() : Vector2f.zero()
                 };
 
         // NORTH

@@ -1,7 +1,6 @@
 package core.gui;
 
 import core.gui.backend.BackendImage;
-import core.utils.math.Vector2f;
 import core.utils.math.Vector4f;
 
 public class GUIImage extends GUIElement {
@@ -22,11 +21,5 @@ public class GUIImage extends GUIElement {
     public GUIImage image(BackendImage image) {
         this.image = image;
         return this;
-    }
-
-    @Override
-    public Vector2f preferredSize() {
-        if (this.image == null) return new Vector2f(10, 10);
-        return new Vector2f(this.image.width(), this.image.height());
     }
 }
