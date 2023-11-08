@@ -197,6 +197,13 @@ public class OpenGLUtil {
         return textureHandle;
     }
 
+    /**
+     * Create an empty texture with the specified width and height.
+     *
+     * @param width Width of the empty texture.
+     * @param height Height of the empty texture.
+     * @return Texture handle.
+     */
     public static int createEmptyTexture(int width, int height) {
         int textureHandle = GL33.glGenTextures();
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, textureHandle);
