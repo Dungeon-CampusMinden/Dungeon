@@ -22,6 +22,7 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.*;
+import core.level.Tile;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
@@ -29,9 +30,11 @@ import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -253,7 +256,53 @@ public class EntityFactory {
 
         pc.registerCallback(
                 KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
-                InteractionTool::interactWithClosestInteractable,
+                new Consumer<Entity>() {
+                    @Override
+                    public void accept(Entity hero) {
+                        Point mousposition = SkillTools.cursorPositionAsPoint();
+                        Tile mouseTile = Game.tileAT(mousposition);
+                        if (mouseTile == null) return; // maus out of bound
+
+                        // todo sollte eine MEthode in Game sein Optional<Entity> entityAtTile(Tile
+                        // t)
+                        Optional<Entity> entityOnMouse =
+                                Game.entityStream(
+                                                Set.of(
+                                                        InteractionComponent.class,
+                                                        PositionComponent.class))
+                                        .filter(
+                                                e ->
+                                                        Game.tileAT(
+                                                                        e.fetch(
+                                                                                        PositionComponent
+                                                                                                .class)
+                                                                                .get()
+                                                                                .position())
+                                                                .equals(mouseTile))
+                                        .findFirst();
+                        entityOnMouse.ifPresent(
+                                new Consumer<Entity>() {
+                                    @Override
+                                    public void accept(Entity interactable) {
+                                        InteractionComponent ic =
+                                                interactable
+                                                        .fetch(InteractionComponent.class)
+                                                        .get();
+                                        PositionComponent pc =
+                                                interactable.fetch(PositionComponent.class).get();
+                                        PositionComponent heroPC =
+                                                hero.fetch(PositionComponent.class).get();
+                                        // todo check for range and if in range
+                                        if (Point.calculateDistance(
+                                                        pc.position(), heroPC.position())
+                                                < ic.radius())
+                                            ic.triggerInteraction(interactable, hero);
+                                    }
+                                });
+
+                        //   InteractionTool::interactWithClosestInteractable,
+                    }
+                },
                 false);
 
         // skills
