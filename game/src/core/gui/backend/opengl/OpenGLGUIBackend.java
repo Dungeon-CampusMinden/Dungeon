@@ -304,10 +304,10 @@ public class OpenGLGUIBackend implements IGUIBackend {
 
         float[] vertices =
                 new float[] {
-                    0.5f, 0.5f, 1.0f, 0.0f, // top right
-                    -0.5f, 0.5f, 0.0f, 0.0f, // top left
-                    0.5f, -0.5f, 1.0f, 1.0f, // bottom right
-                    -0.5f, -0.5f, 0.0f, 1.0f // bottom left
+                    0.5f, 0.5f, 1.0f, 1.0f, // top right
+                    -0.5f, 0.5f, 0.0f, 1.0f, // top left
+                    0.5f, -0.5f, 1.0f, 0.0f, // bottom right
+                    -0.5f, -0.5f, 0.0f, 0.0f // bottom left
                 };
         short[] indices = new short[] {0, 1, 2, 3};
 
