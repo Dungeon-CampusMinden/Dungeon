@@ -141,8 +141,8 @@ public final class Game extends ScreenAdapter {
      * Sets {@link #currentLevel} to the new level and changes the currently active entity storage.
      *
      * <p>Will remove all Systems using {@link Game#removeAllSystems()} from the Game. This will
-     * trigger {@link System#onEntityRemove} for the old level. Then, it will read all Systems using
-     * {@link Game#add(System)}, triggering {@link System#onEntityAdd} for the new level.
+     * trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
+     * using {@link Game#add(System)}, triggering {@link System#onEntityAdd} for the new level.
      *
      * <p>Will re-add the hero if they exist.
      */
@@ -157,7 +157,7 @@ public final class Game extends ScreenAdapter {
                 removeAllSystems();
                 activeEntityStorage =
                         levelStorageMap.computeIfAbsent(currentLevel(), k -> new HashSet<>());
-                // read the systems so that each triggerOnAdd(entity) will be called (basically
+                // readd the systems so that each triggerOnAdd(entity) will be called (basically
                 // setup). This will also create new EntitySystemMapper if needed.
                 s.values().forEach(Game::add);
 
