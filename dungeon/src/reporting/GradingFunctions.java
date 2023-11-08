@@ -98,23 +98,7 @@ public class GradingFunctions {
      * @return a BiFunction that can be used for {@link Task#scoringFunction(BiFunction)}
      */
     public static BiFunction<Task, Set<TaskContent>, Float> assignGradingEasy() {
-        return (task, containers) -> {
-            AssignTask assignTask = (AssignTask) task;
-            Map<Element, Set<Element>> solution = assignTask.solution();
-            int elementCount = solution.values().stream().mapToInt(Set::size).sum();
-            float pointsPerAnswer = assignTask.points() / elementCount;
-            float reachedPoints = 0f;
-
-            Element wrap = (Element) containers.stream().findFirst().orElseThrow();
-            Map<Element, Set<Element>> givenAnswers = (Map<Element, Set<Element>>) wrap.content();
-
-            for (Element container : givenAnswers.keySet()) {
-                Set<Element> correctSolSet = solution.get(container);
-                for (Element content : givenAnswers.get(container))
-                    if (correctSolSet.contains(content)) reachedPoints += pointsPerAnswer;
-            }
-            return reachedPoints;
-        };
+        return assignGrading(false);
     }
 
     /**
@@ -131,23 +115,58 @@ public class GradingFunctions {
      * @return a BiFunction that can be used for {@link Task#scoringFunction(BiFunction)}
      */
     public static BiFunction<Task, Set<TaskContent>, Float> assignGradingHard() {
+        return assignGrading(true);
+    }
+
+    private static BiFunction<Task, Set<TaskContent>, Float> assignGrading(boolean hard) {
         return (task, containers) -> {
             AssignTask assignTask = (AssignTask) task;
             Map<Element, Set<Element>> solution = assignTask.solution();
-            int elementCount = solution.values().stream().mapToInt(Set::size).sum();
-            float pointsPerAnswer = assignTask.points() / elementCount;
-            float reachedPoints = 0f;
 
+            int elementCount =
+                    solution.values().stream()
+                            // filter the elements that will mark an chest that has to be empty,
+                            // DSL-Input "_"
+                            .filter(
+                                    set ->
+                                            !set.stream()
+                                                    .anyMatch(
+                                                            e -> e.content().toString().equals("")))
+                            .mapToInt(Set::size)
+                            .sum();
+            float pointsPerAnswer = assignTask.points() / elementCount;
+            final float[] reachedPoints = {0f};
+            Set<Element> visisted = new HashSet<>();
+            Set<Element> visitedKeys = new HashSet<>();
             Element wrap = (Element) containers.stream().findFirst().orElseThrow();
             Map<Element, Set<Element>> givenAnswers = (Map<Element, Set<Element>>) wrap.content();
 
             for (Element container : givenAnswers.keySet()) {
                 Set<Element> correctSolSet = solution.get(container);
-                for (Element content : givenAnswers.get(container))
-                    if (correctSolSet.contains(content)) reachedPoints += pointsPerAnswer;
-                    else reachedPoints -= pointsPerAnswer;
+                visitedKeys.add(container);
+                for (Element content : givenAnswers.get(container)) {
+                    if (correctSolSet.contains(content)) reachedPoints[0] += pointsPerAnswer;
+                    else if (hard) reachedPoints[0] -= pointsPerAnswer;
+                    visisted.add(content);
+                }
             }
-            return Math.max(0, reachedPoints);
+
+            // there will be no container in the game for elements that should not be assigned, but
+            // we will still give points for elements that are correctly not assigned
+            solution.keySet().stream()
+                    .filter(k -> !visitedKeys.contains(k))
+                    .findFirst()
+                    .ifPresent(
+                            element -> {
+                                Set<Element> notToAssign = solution.get(element);
+                                if (notToAssign != null)
+                                    reachedPoints[0] +=
+                                            notToAssign.stream()
+                                                            .filter(e -> !visisted.contains(e))
+                                                            .count()
+                                                    * pointsPerAnswer;
+                            });
+            return Math.max(0, reachedPoints[0]);
         };
     }
 }
