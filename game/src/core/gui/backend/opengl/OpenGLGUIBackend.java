@@ -32,11 +32,11 @@ public class OpenGLGUIBackend implements IGUIBackend {
 
     @Override
     public void resize(int width, int height) {
-        this.size.set(0, width);
-        this.size.set(1, height);
+        this.size.x(width);
+        this.size.y(height);
 
         this.projection =
-                Matrix4f.orthographicProjection(0, this.size.get(0), this.size.get(1), 0, 0, 100);
+                Matrix4f.orthographicProjection(0, this.size.x(), this.size.y(), 0, 0, 100);
         this.view = Matrix4f.identity();
 
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, this.bufferRenderContext.texture);
@@ -59,7 +59,7 @@ public class OpenGLGUIBackend implements IGUIBackend {
         GL33.glClear(GL33.GL_DEPTH_BUFFER_BIT);
         { // Render to Framebuffer
             GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, this.bufferRenderContext.frameBuffer);
-            GL33.glViewport(0, 0, this.size.get(0), this.size.get(1));
+            GL33.glViewport(0, 0, this.size.x(), this.size.y());
             GL33.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             GL33.glClear(GL33.GL_COLOR_BUFFER_BIT);
 
@@ -272,7 +272,7 @@ public class OpenGLGUIBackend implements IGUIBackend {
 
         // Init texture
         this.bufferRenderContext.texture =
-                OpenGLUtil.createEmptyTexture(this.size.get(0), this.size.get(1));
+                OpenGLUtil.createEmptyTexture(this.size.x(), this.size.y());
 
         // Init Framebuffer
         this.bufferRenderContext.frameBuffer = GL33.glGenFramebuffers();

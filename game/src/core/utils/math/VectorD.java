@@ -162,4 +162,68 @@ public class VectorD {
     public VectorD copy() {
         return new VectorD(this.components);
     }
+
+    public double x() {
+        return this.components[0];
+    }
+
+    public double y() {
+        return this.components[1];
+    }
+
+    public double z() {
+        return this.components[2];
+    }
+
+    public double w() {
+        return this.components[3];
+    }
+
+    public double r() {
+        return this.components[0];
+    }
+
+    public double g() {
+        return this.components[1];
+    }
+
+    public double b() {
+        return this.components[2];
+    }
+
+    public double a() {
+        return this.components[3];
+    }
+
+    public void x(double x) {
+        this.components[0] = x;
+    }
+
+    public void y(double y) {
+        this.components[1] = y;
+    }
+
+    public void z(double z) {
+        this.components[2] = z;
+    }
+
+    public void w(double w) {
+        this.components[3] = w;
+    }
+
+    public void r(double r) {
+        this.components[0] = r;
+    }
+
+    public void g(double g) {
+        this.components[1] = g;
+    }
+
+    public void b(double b) {
+        this.components[2] = b;
+    }
+
+    public void a(int a) {
+        this.components[3] = a;
+    }
 }

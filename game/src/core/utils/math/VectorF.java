@@ -162,4 +162,68 @@ public class VectorF {
     public VectorF copy() {
         return new VectorF(this.components);
     }
+
+    public float x() {
+        return this.components[0];
+    }
+
+    public float y() {
+        return this.components[1];
+    }
+
+    public float z() {
+        return this.components[2];
+    }
+
+    public float w() {
+        return this.components[3];
+    }
+
+    public float r() {
+        return this.components[0];
+    }
+
+    public float g() {
+        return this.components[1];
+    }
+
+    public float b() {
+        return this.components[2];
+    }
+
+    public float a() {
+        return this.components[3];
+    }
+
+    public void x(float x) {
+        this.components[0] = x;
+    }
+
+    public void y(float y) {
+        this.components[1] = y;
+    }
+
+    public void z(float z) {
+        this.components[2] = z;
+    }
+
+    public void w(float w) {
+        this.components[3] = w;
+    }
+
+    public void r(float r) {
+        this.components[0] = r;
+    }
+
+    public void g(float g) {
+        this.components[1] = g;
+    }
+
+    public void b(float b) {
+        this.components[2] = b;
+    }
+
+    public void a(float a) {
+        this.components[3] = a;
+    }
 }

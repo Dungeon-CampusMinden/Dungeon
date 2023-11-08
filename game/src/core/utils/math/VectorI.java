@@ -162,4 +162,68 @@ public class VectorI {
     public VectorI copy() {
         return new VectorI(this.components);
     }
+
+    public int x() {
+        return this.components[0];
+    }
+
+    public int y() {
+        return this.components[1];
+    }
+
+    public int z() {
+        return this.components[2];
+    }
+
+    public int w() {
+        return this.components[3];
+    }
+
+    public int r() {
+        return this.components[0];
+    }
+
+    public int g() {
+        return this.components[1];
+    }
+
+    public int b() {
+        return this.components[2];
+    }
+
+    public int a() {
+        return this.components[3];
+    }
+
+    public void x(int x) {
+        this.components[0] = x;
+    }
+
+    public void y(int y) {
+        this.components[1] = y;
+    }
+
+    public void z(int z) {
+        this.components[2] = z;
+    }
+
+    public void w(int w) {
+        this.components[3] = w;
+    }
+
+    public void r(int r) {
+        this.components[0] = r;
+    }
+
+    public void g(int g) {
+        this.components[1] = g;
+    }
+
+    public void b(int b) {
+        this.components[2] = b;
+    }
+
+    public void a(int a) {
+        this.components[3] = a;
+    }
 }
