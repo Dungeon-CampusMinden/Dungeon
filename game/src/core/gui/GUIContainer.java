@@ -1,5 +1,7 @@
 package core.gui;
 
+import core.gui.layouts.AbsoluteLayout;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,16 +9,16 @@ import java.util.List;
 public class GUIContainer extends GUIElement {
 
     protected final List<GUIElement> elements = new ArrayList<>();
+    protected IGUILayout layout = new AbsoluteLayout();
 
     /** Create a new GUIContainer */
-    public GUIContainer() {
+    public GUIContainer(IGUILayout layout) {
         super();
+        this.layout = layout;
     }
 
-    @Override
-    public void pack() {
-        // Pack elements based in layout and its own size.
-        // TODO
+    public GUIContainer() {
+        super();
     }
 
     @Override
