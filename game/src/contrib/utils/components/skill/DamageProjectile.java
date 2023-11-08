@@ -27,17 +27,53 @@ import java.util.logging.Logger;
  * entity as a parameter.
  */
 public abstract class DamageProjectile implements Consumer<Entity> {
+
+    private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
     private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getName());
     private final String pathToTexturesOfProjectile;
     private final float projectileSpeed;
-
     private final float projectileRange;
-
     private final int damageAmount;
     private final DamageType damageType;
     private final Point projectileHitboxSize;
-
     private final Supplier<Point> selectionFunction;
+    private final Consumer<Entity> onWallHit;
+
+    /**
+     * The DamageProjectile constructor sets the path to the textures of the projectile, the speed
+     * of the projectile, the damage amount and type to be dealt, the size of the projectile's
+     * hitbox, the target selection function, the range of the projectile, and the bahavior when a
+     * wall is hit.
+     *
+     * <p>for specific implementation, see {@link contrib.utils.components.skill.FireballSkill}
+     *
+     * @param pathToTexturesOfProjectile path to the textures of the projectile
+     * @param projectileSpeed speed of the projectile
+     * @param damageAmount amount of damage to be dealt
+     * @param damageType type of damage to be dealt
+     * @param projectileHitboxSize size of the Hitbox
+     * @param selectionFunction specific functionality of the projectile
+     * @param projectileRange range in which the projectile is effective
+     * @param onWallHit behavior when a wall is hit
+     */
+    public DamageProjectile(
+            String pathToTexturesOfProjectile,
+            float projectileSpeed,
+            int damageAmount,
+            DamageType damageType,
+            Point projectileHitboxSize,
+            Supplier<Point> selectionFunction,
+            float projectileRange,
+            Consumer<Entity> onWallHit) {
+        this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
+        this.damageAmount = damageAmount;
+        this.damageType = damageType;
+        this.projectileSpeed = projectileSpeed;
+        this.projectileRange = projectileRange;
+        this.projectileHitboxSize = projectileHitboxSize;
+        this.selectionFunction = selectionFunction;
+        this.onWallHit = onWallHit;
+    }
 
     /**
      * The DamageProjectile constructor sets the path to the textures of the projectile, the speed
@@ -62,13 +98,15 @@ public abstract class DamageProjectile implements Consumer<Entity> {
             Point projectileHitboxSize,
             Supplier<Point> selectionFunction,
             float projectileRange) {
-        this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
-        this.damageAmount = damageAmount;
-        this.damageType = damageType;
-        this.projectileSpeed = projectileSpeed;
-        this.projectileRange = projectileRange;
-        this.projectileHitboxSize = projectileHitboxSize;
-        this.selectionFunction = selectionFunction;
+        this(
+                pathToTexturesOfProjectile,
+                projectileSpeed,
+                damageAmount,
+                damageType,
+                projectileHitboxSize,
+                selectionFunction,
+                projectileRange,
+                DEFAULT_ON_WALL_HIT);
     }
 
     /**
@@ -132,7 +170,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         Point velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
 
         // Add the VelocityComponent to the projectile
-        VelocityComponent vc = new VelocityComponent(velocity.x, velocity.y);
+        VelocityComponent vc = new VelocityComponent(velocity.x, velocity.y, onWallHit);
         projectile.addComponent(vc);
 
         // Add the ProjectileComponent with the initial and target positions to the projectile

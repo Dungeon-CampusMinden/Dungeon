@@ -3,8 +3,6 @@ package core.systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 
-import contrib.components.ProjectileComponent;
-
 import core.Entity;
 import core.Game;
 import core.System;
@@ -95,7 +93,7 @@ public final class VelocitySystem extends System {
 
             // remove projectiles that hit the wall or other non-accessible
             // tiles
-            if (vsd.e.fetch(ProjectileComponent.class).isPresent() && hitwall) Game.remove(vsd.e);
+            if (hitwall) vsd.vc.onWallHit().accept(vsd.e);
 
             float friction = Game.tileAT(vsd.pc.position()).friction();
             float newVX = vsd.vc.currentXVelocity() * (Math.min(1.0f, 1.0f - friction));

@@ -1,7 +1,5 @@
 package core.components;
 
-import contrib.utils.components.draw.AdditionalAnimations;
-
 import core.Component;
 import core.Entity;
 import core.systems.VelocitySystem;
@@ -39,8 +37,8 @@ import java.util.stream.Collectors;
  * <p>If you want to add your own Animations, create a subdirectory for the animation and add the
  * path to an enum that implements the {@link IPath} interface. So if you want to add a jump
  * animation to the hero, just create a new directory "jump" in the assert-directory of your hero
- * (for example character/hero) and then add a new Enum-Value JUMP("jump") to {@link
- * AdditionalAnimations}
+ * (for example character/hero) and then add a new Enum-Value JUMP("jump") to enum that implements
+ * {@link IPath}
  *
  * <p>Animations will be searched in the default asset directory. Normally this is "game/assets",
  * but you can change it in the gradle.build file, if you like.
@@ -52,8 +50,8 @@ import java.util.stream.Collectors;
  * @see IPath
  */
 public final class DrawComponent implements Component {
-    private Map<String, Animation> animationMap = null;
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private Map<String, Animation> animationMap = null;
     private Animation currentAnimation;
     /** allows only one Element from a certain priority and orders them */
     private Map<IPath, Integer> animationQueue =

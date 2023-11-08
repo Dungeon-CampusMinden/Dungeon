@@ -1,11 +1,13 @@
 package core.components;
 
 import core.Component;
+import core.Entity;
 import core.utils.logging.CustomLogLevel;
 
 import semanticanalysis.types.DSLType;
 import semanticanalysis.types.DSLTypeMember;
 
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
@@ -28,14 +30,30 @@ import java.util.logging.Logger;
  */
 @DSLType(name = "velocity_component")
 public final class VelocityComponent implements Component {
+
+    private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = e -> {};
     private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
     private float currentXVelocity;
     private float currentYVelocity;
     private @DSLTypeMember(name = "x_velocity") float xVelocity;
     private @DSLTypeMember(name = "y_velocity") float yVelocity;
-
     private float previousXVelocity;
     private float previousYVelocity;
+    private Consumer<Entity> onWallHit;
+
+    /**
+     * Create a new VelocityComponent with the given configuration.
+     *
+     * @param xVelocity Speed with which the entity can move on the x-axis
+     * @param yVelocity Speed with which the entity can move on the y-axis
+     */
+    public VelocityComponent(float xVelocity, float yVelocity, Consumer<Entity> onWallHit) {
+        this.currentXVelocity = 0;
+        this.currentYVelocity = 0;
+        this.xVelocity = xVelocity;
+        this.yVelocity = yVelocity;
+        this.onWallHit = onWallHit;
+    }
 
     /**
      * Create a new VelocityComponent with the given configuration.
@@ -44,10 +62,7 @@ public final class VelocityComponent implements Component {
      * @param yVelocity Speed with which the entity can move on the y-axis
      */
     public VelocityComponent(float xVelocity, float yVelocity) {
-        this.currentXVelocity = 0;
-        this.currentYVelocity = 0;
-        this.xVelocity = xVelocity;
-        this.yVelocity = yVelocity;
+        this(xVelocity, yVelocity, DEFAULT_ON_WALL_HIT);
     }
 
     /**
@@ -56,10 +71,7 @@ public final class VelocityComponent implements Component {
      * <p>In the default configuration, the movement-speed is set to 0, so the entity will not move.
      */
     public VelocityComponent() {
-        this.currentXVelocity = 0;
-        this.currentYVelocity = 0;
-        this.xVelocity = 0;
-        this.yVelocity = 0;
+        this(0, 0, DEFAULT_ON_WALL_HIT);
     }
 
     /**
@@ -190,5 +202,17 @@ public final class VelocityComponent implements Component {
      */
     public float previousYVelocity() {
         return previousYVelocity;
+    }
+
+    /** Sets the behavior when a wall is hit. */
+    public void onWallHit(Consumer<Entity> onWallHit) {
+        this.onWallHit = onWallHit;
+    }
+
+    /**
+     * @return The behavior when a wall is hit.
+     */
+    public Consumer<Entity> onWallHit() {
+        return onWallHit;
     }
 }
