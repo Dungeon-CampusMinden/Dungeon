@@ -1,6 +1,7 @@
 package core.gui;
 
 import core.gui.events.GUIResizeEvent;
+import core.utils.math.Vector3f;
 
 public class GUIRoot {
 
@@ -10,6 +11,12 @@ public class GUIRoot {
     public GUIRoot(IGUIBackend backend) {
         this.backend = backend;
         this.rootContainer = new GUIContainer();
+
+        GUIElement testElement = new GUIElement() {};
+        testElement.position(new Vector3f(60, 60, 0));
+        testElement.size(new Vector3f(100, 100, 0));
+
+        this.rootContainer.add(testElement);
     }
 
     public void render(float delta) {

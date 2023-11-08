@@ -1,46 +1,84 @@
 package core.gui;
 
 import core.gui.backend.BackendImage;
-import core.utils.math.VectorF;
-
-import java.awt.*;
+import core.utils.math.Vector3f;
+import core.utils.math.Vector4f;
 
 public abstract class GUIElement {
 
-    protected VectorF position;
-    protected VectorF size;
+    protected Vector3f position;
+    protected Vector3f size;
+    protected Vector3f rotation;
     protected GUIElement parent;
     protected LayoutHint layoutHint;
-    protected Color backgroundColor;
+    protected Vector4f backgroundColor;
     protected BackendImage backgroundImage;
     protected boolean valid = false;
 
     public GUIElement() {
-        this.position = new VectorF(0.0f, 0.0f);
-        this.size = new VectorF(0.0f, 0.0f);
+        this.position = new Vector3f(0, 0, 0);
+        this.size = new Vector3f(0, 0, 0);
+        this.rotation = new Vector3f(0, 0, 0);
     }
 
-    public GUIElement(VectorF position, VectorF size) {
+    public GUIElement(Vector3f position, Vector3f size, Vector3f rotation) {
         this.position = position;
+        this.size = size;
+        this.rotation = rotation;
+    }
+
+    /**
+     * Get the position vector
+     *
+     * @return Vector
+     */
+    public final Vector3f position() {
+        return this.position;
+    }
+
+    /**
+     * Get the size vector
+     *
+     * @return Vector
+     */
+    public final Vector3f size() {
+        return this.size;
+    }
+
+    /**
+     * Get the rotation vector
+     *
+     * @return Vector
+     */
+    public final Vector3f rotation() {
+        return this.rotation;
+    }
+
+    /**
+     * Set the position vector
+     *
+     * @param position Vector
+     */
+    public final void position(Vector3f position) {
+        this.position = position;
+    }
+
+    /**
+     * Set the size vector
+     *
+     * @param size Vector
+     */
+    public final void size(Vector3f size) {
         this.size = size;
     }
 
     /**
-     * Get a copy of the position vector
+     * Set the rotation vector
      *
-     * @return Vector
+     * @param rotation Vector
      */
-    public VectorF position() {
-        return this.position.copy();
-    }
-
-    /**
-     * Get a copy of the size vector
-     *
-     * @return Vector
-     */
-    public VectorF size() {
-        return this.size.copy();
+    public final void rotation(Vector3f rotation) {
+        this.rotation = rotation;
     }
 
     /**
@@ -48,7 +86,7 @@ public abstract class GUIElement {
      *
      * @return GUIElement
      */
-    public GUIElement parent() {
+    public final GUIElement parent() {
         return this.parent;
     }
 
@@ -57,7 +95,7 @@ public abstract class GUIElement {
      *
      * @return LayoutHint
      */
-    public LayoutHint layoutHint() {
+    public final LayoutHint layoutHint() {
         return this.layoutHint;
     }
 
@@ -66,8 +104,35 @@ public abstract class GUIElement {
      *
      * @param hint LayoutHint
      */
-    public void layoutHint(LayoutHint hint) {
+    public final void layoutHint(LayoutHint hint) {
         this.layoutHint = hint;
+    }
+
+    /**
+     * Get the background color
+     *
+     * @return {@link Vector4f}
+     */
+    public Vector4f backgroundColor() {
+        return backgroundColor;
+    }
+
+    /**
+     * Get the background image
+     *
+     * @return {@link BackendImage}
+     */
+    public BackendImage backgroundImage() {
+        return backgroundImage;
+    }
+
+    /**
+     * Get if this element is valid or if it has to be redrawn/updated.
+     *
+     * @return true if valid otherwise false.
+     */
+    public boolean valid() {
+        return valid;
     }
 
     /**

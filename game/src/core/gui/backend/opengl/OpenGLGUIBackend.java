@@ -7,7 +7,7 @@ import core.gui.GUIElement;
 import core.gui.IGUIBackend;
 import core.utils.logging.CustomLogLevel;
 import core.utils.math.Matrix4f;
-import core.utils.math.VectorI;
+import core.utils.math.Vector2i;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.*;
@@ -20,13 +20,14 @@ public class OpenGLGUIBackend implements IGUIBackend {
 
     private static final boolean OPENGL_DEBUG = true, DRAW_DEBUG_IMAGE = false;
     private static final Map<Assets.Images, OpenGLImage> LOADED_IMAGES = new HashMap<>();
-    private final VectorI size;
+    private static final Map<GUIElement, OpenGLRenderStructure> RENDER_STRUCTURES = new HashMap<>();
+    private final Vector2i size;
     private final OpenGLRenderStructure guiRenderContext = new OpenGLRenderStructure();
     private final OpenGLRenderStructure bufferRenderContext = new OpenGLRenderStructure();
     private final OpenGLRenderStructure debugRenderContext = new OpenGLRenderStructure();
     private Matrix4f projection, view;
 
-    public OpenGLGUIBackend(VectorI size) {
+    public OpenGLGUIBackend(Vector2i size) {
         this.size = size;
         this.init();
     }
@@ -37,7 +38,7 @@ public class OpenGLGUIBackend implements IGUIBackend {
         this.size.y(height);
 
         this.projection =
-                Matrix4f.orthographicProjection(0, this.size.x(), this.size.y(), 0, 0, 100);
+                Matrix4f.orthographicProjection(0, this.size.x(), 0, this.size.y(), 0, 100);
         this.view = Matrix4f.identity();
 
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, this.bufferRenderContext.texture);
@@ -112,10 +113,48 @@ public class OpenGLGUIBackend implements IGUIBackend {
         GL33.glUniformMatrix4fv(
                 this.guiRenderContext.getUniformLocation("uView"), false, this.view.toOpenGL());
 
+        GL33.glBindVertexArray(this.guiRenderContext.vao);
+
         elements.forEach(
                 element -> {
-                    // TODO: Render Elements
+                    Matrix4f model = Matrix4f.identity();
+                    model =
+                            model.multiply(
+                                    Matrix4f.translate(
+                                            element.position().x(), element.position().y(), 0));
+                    model =
+                            model.multiply(
+                                    Matrix4f.scale(element.size().x(), element.size().y(), 1));
+                    model = model.multiply(Matrix4f.rotateZ(element.rotation().z()));
+                    model = model.multiply(Matrix4f.rotateZ(element.rotation().y()));
+                    model = model.multiply(Matrix4f.rotateZ(element.rotation().x()));
+
+                    GL33.glUniformMatrix4fv(
+                            this.guiRenderContext.getUniformLocation("uModel"),
+                            false,
+                            model.toOpenGL());
+
+                    int props = 0;
+                    if (element.backgroundColor() != null) {
+                        props |= 0x0001;
+                        GL33.glUniform4fv(
+                                this.guiRenderContext.getUniformLocation("uColor"),
+                                element.backgroundColor().toArray());
+                    }
+                    if (element.backgroundImage() != null) {
+                        props |= 0x0002;
+                        OpenGLImage image = (OpenGLImage) element.backgroundImage();
+                        GL33.glActiveTexture(GL33.GL_TEXTURE0);
+                        GL33.glBindTexture(GL33.GL_TEXTURE_2D, image.glTextureHandle);
+                        GL33.glUniform1i(
+                                this.guiRenderContext.getUniformLocation("uBackgroundTexture"), 0);
+                    }
+
+                    GL33.glUniform1i(
+                            this.guiRenderContext.getUniformLocation("uProperties"), props);
+                    GL33.glDrawElements(GL33.GL_TRIANGLE_STRIP, 4, GL33.GL_UNSIGNED_SHORT, 0);
                 });
+        GL33.glBindVertexArray(0);
 
         blendState.apply();
     }
@@ -175,7 +214,9 @@ public class OpenGLGUIBackend implements IGUIBackend {
     private void init() {
         if (OPENGL_DEBUG) this.initOpenGLDebugging();
 
-        this.projection = Matrix4f.identity();
+        // Swap top & bottom so that the origin is in the bottom left corner
+        this.projection =
+                Matrix4f.orthographicProjection(0, this.size.x(), 0, this.size.y(), 0, 100);
         this.view = Matrix4f.identity();
 
         this.initGUI();
@@ -227,6 +268,55 @@ public class OpenGLGUIBackend implements IGUIBackend {
     private void initGUI() {
         this.guiRenderContext.shader =
                 OpenGLUtil.makeShaderProgram("/shaders/gui/GUI.vsh", "/shaders/gui/GUI.fsh");
+
+        float[] vertices =
+                new float[] {
+                    0.5f,
+                    0.5f,
+                    0.0f,
+                    1.0f,
+                    1.0f, // top right
+                    -0.5f,
+                    0.5f,
+                    0.0f,
+                    0.0f,
+                    1.0f, // top left
+                    0.5f,
+                    -0.5f,
+                    0.0f,
+                    1.0f,
+                    0.0f, // bottom right
+                    -0.5f,
+                    -0.5f,
+                    0.0f,
+                    0.0f,
+                    0.0f // bottom left
+                };
+        short[] indices = new short[] {0, 1, 2, 3};
+
+        this.guiRenderContext.vao = GL33.glGenVertexArrays();
+        this.guiRenderContext.vbo = GL33.glGenBuffers();
+        this.guiRenderContext.ebo = GL33.glGenBuffers();
+
+        GL33.glBindVertexArray(this.guiRenderContext.vao);
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.guiRenderContext.vbo);
+        GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, this.guiRenderContext.ebo);
+
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vertices, GL33.GL_STATIC_DRAW);
+        GL33.glBufferData(GL33.GL_ELEMENT_ARRAY_BUFFER, indices, GL33.GL_STATIC_DRAW);
+
+        int aPositionLocation = GL33.glGetAttribLocation(this.guiRenderContext.shader, "aPosition");
+        GL33.glEnableVertexAttribArray(aPositionLocation);
+        GL33.glVertexAttribPointer(aPositionLocation, 2, GL33.GL_FLOAT, false, 5 * Float.BYTES, 0);
+
+        int aTexCoordLocation = GL33.glGetAttribLocation(this.guiRenderContext.shader, "aTexCoord");
+        GL33.glEnableVertexAttribArray(aTexCoordLocation);
+        GL33.glVertexAttribPointer(
+                aTexCoordLocation, 3, GL33.GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
+
+        GL33.glBindVertexArray(0);
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
+        GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
     private void initBuffer() {

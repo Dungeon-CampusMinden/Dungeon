@@ -63,15 +63,15 @@ public class Matrix4f {
         return new Matrix4f(result);
     }
 
-    public Matrix4f multiply(Matrix4f matrix) {
+    public Matrix4f multiply(Matrix4f second) {
         float[][] result = new float[4][4];
-        for (int col = 0; col < 4; col++) {
-            for (int row = 0; row < 4; row++) {
+        for (int cs = 0; cs < 4; cs++) {
+            for (int fr = 0; fr < 4; fr++) {
                 float sum = 0.0f;
                 for (int i = 0; i < 4; i++) {
-                    sum += this.data[row][i] * matrix.data[i][col];
+                    sum += this.data[fr][i] * second.data[i][cs];
                 }
-                result[row][col] = sum;
+                result[fr][cs] = sum;
             }
         }
         return new Matrix4f(result);
@@ -85,6 +85,18 @@ public class Matrix4f {
             }
         }
         return new Matrix4f(result);
+    }
+
+    public Vector4f multiply(Vector4f vector) {
+        float[] result = new float[4];
+        for (int row = 0; row < 4; row++) {
+            float sum = 0.0f;
+            for (int i = 0; i < 4; i++) {
+                sum += this.data[row][i] * vector.get(i);
+            }
+            result[row] = sum;
+        }
+        return new Vector4f(result);
     }
 
     public Matrix4f divide(float scalar) {
@@ -123,9 +135,9 @@ public class Matrix4f {
         result[0][0] = 2.0f / (right - left);
         result[1][1] = 2.0f / (top - bottom);
         result[2][2] = -2.0f / (far - near);
-        result[3][0] = -(right + left) / (right - left);
-        result[3][1] = -(top + bottom) / (top - bottom);
-        result[3][2] = -(far + near) / (far - near);
+        result[0][3] = -(right + left) / (right - left);
+        result[1][3] = -(top + bottom) / (top - bottom);
+        result[2][3] = -(far + near) / (far - near);
         result[3][3] = 1.0f;
         return new Matrix4f(result);
     }
@@ -144,12 +156,112 @@ public class Matrix4f {
     public static Matrix4f perspectiveProjection(
             float fov, float aspectRatio, float near, float far) {
         float[][] result = new float[4][4];
-        float tanHalfFov = (float) Math.tan(Math.toRadians(fov / 2.0f));
-        result[0][0] = 1.0f / (aspectRatio * tanHalfFov);
-        result[1][1] = 1.0f / tanHalfFov;
+        float radians = (float) Math.toRadians(fov);
+        float tanHalfFOV = (float) Math.tan(radians / 2.0f);
+        float top = near * tanHalfFOV;
+        float right = top * aspectRatio;
+        result[0][0] = near / right;
+        result[1][1] = near / top;
         result[2][2] = -(far + near) / (far - near);
-        result[2][3] = -1.0f;
-        result[3][2] = -(2.0f * far * near) / (far - near);
+        result[2][3] = -(2.0f * far * near) / (far - near);
+        result[3][2] = -1.0f;
+        return new Matrix4f(result);
+    }
+
+    /**
+     * Creates a scaling matrix
+     *
+     * @param x Scale on the x axis
+     * @param y Scale on the y axis
+     * @param z Scale on the z axis
+     * @return Matrix4f
+     */
+    public static Matrix4f scale(float x, float y, float z) {
+        float[][] result = new float[4][4];
+        result[0][0] = x;
+        result[1][1] = y;
+        result[2][2] = z;
+        result[3][3] = 1.0f;
+        return new Matrix4f(result);
+    }
+
+    /**
+     * Creates a rotation matrix around the x axis
+     *
+     * @param angle Angle in degrees
+     * @return Matrix4f
+     */
+    public static Matrix4f rotateX(float angle) {
+        float[][] result = new float[4][4];
+        float radians = (float) Math.toRadians(angle);
+        float cos = (float) Math.cos(radians);
+        float sin = (float) Math.sin(radians);
+        result[0][0] = 1.0f;
+        result[1][1] = cos;
+        result[1][2] = -sin;
+        result[2][1] = sin;
+        result[2][2] = cos;
+        result[3][3] = 1.0f;
+        return new Matrix4f(result);
+    }
+
+    /**
+     * Creates a rotation matrix around the y axis
+     *
+     * @param angle Angle in degrees
+     * @return Matrix4f
+     */
+    public static Matrix4f rotateY(float angle) {
+        float[][] result = new float[4][4];
+        float radians = (float) Math.toRadians(angle);
+        float cos = (float) Math.cos(radians);
+        float sin = (float) Math.sin(radians);
+        result[0][0] = cos;
+        result[0][2] = sin;
+        result[1][1] = 1.0f;
+        result[2][0] = -sin;
+        result[2][2] = cos;
+        result[3][3] = 1.0f;
+        return new Matrix4f(result);
+    }
+
+    /**
+     * Creates a rotation matrix around the z axis
+     *
+     * @param angle Angle in degrees
+     * @return Matrix4f
+     */
+    public static Matrix4f rotateZ(float angle) {
+        float[][] result = new float[4][4];
+        float radians = (float) Math.toRadians(angle);
+        float cos = (float) Math.cos(radians);
+        float sin = (float) Math.sin(radians);
+        result[0][0] = cos;
+        result[0][1] = -sin;
+        result[1][0] = sin;
+        result[1][1] = cos;
+        result[2][2] = 1.0f;
+        result[3][3] = 1.0f;
+        return new Matrix4f(result);
+    }
+
+    /**
+     * Creates a translation matrix
+     *
+     * @param x Translation on the x axis
+     * @param y Translation on the y axis
+     * @param z Translation on the z axis
+     * @return Matrix4f
+     */
+    public static Matrix4f translate(float x, float y, float z) {
+        float[][] result = new float[4][4];
+        result[0][0] = 1.0f;
+        result[1][1] = 1.0f;
+        result[2][2] = 1.0f;
+        result[3][3] = 1.0f;
+        result[0][3] = x;
+        result[1][3] = y;
+        result[2][3] = z;
         return new Matrix4f(result);
     }
 
