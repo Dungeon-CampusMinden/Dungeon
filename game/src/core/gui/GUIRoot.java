@@ -31,4 +31,13 @@ public class GUIRoot {
     public void update() {
         // TODO
     }
+
+    /**
+     * Get the currently used GUIBackend.
+     *
+     * @return IGUIBackend
+     */
+    public IGUIBackend backend() {
+        return this.backend;
+    }
 }
