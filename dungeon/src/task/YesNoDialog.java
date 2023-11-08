@@ -165,8 +165,19 @@ public class YesNoDialog {
                     () -> {
                         // if task was finisehd wrong show correct answers
                         if (score < t.points()) {
-                            OkDialog.showOkDialog(
-                                    t.correctAnswersAsString(), "Korrekte Antwort", () -> {});
+                            if (!t.explanation().equals(Task.DEFAULT_EXPLANATION)) {
+                                OkDialog.showOkDialog(
+                                        t.explanation(),
+                                        "Erklärung",
+                                        () ->
+                                                OkDialog.showOkDialog(
+                                                        t.correctAnswersAsString(),
+                                                        "Korrekte Antwort",
+                                                        () -> {}));
+                            } else {
+                                OkDialog.showOkDialog(
+                                        t.correctAnswersAsString(), "Korrekte Antwort", () -> {});
+                            }
                         }
                     });
         };
