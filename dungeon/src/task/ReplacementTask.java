@@ -38,10 +38,26 @@ public class ReplacementTask extends Task {
         return new ArrayList<>(rules);
     }
 
+    @Override
+    public String correctAnswersAsString() {
+        StringBuilder answers = new StringBuilder();
+        solution.forEach(
+                s -> answers.append(s.content().toString()).append(System.lineSeparator()));
+        answers.append("Ersetzungsregeln").append(System.lineSeparator());
+        rules.forEach(r -> answers.append(r.toString()).append(System.lineSeparator()));
+        return answers.toString();
+    }
+
     /**
      * Rules for how elements can be replaced by each other.
      *
      * <p>This is basically an abstract implementation of {@link contrib.crafting.Recipe}.
      */
-    public record Rule(boolean ordered, Element[] input, Element[] output) {}
+    public record Rule(boolean ordered, Element[] input, Element[] output) {
+        @Override
+        public String toString() {
+            // todo
+            return "There is no String represnation for the rules yet.";
+        }
+    }
 }

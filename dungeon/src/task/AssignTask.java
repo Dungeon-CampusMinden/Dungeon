@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 /**
  * Assignment Task.
@@ -44,5 +45,29 @@ public class AssignTask extends Task {
      */
     public Map<Element, Set<Element>> solution() {
         return new HashMap<>(solution);
+    }
+
+    @Override
+    public String correctAnswersAsString() {
+        StringBuilder answers = new StringBuilder();
+        solution.keySet()
+                .forEach(
+                        new Consumer<Element>() {
+                            @Override
+                            public void accept(Element element) {
+                                if (!element.content().toString().isBlank())
+                                    answers.append(element.content().toString()).append(": ");
+                                else answers.append("Nicht zuzuordnen: ");
+                                solution.get(element)
+                                        .forEach(
+                                                e ->
+                                                        answers.append(e.content().toString())
+                                                                .append(", "));
+                                answers.deleteCharAt(answers.length() - 2); // remove last ","
+                                answers.append(System.lineSeparator());
+                            }
+                        });
+
+        return answers.toString();
     }
 }

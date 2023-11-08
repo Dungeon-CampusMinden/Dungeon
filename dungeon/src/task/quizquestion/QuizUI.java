@@ -63,7 +63,18 @@ public class QuizUI {
                                         else output.append("falsch ");
                                         output.append("gelöst");
                                         OkDialog.showOkDialog(
-                                                output.toString(), "Ergebnis", () -> {});
+                                                output.toString(),
+                                                "Ergebnis",
+                                                () -> {
+                                                    // if task was finisehd wrong show correct
+                                                    // answers
+                                                    if (score < task.points()) {
+                                                        OkDialog.showOkDialog(
+                                                                task.correctAnswersAsString(),
+                                                                "Korrekte Antwort",
+                                                                () -> {});
+                                                    }
+                                                });
                                     }
                                 }));
     }

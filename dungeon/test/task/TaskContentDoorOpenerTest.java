@@ -50,5 +50,10 @@ public class TaskContentDoorOpenerTest {
         assertTrue(door.isOpen());
     }
 
-    private static class DummyTask extends Task {}
+    private static class DummyTask extends Task {
+        @Override
+        public String correctAnswersAsString() {
+            return null;
+        }
+    }
 }

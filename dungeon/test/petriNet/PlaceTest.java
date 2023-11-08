@@ -119,5 +119,10 @@ public class PlaceTest {
         Mockito.verify(transitionB).notify(place);
     }
 
-    private static class DummyTask extends Task {}
+    private static class DummyTask extends Task {
+        @Override
+        public String correctAnswersAsString() {
+            return null;
+        }
+    }
 }

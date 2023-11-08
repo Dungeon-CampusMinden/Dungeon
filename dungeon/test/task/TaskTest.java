@@ -124,5 +124,10 @@ public class TaskTest {
         assertTrue(t1.id() != t2.id());
     }
 
-    private static class DummyTask extends Task {}
+    private static class DummyTask extends Task {
+        @Override
+        public String correctAnswersAsString() {
+            return null;
+        }
+    }
 }
