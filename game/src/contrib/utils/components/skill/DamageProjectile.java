@@ -107,26 +107,19 @@ public abstract class DamageProjectile implements Consumer<Entity> {
             throw new RuntimeException();
         }
 
-        Point offset = new Point(0, 0);
+        Point startPoint = new Point(0, 0);
         entity.fetch(CollideComponent.class)
                 .ifPresent(
                         collideComponent -> {
-                            offset.x = collideComponent.size().x / 2;
-                            offset.y = collideComponent.size().y / 2;
+                            startPoint.x = collideComponent.center(entity).x;
+                            startPoint.y = collideComponent.center(entity).y;
                         });
-
-        Point startPoint = new Point(epc.position());
-        startPoint.x += offset.x;
-        startPoint.y += offset.y;
 
         // Get the target point based on the selection function and projectile range.
         // Use a copy, so you do not change the actual value (for example the hero position)
         Point aimedOn = new Point(selectionFunction.get());
         Point targetPoint =
                 SkillTools.calculateLastPositionInRange(startPoint, aimedOn, projectileRange);
-
-        targetPoint.x = targetPoint.x - (projectileHitboxSize.x / 2);
-        targetPoint.y = targetPoint.y - (projectileHitboxSize.y / 2);
 
         // Calculate the velocity of the projectile
         Point velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
