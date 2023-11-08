@@ -3,7 +3,9 @@ package core.gui.backend.opengl;
 import static core.gui.backend.opengl.OpenGLUtil.log;
 
 import core.Assets;
+import core.gui.GUIColorPane;
 import core.gui.GUIElement;
+import core.gui.GUIImage;
 import core.gui.IGUIBackend;
 import core.utils.logging.CustomLogLevel;
 import core.utils.math.Matrix4f;
@@ -20,11 +22,12 @@ public class OpenGLGUIBackend implements IGUIBackend {
 
     private static final boolean OPENGL_DEBUG = true, DRAW_DEBUG_IMAGE = false;
     private static final Map<Assets.Images, OpenGLImage> LOADED_IMAGES = new HashMap<>();
-    private static final Map<GUIElement, OpenGLRenderStructure> RENDER_STRUCTURES = new HashMap<>();
+    private static final Map<Class<? extends GUIElement>, IOpenGLRenderFunction> RENDER_FUNCTIONS =
+            new HashMap<>();
     private final Vector2i size;
-    private final OpenGLRenderStructure guiRenderContext = new OpenGLRenderStructure();
-    private final OpenGLRenderStructure bufferRenderContext = new OpenGLRenderStructure();
-    private final OpenGLRenderStructure debugRenderContext = new OpenGLRenderStructure();
+    private final OpenGLRenderContext guiRenderContext = new OpenGLRenderContext();
+    private final OpenGLRenderContext bufferRenderContext = new OpenGLRenderContext();
+    private final OpenGLRenderContext debugRenderContext = new OpenGLRenderContext();
     private Matrix4f projection, view;
 
     public OpenGLGUIBackend(Vector2i size) {
@@ -93,6 +96,11 @@ public class OpenGLGUIBackend implements IGUIBackend {
                         int[] channels = new int[1];
                         int textureHandle =
                                 OpenGLUtil.createTexture(imageBytes, width, height, channels);
+                        log(
+                                CustomLogLevel.DEBUG,
+                                "Loaded image %s(\"%s\")",
+                                imageKey.name(),
+                                imageKey.path());
                         return new OpenGLImage(
                                 image, width[0], height[0], channels[0], textureHandle);
                     } catch (IOException ex) {
@@ -117,42 +125,11 @@ public class OpenGLGUIBackend implements IGUIBackend {
 
         elements.forEach(
                 element -> {
-                    Matrix4f model = Matrix4f.identity();
-                    model =
-                            model.multiply(
-                                    Matrix4f.translate(
-                                            element.position().x(), element.position().y(), 0));
-                    model =
-                            model.multiply(
-                                    Matrix4f.scale(element.size().x(), element.size().y(), 1));
-                    model = model.multiply(Matrix4f.rotateZ(element.rotation().z()));
-                    model = model.multiply(Matrix4f.rotateZ(element.rotation().y()));
-                    model = model.multiply(Matrix4f.rotateZ(element.rotation().x()));
-
-                    GL33.glUniformMatrix4fv(
-                            this.guiRenderContext.getUniformLocation("uModel"),
-                            false,
-                            model.toOpenGL());
-
-                    int props = 0;
-                    if (element.backgroundColor() != null) {
-                        props |= 0x0001;
-                        GL33.glUniform4fv(
-                                this.guiRenderContext.getUniformLocation("uColor"),
-                                element.backgroundColor().toArray());
+                    Class<? extends GUIElement> elementClass = element.getClass();
+                    IOpenGLRenderFunction renderFunction = RENDER_FUNCTIONS.get(elementClass);
+                    if (renderFunction != null) {
+                        renderFunction.render(element, guiRenderContext);
                     }
-                    if (element.backgroundImage() != null) {
-                        props |= 0x0002;
-                        OpenGLImage image = (OpenGLImage) element.backgroundImage();
-                        GL33.glActiveTexture(GL33.GL_TEXTURE0);
-                        GL33.glBindTexture(GL33.GL_TEXTURE_2D, image.glTextureHandle);
-                        GL33.glUniform1i(
-                                this.guiRenderContext.getUniformLocation("uBackgroundTexture"), 0);
-                    }
-
-                    GL33.glUniform1i(
-                            this.guiRenderContext.getUniformLocation("uProperties"), props);
-                    GL33.glDrawElements(GL33.GL_TRIANGLE_STRIP, 4, GL33.GL_UNSIGNED_SHORT, 0);
                 });
         GL33.glBindVertexArray(0);
 
@@ -271,26 +248,10 @@ public class OpenGLGUIBackend implements IGUIBackend {
 
         float[] vertices =
                 new float[] {
-                    0.5f,
-                    0.5f,
-                    0.0f,
-                    1.0f,
-                    1.0f, // top right
-                    -0.5f,
-                    0.5f,
-                    0.0f,
-                    0.0f,
-                    1.0f, // top left
-                    0.5f,
-                    -0.5f,
-                    0.0f,
-                    1.0f,
-                    0.0f, // bottom right
-                    -0.5f,
-                    -0.5f,
-                    0.0f,
-                    0.0f,
-                    0.0f // bottom left
+                    1.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top right
+                    0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top left
+                    1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
+                    0.0f, 0.0f, 0.0f, 0.0f, 0.0f // bottom left
                 };
         short[] indices = new short[] {0, 1, 2, 3};
 
@@ -317,6 +278,9 @@ public class OpenGLGUIBackend implements IGUIBackend {
         GL33.glBindVertexArray(0);
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
         GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        RENDER_FUNCTIONS.put(GUIColorPane.class, OpenGLElementRenderers.renderGUIColorPane);
+        RENDER_FUNCTIONS.put(GUIImage.class, OpenGLElementRenderers.renderGUIImage);
     }
 
     private void initBuffer() {
