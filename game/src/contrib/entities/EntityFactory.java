@@ -30,11 +30,9 @@ import core.utils.components.draw.CoreAnimations;
 
 import java.io.IOException;
 import java.util.Comparator;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -236,7 +234,7 @@ public class EntityFactory {
                                             Comparator.comparingInt(
                                                     x -> x.b().dialog().getZIndex())) // find dialog
                                     // with highest
-                                    // zindex
+                                    // z-Index
                                     .orElse(null);
                     if (firstUI != null) {
                         InventoryGUI.inHeroInventory = false;
@@ -256,52 +254,51 @@ public class EntityFactory {
 
         pc.registerCallback(
                 KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
-                new Consumer<Entity>() {
-                    @Override
-                    public void accept(Entity hero) {
-                        Point mousposition = SkillTools.cursorPositionAsPoint();
-                        Tile mouseTile = Game.tileAT(mousposition);
-                        if (mouseTile == null) return; // maus out of bound
+                hero1 -> {
+                    // only interact with entities the cursor points at
+                    Point mousePosition = SkillTools.cursorPositionAsPoint();
+                    Tile mouseTile = Game.tileAT(mousePosition);
+                    if (mouseTile == null) return; // mouse out of bound
 
-                        // todo sollte eine MEthode in Game sein Optional<Entity> entityAtTile(Tile
-                        // t)
-                        Optional<Entity> entityOnMouse =
-                                Game.entityStream(
-                                                Set.of(
-                                                        InteractionComponent.class,
-                                                        PositionComponent.class))
-                                        .filter(
-                                                e ->
-                                                        Game.tileAT(
-                                                                        e.fetch(
-                                                                                        PositionComponent
-                                                                                                .class)
-                                                                                .get()
-                                                                                .position())
-                                                                .equals(mouseTile))
-                                        .findFirst();
-                        entityOnMouse.ifPresent(
-                                new Consumer<Entity>() {
-                                    @Override
-                                    public void accept(Entity interactable) {
-                                        InteractionComponent ic =
+                    Game.entityAtTile(mouseTile)
+                            .filter(e -> e.isPresent(InteractionComponent.class))
+                            .findFirst()
+                            .ifPresent(
+                                    interactable -> {
+                                        InteractionComponent ic1 =
                                                 interactable
                                                         .fetch(InteractionComponent.class)
-                                                        .get();
-                                        PositionComponent pc =
-                                                interactable.fetch(PositionComponent.class).get();
+                                                        .orElseThrow(
+                                                                () ->
+                                                                        MissingComponentException
+                                                                                .build(
+                                                                                        interactable,
+                                                                                        InteractionComponent
+                                                                                                .class));
+                                        PositionComponent pc1 =
+                                                interactable
+                                                        .fetch(PositionComponent.class)
+                                                        .orElseThrow(
+                                                                () ->
+                                                                        MissingComponentException
+                                                                                .build(
+                                                                                        interactable,
+                                                                                        PositionComponent
+                                                                                                .class));
                                         PositionComponent heroPC =
-                                                hero.fetch(PositionComponent.class).get();
-                                        // todo check for range and if in range
+                                                hero1.fetch(PositionComponent.class)
+                                                        .orElseThrow(
+                                                                () ->
+                                                                        MissingComponentException
+                                                                                .build(
+                                                                                        hero1,
+                                                                                        PositionComponent
+                                                                                                .class));
                                         if (Point.calculateDistance(
-                                                        pc.position(), heroPC.position())
-                                                < ic.radius())
-                                            ic.triggerInteraction(interactable, hero);
-                                    }
-                                });
-
-                        //   InteractionTool::interactWithClosestInteractable,
-                    }
+                                                        pc1.position(), heroPC.position())
+                                                < ic1.radius())
+                                            ic1.triggerInteraction(interactable, hero1);
+                                    });
                 },
                 false);
 
@@ -368,42 +365,48 @@ public class EntityFactory {
                                                                         new InventoryGUI(ic)),
                                                                 true);
                                                 uiComponent.onClose(
-                                                        () -> {
-                                                            interacted
-                                                                    .fetch(DrawComponent.class)
-                                                                    .ifPresent(
-                                                                            interactedDC -> {
-                                                                                // remove all prior
-                                                                                // opened animations
-                                                                                interactedDC
-                                                                                        .deQueueByPriority(
-                                                                                                ChestAnimations
-                                                                                                        .OPEN_FULL
-                                                                                                        .priority());
-                                                                                if (ic.count()
-                                                                                        > 0) {
-                                                                                    // aslong as
-                                                                                    // there is an
-                                                                                    // item inside
-                                                                                    // the chest
-                                                                                    // show a full
-                                                                                    // chest
+                                                        () ->
+                                                                interacted
+                                                                        .fetch(DrawComponent.class)
+                                                                        .ifPresent(
+                                                                                interactedDC -> {
+                                                                                    // remove all
+                                                                                    // prior
+                                                                                    // opened
+                                                                                    // animations
                                                                                     interactedDC
-                                                                                            .queueAnimation(
+                                                                                            .deQueueByPriority(
                                                                                                     ChestAnimations
-                                                                                                            .OPEN_FULL);
-                                                                                } else {
-                                                                                    // empty chest
-                                                                                    // show the
-                                                                                    // empty
-                                                                                    // animation
-                                                                                    interactedDC
-                                                                                            .queueAnimation(
-                                                                                                    ChestAnimations
-                                                                                                            .OPEN_EMPTY);
-                                                                                }
-                                                                            });
-                                                        });
+                                                                                                            .OPEN_FULL
+                                                                                                            .priority());
+                                                                                    if (ic.count()
+                                                                                            > 0) {
+                                                                                        // as long
+                                                                                        // as
+                                                                                        // there is
+                                                                                        // an
+                                                                                        // item
+                                                                                        // inside
+                                                                                        // the chest
+                                                                                        // show a
+                                                                                        // full
+                                                                                        // chest
+                                                                                        interactedDC
+                                                                                                .queueAnimation(
+                                                                                                        ChestAnimations
+                                                                                                                .OPEN_FULL);
+                                                                                    } else {
+                                                                                        // empty
+                                                                                        // chest
+                                                                                        // show the
+                                                                                        // empty
+                                                                                        // animation
+                                                                                        interactedDC
+                                                                                                .queueAnimation(
+                                                                                                        ChestAnimations
+                                                                                                                .OPEN_EMPTY);
+                                                                                    }
+                                                                                }));
                                                 interactor.addComponent(uiComponent);
                                             });
                             interacted

@@ -50,7 +50,7 @@ public final class Game extends ScreenAdapter {
 
     private static final Logger LOGGER = Logger.getLogger("Game");
     /**
-     * Collection of {@link EntitySystemMapper} that maps the exisiting entities to the systems. The
+     * Collection of {@link EntitySystemMapper} that maps the existing entities to the systems. The
      * {@link EntitySystemMapper} with no filter-rules will contain each entity in the game
      */
     private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
@@ -141,8 +141,8 @@ public final class Game extends ScreenAdapter {
      * Sets {@link #currentLevel} to the new level and changes the currently active entity storage.
      *
      * <p>Will remove all Systems using {@link Game#removeAllSystems()} from the Game. This will
-     * trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
-     * using {@link Game#add(System)}, triggering {@link System#onEntityAdd} for the new level.
+     * trigger {@link System#onEntityRemove} for the old level. Then, it will read all Systems using
+     * {@link Game#add(System)}, triggering {@link System#onEntityAdd} for the new level.
      *
      * <p>Will re-add the hero if they exist.
      */
@@ -157,7 +157,7 @@ public final class Game extends ScreenAdapter {
                 removeAllSystems();
                 activeEntityStorage =
                         levelStorageMap.computeIfAbsent(currentLevel(), k -> new HashSet<>());
-                // readd the systems so that each triggerOnAdd(entity) will be called (basically
+                // read the systems so that each triggerOnAdd(entity) will be called (basically
                 // setup). This will also create new EntitySystemMapper if needed.
                 s.values().forEach(Game::add);
 
@@ -621,7 +621,7 @@ public final class Game extends ScreenAdapter {
                                 entitySystemMappers.forEach(
                                         entitySystemMapper ->
                                                 entitySystemMapper.stream()
-                                                        .forEach(e -> allEntities.add(e))));
+                                                        .forEach(allEntities::add)));
 
         return allEntities.stream();
     }
@@ -706,6 +706,31 @@ public final class Game extends ScreenAdapter {
      */
     public static Tile tileAtEntity(Entity entity) {
         return currentLevel().tileAtEntity(entity);
+    }
+
+    /**
+     * Returns the entities on the given tile.
+     *
+     * @param t Tile to check for.
+     * @return Stream of all entities on the given tile
+     */
+    public static Stream<Entity> entityAtTile(Tile t) {
+        Tile tile = Game.tileAT(t.position());
+
+        return Game.entityStream(Set.of(PositionComponent.class))
+                .filter(
+                        e ->
+                                Game.tileAT(
+                                                e.fetch(PositionComponent.class)
+                                                        .orElseThrow(
+                                                                () ->
+                                                                        MissingComponentException
+                                                                                .build(
+                                                                                        e,
+                                                                                        PositionComponent
+                                                                                                .class))
+                                                        .position())
+                                        .equals(tile));
     }
 
     /**
