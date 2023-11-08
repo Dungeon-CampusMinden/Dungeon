@@ -1,6 +1,9 @@
 package core.gui;
 
+import core.gui.backend.BackendImage;
 import core.utils.math.VectorF;
+
+import java.awt.*;
 
 public abstract class GUIElement {
 
@@ -8,6 +11,8 @@ public abstract class GUIElement {
     protected VectorF size;
     protected GUIElement parent;
     protected LayoutHint layoutHint;
+    protected Color backgroundColor;
+    protected BackendImage backgroundImage;
     protected boolean valid = false;
 
     public GUIElement() {
@@ -74,8 +79,17 @@ public abstract class GUIElement {
         if (this.parent != null) this.parent.invalidate();
     }
 
-    /** Packs the element to its preferred or minimum size */
-    public abstract void pack();
+    /**
+     * Packs the element to its preferred or minimum size
+     *
+     * <p>The default behavior is to do nothing.
+     */
+    public void pack() {}
 
-    public abstract void event(GUIEvent event);
+    /**
+     * This method is called when there is an GUIEvent for this element.
+     *
+     * @param event GUIEvent
+     */
+    public void event(GUIEvent event) {}
 }
