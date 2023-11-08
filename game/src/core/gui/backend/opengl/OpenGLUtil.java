@@ -2,6 +2,7 @@ package core.gui.backend.opengl;
 
 import core.utils.logging.CustomLogLevel;
 
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.stb.STBImage;
 
@@ -13,6 +14,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Utility class for OpenGL. */
 public class OpenGLUtil {
@@ -139,6 +142,26 @@ public class OpenGLUtil {
     public static String screenshot() {
         // TODO: Implement screenshot functionality
         return null;
+    }
+
+    public static int[] getOpenGLVersion() {
+        String versionstring = GL11.glGetString(GL11.GL_VERSION);
+        if (versionstring == null) {
+            throw new OpenGLException("Failed to get OpenGL version string");
+        }
+        int major, minor, patch;
+        String regex = "(([0-9]+)\\.([0-9]+))(.([0-9]+))?";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(versionstring);
+        if (matcher.find()) {
+            String s = matcher.group();
+            major = Integer.parseInt(matcher.group(2));
+            minor = Integer.parseInt(matcher.group(3));
+            patch = Integer.parseInt(matcher.group(5));
+        } else {
+            throw new OpenGLException("Failed to parse OpenGL version string");
+        }
+        return new int[] {major, minor, patch};
     }
 
     /**

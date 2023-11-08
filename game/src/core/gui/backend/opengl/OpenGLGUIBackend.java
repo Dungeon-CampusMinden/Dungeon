@@ -15,8 +15,6 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class OpenGLGUIBackend implements IGUIBackend {
 
@@ -184,32 +182,13 @@ public class OpenGLGUIBackend implements IGUIBackend {
     }
 
     private void initOpenGLDebugging() {
-        String versionstring = GL11.glGetString(GL11.GL_VERSION);
-
-        if (versionstring == null) {
-            throw new OpenGLException("Failed to get OpenGL version string");
-        }
-
-        int major, minor, patch;
-
-        String regex = "(([0-9]+)\\.([0-9]+))(.([0-9]+))?";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(versionstring);
-        if (matcher.find()) {
-            String s = matcher.group();
-            major = Integer.parseInt(matcher.group(2));
-            minor = Integer.parseInt(matcher.group(3));
-            patch = Integer.parseInt(matcher.group(5));
-        } else {
-            throw new OpenGLException("Failed to parse OpenGL version string");
-        }
-
         GLCapabilities caps = GL.getCapabilities();
         if (!caps.OpenGL33) {
             throw new OpenGLException("OpenGL 3.3 or higher is required for this program to work.");
         }
 
-        log(CustomLogLevel.DEBUG, "OpenGL Version: %d.%d.%d\n", major, minor, patch);
+        int[] version = OpenGLUtil.getOpenGLVersion();
+        log(CustomLogLevel.DEBUG, "OpenGL Version: %d.%d.%d\n", version[0], version[1], version[2]);
 
         if (caps.OpenGL43) {
             GL43.glEnable(GL43.GL_DEBUG_OUTPUT);
