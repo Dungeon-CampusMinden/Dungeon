@@ -214,7 +214,7 @@ public class EntityExtension {
 
             UIComponent uiComponent =
                     new UIComponent(
-                            new GUICombination(new InventoryGUI(otherIc), inventory), false);
+                            new GUICombination(new InventoryGUI(otherIc), inventory), true);
             uiComponent.onClose(
                     () ->
                             chest.fetch(DrawComponent.class)
