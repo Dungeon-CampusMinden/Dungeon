@@ -242,7 +242,7 @@ public class EntityExtension {
                                                             ChestAnimations.OPEN_EMPTY);
                                                 }
                                             }));
-            chest.addComponent(uiComponent);
+            other.addComponent(uiComponent);
             chest.fetch(DrawComponent.class)
                     .ifPresent(
                             interactedDC -> {
