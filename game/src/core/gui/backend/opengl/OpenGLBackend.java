@@ -18,7 +18,7 @@ import org.lwjgl.system.MemoryUtil;
 import java.io.*;
 import java.util.*;
 
-public class OpenGLGUIBackend implements IGUIBackend {
+public class OpenGLBackend implements IGUIBackend {
 
     private static final boolean OPENGL_DEBUG = true, DRAW_DEBUG_IMAGE = false;
     private static final Map<Assets.Images, OpenGLImage> LOADED_IMAGES = new HashMap<>();
@@ -30,7 +30,7 @@ public class OpenGLGUIBackend implements IGUIBackend {
     private final OpenGLRenderContext debugRenderContext = new OpenGLRenderContext();
     private Matrix4f projection, view;
 
-    public OpenGLGUIBackend(Vector2i size) {
+    public OpenGLBackend(Vector2i size) {
         this.size = size;
         this.init();
     }
@@ -60,6 +60,12 @@ public class OpenGLGUIBackend implements IGUIBackend {
 
     @Override
     public void render(List<GUIElement> elements) {
+
+        if (GLFW.glfwGetKey(GLFW.glfwGetCurrentContext(), GLFW.GLFW_KEY_F12) == GLFW.GLFW_PRESS) {
+            GL33.glPolygonMode(GL33.GL_FRONT_AND_BACK, GL33.GL_LINE);
+        } else {
+            GL33.glPolygonMode(GL33.GL_FRONT_AND_BACK, GL33.GL_FILL);
+        }
 
         GL33.glClear(GL33.GL_DEPTH_BUFFER_BIT);
         { // Render to Framebuffer
