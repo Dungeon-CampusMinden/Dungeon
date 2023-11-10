@@ -13,8 +13,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
+import contrib.configuration.KeyboardConfig;
+
 import core.components.PositionComponent;
-import core.configuration.Configuration;
+import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.generator.postGeneration.WallGenerator;
@@ -28,7 +30,6 @@ import core.utils.EntitySystemMapper;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
 import java.util.*;
@@ -40,250 +41,120 @@ import java.util.stream.Stream;
 public final class Game extends ScreenAdapter {
 
     // ====================SETUP====================
-
     private static final Logger LOGGER = Logger.getLogger("Game");
 
-    private static int WINDOW_WIDTH = 1280;
-    /**
-     * Part of the pre-run configuration. The height of the game window in pixels.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    private static int WINDOW_HEIGHT = 720;
-    /**
-     * Part of the pre-run configuration. The fps of the game (frames per second)
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    private static int FRAME_RATE = 30;
-    /**
-     * Part of the pre-run configuration. If this value is true, the game will be started in full
-     * screen mode.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    private static boolean FULL_SCREEN = false;
-    /**
-     * Part of the pre-run configuration. The title of the Game-Window.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    private static String WINDOW_TITLE = "PM-Dungeon";
-    /**
-     * Part of the pre-run configuration. The path (as String) to the logo of the Game-Window.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    private static String LOGO_PATH = "logo/cat_logo_35x35.png";
-
-    /**
-     * Part of the pre-run configuration. If this value is true, the audio for the game will be
-     * disabled.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
-    private static boolean DISABLE_AUDIO = false;
-    /**
-     * Width of the game-window in pixel
-     *
-     * @return the width of the game-window im pixel
-     */
     public static int windowWidth() {
-        return WINDOW_WIDTH;
+        return PreRunConfiguration.windowWidth();
     }
 
-    /**
-     * Height of the game-window in pixel
-     *
-     * @return the height of the game-window im pixel
-     */
-    public static int windowHeight() {
-        return WINDOW_HEIGHT;
-    }
-
-    /**
-     * Get the current frame rate of the game
-     *
-     * @return current frame rate of the game
-     */
-    public static int frameRate() {
-        return FRAME_RATE;
-    }
-
-    /**
-     * Get if the game is currently in full screen mode
-     *
-     * @return true if the game is currently in full screen mode
-     */
-    public static boolean fullScreen() {
-        return FULL_SCREEN;
-    }
-
-    /**
-     * Set the width of the game window in pixels.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param windowWidth: the new width of the game window in pixels.
-     */
     public static void windowWidth(int windowWidth) {
-        WINDOW_WIDTH = windowWidth;
+        PreRunConfiguration.windowWidth(windowWidth);
     }
 
-    /**
-     * Set the height of the game window in pixels.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param windowHeight: the new height of the game window in pixels.
-     */
+    public static int windowHeight() {
+        return PreRunConfiguration.windowHeight();
+    }
+
     public static void windowHeight(int windowHeight) {
-        WINDOW_HEIGHT = windowHeight;
+        PreRunConfiguration.windowHeight(windowHeight);
     }
 
-    /**
-     * The frames per second of the game. The FPS determine in which interval the update cycle of
-     * the systems is triggered. Each system is updated once per frame. With an FPS of 30, each
-     * system is updated 30 times per second.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param frameRate: the new fps of the game
-     */
+    public static int frameRate() {
+        return PreRunConfiguration.frameRate();
+    }
+
     public static void frameRate(int frameRate) {
-        FRAME_RATE = frameRate;
+        PreRunConfiguration.frameRate(frameRate);
     }
 
-    /**
-     * Set the window to fullscreen mode or windowed mode.
-     *
-     * @param fullscreen true for fullscreen, false for windowed
-     */
+    public static boolean fullScreen() {
+        return PreRunConfiguration.fullScreen();
+    }
+
     public static void fullScreen(boolean fullscreen) {
-        FULL_SCREEN = fullscreen;
+        PreRunConfiguration.fullScreen(fullscreen);
     }
 
-    /**
-     * Set the title of the game window.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param windowTitle: new title
-     */
+    public static String windowTitle() {
+        return PreRunConfiguration.windowTitle();
+    }
+
     public static void windowTitle(String windowTitle) {
-        WINDOW_TITLE = windowTitle;
+        PreRunConfiguration.windowTitle(windowTitle);
     }
 
-    /**
-     * Set the path to the logo of the game window.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param logoPath: path to the nwe logo as String
-     */
+    public static String logoPath() {
+        return PreRunConfiguration.logoPath();
+    }
+
     public static void logoPath(String logoPath) {
-        LOGO_PATH = logoPath;
+        PreRunConfiguration.logoPath(logoPath);
     }
 
-    /**
-     * Set the function that will be executed at each frame.
-     * <p> Use this, if you want to execute some logic outside of a system.</p>
-     * <p> Will not replace {@link #onFrame )</p>
-     *
-     * @param userFrame function that will be called at each frame.
-     * @see IVoidFunction
-     */
-    public static void userOnFrame(IVoidFunction userFrame) {
-        Game.userOnFrame = userFrame;
+    public static boolean disableAudio() {
+        return PreRunConfiguration.disableAudio();
     }
 
-    /**
-     * Set the function that will be executed once after the libgdx-setup.
-     *
-     * <p>Will not replace {@link #onSetup()}
-     *
-     * @param userOnSetup function that will be once after the libgdx-setup.
-     * @see IVoidFunction
-     */
-    public static void userOnSetup(IVoidFunction userOnSetup) {
-        Game.userOnSetup = userOnSetup;
-    }
-
-    /**
-     * Set the function that will be executed after a new level was loaded.
-     *
-     * <p>The Consumer takes a boolean that is true if the level was never loaded before, and false
-     * if it was loaded before. This can be useful, for example, if you only want to spawn monsters
-     * the first time.
-     *
-     * <p>Use this, if you want to execute some logic after a level was loaded. For example spawning
-     * some Monsters.
-     *
-     * @param userOnLevelLoad the function that will be executed after a new level was loaded
-     *     <p>Will not replace {@link #onLevelLoad}
-     */
-    public static void userOnLevelLoad(Consumer<Boolean> userOnLevelLoad) {
-        Game.userOnLevelLoad = userOnLevelLoad;
-    }
-
-    /**
-     * Set if you want to disable or enable the audi of the game.
-     *
-     * <p>Part of the pre-run configuration: Manipulating this value will only result in changes
-     * before {@link Game#run} was executed.
-     *
-     * @param disableAudio true if you want to disable the audio, false (default) if not.
-     */
     public static void disableAudio(boolean disableAudio) {
-        DISABLE_AUDIO = disableAudio;
+        PreRunConfiguration.disableAudio(disableAudio);
     }
 
-    /**
-     * Initialize the base logger.
-     *
-     * <p>Will remove the console handler and put all log messages in the log files.
-     */
+    public static IVoidFunction userOnFrame() {
+        return PreRunConfiguration.userOnFrame();
+    }
+
+    public static void userOnFrame(IVoidFunction userOnFrame) {
+        PreRunConfiguration.userOnFrame(userOnFrame);
+    }
+
+    public static IVoidFunction userOnSetup() {
+        return PreRunConfiguration.userOnSetup();
+    }
+
+    public static void userOnSetup(IVoidFunction userOnSetup) {
+        PreRunConfiguration.userOnSetup(userOnSetup);
+    }
+
+    public static Consumer<Boolean> userOnLevelLoad() {
+        return PreRunConfiguration.userOnLevelLoad();
+    }
+
+    public static void userOnLevelLoad(Consumer<Boolean> userOnLevelLoad) {
+        PreRunConfiguration.userOnLevelLoad(userOnLevelLoad);
+    }
+
     public static void initBaseLogger() {
-        LoggerConfig.initBaseLogger();
+        PreRunConfiguration.initBaseLogger();
     }
 
-    private static Consumer<Boolean> userOnLevelLoad = (b) -> {};
-
-    /**
-     * Load the configuration from the given path. If the configuration has already been loaded, the
-     * cached version will be used.
-     *
-     * @param pathAsString the path to the config file as a string
-     * @param klass the class where the ConfigKey fields are located
-     * @throws IOException if the file could not be read
-     */
-    public static void loadConfig(String pathAsString, Class<?>... klass) throws IOException {
-        Configuration.loadAndGetConfiguration(pathAsString, klass);
+    public static void loadConfig(
+            String s,
+            Class<KeyboardConfig> keyboardConfigClass,
+            Class<core.configuration.KeyboardConfig> keyboardConfigClass1)
+            throws IOException {
+        PreRunConfiguration.loadConfig(s, keyboardConfigClass, keyboardConfigClass1);
     }
 
     /** Starts the dungeon and requires a {@link Game}. */
     public static void run() {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setWindowSizeLimits(WINDOW_WIDTH, WINDOW_HEIGHT, 9999, 9999);
+        config.setWindowSizeLimits(
+                PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight(), 9999, 9999);
         // The third and fourth parameters ("maxWidth" and "maxHeight") affect the resizing
         // behavior
         // of the window. If the window is enlarged or maximized, then it can assume these
         // dimensions at maximum. If you have a larger screen resolution than 9999x9999 pixels,
         // increase these parameters.
-        config.setForegroundFPS(FRAME_RATE);
-        config.setTitle(WINDOW_TITLE);
-        config.setWindowIcon(LOGO_PATH);
-        config.disableAudio(DISABLE_AUDIO);
+        config.setForegroundFPS(PreRunConfiguration.frameRate());
+        config.setTitle(PreRunConfiguration.windowTitle());
+        config.setWindowIcon(PreRunConfiguration.logoPath());
+        config.disableAudio(PreRunConfiguration.disableAudio());
 
-        if (FULL_SCREEN) {
+        if (PreRunConfiguration.fullScreen()) {
             config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
         } else {
-            config.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
+            config.setWindowedMode(
+                    PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
         }
 
         // uncomment this if you wish no audio
@@ -297,7 +168,7 @@ public final class Game extends ScreenAdapter {
                 config);
     }
 
-    // ====================END-SETUP====================
+    // ====================END SETUP====================
 
     // ====================ECS====================
     /**
@@ -313,11 +184,6 @@ public final class Game extends ScreenAdapter {
      * {@link EntitySystemMapper} with no filter-rules will contain each entity in the game
      */
     private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
-    /**
-     * The width of the game window in pixels.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
 
     // initial entityStorage has no level
     static {
@@ -428,32 +294,6 @@ public final class Game extends ScreenAdapter {
     private boolean newLevelWasLoadedInThisLoop = false;
 
     /**
-     * Part of the pre-run configuration.
-     * This function will be called at each frame.
-     * <p> Use this, if you want to execute some logic outside of a system.</p>
-     * <p> Will not replace {@link #onFrame )</p>
-     */
-    private static IVoidFunction userOnFrame = () -> {};
-    /**
-     * Part of the pre-run configuration. This function will be called after the libgdx-setup once.
-     *
-     * <p>Will not replace {@link #onSetup()}
-     */
-    private static IVoidFunction userOnSetup = () -> {};
-    /**
-     * Part of the pre-run configuration. This function will be called after a level was loaded.
-     *
-     * <p>Use this, if you want to execute some logic after a level was loaded. For example spawning
-     * some Monsters.
-     *
-     * <p>The Consumer takes a boolean that is true if the level was never loaded before, and false
-     * if it was loaded before. * This can be useful, for example, if you only want to spawn
-     * monsters the first time.
-     *
-     * <p>Will not replace {@link #onLevelLoad}
-     */
-
-    /**
      * Sets {@link #currentLevel} to the new level and changes the currently active entity storage.
      *
      * <p>Will remove all Systems using {@link Game#removeAllSystems()} from the Game. This will
@@ -484,7 +324,7 @@ public final class Game extends ScreenAdapter {
                 }
                 hero().ifPresent(Game::add);
                 currentLevel().onLoad();
-                userOnLevelLoad.accept(firstLoad);
+                PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
             };
 
     /**
@@ -523,7 +363,7 @@ public final class Game extends ScreenAdapter {
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
         createSystems();
         setupStage();
-        userOnSetup.execute();
+        PreRunConfiguration.userOnSetup().execute();
     }
 
     /**
@@ -535,7 +375,7 @@ public final class Game extends ScreenAdapter {
     private void onFrame() {
         debugKeys();
         fullscreenKey();
-        userOnFrame.execute();
+        PreRunConfiguration.userOnFrame().execute();
     }
 
     // ====================END GAMELOOP====================
@@ -558,7 +398,10 @@ public final class Game extends ScreenAdapter {
     private static void setupStage() {
         stage =
                 new Stage(
-                        new ScalingViewport(Scaling.stretch, WINDOW_WIDTH, WINDOW_HEIGHT),
+                        new ScalingViewport(
+                                Scaling.stretch,
+                                PreRunConfiguration.windowWidth(),
+                                PreRunConfiguration.windowHeight()),
                         new SpriteBatch());
         Gdx.input.setInputProcessor(stage);
     }
@@ -577,7 +420,8 @@ public final class Game extends ScreenAdapter {
             if (!Gdx.graphics.isFullscreen()) {
                 Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
             } else {
-                Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
+                Gdx.graphics.setWindowedMode(
+                        PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
             }
         }
     }
