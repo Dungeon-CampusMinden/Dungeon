@@ -4,6 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import contrib.item.Item;
 
+
 import core.Entity;
 import core.Game;
 import core.utils.MissingHeroException;
@@ -22,7 +23,6 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -55,6 +55,7 @@ public abstract class Task {
     private static final Set<Task> ALL_TASKS = new HashSet<>();
     private static final List<Task> SOLVED_TASK_IN_ORDER = new ArrayList<>();
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
+    public static final String DEFAULT_EXPLANATION = "No explanation provided";
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
     private static final float DEFAULT_POINTS = 1f;
     private static final float DEFAULT_POINTS_TO_SOLVE = DEFAULT_POINTS;
@@ -73,6 +74,8 @@ public abstract class Task {
     private Entity managementEntity;
     private Set<Set<Entity>> entitySets = new HashSet<>();
     private float pointsToSolve;
+
+    private String explanation = DEFAULT_EXPLANATION;
 
     private float achievedPoints;
 
@@ -228,6 +231,25 @@ public abstract class Task {
      */
     public void scenarioText(String scenarioText) {
         this.scenarioText = scenarioText;
+    }
+
+    /**
+     * Set the explanation on how to solve the task, that will be shown after a task was solved with
+     * mistakes.
+     *
+     * @param explanation Text that explains how to solve the task.
+     */
+    public void explanation(String explanation) {
+        this.explanation = explanation;
+    }
+
+    /**
+     * Get an explanation on how to solve the task.
+     *
+     * @return Explanation on how to solve the task.
+     */
+    public String explanation() {
+        return explanation;
     }
 
     /**
@@ -461,16 +483,13 @@ public abstract class Task {
         Task t = this;
         ic.items(QuestItem.class)
                 .forEach(
-                        new Consumer<>() {
-                            @Override
-                            public void accept(Item item) {
-                                if (((QuestItem) item)
-                                        .taskContentComponent()
-                                        .content()
-                                        .task()
-                                        .equals(t)) {
-                                    ic.remove(item);
-                                }
+                        item -> {
+                            if (((QuestItem) item)
+                                    .taskContentComponent()
+                                    .content()
+                                    .task()
+                                    .equals(t)) {
+                                ic.remove(item);
                             }
                         });
     }
@@ -488,7 +507,7 @@ public abstract class Task {
      * Set the amount of points that this task is worth.
      *
      * @param points points that this task is worth.
-     * @param pointsToSolve amount of points that is needed to solve this task sucessfully.
+     * @param pointsToSolve amount of points that is needed to solve this task successfully.
      */
     public void points(float points, float pointsToSolve) {
         this.points = points;
@@ -507,7 +526,11 @@ public abstract class Task {
                 .filter(
                         e -> {
                             TaskContentComponent taskContentComponent =
-                                    e.fetch(TaskContentComponent.class).get();
+                                    e.fetch(TaskContentComponent.class)
+                                            .orElseThrow(
+                                                    () ->
+                                                            MissingComponentException.build(
+                                                                    e, TaskContentComponent.class));
                             return taskContentComponent.content().equals(taskContent);
                         })
                 .findFirst();
@@ -530,9 +553,9 @@ public abstract class Task {
     }
 
     /**
-     * Get a String represnation of the correct answers, to show on the HUD.
+     * Get a String representation of the correct answers, to show on the HUD.
      *
-     * @return String represnation of the correct answers
+     * @return String representation of the correct answers
      */
     public abstract String correctAnswersAsString();
 

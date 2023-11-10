@@ -10,14 +10,12 @@ import contrib.hud.UITools;
 
 import core.Entity;
 import core.Game;
+import core.utils.IVoidFunction;
 
 import task.Quiz;
 import task.Task;
-import task.TaskContent;
 
 import java.util.Objects;
-import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -46,36 +44,50 @@ public class QuizUI {
                         UIAnswerCallback.uiCallback(
                                 quiz,
                                 hudEntity,
-                                new BiConsumer<Task, Set<TaskContent>>() {
-                                    @Override
-                                    public void accept(Task task, Set<TaskContent> taskContents) {
-                                        float score = task.gradeTask(taskContents);
-                                        StringBuilder output = new StringBuilder();
-                                        output.append("Du hast ")
-                                                .append(score)
-                                                .append("/")
-                                                .append(task.points())
-                                                .append(" Punkte erreicht")
-                                                .append(System.lineSeparator())
-                                                .append("Die Aufgabe ist damit ");
-                                        if (task.state() == Task.TaskState.FINISHED_CORRECT)
-                                            output.append("korrekt ");
-                                        else output.append("falsch ");
-                                        output.append("gelöst");
-                                        OkDialog.showOkDialog(
-                                                output.toString(),
-                                                "Ergebnis",
-                                                () -> {
-                                                    // if task was finisehd wrong show correct
-                                                    // answers
-                                                    if (score < task.points()) {
+                                (task, taskContents) -> {
+                                    float score = task.gradeTask(taskContents);
+                                    StringBuilder output = new StringBuilder();
+                                    output.append("Du hast ")
+                                            .append(score)
+                                            .append("/")
+                                            .append(task.points())
+                                            .append(" Punkte erreicht")
+                                            .append(System.lineSeparator())
+                                            .append("Die Aufgabe ist damit ");
+                                    if (task.state() == Task.TaskState.FINISHED_CORRECT)
+                                        output.append("korrekt ");
+                                    else output.append("falsch ");
+                                    output.append("gelöst");
+
+                                    IVoidFunction showCorrectAnswer =
+                                            () ->
+                                                    OkDialog.showOkDialog(
+                                                            "'"
+                                                                    + task.correctAnswersAsString()
+                                                                    + "'",
+                                                            "Korrekte Antwort",
+                                                            () -> {});
+
+                                    OkDialog.showOkDialog(
+                                            output.toString(),
+                                            "Ergebnis",
+                                            () -> {
+                                                // if task was finished wrong show correct answers
+                                                if (score < task.points()) {
+                                                    if (!task.explanation().isBlank()
+                                                            && !task.explanation()
+                                                                    .equals(
+                                                                            Task
+                                                                                    .DEFAULT_EXPLANATION)) {
                                                         OkDialog.showOkDialog(
-                                                                task.correctAnswersAsString(),
-                                                                "Korrekte Antwort",
-                                                                () -> {});
+                                                                task.explanation(),
+                                                                "Erklärung",
+                                                                showCorrectAnswer);
+                                                    } else {
+                                                        showCorrectAnswer.execute();
                                                     }
-                                                });
-                                    }
+                                                }
+                                            });
                                 }));
     }
 
