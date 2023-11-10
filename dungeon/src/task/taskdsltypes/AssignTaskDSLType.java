@@ -27,12 +27,14 @@ public class AssignTaskDSLType {
             @DSLTypeMember(name = "points") float points,
             @DSLTypeMember(name = "points_to_pass") float pointsToPass,
             @DSLTypeMember(name = "solution") Set<List<Element<String>>> solution,
+            @DSLTypeMember(name = "explanation") String explanation,
             @DSLTypeMember(name = "grading_function")
                     BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
 
         AssignTask task = new AssignTask();
         task.taskText(description);
         task.taskName(name);
+        task.taskExplanation(explanation);
 
         if (points > 0.0f && pointsToPass > 0.0f) {
             task.points(points, pointsToPass);
