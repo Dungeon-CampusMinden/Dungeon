@@ -6,6 +6,7 @@ import core.System;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 /**
@@ -43,8 +44,13 @@ public class PositionSystem extends System {
                     entityStream()
                             .map(this::buildDataObject)
                             .anyMatch(psData -> psData.pc().position().toCoordinate().equals(c));
-            if (!b) data.pc().position(c.toPoint());
-            else randomPosition(data);
+            if (!b) {
+                Point position = c.toPoint();
+                // place on center
+                position.x += 0.5f;
+                position.y += 0.5f;
+                data.pc().position(position);
+            } else randomPosition(data);
         }
     }
 
