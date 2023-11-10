@@ -26,10 +26,12 @@ public class SingleChoiceTask {
             @DSLTypeMember(name = "points") float points,
             @DSLTypeMember(name = "points_to_pass") float pointsToPass,
             @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex,
+            @DSLTypeMember(name = "explanation") String explanation,
             @DSLTypeMember(name = "grading_function")
                     BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
         SingleChoice sc = new SingleChoice(description);
         sc.taskName(name);
+        sc.taskExplanation(explanation);
 
         if (points > 0.0f && pointsToPass > 0.0f) {
             sc.points(points, pointsToPass);
