@@ -159,24 +159,26 @@ public class YesNoDialog {
             if (t.state() == Task.TaskState.FINISHED_CORRECT) output.append("korrekt ");
             else output.append("falsch ");
             output.append("gelöst");
+
+            IVoidFunction showCorrectAnswer =
+                    () ->
+                            OkDialog.showOkDialog(
+                                    "'" + t.correctAnswersAsString() + "'",
+                                    "Korrekte Antwort",
+                                    () -> {});
+
             OkDialog.showOkDialog(
                     output.toString(),
                     "Ergebnis",
                     () -> {
-                        // if task was finisehd wrong show correct answers
+                        // if task was finished wrong show correct answers
                         if (score < t.points()) {
-                            if (!t.explanation().equals(Task.DEFAULT_EXPLANATION)) {
+                            if (!t.explanation().isBlank()
+                                    && !t.explanation().equals(Task.DEFAULT_EXPLANATION)) {
                                 OkDialog.showOkDialog(
-                                        t.explanation(),
-                                        "Erklärung",
-                                        () ->
-                                                OkDialog.showOkDialog(
-                                                        t.correctAnswersAsString(),
-                                                        "Korrekte Antwort",
-                                                        () -> {}));
+                                        t.explanation(), "Erklärung", showCorrectAnswer);
                             } else {
-                                OkDialog.showOkDialog(
-                                        t.correctAnswersAsString(), "Korrekte Antwort", () -> {});
+                                showCorrectAnswer.execute();
                             }
                         }
                     });

@@ -10,6 +10,7 @@ import contrib.hud.UITools;
 
 import core.Entity;
 import core.Game;
+import core.utils.IVoidFunction;
 
 import task.Quiz;
 import task.Task;
@@ -58,29 +59,32 @@ public class QuizUI {
                                     else output.append("falsch ");
                                     output.append("gelöst");
 
+                                    IVoidFunction showCorrectAnswer =
+                                            () ->
+                                                    OkDialog.showOkDialog(
+                                                            "'"
+                                                                    + task.correctAnswersAsString()
+                                                                    + "'",
+                                                            "Korrekte Antwort",
+                                                            () -> {});
+
                                     OkDialog.showOkDialog(
                                             output.toString(),
                                             "Ergebnis",
                                             () -> {
-                                                // if task was finisehd wrong show correct
-                                                // answers
+                                                // if task was finished wrong show correct answers
                                                 if (score < task.points()) {
-                                                    if (!task.explanation()
-                                                            .equals(Task.DEFAULT_EXPLANATION)) {
+                                                    if (!task.explanation().isBlank()
+                                                            && !task.explanation()
+                                                                    .equals(
+                                                                            Task
+                                                                                    .DEFAULT_EXPLANATION)) {
                                                         OkDialog.showOkDialog(
                                                                 task.explanation(),
                                                                 "Erklärung",
-                                                                () ->
-                                                                        OkDialog.showOkDialog(
-                                                                                task
-                                                                                        .correctAnswersAsString(),
-                                                                                "Korrekte Antwort",
-                                                                                () -> {}));
+                                                                showCorrectAnswer);
                                                     } else {
-                                                        OkDialog.showOkDialog(
-                                                                task.correctAnswersAsString(),
-                                                                "Korrekte Antwort",
-                                                                () -> {});
+                                                        showCorrectAnswer.execute();
                                                     }
                                                 }
                                             });
