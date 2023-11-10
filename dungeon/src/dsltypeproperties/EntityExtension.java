@@ -213,8 +213,7 @@ public class EntityExtension {
             }
 
             UIComponent uiComponent =
-                    new UIComponent(
-                            new GUICombination(inventory, new InventoryGUI(otherIc)), false);
+                    new UIComponent(new GUICombination(new InventoryGUI(otherIc), inventory), true);
             uiComponent.onClose(
                     () ->
                             chest.fetch(DrawComponent.class)
@@ -242,7 +241,7 @@ public class EntityExtension {
                                                             ChestAnimations.OPEN_EMPTY);
                                                 }
                                             }));
-            chest.addComponent(uiComponent);
+            other.addComponent(uiComponent);
             chest.fetch(DrawComponent.class)
                     .ifPresent(
                             interactedDC -> {
