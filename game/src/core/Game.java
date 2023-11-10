@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 /**
  * The Center-Point of the framework.
  *
- * <p>This class is basicly a API-Class, it will forward the request to the responsible classes.
+ * <p>This class is basically an API-Class, it will forward the request to the responsible classes.
  */
 public final class Game {
 
@@ -96,66 +96,12 @@ public final class Game {
     }
 
     /**
-     * Retrieves the full-screen mode from the pre-run configuration.
-     *
-     * @return True if full-screen mode is enabled, false otherwise.
-     */
-    public static boolean fullScreen() {
-        return PreRunConfiguration.fullScreen();
-    }
-
-    /**
-     * Sets the full-screen mode in the pre-run configuration.
-     *
-     * @param fullscreen True to enable full-screen mode, false otherwise.
-     */
-    public static void fullScreen(boolean fullscreen) {
-        PreRunConfiguration.fullScreen(fullscreen);
-    }
-
-    /**
-     * Retrieves the window title from the pre-run configuration.
-     *
-     * @return The window title.
-     */
-    public static String windowTitle() {
-        return PreRunConfiguration.windowTitle();
-    }
-
-    /**
      * Sets the window title in the pre-run configuration.
      *
      * @param windowTitle The new window title.
      */
     public static void windowTitle(String windowTitle) {
         PreRunConfiguration.windowTitle(windowTitle);
-    }
-
-    /**
-     * Retrieves the logo path from the pre-run configuration.
-     *
-     * @return The logo path.
-     */
-    public static String logoPath() {
-        return PreRunConfiguration.logoPath();
-    }
-
-    /**
-     * Sets the logo path in the pre-run configuration.
-     *
-     * @param logoPath The new logo path.
-     */
-    public static void logoPath(String logoPath) {
-        PreRunConfiguration.logoPath(logoPath);
-    }
-
-    /**
-     * Retrieves the audio disable setting from the pre-run configuration.
-     *
-     * @return True if audio is disabled, false otherwise.
-     */
-    public static boolean disableAudio() {
-        return PreRunConfiguration.disableAudio();
     }
 
     /**
@@ -168,15 +114,6 @@ public final class Game {
     }
 
     /**
-     * Retrieves the user-defined function for frame updates from the pre-run configuration.
-     *
-     * @return The user-defined function for frame updates.
-     */
-    public static IVoidFunction userOnFrame() {
-        return PreRunConfiguration.userOnFrame();
-    }
-
-    /**
      * Sets the user-defined function for frame updates in the pre-run configuration.
      *
      * @param userOnFrame The new user-defined function for frame updates.
@@ -186,30 +123,12 @@ public final class Game {
     }
 
     /**
-     * Retrieves the user-defined function for setup from the pre-run configuration.
-     *
-     * @return The user-defined function for setup.
-     */
-    public static IVoidFunction userOnSetup() {
-        return PreRunConfiguration.userOnSetup();
-    }
-
-    /**
      * Sets the user-defined function for setup in the pre-run configuration.
      *
      * @param userOnSetup The new user-defined function for setup.
      */
     public static void userOnSetup(IVoidFunction userOnSetup) {
         PreRunConfiguration.userOnSetup(userOnSetup);
-    }
-
-    /**
-     * Retrieves the user-defined function for level load from the pre-run configuration.
-     *
-     * @return The user-defined function for level load.
-     */
-    public static Consumer<Boolean> userOnLevelLoad() {
-        return PreRunConfiguration.userOnLevelLoad();
     }
 
     /**
