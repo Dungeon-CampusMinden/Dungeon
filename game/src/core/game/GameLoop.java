@@ -31,40 +31,9 @@ import java.util.logging.Logger;
 /** The heart of the framework. From here, all settings are pulled. */
 public class GameLoop extends ScreenAdapter {
     private static final Logger LOGGER = Logger.getLogger("GameLoop");
+    private static Stage stage;
     private boolean doSetup = true;
     private boolean newLevelWasLoadedInThisLoop = false;
-    private boolean uiDebugFlag = false;
-
-    // for singleton
-    private GameLoop() {}
-
-    /** Starts the dungeon and requires a {@link Game}. */
-    public static void run() {
-        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setWindowSizeLimits(
-                PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight(), 9999, 9999);
-        config.setForegroundFPS(PreRunConfiguration.frameRate());
-        config.setTitle(PreRunConfiguration.windowTitle());
-        config.setWindowIcon(PreRunConfiguration.logoPath());
-        config.disableAudio(PreRunConfiguration.disableAudio());
-
-        if (PreRunConfiguration.fullScreen()) {
-            config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
-        } else {
-            config.setWindowedMode(
-                    PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
-        }
-
-        new Lwjgl3Application(
-                new com.badlogic.gdx.Game() {
-                    @Override
-                    public void create() {
-                        setScreen(new GameLoop());
-                    }
-                },
-                config);
-    }
-
     /**
      * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
      * storage.
@@ -102,6 +71,58 @@ public class GameLoop extends ScreenAdapter {
                 Game.currentLevel().onLoad();
                 PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
             };
+
+    private boolean uiDebugFlag = false;
+
+    // for singleton
+    private GameLoop() {}
+
+    /** Starts the dungeon and requires a {@link Game}. */
+    public static void run() {
+        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+        config.setWindowSizeLimits(
+                PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight(), 9999, 9999);
+        config.setForegroundFPS(PreRunConfiguration.frameRate());
+        config.setTitle(PreRunConfiguration.windowTitle());
+        config.setWindowIcon(PreRunConfiguration.logoPath());
+        config.disableAudio(PreRunConfiguration.disableAudio());
+
+        if (PreRunConfiguration.fullScreen()) {
+            config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+        } else {
+            config.setWindowedMode(
+                    PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
+        }
+
+        new Lwjgl3Application(
+                new com.badlogic.gdx.Game() {
+                    @Override
+                    public void create() {
+                        setScreen(new GameLoop());
+                    }
+                },
+                config);
+    }
+
+    public static Optional<Stage> stage() {
+        return Optional.ofNullable(stage);
+    }
+
+    private static void updateStage(Stage x) {
+        x.act(Gdx.graphics.getDeltaTime());
+        x.draw();
+    }
+
+    private static void setupStage() {
+        stage =
+                new Stage(
+                        new ScalingViewport(
+                                Scaling.stretch,
+                                PreRunConfiguration.windowWidth(),
+                                PreRunConfiguration.windowHeight()),
+                        new SpriteBatch());
+        Gdx.input.setInputProcessor(stage);
+    }
 
     /**
      * Main game loop.
@@ -152,28 +173,6 @@ public class GameLoop extends ScreenAdapter {
         debugKeys();
         fullscreenKey();
         PreRunConfiguration.userOnFrame().execute();
-    }
-
-    private static Stage stage;
-
-    public static Optional<Stage> stage() {
-        return Optional.ofNullable(stage);
-    }
-
-    private static void updateStage(Stage x) {
-        x.act(Gdx.graphics.getDeltaTime());
-        x.draw();
-    }
-
-    private static void setupStage() {
-        stage =
-                new Stage(
-                        new ScalingViewport(
-                                Scaling.stretch,
-                                PreRunConfiguration.windowWidth(),
-                                PreRunConfiguration.windowHeight()),
-                        new SpriteBatch());
-        Gdx.input.setInputProcessor(stage);
     }
 
     /** Just for debugging, remove later. */

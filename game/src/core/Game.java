@@ -14,18 +14,24 @@ import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
-import core.systems.*;
+import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-/** The heart of the framework. From here all strings are pulled. */
+/**
+ * The Center-Point of the framework.
+ *
+ * <p>This class is basicly a API-Class, it will forward the request to the responsible classes.
+ */
 public final class Game {
 
     private static final Logger LOGGER = Logger.getLogger("Game");
@@ -35,105 +41,220 @@ public final class Game {
         GameLoop.run();
     }
 
-    // ====================PreRunConfiguration====================
-
+    /**
+     * Retrieves the window width from the pre-run configuration.
+     *
+     * @return The window width.
+     */
     public static int windowWidth() {
         return PreRunConfiguration.windowWidth();
     }
 
+    /**
+     * Sets the window width in the pre-run configuration.
+     *
+     * @param windowWidth The new window width.
+     */
     public static void windowWidth(int windowWidth) {
         PreRunConfiguration.windowWidth(windowWidth);
     }
 
+    /**
+     * Retrieves the window height from the pre-run configuration.
+     *
+     * @return The window height.
+     */
     public static int windowHeight() {
         return PreRunConfiguration.windowHeight();
     }
 
+    /**
+     * Sets the window height in the pre-run configuration.
+     *
+     * @param windowHeight The new window height.
+     */
     public static void windowHeight(int windowHeight) {
         PreRunConfiguration.windowHeight(windowHeight);
     }
 
+    /**
+     * Retrieves the frame rate from the pre-run configuration.
+     *
+     * @return The frame rate.
+     */
     public static int frameRate() {
         return PreRunConfiguration.frameRate();
     }
 
+    /**
+     * Sets the frame rate in the pre-run configuration.
+     *
+     * @param frameRate The new frame rate.
+     */
     public static void frameRate(int frameRate) {
         PreRunConfiguration.frameRate(frameRate);
     }
 
+    /**
+     * Retrieves the full-screen mode from the pre-run configuration.
+     *
+     * @return True if full-screen mode is enabled, false otherwise.
+     */
     public static boolean fullScreen() {
         return PreRunConfiguration.fullScreen();
     }
 
+    /**
+     * Sets the full-screen mode in the pre-run configuration.
+     *
+     * @param fullscreen True to enable full-screen mode, false otherwise.
+     */
     public static void fullScreen(boolean fullscreen) {
         PreRunConfiguration.fullScreen(fullscreen);
     }
 
+    /**
+     * Retrieves the window title from the pre-run configuration.
+     *
+     * @return The window title.
+     */
     public static String windowTitle() {
         return PreRunConfiguration.windowTitle();
     }
 
+    /**
+     * Sets the window title in the pre-run configuration.
+     *
+     * @param windowTitle The new window title.
+     */
     public static void windowTitle(String windowTitle) {
         PreRunConfiguration.windowTitle(windowTitle);
     }
 
+    /**
+     * Retrieves the logo path from the pre-run configuration.
+     *
+     * @return The logo path.
+     */
     public static String logoPath() {
         return PreRunConfiguration.logoPath();
     }
 
+    /**
+     * Sets the logo path in the pre-run configuration.
+     *
+     * @param logoPath The new logo path.
+     */
     public static void logoPath(String logoPath) {
         PreRunConfiguration.logoPath(logoPath);
     }
 
+    /**
+     * Retrieves the audio disable setting from the pre-run configuration.
+     *
+     * @return True if audio is disabled, false otherwise.
+     */
     public static boolean disableAudio() {
         return PreRunConfiguration.disableAudio();
     }
 
+    /**
+     * Sets the audio disable setting in the pre-run configuration.
+     *
+     * @param disableAudio True to disable audio, false otherwise.
+     */
     public static void disableAudio(boolean disableAudio) {
         PreRunConfiguration.disableAudio(disableAudio);
     }
 
+    /**
+     * Retrieves the user-defined function for frame updates from the pre-run configuration.
+     *
+     * @return The user-defined function for frame updates.
+     */
     public static IVoidFunction userOnFrame() {
         return PreRunConfiguration.userOnFrame();
     }
 
+    /**
+     * Sets the user-defined function for frame updates in the pre-run configuration.
+     *
+     * @param userOnFrame The new user-defined function for frame updates.
+     */
     public static void userOnFrame(IVoidFunction userOnFrame) {
         PreRunConfiguration.userOnFrame(userOnFrame);
     }
 
+    /**
+     * Retrieves the user-defined function for setup from the pre-run configuration.
+     *
+     * @return The user-defined function for setup.
+     */
     public static IVoidFunction userOnSetup() {
         return PreRunConfiguration.userOnSetup();
     }
 
+    /**
+     * Sets the user-defined function for setup in the pre-run configuration.
+     *
+     * @param userOnSetup The new user-defined function for setup.
+     */
     public static void userOnSetup(IVoidFunction userOnSetup) {
         PreRunConfiguration.userOnSetup(userOnSetup);
     }
 
+    /**
+     * Retrieves the user-defined function for level load from the pre-run configuration.
+     *
+     * @return The user-defined function for level load.
+     */
     public static Consumer<Boolean> userOnLevelLoad() {
         return PreRunConfiguration.userOnLevelLoad();
     }
 
+    /**
+     * Sets the user-defined function for level load in the pre-run configuration.
+     *
+     * @param userOnLevelLoad The new user-defined function for level load.
+     */
     public static void userOnLevelLoad(Consumer<Boolean> userOnLevelLoad) {
         PreRunConfiguration.userOnLevelLoad(userOnLevelLoad);
     }
 
+    /**
+     * Initializes the base logger. Removes the console handler and puts all log messages in the log
+     * files.
+     */
     public static void initBaseLogger() {
         PreRunConfiguration.initBaseLogger();
     }
 
+    /**
+     * Loads the configuration from the given path. If the configuration has already been loaded,
+     * the cached version will be used.
+     *
+     * @param pathAsString The path to the config file as a string.
+     * @param keyboardConfigClass The class where the ConfigKey fields are located.
+     * @param keyboardConfigClass1 The class where the ConfigKey fields are located.
+     * @throws IOException If the file could not be read.
+     */
     public static void loadConfig(
-            String s,
+            String pathAsString,
             Class<KeyboardConfig> keyboardConfigClass,
             Class<core.configuration.KeyboardConfig> keyboardConfigClass1)
             throws IOException {
-        PreRunConfiguration.loadConfig(s, keyboardConfigClass, keyboardConfigClass1);
+        PreRunConfiguration.loadConfig(pathAsString, keyboardConfigClass, keyboardConfigClass1);
     }
 
-    // ECS MANAGMENT
-
+    /**
+     * Retrieves the optional stage from the game loop.
+     *
+     * @return The optional stage.
+     */
     public static Optional<Stage> stage() {
         return GameLoop.stage();
     }
+
     /**
      * The given entity will be added to the game.
      *
@@ -158,6 +279,7 @@ public final class Game {
     public static void remove(Entity entity) {
         ECSManagment.remove(entity);
     }
+
     /**
      * Add a {@link System} to the game.
      *
@@ -177,6 +299,7 @@ public final class Game {
     public static Optional<System> add(System system) {
         return ECSManagment.add(system);
     }
+
     /**
      * @return a copy of the map that stores all registered {@link System} in the game.
      */
@@ -282,7 +405,6 @@ public final class Game {
         return ECSManagment.find(component);
     }
 
-    // LEVEL API
     /**
      * @return the currently loaded level
      */

@@ -4,32 +4,20 @@ import core.Component;
 import core.Entity;
 import core.System;
 import core.level.elements.ILevel;
-import core.systems.*;
 import core.utils.EntitySystemMapper;
 
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+/** The class responsible for managing the ECS (Entity-Component-System) in the game. */
 public class ECSManagment {
     private static final Logger LOGGER = Logger.getLogger("ECSManagment");
-    private static Entity hero;
-
-    /**
-     * A Map with each {@link System} in the game.
-     *
-     * <p>The Key-Value is the Class of the system
-     */
     private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
-    /** Maps the level with the different {@link EntitySystemMapper} for that level. */
     private static final Map<ILevel, Set<EntitySystemMapper>> levelStorageMap = new HashMap<>();
-    /**
-     * Collection of {@link EntitySystemMapper} that maps the existing entities to the systems. The
-     * {@link EntitySystemMapper} with no filter-rules will contain each entity in the game
-     */
+    private static Entity hero;
     private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
 
-    // initial entityStorage has no level
     static {
         levelStorageMap.put(null, activeEntityStorage);
         activeEntityStorage.add(new EntitySystemMapper());
@@ -138,8 +126,6 @@ public class ECSManagment {
     protected static void activeEntityStorage(Set<EntitySystemMapper> computeIfAbsent) {
         activeEntityStorage = computeIfAbsent;
     }
-
-    // ====================ESC END====================
 
     /**
      * @return a copy of the map that stores all registered {@link System} in the game.
