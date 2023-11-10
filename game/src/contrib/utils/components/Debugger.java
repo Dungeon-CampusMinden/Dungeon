@@ -205,7 +205,7 @@ public class Debugger {
     }
 
     private static Entity newPauseMenu() {
-        Entity entity = UITools.generateNewTextDialog("Pause", "Continue", "Pausemenu");
+        Entity entity = UITools.generateNewTextDialog("Pause", "Weiter", "Pausemenu");
         entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
         return entity;
     }

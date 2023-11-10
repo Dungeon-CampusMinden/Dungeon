@@ -21,11 +21,10 @@ import java.util.function.Supplier;
  */
 public class UITools {
     public static final Skin DEFAULT_SKIN = new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG));
-    public static final String DEFAULT_DIALOG_CONFIRM = "confirm";
-    public static final String DEFAULT_DIALOG_ABORT = "abort";
-    public static final String DEFAULT_DIALOG_YES = "yes";
-    public static final String DEFAULT_DIALOG_NO = "no";
-    public static final String DEFAULT_DIALOG_TITLE = "Question";
+    public static final String DEFAULT_DIALOG_CONFIRM = "Bestätigen";
+    public static final String DEFAULT_DIALOG_ABORT = "Abbrechen";
+    public static final String DEFAULT_DIALOG_YES = "Ja";
+    public static final String DEFAULT_DIALOG_NO = "Nein";
 
     /**
      * Show the given Dialog on the screen.

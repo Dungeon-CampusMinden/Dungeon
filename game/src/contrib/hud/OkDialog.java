@@ -19,7 +19,7 @@ import java.util.function.BiFunction;
  */
 public class OkDialog {
 
-    public static final String DEFAULT_OK_BUTTON = "ok";
+    public static final String DEFAULT_OK_BUTTON = "Ok";
 
     /**
      * Show a Ok-Dialog
