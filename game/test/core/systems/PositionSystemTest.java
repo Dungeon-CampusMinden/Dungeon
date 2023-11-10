@@ -53,8 +53,10 @@ public class PositionSystemTest {
     @Test
     public void test_illegalPosition() {
         pc.position(PositionComponent.ILLEGAL_POSITION);
+        // entities will be placed in the center of a tile, so add the offset for check
+        Point offsetPoint = new Point(point.x + 0.5f, point.y + 0.5f);
         system.execute();
-        assertTrue(pc.position().equals(point));
+        assertTrue(pc.position().equals(offsetPoint));
     }
 
     @Test
