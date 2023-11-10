@@ -32,7 +32,7 @@ public class MultipleChoiceTask {
             ) {
         MultipleChoice mc = new MultipleChoice(description);
         mc.taskName(name);
-        mc.taskExplanation(explanation);
+        mc.explanation(explanation);
 
         if (points > 0.0f && pointsToPass > 0.0f) {
             mc.points(points, pointsToPass);

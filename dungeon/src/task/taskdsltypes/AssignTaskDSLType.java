@@ -34,7 +34,7 @@ public class AssignTaskDSLType {
         AssignTask task = new AssignTask();
         task.taskText(description);
         task.taskName(name);
-        task.taskExplanation(explanation);
+        task.explanation(explanation);
 
         if (points > 0.0f && pointsToPass > 0.0f) {
             task.points(points, pointsToPass);

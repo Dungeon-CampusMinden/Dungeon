@@ -68,7 +68,6 @@ public abstract class Task {
     private String taskText;
     private String scenarioText;
     private String taskName;
-    private String explanation;
     private Entity managementEntity;
     private Set<Set<Entity>> entitySets = new HashSet<>();
     private float pointsToSolve;
@@ -211,24 +210,6 @@ public abstract class Task {
      */
     public String taskName() {
         return taskName;
-    }
-
-    /**
-     * Get the task explanation.
-     *
-     * @return task explanation
-     */
-    public String taskExplanation() {
-        return explanation;
-    }
-
-    /**
-     * Set the task explanation.
-     *
-     * @return task explanation
-     */
-    public void taskExplanation(String explanation) {
-        this.explanation = explanation;
     }
 
     /**

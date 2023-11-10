@@ -31,7 +31,7 @@ public class SingleChoiceTask {
                     BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
         SingleChoice sc = new SingleChoice(description);
         sc.taskName(name);
-        sc.taskExplanation(explanation);
+        sc.explanation(explanation);
 
         if (points > 0.0f && pointsToPass > 0.0f) {
             sc.points(points, pointsToPass);
