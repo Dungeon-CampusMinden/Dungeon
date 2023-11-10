@@ -39,26 +39,10 @@ import java.util.stream.Stream;
 /** The heart of the framework. From here all strings are pulled. */
 public final class Game extends ScreenAdapter {
 
-    /**
-     * A Map with each {@link System} in the game.
-     *
-     * <p>The Key-Value is the Class of the system
-     */
-    private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
-    /** Maps the level with the different {@link EntitySystemMapper} for that level. */
-    private static final Map<ILevel, Set<EntitySystemMapper>> levelStorageMap = new HashMap<>();
+    // ====================SETUP====================
 
     private static final Logger LOGGER = Logger.getLogger("Game");
-    /**
-     * Collection of {@link EntitySystemMapper} that maps the existing entities to the systems. The
-     * {@link EntitySystemMapper} with no filter-rules will contain each entity in the game
-     */
-    private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
-    /**
-     * The width of the game window in pixels.
-     *
-     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
-     */
+
     private static int WINDOW_WIDTH = 1280;
     /**
      * Part of the pre-run configuration. The height of the game window in pixels.
@@ -91,32 +75,7 @@ public final class Game extends ScreenAdapter {
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
     private static String LOGO_PATH = "logo/cat_logo_35x35.png";
-    /**
-     * Part of the pre-run configuration.
-     * This function will be called at each frame.
-     * <p> Use this, if you want to execute some logic outside of a system.</p>
-     * <p> Will not replace {@link #onFrame )</p>
-     */
-    private static IVoidFunction userOnFrame = () -> {};
-    /**
-     * Part of the pre-run configuration. This function will be called after the libgdx-setup once.
-     *
-     * <p>Will not replace {@link #onSetup()}
-     */
-    private static IVoidFunction userOnSetup = () -> {};
-    /**
-     * Part of the pre-run configuration. This function will be called after a level was loaded.
-     *
-     * <p>Use this, if you want to execute some logic after a level was loaded. For example spawning
-     * some Monsters.
-     *
-     * <p>The Consumer takes a boolean that is true if the level was never loaded before, and false
-     * if it was loaded before. * This can be useful, for example, if you only want to spawn
-     * monsters the first time.
-     *
-     * <p>Will not replace {@link #onLevelLoad}
-     */
-    private static Consumer<Boolean> userOnLevelLoad = (b) -> {};
+
     /**
      * Part of the pre-run configuration. If this value is true, the audio for the game will be
      * disabled.
@@ -124,79 +83,6 @@ public final class Game extends ScreenAdapter {
      * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
      */
     private static boolean DISABLE_AUDIO = false;
-
-    private static Entity hero;
-    private static Stage stage;
-
-    // initial entityStorage has no level
-    static {
-        levelStorageMap.put(null, activeEntityStorage);
-        activeEntityStorage.add(new EntitySystemMapper());
-    }
-
-    private boolean doSetup = true;
-    private boolean uiDebugFlag = false;
-    private boolean newLevelWasLoadedInThisLoop = false;
-    /**
-     * Sets {@link #currentLevel} to the new level and changes the currently active entity storage.
-     *
-     * <p>Will remove all Systems using {@link Game#removeAllSystems()} from the Game. This will
-     * trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
-     * using {@link Game#add(System)}, triggering {@link System#onEntityAdd} for the new level.
-     *
-     * <p>Will re-add the hero if they exist.
-     */
-    private final IVoidFunction onLevelLoad =
-            () -> {
-                newLevelWasLoadedInThisLoop = true;
-                boolean firstLoad = !levelStorageMap.containsKey(currentLevel());
-                hero().ifPresent(Game::remove);
-                // Remove the systems so that each triggerOnRemove(entity) will be called (basically
-                // cleanup).
-                Map<Class<? extends System>, System> s = Game.systems();
-                removeAllSystems();
-                activeEntityStorage =
-                        levelStorageMap.computeIfAbsent(currentLevel(), k -> new HashSet<>());
-                // readd the systems so that each triggerOnAdd(entity) will be called (basically
-                // setup). This will also create new EntitySystemMapper if needed.
-                s.values().forEach(Game::add);
-
-                try {
-                    hero().ifPresent(this::placeOnLevelStart);
-                } catch (MissingComponentException e) {
-                    LOGGER.warning(e.getMessage());
-                }
-                hero().ifPresent(Game::add);
-                currentLevel().onLoad();
-                userOnLevelLoad.accept(firstLoad);
-            };
-
-    // for singleton
-    private Game() {}
-
-    /**
-     * @return the currently loaded level
-     */
-    public static ILevel currentLevel() {
-        return LevelSystem.level();
-    }
-
-    /**
-     * @return a copy of the map that stores all registered {@link System} in the game.
-     */
-    public static Map<Class<? extends System>, System> systems() {
-        return new LinkedHashMap<>(systems);
-    }
-
-    /**
-     * Remove all registered systems from the game.
-     *
-     * <p>Will trigger {@link System#onEntityRemove} for each entity in each system.
-     */
-    public static void removeAllSystems() {
-        new HashSet<>(systems.keySet()).forEach(Game::remove);
-    }
-
     /**
      * Width of the game-window in pixel
      *
@@ -231,19 +117,6 @@ public final class Game extends ScreenAdapter {
      */
     public static boolean fullScreen() {
         return FULL_SCREEN;
-    }
-
-    /**
-     * The currently set level-Size.
-     *
-     * <p>This value is used for the generation of the next level.
-     *
-     * <p>The currently active level can have a different size.
-     *
-     * @return currently set level-Size.
-     */
-    public static LevelSize levelSize() {
-        return LevelSystem.levelSize();
     }
 
     /**
@@ -318,15 +191,6 @@ public final class Game extends ScreenAdapter {
     }
 
     /**
-     * Set the {@link LevelSize} of the next level.
-     *
-     * @param levelSize Size of the next level.
-     */
-    public static void levelSize(LevelSize levelSize) {
-        LevelSystem.levelSize(levelSize);
-    }
-
-    /**
      * Set the function that will be executed at each frame.
      * <p> Use this, if you want to execute some logic outside of a system.</p>
      * <p> Will not replace {@link #onFrame )</p>
@@ -388,126 +252,7 @@ public final class Game extends ScreenAdapter {
         LoggerConfig.initBaseLogger();
     }
 
-    /**
-     * Inform each {@link System} that the given Entity has changes on component bases.
-     *
-     * <p>If necessary, the {@link System}s will trigger {@link System#triggerOnAdd(Entity)} or
-     * {@link System#triggerOnRemove(Entity)}.
-     *
-     * @param entity the entity that has changes in its Component Collection.
-     */
-    public static void informAboutChanges(Entity entity) {
-        if (entityStream().anyMatch(entity1 -> entity1.equals(entity))) {
-            activeEntityStorage.forEach(f -> f.update(entity));
-            LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
-        }
-    }
-
-    /**
-     * The given entity will be added to the game.
-     *
-     * <p>For each {@link System}, it will be checked if the {@link System} will process this
-     * entity.
-     *
-     * <p>If necessary, the {@link System} will trigger {@link System#triggerOnAdd(Entity)} .
-     *
-     * @param entity the entity to add.
-     */
-    public static void add(Entity entity) {
-        activeEntityStorage.forEach(f -> f.add(entity));
-        LOGGER.info("Entity: " + entity + " will be added to the Game.");
-    }
-
-    /**
-     * The given entity will be removed from the game.
-     *
-     * <p>If necessary, the {@link System}s will trigger {@link System#triggerOnAdd(Entity)} .
-     *
-     * @param entity the entity to remove
-     */
-    public static void remove(Entity entity) {
-        activeEntityStorage.forEach(f -> f.remove(entity));
-        LOGGER.info("Entity: " + entity + " will be removed from the Game.");
-    }
-
-    /**
-     * Use this stream if you want to iterate over all currently active entities.
-     *
-     * @return a stream of all entities currently in the game
-     */
-    public static Stream<Entity> entityStream() {
-        return entityStream(new HashSet<>());
-    }
-
-    /**
-     * Use this stream if you want to iterate over all entities that contain the necessary
-     * Components to be processed by the given system.
-     *
-     * @return a stream of all entities currently in the game that should be processed by the given
-     *     system.
-     */
-    public static Stream<Entity> entityStream(System system) {
-        return entityStream(system.filterRules());
-    }
-
-    /**
-     * Use this stream if you want to iterate over all entities that contain the given components.
-     *
-     * @return a stream of all entities currently in the game that contains the given components.
-     */
-    public static Stream<Entity> entityStream(Set<Class<? extends Component>> filter) {
-        Stream<Entity> returnStream;
-        Optional<EntitySystemMapper> rf =
-                activeEntityStorage.stream().filter(f -> f.equals(filter)).findFirst();
-
-        if (rf.isEmpty()) {
-            EntitySystemMapper newMapper = createNewEntitySystemMapper(filter);
-            returnStream = newMapper.stream();
-        } else returnStream = rf.get().stream();
-        return returnStream;
-    }
-
-    /**
-     * Create a new {@link EntitySystemMapper} with the given filter rules.
-     *
-     * <p>The {@link EntitySystemMapper} will be added to {@link #activeEntityStorage}.
-     *
-     * <p>All entities in the empty filter (basically every entity in the game) will be tried to add
-     * with {@link EntitySystemMapper#add(Entity)}.
-     *
-     * <p>This function will not check if an {@link EntitySystemMapper} with the same rules already
-     * exists. If an {@link EntitySystemMapper} exists, it will not be replaced, and the {@link
-     * EntitySystemMapper} created in this function will be lost.
-     *
-     * @param filter Set of Component classes that define the filter rules.
-     * @return the created {@link EntitySystemMapper}.
-     */
-    private static EntitySystemMapper createNewEntitySystemMapper(
-            Set<Class<? extends Component>> filter) {
-        EntitySystemMapper mapper = new EntitySystemMapper(filter);
-        activeEntityStorage.add(mapper);
-        entityStream().forEach(mapper::add);
-        return mapper;
-    }
-
-    /**
-     * @return the player character, can be null if not initialized
-     * @see Optional
-     */
-    public static Optional<Entity> hero() {
-        return Optional.ofNullable(hero);
-    }
-
-    /**
-     * Set the reference of the playable character.
-     *
-     * <p>Be careful: the old hero will not be removed from the game.
-     *
-     * @param hero the new reference of the hero
-     */
-    public static void hero(Entity hero) {
-        Game.hero = hero;
-    }
+    private static Consumer<Boolean> userOnLevelLoad = (b) -> {};
 
     /**
      * Load the configuration from the given path. If the configuration has already been loaded, the
@@ -552,6 +297,99 @@ public final class Game extends ScreenAdapter {
                 config);
     }
 
+    // ====================END-SETUP====================
+
+    // ====================ECS====================
+    /**
+     * A Map with each {@link System} in the game.
+     *
+     * <p>The Key-Value is the Class of the system
+     */
+    private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
+    /** Maps the level with the different {@link EntitySystemMapper} for that level. */
+    private static final Map<ILevel, Set<EntitySystemMapper>> levelStorageMap = new HashMap<>();
+    /**
+     * Collection of {@link EntitySystemMapper} that maps the existing entities to the systems. The
+     * {@link EntitySystemMapper} with no filter-rules will contain each entity in the game
+     */
+    private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
+    /**
+     * The width of the game window in pixels.
+     *
+     * <p>Manipulating this value will only result in changes before {@link Game#run} was executed.
+     */
+
+    // initial entityStorage has no level
+    static {
+        levelStorageMap.put(null, activeEntityStorage);
+        activeEntityStorage.add(new EntitySystemMapper());
+    }
+
+    /**
+     * Inform each {@link System} that the given Entity has changes on component bases.
+     *
+     * <p>If necessary, the {@link System}s will trigger {@link System#triggerOnAdd(Entity)} or
+     * {@link System#triggerOnRemove(Entity)}.
+     *
+     * @param entity the entity that has changes in its Component Collection.
+     */
+    public static void informAboutChanges(Entity entity) {
+        if (entityStream().anyMatch(entity1 -> entity1.equals(entity))) {
+            activeEntityStorage.forEach(f -> f.update(entity));
+            LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+        }
+    }
+
+    /**
+     * The given entity will be added to the game.
+     *
+     * <p>For each {@link System}, it will be checked if the {@link System} will process this
+     * entity.
+     *
+     * <p>If necessary, the {@link System} will trigger {@link System#triggerOnAdd(Entity)} .
+     *
+     * @param entity the entity to add.
+     */
+    public static void add(Entity entity) {
+        activeEntityStorage.forEach(f -> f.add(entity));
+        LOGGER.info("Entity: " + entity + " will be added to the Game.");
+    }
+
+    /**
+     * The given entity will be removed from the game.
+     *
+     * <p>If necessary, the {@link System}s will trigger {@link System#triggerOnAdd(Entity)} .
+     *
+     * @param entity the entity to remove
+     */
+    public static void remove(Entity entity) {
+        activeEntityStorage.forEach(f -> f.remove(entity));
+        LOGGER.info("Entity: " + entity + " will be removed from the Game.");
+    }
+
+    /**
+     * Create a new {@link EntitySystemMapper} with the given filter rules.
+     *
+     * <p>The {@link EntitySystemMapper} will be added to {@link #activeEntityStorage}.
+     *
+     * <p>All entities in the empty filter (basically every entity in the game) will be tried to add
+     * with {@link EntitySystemMapper#add(Entity)}.
+     *
+     * <p>This function will not check if an {@link EntitySystemMapper} with the same rules already
+     * exists. If an {@link EntitySystemMapper} exists, it will not be replaced, and the {@link
+     * EntitySystemMapper} created in this function will be lost.
+     *
+     * @param filter Set of Component classes that define the filter rules.
+     * @return the created {@link EntitySystemMapper}.
+     */
+    private static EntitySystemMapper createNewEntitySystemMapper(
+            Set<Class<? extends Component>> filter) {
+        EntitySystemMapper mapper = new EntitySystemMapper(filter);
+        activeEntityStorage.add(mapper);
+        entityStream().forEach(mapper::add);
+        return mapper;
+    }
+
     /**
      * Add a {@link System} to the game.
      *
@@ -581,6 +419,302 @@ public final class Game extends ScreenAdapter {
                 () -> createNewEntitySystemMapper(system.filterRules()).add(system));
         LOGGER.info("A new " + system.getClass().getName() + " was added to the game");
         return Optional.ofNullable(currentSystem);
+    }
+
+    // ====================ESC END====================
+
+    // ====================GAMELOOP====================
+
+    private boolean newLevelWasLoadedInThisLoop = false;
+
+    /**
+     * Part of the pre-run configuration.
+     * This function will be called at each frame.
+     * <p> Use this, if you want to execute some logic outside of a system.</p>
+     * <p> Will not replace {@link #onFrame )</p>
+     */
+    private static IVoidFunction userOnFrame = () -> {};
+    /**
+     * Part of the pre-run configuration. This function will be called after the libgdx-setup once.
+     *
+     * <p>Will not replace {@link #onSetup()}
+     */
+    private static IVoidFunction userOnSetup = () -> {};
+    /**
+     * Part of the pre-run configuration. This function will be called after a level was loaded.
+     *
+     * <p>Use this, if you want to execute some logic after a level was loaded. For example spawning
+     * some Monsters.
+     *
+     * <p>The Consumer takes a boolean that is true if the level was never loaded before, and false
+     * if it was loaded before. * This can be useful, for example, if you only want to spawn
+     * monsters the first time.
+     *
+     * <p>Will not replace {@link #onLevelLoad}
+     */
+
+    /**
+     * Sets {@link #currentLevel} to the new level and changes the currently active entity storage.
+     *
+     * <p>Will remove all Systems using {@link Game#removeAllSystems()} from the Game. This will
+     * trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
+     * using {@link Game#add(System)}, triggering {@link System#onEntityAdd} for the new level.
+     *
+     * <p>Will re-add the hero if they exist.
+     */
+    private final IVoidFunction onLevelLoad =
+            () -> {
+                newLevelWasLoadedInThisLoop = true;
+                boolean firstLoad = !levelStorageMap.containsKey(currentLevel());
+                hero().ifPresent(Game::remove);
+                // Remove the systems so that each triggerOnRemove(entity) will be called (basically
+                // cleanup).
+                Map<Class<? extends System>, System> s = Game.systems();
+                removeAllSystems();
+                activeEntityStorage =
+                        levelStorageMap.computeIfAbsent(currentLevel(), k -> new HashSet<>());
+                // readd the systems so that each triggerOnAdd(entity) will be called (basically
+                // setup). This will also create new EntitySystemMapper if needed.
+                s.values().forEach(Game::add);
+
+                try {
+                    hero().ifPresent(this::placeOnLevelStart);
+                } catch (MissingComponentException e) {
+                    LOGGER.warning(e.getMessage());
+                }
+                hero().ifPresent(Game::add);
+                currentLevel().onLoad();
+                userOnLevelLoad.accept(firstLoad);
+            };
+
+    /**
+     * Main game loop.
+     *
+     * <p>Redraws the dungeon, updates the entity sets, and triggers the execution of the systems.
+     * Will call {@link #onFrame}.
+     *
+     * @param delta the time since the last loop
+     */
+    @Override
+    public void render(float delta) {
+        if (doSetup) onSetup();
+        DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
+        onFrame();
+        clearScreen();
+
+        for (System system : systems().values()) {
+            // if a new level was loaded, stop this loop-run
+            if (newLevelWasLoadedInThisLoop) break;
+            if (system.isRunning()) system.execute();
+        }
+        newLevelWasLoadedInThisLoop = false;
+        CameraSystem.camera().update();
+        // stage logic
+        Game.stage().ifPresent(Game::updateStage);
+    }
+
+    /**
+     * Called once at the beginning of the game.
+     *
+     * <p>Will perform some setup.
+     */
+    private void onSetup() {
+        doSetup = false;
+        CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
+        createSystems();
+        setupStage();
+        userOnSetup.execute();
+    }
+
+    /**
+     * Called at the beginning of each frame, before the entities are updated and the systems are
+     * executed.
+     *
+     * <p>This is the place to add basic logic that isn't part of any system.
+     */
+    private void onFrame() {
+        debugKeys();
+        fullscreenKey();
+        userOnFrame.execute();
+    }
+
+    // ====================END GAMELOOP====================
+
+    // ====================MISC====================
+    private static Entity hero;
+    private static Stage stage;
+    private boolean doSetup = true;
+    private boolean uiDebugFlag = false;
+
+    public static Optional<Stage> stage() {
+        return Optional.ofNullable(stage);
+    }
+
+    private static void updateStage(Stage x) {
+        x.act(Gdx.graphics.getDeltaTime());
+        x.draw();
+    }
+
+    private static void setupStage() {
+        stage =
+                new Stage(
+                        new ScalingViewport(Scaling.stretch, WINDOW_WIDTH, WINDOW_HEIGHT),
+                        new SpriteBatch());
+        Gdx.input.setInputProcessor(stage);
+    }
+
+    /** Just for debugging, remove later. */
+    private void debugKeys() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+            // toggle UI "debug rendering"
+            stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
+        }
+    }
+
+    private void fullscreenKey() {
+        if (Gdx.input.isKeyJustPressed(
+                core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
+            if (!Gdx.graphics.isFullscreen()) {
+                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+            } else {
+                Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
+            }
+        }
+    }
+
+    /**
+     * Set the position of the given entity to the position of the level-start.
+     *
+     * <p>A {@link PositionComponent} is needed.
+     *
+     * @param entity entity to set on the start of the level, normally this is the hero.
+     */
+    private void placeOnLevelStart(Entity entity) {
+        add(entity);
+        PositionComponent pc =
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        pc.position(startTile());
+    }
+
+    /**
+     * Clear the screen. Removes all.
+     *
+     * <p>Needs to be called before redraw something.
+     */
+    private void clearScreen() {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    /** Create the systems. */
+    private void createSystems() {
+        add(new PositionSystem());
+        add(new CameraSystem());
+        add(
+                new LevelSystem(
+                        DrawSystem.painter(),
+                        new WallGenerator(new RandomWalkGenerator()),
+                        onLevelLoad));
+        add(new DrawSystem());
+        add(new VelocitySystem());
+        add(new PlayerSystem());
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        super.resize(width, height);
+        stage().ifPresent(
+                        x -> {
+                            x.getViewport().setWorldSize(width, height);
+                            x.getViewport().update(width, height, true);
+                        });
+    }
+    // for singleton
+    private Game() {}
+    // ====================END MISC====================
+
+    // ====================API====================
+    /**
+     * @return the currently loaded level
+     */
+    public static ILevel currentLevel() {
+        return LevelSystem.level();
+    }
+
+    /**
+     * @return a copy of the map that stores all registered {@link System} in the game.
+     */
+    public static Map<Class<? extends System>, System> systems() {
+        return new LinkedHashMap<>(systems);
+    }
+
+    /**
+     * Remove all registered systems from the game.
+     *
+     * <p>Will trigger {@link System#onEntityRemove} for each entity in each system.
+     */
+    public static void removeAllSystems() {
+        new HashSet<>(systems.keySet()).forEach(Game::remove);
+    }
+
+    /**
+     * Use this stream if you want to iterate over all currently active entities.
+     *
+     * @return a stream of all entities currently in the game
+     */
+    public static Stream<Entity> entityStream() {
+        return entityStream(new HashSet<>());
+    }
+
+    /**
+     * Use this stream if you want to iterate over all entities that contain the necessary
+     * Components to be processed by the given system.
+     *
+     * @return a stream of all entities currently in the game that should be processed by the given
+     *     system.
+     */
+    public static Stream<Entity> entityStream(System system) {
+        return entityStream(system.filterRules());
+    }
+
+    /**
+     * Use this stream if you want to iterate over all entities that contain the given components.
+     *
+     * @return a stream of all entities currently in the game that contains the given components.
+     */
+    public static Stream<Entity> entityStream(Set<Class<? extends Component>> filter) {
+        Stream<Entity> returnStream;
+        Optional<EntitySystemMapper> rf =
+                activeEntityStorage.stream().filter(f -> f.equals(filter)).findFirst();
+
+        if (rf.isEmpty()) {
+            EntitySystemMapper newMapper = createNewEntitySystemMapper(filter);
+            returnStream = newMapper.stream();
+        } else returnStream = rf.get().stream();
+        return returnStream;
+    }
+
+    /**
+     * @return the player character, can be null if not initialized
+     * @see Optional
+     */
+    public static Optional<Entity> hero() {
+        return Optional.ofNullable(hero);
+    }
+
+    /**
+     * Set the reference of the playable character.
+     *
+     * <p>Be careful: the old hero will not be removed from the game.
+     *
+     * @param hero the new reference of the hero
+     */
+    public static void hero(Entity hero) {
+        Game.hero = hero;
     }
 
     /**
@@ -641,15 +775,9 @@ public final class Game extends ScreenAdapter {
                                         .orElse(false))
                 .findFirst();
     }
+    // ====================END API====================
 
-    public static Optional<Stage> stage() {
-        return Optional.ofNullable(stage);
-    }
-
-    private static void updateStage(Stage x) {
-        x.act(Gdx.graphics.getDeltaTime());
-        x.draw();
-    }
+    // ====================LEVEL API====================
 
     /**
      * Get the tile at the given point in the level
@@ -798,133 +926,27 @@ public final class Game extends ScreenAdapter {
         else LOGGER.warning("Can not set Level because levelSystem is null.");
     }
 
-    private static void setupStage() {
-        stage =
-                new Stage(
-                        new ScalingViewport(Scaling.stretch, WINDOW_WIDTH, WINDOW_HEIGHT),
-                        new SpriteBatch());
-        Gdx.input.setInputProcessor(stage);
+    /**
+     * The currently set level-Size.
+     *
+     * <p>This value is used for the generation of the next level.
+     *
+     * <p>The currently active level can have a different size.
+     *
+     * @return currently set level-Size.
+     */
+    public static LevelSize levelSize() {
+        return LevelSystem.levelSize();
     }
 
     /**
-     * Main game loop.
+     * Set the {@link LevelSize} of the next level.
      *
-     * <p>Redraws the dungeon, updates the entity sets, and triggers the execution of the systems.
-     * Will call {@link #onFrame}.
-     *
-     * @param delta the time since the last loop
+     * @param levelSize Size of the next level.
      */
-    @Override
-    public void render(float delta) {
-        if (doSetup) onSetup();
-        DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
-        onFrame();
-        clearScreen();
-
-        for (System system : systems().values()) {
-            // if a new level was loaded, stop this loop-run
-            if (newLevelWasLoadedInThisLoop) break;
-            if (system.isRunning()) system.execute();
-        }
-        newLevelWasLoadedInThisLoop = false;
-        CameraSystem.camera().update();
-        // stage logic
-        Game.stage().ifPresent(Game::updateStage);
+    public static void levelSize(LevelSize levelSize) {
+        LevelSystem.levelSize(levelSize);
     }
 
-    /**
-     * Called once at the beginning of the game.
-     *
-     * <p>Will perform some setup.
-     */
-    private void onSetup() {
-        doSetup = false;
-        CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
-        createSystems();
-        setupStage();
-        userOnSetup.execute();
-    }
-
-    /**
-     * Called at the beginning of each frame, before the entities are updated and the systems are
-     * executed.
-     *
-     * <p>This is the place to add basic logic that isn't part of any system.
-     */
-    private void onFrame() {
-        debugKeys();
-        fullscreenKey();
-        userOnFrame.execute();
-    }
-
-    /** Just for debugging, remove later. */
-    private void debugKeys() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            // toggle UI "debug rendering"
-            stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
-        }
-    }
-
-    private void fullscreenKey() {
-        if (Gdx.input.isKeyJustPressed(
-                core.configuration.KeyboardConfig.TOGGLE_FULLSCREEN.value())) {
-            if (!Gdx.graphics.isFullscreen()) {
-                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-            } else {
-                Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
-            }
-        }
-    }
-
-    /**
-     * Set the position of the given entity to the position of the level-start.
-     *
-     * <p>A {@link PositionComponent} is needed.
-     *
-     * @param entity entity to set on the start of the level, normally this is the hero.
-     */
-    private void placeOnLevelStart(Entity entity) {
-        add(entity);
-        PositionComponent pc =
-                entity.fetch(PositionComponent.class)
-                        .orElseThrow(
-                                () ->
-                                        MissingComponentException.build(
-                                                entity, PositionComponent.class));
-        pc.position(startTile());
-    }
-
-    /**
-     * Clear the screen. Removes all.
-     *
-     * <p>Needs to be called before redraw something.
-     */
-    private void clearScreen() {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
-    }
-
-    /** Create the systems. */
-    private void createSystems() {
-        add(new PositionSystem());
-        add(new CameraSystem());
-        add(
-                new LevelSystem(
-                        DrawSystem.painter(),
-                        new WallGenerator(new RandomWalkGenerator()),
-                        onLevelLoad));
-        add(new DrawSystem());
-        add(new VelocitySystem());
-        add(new PlayerSystem());
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        super.resize(width, height);
-        stage().ifPresent(
-                        x -> {
-                            x.getViewport().setWorldSize(width, height);
-                            x.getViewport().update(width, height, true);
-                        });
-    }
+    // ====================END LEVEL API====================
 }
