@@ -159,14 +159,27 @@ public class YesNoDialog {
             if (t.state() == Task.TaskState.FINISHED_CORRECT) output.append("korrekt ");
             else output.append("falsch ");
             output.append("gelöst");
+
+            // function to show the correct answer of the task
+            IVoidFunction showCorrectAnswer =
+                    () ->
+                            OkDialog.showOkDialog(
+                                    t.correctAnswersAsString(), "Korrekte Antwort", () -> {});
+
             OkDialog.showOkDialog(
                     output.toString(),
                     "Ergebnis",
                     () -> {
-                        // if task was finisehd wrong show correct answers
                         if (score < t.points()) {
-                            OkDialog.showOkDialog(
-                                    t.correctAnswersAsString(), "Korrekte Antwort", () -> {});
+                            // show explanation, if there is one and link the showing of correct answer
+                            // as followup OkDialog
+                            String explanation = t.taskExplanation();
+                            if (!explanation.isBlank()) {
+                                OkDialog.showOkDialog(explanation, "Erklärung", showCorrectAnswer);
+                            } else {
+                                // just show the correct answer
+                                showCorrectAnswer.execute();
+                            }
                         }
                     });
         };

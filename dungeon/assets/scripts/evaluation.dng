@@ -142,7 +142,8 @@ single_choice_task task1_a {
   "Man kann nicht auf den  Betriebssystemen Windows, MACOS und Linux in Python programmieren.",
   "Man kann in Python-Programmen die Zeilen einrücken, wie man möchte.", "Schlüsselfelder eignen sich nicht zum Indizieren von Daten.",
   "Keine davon ist richtig."],
-  correct_answer_index: 3
+  correct_answer_index: 3,
+  explanation: "Von den möglichen fachlichen Antworten ist keine korrekt."
 }
 
 
