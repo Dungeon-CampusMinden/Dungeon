@@ -2,8 +2,6 @@ package task;
 
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
-import contrib.item.Item;
-
 
 import core.Entity;
 import core.Game;
