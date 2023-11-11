@@ -196,6 +196,54 @@ public class AnswerPickingFunctionsTest {
     }
 
     @Test
+    public void singlechestpicker_otherQuestsItem() {
+        // setup question
+        SingleChoice sc = new SingleChoice("Dummy");
+        Quiz.Content answerA = new Quiz.Content("A");
+        Quiz.Content answerB = new Quiz.Content("B");
+        sc.addAnswer(answerA);
+        sc.addAnswer(answerB);
+        sc.addCorrectAnswerIndex(1);
+        sc.scoringFunction(GradingFunctions.singleChoiceGrading());
+        sc.answerPickingFunction(AnswerPickingFunctions.singleChestPicker());
+
+        // setup Chest
+        Entity chest = new Entity("Chest");
+        InventoryComponent ic = new InventoryComponent(3);
+        chest.addComponent(ic);
+        TaskContent containerTaskContent = new Element<>(sc, chest);
+        sc.addContainer(containerTaskContent);
+        chest.addComponent(new TaskContentComponent(containerTaskContent));
+        Game.add(chest);
+
+        // setup quest items
+        TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
+        TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+
+        // second question
+        SingleChoice sc2 = new SingleChoice("Dummy 2");
+        Quiz.Content answerA2 = new Quiz.Content("A2");
+        Quiz.Content answerB2 = new Quiz.Content("B2");
+        sc2.addAnswer(answerA2);
+        sc2.addAnswer(answerB2);
+        // setup quest items second question
+        TaskContentComponent answerA2Component = new TaskContentComponent(answerA2);
+        TaskContentComponent answerB2Component = new TaskContentComponent(answerB2);
+        QuestItem answerA2Item = new QuestItem(null, answerA2Component);
+        QuestItem answerB2Item = new QuestItem(null, answerB2Component);
+
+        Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.singleChestPicker();
+        // add answer to chest
+        ic.add(answerAItem);
+        ic.add(answerBItem);
+        ic.add(answerA2Item);
+        ic.add(answerB2Item);
+        assertEquals("Other Quest-Items should be ignored.", 2, callback.apply(sc).size());
+    }
+
+    @Test
     public void multiplechestpicker_questItemAnswers() {
         // setup question
         AssignTask ag = new AssignTask();
@@ -456,5 +504,84 @@ public class AnswerPickingFunctionsTest {
         Map<Element, Set<Element>> givenSol = (Map<Element, Set<Element>>) wrap.content();
         Map<Element, Set<Element>> expectedSol = new HashMap<>();
         assertEquals(sol, givenSol);
+    }
+
+    @Test
+    public void multiplechestpicker_otherQuestsItem() {
+        // setup question
+        AssignTask ag = new AssignTask();
+
+        Element answerA = new Element(ag, "A");
+        Element answerB = new Element(ag, "B");
+        Element answerC = new Element(ag, "C");
+        Element answerD = new Element(ag, "D");
+
+        HashSet<Element> containerASet = new HashSet<>();
+        Element containerA = new Element(ag, containerASet);
+        containerASet.add(answerA);
+        containerASet.add(answerB);
+        ag.addContainer(containerA);
+
+        HashSet<Element> containerBSet = new HashSet<>();
+        Element containerB = new Element(ag, containerBSet);
+        containerBSet.add(answerC);
+        containerBSet.add(answerD);
+        ag.addContainer(containerB);
+
+        Map<Element, Set<Element>> sol = new HashMap<>();
+        sol.put(containerA, (Set<Element>) containerA.content());
+        sol.put(containerB, (Set<Element>) containerB.content());
+        ag.solution(sol);
+
+        // setup Chests
+        Entity chestA = new Entity("Chest A");
+        InventoryComponent icA = new InventoryComponent(3);
+        chestA.addComponent(icA);
+        chestA.addComponent(new TaskContentComponent(containerA));
+        Game.add(chestA);
+
+        Entity chestB = new Entity("Chest B");
+        InventoryComponent icB = new InventoryComponent(3);
+        chestB.addComponent(icB);
+        chestB.addComponent(new TaskContentComponent(containerB));
+        Game.add(chestB);
+
+        // setup quest items
+        TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
+        TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
+        TaskContentComponent answerCComponent = new TaskContentComponent(answerC);
+        TaskContentComponent answerDComponent = new TaskContentComponent(answerD);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+        QuestItem answerCItem = new QuestItem(null, answerCComponent);
+        QuestItem answerDItem = new QuestItem(null, answerDComponent);
+
+        // second question
+        SingleChoice sc2 = new SingleChoice("Dummy 2");
+        Quiz.Content answerA2 = new Quiz.Content("A2");
+        Quiz.Content answerB2 = new Quiz.Content("B2");
+        sc2.addAnswer(answerA2);
+        sc2.addAnswer(answerB2);
+        // setup quest items second question
+        TaskContentComponent answerA2Component = new TaskContentComponent(answerA2);
+        TaskContentComponent answerB2Component = new TaskContentComponent(answerB2);
+        QuestItem answerA2Item = new QuestItem(null, answerA2Component);
+        QuestItem answerB2Item = new QuestItem(null, answerB2Component);
+
+        Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.multipleChestPicker();
+        // add answer to chest
+        icA.add(answerAItem);
+        icA.add(answerBItem);
+        icB.add(answerCItem);
+        icB.add(answerDItem);
+        icA.add(answerA2Item);
+        icB.add(answerB2Item);
+
+        Set<TaskContent> answer = callback.apply(ag);
+        // wrapper
+        assertEquals(1, answer.size());
+        Element wrap = (Element) answer.stream().findFirst().get();
+        Map<Element, Set<Element>> givenSol = (Map<Element, Set<Element>>) wrap.content();
+        assertEquals("Other Quest-Items should be ignored.", givenSol, sol);
     }
 }

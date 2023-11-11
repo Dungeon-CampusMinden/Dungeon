@@ -37,7 +37,8 @@ public class AnswerPickingFunctions {
      *
      * <p>This function assumes that the given answers are {@link QuestItem}s
      *
-     * <p>This function ignores other items in the container.
+     * <p>This function ignores other items in the container. Will also ignore QuestItems from other
+     * tasks.
      *
      * <p>Use this function as a callback for {@link task.quizquestion.SingleChoice} and {@link
      * task.quizquestion.MultipleChoice} Tasks.
@@ -66,7 +67,8 @@ public class AnswerPickingFunctions {
             Set<Item> answerItems = ic.items(QuestItem.class);
             Set<TaskContent> res = new HashSet<>();
             for (Item i : answerItems) {
-                res.add(((QuestItem) i).taskContentComponent().content());
+                TaskContent content = ((QuestItem) i).taskContentComponent().content();
+                if (content.task() == task) res.add(content);
             }
             return res;
         };
@@ -82,7 +84,8 @@ public class AnswerPickingFunctions {
      *
      * <p>This function assumes that the given answers are {@link QuestItem}s
      *
-     * <p>This function ignores other items in the container.
+     * <p>This function ignores other items in the container. Will also ignore QuestItems from other
+     * tasks.
      *
      * <p>Use this function as a callback for {@link task.AssignTask}s.
      *
@@ -114,7 +117,9 @@ public class AnswerPickingFunctions {
                                 Set<Item> answerItems = ic.items(QuestItem.class);
                                 Set<TaskContent> res = new HashSet<>();
                                 for (Item i : answerItems) {
-                                    res.add(((QuestItem) i).taskContentComponent().content());
+                                    TaskContent content =
+                                            ((QuestItem) i).taskContentComponent().content();
+                                    if (content.task() == task) res.add(content);
                                 }
                                 answerMap.put((TaskContent) containerContent, res);
                             });
