@@ -904,5 +904,40 @@ public class GameEnvironment implements IEvironment {
             return ICallable.Type.Native;
         }
     }
+
+    private static class HeroInventoryPicker extends NativeFunction {
+        private Function<Task, Set<TaskContent>> func;
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public HeroInventoryPicker(IScope parentScope, IType taskType, IType taskContentSetType) {
+            super(
+                    "answer_picker_hero_inventory",
+                    parentScope,
+                    new FunctionType(taskContentSetType, taskType));
+            this.func = AnswerPickingFunctions.heroInventoryPicker();
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Task task = (Task) parameterObjects.get(0);
+
+            // call func
+            return func.apply(task);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
     // endregion
 }
