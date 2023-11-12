@@ -803,5 +803,4 @@ public class AnswerPickingFunctionsTest {
         ic.add(answerB2Item);
         assertEquals("Other Quest-Items should be ignored.", 2, callback.apply(sc).size());
     }
-
 }
