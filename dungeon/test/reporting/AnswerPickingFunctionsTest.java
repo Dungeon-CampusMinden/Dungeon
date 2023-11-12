@@ -3,6 +3,7 @@ package reporting;
 import static org.junit.Assert.assertEquals;
 
 import contrib.components.InventoryComponent;
+import contrib.entities.EntityFactory;
 import contrib.item.Item;
 
 import core.Entity;
@@ -16,6 +17,7 @@ import task.*;
 import task.components.TaskContentComponent;
 import task.quizquestion.SingleChoice;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -584,4 +586,222 @@ public class AnswerPickingFunctionsTest {
         Map<Element, Set<Element>> givenSol = (Map<Element, Set<Element>>) wrap.content();
         assertEquals("Other Quest-Items should be ignored.", givenSol, sol);
     }
+
+    public void heroinventorypicker_twoQuestItems() throws IOException {
+        // setup question
+        SingleChoice sc = new SingleChoice("Dummy");
+        Quiz.Content answerA = new Quiz.Content("A");
+        Quiz.Content answerB = new Quiz.Content("B");
+        sc.addAnswer(answerA);
+        sc.addAnswer(answerB);
+        sc.addCorrectAnswerIndex(1);
+        sc.scoringFunction(GradingFunctions.singleChoiceGrading());
+        sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+
+        // setup hero
+        Entity hero = EntityFactory.newHero();
+        Game.hero(hero);
+        InventoryComponent ic = new InventoryComponent(3);
+        hero.addComponent(ic);
+        TaskContent containerTaskContent = new Element<>(sc, hero);
+        sc.addContainer(containerTaskContent);
+        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        Game.add(hero);
+
+        // setup quest items
+        TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
+        TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+
+        Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+        // add answer to chest
+        ic.add(answerAItem);
+        ic.add(answerBItem);
+        assertEquals(2, callback.apply(sc).size());
+    }
+
+    @Test
+    public void heroinventorypicker_twoQuestItemsOneItem() throws IOException {
+        // setup question
+        SingleChoice sc = new SingleChoice("Dummy");
+        Quiz.Content answerA = new Quiz.Content("A");
+        Quiz.Content answerB = new Quiz.Content("B");
+        sc.addAnswer(answerA);
+        sc.addAnswer(answerB);
+        sc.addCorrectAnswerIndex(1);
+        sc.scoringFunction(GradingFunctions.singleChoiceGrading());
+        sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+
+        // setup hero
+        Entity hero = EntityFactory.newHero();
+        Game.hero(hero);
+        InventoryComponent ic = new InventoryComponent(3);
+        hero.addComponent(ic);
+        TaskContent containerTaskContent = new Element<>(sc, hero);
+        sc.addContainer(containerTaskContent);
+        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        Game.add(hero);
+
+        // setup quest items
+        TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
+        TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+
+        Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+        // add answer to chest
+        ic.add(answerAItem);
+        ic.add(answerBItem);
+        ic.add(Mockito.mock(Item.class));
+        assertEquals(2, callback.apply(sc).size());
+    }
+
+    @Test
+    public void heroinventorypicker_zeroQuestItems() throws IOException {
+        // setup question
+        SingleChoice sc = new SingleChoice("Dummy");
+        Quiz.Content answerA = new Quiz.Content("A");
+        Quiz.Content answerB = new Quiz.Content("B");
+        sc.addAnswer(answerA);
+        sc.addAnswer(answerB);
+        sc.addCorrectAnswerIndex(1);
+        sc.scoringFunction(GradingFunctions.singleChoiceGrading());
+        sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+
+        // setup hero
+        Entity hero = EntityFactory.newHero();
+        Game.hero(hero);
+        InventoryComponent ic = new InventoryComponent(3);
+        hero.addComponent(ic);
+        TaskContent containerTaskContent = new Element<>(sc, hero);
+        sc.addContainer(containerTaskContent);
+        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        Game.add(hero);
+
+        // setup quest items
+        TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
+        TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+
+        Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+
+        assertEquals(0, callback.apply(sc).size());
+    }
+
+    @Test
+    public void heroinventorypicker_zeroQuestItemsTwoItems() throws IOException {
+        // setup question
+        SingleChoice sc = new SingleChoice("Dummy");
+        Quiz.Content answerA = new Quiz.Content("A");
+        Quiz.Content answerB = new Quiz.Content("B");
+        sc.addAnswer(answerA);
+        sc.addAnswer(answerB);
+        sc.addCorrectAnswerIndex(1);
+        sc.scoringFunction(GradingFunctions.singleChoiceGrading());
+        sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+
+        // setup hero
+        Entity hero = EntityFactory.newHero();
+        Game.hero(hero);
+        InventoryComponent ic = new InventoryComponent(3);
+        hero.addComponent(ic);
+        TaskContent containerTaskContent = new Element<>(sc, hero);
+        sc.addContainer(containerTaskContent);
+        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        Game.add(hero);
+
+        // setup quest items
+        TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
+        TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+
+        Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+        ic.add(Mockito.mock(Item.class));
+        ic.add(Mockito.mock(Item.class));
+        assertEquals(0, callback.apply(sc).size());
+    }
+
+    @Test
+    public void heroinventorypicker_empty() throws IOException {
+        // setup question
+        SingleChoice sc = new SingleChoice("Dummy");
+        Quiz.Content answerA = new Quiz.Content("A");
+        Quiz.Content answerB = new Quiz.Content("B");
+        sc.addAnswer(answerA);
+        sc.addAnswer(answerB);
+        sc.addCorrectAnswerIndex(1);
+        sc.scoringFunction(GradingFunctions.singleChoiceGrading());
+        sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+
+        // setup hero
+        Entity hero = EntityFactory.newHero();
+        Game.hero(hero);
+        InventoryComponent ic = new InventoryComponent(3);
+        hero.addComponent(ic);
+        TaskContent containerTaskContent = new Element<>(sc, hero);
+        sc.addContainer(containerTaskContent);
+        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        Game.add(hero);
+
+        // setup quest items
+        TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
+        TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+
+        Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+        assertEquals(0, callback.apply(sc).size());
+    }
+
+    @Test
+    public void heroinventorypicker_otherQuestsItem() throws IOException {
+        // setup question
+        SingleChoice sc = new SingleChoice("Dummy");
+        Quiz.Content answerA = new Quiz.Content("A");
+        Quiz.Content answerB = new Quiz.Content("B");
+        sc.addAnswer(answerA);
+        sc.addAnswer(answerB);
+        sc.addCorrectAnswerIndex(1);
+        sc.scoringFunction(GradingFunctions.singleChoiceGrading());
+        sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
+
+        // setup hero
+        Entity hero = EntityFactory.newHero();
+        Game.hero(hero);
+        InventoryComponent ic = new InventoryComponent(3);
+        hero.addComponent(ic);
+        TaskContent containerTaskContent = new Element<>(sc, hero);
+        sc.addContainer(containerTaskContent);
+        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        Game.add(hero);
+
+        // setup quest items
+        TaskContentComponent answerAComponent = new TaskContentComponent(answerA);
+        TaskContentComponent answerBComponent = new TaskContentComponent(answerB);
+        QuestItem answerAItem = new QuestItem(null, answerAComponent);
+        QuestItem answerBItem = new QuestItem(null, answerBComponent);
+
+        // second question
+        SingleChoice sc2 = new SingleChoice("Dummy 2");
+        Quiz.Content answerA2 = new Quiz.Content("A2");
+        Quiz.Content answerB2 = new Quiz.Content("B2");
+        sc2.addAnswer(answerA2);
+        sc2.addAnswer(answerB2);
+        // setup quest items second question
+        TaskContentComponent answerA2Component = new TaskContentComponent(answerA2);
+        TaskContentComponent answerB2Component = new TaskContentComponent(answerB2);
+        QuestItem answerA2Item = new QuestItem(null, answerA2Component);
+        QuestItem answerB2Item = new QuestItem(null, answerB2Component);
+        Function<Task, Set<TaskContent>> callback = AnswerPickingFunctions.heroInventoryPicker();
+        // add answer to chest
+        ic.add(answerAItem);
+        ic.add(answerBItem);
+        ic.add(answerA2Item);
+        ic.add(answerB2Item);
+        assertEquals("Other Quest-Items should be ignored.", 2, callback.apply(sc).size());
+    }
+
 }
