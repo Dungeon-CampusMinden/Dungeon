@@ -29,6 +29,7 @@ import dslinterop.dsltypeadapters.QuestItemAdapter;
 import dslinterop.dsltypeproperties.EntityExtension;
 import dslinterop.dsltypeproperties.QuestItemExtension;
 
+import dslinterop.nativescenariobuilder.NativeScenarioBuilder;
 import task.*;
 import task.components.TaskComponent;
 import task.components.TaskContentComponent;
@@ -340,6 +341,15 @@ public class GameEnvironment implements IEvironment {
             NativeFunction answerPickerMultiChest =
                     new AnswerPickerMultiChest(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(answerPickerMultiChest);
+        }
+
+        // native scenario builder functions
+        IType entitySetSetType = new SetType(entitySetType, this.globalScope);
+        var singleChoiceSymbol = this.globalScope.resolve("single_choice_task");
+        if (!singleChoiceSymbol.equals(Symbol.NULL)) {
+            IType singleChoiceTaskType = (IType) taskSymbol;
+            NativeFunction singleChoiceScenarioBuilderFunc = new SingleChoiceNativeScenarioBuilder(this.globalScope, singleChoiceTaskType, entitySetSetType);
+            nativeFunctions.add(singleChoiceScenarioBuilderFunc);
         }
 
         return nativeFunctions;
@@ -935,5 +945,40 @@ public class GameEnvironment implements IEvironment {
         }
     }
 
+    // endregion
+
+    // region native scenario builder function
+    private static class SingleChoiceNativeScenarioBuilder extends NativeFunction {
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public SingleChoiceNativeScenarioBuilder(IScope parentScope, IType singleChoiceType, IType entitySetSetType) {
+            super(
+                "$default_single_choice_scenario$",
+                parentScope,
+                new FunctionType(entitySetSetType, singleChoiceType));
+            this.func = GradingFunctions.assignGradingEasy();
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Quiz task = (Quiz) parameterObjects.get(0);
+
+            // call func
+            return NativeScenarioBuilder.quizOnHud(task);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
     // endregion
 }
