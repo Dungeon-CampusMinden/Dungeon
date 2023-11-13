@@ -346,16 +346,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 this.scenarioBuilderStorage.retrieveRandomScenarioBuilderForType(
                         (IType) potentialTaskType);
         if (scenarioBuilder.isEmpty()) {
-            // TODO: this should fall back on a hard coded Java builder method
             return Optional.empty();
         }
 
         Value retValue =
                 (Value) this.callCallableRawParameters(scenarioBuilder.get(), List.of(task));
-        /*Value retValue =
-        (Value)
-                this.executeUserDefinedFunctionRawParameters(
-                        scenarioBuilder.get(), List.of(task));*/
         var typeInstantiator = this.environment.getTypeInstantiator();
 
         // create the java representation of the return Value
