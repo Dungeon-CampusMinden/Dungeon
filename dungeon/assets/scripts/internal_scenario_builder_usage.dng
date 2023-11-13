@@ -7,9 +7,25 @@ single_choice_task meine_aufgabe {
     grading_function: grade_single_choice_task
 }
 
+assign_task meine_assign_aufgabe {
+  description: "Bitte ordne Elemente einander zu! Die Fragen beziehen sich auf Programmierung.",
+  solution: <
+      ["Elementaroperation", "anzahl = 0"],
+      ["Elementaroperation", "sinus(30)"],
+      ["Kontrollstruktur", "if"],
+      ["Kontrollstruktur", "if - else"],
+      ["Kontrollstruktur", "while"],
+      ["Kontrollstruktur", "do - while"],
+      ["Kontrollstruktur", "repeat - until"],
+      ["Basisanweisung", _],
+      [_, "Öffne die Tür."]
+  >
+}
+
 // Definition von Aufgabenabhängigkeiten
 graph task_graph {
     meine_aufgabe;
+    meine_assign_aufgabe;
 }
 
 // Übergabe der Aufgabenabhängigkeit an das Dungeon-System
