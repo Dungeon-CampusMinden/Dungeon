@@ -8,12 +8,13 @@ import core.Game;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 
-import petriNet.Place;
+import dsl.semanticanalysis.types.DSLType;
 
-import semanticanalysis.types.DSLType;
+import graph.petrinet.Place;
 
 import task.components.TaskComponent;
 import task.components.TaskContentComponent;
+import task.utils.gamecontent.QuestItem;
 
 import java.io.IOException;
 import java.nio.file.Files;

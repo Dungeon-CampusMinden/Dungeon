@@ -2,7 +2,7 @@ package dslToGame;
 
 import static org.junit.Assert.*;
 
-import dungeonFiles.DslFileLoader;
+import dslinput.DslFileLoader;
 
 import org.junit.Test;
 

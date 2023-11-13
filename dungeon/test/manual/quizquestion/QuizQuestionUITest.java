@@ -9,10 +9,13 @@ import contrib.systems.HudSystem;
 
 import core.Game;
 
-import task.Quiz;
 import task.Task;
 import task.TaskContent;
-import task.quizquestion.*;
+import task.tasktype.Quiz;
+import task.tasktype.quizquestion.FreeText;
+import task.tasktype.quizquestion.MultipleChoice;
+import task.tasktype.quizquestion.SingleChoice;
+import task.utils.hud.QuizUI;
 
 import java.util.Random;
 import java.util.Set;

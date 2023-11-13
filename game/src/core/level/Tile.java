@@ -12,7 +12,7 @@ import core.level.utils.LevelElement;
 import core.utils.Constants;
 import core.utils.Point;
 
-import semanticanalysis.types.DSLType;
+import dsl.semanticanalysis.types.DSLType;
 
 import java.util.ArrayList;
 import java.util.List;

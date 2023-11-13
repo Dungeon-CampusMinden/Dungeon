@@ -7,7 +7,7 @@ import core.Entity;
 import core.Game;
 import core.utils.IVoidFunction;
 
-import task.quizquestion.QuizUI;
+import task.utils.hud.QuizUI;
 
 import java.util.Objects;
 import java.util.function.BiFunction;

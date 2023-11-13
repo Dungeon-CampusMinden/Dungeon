@@ -12,16 +12,16 @@ import core.components.PositionComponent;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
-import dungeonFiles.DslFileLoader;
-import dungeonFiles.DungeonConfig;
+import dsl.interpreter.DSLInterpreter;
 
-import interpreter.DSLInterpreter;
+import dslinput.DslFileLoader;
+import dslinput.DungeonConfig;
 
-import task.Quiz;
 import task.Task;
 import task.TaskContent;
 import task.components.TaskComponent;
-import task.quizquestion.UIAnswerCallback;
+import task.tasktype.Quiz;
+import task.utils.hud.UIAnswerCallback;
 
 import java.io.IOException;
 import java.nio.file.Path;

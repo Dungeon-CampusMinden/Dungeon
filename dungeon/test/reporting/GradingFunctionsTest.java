@@ -11,8 +11,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import task.*;
-import task.quizquestion.MultipleChoice;
-import task.quizquestion.SingleChoice;
+import task.reporting.GradingFunctions;
+import task.tasktype.AssignTask;
+import task.tasktype.Element;
+import task.tasktype.Quiz;
+import task.tasktype.ReplacementTask;
+import task.tasktype.quizquestion.MultipleChoice;
+import task.tasktype.quizquestion.SingleChoice;
 
 import java.io.IOException;
 import java.util.ArrayList;
