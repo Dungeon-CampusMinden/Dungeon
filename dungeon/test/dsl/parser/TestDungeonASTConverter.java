@@ -6,11 +6,11 @@ import static org.junit.Assert.assertNotEquals;
 import dsl.helpers.Helpers;
 import dsl.parser.ast.*;
 
+import graph.taskdependencygraph.TaskEdge;
+
 import org.junit.Assert;
 import org.junit.Test;
 // CHECKSTYLE:OFF: AvoidStarImport
-
-import taskdependencygraph.TaskEdge;
 
 import java.util.List;
 

@@ -11,16 +11,16 @@ import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.types.*;
 
-import dungeonFiles.DSLEntryPoint;
-import dungeonFiles.DungeonConfig;
+import dslinput.DSLEntryPoint;
+import dslinput.DungeonConfig;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
-import task.Element;
-import task.Quiz;
 import task.Task;
-import task.taskdsltypes.AssignTaskDSLType;
+import task.dslinterop.AssignTaskDSLType;
+import task.tasktype.Element;
+import task.tasktype.Quiz;
 
 import java.util.*;
 

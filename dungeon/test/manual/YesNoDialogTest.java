@@ -9,8 +9,7 @@ import contrib.systems.HudSystem;
 import core.Game;
 import core.utils.IVoidFunction;
 
-import task.YesNoDialog;
-import task.quizquestion.*;
+import task.utils.hud.YesNoDialog;
 
 /**
  * This is a manual test for the YesNODialog.

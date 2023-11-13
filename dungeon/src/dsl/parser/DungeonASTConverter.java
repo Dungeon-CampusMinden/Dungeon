@@ -5,6 +5,9 @@ import antlr.main.DungeonDSLParser;
 
 import dsl.parser.ast.*;
 
+import graph.taskdependencygraph.TaskEdge;
+// CHECKSTYLE:ON: AvoidStarImport
+
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -14,9 +17,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
-
-import taskdependencygraph.TaskEdge;
-// CHECKSTYLE:ON: AvoidStarImport
 
 import java.util.ArrayList;
 import java.util.LinkedList;

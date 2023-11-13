@@ -7,10 +7,10 @@ import dsl.semanticanalysis.Symbol;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.IType;
 
-import dungeonFiles.DSLEntryPoint;
-import dungeonFiles.DslFileLoader;
-import dungeonFiles.DungeonConfig;
-import dungeonFiles.ParsedFile;
+import dslinput.DSLEntryPoint;
+import dslinput.DslFileLoader;
+import dslinput.DungeonConfig;
+import dslinput.ParsedFile;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

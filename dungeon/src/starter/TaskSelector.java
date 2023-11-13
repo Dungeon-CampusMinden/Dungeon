@@ -10,13 +10,13 @@ import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 
-import dungeonFiles.DSLEntryPoint;
+import dslinput.DSLEntryPoint;
 
-import task.Quiz;
 import task.Task;
 import task.TaskContent;
-import task.quizquestion.SingleChoice;
-import task.quizquestion.UIAnswerCallback;
+import task.tasktype.Quiz;
+import task.tasktype.quizquestion.SingleChoice;
+import task.utils.hud.UIAnswerCallback;
 
 import java.io.IOException;
 import java.util.Set;

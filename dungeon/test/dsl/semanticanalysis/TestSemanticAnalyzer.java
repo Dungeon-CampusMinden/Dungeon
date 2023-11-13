@@ -9,10 +9,10 @@ import dsl.runtime.GameEnvironment;
 import dsl.runtime.nativefunctions.NativePrint;
 import dsl.semanticanalysis.types.*;
 
+import graph.taskdependencygraph.TaskDependencyGraph;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import taskdependencygraph.TaskDependencyGraph;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

@@ -19,11 +19,11 @@ import core.utils.components.MissingComponentException;
 import dsl.interpreter.DSLEntryPointFinder;
 import dsl.interpreter.DSLInterpreter;
 
-import dungeonFiles.DSLEntryPoint;
-import dungeonFiles.DslFileLoader;
-import dungeonFiles.DungeonConfig;
+import dslinput.DSLEntryPoint;
+import dslinput.DslFileLoader;
+import dslinput.DungeonConfig;
 
-import graphconverter.TaskGraphConverter;
+import graph.graphconverter.TaskGraphConverter;
 
 import task.Task;
 

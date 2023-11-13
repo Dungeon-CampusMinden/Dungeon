@@ -7,11 +7,11 @@ import static org.junit.Assert.assertTrue;
 
 import core.Entity;
 
+import graph.petrinet.Place;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import petriNet.Place;
 
 import task.components.TaskComponent;
 

@@ -19,29 +19,28 @@ import dsl.runtime.nativefunctions.NativePrint;
 import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.types.*;
 
-import dslnativefunction.NativeInstantiate;
-import dslnativefunction.NativeInstantiateNamed;
+import dslinput.DungeonConfig;
 
-import dsltypeadapters.AIComponentAdapter;
-import dsltypeadapters.DrawComponentAdapter;
-import dsltypeadapters.QuestItemAdapter;
-
-import dsltypeproperties.EntityExtension;
-import dsltypeproperties.QuestItemExtension;
-
-import dungeonFiles.DungeonConfig;
-
-import reporting.AnswerPickingFunctions;
-import reporting.GradingFunctions;
+import dslinterop.dslnativefunction.NativeInstantiate;
+import dslinterop.dslnativefunction.NativeInstantiateNamed;
+import dslinterop.dsltypeadapters.AIComponentAdapter;
+import dslinterop.dsltypeadapters.DrawComponentAdapter;
+import dslinterop.dsltypeadapters.QuestItemAdapter;
+import dslinterop.dsltypeproperties.EntityExtension;
+import dslinterop.dsltypeproperties.QuestItemExtension;
 
 import task.*;
 import task.components.TaskComponent;
 import task.components.TaskContentComponent;
-import task.quizquestion.QuizUI;
-import task.taskdsltypes.AssignTaskDSLType;
-import task.taskdsltypes.MultipleChoiceTask;
-import task.taskdsltypes.SingleChoiceDescriptionProperty;
-import task.taskdsltypes.SingleChoiceTask;
+import task.dslinterop.*;
+import task.reporting.AnswerPickingFunctions;
+import task.reporting.GradingFunctions;
+import task.tasktype.AssignTask;
+import task.tasktype.Element;
+import task.tasktype.Quiz;
+import task.utils.gamecontent.QuestItem;
+import task.utils.hud.QuizUI;
+import task.utils.hud.YesNoDialog;
 
 import java.lang.reflect.Type;
 import java.util.*;

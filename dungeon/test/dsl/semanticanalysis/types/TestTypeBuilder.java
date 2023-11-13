@@ -7,10 +7,10 @@ import dsl.interpreter.mockecs.*;
 import dsl.semanticanalysis.Scope;
 import dsl.semanticanalysis.Symbol;
 
+import graph.taskdependencygraph.TaskDependencyGraph;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import taskdependencygraph.TaskDependencyGraph;
 
 import java.lang.reflect.InvocationTargetException;
 

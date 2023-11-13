@@ -1,14 +1,14 @@
 package dsl.interpreter;
 
-import dungeonFiles.DSLEntryPoint;
-import dungeonFiles.DungeonConfig;
+import dslinput.DSLEntryPoint;
+import dslinput.DungeonConfig;
+
+import graph.taskdependencygraph.TaskNode;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import task.Task;
-
-import taskdependencygraph.TaskNode;
 
 import java.net.URISyntaxException;
 import java.net.URL;

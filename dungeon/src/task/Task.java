@@ -10,10 +10,11 @@ import core.utils.components.MissingComponentException;
 
 import dsl.semanticanalysis.types.DSLType;
 
-import petriNet.Place;
+import graph.petrinet.Place;
 
 import task.components.TaskComponent;
 import task.components.TaskContentComponent;
+import task.utils.gamecontent.QuestItem;
 
 import java.io.IOException;
 import java.nio.file.Files;

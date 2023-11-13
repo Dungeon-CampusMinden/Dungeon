@@ -15,11 +15,14 @@ import core.components.PositionComponent;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
-import task.Quiz;
 import task.Task;
 import task.TaskContent;
 import task.components.TaskComponent;
-import task.quizquestion.*;
+import task.tasktype.Quiz;
+import task.tasktype.quizquestion.FreeText;
+import task.tasktype.quizquestion.MultipleChoice;
+import task.tasktype.quizquestion.SingleChoice;
+import task.utils.hud.UIAnswerCallback;
 
 import java.io.IOException;
 import java.util.Set;

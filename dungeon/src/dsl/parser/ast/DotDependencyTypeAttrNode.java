@@ -1,6 +1,6 @@
 package dsl.parser.ast;
 
-import taskdependencygraph.TaskEdge;
+import graph.taskdependencygraph.TaskEdge;
 
 public class DotDependencyTypeAttrNode extends DotAttrNode {
     public DotDependencyTypeAttrNode(DotDependencyTypeNode dependencyTypeNode) {

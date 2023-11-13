@@ -2,7 +2,8 @@ package petriNet;
 
 import static org.junit.Assert.assertEquals;
 
-import graphconverter.PetriNetFactory;
+import graph.graphconverter.PetriNetFactory;
+import graph.petrinet.PetriNet;
 
 import org.junit.Test;
 

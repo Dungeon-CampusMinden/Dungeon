@@ -4,7 +4,7 @@ import dsl.semanticanalysis.Symbol;
 import dsl.semanticanalysis.types.BuiltInType;
 import dsl.semanticanalysis.types.IType;
 
-import taskdependencygraph.TaskDependencyGraph;
+import graph.taskdependencygraph.TaskDependencyGraph;
 
 // TODO: should this be able to be undefined?
 

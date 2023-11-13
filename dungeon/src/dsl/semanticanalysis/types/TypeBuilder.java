@@ -11,7 +11,7 @@ import dsl.semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import dsl.semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
 import dsl.semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
 
-import taskdependencygraph.TaskDependencyGraph;
+import graph.taskdependencygraph.TaskDependencyGraph;
 
 import java.lang.reflect.*;
 import java.util.*;

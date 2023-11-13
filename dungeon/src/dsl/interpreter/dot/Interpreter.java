@@ -5,12 +5,12 @@ import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.*;
 import dsl.runtime.Value;
 
-import task.Task;
-
-import taskdependencygraph.TaskDependencyGraph;
+import graph.taskdependencygraph.TaskDependencyGraph;
 // CHECKSTYLE:OFF: AvoidStarImport
-import taskdependencygraph.TaskEdge;
-import taskdependencygraph.TaskNode;
+import graph.taskdependencygraph.TaskEdge;
+import graph.taskdependencygraph.TaskNode;
+
+import task.Task;
 
 import java.util.*;
 

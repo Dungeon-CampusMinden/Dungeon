@@ -3,6 +3,9 @@ package petriNet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
+import graph.petrinet.Place;
+import graph.petrinet.Transition;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 

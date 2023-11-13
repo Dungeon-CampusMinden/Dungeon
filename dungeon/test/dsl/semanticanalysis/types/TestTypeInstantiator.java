@@ -6,12 +6,12 @@ import dsl.runtime.AggregateValue;
 import dsl.runtime.MemorySpace;
 import dsl.semanticanalysis.Scope;
 
-import dungeonFiles.DungeonConfig;
+import dslinput.DungeonConfig;
+
+import graph.taskdependencygraph.TaskDependencyGraph;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import taskdependencygraph.TaskDependencyGraph;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
