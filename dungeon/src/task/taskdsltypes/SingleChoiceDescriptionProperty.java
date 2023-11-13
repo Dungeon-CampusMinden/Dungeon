@@ -1,7 +1,7 @@
 package task.taskdsltypes;
 
-import semanticanalysis.types.DSLTypeProperty;
-import semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.types.DSLTypeProperty;
+import dsl.semanticanalysis.types.IDSLTypeProperty;
 
 import task.Quiz;
 

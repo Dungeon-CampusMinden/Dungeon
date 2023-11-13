@@ -3,21 +3,21 @@ package dslnativefunction;
 import core.Component;
 import core.Entity;
 
-import interpreter.DSLInterpreter;
-
-import parser.ast.Node;
-
-import runtime.AggregateValue;
-import runtime.Prototype;
-import runtime.RuntimeEnvironment;
-import runtime.Value;
-import runtime.nativefunctions.NativeFunction;
-
-import semanticanalysis.ICallable;
-import semanticanalysis.IScope;
-import semanticanalysis.Scope;
-import semanticanalysis.Symbol;
-import semanticanalysis.types.*;
+import dsl.interpreter.DSLInterpreter;
+import dsl.parser.ast.Node;
+import dsl.runtime.AggregateValue;
+import dsl.runtime.Prototype;
+import dsl.runtime.RuntimeEnvironment;
+import dsl.runtime.Value;
+import dsl.runtime.nativefunctions.NativeFunction;
+import dsl.semanticanalysis.ICallable;
+import dsl.semanticanalysis.IScope;
+import dsl.semanticanalysis.Scope;
+import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.types.AggregateType;
+import dsl.semanticanalysis.types.BuiltInType;
+import dsl.semanticanalysis.types.FunctionType;
+import dsl.semanticanalysis.types.TypeInstantiator;
 
 import java.util.ArrayList;
 import java.util.List;

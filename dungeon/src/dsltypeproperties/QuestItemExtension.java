@@ -1,14 +1,15 @@
 package dsltypeproperties;
 
-import semanticanalysis.types.DSLTypeProperty;
-import semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.types.DSLTypeProperty;
+import dsl.semanticanalysis.types.IDSLExtensionMethod;
+import dsl.semanticanalysis.types.IDSLTypeProperty;
 
 import task.QuestItem;
 import task.components.TaskContentComponent;
 
 /**
- * Class, which stores dsl-extensions (e.g. {@link IDSLTypeProperty} or {@link
- * semanticanalysis.types.IDSLExtensionMethod}) for {@link QuestItem}s
+ * Class, which stores dsl-extensions (e.g. {@link IDSLTypeProperty} or {@link IDSLExtensionMethod})
+ * for {@link QuestItem}s
  */
 public class QuestItemExtension {
     // private ctor, because this class should not be instantiated

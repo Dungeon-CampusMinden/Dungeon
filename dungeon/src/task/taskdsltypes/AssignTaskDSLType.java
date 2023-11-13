@@ -2,9 +2,9 @@ package task.taskdsltypes;
 
 import static task.AssignTask.EMPTY_ELEMENT;
 
-import reporting.GradingFunctions;
+import dsl.semanticanalysis.types.*;
 
-import semanticanalysis.types.*;
+import reporting.GradingFunctions;
 
 import task.AssignTask;
 import task.Element;

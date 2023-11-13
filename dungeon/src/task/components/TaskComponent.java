@@ -4,7 +4,7 @@ import core.Component;
 import core.Entity;
 import core.level.elements.tile.DoorTile;
 
-import semanticanalysis.types.*;
+import dsl.semanticanalysis.types.*;
 
 import task.Task;
 

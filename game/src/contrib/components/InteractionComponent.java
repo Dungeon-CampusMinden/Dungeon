@@ -3,9 +3,9 @@ package contrib.components;
 import core.Component;
 import core.Entity;
 
-import semanticanalysis.types.DSLCallback;
-import semanticanalysis.types.DSLType;
-import semanticanalysis.types.DSLTypeMember;
+import dsl.semanticanalysis.types.DSLCallback;
+import dsl.semanticanalysis.types.DSLType;
+import dsl.semanticanalysis.types.DSLTypeMember;
 
 import java.util.function.BiConsumer;
 

@@ -9,18 +9,19 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 
-import helpers.Helpers;
-
-import interpreter.DSLInterpreter;
-import interpreter.TestEnvironment;
-import interpreter.mockecs.*;
+import dsl.helpers.Helpers;
+import dsl.interpreter.DSLInterpreter;
+import dsl.interpreter.TestEnvironment;
+import dsl.interpreter.mockecs.ExternalType;
+import dsl.interpreter.mockecs.ExternalTypeBuilder;
+import dsl.interpreter.mockecs.ExternalTypeBuilderMultiParam;
+import dsl.interpreter.mockecs.TestComponentWithExternalType;
+import dsl.runtime.AggregateValue;
+import dsl.runtime.GameEnvironment;
+import dsl.runtime.Value;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import runtime.AggregateValue;
-import runtime.GameEnvironment;
-import runtime.Value;
 
 public class TestRuntimeObjectTranslator {
     @Test
@@ -103,11 +104,11 @@ public class TestRuntimeObjectTranslator {
                 program,
                 env,
                 interpreter,
-                interpreter.mockecs.Entity.class,
+                dsl.interpreter.mockecs.Entity.class,
                 ExternalType.class,
                 TestComponentWithExternalType.class);
 
-        interpreter.mockecs.Entity entity = new interpreter.mockecs.Entity();
+        dsl.interpreter.mockecs.Entity entity = new dsl.interpreter.mockecs.Entity();
         TestComponentWithExternalType componentObject = new TestComponentWithExternalType(entity);
         componentObject.setMemberExternalType(ExternalTypeBuilder.buildExternalType("Hello"));
 
@@ -138,11 +139,11 @@ public class TestRuntimeObjectTranslator {
                 program,
                 env,
                 interpreter,
-                interpreter.mockecs.Entity.class,
+                dsl.interpreter.mockecs.Entity.class,
                 ExternalType.class,
                 TestComponentWithExternalType.class);
 
-        interpreter.mockecs.Entity entity = new interpreter.mockecs.Entity();
+        dsl.interpreter.mockecs.Entity entity = new dsl.interpreter.mockecs.Entity();
         TestComponentWithExternalType componentObject = new TestComponentWithExternalType(entity);
         componentObject.setMemberExternalType(ExternalTypeBuilder.buildExternalType("Hello"));
 

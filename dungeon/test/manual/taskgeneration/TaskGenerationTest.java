@@ -12,10 +12,10 @@ import core.components.PositionComponent;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 
+import dsl.interpreter.DSLInterpreter;
+
 import dungeonFiles.DslFileLoader;
 import dungeonFiles.DungeonConfig;
-
-import interpreter.DSLInterpreter;
 
 import task.Quiz;
 import task.Task;

@@ -16,14 +16,14 @@ import core.components.PlayerComponent;
 import core.level.elements.ILevel;
 import core.utils.components.MissingComponentException;
 
+import dsl.interpreter.DSLEntryPointFinder;
+import dsl.interpreter.DSLInterpreter;
+
 import dungeonFiles.DSLEntryPoint;
 import dungeonFiles.DslFileLoader;
 import dungeonFiles.DungeonConfig;
 
 import graphconverter.TaskGraphConverter;
-
-import interpreter.DSLEntryPointFinder;
-import interpreter.DSLInterpreter;
 
 import task.Task;
 

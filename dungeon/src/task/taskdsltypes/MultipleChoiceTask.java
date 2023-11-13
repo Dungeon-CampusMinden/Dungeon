@@ -1,8 +1,8 @@
 package task.taskdsltypes;
 
-import reporting.GradingFunctions;
+import dsl.semanticanalysis.types.*;
 
-import semanticanalysis.types.*;
+import reporting.GradingFunctions;
 
 import task.Quiz;
 import task.Task;

@@ -12,7 +12,7 @@ import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 
-import interpreter.DSLInterpreter;
+import dsl.interpreter.DSLInterpreter;
 
 import petriNet.PetriNet;
 

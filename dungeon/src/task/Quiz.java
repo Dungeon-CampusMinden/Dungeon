@@ -2,8 +2,8 @@ package task;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
-import semanticanalysis.types.DSLType;
-import semanticanalysis.types.DSLTypeMember;
+import dsl.semanticanalysis.types.DSLType;
+import dsl.semanticanalysis.types.DSLTypeMember;
 
 import task.quizquestion.FreeText;
 import task.quizquestion.MultipleChoice;

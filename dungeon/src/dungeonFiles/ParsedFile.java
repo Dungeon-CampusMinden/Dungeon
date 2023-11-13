@@ -1,6 +1,6 @@
 package dungeonFiles;
 
-import parser.ast.Node;
+import dsl.parser.ast.Node;
 
 import java.nio.file.Path;
 

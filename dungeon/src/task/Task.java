@@ -8,9 +8,9 @@ import core.Game;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 
-import petriNet.Place;
+import dsl.semanticanalysis.types.DSLType;
 
-import semanticanalysis.types.DSLType;
+import petriNet.Place;
 
 import task.components.TaskComponent;
 import task.components.TaskContentComponent;

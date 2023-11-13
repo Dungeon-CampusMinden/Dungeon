@@ -1,7 +1,7 @@
 package dungeonFiles;
 
-import semanticanalysis.types.DSLType;
-import semanticanalysis.types.DSLTypeMember;
+import dsl.semanticanalysis.types.DSLType;
+import dsl.semanticanalysis.types.DSLTypeMember;
 
 import taskdependencygraph.TaskDependencyGraph;
 

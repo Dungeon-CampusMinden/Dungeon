@@ -2,10 +2,9 @@ package dsltypeproperties;
 
 import core.Entity;
 
-import runtime.*;
-
-import semanticanalysis.types.AggregateType;
-import semanticanalysis.types.TypeBuilder;
+import dsl.runtime.*;
+import dsl.semanticanalysis.types.AggregateType;
+import dsl.semanticanalysis.types.TypeBuilder;
 
 /** This class translates an {@link Entity}-Object into a DSL Value for */
 public class EntityTranslator implements IObjectToValueTranslator {

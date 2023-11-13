@@ -2,8 +2,8 @@ package dsltypeadapters;
 
 import core.components.DrawComponent;
 
-import semanticanalysis.types.DSLTypeAdapter;
-import semanticanalysis.types.DSLTypeMember;
+import dsl.semanticanalysis.types.DSLTypeAdapter;
+import dsl.semanticanalysis.types.DSLTypeMember;
 
 import java.io.IOException;
 
