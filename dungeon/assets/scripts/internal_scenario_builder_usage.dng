@@ -1,0 +1,18 @@
+// Aufgabendefinition
+single_choice_task meine_aufgabe {
+    description: "Das ist der Aufgabentext",
+    answers: [ "1", "2", "3" ],
+    correct_answer_index: 2,
+    explanation: "Dieser Text wird angezeigt, falls die Aufgabe falsch beantwortet wird",
+    grading_function: grade_single_choice_task
+}
+
+// Definition von Aufgabenabhängigkeiten
+graph task_graph {
+    meine_aufgabe;
+}
+
+// Übergabe der Aufgabenabhängigkeit an das Dungeon-System
+dungeon_config meine_config {
+    dependency_graph: task_graph
+}
