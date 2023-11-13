@@ -4,37 +4,57 @@ title: "DSL Quickstart Guide"
 
 ## Definition einer Aufgabe
 
-- Beispiel für das “Hello World” Äquivalent für die DSL, Erstellung einer einfachen Aufgabe
+Im folgenden Beispiel wird ein Beispiel für die Definition einer Single Choice Frage dargestellt:
 
 ```
-// file: my_simple_task.ds
+// datei: example.dng
 
-task my_task {
-    text: "Das ist der Aufgabentext",
-    answers: {
-        A: 1,
-        B: 2,
-        C: 3
-    },
-    correct_answer: answers.B,
-    type: SINGLE_CHOICE
+// Aufgabendefinition
+single_choice_task meine_aufgabe {
+    description: "Das ist der Aufgabentext",
+    answers: [ "1", "2", "3" ],
+    correct_answer_index: 2,
+    explanation: "Dieser Text wird angezeigt, falls die Aufgabe falsch beantwortet wird",
+    grading_function: single_choice_grading
 }
 
-level_config my_config {
-    task: my_task
+// Definition von Aufgabenabhängigkeiten
+graph task_graph {
+    meine_aufgabe;
+}
+
+// Übergabe der Aufgabenabhängigkeit an das Dungeon-System
+dungeon_config meine_config {
+    dependency_graph: task_graph
 }
 ```
 
-- Hier folgen einige Bilder, die zeigen, wie die Übersetzung der Definition im Dungeon Level
-  aussieht
+Mit der `single_choice_task`-Definition wird eine neue Aufgabe definiert.
+`single_choice_task` ist dabei der Typ der Aufgabendefinition und legt fest, welche weiteren Informationen
+konfiguriert werden müssen (für weitere Aufgabentypen: siehe Doku zu Daten für Aufgabentypen - TODO).
+`meine_aufgabe` ist ein frei wählbarer Name für die Definition und dient dazu,
+die Aufgabendefinition im weiteren Verlauf der `.dng`-Datei zu referenzieren.
+Dabei werden der Aufgabentext (`description`), die möglichen Antworten (als Liste von Strings, `answers`)
+und die korrekte Antwort als
+Index in die `answers`-Liste (`correct_answer_index`) übergeben, diese Informationen sind zwingend
+für Aufgabendefinition nötig. Es kann außerdem eine Erklärung (`explanation`) angegeben werden, welche
+den Spielenden gezeigt wird, falls sie die Aufgabe falsch beantworten. Per `grading_function` wird
+die Bewertungsfunktion angegeben, welche die Bewertung der Aufgabe umsetzt. Für jede Aufgabenart
+ist eine default-Bewertungsfunktion vorhanden, die verwendet wird, falls keine Bewertungsfunktion
+explizit in der Aufgabendefinition durch Nutzende konfiguriert wird.
 
-- Hier folgt die Beschreibung der einzelnen Komponenten dieses Beispiels:
+Die einzelne Aufgabendefinition wird noch nicht vom Dungeon-System eingelesen. Um eine Aufgabendefinition
+an das Dungeon-System zu übergeben, muss sie in einem Abhängigkeitsgraph (`graph`) referenziert werden.
+In einem Abhängigkeitsgraph können mehrere Aufgaben miteinander in Abhängigkeit zueinander gesetzt werden
+(siehe dafür Doku Abhängigkeitsgraph - TODO). Soll eine Aufgabe keine Abhängigkeiten zu anderen Aufgaben
+haben, reicht es aus, sie einfach mit ihrem Namen in der `graph`-Definition zu referenzieren.
 
-  - Task-Definition
-  - Level-Config
+Der Abhängigkeitsgraph muss anschließend noch in einer `dungeon_config`-Definition referenziert werden.
+Diesen Definitionen stellen den "Einstiegspunkt" für das Dungeon-System dar.
 
-- Hier wird beschrieben, wie man die obige Definition in den Dungeon lädt und startet, da
-  ist aktuell noch unklar, wie das funktioniert
+TODO:
+- Bilder, wie das dann nachher aussieht
+
 
 ## Konfiguration der Bewertung von Aufgaben
 
