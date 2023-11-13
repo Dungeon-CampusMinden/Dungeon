@@ -353,7 +353,8 @@ public class CraftingGUI extends CombinableGUI {
         this.updateRecipe();
     }
 
-    private void cancel() {
+    /** Allows to reset the CraftingGUI moving all Items back to the Inventory they came from. */
+    public void cancel() {
         this.items.forEach(this.targetInventory::add);
         this.items.clear();
         this.updateRecipe();

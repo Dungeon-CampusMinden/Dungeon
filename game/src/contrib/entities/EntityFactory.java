@@ -457,15 +457,17 @@ public class EntityFactory {
                         (entity, who) ->
                                 who.fetch(InventoryComponent.class)
                                         .ifPresent(
-                                                ic ->
-                                                        who.addComponent(
-                                                                new UIComponent(
-                                                                        new GUICombination(
-                                                                                new InventoryGUI(
-                                                                                        ic),
-                                                                                new CraftingGUI(
-                                                                                        ic)),
-                                                                        true)))));
+                                                ic -> {
+                                                    CraftingGUI craftingGUI = new CraftingGUI(ic);
+                                                    UIComponent component =
+                                                            new UIComponent(
+                                                                    new GUICombination(
+                                                                            new InventoryGUI(ic),
+                                                                            craftingGUI),
+                                                                    true);
+                                                    component.onClose(craftingGUI::cancel);
+                                                    who.addComponent(component);
+                                                })));
         return cauldron;
     }
 
