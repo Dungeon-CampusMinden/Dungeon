@@ -62,9 +62,7 @@ public class QuizUI {
                                     IVoidFunction showCorrectAnswer =
                                             () ->
                                                     OkDialog.showOkDialog(
-                                                            "'"
-                                                                    + task.correctAnswersAsString()
-                                                                    + "'",
+                                                            task.correctAnswersAsString(),
                                                             "Korrekte Antwort",
                                                             () -> {});
 

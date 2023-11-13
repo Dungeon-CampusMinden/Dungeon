@@ -163,9 +163,7 @@ public class YesNoDialog {
             IVoidFunction showCorrectAnswer =
                     () ->
                             OkDialog.showOkDialog(
-                                    "'" + t.correctAnswersAsString() + "'",
-                                    "Korrekte Antwort",
-                                    () -> {});
+                                    t.correctAnswersAsString(), "Korrekte Antwort", () -> {});
 
             OkDialog.showOkDialog(
                     output.toString(),
