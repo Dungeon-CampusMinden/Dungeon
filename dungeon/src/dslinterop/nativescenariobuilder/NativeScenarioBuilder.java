@@ -8,17 +8,15 @@ import contrib.entities.WorldItemBuilder;
 import contrib.hud.GUICombination;
 import contrib.hud.OkDialog;
 import contrib.hud.UITools;
-
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.draw.ChestAnimations;
+
 import core.Entity;
-import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimationPriorities;
-import core.utils.components.draw.CoreAnimations;
+
 import task.Task;
 import task.TaskContent;
 import task.components.TaskComponent;
@@ -64,8 +62,9 @@ public class NativeScenarioBuilder {
         Set<Entity> roomSet = new HashSet<>();
 
         // set scenario text
-        task.scenarioText("Die Schriftrollen enthalten die Antworten. Ordne die Schriftrollen " +
-            "den passenden Quest-Truhen zu!");
+        task.scenarioText(
+                "Die Schriftrollen enthalten die Antworten. Ordne die Schriftrollen "
+                        + "den passenden Quest-Truhen zu!");
         // set answer picker function
         task.answerPickingFunction(AnswerPickingFunctions.multipleChestPicker());
 
@@ -88,7 +87,9 @@ public class NativeScenarioBuilder {
             for (var element : entry.getValue()) {
                 if (!element.equals(AssignTask.EMPTY_ELEMENT)) {
                     Animation animation =
-                        new Animation("items/book/wisdom_scroll.png", CoreAnimationPriorities.DEFAULT.priority());
+                            new Animation(
+                                    "items/book/wisdom_scroll.png",
+                                    CoreAnimationPriorities.DEFAULT.priority());
                     TaskContentComponent tcc = new TaskContentComponent(element);
                     QuestItem questItem = new QuestItem(animation, tcc);
                     Entity worldItem = WorldItemBuilder.buildWorldItem(questItem);
@@ -107,7 +108,8 @@ public class NativeScenarioBuilder {
                     chest.addComponent(new InventoryComponent());
 
                     chest.removeComponent(InteractionComponent.class);
-                    chest.addComponent(new InteractionComponent(1.5f, true, QuestChestInventoryInteraction()));
+                    chest.addComponent(
+                            new InteractionComponent(1.5f, true, QuestChestInventoryInteraction()));
 
                     // mark as task container
                     var tcc = new TaskContentComponent();
@@ -117,7 +119,7 @@ public class NativeScenarioBuilder {
                     task.addContent(key);
                     task.addContainer(key);
                     roomSet.add(chest);
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
             }
@@ -129,17 +131,17 @@ public class NativeScenarioBuilder {
 
     private static InteractionComponent askOnInteractionQuiz(Quiz quiz) {
         return new InteractionComponent(
-            1,
-            true,
-            (thisEntity, otherEntity) -> {
-                if (quiz.state().equals(Task.TaskState.ACTIVE)
-                    || quiz.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
-                    QuizUI.askQuizOnHud(quiz);
-                } else {
-                    OkDialog.showOkDialog(
-                        "Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
-                }
-            });
+                1,
+                true,
+                (thisEntity, otherEntity) -> {
+                    if (quiz.state().equals(Task.TaskState.ACTIVE)
+                            || quiz.state().equals(Task.TaskState.PROCESSING_ACTIVE)) {
+                        QuizUI.askQuizOnHud(quiz);
+                    } else {
+                        OkDialog.showOkDialog(
+                                "Du hast die Aufgabe schon bearbeitet.", "Info", () -> {});
+                    }
+                });
     }
 
     private static BiConsumer<Entity, Entity> QuestChestInventoryInteraction() {
@@ -155,51 +157,51 @@ public class NativeScenarioBuilder {
                 TaskContent content = optionalTcc.get().content();
                 Task task = content.task();
                 inventory =
-                    new InventoryGUI(content + " (Quest: '" + task.taskName() + "')", chestIc);
+                        new InventoryGUI(content + " (Quest: '" + task.taskName() + "')", chestIc);
             }
 
             UIComponent uiComponent =
-                new UIComponent(new GUICombination(new InventoryGUI(otherIc), inventory), true);
+                    new UIComponent(new GUICombination(new InventoryGUI(otherIc), inventory), true);
             uiComponent.onClose(
-                () ->
-                    chest.fetch(DrawComponent.class)
-                        .ifPresent(
-                            interactedDC -> {
-                                // remove all prior
-                                // opened animations
-                                interactedDC.deQueueByPriority(
-                                    ChestAnimations.OPEN_FULL.priority());
-                                if (chestIc.count() > 0) {
-                                    // aslong as
-                                    // there is an
-                                    // item inside
-                                    // the chest
-                                    // show a full
-                                    // chest
-                                    interactedDC.queueAnimation(
-                                        ChestAnimations.OPEN_FULL);
-                                } else {
-                                    // empty chest
-                                    // show the
-                                    // empty
-                                    // animation
-                                    interactedDC.queueAnimation(
-                                        ChestAnimations.OPEN_EMPTY);
-                                }
-                            }));
+                    () ->
+                            chest.fetch(DrawComponent.class)
+                                    .ifPresent(
+                                            interactedDC -> {
+                                                // remove all prior
+                                                // opened animations
+                                                interactedDC.deQueueByPriority(
+                                                        ChestAnimations.OPEN_FULL.priority());
+                                                if (chestIc.count() > 0) {
+                                                    // aslong as
+                                                    // there is an
+                                                    // item inside
+                                                    // the chest
+                                                    // show a full
+                                                    // chest
+                                                    interactedDC.queueAnimation(
+                                                            ChestAnimations.OPEN_FULL);
+                                                } else {
+                                                    // empty chest
+                                                    // show the
+                                                    // empty
+                                                    // animation
+                                                    interactedDC.queueAnimation(
+                                                            ChestAnimations.OPEN_EMPTY);
+                                                }
+                                            }));
             other.addComponent(uiComponent);
             chest.fetch(DrawComponent.class)
-                .ifPresent(
-                    interactedDC -> {
-                        // only add opening animation when it is not
-                        // finished
-                        if (interactedDC
-                            .getAnimation(ChestAnimations.OPENING)
-                            .map(animation -> !animation.isFinished())
-                            .orElse(true)) {
-                            interactedDC.queueAnimation(ChestAnimations.OPENING);
-                        }
-                    });
+                    .ifPresent(
+                            interactedDC -> {
+                                // only add opening animation when it is not
+                                // finished
+                                if (interactedDC
+                                        .getAnimation(ChestAnimations.OPENING)
+                                        .map(animation -> !animation.isFinished())
+                                        .orElse(true)) {
+                                    interactedDC.queueAnimation(ChestAnimations.OPENING);
+                                }
+                            });
         };
     }
 

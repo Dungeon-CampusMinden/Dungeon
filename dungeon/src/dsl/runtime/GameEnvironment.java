@@ -347,7 +347,7 @@ public class GameEnvironment implements IEvironment {
         // native scenario builder functions
         var entitySetSetSymbol = this.globalScope.resolve("entity<><>");
         SetType entitySetSetType;
-        if (entitySetSetSymbol.equals(Symbol.NULL) ) {
+        if (entitySetSetSymbol.equals(Symbol.NULL)) {
             entitySetSetType = new SetType(entitySetType, this.globalScope);
             this.globalScope.bind(entitySetSetType);
         } else {
@@ -366,8 +366,8 @@ public class GameEnvironment implements IEvironment {
         if (!multipleChoiceSymbol.equals(Symbol.NULL)) {
             IType multipleChoiceTaskType = (IType) multipleChoiceSymbol;
             NativeFunction multipleChoiceScenarioBuilderFunc =
-                new MultipleChoiceNativeScenarioBuilder(
-                    this.globalScope, multipleChoiceTaskType, entitySetSetType);
+                    new MultipleChoiceNativeScenarioBuilder(
+                            this.globalScope, multipleChoiceTaskType, entitySetSetType);
             nativeFunctions.add(multipleChoiceScenarioBuilderFunc);
         }
 
@@ -375,8 +375,8 @@ public class GameEnvironment implements IEvironment {
         if (!assignSymbol.equals(Symbol.NULL)) {
             IType assignTaskType = (IType) assignSymbol;
             NativeFunction assignTaskNativeScenarioBuilder =
-                new AssignTaskNativeScenarioBuilder(
-                    this.globalScope, assignTaskType, entitySetSetType);
+                    new AssignTaskNativeScenarioBuilder(
+                            this.globalScope, assignTaskType, entitySetSetType);
             nativeFunctions.add(assignTaskNativeScenarioBuilder);
         }
 
@@ -1017,11 +1017,11 @@ public class GameEnvironment implements IEvironment {
          * @param parentScope parent scope of this function
          */
         public MultipleChoiceNativeScenarioBuilder(
-            IScope parentScope, IType multipleChoiceType, IType entitySetSetType) {
+                IScope parentScope, IType multipleChoiceType, IType entitySetSetType) {
             super(
-                "$default_multiple_choice_scenario$",
-                parentScope,
-                new FunctionType(entitySetSetType, multipleChoiceType));
+                    "$default_multiple_choice_scenario$",
+                    parentScope,
+                    new FunctionType(entitySetSetType, multipleChoiceType));
         }
 
         @Override
@@ -1050,11 +1050,11 @@ public class GameEnvironment implements IEvironment {
          * @param parentScope parent scope of this function
          */
         public AssignTaskNativeScenarioBuilder(
-            IScope parentScope, IType assignTaskType, IType entitySetSetType) {
+                IScope parentScope, IType assignTaskType, IType entitySetSetType) {
             super(
-                "$default_assign_task_scenario$",
-                parentScope,
-                new FunctionType(entitySetSetType, assignTaskType));
+                    "$default_assign_task_scenario$",
+                    parentScope,
+                    new FunctionType(entitySetSetType, assignTaskType));
         }
 
         @Override

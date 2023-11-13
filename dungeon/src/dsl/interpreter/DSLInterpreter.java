@@ -294,9 +294,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                         symbol -> {
                             if (symbol instanceof ICallable callable) {
                                 FunctionType functionType = callable.getFunctionType();
-                                if (!functionType
-                                        .getReturnType()
-                                        .equals(returnType)) {
+                                if (!functionType.getReturnType().equals(returnType)) {
                                     return false;
                                 }
                                 if (functionType.getParameterTypes().size() != 1) {
