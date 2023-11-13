@@ -179,8 +179,11 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
                 innerTypeNode.accept(this);
             }
             var innerType = globalScope.resolveType(innerTypeNode.getName());
-            ListType listType = new ListType(innerType, globalScope);
-            globalScope.bind(listType);
+            Symbol listTypeSymbol = globalScope.resolve(ListType.getListTypeName(innerType));
+            if (listTypeSymbol.equals(Symbol.NULL)) {
+                ListType listType = new ListType(innerType, globalScope);
+                globalScope.bind(listType);
+            }
         }
         return null;
     }
@@ -201,8 +204,11 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
                 innerTypeNode.accept(this);
             }
             var innerType = globalScope.resolveType(innerTypeNode.getName());
-            SetType setType = new SetType(innerType, globalScope);
-            globalScope.bind(setType);
+            Symbol setTypeSymbol = globalScope.resolve(SetType.getSetTypeName(innerType));
+            if (setTypeSymbol.equals(Symbol.NULL)) {
+                SetType setType = new SetType(innerType, globalScope);
+                globalScope.bind(setType);
+            }
         }
         return null;
     }
