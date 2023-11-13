@@ -4,6 +4,8 @@ import contrib.components.InventoryComponent;
 import contrib.item.Item;
 
 import core.Entity;
+import core.Game;
+import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 
 import task.Element;
@@ -124,6 +126,39 @@ public class AnswerPickingFunctions {
                                 answerMap.put((TaskContent) containerContent, res);
                             });
             return Set.of(wrapperElement);
+        };
+    }
+
+    /**
+     * This Callback will check the heroes inventory and will return a Collection that contains each
+     * TaskContent if the given task in the container.
+     *
+     * <p>This function assumes that the given answers are {@link QuestItem}s
+     *
+     * <p>This function ignores other items in the container.
+     *
+     * <p>Use this function as a callback for {@link task.quizquestion.SingleChoice} and {@link
+     * task.quizquestion.MultipleChoice} Tasks.
+     *
+     * @return Function that can be used as a callback for {@link
+     *     Task#answerPickingFunction(Function)}
+     */
+    public static Function<Task, Set<TaskContent>> heroInventoryPicker() {
+        return task -> {
+            Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
+            InventoryComponent ic =
+                    hero.fetch(InventoryComponent.class)
+                            .orElseThrow(
+                                    () ->
+                                            MissingComponentException.build(
+                                                    hero, InventoryComponent.class));
+            Set<Item> answerItems = ic.items(QuestItem.class);
+            Set<TaskContent> res = new HashSet<>();
+            for (Item i : answerItems) {
+                TaskContent content = ((QuestItem) i).taskContentComponent().content();
+                if (content.task() == task) res.add(content);
+            }
+            return res;
         };
     }
 }
