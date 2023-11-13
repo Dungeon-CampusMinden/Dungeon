@@ -3,6 +3,7 @@ package dsl.interpreter;
 import dsl.runtime.IEvironment;
 import dsl.runtime.Value;
 import dsl.semanticanalysis.FunctionSymbol;
+import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.FunctionType;
 import dsl.semanticanalysis.types.IType;
@@ -17,7 +18,7 @@ import java.util.*;
  * type is the key (as {@link IType}).
  */
 public class ScenarioBuilderStorage {
-    HashMap<IType, List<FunctionSymbol>> storedScenarioBuilders;
+    HashMap<IType, List<ICallable>> storedScenarioBuilders;
     HashMap<IType, ArrayDeque<Integer>> lastRetrievedBuilderIdxs;
 
     /** Constructor. */
@@ -78,16 +79,16 @@ public class ScenarioBuilderStorage {
      * maps to {@link Task} and return an `entity<><>` {@link Value}. The client code is responsible
      * to ensure this!
      *
-     * @param functionSymbol the {@link FunctionSymbol} to store as a scenario builder method.
+     * @param callable the {@link FunctionSymbol} to store as a scenario builder method.
      */
-    public void storeScenarioBuilder(FunctionSymbol functionSymbol) {
+    public void storeScenarioBuilder(ICallable callable) {
         // retrieve list for task type
         // the first parametertype denotes the task type
-        IType taskType = functionSymbol.getFunctionType().getParameterTypes().get(0);
+        IType taskType = callable.getFunctionType().getParameterTypes().get(0);
 
         if (storedScenarioBuilders.containsKey(taskType)) {
             var list = storedScenarioBuilders.get(taskType);
-            list.add(functionSymbol);
+            list.add(callable);
         }
 
         // clear last retrieved builders for this type
@@ -104,13 +105,13 @@ public class ScenarioBuilderStorage {
      *     for the given {@link IType}. If this {@link ScenarioBuilderStorage} does not store such a
      *     scenario builder, an empty {@link Optional} is returned.
      */
-    public Optional<FunctionSymbol> retrieveRandomScenarioBuilderForType(IType type) {
-        Optional<FunctionSymbol> returnSymbol = Optional.empty();
+    public Optional<ICallable> retrieveRandomScenarioBuilderForType(IType type) {
+        Optional<ICallable> returnSymbol = Optional.empty();
         if (!storedScenarioBuilders.containsKey(type)) {
             return returnSymbol;
         }
 
-        List<FunctionSymbol> list = storedScenarioBuilders.get(type);
+        List<ICallable> list = storedScenarioBuilders.get(type);
         if (list.size() == 0) {
             return returnSymbol;
         }
@@ -166,8 +167,8 @@ public class ScenarioBuilderStorage {
         int idx = idxsWithLowestCount.get(randomInt);
 
         // retrieve the function symbol by idx
-        FunctionSymbol symbol = list.get(idx);
+        ICallable callable = list.get(idx);
         lastRetrievedIdxs.add(idx);
-        return Optional.of(symbol);
+        return Optional.of(callable);
     }
 }

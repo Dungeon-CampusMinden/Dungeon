@@ -292,9 +292,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         symbols.stream()
                 .filter(
                         symbol -> {
-                            if (symbol instanceof FunctionSymbol functionSymbol) {
-                                FunctionType functionType = functionSymbol.getFunctionType();
-                                if (!functionType.getReturnType().equals(returnType)) {
+                            if (symbol instanceof ICallable callable) {
+                                FunctionType functionType = callable.getFunctionType();
+                                if (!functionType
+                                        .getReturnType()
+                                        .equals(returnType)) {
                                     return false;
                                 }
                                 if (functionType.getParameterTypes().size() != 1) {
@@ -308,7 +310,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                             }
                             return false;
                         })
-                .map(symbol -> (FunctionSymbol) symbol)
+                .map(symbol -> (ICallable) symbol)
                 .forEach(this.scenarioBuilderStorage::storeScenarioBuilder);
     }
 
@@ -340,7 +342,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             throw new RuntimeException("Not a supported task type!");
         }
 
-        Optional<FunctionSymbol> scenarioBuilder =
+        Optional<ICallable> scenarioBuilder =
                 this.scenarioBuilderStorage.retrieveRandomScenarioBuilderForType(
                         (IType) potentialTaskType);
         if (scenarioBuilder.isEmpty()) {
@@ -349,9 +351,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
 
         Value retValue =
-                (Value)
-                        this.executeUserDefinedFunctionRawParameters(
-                                scenarioBuilder.get(), List.of(task));
+                (Value) this.callCallableRawParameters(scenarioBuilder.get(), List.of(task));
+        /*Value retValue =
+        (Value)
+                this.executeUserDefinedFunctionRawParameters(
+                        scenarioBuilder.get(), List.of(task));*/
         var typeInstantiator = this.environment.getTypeInstantiator();
 
         // create the java representation of the return Value
