@@ -1,6 +1,7 @@
 package task;
 
 import contrib.components.InventoryComponent;
+import contrib.components.ItemComponent;
 
 import core.Entity;
 import core.Game;
@@ -437,12 +438,40 @@ public abstract class Task {
         else state(TaskState.FINISHED_WRONG);
         achievedPoints = score;
 
-        dropQuestItems();
+        removeQuestItems();
         return score;
     }
 
-    private void dropQuestItems() {
+    private void removeQuestItems() {
         Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+        Task t = this;
+        // remove all quest items in invetorys
+        Game.allEntities()
+                .filter(entity -> entity.isPresent(InventoryComponent.class))
+                .forEach(entity -> removeQuestItemFromInventory(entity));
+        Game.allEntities()
+                .filter(entity -> entity.isPresent(ItemComponent.class))
+                .forEach(
+                        entity -> {
+                            ItemComponent ic =
+                                    entity.fetch(ItemComponent.class)
+                                            .orElseThrow(
+                                                    () ->
+                                                            MissingComponentException.build(
+                                                                    entity, ItemComponent.class));
+                            if (ic.item() instanceof QuestItem) {
+                                if (((QuestItem) ic.item())
+                                        .taskContentComponent()
+                                        .content()
+                                        .task()
+                                        .equals(t)) {
+                                    Game.remove(entity);
+                                }
+                            }
+                        });
+    }
+
+    private void removeQuestItemFromInventory(Entity hero) {
         InventoryComponent ic =
                 hero.fetch(InventoryComponent.class)
                         .orElseThrow(
