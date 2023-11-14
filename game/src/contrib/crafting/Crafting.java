@@ -7,8 +7,6 @@ import contrib.item.Item;
 
 import core.utils.logging.CustomLogLevel;
 
-import starter.RandomDungeon;
-
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
@@ -140,8 +138,7 @@ public class Crafting {
                 LOGGER.info("Load recipe: " + file.getName());
                 Recipe r =
                         parseRecipe(
-                                Crafting.class.getResourceAsStream(
-                                        "/recipes/" + file.getName()),
+                                Crafting.class.getResourceAsStream("/recipes/" + file.getName()),
                                 file.getName());
                 if (r != null) Crafting.RECIPES.add(r);
             }
