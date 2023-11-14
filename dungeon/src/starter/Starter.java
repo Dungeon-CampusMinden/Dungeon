@@ -161,7 +161,6 @@ public class Starter {
         // load the task selector level
         Game.userOnLevelLoad(
                 (firstTime) -> {
-                    loadCounter++;
                     // this will be at the start of the game
                     if (firstTime && TaskSelector.selectedDSLEntryPoint == null) {
                         try {
