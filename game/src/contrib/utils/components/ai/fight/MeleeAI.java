@@ -31,15 +31,10 @@ public class MeleeAI implements Consumer<Entity> {
         this.fightSkill = fightSkill;
     }
 
-    public MeleeAI(final float attackRange) {
-        fightSkill = null;
-        this.attackRange = attackRange;
-    }
-
     @Override
     public void accept(final Entity entity) {
         if (LevelUtils.playerInRange(entity, attackRange)) {
-            if (fightSkill != null) fightSkill.execute(entity);
+            fightSkill.execute(entity);
         } else {
             if (path == null || timeSinceLastUpdate >= delay) {
                 path = LevelUtils.calculatePathToHero(entity);
