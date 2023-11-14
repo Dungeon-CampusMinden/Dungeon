@@ -3,10 +3,7 @@ package core.gui.backend.opengl;
 import static core.gui.backend.opengl.OpenGLUtil.log;
 
 import core.Assets;
-import core.gui.GUIColorPane;
-import core.gui.GUIElement;
-import core.gui.GUIImage;
-import core.gui.IGUIBackend;
+import core.gui.*;
 import core.utils.logging.CustomLogLevel;
 import core.utils.math.Matrix4f;
 import core.utils.math.Vector2i;
@@ -59,7 +56,7 @@ public class OpenGLBackend implements IGUIBackend {
     }
 
     @Override
-    public void render(List<GUIElement> elements) {
+    public void render(List<GUIElement> elements, boolean updateNextFrame) {
 
         if (GLFW.glfwGetKey(GLFW.glfwGetCurrentContext(), GLFW.GLFW_KEY_F12) == GLFW.GLFW_PRESS) {
             GL33.glPolygonMode(GL33.GL_FRONT_AND_BACK, GL33.GL_LINE);
@@ -68,12 +65,14 @@ public class OpenGLBackend implements IGUIBackend {
         }
 
         GL33.glClear(GL33.GL_DEPTH_BUFFER_BIT);
-        { // Render to Framebuffer
+        if (updateNextFrame
+                || elements.stream().anyMatch(e -> !e.valid())) { // Render to Framebuffer
             GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, this.bufferRenderContext.frameBuffer);
             GL33.glViewport(0, 0, this.size.x(), this.size.y());
             GL33.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             GL33.glClear(GL33.GL_COLOR_BUFFER_BIT);
 
+            log(CustomLogLevel.DEBUG, "Updating GUI.");
             this.renderGUI(elements);
 
             if (DRAW_DEBUG_IMAGE) this.renderDebug();

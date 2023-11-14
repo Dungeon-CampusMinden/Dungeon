@@ -3,10 +3,13 @@ package core.gui.backend.opengl;
 import core.gui.GUIColorPane;
 import core.gui.GUIElement;
 import core.gui.GUIImage;
+import core.utils.logging.CustomLogLevel;
 import core.utils.math.Matrix4f;
 import core.utils.math.Vector2f;
 
 import org.lwjgl.opengl.GL33;
+
+import java.lang.reflect.Field;
 
 public class OpenGLElementRenderers {
 
@@ -36,6 +39,7 @@ public class OpenGLElementRenderers {
                 GL33.glBindTexture(GL33.GL_TEXTURE_2D, image.glTextureHandle);
                 context.draw();
                 context.end();
+                validate(element);
             };
 
     public static IOpenGLRenderFunction renderGUIColorPane =
@@ -55,6 +59,7 @@ public class OpenGLElementRenderers {
 
                 context.draw();
                 context.end();
+                validate(element);
             };
 
     private static Matrix4f createModelMatrix(GUIElement element) {
@@ -66,5 +71,21 @@ public class OpenGLElementRenderers {
         model = model.multiply(Matrix4f.rotateY(element.rotation().y()));
         model = model.multiply(Matrix4f.rotateZ(element.rotation().z()));
         return model;
+    }
+
+    private static void validate(GUIElement element) {
+        if (element.valid()) return;
+        try {
+            Field f = GUIElement.class.getDeclaredField("valid");
+            f.setAccessible(true);
+            f.setBoolean(element, true);
+            f.setAccessible(false);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            OpenGLUtil.log(
+                    CustomLogLevel.WARNING,
+                    "Failed to validate element: %s",
+                    e,
+                    element.getClass().getSimpleName());
+        }
     }
 }

@@ -10,9 +10,9 @@ public interface IGUIBackend {
     /**
      * Renders the given elements.
      *
-     * @param elements The elements to render.
+     * @param elements The elements to be drawn.
      */
-    void render(List<GUIElement> elements);
+    void render(List<GUIElement> elements, boolean updateNextFrame);
 
     void resize(int width, int height);
 
