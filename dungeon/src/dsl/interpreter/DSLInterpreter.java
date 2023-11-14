@@ -479,7 +479,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         } else if (type.getTypeKind().equals(IType.Kind.EnumType)) {
             return new EnumValue((EnumType) type, null);
         } else if (type.getTypeKind().equals(IType.Kind.FunctionType)) {
-            return FunctionValue.NONE;
+            return (Value) FunctionValue.NONE.clone();
         }
         return Value.NONE;
     }
