@@ -64,6 +64,7 @@ public abstract class Task {
     protected List<TaskContent> content;
     protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
     protected Function<Task, Set<TaskContent>> answerPickingFunction;
+    protected Function<? extends Task, Set<Set<Entity>>> scenarioBuilderFunction;
     protected float points;
     protected Set<TaskContent> container;
     private TaskState state;
@@ -221,6 +222,24 @@ public abstract class Task {
      */
     public String scenarioText() {
         return scenarioText;
+    }
+
+    /**
+     * Get the forced scenario builder.
+     *
+     * @return the scenario builder
+     */
+    public Function<? extends Task, Set<Set<Entity>>> scenarioBuilderFunction() {
+        return this.scenarioBuilderFunction;
+    }
+
+    /**
+     * Set the forced scenario builder.
+     *
+     * @param func new scenario builder
+     */
+    public void scenarioBuilderFunction(Function<? extends Task, Set<Set<Entity>>> func) {
+        this.scenarioBuilderFunction = func;
     }
 
     /**

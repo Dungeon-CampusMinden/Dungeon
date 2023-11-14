@@ -2,6 +2,8 @@ package task.dslinterop;
 
 import static task.tasktype.AssignTask.EMPTY_ELEMENT;
 
+import core.Entity;
+
 import dsl.semanticanalysis.types.*;
 
 import task.Task;
@@ -28,12 +30,17 @@ public class AssignTaskDSLType {
             @DSLTypeMember(name = "solution") Set<List<Element<String>>> solution,
             @DSLTypeMember(name = "explanation") String explanation,
             @DSLTypeMember(name = "grading_function")
-                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
-
+                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction,
+            @DSLTypeMember(name = "scenario_builder")
+                    Function<AssignTask, Set<Set<Entity>>> scenarioBuilder) {
         AssignTask task = new AssignTask();
         task.taskText(description);
         task.taskName(name);
         task.explanation(explanation);
+
+        if (scenarioBuilder != null) {
+            task.scenarioBuilderFunction(scenarioBuilder);
+        }
 
         if (points > 0.0f && pointsToPass > 0.0f) {
             task.points(points, pointsToPass);

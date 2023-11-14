@@ -1,5 +1,7 @@
 package task.dslinterop;
 
+import core.Entity;
+
 import dsl.semanticanalysis.types.*;
 
 import task.Task;
@@ -27,10 +29,16 @@ public class SingleChoiceTask {
             @DSLTypeMember(name = "correct_answer_index") int correctAnswerIndex,
             @DSLTypeMember(name = "explanation") String explanation,
             @DSLTypeMember(name = "grading_function")
-                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction) {
+                    BiFunction<Task, Set<TaskContent>, Float> gradingFunction,
+            @DSLTypeMember(name = "scenario_builder")
+                    Function<SingleChoice, Set<Set<Entity>>> scenarioBuilder) {
         SingleChoice sc = new SingleChoice(description);
         sc.taskName(name);
         sc.explanation(explanation);
+
+        if (scenarioBuilder != null) {
+            sc.scenarioBuilderFunction(scenarioBuilder);
+        }
 
         if (points > 0.0f && pointsToPass > 0.0f) {
             sc.points(points, pointsToPass);
