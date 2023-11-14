@@ -10,6 +10,7 @@ import dsl.runtime.*;
 import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.types.*;
+import dsl.semanticanalysis.types.callbackadapter.CallbackAdapter;
 
 import dslinput.DSLEntryPoint;
 import dslinput.DungeonConfig;
@@ -340,15 +341,21 @@ public class DSLInterpreter implements AstVisitor<Object> {
             throw new RuntimeException("Not a supported task type!");
         }
 
-        Optional<ICallable> scenarioBuilder =
-                this.scenarioBuilderStorage.retrieveRandomScenarioBuilderForType(
-                        (IType) potentialTaskType);
-        if (scenarioBuilder.isEmpty()) {
-            return Optional.empty();
+        ICallable scenarioBuilder;
+        if (task.scenarioBuilderFunction() != null) {
+            var cba = (CallbackAdapter) task.scenarioBuilderFunction();
+            scenarioBuilder = cba.callable();
+        } else {
+            Optional<ICallable> optionalScenarioBuilder =
+                    this.scenarioBuilderStorage.retrieveRandomScenarioBuilderForType(
+                            (IType) potentialTaskType);
+            if (optionalScenarioBuilder.isEmpty()) {
+                return Optional.empty();
+            }
+            scenarioBuilder = optionalScenarioBuilder.get();
         }
 
-        Value retValue =
-                (Value) this.callCallableRawParameters(scenarioBuilder.get(), List.of(task));
+        Value retValue = (Value) this.callCallableRawParameters(scenarioBuilder, List.of(task));
         var typeInstantiator = this.environment.getTypeInstantiator();
 
         // create the java representation of the return Value
