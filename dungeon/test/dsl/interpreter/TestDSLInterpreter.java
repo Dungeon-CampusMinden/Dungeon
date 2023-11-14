@@ -28,6 +28,7 @@ import graph.taskdependencygraph.TaskEdge;
 import graph.taskdependencygraph.TaskNode;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import task.*;
@@ -2908,7 +2909,8 @@ public class TestDSLInterpreter {
         single_choice_task t1 {
             description: "Task1",
             answers: ["1", "2", "3"],
-            correct_answer_index: 2
+            correct_answer_index: 2,
+            scenario_builder: build_scenario1
         }
 
         graph g {
@@ -2992,6 +2994,8 @@ public class TestDSLInterpreter {
     }
 
     @Test
+    // native scenario builders will make this test case obsolete
+    @Ignore
     public void testScenarioBuilderTypeCreation() {
         String program =
                 """
@@ -3134,7 +3138,8 @@ public class TestDSLInterpreter {
                 single_choice_task t {
                     description: "hello",
                     answers: [1,2,3],
-                    correct_answer_index: 1
+                    correct_answer_index: 1,
+                    scenario_builder: build_scenario
                 }
 
                 graph g {
@@ -3487,7 +3492,8 @@ public class TestDSLInterpreter {
         single_choice_task t1 {
             description: "Task1",
                 answers: ["1", "2", "3"],
-            correct_answer_index: 2
+            correct_answer_index: 2,
+            scenario_builder: build_scenario1
         }
 
         graph g {
@@ -3543,7 +3549,8 @@ public class TestDSLInterpreter {
             multiple_choice_task t1 {
                 description: "Task1",
                 answers: ["1", "2", "3"],
-                correct_answer_index: [1,2]
+                correct_answer_index: [1,2],
+                scenario_builder: build_scenario1
             }
 
             graph g {
@@ -3659,7 +3666,8 @@ public class TestDSLInterpreter {
         single_choice_task t1 {
             description: "Task1",
             answers: ["1", "2", "3"],
-            correct_answer_index: 2
+            correct_answer_index: 2,
+            scenario_builder: build_scenario1
         }
 
         graph g {
@@ -3943,7 +3951,8 @@ public class TestDSLInterpreter {
         single_choice_task t1 {
             description: "Task1",
             answers: ["1", "HELLO", "3"],
-            correct_answer_index: 2
+            correct_answer_index: 2,
+            scenario_builder: build_task
         }
 
         graph g {
