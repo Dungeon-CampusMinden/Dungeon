@@ -11,14 +11,6 @@ public class BorderLayout implements IGUILayout {
 
     // Reihenfolge: N, E, S, W, C
 
-    public enum BorderLayoutPosition {
-        NORTH,
-        EAST,
-        SOUTH,
-        WEST,
-        CENTER
-    }
-
     /**
      * The mode of the border layout.
      *
@@ -51,37 +43,8 @@ public class BorderLayout implements IGUILayout {
                     "BorderLayout only handles up to 5 direct child elements!");
         }
 
-        GUIElement[] array = new GUIElement[5];
-        elements.forEach(
-                e -> {
-                    if (e.layoutHint() != null
-                            && e.layoutHint() instanceof BorderLayoutHint hint
-                            && hint.position() != null) {
-                        array[hint.position().ordinal()] = e;
-                    }
-                });
-        elements.forEach(
-                e -> {
-                    if (e.layoutHint() == null
-                            || !(e.layoutHint() instanceof BorderLayoutHint hint)
-                            || hint.position() == null) {
-                        for (int i = 0; i < array.length; i++) {
-                            if (array[i] == null) {
-                                array[i] = e;
-                                break;
-                            }
-                        }
-                    }
-                });
-
-        Vector2f[] sizes =
-                new Vector2f[] {
-                    array[0] != null ? array[0].size() : Vector2f.zero(),
-                    array[1] != null ? array[1].size() : Vector2f.zero(),
-                    array[2] != null ? array[2].size() : Vector2f.zero(),
-                    array[3] != null ? array[3].size() : Vector2f.zero(),
-                    array[4] != null ? array[4].size() : Vector2f.zero()
-                };
+        GUIElement[] array = getArrangedElementes(elements);
+        Vector2f[] sizes = getSizes(array);
 
         // NORTH
         if (array[0] != null) {
@@ -96,6 +59,12 @@ public class BorderLayout implements IGUILayout {
                         .x(sizes[3].x())
                         .y(parent.size().y() - size.y()); // Stick to bottom left edge
             }
+            if (element.minimalSize().y() > element.size().y()) {
+                element.size().y(element.minimalSize().y());
+            }
+            if (element.minimalSize().x() > element.size().x()) {
+                element.size().x(element.minimalSize().x());
+            }
         }
 
         // SOUTH
@@ -108,6 +77,12 @@ public class BorderLayout implements IGUILayout {
             } else if (this.mode == BorderLayoutMode.VERTICAL) { // South gets remaining width
                 element.size().x(parent.size().x() - sizes[1].x() - sizes[3].x()).y(size.y());
                 element.position().x(sizes[3].x()).y(0); // Stick to top left edge
+            }
+            if (element.minimalSize().y() > element.size().y()) {
+                element.size().y(element.minimalSize().y());
+            }
+            if (element.minimalSize().x() > element.size().x()) {
+                element.size().x(element.minimalSize().x());
             }
         }
 
@@ -124,6 +99,12 @@ public class BorderLayout implements IGUILayout {
                 element.size().x(size.x()).y(parent.size().y());
                 element.position().x(parent.size().x() - size.x()).y(0); // Stick to top right edge
             }
+            if (element.minimalSize().y() > element.size().y()) {
+                element.size().y(element.minimalSize().y());
+            }
+            if (element.minimalSize().x() > element.size().x()) {
+                element.size().x(element.minimalSize().x());
+            }
         }
 
         // WEST
@@ -137,6 +118,12 @@ public class BorderLayout implements IGUILayout {
                 element.size().x(size.x()).y(parent.size().y());
                 element.position().x(0).y(0); // Stick to top left edge
             }
+            if (element.minimalSize().y() > element.size().y()) {
+                element.size().y(element.minimalSize().y());
+            }
+            if (element.minimalSize().x() > element.size().x()) {
+                element.size().x(element.minimalSize().x());
+            }
         }
 
         // CENTER
@@ -147,6 +134,63 @@ public class BorderLayout implements IGUILayout {
                     .x(parent.size().x() - sizes[1].x() - sizes[3].x())
                     .y(parent.size().y() - sizes[0].y() - sizes[2].y());
             element.position().x(sizes[3].x()).y(sizes[2].y()); // Stick to bottom left edge
+
+            if (element.minimalSize().y() > element.size().y()) {
+                element.size().y(element.minimalSize().y());
+            }
+            if (element.minimalSize().x() > element.size().x()) {
+                element.size().x(element.minimalSize().x());
+            }
         }
+    }
+
+    @Override
+    public Vector2f calcMinSize(GUIElement parent, List<GUIElement> elements) {
+        GUIElement[] array = getArrangedElementes(elements);
+        Vector2f[] sizes = getSizes(array);
+
+        float width = 0;
+        float height = 0;
+        height += sizes[0].y(); // North
+        height += sizes[2].y(); // South
+        height += sizes[4].y(); // Center
+        width += sizes[1].x(); // East
+        width += sizes[3].x(); // West
+        width += sizes[4].x(); // Center
+
+        return new Vector2f(width, height);
+    }
+
+    private GUIElement[] getArrangedElementes(List<GUIElement> elements) {
+        GUIElement[] array = new GUIElement[5];
+        elements.forEach(
+                e -> {
+                    if (e.layoutHint() != null && e.layoutHint() instanceof BorderLayoutHint hint) {
+                        array[hint.ordinal()] = e;
+                    }
+                });
+        elements.forEach(
+                e -> {
+                    if (e.layoutHint() == null
+                            || !(e.layoutHint() instanceof BorderLayoutHint hint)) {
+                        for (int i = 0; i < array.length; i++) {
+                            if (array[i] == null) {
+                                array[i] = e;
+                                break;
+                            }
+                        }
+                    }
+                });
+        return array;
+    }
+
+    private Vector2f[] getSizes(GUIElement[] arrangedElements) {
+        return new Vector2f[] {
+            arrangedElements[0] != null ? arrangedElements[0].minimalSize() : Vector2f.zero(),
+            arrangedElements[1] != null ? arrangedElements[1].minimalSize() : Vector2f.zero(),
+            arrangedElements[2] != null ? arrangedElements[2].minimalSize() : Vector2f.zero(),
+            arrangedElements[3] != null ? arrangedElements[3].minimalSize() : Vector2f.zero(),
+            arrangedElements[4] != null ? arrangedElements[4].minimalSize() : Vector2f.zero()
+        };
     }
 }

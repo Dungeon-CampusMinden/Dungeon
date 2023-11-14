@@ -10,7 +10,7 @@ public abstract class GUIElement {
     protected Vector2f position;
     protected Vector2f size;
     protected Vector3f rotation;
-    protected GUIElement parent;
+    protected GUIContainer parent;
     protected LayoutHint layoutHint;
     protected Vector4f backgroundColor;
     protected BackendImage backgroundImage;
@@ -27,6 +27,20 @@ public abstract class GUIElement {
         this.size = size;
         this.rotation = rotation;
     }
+
+    /**
+     * Get the minimal size of the element.
+     *
+     * @return {@link Vector2f} representing the minimal size.
+     */
+    public abstract Vector2f minimalSize();
+
+    /**
+     * Get the preferred size of the element.
+     *
+     * @return {@link Vector2f} representing the preferred size.
+     */
+    public abstract Vector2f preferredSize();
 
     /**
      * Get the position vector
@@ -164,9 +178,12 @@ public abstract class GUIElement {
     public void pack() {}
 
     /**
-     * This method is called when there is an GUIEvent for this element.
+     * This method is called when the element receives an event.
      *
      * @param event GUIEvent
      */
     public void event(GUIEvent event) {}
+
+    /** This method is called when the element should be updated. */
+    public void update() {}
 }

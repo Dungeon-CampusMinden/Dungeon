@@ -1,3 +1,3 @@
 package core.gui;
 
-public abstract class LayoutHint {}
+public interface LayoutHint {}
