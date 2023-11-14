@@ -40,6 +40,10 @@ public class CallbackAdapter implements Consumer, TriConsumer, BiConsumer {
         return convertValueToObject(returnValue);
     }
 
+    public ICallable callable() {
+        return this.callable;
+    }
+
     protected Object convertValueToObject(Value value) {
         return this.rtEnv.getTypeInstantiator().instantiate(value);
     }
