@@ -224,11 +224,8 @@ public class TypeBuilder {
                                 ? convertToDSLName(forType.getSimpleName())
                                 : annotation.name();
 
-                // create adapterType
-                var adapterType = createAdapterType(forType, dslTypeName, method, parentScope);
+                createAdapterType(forType, dslTypeName, method, parentScope);
 
-                this.javaTypeToDSLType.put(forType, adapterType);
-                parentScope.bind((Symbol) adapterType);
                 return;
             }
         }
@@ -244,6 +241,8 @@ public class TypeBuilder {
 
         var typeAdapter =
                 new AggregateTypeAdapter(dslTypeName, parentScope, forType, adapterMethod);
+        this.javaTypeToDSLType.put(forType, typeAdapter);
+        parentScope.bind(typeAdapter);
 
         // bind symbol for each parameter in the adapterMethod
         for (var parameter : adapterMethod.getParameters()) {
