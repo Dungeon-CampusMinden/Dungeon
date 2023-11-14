@@ -3,6 +3,7 @@ package core.gui.backend.opengl;
 import core.gui.GUIColorPane;
 import core.gui.GUIElement;
 import core.gui.GUIImage;
+import core.gui.util.Logging;
 import core.utils.logging.CustomLogLevel;
 import core.utils.math.Matrix4f;
 import core.utils.math.Vector2f;
@@ -81,7 +82,7 @@ public class OpenGLElementRenderers {
             f.setBoolean(element, true);
             f.setAccessible(false);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            OpenGLUtil.log(
+            Logging.log(
                     CustomLogLevel.WARNING,
                     "Failed to validate element: %s",
                     e,

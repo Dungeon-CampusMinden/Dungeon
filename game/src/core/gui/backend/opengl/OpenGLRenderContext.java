@@ -1,5 +1,6 @@
 package core.gui.backend.opengl;
 
+import core.gui.util.Logging;
 import core.utils.logging.CustomLogLevel;
 
 import org.lwjgl.opengl.GL33;
@@ -24,7 +25,7 @@ public class OpenGLRenderContext {
 
     public void begin() {
         if (this.begun) {
-            OpenGLUtil.log(CustomLogLevel.WARNING, "OpenGLRenderStructure.begin() called twice!");
+            Logging.log(CustomLogLevel.WARNING, "OpenGLRenderStructure.begin() called twice!");
         }
         GL33.glBindVertexArray(this.vao);
         GL33.glUseProgram(this.shader);
@@ -37,7 +38,7 @@ public class OpenGLRenderContext {
             GL33.glBindVertexArray(0);
             this.begun = false;
         } else {
-            OpenGLUtil.log(
+            Logging.log(
                     CustomLogLevel.WARNING, "OpenGLRenderStructure.end() called before .begin()!");
         }
     }
@@ -46,7 +47,7 @@ public class OpenGLRenderContext {
         if (this.begun) {
             GL33.glDrawElements(GL33.GL_TRIANGLE_STRIP, 4, GL33.GL_UNSIGNED_SHORT, 0);
         } else {
-            OpenGLUtil.log(
+            Logging.log(
                     CustomLogLevel.WARNING,
                     "OpenGLRenderStructure.draw() called before .begin()! Not drawing.");
         }
@@ -59,13 +60,13 @@ public class OpenGLRenderContext {
             int location = GL33.glGetUniformLocation(this.shader, name);
             this.uniformLocations.put(name, location);
             if (location == -1) {
-                OpenGLUtil.log(
+                Logging.log(
                         CustomLogLevel.WARNING,
                         "Uniform '%s' not found in shader program %d\n",
                         name,
                         this.shader);
             } else {
-                OpenGLUtil.log(
+                Logging.log(
                         CustomLogLevel.DEBUG,
                         "Found uniform '%s' in shader program %d@%d\n",
                         name,

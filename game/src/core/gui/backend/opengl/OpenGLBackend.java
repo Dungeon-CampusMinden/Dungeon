@@ -1,9 +1,10 @@
 package core.gui.backend.opengl;
 
-import static core.gui.backend.opengl.OpenGLUtil.log;
+import static core.gui.util.Logging.log;
 
 import core.Assets;
 import core.gui.*;
+import core.gui.util.Logging;
 import core.utils.logging.CustomLogLevel;
 import core.utils.math.Matrix4f;
 import core.utils.math.Vector2i;
@@ -85,7 +86,7 @@ public class OpenGLBackend implements IGUIBackend {
         // Screenshot
         if (GLFW.glfwGetKey(GLFW.glfwGetCurrentContext(), GLFW.GLFW_KEY_F2) == GLFW.GLFW_PRESS) {
             String path = OpenGLUtil.screenshot();
-            OpenGLUtil.log(CustomLogLevel.INFO, "Saved screenshot to %s", path);
+            Logging.log(CustomLogLevel.INFO, "Saved screenshot to %s", path);
         }
     }
 

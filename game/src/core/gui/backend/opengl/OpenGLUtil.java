@@ -1,5 +1,6 @@
 package core.gui.backend.opengl;
 
+import core.gui.util.Logging;
 import core.utils.logging.CustomLogLevel;
 
 import org.lwjgl.opengl.GL11;
@@ -11,15 +12,12 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Utility class for OpenGL. */
 public class OpenGLUtil {
 
-    private static final Logger LOGGER = Logger.getLogger(OpenGLUtil.class.getName());
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT =
             new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
 
@@ -93,13 +91,17 @@ public class OpenGLUtil {
                         "Failed to link shader program: "
                                 + GL33.glGetProgramInfoLog(shaderProgramHandle));
             } else {
-                log(
+                Logging.log(
                         CustomLogLevel.DEBUG,
                         "Successfully linked shader program (%d)",
                         shaderProgramHandle);
             }
         } catch (IOException | OpenGLException ex) {
-            log(CustomLogLevel.ERROR, "Failed to load & compile shader: %s", ex, ex.getMessage());
+            Logging.log(
+                    CustomLogLevel.ERROR,
+                    "Failed to load & compile shader: %s",
+                    ex,
+                    ex.getMessage());
             GL33.glDeleteProgram(shaderProgramHandle);
             return -1;
         } finally {
@@ -265,47 +267,5 @@ public class OpenGLUtil {
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, GL33.GL_CLAMP_TO_EDGE);
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, GL33.GL_CLAMP_TO_EDGE);
         return textureHandle;
-    }
-
-    /**
-     * Log a message to the console and the logger.
-     *
-     * @param level Log level.
-     * @param format Message format.
-     * @param args Message arguments.
-     */
-    public static void log(Level level, String format, Object... args) {
-        if (!format.endsWith("\n") && !format.endsWith("%n")) format += "\n";
-        if (level == CustomLogLevel.ERROR
-                || level == CustomLogLevel.SEVERE
-                || level == Level.WARNING) {
-            System.err.printf("[" + level.getName() + "] " + format, args);
-        } else {
-            System.out.printf("[" + level.getName() + "] " + format, args);
-        }
-        LOGGER.log(level, String.format(format, args));
-    }
-
-    /**
-     * Log a message to the console and the logger.
-     *
-     * @param level Log level.
-     * @param format Message format.
-     * @param throwable Throwable to log.
-     * @param args Message arguments.
-     */
-    public static void log(Level level, String format, Throwable throwable, Object... args) {
-        if (!format.endsWith("\n") && !format.endsWith("%n")) format += "\n";
-        format = "[" + level.getName() + "] " + format;
-        if (level == CustomLogLevel.ERROR
-                || level == CustomLogLevel.SEVERE
-                || level == Level.WARNING) {
-            System.err.printf("[" + level.getName() + "] " + format, args);
-            throwable.printStackTrace(System.err);
-        } else {
-            System.out.printf("[" + level.getName() + "] " + format, args);
-            throwable.printStackTrace(System.out);
-        }
-        LOGGER.log(level, String.format(format, args), throwable);
     }
 }
