@@ -7,6 +7,8 @@ import com.badlogic.gdx.math.MathUtils;
 import contrib.utils.components.health.DamageType;
 
 import core.utils.Point;
+import core.utils.components.draw.Animation;
+import core.utils.components.draw.IPath;
 
 import java.util.function.Supplier;
 
@@ -18,8 +20,18 @@ import java.util.function.Supplier;
  */
 public class FireballSkill extends DamageProjectile {
 
-    private static final String PROJECTILE_TEXTURES = "skills/fireball";
-    private static final String PROJECTILE_SOUND = "sounds/fireball.wav";
+    private static final Animation PROJECTILE_TEXTURES = Animation.of("skills/fireball");
+    private static final IPath PROJECTILE_SOUND = new IPath(){
+        @Override
+        public String pathString() {
+            return "sounds/fireball.wav";
+        }
+
+        @Override
+        public int priority() {
+            return 0;
+        }
+    };
     private static final float PROJECTILE_SPEED = 15.0f;
     private static final int DAMAGE_AMOUNT = 5;
     private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
@@ -46,9 +58,9 @@ public class FireballSkill extends DamageProjectile {
 
     @Override
     protected void playSound() {
-        Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(PROJECTILE_SOUND));
+        Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(PROJECTILE_SOUND.pathString()));
 
-        // Generate a random pitch between 1.5f and 2.0f
+        // Generate a random pitch between min and max
         float minPitch = 2f;
         float maxPitch = 3f;
         float randomPitch = MathUtils.random(minPitch, maxPitch);
