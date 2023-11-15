@@ -1,21 +1,13 @@
 package core.gui.backend;
 
-import core.Assets;
-
 public abstract class BackendImage {
 
-    private final Assets.Images image;
     protected int width, height, channels;
 
-    public BackendImage(Assets.Images image, int width, int height, int channels) {
-        this.image = image;
+    public BackendImage(int width, int height, int channels) {
         this.width = width;
         this.height = height;
         this.channels = channels;
-    }
-
-    public Assets.Images image() {
-        return image;
     }
 
     public int width() {
@@ -29,4 +21,7 @@ public abstract class BackendImage {
     public int channels() {
         return channels;
     }
+
+    /** Frees the image from (video-)memory. */
+    public abstract void free();
 }
