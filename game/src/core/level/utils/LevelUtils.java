@@ -6,6 +6,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.tile.DoorTile;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
@@ -238,7 +239,7 @@ public class LevelUtils {
      */
     public static List<Tile> accessibleTilesInRange(final Point center, final float radius) {
         List<Tile> tiles = tilesInRange(center, radius);
-        tiles.removeIf(tile -> !tile.isAccessible());
+        tiles.removeIf(tile -> !tile.isAccessible() && !(tile instanceof DoorTile));
         return tiles;
     }
 
