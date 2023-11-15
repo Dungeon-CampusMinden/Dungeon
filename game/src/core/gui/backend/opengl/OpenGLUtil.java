@@ -211,7 +211,7 @@ public class OpenGLUtil {
      * @param channels Returns number of channels in the image.
      * @return Texture handle.
      */
-    public static int createTexture(
+    public static int createTextureFromMemoryImage(
             byte[] imageFileBytes, int[] width, int[] height, int[] channels) {
         ByteBuffer bytes = ByteBuffer.allocateDirect(imageFileBytes.length);
         bytes.put(imageFileBytes);
@@ -240,6 +240,122 @@ public class OpenGLUtil {
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, GL33.GL_CLAMP_TO_EDGE);
 
         return textureHandle;
+    }
+
+    /**
+     * Create a texture from a byte array (bitmap).
+     *
+     * @param bitmap Byte array containing the bitmap.
+     * @param width Width of the bitmap.
+     * @param height Height of the bitmap.
+     * @param channels Number of channels in the bitmap.
+     * @param magFilter Magnification filter.
+     * @param minFilter Minification filter.
+     * @param wrapS Wrapping behavior for texture coordinate S.
+     * @param wrapT Wrapping behavior for texture coordinate T.
+     * @return Texture handle.
+     */
+    public static int createTextureFromMemoryBitmap(
+            byte[] bitmap,
+            int width,
+            int height,
+            int channels,
+            int magFilter,
+            int minFilter,
+            int wrapS,
+            int wrapT) {
+
+        ByteBuffer buffer = ByteBuffer.allocateDirect(bitmap.length);
+        buffer.put(bitmap);
+        buffer.position(0);
+
+        int textureHandle = GL33.glGenTextures();
+        GL33.glBindTexture(GL33.GL_TEXTURE_2D, textureHandle);
+
+        switch (channels) {
+            case 1:
+                GL33.glTexImage2D(
+                        GL33.GL_TEXTURE_2D,
+                        0,
+                        GL33.GL_RED,
+                        width,
+                        height,
+                        0,
+                        GL33.GL_RED,
+                        GL33.GL_UNSIGNED_BYTE,
+                        buffer);
+                break;
+            case 2:
+                GL33.glTexImage2D(
+                        GL33.GL_TEXTURE_2D,
+                        0,
+                        GL33.GL_RG,
+                        width,
+                        height,
+                        0,
+                        GL33.GL_RG,
+                        GL33.GL_UNSIGNED_BYTE,
+                        buffer);
+            case 3:
+                GL33.glTexImage2D(
+                        GL33.GL_TEXTURE_2D,
+                        0,
+                        GL33.GL_RGB,
+                        width,
+                        height,
+                        0,
+                        GL33.GL_RGB,
+                        GL33.GL_UNSIGNED_BYTE,
+                        buffer);
+                break;
+            case 4:
+                GL33.glTexImage2D(
+                        GL33.GL_TEXTURE_2D,
+                        0,
+                        GL33.GL_RGBA,
+                        width,
+                        height,
+                        0,
+                        GL33.GL_RGBA,
+                        GL33.GL_UNSIGNED_BYTE,
+                        buffer);
+                break;
+            default:
+                throw new RuntimeException("Unsupported number of channels: " + channels);
+        }
+        GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, magFilter);
+        GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, minFilter);
+        GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, wrapS);
+        GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, wrapT);
+
+        GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
+
+        return textureHandle;
+    }
+
+    /**
+     * Create a texture from a byte array (bitmap).
+     *
+     * <p>Uses GL_NEAREST for magnification and minification filter, and GL_CLAMP_TO_EDGE for
+     * wrapping.
+     *
+     * @param bitmap Byte array containing the bitmap.
+     * @param width Width of the bitmap.
+     * @param height Height of the bitmap.
+     * @param channels Number of channels in the bitmap.
+     * @return Texture handle.
+     */
+    public static int createTextureFromMemoryBitmap(
+            byte[] bitmap, int width, int height, int channels) {
+        return createTextureFromMemoryBitmap(
+                bitmap,
+                width,
+                height,
+                channels,
+                GL33.GL_NEAREST,
+                GL33.GL_NEAREST,
+                GL33.GL_CLAMP_TO_EDGE,
+                GL33.GL_CLAMP_TO_EDGE);
     }
 
     /**

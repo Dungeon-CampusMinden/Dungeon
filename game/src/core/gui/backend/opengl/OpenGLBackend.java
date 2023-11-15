@@ -4,6 +4,7 @@ import static core.gui.util.Logging.log;
 
 import core.Assets;
 import core.gui.*;
+import core.gui.backend.BackendImage;
 import core.gui.util.Logging;
 import core.utils.logging.CustomLogLevel;
 import core.utils.math.Matrix4f;
@@ -101,19 +102,26 @@ public class OpenGLBackend implements IGUIBackend {
                         int[] height = new int[1];
                         int[] channels = new int[1];
                         int textureHandle =
-                                OpenGLUtil.createTexture(imageBytes, width, height, channels);
+                                OpenGLUtil.createTextureFromMemoryImage(
+                                        imageBytes, width, height, channels);
                         log(
                                 CustomLogLevel.DEBUG,
                                 "Loaded image %s(\"%s\")",
                                 imageKey.name(),
                                 imageKey.path());
-                        return new OpenGLImage(
-                                image, width[0], height[0], channels[0], textureHandle);
+                        return new OpenGLImage(width[0], height[0], channels[0], textureHandle);
                     } catch (IOException ex) {
                         log(CustomLogLevel.ERROR, "Failed to load image: %s", ex, ex.getMessage());
                         return null;
                     }
                 });
+    }
+
+    @Override
+    public BackendImage loadImageFromBitmap(byte[] bitmap, int width, int height, int channels) {
+        int textureHandler =
+                OpenGLUtil.createTextureFromMemoryBitmap(bitmap, width, height, channels);
+        return new OpenGLImage(width, height, channels, textureHandler);
     }
 
     private void renderGUI(List<GUIElement> elements) {
@@ -405,7 +413,8 @@ public class OpenGLBackend implements IGUIBackend {
             int[] height = new int[1];
             int[] channels = new int[1];
             this.debugRenderContext.texture =
-                    OpenGLUtil.createTexture(imageFileBytes, width, height, channels);
+                    OpenGLUtil.createTextureFromMemoryImage(
+                            imageFileBytes, width, height, channels);
             log(
                     CustomLogLevel.DEBUG,
                     "Loaded debug texture (%dx%d@%d)",
