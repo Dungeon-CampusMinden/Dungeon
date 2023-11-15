@@ -10,11 +10,20 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.level.TileLevel;
+import core.level.generator.IGenerator;
+import core.level.utils.DesignLabel;
+import core.level.utils.LevelElement;
+import core.systems.LevelSystem;
+import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
+import core.utils.components.draw.Painter;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 
@@ -26,6 +35,59 @@ public class ItemTest {
 
     @Before
     public void before() {
+        Game.removeAllEntities();
+
+        Game.add(
+                new LevelSystem(
+                        Mockito.mock(Painter.class),
+                        Mockito.mock(IGenerator.class),
+                        Mockito.mock(IVoidFunction.class)));
+
+        Game.currentLevel(
+                new TileLevel(
+                        new LevelElement[][] {
+                            new LevelElement[] {
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR
+                            },
+                            new LevelElement[] {
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR
+                            },
+                            new LevelElement[] {
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR
+                            },
+                            new LevelElement[] {
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR
+                            },
+                            new LevelElement[] {
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR,
+                                LevelElement.FLOOR
+                            }
+                        },
+                        DesignLabel.DEFAULT));
+    }
+
+    @After
+    public void cleanup() {
+        Game.removeAllSystems();
         Game.removeAllEntities();
     }
 
