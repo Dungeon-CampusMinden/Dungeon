@@ -1,0 +1,19 @@
+// datei: doc/dsl/examplescripts/quickstart_example.dng
+
+// Aufgabendefinition
+single_choice_task meine_aufgabe {
+    description: "Wie heißt die Hauptstadt von Schottland?",
+    answers: [ "Glasgow", "Edinburgh", "Aberdeen" ],
+    correct_answer_index: 1,
+    explanation: "Optionaler Erklärungstext"
+}
+
+// Definition von Aufgabenabhängigkeiten
+graph task_graph {
+    meine_aufgabe;
+}
+
+// Übergabe der Aufgabenabhängigkeit an das Dungeon-System
+dungeon_config meine_config {
+    dependency_graph: task_graph
+}
