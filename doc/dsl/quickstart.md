@@ -4,7 +4,7 @@ title: "DSL Quickstart Guide"
 
 ## Definition einer Aufgabe
 
-Im folgenden Beispiel wird ein Beispiel für die Definition einer Single Choice Frage dargestellt:
+Im folgenden Beispielcode wird die Definition einer Single Choice Frage dargestellt:
 
 ```
 // datei: doc/dsl/examplescripts/quickstart_example.dng
