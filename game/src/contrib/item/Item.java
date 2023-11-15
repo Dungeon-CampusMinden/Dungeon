@@ -9,6 +9,7 @@ import contrib.item.concreteItem.*;
 
 import core.Entity;
 import core.Game;
+import core.level.elements.tile.FloorTile;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
@@ -315,8 +316,11 @@ public class Item implements CraftingIngredient, CraftingResult {
      * @return Whether the item was dropped successfully.
      */
     public boolean drop(Entity dropper, Point position) {
-        Game.add(WorldItemBuilder.buildWorldItem(this, position));
-        return true;
+        if (Game.tileAT(position) instanceof FloorTile) {
+            Game.add(WorldItemBuilder.buildWorldItem(this, position));
+            return true;
+        }
+        return false;
     }
 
     /**
