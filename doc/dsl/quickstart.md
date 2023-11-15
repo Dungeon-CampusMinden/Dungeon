@@ -134,66 +134,23 @@ haben, reicht es aus, sie einfach mit ihrem Namen in der `graph`-Definition zu r
 Der Abhängigkeitsgraph muss anschließend noch in einer `dungeon_config`-Definition referenziert werden.
 Diesen Definitionen stellen den "Einstiegspunkt" für das Dungeon-System dar.
 
-
-## Konfiguration der Bewertung von Aufgaben
-
-TODO, noch kein klares Konzept
-
-## Definition von komplexen Aufgaben
-
-- komplexe Aufgabe = Aufgabe mit Unteraufgaben
-
-Die Organisation der Aufgaben wird per Petri-Netz modelliert. Zur Definition des
-Petri-Netzes wird die eingebettete dot-Umgebung genutzt.
+## Definition von Aufgabenabhängigkeiten
 
 ```
-task master_task {
-    description: "Hier steht der Aufgabentext der übergeordneten Aufgabe"
+// datei: doc/dsl/examplescripts/quickstart_task_dependency.dng
+
+/*
+ * Aufgabendefinitionen...
+ */
+
+// Definition von Aufgabenabhängigkeiten
+graph task_graph {
+    Aufgabe1 -> Aufgabe2 -> Aufgabe3 [type=sequence]
 }
 
-task subtask1 {
-    description: "Das ist der Aufgabentext",
-    answers: {
-        A: 1,
-        B: 2,
-        C: 3
-    },
-    correct_answers: answers.B,
-    type: SINGLE_CHOICE
-}
-
-task subtask2 {
-    description: "Das ist ein anderer Aufgabentext",
-    answers: {
-        A: 1,
-        B: 2,
-        C: 3
-    },
-    correct_answers: [answers.B, answers.C],
-    type: MULTIPLE_CHOICE
-}
-
-task subtask3 {
-    description: "Das ist ein ganz anderer Aufgabentext",
-    text: "Dies ist ein Text mit <Lücken>, die gefüllt werden müssen."
-    correct_answers: "REGEX", // diese Regex wird zur Überprüfung der Antwort in der Lücke ('<...>') verwendet
-    type: TEXT
-}
-
-task subtask4 {
-    description: "Das ist ein ganz anderer Aufgabentext",
-    text: "Dies ist ein <Text> mit mehreren <Lücken>, die <gefüllt> werden müssen."
-    correct_answers: ["REGEX", "OTHER_REGEX", "THIRD_REGEX"], // die erste Regex wird zur Überprüfung der ersten Lücke genutzt, die zweit für die zweite Lücke, usw.
-    type: TEXT
-}
-
-// Definition von Task-Organisation über dot-Umgebung
-graph task_order {
-    TODO: Abbildung von Petri-Netzen über dot (wie genau?)
-}
-
-level_config my_config {
-    task: task_order
+// Übergabe der Aufgabenabhängigkeit an das Dungeon-System
+dungeon_config meine_config {
+    dependency_graph: task_graph
 }
 ```
 

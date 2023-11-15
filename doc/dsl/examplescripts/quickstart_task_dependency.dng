@@ -1,6 +1,6 @@
 // datei: doc/dsl/examplescripts/quickstart_task_dependency.dng
 
-// Aufgabendefinition
+// Aufgabendefinition 1
 single_choice_task Aufgabe1 {
     description: "Wie heißt die Hauptstadt von Schottland?",
     answers: [ "Glasgow", "Edinburgh", "Aberdeen" ],
@@ -8,6 +8,7 @@ single_choice_task Aufgabe1 {
     explanation: "Optionaler Erklärungstext"
 }
 
+// Aufgabendefinition 2
 single_choice_task Aufgabe2 {
     description: "Welches Element hat das chemische Symbol 'O'?",
     answers: [ "Sauerstoff", "Gold", "Kohlenstoff" ],
@@ -15,6 +16,7 @@ single_choice_task Aufgabe2 {
     explanation: "Das chemische Symbol 'O' steht für Sauerstoff."
 }
 
+// Aufgabendefinition 3
 multiple_choice_task Aufgabe3 {
     description: "Welche der folgenden Planeten gehören zu den Gasriesen?",
     answers: [ "Mars", "Jupiter", "Venus", "Saturn", "Erde" ],
