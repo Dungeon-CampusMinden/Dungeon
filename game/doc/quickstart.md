@@ -45,7 +45,7 @@ zwischen libGDX und Ihrer eigenen Implementierung. Es implementiert ein [Entity-
 Schatzkisten, etc.) des Spiels - `Component`: Components speichern die Datensätze der Entitäten (z.B. die
 Lebenspunkte) - `System`: Systeme beinhalten die eigentliche Logik und agieren auf den Components.
 
-Weiteres dazu erfahren Sie unter [ECS im Dungeon](ecs/readme.md).
+Weiteres dazu erfahren Sie unter [ECS im Dungeon](ecs_basics.md).
 
 Sie selbst nutzen und erweitern die `Component`s und `System`s der Vorgaben. Sie werden ebenfalls neue Entities,
 Components und Systeme konzipieren und implementieren. So erschaffen Sie z.B. Ihre eigenen Monster und fallengespickte
@@ -62,7 +62,7 @@ können das Standardverzeichnis in der `build.gradle` anpassen.
 
 In diesem Abschnitt werden Ihnen die wichtigsten Klassen im Dungeon vorgestellt.
 
-![Struktur ECS](ecs/img/ecs.png)
+![Struktur ECS](img/ecs.png)
 
 *Anmerkung:* Das UML ist für bessere Lesbarkeit auf die wesentlichen Bestandteile gekürzt.
 
@@ -135,7 +135,7 @@ Die `Component`s sind die Datensätze der Entitäten und beschreiben dessen Eige
 zu genau einer Entität-Instanz.
 
 Jedes Component muss von der abstrakten Klasse `Component` abgeleitet werden. Schauen Sie sich auch die [bereits
-implementierten Components](ecs/components/readme.md) an.
+implementierten Components](../game/doc/ecs/components/readme.md) an.
 
 ### System
 
@@ -143,11 +143,11 @@ Systeme agieren auf den Components und ändern die Werte in diesen. Sie bestimme
 System kann auf mehrere Components agieren.
 
 Um ein eigenes System zu erstellen, muss von der abstrakten Klasse `System` abgeleitet werden. Schauen Sie sich auch
-die [bereits implementierten Systeme](ecs/systems/readme.md) an; hier finden Sie auch die Abhängigkeiten der Systeme zu
+die [bereits implementierten Systeme](../game/doc/ecs/systems/readme.md) an; hier finden Sie auch die Abhängigkeiten der Systeme zu
 bestimmten Components.
 
 *Hinweis:* Um mehr darüber zu erfahren, wie Sie eigene Entitäten, Components und Systeme erstellen, werfen Sie einen
-Blick in [Eigene Inhalte erstellen](ecs/create_own_content.md).
+Blick in [Eigene Inhalte erstellen](create_own_content.md).
 
 ## Übung: Eigenen Helden erstellen
 
@@ -253,7 +253,7 @@ public class MyHero extends Entity {
 
 Wenn Sie das Spiel jetzt starten, sollten Sie ihren Helden sehen:
 
-![Animation](img/animation.gif)
+![Animation](../../doc/img/animation.gif)
 
 ### Held bewegen
 
@@ -310,7 +310,7 @@ public class MyHero extends Entity {
 
 Jetzt sollten Sie ihren Helden bewegen können:
 
-![Bewegen](img/move.gif)
+![Bewegen](../../doc/img/move.gif)
 
 ## Bestehenden Code analysieren
 
@@ -322,7 +322,7 @@ an.
 Ihnen ist sicherlich schon aufgefallen, dass ein neues Level geladen wird, wenn Sie die Leiter mit Ihrem Helden
 berühren:
 
-![Next-Level](img/next-level.gif)
+![Next-Level](../../doc/img/next-level.gif)
 
 Schauen wir einmal in die Methode `Game#frame`, wird dort die Methode `loadNextLevelIfEntityIsOnEndTile` aufgerufen.
 
@@ -365,7 +365,7 @@ Wenn Sie wollen, können Sie mit Ihrem Helden weiterarbeiten, oder Sie holen sic
 zurück.
 
 Der vorgefertigte Held hat zwei weitere Besonderheiten, die Sie noch nicht kennen. Zum einen besitzt er einen
-Feuerball-[Skill](ecs/skills/readme.md). Dieser wird in `Hero#setupFireballSkill` erstellt.
+Feuerball-[Skill](../game/doc/ecs/skills/readme.md). Dieser wird in `Hero#setupFireballSkill` erstellt.
 
 ``` java
     private void setupFireballSkill() {
@@ -377,7 +377,7 @@ Feuerball-[Skill](ecs/skills/readme.md). Dieser wird in `Hero#setupFireballSkill
 
 In der Standardkonfiguration können Sie den Feuerball in Richtung Ihres Mauscursors mit der Taste R abfeuern.
 
-Zusätzlich besitzt der Held ein [`HitboxComponent`](ecs/components/collision_component.md). Damit kann er mit anderen
+Zusätzlich besitzt der Held ein [`HitboxComponent`](../game/doc/ecs/components/collision_component.md). Damit kann er mit anderen
 Entitäten, die ebenfalls ein `HitboxComponent` haben, kollidieren.
 
 ``` java
@@ -393,11 +393,11 @@ Entitäten, die ebenfalls ein `HitboxComponent` haben, kollidieren.
 
 Hier finden Sie noch einige Links um Ihr Verständnis des Dungeons zu vertiefen:
 
--   [ECS Basics](ecs/readme.md)
--   [Entitäten, Components und Systeme selbst erstellen](ecs/create_own_content.md)
--   [Übersicht der Systeme](ecs/systems/readme.md)
--   [Übersicht der Components](ecs/components/readme.md)
--   [Übersicht der Spielelemente](ecs/gameelements/)
+-   [ECS Basics](ecs_basics.md)
+-   [Entitäten, Components und Systeme selbst erstellen](create_own_content.md)
+-   [Übersicht der Systeme](../game/doc/ecs/systems/readme.md)
+-   [Übersicht der Components](../game/doc/ecs/components/readme.md)
+-   [Übersicht der Spielelemente](../game/doc/ecs/gameelements/)
 -   [Level Basics](level/readme.md)
 -   [HUD Basics](hud/readme.md)
 -   [Config](configuration/readme.md)

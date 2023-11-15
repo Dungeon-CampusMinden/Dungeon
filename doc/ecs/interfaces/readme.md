@@ -1,3 +1,0 @@
----
-title: "Startpage: Interfaces"
----

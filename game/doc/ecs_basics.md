@@ -31,7 +31,7 @@ Der Zustand einer Entität wird also über ihre Components bestimmt, und ihr Ver
 
 Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht. Die Methode `Game#render` ist die Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `System` implementiert.
 
-Die LevelAPI generiert, zeichnet und speichert das aktuelle [Level](../level/readme.md). Klassen, die rot gekennzeichnet sind, gehören dazu.
+Die LevelAPI generiert, zeichnet und speichert das aktuelle [Level](level/readme.md). Klassen, die rot gekennzeichnet sind, gehören dazu.
 
 Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab.
 `System`e speichern sich automatisch im `SystemController` `systems` der `Game`-Klasse ab.

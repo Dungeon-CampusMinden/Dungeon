@@ -4,7 +4,7 @@ title: "Konzept der Graphenbasierte Level"
 
 Dieses Dokument erklärt das Grundkonzept der graphenbasierten Level und erläutert den Aufbau und Zusammenhang der verschiedenen Generatoren.
 
-*Anmerkung*: Einige der Designentscheidungen sind [hier](./room_level.md) erläutert.
+*Anmerkung*: Einige der Designentscheidungen sind [hier](room_level.md) erläutert.
 
 ## Grundkonzept
 
