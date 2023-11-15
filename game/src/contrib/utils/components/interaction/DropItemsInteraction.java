@@ -5,10 +5,13 @@ import com.badlogic.gdx.utils.Null;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
+import contrib.utils.level.NoTileFoundException;
 
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.level.utils.Coordinate;
+import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
@@ -63,7 +66,7 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
      * animation.
      *
      * @param entity associated entity
-     * @param who The entity that triggered the interaction (may be null)
+     * @param who The entity that triggered the interaction (could be null)
      */
     public void accept(final Entity entity, final @Null Entity who) {
         InventoryComponent inventoryComponent =
@@ -86,11 +89,22 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
                 .forEach(
                         item -> {
                             if (item != null) {
-                                item.drop(
+                                if (!item.drop(
                                         entity,
                                         calculateDropPosition(
                                                 positionComponent,
-                                                index.getAndIncrement() / count));
+                                                index.getAndIncrement() / count))) {
+                                    Coordinate randomTile =
+                                            LevelUtils.randomAccessibleTileCoordinateInRange(
+                                                            positionComponent.position(), 1)
+                                                    .orElseThrow(
+                                                            () ->
+                                                                    new NoTileFoundException(
+                                                                            "No Tile was found for "
+                                                                                    + entity));
+
+                                    item.drop(entity, randomTile.toPoint());
+                                }
                             }
                         });
 
