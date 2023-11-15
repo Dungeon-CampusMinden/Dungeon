@@ -1,0 +1,33 @@
+// datei: doc/dsl/examplescripts/quickstart_task_dependency.dng
+
+// Aufgabendefinition
+single_choice_task Aufgabe1 {
+    description: "Wie heißt die Hauptstadt von Schottland?",
+    answers: [ "Glasgow", "Edinburgh", "Aberdeen" ],
+    correct_answer_index: 1,
+    explanation: "Optionaler Erklärungstext"
+}
+
+single_choice_task Aufgabe2 {
+    description: "Welches Element hat das chemische Symbol 'O'?",
+    answers: [ "Sauerstoff", "Gold", "Kohlenstoff" ],
+    correct_answer_index: 0,
+    explanation: "Das chemische Symbol 'O' steht für Sauerstoff."
+}
+
+multiple_choice_task Aufgabe3 {
+    description: "Welche der folgenden Planeten gehören zu den Gasriesen?",
+    answers: [ "Mars", "Jupiter", "Venus", "Saturn", "Erde" ],
+    correct_answer_index: [1, 3],
+    explanation: "Jupiter und Saturn sind Gasriesen in unserem Sonnensystem."
+}
+
+// Definition von Aufgabenabhängigkeiten
+graph task_graph {
+    Aufgabe1 -> Aufgabe2 -> Aufgabe3 [type=sequence]
+}
+
+// Übergabe der Aufgabenabhängigkeit an das Dungeon-System
+dungeon_config meine_config {
+    dependency_graph: task_graph
+}
