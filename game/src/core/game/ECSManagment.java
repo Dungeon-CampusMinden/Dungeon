@@ -2,20 +2,17 @@ package core.game;
 
 import core.Component;
 import core.Entity;
-import core.Game;
 import core.System;
 import core.level.elements.ILevel;
-import core.level.generator.postGeneration.WallGenerator;
-import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.systems.*;
 import core.utils.EntitySystemMapper;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class ECSManagment {
-    // ====================ECS====================
-
+    private static final Logger LOGGER = Logger.getLogger("ECSManagment");
     private static Entity hero;
 
     /**
@@ -134,21 +131,15 @@ public class ECSManagment {
         return Optional.ofNullable(currentSystem);
     }
 
-    // ====================ESC END====================
-
-    /** Create the systems. */
-    private void createSystems() {
-        add(new PositionSystem());
-        add(new CameraSystem());
-        add(
-                new LevelSystem(
-                        DrawSystem.painter(),
-                        new WallGenerator(new RandomWalkGenerator()),
-                        onLevelLoad));
-        add(new DrawSystem());
-        add(new VelocitySystem());
-        add(new PlayerSystem());
+    protected static Map<ILevel, Set<EntitySystemMapper>> levelStorageMap() {
+        return levelStorageMap;
     }
+
+    protected static void activeEntityStorage(Set<EntitySystemMapper> computeIfAbsent) {
+        activeEntityStorage = computeIfAbsent;
+    }
+
+    // ====================ESC END====================
 
     /**
      * @return a copy of the map that stores all registered {@link System} in the game.
@@ -163,7 +154,7 @@ public class ECSManagment {
      * <p>Will trigger {@link System#onEntityRemove} for each entity in each system.
      */
     public static void removeAllSystems() {
-        new HashSet<>(systems.keySet()).forEach(Game::remove);
+        new HashSet<>(systems.keySet()).forEach(ECSManagment::remove);
     }
 
     /**
@@ -219,7 +210,7 @@ public class ECSManagment {
      * @param hero the new reference of the hero
      */
     public static void hero(Entity hero) {
-        Game.hero = hero;
+        ECSManagment.hero = hero;
     }
 
     /**
@@ -240,7 +231,7 @@ public class ECSManagment {
      * <p>This will also remove all entities from each system.
      */
     public static void removeAllEntities() {
-        allEntities().forEach(Game::remove);
+        allEntities().forEach(ECSManagment::remove);
         LOGGER.info("All entities will be removed from the game.");
     }
 

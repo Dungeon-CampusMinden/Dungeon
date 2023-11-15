@@ -1,5 +1,7 @@
 package core;
 
+import core.game.ECSManagment;
+
 import dsl.semanticanalysis.types.DSLContextPush;
 import dsl.semanticanalysis.types.DSLType;
 
@@ -65,7 +67,7 @@ public final class Entity implements Comparable<Entity> {
      * Add a new component to this entity.
      *
      * <p>Changes in the component map of the entity will trigger a call to {@link
-     * Game#informAboutChanges}.
+     * ECSManagment#informAboutChanges}.
      *
      * <p>Normally, a component will add itself to its associated entity, so you will not have to do
      * it manually. Remember that an entity can only store one component of each component class.
@@ -74,7 +76,7 @@ public final class Entity implements Comparable<Entity> {
      */
     public void addComponent(final Component component) {
         components.put(component.getClass(), component);
-        Game.informAboutChanges(this);
+        ECSManagment.informAboutChanges(this);
         LOGGER.info(component.getClass().getName() + " Components from " + this + " was added.");
     }
 
@@ -82,13 +84,13 @@ public final class Entity implements Comparable<Entity> {
      * Remove a component from this entity.
      *
      * <p>Changes in the component map of the entity will trigger a call to {@link
-     * Game#informAboutChanges}.
+     * ECSManagment#informAboutChanges}.
      *
      * @param klass the Class of the component
      */
     public void removeComponent(final Class<? extends Component> klass) {
         if (components.remove(klass) != null) {
-            Game.informAboutChanges(this);
+            ECSManagment.informAboutChanges(this);
             LOGGER.info(klass.getName() + " from " + name + " was removed.");
         }
     }

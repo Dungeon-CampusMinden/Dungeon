@@ -16,8 +16,9 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
-import core.systems.CameraSystem;
-import core.systems.DrawSystem;
+import core.level.generator.postGeneration.WallGenerator;
+import core.level.generator.randomwalk.RandomWalkGenerator;
+import core.systems.*;
 import core.utils.Constants;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
@@ -25,22 +26,23 @@ import core.utils.components.MissingComponentException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
+/** The heart of the framework. From here, all settings are pulled. */
 public class GameLoop extends ScreenAdapter {
+    private static final Logger LOGGER = Logger.getLogger("GameLoop");
     private boolean doSetup = true;
     private boolean newLevelWasLoadedInThisLoop = false;
     private boolean uiDebugFlag = false;
+
+    // for singleton
+    private GameLoop() {}
 
     /** Starts the dungeon and requires a {@link Game}. */
     public static void run() {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setWindowSizeLimits(
                 PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight(), 9999, 9999);
-        // The third and fourth parameters ("maxWidth" and "maxHeight") affect the resizing
-        // behavior
-        // of the window. If the window is enlarged or maximized, then it can assume these
-        // dimensions at maximum. If you have a larger screen resolution than 9999x9999 pixels,
-        // increase these parameters.
         config.setForegroundFPS(PreRunConfiguration.frameRate());
         config.setTitle(PreRunConfiguration.windowTitle());
         config.setWindowIcon(PreRunConfiguration.logoPath());
@@ -53,48 +55,51 @@ public class GameLoop extends ScreenAdapter {
                     PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight());
         }
 
-        // uncomment this if you wish no audio
         new Lwjgl3Application(
                 new com.badlogic.gdx.Game() {
                     @Override
                     public void create() {
-                        setScreen(new Game());
+                        setScreen(new GameLoop());
                     }
                 },
                 config);
     }
 
     /**
-     * Sets {@link #currentLevel} to the new level and changes the currently active entity storage.
+     * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
+     * storage.
      *
-     * <p>Will remove all Systems using {@link Game#removeAllSystems()} from the Game. This will
-     * trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
-     * using {@link Game#add(System)}, triggering {@link System#onEntityAdd} for the new level.
+     * <p>Will remove all Systems using {@link ECSManagment#removeAllSystems()} from the Game. This
+     * will trigger {@link System#onEntityRemove} for the old level. Then, it will readd all Systems
+     * using {@link ECSManagment#add(System)}, triggering {@link System#onEntityAdd} for the new
+     * level.
      *
      * <p>Will re-add the hero if they exist.
      */
     private final IVoidFunction onLevelLoad =
             () -> {
                 newLevelWasLoadedInThisLoop = true;
-                boolean firstLoad = !levelStorageMap.containsKey(currentLevel());
-                hero().ifPresent(Game::remove);
+                boolean firstLoad =
+                        !ECSManagment.levelStorageMap().containsKey(Game.currentLevel());
+                ECSManagment.hero().ifPresent(ECSManagment::remove);
                 // Remove the systems so that each triggerOnRemove(entity) will be called (basically
                 // cleanup).
-                Map<Class<? extends System>, System> s = Game.systems();
-                removeAllSystems();
-                activeEntityStorage =
-                        levelStorageMap.computeIfAbsent(currentLevel(), k -> new HashSet<>());
+                Map<Class<? extends System>, System> s = ECSManagment.systems();
+                ECSManagment.removeAllSystems();
+                ECSManagment.activeEntityStorage(
+                        ECSManagment.levelStorageMap()
+                                .computeIfAbsent(Game.currentLevel(), k -> new HashSet<>()));
                 // readd the systems so that each triggerOnAdd(entity) will be called (basically
                 // setup). This will also create new EntitySystemMapper if needed.
-                s.values().forEach(Game::add);
+                s.values().forEach(ECSManagment::add);
 
                 try {
-                    hero().ifPresent(this::placeOnLevelStart);
+                    ECSManagment.hero().ifPresent(this::placeOnLevelStart);
                 } catch (MissingComponentException e) {
                     LOGGER.warning(e.getMessage());
                 }
-                hero().ifPresent(Game::add);
-                currentLevel().onLoad();
+                ECSManagment.hero().ifPresent(ECSManagment::add);
+                Game.currentLevel().onLoad();
                 PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
             };
 
@@ -113,7 +118,7 @@ public class GameLoop extends ScreenAdapter {
         onFrame();
         clearScreen();
 
-        for (System system : systems().values()) {
+        for (System system : ECSManagment.systems().values()) {
             // if a new level was loaded, stop this loop-run
             if (newLevelWasLoadedInThisLoop) break;
             if (system.isRunning()) system.execute();
@@ -121,7 +126,7 @@ public class GameLoop extends ScreenAdapter {
         newLevelWasLoadedInThisLoop = false;
         CameraSystem.camera().update();
         // stage logic
-        Game.stage().ifPresent(Game::updateStage);
+        stage().ifPresent(GameLoop::updateStage);
     }
 
     /**
@@ -199,14 +204,14 @@ public class GameLoop extends ScreenAdapter {
      * @param entity entity to set on the start of the level, normally this is the hero.
      */
     private void placeOnLevelStart(Entity entity) {
-        add(entity);
+        ECSManagment.add(entity);
         PositionComponent pc =
                 entity.fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
-        pc.position(startTile());
+        pc.position(Game.startTile());
     }
 
     /**
@@ -227,5 +232,19 @@ public class GameLoop extends ScreenAdapter {
                             x.getViewport().setWorldSize(width, height);
                             x.getViewport().update(width, height, true);
                         });
+    }
+
+    /** Create the systems. */
+    private void createSystems() {
+        ECSManagment.add(new PositionSystem());
+        ECSManagment.add(new CameraSystem());
+        ECSManagment.add(
+                new LevelSystem(
+                        DrawSystem.painter(),
+                        new WallGenerator(new RandomWalkGenerator()),
+                        onLevelLoad));
+        ECSManagment.add(new DrawSystem());
+        ECSManagment.add(new VelocitySystem());
+        ECSManagment.add(new PlayerSystem());
     }
 }
