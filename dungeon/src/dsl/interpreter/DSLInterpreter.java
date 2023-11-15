@@ -10,6 +10,7 @@ import dsl.runtime.*;
 import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.types.*;
+import dsl.semanticanalysis.types.callbackadapter.CallbackAdapter;
 
 import dslinput.DSLEntryPoint;
 import dslinput.DungeonConfig;
@@ -292,8 +293,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         symbols.stream()
                 .filter(
                         symbol -> {
-                            if (symbol instanceof FunctionSymbol functionSymbol) {
-                                FunctionType functionType = functionSymbol.getFunctionType();
+                            if (symbol instanceof ICallable callable) {
+                                FunctionType functionType = callable.getFunctionType();
                                 if (!functionType.getReturnType().equals(returnType)) {
                                     return false;
                                 }
@@ -308,7 +309,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                             }
                             return false;
                         })
-                .map(symbol -> (FunctionSymbol) symbol)
+                .map(symbol -> (ICallable) symbol)
                 .forEach(this.scenarioBuilderStorage::storeScenarioBuilder);
     }
 
@@ -340,18 +341,21 @@ public class DSLInterpreter implements AstVisitor<Object> {
             throw new RuntimeException("Not a supported task type!");
         }
 
-        Optional<FunctionSymbol> scenarioBuilder =
-                this.scenarioBuilderStorage.retrieveRandomScenarioBuilderForType(
-                        (IType) potentialTaskType);
-        if (scenarioBuilder.isEmpty()) {
-            // TODO: this should fall back on a hard coded Java builder method
-            return Optional.empty();
+        ICallable scenarioBuilder;
+        if (task.scenarioBuilderFunction() != null) {
+            var cba = (CallbackAdapter) task.scenarioBuilderFunction();
+            scenarioBuilder = cba.callable();
+        } else {
+            Optional<ICallable> optionalScenarioBuilder =
+                    this.scenarioBuilderStorage.retrieveRandomScenarioBuilderForType(
+                            (IType) potentialTaskType);
+            if (optionalScenarioBuilder.isEmpty()) {
+                return Optional.empty();
+            }
+            scenarioBuilder = optionalScenarioBuilder.get();
         }
 
-        Value retValue =
-                (Value)
-                        this.executeUserDefinedFunctionRawParameters(
-                                scenarioBuilder.get(), List.of(task));
+        Value retValue = (Value) this.callCallableRawParameters(scenarioBuilder, List.of(task));
         var typeInstantiator = this.environment.getTypeInstantiator();
 
         // create the java representation of the return Value
@@ -482,7 +486,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         } else if (type.getTypeKind().equals(IType.Kind.EnumType)) {
             return new EnumValue((EnumType) type, null);
         } else if (type.getTypeKind().equals(IType.Kind.FunctionType)) {
-            return FunctionValue.NONE;
+            return (Value) FunctionValue.NONE.clone();
         }
         return Value.NONE;
     }

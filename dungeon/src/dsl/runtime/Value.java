@@ -80,14 +80,14 @@ public class Value implements IClonable {
      */
     public boolean setInternalValue(Object internalValue) {
         // TODO: should this check for datatype compatibility?
-        if (isMutable) {
+        if (!isMutable) {
+            throw new RuntimeException("Tried to write to non-mutable value!");
+        } else {
             this.object = internalValue;
 
             this.dirty = true;
             return true;
         }
-        System.out.println("Tried to set internal value of immutable value");
-        return false;
     }
 
     /**

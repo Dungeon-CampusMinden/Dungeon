@@ -390,11 +390,12 @@ public class TypeInstantiator {
                     }
                 }
                 if (field.isAnnotationPresent(DSLCallback.class)) {
-                    if (fieldValue != Value.NONE && fieldValue != FunctionValue.NONE) {
+                    if (fieldValue != Value.NONE
+                            && fieldValue != FunctionValue.NONE
+                            && fieldValue instanceof FunctionValue funcValue
+                            && !funcValue.isEmpty()) {
                         assert fieldValue.getDataType().getTypeKind() == IType.Kind.FunctionType;
-                        FunctionValue functionValue = (FunctionValue) fieldValue;
-                        if (!(functionValue.getCallable()
-                                instanceof FunctionSymbol functionSymbol)) {
+                        if (!(funcValue.getCallable() instanceof FunctionSymbol functionSymbol)) {
                             throw new RuntimeException(
                                     "Usage of non-FunctionSymbol callables as DSLCallback currently not supported");
                         } else {

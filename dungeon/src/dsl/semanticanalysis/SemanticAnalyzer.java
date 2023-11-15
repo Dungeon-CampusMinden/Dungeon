@@ -620,8 +620,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                 innerTypeNode.accept(this);
             }
             var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
-            ListType listType = new ListType(innerType, this.globalScope());
-            this.globalScope().bind(listType);
+            Symbol listTypeSymbol = this.globalScope().resolve(ListType.getListTypeName(innerType));
+            if (listTypeSymbol.equals(Symbol.NULL)) {
+                ListType listType = new ListType(innerType, this.globalScope());
+                this.globalScope().bind(listType);
+            }
         }
         return null;
     }
@@ -639,8 +642,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
                 innerTypeNode.accept(this);
             }
             var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
-            SetType setType = new SetType(innerType, this.globalScope());
-            this.globalScope().bind(setType);
+            Symbol setTypeSymbol = this.globalScope().resolve(SetType.getSetTypeName(innerType));
+            if (setTypeSymbol.equals(Symbol.NULL)) {
+                SetType setType = new SetType(innerType, this.globalScope());
+                this.globalScope().bind(setType);
+            }
         }
         return null;
     }

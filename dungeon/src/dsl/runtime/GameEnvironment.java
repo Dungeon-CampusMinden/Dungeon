@@ -28,6 +28,7 @@ import dslinterop.dsltypeadapters.DrawComponentAdapter;
 import dslinterop.dsltypeadapters.QuestItemAdapter;
 import dslinterop.dsltypeproperties.EntityExtension;
 import dslinterop.dsltypeproperties.QuestItemExtension;
+import dslinterop.nativescenariobuilder.NativeScenarioBuilder;
 
 import task.*;
 import task.components.TaskComponent;
@@ -290,7 +291,8 @@ public class GameEnvironment implements IEvironment {
         // build functions with dependency on specific non-builtin types
         IType questItemType = (IType) this.globalScope.resolve("quest_item");
         IType entityType = (IType) this.globalScope.resolve("entity");
-        IType entitySetType = new SetType(entityType, this.globalScope);
+        SetType entitySetType = new SetType(entityType, this.globalScope);
+        this.globalScope.bind(entitySetType);
 
         NativeFunction placeQuestItem =
                 new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
@@ -340,6 +342,42 @@ public class GameEnvironment implements IEvironment {
             NativeFunction answerPickerMultiChest =
                     new AnswerPickerMultiChest(this.globalScope, taskType, taskContentSetType);
             nativeFunctions.add(answerPickerMultiChest);
+        }
+
+        // native scenario builder functions
+        var entitySetSetSymbol = this.globalScope.resolve("entity<><>");
+        SetType entitySetSetType;
+        if (entitySetSetSymbol.equals(Symbol.NULL)) {
+            entitySetSetType = new SetType(entitySetType, this.globalScope);
+            this.globalScope.bind(entitySetSetType);
+        } else {
+            entitySetSetType = (SetType) entitySetSetSymbol;
+        }
+        var singleChoiceSymbol = this.globalScope.resolve("single_choice_task");
+        if (!singleChoiceSymbol.equals(Symbol.NULL)) {
+            IType singleChoiceTaskType = (IType) singleChoiceSymbol;
+            NativeFunction singleChoiceScenarioBuilderFunc =
+                    new SingleChoiceNativeScenarioBuilder(
+                            this.globalScope, singleChoiceTaskType, entitySetSetType);
+            nativeFunctions.add(singleChoiceScenarioBuilderFunc);
+        }
+
+        var multipleChoiceSymbol = this.globalScope.resolve("multiple_choice_task");
+        if (!multipleChoiceSymbol.equals(Symbol.NULL)) {
+            IType multipleChoiceTaskType = (IType) multipleChoiceSymbol;
+            NativeFunction multipleChoiceScenarioBuilderFunc =
+                    new MultipleChoiceNativeScenarioBuilder(
+                            this.globalScope, multipleChoiceTaskType, entitySetSetType);
+            nativeFunctions.add(multipleChoiceScenarioBuilderFunc);
+        }
+
+        var assignSymbol = this.globalScope.resolve("assign_task");
+        if (!assignSymbol.equals(Symbol.NULL)) {
+            IType assignTaskType = (IType) assignSymbol;
+            NativeFunction assignTaskNativeScenarioBuilder =
+                    new AssignTaskNativeScenarioBuilder(
+                            this.globalScope, assignTaskType, entitySetSetType);
+            nativeFunctions.add(assignTaskNativeScenarioBuilder);
         }
 
         return nativeFunctions;
@@ -935,5 +973,106 @@ public class GameEnvironment implements IEvironment {
         }
     }
 
+    // endregion
+
+    // region native scenario builder function
+    private static class SingleChoiceNativeScenarioBuilder extends NativeFunction {
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public SingleChoiceNativeScenarioBuilder(
+                IScope parentScope, IType singleChoiceType, IType entitySetSetType) {
+            super(
+                    "$default_single_choice_scenario$",
+                    parentScope,
+                    new FunctionType(entitySetSetType, singleChoiceType));
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Quiz task = (Quiz) parameterObjects.get(0);
+
+            // call func
+            return NativeScenarioBuilder.quizOnHud(task);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class MultipleChoiceNativeScenarioBuilder extends NativeFunction {
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public MultipleChoiceNativeScenarioBuilder(
+                IScope parentScope, IType multipleChoiceType, IType entitySetSetType) {
+            super(
+                    "$default_multiple_choice_scenario$",
+                    parentScope,
+                    new FunctionType(entitySetSetType, multipleChoiceType));
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            Quiz task = (Quiz) parameterObjects.get(0);
+
+            // call func
+            return NativeScenarioBuilder.quizOnHud(task);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
+
+    private static class AssignTaskNativeScenarioBuilder extends NativeFunction {
+
+        /**
+         * Constructor
+         *
+         * @param parentScope parent scope of this function
+         */
+        public AssignTaskNativeScenarioBuilder(
+                IScope parentScope, IType assignTaskType, IType entitySetSetType) {
+            super(
+                    "$default_assign_task_scenario$",
+                    parentScope,
+                    new FunctionType(entitySetSetType, assignTaskType));
+        }
+
+        @Override
+        public Object call(DSLInterpreter interpreter, List<Node> parameters) {
+            assert parameters != null && parameters.size() > 0;
+
+            var parameterValues = interpreter.evaluateNodes(parameters);
+            var parameterObjects = interpreter.translateValuesToObjects(parameterValues);
+            AssignTask task = (AssignTask) parameterObjects.get(0);
+
+            // call func
+            return NativeScenarioBuilder.assignTaskA(task);
+        }
+
+        @Override
+        public ICallable.Type getCallableType() {
+            return ICallable.Type.Native;
+        }
+    }
     // endregion
 }

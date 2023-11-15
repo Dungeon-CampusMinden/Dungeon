@@ -30,4 +30,8 @@ public class FunctionValue extends Value {
     public Object clone() {
         return new FunctionValue(this.dataType, this.getCallable());
     }
+
+    public boolean isEmpty() {
+        return this.getInternalValue() == null;
+    }
 }
