@@ -15,8 +15,8 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.Animation;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -30,7 +30,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
 
     private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
     private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getName());
-    private final String pathToTexturesOfProjectile;
+    private final Animation pathToTexturesOfProjectile;
     private final float projectileSpeed;
     private final float projectileRange;
     private final int damageAmount;
@@ -42,7 +42,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     /**
      * The DamageProjectile constructor sets the path to the textures of the projectile, the speed
      * of the projectile, the damage amount and type to be dealt, the size of the projectile's
-     * hitbox, the target selection function, the range of the projectile, and the bahavior when a
+     * hitbox, the target selection function, the range of the projectile, and the behavior when a
      * wall is hit.
      *
      * <p>for specific implementation, see {@link contrib.utils.components.skill.FireballSkill}
@@ -57,7 +57,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
      * @param onWallHit behavior when a wall is hit
      */
     public DamageProjectile(
-            String pathToTexturesOfProjectile,
+            Animation pathToTexturesOfProjectile,
             float projectileSpeed,
             int damageAmount,
             DamageType damageType,
@@ -91,7 +91,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
      * @param projectileRange range in which the projectile is effective
      */
     public DamageProjectile(
-            String pathToTexturesOfProjectile,
+            Animation pathToTexturesOfProjectile,
             float projectileSpeed,
             int damageAmount,
             DamageType damageType,
@@ -134,16 +134,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                                                 entity, PositionComponent.class));
         projectile.addComponent(new PositionComponent(epc.position()));
 
-        try {
-            projectile.addComponent(new DrawComponent(pathToTexturesOfProjectile));
-        } catch (IOException e) {
-            LOGGER.warning(
-                    "The DrawComponent for the projectile "
-                            + entity
-                            + " cant be created. "
-                            + e.getMessage());
-            throw new RuntimeException();
-        }
+        projectile.addComponent(new DrawComponent(pathToTexturesOfProjectile));
 
         Point startPoint = new Point(0, 0);
         entity.fetch(CollideComponent.class)
