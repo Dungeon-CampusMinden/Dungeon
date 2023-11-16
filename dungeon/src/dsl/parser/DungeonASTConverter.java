@@ -716,35 +716,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
     }
 
     @Override
-    public void enterGrammar_type_obj_def(DungeonDSLParser.Grammar_type_obj_defContext ctx) {}
+    public void enterObject_def(DungeonDSLParser.Object_defContext ctx) {}
 
     @Override
-    public void exitGrammar_type_obj_def(DungeonDSLParser.Grammar_type_obj_defContext ctx) {
-        var propertyDefList = Node.NONE;
-        if (ctx.property_def_list() != null) {
-            propertyDefList = astStack.pop();
-            assert (propertyDefList.type == Node.Type.PropertyDefinitionList);
-        }
-
-        // id on stack
-        var id = astStack.pop();
-        assert (id.type == Node.Type.Identifier);
-
-        // type specifier on stack
-        var typeSpecifier = astStack.pop();
-        assert (typeSpecifier.type == Node.Type.Identifier);
-
-        var objectDef =
-                new ObjectDefNode(
-                        typeSpecifier, id, propertyDefList, ObjectDefNode.Type.GrammarBuiltInType);
-        astStack.push(objectDef);
-    }
-
-    @Override
-    public void enterOther_type_obj_def(DungeonDSLParser.Other_type_obj_defContext ctx) {}
-
-    @Override
-    public void exitOther_type_obj_def(DungeonDSLParser.Other_type_obj_defContext ctx) {
+    public void exitObject_def(DungeonDSLParser.Object_defContext ctx) {
         var propertyDefList = Node.NONE;
         if (ctx.property_def_list() != null) {
             propertyDefList = astStack.pop();
@@ -1122,10 +1097,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
             int value = Integer.parseInt(node.getText());
             var numNode = new NumNode(value, getSourceFileReference(node));
             astStack.push(numNode);
-        } else if (nodeType == DungeonDSLLexer.TYPE_SPECIFIER) {
-            String value = node.getText();
-            var typeSpecifierNode = new IdNode(value, getSourceFileReference(node));
-            astStack.push(typeSpecifierNode);
         } else if (nodeType == DungeonDSLLexer.TRUE) {
             var boolNode = new BoolNode(true, getSourceFileReference(node));
             astStack.push(boolNode);
