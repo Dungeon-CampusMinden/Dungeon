@@ -88,9 +88,7 @@ public final class TextDialog extends Dialog {
 
 ## Skin
 
-LibGDX besitzt die Klasse `Skins`, die zur Speicherung von Bildressourcen (Texturen, Schriftarten, etc.) verwendet werden kann, um damit das Aussehen der UI-Elemente zu definieren. Neben der Bereitstellung der Texturbereiche, die von den Widgets benötigt werden, können auch UI-Widget-St
-
-ile gespeichert werden, die später das Aussehen der Widgets bestimmen können. Die Ressourcen (Farben, Bilder, Schriftarten), die die Widgets benötigen, bezeichnet man als „Stil“. Jedes Widget definiert eine eigene statische Mitgliedsklasse mit Konstruktoren zum Setzen von Basisstilen, die durch die `setStyle`-Methode zur Stilveränderung verwendet werden können. Zur Darstellung und Formatierung der einzelnen Widgets können auch Skin-Dateien von LibGDX verwendet werden.
+LibGDX besitzt die Klasse `Skins`, die zur Speicherung von Bildressourcen (Texturen, Schriftarten, etc.) verwendet werden kann, um damit das Aussehen der UI-Elemente zu definieren. Neben der Bereitstellung der Texturbereiche, die von den Widgets benötigt werden, können auch UI-Widget-Stile gespeichert werden, die später das Aussehen der Widgets bestimmen können. Die Ressourcen (Farben, Bilder, Schriftarten), die die Widgets benötigen, bezeichnet man als „Stil“. Jedes Widget definiert eine eigene statische Mitgliedsklasse mit Konstruktoren zum Setzen von Basisstilen, die durch die `setStyle`-Methode zur Stilveränderung verwendet werden können. Zur Darstellung und Formatierung der einzelnen Widgets können auch Skin-Dateien von LibGDX verwendet werden.
 
 **ACHTUNG:** Die Default-Skins von LibGDX können ausschließlich zu Testzwecken verwendet werden und dürfen nicht in das Projekt eingefügt werden. Die Skins können unter folgendem Link gefunden werden: [LibGDX Default Skins](https://github.com/libgdx/libgdx/tree/master/extensions/gdx-tools/assets). Im Package `assets` gibt es ein Package `skin`, dort können folgende Skin-Dateien eingefügt werden:
 
