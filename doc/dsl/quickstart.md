@@ -136,6 +136,9 @@ Diesen Definitionen stellen den "Einstiegspunkt" für das Dungeon-System dar.
 
 ## Definition von Aufgabenabhängigkeiten
 
+Das folgende Code-Snippet ist aus dem [quickstart_task_dependency.dng](examplescripts/quickstart_task_dependency.dng)
+Beispielskript entnommen:
+
 ```
 // datei: doc/dsl/examplescripts/quickstart_task_dependency.dng
 
@@ -153,6 +156,18 @@ dungeon_config meine_config {
     dependency_graph: task_graph
 }
 ```
+
+Im genannten Skript werden drei Aufgaben definiert. Diese werden in der `graph`-Definition referenziert
+und in Abhängigkeit zueinander gesetzt. Eine Aufgabenabhängigkeit wird durch die Verkettung der Aufgabenname
+mit `->` erstellt. Außerdem muss der Typ der Abhängigkeiten definiert werden, hierfür wird das `type`-Attribut
+verwendet. Die definierte Abhängigkeit lässt sich wie folgt lesen: `Aufgabe1` bildet eine Sequenz mit
+`Aufgabe2` und `Aufgabe2` bildet eine Sequenz mit `Aufgabe3`. Hierdurch muss `Aufgabe1` zuerst bearbeitet werden,
+danach muss `Aufgabe2` bearbeitet werden und abschließend `Aufgabe3`. Ob eine Aufgabe richtig oder falsch bearbeitet
+wird spielt hierbei keine Rolle. Für eine Auflistung und Erklärung aller Abhängigkeitstypen siehe
+[TODO: Dokumentation zu Abhängigkeitstypen, bis dahin erstmal die Petrinetz-Doku](../control_mechanisms/petri_nets.md).
+
+Das oben vorgestellte Skript kann wie unter [Starten des Dungeon Systems](#starten-des-dungeon-systems) beschrieben
+gestartet werden.
 
 ## Definition von verschiedenen Szenarien
 
