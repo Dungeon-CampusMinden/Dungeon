@@ -28,7 +28,7 @@ Diese bietet die statische Methode `#ILevel level(Set<Set<Entity>> entities, Des
 
 Damit im Spiel auch das generierte graphenbasierte Level verwendet wird, muss es noch als aktives Level festgelegt werden.
 
-Am besten wird dies in der Main-Methode in der Definition von `Game#onUserSetup` gemacht.
+Am besten wird dies in der Main-Methode in der Definition von `Game#userOnSetup` gemacht.
 
 Der Code dafür könnte beispielsweise wie folgt aussehen:
 
@@ -38,8 +38,8 @@ Game.currentLevel(level);
 ```
 Fertig.
 
-Die Klasse contrib.level.generator.graphBased.RoomBasedLevelGenerator bietet auch die Methode
-#ILevel level(final LevelGraph graph, DesignLabel designLabel), die die Räume für den übergebenen Levelgraphen generiert usw. Dies kann nützlich sein, wenn Sie die Levelstruktur feiner bestimmen möchten, z. B. indem Sie verschiedene Graphen miteinander verbinden (siehe unten).
+Die Klasse `contrib.level.generator.graphBased.RoomBasedLevelGenerator` bietet auch die Methode
+`#ILevel level(final LevelGraph graph, DesignLabel designLabel)`, welche die Räume für den übergebenen Levelgraphen generiert usw. Dies kann nützlich sein, wenn Sie die Levelstruktur feiner bestimmen möchten, z. B. indem Sie verschiedene Graphen miteinander verbinden (siehe unten).
 
 ## Graphengenerator
 Der LevelGraphGenerator generiert den LevelGraph.
