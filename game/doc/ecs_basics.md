@@ -21,6 +21,8 @@ Der Zustand einer Entität wird also über ihre Components bestimmt, und ihr Ver
 
 ## Basisstruktur
 
+-------- TODO REWORK ---------
+
 ![Struktur ECS](./img/ecs.png)
 
 *Anmerkung:* Das UML ist für bessere Lesbarkeit auf die wesentlichen Bestandteile gekürzt.
@@ -33,9 +35,25 @@ Die Methode `GameLoop#render` ist die Game-Loop. Das ECS wird durch die in weiß
 
 Die LevelAPI generiert, zeichnet und speichert das aktuelle [Level](./level/readme.md). Klassen, die rot gekennzeichnet sind, gehören dazu.
 
+-------- TODO REWORK ---------
+
 Neu erzeugte Entitäten werden im Game registriert und im [`SystemEntityMapper`](./system_entity_mapper.md) hinterlegt.
 
 Die Systeme registrieren sich in `Game` und geben dabei an, auf welche Entitäten sie agieren wollen, heißt: Welche Components eine Entität implementieren muss, um vom System bearbeitet zu werden. Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#fetch` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Controller` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Controller`. Systemlogiken werden einmal pro Frame ausgeführt.
+
+## Prerun Konfiguration
+
+Einige Aspekte des Spiels lassen sich vor dem Start konfigurieren. Dafür können in der eigenen Main-Methode verschiedene Konfigurationsmethoden verwendet werden.
+
+```java
+public static void main(String[] args) {
+    Game.frameRate(60);
+    Game.disableAudio(true);
+    Game.fullScreen(true);
+}
+```
+
+Die weiteren Konfigurationsoperationen können der Javadoc entnommen werden.
 
 ## Usercontent in der GameLoop integrieren
 
