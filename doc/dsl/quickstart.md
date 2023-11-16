@@ -169,10 +169,12 @@ wird spielt hierbei keine Rolle. Für eine Auflistung und Erklärung aller Abhä
 Das oben vorgestellte Skript kann wie unter [Starten des Dungeon Systems](#starten-des-dungeon-systems) beschrieben
 gestartet werden.
 
-## Definition von verschiedenen Szenarien
+## Wie geht es weiter?
 
-- Ziel: Randomisierung der Szenarien und verwendeten Spielmechaniken für einen bestimmten
-  Aufgabentyp
-- Mithilfe der
-  [Taskbuilder-Methoden](https://github.com/Programmiermethoden/Dungeon/issues/197) können
-  die Szenarien zusammengebaut werden (das ist allerdings bisher nur ein Konzept).
+Die Aufgabendefinitionen lassen noch mehr Konfigurationen zu, als in den Beispielskripten
+verwendet wird. Für eine detaillierte Dokumentation der Aufgabendefinitionen, siehe [hier](TODO).
+
+Die bisher vorgestellten Aufgaben verwenden die Standard-Szenarien. Ein **Szenario**
+beschreibt die Abbilung einer abstrakten Aufgabenbeschreibung in das Spiel.
+Die DungeonDSL ermöglicht die Definition von eigenen Szenarien, siehe hierfür die
+[Dokumentation für die Definition eigener Szenarien (TODO)](TODO).
