@@ -25,21 +25,22 @@ Der Zustand einer Entität wird also über ihre Components bestimmt, und ihr Ver
 
 ![Struktur ECS](./img/ecs.png)
 
-*Anmerkung:* Das UML ist für bessere Lesbarkeit auf die wesentlichen Bestandteile gekürzt.
+-------- TODO REWORK ---------
+
+*Anmerkung:* Das UML ist für bessere Lesbarkeit auf die wesentlichen Bestandteile gekürzt und stellenweise vereinfacht. Beachten Sie die JavaDoc.
 
 Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht.
 
+Mit der Methode `Game#run` wird das Spiel gestartet.
+
 *Anmerkung*: In der Realität ist die Klasse `Game` nur ein Sammelpunkt und implementiert selbst kaum Logik. Die Klasse dient als zentraler Steuerungspunkt für das Framework, leitet die Anfragen aber nur an die jeweiligen zuständigen Klassen weiter. Für eine bessere Verständlichkeit sprechen wir dennoch von der Klasse `Game` als operative Klasse.
 
-Die Methode `GameLoop#render` ist die Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `System` implementiert.
-
-Die LevelAPI generiert, zeichnet und speichert das aktuelle [Level](./level/readme.md). Klassen, die rot gekennzeichnet sind, gehören dazu.
-
--------- TODO REWORK ---------
+Die Methode `#render` (eigentlich in der Klasse `GameLoop`) ist die Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `System` implementiert.
 
 Neu erzeugte Entitäten werden im Game registriert und im [`EntitySystemMapper`](./entity_system_mapper.md) hinterlegt.
 
-Die Systeme registrieren sich in `Game` und geben dabei an, auf welche Entitäten sie agieren wollen, heißt: Welche Components eine Entität implementieren muss, um vom System bearbeitet zu werden. Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#fetch` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Controller` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Controller`. Systemlogiken werden einmal pro Frame ausgeführt.
+Die Systeme registrieren sich in `Game` und geben dabei an, auf welche Entitäten sie agieren wollen, heißt: Welche Components eine Entität implementieren muss, um vom System bearbeitet zu werden. Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#fetch` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Components` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Components`. Systemlogiken werden einmal pro Frame ausgeführt.
+```
 
 ## Prerun Konfiguration
 
