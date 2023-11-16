@@ -8,16 +8,6 @@ public class ObjectDefNode extends Node {
     public final int idIdx = 1;
     public final int propertyDefListIdx = 2;
 
-    // TODO: is this still needed? This is likely to be revised once
-    //  a proper type system with typechecking is implemented
-    public enum Type {
-        NONE,
-        GrammarBuiltInType,
-        IdForType
-    }
-
-    private final Type type;
-
     /**
      * Getter for the definition type
      *
@@ -82,11 +72,10 @@ public class ObjectDefNode extends Node {
      * @param propertyDefList The AstNode corresponding to the property definition list
      * @param type The {@link Type} of object definition
      */
-    public ObjectDefNode(Node typeSpecifier, Node id, Node propertyDefList, Type type) {
+    public ObjectDefNode(Node typeSpecifier, Node id, Node propertyDefList) {
         super(
                 Node.Type.ObjectDefinition,
                 new ArrayList<>(propertyDefList.getChildren().size() + 2));
-        this.type = type;
 
         this.addChild(typeSpecifier);
         this.addChild(id);

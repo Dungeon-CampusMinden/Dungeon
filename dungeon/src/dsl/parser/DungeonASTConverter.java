@@ -734,9 +734,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
         var typeSpecifier = astStack.pop();
         assert (typeSpecifier.type == Node.Type.Identifier);
 
-        var objectDef =
-                new ObjectDefNode(
-                        typeSpecifier, id, propertyDefList, ObjectDefNode.Type.GrammarBuiltInType);
+        var objectDef = new ObjectDefNode(typeSpecifier, id, propertyDefList);
         astStack.push(objectDef);
     }
 
