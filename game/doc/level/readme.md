@@ -2,48 +2,22 @@
 title: "Level Basics"
 ---
 
-WIP, Issue #530
+## Level Grundlagen
 
--   Wie sind Level aufgebaut?
--   Wie funktionieren die Generatoren?
--   Wie genau funktioniert die LevelAPI?
--   Wie funktioniert das Pathfinding?
+Die Level werden als ein 2D Tile-Array gespeichert, wobei jedes Tile eine feste Koordinate (Index der Position des Tiles im Array) im Array besitzt. Ein Tile ist ein einzelnes Feld innerhalb des Levels (`FLOOR`, `WALL`, `EXT`, `DOOR`, etc.), welches zur Laufzeit zur vollständigen Ebene zusammengesetzt werden kann (Spielbrett). Es muss außerdem zwischen einer `Coordinate` und einem `Point` unterschieden werden. Die `Coordinate` beinhalten zwei Integer-Werte x und y, durch welche die Tile-Positionen im Dungeon bestimmt werden. Der `Point` beinhaltet zwei Float-Werte x und y und wird verwendet, um die Position einer Entität (`Hero`, `Chest`, etc.) im Spiel anzugeben. Die Umwandlung des `Point` zu einer `Coordinate` erfolgt durch Parsen von Float zu Int, dies dient dazu, damit sich die Entitäten (z.B Monster) zwischen den einzelnen Tiles bewegen und miteinander interagieren können.
 
-Die LevelAPI ist dafür Zuständig neue Level zu erzeugen und diese zu laden. Bevor ein neues Level mit der angegebenen
-oder zufälligen Größe und einem zufälligen Design geladen werden kann, muss dieses erstmal erzeugt werden. Mit
-`runPreGeneration()` wird ein Level aus `SKIP`-Level-Elementen vorgeneriert, die später durch die Dungeonelemente wie
-(`FLOOR`(Bodenplatten des Dungeons), `WALL`(Wände des Dungeons), `HOLE`(fehlende Bodenplatten im Dungeon, die den Weg
-blockueren)) überschrieben werden. Wände werden am äußeren Rand eines Levels erzeugt. Liegen die `SKIP`-Level-Elemente
-neben einem `FLOOR`und es gibt keinen Platz für eine `WALL`, werden die `SKIP`-LevelElemente durch eine `HOLE` ersetzt.
-Es entsteht ein 2D Spielefeld, bei dem jedes Tile mit seinem unmittelbaren Nachbarn verbunden wird. Funktion onLevelLoad
-sorg dafür, dass alle vorhandenen Levelelemente beim Laden des Levels vorhanden sind. Zudem folgt die Erstellung eines
-Helden und eines wandelnden Monsters.
+## LevelSystem
 
-``` java
-public void onLevelLoad() {
-        currentLevel = levelAPI.getCurrentLevel();
+Das `LevelSystem` speichert das aktuelle Level, zeichnet dieses und prüft, ob ein neues Level geladen werden muss. Im `LevelSystem` ist ein Levelgenerator hinterlegt, welcher immer wieder neue Level generiert. Befindet sich der Spieler auf einem Ausgang, wird ein neues Level generiert und geladen.
 
-        entities.clear();
-        entities.add(hero);
-        heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
+Die [Raumbasierten Level](./room_level.md) verwenden keine klassischen Ausgänge, sondern Türen. Daher prüft der Levelgenerator, ob der Spieler sich auf einer Tür befindet, und wenn ja, lädt das Level zu der Tür, die führt. Wenn der [Graphenbasierte Levelgenerator](./graphbased.md) verwendet wird, werden die Räume und die Levelstruktur zu Beginn des Spiels generiert. Es findet keine neue Generierung statt, das Level ist also endlos.
 
-        // TODO: when calling this before currentLevel is set, the default ctor of PositionComponent
-        // triggers NullPointerException
-        setupDSLInput();
-    }
-```
+In der Standardkonfiguration wird der [Drunkard Walk](https://de.wikipedia.org/wiki/Drunkard%E2%80%99s_Walk) Algorithmus zum Generieren von Leveln verwendet.
 
-Damit wird der Held auf seine Startposition zu beginn des Spils gesetzt.
+Beim Laden eines neuen Levels wird `Game#onLevelLoad` und damit auch `Game#userOnLevelLoad` aufgerufen.
 
-``` java
-heroPositionComponent.setPosition(currentLevel.getStartTile().getCoordinate().toPoint());
-```
+## Pathfinding
 
-Die Level werden als ein 2D Tile-Array gespeichert, wobei jedes Tile eine feste Coordinate (Index der Position des Tiles
-im Array) im Array besitzt. Ein Tile ist ein einzelnes Feld innerhalb des Levels (`FLOOR`, etc), welches zur Laufzeit
-zur vollständigen Ebene zusammengesetzt werden kann (Speilfeld). Es muss ausßerdem zwischen einer `Coordinate` und einem
-`Point` unterschieden werden. Die `Coordinate` beinhalten zwei integer Werte x und y, durch welche die Tile Positionen
-im Dungeon bestimmt werden. Der `Point` beinhalten zwei float Werte x und y und wird verwendet, um die Position einer
-Entität (`Hero`, `Chest`, etc.) im Spiel anzugeben. Die Umwandlung des `Point` zu einer `Coordinate` erfolgt durch
-Parsen von float zu int, dies dient dazu, damit sich die Entitäten (z.B Monster) zwischen den einzelnen Tiles bewegen
-und miteinander interagieren können.
+Die Level im Dungeon unterstützen das libGDX-A*-Pathfinding. Mit `Game#findPath` kann der Pfad von einem Tile zum anderen Tile berechnet werden. Dabei wird eine `GraphPath<Tile>`-Instanz zurückgeliefert, diese kann als Liste der Tiles, die zu betreten sind, interpretiert werden. Dabei ist das erste Tile das Start-Tile und das letzte Tile das Endtile.
+
+Anmerkung: Die Pathfindung funktioniert nur innerhalb eines Levels oder Raums. Türen können aktuell nicht mitbetrachtet werden.
