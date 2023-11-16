@@ -37,7 +37,7 @@ Die LevelAPI generiert, zeichnet und speichert das aktuelle [Level](./level/read
 
 -------- TODO REWORK ---------
 
-Neu erzeugte Entitäten werden im Game registriert und im [`SystemEntityMapper`](./system_entity_mapper.md) hinterlegt.
+Neu erzeugte Entitäten werden im Game registriert und im [`EntitySystemMapper`](./entity_system_mapper.md) hinterlegt.
 
 Die Systeme registrieren sich in `Game` und geben dabei an, auf welche Entitäten sie agieren wollen, heißt: Welche Components eine Entität implementieren muss, um vom System bearbeitet zu werden. Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#fetch` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Controller` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Controller`. Systemlogiken werden einmal pro Frame ausgeführt.
 
