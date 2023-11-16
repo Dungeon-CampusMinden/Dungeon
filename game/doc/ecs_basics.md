@@ -11,11 +11,10 @@ Im Projekt wird das [ECS-Paradigma](https://en.wikipedia.org/wiki/Entity_compone
 Entitäten sind die Objekte im Spiel. Im Code sind sie nur leere Container, dessen Eigenschaften über die zugewiesenen Components bestimmt werden. Entitäten haben neben den Components keine eigenen Attribute oder Funktionen.
 
 **Component**
-Components sind die Datensätze der Entitäten und beschreiben dadurch die Eigenschaften der Entitäten. Eine Component-Instanz gehört zu genau einer Entität.
+Components sind die Datensätze der Entitäten und beschreiben dadurch die Eigenschaften der Entitäten.
 
 Components speichern im Regelfall nur die Daten/den Zustand einer Entität.
-In Ausnahmefällen kann es erforderlich sein, zusätzliche Logik in Components zu implementieren. Der Umfang sollte in diesen Fällen möglichst klein gehalten werden, da die Logik normalerweise in den Systemen realisiert wird.
-Siehe auch [Strategy Pattern im ECS](ecs_and_strategy_pattern.md)
+In Ausnahmefällen kann es erforderlich sein, zusätzliche Logik in Components zu implementieren. Der Umfang sollte in diesen Fällen möglichst klein gehalten werden, da die Logik normalerweise in den Systemen realisiert wird. Wir verwenden hierfür Funktionale-Interfaces wie `Consumer` oder `Function`. 
 
 **System**
 Systeme agieren auf den Components und ändern die Werte in diesen. Sie beschreiben also das Verhalten der Entitäten. Ein System kann auf ein oder mehreren Components agieren.
@@ -25,21 +24,19 @@ Der Zustand einer Entität wird also über ihre Components bestimmt, und ihr Ver
 
 ## Basisstruktur
 
-![Struktur ECS](img/ecs.png)
+![Struktur ECS](./img/ecs.png)
 
 *Anmerkung:* Das UML ist für bessere Lesbarkeit auf die wesentlichen Bestandteile gekürzt.
 
-Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht. Die Methode `Game#render` ist die Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `System` implementiert.
+Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht.
 
-Die LevelAPI generiert, zeichnet und speichert das aktuelle [Level](level/readme.md). Klassen, die rot gekennzeichnet sind, gehören dazu.
+*Anmerkung*: In der realtität ist die Klasse `Game` nur ein Sammelpunkt und implementiert selbst kaum Logik. Die Klasse dient als zentralen Steuerrungspunkt für das Framework, leitet die Anfragen aber nur an die jeweiligen zuständigek Klassen weiter. Für eine bessere verständlichkeit sprechen wir dennoch von der Klasse `Game` als operative Klasse. 
 
-Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab.
-`System`e speichern sich automatisch im `SystemController` `systems` der `Game`-Klasse ab.
+Die Methode `GameLoop#render` ist die Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `System` implementiert.
 
-Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#getComponent` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Controller` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Controller`.
+Die LevelAPI generiert, zeichnet und speichert das aktuelle [Level](./level/readme.md). Klassen, die rot gekennzeichnet sind, gehören dazu.
 
-Die in Gelb hinterlegten Klassen stammen aus dem PM-Dungeon-Framework. Für ein Basisverständnis des Dungeons ist ein Wissen über die Funktionalität dieser Klassen nicht nötig.
+Neu erzeugte Entitäten speichern werden im Game registiert und im [`SystemEntityMapper`](./system_entity_mapper.md) hintelegt. 
 
-## Integration des ECS in die Game-Loop
-
-Um die Systeme in die GameLoop zu integrieren, wird ein Objekt vom Typ `SystemController` genutzt. Er hält die Menge aller vorhandenen Systeme und ruft einmal pro Frame für jedes System die `update`-Methode. Die Registrierung der Systeme beim Controller wird über den Konstruktor der Klasse `System` erledigt - dadurch müssen abgeleitete Systeme dies nicht selbst machen.
+Die Systeme registirieren sich in `Game` und geben dabei an, auf welche Entitäten sie agieren wollen, heißt: Welche Components eine Entität implementieren muss, um vom System bearbeitet zu werden. Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#fetch` auf die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Controller` sind in dem UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Controller`.
+Systemlogiken werden einmal pro Frame ausgeführt.
