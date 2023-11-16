@@ -4,79 +4,64 @@ title: "Eigene Inhalte erstellen"
 
 ## Entitäten erstellen
 
-Entitäten werden nicht durch das Ableiten der Klasse `Entity` erzeugt, sondern durch das Instanziieren von `Entity` und durch das Hinzufügen von Komponenten zum Objekt.
-
-Um eine eigene Entität zu erstellen, muss man:
+Entitäten werden nicht durch das Ableiten der Klasse `Entity` erzeugt, sondern durch das Instanziieren von `Entity` und durch das Hinzufügen von Komponenten zum Objekt. Eine Entitätsinstanz kann einen Komponententypen nur einmal speichern. Um eine eigene Entität zu erstellen, muss man:
 
 1. Eine neue Instanz vom Typ `Entity` anlegen
-2. Die gewünschten Komponenten erstellen
+2. Die gewünschten Komponenten erstellen und hinzufügen
+3. Die Entität im Spiel registrieren
 
 Beispiel:
 ```java
-Entity monster = new Entity();
-
-PositionComponent pc = new PositionComponent(monster);
-AIComponent ai = new AIComponent(monster);
-AnimationComponent ac = new AnimationComponent(monster);
-VelocityComponent vc = new AnimationComponent(monster);
+Entity monster = new Entity("My Monster");
+monster.add(new PositionComponent());
+monster.add(new DrawComponent());
+monster.add(new VelocityComponent());
+Game.add(monster);
 ```
 
-*Anmerkung*: Die Komponenten wurden im Beispiel alle mit den jeweiligen Default-Werten initialisiert. Die Verwendung der anderen Konstruktoren (mit eigenen Werten) geht natürlich auch.
+*Anmerkung*: Die Komponenten wurden im Beispiel alle mit den jeweiligen Standardwerten initialisiert. Die Verwendung der anderen Konstruktoren (mit eigenen Werten) geht natürlich auch.
 
-*Hinweis: Um Entitäten aus dem Spiel zu entfernen, nutzen Sie die Methode `Game#removeEntity`.*
+*Hinweis: Um Entitäten aus dem Spiel zu entfernen, nutzen Sie die Methode `Game#remove`.*
 
-## Component erstellen
+## Komponente erstellen
 
-Um eigene Components zu implementieren, muss Spezialisierung der abstrakten Klasse  `Component` erstellt werden.
+Um eigene Komponenten zu implementieren, muss eine Spezialisierung der abstrakten Klasse `Component` erstellt werden.
 
-Components werden im package `ecs.components` abgelegt und sollen den Namensschema `$WHAT_IS_THIS_COMPONENT$Component`folgen.
-
-Jede Component-Instanz gehört zu genau einer Entitäs-Instanz. Eine Entitäts-Instanz kann einen Component-Typen nur einmal speichern.
-
-Um Components für die DSL verfügbar zu machen, siehe **TBD**
+```java
+class MyComponent extends Component {
+    // meine Inhalte
+}
+```
 
 ## System erstellen
 
-Um eigene Systeme zu implementieren, muss eine Spezialisierung von `System` erstellt werden.
-Systeme werden im package `ecs.systems` abgelegt und sollen den Namensschema `$WHAT_IS_THIS_$System`folgen.
+Um eigene Systeme zu implementieren, muss eine Spezialisierung von `System` erstellt werden. Im Konstruktor wird mithilfe des `super`-Konstruktors festgelegt, welche Komponenten das System benötigt.
 
-
-Die Funktionalität des Systems wird in der `update`-Methode implementiert. Diese wird einmal pro Frame aufgerufen.
-In der `update`-Methode wird dann über die Collectiom `Game.entities`iteriert, alle Entitäten mit dem Key-Component gefiltert und dann die eigentliche System-Logik auf die Entiäten angewendet.
-
-Beispiel aus dem `HealthSystem`:
 ```java
-
- // private record to hold all data during streaming
-private record HSData(Entity e, HealthComponent hc, AnimationComponent ac) {}
-
-
- @Override
-public void update() {
-        Game.getEntities().stream()
-                // Consider only entities that have a HealthComponent
-                .flatMap(e -> e.getComponent(HealthComponent.class).stream())
-                // Form triples (e, hc, ac)
-                .map(hc -> buildDataObject((HealthComponent) hc))
-                // Apply damage
-                .map(this::applyDamage)
-                // Filter all dead entities
-                .filter(hsd -> hsd.hc.getCurrentHealthpoints() <= 0)
-                // Remove all dead entities
-                .forEach(this::removeDeadEntities);
+class MySystem extends System {
+    public MySystem() {
+        super(MyComponent.class, MySecondComponent.class);
     }
-
-private HSData buildDataObject(HealthComponent hc) {
-        Entity e = hc.getEntity();
-
-        AnimationComponent ac =
-                (AnimationComponent)
-                        e.getComponent(AnimationComponent.class)
-                                .orElseThrow(HealthSystem::missingAC);
-                return new HSData(e, hc, ac);
-        }
-
-private HSData applyDamage(HSData hsd) {...}
-private void removeDeadEntities(HSData hsd){...}
-
+}
 ```
+
+Die Funktionalität des Systems wird in der `execute`-Methode implementiert. Diese wird einmal pro Frame aufgerufen. In der `execute`-Methode kann mit `entityStream()` der Stream aus `Game` geholt werden, der alle Entitäten enthält, die von dem System verwaltet werden.
+
+```java
+@Override
+public void execute() {
+    entityStream().forEach(this::myLogic);
+}
+
+private void myLogic(Entity e) {
+    System.out.println(e);
+}
+```
+
+Das System muss jetzt noch in `Game` registriert werden.
+
+```java
+Game.add(new MySystem());
+```
+
+Systeme werden in der Reihenfolge ausgeführt, in der sie im Spiel registriert sind.
