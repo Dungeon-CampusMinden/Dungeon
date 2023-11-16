@@ -113,7 +113,7 @@ dungeon_config meine_config {
 
 Mit der `single_choice_task`-Definition wird eine neue Aufgabe definiert.
 `single_choice_task` ist dabei der Typ der Aufgabendefinition und legt fest, welche weiteren Informationen
-konfiguriert werden müssen (für weitere Aufgabentypen: siehe Doku zu Daten für Aufgabentypen - TODO).
+konfiguriert werden müssen (für weitere Aufgabentypen: siehe [Dokumentation Aufgabenerstellung (TODO)](https://github.com/Programmiermethoden/Dungeon/issues/1212)).
 `meine_aufgabe` ist ein frei wählbarer Name für die Definition und dient dazu,
 die Aufgabendefinition im weiteren Verlauf der `.dng`-Datei zu referenzieren.
 Dabei werden der Aufgabentext (`description`), die möglichen Antworten (als Liste von Strings, `answers`)
@@ -128,7 +128,7 @@ explizit in der Aufgabendefinition durch Nutzende konfiguriert wird.
 Die einzelne Aufgabendefinition wird noch nicht vom Dungeon-System eingelesen. Um eine Aufgabendefinition
 an das Dungeon-System zu übergeben, muss sie in einem Abhängigkeitsgraph (`graph`) referenziert werden.
 In einem Abhängigkeitsgraph können mehrere Aufgaben miteinander in Abhängigkeit zueinander gesetzt werden
-(siehe dafür Doku Abhängigkeitsgraph - TODO). Soll eine Aufgabe keine Abhängigkeiten zu anderen Aufgaben
+(siehe dafür [Dokumentation Aufgabenabhängigkeiten (TODO)](https://github.com/Programmiermethoden/Dungeon/issues/1215). Soll eine Aufgabe keine Abhängigkeiten zu anderen Aufgaben
 haben, reicht es aus, sie einfach mit ihrem Namen in der `graph`-Definition zu referenzieren.
 
 Der Abhängigkeitsgraph muss anschließend noch in einer `dungeon_config`-Definition referenziert werden.
@@ -164,7 +164,7 @@ verwendet. Die definierte Abhängigkeit lässt sich wie folgt lesen: `Aufgabe1` 
 `Aufgabe2` und `Aufgabe2` bildet eine Sequenz mit `Aufgabe3`. Hierdurch muss `Aufgabe1` zuerst bearbeitet werden,
 danach muss `Aufgabe2` bearbeitet werden und abschließend `Aufgabe3`. Ob eine Aufgabe richtig oder falsch bearbeitet
 wird spielt hierbei keine Rolle. Für eine Auflistung und Erklärung aller Abhängigkeitstypen siehe
-[TODO: Dokumentation zu Abhängigkeitstypen, bis dahin erstmal die Petrinetz-Doku](../control_mechanisms/petri_nets.md).
+[TODO: Dokumentation zu Abhängigkeitstypen](https://github.com/Programmiermethoden/Dungeon/issues/1215).
 
 Das oben vorgestellte Skript kann wie unter [Starten des Dungeon Systems](#starten-des-dungeon-systems) beschrieben
 gestartet werden.
@@ -172,9 +172,9 @@ gestartet werden.
 ## Wie geht es weiter?
 
 Die Aufgabendefinitionen lassen noch mehr Konfigurationen zu, als in den Beispielskripten
-verwendet wird. Für eine detaillierte Dokumentation der Aufgabendefinitionen, siehe [hier](TODO).
+verwendet wird. Für eine detaillierte Dokumentation der Aufgabendefinitionen, siehe [Dokumentation: Aufgabendefinition (TODO)](https://github.com/Programmiermethoden/Dungeon/issues/1212).
 
 Die bisher vorgestellten Aufgaben verwenden die Standard-Szenarien. Ein **Szenario**
 beschreibt die Abbilung einer abstrakten Aufgabenbeschreibung in das Spiel.
 Die DungeonDSL ermöglicht die Definition von eigenen Szenarien, siehe hierfür die
-[Dokumentation für die Definition eigener Szenarien (TODO)](TODO).
+[Dokumentation für die Definition eigener Szenarien (TODO)](https://github.com/Programmiermethoden/Dungeon/issues/1213).
