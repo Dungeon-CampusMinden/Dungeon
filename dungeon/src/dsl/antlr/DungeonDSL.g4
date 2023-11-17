@@ -8,10 +8,6 @@ grammar DungeonDSL;
  * Lexer rules
  */
 
-TYPE_SPECIFIER
-        : 'quest_config'
-        ;
-
 DOUBLE_LINE : '--';
 ARROW       : '->';
 
@@ -194,11 +190,12 @@ component_def_list
 
 aggregate_value_def
         : type_id=ID
-        | type_id=ID '{' property_def_list? '}' ;
+        | type_id=ID '{' property_def_list? '}'
+        ;
 
-object_def  : type_id=TYPE_SPECIFIER object_id=ID '{' property_def_list? '}' #grammar_type_obj_def
-            | type_id=ID object_id=ID '{' property_def_list? '}' #other_type_obj_def
-            ;
+object_def
+        : type_id=ID object_id=ID '{' property_def_list? '}'
+        ;
 
 property_def_list
         : property_def ',' property_def_list
@@ -206,7 +203,8 @@ property_def_list
         ;
 
 property_def
-        : ID ':' expression;
+        : ID ':' expression
+        ;
 
 expression_list
         : expression ',' expression_list
