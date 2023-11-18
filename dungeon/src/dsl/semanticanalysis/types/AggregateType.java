@@ -3,10 +3,14 @@ package dsl.semanticanalysis.types;
 import dsl.semanticanalysis.IScope;
 import dsl.semanticanalysis.ScopedSymbol;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+
 public class AggregateType extends ScopedSymbol implements IType {
     public static String NAME_SYMBOL_NAME = "$NAME$";
 
     protected Class<?> originType;
+    private HashMap<String, Field> typeMemberToField;
 
     /**
      * Constructor
@@ -17,6 +21,7 @@ public class AggregateType extends ScopedSymbol implements IType {
     public AggregateType(String name, IScope parentScope) {
         super(name, parentScope, null);
         originType = null;
+        typeMemberToField = new HashMap<>();
     }
 
     /**
@@ -30,6 +35,15 @@ public class AggregateType extends ScopedSymbol implements IType {
     public AggregateType(String name, IScope parentScope, Class<?> originType) {
         super(name, parentScope, null);
         this.originType = originType;
+        typeMemberToField = new HashMap<>();
+    }
+
+    public void setTypeMemberToField(HashMap<String, Field> typeMemberToField) {
+        this.typeMemberToField = typeMemberToField;
+    }
+
+    public HashMap<String, Field> getTypeMemberToField() {
+        return this.typeMemberToField;
     }
 
     @Override

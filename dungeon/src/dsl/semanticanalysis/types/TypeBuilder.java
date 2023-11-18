@@ -110,23 +110,37 @@ public class TypeBuilder {
     }
 
     /**
-     * Generate a map, which maps the member names of an DSL {@link IType} to the field names in the
-     * origin java class
+     * Generate a map, which maps the member names of an DSL {@link AggregateType} to the Fields of
+     * it's origin java class
      *
-     * @param clazz the origin java class
+     * @param type the type
      * @return the map, containing mapping between member names and java field names
      */
-    public static HashMap<String, String> typeMemberNameToJavaFieldMap(Class<?> clazz) {
-        HashMap<String, String> map = new HashMap<>();
-        for (Field field : clazz.getDeclaredFields()) {
+    public static HashMap<String, Field> mapTypeMembersToField(AggregateType type) {
+        var originClass = type.getOriginType();
+        HashMap<String, String> nameMap = new HashMap<>();
+        for (Field field : originClass.getDeclaredFields()) {
             // bind new Symbol
             if (field.isAnnotationPresent(DSLTypeMember.class)
                     || field.isAnnotationPresent(DSLCallback.class)) {
                 String fieldName = getDSLFieldName(field);
-                map.put(fieldName, field.getName());
+                nameMap.put(fieldName, field.getName());
             }
         }
-        return map;
+
+        HashMap<String, Field> typeMemberToField = new HashMap<>();
+        for (var member : type.getSymbols()) {
+            var fieldName = nameMap.get(member.getName());
+            if (fieldName != null) {
+                try {
+                    Field field = originClass.getDeclaredField(fieldName);
+                    typeMemberToField.put(member.getName(), field);
+                } catch (NoSuchFieldException e) {
+                    // TODO: handle
+                }
+            }
+        }
+        return typeMemberToField;
     }
 
     protected static String getDSLNameOfBasicType(Class<?> clazz) {
@@ -619,6 +633,9 @@ public class TypeBuilder {
                 }
             }
             this.currentLookedUpTypes.remove(clazz);
+
+            var typeMemberToFieldMap = mapTypeMembersToField(aggregateType);
+            aggregateType.setTypeMemberToField(typeMemberToFieldMap);
 
             returnType = aggregateType;
         }
