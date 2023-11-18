@@ -14,12 +14,6 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
     private AggregateType type;
     private Value thisValue = NONE;
 
-    // TODO: this should be static for one aggregateType and not instanced for each new instance of
-    //  the same type;
-    //  this change is non-trivial, as it requires the central storage of the
-    //  typeMember-to-class-field information PER DATATYPE
-    private HashMap<String, Field> typeMemberToField;
-
     // TODO: should probably abstract all that away in a TypeFactory, which
     //  handles creation of encapsulated objects and other stuff
     private IEvironment environment;
@@ -37,26 +31,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
 
         this.type = type;
         this.environment = environment;
-        this.typeMemberToField = new HashMap<>();
         this.objectCache = new HashMap<>();
-
-        buildFieldMap(innerObject.getClass(), type);
-    }
-
-    private void buildFieldMap(Class<?> clazz, AggregateType type) {
-        var nameMap = TypeBuilder.typeMemberNameToJavaFieldMap(clazz);
-
-        for (var member : type.getSymbols()) {
-            var fieldName = nameMap.get(member.getName());
-            if (fieldName != null) {
-                try {
-                    Field field = clazz.getDeclaredField(fieldName);
-                    typeMemberToField.put(member.getName(), field);
-                } catch (NoSuchFieldException e) {
-                    // TODO: handle
-                }
-            }
-        }
     }
 
     @Override
@@ -81,7 +56,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
         }
 
         // lookup name
-        Field correspondingField = this.typeMemberToField.getOrDefault(name, null);
+        Field correspondingField = this.type.getTypeMemberToField().getOrDefault(name, null);
         if (correspondingField != null) {
             // read field value
             correspondingField.setAccessible(true);
@@ -106,7 +81,6 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                 // this may require recursive creation of encapsulated objects,
                 // if the field is a component for example
 
-                // TODO: this does not work for FunctionalInterfaces!
                 if (memberDSLType != BuiltInType.noType) {
                     switch (memberDSLType.getTypeKind()) {
                         case Basic:
@@ -191,7 +165,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
             thisValue = value;
         }
 
-        Field correspondingField = this.typeMemberToField.getOrDefault(name, null);
+        Field correspondingField = this.type.getTypeMemberToField().getOrDefault(name, null);
         if (correspondingField == null) {
             return false;
         } else {

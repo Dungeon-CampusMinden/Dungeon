@@ -13,6 +13,7 @@ import graph.taskdependencygraph.TaskDependencyGraph;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,12 +32,6 @@ public class TestTypeInstantiator {
         Scope scope = new Scope();
         DSLInterpreter interpreter = new DSLInterpreter();
         var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, DungeonConfig.class);
-
-        // the fieldName does not necessary match the member name in the created DSLType, so store a
-        // map from member to
-        // field name
-        HashMap<String, String> typeMemberNameToJavaFieldName =
-                tb.typeMemberNameToJavaFieldMap(DungeonConfig.class);
 
         int memberCounter = 0;
         for (var member : type.getSymbols()) {
@@ -64,18 +59,21 @@ public class TestTypeInstantiator {
         TypeInstantiator ti = new TypeInstantiator(interpreter);
         var instance = ti.instantiate(aggregateValue);
 
+        // the fieldName does not necessary match the member name in the created DSLType, so store a
+        // map from member to
+        // field name
+        HashMap<String, Field> typeMemberNameToField = TypeBuilder.mapTypeMembersToField(type);
+
         // check, that all values originally only set in the memory space match the
         // set values in the java class instance
         for (String typeMemberName : setValues.keySet()) {
             try {
-                var fieldName = typeMemberNameToJavaFieldName.get(typeMemberName);
-                var field = DungeonConfig.class.getDeclaredField(fieldName);
+                var field = typeMemberNameToField.get(typeMemberName);
+
                 field.setAccessible(true);
                 var value = field.get(instance);
 
                 Assert.assertEquals(setValues.get(typeMemberName), value);
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
@@ -96,12 +94,6 @@ public class TestTypeInstantiator {
         Scope scope = new Scope();
         var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, TestClassOuter.class);
 
-        // the fieldName does not necessary match the member name in the created DSLType, so store a
-        // map from member to
-        // field name
-        HashMap<String, String> typeMemberNameToJavaFieldName =
-                tb.typeMemberNameToJavaFieldMap(TestClassOuter.class);
-
         int memberCounter = 0;
         for (var member : type.getSymbols()) {
             Helpers.bindDefaultValueInMemorySpace(member, ms, interpreter);
@@ -127,18 +119,20 @@ public class TestTypeInstantiator {
         TypeInstantiator ti = new TypeInstantiator(interpreter);
         var instance = ti.instantiate(aggregateValue);
 
+        // the fieldName does not necessary match the member name in the created DSLType, so store a
+        // map from member to
+        // field name
+        HashMap<String, Field> typeMemberNameToField = TypeBuilder.mapTypeMembersToField(type);
+
         // check, that all values originally only set in the memory space match the
         // set values in the java class instance
         for (String typeMemberName : setValues.keySet()) {
             try {
-                var fieldName = typeMemberNameToJavaFieldName.get(typeMemberName);
-                var field = TestClassOuter.class.getDeclaredField(fieldName);
+                var field = typeMemberNameToField.get(typeMemberName);
                 field.setAccessible(true);
                 var value = field.get(instance);
 
                 Assert.assertEquals(setValues.get(typeMemberName), value);
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
