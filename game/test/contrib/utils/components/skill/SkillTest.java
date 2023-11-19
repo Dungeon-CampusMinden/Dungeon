@@ -9,7 +9,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class SkillTest {
@@ -49,12 +48,13 @@ public class SkillTest {
     }
 
     @Test
-    public void executeWhenCoolDownExpired() {
-        final long baseCoolDown = TimeUnit.MILLISECONDS.toSeconds(1);
+    public void executeWhenCoolDownExpired() throws InterruptedException {
+        final long baseCoolDown = 100;
         skill = new Skill(skillFunction, baseCoolDown);
 
         skill.execute(entity);
         assertEquals("Skill should have been executed once", 1, value);
+        Thread.sleep(baseCoolDown);
         assertTrue("Skill should be usable again", skill.canBeUsedAgain());
 
         skill.execute(entity);
