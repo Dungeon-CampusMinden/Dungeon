@@ -35,9 +35,6 @@ import java.util.logging.Logger;
  * #stackSize()} and {@link #maxStackSize()} methods.
  */
 public class Item implements CraftingIngredient, CraftingResult {
-
-    protected static final Animation DEFAULT_ANIMATION =
-            Animation.of("animation/missing_texture.png");
     private static final Logger LOGGER = Logger.getLogger(Item.class.getName());
 
     /**
