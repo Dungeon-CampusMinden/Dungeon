@@ -7,7 +7,7 @@ import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.types.BuiltInType;
 import dsl.semanticanalysis.types.IType;
-import dsl.semanticanalysis.types.TypeBuilder;
+import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

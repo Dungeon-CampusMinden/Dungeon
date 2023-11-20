@@ -4,9 +4,9 @@ import core.utils.Point;
 
 import dsl.interpreter.mockecs.Component;
 import dsl.interpreter.mockecs.Entity;
-import dsl.semanticanalysis.types.annotation.DSLContextMember;
-import dsl.semanticanalysis.types.annotation.DSLType;
-import dsl.semanticanalysis.types.annotation.DSLTypeMember;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLContextMember;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
 
 @DSLType
 public class ComponentWithExternalTypeMember extends Component {

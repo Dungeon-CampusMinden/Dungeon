@@ -2,7 +2,7 @@ package dsl.interpreter.mockecs;
 
 import dsl.semanticanalysis.types.IDSLExtensionMethod;
 import dsl.semanticanalysis.types.IDSLTypeProperty;
-import dsl.semanticanalysis.types.annotation.*;
+import dsl.semanticanalysis.types.typebuilding.annotation.*;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;

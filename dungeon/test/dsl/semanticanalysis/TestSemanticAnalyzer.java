@@ -13,9 +13,10 @@ import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.*;
 
-import dsl.semanticanalysis.types.annotation.DSLType;
-import dsl.semanticanalysis.types.annotation.DSLTypeMember;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
 import dsl.semanticanalysis.types.IType;
+import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
 import graph.taskdependencygraph.TaskDependencyGraph;
 
 import org.junit.Assert;

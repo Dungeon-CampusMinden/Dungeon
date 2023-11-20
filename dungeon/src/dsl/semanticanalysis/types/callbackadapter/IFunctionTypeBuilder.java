@@ -3,7 +3,7 @@ package dsl.semanticanalysis.types.callbackadapter;
 import dsl.runtime.environment.IEnvironment;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.types.FunctionType;
-import dsl.semanticanalysis.types.TypeBuilder;
+import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
 
 import java.lang.reflect.ParameterizedType;
 

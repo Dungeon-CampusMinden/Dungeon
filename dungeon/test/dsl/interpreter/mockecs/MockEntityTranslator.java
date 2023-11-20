@@ -8,7 +8,7 @@ import dsl.runtime.value.EncapsulatedField;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.IType;
-import dsl.semanticanalysis.types.TypeBuilder;
+import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
 
 import java.lang.reflect.Field;
 

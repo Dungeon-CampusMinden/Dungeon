@@ -7,7 +7,7 @@ import contrib.item.Item;
 import core.Component;
 import core.utils.logging.CustomLogLevel;
 
-import dsl.semanticanalysis.types.annotation.DSLType;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
 
 import java.util.Arrays;
 import java.util.Objects;

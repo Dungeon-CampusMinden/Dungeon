@@ -8,9 +8,13 @@ import dsl.runtime.value.*;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.symbol.PropertySymbol;
-import dsl.semanticanalysis.types.annotation.*;
+import dsl.semanticanalysis.types.typebuilding.*;
 import dsl.semanticanalysis.types.callbackadapter.CallbackAdapter;
 import dsl.semanticanalysis.types.callbackadapter.CallbackAdapterBuilder;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLCallback;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLContextMember;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeNameMember;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

@@ -1,6 +1,6 @@
 package dsl.runtime.value;
 
-import dsl.semanticanalysis.types.annotation.DSLTypeProperty;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.types.IDSLTypeProperty;
 import dsl.semanticanalysis.types.IType;
 

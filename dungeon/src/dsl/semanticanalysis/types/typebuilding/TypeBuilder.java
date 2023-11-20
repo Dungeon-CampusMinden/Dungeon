@@ -1,4 +1,4 @@
-package dsl.semanticanalysis.types;
+package dsl.semanticanalysis.types.typebuilding;
 
 import core.utils.TriConsumer;
 
@@ -6,12 +6,13 @@ import dsl.runtime.nativefunctions.ExtensionMethod;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.types.annotation.*;
+import dsl.semanticanalysis.types.*;
 import dsl.semanticanalysis.types.callbackadapter.BiFunctionFunctionTypeBuilder;
 import dsl.semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import dsl.semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
 import dsl.semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
 
+import dsl.semanticanalysis.types.typebuilding.annotation.*;
 import graph.taskdependencygraph.TaskDependencyGraph;
 
 import java.lang.reflect.*;

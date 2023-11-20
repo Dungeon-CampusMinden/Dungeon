@@ -1,4 +1,4 @@
-package dsl.semanticanalysis.types.annotation;
+package dsl.semanticanalysis.types.typebuilding.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -3,7 +3,10 @@ package task.dslinterop;
 import core.Entity;
 
 import dsl.semanticanalysis.types.IDSLExtensionMethod;
-import dsl.semanticanalysis.types.annotation.*;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLExtensionMethod;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeAdapter;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeNameMember;
 import task.Task;
 import task.TaskContent;
 import task.reporting.GradingFunctions;

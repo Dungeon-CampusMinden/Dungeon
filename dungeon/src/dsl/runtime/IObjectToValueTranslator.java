@@ -3,7 +3,7 @@ package dsl.runtime;
 import dsl.runtime.environment.IEnvironment;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.types.TypeBuilder;
+import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
 
 /**
  * Interface for a specific translation from Java-Object to DSL-Value, i.e. translation from

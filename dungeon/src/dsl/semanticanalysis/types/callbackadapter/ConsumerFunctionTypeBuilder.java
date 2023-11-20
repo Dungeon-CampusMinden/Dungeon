@@ -4,7 +4,7 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.types.BuiltInType;
 import dsl.semanticanalysis.types.FunctionType;
 import dsl.semanticanalysis.types.IType;
-import dsl.semanticanalysis.types.TypeBuilder;
+import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;

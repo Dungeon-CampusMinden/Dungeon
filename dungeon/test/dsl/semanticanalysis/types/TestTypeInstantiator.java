@@ -6,6 +6,7 @@ import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.value.AggregateValue;
 import dsl.semanticanalysis.scope.Scope;
 
+import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
 import entrypoint.DungeonConfig;
 
 import graph.taskdependencygraph.TaskDependencyGraph;

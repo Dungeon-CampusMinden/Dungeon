@@ -5,7 +5,10 @@ import core.Entity;
 import core.level.elements.tile.DoorTile;
 
 import dsl.semanticanalysis.types.IDSLTypeProperty;
-import dsl.semanticanalysis.types.annotation.*;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLCallback;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLContextMember;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;
 import task.Task;
 
 import java.util.function.Consumer;

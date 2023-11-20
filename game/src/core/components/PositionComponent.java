@@ -4,7 +4,7 @@ import core.Component;
 import core.level.Tile;
 import core.utils.Point;
 
-import dsl.semanticanalysis.types.annotation.DSLType;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
 
 import java.util.logging.Logger;
 

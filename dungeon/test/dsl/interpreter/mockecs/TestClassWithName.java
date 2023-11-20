@@ -1,7 +1,7 @@
 package dsl.interpreter.mockecs;
 
-import dsl.semanticanalysis.types.annotation.DSLType;
-import dsl.semanticanalysis.types.annotation.DSLTypeNameMember;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeNameMember;
 
 @DSLType
 public class TestClassWithName {

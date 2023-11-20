@@ -2,8 +2,8 @@ package task.tasktype;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
-import dsl.semanticanalysis.types.annotation.DSLType;
-import dsl.semanticanalysis.types.annotation.DSLTypeMember;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
 
 import task.Task;
 import task.TaskContent;

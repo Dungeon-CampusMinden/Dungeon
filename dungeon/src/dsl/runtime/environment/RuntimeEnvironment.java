@@ -8,7 +8,7 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.types.IType;
-import dsl.semanticanalysis.types.TypeBuilder;
+import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.types.TypeInstantiator;
 
 import java.lang.reflect.Type;

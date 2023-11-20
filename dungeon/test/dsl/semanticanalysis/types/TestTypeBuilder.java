@@ -7,8 +7,9 @@ import dsl.interpreter.mockecs.*;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 
-import dsl.semanticanalysis.types.annotation.DSLType;
-import dsl.semanticanalysis.types.annotation.DSLTypeMember;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
 import graph.taskdependencygraph.TaskDependencyGraph;
 
 import org.junit.Assert;

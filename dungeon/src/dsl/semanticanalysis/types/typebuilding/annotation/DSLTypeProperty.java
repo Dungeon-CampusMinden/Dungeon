@@ -1,4 +1,4 @@
-package dsl.semanticanalysis.types.annotation;
+package dsl.semanticanalysis.types.typebuilding.annotation;
 
 import dsl.semanticanalysis.types.AggregateTypeAdapter;
 
