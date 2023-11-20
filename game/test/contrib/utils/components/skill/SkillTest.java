@@ -49,12 +49,12 @@ public class SkillTest {
     }
 
     @Test
-    @Ignore
     public void executeWhenCoolDownExpired() throws InterruptedException {
         final long baseCoolDown = 1;
         skill = new Skill(skillFunction, baseCoolDown);
         skill.execute(entity);
         assertEquals("Skill should have been executed once", 1, value);
+        Thread.sleep(5);
         assertTrue("Skill should be usable again", skill.canBeUsedAgain());
         skill.execute(entity);
         assertEquals("Skill should have been executed twice", 2, value);
