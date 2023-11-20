@@ -1,6 +1,7 @@
 package dsl.runtime;
 
 import dsl.interpreter.DSLInterpreter;
+import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.semanticanalysis.IScope;
 import dsl.semanticanalysis.Symbol;
 import dsl.semanticanalysis.SymbolTable;

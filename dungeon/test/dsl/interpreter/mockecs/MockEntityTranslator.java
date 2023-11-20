@@ -1,6 +1,7 @@
 package dsl.interpreter.mockecs;
 
 import dsl.runtime.*;
+import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.EncapsulatedField;
 import dsl.runtime.value.Value;
@@ -17,7 +18,7 @@ public class MockEntityTranslator implements IObjectToValueTranslator {
 
     @Override
     public Value translate(
-            Object object, IMemorySpace parentMemorySpace, IEnvironment environment) {
+        Object object, IMemorySpace parentMemorySpace, IEnvironment environment) {
         Entity entity = (Entity) object;
         // get datatype for entity
         var entityType = environment.getGlobalScope().resolve("entity");

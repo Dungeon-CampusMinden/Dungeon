@@ -1,5 +1,6 @@
 package dsl.runtime;
 
+import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.types.TypeBuilder;
 

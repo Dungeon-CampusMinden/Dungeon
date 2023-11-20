@@ -2,7 +2,7 @@ package dsl.semanticanalysis.types;
 
 import dsl.helpers.Helpers;
 import dsl.interpreter.DSLInterpreter;
-import dsl.runtime.MemorySpace;
+import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.value.AggregateValue;
 import dsl.semanticanalysis.Scope;
 

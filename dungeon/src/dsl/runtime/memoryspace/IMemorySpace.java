@@ -1,4 +1,4 @@
-package dsl.runtime;
+package dsl.runtime.memoryspace;
 
 import dsl.runtime.value.Value;
 

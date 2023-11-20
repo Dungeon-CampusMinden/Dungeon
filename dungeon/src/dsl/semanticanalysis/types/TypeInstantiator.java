@@ -2,6 +2,8 @@ package dsl.semanticanalysis.types;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.*;
+import dsl.runtime.memoryspace.EncapsulatedObject;
+import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.*;
 import dsl.semanticanalysis.FunctionSymbol;
 import dsl.semanticanalysis.ICallable;
