@@ -1,8 +1,11 @@
 # Dungeon
 
 Das Dungeon ist ein mehrdimensionales Projekt zur Gamifizierung von Studieninhalten. 
+
 Mit dem Dungeon-Framework kann Java erlernt werden, indem ein eigenes RPG programmiert wird. 
+
 Im Dungeon-Projekt "Learning by Questing" können klassische Übungsaufgaben in das Spiel geladen und spielerisch gelöst werden. 
+
 Das Blockly-Dungeon richtet sich an komplette Neueinsteiger und dient zur Visualisierung einfacher Algorithmen.
 
 ## Dungeon-Framework
