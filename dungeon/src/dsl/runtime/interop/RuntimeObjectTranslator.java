@@ -1,4 +1,4 @@
-package dsl.runtime;
+package dsl.runtime.interop;
 
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.memoryspace.EncapsulatedObject;

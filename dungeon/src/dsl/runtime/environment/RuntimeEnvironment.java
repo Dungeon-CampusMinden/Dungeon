@@ -2,7 +2,7 @@ package dsl.runtime.environment;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.value.PrototypeValue;
-import dsl.runtime.RuntimeObjectTranslator;
+import dsl.runtime.interop.RuntimeObjectTranslator;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.scope.IScope;

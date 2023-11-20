@@ -16,7 +16,7 @@ import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.environment.RuntimeEnvironment;
 import dsl.runtime.value.PrototypeValue;
-import dsl.runtime.RuntimeObjectTranslator;
+import dsl.runtime.interop.RuntimeObjectTranslator;
 import dsl.runtime.callable.ICallable;
 import dsl.runtime.callable.NativeFunction;
 import dslinterop.dslnativefunction.NativePrint;

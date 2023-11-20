@@ -1,6 +1,6 @@
 package dsl.semanticanalysis.environment;
 
-import dsl.runtime.RuntimeObjectTranslator;
+import dsl.runtime.interop.RuntimeObjectTranslator;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;

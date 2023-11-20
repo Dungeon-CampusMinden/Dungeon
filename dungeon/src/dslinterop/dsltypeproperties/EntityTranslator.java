@@ -2,7 +2,7 @@ package dslinterop.dsltypeproperties;
 
 import core.Entity;
 
-import dsl.runtime.*;
+import dsl.runtime.interop.IObjectToValueTranslator;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.AggregateValue;
