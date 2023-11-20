@@ -21,3 +21,9 @@ Die beiden Packages sind intern identisch aufgebaut. In den unterpackages `Compo
 Für größere Bausteine, wie die Spiellevel oder das Crafting, gibt es eigene Packages.
 
 Zusätzlich befinden sich im oberen Package `starter` vorkonfigurierte Main-Methoden zum Starten des Spiels.
+
+
+## Entfernte Features
+
+Einige Features haben es nicht über die Ziellinie geschafft, um Inspiration zu holen können sie aber noch gut sein.
+Suche im GitHub-Repository nach dem Tag `before-remove-unused-features`.
