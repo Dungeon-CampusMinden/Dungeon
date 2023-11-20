@@ -6,6 +6,7 @@ import core.utils.logging.CustomLogLevel;
 import org.lwjgl.opengl.GL33;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class OpenGLRenderContext {
 
@@ -13,6 +14,7 @@ public class OpenGLRenderContext {
     private boolean begun = false;
 
     public int vao, vbo, ebo, frameBuffer, texture, shader;
+    public Map<String, Integer> additionalBuffers = new HashMap<>();
 
     public OpenGLRenderContext() {
         this.vao = 0;
