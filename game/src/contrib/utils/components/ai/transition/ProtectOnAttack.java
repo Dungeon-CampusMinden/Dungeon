@@ -16,10 +16,10 @@ import java.util.function.Function;
  * <p>Entity will stay in fight mode once entered.
  */
 public class ProtectOnAttack implements Function<Entity, Boolean> {
-
-    private boolean isInFight = false;
-
+    boolean setup = true;
+    private final Collection<Entity> setupProtection;
     private final Set<Entity> toProtect = new HashSet<>();
+    private boolean isInFight = false;
 
     /**
      * Constructor for one entity to protect
@@ -27,11 +27,7 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      * @param entity to protect
      */
     public ProtectOnAttack(final Entity entity) {
-        if (!entity.isPresent(HealthComponent.class)) {
-            throw (new MissingComponentException("HealthComponent"));
-        }
-
-        toProtect.add(entity);
+        this(Set.of(entity));
     }
 
     /**
@@ -42,12 +38,7 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      * @param entities - Entities that are protected
      */
     public ProtectOnAttack(final Collection<Entity> entities) {
-        // add every entity with a HealthComponent to the protection list
-        // throw an exception for every entity that does not have a HealthComponent
-        for (Entity entity : entities) {
-            if (entity.isPresent(HealthComponent.class)) toProtect.add(entity);
-            else throw MissingComponentException.build(entity, HealthComponent.class);
-        }
+        this.setupProtection = entities;
     }
 
     /**
@@ -58,6 +49,7 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
      */
     @Override
     public Boolean apply(final Entity entity) {
+        if (setup) doSetup();
         if (isInFight) return true;
 
         isInFight =
@@ -82,5 +74,15 @@ public class ProtectOnAttack implements Function<Entity, Boolean> {
                                                 .isPresent());
 
         return isInFight;
+    }
+
+    private void doSetup() {
+        // add every entity with a HealthComponent to the protection list
+        // throw an exception for every entity that does not have a HealthComponent
+        for (Entity entity : setupProtection) {
+            if (entity.isPresent(HealthComponent.class)) toProtect.add(entity);
+            else throw MissingComponentException.build(entity, HealthComponent.class);
+        }
+        setup = false;
     }
 }
