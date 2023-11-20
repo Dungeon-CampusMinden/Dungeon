@@ -7,6 +7,8 @@ import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.*;
 
+import dsl.semanticanalysis.types.annotation.DSLType;
+import dsl.semanticanalysis.types.annotation.DSLTypeMember;
 import org.junit.Assert;
 import org.junit.Test;
 

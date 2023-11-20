@@ -1,7 +1,7 @@
 package entrypoint;
 
-import dsl.semanticanalysis.types.DSLType;
-import dsl.semanticanalysis.types.DSLTypeMember;
+import dsl.semanticanalysis.types.annotation.DSLType;
+import dsl.semanticanalysis.types.annotation.DSLTypeMember;
 
 import graph.taskdependencygraph.TaskDependencyGraph;
 

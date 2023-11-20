@@ -23,6 +23,9 @@ import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.SemanticAnalyzer;
 import dsl.semanticanalysis.types.*;
 
+import dsl.semanticanalysis.types.annotation.DSLType;
+import dsl.semanticanalysis.types.annotation.DSLTypeMember;
+import dsl.semanticanalysis.types.IType;
 import dslinterop.dslnativefunction.NativeInstantiate;
 
 import entrypoint.DungeonConfig;

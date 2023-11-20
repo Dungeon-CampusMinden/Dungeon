@@ -1,6 +1,8 @@
 package dsl.interpreter.mockecs;
 
-import dsl.semanticanalysis.types.*;
+import dsl.semanticanalysis.types.IDSLExtensionMethod;
+import dsl.semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.types.annotation.*;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -74,7 +76,8 @@ public class TestComponent2 extends Component {
         return entity;
     }
 
-    @DSLTypeMember private String member1;
+    @DSLTypeMember
+    private String member1;
     @DSLTypeMember private int member2;
     @DSLTypeMember private String member3;
 

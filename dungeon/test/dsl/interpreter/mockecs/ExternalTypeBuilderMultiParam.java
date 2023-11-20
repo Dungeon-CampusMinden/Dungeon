@@ -1,7 +1,7 @@
 package dsl.interpreter.mockecs;
 
-import dsl.semanticanalysis.types.DSLTypeAdapter;
-import dsl.semanticanalysis.types.DSLTypeMember;
+import dsl.semanticanalysis.types.annotation.DSLTypeAdapter;
+import dsl.semanticanalysis.types.annotation.DSLTypeMember;
 
 public class ExternalTypeBuilderMultiParam {
     @DSLTypeAdapter

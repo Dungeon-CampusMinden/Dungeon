@@ -5,6 +5,7 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.*;
+import dsl.semanticanalysis.types.IType;
 
 import java.util.ArrayList;
 import java.util.Stack;

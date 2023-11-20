@@ -2,8 +2,8 @@ package core;
 
 import core.game.ECSManagment;
 
-import dsl.semanticanalysis.types.DSLContextPush;
-import dsl.semanticanalysis.types.DSLType;
+import dsl.semanticanalysis.types.annotation.DSLContextPush;
+import dsl.semanticanalysis.types.annotation.DSLType;
 
 import java.util.HashMap;
 import java.util.Optional;

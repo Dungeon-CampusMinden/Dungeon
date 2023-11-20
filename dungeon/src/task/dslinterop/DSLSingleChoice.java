@@ -2,8 +2,9 @@ package task.dslinterop;
 
 import core.Entity;
 
-import dsl.semanticanalysis.types.*;
-
+import dsl.semanticanalysis.types.IDSLExtensionMethod;
+import dsl.semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.types.annotation.*;
 import task.Task;
 import task.TaskContent;
 import task.reporting.GradingFunctions;

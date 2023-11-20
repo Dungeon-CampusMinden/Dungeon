@@ -7,6 +7,8 @@ import dsl.interpreter.mockecs.*;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 
+import dsl.semanticanalysis.types.annotation.DSLType;
+import dsl.semanticanalysis.types.annotation.DSLTypeMember;
 import graph.taskdependencygraph.TaskDependencyGraph;
 
 import org.junit.Assert;
@@ -25,7 +27,8 @@ public class TestTypeBuilder {
     /** Test class for testing conversion into DSL datatype */
     @DSLType
     private class TestComponent {
-        @DSLTypeMember public int intMember;
+        @DSLTypeMember
+        public int intMember;
 
         @DSLTypeMember public String stringMember;
 

@@ -1,6 +1,7 @@
 package dsl.interpreter.mockecs;
 
 import dsl.semanticanalysis.types.*;
+import dsl.semanticanalysis.types.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +110,8 @@ public class Entity {
     private static int _idx;
     public List<Component> components = new ArrayList<>();
 
-    @DSLTypeMember private int idx;
+    @DSLTypeMember
+    private int idx;
 
     public int getIdx() {
         return idx;

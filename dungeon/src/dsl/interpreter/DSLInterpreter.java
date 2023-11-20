@@ -22,6 +22,7 @@ import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.*;
+import dsl.semanticanalysis.types.IType;
 import dsl.semanticanalysis.types.callbackadapter.CallbackAdapter;
 
 import entrypoint.DSLEntryPoint;

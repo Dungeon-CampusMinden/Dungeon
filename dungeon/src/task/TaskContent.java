@@ -1,6 +1,6 @@
 package task;
 
-import dsl.semanticanalysis.types.DSLType;
+import dsl.semanticanalysis.types.annotation.DSLType;
 
 import task.game.components.TaskContentComponent;
 

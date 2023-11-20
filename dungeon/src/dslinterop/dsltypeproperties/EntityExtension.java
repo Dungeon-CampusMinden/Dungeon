@@ -15,8 +15,8 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
-import dsl.semanticanalysis.types.DSLExtensionMethod;
-import dsl.semanticanalysis.types.DSLTypeProperty;
+import dsl.semanticanalysis.types.annotation.DSLExtensionMethod;
+import dsl.semanticanalysis.types.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.types.IDSLExtensionMethod;
 import dsl.semanticanalysis.types.IDSLTypeProperty;
 

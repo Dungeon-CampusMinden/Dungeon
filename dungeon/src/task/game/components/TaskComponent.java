@@ -4,8 +4,8 @@ import core.Component;
 import core.Entity;
 import core.level.elements.tile.DoorTile;
 
-import dsl.semanticanalysis.types.*;
-
+import dsl.semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.types.annotation.*;
 import task.Task;
 
 import java.util.function.Consumer;
@@ -32,7 +32,8 @@ public final class TaskComponent implements Component {
                     entity.fetch(DoorComponent.class)
                             .ifPresent(component -> component.doors().forEach(DoorTile::open));
 
-    @DSLCallback private Consumer<Entity> onActivate;
+    @DSLCallback
+    private Consumer<Entity> onActivate;
     private Task task;
     private Entity my_entity;
 

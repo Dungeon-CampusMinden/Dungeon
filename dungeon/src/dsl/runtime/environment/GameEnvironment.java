@@ -26,6 +26,10 @@ import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.*;
 
+import dsl.semanticanalysis.types.annotation.DSLExtensionMethod;
+import dsl.semanticanalysis.types.IDSLExtensionMethod;
+import dsl.semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.types.IType;
 import dslinterop.dslnativefunction.NativeInstantiate;
 import dslinterop.dslnativefunction.NativeInstantiateNamed;
 import dslinterop.dsltypeadapters.AIComponentAdapter;

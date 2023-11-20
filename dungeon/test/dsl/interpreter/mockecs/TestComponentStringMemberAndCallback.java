@@ -1,9 +1,9 @@
 package dsl.interpreter.mockecs;
 
-import dsl.semanticanalysis.types.DSLCallback;
-import dsl.semanticanalysis.types.DSLContextMember;
-import dsl.semanticanalysis.types.DSLType;
-import dsl.semanticanalysis.types.DSLTypeMember;
+import dsl.semanticanalysis.types.annotation.DSLCallback;
+import dsl.semanticanalysis.types.annotation.DSLContextMember;
+import dsl.semanticanalysis.types.annotation.DSLType;
+import dsl.semanticanalysis.types.annotation.DSLTypeMember;
 
 import java.util.function.Consumer;
 

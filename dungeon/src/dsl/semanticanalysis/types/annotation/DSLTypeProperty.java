@@ -1,4 +1,6 @@
-package dsl.semanticanalysis.types;
+package dsl.semanticanalysis.types.annotation;
+
+import dsl.semanticanalysis.types.AggregateTypeAdapter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
