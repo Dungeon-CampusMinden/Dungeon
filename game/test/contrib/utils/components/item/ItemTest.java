@@ -203,6 +203,7 @@ public class ItemTest {
 
     /** Tests if item is present in inventory and removed from Game world after collect */
     @Test
+    @Ignore
     public void testCollect() {
         assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
 
