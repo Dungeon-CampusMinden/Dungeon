@@ -155,7 +155,7 @@ public class Vector2i {
 
     @Override
     public String toString() {
-        return String.format("Vector2f(%f, %f)", this.x, this.y);
+        return String.format("Vector2i(%d, %d)", this.x, this.y);
     }
 
     @Override
