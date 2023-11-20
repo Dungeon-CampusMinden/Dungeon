@@ -2,7 +2,7 @@ package dsl.runtime.nativefunctions;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
-import dsl.runtime.Value;
+import dsl.runtime.value.Value;
 import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.IScope;
 import dsl.semanticanalysis.Scope;

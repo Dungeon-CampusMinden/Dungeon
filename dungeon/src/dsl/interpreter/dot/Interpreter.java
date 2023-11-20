@@ -3,7 +3,7 @@ package dsl.interpreter.dot;
 import dsl.interpreter.DSLInterpreter;
 // CHECKSTYLE:ON: AvoidStarImport
 import dsl.parser.ast.*;
-import dsl.runtime.Value;
+import dsl.runtime.value.Value;
 
 import graph.taskdependencygraph.TaskDependencyGraph;
 // CHECKSTYLE:OFF: AvoidStarImport

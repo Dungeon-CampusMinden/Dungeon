@@ -5,11 +5,11 @@ import core.Entity;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
-import dsl.runtime.AggregateValue;
 import dsl.runtime.Prototype;
 import dsl.runtime.RuntimeEnvironment;
-import dsl.runtime.Value;
 import dsl.runtime.nativefunctions.NativeFunction;
+import dsl.runtime.value.AggregateValue;
+import dsl.runtime.value.Value;
 import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.IScope;
 import dsl.semanticanalysis.Scope;

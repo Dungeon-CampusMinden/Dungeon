@@ -1,7 +1,7 @@
 package dsl.parser.ast;
 
 import dsl.interpreter.DSLInterpreter;
-import dsl.runtime.Value;
+import dsl.runtime.value.Value;
 import dsl.semanticanalysis.Symbol;
 
 import java.util.Iterator;

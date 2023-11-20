@@ -2,6 +2,7 @@ package dsl.semanticanalysis.types;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.*;
+import dsl.runtime.value.*;
 import dsl.semanticanalysis.FunctionSymbol;
 import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.PropertySymbol;

@@ -1,4 +1,4 @@
-package dsl.runtime;
+package dsl.runtime.value;
 
 import dsl.semanticanalysis.types.IType;
 

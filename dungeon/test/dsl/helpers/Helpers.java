@@ -9,7 +9,7 @@ import dsl.parser.ast.Node;
 import dsl.runtime.GameEnvironment;
 import dsl.runtime.IEnvironment;
 import dsl.runtime.MemorySpace;
-import dsl.runtime.Value;
+import dsl.runtime.value.Value;
 import dsl.semanticanalysis.ScopedSymbol;
 import dsl.semanticanalysis.SemanticAnalyzer;
 import dsl.semanticanalysis.Symbol;

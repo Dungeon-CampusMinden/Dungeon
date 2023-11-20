@@ -1,5 +1,7 @@
-package dsl.runtime;
+package dsl.runtime.value;
 
+import dsl.runtime.IMemorySpace;
+import dsl.runtime.MemorySpace;
 import dsl.semanticanalysis.types.IType;
 
 import java.util.Map;

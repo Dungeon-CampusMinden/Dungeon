@@ -4,7 +4,7 @@ import core.utils.TriConsumer;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.RuntimeEnvironment;
-import dsl.runtime.Value;
+import dsl.runtime.value.Value;
 import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.types.FunctionType;
 

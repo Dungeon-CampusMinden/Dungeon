@@ -1,6 +1,6 @@
 package dsl.semanticanalysis.types;
 
-import dsl.runtime.Value;
+import dsl.runtime.value.Value;
 import dsl.semanticanalysis.IScope;
 import dsl.semanticanalysis.Scope;
 import dsl.semanticanalysis.Symbol;

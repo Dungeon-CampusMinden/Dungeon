@@ -1,4 +1,4 @@
-package dsl.runtime;
+package dsl.runtime.value;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;

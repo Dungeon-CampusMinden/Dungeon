@@ -15,6 +15,8 @@ import dsl.interpreter.mockecs.*;
 import dsl.parser.ast.IdNode;
 import dsl.parser.ast.Node;
 import dsl.runtime.*;
+import dsl.runtime.value.AggregateValue;
+import dsl.runtime.value.Value;
 import dsl.semanticanalysis.FunctionSymbol;
 import dsl.semanticanalysis.SemanticAnalyzer;
 import dsl.semanticanalysis.types.*;

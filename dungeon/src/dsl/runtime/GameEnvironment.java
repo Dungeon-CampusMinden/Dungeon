@@ -16,6 +16,7 @@ import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.runtime.nativefunctions.NativePrint;
+import dsl.runtime.value.*;
 import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.types.*;
 

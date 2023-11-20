@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.types;
 
-import dsl.runtime.MapValue;
 import dsl.runtime.nativefunctions.NativeMethod;
+import dsl.runtime.value.MapValue;
 import dsl.semanticanalysis.IScope;
 import dsl.semanticanalysis.ScopedSymbol;
 

@@ -3,6 +3,8 @@ package dslinterop.dsltypeproperties;
 import core.Entity;
 
 import dsl.runtime.*;
+import dsl.runtime.value.AggregateValue;
+import dsl.runtime.value.Value;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.TypeBuilder;
 
@@ -24,7 +26,8 @@ public class EntityTranslator implements IObjectToValueTranslator {
      * @return The translated value
      */
     @Override
-    public Value translate(Object object, IMemorySpace parentMemorySpace, IEnvironment environment) {
+    public Value translate(
+            Object object, IMemorySpace parentMemorySpace, IEnvironment environment) {
         var entity = (Entity) object;
         // get datatype for entity
         var entityType = environment.getGlobalScope().resolve("entity");
