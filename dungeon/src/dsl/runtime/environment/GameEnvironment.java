@@ -18,7 +18,7 @@ import dsl.runtime.value.PrototypeValue;
 import dsl.runtime.RuntimeObjectTranslator;
 import dsl.runtime.callable.ICallable;
 import dsl.runtime.callable.NativeFunction;
-import dsl.runtime.callable.NativePrint;
+import dslinterop.dslnativefunction.NativePrint;
 import dsl.runtime.value.*;
 import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.scope.IScope;
