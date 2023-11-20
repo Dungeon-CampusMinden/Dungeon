@@ -33,11 +33,8 @@ public final class RangeAI implements Consumer<Entity> {
      */
     public RangeAI(final float attackRange, final float distance, final Skill skill) {
         if (attackRange <= distance || distance < 0) {
-            throw new Error(
+            throw new IllegalArgumentException(
                     "attackRange must be greater than distance and distance must be 0 or greater than 0");
-        }
-        if (Game.hero().isEmpty()) {
-            throw new Error("There must be a Hero in the Game!");
         }
         this.attackRange = attackRange;
         this.distance = distance;
