@@ -13,7 +13,7 @@ import dsl.semanticanalysis.types.IType;
  */
 public class AggregatePropertyValue extends AggregateValue {
     private final IDSLTypeProperty<Object, Object> property;
-    private IEvironment environment;
+    private IEnvironment environment;
     private IMemorySpace parentMemorySpace;
     private final boolean isSettable;
     private final boolean isGettable;
@@ -23,7 +23,7 @@ public class AggregatePropertyValue extends AggregateValue {
             IDSLTypeProperty<Object, Object> property,
             Object instance,
             IMemorySpace parentMemorySpace,
-            IEvironment environment) {
+            IEnvironment environment) {
         super(type, parentMemorySpace);
         this.object = instance;
         this.property = property;

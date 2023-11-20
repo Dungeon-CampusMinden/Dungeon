@@ -13,7 +13,7 @@ public class MockEntityTranslator implements IObjectToValueTranslator {
     private MockEntityTranslator() {}
 
     @Override
-    public Value translate(Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
+    public Value translate(Object object, IMemorySpace parentMemorySpace, IEnvironment environment) {
         Entity entity = (Entity) object;
         // get datatype for entity
         var entityType = environment.getGlobalScope().resolve("entity");

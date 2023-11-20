@@ -101,12 +101,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     /**
      * Creates {@link Prototype} instances for all `entity_type` and `item_type` definitions in the
-     * global scope of the passed {@link IEvironment}.
+     * global scope of the passed {@link IEnvironment}.
      *
-     * @param environment the {@link IEvironment} in which's global scope to search for prototype
+     * @param environment the {@link IEnvironment} in which's global scope to search for prototype
      *     definitions.
      */
-    public void createPrototypes(IEvironment environment) {
+    public void createPrototypes(IEnvironment environment) {
         createGameObjectPrototypes(environment);
         createItemPrototypes(environment);
     }
@@ -117,7 +117,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      *
      * @param environment the environment to check for game object definitions
      */
-    public void createGameObjectPrototypes(IEvironment environment) {
+    public void createGameObjectPrototypes(IEnvironment environment) {
         // iterate over all types
         for (var type : environment.getTypes()) {
             if (type.getTypeKind().equals(IType.Kind.Aggregate)) {
@@ -144,13 +144,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     /**
      * Create {@link Prototype} instances for {@link ItemPrototypeDefinitionNode}s in the global
-     * scope of passed {@link IEvironment}. The created prototypes will be registered in the {@link
+     * scope of passed {@link IEnvironment}. The created prototypes will be registered in the {@link
      * RuntimeEnvironment} of this {@link DSLInterpreter} and is stored as a {@link Value} in the
      * global {@link IMemorySpace} of the interpreter.
      *
-     * @param environment the {@link IEvironment} to search for item prototype definitions
+     * @param environment the {@link IEnvironment} to search for item prototype definitions
      */
-    public void createItemPrototypes(IEvironment environment) {
+    public void createItemPrototypes(IEnvironment environment) {
         // iterate over all types
         for (var type : environment.getTypes()) {
             if (type.getTypeKind().equals(IType.Kind.Aggregate)) {
@@ -320,7 +320,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      *
      * @param task The {@link Task} to execute a scenario builder method for.
      * @return An {@link Optional} containing the Java-Object which was instantiated from the return
-     *     value of the scenario builder. If no custom {@link IEvironment} implementation apart from
+     *     value of the scenario builder. If no custom {@link IEnvironment} implementation apart from
      *     {@link GameEnvironment} is used (this is the default case), the content inside the {@link
      *     Optional} will be of type HashSet<HashSet<core.Entity>>. If the execution of the scenario
      *     builder method was unsuccessful or no fitting scenario builder method for the given
@@ -367,7 +367,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
      *
      * @param environment The environment to bind the functions, objects and data types from.
      */
-    public void initializeRuntime(IEvironment environment) {
+    public void initializeRuntime(IEnvironment environment) {
         // reinitialize global memory space
         this.memoryStack.clear();
         this.globalSpace = new MemorySpace();
@@ -524,8 +524,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @param programAST The AST of the DSL program to generate a quest config object from
      * @return the object, which represents the quest config of the passed DSL program. The type of
      *     this object depends on the Class, which is set up as the 'quest_config' type in the
-     *     {@link IEvironment} used by the DSLInterpreter (set by {@link
-     *     #initializeRuntime(IEvironment)})
+     *     {@link IEnvironment} used by the DSLInterpreter (set by {@link
+     *     #initializeRuntime(IEnvironment)})
      */
     public Object generateQuestConfig(Node programAST) {
         createPrototypes(this.environment);

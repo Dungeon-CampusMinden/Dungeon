@@ -20,11 +20,11 @@ public class EntityTranslator implements IObjectToValueTranslator {
      * @param object The {@link Entity} instance to translate
      * @param parentMemorySpace The {@link IMemorySpace} in which the translated value should be
      *     created
-     * @param environment The {@link IEvironment}, which will be used to resolve types
+     * @param environment The {@link IEnvironment}, which will be used to resolve types
      * @return The translated value
      */
     @Override
-    public Value translate(Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
+    public Value translate(Object object, IMemorySpace parentMemorySpace, IEnvironment environment) {
         var entity = (Entity) object;
         // get datatype for entity
         var entityType = environment.getGlobalScope().resolve("entity");

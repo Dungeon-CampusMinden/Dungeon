@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.types;
 
 import dsl.parser.ast.*;
-import dsl.runtime.IEvironment;
+import dsl.runtime.IEnvironment;
 import dsl.semanticanalysis.ScopedSymbol;
 import dsl.semanticanalysis.Symbol;
 import dsl.semanticanalysis.SymbolTable;
@@ -9,7 +9,7 @@ import dsl.semanticanalysis.SymbolTable;
 public class TypeBinder implements AstVisitor<Object> {
 
     private StringBuilder errorStringBuilder;
-    private IEvironment environment;
+    private IEnvironment environment;
 
     private SymbolTable symbolTable() {
         return this.environment.getSymbolTable();
@@ -24,7 +24,7 @@ public class TypeBinder implements AstVisitor<Object> {
      * @param errorStringBuilder a string builder to which errors will be appended
      */
     public void bindTypes(
-            IEvironment environment, Node rootNode, StringBuilder errorStringBuilder) {
+            IEnvironment environment, Node rootNode, StringBuilder errorStringBuilder) {
         this.environment = environment;
         this.errorStringBuilder = errorStringBuilder;
         visitChildren(rootNode);

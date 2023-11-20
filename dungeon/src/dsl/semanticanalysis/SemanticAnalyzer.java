@@ -22,7 +22,7 @@
 package dsl.semanticanalysis;
 
 import dsl.parser.ast.*;
-import dsl.runtime.IEvironment;
+import dsl.runtime.IEnvironment;
 import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.semanticanalysis.types.*;
 
@@ -37,7 +37,7 @@ import java.util.Stack;
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class SemanticAnalyzer implements AstVisitor<Void> {
     private SymbolTable symbolTable;
-    private IEvironment environment;
+    private IEnvironment environment;
     Stack<IScope> scopeStack = new Stack<>();
     StringBuilder errorStringBuilder = new StringBuilder();
     private boolean setup = false;
@@ -78,7 +78,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         return scopeStack.get(0);
     }
 
-    public IEvironment getEnvironment() {
+    public IEnvironment getEnvironment() {
         return this.environment;
     }
 
@@ -88,7 +88,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
      *
      * @param environment environment to use for setup of built in types and native functions
      */
-    public void setup(IEvironment environment) {
+    public void setup(IEnvironment environment) {
         setup(environment, false);
     }
 
@@ -98,9 +98,9 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
      *
      * @param environment environment to use for setup of built in types and native functions
      * @param force force the initialization of this {@link SemanticAnalyzer} with the given {@link
-     *     IEvironment} (ignore and overwrite previous initializations).
+     *     IEnvironment} (ignore and overwrite previous initializations).
      */
-    public void setup(IEvironment environment, boolean force) {
+    public void setup(IEnvironment environment, boolean force) {
         if (!force && setup) {
             return;
         }

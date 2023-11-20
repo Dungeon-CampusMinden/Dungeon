@@ -7,7 +7,7 @@ import dsl.interpreter.DSLInterpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.Node;
 import dsl.runtime.GameEnvironment;
-import dsl.runtime.IEvironment;
+import dsl.runtime.IEnvironment;
 import dsl.runtime.MemorySpace;
 import dsl.runtime.Value;
 import dsl.semanticanalysis.ScopedSymbol;
@@ -106,7 +106,7 @@ public class Helpers {
      * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
      */
     public static SemanticAnalyzer.Result getSymtableForASTWithCustomEnvironment(
-            Node ast, IEvironment environment) {
+            Node ast, IEnvironment environment) {
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(environment);
         return symbolTableParser.walk(ast);

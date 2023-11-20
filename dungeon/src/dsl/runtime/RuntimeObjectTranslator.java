@@ -52,7 +52,7 @@ public class RuntimeObjectTranslator {
     protected Value translateRuntimeObjectDefault(
             Object object,
             IMemorySpace parentMemorySpace,
-            IEvironment environment,
+            IEnvironment environment,
             IType targetType) {
         Value returnValue = Value.NONE;
         if (object == null) {
@@ -180,7 +180,7 @@ public class RuntimeObjectTranslator {
     }
 
     public Value translateRuntimeObject(
-            Object object, IMemorySpace parentMemorySpace, IEvironment environment) {
+            Object object, IMemorySpace parentMemorySpace, IEnvironment environment) {
         return translateRuntimeObject(object, parentMemorySpace, environment, null);
     }
 
@@ -196,7 +196,7 @@ public class RuntimeObjectTranslator {
     public Value translateRuntimeObject(
             Object object,
             IMemorySpace parentMemorySpace,
-            IEvironment environment,
+            IEnvironment environment,
             IType targetType) {
         if (object == null) {
             return Value.NONE;

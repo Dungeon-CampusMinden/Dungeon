@@ -16,7 +16,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
 
     // TODO: should probably abstract all that away in a TypeFactory, which
     //  handles creation of encapsulated objects and other stuff
-    private IEvironment environment;
+    private IEnvironment environment;
     private HashMap<String, Value> objectCache;
 
     /**
@@ -26,7 +26,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
      * @param type {@link AggregateType} of the Value represented by the new EncapsulatedObject
      *     (used for resolving member access)
      */
-    public EncapsulatedObject(Object innerObject, AggregateType type, IEvironment environment) {
+    public EncapsulatedObject(Object innerObject, AggregateType type, IEnvironment environment) {
         super(type, innerObject);
 
         this.type = type;

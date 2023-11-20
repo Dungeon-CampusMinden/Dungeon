@@ -48,7 +48,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class GameEnvironment implements IEvironment {
+public class GameEnvironment implements IEnvironment {
     // TODO: the TypeBuilder should be completely encapsulated, so that types can only
     //  be created via the environment, so that the global scope of the environment is
     //  always passed correctly to the TypeBuilder; this has some major implications for
