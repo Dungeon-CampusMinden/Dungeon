@@ -3,7 +3,7 @@ package dsl.runtime.value;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.callable.IInstanceCallable;
-import dsl.semanticanalysis.types.SetType;
+import dsl.semanticanalysis.typesystem.type.SetType;
 
 import java.util.*;
 

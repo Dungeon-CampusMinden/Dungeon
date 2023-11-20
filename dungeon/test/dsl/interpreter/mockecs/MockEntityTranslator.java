@@ -6,9 +6,9 @@ import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.EncapsulatedField;
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.types.AggregateType;
-import dsl.semanticanalysis.types.IType;
-import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.type.AggregateType;
+import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 
 import java.lang.reflect.Field;
 

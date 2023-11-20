@@ -1,7 +1,7 @@
 package task.tasktype;
 
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 
 import task.Task;
 import task.TaskContent;

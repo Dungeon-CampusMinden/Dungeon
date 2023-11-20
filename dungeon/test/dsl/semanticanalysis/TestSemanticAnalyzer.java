@@ -7,18 +7,17 @@ import dsl.interpreter.mockecs.*;
 import dsl.parser.ast.*;
 import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.environment.GameEnvironment;
+import dsl.semanticanalysis.typesystem.type.*;
 import dslinterop.dslnativefunction.NativePrint;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.types.*;
 
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
-import dsl.semanticanalysis.types.IType;
-import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import graph.taskdependencygraph.TaskDependencyGraph;
 
 import org.junit.Assert;

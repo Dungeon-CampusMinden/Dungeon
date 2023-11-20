@@ -5,8 +5,7 @@ import dsl.runtime.memoryspace.EncapsulatedObject;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.*;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.types.*;
-import dsl.semanticanalysis.types.IType;
+import dsl.semanticanalysis.typesystem.type.*;
 
 import java.util.HashMap;
 import java.util.List;

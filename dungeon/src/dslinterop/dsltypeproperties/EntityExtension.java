@@ -15,10 +15,10 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLExtensionMethod;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.types.extension.IDSLExtensionMethod;
-import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
 
 import task.Task;
 import task.TaskContent;

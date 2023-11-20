@@ -2,9 +2,9 @@ package dsl.runtime.value;
 
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.types.AggregateType;
-import dsl.semanticanalysis.types.BuiltInType;
-import dsl.semanticanalysis.types.IType;
+import dsl.semanticanalysis.typesystem.type.AggregateType;
+import dsl.semanticanalysis.typesystem.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.type.IType;
 
 import java.util.HashMap;
 import java.util.Map;

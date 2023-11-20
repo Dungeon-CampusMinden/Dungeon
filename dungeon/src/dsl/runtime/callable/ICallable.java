@@ -2,7 +2,7 @@ package dsl.runtime.callable;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
-import dsl.semanticanalysis.types.FunctionType;
+import dsl.semanticanalysis.typesystem.type.FunctionType;
 
 import java.util.List;
 

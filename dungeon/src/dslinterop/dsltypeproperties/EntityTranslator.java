@@ -7,8 +7,8 @@ import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.types.AggregateType;
-import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 
 /** This class translates an {@link Entity}-Object into a DSL Value for */
 public class EntityTranslator implements IObjectToValueTranslator {

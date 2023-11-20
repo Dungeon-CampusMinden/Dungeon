@@ -4,11 +4,11 @@ import core.Component;
 import core.Entity;
 import core.level.elements.tile.DoorTile;
 
-import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLCallback;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLContextMember;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLCallback;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 import task.Task;
 
 import java.util.function.Consumer;

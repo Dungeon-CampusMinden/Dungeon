@@ -8,7 +8,7 @@ import core.Game;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 
 import graph.petrinet.Place;
 

@@ -13,10 +13,10 @@ import dsl.runtime.value.Value;
 import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
-import dsl.semanticanalysis.types.AggregateType;
-import dsl.semanticanalysis.types.BuiltInType;
-import dsl.semanticanalysis.types.FunctionType;
-import dsl.semanticanalysis.types.instantiation.TypeInstantiator;
+import dsl.semanticanalysis.typesystem.type.AggregateType;
+import dsl.semanticanalysis.typesystem.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.type.FunctionType;
+import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 
 import java.util.ArrayList;
 import java.util.List;

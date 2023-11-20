@@ -5,8 +5,8 @@ import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.SymbolTable;
-import dsl.semanticanalysis.types.AggregateType;
-import dsl.semanticanalysis.types.IType;
+import dsl.semanticanalysis.typesystem.type.AggregateType;
+import dsl.semanticanalysis.typesystem.type.IType;
 
 public class TypeBinder implements AstVisitor<Object> {
 

@@ -4,11 +4,11 @@ import static task.tasktype.AssignTask.EMPTY_ELEMENT;
 
 import core.Entity;
 
-import dsl.semanticanalysis.types.extension.IDSLExtensionMethod;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLExtensionMethod;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeAdapter;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeNameMember;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeNameMember;
 import task.Task;
 import task.TaskContent;
 import task.reporting.GradingFunctions;

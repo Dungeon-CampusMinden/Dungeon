@@ -1,7 +1,7 @@
 package dsl.runtime.value;
 
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.types.EnumType;
+import dsl.semanticanalysis.typesystem.type.EnumType;
 
 /**
  * This class represents a {@link Value} containing an enum-variant (stored as the {@link Symbol}

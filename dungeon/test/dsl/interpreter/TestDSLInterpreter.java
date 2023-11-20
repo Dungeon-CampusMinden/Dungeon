@@ -21,11 +21,13 @@ import dsl.runtime.value.PrototypeValue;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
-import dsl.semanticanalysis.types.*;
+import dsl.semanticanalysis.typesystem.*;
 
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
-import dsl.semanticanalysis.types.IType;
+import dsl.semanticanalysis.typesystem.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.type.ListType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.typesystem.type.IType;
 import dslinterop.dslnativefunction.NativeInstantiate;
 
 import entrypoint.DungeonConfig;

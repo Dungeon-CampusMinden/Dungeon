@@ -4,8 +4,8 @@ import dsl.runtime.IClonable;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.types.BuiltInType;
-import dsl.semanticanalysis.types.IType;
+import dsl.semanticanalysis.typesystem.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.type.IType;
 
 import graph.taskdependencygraph.TaskDependencyGraph;
 

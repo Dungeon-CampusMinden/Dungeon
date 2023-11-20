@@ -3,9 +3,9 @@ package dsl.runtime.value;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.memoryspace.MemorySpace;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
-import dsl.semanticanalysis.types.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.type.IType;
 
 /**
  * Represents a property value, which encapsulated an {@link IDSLTypeProperty} and an object to use

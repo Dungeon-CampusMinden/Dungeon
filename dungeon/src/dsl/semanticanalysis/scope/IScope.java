@@ -22,7 +22,7 @@
 package dsl.semanticanalysis.scope;
 
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.types.IType;
+import dsl.semanticanalysis.typesystem.type.IType;
 
 import java.util.List;
 

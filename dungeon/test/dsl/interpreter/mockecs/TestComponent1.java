@@ -1,8 +1,8 @@
 package dsl.interpreter.mockecs;
 
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLContextMember;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 
 @DSLType
 public class TestComponent1 extends Component {

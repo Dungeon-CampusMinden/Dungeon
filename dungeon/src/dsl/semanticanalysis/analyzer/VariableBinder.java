@@ -27,8 +27,8 @@ import dsl.parser.ast.*;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.types.BuiltInType;
-import dsl.semanticanalysis.types.IType;
+import dsl.semanticanalysis.typesystem.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.type.IType;
 
 // TODO: handle scoped Variables in stmt Blocks correctly, once
 //  variable definitions are implemented

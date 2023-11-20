@@ -2,8 +2,8 @@ package dsl.interpreter;
 
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
-import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 
 import java.util.ArrayList;
 import java.util.List;

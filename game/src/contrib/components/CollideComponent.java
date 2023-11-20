@@ -9,8 +9,8 @@ import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
 
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLCallback;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLCallback;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 
 import java.util.logging.Logger;
 

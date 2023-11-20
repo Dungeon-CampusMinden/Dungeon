@@ -1,10 +1,10 @@
 package dsl.semanticanalysis.symbol;
 
 import dsl.semanticanalysis.scope.IScope;
-import dsl.semanticanalysis.types.AggregateType;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
-import dsl.semanticanalysis.types.IType;
+import dsl.semanticanalysis.typesystem.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.type.IType;
 
 /** This Symbol enables the usage {@link IDSLTypeProperty} in {@link AggregateType}s. */
 public class PropertySymbol extends Symbol {

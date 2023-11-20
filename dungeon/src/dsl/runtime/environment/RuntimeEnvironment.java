@@ -8,9 +8,9 @@ import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.SymbolTable;
-import dsl.semanticanalysis.types.IType;
-import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
-import dsl.semanticanalysis.types.instantiation.TypeInstantiator;
+import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;

@@ -1,11 +1,11 @@
 package dsl.interpreter.mockecs;
 
-import dsl.semanticanalysis.types.*;
-import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLContextPush;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;
-import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;
+import dsl.semanticanalysis.typesystem.*;
+import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextPush;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 
 import java.util.ArrayList;
 import java.util.List;
