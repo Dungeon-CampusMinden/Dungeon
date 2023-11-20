@@ -10,6 +10,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.level.Tile;
 import core.level.TileLevel;
 import core.level.generator.IGenerator;
 import core.level.utils.DesignLabel;
@@ -22,10 +23,10 @@ import core.utils.components.draw.Painter;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ItemTest {
@@ -36,14 +37,13 @@ public class ItemTest {
 
     @Before
     public void before() {
-        cleanup();
         Game.add(
                 new LevelSystem(
                         Mockito.mock(Painter.class),
                         Mockito.mock(IGenerator.class),
                         Mockito.mock(IVoidFunction.class)));
 
-        Game.currentLevel(
+        TileLevel level =
                 new TileLevel(
                         new LevelElement[][] {
                             new LevelElement[] {
@@ -82,7 +82,12 @@ public class ItemTest {
                                 LevelElement.FLOOR
                             }
                         },
-                        DesignLabel.DEFAULT));
+                        DesignLabel.DEFAULT);
+
+        for (Tile t : new ArrayList<>(level.exitTiles())) {
+            level.changeTileElementType(t, LevelElement.FLOOR);
+        }
+        Game.currentLevel(level);
     }
 
     @After
@@ -203,7 +208,6 @@ public class ItemTest {
 
     /** Tests if item is present in inventory and removed from Game world after collect */
     @Test
-    @Ignore
     public void testCollect() {
         assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
 
@@ -227,7 +231,6 @@ public class ItemTest {
 
     /** Tests if item can be collected from entity with no InventoryComponent. */
     @Test
-    @Ignore
     public void testCollectNoInventory() {
         assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
 
