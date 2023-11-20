@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 
 import contrib.hud.DialogDesign;
+import contrib.hud.UITools;
 
 import core.utils.Constants;
 
@@ -45,7 +46,7 @@ public class QuizDialogDesign {
                 .map(
                         answer ->
                                 new CheckBox(
-                                        QuizUI.formatStringForDialogWindow(answer.content()),
+                                        UITools.formatStringForDialogWindow(answer.content()),
                                         style))
                 .forEach(
                         checkBox -> {
@@ -104,7 +105,7 @@ public class QuizDialogDesign {
                     DialogDesign.createScrollPane(
                             skin,
                             new Label(
-                                    QuizUI.formatStringForDialogWindow(questionContent.content()),
+                                    UITools.formatStringForDialogWindow(questionContent.content()),
                                     skin)));
             case IMAGE -> vg.addActor(
                     DialogDesign.createScrollPane(

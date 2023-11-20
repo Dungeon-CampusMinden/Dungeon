@@ -115,7 +115,7 @@ public class YesNoDialog {
         Dialog textDialog = new TextDialog(title, skin, "Letter", resultHandler);
         textDialog
                 .getContentTable()
-                .add(DialogDesign.createTextDialog(skin, QuizUI.formatStringForDialogWindow(text)))
+                .add(DialogDesign.createTextDialog(skin, UITools.formatStringForDialogWindow(text)))
                 .center()
                 .grow();
         textDialog.button(UITools.DEFAULT_DIALOG_NO, UITools.DEFAULT_DIALOG_NO);
