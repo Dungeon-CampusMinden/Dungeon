@@ -1,6 +1,6 @@
 package dsl.interpreter;
 
-import dsl.runtime.environment.GameEnvironment;
+import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
 import dsl.semanticanalysis.types.typebuilding.TypeBuilder;

@@ -1,7 +1,7 @@
 package dsl.interpreter.mockecs;
 
 import dsl.runtime.*;
-import dsl.runtime.environment.IEnvironment;
+import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.EncapsulatedField;

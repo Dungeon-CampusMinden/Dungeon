@@ -2,7 +2,7 @@ package dsl.semanticanalysis;
 
 import dsl.helpers.Helpers;
 import dsl.parser.ast.PrototypeDefinitionNode;
-import dsl.runtime.environment.GameEnvironment;
+import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;

@@ -13,8 +13,6 @@ import dsl.semanticanalysis.types.FunctionType;
 
 import java.util.List;
 
-// TODO: set FunctionType as datatype for this
-// public class NativePrint extends ScopedSymbol implements ICallable {
 public class NativePrint extends NativeFunction {
     public static NativePrint func = new NativePrint(Scope.NULL);
 

@@ -1,4 +1,4 @@
-package dsl.runtime.environment;
+package dsl.semanticanalysis.environment;
 
 import dsl.runtime.RuntimeObjectTranslator;
 import dsl.semanticanalysis.scope.IScope;
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-// TODO: this is more of a semantic analysis kind of concept -> put it there
 public interface IEnvironment {
 
     TypeBuilder getTypeBuilder();

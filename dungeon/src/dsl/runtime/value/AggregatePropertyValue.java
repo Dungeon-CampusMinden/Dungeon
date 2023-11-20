@@ -1,6 +1,6 @@
 package dsl.runtime.value;
 
-import dsl.runtime.environment.IEnvironment;
+import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;

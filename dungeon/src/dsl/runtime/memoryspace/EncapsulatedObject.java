@@ -1,6 +1,6 @@
 package dsl.runtime.memoryspace;
 
-import dsl.runtime.environment.IEnvironment;
+import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.value.AggregatePropertyValue;
 import dsl.runtime.value.EncapsulatedField;
 import dsl.runtime.value.PropertyValue;

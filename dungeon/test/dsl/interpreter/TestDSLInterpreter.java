@@ -14,7 +14,7 @@ import dsl.helpers.Helpers;
 import dsl.interpreter.mockecs.*;
 import dsl.parser.ast.IdNode;
 import dsl.parser.ast.Node;
-import dsl.runtime.environment.GameEnvironment;
+import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.runtime.memoryspace.EncapsulatedObject;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.PrototypeValue;
