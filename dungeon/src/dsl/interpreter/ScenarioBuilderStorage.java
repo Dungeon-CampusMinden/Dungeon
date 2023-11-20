@@ -1,6 +1,6 @@
 package dsl.interpreter;
 
-import dsl.runtime.IEnvironment;
+import dsl.runtime.environment.IEnvironment;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.FunctionSymbol;
 import dsl.semanticanalysis.ICallable;

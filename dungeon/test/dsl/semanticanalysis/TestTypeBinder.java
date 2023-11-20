@@ -2,7 +2,7 @@ package dsl.semanticanalysis;
 
 import dsl.helpers.Helpers;
 import dsl.parser.ast.PrototypeDefinitionNode;
-import dsl.runtime.GameEnvironment;
+import dsl.runtime.environment.GameEnvironment;
 import dsl.semanticanalysis.types.*;
 
 import org.junit.Assert;

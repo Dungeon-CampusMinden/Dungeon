@@ -1,4 +1,4 @@
-package dsl.runtime;
+package dsl.runtime.environment;
 
 import contrib.components.*;
 import contrib.entities.EntityFactory;
@@ -14,6 +14,8 @@ import core.level.Tile;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
+import dsl.runtime.Prototype;
+import dsl.runtime.RuntimeObjectTranslator;
 import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.runtime.nativefunctions.NativePrint;
 import dsl.runtime.value.*;

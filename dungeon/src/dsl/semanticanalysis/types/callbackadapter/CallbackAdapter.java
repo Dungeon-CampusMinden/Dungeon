@@ -3,7 +3,7 @@ package dsl.semanticanalysis.types.callbackadapter;
 import core.utils.TriConsumer;
 
 import dsl.interpreter.DSLInterpreter;
-import dsl.runtime.RuntimeEnvironment;
+import dsl.runtime.environment.RuntimeEnvironment;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.types.FunctionType;

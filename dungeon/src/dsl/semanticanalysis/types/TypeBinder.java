@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.types;
 
 import dsl.parser.ast.*;
-import dsl.runtime.IEnvironment;
+import dsl.runtime.environment.IEnvironment;
 import dsl.semanticanalysis.ScopedSymbol;
 import dsl.semanticanalysis.Symbol;
 import dsl.semanticanalysis.SymbolTable;

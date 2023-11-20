@@ -1,6 +1,8 @@
-package dsl.runtime;
+package dsl.runtime.environment;
 
 import dsl.interpreter.DSLInterpreter;
+import dsl.runtime.Prototype;
+import dsl.runtime.RuntimeObjectTranslator;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.semanticanalysis.IScope;
 import dsl.semanticanalysis.Symbol;

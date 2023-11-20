@@ -6,7 +6,7 @@ import core.Entity;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.Prototype;
-import dsl.runtime.RuntimeEnvironment;
+import dsl.runtime.environment.RuntimeEnvironment;
 import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.Value;

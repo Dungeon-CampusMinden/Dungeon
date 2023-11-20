@@ -5,7 +5,7 @@ import dsl.interpreter.DummyNativeFunction;
 import dsl.interpreter.TestEnvironment;
 import dsl.interpreter.mockecs.*;
 import dsl.parser.ast.*;
-import dsl.runtime.GameEnvironment;
+import dsl.runtime.environment.GameEnvironment;
 import dsl.runtime.nativefunctions.NativePrint;
 import dsl.semanticanalysis.types.*;
 

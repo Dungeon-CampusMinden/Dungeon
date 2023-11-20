@@ -2,15 +2,12 @@ package dsl.interpreter;
 
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.*;
-import dsl.runtime.GameEnvironment;
+import dsl.runtime.environment.GameEnvironment;
 import dsl.semanticanalysis.Symbol;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.IType;
 
-import entrypoint.DSLEntryPoint;
-import entrypoint.DSLFileLoader;
-import entrypoint.DungeonConfig;
-import entrypoint.ParsedFile;
+import entrypoint.*;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

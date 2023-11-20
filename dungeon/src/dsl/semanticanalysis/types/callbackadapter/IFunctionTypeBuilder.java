@@ -1,6 +1,6 @@
 package dsl.semanticanalysis.types.callbackadapter;
 
-import dsl.runtime.IEnvironment;
+import dsl.runtime.environment.IEnvironment;
 import dsl.semanticanalysis.IScope;
 import dsl.semanticanalysis.types.FunctionType;
 import dsl.semanticanalysis.types.TypeBuilder;

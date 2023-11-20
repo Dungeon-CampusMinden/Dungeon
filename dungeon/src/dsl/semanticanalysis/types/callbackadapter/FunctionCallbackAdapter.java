@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.types.callbackadapter;
 
 import dsl.interpreter.DSLInterpreter;
-import dsl.runtime.RuntimeEnvironment;
+import dsl.runtime.environment.RuntimeEnvironment;
 import dsl.semanticanalysis.ICallable;
 
 import java.util.function.Function;

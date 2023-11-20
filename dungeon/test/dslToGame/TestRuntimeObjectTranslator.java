@@ -16,7 +16,7 @@ import dsl.interpreter.mockecs.ExternalType;
 import dsl.interpreter.mockecs.ExternalTypeBuilder;
 import dsl.interpreter.mockecs.ExternalTypeBuilderMultiParam;
 import dsl.interpreter.mockecs.TestComponentWithExternalType;
-import dsl.runtime.GameEnvironment;
+import dsl.runtime.environment.GameEnvironment;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.Value;
 

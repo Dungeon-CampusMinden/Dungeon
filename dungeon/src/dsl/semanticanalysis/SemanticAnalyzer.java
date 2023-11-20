@@ -22,7 +22,7 @@
 package dsl.semanticanalysis;
 
 import dsl.parser.ast.*;
-import dsl.runtime.IEnvironment;
+import dsl.runtime.environment.IEnvironment;
 import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.semanticanalysis.types.*;
 
