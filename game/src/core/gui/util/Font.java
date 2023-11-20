@@ -4,25 +4,40 @@ import static core.gui.util.Logging.log;
 
 import static org.lwjgl.stb.STBTruetype.*;
 
+import core.gui.GUIRoot;
 import core.gui.backend.BackendImage;
 import core.utils.logging.CustomLogLevel;
+import core.utils.math.Vector2i;
 
 import org.lwjgl.stb.STBTTFontinfo;
+import org.lwjgl.stb.STBTTKerningentry;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Font {
 
-    private BackendImage[] fontAtlas;
+    public static final int MAX_ATLAS_SIZE = 1024;
+    public static final String DEFAULT_CHARS =
+            "abcdefghijklmnopqrstuvwxyzäöüABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß1234567890!?\"§$%&/()=\\-_.,:;#*+~<>@[]{}'²³|`´^°";
+    private static final List<Integer> WRAPPING_CHARACTERS = new ArrayList<>();
+    private static final List<Integer> NEWLINE_CHARACTERS = new ArrayList<>();
+
+    static {
+        String wrappingCharacters = " .,:;!?-";
+        wrappingCharacters.chars().forEach(WRAPPING_CHARACTERS::add);
+
+        String newlineCharacters = "\n";
+        newlineCharacters.chars().forEach(NEWLINE_CHARACTERS::add);
+    }
+
+    public BackendImage[] fontAtlas;
     public final float fontScale;
     public final int fontSize, ascent, descent, lineGap;
-    private Map<Integer, Glyph> glyphMap = new HashMap<>();
+    public final Map<Integer, Glyph> glyphMap = new HashMap<>();
+    public final Map<Integer, Map<Integer, Integer>> kerningMap = new HashMap<>();
 
     private Font(float fontScale, int fontSize, int ascent, int descent, int lineGap) {
         this.fontScale = fontScale;
@@ -53,6 +68,12 @@ public class Font {
         byte[] fontBytes = is.readAllBytes();
         is.close();
 
+        // Check if question mark is in charactersToLoad. If not add it, as it is used as a
+        // replacement for unknown characters
+        if (!charactersToLoad.contains("?")) {
+            charactersToLoad += "?";
+        }
+
         ByteBuffer buffer = ByteBuffer.allocateDirect(fontBytes.length);
         buffer.put(fontBytes);
         buffer.position(0);
@@ -77,14 +98,12 @@ public class Font {
             Font font = new Font(scale, fontSize, ascent[0], descent[0], lineGap[0]);
 
             // Map the glyphs to the font atlas
-            int maxAtlasWidth = 1024;
-            int maxAtlasHeight = 1024;
 
             int maxHeightInRow = 0;
             int currentX = 0;
             int currentY = 0;
             List<ByteBuffer> atlasImages = new ArrayList<>();
-            atlasImages.add(ByteBuffer.allocateDirect(maxAtlasWidth * maxAtlasWidth));
+            atlasImages.add(ByteBuffer.allocateDirect(MAX_ATLAS_SIZE * MAX_ATLAS_SIZE));
 
             for (int charIndex = 0; charIndex < charactersToLoad.length(); charIndex++) {
                 int unicodeCodepoint = Character.codePointAt(charactersToLoad, charIndex);
@@ -107,43 +126,69 @@ public class Font {
                 int height = y1[0] - y0[0];
 
                 ByteBuffer currentAtlas = atlasImages.get(atlasImages.size() - 1);
-                currentAtlas.position(currentX + currentY * maxAtlasWidth);
+                currentAtlas.position(currentX + currentY * MAX_ATLAS_SIZE);
                 stbtt_MakeGlyphBitmap(
                         fontInfo,
                         currentAtlas,
                         width,
                         height,
-                        maxAtlasWidth,
+                        MAX_ATLAS_SIZE,
                         scale,
                         scale,
                         glyphIndex);
 
                 Glyph glyph =
-                        new Glyph(unicodeCodepoint, width, height, currentX, currentY, xAdvance[0]);
+                        new Glyph(
+                                unicodeCodepoint,
+                                atlasImages.size() - 1,
+                                width,
+                                height,
+                                currentX,
+                                currentY,
+                                xAdvance[0]);
                 font.glyphMap.put(unicodeCodepoint, glyph);
-                log(
-                        CustomLogLevel.DEBUG,
-                        "Loaded glyph for character '%c' with index %d (%dx%d)",
-                        unicodeCodepoint,
-                        glyphIndex,
-                        width,
-                        height);
 
                 currentX += glyph.width;
                 maxHeightInRow = Math.max(maxHeightInRow, glyph.height);
 
-                if (currentX + glyph.width > maxAtlasWidth) { // End of row
+                if (currentX > MAX_ATLAS_SIZE) { // End of row
                     currentX = 0;
                     currentY = currentY + maxHeightInRow;
                 }
-                if (currentY + glyph.height > maxAtlasHeight) { // End of atlas
-                    currentX = 0;
+                if (currentY > MAX_ATLAS_SIZE) { // End of atlas
                     currentY = 0;
-                    atlasImages.add(ByteBuffer.allocateDirect(maxAtlasWidth * maxAtlasWidth));
+                    atlasImages.add(ByteBuffer.allocateDirect(MAX_ATLAS_SIZE * MAX_ATLAS_SIZE));
                 }
-
-                // TODO: Kerning pairs
             }
+
+            // Load kerning table
+            STBTTKerningentry.Buffer kerningTable =
+                    STBTTKerningentry.calloc(stbtt_GetKerningTableLength(fontInfo));
+            int entries = stbtt_GetKerningTable(fontInfo, kerningTable);
+            log(CustomLogLevel.DEBUG, "Loaded %d kerning entries", entries);
+
+            for (int i = 0; i < entries; i++) {
+                STBTTKerningentry entry = kerningTable.get(i);
+                int g1 = entry.glyph1();
+                int g2 = entry.glyph2();
+                int kerning = entry.advance();
+                if (!font.kerningMap.containsKey(g1)) {
+                    font.kerningMap.put(g1, new HashMap<>());
+                }
+                font.kerningMap.get(g1).put(g2, kerning);
+            }
+
+            kerningTable.free();
+
+            font.fontAtlas = new BackendImage[atlasImages.size()];
+            for (int i = 0; i < atlasImages.size(); i++) {
+                font.fontAtlas[i] =
+                        GUIRoot.getInstance()
+                                .backend()
+                                .loadImageFromBitmap(
+                                        atlasImages.get(i), MAX_ATLAS_SIZE, MAX_ATLAS_SIZE, 1);
+            }
+            ret[fontIndex] = font;
         }
         fontInfo.free();
         return ret;
@@ -165,12 +210,67 @@ public class Font {
      * @throws IOException If the font could not be loaded.
      */
     public static Font[] loadFont(String ttfFilePath, int initialFontSize) throws IOException {
-        return loadFont(
-                ttfFilePath,
-                initialFontSize,
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZß1234567890!?\"§$%&/()=\\-_.,:;#*+~<>@[]{}'²³|`´^°");
+        return loadFont(ttfFilePath, initialFontSize, DEFAULT_CHARS);
     }
 
-    private record Glyph(
-            int unicode, int width, int height, int xOffset, int yOffset, int xAdvance) {}
+    public Vector2i boundingBox(String text, int maxWidth, boolean considerKernings) {
+        // TODO: Handle Tabulator
+        int width = 0;
+        int height = 0;
+
+        int lastWrapIndex = 0;
+        int xOnLastWrapChar = 0;
+
+        int currentX = 0;
+        int currentY = 0;
+
+        for (int i = 0; i < text.length(); i++) {
+            int unicodeCodepoint = Character.codePointAt(text, i);
+            Glyph glyph = glyphMap.get(unicodeCodepoint);
+            if (glyph == null) {
+                glyph = glyphMap.get(Character.codePointOf("?"));
+                if (glyph == null) {
+                    continue; // Skip unknown character if question mark is not available
+                }
+            }
+
+            if (NEWLINE_CHARACTERS.contains(unicodeCodepoint)) {
+                width = Math.max(width, currentX);
+                currentX = 0;
+                currentY += this.fontSize + this.lineGap;
+                lastWrapIndex = i;
+                xOnLastWrapChar = 0;
+                continue;
+            }
+            if (WRAPPING_CHARACTERS.contains(unicodeCodepoint)) {
+                lastWrapIndex = i;
+                xOnLastWrapChar = currentX;
+            }
+
+            if (considerKernings) {
+
+            } else {
+
+            }
+
+            if (currentX + glyph.width > maxWidth) {
+                width = Math.max(width, xOnLastWrapChar);
+                currentX = xOnLastWrapChar;
+                currentY += fontSize + lineGap;
+                i = lastWrapIndex + 1;
+                continue;
+            }
+            currentX += glyphMap.get(unicodeCodepoint).xAdvance;
+        }
+        return Vector2i.zero();
+    }
+
+    public record Glyph(
+            int unicode,
+            int atlas,
+            int width,
+            int height,
+            int xOffset,
+            int yOffset,
+            int xAdvance) {}
 }
