@@ -6,14 +6,10 @@ import dsl.runtime.callable.ExtensionMethod;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.callbackadapter.BiFunctionFunctionTypeBuilder;
-import dsl.semanticanalysis.typesystem.callbackadapter.ConsumerFunctionTypeBuilder;
-import dsl.semanticanalysis.typesystem.callbackadapter.FunctionFunctionTypeBuilder;
-import dsl.semanticanalysis.typesystem.callbackadapter.IFunctionTypeBuilder;
 
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.type.*;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.*;
 import graph.taskdependencygraph.TaskDependencyGraph;
 

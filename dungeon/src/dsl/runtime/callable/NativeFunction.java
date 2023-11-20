@@ -3,8 +3,8 @@ package dsl.runtime.callable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.type.FunctionType;
-import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 public abstract class NativeFunction extends ScopedSymbol implements ICallable {
     protected NativeFunction(String name, IScope parentScope, FunctionType type) {

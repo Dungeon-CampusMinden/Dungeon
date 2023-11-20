@@ -2,7 +2,7 @@ package dsl.runtime.value;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 /**
  * A {@link Value}, which encapsulates an {@link IDSLExtensionProperty} and an object, to use as an

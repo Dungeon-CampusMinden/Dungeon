@@ -1,4 +1,4 @@
-package dsl.semanticanalysis.typesystem.type;
+package dsl.semanticanalysis.typesystem.typebuilding.type;
 
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.scope.IScope;

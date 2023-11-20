@@ -1,8 +1,8 @@
 package dsl.runtime.value;
 
 import dsl.runtime.callable.ICallable;
-import dsl.semanticanalysis.typesystem.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 /** This Value represents the instance of an {@link ICallable}. */
 public class FunctionValue extends Value {

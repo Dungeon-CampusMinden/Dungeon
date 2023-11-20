@@ -2,8 +2,8 @@ package dsl.semanticanalysis.typesystem.callbackadapter;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.callable.ICallable;
-import dsl.semanticanalysis.typesystem.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 
 /**
  * Builder class for {@link CallbackAdapter}. Stores a reference to the {@link DSLInterpreter},

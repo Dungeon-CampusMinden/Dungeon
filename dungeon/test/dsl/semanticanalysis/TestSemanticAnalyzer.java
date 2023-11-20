@@ -7,7 +7,7 @@ import dsl.interpreter.mockecs.*;
 import dsl.parser.ast.*;
 import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.environment.GameEnvironment;
-import dsl.semanticanalysis.typesystem.type.*;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import dslinterop.dslnativefunction.NativePrint;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.scope.Scope;

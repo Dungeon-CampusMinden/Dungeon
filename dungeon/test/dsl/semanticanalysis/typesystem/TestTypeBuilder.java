@@ -7,7 +7,7 @@ import dsl.interpreter.mockecs.*;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 
-import dsl.semanticanalysis.typesystem.type.*;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;

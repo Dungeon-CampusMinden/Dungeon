@@ -22,7 +22,7 @@
 package dsl.semanticanalysis.symbol;
 
 import dsl.semanticanalysis.scope.IScope;
-import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 /** Represents a symbol in a program */
 public class Symbol {

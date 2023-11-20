@@ -8,9 +8,9 @@ import dsl.runtime.value.Value;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.type.AggregateType;
-import dsl.semanticanalysis.typesystem.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;

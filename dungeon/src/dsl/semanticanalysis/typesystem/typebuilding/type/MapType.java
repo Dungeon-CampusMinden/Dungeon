@@ -1,4 +1,4 @@
-package dsl.semanticanalysis.typesystem.type;
+package dsl.semanticanalysis.typesystem.typebuilding.type;
 
 import dsl.runtime.value.MapValue;
 import dsl.runtime.callable.NativeMethod;

@@ -1,6 +1,6 @@
 package dsl.runtime.value;
 
-import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 import java.lang.reflect.Field;
 

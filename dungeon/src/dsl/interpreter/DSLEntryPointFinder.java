@@ -4,8 +4,8 @@ import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.*;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.type.AggregateType;
-import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 import entrypoint.*;
 

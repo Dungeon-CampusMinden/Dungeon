@@ -4,9 +4,9 @@ import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.runtime.callable.ICallable;
-import dsl.semanticanalysis.typesystem.type.AggregateType;
-import dsl.semanticanalysis.typesystem.type.FunctionType;
-import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 import task.Task;
 

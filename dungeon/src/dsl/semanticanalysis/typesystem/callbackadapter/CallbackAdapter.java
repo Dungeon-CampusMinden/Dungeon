@@ -6,7 +6,7 @@ import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.environment.RuntimeEnvironment;
 import dsl.runtime.value.Value;
 import dsl.runtime.callable.ICallable;
-import dsl.semanticanalysis.typesystem.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 
 import java.util.Arrays;
 import java.util.function.BiConsumer;

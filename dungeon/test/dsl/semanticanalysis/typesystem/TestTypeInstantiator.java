@@ -7,8 +7,8 @@ import dsl.runtime.value.AggregateValue;
 import dsl.semanticanalysis.scope.Scope;
 
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
-import dsl.semanticanalysis.typesystem.type.AggregateType;
-import dsl.semanticanalysis.typesystem.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import entrypoint.DungeonConfig;
 

@@ -22,7 +22,7 @@ import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.type.*;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import dsl.semanticanalysis.typesystem.callbackadapter.CallbackAdapter;
 
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;

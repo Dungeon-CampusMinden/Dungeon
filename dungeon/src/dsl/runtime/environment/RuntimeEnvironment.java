@@ -8,7 +8,7 @@ import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.SymbolTable;
-import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 

@@ -1,10 +1,9 @@
-package dsl.semanticanalysis.typesystem.callbackadapter;
+package dsl.semanticanalysis.typesystem.typebuilding;
 
 import dsl.semanticanalysis.scope.IScope;
-import dsl.semanticanalysis.typesystem.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.type.FunctionType;
-import dsl.semanticanalysis.typesystem.type.IType;
-import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;

@@ -8,8 +8,8 @@ import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.*;
 
-import dsl.semanticanalysis.typesystem.type.AggregateType;
-import dsl.semanticanalysis.typesystem.type.AggregateTypeAdapter;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;

@@ -19,7 +19,7 @@ import dsl.runtime.value.PrototypeValue;
 import dsl.runtime.interop.RuntimeObjectTranslator;
 import dsl.runtime.callable.ICallable;
 import dsl.runtime.callable.NativeFunction;
-import dsl.semanticanalysis.typesystem.type.*;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import dslinterop.dslnativefunction.NativePrint;
 import dsl.runtime.value.*;
 import dsl.semanticanalysis.*;

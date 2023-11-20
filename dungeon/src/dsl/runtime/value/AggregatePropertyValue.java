@@ -5,7 +5,7 @@ import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 /**
  * Represents a property value, which encapsulated an {@link IDSLExtensionProperty} and an object to use

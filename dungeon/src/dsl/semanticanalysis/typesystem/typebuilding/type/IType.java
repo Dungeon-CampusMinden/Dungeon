@@ -1,4 +1,4 @@
-package dsl.semanticanalysis.typesystem.type;
+package dsl.semanticanalysis.typesystem.typebuilding.type;
 
 public interface IType {
     enum Kind {

@@ -5,8 +5,8 @@ import dsl.runtime.callable.NativeFunction;
 import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
-import dsl.semanticanalysis.typesystem.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 
 import java.util.List;
 

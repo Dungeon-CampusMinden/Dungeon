@@ -31,7 +31,7 @@ import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.type.*;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 
 import java.util.Stack;
 // importing all required classes from symbolTable will be to verbose
