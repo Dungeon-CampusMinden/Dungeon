@@ -1,6 +1,5 @@
-package dsl.runtime;
+package dsl.runtime.value;
 
-import dsl.runtime.value.Value;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.AggregateType;
@@ -12,12 +11,12 @@ import java.util.Map;
 import java.util.Set;
 
 /** A Prototype stores default values for some AggregateValue. */
-public class Prototype extends Value implements IType {
+public class PrototypeValue extends Value implements IType {
     public static BuiltInType PROTOTYPE = new BuiltInType("prototype", Scope.NULL, (v) -> false);
     public static BuiltInType ITEM_PROTOTYPE =
             new BuiltInType("item_prototype", Scope.NULL, (v) -> false);
-    public static Prototype NONE =
-            new Prototype(PROTOTYPE, new AggregateType("NO_TYPE_NAME", Scope.NULL));
+    public static PrototypeValue NONE =
+            new PrototypeValue(PROTOTYPE, new AggregateType("NO_TYPE_NAME", Scope.NULL));
     private final AggregateType internalType;
 
     private final HashMap<String, Value> defaultValues;
@@ -26,9 +25,9 @@ public class Prototype extends Value implements IType {
      * Constructor
      *
      * @param prototypeType the {@link BuiltInType} of this Prototype (either {@link
-     *     Prototype#ITEM_PROTOTYPE} or {@link Prototype#PROTOTYPE}
+     *     PrototypeValue#ITEM_PROTOTYPE} or {@link PrototypeValue#PROTOTYPE}
      */
-    public Prototype(BuiltInType prototypeType, AggregateType internalType) {
+    public PrototypeValue(BuiltInType prototypeType, AggregateType internalType) {
         // an Prototype is a value and a type at the same time
         super(prototypeType, Value.NONE);
         assert prototypeType == PROTOTYPE || prototypeType == ITEM_PROTOTYPE;

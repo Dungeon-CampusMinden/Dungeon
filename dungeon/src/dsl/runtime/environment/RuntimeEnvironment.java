@@ -1,7 +1,7 @@
 package dsl.runtime.environment;
 
 import dsl.interpreter.DSLInterpreter;
-import dsl.runtime.Prototype;
+import dsl.runtime.value.PrototypeValue;
 import dsl.runtime.RuntimeObjectTranslator;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.semanticanalysis.scope.IScope;
@@ -19,7 +19,7 @@ import java.util.HashMap;
 public class RuntimeEnvironment implements IEnvironment {
     private final SymbolTable symbolTable;
     private final HashMap<String, Symbol> functions;
-    private final HashMap<String, Prototype> prototypes;
+    private final HashMap<String, PrototypeValue> prototypes;
     private final HashMap<Type, IType> javaTypeToDSLType;
     private final RuntimeObjectTranslator runtimeObjectTranslator;
     private final TypeBuilder typeBuilder;
@@ -54,22 +54,22 @@ public class RuntimeEnvironment implements IEnvironment {
     }
 
     /**
-     * Lookup a {@link Prototype} with name
+     * Lookup a {@link PrototypeValue} with name
      *
      * @param name the name of the Prototype to lookup
      * @return the Prototype with the passed name or Prototype.NONE
      */
-    public Prototype lookupPrototype(String name) {
-        return this.prototypes.getOrDefault(name, Prototype.NONE);
+    public PrototypeValue lookupPrototype(String name) {
+        return this.prototypes.getOrDefault(name, PrototypeValue.NONE);
     }
 
     /**
-     * Add new {@link Prototype}
+     * Add new {@link PrototypeValue}
      *
      * @param prototype the new Prototype
      * @return true on success, false otherwise
      */
-    public boolean addPrototype(Prototype prototype) {
+    public boolean addPrototype(PrototypeValue prototype) {
         if (this.prototypes.containsKey(prototype.getName())) {
             return false;
         } else {

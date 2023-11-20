@@ -6,7 +6,6 @@ import antlr.main.DungeonDSLParser;
 import dsl.interpreter.dot.Interpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.*;
-import dsl.runtime.*;
 import dsl.runtime.callable.ICallable;
 import dsl.runtime.environment.GameEnvironment;
 import dsl.runtime.environment.IEnvironment;
@@ -116,7 +115,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * Creates {@link Prototype} instances for all `entity_type` and `item_type` definitions in the
+     * Creates {@link PrototypeValue} instances for all `entity_type` and `item_type` definitions in the
      * global scope of the passed {@link IEnvironment}.
      *
      * @param environment the {@link IEnvironment} in which's global scope to search for prototype
@@ -128,7 +127,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * Iterates over all types in the passed IEnvironment and creates a {@link Prototype} for any
+     * Iterates over all types in the passed IEnvironment and creates a {@link PrototypeValue} for any
      * game object definition, which was defined by the user
      *
      * @param environment the environment to check for game object definitions
@@ -141,7 +140,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // create a prototype for it
                 var creationAstNode = symbolTable().getCreationAstNode((Symbol) type);
                 if (creationAstNode.type.equals(Node.Type.PrototypeDefinition)) {
-                    var prototype = new Prototype(Prototype.PROTOTYPE, (AggregateType) type);
+                    var prototype = new PrototypeValue(PrototypeValue.PROTOTYPE, (AggregateType) type);
 
                     var gameObjDefNode = (PrototypeDefinitionNode) creationAstNode;
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
@@ -159,7 +158,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * Create {@link Prototype} instances for {@link ItemPrototypeDefinitionNode}s in the global
+     * Create {@link PrototypeValue} instances for {@link ItemPrototypeDefinitionNode}s in the global
      * scope of passed {@link IEnvironment}. The created prototypes will be registered in the {@link
      * RuntimeEnvironment} of this {@link DSLInterpreter} and is stored as a {@link Value} in the
      * global {@link IMemorySpace} of the interpreter.
@@ -184,7 +183,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         }
     }
 
-    private Prototype createItemPrototype(ItemPrototypeDefinitionNode node) {
+    private PrototypeValue createItemPrototype(ItemPrototypeDefinitionNode node) {
         var itemPrototypeDefinitionSymbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
         assert itemPrototypeDefinitionSymbol instanceof AggregateType;
         AggregateType itemType = (AggregateType) itemPrototypeDefinitionSymbol;
@@ -195,7 +194,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // the prototype
         AggregateType questItemType =
                 (AggregateType) this.environment.resolveInGlobalScope("quest_item");
-        Prototype itemPrototype = new Prototype(Prototype.ITEM_PROTOTYPE, itemType);
+        PrototypeValue itemPrototype = new PrototypeValue(PrototypeValue.ITEM_PROTOTYPE, itemType);
         for (var propDef : node.getPropertyDefinitionNodes()) {
             var propertyDefNode = (PropertyDefNode) propDef;
             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
@@ -231,7 +230,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return itemPrototype;
     }
 
-    private Prototype createComponentPrototype(AggregateValueDefinitionNode node) {
+    private PrototypeValue createComponentPrototype(AggregateValueDefinitionNode node) {
         var componentSymbol = this.symbolTable().getSymbolsForAstNode(node).get(0);
         assert componentSymbol.getDataType() instanceof AggregateType;
 
@@ -240,7 +239,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // evaluate rhs and store the value in the member of
         // the prototype
         AggregateType prototypesType = (AggregateType) componentSymbol.getDataType();
-        Prototype componentPrototype = new Prototype(Prototype.PROTOTYPE, prototypesType);
+        PrototypeValue componentPrototype = new PrototypeValue(PrototypeValue.PROTOTYPE, prototypesType);
         for (var propDef : node.getPropertyDefinitionNodes()) {
             var propertyDefNode = (PropertyDefNode) propDef;
             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
@@ -592,10 +591,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
     /**
      * Instantiate a dsl prototype (which is an aggregate type with defaults) as a new Value
      *
-     * @param prototype the {@link Prototype} to instantiate
-     * @return A new {@link Value} created from the {@link Prototype}
+     * @param prototype the {@link PrototypeValue} to instantiate
+     * @return A new {@link Value} created from the {@link PrototypeValue}
      */
-    public Value instantiateDSLValue(Prototype prototype) {
+    public Value instantiateDSLValue(PrototypeValue prototype) {
         // create memory space to store the values in
         AggregateValue instance = new AggregateValue(prototype, getCurrentMemorySpace());
 
@@ -609,8 +608,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         for (var member : internalType.getSymbols()) {
             // check, if type defines default for member
             var defaultValue = prototype.getDefaultValue(member.getName());
-            if (defaultValue instanceof Prototype) {
-                defaultValue = instantiateDSLValue((Prototype) defaultValue);
+            if (defaultValue instanceof PrototypeValue) {
+                defaultValue = instantiateDSLValue((PrototypeValue) defaultValue);
             } else if (!defaultValue.equals(Value.NONE)) {
                 // copy value (this is a copy of the DSL-Value, not the internal Object of the
                 // value)
@@ -626,10 +625,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
         return instance;
     }
 
-    public AggregateType getOriginalTypeOfPrototype(Prototype type) {
+    public AggregateType getOriginalTypeOfPrototype(PrototypeValue type) {
         IType returnType = type;
-        while (returnType instanceof Prototype) {
-            returnType = ((Prototype) returnType).getInternalType();
+        while (returnType instanceof PrototypeValue) {
+            returnType = ((PrototypeValue) returnType).getInternalType();
         }
         return (AggregateType) returnType;
     }

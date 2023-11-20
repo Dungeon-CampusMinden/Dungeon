@@ -1,7 +1,6 @@
 package dsl.semanticanalysis.types.instantiation;
 
 import dsl.interpreter.DSLInterpreter;
-import dsl.runtime.*;
 import dsl.runtime.memoryspace.EncapsulatedObject;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.*;
@@ -53,7 +52,7 @@ public class TypeInstantiator {
         IType valuesType = value.getDataType();
 
         // instantiation of prototypes is handled by the native `instantiate` function
-        if (valuesType instanceof Prototype) {
+        if (valuesType instanceof PrototypeValue) {
             return null;
         }
 
@@ -223,7 +222,7 @@ public class TypeInstantiator {
                     // if the value is a prototype, instantiation is handled by
                     // DSLInterpreter::instantiateDSLValue and subsequent calls to
                     // instantiateRuntimeValue; don't do it here
-                    if (valuesType instanceof Prototype) {
+                    if (valuesType instanceof PrototypeValue) {
                         return null;
                     }
                     // call builder -> store values from memory space in order of parameters
@@ -267,7 +266,7 @@ public class TypeInstantiator {
                     // if the value is a prototype, instantiation is handled by
                     // DSLInterpreter::instantiateDSLValue and subsequent calls to
                     // instantiateRuntimeValue; don't do it here
-                    if (valuesType instanceof Prototype) {
+                    if (valuesType instanceof PrototypeValue) {
                         return null;
                     }
                     var originalJavaClass = ((AggregateType) valuesType).getOriginType();

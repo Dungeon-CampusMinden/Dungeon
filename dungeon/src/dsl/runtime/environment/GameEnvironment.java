@@ -14,7 +14,7 @@ import core.level.Tile;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
-import dsl.runtime.Prototype;
+import dsl.runtime.value.PrototypeValue;
 import dsl.runtime.RuntimeObjectTranslator;
 import dsl.runtime.callable.ICallable;
 import dsl.runtime.callable.NativeFunction;
@@ -293,8 +293,8 @@ public class GameEnvironment implements IEnvironment {
         this.globalScope.bind(BuiltInType.floatType);
         this.globalScope.bind(BuiltInType.stringType);
         this.globalScope.bind(BuiltInType.graphType);
-        this.globalScope.bind(Prototype.PROTOTYPE);
-        this.globalScope.bind(Prototype.ITEM_PROTOTYPE);
+        this.globalScope.bind(PrototypeValue.PROTOTYPE);
+        this.globalScope.bind(PrototypeValue.ITEM_PROTOTYPE);
     }
 
     protected ArrayList<Symbol> buildDependantNativeFunctions() {
@@ -471,7 +471,7 @@ public class GameEnvironment implements IEnvironment {
             super(
                     "build_quest_item",
                     parentScope,
-                    new FunctionType(questItemType, Prototype.ITEM_PROTOTYPE, contentType));
+                    new FunctionType(questItemType, PrototypeValue.ITEM_PROTOTYPE, contentType));
         }
 
         @Override
@@ -484,7 +484,7 @@ public class GameEnvironment implements IEnvironment {
             Value contentValue = (Value) parameters.get(1).accept(interpreter);
 
             // check for correct parameter type
-            if (prototypeValue.getDataType() != Prototype.ITEM_PROTOTYPE) {
+            if (prototypeValue.getDataType() != PrototypeValue.ITEM_PROTOTYPE) {
                 throw new RuntimeException(
                         "Wrong type ('"
                                 + prototypeValue.getDataType().getName()
@@ -493,7 +493,7 @@ public class GameEnvironment implements IEnvironment {
                 // instantiate new QuestItem from passed item prototype
                 var dslItemInstance =
                         (AggregateValue)
-                                interpreter.instantiateDSLValue((Prototype) prototypeValue);
+                                interpreter.instantiateDSLValue((PrototypeValue) prototypeValue);
                 var questItemType = (AggregateType) rtEnv.getGlobalScope().resolve("quest_item");
                 var questItemObject =
                         (QuestItem)

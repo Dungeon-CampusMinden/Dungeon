@@ -14,10 +14,10 @@ import dsl.helpers.Helpers;
 import dsl.interpreter.mockecs.*;
 import dsl.parser.ast.IdNode;
 import dsl.parser.ast.Node;
-import dsl.runtime.*;
 import dsl.runtime.environment.GameEnvironment;
 import dsl.runtime.memoryspace.EncapsulatedObject;
 import dsl.runtime.value.AggregateValue;
+import dsl.runtime.value.PrototypeValue;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
@@ -346,23 +346,23 @@ public class TestDSLInterpreter {
         var rtEnv = interpreter.getRuntimeEnvironment();
 
         var typeWithDefaults = rtEnv.lookupPrototype("c");
-        assertNotEquals(Prototype.NONE, typeWithDefaults);
+        assertNotEquals(PrototypeValue.NONE, typeWithDefaults);
 
         var firstCompWithDefaults = typeWithDefaults.getDefaultValue("test_component");
         assertNotEquals(Value.NONE, firstCompWithDefaults);
-        assertTrue(firstCompWithDefaults instanceof Prototype);
+        assertTrue(firstCompWithDefaults instanceof PrototypeValue);
 
         var secondCompWithDefaults = typeWithDefaults.getDefaultValue("other_component");
         assertNotEquals(Value.NONE, secondCompWithDefaults);
-        assertTrue(secondCompWithDefaults instanceof Prototype);
+        assertTrue(secondCompWithDefaults instanceof PrototypeValue);
 
         // check members of components
-        var member1Value = ((Prototype) firstCompWithDefaults).getDefaultValue("member1");
+        var member1Value = ((PrototypeValue) firstCompWithDefaults).getDefaultValue("member1");
         assertNotEquals(Value.NONE, member1Value);
         assertEquals(BuiltInType.intType, member1Value.getDataType());
         assertEquals(42, member1Value.getInternalValue());
 
-        var member2Value = ((Prototype) firstCompWithDefaults).getDefaultValue("member2");
+        var member2Value = ((PrototypeValue) firstCompWithDefaults).getDefaultValue("member2");
         assertNotEquals(Value.NONE, member2Value);
         assertEquals(BuiltInType.stringType, member2Value.getDataType());
         assertEquals("Hello, World!", member2Value.getInternalValue());

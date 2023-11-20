@@ -5,7 +5,7 @@ import core.Entity;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
-import dsl.runtime.Prototype;
+import dsl.runtime.value.PrototypeValue;
 import dsl.runtime.environment.RuntimeEnvironment;
 import dsl.runtime.callable.NativeFunction;
 import dsl.runtime.value.AggregateValue;
@@ -34,7 +34,7 @@ public class NativeInstantiateNamed extends NativeFunction {
         super(
                 "instantiate_named",
                 parentScope,
-                new FunctionType(BuiltInType.noType, Prototype.PROTOTYPE, BuiltInType.stringType));
+                new FunctionType(BuiltInType.noType, PrototypeValue.PROTOTYPE, BuiltInType.stringType));
     }
 
     @Override
@@ -47,14 +47,14 @@ public class NativeInstantiateNamed extends NativeFunction {
         Value prototypeValue = parameterValues.get(0);
         Value nameValue = parameterValues.get(1);
 
-        if (prototypeValue.getDataType() != Prototype.PROTOTYPE) {
+        if (prototypeValue.getDataType() != PrototypeValue.PROTOTYPE) {
             throw new RuntimeException(
                     "Wrong type ('"
                             + prototypeValue.getDataType().getName()
                             + "') of parameter for call of instantiate()!");
         } else {
             var dslEntityInstance =
-                    (AggregateValue) interpreter.instantiateDSLValue((Prototype) prototypeValue);
+                    (AggregateValue) interpreter.instantiateDSLValue((PrototypeValue) prototypeValue);
             var entityType = (AggregateType) rtEnv.getGlobalScope().resolve("entity");
             var entityObject =
                     (core.Entity)
@@ -87,7 +87,7 @@ public class NativeInstantiateNamed extends NativeFunction {
                     //  which should be fixed
                     AggregateType membersOriginalType =
                             interpreter.getOriginalTypeOfPrototype(
-                                    (Prototype) memberValue.getDataType());
+                                    (PrototypeValue) memberValue.getDataType());
 
                     // instantiate object as a new java Object
                     Object memberObject =
@@ -107,7 +107,7 @@ public class NativeInstantiateNamed extends NativeFunction {
                 AggregateValue memberValue = (AggregateValue) entry.getValue();
                 AggregateType membersOriginalType =
                         interpreter.getOriginalTypeOfPrototype(
-                                (Prototype) memberValue.getDataType());
+                                (PrototypeValue) memberValue.getDataType());
 
                 // instantiate object as a new java Object
                 Object memberObject =
