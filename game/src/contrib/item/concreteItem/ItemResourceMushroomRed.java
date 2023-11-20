@@ -14,7 +14,10 @@ public class ItemResourceMushroomRed extends Item {
     private static final int DAMAGE_AMOUNT = 20;
 
     public ItemResourceMushroomRed() {
-        super("Red Mushroom", "A red mushroom.", Animation.of("items/resource/mushroom_red.png"));
+        super(
+                "Red Mushroom",
+                "A red mushroom.",
+                Animation.fromSingleImage("items/resource/mushroom_red.png"));
     }
 
     @Override

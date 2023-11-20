@@ -31,9 +31,9 @@ import java.util.Arrays;
 
 public class ItemTest {
 
-    Animation defaultAnimation = Animation.of("animation/missing_texture.png");
-    Animation worldAnimation = Animation.of("item/key/gold_key");
-    Animation inventoryAnimation = Animation.of("item/key/red_key");
+    Animation defaultAnimation = Animation.fromSingleImage("animation/missing_texture.png");
+    Animation worldAnimation = Animation.fromSingleImage("item/key/gold_key");
+    Animation inventoryAnimation = Animation.fromSingleImage("item/key/red_key");
 
     @Before
     public void before() {

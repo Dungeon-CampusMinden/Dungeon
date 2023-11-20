@@ -17,7 +17,7 @@ public class ItemPotionHealth extends Item {
         super(
                 "Health Potion",
                 "A health potion. It heals you for " + HEAL_AMOUNT + " health points.",
-                Animation.of("items/potion/health_potion.png"));
+                Animation.fromSingleImage("items/potion/health_potion.png"));
     }
 
     @Override

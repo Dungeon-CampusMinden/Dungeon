@@ -14,7 +14,7 @@ public class ItemResourceBerry extends Item {
     private static final int HEAL_AMOUNT = 5;
 
     public ItemResourceBerry() {
-        super("Berry", "A berry.", Animation.of("items/resource/berry.png"));
+        super("Berry", "A berry.", Animation.fromSingleImage("items/resource/berry.png"));
     }
 
     @Override

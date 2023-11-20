@@ -103,7 +103,7 @@ public class CraftingGUI extends CombinableGUI {
     private static final BitmapFont bitmapFont;
 
     static {
-        backgroundAnimation = Animation.of(BACKGROUND_TEXTURE_PATH);
+        backgroundAnimation = Animation.fromSingleImage(BACKGROUND_TEXTURE_PATH);
 
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.drawPixel(0, 0, NUMBER_BACKGROUND_COLOR);
@@ -129,9 +129,12 @@ public class CraftingGUI extends CombinableGUI {
      */
     public CraftingGUI(InventoryComponent targetInventory) {
         this.targetInventory = targetInventory;
-        this.buttonOk = new ImageButton(this, Animation.of(BUTTON_OK_TEXTURE_PATH), 0, 0, 1, 1);
+        this.buttonOk =
+                new ImageButton(
+                        this, Animation.fromSingleImage(BUTTON_OK_TEXTURE_PATH), 0, 0, 1, 1);
         this.buttonCancel =
-                new ImageButton(this, Animation.of(BUTTON_CANCEL_TEXTURE_PATH), 0, 0, 1, 1);
+                new ImageButton(
+                        this, Animation.fromSingleImage(BUTTON_CANCEL_TEXTURE_PATH), 0, 0, 1, 1);
         this.buttonOk.onClick((button) -> this.craft());
         this.buttonCancel.onClick((button) -> this.cancel());
     }

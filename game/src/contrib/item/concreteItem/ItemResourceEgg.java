@@ -17,7 +17,7 @@ public class ItemResourceEgg extends Item {
         super(
                 "Egg",
                 "An egg. What was there before? The chicken or the egg?",
-                Animation.of("items/resource/egg.png"));
+                Animation.fromSingleImage("items/resource/egg.png"));
     }
 
     @Override

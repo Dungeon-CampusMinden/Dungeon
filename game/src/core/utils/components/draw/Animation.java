@@ -114,7 +114,7 @@ public final class Animation {
      * @param prio priority for playing this animation
      * @return The created Animation instance
      */
-    public static Animation of(File subDir, int frameTime, boolean loop, int prio) {
+    public static Animation fromSubDir(File subDir, int frameTime, boolean loop, int prio) {
         List<String> fileNames =
                 Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
                         .filter(File::isFile)
@@ -137,8 +137,8 @@ public final class Animation {
      * @param subDir Path to the subdirectory where the animation frames are stored
      * @return The created Animation instance
      */
-    public static Animation of(File subDir) {
-        return Animation.of(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
+    public static Animation fromSubDir(File subDir) {
+        return Animation.fromSubDir(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
     /**
@@ -147,7 +147,7 @@ public final class Animation {
      * @param fileName path to the frame
      * @return The created Animation instance
      */
-    public static Animation of(String fileName) {
+    public static Animation fromSingleImage(String fileName) {
         return new Animation(List.of(fileName), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
@@ -158,7 +158,7 @@ public final class Animation {
      * @param frameTime How many frames to wait, before switching to the next texture?
      * @return The created Animation instance
      */
-    public static Animation of(String fileName, int frameTime) {
+    public static Animation fromSingleImage(String fileName, int frameTime) {
         return new Animation(List.of(fileName), frameTime, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
