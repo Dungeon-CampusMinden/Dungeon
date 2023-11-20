@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.types.callbackadapter;
 
 import dsl.interpreter.DSLInterpreter;
-import dsl.semanticanalysis.ICallable;
+import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.types.BuiltInType;
 import dsl.semanticanalysis.types.FunctionType;
 

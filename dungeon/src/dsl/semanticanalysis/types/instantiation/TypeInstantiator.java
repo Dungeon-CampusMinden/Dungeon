@@ -6,7 +6,7 @@ import dsl.runtime.memoryspace.EncapsulatedObject;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.*;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
-import dsl.semanticanalysis.ICallable;
+import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.AggregateTypeAdapter;

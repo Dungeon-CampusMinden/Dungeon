@@ -1,9 +1,8 @@
-package dsl.runtime.nativefunctions;
+package dsl.runtime.callable;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;

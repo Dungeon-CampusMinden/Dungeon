@@ -23,8 +23,8 @@ package dsl.semanticanalysis.analyzer;
 
 import dsl.parser.ast.*;
 import dsl.runtime.environment.IEnvironment;
-import dsl.runtime.nativefunctions.NativeFunction;
-import dsl.semanticanalysis.ICallable;
+import dsl.runtime.callable.NativeFunction;
+import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;

@@ -1,4 +1,4 @@
-package dsl.semanticanalysis;
+package dsl.runtime.callable;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;

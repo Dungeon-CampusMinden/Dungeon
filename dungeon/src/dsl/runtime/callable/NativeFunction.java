@@ -1,6 +1,5 @@
-package dsl.runtime.nativefunctions;
+package dsl.runtime.callable;
 
-import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;

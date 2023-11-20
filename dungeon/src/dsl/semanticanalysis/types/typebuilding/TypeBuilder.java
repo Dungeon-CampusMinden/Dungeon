@@ -2,7 +2,7 @@ package dsl.semanticanalysis.types.typebuilding;
 
 import core.utils.TriConsumer;
 
-import dsl.runtime.nativefunctions.ExtensionMethod;
+import dsl.runtime.callable.ExtensionMethod;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;

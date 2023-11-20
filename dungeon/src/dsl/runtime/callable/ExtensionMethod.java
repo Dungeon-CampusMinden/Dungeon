@@ -1,23 +1,22 @@
-package dsl.runtime.nativefunctions;
+package dsl.runtime.callable;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.ICallable;
-import dsl.semanticanalysis.IInstanceCallable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.FunctionType;
+import dsl.semanticanalysis.types.extension.IDSLExtensionMethod;
 
 import java.util.List;
 
 /**
- * {@link ICallable} implementation for native methods, which are an integral built-in part of the
- * DungeonDSL. It is used for binding {@link IInstanceCallable} implementations as symbols in a DSL
- * data type.
+ * {@link ICallable} implementation for an {@link IDSLExtensionMethod}. It is used for binding
+ * {@link IDSLExtensionMethod} implementations as symbols in a DSL data type, which is created from
+ * a java class.
  */
-public class NativeMethod extends Symbol implements ICallable {
-    private final IInstanceCallable instanceCallable;
+public class ExtensionMethod extends Symbol implements ICallable {
+    private final IDSLExtensionMethod<Object, Object> extensionMethod;
 
     /**
      * Constructor.
@@ -26,23 +25,29 @@ public class NativeMethod extends Symbol implements ICallable {
      * @param parentScope The parent scope of this symbol
      * @param functionType The {@link FunctionType} containing the signature information of the
      *     method
-     * @param callable The {@link IInstanceCallable}, which contains the actual implementation of
+     * @param callable The {@link IDSLExtensionMethod}, which contains the actual implementation of
      *     the method's logic
      */
-    public NativeMethod(
+    public ExtensionMethod(
             String name,
             IScope parentScope,
             FunctionType functionType,
-            IInstanceCallable callable) {
+            IDSLExtensionMethod<Object, Object> callable) {
         super(name, parentScope, functionType);
-        this.instanceCallable = callable;
+        this.extensionMethod = callable;
     }
 
     @Override
     public Object call(DSLInterpreter interperter, List<Node> parameters) {
         // resolve "THIS_VALUE"
         Value instance = interperter.getCurrentInstanceMemorySpace().resolve(Value.THIS_NAME);
-        return this.instanceCallable.call(interperter, instance, parameters);
+        Object instanceObject = instance.getInternalValue();
+
+        // interpret parameters and extract internal values
+        var parameterValues = interperter.evaluateNodes(parameters);
+        List<Object> parameterObjects = interperter.translateValuesToObjects(parameterValues);
+
+        return this.extensionMethod.call(instanceObject, parameterObjects);
     }
 
     @Override

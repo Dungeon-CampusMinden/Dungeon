@@ -3,7 +3,7 @@ package dsl.interpreter;
 import dsl.runtime.environment.IEnvironment;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
-import dsl.semanticanalysis.ICallable;
+import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.FunctionType;
 import dsl.semanticanalysis.types.IType;

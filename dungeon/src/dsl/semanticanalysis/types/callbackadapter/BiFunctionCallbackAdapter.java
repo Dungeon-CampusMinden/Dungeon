@@ -2,7 +2,7 @@ package dsl.semanticanalysis.types.callbackadapter;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.environment.RuntimeEnvironment;
-import dsl.semanticanalysis.ICallable;
+import dsl.runtime.callable.ICallable;
 
 import java.util.function.BiFunction;
 

@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.types.extension;
 
 import dsl.interpreter.DSLInterpreter;
-import dsl.semanticanalysis.IInstanceCallable;
+import dsl.runtime.callable.IInstanceCallable;
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
 
 import java.lang.reflect.Type;

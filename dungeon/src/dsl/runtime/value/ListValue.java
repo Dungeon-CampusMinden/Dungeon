@@ -2,7 +2,7 @@ package dsl.runtime.value;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
-import dsl.semanticanalysis.IInstanceCallable;
+import dsl.runtime.callable.IInstanceCallable;
 import dsl.semanticanalysis.types.ListType;
 
 import java.util.ArrayList;

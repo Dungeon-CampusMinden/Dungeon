@@ -5,7 +5,7 @@ import core.utils.TriConsumer;
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.environment.RuntimeEnvironment;
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.ICallable;
+import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.types.FunctionType;
 
 import java.util.Arrays;

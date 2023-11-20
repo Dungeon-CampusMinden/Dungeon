@@ -3,7 +3,7 @@ package dsl.semanticanalysis.symbol;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.FuncDefNode;
 import dsl.parser.ast.Node;
-import dsl.semanticanalysis.ICallable;
+import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.types.FunctionType;
 
