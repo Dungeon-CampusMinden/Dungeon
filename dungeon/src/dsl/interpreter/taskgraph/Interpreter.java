@@ -1,4 +1,4 @@
-package dsl.interpreter.dot;
+package dsl.interpreter.taskgraph;
 
 import dsl.interpreter.DSLInterpreter;
 // CHECKSTYLE:ON: AvoidStarImport

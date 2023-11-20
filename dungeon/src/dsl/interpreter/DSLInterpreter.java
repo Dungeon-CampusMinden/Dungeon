@@ -3,7 +3,7 @@ package dsl.interpreter;
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
 
-import dsl.interpreter.dot.Interpreter;
+import dsl.interpreter.taskgraph.Interpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.*;
 import dsl.runtime.callable.ICallable;
