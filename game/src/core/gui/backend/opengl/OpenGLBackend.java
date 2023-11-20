@@ -5,6 +5,7 @@ import static core.gui.util.Logging.log;
 import core.Assets;
 import core.gui.*;
 import core.gui.backend.BackendImage;
+import core.gui.util.Font;
 import core.gui.util.Logging;
 import core.utils.logging.CustomLogLevel;
 import core.utils.math.Matrix4f;
@@ -27,6 +28,7 @@ public class OpenGLBackend implements IGUIBackend {
     private final OpenGLRenderContext guiRenderContext = new OpenGLRenderContext();
     private final OpenGLRenderContext bufferRenderContext = new OpenGLRenderContext();
     private final OpenGLRenderContext debugRenderContext = new OpenGLRenderContext();
+    private final OpenGLRenderContext textRenderContext = new OpenGLRenderContext();
     private Matrix4f projection, view;
 
     public OpenGLBackend(Vector2i size) {
@@ -124,6 +126,114 @@ public class OpenGLBackend implements IGUIBackend {
         return new OpenGLImage(width, height, channels, textureHandler);
     }
 
+    @Override
+    public void drawText(
+            String text, Font font, int x, int y, int maxWidth, int maxHeight, int textColor) {
+
+        int currentX = x;
+        int currentY = y;
+
+        float[] texCoords = new float[text.length() * 4 * 2]; // 4 vertices a 2 coordinates
+        float[] transform = new float[text.length() * 4 * 4]; // 4x4 matrix per instance
+        int[] atlas = new int[text.length()];
+        float[] color = new float[text.length() * 4];
+
+        for (int i = 0; i < text.length(); i++) {
+            int codePoint = Character.codePointAt(text, i);
+            Font.Glyph glyph = font.glyphMap.get(codePoint);
+            if (glyph == null) {
+                glyph = font.glyphMap.get(Character.codePointAt("?", 0));
+                if (glyph == null) {
+                    currentX += 10;
+                    continue;
+                }
+            }
+
+            // bottom right
+            texCoords[i * 4 * 2 + 0] =
+                    (glyph.xOffset() + glyph.width()) / (float) Font.MAX_ATLAS_SIZE;
+            texCoords[i * 4 * 2 + 1] =
+                    1 - (Font.MAX_ATLAS_SIZE - glyph.yOffset()) / (float) Font.MAX_ATLAS_SIZE;
+
+            // bottom left
+            texCoords[i * 4 * 2 + 2] = glyph.xOffset() / (float) Font.MAX_ATLAS_SIZE;
+            texCoords[i * 4 * 2 + 3] =
+                    1 - (Font.MAX_ATLAS_SIZE - glyph.yOffset()) / (float) Font.MAX_ATLAS_SIZE;
+
+            // top right
+            texCoords[i * 4 * 2 + 4] =
+                    (glyph.xOffset() + glyph.width()) / (float) Font.MAX_ATLAS_SIZE;
+            texCoords[i * 4 * 2 + 5] =
+                    1
+                            - (Font.MAX_ATLAS_SIZE - (glyph.yOffset() + glyph.height()))
+                                    / (float) Font.MAX_ATLAS_SIZE;
+
+            // top left
+            texCoords[i * 4 * 2 + 6] = glyph.xOffset() / (float) Font.MAX_ATLAS_SIZE;
+            texCoords[i * 4 * 2 + 7] =
+                    1
+                            - (Font.MAX_ATLAS_SIZE - (glyph.yOffset() + glyph.height()))
+                                    / (float) Font.MAX_ATLAS_SIZE;
+
+            Matrix4f matrix = Matrix4f.identity();
+            matrix = matrix.multiply(Matrix4f.translate(currentX, currentY, 0));
+            matrix = matrix.multiply(Matrix4f.scale(glyph.width(), glyph.height(), 1));
+
+            float[] matrixOpenGL = matrix.toArray();
+            System.arraycopy(matrixOpenGL, 0, transform, i * 4 * 4, 4 * 4);
+
+            atlas[i] = glyph.atlas();
+
+            color[i * 4] = ((textColor >> 24) & 0xFF) / 255f;
+            color[i * 4 + 1] = ((textColor >> 16) & 0xFF) / 255f;
+            color[i * 4 + 2] = ((textColor >> 8) & 0xFF) / 255f;
+            color[i * 4 + 3] = (textColor & 0xFF) / 255f;
+
+            int kerning = 0;
+            if (font.kerningMap.containsKey(codePoint) && i != text.length() - 1) {
+                kerning =
+                        font.kerningMap
+                                .get(codePoint)
+                                .getOrDefault(Character.codePointAt(text, i + 1), 0);
+            }
+            currentX += glyph.width() + kerning;
+        }
+
+        GL33.glBindBuffer(
+                GL33.GL_ARRAY_BUFFER, this.textRenderContext.additionalBuffers.get("texCoords"));
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, texCoords, GL33.GL_DYNAMIC_DRAW);
+        GL33.glBindBuffer(
+                GL33.GL_ARRAY_BUFFER, this.textRenderContext.additionalBuffers.get("transform"));
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, transform, GL33.GL_DYNAMIC_DRAW);
+        GL33.glBindBuffer(
+                GL33.GL_ARRAY_BUFFER, this.textRenderContext.additionalBuffers.get("atlas"));
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, atlas, GL33.GL_DYNAMIC_DRAW);
+        GL33.glBindBuffer(
+                GL33.GL_ARRAY_BUFFER, this.textRenderContext.additionalBuffers.get("color"));
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, color, GL33.GL_DYNAMIC_DRAW);
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
+
+        GL33.glUseProgram(this.textRenderContext.shader);
+        GL33.glUniformMatrix4fv(
+                this.textRenderContext.getUniformLocation("uProjection"),
+                false,
+                this.projection.toArray());
+        GL33.glUniformMatrix4fv(
+                this.textRenderContext.getUniformLocation("uView"), false, this.view.toArray());
+
+        for (int i = 0; i < font.fontAtlas.length; i++) {
+            GL33.glActiveTexture(GL33.GL_TEXTURE0 + i);
+            GL33.glBindTexture(
+                    GL33.GL_TEXTURE_2D, ((OpenGLImage) font.fontAtlas[i]).glTextureHandle);
+            GL33.glUniform1i(this.textRenderContext.getUniformLocation("atlases[" + i + "]"), i);
+        }
+
+        GL33.glBindVertexArray(this.textRenderContext.vao);
+        GL33.glDrawElementsInstanced(
+                GL33.GL_TRIANGLE_STRIP, 4, GL33.GL_UNSIGNED_SHORT, 0, text.length());
+        GL33.glBindVertexArray(0);
+    }
+
     private void renderGUI(List<GUIElement> elements) {
         OpenGLBlendState blendState = OpenGLBlendState.capture();
 
@@ -131,9 +241,9 @@ public class OpenGLBackend implements IGUIBackend {
         GL33.glUniformMatrix4fv(
                 this.guiRenderContext.getUniformLocation("uProjection"),
                 false,
-                this.projection.toOpenGL());
+                this.projection.toArray());
         GL33.glUniformMatrix4fv(
-                this.guiRenderContext.getUniformLocation("uView"), false, this.view.toOpenGL());
+                this.guiRenderContext.getUniformLocation("uView"), false, this.view.toArray());
 
         GL33.glBindVertexArray(this.guiRenderContext.vao);
 
@@ -187,9 +297,9 @@ public class OpenGLBackend implements IGUIBackend {
         GL33.glUniformMatrix4fv(
                 this.debugRenderContext.getUniformLocation("uProjection"),
                 false,
-                this.projection.toOpenGL());
+                this.projection.toArray());
         GL33.glUniformMatrix4fv(
-                this.debugRenderContext.getUniformLocation("uView"), false, this.view.toOpenGL());
+                this.debugRenderContext.getUniformLocation("uView"), false, this.view.toArray());
 
         GL33.glActiveTexture(GL33.GL_TEXTURE0);
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, this.debugRenderContext.texture);
@@ -211,6 +321,7 @@ public class OpenGLBackend implements IGUIBackend {
         this.view = Matrix4f.identity();
 
         this.initGUI();
+        this.initText();
         this.initBuffer();
         if (DRAW_DEBUG_IMAGE) this.initDebug();
     }
@@ -295,6 +406,7 @@ public class OpenGLBackend implements IGUIBackend {
 
         RENDER_FUNCTIONS.put(GUIColorPane.class, OpenGLElementRenderers.renderGUIColorPane);
         RENDER_FUNCTIONS.put(GUIImage.class, OpenGLElementRenderers.renderGUIImage);
+        RENDER_FUNCTIONS.put(GUIText.class, OpenGLElementRenderers.renderGUIText);
     }
 
     private void initBuffer() {
@@ -426,5 +538,124 @@ public class OpenGLBackend implements IGUIBackend {
         }
 
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
+    }
+
+    private void initText() {
+        float[] vertices =
+                new float[] {
+                    1.0f, 1.0f,
+                    0.0f, 1.0f,
+                    1.0f, 0.0f,
+                    0.0f, 0.0f
+                };
+
+        short[] indices = new short[] {0, 1, 2, 3};
+
+        this.textRenderContext.shader =
+                OpenGLUtil.makeShaderProgram(
+                        "/shaders/gui/GUIText.vsh", "/shaders/gui/GUIText.fsh");
+
+        this.textRenderContext.vao = GL33.glGenVertexArrays();
+        this.textRenderContext.vbo = GL33.glGenBuffers();
+        this.textRenderContext.ebo = GL33.glGenBuffers();
+        this.textRenderContext.additionalBuffers.put("texCoords", GL33.glGenBuffers());
+        this.textRenderContext.additionalBuffers.put("transform", GL33.glGenBuffers());
+        this.textRenderContext.additionalBuffers.put("atlas", GL33.glGenBuffers());
+        this.textRenderContext.additionalBuffers.put("color", GL33.glGenBuffers());
+
+        int texCoordsBuffer = this.textRenderContext.additionalBuffers.get("texCoords");
+        int transformBuffer = this.textRenderContext.additionalBuffers.get("transform");
+        int atlasBuffer = this.textRenderContext.additionalBuffers.get("atlas");
+        int colorBuffer = this.textRenderContext.additionalBuffers.get("color");
+
+        int aPositionLocation =
+                GL33.glGetAttribLocation(this.textRenderContext.shader, "aPosition");
+        int aTexCoordsLocation =
+                GL33.glGetAttribLocation(this.textRenderContext.shader, "aTexCoords");
+        int aTransformMatrix =
+                GL33.glGetAttribLocation(this.textRenderContext.shader, "aTransformMatrix");
+        int aAtlasLocation = GL33.glGetAttribLocation(this.textRenderContext.shader, "aAtlas");
+        int aColor = GL33.glGetAttribLocation(this.textRenderContext.shader, "aColor");
+
+        GL33.glBindVertexArray(this.textRenderContext.vao);
+
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.textRenderContext.vbo);
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vertices, GL33.GL_STATIC_DRAW);
+
+        GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, this.textRenderContext.ebo);
+        GL33.glBufferData(GL33.GL_ELEMENT_ARRAY_BUFFER, indices, GL33.GL_STATIC_DRAW);
+
+        GL33.glEnableVertexAttribArray(aPositionLocation);
+        GL33.glVertexAttribPointer(aPositionLocation, 2, GL33.GL_FLOAT, false, 2 * Float.BYTES, 0);
+
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, texCoordsBuffer);
+        for (int i = 0; i < 4; i++) {
+            GL33.glEnableVertexAttribArray(aTexCoordsLocation + i);
+            GL33.glVertexAttribPointer(
+                    aTexCoordsLocation + i,
+                    2,
+                    GL33.GL_FLOAT,
+                    false,
+                    2 * 4 * Float.BYTES,
+                    i * 2 * Float.BYTES);
+        }
+
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, transformBuffer);
+        GL33.glEnableVertexAttribArray(aTransformMatrix);
+        GL33.glVertexAttribPointer(
+                aTransformMatrix + 0, 4, GL33.GL_FLOAT, false, 4 * 4 * Float.BYTES, 0);
+
+        GL33.glEnableVertexAttribArray(aTransformMatrix + 1);
+        GL33.glVertexAttribPointer(
+                aTransformMatrix + 1,
+                4,
+                GL33.GL_FLOAT,
+                false,
+                4 * 4 * Float.BYTES,
+                4 * Float.BYTES);
+
+        GL33.glEnableVertexAttribArray(aTransformMatrix + 2);
+        GL33.glVertexAttribPointer(
+                aTransformMatrix + 2,
+                4,
+                GL33.GL_FLOAT,
+                false,
+                4 * 4 * Float.BYTES,
+                8 * Float.BYTES);
+
+        GL33.glEnableVertexAttribArray(aTransformMatrix + 3);
+        GL33.glVertexAttribPointer(
+                aTransformMatrix + 3,
+                4,
+                GL33.GL_FLOAT,
+                false,
+                4 * 4 * Float.BYTES,
+                12 * Float.BYTES);
+
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, atlasBuffer);
+        GL33.glEnableVertexAttribArray(aAtlasLocation);
+        GL33.glVertexAttribPointer(aAtlasLocation, 1, GL33.GL_INT, false, Integer.BYTES, 0);
+
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, colorBuffer);
+        GL33.glEnableVertexAttribArray(aColor);
+        GL33.glVertexAttribPointer(aColor, 4, GL33.GL_FLOAT, false, 4 * Float.BYTES, 0);
+
+        // For every vertex
+        GL33.glVertexAttribDivisor(aPositionLocation, 0);
+        for (int i = 0; i < 4; i++) {
+            GL33.glVertexAttribDivisor(aTexCoordsLocation + i, 1);
+        }
+
+        // For every instance
+        GL33.glVertexAttribDivisor(aTransformMatrix, 1);
+        GL33.glVertexAttribDivisor(aTransformMatrix + 1, 1);
+        GL33.glVertexAttribDivisor(aTransformMatrix + 2, 1);
+        GL33.glVertexAttribDivisor(aTransformMatrix + 3, 1);
+        GL33.glVertexAttribDivisor(aAtlasLocation, 1);
+        GL33.glVertexAttribDivisor(aColor, 1);
+
+        GL33.glBindVertexArray(0);
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
+        GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 }

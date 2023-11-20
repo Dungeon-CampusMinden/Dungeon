@@ -24,7 +24,12 @@ public class Matrix4f {
         return this.data;
     }
 
-    public float[] toOpenGL() {
+    /**
+     * Converts the matrix to a float array (column major)
+     *
+     * @return float array
+     */
+    public float[] toArray() {
         float[] result = new float[16];
         int index = 0;
         for (int col = 0; col < 4; col++) {
@@ -33,6 +38,25 @@ public class Matrix4f {
             }
         }
         return result;
+    }
+
+    /**
+     * Converts the matrix to a float array.
+     *
+     * @param rowMajor Whether to convert to row major or column major (true = row major, false =
+     *     column major)
+     * @return float array
+     */
+    public float[] toArray(boolean rowMajor) {
+        if (rowMajor) {
+            float[] result = new float[16];
+            for (int i = 0; i < 4; i++) {
+                System.arraycopy(this.data[i], 0, result, i * 4, 4);
+            }
+            return result;
+        } else {
+            return this.toArray();
+        }
     }
 
     public float get(int row, int col) {
