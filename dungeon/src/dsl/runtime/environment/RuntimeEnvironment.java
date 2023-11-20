@@ -9,7 +9,7 @@ import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.types.IType;
 import dsl.semanticanalysis.types.typebuilding.TypeBuilder;
-import dsl.semanticanalysis.types.TypeInstantiator;
+import dsl.semanticanalysis.types.instantiation.TypeInstantiator;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;

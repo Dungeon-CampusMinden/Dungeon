@@ -26,6 +26,7 @@ import dsl.semanticanalysis.types.*;
 import dsl.semanticanalysis.types.IType;
 import dsl.semanticanalysis.types.callbackadapter.CallbackAdapter;
 
+import dsl.semanticanalysis.types.instantiation.TypeInstantiator;
 import entrypoint.DSLEntryPoint;
 import entrypoint.DungeonConfig;
 

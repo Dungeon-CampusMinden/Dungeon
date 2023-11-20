@@ -1,4 +1,4 @@
-package dsl.semanticanalysis.types;
+package dsl.semanticanalysis.types.instantiation;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.*;
@@ -8,6 +8,10 @@ import dsl.runtime.value.*;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.symbol.PropertySymbol;
+import dsl.semanticanalysis.types.AggregateType;
+import dsl.semanticanalysis.types.AggregateTypeAdapter;
+import dsl.semanticanalysis.types.EnumType;
+import dsl.semanticanalysis.types.IType;
 import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
 import dsl.semanticanalysis.types.typebuilding.*;
 import dsl.semanticanalysis.types.callbackadapter.CallbackAdapter;

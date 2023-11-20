@@ -17,7 +17,7 @@ import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.BuiltInType;
 import dsl.semanticanalysis.types.FunctionType;
-import dsl.semanticanalysis.types.TypeInstantiator;
+import dsl.semanticanalysis.types.instantiation.TypeInstantiator;
 
 import java.util.ArrayList;
 import java.util.List;
