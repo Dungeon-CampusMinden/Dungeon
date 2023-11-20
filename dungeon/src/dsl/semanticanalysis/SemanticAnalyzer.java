@@ -24,6 +24,8 @@ package dsl.semanticanalysis;
 import dsl.parser.ast.*;
 import dsl.runtime.environment.IEnvironment;
 import dsl.runtime.nativefunctions.NativeFunction;
+import dsl.semanticanalysis.scope.IScope;
+import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;

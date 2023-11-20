@@ -1,8 +1,8 @@
 package dsl.semanticanalysis.types;
 
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.IScope;
-import dsl.semanticanalysis.Scope;
+import dsl.semanticanalysis.scope.IScope;
+import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 
 // TODO: "entity_type" type definition should be fixed part of the

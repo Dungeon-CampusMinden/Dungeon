@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import dsl.interpreter.TestEnvironment;
 import dsl.interpreter.mockecs.*;
-import dsl.semanticanalysis.Scope;
+import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 
 import graph.taskdependencygraph.TaskDependencyGraph;

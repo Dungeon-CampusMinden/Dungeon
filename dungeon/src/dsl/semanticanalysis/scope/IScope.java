@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dsl.semanticanalysis;
+package dsl.semanticanalysis.scope;
 
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.IType;

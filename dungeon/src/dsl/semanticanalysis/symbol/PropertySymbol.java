@@ -1,6 +1,6 @@
 package dsl.semanticanalysis.symbol;
 
-import dsl.semanticanalysis.IScope;
+import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.DSLTypeProperty;
 import dsl.semanticanalysis.types.IDSLTypeProperty;

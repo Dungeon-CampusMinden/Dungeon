@@ -2,7 +2,7 @@ package dsl.semanticanalysis.types;
 
 import dsl.runtime.value.MapValue;
 import dsl.runtime.nativefunctions.NativeMethod;
-import dsl.semanticanalysis.IScope;
+import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 
 public class MapType extends ScopedSymbol implements IType {

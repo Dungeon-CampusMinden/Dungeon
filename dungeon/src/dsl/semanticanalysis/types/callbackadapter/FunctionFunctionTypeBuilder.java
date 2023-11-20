@@ -1,6 +1,6 @@
 package dsl.semanticanalysis.types.callbackadapter;
 
-import dsl.semanticanalysis.IScope;
+import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.types.FunctionType;
 import dsl.semanticanalysis.types.IType;
 import dsl.semanticanalysis.types.TypeBuilder;

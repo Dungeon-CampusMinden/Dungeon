@@ -4,7 +4,7 @@ import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.FuncDefNode;
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.ICallable;
-import dsl.semanticanalysis.IScope;
+import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.types.FunctionType;
 
 import java.util.List;

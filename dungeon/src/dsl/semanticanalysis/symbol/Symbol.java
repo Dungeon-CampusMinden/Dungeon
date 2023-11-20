@@ -21,7 +21,7 @@
 
 package dsl.semanticanalysis.symbol;
 
-import dsl.semanticanalysis.IScope;
+import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.types.IType;
 
 /** Represents a symbol in a program */

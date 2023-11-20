@@ -16,6 +16,7 @@ import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.runtime.value.*;
 import dsl.semanticanalysis.*;
+import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;

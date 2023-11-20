@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.types.callbackadapter;
 
 import dsl.runtime.environment.IEnvironment;
-import dsl.semanticanalysis.IScope;
+import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.types.FunctionType;
 import dsl.semanticanalysis.types.TypeBuilder;
 
@@ -15,8 +15,8 @@ public interface IFunctionTypeBuilder {
      * @param parameterizedFunctionType the parameterized type (with generic type information) of
      *     the function type to build
      * @param typeBuilder {@link TypeBuilder} instance to lookup parameter types
-     * @param globalScope the global {@link IScope} of the {@link IEnvironment} in which to build
-     *     the function type.
+     * @param globalScope the global {@link IScope} of the {@link IEnvironment} in which to build the
+     *     function type.
      * @return {@link FunctionType} corresponding to the callback signature
      */
     FunctionType buildFunctionType(

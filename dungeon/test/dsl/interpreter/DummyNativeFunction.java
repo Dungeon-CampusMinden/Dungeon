@@ -3,7 +3,7 @@ package dsl.interpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.semanticanalysis.ICallable;
-import dsl.semanticanalysis.Scope;
+import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.types.FunctionType;
 
 import java.util.List;

@@ -4,7 +4,7 @@ import dsl.helpers.Helpers;
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.value.AggregateValue;
-import dsl.semanticanalysis.Scope;
+import dsl.semanticanalysis.scope.Scope;
 
 import entrypoint.DungeonConfig;
 
