@@ -159,8 +159,9 @@ public final class Animation {
      * @param frameTime How many frames to wait, before switching to the next texture?
      * @return The created Animation instance
      */
-    public static Animation fromSingleImage(String fileName, int frameTime) {
-        return new Animation(List.of(fileName), frameTime, DEFAULT_IS_LOOP, DEFAULT_PRIO);
+    public static Animation fromSingleImage(IPath fileName, int frameTime) {
+        return new Animation(
+                List.of(fileName.pathString()), frameTime, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
     /**
