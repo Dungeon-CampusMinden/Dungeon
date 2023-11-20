@@ -1,7 +1,5 @@
 package graph.petrinet;
 
-import graph.graphconverter.PetriNetFactory;
-
 import task.Task;
 
 /**

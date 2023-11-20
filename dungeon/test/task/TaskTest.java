@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import task.components.TaskComponent;
+import task.game.components.TaskComponent;
 
 import java.util.List;
 import java.util.function.BiFunction;

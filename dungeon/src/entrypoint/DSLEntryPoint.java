@@ -1,4 +1,4 @@
-package dslinput;
+package entrypoint;
 
 import dsl.parser.ast.ObjectDefNode;
 

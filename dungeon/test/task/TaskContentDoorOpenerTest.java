@@ -14,8 +14,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import task.components.DoorComponent;
-import task.components.TaskComponent;
+import task.game.components.DoorComponent;
+import task.game.components.TaskComponent;
 
 import java.util.Set;
 

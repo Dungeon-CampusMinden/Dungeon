@@ -1,4 +1,4 @@
-package graph.graphconverter;
+package graph;
 
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.LevelGraphGenerator;
@@ -15,12 +15,13 @@ import core.level.utils.DesignLabel;
 import dsl.interpreter.DSLInterpreter;
 
 import graph.petrinet.PetriNet;
+import graph.petrinet.PetriNetFactory;
 import graph.taskdependencygraph.TaskDependencyGraph;
 import graph.taskdependencygraph.TaskNode;
 
 import task.Task;
-import task.components.DoorComponent;
-import task.components.TaskComponent;
+import task.game.components.DoorComponent;
+import task.game.components.TaskComponent;
 
 import java.util.*;
 

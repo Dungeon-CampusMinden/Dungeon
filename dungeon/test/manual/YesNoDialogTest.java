@@ -9,7 +9,7 @@ import contrib.systems.HudSystem;
 import core.Game;
 import core.utils.IVoidFunction;
 
-import task.utils.hud.YesNoDialog;
+import task.game.hud.YesNoDialog;
 
 /**
  * This is a manual test for the YesNODialog.

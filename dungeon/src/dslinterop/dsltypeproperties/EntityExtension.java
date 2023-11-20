@@ -22,10 +22,10 @@ import dsl.semanticanalysis.types.IDSLTypeProperty;
 
 import task.Task;
 import task.TaskContent;
-import task.components.TaskComponent;
-import task.components.TaskContentComponent;
+import task.game.components.TaskComponent;
+import task.game.components.TaskContentComponent;
+import task.game.content.QuestItem;
 import task.tasktype.Element;
-import task.utils.gamecontent.QuestItem;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;

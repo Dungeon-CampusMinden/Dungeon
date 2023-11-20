@@ -1,4 +1,4 @@
-package task.components;
+package task.game.components;
 
 import core.Component;
 import core.Entity;

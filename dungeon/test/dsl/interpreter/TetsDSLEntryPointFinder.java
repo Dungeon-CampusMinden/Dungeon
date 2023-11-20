@@ -1,7 +1,7 @@
 package dsl.interpreter;
 
-import dslinput.DSLEntryPoint;
-import dslinput.DungeonConfig;
+import entrypoint.DSLEntryPoint;
+import entrypoint.DungeonConfig;
 
 import graph.taskdependencygraph.TaskNode;
 

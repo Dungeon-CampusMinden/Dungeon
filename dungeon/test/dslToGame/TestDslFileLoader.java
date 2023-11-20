@@ -2,7 +2,7 @@ package dslToGame;
 
 import static org.junit.Assert.*;
 
-import dslinput.DslFileLoader;
+import entrypoint.DSLFileLoader;
 
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ public class TestDslFileLoader {
     @Test
     public void processArguments_oneJar() throws IOException {
         String[] args = {PATH_TO_JAR_AS_STRING};
-        Set<Path> paths = DslFileLoader.processArguments(args);
+        Set<Path> paths = DSLFileLoader.processArguments(args);
         assertEquals(2, paths.size());
         assertTrue(
                 paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_DNGFILE_IN_JAR.normalize())));
@@ -50,7 +50,7 @@ public class TestDslFileLoader {
     @Test
     public void processArguments_oneDSLFile() throws IOException {
         String[] args = {PATH_TO_DNGFILE_AS_STRING};
-        Set<Path> paths = DslFileLoader.processArguments(args);
+        Set<Path> paths = DSLFileLoader.processArguments(args);
         assertEquals(1, paths.size());
         Path p = (Path) paths.toArray()[0];
         assertTrue(p.endsWith(PATH_TO_DNGFILE.normalize()));
@@ -59,7 +59,7 @@ public class TestDslFileLoader {
     @Test
     public void processArguments_oneJarOneDSL() throws IOException {
         String[] args = {PATH_TO_JAR_AS_STRING, PATH_TO_DNGFILE_AS_STRING};
-        Set<Path> paths = DslFileLoader.processArguments(args);
+        Set<Path> paths = DSLFileLoader.processArguments(args);
         assertEquals(3, paths.size());
         assertTrue(
                 paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_DNGFILE_IN_JAR.normalize())));
@@ -75,7 +75,7 @@ public class TestDslFileLoader {
         String[] args = {
             PATH_TO_EMPTY_DNGFILE_AS_STRING, PATH_TO_JAR_AS_STRING, PATH_TO_DNGFILE_AS_STRING
         };
-        Set<Path> paths = DslFileLoader.processArguments(args);
+        Set<Path> paths = DSLFileLoader.processArguments(args);
         assertEquals(4, paths.size());
         assertTrue(
                 paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_DNGFILE_IN_JAR.normalize())));
@@ -90,7 +90,7 @@ public class TestDslFileLoader {
     @Test
     public void processArguments_nonDSLFile() throws IOException {
         String[] args = {PAHT_TO_TXTFILE_AS_STRING};
-        Set<Path> paths = DslFileLoader.processArguments(args);
+        Set<Path> paths = DSLFileLoader.processArguments(args);
         assertEquals(0, paths.size());
     }
 
@@ -112,17 +112,17 @@ public class TestDslFileLoader {
                         + "some test text, fourth line."
                         + System.lineSeparator();
 
-        String read = DslFileLoader.fileToString(f);
+        String read = DSLFileLoader.fileToString(f);
         assertEquals(expectedContent, read);
     }
 
     @Test
     public void argFileToString() throws IOException {
         String[] args = {PATH_TO_DNGFILE_AS_STRING};
-        Set<Path> paths = DslFileLoader.processArguments(args);
+        Set<Path> paths = DSLFileLoader.processArguments(args);
         assertEquals(1, paths.size());
         Path p = (Path) paths.toArray()[0];
-        String read = DslFileLoader.fileToString(p.toFile());
+        String read = DSLFileLoader.fileToString(p.toFile());
 
         String expectedContent =
                 "some test text."
@@ -147,7 +147,7 @@ public class TestDslFileLoader {
                                                         .replace("\\", "/")))
                                 .getFile());
         String expectedContent = "";
-        String read = DslFileLoader.fileToString(f);
+        String read = DSLFileLoader.fileToString(f);
         assertEquals(expectedContent, read);
     }
 }

@@ -14,14 +14,14 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import task.*;
-import task.components.TaskContentComponent;
+import task.game.components.TaskContentComponent;
+import task.game.content.QuestItem;
 import task.reporting.AnswerPickingFunctions;
 import task.reporting.GradingFunctions;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.SingleChoice;
-import task.utils.gamecontent.QuestItem;
 
 import java.io.IOException;
 import java.util.HashMap;

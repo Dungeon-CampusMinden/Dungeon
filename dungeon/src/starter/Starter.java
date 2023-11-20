@@ -19,11 +19,11 @@ import core.utils.components.MissingComponentException;
 import dsl.interpreter.DSLEntryPointFinder;
 import dsl.interpreter.DSLInterpreter;
 
-import dslinput.DSLEntryPoint;
-import dslinput.DslFileLoader;
-import dslinput.DungeonConfig;
+import entrypoint.DSLEntryPoint;
+import entrypoint.DSLFileLoader;
+import entrypoint.DungeonConfig;
 
-import graph.graphconverter.TaskGraphConverter;
+import graph.TaskGraphConverter;
 
 import task.Task;
 
@@ -183,7 +183,7 @@ public class Starter {
     private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws IOException {
         Set<DSLEntryPoint> entryPoints = new HashSet<>();
         DSLEntryPointFinder finder = new DSLEntryPointFinder();
-        DslFileLoader.processArguments(args)
+        DSLFileLoader.processArguments(args)
                 .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
         return entryPoints;
     }

@@ -1,4 +1,4 @@
-package task.utils.hud;
+package task.game.hud;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;

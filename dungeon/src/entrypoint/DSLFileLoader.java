@@ -1,4 +1,4 @@
-package dslinput;
+package entrypoint;
 
 import java.io.*;
 import java.nio.file.*;
@@ -17,7 +17,7 @@ import java.util.jar.JarFile;
  * <p>Note: Always use "/" as the file separator; do not use the typical Windows "\\" file
  * separator.
  */
-public class DslFileLoader {
+public class DSLFileLoader {
 
     private static final String DSL_FILE_ENDING = ".dng";
     private static final String JAR_FILE_ENDING = ".jar";

@@ -10,13 +10,13 @@ import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 
-import dslinput.DSLEntryPoint;
+import entrypoint.DSLEntryPoint;
 
 import task.Task;
 import task.TaskContent;
+import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.SingleChoice;
-import task.utils.hud.UIAnswerCallback;
 
 import java.io.IOException;
 import java.util.Set;

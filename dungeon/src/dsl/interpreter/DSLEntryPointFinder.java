@@ -7,10 +7,10 @@ import dsl.semanticanalysis.Symbol;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.IType;
 
-import dslinput.DSLEntryPoint;
-import dslinput.DslFileLoader;
-import dslinput.DungeonConfig;
-import dslinput.ParsedFile;
+import entrypoint.DSLEntryPoint;
+import entrypoint.DSLFileLoader;
+import entrypoint.DungeonConfig;
+import entrypoint.ParsedFile;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
             this.parsedFile = this.parsedFiles.get(filePath);
             programAST = parsedFile.rootASTNode();
         } else {
-            String content = DslFileLoader.fileToString(filePath);
+            String content = DSLFileLoader.fileToString(filePath);
             programAST = DungeonASTConverter.getProgramAST(content);
             ParsedFile parsedFile = new ParsedFile(filePath, programAST);
             this.parsedFiles.put(filePath, parsedFile);

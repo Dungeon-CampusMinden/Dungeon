@@ -19,9 +19,9 @@ import dsl.semanticanalysis.FunctionSymbol;
 import dsl.semanticanalysis.SemanticAnalyzer;
 import dsl.semanticanalysis.types.*;
 
-import dslinput.DungeonConfig;
-
 import dslinterop.dslnativefunction.NativeInstantiate;
+
+import entrypoint.DungeonConfig;
 
 import graph.taskdependencygraph.TaskDependencyGraph;
 import graph.taskdependencygraph.TaskEdge;
@@ -32,11 +32,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import task.*;
-import task.components.TaskContentComponent;
+import task.game.components.TaskContentComponent;
+import task.game.content.QuestItem;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
-import task.utils.gamecontent.QuestItem;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

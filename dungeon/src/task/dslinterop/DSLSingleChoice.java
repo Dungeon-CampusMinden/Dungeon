@@ -17,7 +17,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /** Typeadapter for the creation of {@link SingleChoice} instances via dsl. */
-public class SingleChoiceTask {
+public class DSLSingleChoice {
 
     @DSLTypeAdapter(name = "single_choice_task")
     public static SingleChoice buildQuizFromSingleChoiceTask(
@@ -128,8 +128,8 @@ public class SingleChoiceTask {
     @DSLExtensionMethod(name = "set_grading_function", extendedType = SingleChoice.class)
     public static class SingleChoiceSetGradingFunction
             implements IDSLExtensionMethod<SingleChoice, Void> {
-        public static SingleChoiceTask.SingleChoiceSetGradingFunction instance =
-                new SingleChoiceTask.SingleChoiceSetGradingFunction();
+        public static DSLSingleChoice.SingleChoiceSetGradingFunction instance =
+                new DSLSingleChoice.SingleChoiceSetGradingFunction();
 
         @Override
         public Void call(SingleChoice instance, List<Object> params) {
@@ -196,8 +196,8 @@ public class SingleChoiceTask {
     @DSLExtensionMethod(name = "set_answer_picker_function", extendedType = SingleChoice.class)
     public static class SingleChoiceSetAnswerPickerFunction
             implements IDSLExtensionMethod<SingleChoice, Void> {
-        public static SingleChoiceTask.SingleChoiceSetAnswerPickerFunction instance =
-                new SingleChoiceTask.SingleChoiceSetAnswerPickerFunction();
+        public static DSLSingleChoice.SingleChoiceSetAnswerPickerFunction instance =
+                new DSLSingleChoice.SingleChoiceSetAnswerPickerFunction();
 
         @Override
         public Void call(SingleChoice instance, List<Object> params) {
@@ -255,6 +255,24 @@ public class SingleChoiceTask {
         public List<Type> getParameterTypes() {
             var typeArr = new Type[] {funcType};
             return Arrays.stream(typeArr).toList();
+        }
+    }
+
+    @DSLTypeProperty(name = "description", extendedType = DSLSingleChoice.class)
+    public static class SingleChoiceDescriptionProperty implements IDSLTypeProperty<Quiz, String> {
+        public static SingleChoiceDescriptionProperty instance =
+                new SingleChoiceDescriptionProperty();
+
+        private SingleChoiceDescriptionProperty() {}
+
+        @Override
+        public void set(Quiz instance, String valueToSet) {
+            instance.taskText(valueToSet);
+        }
+
+        @Override
+        public String get(Quiz instance) {
+            return instance.taskText();
         }
     }
 }

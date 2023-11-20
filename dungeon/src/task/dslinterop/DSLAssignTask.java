@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class AssignTaskDSLType {
+public class DSLAssignTask {
     public static final String EMPTY_ELEMENT_NAME = AssignTask.EMPTY_ELEMENT_NAME;
 
     @DSLTypeAdapter(name = "assign_task")
@@ -142,8 +142,7 @@ public class AssignTaskDSLType {
     /** {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance */
     @DSLExtensionMethod(name = "set_scenario_text", extendedType = AssignTask.class)
     public static class SetScenarioText implements IDSLExtensionMethod<AssignTask, Void> {
-        public static AssignTaskDSLType.SetScenarioText instance =
-                new AssignTaskDSLType.SetScenarioText();
+        public static DSLAssignTask.SetScenarioText instance = new DSLAssignTask.SetScenarioText();
 
         @Override
         public Void call(AssignTask instance, List<Object> params) {
@@ -163,8 +162,8 @@ public class AssignTaskDSLType {
     @DSLExtensionMethod(name = "set_grading_function", extendedType = AssignTask.class)
     public static class AssignTaskSetGradingFunction
             implements IDSLExtensionMethod<AssignTask, Void> {
-        public static AssignTaskDSLType.AssignTaskSetGradingFunction instance =
-                new AssignTaskDSLType.AssignTaskSetGradingFunction();
+        public static DSLAssignTask.AssignTaskSetGradingFunction instance =
+                new DSLAssignTask.AssignTaskSetGradingFunction();
 
         @Override
         public Void call(AssignTask instance, List<Object> params) {
@@ -229,8 +228,8 @@ public class AssignTaskDSLType {
     @DSLExtensionMethod(name = "set_answer_picker_function", extendedType = AssignTask.class)
     public static class AssignTaskSetAnswerPickerFunction
             implements IDSLExtensionMethod<AssignTask, Void> {
-        public static AssignTaskDSLType.AssignTaskSetAnswerPickerFunction instance =
-                new AssignTaskDSLType.AssignTaskSetAnswerPickerFunction();
+        public static DSLAssignTask.AssignTaskSetAnswerPickerFunction instance =
+                new DSLAssignTask.AssignTaskSetAnswerPickerFunction();
 
         @Override
         public Void call(AssignTask instance, List<Object> params) {

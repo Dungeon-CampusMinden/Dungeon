@@ -1,4 +1,4 @@
-package dslinput;
+package entrypoint;
 
 import dsl.semanticanalysis.types.DSLType;
 import dsl.semanticanalysis.types.DSLTypeMember;

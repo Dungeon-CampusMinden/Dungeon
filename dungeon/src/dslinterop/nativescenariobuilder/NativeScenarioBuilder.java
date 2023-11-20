@@ -19,15 +19,15 @@ import core.utils.components.draw.CoreAnimationPriorities;
 
 import task.Task;
 import task.TaskContent;
-import task.components.TaskComponent;
-import task.components.TaskContentComponent;
+import task.game.components.TaskComponent;
+import task.game.components.TaskContentComponent;
+import task.game.content.QuestItem;
+import task.game.hud.QuizUI;
+import task.game.hud.YesNoDialog;
 import task.reporting.AnswerPickingFunctions;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
-import task.utils.gamecontent.QuestItem;
-import task.utils.hud.QuizUI;
-import task.utils.hud.YesNoDialog;
 
 import java.io.IOException;
 import java.util.HashSet;

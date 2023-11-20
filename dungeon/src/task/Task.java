@@ -12,9 +12,9 @@ import dsl.semanticanalysis.types.DSLType;
 
 import graph.petrinet.Place;
 
-import task.components.TaskComponent;
-import task.components.TaskContentComponent;
-import task.utils.gamecontent.QuestItem;
+import task.game.components.TaskComponent;
+import task.game.components.TaskContentComponent;
+import task.game.content.QuestItem;
 
 import java.io.IOException;
 import java.nio.file.Files;

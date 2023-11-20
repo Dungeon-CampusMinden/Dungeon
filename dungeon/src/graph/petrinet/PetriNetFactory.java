@@ -1,8 +1,6 @@
-package graph.graphconverter;
+package graph.petrinet;
 
-import graph.petrinet.PetriNet;
-import graph.petrinet.Place;
-import graph.petrinet.Transition;
+import graph.TaskGraphConverter;
 import graph.taskdependencygraph.TaskDependencyGraph;
 import graph.taskdependencygraph.TaskEdge;
 

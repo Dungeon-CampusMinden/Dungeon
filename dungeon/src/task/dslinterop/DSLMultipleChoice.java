@@ -17,7 +17,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /** Typeadapter for creation of {@link MultipleChoice} instances via dsl. */
-public class MultipleChoiceTask {
+public class DSLMultipleChoice {
     @DSLTypeAdapter(name = "multiple_choice_task")
     public static MultipleChoice buildQuizFromMultipleChoiceTask(
             @DSLTypeNameMember String name,
@@ -87,8 +87,8 @@ public class MultipleChoiceTask {
     @DSLExtensionMethod(name = "get_content", extendedType = MultipleChoice.class)
     public static class GetContentMethod
             implements IDSLExtensionMethod<MultipleChoice, List<TaskContent>> {
-        public static MultipleChoiceTask.GetContentMethod instance =
-                new MultipleChoiceTask.GetContentMethod();
+        public static DSLMultipleChoice.GetContentMethod instance =
+                new DSLMultipleChoice.GetContentMethod();
 
         @Override
         public List<TaskContent> call(MultipleChoice instance, List<Object> params) {
@@ -111,8 +111,8 @@ public class MultipleChoiceTask {
     /** {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance */
     @DSLExtensionMethod(name = "set_scenario_text", extendedType = MultipleChoice.class)
     public static class SetScenarioText implements IDSLExtensionMethod<MultipleChoice, Void> {
-        public static MultipleChoiceTask.SetScenarioText instance =
-                new MultipleChoiceTask.SetScenarioText();
+        public static DSLMultipleChoice.SetScenarioText instance =
+                new DSLMultipleChoice.SetScenarioText();
 
         @Override
         public Void call(MultipleChoice instance, List<Object> params) {
@@ -134,8 +134,8 @@ public class MultipleChoiceTask {
     @DSLExtensionMethod(name = "set_grading_function", extendedType = MultipleChoice.class)
     public static class MultipleChoiceSetGradingFunction
             implements IDSLExtensionMethod<MultipleChoice, Void> {
-        public static MultipleChoiceTask.MultipleChoiceSetGradingFunction instance =
-                new MultipleChoiceTask.MultipleChoiceSetGradingFunction();
+        public static DSLMultipleChoice.MultipleChoiceSetGradingFunction instance =
+                new DSLMultipleChoice.MultipleChoiceSetGradingFunction();
 
         @Override
         public Void call(MultipleChoice instance, List<Object> params) {
@@ -202,8 +202,8 @@ public class MultipleChoiceTask {
     @DSLExtensionMethod(name = "set_answer_picker_function", extendedType = MultipleChoice.class)
     public static class MultipleChoiceSetAnswerPickerFunction
             implements IDSLExtensionMethod<MultipleChoice, Void> {
-        public static MultipleChoiceTask.MultipleChoiceSetAnswerPickerFunction instance =
-                new MultipleChoiceTask.MultipleChoiceSetAnswerPickerFunction();
+        public static DSLMultipleChoice.MultipleChoiceSetAnswerPickerFunction instance =
+                new DSLMultipleChoice.MultipleChoiceSetAnswerPickerFunction();
 
         @Override
         public Void call(MultipleChoice instance, List<Object> params) {
