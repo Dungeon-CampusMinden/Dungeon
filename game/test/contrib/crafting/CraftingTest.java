@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
-import contrib.item.concreteItem.ItemResourceFlowerRed;
 import contrib.item.concreteItem.ItemResourceMushroomRed;
 
 import org.junit.Test;
@@ -25,7 +24,7 @@ public class CraftingTest {
     public void testRecipeFoundUnordered() {
         // Prepare Recipe
         CraftingIngredient[] recipeIngredient = {
-            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
         };
         CraftingResult[] recipeResults = {new ItemPotionHealth()};
         Recipe recipe = new Recipe(false, recipeIngredient, recipeResults);
@@ -34,7 +33,7 @@ public class CraftingTest {
         // Test
 
         CraftingIngredient[] ingredients = {
-            new ItemResourceFlowerRed(), new ItemResourceMushroomRed(), new ItemPotionWater()
+            new ItemResourceMushroomRed(), new ItemResourceMushroomRed(), new ItemPotionWater()
         };
 
         Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
@@ -50,7 +49,7 @@ public class CraftingTest {
     public void testRecipeOrdered_CorrectOrder() {
         // Prepare Recipe
         CraftingIngredient[] recipeIngredient = {
-            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
         };
         CraftingResult[] recipeResults = {new ItemPotionHealth()};
         Recipe recipe = new Recipe(true, recipeIngredient, recipeResults);
@@ -59,7 +58,7 @@ public class CraftingTest {
         // Test
 
         CraftingIngredient[] ingredients = {
-            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
         };
 
         Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
@@ -75,7 +74,7 @@ public class CraftingTest {
     public void testRecipeOrdered_IncorrectOrder() {
         // Prepare Recipe
         CraftingIngredient[] recipeIngredient = {
-            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
         };
         CraftingResult[] recipeResults = {new ItemPotionHealth()};
         Recipe recipe = new Recipe(true, recipeIngredient, recipeResults);
@@ -84,7 +83,7 @@ public class CraftingTest {
         // Test
 
         CraftingIngredient[] ingredients = {
-            new ItemResourceMushroomRed(), new ItemResourceFlowerRed(), new ItemPotionWater(),
+            new ItemResourceMushroomRed(), new ItemResourceMushroomRed(), new ItemPotionWater(),
         };
 
         Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
@@ -99,7 +98,7 @@ public class CraftingTest {
     public void testPrioritizeOrderedRecipes() {
         // Prepare Recipe
         CraftingIngredient[] recipeIngredient = {
-            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
         };
         CraftingResult[] recipeResults = {new ItemPotionHealth()};
         Recipe recipeOrdered = new Recipe(true, recipeIngredient, recipeResults);
@@ -109,7 +108,7 @@ public class CraftingTest {
 
         // Test
         CraftingIngredient[] ingredients = {
-            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceFlowerRed(),
+            new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
         };
         Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
 

@@ -139,10 +139,8 @@ public class Client {
         Game.add(new CollisionSystem());
         Game.add(new AISystem());
         Game.add(new HealthSystem());
-        Game.add(new XPSystem());
         Game.add(new ProjectileSystem());
         Game.add(new HealthbarSystem());
-        Game.add(new HeroUISystem());
         Game.add(new HudSystem());
     }
 

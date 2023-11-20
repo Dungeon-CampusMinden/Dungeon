@@ -73,7 +73,6 @@ public class CallbackTest {
                         Game.add(new AISystem());
                         Game.add(new CollisionSystem());
                         Game.add(new HealthSystem());
-                        Game.add(new XPSystem());
                         Game.add(new ProjectileSystem());
                         Game.add(new HudSystem());
                         Entity hero = EntityFactory.newHero();

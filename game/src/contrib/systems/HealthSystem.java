@@ -1,8 +1,6 @@
 package contrib.systems;
 
 import contrib.components.HealthComponent;
-import contrib.components.StatsComponent;
-import contrib.components.XPComponent;
 import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.DamageType;
 
@@ -95,33 +93,10 @@ public final class HealthSystem extends System {
     }
 
     private HSData applyDamage(HSData hsd) {
-        hsd.e
-                .fetch(StatsComponent.class)
-                .ifPresentOrElse(
-                        sc -> doDamageAndAnimation(hsd, calculateDamageWithMultipliers(sc, hsd)),
-                        () ->
-                                doDamageAndAnimation(
-                                        hsd,
-                                        Stream.of(DamageType.values())
-                                                .mapToInt(hsd.hc::calculateDamageOf)
-                                                .sum()));
-        return hsd;
-    }
 
-    /**
-     * Calculates damage with multipliers of the StatsComponent.
-     *
-     * @param statsComponent The StatsComponent of the entity.
-     * @param hsd The HealthSystemData object.
-     */
-    private int calculateDamageWithMultipliers(StatsComponent statsComponent, HSData hsd) {
-        return Stream.of(DamageType.values())
-                .mapToInt(
-                        dt ->
-                                Math.round(
-                                        statsComponent.multiplierFor(dt)
-                                                * hsd.hc.calculateDamageOf(dt)))
-                .sum();
+        doDamageAndAnimation(
+                hsd, Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum());
+        return hsd;
     }
 
     private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
@@ -141,16 +116,6 @@ public final class HealthSystem extends System {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath(hsd.e);
         Game.remove(hsd.e);
-
-        // Add XP
-        hsd.e
-                .fetch(XPComponent.class)
-                .ifPresent(
-                        component ->
-                                hsd.hc
-                                        .lastDamageCause()
-                                        .flatMap(entity -> entity.fetch(XPComponent.class))
-                                        .ifPresent(c -> c.addXP(component.lootXP())));
     }
 
     // private record to hold all data during streaming

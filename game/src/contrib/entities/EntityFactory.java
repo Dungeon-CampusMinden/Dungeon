@@ -128,7 +128,6 @@ public class EntityFactory {
                                                 }),
                         (you, other, direction) -> {}));
 
-        hero.addComponent(new XPComponent((e) -> {}));
         PlayerComponent pc = new PlayerComponent();
         hero.addComponent(pc);
         InventoryComponent ic = new InventoryComponent(DEFAULT_INVENTORY_SIZE);
