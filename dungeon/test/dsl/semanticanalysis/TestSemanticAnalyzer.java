@@ -7,6 +7,7 @@ import dsl.interpreter.mockecs.*;
 import dsl.parser.ast.*;
 import dsl.runtime.environment.GameEnvironment;
 import dsl.runtime.nativefunctions.NativePrint;
+import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;

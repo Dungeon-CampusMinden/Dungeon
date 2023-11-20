@@ -55,7 +55,7 @@ public class SymbolTable {
      *
      * @return the global {@link IScope}
      */
-    public IScope getGlobalScope() {
+    public IScope globalScope() {
         return globalScope;
     }
 

@@ -90,7 +90,7 @@ public class RuntimeEnvironment implements IEnvironment {
 
     @Override
     public IScope getGlobalScope() {
-        return this.symbolTable.getGlobalScope();
+        return this.symbolTable.globalScope();
     }
 
     @Override

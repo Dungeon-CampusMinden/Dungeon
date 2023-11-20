@@ -11,7 +11,7 @@ import dsl.runtime.environment.IEnvironment;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
-import dsl.semanticanalysis.SemanticAnalyzer;
+import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.symbol.Symbol;
 
 import org.antlr.v4.runtime.CharStream;

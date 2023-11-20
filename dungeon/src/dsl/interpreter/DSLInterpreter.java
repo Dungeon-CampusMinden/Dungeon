@@ -16,6 +16,7 @@ import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.runtime.value.*;
 import dsl.semanticanalysis.*;
+import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.PropertySymbol;
@@ -401,7 +402,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // TODO: this should potentially done on a file basis, not globally for the whole
         //  DSLInterpreter; should define a file-scope...
         HashMap<Symbol, Value> globalValues = new HashMap<>();
-        List<Symbol> globalSymbols = symbolTable().getGlobalScope().getSymbols();
+        List<Symbol> globalSymbols = symbolTable().globalScope().getSymbols();
         for (var symbol : globalSymbols) {
             IType type = symbol.getDataType();
             if (type != null && type.getTypeKind().equals(IType.Kind.FunctionType)) {
@@ -718,7 +719,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     @Override
     public Object visit(AggregateValueDefinitionNode node) {
         // create instance of dsl data type
-        var type = this.symbolTable().getGlobalScope().resolve(node.getIdName());
+        var type = this.symbolTable().globalScope().resolve(node.getIdName());
         assert type instanceof AggregateType;
 
         var value = (AggregateValue) instantiateDSLValue((AggregateType) type);

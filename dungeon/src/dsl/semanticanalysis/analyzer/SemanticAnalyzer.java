@@ -19,11 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dsl.semanticanalysis;
+package dsl.semanticanalysis.analyzer;
 
 import dsl.parser.ast.*;
 import dsl.runtime.environment.IEnvironment;
 import dsl.runtime.nativefunctions.NativeFunction;
+import dsl.semanticanalysis.ICallable;
+import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
@@ -120,7 +122,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
         // ensure, that all FunctionTypes of the native functions are correctly bound
         // in the symbolTable and remove redundancies
-        var globalScope = this.symbolTable.globalScope;
+        var globalScope = this.symbolTable.globalScope();
         for (var func : environment.getFunctions()) {
             if (func instanceof NativeFunction) {
                 var funcType = (FunctionType) func.getDataType();
@@ -659,7 +661,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(MapTypeIdentifierNode node) {
-        IScope globalScope = this.symbolTable.globalScope;
+        IScope globalScope = this.symbolTable.globalScope();
         String typeName = node.getName();
         Symbol resolvedType = globalScope.resolve(typeName);
 

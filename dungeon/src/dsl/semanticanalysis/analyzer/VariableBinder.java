@@ -19,11 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dsl.semanticanalysis;
+package dsl.semanticanalysis.analyzer;
 
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 import dsl.parser.ast.*;
+import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.BuiltInType;

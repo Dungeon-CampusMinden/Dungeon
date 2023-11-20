@@ -1,6 +1,7 @@
-package dsl.semanticanalysis;
+package dsl.semanticanalysis.analyzer;
 
 import dsl.parser.ast.*;
+import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
@@ -73,7 +74,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     public Void visit(FuncDefNode node) {
         // check, if symbol with the name was already bound
         var funcName = node.getIdName();
-        var globalScope = symbolTable.globalScope;
+        var globalScope = symbolTable.globalScope();
         var resolved = globalScope.resolve(funcName);
         if (resolved != Symbol.NULL) {
             throw new RuntimeException(
@@ -157,7 +158,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
                     "Parameter with name " + node.getIdName() + " was already defined");
         } else {
             // resolve parameters datatype
-            IType parameterType = this.symbolTable.globalScope.resolveType(node.getTypeName());
+            IType parameterType = this.symbolTable.globalScope().resolveType(node.getTypeName());
 
             Symbol parameterSymbol = new Symbol(parameterName, currentScope, parameterType);
             currentScope.bind(parameterSymbol);
@@ -171,7 +172,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     //  (see: https://github.com/Programmiermethoden/Dungeon/issues/931)
     @Override
     public Void visit(ListTypeIdentifierNode node) {
-        IScope globalScope = this.symbolTable.globalScope;
+        IScope globalScope = this.symbolTable.globalScope();
         String typeName = node.getName();
         Symbol resolvedType = globalScope.resolve(typeName);
 
@@ -196,7 +197,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     //  (see: https://github.com/Programmiermethoden/Dungeon/issues/931)
     @Override
     public Void visit(SetTypeIdentifierNode node) {
-        IScope globalScope = this.symbolTable.globalScope;
+        IScope globalScope = this.symbolTable.globalScope();
         String typeName = node.getName();
         Symbol resolvedType = globalScope.resolve(typeName);
 
@@ -219,7 +220,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
 
     @Override
     public Void visit(MapTypeIdentifierNode node) {
-        IScope globalScope = this.symbolTable.globalScope;
+        IScope globalScope = this.symbolTable.globalScope();
         String typeName = node.getName();
         Symbol resolvedType = globalScope.resolve(typeName);
 

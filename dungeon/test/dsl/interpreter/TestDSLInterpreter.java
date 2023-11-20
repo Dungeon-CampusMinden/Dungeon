@@ -20,7 +20,7 @@ import dsl.runtime.memoryspace.EncapsulatedObject;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
-import dsl.semanticanalysis.SemanticAnalyzer;
+import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.types.*;
 
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;

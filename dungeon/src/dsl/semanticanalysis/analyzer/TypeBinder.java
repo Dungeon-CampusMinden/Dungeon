@@ -1,10 +1,12 @@
-package dsl.semanticanalysis.types;
+package dsl.semanticanalysis.analyzer;
 
 import dsl.parser.ast.*;
 import dsl.runtime.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.SymbolTable;
+import dsl.semanticanalysis.types.AggregateType;
+import dsl.semanticanalysis.types.IType;
 
 public class TypeBinder implements AstVisitor<Object> {
 
@@ -31,7 +33,7 @@ public class TypeBinder implements AstVisitor<Object> {
     }
 
     private Symbol resolveGlobal(String name) {
-        return this.symbolTable().getGlobalScope().resolve(name);
+        return this.symbolTable().globalScope().resolve(name);
     }
 
     @Override
@@ -45,7 +47,7 @@ public class TypeBinder implements AstVisitor<Object> {
             // TODO: return explicit null-Type?
             return null;
         }
-        var newType = new AggregateType(newTypeName, this.symbolTable().getGlobalScope());
+        var newType = new AggregateType(newTypeName, this.symbolTable().globalScope());
         symbolTable().addSymbolNodeRelation(newType, node, true);
 
         // visit all component definitions and get type and create new symbol in gameObject type
@@ -78,7 +80,7 @@ public class TypeBinder implements AstVisitor<Object> {
             return null;
         }
 
-        var itemType = new AggregateType(newTypeName, this.symbolTable().getGlobalScope());
+        var itemType = new AggregateType(newTypeName, this.symbolTable().globalScope());
         symbolTable().addSymbolNodeRelation(itemType, node, true);
 
         Symbol questItemTypeSymbol = this.environment.resolveInGlobalScope("quest_item");
