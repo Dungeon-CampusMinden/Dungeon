@@ -2,6 +2,7 @@ package contrib.utils.components.skill;
 
 import core.Entity;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Consumer;
 
@@ -57,7 +58,7 @@ public class Skill {
      * @return true if the specified time (coolDownInSeconds) has passed
      */
     public boolean canBeUsedAgain() {
-        return Instant.now().isAfter(nextUsableAt) || Instant.now().equals(nextUsableAt);
+        return Duration.between(Instant.now(), nextUsableAt).toMillis() <= 0;
     }
 
     /**
