@@ -2,6 +2,7 @@ package core.utils.components.draw;
 
 public class SimpleIPath implements IPath {
     private final String path;
+
     public SimpleIPath(String path) {
         this.path = path;
     }

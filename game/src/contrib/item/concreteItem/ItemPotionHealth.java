@@ -8,6 +8,7 @@ import contrib.utils.components.health.DamageType;
 
 import core.Entity;
 import core.utils.components.draw.Animation;
+import core.utils.components.draw.SimpleIPath;
 
 public class ItemPotionHealth extends Item {
 
@@ -17,7 +18,7 @@ public class ItemPotionHealth extends Item {
         super(
                 "Health Potion",
                 "A health potion. It heals you for " + HEAL_AMOUNT + " health points.",
-                Animation.fromSingleImage("items/potion/health_potion.png"));
+                Animation.fromSingleImage(new SimpleIPath("items/potion/health_potion.png")));
     }
 
     @Override

@@ -21,6 +21,7 @@ import contrib.item.Item;
 
 import core.Game;
 import core.utils.components.draw.Animation;
+import core.utils.components.draw.SimpleIPath;
 import core.utils.components.draw.TextureMap;
 
 import java.util.ArrayList;
@@ -103,7 +104,7 @@ public class CraftingGUI extends CombinableGUI {
     private static final BitmapFont bitmapFont;
 
     static {
-        backgroundAnimation = Animation.fromSingleImage(BACKGROUND_TEXTURE_PATH);
+        backgroundAnimation = Animation.fromSingleImage(new SimpleIPath(BACKGROUND_TEXTURE_PATH));
 
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.drawPixel(0, 0, NUMBER_BACKGROUND_COLOR);
@@ -131,10 +132,20 @@ public class CraftingGUI extends CombinableGUI {
         this.targetInventory = targetInventory;
         this.buttonOk =
                 new ImageButton(
-                        this, Animation.fromSingleImage(BUTTON_OK_TEXTURE_PATH), 0, 0, 1, 1);
+                        this,
+                        Animation.fromSingleImage(new SimpleIPath(BUTTON_OK_TEXTURE_PATH)),
+                        0,
+                        0,
+                        1,
+                        1);
         this.buttonCancel =
                 new ImageButton(
-                        this, Animation.fromSingleImage(BUTTON_CANCEL_TEXTURE_PATH), 0, 0, 1, 1);
+                        this,
+                        Animation.fromSingleImage(new SimpleIPath(BUTTON_CANCEL_TEXTURE_PATH)),
+                        0,
+                        0,
+                        1,
+                        1);
         this.buttonOk.onClick((button) -> this.craft());
         this.buttonCancel.onClick((button) -> this.cancel());
     }

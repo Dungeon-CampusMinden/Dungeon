@@ -20,6 +20,7 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
+import core.utils.components.draw.SimpleIPath;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,9 +32,10 @@ import java.util.Arrays;
 
 public class ItemTest {
 
-    Animation defaultAnimation = Animation.fromSingleImage("animation/missing_texture.png");
-    Animation worldAnimation = Animation.fromSingleImage("item/key/gold_key");
-    Animation inventoryAnimation = Animation.fromSingleImage("item/key/red_key");
+    Animation defaultAnimation =
+            Animation.fromSingleImage(new SimpleIPath("animation/missing_texture.png"));
+    Animation worldAnimation = Animation.fromSingleImage(new SimpleIPath("item/key/gold_key"));
+    Animation inventoryAnimation = Animation.fromSingleImage(new SimpleIPath("item/key/red_key"));
 
     @Before
     public void before() {

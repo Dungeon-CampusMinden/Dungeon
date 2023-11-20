@@ -8,13 +8,17 @@ import contrib.utils.components.health.DamageType;
 
 import core.Entity;
 import core.utils.components.draw.Animation;
+import core.utils.components.draw.SimpleIPath;
 
 public class ItemResourceBerry extends Item {
 
     private static final int HEAL_AMOUNT = 5;
 
     public ItemResourceBerry() {
-        super("Berry", "A berry.", Animation.fromSingleImage("items/resource/berry.png"));
+        super(
+                "Berry",
+                "A berry.",
+                Animation.fromSingleImage(new SimpleIPath("items/resource/berry.png")));
     }
 
     @Override

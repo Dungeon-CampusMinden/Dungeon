@@ -8,6 +8,7 @@ import contrib.utils.components.health.DamageType;
 
 import core.Entity;
 import core.utils.components.draw.Animation;
+import core.utils.components.draw.SimpleIPath;
 
 public class ItemResourceMushroomRed extends Item {
 
@@ -17,7 +18,7 @@ public class ItemResourceMushroomRed extends Item {
         super(
                 "Red Mushroom",
                 "A red mushroom.",
-                Animation.fromSingleImage("items/resource/mushroom_red.png"));
+                Animation.fromSingleImage(new SimpleIPath("items/resource/mushroom_red.png")));
     }
 
     @Override

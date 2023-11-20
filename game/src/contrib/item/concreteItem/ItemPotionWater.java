@@ -8,6 +8,7 @@ import contrib.utils.components.health.DamageType;
 
 import core.Entity;
 import core.utils.components.draw.Animation;
+import core.utils.components.draw.SimpleIPath;
 
 public class ItemPotionWater extends Item {
 
@@ -19,7 +20,7 @@ public class ItemPotionWater extends Item {
                 "A bottle of water. It's not very useful except for hydration. It heals you for "
                         + HEAL_AMOUNT
                         + " health points.",
-                Animation.fromSingleImage("items/potion/water_bottle.png"));
+                Animation.fromSingleImage(new SimpleIPath("items/potion/water_bottle.png")));
     }
 
     @Override

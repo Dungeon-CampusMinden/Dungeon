@@ -147,8 +147,9 @@ public final class Animation {
      * @param fileName path to the frame
      * @return The created Animation instance
      */
-    public static Animation fromSingleImage(String fileName) {
-        return new Animation(List.of(fileName), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
+    public static Animation fromSingleImage(IPath fileName) {
+        return new Animation(
+                List.of(fileName.pathString()), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
     /**

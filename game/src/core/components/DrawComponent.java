@@ -382,9 +382,7 @@ public final class DrawComponent implements Component {
                 animationMap =
                         Arrays.stream(Objects.requireNonNull(apps.listFiles()))
                                 .filter(File::isDirectory)
-                                .collect(
-                                        Collectors.toMap(
-                                                File::getName, Animation::fromSubDir));
+                                .collect(Collectors.toMap(File::getName, Animation::fromSubDir));
             } catch (URISyntaxException ignored) {
             }
         }
