@@ -3,7 +3,6 @@ package contrib.systems;
 import static org.junit.Assert.*;
 
 import contrib.components.HealthComponent;
-import contrib.components.StatsComponent;
 import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
@@ -133,103 +132,5 @@ public class HealthSystemTest {
         HealthSystem system = new HealthSystem();
         Game.add(system);
         system.execute();
-    }
-
-    @Test
-    public void testDamageWithModifier() throws IOException {
-        Game.removeAllEntities();
-        Entity entity = new Entity();
-        entity.addComponent(new DrawComponent(ANIMATION_PATH));
-        StatsComponent statsComponent = new StatsComponent();
-        entity.addComponent(statsComponent);
-        statsComponent.multiplier(DamageType.PHYSICAL, 2);
-
-        HealthComponent healthComponent = new HealthComponent();
-        entity.addComponent(healthComponent);
-        healthComponent.maximalHealthpoints(100);
-        healthComponent.currentHealthpoints(100);
-        healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
-
-        HealthSystem system = new HealthSystem();
-        Game.add(system);
-        Game.add(entity);
-
-        system.execute();
-
-        assertEquals(80, healthComponent.currentHealthpoints()); // 100 - 10 * 2
-    }
-
-    @Test
-    public void testDamageWithModifierNegative() throws IOException {
-        Game.removeAllEntities();
-        Entity entity = new Entity();
-        entity.addComponent(new DrawComponent(ANIMATION_PATH));
-        StatsComponent statsComponent = new StatsComponent();
-        entity.addComponent(statsComponent);
-        statsComponent.multiplier(DamageType.PHYSICAL, -2);
-
-        HealthComponent healthComponent = new HealthComponent();
-        entity.addComponent(healthComponent);
-        healthComponent.maximalHealthpoints(200);
-        healthComponent.currentHealthpoints(100);
-        healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
-
-        HealthSystem system = new HealthSystem();
-        Game.add(system);
-        Game.add(entity);
-
-        system.execute();
-
-        assertEquals(120, healthComponent.currentHealthpoints()); // 100 - 10 * -2
-    }
-
-    @Test
-    public void testDamageWithModifierZero() throws IOException {
-        Game.removeAllEntities();
-        Entity entity = new Entity();
-        entity.addComponent(new DrawComponent(ANIMATION_PATH));
-        StatsComponent statsComponent = new StatsComponent();
-        entity.addComponent(statsComponent);
-        statsComponent.multiplier(DamageType.PHYSICAL, 0);
-
-        HealthComponent healthComponent = new HealthComponent();
-        entity.addComponent(healthComponent);
-        healthComponent.maximalHealthpoints(200);
-        healthComponent.currentHealthpoints(100);
-        healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
-
-        HealthSystem system = new HealthSystem();
-        Game.add(system);
-        Game.add(entity);
-
-        system.execute();
-
-        assertEquals(100, healthComponent.currentHealthpoints()); // 100 - 10 * 0
-    }
-
-    @Test
-    public void testDamageWithModifierHuge() throws IOException {
-        Game.removeAllEntities();
-        Entity entity = new Entity();
-        entity.addComponent(new DrawComponent(ANIMATION_PATH));
-        StatsComponent statsComponent = new StatsComponent();
-        entity.addComponent(statsComponent);
-        statsComponent.multiplier(DamageType.PHYSICAL, 100);
-
-        HealthComponent healthComponent = new HealthComponent();
-        entity.addComponent(healthComponent);
-        healthComponent.maximalHealthpoints(200);
-        healthComponent.currentHealthpoints(100);
-        healthComponent.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
-
-        HealthSystem system = new HealthSystem();
-        Game.add(system);
-        Game.add(entity);
-
-        system.execute();
-
-        assertTrue(
-                "Entity should have 0 ore less health points.",
-                healthComponent.currentHealthpoints() <= 0); // 100 - 10 * 100
     }
 }

@@ -3,11 +3,8 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 
-import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
-import contrib.item.concreteItem.ItemResourceIronOre;
-import contrib.item.concreteItem.ItemResourceWood;
 import contrib.level.generator.graphBased.RoombasedLevelGenerator;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
@@ -58,15 +55,6 @@ public class Main {
                             throw new RuntimeException();
                         }
                         Game.levelSize(LevelSize.randomSize());
-                        ItemResourceIronOre ironOre = new ItemResourceIronOre();
-                        ItemResourceWood wood = new ItemResourceWood();
-                        Game.hero()
-                                .flatMap(entity -> entity.fetch(InventoryComponent.class))
-                                .ifPresent(
-                                        inventoryComponent -> {
-                                            inventoryComponent.add(ironOre);
-                                            inventoryComponent.add(wood);
-                                        });
                     }
                 });
     }
@@ -158,10 +146,8 @@ public class Main {
         Game.add(new CollisionSystem());
         Game.add(new AISystem());
         Game.add(new HealthSystem());
-        Game.add(new XPSystem());
         Game.add(new ProjectileSystem());
         Game.add(new HealthbarSystem());
-        Game.add(new HeroUISystem());
         Game.add(new HudSystem());
         Game.add(new SpikeSystem());
         Game.add(new IdleSoundSystem());
