@@ -1,8 +1,6 @@
 package core.gui.backend.opengl;
 
-import core.gui.GUIColorPane;
-import core.gui.GUIElement;
-import core.gui.GUIImage;
+import core.gui.*;
 import core.gui.util.Logging;
 import core.utils.logging.CustomLogLevel;
 import core.utils.math.Matrix4f;
@@ -22,7 +20,7 @@ public class OpenGLElementRenderers {
     private static final int PROP_HAS_BOTTOM_BORDER = 0x0010;
     private static final int PROP_HAS_LEFT_BORDER = 0x0020;
 
-    public static IOpenGLRenderFunction renderGUIImage =
+    public static final IOpenGLRenderFunction renderGUIImage =
             (e, context) -> {
                 GUIImage element = (GUIImage) e;
                 Matrix4f model = createModelMatrix(element);
@@ -32,7 +30,7 @@ public class OpenGLElementRenderers {
                 }
                 context.begin();
                 GL33.glUniformMatrix4fv(
-                        context.getUniformLocation("uModel"), false, model.toOpenGL());
+                        context.getUniformLocation("uModel"), false, model.toArray());
                 GL33.glUniform1i(
                         context.getUniformLocation("uProperties"), PROP_HAS_BACKGROUND_IMAGE);
                 GL33.glUniform1i(context.getUniformLocation("uBackgroundTexture"), 0);
@@ -43,7 +41,7 @@ public class OpenGLElementRenderers {
                 validate(element);
             };
 
-    public static IOpenGLRenderFunction renderGUIColorPane =
+    public static final IOpenGLRenderFunction renderGUIColorPane =
             (e, context) -> {
                 GUIColorPane element = (GUIColorPane) e;
 
@@ -51,7 +49,7 @@ public class OpenGLElementRenderers {
                 context.begin();
 
                 GL33.glUniformMatrix4fv(
-                        context.getUniformLocation("uModel"), false, model.toOpenGL());
+                        context.getUniformLocation("uModel"), false, model.toArray());
                 GL33.glUniform1i(
                         context.getUniformLocation("uProperties"), PROP_HAS_BACKGROUND_COLOR);
                 GL33.glUniform4fv(
@@ -60,6 +58,16 @@ public class OpenGLElementRenderers {
 
                 context.draw();
                 context.end();
+                validate(element);
+            };
+
+    public static final IOpenGLRenderFunction renderGUIText =
+            (e, context) -> {
+                GUIText element = (GUIText) e;
+                GUIRoot.getInstance()
+                        .backend()
+                        .drawText(
+                                element.text(), element.font(), 100, 100, 10000, 10000, 0xFFFFFFFF);
                 validate(element);
             };
 
