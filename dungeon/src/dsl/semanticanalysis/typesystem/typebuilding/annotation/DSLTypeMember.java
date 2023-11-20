@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.typesystem.typebuilding.annotation;
 
-import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

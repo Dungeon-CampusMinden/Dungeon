@@ -14,6 +14,5 @@ public class ComponentWithExternalTypeMember extends Component {
         super(entity);
     }
 
-    @DSLTypeMember
-    public Point point;
+    @DSLTypeMember public Point point;
 }

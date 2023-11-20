@@ -5,11 +5,11 @@ import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.value.AggregateValue;
 import dsl.semanticanalysis.scope.Scope;
-
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
+import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
+
 import entrypoint.DungeonConfig;
 
 import graph.taskdependencygraph.TaskDependencyGraph;

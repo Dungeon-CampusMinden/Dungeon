@@ -1,24 +1,24 @@
 package dsl.semanticanalysis.typesystem.instantiation;
 
 import dsl.interpreter.DSLInterpreter;
+import dsl.runtime.callable.ICallable;
 import dsl.runtime.memoryspace.EncapsulatedObject;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.*;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
-import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.symbol.PropertySymbol;
-import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
-import dsl.semanticanalysis.typesystem.typebuilding.type.EnumType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.typebuilding.*;
 import dsl.semanticanalysis.typesystem.callbackadapter.CallbackAdapter;
 import dsl.semanticanalysis.typesystem.callbackadapter.CallbackAdapterBuilder;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
+import dsl.semanticanalysis.typesystem.typebuilding.*;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLCallback;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeNameMember;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
+import dsl.semanticanalysis.typesystem.typebuilding.type.EnumType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

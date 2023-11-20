@@ -5,19 +5,19 @@ import core.Entity;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
-import dsl.runtime.value.PrototypeValue;
-import dsl.runtime.environment.RuntimeEnvironment;
-import dsl.runtime.callable.NativeFunction;
-import dsl.runtime.value.AggregateValue;
-import dsl.runtime.value.Value;
 import dsl.runtime.callable.ICallable;
+import dsl.runtime.callable.NativeFunction;
+import dsl.runtime.environment.RuntimeEnvironment;
+import dsl.runtime.value.AggregateValue;
+import dsl.runtime.value.PrototypeValue;
+import dsl.runtime.value.Value;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
+import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
-import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 
 import java.util.ArrayList;
 import java.util.List;

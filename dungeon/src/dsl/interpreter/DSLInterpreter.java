@@ -7,25 +7,25 @@ import dsl.interpreter.taskgraph.Interpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.*;
 import dsl.runtime.callable.ICallable;
-import dsl.semanticanalysis.environment.GameEnvironment;
-import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.runtime.callable.NativeFunction;
 import dsl.runtime.environment.RuntimeEnvironment;
 import dsl.runtime.memoryspace.EncapsulatedObject;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.memoryspace.MemorySpace;
-import dsl.runtime.callable.NativeFunction;
 import dsl.runtime.value.*;
 import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
+import dsl.semanticanalysis.environment.GameEnvironment;
+import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import dsl.semanticanalysis.typesystem.callbackadapter.CallbackAdapter;
-
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
+
 import entrypoint.DSLEntryPoint;
 import entrypoint.DungeonConfig;
 
@@ -114,8 +114,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * Creates {@link PrototypeValue} instances for all `entity_type` and `item_type` definitions in the
-     * global scope of the passed {@link IEnvironment}.
+     * Creates {@link PrototypeValue} instances for all `entity_type` and `item_type` definitions in
+     * the global scope of the passed {@link IEnvironment}.
      *
      * @param environment the {@link IEnvironment} in which's global scope to search for prototype
      *     definitions.
@@ -126,8 +126,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * Iterates over all types in the passed IEnvironment and creates a {@link PrototypeValue} for any
-     * game object definition, which was defined by the user
+     * Iterates over all types in the passed IEnvironment and creates a {@link PrototypeValue} for
+     * any game object definition, which was defined by the user
      *
      * @param environment the environment to check for game object definitions
      */
@@ -139,7 +139,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 // create a prototype for it
                 var creationAstNode = symbolTable().getCreationAstNode((Symbol) type);
                 if (creationAstNode.type.equals(Node.Type.PrototypeDefinition)) {
-                    var prototype = new PrototypeValue(PrototypeValue.PROTOTYPE, (AggregateType) type);
+                    var prototype =
+                            new PrototypeValue(PrototypeValue.PROTOTYPE, (AggregateType) type);
 
                     var gameObjDefNode = (PrototypeDefinitionNode) creationAstNode;
                     for (var node : gameObjDefNode.getComponentDefinitionNodes()) {
@@ -157,10 +158,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     /**
-     * Create {@link PrototypeValue} instances for {@link ItemPrototypeDefinitionNode}s in the global
-     * scope of passed {@link IEnvironment}. The created prototypes will be registered in the {@link
-     * RuntimeEnvironment} of this {@link DSLInterpreter} and is stored as a {@link Value} in the
-     * global {@link IMemorySpace} of the interpreter.
+     * Create {@link PrototypeValue} instances for {@link ItemPrototypeDefinitionNode}s in the
+     * global scope of passed {@link IEnvironment}. The created prototypes will be registered in the
+     * {@link RuntimeEnvironment} of this {@link DSLInterpreter} and is stored as a {@link Value} in
+     * the global {@link IMemorySpace} of the interpreter.
      *
      * @param environment the {@link IEnvironment} to search for item prototype definitions
      */
@@ -238,7 +239,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
         // evaluate rhs and store the value in the member of
         // the prototype
         AggregateType prototypesType = (AggregateType) componentSymbol.getDataType();
-        PrototypeValue componentPrototype = new PrototypeValue(PrototypeValue.PROTOTYPE, prototypesType);
+        PrototypeValue componentPrototype =
+                new PrototypeValue(PrototypeValue.PROTOTYPE, prototypesType);
         for (var propDef : node.getPropertyDefinitionNodes()) {
             var propertyDefNode = (PropertyDefNode) propDef;
             var rhsValue = (Value) propertyDefNode.getStmtNode().accept(this);
@@ -334,11 +336,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
      *
      * @param task The {@link Task} to execute a scenario builder method for.
      * @return An {@link Optional} containing the Java-Object which was instantiated from the return
-     *     value of the scenario builder. If no custom {@link IEnvironment} implementation apart from
-     *     {@link GameEnvironment} is used (this is the default case), the content inside the {@link
-     *     Optional} will be of type HashSet<HashSet<core.Entity>>. If the execution of the scenario
-     *     builder method was unsuccessful or no fitting scenario builder method for the given
-     *     {@link Task} could be found, an empty {@link Optional} will be returned.
+     *     value of the scenario builder. If no custom {@link IEnvironment} implementation apart
+     *     from {@link GameEnvironment} is used (this is the default case), the content inside the
+     *     {@link Optional} will be of type HashSet<HashSet<core.Entity>>. If the execution of the
+     *     scenario builder method was unsuccessful or no fitting scenario builder method for the
+     *     given {@link Task} could be found, an empty {@link Optional} will be returned.
      */
     public Optional<Object> buildTask(Task task) {
         var taskClass = task.getClass();

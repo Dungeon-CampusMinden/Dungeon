@@ -1,18 +1,18 @@
 package dsl.runtime.value;
 
-import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.memoryspace.MemorySpace;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
+import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 /**
- * Represents a property value, which encapsulated an {@link IDSLExtensionProperty} and an object to use
- * as the instance to use with this {@link IDSLExtensionProperty} and returns an aggregate value. This
- * means, that this class does not store the actual object representing the aggregate value, but the
- * 'parent-object', of which the aggregate value can be retrieved by means of the {@link
- * IDSLExtensionProperty} .
+ * Represents a property value, which encapsulated an {@link IDSLExtensionProperty} and an object to
+ * use as the instance to use with this {@link IDSLExtensionProperty} and returns an aggregate
+ * value. This means, that this class does not store the actual object representing the aggregate
+ * value, but the 'parent-object', of which the aggregate value can be retrieved by means of the
+ * {@link IDSLExtensionProperty} .
  */
 public class AggregatePropertyValue extends AggregateValue {
     private final IDSLExtensionProperty<Object, Object> property;
@@ -40,8 +40,8 @@ public class AggregatePropertyValue extends AggregateValue {
 
     /**
      * As this AggregatePropertyValue does not store the aggregate value directly, we need to call
-     * the {@link IDSLExtensionProperty#get(Object)} implementation. This will return an aggregate value,
-     * which is converted in an actual {@link AggregateValue} instance, of which the {@link
+     * the {@link IDSLExtensionProperty#get(Object)} implementation. This will return an aggregate
+     * value, which is converted in an actual {@link AggregateValue} instance, of which the {@link
      * IMemorySpace} will contain the members of the aggregate value.
      */
     @Override

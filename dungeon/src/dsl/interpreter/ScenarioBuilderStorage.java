@@ -1,9 +1,9 @@
 package dsl.interpreter;
 
-import dsl.semanticanalysis.environment.IEnvironment;
-import dsl.runtime.value.Value;
-import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.runtime.callable.ICallable;
+import dsl.runtime.value.Value;
+import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;

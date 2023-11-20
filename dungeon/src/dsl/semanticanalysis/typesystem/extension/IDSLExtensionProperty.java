@@ -1,8 +1,8 @@
 package dsl.semanticanalysis.typesystem.extension;
 
 /**
- * A {@link IDSLExtensionProperty} enables accessing some named value of type V in means of an instance
- * of type T.
+ * A {@link IDSLExtensionProperty} enables accessing some named value of type V in means of an
+ * instance of type T.
  *
  * @param <T> type of the instance in which to access the property
  * @param <V> type of the value of the property.

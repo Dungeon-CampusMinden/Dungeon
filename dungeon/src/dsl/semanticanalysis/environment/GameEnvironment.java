@@ -14,26 +14,26 @@ import core.level.Tile;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
-import dsl.runtime.environment.RuntimeEnvironment;
-import dsl.runtime.value.PrototypeValue;
-import dsl.runtime.interop.RuntimeObjectTranslator;
 import dsl.runtime.callable.ICallable;
 import dsl.runtime.callable.NativeFunction;
-import dsl.semanticanalysis.typesystem.typebuilding.type.*;
-import dslinterop.dslnativefunction.NativePrint;
+import dsl.runtime.environment.RuntimeEnvironment;
+import dsl.runtime.interop.RuntimeObjectTranslator;
 import dsl.runtime.value.*;
+import dsl.runtime.value.PrototypeValue;
 import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
+
 import dslinterop.dslnativefunction.NativeInstantiate;
 import dslinterop.dslnativefunction.NativeInstantiateNamed;
+import dslinterop.dslnativefunction.NativePrint;
 import dslinterop.dsltypeadapters.AIComponentAdapter;
 import dslinterop.dsltypeadapters.DrawComponentAdapter;
 import dslinterop.dsltypeadapters.QuestItemAdapter;

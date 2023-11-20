@@ -7,6 +7,7 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMetho
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeNameMember;
+
 import task.Task;
 import task.TaskContent;
 import task.reporting.GradingFunctions;

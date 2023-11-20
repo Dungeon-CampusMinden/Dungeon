@@ -16,9 +16,9 @@ import dsl.interpreter.mockecs.ExternalType;
 import dsl.interpreter.mockecs.ExternalTypeBuilder;
 import dsl.interpreter.mockecs.ExternalTypeBuilderMultiParam;
 import dsl.interpreter.mockecs.TestComponentWithExternalType;
-import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.Value;
+import dsl.semanticanalysis.environment.GameEnvironment;
 
 import org.junit.Assert;
 import org.junit.Test;

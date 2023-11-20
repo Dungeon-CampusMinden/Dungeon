@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.typesystem.typebuilding.type;
 
-import dsl.runtime.value.ListValue;
 import dsl.runtime.callable.NativeMethod;
+import dsl.runtime.value.ListValue;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 

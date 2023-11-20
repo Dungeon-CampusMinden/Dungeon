@@ -9,6 +9,7 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLCallback;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
+
 import task.Task;
 
 import java.util.function.Consumer;
@@ -35,8 +36,7 @@ public final class TaskComponent implements Component {
                     entity.fetch(DoorComponent.class)
                             .ifPresent(component -> component.doors().forEach(DoorTile::open));
 
-    @DSLCallback
-    private Consumer<Entity> onActivate;
+    @DSLCallback private Consumer<Entity> onActivate;
     private Task task;
     private Entity my_entity;
 

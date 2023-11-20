@@ -1,10 +1,10 @@
 package dsl.semanticanalysis.analyzer;
 
 import dsl.parser.ast.*;
+import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 

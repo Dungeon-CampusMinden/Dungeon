@@ -15,10 +15,10 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 
 import task.Task;
 import task.TaskContent;
@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * This class implements {@link IDSLExtensionProperty} for the {@link Entity} class, in order to access
- * the Components of an entity from a DSL-program.
+ * This class implements {@link IDSLExtensionProperty} for the {@link Entity} class, in order to
+ * access the Components of an entity from a DSL-program.
  */
 public class EntityExtension {
     // private ctor, because this class should not be instantiated
@@ -123,7 +123,8 @@ public class EntityExtension {
     }
 
     @DSLTypeProperty(name = "draw_component", extendedType = Entity.class)
-    public static class DrawComponentProperty implements IDSLExtensionProperty<Entity, DrawComponent> {
+    public static class DrawComponentProperty
+            implements IDSLExtensionProperty<Entity, DrawComponent> {
         public static DrawComponentProperty instance = new DrawComponentProperty();
 
         private DrawComponentProperty() {}
@@ -162,7 +163,8 @@ public class EntityExtension {
     }
 
     @DSLTypeProperty(name = "task_component", extendedType = Entity.class)
-    public static class TaskComponentProperty implements IDSLExtensionProperty<Entity, TaskComponent> {
+    public static class TaskComponentProperty
+            implements IDSLExtensionProperty<Entity, TaskComponent> {
         public static TaskComponentProperty instance = new TaskComponentProperty();
 
         private TaskComponentProperty() {}

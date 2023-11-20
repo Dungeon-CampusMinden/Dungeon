@@ -14,20 +14,20 @@ import dsl.helpers.Helpers;
 import dsl.interpreter.mockecs.*;
 import dsl.parser.ast.IdNode;
 import dsl.parser.ast.Node;
-import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.runtime.memoryspace.EncapsulatedObject;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.PrototypeValue;
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
+import dsl.semanticanalysis.environment.GameEnvironment;
+import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.typesystem.*;
-
-import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
+
 import dslinterop.dslnativefunction.NativeInstantiate;
 
 import entrypoint.DungeonConfig;

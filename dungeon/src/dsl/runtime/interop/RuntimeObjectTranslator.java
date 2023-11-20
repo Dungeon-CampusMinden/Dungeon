@@ -1,9 +1,9 @@
 package dsl.runtime.interop;
 
-import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.memoryspace.EncapsulatedObject;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.*;
+import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 

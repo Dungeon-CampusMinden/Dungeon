@@ -5,8 +5,7 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 
 @DSLType
 public class TestRecordUser {
-    @DSLTypeMember
-    int member1;
+    @DSLTypeMember int member1;
     @DSLTypeMember TestRecordComponent componentMember;
 
     public TestRecordUser() {

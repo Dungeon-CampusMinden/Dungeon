@@ -6,11 +6,11 @@ import dsl.interpreter.TestEnvironment;
 import dsl.interpreter.mockecs.*;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
-
-import dsl.semanticanalysis.typesystem.typebuilding.type.*;
+import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
-import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
+
 import graph.taskdependencygraph.TaskDependencyGraph;
 
 import org.junit.Assert;
@@ -29,8 +29,7 @@ public class TestTypeBuilder {
     /** Test class for testing conversion into DSL datatype */
     @DSLType
     private class TestComponent {
-        @DSLTypeMember
-        public int intMember;
+        @DSLTypeMember public int intMember;
 
         @DSLTypeMember public String stringMember;
 

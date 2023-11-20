@@ -5,8 +5,8 @@ import dsl.parser.ast.Node;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 
 import java.util.List;
 

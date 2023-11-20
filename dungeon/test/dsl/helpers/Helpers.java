@@ -6,12 +6,12 @@ import antlr.main.DungeonDSLParser;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.Node;
-import dsl.semanticanalysis.environment.GameEnvironment;
-import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
+import dsl.semanticanalysis.environment.GameEnvironment;
+import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 
 import org.antlr.v4.runtime.CharStream;

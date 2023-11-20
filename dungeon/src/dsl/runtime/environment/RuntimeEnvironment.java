@@ -1,16 +1,16 @@
 package dsl.runtime.environment;
 
 import dsl.interpreter.DSLInterpreter;
-import dsl.runtime.value.PrototypeValue;
 import dsl.runtime.interop.RuntimeObjectTranslator;
 import dsl.runtime.memoryspace.IMemorySpace;
+import dsl.runtime.value.PrototypeValue;
+import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.SymbolTable;
-import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
+import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;

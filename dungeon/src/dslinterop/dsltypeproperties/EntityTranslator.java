@@ -3,12 +3,12 @@ package dslinterop.dsltypeproperties;
 import core.Entity;
 
 import dsl.runtime.interop.IObjectToValueTranslator;
-import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
+import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 
 /** This class translates an {@link Entity}-Object into a DSL Value for */
 public class EntityTranslator implements IObjectToValueTranslator {
