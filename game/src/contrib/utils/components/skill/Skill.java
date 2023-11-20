@@ -58,7 +58,9 @@ public class Skill {
      * @return true if the specified time (coolDownInSeconds) has passed
      */
     public boolean canBeUsedAgain() {
-        return Duration.between(Instant.now(), nextUsableAt).toMillis() <= 0;
+        // check if the cooldown is active, return the negated result (this avoids some problems in
+        // nano-sec range)
+        return !(Duration.between(Instant.now(), nextUsableAt).toMillis() > 0);
     }
 
     /**
