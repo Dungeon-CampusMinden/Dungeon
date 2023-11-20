@@ -4,12 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 import contrib.hud.UITools;
+import contrib.hud.YesNoDialog;
 import contrib.systems.HudSystem;
 
 import core.Game;
 import core.utils.IVoidFunction;
-
-import task.game.hud.YesNoDialog;
 
 /**
  * This is a manual test for the YesNODialog.
