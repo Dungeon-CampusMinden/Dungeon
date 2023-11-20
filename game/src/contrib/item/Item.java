@@ -38,8 +38,8 @@ public class Item implements CraftingIngredient, CraftingResult {
     private static final Logger LOGGER = Logger.getLogger(Item.class.getName());
 
     /**
-     * Maps identifiers in crafting recipes (e.g. {@link ItemBookRed}) to their corresponding class
-     * objects (e.g. ItemBookRed.java). This map is used to associate identifiers in crafting
+     * Maps identifiers in crafting recipes (e.g. {@link ItemResourceBerry}) to their corresponding class
+     * objects (e.g. ItemResourceBerry.java). This map is used to associate identifiers in crafting
      * recipes with the actual classes and create an instance of the respective item when the recipe
      * is crafted.
      *
