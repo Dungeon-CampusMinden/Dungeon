@@ -1,4 +1,4 @@
-package dsl.semanticanalysis.types;
+package dsl.semanticanalysis.types.extension;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.semanticanalysis.IInstanceCallable;

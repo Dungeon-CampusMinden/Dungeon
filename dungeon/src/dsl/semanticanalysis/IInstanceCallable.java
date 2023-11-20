@@ -2,7 +2,7 @@ package dsl.semanticanalysis;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
-import dsl.semanticanalysis.types.IDSLExtensionMethod;
+import dsl.semanticanalysis.types.extension.IDSLExtensionMethod;
 
 import java.util.List;
 

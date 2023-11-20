@@ -1,8 +1,8 @@
 package dslinterop.dsltypeproperties;
 
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.types.IDSLExtensionMethod;
-import dsl.semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.types.extension.IDSLExtensionMethod;
+import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
 
 import task.game.components.TaskContentComponent;
 import task.game.content.QuestItem;

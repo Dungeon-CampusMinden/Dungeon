@@ -8,6 +8,7 @@ import dsl.runtime.value.*;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.symbol.PropertySymbol;
+import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
 import dsl.semanticanalysis.types.typebuilding.*;
 import dsl.semanticanalysis.types.callbackadapter.CallbackAdapter;
 import dsl.semanticanalysis.types.callbackadapter.CallbackAdapterBuilder;

@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.types.typebuilding.annotation;
 
 import dsl.semanticanalysis.types.AggregateTypeAdapter;
-import dsl.semanticanalysis.types.IDSLExtensionMethod;
+import dsl.semanticanalysis.types.extension.IDSLExtensionMethod;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -4,7 +4,7 @@ import core.Component;
 
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
 
 import task.TaskContent;
 

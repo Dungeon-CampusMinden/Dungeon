@@ -17,8 +17,8 @@ import core.components.VelocityComponent;
 
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLExtensionMethod;
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.types.IDSLExtensionMethod;
-import dsl.semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.types.extension.IDSLExtensionMethod;
+import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
 
 import task.Task;
 import task.TaskContent;

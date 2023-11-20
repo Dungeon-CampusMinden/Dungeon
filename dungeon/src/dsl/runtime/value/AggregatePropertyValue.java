@@ -4,7 +4,7 @@ import dsl.runtime.environment.IEnvironment;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
 import dsl.semanticanalysis.types.IType;
 
 /**

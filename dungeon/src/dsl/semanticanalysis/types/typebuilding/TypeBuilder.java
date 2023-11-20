@@ -12,6 +12,8 @@ import dsl.semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import dsl.semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
 import dsl.semanticanalysis.types.callbackadapter.IFunctionTypeBuilder;
 
+import dsl.semanticanalysis.types.extension.IDSLExtensionMethod;
+import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
 import dsl.semanticanalysis.types.typebuilding.annotation.*;
 import graph.taskdependencygraph.TaskDependencyGraph;
 

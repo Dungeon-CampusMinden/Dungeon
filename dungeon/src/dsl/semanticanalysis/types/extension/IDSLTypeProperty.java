@@ -1,4 +1,4 @@
-package dsl.semanticanalysis.types;
+package dsl.semanticanalysis.types.extension;
 
 /**
  * A {@link IDSLTypeProperty} enables accessing some named value of type V in means of an instance

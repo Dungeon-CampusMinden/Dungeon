@@ -1,6 +1,7 @@
 package dsl.interpreter.mockecs;
 
 import dsl.semanticanalysis.types.*;
+import dsl.semanticanalysis.types.extension.IDSLTypeProperty;
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLContextPush;
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.types.typebuilding.annotation.DSLTypeMember;

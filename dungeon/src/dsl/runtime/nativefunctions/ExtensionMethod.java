@@ -7,7 +7,7 @@ import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.FunctionType;
-import dsl.semanticanalysis.types.IDSLExtensionMethod;
+import dsl.semanticanalysis.types.extension.IDSLExtensionMethod;
 
 import java.util.List;
 
