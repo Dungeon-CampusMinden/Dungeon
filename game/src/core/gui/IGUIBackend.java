@@ -2,6 +2,7 @@ package core.gui;
 
 import core.Assets;
 import core.gui.backend.BackendImage;
+import core.gui.util.Font;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -49,7 +50,14 @@ public interface IGUIBackend {
      */
     default BackendImage loadImageFromBitmap(
             ByteBuffer bitmap, int width, int height, int channels) {
-        return loadImageFromBitmap(bitmap.array(), width, height, channels);
+        if (bitmap.hasArray()) {
+            return loadImageFromBitmap(bitmap.array(), width, height, channels);
+        } else {
+            byte[] array = new byte[bitmap.remaining()];
+            bitmap.position(0);
+            bitmap.get(array);
+            return loadImageFromBitmap(array, width, height, channels);
+        }
     }
 
     /**
@@ -75,4 +83,6 @@ public interface IGUIBackend {
      * @return The loaded image
      */
     BackendImage loadImageFromBitmap(byte[] bitmap, int width, int height, int channels);
+
+    void drawText(String text, Font font, int x, int y, int maxWidth, int maxHeight, int textColor);
 }
