@@ -10,9 +10,9 @@ import dsl.runtime.environment.GameEnvironment;
 import dsl.runtime.environment.IEnvironment;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.ScopedSymbol;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.SemanticAnalyzer;
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.Symbol;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;

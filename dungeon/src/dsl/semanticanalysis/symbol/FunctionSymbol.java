@@ -1,8 +1,10 @@
-package dsl.semanticanalysis;
+package dsl.semanticanalysis.symbol;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.FuncDefNode;
 import dsl.parser.ast.Node;
+import dsl.semanticanalysis.ICallable;
+import dsl.semanticanalysis.IScope;
 import dsl.semanticanalysis.types.FunctionType;
 
 import java.util.List;
@@ -15,7 +17,7 @@ public class FunctionSymbol extends ScopedSymbol implements ICallable {
      * @param astRootNode
      */
     public FunctionSymbol(
-            String name, IScope parentScope, FuncDefNode astRootNode, FunctionType functionType) {
+        String name, IScope parentScope, FuncDefNode astRootNode, FunctionType functionType) {
         super(name, parentScope, functionType);
 
         this.astRootNode = astRootNode;

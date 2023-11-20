@@ -1,6 +1,6 @@
 package dsl.runtime.value;
 
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.EnumType;
 
 /**

@@ -1,8 +1,8 @@
 package dsl.semanticanalysis.types;
 
 import dsl.semanticanalysis.IScope;
-import dsl.semanticanalysis.ScopedSymbol;
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
+import dsl.semanticanalysis.symbol.Symbol;
 
 /**
  * Represents an {@link Enum} in the dsl type system. The variants of the enum are stored as {@link

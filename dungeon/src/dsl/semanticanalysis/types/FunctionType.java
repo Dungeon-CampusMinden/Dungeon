@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.types;
 
 import dsl.semanticanalysis.Scope;
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.Symbol;
 
 import java.util.ArrayList;
 import java.util.List;

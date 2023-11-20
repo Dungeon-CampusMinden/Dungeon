@@ -1,9 +1,9 @@
 package dsl.semanticanalysis.types;
 
-import dsl.runtime.nativefunctions.NativeMethod;
 import dsl.runtime.value.ListValue;
+import dsl.runtime.nativefunctions.NativeMethod;
 import dsl.semanticanalysis.IScope;
-import dsl.semanticanalysis.ScopedSymbol;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
 
 public class ListType extends ScopedSymbol implements IType {
     public IType getElementType() {

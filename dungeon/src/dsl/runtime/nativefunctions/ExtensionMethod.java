@@ -5,7 +5,7 @@ import dsl.parser.ast.Node;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.ICallable;
 import dsl.semanticanalysis.IScope;
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.FunctionType;
 import dsl.semanticanalysis.types.IDSLExtensionMethod;
 

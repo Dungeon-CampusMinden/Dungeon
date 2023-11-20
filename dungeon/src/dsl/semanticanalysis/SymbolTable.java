@@ -22,6 +22,7 @@
 package dsl.semanticanalysis;
 
 import dsl.parser.ast.Node;
+import dsl.semanticanalysis.symbol.Symbol;
 
 import java.util.ArrayList;
 import java.util.HashMap;

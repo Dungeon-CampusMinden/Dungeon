@@ -3,7 +3,7 @@ package dsl.runtime.value;
 import dsl.runtime.IClonable;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.memoryspace.MemorySpace;
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.BuiltInType;
 import dsl.semanticanalysis.types.IType;
 

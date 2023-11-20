@@ -24,6 +24,9 @@ package dsl.semanticanalysis;
 import dsl.parser.ast.*;
 import dsl.runtime.environment.IEnvironment;
 import dsl.runtime.nativefunctions.NativeFunction;
+import dsl.semanticanalysis.symbol.FunctionSymbol;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.*;
 
 import java.util.Stack;

@@ -5,8 +5,8 @@ import dsl.runtime.value.AggregatePropertyValue;
 import dsl.runtime.value.EncapsulatedField;
 import dsl.runtime.value.PropertyValue;
 import dsl.runtime.value.Value;
-import dsl.semanticanalysis.PropertySymbol;
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.PropertySymbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.*;
 
 import java.lang.reflect.Field;

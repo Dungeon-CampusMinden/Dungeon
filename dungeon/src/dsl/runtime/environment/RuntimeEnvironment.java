@@ -5,7 +5,7 @@ import dsl.runtime.Prototype;
 import dsl.runtime.RuntimeObjectTranslator;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.semanticanalysis.IScope;
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.types.IType;
 import dsl.semanticanalysis.types.TypeBuilder;

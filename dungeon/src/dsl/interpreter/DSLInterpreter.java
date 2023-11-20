@@ -16,6 +16,10 @@ import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.runtime.value.*;
 import dsl.semanticanalysis.*;
+import dsl.semanticanalysis.symbol.FunctionSymbol;
+import dsl.semanticanalysis.symbol.PropertySymbol;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.*;
 import dsl.semanticanalysis.types.callbackadapter.CallbackAdapter;
 
@@ -327,11 +331,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
      *
      * @param task The {@link Task} to execute a scenario builder method for.
      * @return An {@link Optional} containing the Java-Object which was instantiated from the return
-     *     value of the scenario builder. If no custom {@link IEnvironment} implementation apart
-     *     from {@link GameEnvironment} is used (this is the default case), the content inside the
-     *     {@link Optional} will be of type HashSet<HashSet<core.Entity>>. If the execution of the
-     *     scenario builder method was unsuccessful or no fitting scenario builder method for the
-     *     given {@link Task} could be found, an empty {@link Optional} will be returned.
+     *     value of the scenario builder. If no custom {@link IEnvironment} implementation apart from
+     *     {@link GameEnvironment} is used (this is the default case), the content inside the {@link
+     *     Optional} will be of type HashSet<HashSet<core.Entity>>. If the execution of the scenario
+     *     builder method was unsuccessful or no fitting scenario builder method for the given
+     *     {@link Task} could be found, an empty {@link Optional} will be returned.
      */
     public Optional<Object> buildTask(Task task) {
         var taskClass = task.getClass();

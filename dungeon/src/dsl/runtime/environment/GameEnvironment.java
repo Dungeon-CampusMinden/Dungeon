@@ -20,6 +20,8 @@ import dsl.runtime.nativefunctions.NativeFunction;
 import dsl.runtime.nativefunctions.NativePrint;
 import dsl.runtime.value.*;
 import dsl.semanticanalysis.*;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.*;
 
 import dslinterop.dslnativefunction.NativeInstantiate;

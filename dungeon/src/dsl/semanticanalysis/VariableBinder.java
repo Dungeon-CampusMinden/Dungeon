@@ -24,6 +24,7 @@ package dsl.semanticanalysis;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 import dsl.parser.ast.*;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.BuiltInType;
 import dsl.semanticanalysis.types.IType;
 

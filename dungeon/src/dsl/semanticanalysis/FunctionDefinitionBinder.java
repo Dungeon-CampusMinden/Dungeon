@@ -1,6 +1,8 @@
 package dsl.semanticanalysis;
 
 import dsl.parser.ast.*;
+import dsl.semanticanalysis.symbol.FunctionSymbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.*;
 
 import java.util.ArrayList;

@@ -2,7 +2,7 @@ package dsl.runtime;
 
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.Scope;
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.BuiltInType;
 import dsl.semanticanalysis.types.IType;

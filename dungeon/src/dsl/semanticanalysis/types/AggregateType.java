@@ -1,7 +1,7 @@
 package dsl.semanticanalysis.types;
 
 import dsl.semanticanalysis.IScope;
-import dsl.semanticanalysis.ScopedSymbol;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;

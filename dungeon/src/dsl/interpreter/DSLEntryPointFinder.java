@@ -3,7 +3,7 @@ package dsl.interpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.*;
 import dsl.runtime.environment.GameEnvironment;
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.AggregateType;
 import dsl.semanticanalysis.types.IType;
 

@@ -2,8 +2,8 @@ package dsl.runtime.environment;
 
 import dsl.runtime.RuntimeObjectTranslator;
 import dsl.semanticanalysis.IScope;
-import dsl.semanticanalysis.ScopedSymbol;
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.types.BuiltInType;
 import dsl.semanticanalysis.types.IType;

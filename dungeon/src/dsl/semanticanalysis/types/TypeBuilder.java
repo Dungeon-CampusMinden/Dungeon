@@ -4,8 +4,8 @@ import core.utils.TriConsumer;
 
 import dsl.runtime.nativefunctions.ExtensionMethod;
 import dsl.semanticanalysis.IScope;
-import dsl.semanticanalysis.PropertySymbol;
-import dsl.semanticanalysis.Symbol;
+import dsl.semanticanalysis.symbol.PropertySymbol;
+import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.types.callbackadapter.BiFunctionFunctionTypeBuilder;
 import dsl.semanticanalysis.types.callbackadapter.ConsumerFunctionTypeBuilder;
 import dsl.semanticanalysis.types.callbackadapter.FunctionFunctionTypeBuilder;
