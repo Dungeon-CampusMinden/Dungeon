@@ -35,8 +35,7 @@ public class ItemTest {
 
     @Before
     public void before() {
-        Game.removeAllEntities();
-
+        cleanup();
         Game.add(
                 new LevelSystem(
                         Mockito.mock(Painter.class),
@@ -87,8 +86,10 @@ public class ItemTest {
 
     @After
     public void cleanup() {
-        Game.removeAllSystems();
         Game.removeAllEntities();
+        Game.removeAllSystems();
+        Game.hero(null);
+        Game.currentLevel(null);
     }
 
     @Test
