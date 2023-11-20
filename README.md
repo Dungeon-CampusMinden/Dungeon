@@ -42,3 +42,5 @@ This [work](https://github.com/Programmiermethoden/Dungeon) by
 [Carsten Gips](https://github.com/cagix), and
 [contributors](https://github.com/Programmiermethoden/Dungeon/graphs/contributors)
 is licensed under [MIT](LICENSE.md).
+
+This does **not** include the [publications](./doc/publication/) which are licensed under [CC BY-SA 4.0](./doc/publication/LICENSE.md).
