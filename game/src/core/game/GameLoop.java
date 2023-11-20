@@ -15,11 +15,15 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
+import core.gui.GUIRoot;
+import core.gui.backend.opengl.OpenGLBackend;
+import core.gui.events.GUIResizeEvent;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.systems.*;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
+import core.utils.math.Vector2i;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -170,6 +174,7 @@ public final class GameLoop extends ScreenAdapter {
         CameraSystem.camera().update();
         // stage logic
         stage().ifPresent(GameLoop::updateStage);
+        GUIRoot.getInstanceOptional().ifPresent(x -> x.render(delta));
     }
 
     /**
@@ -182,6 +187,10 @@ public final class GameLoop extends ScreenAdapter {
         createSystems();
         setupStage();
         PreRunConfiguration.userOnSetup().execute();
+        GUIRoot.init(new OpenGLBackend(new Vector2i(Game.windowWidth(), Game.windowHeight())));
+        GUIRoot.getInstanceOptional()
+                .ifPresent(
+                        x -> x.event(new GUIResizeEvent(Game.windowWidth(), Game.windowHeight())));
     }
 
     /**
@@ -243,6 +252,7 @@ public final class GameLoop extends ScreenAdapter {
                             x.getViewport().setWorldSize(width, height);
                             x.getViewport().update(width, height, true);
                         });
+        GUIRoot.getInstanceOptional().ifPresent(x -> x.event(new GUIResizeEvent(width, height)));
     }
 
     /** Create the systems. */
