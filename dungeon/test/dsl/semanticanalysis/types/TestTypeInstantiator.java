@@ -6,7 +6,7 @@ import dsl.runtime.AggregateValue;
 import dsl.runtime.MemorySpace;
 import dsl.semanticanalysis.Scope;
 
-import dslinput.DungeonConfig;
+import entrypoint.DungeonConfig;
 
 import graph.taskdependencygraph.TaskDependencyGraph;
 

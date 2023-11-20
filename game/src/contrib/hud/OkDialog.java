@@ -7,8 +7,6 @@ import core.Entity;
 import core.Game;
 import core.utils.IVoidFunction;
 
-import task.utils.hud.QuizUI;
-
 import java.util.Objects;
 import java.util.function.BiFunction;
 
@@ -74,7 +72,7 @@ public class OkDialog {
         Dialog textDialog = new TextDialog(title, skin, "Letter", resultHandler);
         textDialog
                 .getContentTable()
-                .add(DialogDesign.createTextDialog(skin, QuizUI.formatStringForDialogWindow(text)))
+                .add(DialogDesign.createTextDialog(skin, UITools.formatStringForDialogWindow(text)))
                 .center()
                 .grow();
         textDialog.button(DEFAULT_OK_BUTTON, DEFAULT_OK_BUTTON);

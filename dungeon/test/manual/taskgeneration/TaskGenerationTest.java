@@ -14,14 +14,14 @@ import core.systems.LevelSystem;
 
 import dsl.interpreter.DSLInterpreter;
 
-import dslinput.DslFileLoader;
-import dslinput.DungeonConfig;
+import entrypoint.DSLFileLoader;
+import entrypoint.DungeonConfig;
 
 import task.Task;
 import task.TaskContent;
-import task.components.TaskComponent;
+import task.game.components.TaskComponent;
+import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
-import task.utils.hud.UIAnswerCallback;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -34,7 +34,7 @@ import java.util.function.BiConsumer;
  * <a
  * href="file:../../../../doc/tasks/anleitung_task_test.md">../../../../doc/tasks/anleitung_task_test.md</a>
  *
- * <p>Use taskGenerationTest --args "dungeon/assets/scripts/task_test.dng" to run thus
+ * <p>Use taskGenerationTest --args "dungeon/test_resources/task_test.dng" to run thus
  */
 public class TaskGenerationTest {
     static DSLInterpreter interpreter = new DSLInterpreter();
@@ -79,13 +79,13 @@ public class TaskGenerationTest {
 
                         Set<Path> dslFilePaths;
                         try {
-                            dslFilePaths = DslFileLoader.processArguments(args);
+                            dslFilePaths = DSLFileLoader.processArguments(args);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
 
                         List<String> fileContents =
-                                dslFilePaths.stream().map(DslFileLoader::fileToString).toList();
+                                dslFilePaths.stream().map(DSLFileLoader::fileToString).toList();
                         buildScenarios(fileContents.get(0));
                     }
                 });

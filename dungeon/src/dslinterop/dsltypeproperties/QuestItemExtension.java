@@ -4,8 +4,8 @@ import dsl.semanticanalysis.types.DSLTypeProperty;
 import dsl.semanticanalysis.types.IDSLExtensionMethod;
 import dsl.semanticanalysis.types.IDSLTypeProperty;
 
-import task.components.TaskContentComponent;
-import task.utils.gamecontent.QuestItem;
+import task.game.components.TaskContentComponent;
+import task.game.content.QuestItem;
 
 /**
  * Class, which stores dsl-extensions (e.g. {@link IDSLTypeProperty} or {@link IDSLExtensionMethod})

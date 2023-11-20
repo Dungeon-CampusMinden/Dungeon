@@ -12,9 +12,9 @@ import dsl.semanticanalysis.types.DSLType;
 
 import graph.petrinet.Place;
 
-import task.components.TaskComponent;
-import task.components.TaskContentComponent;
-import task.utils.gamecontent.QuestItem;
+import task.game.components.TaskComponent;
+import task.game.components.TaskContentComponent;
+import task.game.content.QuestItem;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,6 +54,7 @@ public abstract class Task {
     private static final Set<Task> ALL_TASKS = new HashSet<>();
     private static final List<Task> SOLVED_TASK_IN_ORDER = new ArrayList<>();
     private static final String DEFAULT_TASK_TEXT = "No task description provided";
+    private static final String DEFAULT_TASK_NAME = "No task name provided";
     public static final String DEFAULT_EXPLANATION = "No explanation provided";
     private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
     private static final float DEFAULT_POINTS = 1f;
@@ -108,6 +109,7 @@ public abstract class Task {
         points = DEFAULT_POINTS;
         pointsToSolve = DEFAULT_POINTS_TO_SOLVE;
         container = new HashSet<>();
+        taskName = DEFAULT_TASK_NAME;
     }
 
     /**

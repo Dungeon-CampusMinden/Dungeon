@@ -17,12 +17,12 @@ import core.systems.LevelSystem;
 
 import task.Task;
 import task.TaskContent;
-import task.components.TaskComponent;
+import task.game.components.TaskComponent;
+import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.FreeText;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
-import task.utils.hud.UIAnswerCallback;
 
 import java.io.IOException;
 import java.util.Set;

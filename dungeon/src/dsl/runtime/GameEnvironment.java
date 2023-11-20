@@ -19,8 +19,6 @@ import dsl.runtime.nativefunctions.NativePrint;
 import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.types.*;
 
-import dslinput.DungeonConfig;
-
 import dslinterop.dslnativefunction.NativeInstantiate;
 import dslinterop.dslnativefunction.NativeInstantiateNamed;
 import dslinterop.dsltypeadapters.AIComponentAdapter;
@@ -30,18 +28,20 @@ import dslinterop.dsltypeproperties.EntityExtension;
 import dslinterop.dsltypeproperties.QuestItemExtension;
 import dslinterop.nativescenariobuilder.NativeScenarioBuilder;
 
+import entrypoint.DungeonConfig;
+
 import task.*;
-import task.components.TaskComponent;
-import task.components.TaskContentComponent;
 import task.dslinterop.*;
+import task.game.components.TaskComponent;
+import task.game.components.TaskContentComponent;
+import task.game.content.QuestItem;
+import task.game.hud.QuizUI;
+import task.game.hud.YesNoDialog;
 import task.reporting.AnswerPickingFunctions;
 import task.reporting.GradingFunctions;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
-import task.utils.gamecontent.QuestItem;
-import task.utils.hud.QuizUI;
-import task.utils.hud.YesNoDialog;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -91,7 +91,7 @@ public class GameEnvironment implements IEvironment {
 
     public List<IDSLTypeProperty<?, ?>> getBuiltInProperties() {
         ArrayList<IDSLTypeProperty<?, ?>> properties = new ArrayList<>();
-        properties.add(SingleChoiceDescriptionProperty.instance);
+        properties.add(DSLSingleChoice.SingleChoiceDescriptionProperty.instance);
 
         properties.add(EntityExtension.VelocityComponentProperty.instance);
         properties.add(EntityExtension.PositionComponentProperty.instance);
@@ -110,20 +110,20 @@ public class GameEnvironment implements IEvironment {
     public List<IDSLExtensionMethod<?, ?>> getBuiltInMethods() {
         ArrayList<IDSLExtensionMethod<?, ?>> methods = new ArrayList<>();
 
-        methods.add(SingleChoiceTask.GetContentMethod.instance);
-        methods.add(SingleChoiceTask.SetScenarioText.instance);
-        methods.add(SingleChoiceTask.SingleChoiceSetGradingFunction.instance);
-        methods.add(SingleChoiceTask.SingleChoiceSetAnswerPickerFunction.instance);
+        methods.add(DSLSingleChoice.GetContentMethod.instance);
+        methods.add(DSLSingleChoice.SetScenarioText.instance);
+        methods.add(DSLSingleChoice.SingleChoiceSetGradingFunction.instance);
+        methods.add(DSLSingleChoice.SingleChoiceSetAnswerPickerFunction.instance);
 
-        methods.add(MultipleChoiceTask.GetContentMethod.instance);
-        methods.add(MultipleChoiceTask.SetScenarioText.instance);
-        methods.add(MultipleChoiceTask.MultipleChoiceSetGradingFunction.instance);
-        methods.add(MultipleChoiceTask.MultipleChoiceSetAnswerPickerFunction.instance);
+        methods.add(DSLMultipleChoice.GetContentMethod.instance);
+        methods.add(DSLMultipleChoice.SetScenarioText.instance);
+        methods.add(DSLMultipleChoice.MultipleChoiceSetGradingFunction.instance);
+        methods.add(DSLMultipleChoice.MultipleChoiceSetAnswerPickerFunction.instance);
 
-        methods.add(AssignTaskDSLType.GetSolutionMethod.instance);
-        methods.add(AssignTaskDSLType.SetScenarioText.instance);
-        methods.add(AssignTaskDSLType.AssignTaskSetGradingFunction.instance);
-        methods.add(AssignTaskDSLType.AssignTaskSetAnswerPickerFunction.instance);
+        methods.add(DSLAssignTask.GetSolutionMethod.instance);
+        methods.add(DSLAssignTask.SetScenarioText.instance);
+        methods.add(DSLAssignTask.AssignTaskSetGradingFunction.instance);
+        methods.add(DSLAssignTask.AssignTaskSetAnswerPickerFunction.instance);
 
         methods.add(IsElementEmptyMethod.instance);
         methods.add(IsTaskActiveMethod.instance);
@@ -171,9 +171,9 @@ public class GameEnvironment implements IEvironment {
         typeBuilder.registerTypeAdapter(DrawComponentAdapter.class, this.globalScope);
         typeBuilder.registerTypeAdapter(AIComponentAdapter.class, this.globalScope);
 
-        typeBuilder.registerTypeAdapter(SingleChoiceTask.class, this.globalScope);
-        typeBuilder.registerTypeAdapter(MultipleChoiceTask.class, this.globalScope);
-        typeBuilder.registerTypeAdapter(AssignTaskDSLType.class, this.globalScope);
+        typeBuilder.registerTypeAdapter(DSLSingleChoice.class, this.globalScope);
+        typeBuilder.registerTypeAdapter(DSLMultipleChoice.class, this.globalScope);
+        typeBuilder.registerTypeAdapter(DSLAssignTask.class, this.globalScope);
         typeBuilder.registerTypeAdapter(QuestItemAdapter.class, this.globalScope);
     }
 
@@ -443,8 +443,8 @@ public class GameEnvironment implements IEvironment {
 
     /**
      * Native function to create a {@link QuestItem} from an item prototype; will link a passed task
-     * content automatically to the internal {@link task.components.TaskContentComponent} of the
-     * newly created {@link QuestItem}.
+     * content automatically to the internal {@link TaskContentComponent} of the newly created
+     * {@link QuestItem}.
      */
     private class NativeBuildQuestItem extends NativeFunction {
         /**

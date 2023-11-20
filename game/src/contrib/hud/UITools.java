@@ -20,6 +20,16 @@ import java.util.function.Supplier;
  * event.
  */
 public class UITools {
+
+    /**
+     * Limits the length of the string to 40 characters, after which a line break occurs
+     * automatically.
+     *
+     * <p>BlackMagic number which can be tweaked for better line break VirtualWindowWidth / FontSize
+     * = MAX_ROW_LENGTH 480 / 12 = 40
+     */
+    public static final int MAX_ROW_LENGTH = 40;
+
     public static final Skin DEFAULT_SKIN = new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG));
     public static final String DEFAULT_DIALOG_CONFIRM = "Bestätigen";
     public static final String DEFAULT_DIALOG_ABORT = "Abbrechen";
@@ -97,5 +107,33 @@ public class UITools {
     public static void centerActor(Actor a) {
         a.setPosition(
                 (Game.windowWidth() - a.getWidth()) / 2, (Game.windowHeight() - a.getHeight()) / 2);
+    }
+
+    /**
+     * creates line breaks after a word once a certain char count is reached
+     *
+     * @param string which should be reformatted.
+     */
+    public static String formatStringForDialogWindow(String string) {
+        StringBuilder formattedMsg = new StringBuilder();
+        String[] lines = string.split(System.lineSeparator());
+
+        for (String line : lines) {
+            String[] words = line.split(" ");
+            int sumLength = 0;
+
+            for (String word : words) {
+                sumLength += word.length();
+                formattedMsg.append(word);
+                formattedMsg.append(" ");
+
+                if (sumLength > MAX_ROW_LENGTH) {
+                    formattedMsg.append(System.lineSeparator());
+                    sumLength = 0;
+                }
+            }
+            formattedMsg.append(System.lineSeparator());
+        }
+        return formattedMsg.toString().trim();
     }
 }

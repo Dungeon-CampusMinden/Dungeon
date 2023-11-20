@@ -6,8 +6,8 @@ import core.utils.components.draw.CoreAnimationPriorities;
 import dsl.semanticanalysis.types.DSLTypeAdapter;
 import dsl.semanticanalysis.types.DSLTypeMember;
 
-import task.components.TaskContentComponent;
-import task.utils.gamecontent.QuestItem;
+import task.game.components.TaskContentComponent;
+import task.game.content.QuestItem;
 
 /** Typeadatper for creation of {@link QuestItem}s */
 public class QuestItemAdapter {

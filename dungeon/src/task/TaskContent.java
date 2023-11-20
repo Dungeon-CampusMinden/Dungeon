@@ -2,7 +2,7 @@ package task;
 
 import dsl.semanticanalysis.types.DSLType;
 
-import task.components.TaskContentComponent;
+import task.game.components.TaskContentComponent;
 
 /**
  * A part of the content of a complete task.

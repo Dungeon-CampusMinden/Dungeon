@@ -121,72 +121,6 @@ task debug(dependsOn: classes, type: JavaExec) {
     }
 }
 
-task runManualQuizTest(dependsOn: classes, type: JavaExec) {
-    mainClass = "manual.quizquestion.QuizQuestionUITest"
-    classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
-}
-
-task runYesNoDialogTest(dependsOn: classes, type: JavaExec) {
-    mainClass = "manual.YesNoDialogTest"
-    classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
-}
-
-task runCallbackTest(dependsOn: classes, type: JavaExec) {
-    mainClass = "manual.quizquestion.CallbackTest"
-    classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
-}
-
-task runLoaderTest(dependsOn: classes, type: JavaExec) {
-    mainClass = "manual.dslFileReader.DslFileReaderTest"
-    classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
-}
-
-task taskGenerationTest(dependsOn: classes, type: JavaExec) {
-    mainClass = "manual.taskgeneration.TaskGenerationTest"
-    classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
-}
-
-
 test {
     testLogging {
         events "passed", "skipped", "failed"
@@ -276,6 +210,73 @@ task starterJar(type: Jar) {
     }
 
     exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', "META-INF/*module-info.class"
+}
+
+//MANUAL TESTS
+
+task runManualQuizTest(dependsOn: classes, type: JavaExec) {
+    mainClass = "manual.quizquestion.QuizQuestionUITest"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
+task runYesNoDialogTest(dependsOn: classes, type: JavaExec) {
+    mainClass = "manual.YesNoDialogTest"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
+task runCallbackTest(dependsOn: classes, type: JavaExec) {
+    mainClass = "manual.quizquestion.CallbackTest"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
+task runLoaderTest(dependsOn: classes, type: JavaExec) {
+    mainClass = "manual.dslFileReader.DslFileReaderTest"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
+task taskGenerationTest(dependsOn: classes, type: JavaExec) {
+    mainClass = "manual.taskgeneration.TaskGenerationTest"
+    classpath = sourceSets.test.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        allJvmArgs += ["-XstartOnFirstThread"]
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
 }
 
 

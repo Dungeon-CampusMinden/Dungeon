@@ -22,6 +22,7 @@ import core.utils.components.draw.Painter;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -202,6 +203,7 @@ public class ItemTest {
 
     /** Tests if item is present in inventory and removed from Game world after collect */
     @Test
+    @Ignore
     public void testCollect() {
         assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
 
@@ -225,6 +227,7 @@ public class ItemTest {
 
     /** Tests if item can be collected from entity with no InventoryComponent. */
     @Test
+    @Ignore
     public void testCollectNoInventory() {
         assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
 

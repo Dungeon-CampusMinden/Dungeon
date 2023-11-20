@@ -10,11 +10,11 @@ import core.utils.components.MissingComponentException;
 
 import task.Task;
 import task.TaskContent;
+import task.game.content.QuestItem;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
-import task.utils.gamecontent.QuestItem;
 
 import java.util.HashMap;
 import java.util.HashSet;

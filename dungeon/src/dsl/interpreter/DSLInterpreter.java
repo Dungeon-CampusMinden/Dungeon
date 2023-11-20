@@ -12,14 +12,14 @@ import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.types.*;
 import dsl.semanticanalysis.types.callbackadapter.CallbackAdapter;
 
-import dslinput.DSLEntryPoint;
-import dslinput.DungeonConfig;
+import entrypoint.DSLEntryPoint;
+import entrypoint.DungeonConfig;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
 import task.Task;
-import task.dslinterop.AssignTaskDSLType;
+import task.dslinterop.DSLAssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
 
@@ -668,8 +668,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
             if (objectsValue.getDataType().getName().equals("assign_task")) {
                 // create "_" Value
                 ms.bindValue(
-                        "_",
-                        new Value(BuiltInType.stringType, AssignTaskDSLType.EMPTY_ELEMENT_NAME));
+                        "_", new Value(BuiltInType.stringType, DSLAssignTask.EMPTY_ELEMENT_NAME));
             }
 
             // accept every propertyDefinition

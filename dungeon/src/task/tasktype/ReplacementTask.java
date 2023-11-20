@@ -10,6 +10,8 @@ import java.util.List;
  * A Replacement Task.
  *
  * <p>Stores a collection of elements as a solution and a set of rules as replacement terms.
+ *
+ * <p>Note: Not yet implemented
  */
 public class ReplacementTask extends Task {
     private final List<Element> solution;
