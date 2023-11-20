@@ -13,22 +13,22 @@ title: "DSL Quickstart Guide"
 
 ### Starten des Dungeon Systems
 
-Führen Sie das Kommando `java -jar "build/libs/Starter.jar" --args "doc/dsl/examplescripts/quickstart_example.dng"` aus.
+Führen Sie das Kommando `java -jar "build/libs/Starter.jar" --args "dungeon/doc/dsl/examplescripts/quickstart_example.dng"` aus.
 Hierdurch wird die obenstehende `.dng`-Datei geladen. Der Dungeon öffnet sich in einem separaten Fenster und sollte in
 etwa wie folgt aussehen:
 
-![Abbildung: Auswahl-Level](img/quickstart_select_config_level.png)
+![Abbildung: Auswahl-Level](dsl/img/quickstart_select_config_level.png)
 
 Dieses Level dient dazu, eine Konfiguration aus der übergebenen `.dng`-Datei auszuwählen.
 
 ### Auswahl einer Konfiguration
 
-Sie steuern den Zauberer ![Zauberer Textur](img/wizard.png) mit den Tasten W (hoch), A (links), S (runter), D (rechts).
-Laufen Sie zu dem blauen Ritter ![blauer Ritter Textur](img/blue_knight.png) und drücken Sie die
+Sie steuern den Zauberer ![Zauberer Textur](dsl/img/wizard.png) mit den Tasten W (hoch), A (links), S (runter), D (rechts).
+Laufen Sie zu dem blauen Ritter ![blauer Ritter Textur](dsl/img/blue_knight.png) und drücken Sie die
 Taste E zum Interagieren.
 Es öffnet sich folgendes Auswahlfenster:
 
-![Abbildung: Auswahl-Fenster Konfiguration](img/quickstart_select_config_menu.png)
+![Abbildung: Auswahl-Fenster Konfiguration](dsl/img/quickstart_select_config_menu.png)
 
 Unter "Lösung" werden alle Dungeon-Konfigurationen aufgelistet, die in der übergebenen
 `.dng`-Datei gefunden werden. Wählen Sie "meine_config" per linkem Mausklick auf den
@@ -40,24 +40,24 @@ In der Beispiel `.dng`-Datei ist nur eine einzige Single Choice Frage enthalten.
 Standardszenario für eine Single Choice Frage entält zwei Räume. In dem ersten Raum
 kann die Aufgabe bearbeitet werden:
 
-![Abbildung: Aufgabenraum](img/quickstart_questroom.png)
+![Abbildung: Aufgabenraum](dsl/img/quickstart_questroom.png)
 
 Der zweite Raum entählt "Filler Content". Hierbei
 handelt es sich um zufällig generierte spielerische Inhalte, die nicht zur Bearbeitung
 einer Aufgabe nötig sind und lediglich einen spielerischen Anreiz bieten.
 
-![Abbildung: Filler-Content-Raum](img/quickstart_filler_room.png)
+![Abbildung: Filler-Content-Raum](dsl/img/quickstart_filler_room.png)
 
-Die Räume sind durch Türen ![Tür](img/door.png) miteinander verbunden. Durch das
+Die Räume sind durch Türen ![Tür](dsl/img/door.png) miteinander verbunden. Durch das
 Steuern des Spielcharakters auf eine Tür wird der Raum gewechselt.
 
 ### Bearbeiten der Aufgabe
 
 Im Standardszenario für Single Choice Aufgaben wird die Frage über ein Auswahlmenü
-gestellt. Steuern Sie hierfür die Spielfigur zum Ritter ![Ritter](img/knight.png) und
+gestellt. Steuern Sie hierfür die Spielfigur zum Ritter ![Ritter](dsl/img/knight.png) und
 interagieren Sie durch das Drücken der E-Taste mit ihm. Folgender Dialog öffnet sich:
 
-![Abbildung: Antwort Auswahlmenü](img/quickstart_answer_menu.png)
+![Abbildung: Antwort Auswahlmenü](dsl/img/quickstart_answer_menu.png)
 
 Oben im Dialogfenster wird der Name der Aufgabe dargestellt ("meine_aufgabe"), der auch
 in der `.dng`-Datei für die Aufgabendefinition verwendet wird.
@@ -68,29 +68,29 @@ die Aufgabe abgegeben.
 
 Wird die korrekte Antwort ausgewählt, erscheint folgender Dialog:
 
-![Abbildung: Dialog korrekte Antwort](img/quickstart_correct.png)
+![Abbildung: Dialog korrekte Antwort](dsl/img/quickstart_correct.png)
 
 Durch Betätigung des "Ok"-Buttons wird der Dialog geschlossen.
 
 Wird die falsche Antwort ausgewählt, erscheint folgender Dialog:
 
-![Abbildung: Dialog falsche Antwort](img/quickstart_false.png)
+![Abbildung: Dialog falsche Antwort](dsl/img/quickstart_false.png)
 
 Anschließend wird ein optionaler Erklärungstext dargestellt, falls dieser in der
 Aufgabendefinition angegeben ist. Hier ist ein Platzhalter angegeben:
 
-![Abbildung: Dialog optionaler Erklärungstext](img/quickstart_explanation.png)
+![Abbildung: Dialog optionaler Erklärungstext](dsl/img/quickstart_explanation.png)
 
 Abschließend wird die eigentlich korrekte Antwort laut Aufgabendefinition dargestellt:
 
-![Abbildung: Dialog eigentlich korrekte Antwort](img/quickstart_correct_answer.png)
+![Abbildung: Dialog eigentlich korrekte Antwort](dsl/img/quickstart_correct_answer.png)
 
 ## Definition einer Aufgabe
 
 Im folgenden Beispielcode wird die Definition einer Single Choice Frage dargestellt:
 
 ```
-// datei: doc/dsl/examplescripts/quickstart_example.dng
+// datei: dungeon/doc/dsl/examplescripts/quickstart_example.dng
 
 // Aufgabendefinition
 single_choice_task meine_aufgabe {
@@ -136,11 +136,11 @@ Diesen Definitionen stellen den "Einstiegspunkt" für das Dungeon-System dar.
 
 ## Definition von Aufgabenabhängigkeiten
 
-Das folgende Code-Snippet ist aus dem [quickstart_task_dependency.dng](examplescripts/quickstart_task_dependency.dng)
+Das folgende Code-Snippet ist aus dem [quickstart_task_dependency.dng](dsl/examplescripts/quickstart_task_dependency.dng)
 Beispielskript entnommen:
 
 ```
-// datei: doc/dsl/examplescripts/quickstart_task_dependency.dng
+// datei: dungeon/doc/dsl/examplescripts/quickstart_task_dependency.dng
 
 /*
  * Aufgabendefinitionen...

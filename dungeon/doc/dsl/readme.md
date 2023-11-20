@@ -80,7 +80,7 @@ Alternative Notationen könnten so aussehen:
 
 ## Quickstart Guide und User-Dokumentation
 
-Der [Quickstart Guide](quickstart.md) gibt Hinweise für die Erstellung der ersten Aufgaben
+Der [Quickstart Guide](../quickstart.md) gibt Hinweise für die Erstellung der ersten Aufgaben
 mit der DungeonDSL.
 
 Die folgenden Dokumentationsseiten beleuchten einzelne Aspekte der Nutzung der DungeonDSL

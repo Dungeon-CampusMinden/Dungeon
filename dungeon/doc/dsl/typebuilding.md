@@ -7,7 +7,7 @@ title: "Typebuilding"
 Das Dungeon Framework verwendet einen komponentenbasierten Ansatz (vgl.
 [ECS](./../game/ecs.md)), um Entitäten im Level zu definieren. Die DSL ermöglicht das
 Definieren von Enitäten in textueller Form (vgl. hierfür
-[Entitätsdefinition](./sprachkonzepte.md#entitätsdefinition)), indem für einen Entitätstypen
+[Entitätsdefinition](sprachkonzepte.md#entitätsdefinition)), indem für einen Entitätstypen
 festgelegt wird, welche Komponenten in ihm enthalten sein sollen. Hierbei können die Member
 der Komponenten konfiguriert werden.
 
@@ -28,7 +28,7 @@ als Java-Klassen im ECS definiert sind) im DSL Typsystem und eine Verbindung des
 mit der Java-Klasse, dessen DSL-Equivalent er ist. Das folgende Diagramm stellt dar, wie
 eine Java-Klasse auf der DSL-Seite als `AggregateType` dargestellt wird.
 
-![UML: Java-Klasse und DSL-Datentyp](./img/java_to_dsl_type.png)
+![UML: Java-Klasse und DSL-Datentyp](img/java_to_dsl_type.png)
 
 Um die DSL Typen, die auf diese Weise benötigt werden, nicht manuell implementieren zu
 müssen, übernimmt der `TypeBuiler` diese Aufgabe automatisch. Hierzu wird ein
@@ -111,7 +111,7 @@ entity_type my_obj {
 ### Laden von Datentypen
 
 Der mit `TypeBuilder::createTypeFromClass` erzeugte Datentyp muss in die [DSL
-Pipeline](./interpretation_laufzeit.md#überblick-wie-funktioniert-die-interpretation-allgemein)
+Pipeline](interpretation_laufzeit.md#überblick-wie-funktioniert-die-interpretation-allgemein)
 integriert werden. Hierzu muss der DSL Typ über ein `IEnvironment` Objekt geladen werden.
 Die Standard `IEnvironment`-Implementierung ist das `GameEnvironment`
 ([GameEnvironment.java](./../../dsl/src/runtime/GameEnvironment.java)), welches bereits alle
@@ -377,7 +377,7 @@ entity_type my_obj {
 Der grobe Ablauf des Typebuildings, welches vom GameEnvironment für alle standardmäßig
 verfügbaren Datentypen ausgeführt wird, ist im folgenden Sequenzdiagramm abgebildet:
 
-![UML: Ablauf Typebuilding](./img/typebuilding.png)
+![UML: Ablauf Typebuilding](img/typebuilding.png)
 
 ### Typadaptierung
 

@@ -4,7 +4,7 @@ title: "Daten für Aufgabendefinitionen"
 
 ## Aufgabendefinition
 
-Im Aufgabenkonzept werden [Aufgabentypen](../tasks/readme.md#aufgabentypen) definiert.
+Im Aufgabenkonzept werden [Aufgabentypen](../task_concept.md#aufgabentypen) definiert.
 Welche Daten zur Definition einer Aufgabe nötig sind, ist vom Aufgabentyp abhängig. Ziel
 dieses Dokuments ist, die erforderlichen Datenstrukturen für alle Aufgabentypen zu
 definieren.

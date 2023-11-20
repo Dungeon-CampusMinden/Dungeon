@@ -3,7 +3,7 @@ title:"Konzept: Aufgabenabhängigkeitsgraph in Petri-Netz übersetzen”
 ---
 
 ## Grundkonzept 
-[Grundlagen: Konzept der Petri Netze](./petri_nets.md)
+[Grundlagen: Konzept der Petri Netze](petri_nets.md)
 
 Der Aufgabenabhängigkeitsgraph muss in ein Petri-Netz umgewandelt werden. Dafür wurde eine Petri-Netz Schablone entworfen, mit der die Logik jedes Tasks abgebildet werden kann. Jeder Task wird in ein eigenes "kleines" Petri-Netz übersetzt, und dann werden die einzelnen Petri-Netze anhand der Abhängigkeiten untereinander miteinander verbunden.
 
@@ -12,7 +12,7 @@ Der Aufgabenabhängigkeitsgraph muss in ein Petri-Netz umgewandelt werden. Dafü
 
 Diese Schablone dient als Basis für jedes Petri-Netz.
 
-![Basis Petri-Netz Schablone](./img/petri_net_schablone_simple.png)
+![Basis Petri-Netz Schablone](img/petri_net_schablone_simple.png)
 
 Die rot markierten Stellen im Petri-Netz werden von außen (z.B. über die DSL-Callbacks) mit Token versehen.
 
@@ -27,7 +27,7 @@ Der Place "or" wird initial mit einem Token belegt. Wird ein anderes Petri-Netz 
 
 *Anmerkung:* In den folgenden Abbildungen werden nur Ausschnitte des kombinierten Petri-Netzes angezeigt. Es ist immer zu beachten, dass jeder Task durch die Basis-Schablone abgebildet wird. Im Folgenden werden jedoch nur die Anbindgspunkte mit anderen Petri-Netzen betrachtet.
 
-![Sequenz Petri-Netz Schablone](./img/petri_net_schablone_seq.png)
+![Sequenz Petri-Netz Schablone](img/petri_net_schablone_seq.png)
 
 Im Dungeon unterscheiden wir zwischen AND (in der Abbildung grün) und OR Sequenzen (in der Abbildung orange).
 
@@ -40,7 +40,7 @@ Der initial platzierte Token im or-place wird entfernt.
 
 *Anmerkung:* In den folgenden Abbildungen werden nur Ausschnitte des kombinierten Petri-Netzes angezeigt. Es ist immer zu beachten, dass jeder Task durch die Basis-Schablone abgebildet wird. Im Folgenden werden jedoch nur die Anbindungen mit anderen Petri-Netzen betrachtet.
 
-![Teilaufgaben Schablone](./img/petri_net_schablone_subtask.png)
+![Teilaufgaben Schablone](img/petri_net_schablone_subtask.png)
 
 In Orange sind die Änderungen zur Standardschablone zu sehen.
 Teilaufgaben müssen vor der Aktivierung des Haupttasks bearbeitet werden. Daher werden ihre "activateTask"-Transitionen so mit dem Petri-Netz verbunden, dass sie durch einen Helper-Place, der an der "afterActivated"-Transition des Haupttasks angeschlossen ist, gesteuert werden. Wenn die Aufgaben beendet sind, legen die "finished"-Transitionen der Teilaufgaben ein Token in jeweils einen Helper-Place, der mit der "activateProcessing"-Transition des Haupttasks verbunden ist.
@@ -50,7 +50,7 @@ Teilaufgaben müssen vor der Aktivierung des Haupttasks bearbeitet werden. Daher
 
 *Anmerkung:* In den folgenden Abbildungen werden nur Ausschnitte des kombinierten Petri-Netzes angezeigt. Es ist immer zu beachten, dass jeder Task durch die Basis-Schablone abgebildet wird. Im Folgenden werden jedoch nur die Anbindungen mit anderen Petri-Netzen betrachtet.
 
-![Optionale Teilaufgabe Schablone](./img/petri_net_schablone_optional.png)
+![Optionale Teilaufgabe Schablone](img/petri_net_schablone_optional.png)
 
 Optionale Teilaufgaben bleiben so lange aktiv, bis sie bearbeitet wurden oder der Haupttask abgeschlossen wurde. Die Aktivierung von optionalen Teilaufgaben erfolgt parallel zur Aktivierung der Bearbeitung des Haupttasks. Daher wird die Transition "activateTask" über einen Helper-Place mit der Transition "activateProcessing" des Haupttasks verbunden.
 

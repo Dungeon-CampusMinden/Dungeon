@@ -653,7 +653,7 @@ Die möglichen Beziehungen zwischen zwei Aufgaben $t_1$ und $t_2$ sind:
 Reporting fasst den Prozess der Erfassung, Bewertung und Speicherung einer Antwort auf eine
 Aufgabe zusammen. Welche Daten genau als Teil einer Antwort erfasst werden, unterscheidet
 sich basierend auf dem Aufgabentyp. Auf das Reporting wird in
-[Reporting](../control_mechanisms/reporting.md) vertiefend eingegangen.
+[Reporting](control_mechanisms/reporting.md) vertiefend eingegangen.
 
 ### Zurücksetzen einer Aufgabe
 
