@@ -30,7 +30,7 @@ import dsl.semanticanalysis.symbol.Symbol;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
-import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dslinterop.dslnativefunction.NativeInstantiate;
 import dslinterop.dslnativefunction.NativeInstantiateNamed;
@@ -102,8 +102,8 @@ public class GameEnvironment implements IEnvironment {
                 };
     }
 
-    public List<IDSLTypeProperty<?, ?>> getBuiltInProperties() {
-        ArrayList<IDSLTypeProperty<?, ?>> properties = new ArrayList<>();
+    public List<IDSLExtensionProperty<?, ?>> getBuiltInProperties() {
+        ArrayList<IDSLExtensionProperty<?, ?>> properties = new ArrayList<>();
         properties.add(DSLSingleChoice.SingleChoiceDescriptionProperty.instance);
 
         properties.add(EntityExtension.VelocityComponentProperty.instance);
@@ -275,7 +275,7 @@ public class GameEnvironment implements IEnvironment {
     }
 
     protected void bindBuiltInProperties() {
-        for (IDSLTypeProperty<?, ?> property : getBuiltInProperties()) {
+        for (IDSLExtensionProperty<?, ?> property : getBuiltInProperties()) {
             this.typeBuilder.bindProperty(this.globalScope, property);
         }
     }

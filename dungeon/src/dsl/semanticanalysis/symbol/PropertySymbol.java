@@ -3,12 +3,12 @@ package dsl.semanticanalysis.symbol;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.type.IType;
 
-/** This Symbol enables the usage {@link IDSLTypeProperty} in {@link AggregateType}s. */
+/** This Symbol enables the usage {@link IDSLExtensionProperty} in {@link AggregateType}s. */
 public class PropertySymbol extends Symbol {
-    private IDSLTypeProperty<?, ?> property;
+    private IDSLExtensionProperty<?, ?> property;
     private final boolean settable;
     private final boolean gettable;
 
@@ -20,7 +20,7 @@ public class PropertySymbol extends Symbol {
         return gettable;
     }
 
-    public IDSLTypeProperty<?, ?> getProperty() {
+    public IDSLExtensionProperty<?, ?> getProperty() {
         return property;
     }
 
@@ -28,7 +28,7 @@ public class PropertySymbol extends Symbol {
             String symbolName,
             IScope parentScope,
             IType dataType,
-            IDSLTypeProperty<?, ?> property) {
+            IDSLExtensionProperty<?, ?> property) {
         super(symbolName, parentScope, dataType);
         this.property = property;
 

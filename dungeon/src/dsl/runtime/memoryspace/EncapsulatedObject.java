@@ -7,7 +7,7 @@ import dsl.runtime.value.PropertyValue;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.type.AggregateType;
 import dsl.semanticanalysis.typesystem.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.type.IType;
@@ -131,7 +131,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                     returnValue =
                             new AggregatePropertyValue(
                                     symbol.getDataType(),
-                                    (IDSLTypeProperty<Object, Object>) propertySymbol.getProperty(),
+                                    (IDSLExtensionProperty<Object, Object>) propertySymbol.getProperty(),
                                     this.object,
                                     MemorySpace.NONE,
                                     this.environment);
@@ -139,7 +139,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
                     returnValue =
                             new PropertyValue(
                                     symbol.getDataType(),
-                                    (IDSLTypeProperty<Object, Object>) propertySymbol.getProperty(),
+                                    (IDSLExtensionProperty<Object, Object>) propertySymbol.getProperty(),
                                     this.object);
                 }
             }

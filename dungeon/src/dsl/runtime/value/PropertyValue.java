@@ -1,19 +1,19 @@
 package dsl.runtime.value;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.type.IType;
 
 /**
- * A {@link Value}, which encapsulates an {@link IDSLTypeProperty} and an object, to use as an
+ * A {@link Value}, which encapsulates an {@link IDSLExtensionProperty} and an object, to use as an
  * instance for this property.
  */
 public class PropertyValue extends Value {
-    private final IDSLTypeProperty<Object, Object> property;
+    private final IDSLExtensionProperty<Object, Object> property;
     private final boolean isSettable;
     private final boolean isGettable;
 
-    public PropertyValue(IType type, IDSLTypeProperty<Object, Object> property, Object instance) {
+    public PropertyValue(IType type, IDSLExtensionProperty<Object, Object> property, Object instance) {
         super(type, instance);
         this.property = property;
 

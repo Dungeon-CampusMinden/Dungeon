@@ -3,7 +3,7 @@ package task.dslinterop;
 import core.Entity;
 
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
-import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.*;
 import task.Task;
 import task.TaskContent;
@@ -260,7 +260,7 @@ public class DSLSingleChoice {
     }
 
     @DSLTypeProperty(name = "description", extendedType = DSLSingleChoice.class)
-    public static class SingleChoiceDescriptionProperty implements IDSLTypeProperty<Quiz, String> {
+    public static class SingleChoiceDescriptionProperty implements IDSLExtensionProperty<Quiz, String> {
         public static SingleChoiceDescriptionProperty instance =
                 new SingleChoiceDescriptionProperty();
 

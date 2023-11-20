@@ -4,7 +4,7 @@ import core.Component;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 
 import task.TaskContent;
 
@@ -51,7 +51,7 @@ public final class TaskContentComponent implements Component {
 
     @DSLTypeProperty(name = "content", extendedType = TaskContentComponent.class)
     public static class ContentProperty
-            implements IDSLTypeProperty<TaskContentComponent, TaskContent> {
+            implements IDSLExtensionProperty<TaskContentComponent, TaskContent> {
         public static TaskContentComponent.ContentProperty instance =
                 new TaskContentComponent.ContentProperty();
 

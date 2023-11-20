@@ -2,7 +2,7 @@ package dsl.interpreter;
 
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class TestEnvironment extends GameEnvironment {
     }
 
     @Override
-    public List<IDSLTypeProperty<?, ?>> getBuiltInProperties() {
+    public List<IDSLExtensionProperty<?, ?>> getBuiltInProperties() {
         return new ArrayList<>();
     }
 

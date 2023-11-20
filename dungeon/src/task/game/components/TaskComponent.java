@@ -4,7 +4,7 @@ import core.Component;
 import core.Entity;
 import core.level.elements.tile.DoorTile;
 
-import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLCallback;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
@@ -89,7 +89,7 @@ public final class TaskComponent implements Component {
     }
 
     @DSLTypeProperty(name = "task", extendedType = TaskComponent.class)
-    public static class TaskProperty implements IDSLTypeProperty<TaskComponent, Task> {
+    public static class TaskProperty implements IDSLExtensionProperty<TaskComponent, Task> {
         public static TaskComponent.TaskProperty instance = new TaskComponent.TaskProperty();
 
         private TaskProperty() {}

@@ -12,7 +12,7 @@ import dsl.semanticanalysis.typesystem.callbackadapter.FunctionFunctionTypeBuild
 import dsl.semanticanalysis.typesystem.callbackadapter.IFunctionTypeBuilder;
 
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
-import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.type.*;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.*;
 import graph.taskdependencygraph.TaskDependencyGraph;
@@ -650,13 +650,13 @@ public class TypeBuilder {
     }
 
     /**
-     * Bind a {@link IDSLTypeProperty} as an {@link PropertySymbol} in the DSL datatype
+     * Bind a {@link IDSLExtensionProperty} as an {@link PropertySymbol} in the DSL datatype
      * corresponding to the {@link DSLTypeProperty#extendedType()} field.
      *
      * @param globalScope the global scope to use for resolving data types
-     * @param property the {@link IDSLTypeProperty} to bind
+     * @param property the {@link IDSLExtensionProperty} to bind
      */
-    public void bindProperty(IScope globalScope, IDSLTypeProperty<?, ?> property) {
+    public void bindProperty(IScope globalScope, IDSLExtensionProperty<?, ?> property) {
         // get extended type
         Class<?> propertyClass = property.getClass();
         if (propertyClass.isAnnotationPresent(DSLTypeProperty.class)) {

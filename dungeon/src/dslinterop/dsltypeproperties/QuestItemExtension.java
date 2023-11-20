@@ -2,13 +2,13 @@ package dslinterop.dsltypeproperties;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
-import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 
 import task.game.components.TaskContentComponent;
 import task.game.content.QuestItem;
 
 /**
- * Class, which stores dsl-extensions (e.g. {@link IDSLTypeProperty} or {@link IDSLExtensionMethod})
+ * Class, which stores dsl-extensions (e.g. {@link IDSLExtensionProperty} or {@link IDSLExtensionMethod})
  * for {@link QuestItem}s
  */
 public class QuestItemExtension {
@@ -16,7 +16,7 @@ public class QuestItemExtension {
     private QuestItemExtension() {}
 
     /**
-     * {@link IDSLTypeProperty} extension to access the {@link TaskContentComponent} of a {@link
+     * {@link IDSLExtensionProperty} extension to access the {@link TaskContentComponent} of a {@link
      * QuestItem} instance. Not settable.
      */
     @DSLTypeProperty(
@@ -24,7 +24,7 @@ public class QuestItemExtension {
             extendedType = QuestItem.class,
             isSettable = false)
     public static class TaskContentComponentProperty
-            implements IDSLTypeProperty<QuestItem, TaskContentComponent> {
+            implements IDSLExtensionProperty<QuestItem, TaskContentComponent> {
         public static TaskContentComponentProperty instance = new TaskContentComponentProperty();
 
         private TaskContentComponentProperty() {}

@@ -1,7 +1,7 @@
 package dsl.interpreter.mockecs;
 
 import dsl.semanticanalysis.typesystem.*;
-import dsl.semanticanalysis.typesystem.extension.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextPush;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
@@ -14,7 +14,7 @@ import java.util.List;
 @DSLContextPush(name = "entity")
 public class Entity {
     @DSLTypeProperty(name = "test_component2", extendedType = Entity.class, isSettable = false)
-    public static class TestComponent2Property implements IDSLTypeProperty<Entity, TestComponent2> {
+    public static class TestComponent2Property implements IDSLExtensionProperty<Entity, TestComponent2> {
         public static Entity.TestComponent2Property instance = new Entity.TestComponent2Property();
 
         private TestComponent2Property() {}
@@ -35,7 +35,7 @@ public class Entity {
     }
 
     @DSLTypeProperty(name = "test_component1", extendedType = Entity.class, isSettable = false)
-    public static class TestComponent1Property implements IDSLTypeProperty<Entity, TestComponent1> {
+    public static class TestComponent1Property implements IDSLExtensionProperty<Entity, TestComponent1> {
         public static Entity.TestComponent1Property instance = new Entity.TestComponent1Property();
 
         private TestComponent1Property() {}
@@ -60,7 +60,7 @@ public class Entity {
             extendedType = Entity.class,
             isSettable = false)
     public static class TestComponentWithExternalTypeProperty
-            implements IDSLTypeProperty<Entity, TestComponentWithExternalType> {
+            implements IDSLExtensionProperty<Entity, TestComponentWithExternalType> {
         public static Entity.TestComponentWithExternalTypeProperty instance =
                 new Entity.TestComponentWithExternalTypeProperty();
 
@@ -88,7 +88,7 @@ public class Entity {
             extendedType = Entity.class,
             isSettable = false)
     public static class ComponentWithExternalTypeMemberProperty
-            implements IDSLTypeProperty<Entity, ComponentWithExternalTypeMember> {
+            implements IDSLExtensionProperty<Entity, ComponentWithExternalTypeMember> {
         public static Entity.ComponentWithExternalTypeMemberProperty instance =
                 new Entity.ComponentWithExternalTypeMemberProperty();
 
