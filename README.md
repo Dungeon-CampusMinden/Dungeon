@@ -10,6 +10,7 @@ Das Blockly-Dungeon richtet sich an komplette Neueinsteiger und dient zur Visual
 Dieses Java-Framework, das auf libGDX basiert, ermöglicht die einfache Entwicklung eines 2D-Rollenspiels im Stil von Rogue. Es eignet sich besonders gut für Programmieranfänger, da es komplexe Aufgaben wie die Generierung von Leveln und das Zeichnen sowie Animieren von Figuren abstrahiert. Dadurch kann sich der Anwender auf die Java-Programmierung konzentrieren.
 
 Das Framework befindet sich im Projekt [`game`](./game).
+
 Die [Dokumentation](./game/doc/) und der [Quickstart](./game/doc/quickstart.md) sollten einen schnellen Einstieg ermöglichen.
 
 ![](./game/doc/img/monster.gif)
@@ -17,9 +18,10 @@ Die [Dokumentation](./game/doc/) und der [Quickstart](./game/doc/quickstart.md) 
 
 ## Learning by Questing
 
-Das Framework bietet die Möglichkeit, durch die Integration von Quests zu lernen. Quests sind dabei typische Übungsaufgaben aus dem Studienkontext. Diese Aufgaben werden in einer einfachen, eigenen Sprache definiert, ohne dass die Spieler selbst Spielmechaniken programmieren müssen. Das Framework wandelt die definierten Aufgaben automatisch in verschiedene Spielszenarien um und ermöglicht so das Erstellen von individuellen Lernpfaden.
+Das Framework bietet die Möglichkeit, durch die Integration von Quests zu lernen. Quests sind dabei typische Übungsaufgaben aus dem Studienkontext. Diese Aufgaben werden in einer einfachen, eigenen Sprache definiert, ohne dass die Lehrenden selbst Spielmechaniken programmieren müssen. Das Framework wandelt die definierten Aufgaben automatisch in verschiedene Spielszenarien um und ermöglicht so das Erstellen von individuellen Lernpfaden.
 
 Das Dungeon befindet sich im Projekt [`dungeon`](./dungeon).
+
 Die [Dokumentation](./dungeon/doc) und der [Quickstart](./dungeon/doc/readme.md) sollten einen schnellen Einstieg ermöglichen.
 
 ![](./dungeon/doc/dsl/img/quickstart_select_config_level.png)
