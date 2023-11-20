@@ -1,12 +1,12 @@
 package dsl.interpreter;
 
-import dsl.runtime.IEvironment;
-import dsl.runtime.Value;
-import dsl.semanticanalysis.FunctionSymbol;
-import dsl.semanticanalysis.ICallable;
-import dsl.semanticanalysis.types.AggregateType;
-import dsl.semanticanalysis.types.FunctionType;
-import dsl.semanticanalysis.types.IType;
+import dsl.runtime.callable.ICallable;
+import dsl.runtime.value.Value;
+import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.symbol.FunctionSymbol;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 import task.Task;
 
@@ -28,14 +28,14 @@ public class ScenarioBuilderStorage {
     }
 
     /**
-     * Initialize this {@link ScenarioBuilderStorage} from an existing {@link IEvironment}. The
+     * Initialize this {@link ScenarioBuilderStorage} from an existing {@link IEnvironment}. The
      * environment's global symbols will be scanned for {@link AggregateType} instances, which map
      * to a {@link Task} implementation. For each such {@link AggregateType} a new key is inserted
      * into the internal HashMap.
      *
-     * @param environment The {@link IEvironment} to scan for {@link Task} related types.
+     * @param environment The {@link IEnvironment} to scan for {@link Task} related types.
      */
-    public void initializeScenarioBuilderStorage(IEvironment environment) {
+    public void initializeScenarioBuilderStorage(IEnvironment environment) {
         var symbols = environment.getGlobalScope().getSymbols();
 
         // filter all global symbols for Task-types and initialize the

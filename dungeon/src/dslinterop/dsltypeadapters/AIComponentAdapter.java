@@ -6,8 +6,8 @@ import contrib.entities.AIFactory;
 import core.Entity;
 import core.components.DrawComponent;
 
-import dsl.semanticanalysis.types.DSLContextMember;
-import dsl.semanticanalysis.types.DSLTypeAdapter;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
 
 public class AIComponentAdapter {
     /**

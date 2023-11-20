@@ -1,6 +1,8 @@
 package dsl.interpreter.mockecs;
 
-import dsl.semanticanalysis.types.*;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.*;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -11,7 +13,7 @@ public class TestComponent2 extends Component {
 
     @DSLTypeProperty(name = "this_is_a_float", extendedType = TestComponent2.class)
     public static class TestComponentPseudoProperty
-            implements IDSLTypeProperty<TestComponent2, Float> {
+            implements IDSLExtensionProperty<TestComponent2, Float> {
         public static TestComponentPseudoProperty instance = new TestComponentPseudoProperty();
 
         private TestComponentPseudoProperty() {}
@@ -29,7 +31,7 @@ public class TestComponent2 extends Component {
 
     @DSLTypeProperty(name = "this_is_complex", extendedType = TestComponent2.class)
     public static class TestComponentPseudoPropertyComplexType
-            implements IDSLTypeProperty<TestComponent2, ComplexType> {
+            implements IDSLExtensionProperty<TestComponent2, ComplexType> {
         public static TestComponentPseudoPropertyComplexType instance =
                 new TestComponentPseudoPropertyComplexType();
 

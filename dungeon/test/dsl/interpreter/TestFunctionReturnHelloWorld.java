@@ -1,12 +1,12 @@
 package dsl.interpreter;
 
 import dsl.parser.ast.Node;
-import dsl.runtime.nativefunctions.NativeFunction;
-import dsl.semanticanalysis.ICallable;
-import dsl.semanticanalysis.IScope;
-import dsl.semanticanalysis.Scope;
-import dsl.semanticanalysis.types.BuiltInType;
-import dsl.semanticanalysis.types.FunctionType;
+import dsl.runtime.callable.ICallable;
+import dsl.runtime.callable.NativeFunction;
+import dsl.semanticanalysis.scope.IScope;
+import dsl.semanticanalysis.scope.Scope;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 
 import java.util.List;
 

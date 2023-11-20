@@ -6,13 +6,13 @@ import antlr.main.DungeonDSLParser;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.Node;
-import dsl.runtime.GameEnvironment;
-import dsl.runtime.IEvironment;
-import dsl.runtime.MemorySpace;
-import dsl.runtime.Value;
-import dsl.semanticanalysis.ScopedSymbol;
-import dsl.semanticanalysis.SemanticAnalyzer;
-import dsl.semanticanalysis.Symbol;
+import dsl.runtime.memoryspace.MemorySpace;
+import dsl.runtime.value.Value;
+import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
+import dsl.semanticanalysis.environment.GameEnvironment;
+import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
+import dsl.semanticanalysis.symbol.Symbol;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -106,7 +106,7 @@ public class Helpers {
      * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
      */
     public static SemanticAnalyzer.Result getSymtableForASTWithCustomEnvironment(
-            Node ast, IEvironment environment) {
+            Node ast, IEnvironment environment) {
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(environment);
         return symbolTableParser.walk(ast);

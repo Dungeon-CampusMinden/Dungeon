@@ -5,18 +5,18 @@ import core.Entity;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
-import dsl.runtime.AggregateValue;
-import dsl.runtime.Prototype;
-import dsl.runtime.RuntimeEnvironment;
-import dsl.runtime.Value;
-import dsl.runtime.nativefunctions.NativeFunction;
-import dsl.semanticanalysis.ICallable;
-import dsl.semanticanalysis.IScope;
-import dsl.semanticanalysis.Scope;
-import dsl.semanticanalysis.types.AggregateType;
-import dsl.semanticanalysis.types.BuiltInType;
-import dsl.semanticanalysis.types.FunctionType;
-import dsl.semanticanalysis.types.TypeInstantiator;
+import dsl.runtime.callable.ICallable;
+import dsl.runtime.callable.NativeFunction;
+import dsl.runtime.environment.RuntimeEnvironment;
+import dsl.runtime.value.AggregateValue;
+import dsl.runtime.value.PrototypeValue;
+import dsl.runtime.value.Value;
+import dsl.semanticanalysis.scope.IScope;
+import dsl.semanticanalysis.scope.Scope;
+import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,8 @@ public class NativeInstantiateNamed extends NativeFunction {
         super(
                 "instantiate_named",
                 parentScope,
-                new FunctionType(BuiltInType.noType, Prototype.PROTOTYPE, BuiltInType.stringType));
+                new FunctionType(
+                        BuiltInType.noType, PrototypeValue.PROTOTYPE, BuiltInType.stringType));
     }
 
     @Override
@@ -47,14 +48,15 @@ public class NativeInstantiateNamed extends NativeFunction {
         Value prototypeValue = parameterValues.get(0);
         Value nameValue = parameterValues.get(1);
 
-        if (prototypeValue.getDataType() != Prototype.PROTOTYPE) {
+        if (prototypeValue.getDataType() != PrototypeValue.PROTOTYPE) {
             throw new RuntimeException(
                     "Wrong type ('"
                             + prototypeValue.getDataType().getName()
                             + "') of parameter for call of instantiate()!");
         } else {
             var dslEntityInstance =
-                    (AggregateValue) interpreter.instantiateDSLValue((Prototype) prototypeValue);
+                    (AggregateValue)
+                            interpreter.instantiateDSLValue((PrototypeValue) prototypeValue);
             var entityType = (AggregateType) rtEnv.getGlobalScope().resolve("entity");
             var entityObject =
                     (core.Entity)
@@ -87,7 +89,7 @@ public class NativeInstantiateNamed extends NativeFunction {
                     //  which should be fixed
                     AggregateType membersOriginalType =
                             interpreter.getOriginalTypeOfPrototype(
-                                    (Prototype) memberValue.getDataType());
+                                    (PrototypeValue) memberValue.getDataType());
 
                     // instantiate object as a new java Object
                     Object memberObject =
@@ -107,7 +109,7 @@ public class NativeInstantiateNamed extends NativeFunction {
                 AggregateValue memberValue = (AggregateValue) entry.getValue();
                 AggregateType membersOriginalType =
                         interpreter.getOriginalTypeOfPrototype(
-                                (Prototype) memberValue.getDataType());
+                                (PrototypeValue) memberValue.getDataType());
 
                 // instantiate object as a new java Object
                 Object memberObject =

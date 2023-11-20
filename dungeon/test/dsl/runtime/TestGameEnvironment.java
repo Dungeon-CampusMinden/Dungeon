@@ -1,7 +1,8 @@
 package dsl.runtime;
 
 import dsl.interpreter.mockecs.*;
-import dsl.semanticanalysis.Scope;
+import dsl.semanticanalysis.environment.GameEnvironment;
+import dsl.semanticanalysis.scope.Scope;
 
 import org.junit.Test;
 

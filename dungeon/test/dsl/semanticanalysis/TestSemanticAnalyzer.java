@@ -5,9 +5,19 @@ import dsl.interpreter.DummyNativeFunction;
 import dsl.interpreter.TestEnvironment;
 import dsl.interpreter.mockecs.*;
 import dsl.parser.ast.*;
-import dsl.runtime.GameEnvironment;
-import dsl.runtime.nativefunctions.NativePrint;
-import dsl.semanticanalysis.types.*;
+import dsl.runtime.callable.ICallable;
+import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
+import dsl.semanticanalysis.environment.GameEnvironment;
+import dsl.semanticanalysis.scope.Scope;
+import dsl.semanticanalysis.symbol.FunctionSymbol;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
+import dsl.semanticanalysis.symbol.Symbol;
+import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
+
+import dslinterop.dslnativefunction.NativePrint;
 
 import graph.taskdependencygraph.TaskDependencyGraph;
 
@@ -39,13 +49,13 @@ public class TestSemanticAnalyzer {
         var graphDefAstNode = ast.getChild(0);
         var symbolForDotDefNode =
                 symtableResult.symbolTable.getSymbolsForAstNode(graphDefAstNode).get(0);
-        Assert.assertEquals("g", symbolForDotDefNode.name);
+        Assert.assertEquals("g", symbolForDotDefNode.getName());
 
         // check the name of the symbol corresponding to the object definition
         var objDefNode = ast.getChild(1);
         var symbolForObjDefNode =
                 symtableResult.symbolTable.getSymbolsForAstNode(objDefNode).get(0);
-        Assert.assertEquals("c", symbolForObjDefNode.name);
+        Assert.assertEquals("c", symbolForObjDefNode.getName());
     }
 
     @DSLType
@@ -99,7 +109,7 @@ public class TestSemanticAnalyzer {
         var firstPropertyStmtNode = firstPropertyDef.getChild(1);
         assert (firstPropertyStmtNode.type == Node.Type.Identifier);
         var symbolForStmtNode = symbolTable.getSymbolsForAstNode(firstPropertyStmtNode).get(0);
-        Assert.assertEquals("g", symbolForStmtNode.name);
+        Assert.assertEquals("g", symbolForStmtNode.getName());
         Assert.assertEquals(symbolForDotDefNode, symbolForStmtNode);
     }
 
@@ -170,7 +180,7 @@ public class TestSemanticAnalyzer {
         assert (firstPropertyStmtNode.type == Node.Type.Identifier);
         var symbolForStmtNode =
                 symtableResult.symbolTable.getSymbolsForAstNode(firstPropertyStmtNode).get(0);
-        Assert.assertEquals("g", symbolForStmtNode.name);
+        Assert.assertEquals("g", symbolForStmtNode.getName());
         Assert.assertEquals(symbolForDotDefNode, symbolForStmtNode);
     }
 
@@ -730,7 +740,7 @@ public class TestSemanticAnalyzer {
         Symbol testVariableSymbol = symbolTable.getSymbolsForAstNode(declNode).get(0);
 
         Assert.assertNotEquals(Symbol.NULL, testVariableSymbol);
-        Assert.assertEquals(BuiltInType.stringType, testVariableSymbol.dataType);
+        Assert.assertEquals(BuiltInType.stringType, testVariableSymbol.getDataType());
     }
 
     @Test

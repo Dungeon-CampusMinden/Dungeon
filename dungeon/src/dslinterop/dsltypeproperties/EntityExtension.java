@@ -15,10 +15,10 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 
-import dsl.semanticanalysis.types.DSLExtensionMethod;
-import dsl.semanticanalysis.types.DSLTypeProperty;
-import dsl.semanticanalysis.types.IDSLExtensionMethod;
-import dsl.semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 
 import task.Task;
 import task.TaskContent;
@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * This class implements {@link IDSLTypeProperty} for the {@link Entity} class, in order to access
- * the Components of an entity from a DSL-program.
+ * This class implements {@link IDSLExtensionProperty} for the {@link Entity} class, in order to
+ * access the Components of an entity from a DSL-program.
  */
 public class EntityExtension {
     // private ctor, because this class should not be instantiated
@@ -42,7 +42,7 @@ public class EntityExtension {
 
     @DSLTypeProperty(name = "velocity_component", extendedType = Entity.class)
     public static class VelocityComponentProperty
-            implements IDSLTypeProperty<Entity, VelocityComponent> {
+            implements IDSLExtensionProperty<Entity, VelocityComponent> {
         public static EntityExtension.VelocityComponentProperty instance =
                 new EntityExtension.VelocityComponentProperty();
 
@@ -63,7 +63,7 @@ public class EntityExtension {
 
     @DSLTypeProperty(name = "inventory_component", extendedType = Entity.class)
     public static class InventoryComponentProperty
-            implements IDSLTypeProperty<Entity, InventoryComponent> {
+            implements IDSLExtensionProperty<Entity, InventoryComponent> {
         public static EntityExtension.InventoryComponentProperty instance =
                 new EntityExtension.InventoryComponentProperty();
 
@@ -84,7 +84,7 @@ public class EntityExtension {
 
     @DSLTypeProperty(name = "position_component", extendedType = Entity.class)
     public static class PositionComponentProperty
-            implements IDSLTypeProperty<Entity, PositionComponent> {
+            implements IDSLExtensionProperty<Entity, PositionComponent> {
         public static PositionComponentProperty instance = new PositionComponentProperty();
 
         private PositionComponentProperty() {}
@@ -104,7 +104,7 @@ public class EntityExtension {
 
     @DSLTypeProperty(name = "task_content_component", extendedType = Entity.class)
     public static class TaskContentComponentProperty
-            implements IDSLTypeProperty<Entity, TaskContentComponent> {
+            implements IDSLExtensionProperty<Entity, TaskContentComponent> {
         public static TaskContentComponentProperty instance = new TaskContentComponentProperty();
 
         private TaskContentComponentProperty() {}
@@ -123,7 +123,8 @@ public class EntityExtension {
     }
 
     @DSLTypeProperty(name = "draw_component", extendedType = Entity.class)
-    public static class DrawComponentProperty implements IDSLTypeProperty<Entity, DrawComponent> {
+    public static class DrawComponentProperty
+            implements IDSLExtensionProperty<Entity, DrawComponent> {
         public static DrawComponentProperty instance = new DrawComponentProperty();
 
         private DrawComponentProperty() {}
@@ -143,7 +144,7 @@ public class EntityExtension {
 
     @DSLTypeProperty(name = "interaction_component", extendedType = Entity.class)
     public static class InteractionComponentProperty
-            implements IDSLTypeProperty<Entity, InteractionComponent> {
+            implements IDSLExtensionProperty<Entity, InteractionComponent> {
         public static InteractionComponentProperty instance = new InteractionComponentProperty();
 
         private InteractionComponentProperty() {}
@@ -162,7 +163,8 @@ public class EntityExtension {
     }
 
     @DSLTypeProperty(name = "task_component", extendedType = Entity.class)
-    public static class TaskComponentProperty implements IDSLTypeProperty<Entity, TaskComponent> {
+    public static class TaskComponentProperty
+            implements IDSLExtensionProperty<Entity, TaskComponent> {
         public static TaskComponentProperty instance = new TaskComponentProperty();
 
         private TaskComponentProperty() {}

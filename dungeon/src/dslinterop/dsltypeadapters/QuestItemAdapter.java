@@ -3,8 +3,8 @@ package dslinterop.dsltypeadapters;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimationPriorities;
 
-import dsl.semanticanalysis.types.DSLTypeAdapter;
-import dsl.semanticanalysis.types.DSLTypeMember;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 
 import task.game.components.TaskContentComponent;
 import task.game.content.QuestItem;

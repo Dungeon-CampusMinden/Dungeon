@@ -22,6 +22,8 @@
 package dsl.semanticanalysis;
 
 import dsl.parser.ast.Node;
+import dsl.semanticanalysis.scope.IScope;
+import dsl.semanticanalysis.symbol.Symbol;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +55,7 @@ public class SymbolTable {
      *
      * @return the global {@link IScope}
      */
-    public IScope getGlobalScope() {
+    public IScope globalScope() {
         return globalScope;
     }
 

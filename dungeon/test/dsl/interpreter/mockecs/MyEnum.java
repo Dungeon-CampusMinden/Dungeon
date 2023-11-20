@@ -1,6 +1,6 @@
 package dsl.interpreter.mockecs;
 
-import dsl.semanticanalysis.types.DSLType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 
 @DSLType
 public enum MyEnum {

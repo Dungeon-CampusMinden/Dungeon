@@ -2,7 +2,11 @@ package task.dslinterop;
 
 import core.Entity;
 
-import dsl.semanticanalysis.types.*;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeNameMember;
 
 import task.Task;
 import task.TaskContent;

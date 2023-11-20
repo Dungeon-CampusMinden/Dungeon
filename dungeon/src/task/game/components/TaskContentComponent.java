@@ -2,9 +2,9 @@ package task.game.components;
 
 import core.Component;
 
-import dsl.semanticanalysis.types.DSLType;
-import dsl.semanticanalysis.types.DSLTypeProperty;
-import dsl.semanticanalysis.types.IDSLTypeProperty;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 
 import task.TaskContent;
 
@@ -51,7 +51,7 @@ public final class TaskContentComponent implements Component {
 
     @DSLTypeProperty(name = "content", extendedType = TaskContentComponent.class)
     public static class ContentProperty
-            implements IDSLTypeProperty<TaskContentComponent, TaskContent> {
+            implements IDSLExtensionProperty<TaskContentComponent, TaskContent> {
         public static TaskContentComponent.ContentProperty instance =
                 new TaskContentComponent.ContentProperty();
 
