@@ -16,6 +16,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimationPriorities;
+import core.utils.components.draw.SimpleIPath;
 
 import task.Task;
 import task.TaskContent;
@@ -87,8 +88,8 @@ public class NativeScenarioBuilder {
             for (var element : entry.getValue()) {
                 if (!element.equals(AssignTask.EMPTY_ELEMENT)) {
                     Animation animation =
-                            new Animation(
-                                    "items/book/wisdom_scroll.png",
+                            Animation.fromSingleImage(
+                                    new SimpleIPath("items/book/wisdom_scroll.png"),
                                     CoreAnimationPriorities.DEFAULT.priority());
                     TaskContentComponent tcc = new TaskContentComponent(element);
                     QuestItem questItem = new QuestItem(animation, tcc);

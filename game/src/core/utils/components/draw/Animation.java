@@ -26,13 +26,13 @@ import java.util.stream.Collectors;
  */
 public final class Animation {
 
-    private static final String MISSING_TEXTURE = "animation/missing_texture.png";
+    private static final IPath MISSING_TEXTURE = new SimpleIPath("animation/missing_texture.png");
     private static final int DEFAULT_FRAME_TIME = 5;
     private static final boolean DEFAULT_IS_LOOP = true;
     private static final int DEFAULT_PRIO = 200;
 
     /** The set of textures that build the animation. */
-    private final List<String> animationFrames;
+    private final List<IPath> animationFrames;
 
     /** The count of textures for the animation. */
     private final int frames;
@@ -58,9 +58,8 @@ public final class Animation {
      * @param looping should the Animation continue to repeat ?
      * @param prio priority for playing this animation
      */
-    public Animation(Collection<String> animationFrames, int frameTime, boolean looping, int prio) {
+    private Animation(Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {
         assert (animationFrames != null && !animationFrames.isEmpty());
-        assert (frameTime > 0);
         this.animationFrames = new ArrayList<>(animationFrames);
         frames = animationFrames.size();
         this.timeBetweenFrames = frameTime;
@@ -75,8 +74,9 @@ public final class Animation {
      * @param frameTime How many frames to wait, before switching to the next texture?
      * @param prio priority for playing this animation
      */
-    public Animation(Collection<String> animationFrames, int frameTime, int prio) {
-        this(animationFrames, frameTime, DEFAULT_IS_LOOP, prio);
+    public static Animation fromCollection(
+            Collection<IPath> animationFrames, int frameTime, int prio) {
+        return new Animation(animationFrames, frameTime, DEFAULT_IS_LOOP, prio);
     }
 
     /**
@@ -84,8 +84,8 @@ public final class Animation {
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
      */
-    public Animation(Collection<String> animationFrames) {
-        this(
+    public static Animation fromCollection(Collection<IPath> animationFrames) {
+        return new Animation(
                 animationFrames,
                 DEFAULT_FRAME_TIME,
                 DEFAULT_IS_LOOP,
@@ -93,13 +93,16 @@ public final class Animation {
     }
 
     /**
-     * Creates an animation containing only one frame. repeats forever
+     * Creates an animation.
      *
-     * @param animationFrame The texture that builds the animation.
+     * @param animationFrames The list of textures that builds the animation. Must be in order.
+     * @param frameTime How many frames to wait, before switching to the next texture?
+     * @param looping should the Animation continue to repeat ?
      * @param prio priority for playing this animation
      */
-    public Animation(String animationFrame, int prio) {
-        this(Set.of(animationFrame), Animation.DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, prio);
+    public static Animation fromCollection(
+            Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {
+        return new Animation(animationFrames, frameTime, looping, prio);
     }
 
     /**
@@ -115,17 +118,15 @@ public final class Animation {
      * @return The created Animation instance
      */
     public static Animation fromSubDir(File subDir, int frameTime, boolean loop, int prio) {
-        List<String> fileNames =
+        List<IPath> fileNames =
                 Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
                         .filter(File::isFile)
-                        .map(File::getPath)
+                        .map(file -> new SimpleIPath(file.getPath()))
                         // sort the files in lexicographic order (like the most os) so animations
                         // will be played in order
-                        .sorted()
+                        .sorted(Comparator.comparing(SimpleIPath::pathString))
                         .collect(Collectors.toList());
-        Animation animation = new Animation(fileNames, frameTime, prio);
-        animation.setLoop(loop);
-        return animation;
+        return new Animation(fileNames, frameTime, loop, prio);
     }
 
     /**
@@ -148,8 +149,7 @@ public final class Animation {
      * @return The created Animation instance
      */
     public static Animation fromSingleImage(IPath fileName) {
-        return new Animation(
-                List.of(fileName.pathString()), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
+        return new Animation(List.of(fileName), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
     /**
@@ -160,8 +160,7 @@ public final class Animation {
      * @return The created Animation instance
      */
     public static Animation fromSingleImage(IPath fileName, int frameTime) {
-        return new Animation(
-                List.of(fileName.pathString()), frameTime, DEFAULT_IS_LOOP, DEFAULT_PRIO);
+        return new Animation(List.of(fileName), frameTime, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
     /**
@@ -181,9 +180,9 @@ public final class Animation {
      */
     public String nextAnimationTexturePath() {
         if (isFinished()) {
-            return animationFrames.get(currentFrameIndex);
+            return animationFrames.get(currentFrameIndex).pathString();
         }
-        String stringToReturn = animationFrames.get(currentFrameIndex);
+        String stringToReturn = animationFrames.get(currentFrameIndex).pathString();
         frameTimeCounter = (frameTimeCounter + 1) % timeBetweenFrames;
         if (frameTimeCounter == 0) {
             currentFrameIndex = (currentFrameIndex + 1) % frames;
@@ -210,7 +209,7 @@ public final class Animation {
      *
      * @return List containing the paths of the single frames of the animation.
      */
-    public List<String> getAnimationFrames() {
+    public List<IPath> getAnimationFrames() {
         return animationFrames;
     }
 

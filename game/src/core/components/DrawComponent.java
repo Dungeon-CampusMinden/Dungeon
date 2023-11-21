@@ -6,6 +6,7 @@ import core.systems.VelocitySystem;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.draw.IPath;
+import core.utils.components.draw.SimpleIPath;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -316,7 +317,7 @@ public final class DrawComponent implements Component {
         // Ultimately, we will create animations out of this by using the
         // Animation(LinkedList<String>) constructor.
 
-        HashMap<String, List<String>> storage = new HashMap<>();
+        HashMap<String, List<IPath>> storage = new HashMap<>();
         animationMap = new HashMap<>();
 
         // Iterate over each file and directory in the JAR.
@@ -356,10 +357,11 @@ public final class DrawComponent implements Component {
                     String lastDir = fileName.substring(secondLastSlashIndex + 1, lastSlashIndex);
 
                     // add animation-files to new or existing storage map
-                    if (storage.containsKey(lastDir)) storage.get(lastDir).add(fileName);
+                    if (storage.containsKey(lastDir))
+                        storage.get(lastDir).add(new SimpleIPath(fileName));
                     else {
-                        LinkedList<String> list = new LinkedList<>();
-                        list.add(fileName);
+                        LinkedList<IPath> list = new LinkedList<>();
+                        list.add(new SimpleIPath(fileName));
                         storage.put(lastDir, list);
                     }
                 }
@@ -368,9 +370,10 @@ public final class DrawComponent implements Component {
 
         // sort the files in lexicographic order (like the most os)
         // animations will be played in order
-        storage.values().forEach(Collections::sort);
+        storage.values().forEach(x -> x.sort(Comparator.comparing(IPath::pathString)));
         // create animations
-        storage.forEach((name, textureSet) -> animationMap.put(name, new Animation(textureSet)));
+        storage.forEach(
+                (name, textureSet) -> animationMap.put(name, Animation.fromCollection(textureSet)));
         jar.close();
     }
 

@@ -2,6 +2,7 @@ package dslinterop.dsltypeadapters;
 
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimationPriorities;
+import core.utils.components.draw.SimpleIPath;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
@@ -26,7 +27,8 @@ public class QuestItemAdapter {
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "texture_path") String texturePath) {
         Animation animation =
-                new Animation(texturePath, CoreAnimationPriorities.DEFAULT.priority());
+                Animation.fromSingleImage(
+                        new SimpleIPath(texturePath), CoreAnimationPriorities.DEFAULT.priority());
         TaskContentComponent tcc = new TaskContentComponent();
         return new QuestItem(animation, tcc);
     }
