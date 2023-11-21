@@ -11,7 +11,7 @@ import core.utils.components.MissingComponentException;
 
 /**
  * The {@link PositionSystem} checks if an entity has an illegal position and then changes the
- * position to a random position in the currently active level.
+ * position to a random accessible position in the currently active level.
  *
  * <p>Entities with the {@link PositionComponent} will be processed by this system.
  *
@@ -22,9 +22,9 @@ import core.utils.components.MissingComponentException;
  * PositionComponent#ILLEGAL_POSITION} during the first frame of the currently active level. This
  * occurs because sometimes entities are created before the level is loaded.
  */
-public class PositionSystem extends System {
+public final class PositionSystem extends System {
 
-    /** Create a new VelocitySystem */
+    /** Create a new PositionSystem */
     public PositionSystem() {
         super(PositionComponent.class);
     }
@@ -37,15 +37,26 @@ public class PositionSystem extends System {
                 .forEach(this::randomPosition);
     }
 
-    private void randomPosition(PSData data) {
+    /**
+     * Assigns a random position to the entity if its current position is illegal. The new position
+     * is a random accessible tile in the current level.
+     *
+     * @param data The PSData object containing entity and position component information.
+     */
+    private void randomPosition(final PSData data) {
         if (Game.currentLevel() != null) {
-            Coordinate c = Game.randomTile(LevelElement.FLOOR).coordinate();
-            boolean b =
+            Coordinate randomPosition = Game.randomTile(LevelElement.FLOOR).coordinate();
+            boolean otherEntityIsOnThisCoordinate =
                     entityStream()
                             .map(this::buildDataObject)
-                            .anyMatch(psData -> psData.pc().position().toCoordinate().equals(c));
-            if (!b) {
-                Point position = c.toPoint();
+                            .anyMatch(
+                                    psData ->
+                                            psData.pc()
+                                                    .position()
+                                                    .toCoordinate()
+                                                    .equals(randomPosition));
+            if (!otherEntityIsOnThisCoordinate) {
+                Point position = randomPosition.toPoint();
                 // place on center
                 position.x += 0.5f;
                 position.y += 0.5f;
@@ -54,7 +65,7 @@ public class PositionSystem extends System {
         }
     }
 
-    private PSData buildDataObject(Entity e) {
+    private PSData buildDataObject(final Entity e) {
 
         PositionComponent pc =
                 e.fetch(PositionComponent.class)
