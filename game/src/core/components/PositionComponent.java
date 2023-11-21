@@ -22,8 +22,7 @@ import java.util.logging.Logger;
 @DSLType(name = "position_component")
 public final class PositionComponent implements Component {
 
-    public static final Point ILLEGAL_POSITION = new Point(-100, -100);
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    public static final Point ILLEGAL_POSITION = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
     private Point position;
 
     /**
