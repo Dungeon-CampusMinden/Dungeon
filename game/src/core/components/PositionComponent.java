@@ -6,17 +6,24 @@ import core.utils.Point;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 
-import java.util.logging.Logger;
-
 /**
  * Store the position of the associated entity in the level.
  *
- * <p>Various systems access the position of an entity through this component, e.g. the {@link
- * core.systems.DrawSystem} uses the position to draw an entity in the right place and the {@link
+ * <p>Various systems access the position of an entity through this component, e.g., the {@link
+ * core.systems.DrawSystem} uses the position to draw an entity in the right place, and the {@link
  * core.systems.VelocitySystem} updates the position values based on the velocity and the previous
- * position of an entity. See <a
- * href="https://github.com/Programmiermethoden/Dungeon/tree/master/doc/ecs/systems">System-Overview</a>.
+ * position of an entity.
  *
+ * <p>If the position is the {@link #ILLEGAL_POSITION}, the {@link core.systems.PositionSystem} will
+ * change the position to a random position of an accessible tile in the current level.
+ *
+ * <p>Use {@link #position(Tile)} to set the position to the position of the given tile.
+ *
+ * <p>Use {@link #position(Point)} to set the position to the given position.
+ *
+ * <p>Use {@link #position()} to get a copy of the position.
+ *
+ * @see core.systems.PositionSystem
  * @see Point
  */
 @DSLType(name = "position_component")
@@ -28,9 +35,9 @@ public final class PositionComponent implements Component {
     /**
      * Create a new PositionComponent with given position.
      *
-     * <p>Sets the position of this entity to the given point.
+     * <p>Sets the position to the given point.
      *
-     * @param position The position of the entity in the level.
+     * @param position The position in the level.
      */
     public PositionComponent(final Point position) {
         this.position = position;
@@ -39,10 +46,10 @@ public final class PositionComponent implements Component {
     /**
      * Create a new PositionComponent.
      *
-     * <p>Sets the position of this entity to a point with the given x and y positions.
+     * <p>Sets the position to a point with the given x and y positions.
      *
-     * @param x x-position of the entity
-     * @param y y-position of the entity
+     * @param x x-position
+     * @param y y-position
      */
     public PositionComponent(float x, float y) {
         this(new Point(x, y));
@@ -60,27 +67,27 @@ public final class PositionComponent implements Component {
     }
 
     /**
-     * Get the position of the associated entity.
+     * Get the position.
      *
-     * @return The position of the associated entity.
+     * @return The position.
      */
     public Point position() {
         return new Point(position);
     }
 
     /**
-     * Set the position of the associated entity
+     * Set the position.
      *
-     * @param position new Position of the associated entity
+     * @param position new Position
      */
     public void position(final Point position) {
         this.position = new Point(position);
     }
 
     /**
-     * Set the position of the associated entity.
+     * Set the position
      *
-     * @param tile The tile where the new position of the associated entity is located.
+     * @param tile The tile where the new position is located.
      * @see Tile
      */
     public void position(final Tile tile) {
