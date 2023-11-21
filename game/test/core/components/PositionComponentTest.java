@@ -1,6 +1,6 @@
 package core.components;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 import core.utils.Point;
 
@@ -19,9 +19,9 @@ public class PositionComponentTest {
 
     @Test
     public void setPosition() {
-        assertEquals(position, positionComponent.position());
+        assertTrue(position.equals(positionComponent.position()));
         Point newPoint = new Point(3, 4);
         positionComponent.position(newPoint);
-        assertEquals(newPoint, positionComponent.position());
+        assertTrue(newPoint.equals(positionComponent.position()));
     }
 }

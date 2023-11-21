@@ -66,7 +66,7 @@ public final class PositionComponent implements Component {
      * @return The position of the associated entity.
      */
     public Point position() {
-        return position;
+        return new Point(position);
     }
 
     /**
@@ -75,7 +75,7 @@ public final class PositionComponent implements Component {
      * @param position new Position of the associated entity
      */
     public void position(final Point position) {
-        this.position = position;
+        this.position = new Point(position);
     }
 
     /**

@@ -53,10 +53,10 @@ public class ChestTest {
         assertTrue(
                 "Needs the PositionComponent to be somewhere in the Level",
                 positionComponent.isPresent());
-        assertEquals(
+        assertTrue(
                 "Position should be equal to the given Position",
-                position,
-                positionComponent.map(PositionComponent.class::cast).get().position());
+                position.equals(
+                        positionComponent.map(PositionComponent.class::cast).get().position()));
     }
 
     /**

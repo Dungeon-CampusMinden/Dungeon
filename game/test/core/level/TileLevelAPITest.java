@@ -207,7 +207,7 @@ public class TileLevelAPITest {
         Tile end = Mockito.mock(Tile.class);
         Point p = new Point(3, 3);
         when(end.position()).thenReturn(p);
-        when(level.tileAt(p)).thenReturn(end);
+        when(level.tileAt((Point) any())).thenReturn(end);
         Mockito.when(level.endTile()).thenReturn(end);
 
         hero.fetch(PositionComponent.class).get().position(end);
