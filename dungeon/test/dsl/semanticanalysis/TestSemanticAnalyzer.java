@@ -944,7 +944,7 @@ public class TestSemanticAnalyzer {
             multiple_choice_task t2 {
                 description: "Tschüss",
                 answers: ["4", "5", "6"],
-                correct_answer_index: [0,1]
+                correct_answer_indices: [0,1]
             }
 
             graph g {
@@ -1000,7 +1000,7 @@ public class TestSemanticAnalyzer {
             multiple_choice_task t2 {
                 description: "Tschüss",
                 answers: ["4", "5", "6"],
-                correct_answer_index: [0,1]
+                correct_answer_indices: [0,1]
             }
 
             """;

@@ -1300,7 +1300,7 @@ public class TestDSLInterpreter {
                     multiple_choice_task t2 {
                         description: "Tschüss",
                         answers: ["4", "5", "6"],
-                        correct_answer_index: [0,1]
+                        correct_answer_indices: [0,1]
                     }
 
                     graph g {
@@ -3558,7 +3558,7 @@ public class TestDSLInterpreter {
             multiple_choice_task t1 {
                 description: "Task1",
                 answers: ["1", "2", "3"],
-                correct_answer_index: [1,2],
+                correct_answer_indices: [1,2],
                 scenario_builder: build_scenario1
             }
 
@@ -3646,7 +3646,7 @@ public class TestDSLInterpreter {
         multiple_choice_task t1 {
             description: "Task1",
             answers: ["1", "2", "3"],
-            correct_answer_index: [2,1],
+            correct_answer_indices: [2,1],
             grading_function: grade_multiple_choice_task
         }
 
