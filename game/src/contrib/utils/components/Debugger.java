@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  */
 public class Debugger {
 
-    private static final Logger LOGGER = Logger.getLogger(Debugger.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Debugger.class.getSimpleName());
     private static Entity pauseMenu;
 
     /**
