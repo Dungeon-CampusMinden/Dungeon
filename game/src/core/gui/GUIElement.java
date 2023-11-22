@@ -11,7 +11,7 @@ public abstract class GUIElement {
     protected Vector2f size;
     protected Vector3f rotation;
     protected GUIContainer parent;
-    protected LayoutHint layoutHint;
+    protected ILayoutHint layoutHint;
     protected Vector4f backgroundColor;
     protected BackendImage backgroundImage;
     protected boolean valid = false;
@@ -129,7 +129,7 @@ public abstract class GUIElement {
      *
      * @return LayoutHint
      */
-    public final LayoutHint layoutHint() {
+    public final ILayoutHint layoutHint() {
         return this.layoutHint;
     }
 
@@ -138,7 +138,7 @@ public abstract class GUIElement {
      *
      * @param hint LayoutHint
      */
-    public final GUIElement layoutHint(LayoutHint hint) {
+    public final GUIElement layoutHint(ILayoutHint hint) {
         this.layoutHint = hint;
         return this;
     }

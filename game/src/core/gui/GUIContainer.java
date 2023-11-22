@@ -94,7 +94,7 @@ public class GUIContainer extends GUIElement {
      * @param layoutHint LayoutHint
      * @return GUIContainer (self)
      */
-    public GUIContainer add(GUIElement element, LayoutHint layoutHint) {
+    public GUIContainer add(GUIElement element, ILayoutHint layoutHint) {
         element.parent = this;
         element.layoutHint = layoutHint;
         this.elements.add(element);
