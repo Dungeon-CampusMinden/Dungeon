@@ -1,8 +1,11 @@
 package core.gui.layouts;
 
+import static core.gui.util.Logging.log;
+
 import core.gui.GUIElement;
 import core.gui.IGUILayout;
 import core.gui.layouts.hints.BorderLayoutHint;
+import core.utils.logging.CustomLogLevel;
 import core.utils.math.Vector2f;
 
 import java.util.List;
@@ -142,6 +145,18 @@ public class BorderLayout implements IGUILayout {
                 element.size().x(element.minimalSize().x());
             }
         }
+
+        elements.forEach(
+                e -> {
+                    log(
+                            CustomLogLevel.DEBUG,
+                            "Update size & position of %s to %fx%f at %f;%f",
+                            e.getClass().getSimpleName(),
+                            e.size().x(),
+                            e.size().y(),
+                            e.position().x(),
+                            e.position().y());
+                });
     }
 
     @Override
