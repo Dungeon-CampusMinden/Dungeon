@@ -191,6 +191,18 @@ public class Vector4f {
         return new float[] {this.x, this.y, this.z, this.w};
     }
 
+    /**
+     * Convert the vector to a RGBA color.
+     *
+     * @return RGBA color
+     */
+    public int toRGBA() {
+        return ((int) (this.x * 255) << 24)
+                | ((int) (this.y * 255) << 16)
+                | ((int) (this.z * 255) << 8)
+                | ((int) (this.w * 255));
+    }
+
     @Override
     public String toString() {
         return String.format("Vector4f(%f, %f, %f, %f)", this.x, this.y, this.z, this.w);
@@ -226,5 +238,13 @@ public class Vector4f {
 
     public static Vector4f unitW() {
         return new Vector4f(0, 0, 0, 1);
+    }
+
+    public static Vector4f fromRGBA(int rgba) {
+        return new Vector4f(
+                ((rgba >> 24) & 0xFF) / 255.0f,
+                ((rgba >> 16) & 0xFF) / 255.0f,
+                ((rgba >> 8) & 0xFF) / 255.0f,
+                (rgba & 0xFF) / 255.0f);
     }
 }

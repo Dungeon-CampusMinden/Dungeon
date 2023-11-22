@@ -22,15 +22,30 @@ public class Font {
     public static final int MAX_ATLAS_SIZE = 1024;
     public static final String DEFAULT_CHARS =
             "abcdefghijklmnopqrstuvwxyzäöüABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß1234567890!?\"§$%&/()=\\-_.,:;#*+~<>@[]{}'²³|`´^°";
-    private static final List<Integer> WRAPPING_CHARACTERS = new ArrayList<>();
-    private static final List<Integer> NEWLINE_CHARACTERS = new ArrayList<>();
+    public static final Map<Integer, Float> WHITESPACE_CHARACTERS = new HashMap<>();
+    public static final List<Integer> WRAPPING_CHARACTERS = new ArrayList<>();
+    public static final List<Integer> NEWLINE_CHARACTERS = new ArrayList<>();
+    public static final int CODEPOINT_TABULATOR = 0x0009;
+    public static final int CODEPOINT_SPACE = 0x0020;
 
     static {
-        String wrappingCharacters = " .,:;!?-";
+        String wrappingCharacters = ".,:;!?-";
         wrappingCharacters.chars().forEach(WRAPPING_CHARACTERS::add);
 
         String newlineCharacters = "\n";
         newlineCharacters.chars().forEach(NEWLINE_CHARACTERS::add);
+
+        WHITESPACE_CHARACTERS.put(0x0020, 0.25f);
+        WHITESPACE_CHARACTERS.put(0x00A0, 0.25f);
+        WHITESPACE_CHARACTERS.put(0x2000, 0.50f);
+        WHITESPACE_CHARACTERS.put(0x2001, 1.0f);
+        WHITESPACE_CHARACTERS.put(0x2002, 1.0f);
+        WHITESPACE_CHARACTERS.put(0x2003, 1.0f);
+        WHITESPACE_CHARACTERS.put(0x2004, 0.33f);
+        WHITESPACE_CHARACTERS.put(0x2005, 0.25f);
+        WHITESPACE_CHARACTERS.put(0x2006, 0.166f);
+        WHITESPACE_CHARACTERS.put(0x2009, 0.166f);
+        WHITESPACE_CHARACTERS.put(0x200A, 0.125f);
     }
 
     public BackendImage[] fontAtlas;
@@ -38,13 +53,16 @@ public class Font {
     public final int fontSize, ascent, descent, lineGap;
     public final Map<Integer, Glyph> glyphMap = new HashMap<>();
     public final Map<Integer, Map<Integer, Integer>> kerningMap = new HashMap<>();
+    public final int spaceWidth;
 
-    private Font(float fontScale, int fontSize, int ascent, int descent, int lineGap) {
+    private Font(
+            float fontScale, int fontSize, int ascent, int descent, int lineGap, int spaceWidth) {
         this.fontScale = fontScale;
         this.fontSize = fontSize;
         this.ascent = ascent;
         this.descent = descent;
         this.lineGap = lineGap;
+        this.spaceWidth = spaceWidth;
     }
 
     /**
@@ -86,16 +104,28 @@ public class Font {
         int fontsInFile = stbtt_GetNumberOfFonts(buffer);
         log(CustomLogLevel.DEBUG, "Fonts in file \"%s\": %d", ttfFilePath, fontsInFile);
 
-        float scale = stbtt_ScaleForPixelHeight(fontInfo, fontSize);
-        log(CustomLogLevel.DEBUG, "Font scale: x%f (%d pixels)", scale, fontSize);
-
         Font[] ret = new Font[fontsInFile];
         for (int fontIndex = 0; fontIndex < fontsInFile; fontIndex++) {
+            float scale = stbtt_ScaleForPixelHeight(fontInfo, fontSize);
+            log(
+                    CustomLogLevel.DEBUG,
+                    "Font[%d] scale: x%f (%d pixels)",
+                    fontIndex,
+                    scale,
+                    fontSize);
+
             int[] ascent = new int[1];
             int[] descent = new int[1];
             int[] lineGap = new int[1];
             stbtt_GetFontVMetrics(fontInfo, ascent, descent, lineGap);
-            Font font = new Font(scale, fontSize, ascent[0], descent[0], lineGap[0]);
+            Font font =
+                    new Font(
+                            scale,
+                            fontSize,
+                            Math.round(ascent[0] * scale),
+                            Math.round(descent[0] * scale),
+                            Math.round(lineGap[0] * scale),
+                            (fontSize) * 2);
 
             // Map the glyphs to the font atlas
 
@@ -125,6 +155,12 @@ public class Font {
                 int width = x1[0] - x0[0];
                 int height = y1[0] - y0[0];
 
+                if (currentX + width > MAX_ATLAS_SIZE) { // End of row
+                    currentX = 0;
+                    currentY = currentY + maxHeightInRow;
+                    maxHeightInRow = 0;
+                }
+
                 ByteBuffer currentAtlas = atlasImages.get(atlasImages.size() - 1);
                 currentAtlas.position(currentX + currentY * MAX_ATLAS_SIZE);
                 stbtt_MakeGlyphBitmap(
@@ -145,7 +181,11 @@ public class Font {
                                 height,
                                 currentX,
                                 currentY,
-                                xAdvance[0]);
+                                x0[0],
+                                y0[0],
+                                x1[0],
+                                y1[0],
+                                Math.round(xAdvance[0] * scale));
                 font.glyphMap.put(unicodeCodepoint, glyph);
 
                 currentX += glyph.width;
@@ -187,6 +227,7 @@ public class Font {
                                 .backend()
                                 .loadImageFromBitmap(
                                         atlasImages.get(i), MAX_ATLAS_SIZE, MAX_ATLAS_SIZE, 1);
+                atlasImages.get(i).position(0);
             }
             ret[fontIndex] = font;
         }
@@ -214,9 +255,7 @@ public class Font {
     }
 
     public Vector2i boundingBox(String text, int maxWidth, boolean considerKernings) {
-        // TODO: Handle Tabulator
         int width = 0;
-        int height = 0;
 
         int lastWrapIndex = 0;
         int xOnLastWrapChar = 0;
@@ -225,44 +264,84 @@ public class Font {
         int currentY = 0;
 
         for (int i = 0; i < text.length(); i++) {
-            int unicodeCodepoint = Character.codePointAt(text, i);
-            Glyph glyph = glyphMap.get(unicodeCodepoint);
+            int codePoint = Character.codePointAt(text, i);
+            Glyph glyph = glyphMap.get(codePoint);
+
+            if (Font.WRAPPING_CHARACTERS.contains(codePoint)) {
+                lastWrapIndex = i;
+                xOnLastWrapChar = currentX;
+            }
+            if (Font.NEWLINE_CHARACTERS.contains(codePoint)) {
+                width = Math.max(width, currentX);
+                currentX = 0;
+                currentY += this.fontSize + this.lineGap + this.ascent + this.descent;
+                lastWrapIndex = i + 1;
+                continue;
+            }
+            if (Font.WHITESPACE_CHARACTERS.containsKey(codePoint)) {
+                int spaceWidth =
+                        Math.round(Font.WHITESPACE_CHARACTERS.get(codePoint) * this.fontSize);
+                if (currentX + spaceWidth > maxWidth) {
+                    width = Math.max(width, xOnLastWrapChar);
+                    currentX = 0;
+                    currentY += this.fontSize + this.lineGap + this.ascent + this.descent;
+                    lastWrapIndex = i + 1;
+                    continue;
+                }
+                currentX += Math.round(Font.WHITESPACE_CHARACTERS.get(codePoint) * this.fontSize);
+                continue;
+            }
+            if (codePoint == Font.CODEPOINT_TABULATOR) {
+                int tabWith =
+                        4
+                                * Math.round(
+                                        Font.WHITESPACE_CHARACTERS.get(Font.CODEPOINT_SPACE)
+                                                * this.fontSize);
+                if (currentX + tabWith > maxWidth) {
+                    width = Math.max(width, xOnLastWrapChar);
+                    currentX = 0;
+                    currentY += this.fontSize + this.lineGap + this.ascent + this.descent;
+                    lastWrapIndex = i + 1;
+                    continue;
+                }
+                continue;
+            }
+
             if (glyph == null) {
                 glyph = glyphMap.get(Character.codePointOf("?"));
                 if (glyph == null) {
+                    currentX +=
+                            Math.round(
+                                    Font.WHITESPACE_CHARACTERS.get(Font.CODEPOINT_SPACE)
+                                            * this.fontSize);
                     continue; // Skip unknown character if question mark is not available
                 }
             }
 
-            if (NEWLINE_CHARACTERS.contains(unicodeCodepoint)) {
-                width = Math.max(width, currentX);
-                currentX = 0;
-                currentY += this.fontSize + this.lineGap;
-                lastWrapIndex = i;
-                xOnLastWrapChar = 0;
-                continue;
-            }
-            if (WRAPPING_CHARACTERS.contains(unicodeCodepoint)) {
-                lastWrapIndex = i;
-                xOnLastWrapChar = currentX;
-            }
-
             if (considerKernings) {
-
+                if (i > 0) {
+                    Map<Integer, Integer> kerningMap = this.kerningMap.get(codePoint);
+                    if (kerningMap != null) {
+                        Integer kerning = kerningMap.get(Character.codePointAt(text, i - 1));
+                        if (kerning != null) {
+                            currentX += kerning;
+                        }
+                    }
+                }
             } else {
-
+                currentX += glyph.width;
             }
 
             if (currentX + glyph.width > maxWidth) {
                 width = Math.max(width, xOnLastWrapChar);
-                currentX = xOnLastWrapChar;
+                currentX = 0;
                 currentY += fontSize + lineGap;
                 i = lastWrapIndex + 1;
                 continue;
             }
-            currentX += glyphMap.get(unicodeCodepoint).xAdvance;
+            currentX += glyphMap.get(codePoint).xAdvance;
         }
-        return Vector2i.zero();
+        return new Vector2i(width, currentY + fontSize + lineGap + ascent + descent);
     }
 
     public record Glyph(
@@ -272,5 +351,9 @@ public class Font {
             int height,
             int xOffset,
             int yOffset,
+            int x1,
+            int y1,
+            int x2,
+            int y2,
             int xAdvance) {}
 }

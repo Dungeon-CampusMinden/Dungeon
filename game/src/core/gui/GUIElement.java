@@ -153,6 +153,17 @@ public abstract class GUIElement {
     }
 
     /**
+     * Set the background color
+     *
+     * @param backgroundColor {@link Vector4f}
+     * @return Self {@link GUIElement}
+     */
+    public GUIElement backgroundColor(Vector4f backgroundColor) {
+        this.backgroundColor = backgroundColor;
+        return this;
+    }
+
+    /**
      * Get the background image
      *
      * @return {@link BackendImage}

@@ -128,23 +128,80 @@ public class OpenGLBackend implements IGUIBackend {
 
     @Override
     public void drawText(
-            String text, Font font, int x, int y, int maxWidth, int maxHeight, int textColor) {
+            String text,
+            Font font,
+            float x,
+            float y,
+            float maxWidth,
+            float maxHeight,
+            int textColor) {
 
-        int currentX = x;
-        int currentY = y;
+        OpenGLBlendState blendState = OpenGLBlendState.capture();
+        GL33.glEnable(GL33.GL_BLEND);
+        GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+
+        int initX = Math.round(x);
+        int initY = Math.round(y);
+
+        int currentX = initX;
+        int currentY = initY - (font.fontSize);
 
         float[] texCoords = new float[text.length() * 4 * 2]; // 4 vertices a 2 coordinates
         float[] transform = new float[text.length() * 4 * 4]; // 4x4 matrix per instance
         int[] atlas = new int[text.length()];
         float[] color = new float[text.length() * 4];
 
+        int lastWrapIndex = 0;
+
         for (int i = 0; i < text.length(); i++) {
             int codePoint = Character.codePointAt(text, i);
             Font.Glyph glyph = font.glyphMap.get(codePoint);
+
+            if (Font.WRAPPING_CHARACTERS.contains(codePoint)) {
+                lastWrapIndex = i;
+            }
+            if (Font.NEWLINE_CHARACTERS.contains(codePoint)) {
+                currentX = initX;
+                currentY =
+                        currentY - (font.lineGap + font.ascent + font.descent); // TODO: Check if ok
+                lastWrapIndex = i + 1;
+                continue;
+            }
+            if (Font.WHITESPACE_CHARACTERS.containsKey(codePoint)) {
+                currentX +=
+                        Math.round(
+                                Font.WHITESPACE_CHARACTERS.getOrDefault(codePoint, 1.0f)
+                                        * font.fontSize);
+                if (currentX >= maxWidth) {
+                    currentX = initX;
+                    currentY =
+                            currentY
+                                    - (font.lineGap
+                                            + font.ascent
+                                            + font.descent); // TODO: Check if ok
+                }
+                lastWrapIndex = i;
+                continue;
+            }
+            if (codePoint == Font.CODEPOINT_TABULATOR) {
+                int tabWith =
+                        4
+                                * Math.round(
+                                        Font.WHITESPACE_CHARACTERS.get(Font.CODEPOINT_SPACE)
+                                                * font.fontSize);
+                currentX = currentX + tabWith - (currentX % tabWith);
+                lastWrapIndex = i + 1;
+                continue;
+            }
+
             if (glyph == null) {
                 glyph = font.glyphMap.get(Character.codePointAt("?", 0));
                 if (glyph == null) {
-                    currentX += 10;
+                    currentX +=
+                            Math.round(
+                                    Font.WHITESPACE_CHARACTERS.getOrDefault(
+                                                    Font.CODEPOINT_SPACE, 1.0f)
+                                            * font.fontSize);
                     continue;
                 }
             }
@@ -175,8 +232,19 @@ public class OpenGLBackend implements IGUIBackend {
                             - (Font.MAX_ATLAS_SIZE - (glyph.yOffset() + glyph.height()))
                                     / (float) Font.MAX_ATLAS_SIZE;
 
+            if (currentX + glyph.width() > maxWidth) {
+                currentX = initX;
+                currentY =
+                        currentY - (font.lineGap + font.ascent + font.descent); // TODO: Check if ok
+                i = lastWrapIndex;
+                continue;
+            }
+
+            float gx = currentX;
+            float gy = currentY + font.ascent - glyph.y2();
+
             Matrix4f matrix = Matrix4f.identity();
-            matrix = matrix.multiply(Matrix4f.translate(currentX, currentY, 0));
+            matrix = matrix.multiply(Matrix4f.translate(gx, gy, 0));
             matrix = matrix.multiply(Matrix4f.scale(glyph.width(), glyph.height(), 1));
 
             float[] matrixOpenGL = matrix.toArray();
@@ -190,13 +258,33 @@ public class OpenGLBackend implements IGUIBackend {
             color[i * 4 + 3] = (textColor & 0xFF) / 255f;
 
             int kerning = 0;
+            int nextCodepoint = Character.codePointAt(text, Math.min(i + 1, text.length() - 1));
             if (font.kerningMap.containsKey(codePoint) && i != text.length() - 1) {
-                kerning =
-                        font.kerningMap
-                                .get(codePoint)
-                                .getOrDefault(Character.codePointAt(text, i + 1), 0);
+                kerning = font.kerningMap.get(codePoint).getOrDefault(nextCodepoint, 0);
             }
-            currentX += glyph.width() + kerning;
+
+            // TODO: Remove before merge
+            if (kerning != 0) {
+                color[i * 4] = 0xFF / 255f;
+                color[i * 4 + 1] = 0x00 / 255f;
+                color[i * 4 + 2] = 0x00 / 255f;
+                color[i * 4 + 3] = 0xFF / 255f;
+            }
+            if (font.kerningMap.containsKey(nextCodepoint)
+                    && font.kerningMap.get(nextCodepoint).getOrDefault(codePoint, 0) != 0) {
+                color[i * 4] = 0xFF / 255f;
+                color[i * 4 + 1] = 0x7b / 255f;
+                color[i * 4 + 2] = 0x00 / 255f;
+                color[i * 4 + 3] = 0xFF / 255f;
+            }
+            if (lastWrapIndex == i) {
+                color[i * 4] = 0x00 / 255f;
+                color[i * 4 + 1] = 0xFF / 255f;
+                color[i * 4 + 2] = 0x00 / 255f;
+                color[i * 4 + 3] = 0xFF / 255f;
+            }
+
+            currentX += glyph.xAdvance() + kerning;
         }
 
         GL33.glBindBuffer(
@@ -232,6 +320,8 @@ public class OpenGLBackend implements IGUIBackend {
         GL33.glDrawElementsInstanced(
                 GL33.GL_TRIANGLE_STRIP, 4, GL33.GL_UNSIGNED_SHORT, 0, text.length());
         GL33.glBindVertexArray(0);
+
+        blendState.apply();
     }
 
     private void renderGUI(List<GUIElement> elements) {
