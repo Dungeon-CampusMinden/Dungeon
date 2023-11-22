@@ -143,6 +143,9 @@ public class OpenGLBackend implements IGUIBackend {
         int initX = Math.round(x);
         int initY = Math.round(y);
 
+        float maxXCoord = initX + maxWidth;
+        // TODO: Implement maxYCoord
+
         int currentX = initX;
         int currentY = initY - (font.fontSize);
 
@@ -152,6 +155,7 @@ public class OpenGLBackend implements IGUIBackend {
         float[] color = new float[text.length() * 4];
 
         int lastWrapIndex = 0;
+        boolean tried = false;
 
         for (int i = 0; i < text.length(); i++) {
             int codePoint = Character.codePointAt(text, i);
@@ -159,12 +163,14 @@ public class OpenGLBackend implements IGUIBackend {
 
             if (Font.WRAPPING_CHARACTERS.contains(codePoint)) {
                 lastWrapIndex = i;
+                tried = false;
             }
             if (Font.NEWLINE_CHARACTERS.contains(codePoint)) {
                 currentX = initX;
                 currentY =
                         currentY - (font.lineGap + font.ascent + font.descent); // TODO: Check if ok
-                lastWrapIndex = i + 1;
+                lastWrapIndex = i;
+                tried = false;
                 continue;
             }
             if (Font.WHITESPACE_CHARACTERS.containsKey(codePoint)) {
@@ -172,7 +178,7 @@ public class OpenGLBackend implements IGUIBackend {
                         Math.round(
                                 Font.WHITESPACE_CHARACTERS.getOrDefault(codePoint, 1.0f)
                                         * font.fontSize);
-                if (currentX >= maxWidth) {
+                if (currentX >= maxXCoord) {
                     currentX = initX;
                     currentY =
                             currentY
@@ -181,6 +187,7 @@ public class OpenGLBackend implements IGUIBackend {
                                             + font.descent); // TODO: Check if ok
                 }
                 lastWrapIndex = i;
+                tried = false;
                 continue;
             }
             if (codePoint == Font.CODEPOINT_TABULATOR) {
@@ -190,7 +197,8 @@ public class OpenGLBackend implements IGUIBackend {
                                         Font.WHITESPACE_CHARACTERS.get(Font.CODEPOINT_SPACE)
                                                 * font.fontSize);
                 currentX = currentX + tabWith - (currentX % tabWith);
-                lastWrapIndex = i + 1;
+                lastWrapIndex = i;
+                tried = false;
                 continue;
             }
 
@@ -232,12 +240,18 @@ public class OpenGLBackend implements IGUIBackend {
                             - (Font.MAX_ATLAS_SIZE - (glyph.yOffset() + glyph.height()))
                                     / (float) Font.MAX_ATLAS_SIZE;
 
-            if (currentX + glyph.width() > maxWidth) {
+            if (currentX + glyph.width() > maxXCoord && !(glyph.width() > maxXCoord)) {
                 currentX = initX;
                 currentY =
                         currentY - (font.lineGap + font.ascent + font.descent); // TODO: Check if ok
-                i = lastWrapIndex;
-                continue;
+                if (!tried) {
+                    i = lastWrapIndex;
+                    tried = true;
+                    continue;
+                } else {
+                    lastWrapIndex = i;
+                    tried = false;
+                }
             }
 
             float gx = currentX;
@@ -277,7 +291,7 @@ public class OpenGLBackend implements IGUIBackend {
                 color[i * 4 + 2] = 0x00 / 255f;
                 color[i * 4 + 3] = 0xFF / 255f;
             }
-            if (lastWrapIndex == i) {
+            if (lastWrapIndex - 1 == i) {
                 color[i * 4] = 0x00 / 255f;
                 color[i * 4 + 1] = 0xFF / 255f;
                 color[i * 4 + 2] = 0x00 / 255f;
