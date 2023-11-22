@@ -31,7 +31,9 @@ import java.util.stream.Stream;
  */
 public abstract class System {
     protected static final Logger LOGGER = Logger.getLogger(System.class.getSimpleName());
+    public static final int DEFAULT_EVERY_FRAME_EXECUTE = 1;
     private final Set<Class<? extends Component>> filterRules;
+    private final int executeEveryXFrames;
     protected boolean run;
 
     /**
@@ -53,6 +55,26 @@ public abstract class System {
      */
     protected Consumer<Entity> onEntityRemove = (e) -> {};
 
+    private int lastExecuteInFrames = 0;
+
+    /**
+     * Create a new system.
+     *
+     * <p>A System needs to be registered with the Game via {@link Game#add(System)}.
+     *
+     * @param executeEveryXFrames how often the system should be executed 1 means every frame
+     * @param filterRules Needed Component-Classes. Entities need the components to be processed by
+     *     this system.
+     */
+    @SafeVarargs
+    public System(int executeEveryXFrames, Class<? extends Component>... filterRules) {
+        this.executeEveryXFrames = executeEveryXFrames;
+        if (filterRules != null) this.filterRules = Set.of(filterRules);
+        else this.filterRules = new HashSet<>();
+        run = true;
+        LOGGER.info(String.format("A new %s was created", getClass().getName()));
+    }
+
     /**
      * Create a new system.
      *
@@ -63,10 +85,7 @@ public abstract class System {
      */
     @SafeVarargs
     public System(Class<? extends Component>... filterRules) {
-        if (filterRules != null) this.filterRules = Set.of(filterRules);
-        else this.filterRules = new HashSet<>();
-        run = true;
-        LOGGER.info(String.format("A new %s was created", getClass().getName()));
+        this(DEFAULT_EVERY_FRAME_EXECUTE, filterRules);
     }
 
     /** Implements the functionality of the system. */
@@ -146,5 +165,28 @@ public abstract class System {
      */
     public final Stream<Entity> entityStream() {
         return Game.entityStream(this);
+    }
+
+    /**
+     * @return the frame count the system should have between executes
+     */
+    public int executeEveryXFrames() {
+        return executeEveryXFrames;
+    }
+
+    /**
+     * @return the amount of frames the System did not execute
+     */
+    public int lastExecuteInFrames() {
+        return lastExecuteInFrames;
+    }
+
+    /**
+     * allows updating the time the system was last executed
+     *
+     * @param lastExecuteInFrames the Frames since the last execute
+     */
+    public void lastExecuteInFrames(int lastExecuteInFrames) {
+        this.lastExecuteInFrames = lastExecuteInFrames;
     }
 }

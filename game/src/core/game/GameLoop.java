@@ -142,7 +142,12 @@ public class GameLoop extends ScreenAdapter {
         for (System system : ECSManagment.systems().values()) {
             // if a new level was loaded, stop this loop-run
             if (newLevelWasLoadedInThisLoop) break;
-            if (system.isRunning()) system.execute();
+            system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
+            if (system.isRunning()
+                    && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
+                system.execute();
+                system.lastExecuteInFrames(0);
+            }
         }
         newLevelWasLoadedInThisLoop = false;
         CameraSystem.camera().update();
