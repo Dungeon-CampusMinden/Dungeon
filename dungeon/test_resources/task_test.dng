@@ -7,13 +7,13 @@ single_choice_task aufgabe_1 {
 multiple_choice_task wuppie1 {
     description: "Du bist doof, oder?",
     answers: ["Wupie", "Wuppi", "Wuppie", "Fluppie"],
-    correct_answer_index: [2,3]
+    correct_answer_indices: [2,3]
 }
 
 multiple_choice_task wuppie2 {
     description: "Was sind korrekte Wuppies?",
     answers: ["Wupie", "Wuppi", "Wuppie", "Fluppie"],
-    correct_answer_index: [2,3]
+    correct_answer_indices: [2,3]
 }
 
 
@@ -21,13 +21,13 @@ multiple_choice_task wuppie2 {
 multiple_choice_task wuppie3 {
     description: "Was sind korrekte Wuppies?",
     answers: ["Wupie", "Wuppi", "Wuppie", "Fluppie"],
-    correct_answer_index: [2,3]
+    correct_answer_indices: [2,3]
 }
 
 multiple_choice_task wuppie4 {
     description: "Was sind korrekte Wuppies?",
     answers: ["Wupie", "Wuppi", "Wuppie", "Fluppie"],
-    correct_answer_index: [2,3]
+    correct_answer_indices: [2,3]
 }
 
 graph g_one{

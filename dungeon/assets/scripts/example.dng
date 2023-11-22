@@ -61,7 +61,7 @@ multiple_choice_task task5_m {
   "Man kann Datensätze nach dem Datum sortieren lassen.",
   "Sortierung ist immer aufsteigend.",
   "Keine davon ist richtig."],
-  correct_answer_index: [0, 1]
+  correct_answer_indices: [0, 1]
 }
 
 multiple_choice_task task6_m {
@@ -71,19 +71,19 @@ multiple_choice_task task6_m {
   "MergeSort braucht viel Speicherplatz.",
   "Python ist für Anfänger gut geeignet.",
   "Keine davon ist richtig."],
-  correct_answer_index: [1, 2]
+  correct_answer_indices: [1, 2]
 }
 
 multiple_choice_task task7_m {
   description: "Wählen Sie die Elemente aus, mit denen man jeden Algorithmus darstellen kann.",
   answers: ["Basisanweisungen", "Kontrollstrukturen", "Elementaroperationen", "Fallunterschiedungen", "Schleifen", "Sequenzen", "Nichts davon"],
-  correct_answer_index: [1, 2, 3, 4, 5]
+  correct_answer_indices: [1, 2, 3, 4, 5]
 }
 
 multiple_choice_task task8_m {
   description: "Welche der folgenden Sortierverfahren sind rekursive Verfahren (in unserer Vorlesung)?",
   answers: ["BubbleSort", "MergeSort", "QuickSort", "InsertionSort", "SelectionSort",  "Nichts davon"],
-  correct_answer_index: [0, 1] // kann auch leer bleiben
+  correct_answer_indices: [0, 1] // kann auch leer bleiben
 }
 
 
@@ -111,7 +111,7 @@ multiple_choice_task task10_m {
   "Die Syntax von Pseudocode ist eindeutig festgelegt.",
   "Hochsprachen werden immer compiliert.",
   "Nichts davon"],
-  correct_answer_index: [1]
+  correct_answer_indices: [1]
 }
 
 graph morning_graph {
@@ -193,7 +193,7 @@ multiple_choice_task task5_a {
   description: "Bitte suchen Sie die richtige Ausage:",
   answers: ["Eine Ordnungsrelation erlaubt gleichen Schlüssel.","Man kann Datensätze nach dem Datum sortieren lassen.", "Sortierung ist immer aufsteigend.",
   "Keine davon ist richtig."],
-  correct_answer_index: [0, 1]
+  correct_answer_indices: [0, 1]
 }
 
 
@@ -201,20 +201,20 @@ multiple_choice_task task6_a {
   description: "Bitte suchen Sie die richtige Ausage:",
   answers: ["Pseudocode ist grundsätzlich maschinenlesbar.","MergeSort braucht viel Speicherplatz.", "Python ist für Anfänger gut geeignet.",
   "Keine davon ist richtig."],
-  correct_answer_index: [1, 2]
+  correct_answer_indices: [1, 2]
 }
 
 multiple_choice_task task7_a {
   description: "Wählen Sie die Elemente aus, mit denen man jeden Algorithmus darstellen kann.",
   answers: ["Basisanweisungen", "Kontrollstrukturen", "Elementaroperationen", "Fallunterschiedungen", "Schleifen", "Sequenzen", "Nichts davon"],
-  correct_answer_index: [1, 2, 3, 4, 5]
+  correct_answer_indices: [1, 2, 3, 4, 5]
 }
 
 
 multiple_choice_task task8_a {
   description: "Welche der folgenden Sortierverfahren sind rekursive Verfahren (in unserer Vorlesung)?",
   answers: ["BubbleSort", "MergeSort", "QuickSort", "InsertionSort", "SelectionSort",  "Nichts davon"],
-  correct_answer_index: [0, 1]
+  correct_answer_indices: [0, 1]
 }
 
 assign_task task9_a {
@@ -235,7 +235,7 @@ assign_task task9_a {
 multiple_choice_task task10_a {
   description: "Welchen Aussagen aus der Vorlesung stimmen Sie zu?",
   answers: ["Eine Spezifikation enthält die Wahl des Algorithmus", "Unterprogramme sind nicht unbedingt nötig.", "Mit Struktogrammen lassen sich gut Algorithmen entwickeln.", "Die Syntax von Pseudocode ist eindeutig festgelegt.", "Hochsprachen werden immer compiliert.",  "Nichts davon"],
-  correct_answer_index: [1]
+  correct_answer_indices: [1]
 }
 
 graph afternoon_graph {

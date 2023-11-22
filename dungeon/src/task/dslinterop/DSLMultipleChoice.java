@@ -29,7 +29,7 @@ public class DSLMultipleChoice {
             @DSLTypeMember(name = "answers") List<Quiz.Content> answers,
             @DSLTypeMember(name = "points") float points,
             @DSLTypeMember(name = "points_to_pass") float pointsToPass,
-            @DSLTypeMember(name = "correct_answer_index") List<Integer> correctAnswerIndices,
+            @DSLTypeMember(name = "correct_answer_indices") List<Integer> correctAnswerIndices,
             @DSLTypeMember(name = "explanation") String explanation,
             @DSLTypeMember(name = "grading_function")
                     BiFunction<Task, Set<TaskContent>, Float> gradingFunction,

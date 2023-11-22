@@ -20,7 +20,7 @@ single_choice_task Aufgabe2 {
 multiple_choice_task Aufgabe3 {
     description: "Welche der folgenden Planeten gehören zu den Gasriesen?",
     answers: [ "Mars", "Jupiter", "Venus", "Saturn", "Erde" ],
-    correct_answer_index: [1, 3],
+    correct_answer_indices: [1, 3],
     explanation: "Jupiter und Saturn sind Gasriesen in unserem Sonnensystem."
 }
 

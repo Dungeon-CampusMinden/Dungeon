@@ -119,7 +119,7 @@ dungeon_config meine_config {
 
 Mit der `single_choice_task`-Definition wird eine neue Aufgabe definiert.
 `single_choice_task` ist dabei der Typ der Aufgabendefinition und legt fest, welche weiteren Informationen
-konfiguriert werden müssen (für weitere Aufgabentypen: siehe [Dokumentation Aufgabenerstellung (TODO)](https://github.com/Programmiermethoden/Dungeon/issues/1212)).
+konfiguriert werden müssen (für weitere Aufgabentypen: siehe [Dokumentation Aufgabenerstellung](dsl/task_definition.md)).
 `meine_aufgabe` ist ein frei wählbarer Name für die Definition und dient dazu,
 die Aufgabendefinition im weiteren Verlauf der `.dng`-Datei zu referenzieren.
 Dabei werden der Aufgabentext (`description`), die möglichen Antworten (als Liste von Strings, `answers`)
@@ -178,7 +178,7 @@ gestartet werden.
 ## Wie geht es weiter?
 
 Die Aufgabendefinitionen lassen noch mehr Konfigurationen zu, als in den Beispielskripten
-verwendet wird. Für eine detaillierte Dokumentation der Aufgabendefinitionen, siehe [Dokumentation: Aufgabendefinition (TODO)](https://github.com/Programmiermethoden/Dungeon/issues/1212).
+verwendet wird. Für eine detaillierte Dokumentation der Aufgabendefinitionen, siehe [Dokumentation: Aufgabendefinition](dsl/task_definition.md).
 
 Die bisher vorgestellten Aufgaben verwenden die Standard-Szenarien. Ein **Szenario**
 beschreibt die Abbilung einer abstrakten Aufgabenbeschreibung in das Spiel.
