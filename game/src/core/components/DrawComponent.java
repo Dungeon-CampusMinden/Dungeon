@@ -168,9 +168,9 @@ public final class DrawComponent implements Component {
     /**
      * Queue up an Animation to be considered as the next played Animation.
      *
-     * <p>Animations are given as an IPath Array or multiple variables. The Animation with the
-     * lowest priority will be added to the queue. If the Animation is already added, nothing will
-     * happen.
+     * <p>Animations are given as an IPath Array or multiple variables. The First existing Animation
+     * per priority will be added to the queue. If the Animation is already added, the remaining
+     * Frames are set to the highest of remaining or new.
      *
      * <p>Animation length is set to the given parameter.
      *
