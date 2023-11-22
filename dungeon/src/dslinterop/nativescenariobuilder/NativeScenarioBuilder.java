@@ -89,8 +89,7 @@ public class NativeScenarioBuilder {
                 if (!element.equals(AssignTask.EMPTY_ELEMENT)) {
                     Animation animation =
                             Animation.fromSingleImage(
-                                    new SimpleIPath("items/book/wisdom_scroll.png"),
-                                    CoreAnimationPriorities.DEFAULT.priority());
+                                    new SimpleIPath("items/book/wisdom_scroll.png"));
                     TaskContentComponent tcc = new TaskContentComponent(element);
                     QuestItem questItem = new QuestItem(animation, tcc);
                     Entity worldItem = WorldItemBuilder.buildWorldItem(questItem);
