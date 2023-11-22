@@ -27,6 +27,7 @@ public class Font {
     public static final List<Integer> NEWLINE_CHARACTERS = new ArrayList<>();
     public static final int CODEPOINT_TABULATOR = 0x0009;
     public static final int CODEPOINT_SPACE = 0x0020;
+    public static final int ADDITIONAL_LINE_GAP = 4;
 
     static {
         String wrappingCharacters = ".,:;!?-";
@@ -124,7 +125,7 @@ public class Font {
                             fontSize,
                             Math.round(ascent[0] * scale),
                             Math.round(descent[0] * scale),
-                            Math.round(lineGap[0] * scale),
+                            Math.round(lineGap[0] * scale) + Font.ADDITIONAL_LINE_GAP,
                             (fontSize) * 2);
 
             // Map the glyphs to the font atlas
