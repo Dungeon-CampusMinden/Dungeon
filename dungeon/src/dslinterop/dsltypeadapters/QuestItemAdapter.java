@@ -1,7 +1,6 @@
 package dslinterop.dsltypeadapters;
 
 import core.utils.components.draw.Animation;
-import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.draw.SimpleIPath;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
@@ -26,8 +25,7 @@ public class QuestItemAdapter {
             @DSLTypeMember(name = "display_name") String displayName,
             @DSLTypeMember(name = "description") String description,
             @DSLTypeMember(name = "texture_path") String texturePath) {
-        Animation animation =
-                Animation.fromSingleImage(new SimpleIPath(texturePath));
+        Animation animation = Animation.fromSingleImage(new SimpleIPath(texturePath));
         TaskContentComponent tcc = new TaskContentComponent();
         return new QuestItem(animation, tcc);
     }
