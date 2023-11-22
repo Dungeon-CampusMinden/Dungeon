@@ -76,6 +76,11 @@ public class SkillTools {
         return new Point(mousePosition.x, mousePosition.y);
     }
 
+    /**
+     * Gets the current hero position as Point.
+     *
+     * @return the current hero position as Point
+     */
     public static Point heroPositionAsPoint() {
         PositionComponent pc =
                 Game.hero()
