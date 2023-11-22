@@ -60,12 +60,11 @@ public class GUIText extends GUIElement {
 
     @Override
     public Vector2f preferredSize() {
-        // TODO: Implement
         return new Vector2f(500, 200);
     }
 
     @Override
     public Vector2f minimalSize() {
-        return new Vector2f(0, 500);
+        return new Vector2f(100, 100);
     }
 }
