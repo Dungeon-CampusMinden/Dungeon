@@ -164,6 +164,7 @@ public final class DrawComponent implements Component {
     public void queueAnimation(final IPath... next) {
         queueAnimation(1, next);
     }
+
     /**
      * Queue up an Animation to be considered as the next played Animation.
      *
@@ -177,20 +178,26 @@ public final class DrawComponent implements Component {
      * @param next Array of IPaths representing the Animation.
      */
     public void queueAnimation(int forFrames, final IPath... next) {
-        IPath lowest = null;
-        // Streams lose ordering
+        // only add first of same priority
+        // therefor creating a Map for each priority
+        Map<Integer, IPath> firstExistingOfPrio = new HashMap<>();
         for (IPath path : next) {
-            if (lowest == null) lowest = path;
-            if (lowest.priority() > path.priority()) lowest = path;
-        }
-        for (Map.Entry<IPath, Integer> entry : animationQueue.entrySet()) {
-            // check for already added entry
-            if (entry.getKey().equals(lowest)) {
-                return;
+            // is an existing animation of the component
+            if (animationMap.containsKey(path.pathString())) {
+                // only add the first Animation of a certain priority
+                if (!firstExistingOfPrio.containsKey(path.priority())) {
+                    firstExistingOfPrio.put(path.priority(), path);
+                    // check if the path is already queued
+                    if (animationQueue.entrySet().contains(path)) {
+                        // update time of the animation
+                        animationQueue.put(path, Math.max(animationQueue.get(path), forFrames));
+                    } else {
+                        // add animation
+                        animationQueue.put(path, forFrames);
+                    }
+                }
             }
         }
-        // add if not already in queue
-        animationQueue.put(lowest, forFrames);
     }
 
     /**
