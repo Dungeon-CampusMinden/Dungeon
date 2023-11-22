@@ -75,7 +75,7 @@ public final class HealthSystem extends System {
 
     private HSData activateDeathAnimation(final HSData hsd) {
         // set DeathAnimation as active animation
-        Optional<Animation> deathAnimation = hsd.dc.getAnimation(AdditionalAnimations.DIE);
+        Optional<Animation> deathAnimation = hsd.dc.animation(AdditionalAnimations.DIE);
         deathAnimation.ifPresent(
                 animation -> hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.DIE));
         return hsd;
@@ -105,7 +105,7 @@ public final class HealthSystem extends System {
 
     private void doDamageAndAnimation(final HSData hsd, final int dmgAmount) {
         if (dmgAmount > 0) {
-            Optional<Animation> hitAnimation = hsd.dc.getAnimation(AdditionalAnimations.HIT);
+            Optional<Animation> hitAnimation = hsd.dc.animation(AdditionalAnimations.HIT);
             // we have some damage - let's show a little dance
             hitAnimation.ifPresent(
                     animation ->

@@ -250,7 +250,7 @@ public class EntityExtension {
                                 // only add opening animation when it is not
                                 // finished
                                 if (interactedDC
-                                        .getAnimation(ChestAnimations.OPENING)
+                                        .animation(ChestAnimations.OPENING)
                                         .map(animation -> !animation.isFinished())
                                         .orElse(true)) {
                                     interactedDC.queueAnimation(ChestAnimations.OPENING);

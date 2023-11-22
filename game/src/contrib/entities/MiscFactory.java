@@ -135,7 +135,7 @@ public class MiscFactory {
                                                 // only add opening animation when it is not
                                                 // finished
                                                 if (interactedDC
-                                                        .getAnimation(ChestAnimations.OPENING)
+                                                        .animation(ChestAnimations.OPENING)
                                                         .map(animation -> !animation.isFinished())
                                                         .orElse(true)) {
                                                     interactedDC.queueAnimation(
@@ -150,6 +150,7 @@ public class MiscFactory {
                 CoreAnimations.IDLE.pathString(), mapping.get(ChestAnimations.CLOSED.pathString()));
         // opening animation should not loop
         mapping.get(ChestAnimations.OPENING.pathString()).loop(false);
+        dc.animationMap(mapping);
         // reset Idle Animation
         dc.deQueueByPriority(CoreAnimations.IDLE.priority());
         dc.currentAnimation(CoreAnimations.IDLE);
