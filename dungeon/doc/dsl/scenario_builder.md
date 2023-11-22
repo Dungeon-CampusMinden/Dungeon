@@ -30,11 +30,29 @@ single_choice_task my_task {
 
 **Eine** mögliche Abbildung dieser Aufgabe in ein Spielszenario wäre die folgende:
 
-- Die Aufgabe wird von einem "Zauberer" gestellt
+- Die Aufgabe wird von einem "Ritter" gestellt
 - Die Antwortmöglichkeiten aus `answers` werden als "Schriftrollen" abgebildet, die von
   Spielenden eingesammelt werden müssen
 - Die Schriftrolle, welche der korrekten Antwort entspricht, muss in eine "Truhe" gelegt werden
 
+Dies könnte im Spiel wie folgt aussehen:
+
+![Abbildung: Raumansicht für Szenario](img/scenario_builder_room.png)
+
+Die Schriftrollen sind rot umrandet, die Truhe ist grün umrandet und der Ritter ist schwarz umrandet.
+
+Die Schriftrollen können aufgesammelt werden und im Inventar des Spielcharakters inspiziert werden.
+Beim Hovern der Maus über eine Schriftrolle wird angezeigt, welche Antwort die Schriftrolle abbildet:
+
+![Abbildung: Schriftrollen im Inventar](img/scenario_builder_item_hover.png)
+
+Anschließend können die Schriftrollen in die Truhe gelegt werden:
+
+![Abbildung: Schriftrollen in Truhe legen](img/scenario_builder_item_in_chest.png)
+
+Abschließend können Spielende mit dem Ritter agieren, um die Aufgabe abzugeben:
+
+![Abbildung: Aufgabe abgeben](img/scenario_builder_finish_task.png)
 
 
 ## Einbettung in das Gesamtsystem
