@@ -35,16 +35,13 @@ import java.util.logging.Logger;
  * #stackSize()} and {@link #maxStackSize()} methods.
  */
 public class Item implements CraftingIngredient, CraftingResult {
-
-    protected static final Animation DEFAULT_ANIMATION =
-            Animation.of("animation/missing_texture.png");
     private static final Logger LOGGER = Logger.getLogger(Item.class.getName());
 
     /**
-     * Maps identifiers in crafting recipes (e.g. {@link ItemBookRed}) to their corresponding class
-     * objects (e.g. ItemBookRed.java). This map is used to associate identifiers in crafting
-     * recipes with the actual classes and create an instance of the respective item when the recipe
-     * is crafted.
+     * Maps identifiers in crafting recipes (e.g. {@link ItemResourceBerry}) to their corresponding
+     * class objects (e.g. ItemResourceBerry.java). This map is used to associate identifiers in
+     * crafting recipes with the actual classes and create an instance of the respective item when
+     * the recipe is crafted.
      *
      * <p>The keys in the map are the simple names of the classes (e.g. "ItemBookRed"), and the
      * values are the corresponding class objects.

@@ -2985,10 +2985,10 @@ public class TestDSLInterpreter {
         var entityInSecondRoom = secondRoomSet.iterator().next();
 
         DrawComponent drawComp1 = entityInFirstRoom.fetch(DrawComponent.class).get();
-        var frameDrawComp1 = drawComp1.currentAnimation().getAnimationFrames().get(0);
+        var frameDrawComp1 = drawComp1.currentAnimation().getAnimationFrames().get(0).pathString();
 
         DrawComponent drawComp2 = entityInSecondRoom.fetch(DrawComponent.class).get();
-        var frameDrawComp2 = drawComp2.currentAnimation().getAnimationFrames().get(0);
+        var frameDrawComp2 = drawComp2.currentAnimation().getAnimationFrames().get(0).pathString();
 
         int firstEntitiesId = entityInFirstRoom.id();
         int secondEntitiesId = entityInSecondRoom.id();

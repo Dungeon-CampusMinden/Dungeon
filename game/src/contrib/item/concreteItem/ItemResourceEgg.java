@@ -8,6 +8,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.components.draw.Animation;
+import core.utils.components.draw.SimpleIPath;
 
 import java.io.IOException;
 
@@ -17,7 +18,7 @@ public class ItemResourceEgg extends Item {
         super(
                 "Egg",
                 "An egg. What was there before? The chicken or the egg?",
-                Animation.of("items/resource/egg.png"));
+                Animation.fromSingleImage(new SimpleIPath("items/resource/egg.png")));
     }
 
     @Override

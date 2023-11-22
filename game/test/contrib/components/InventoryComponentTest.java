@@ -9,6 +9,7 @@ import contrib.item.Item;
 import core.Entity;
 import core.Game;
 import core.utils.components.draw.Animation;
+import core.utils.components.draw.SimpleIPath;
 
 import org.junit.After;
 import org.junit.Test;
@@ -17,6 +18,9 @@ import org.mockito.Mockito;
 import java.util.Arrays;
 
 public class InventoryComponentTest {
+
+    public static final SimpleIPath MISSING_TEXTURE =
+            new SimpleIPath("animation/missing_texture.png");
 
     @After
     public void cleanup() {
@@ -43,7 +47,7 @@ public class InventoryComponentTest {
                 new Item(
                         "Test item",
                         "Test description",
-                        Animation.of("animation/missing_texture.png"));
+                        Animation.fromSingleImage(MISSING_TEXTURE));
         assertTrue(ic.add(itemData));
         assertEquals(1, ic.count());
     }
@@ -60,13 +64,13 @@ public class InventoryComponentTest {
                 new Item(
                         "Test item",
                         "Test description",
-                        Animation.of("animation/missing_texture.png")));
+                        Animation.fromSingleImage(MISSING_TEXTURE)));
         assertTrue(
                 ic.add(
                         new Item(
                                 "Test item",
                                 "Test description",
-                                Animation.of("animation/missing_texture.png"))));
+                                Animation.fromSingleImage(MISSING_TEXTURE))));
 
         assertEquals(2, ic.count());
     }
@@ -81,13 +85,13 @@ public class InventoryComponentTest {
                 new Item(
                         "Test item",
                         "Test description",
-                        Animation.of("animation/missing_texture.png")));
+                        Animation.fromSingleImage(MISSING_TEXTURE)));
         assertFalse(
                 ic.add(
                         new Item(
                                 "Test item",
                                 "Test description",
-                                Animation.of("animation/missing_texture.png"))));
+                                Animation.fromSingleImage(MISSING_TEXTURE))));
         assertEquals(1, ic.count());
     }
 
@@ -101,7 +105,7 @@ public class InventoryComponentTest {
                 new Item(
                         "Test item",
                         "Test description",
-                        Animation.of("animation/missing_texture.png"));
+                        Animation.fromSingleImage(MISSING_TEXTURE));
         ic.add(itemData);
         assertTrue(ic.remove(itemData));
 
@@ -118,7 +122,7 @@ public class InventoryComponentTest {
                 new Item(
                         "Test item",
                         "Test description",
-                        Animation.of("animation/missing_texture.png"));
+                        Animation.fromSingleImage(MISSING_TEXTURE));
         ic.add(itemData);
         ic.remove(itemData);
         assertFalse(ic.remove(itemData));
@@ -136,7 +140,7 @@ public class InventoryComponentTest {
                 new Item(
                         "Test item",
                         "Test description",
-                        Animation.of("animation/missing_texture.png"));
+                        Animation.fromSingleImage(MISSING_TEXTURE));
         ic.add(itemData);
         assertFalse(ic.remove(null));
 
@@ -162,7 +166,7 @@ public class InventoryComponentTest {
                 new Item(
                         "Test item",
                         "Test description",
-                        Animation.of("animation/missing_texture.png"));
+                        Animation.fromSingleImage(MISSING_TEXTURE));
         ic.add(itemData);
         Item[] list = ic.items();
         assertEquals("should have one Item", 1, list.length);
@@ -179,13 +183,13 @@ public class InventoryComponentTest {
                 new Item(
                         "Test item",
                         "Test description",
-                        Animation.of("animation/missing_texture.png"));
+                        Animation.fromSingleImage(MISSING_TEXTURE));
         ic.add(itemData1);
         Item itemData2 =
                 new Item(
                         "Test item",
                         "Test description",
-                        Animation.of("animation/missing_texture.png"));
+                        Animation.fromSingleImage(MISSING_TEXTURE));
         ic.add(itemData2);
         Item[] list = ic.items();
         assertEquals("should have two Items", 2, list.length);
@@ -203,7 +207,7 @@ public class InventoryComponentTest {
                 new Item(
                         "Test item",
                         "Test description",
-                        Animation.of("animation/missing_texture.png"));
+                        Animation.fromSingleImage(MISSING_TEXTURE));
         Item[] list = ic.items();
         assertEquals("should have no Items", 0, ic.count());
         assertFalse("Item should not be in returned List", Arrays.asList(list).contains(itemData));
