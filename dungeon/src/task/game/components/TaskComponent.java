@@ -56,7 +56,7 @@ public final class TaskComponent implements Component {
      */
     public TaskComponent(Task task, final Entity entity) {
         this.task = task;
-        entity.addComponent(this);
+        entity.add(this);
         task.managerEntity(entity);
         onActivate = DOOR_OPENER;
     }

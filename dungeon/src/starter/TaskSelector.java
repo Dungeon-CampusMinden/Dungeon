@@ -94,9 +94,9 @@ public class TaskSelector {
 
     protected static Entity npc(SingleChoice selectionQuestion) throws IOException {
         Entity npc = new Entity("Selection NPC");
-        npc.addComponent(new DrawComponent("character/blue_knight"));
-        npc.addComponent(new PositionComponent());
-        npc.addComponent(
+        npc.add(new DrawComponent("character/blue_knight"));
+        npc.add(new PositionComponent());
+        npc.add(
                 new InteractionComponent(
                         1,
                         true,

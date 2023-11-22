@@ -228,11 +228,11 @@ public class TaskGraphConverter {
                     doorTiles.forEach(DoorTile::close);
                     task.managerEntity()
                             .ifPresentOrElse(
-                                    entity -> entity.addComponent(doorComponent),
+                                    entity -> entity.add(doorComponent),
                                     () -> {
                                         Entity manager = new Entity();
-                                        manager.addComponent(new TaskComponent(task, manager));
-                                        manager.addComponent(doorComponent);
+                                        manager.add(new TaskComponent(task, manager));
+                                        manager.add(doorComponent);
                                     });
                 });
     }
