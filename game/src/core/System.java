@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * <p>A System needs to be registered with the Game via {@link Game#add(System)}.
  *
  * <p>This class is the abstract base class for each system. It implements the basic functionality
- * each system has. For example, it allows the system to be paused and unpaused.
+ * each system has. For example, it allows the system to pause and unpause.
  *
  * <p>A system will iterate over each {@link Entity} with specific {@link Component}s. Only if the
  * Entity contains each needed Component, the System will execute the system logic on it.
@@ -30,7 +30,7 @@ import java.util.stream.Stream;
  * inheriting System to implement the corresponding logic for these events.
  */
 public abstract class System {
-    protected static Logger LOGGER = Logger.getLogger(System.class.getName());
+    protected static final Logger LOGGER = Logger.getLogger(System.class.getSimpleName());
     private final Set<Class<? extends Component>> filterRules;
     protected boolean run;
 
@@ -61,11 +61,12 @@ public abstract class System {
      * @param filterRules Needed Component-Classes. Entities need the components to be processed by
      *     this system.
      */
+    @SafeVarargs
     public System(Class<? extends Component>... filterRules) {
         if (filterRules != null) this.filterRules = Set.of(filterRules);
         else this.filterRules = new HashSet<>();
         run = true;
-        LOGGER.info("A new " + this.getClass().getName() + " was created");
+        LOGGER.info(String.format("A new %s was created", getClass().getName()));
     }
 
     /** Implements the functionality of the system. */
@@ -108,27 +109,12 @@ public abstract class System {
     }
 
     /**
-     * Toggle this system between running and paused states.
-     *
-     * <p>A paused system will not be executed.
-     *
-     * <p>A paused system can still accept, add, and remove entities. The internal set will be
-     * processed when the system is running.
-     *
-     * <p>A running system will be executed.
-     */
-    public void toggleRun() {
-        if (run) stop();
-        else run();
-    }
-
-    /**
      * Set this system to the running state.
      *
      * <p>A running system will be executed.
      */
     public void run() {
-        if (!run) LOGGER.info(this.getClass().getName() + " is running");
+        if (!run) LOGGER.info(String.format("%s is now running", this.getClass().getName()));
         run = true;
     }
 
@@ -141,7 +127,7 @@ public abstract class System {
      * processed when the system is running.
      */
     public void stop() {
-        if (run) LOGGER.info(this.getClass().getName() + " is paused");
+        if (run) LOGGER.info(String.format("%s is now paused", this.getClass().getName()));
         run = false;
     }
 
