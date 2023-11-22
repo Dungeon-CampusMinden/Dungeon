@@ -24,7 +24,7 @@ public class AISystemTest {
         system = new AISystem();
         Game.add(system);
         entity = new Entity();
-        entity.addComponent(
+        entity.add(
                 new AIComponent(
                         null,
                         e -> {},

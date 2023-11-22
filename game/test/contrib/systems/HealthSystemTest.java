@@ -35,8 +35,8 @@ public class HealthSystemTest {
         Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         DrawComponent ac = new DrawComponent(ANIMATION_PATH);
         HealthComponent component = new HealthComponent(1, onDeath);
-        entity.addComponent(ac);
-        entity.addComponent(component);
+        entity.add(ac);
+        entity.add(component);
         Game.add(entity);
         HealthSystem system = new HealthSystem();
         Game.add(system);
@@ -55,8 +55,8 @@ public class HealthSystemTest {
         DrawComponent ac = new DrawComponent(ANIMATION_PATH);
         HealthComponent component = new HealthComponent(1, onDeath);
         component.godMode(true);
-        entity.addComponent(ac);
-        entity.addComponent(component);
+        entity.add(ac);
+        entity.add(component);
         Game.add(entity);
         HealthSystem system = new HealthSystem();
         Game.add(system);
@@ -76,8 +76,8 @@ public class HealthSystemTest {
         Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         DrawComponent ac = new DrawComponent(ANIMATION_PATH);
         HealthComponent component = new HealthComponent(10, onDeath);
-        entity.addComponent(ac);
-        entity.addComponent(component);
+        entity.add(ac);
+        entity.add(component);
         Game.add(entity);
         component.receiveHit(new Damage(5, DamageType.FIRE, null));
         component.receiveHit(new Damage(2, DamageType.FIRE, null));
@@ -96,8 +96,8 @@ public class HealthSystemTest {
         Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         DrawComponent ac = new DrawComponent(ANIMATION_PATH);
         HealthComponent component = new HealthComponent(10, onDeath);
-        entity.addComponent(ac);
-        entity.addComponent(component);
+        entity.add(ac);
+        entity.add(component);
         Game.add(entity);
         component.currentHealthpoints(3);
         component.receiveHit(new Damage(-3, DamageType.FIRE, null));
@@ -115,8 +115,8 @@ public class HealthSystemTest {
         Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
         DrawComponent ac = new DrawComponent(ANIMATION_PATH);
         HealthComponent component = new HealthComponent(10, onDeath);
-        entity.addComponent(ac);
-        entity.addComponent(component);
+        entity.add(ac);
+        entity.add(component);
         Game.add(entity);
         component.receiveHit(new Damage(0, DamageType.FIRE, null));
         HealthSystem system = new HealthSystem();

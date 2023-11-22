@@ -21,11 +21,11 @@ public class WorldItemBuilder {
      */
     public static Entity buildWorldItem(Item item) {
         Entity droppedItem = new Entity();
-        droppedItem.addComponent(new PositionComponent(PositionComponent.ILLEGAL_POSITION));
-        droppedItem.addComponent(new DrawComponent(item.worldAnimation()));
-        droppedItem.addComponent(new ItemComponent(item));
+        droppedItem.add(new PositionComponent(PositionComponent.ILLEGAL_POSITION));
+        droppedItem.add(new DrawComponent(item.worldAnimation()));
+        droppedItem.add(new ItemComponent(item));
 
-        droppedItem.addComponent(
+        droppedItem.add(
                 new InteractionComponent(
                         Constants.DEFAULT_ITEM_PICKUP_RADIUS, true, item::collect));
 

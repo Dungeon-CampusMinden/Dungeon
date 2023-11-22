@@ -65,12 +65,12 @@ public class MiscFactory {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
 
-        if (position == null) chest.addComponent(new PositionComponent());
-        else chest.addComponent(new PositionComponent(position));
+        if (position == null) chest.add(new PositionComponent());
+        else chest.add(new PositionComponent(position));
         InventoryComponent ic = new InventoryComponent(item.size());
-        chest.addComponent(ic);
+        chest.add(ic);
         item.forEach(ic::add);
-        chest.addComponent(
+        chest.add(
                 new InteractionComponent(
                         defaultInteractionRadius,
                         true,
@@ -128,7 +128,7 @@ public class MiscFactory {
                                                                                                                 .OPEN_EMPTY);
                                                                                     }
                                                                                 }));
-                                                interactor.addComponent(uiComponent);
+                                                interactor.add(uiComponent);
                                             });
                             interacted
                                     .fetch(DrawComponent.class)
@@ -155,7 +155,7 @@ public class MiscFactory {
         // reset Idle Animation
         dc.deQueueByPriority(CoreAnimations.IDLE.priority());
         dc.currentAnimation(CoreAnimations.IDLE);
-        chest.addComponent(dc);
+        chest.add(dc);
 
         return chest;
     }
@@ -168,10 +168,10 @@ public class MiscFactory {
      */
     public static Entity newCraftingCauldron() throws IOException {
         Entity cauldron = new Entity("cauldron");
-        cauldron.addComponent(new PositionComponent());
-        cauldron.addComponent(new DrawComponent("objects/cauldron"));
-        cauldron.addComponent(new CollideComponent());
-        cauldron.addComponent(
+        cauldron.add(new PositionComponent());
+        cauldron.add(new DrawComponent("objects/cauldron"));
+        cauldron.add(new CollideComponent());
+        cauldron.add(
                 new InteractionComponent(
                         1f,
                         true,
@@ -187,7 +187,7 @@ public class MiscFactory {
                                                                             craftingGUI),
                                                                     true);
                                                     component.onClose(craftingGUI::cancel);
-                                                    who.addComponent(component);
+                                                    who.add(component);
                                                 })));
         return cauldron;
     }

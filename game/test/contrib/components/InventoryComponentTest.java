@@ -33,7 +33,7 @@ public class InventoryComponentTest {
 
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(1);
-        e.addComponent(ic);
+        e.add(ic);
         assertEquals(0, ic.count());
     }
 
@@ -42,7 +42,7 @@ public class InventoryComponentTest {
     public void addItemValid() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(1);
-        e.addComponent(ic);
+        e.add(ic);
         Item itemData =
                 new Item(
                         "Test item",
@@ -59,7 +59,7 @@ public class InventoryComponentTest {
     public void addItemValidMultiple() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(3);
-        e.addComponent(ic);
+        e.add(ic);
         ic.add(
                 new Item(
                         "Test item",
@@ -80,7 +80,7 @@ public class InventoryComponentTest {
     public void addItemOverSize() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(1);
-        e.addComponent(ic);
+        e.add(ic);
         ic.add(
                 new Item(
                         "Test item",
@@ -100,7 +100,7 @@ public class InventoryComponentTest {
     public void removeItemExisting() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(1);
-        e.addComponent(ic);
+        e.add(ic);
         Item itemData =
                 new Item(
                         "Test item",
@@ -117,7 +117,7 @@ public class InventoryComponentTest {
     public void removeItemTwice() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(1);
-        e.addComponent(ic);
+        e.add(ic);
         Item itemData =
                 new Item(
                         "Test item",
@@ -135,7 +135,7 @@ public class InventoryComponentTest {
     public void removeItemNull() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(1);
-        e.addComponent(ic);
+        e.add(ic);
         Item itemData =
                 new Item(
                         "Test item",
@@ -152,7 +152,7 @@ public class InventoryComponentTest {
     public void getAllItemsEmptyInventory() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(0);
-        e.addComponent(ic);
+        e.add(ic);
         assertEquals("should have no Items", 0, ic.count());
     }
 
@@ -161,7 +161,7 @@ public class InventoryComponentTest {
     public void getAllItemsInventoryWithOnlyOneItem() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(1);
-        e.addComponent(ic);
+        e.add(ic);
         Item itemData =
                 new Item(
                         "Test item",
@@ -178,7 +178,7 @@ public class InventoryComponentTest {
     public void getAllItemsInventoryWithTwoItems() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(2);
-        e.addComponent(ic);
+        e.add(ic);
         Item itemData1 =
                 new Item(
                         "Test item",
@@ -202,7 +202,7 @@ public class InventoryComponentTest {
     public void getAllItemsInventoryNoAddedItemButCreated() {
         Entity e = new Entity();
         InventoryComponent ic = new InventoryComponent(1);
-        e.addComponent(ic);
+        e.add(ic);
         Item itemData =
                 new Item(
                         "Test item",

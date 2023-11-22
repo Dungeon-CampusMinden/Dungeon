@@ -17,7 +17,7 @@ public class InteractionComponentTest {
     public void createSimpleConstructor() {
         Entity e = new Entity();
         InteractionComponent component = new InteractionComponent();
-        e.addComponent(component);
+        e.add(component);
         assertEquals(InteractionComponent.DEFAULT_INTERACTION_RADIUS, component.radius(), 0.0001);
     }
 
@@ -30,7 +30,7 @@ public class InteractionComponentTest {
         BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
 
         InteractionComponent component = new InteractionComponent(radius, repeat, iInteraction);
-        e.addComponent(component);
+        e.add(component);
 
         assertEquals(radius, component.radius(), 0.0001);
     }
@@ -41,7 +41,7 @@ public class InteractionComponentTest {
         BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
         Entity e = new Entity();
         InteractionComponent component = new InteractionComponent(1, true, iInteraction);
-        e.addComponent(component);
+        e.add(component);
         component.triggerInteraction(e, null);
         verify(iInteraction).accept(e, null);
         assertTrue(e.fetch(InteractionComponent.class).isPresent());
@@ -53,7 +53,7 @@ public class InteractionComponentTest {
         BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
         Entity e = new Entity();
         InteractionComponent component = new InteractionComponent(1, false, iInteraction);
-        e.addComponent(component);
+        e.add(component);
         component.triggerInteraction(e, null);
         verify(iInteraction).accept(e, null);
         assertFalse(e.fetch(InteractionComponent.class).isPresent());
@@ -67,9 +67,9 @@ public class InteractionComponentTest {
         Entity e = new Entity();
         Entity e2 = new Entity();
         InteractionComponent component = new InteractionComponent(1, true, iInteraction);
-        e.addComponent(component);
+        e.add(component);
         InteractionComponent component2 = new InteractionComponent(1, true, iInteraction2);
-        e2.addComponent(component2);
+        e2.add(component2);
         component.triggerInteraction(e, null);
         verify(iInteraction2, never()).accept(e, null);
     }
@@ -82,9 +82,9 @@ public class InteractionComponentTest {
         Entity e = new Entity();
         Entity e2 = new Entity();
         InteractionComponent component = new InteractionComponent(1, false, iInteraction);
-        e.addComponent(component);
+        e.add(component);
         InteractionComponent component2 = new InteractionComponent(1, false, iInteraction2);
-        e2.addComponent(component2);
+        e2.add(component2);
         component.triggerInteraction(e, null);
         assertTrue(e2.fetch(InteractionComponent.class).isPresent());
     }

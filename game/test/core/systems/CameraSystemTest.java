@@ -54,8 +54,8 @@ public class CameraSystemTest {
         Entity entity = new Entity();
         expectedFocusPoint = new Point(3, 3);
         PositionComponent positionComponent = new PositionComponent(expectedFocusPoint);
-        entity.addComponent(positionComponent);
-        entity.addComponent(new CameraComponent());
+        entity.add(positionComponent);
+        entity.add(new CameraComponent());
 
         cameraSystem.execute();
         assertEquals(expectedFocusPoint.x, CameraSystem.camera().position.x, 0.001);

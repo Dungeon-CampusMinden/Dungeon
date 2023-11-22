@@ -45,11 +45,11 @@ public class HeroFactory {
     public static Entity newHero() throws IOException {
         Entity hero = new Entity("hero");
         CameraComponent cc = new CameraComponent();
-        hero.addComponent(cc);
+        hero.add(cc);
         PositionComponent poc = new PositionComponent();
-        hero.addComponent(poc);
-        hero.addComponent(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO));
-        hero.addComponent(new DrawComponent(HERO_FILE_PATH));
+        hero.add(poc);
+        hero.add(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO));
+        hero.add(new DrawComponent(HERO_FILE_PATH));
         HealthComponent hc =
                 new HealthComponent(
                         HERO_HP,
@@ -66,12 +66,12 @@ public class HeroFactory {
 
                             // relink components for camera
                             Entity cameraDummy = new Entity();
-                            cameraDummy.addComponent(cc);
-                            cameraDummy.addComponent(poc);
+                            cameraDummy.add(cc);
+                            cameraDummy.add(poc);
                             Game.add(cameraDummy);
                         });
-        hero.addComponent(hc);
-        hero.addComponent(
+        hero.add(hc);
+        hero.add(
                 new CollideComponent(
                         (you, other, direction) ->
                                 other.fetch(SpikyComponent.class)
@@ -90,9 +90,9 @@ public class HeroFactory {
                         (you, other, direction) -> {}));
 
         PlayerComponent pc = new PlayerComponent();
-        hero.addComponent(pc);
+        hero.add(pc);
         InventoryComponent ic = new InventoryComponent(DEFAULT_INVENTORY_SIZE);
-        hero.addComponent(ic);
+        hero.add(ic);
         Skill fireball =
                 new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
@@ -152,12 +152,11 @@ public class HeroFactory {
                     if (uiComponent != null) {
                         if (uiComponent.dialog() instanceof GUICombination) {
                             InventoryGUI.inHeroInventory = false;
-                            e.removeComponent(UIComponent.class);
+                            e.remove(UIComponent.class);
                         }
                     } else {
                         InventoryGUI.inHeroInventory = true;
-                        e.addComponent(
-                                new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
+                        e.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
                     }
                 },
                 false,
@@ -198,7 +197,7 @@ public class HeroFactory {
                                     .orElse(null);
                     if (firstUI != null) {
                         InventoryGUI.inHeroInventory = false;
-                        firstUI.a().removeComponent(UIComponent.class);
+                        firstUI.a().remove(UIComponent.class);
                         if (firstUI.a().componentStream().findAny().isEmpty()) {
                             Game.remove(firstUI.a()); // delete unused Entity
                         }

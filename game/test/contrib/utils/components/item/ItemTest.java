@@ -217,7 +217,7 @@ public class ItemTest {
         item.drop(null, new Point(0, 0));
         assertEquals("There should only be one entity in the game", 1, Game.entityStream().count());
         Entity collector = new Entity();
-        collector.addComponent(new InventoryComponent(3));
+        collector.add(new InventoryComponent(3));
         Entity worldItem = Game.entityStream().findFirst().get();
 
         assertTrue(item.collect(worldItem, collector));
@@ -256,7 +256,7 @@ public class ItemTest {
         item.drop(null, new Point(0, 0));
         assertEquals("There should only be one entity in the game", 1, Game.entityStream().count());
         Entity collector = new Entity();
-        collector.addComponent(new InventoryComponent(0));
+        collector.add(new InventoryComponent(0));
         Entity worldItem = Game.entityStream().findFirst().get();
 
         assertFalse(item.collect(worldItem, collector));
@@ -270,7 +270,7 @@ public class ItemTest {
         Item item = new Item("Test item", "Test description", defaultAnimation);
         Entity entity = new Entity();
         InventoryComponent inventoryComponent = new InventoryComponent(2);
-        entity.addComponent(inventoryComponent);
+        entity.add(inventoryComponent);
         inventoryComponent.add(item);
         assertTrue(
                 "ItemActive needs to be in entities inventory.",

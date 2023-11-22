@@ -132,10 +132,10 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                                 () ->
                                         MissingComponentException.build(
                                                 entity, PositionComponent.class));
-        projectile.addComponent(new PositionComponent(epc.position()));
+        projectile.add(new PositionComponent(epc.position()));
 
         try {
-            projectile.addComponent(new DrawComponent(pathToTexturesOfProjectile));
+            projectile.add(new DrawComponent(pathToTexturesOfProjectile));
         } catch (IOException e) {
             LOGGER.warning(
                     "The DrawComponent for the projectile "
@@ -164,10 +164,10 @@ public abstract class DamageProjectile implements Consumer<Entity> {
 
         // Add the VelocityComponent to the projectile
         VelocityComponent vc = new VelocityComponent(velocity.x, velocity.y, onWallHit);
-        projectile.addComponent(vc);
+        projectile.add(vc);
 
         // Add the ProjectileComponent with the initial and target positions to the projectile
-        projectile.addComponent(new ProjectileComponent(startPoint, targetPoint));
+        projectile.add(new ProjectileComponent(startPoint, targetPoint));
 
         // Create a collision handler for the projectile
         TriConsumer<Entity, Entity, Tile.Direction> collide =
@@ -188,7 +188,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
 
         // Add the CollideComponent with the appropriate hitbox size and collision handler to the
         // projectile
-        projectile.addComponent(
+        projectile.add(
                 new CollideComponent(new Point(0.25f, 0.25f), projectileHitboxSize, collide, null));
         Game.add(projectile);
         playSound();

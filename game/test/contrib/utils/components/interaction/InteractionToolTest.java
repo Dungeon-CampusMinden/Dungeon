@@ -41,7 +41,7 @@ public class InteractionToolTest {
      */
     private static Entity testHero(boolean havingPositionComponent) {
         Entity hero = new Entity();
-        if (havingPositionComponent) hero.addComponent(new PositionComponent(new Point(0, 0)));
+        if (havingPositionComponent) hero.add(new PositionComponent(new Point(0, 0)));
         return hero;
     }
 
@@ -103,10 +103,10 @@ public class InteractionToolTest {
         Game.currentLevel(prepareLevel());
 
         Entity e = new Entity();
-        e.addComponent(new PositionComponent(new Point(10, 10)));
+        e.add(new PositionComponent(new Point(10, 10)));
 
         SimpleCounter sc_e = new SimpleCounter();
-        e.addComponent(new InteractionComponent(5f, false, (x, who) -> sc_e.inc()));
+        e.add(new InteractionComponent(5f, false, (x, who) -> sc_e.inc()));
 
         InteractionTool.interactWithClosestInteractable(Game.hero().get());
         assertEquals("No interaction should happen", 0, sc_e.getCount());
