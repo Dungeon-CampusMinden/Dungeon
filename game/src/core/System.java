@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * <p>A System needs to be registered with the Game via {@link Game#add(System)}.
  *
  * <p>This class is the abstract base class for each system. It implements the basic functionality
- * each system has. For example, it allows the system to be paused and unpause.
+ * each system has. For example, it allows the system to pause and unpause.
  *
  * <p>A system will iterate over each {@link Entity} with specific {@link Component}s. Only if the
  * Entity contains each needed Component, the System will execute the system logic on it.
