@@ -53,7 +53,7 @@ public interface IGUIBackend {
         if (bitmap.hasArray()) {
             return loadImageFromBitmap(bitmap.array(), width, height, channels);
         } else {
-            byte[] array = new byte[bitmap.remaining()];
+            byte[] array = new byte[bitmap.capacity()];
             bitmap.position(0);
             bitmap.get(array);
             return loadImageFromBitmap(array, width, height, channels);
@@ -84,5 +84,12 @@ public interface IGUIBackend {
      */
     BackendImage loadImageFromBitmap(byte[] bitmap, int width, int height, int channels);
 
-    void drawText(String text, Font font, int x, int y, int maxWidth, int maxHeight, int textColor);
+    void drawText(
+            String text,
+            Font font,
+            float x,
+            float y,
+            float maxWidth,
+            float maxHeight,
+            int textColor);
 }

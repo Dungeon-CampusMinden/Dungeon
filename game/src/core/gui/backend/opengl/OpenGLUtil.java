@@ -1,6 +1,7 @@
 package core.gui.backend.opengl;
 
-import core.gui.util.Logging;
+import static core.gui.util.Logging.log;
+
 import core.utils.logging.CustomLogLevel;
 
 import org.lwjgl.opengl.GL11;
@@ -91,17 +92,13 @@ public class OpenGLUtil {
                         "Failed to link shader program: "
                                 + GL33.glGetProgramInfoLog(shaderProgramHandle));
             } else {
-                Logging.log(
+                log(
                         CustomLogLevel.DEBUG,
                         "Successfully linked shader program (%d)",
                         shaderProgramHandle);
             }
         } catch (IOException | OpenGLException ex) {
-            Logging.log(
-                    CustomLogLevel.ERROR,
-                    "Failed to load & compile shader: %s",
-                    ex,
-                    ex.getMessage());
+            log(CustomLogLevel.ERROR, "Failed to load & compile shader: %s", ex, ex.getMessage());
             GL33.glDeleteProgram(shaderProgramHandle);
             return -1;
         } finally {
@@ -269,11 +266,19 @@ public class OpenGLUtil {
         buffer.put(bitmap);
         buffer.position(0);
 
+        GL33.glFinish(); // Wait for all OpenGL operations to complete
+
         int textureHandle = GL33.glGenTextures();
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, textureHandle);
 
+        OpenGLUtil.checkGLError();
+        if (width * height != bitmap.length / channels) {
+            throw new RuntimeException("Invalid bitmap size");
+        }
+
         switch (channels) {
             case 1:
+                GL33.glPixelStorei(GL33.GL_UNPACK_ALIGNMENT, 1);
                 GL33.glTexImage2D(
                         GL33.GL_TEXTURE_2D,
                         0,
@@ -286,6 +291,7 @@ public class OpenGLUtil {
                         buffer);
                 break;
             case 2:
+                GL33.glPixelStorei(GL33.GL_UNPACK_ALIGNMENT, 2);
                 GL33.glTexImage2D(
                         GL33.GL_TEXTURE_2D,
                         0,
@@ -297,6 +303,7 @@ public class OpenGLUtil {
                         GL33.GL_UNSIGNED_BYTE,
                         buffer);
             case 3:
+                GL33.glPixelStorei(GL33.GL_UNPACK_ALIGNMENT, 3);
                 GL33.glTexImage2D(
                         GL33.GL_TEXTURE_2D,
                         0,
@@ -309,6 +316,7 @@ public class OpenGLUtil {
                         buffer);
                 break;
             case 4:
+                GL33.glPixelStorei(GL33.GL_UNPACK_ALIGNMENT, 4);
                 GL33.glTexImage2D(
                         GL33.GL_TEXTURE_2D,
                         0,
@@ -323,6 +331,7 @@ public class OpenGLUtil {
             default:
                 throw new RuntimeException("Unsupported number of channels: " + channels);
         }
+
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, magFilter);
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, minFilter);
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, wrapS);
@@ -331,6 +340,13 @@ public class OpenGLUtil {
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
 
         return textureHandle;
+    }
+
+    private static void checkGLError() {
+        int error = GL33.glGetError();
+        if (error != GL33.GL_NO_ERROR) {
+            throw new OpenGLException("OpenGL error: " + error);
+        }
     }
 
     /**
