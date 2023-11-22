@@ -32,7 +32,7 @@ void main() {
             && (uProperties & PROP_HAS_BACKGROUND_COLOR) == PROP_HAS_BACKGROUND_COLOR) { //Background image and color -> tinting
         fragColor = texture(uBackgroundTexture, vTexCoord) * uBackgroundColor;
     } else { //No background image or color
-        fragColor = vec4(vFragmentPos.x, 0.0f, vFragmentPos.y, 0.8f);
+        fragColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
     //TODO: Borders
