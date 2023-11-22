@@ -68,13 +68,17 @@ public class OpenGLElementRenderers {
                 Matrix4f model = createModelMatrix(element);
                 context.begin();
 
+                int props = 0x00;
+                if (element.backgroundColor() != null) {
+                    props |= PROP_HAS_BACKGROUND_COLOR;
+                    GL33.glUniform4fv(
+                            context.getUniformLocation("uBackgroundColor"),
+                            element.backgroundColor().toArray());
+                }
+
                 GL33.glUniformMatrix4fv(
                         context.getUniformLocation("uModel"), false, model.toArray());
-                GL33.glUniform1i(
-                        context.getUniformLocation("uProperties"), PROP_HAS_BACKGROUND_COLOR);
-                GL33.glUniform4fv(
-                        context.getUniformLocation("uBackgroundColor"),
-                        element.backgroundColor().toArray());
+                GL33.glUniform1i(context.getUniformLocation("uProperties"), props);
 
                 context.draw();
                 context.end();
@@ -94,12 +98,12 @@ public class OpenGLElementRenderers {
                         .drawText(
                                 element.text(),
                                 element.font(),
-                                element.position().x() + 10,
+                                element.position().x() + element.font().fontSize,
                                 element.position().y()
                                         + element.size().y()
                                         - element.font().fontSize,
-                                element.size().x(),
-                                element.size().y(),
+                                element.size().x() - 2 * element.font().fontSize,
+                                element.size().y() - 2 * element.font().fontSize,
                                 element.textColor().toRGBA());
                 validate(element);
             };
