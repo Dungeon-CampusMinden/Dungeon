@@ -62,6 +62,10 @@ public final class Animation {
         assert (animationFrames != null && !animationFrames.isEmpty());
         this.animationFrames = new ArrayList<>(animationFrames);
         frames = animationFrames.size();
+        if (frameTime == 0) {
+            throw new IllegalArgumentException(
+                    "Parameter frameTime is set to 0, frameTime must be greater than 0!");
+        }
         this.timeBetweenFrames = frameTime;
         this.looping = looping;
         this.priority = prio;
