@@ -58,7 +58,7 @@ public class CollisionSystemTest {
      */
     private static Entity prepareEntityWithPosition(Point point1) {
         Entity e1 = new Entity();
-        e1.addComponent(new PositionComponent(point1));
+        e1.add(new PositionComponent(point1));
 
         return e1;
     }
@@ -85,8 +85,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        e1.addComponent(hb1);
-        e2.addComponent(hb2);
+        e1.add(hb1);
+        e2.add(hb2);
         Game.add(e1);
         Game.add(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
@@ -122,8 +122,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        e1.addComponent(hb1);
-        e2.addComponent(hb2);
+        e1.add(hb1);
+        e2.add(hb2);
         Game.add(e1);
         Game.add(e2);
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
@@ -156,8 +156,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        e1.addComponent(hb1);
-        e2.addComponent(hb2);
+        e1.add(hb1);
+        e2.add(hb2);
         Game.add(e1);
         Game.add(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
@@ -190,8 +190,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        e1.addComponent(hb1);
-        e2.addComponent(hb2);
+        e1.add(hb1);
+        e2.add(hb2);
         Game.add(e1);
         Game.add(e2);
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
@@ -220,8 +220,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        e1.addComponent(hb1);
-        e2.addComponent(hb2);
+        e1.add(hb1);
+        e2.add(hb2);
         Game.add(e1);
         Game.add(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
@@ -251,8 +251,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        e1.addComponent(hb1);
-        e2.addComponent(hb2);
+        e1.add(hb1);
+        e2.add(hb2);
         Game.add(e1);
         Game.add(e2);
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
@@ -281,8 +281,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        e1.addComponent(hb1);
-        e2.addComponent(hb2);
+        e1.add(hb1);
+        e2.add(hb2);
         Game.add(e1);
         Game.add(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
@@ -312,8 +312,8 @@ public class CollisionSystemTest {
         CollideComponent hb2 =
                 new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
-        e1.addComponent(hb1);
-        e2.addComponent(hb2);
+        e1.add(hb1);
+        e2.add(hb2);
         Game.add(e1);
         Game.add(e2);
         assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
@@ -344,8 +344,8 @@ public class CollisionSystemTest {
                 new CollideComponent(
                         new Point(new Point(0, 0)), new Point(new Point(1, 1)), collider, collider);
 
-        e1.addComponent(hb1);
-        e2.addComponent(hb2);
+        e1.add(hb1);
+        e2.add(hb2);
         Game.add(e1);
         Game.add(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
@@ -375,8 +375,8 @@ public class CollisionSystemTest {
                         collider,
                         collider);
 
-        e1.addComponent(hb1);
-        e2.addComponent(hb2);
+        e1.add(hb1);
+        e2.add(hb2);
         Game.add(e1);
         Game.add(e2);
         assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
@@ -455,7 +455,7 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        e1.addComponent(
+        e1.add(
                 new CollideComponent(
                         new Point(0, 0),
                         new Point(1, 1),
@@ -476,7 +476,7 @@ public class CollisionSystemTest {
         Entity e1 = prepareEntityWithPosition(new Point(0, 0));
         SimpleCounter sc1OnEnter = new SimpleCounter();
         SimpleCounter sc1OnLeave = new SimpleCounter();
-        e1.addComponent(
+        e1.add(
                 new CollideComponent(
                         new Point(0, 0),
                         new Point(1, 1),
@@ -485,7 +485,7 @@ public class CollisionSystemTest {
         Entity e2 = prepareEntityWithPosition(new Point(1, 1));
         SimpleCounter sc2OnEnter = new SimpleCounter();
         SimpleCounter sc2OnLeave = new SimpleCounter();
-        e2.addComponent(
+        e2.add(
                 new CollideComponent(
                         new Point(0, 0),
                         new Point(1, 1),

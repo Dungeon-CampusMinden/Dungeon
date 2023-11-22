@@ -89,7 +89,7 @@ public class MonsterFactory {
             ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
             Item item = itemDataGenerator.generateItemData();
             InventoryComponent ic = new InventoryComponent(1);
-            monster.addComponent(ic);
+            monster.add(ic);
             ic.add(item);
             onDeath =
                     (e, who) -> {
@@ -99,22 +99,22 @@ public class MonsterFactory {
         } else {
             onDeath = (e, who) -> playMonsterDieSound();
         }
-        monster.addComponent(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
-        monster.addComponent(new PositionComponent());
-        monster.addComponent(
+        monster.add(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
+        monster.add(new PositionComponent());
+        monster.add(
                 new AIComponent(
                         AIFactory.generateRandomFightAI(),
                         AIFactory.generateRandomIdleAI(),
                         AIFactory.generateRandomTransitionAI(monster)));
-        monster.addComponent(new DrawComponent(pathToTexture));
-        monster.addComponent(new VelocityComponent(speed, speed));
-        monster.addComponent(new CollideComponent());
-        monster.addComponent(
+        monster.add(new DrawComponent(pathToTexture));
+        monster.add(new VelocityComponent(speed, speed));
+        monster.add(new CollideComponent());
+        monster.add(
                 new SpikyComponent(
                         MONSTER_COLLIDE_DAMAGE,
                         MONSTER_COLLIDE_DAMAGE_TYPE,
                         MONSTER_COLLIDE_COOL_DOWN));
-        monster.addComponent(new IdleSoundComponent(randomMonsterIdleSound()));
+        monster.add(new IdleSoundComponent(randomMonsterIdleSound()));
         return monster;
     }
 

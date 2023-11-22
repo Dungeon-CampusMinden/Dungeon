@@ -98,7 +98,7 @@ public class NativeInstantiateNamed extends NativeFunction {
                     try {
                         Component component = (Component) memberObject;
                         Entity entity = (Entity) entityObject;
-                        entity.addComponent(component);
+                        entity.add(component);
                     } catch (ClassCastException ex) {
                         //
                     }
@@ -118,7 +118,7 @@ public class NativeInstantiateNamed extends NativeFunction {
                 try {
                     Component component = (Component) memberObject;
                     Entity entity = (Entity) entityObject;
-                    entity.addComponent(component);
+                    entity.add(component);
                 } catch (ClassCastException ex) {
                     //
                 }

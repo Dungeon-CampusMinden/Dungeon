@@ -22,7 +22,7 @@ public class SelfDefendTransitionTest {
     public void isInFightModeHealtpointsAreMax() {
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent();
-        entity.addComponent(hc);
+        entity.add(hc);
         hc.maximalHealthpoints(10);
         hc.currentHealthpoints(10);
         Function<Entity, Boolean> defend = new SelfDefendTransition();
@@ -37,7 +37,7 @@ public class SelfDefendTransitionTest {
     public void isInFightModeHealthpointsAreLowerThenMax() {
         Entity entity = new Entity();
         HealthComponent hc = new HealthComponent();
-        entity.addComponent(hc);
+        entity.add(hc);
         hc.maximalHealthpoints(10);
         hc.currentHealthpoints(10);
         Function<Entity, Boolean> defend = new SelfDefendTransition();

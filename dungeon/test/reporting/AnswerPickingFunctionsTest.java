@@ -53,10 +53,10 @@ public class AnswerPickingFunctionsTest {
         // setup Chest
         Entity chest = new Entity("Chest");
         InventoryComponent ic = new InventoryComponent(3);
-        chest.addComponent(ic);
+        chest.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, chest);
         sc.addContainer(containerTaskContent);
-        chest.addComponent(new TaskContentComponent(containerTaskContent));
+        chest.add(new TaskContentComponent(containerTaskContent));
         Game.add(chest);
 
         // setup quest items
@@ -87,10 +87,10 @@ public class AnswerPickingFunctionsTest {
         // setup Chest
         Entity chest = new Entity("Chest");
         InventoryComponent ic = new InventoryComponent(3);
-        chest.addComponent(ic);
+        chest.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, chest);
         sc.addContainer(containerTaskContent);
-        chest.addComponent(new TaskContentComponent(containerTaskContent));
+        chest.add(new TaskContentComponent(containerTaskContent));
         Game.add(chest);
 
         // setup quest items
@@ -122,10 +122,10 @@ public class AnswerPickingFunctionsTest {
         // setup Chest
         Entity chest = new Entity("Chest");
         InventoryComponent ic = new InventoryComponent(3);
-        chest.addComponent(ic);
+        chest.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, chest);
         sc.addContainer(containerTaskContent);
-        chest.addComponent(new TaskContentComponent(containerTaskContent));
+        chest.add(new TaskContentComponent(containerTaskContent));
         Game.add(chest);
 
         // setup quest items
@@ -154,10 +154,10 @@ public class AnswerPickingFunctionsTest {
         // setup Chest
         Entity chest = new Entity("Chest");
         InventoryComponent ic = new InventoryComponent(3);
-        chest.addComponent(ic);
+        chest.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, chest);
         sc.addContainer(containerTaskContent);
-        chest.addComponent(new TaskContentComponent(containerTaskContent));
+        chest.add(new TaskContentComponent(containerTaskContent));
         Game.add(chest);
 
         // setup quest items
@@ -187,10 +187,10 @@ public class AnswerPickingFunctionsTest {
         // setup Chest
         Entity chest = new Entity("Chest");
         InventoryComponent ic = new InventoryComponent(3);
-        chest.addComponent(ic);
+        chest.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, chest);
         sc.addContainer(containerTaskContent);
-        chest.addComponent(new TaskContentComponent(containerTaskContent));
+        chest.add(new TaskContentComponent(containerTaskContent));
         Game.add(chest);
 
         // setup quest items
@@ -218,10 +218,10 @@ public class AnswerPickingFunctionsTest {
         // setup Chest
         Entity chest = new Entity("Chest");
         InventoryComponent ic = new InventoryComponent(3);
-        chest.addComponent(ic);
+        chest.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, chest);
         sc.addContainer(containerTaskContent);
-        chest.addComponent(new TaskContentComponent(containerTaskContent));
+        chest.add(new TaskContentComponent(containerTaskContent));
         Game.add(chest);
 
         // setup quest items
@@ -281,14 +281,14 @@ public class AnswerPickingFunctionsTest {
         // setup Chests
         Entity chestA = new Entity("Chest A");
         InventoryComponent icA = new InventoryComponent(3);
-        chestA.addComponent(icA);
-        chestA.addComponent(new TaskContentComponent(containerA));
+        chestA.add(icA);
+        chestA.add(new TaskContentComponent(containerA));
         Game.add(chestA);
 
         Entity chestB = new Entity("Chest B");
         InventoryComponent icB = new InventoryComponent(3);
-        chestB.addComponent(icB);
-        chestB.addComponent(new TaskContentComponent(containerB));
+        chestB.add(icB);
+        chestB.add(new TaskContentComponent(containerB));
         Game.add(chestB);
 
         // setup quest items
@@ -346,14 +346,14 @@ public class AnswerPickingFunctionsTest {
         // setup Chests
         Entity chestA = new Entity("Chest A");
         InventoryComponent icA = new InventoryComponent(3);
-        chestA.addComponent(icA);
-        chestA.addComponent(new TaskContentComponent(containerA));
+        chestA.add(icA);
+        chestA.add(new TaskContentComponent(containerA));
         Game.add(chestA);
 
         Entity chestB = new Entity("Chest B");
         InventoryComponent icB = new InventoryComponent(3);
-        chestB.addComponent(icB);
-        chestB.addComponent(new TaskContentComponent(containerB));
+        chestB.add(icB);
+        chestB.add(new TaskContentComponent(containerB));
         Game.add(chestB);
 
         // setup quest items
@@ -409,14 +409,14 @@ public class AnswerPickingFunctionsTest {
         // setup Chests
         Entity chestA = new Entity("Chest A");
         InventoryComponent icA = new InventoryComponent(3);
-        chestA.addComponent(icA);
-        chestA.addComponent(new TaskContentComponent(containerA));
+        chestA.add(icA);
+        chestA.add(new TaskContentComponent(containerA));
         Game.add(chestA);
 
         Entity chestB = new Entity("Chest B");
         InventoryComponent icB = new InventoryComponent(3);
-        chestB.addComponent(icB);
-        chestB.addComponent(new TaskContentComponent(containerB));
+        chestB.add(icB);
+        chestB.add(new TaskContentComponent(containerB));
         Game.add(chestB);
 
         // setup quest items
@@ -477,14 +477,14 @@ public class AnswerPickingFunctionsTest {
         // setup Chests
         Entity chestA = new Entity("Chest A");
         InventoryComponent icA = new InventoryComponent(3);
-        chestA.addComponent(icA);
-        chestA.addComponent(new TaskContentComponent(containerA));
+        chestA.add(icA);
+        chestA.add(new TaskContentComponent(containerA));
         Game.add(chestA);
 
         Entity chestB = new Entity("Chest B");
         InventoryComponent icB = new InventoryComponent(3);
-        chestB.addComponent(icB);
-        chestB.addComponent(new TaskContentComponent(containerB));
+        chestB.add(icB);
+        chestB.add(new TaskContentComponent(containerB));
         Game.add(chestB);
 
         // setup quest items
@@ -544,14 +544,14 @@ public class AnswerPickingFunctionsTest {
         // setup Chests
         Entity chestA = new Entity("Chest A");
         InventoryComponent icA = new InventoryComponent(3);
-        chestA.addComponent(icA);
-        chestA.addComponent(new TaskContentComponent(containerA));
+        chestA.add(icA);
+        chestA.add(new TaskContentComponent(containerA));
         Game.add(chestA);
 
         Entity chestB = new Entity("Chest B");
         InventoryComponent icB = new InventoryComponent(3);
-        chestB.addComponent(icB);
-        chestB.addComponent(new TaskContentComponent(containerB));
+        chestB.add(icB);
+        chestB.add(new TaskContentComponent(containerB));
         Game.add(chestB);
 
         // setup quest items
@@ -608,10 +608,10 @@ public class AnswerPickingFunctionsTest {
         Entity hero = EntityFactory.newHero();
         Game.hero(hero);
         InventoryComponent ic = new InventoryComponent(3);
-        hero.addComponent(ic);
+        hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
         sc.addContainer(containerTaskContent);
-        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        hero.add(new TaskContentComponent(containerTaskContent));
         Game.add(hero);
 
         // setup quest items
@@ -643,10 +643,10 @@ public class AnswerPickingFunctionsTest {
         Entity hero = EntityFactory.newHero();
         Game.hero(hero);
         InventoryComponent ic = new InventoryComponent(3);
-        hero.addComponent(ic);
+        hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
         sc.addContainer(containerTaskContent);
-        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        hero.add(new TaskContentComponent(containerTaskContent));
         Game.add(hero);
 
         // setup quest items
@@ -679,10 +679,10 @@ public class AnswerPickingFunctionsTest {
         Entity hero = EntityFactory.newHero();
         Game.hero(hero);
         InventoryComponent ic = new InventoryComponent(3);
-        hero.addComponent(ic);
+        hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
         sc.addContainer(containerTaskContent);
-        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        hero.add(new TaskContentComponent(containerTaskContent));
         Game.add(hero);
 
         // setup quest items
@@ -712,10 +712,10 @@ public class AnswerPickingFunctionsTest {
         Entity hero = EntityFactory.newHero();
         Game.hero(hero);
         InventoryComponent ic = new InventoryComponent(3);
-        hero.addComponent(ic);
+        hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
         sc.addContainer(containerTaskContent);
-        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        hero.add(new TaskContentComponent(containerTaskContent));
         Game.add(hero);
 
         // setup quest items
@@ -746,10 +746,10 @@ public class AnswerPickingFunctionsTest {
         Entity hero = EntityFactory.newHero();
         Game.hero(hero);
         InventoryComponent ic = new InventoryComponent(3);
-        hero.addComponent(ic);
+        hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
         sc.addContainer(containerTaskContent);
-        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        hero.add(new TaskContentComponent(containerTaskContent));
         Game.add(hero);
 
         // setup quest items
@@ -778,10 +778,10 @@ public class AnswerPickingFunctionsTest {
         Entity hero = EntityFactory.newHero();
         Game.hero(hero);
         InventoryComponent ic = new InventoryComponent(3);
-        hero.addComponent(ic);
+        hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
         sc.addContainer(containerTaskContent);
-        hero.addComponent(new TaskContentComponent(containerTaskContent));
+        hero.add(new TaskContentComponent(containerTaskContent));
         Game.add(hero);
 
         // setup quest items

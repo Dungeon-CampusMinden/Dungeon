@@ -37,15 +37,15 @@ import java.util.function.BiConsumer;
 public class NativeScenarioBuilder {
     public static Set<Set<Entity>> quizOnHud(Quiz quiz) {
         Entity questowner = new Entity("Questgeber");
-        questowner.addComponent(new PositionComponent());
+        questowner.add(new PositionComponent());
         try {
-            questowner.addComponent(new DrawComponent("character/knight"));
+            questowner.add(new DrawComponent("character/knight"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         new TaskComponent(quiz, questowner);
 
-        questowner.addComponent(askOnInteractionQuiz(quiz));
+        questowner.add(askOnInteractionQuiz(quiz));
 
         Set<Set<Entity>> returnSet = new HashSet<>();
         Set<Entity> roomSet = new HashSet<>();
@@ -70,14 +70,14 @@ public class NativeScenarioBuilder {
 
         // setup quest owner
         Entity questowner = new Entity("Questgeber");
-        questowner.addComponent(new PositionComponent());
+        questowner.add(new PositionComponent());
         try {
-            questowner.addComponent(new DrawComponent("character/knight"));
+            questowner.add(new DrawComponent("character/knight"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         new TaskComponent(task, questowner);
-        questowner.addComponent(askOnInteractionYesNo(task));
+        questowner.add(askOnInteractionYesNo(task));
         roomSet.add(questowner);
 
         // setup items and chests
@@ -103,17 +103,17 @@ public class NativeScenarioBuilder {
                     Entity chest = EntityFactory.newChest();
 
                     // empty generated chest
-                    chest.removeComponent(InventoryComponent.class);
-                    chest.addComponent(new InventoryComponent());
+                    chest.remove(InventoryComponent.class);
+                    chest.add(new InventoryComponent());
 
-                    chest.removeComponent(InteractionComponent.class);
-                    chest.addComponent(
+                    chest.remove(InteractionComponent.class);
+                    chest.add(
                             new InteractionComponent(1.5f, true, QuestChestInventoryInteraction()));
 
                     // mark as task container
                     var tcc = new TaskContentComponent();
                     tcc.content(key);
-                    chest.addComponent(tcc);
+                    chest.add(tcc);
 
                     task.addContent(key);
                     task.addContainer(key);
@@ -188,7 +188,7 @@ public class NativeScenarioBuilder {
                                                             ChestAnimations.OPEN_EMPTY);
                                                 }
                                             }));
-            other.addComponent(uiComponent);
+            other.add(uiComponent);
             chest.fetch(DrawComponent.class)
                     .ifPresent(
                             interactedDC -> {
@@ -222,7 +222,7 @@ public class NativeScenarioBuilder {
     private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
         return (task, taskContents) -> {
             float score = task.gradeTask(taskContents);
-            task.managerEntity().get().removeComponent(InteractionComponent.class);
+            task.managerEntity().get().remove(InteractionComponent.class);
             UITools.generateNewTextDialog("Your score: " + score, "Ok", "Given answer");
         };
     }

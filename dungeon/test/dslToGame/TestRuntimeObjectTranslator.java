@@ -27,10 +27,10 @@ public class TestRuntimeObjectTranslator {
     @Test
     public void testEntityTranslation() {
         Entity entity = new Entity();
-        entity.addComponent(new CameraComponent());
-        entity.addComponent(new PositionComponent(new Point(0, 0)));
-        entity.addComponent(new VelocityComponent());
-        entity.addComponent(new HealthComponent());
+        entity.add(new CameraComponent());
+        entity.add(new PositionComponent(new Point(0, 0)));
+        entity.add(new VelocityComponent());
+        entity.add(new HealthComponent());
         Game.add(entity);
 
         String program = """
@@ -59,10 +59,10 @@ public class TestRuntimeObjectTranslator {
     @Test
     public void testIsolatedComponentTranslation() {
         Entity entity = new Entity();
-        entity.addComponent(new CameraComponent());
-        entity.addComponent(new PositionComponent(new Point(0, 0)));
-        entity.addComponent(new VelocityComponent());
-        entity.addComponent(new HealthComponent());
+        entity.add(new CameraComponent());
+        entity.add(new PositionComponent(new Point(0, 0)));
+        entity.add(new VelocityComponent());
+        entity.add(new HealthComponent());
         Game.add(entity);
 
         String program = """

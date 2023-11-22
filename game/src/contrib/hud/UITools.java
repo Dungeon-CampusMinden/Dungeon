@@ -43,7 +43,7 @@ public class UITools {
      * @param entity entity that stores the {@link UIComponent} with the UI-Elements
      */
     public static void show(Supplier<Dialog> provider, Entity entity) {
-        entity.addComponent(new UIComponent(provider.get(), true));
+        entity.add(new UIComponent(provider.get(), true));
     }
 
     /**

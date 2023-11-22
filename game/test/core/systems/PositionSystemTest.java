@@ -36,7 +36,7 @@ public class PositionSystemTest {
         entity = new Entity();
         Game.add(entity);
 
-        entity.addComponent(pc);
+        entity.add(pc);
 
         Mockito.when(level.randomTile(LevelElement.FLOOR)).thenReturn(mock);
         Mockito.when(mock.position()).thenReturn(point);

@@ -54,7 +54,7 @@ public class GameTest {
     public void find_exisiting() {
         Entity e = new Entity();
         DummyComponent dc = new DummyComponent();
-        e.addComponent(dc);
+        e.add(dc);
         Game.add(e);
         assertEquals(e, Game.find(dc).get());
         // load ne level to check if it still works

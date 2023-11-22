@@ -50,8 +50,8 @@ public class EntityExtension {
 
         @Override
         public void set(Entity instance, VelocityComponent valueToSet) {
-            instance.removeComponent(VelocityComponent.class);
-            instance.addComponent(valueToSet);
+            instance.remove(VelocityComponent.class);
+            instance.add(valueToSet);
         }
 
         @Override
@@ -71,8 +71,8 @@ public class EntityExtension {
 
         @Override
         public void set(Entity instance, InventoryComponent valueToSet) {
-            instance.removeComponent(InventoryComponent.class);
-            instance.addComponent(valueToSet);
+            instance.remove(InventoryComponent.class);
+            instance.add(valueToSet);
         }
 
         @Override
@@ -91,8 +91,8 @@ public class EntityExtension {
 
         @Override
         public void set(Entity instance, PositionComponent valueToSet) {
-            instance.removeComponent(PositionComponent.class);
-            instance.addComponent(valueToSet);
+            instance.remove(PositionComponent.class);
+            instance.add(valueToSet);
         }
 
         @Override
@@ -111,8 +111,8 @@ public class EntityExtension {
 
         @Override
         public void set(Entity instance, TaskContentComponent valueToSet) {
-            instance.removeComponent(TaskContentComponent.class);
-            instance.addComponent(valueToSet);
+            instance.remove(TaskContentComponent.class);
+            instance.add(valueToSet);
         }
 
         @Override
@@ -131,8 +131,8 @@ public class EntityExtension {
 
         @Override
         public void set(Entity instance, DrawComponent valueToSet) {
-            instance.removeComponent(DrawComponent.class);
-            instance.addComponent(valueToSet);
+            instance.remove(DrawComponent.class);
+            instance.add(valueToSet);
         }
 
         @Override
@@ -151,8 +151,8 @@ public class EntityExtension {
 
         @Override
         public void set(Entity instance, InteractionComponent valueToSet) {
-            instance.removeComponent(InteractionComponent.class);
-            instance.addComponent(valueToSet);
+            instance.remove(InteractionComponent.class);
+            instance.add(valueToSet);
         }
 
         @Override
@@ -171,8 +171,8 @@ public class EntityExtension {
 
         @Override
         public void set(Entity instance, TaskComponent valueToSet) {
-            instance.removeComponent(TaskComponent.class);
-            instance.addComponent(valueToSet);
+            instance.remove(TaskComponent.class);
+            instance.add(valueToSet);
 
             // if the task component references a Task, the manager entity should
             // be updated to the instance entity
@@ -243,7 +243,7 @@ public class EntityExtension {
                                                             ChestAnimations.OPEN_EMPTY);
                                                 }
                                             }));
-            other.addComponent(uiComponent);
+            other.add(uiComponent);
             chest.fetch(DrawComponent.class)
                     .ifPresent(
                             interactedDC -> {
@@ -287,7 +287,7 @@ public class EntityExtension {
             String name = (String) params.get(1);
             Element<String> content = new Element<>(task, name);
             tcc.content(content);
-            instance.addComponent(tcc);
+            instance.add(tcc);
 
             task.addContent(content);
             task.addContainer(content);
@@ -321,7 +321,7 @@ public class EntityExtension {
             Task task = (Task) params.get(0);
             Element<String> content = (Element<String>) params.get(1);
             tcc.content(content);
-            instance.addComponent(tcc);
+            instance.add(tcc);
 
             task.addContent(content);
             task.addContainer(content);

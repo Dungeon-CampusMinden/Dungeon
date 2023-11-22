@@ -44,7 +44,7 @@ public class TaskContentDoorOpenerTest {
                 null; // = GeneratorUtils.doorAt(tuple.a().level(), tuple.b()).orElseThrow();
         door.close();
         DoorComponent dc = new DoorComponent(Set.of(door));
-        manager.addComponent(dc);
+        manager.add(dc);
         taskComponent.onActivate(TaskComponent.DOOR_OPENER);
         task.state(Task.TaskState.ACTIVE);
         assertTrue(door.isOpen());

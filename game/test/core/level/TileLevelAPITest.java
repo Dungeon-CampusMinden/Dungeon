@@ -200,8 +200,8 @@ public class TileLevelAPITest {
         when(generator.level(any(), Mockito.any())).thenReturn(level);
         api.loadLevel();
         Entity hero = new Entity();
-        hero.addComponent(new PositionComponent());
-        hero.addComponent(new PlayerComponent());
+        hero.add(new PositionComponent());
+        hero.add(new PlayerComponent());
         Game.add(hero);
 
         Tile end = Mockito.mock(Tile.class);

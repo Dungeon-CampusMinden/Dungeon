@@ -71,7 +71,7 @@ public final class InteractionComponent implements Component {
      */
     public void triggerInteraction(final Entity entity, final Entity who) {
         onInteraction.accept(entity, who);
-        if (!repeatable) entity.removeComponent(InteractionComponent.class);
+        if (!repeatable) entity.remove(InteractionComponent.class);
     }
 
     /**
