@@ -195,9 +195,7 @@ public class Debugger {
         }
     }
 
-    /**
-     * Pauses the game.
-     */
+    /** Pauses the game. */
     public static void PAUSE_GAME() {
         if (pauseMenu == null
                 || pauseMenu
