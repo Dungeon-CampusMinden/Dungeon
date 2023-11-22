@@ -1,8 +1,8 @@
 package core.gui.layouts.hints;
 
-import core.gui.LayoutHint;
+import core.gui.ILayoutHint;
 
-public enum BorderLayoutHint implements LayoutHint {
+public enum BorderLayoutHint implements ILayoutHint {
     NORTH,
     EAST,
     SOUTH,
