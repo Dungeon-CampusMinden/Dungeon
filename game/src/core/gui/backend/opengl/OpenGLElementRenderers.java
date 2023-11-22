@@ -64,10 +64,43 @@ public class OpenGLElementRenderers {
     public static final IOpenGLRenderFunction renderGUIText =
             (e, context) -> {
                 GUIText element = (GUIText) e;
+
+                Matrix4f model = createModelMatrix(element);
+                context.begin();
+
+                GL33.glUniformMatrix4fv(
+                        context.getUniformLocation("uModel"), false, model.toArray());
+                GL33.glUniform1i(
+                        context.getUniformLocation("uProperties"), PROP_HAS_BACKGROUND_COLOR);
+                GL33.glUniform4fv(
+                        context.getUniformLocation("uBackgroundColor"),
+                        element.backgroundColor().toArray());
+
+                context.draw();
+                context.end();
+
+                /*GUIRoot.getInstance()
+                .backend()
+                .drawText(
+                        element.text(),
+                        element.font(),
+                        element.position().x(),
+                        element.position().y(),
+                        element.size().x(),
+                        element.size().y(),
+                        element.textColor().toRGBA());*/
                 GUIRoot.getInstance()
                         .backend()
                         .drawText(
-                                element.text(), element.font(), 100, 100, 10000, 10000, 0xFFFFFFFF);
+                                element.text(),
+                                element.font(),
+                                element.position().x() + 10,
+                                element.position().y()
+                                        + element.size().y()
+                                        - element.font().fontSize,
+                                element.size().x(),
+                                element.size().y(),
+                                element.textColor().toRGBA());
                 validate(element);
             };
 
