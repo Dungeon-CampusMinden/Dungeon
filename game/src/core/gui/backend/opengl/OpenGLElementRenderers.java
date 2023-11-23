@@ -23,11 +23,76 @@ public class OpenGLElementRenderers {
     public static final IOpenGLRenderFunction renderGUIImage =
             (e, context) -> {
                 GUIImage element = (GUIImage) e;
-                Matrix4f model = createModelMatrix(element);
                 OpenGLImage image = (OpenGLImage) element.image();
                 if (image == null) {
                     return;
                 }
+
+                // Enable stencil testing & draw stencil mask
+                GL33.glEnable(GL33.GL_STENCIL_TEST);
+                GL33.glClear(GL33.GL_STENCIL_BUFFER_BIT);
+                GL33.glStencilMask(0xFF);
+
+                // Draw element rectangle (background & stencil mask)
+                Matrix4f modelElement = createModelMatrix(element);
+                context.begin();
+                GL33.glUniformMatrix4fv(
+                        context.getUniformLocation("uModel"), false, modelElement.toArray());
+                if (element.backgroundColor() != null) {
+                    GL33.glUniform1i(
+                            context.getUniformLocation("uProperties"), PROP_HAS_BACKGROUND_COLOR);
+                    GL33.glUniform4fv(
+                            context.getUniformLocation("uBackgroundColor"),
+                            element.backgroundColor().toArray());
+                } else {
+                    GL33.glUniform1i(context.getUniformLocation("uProperties"), PROP_NONE);
+                }
+                context.draw();
+                context.end();
+
+                // Disable stencil writing & enable stencil testing
+                GL33.glStencilMask(0x00);
+                GL33.glStencilFunc(GL33.GL_EQUAL, 1, 0xFF);
+
+                float width = 0;
+                float height = 0;
+
+                switch (element.scaleMode()) {
+                    case STRETCH -> {
+                        width = element.size().x();
+                        height = element.size().y();
+                    }
+                    case CONTAIN -> {
+                        float aspect = (float) image.width() / (float) image.height();
+                        width = element.size().x();
+                        height = width / aspect;
+                        if (height > element.size().y()) {
+                            height = element.size().y();
+                            width = height * aspect;
+                        }
+                    }
+                    case COVER -> {
+                        float aspect = (float) image.width() / (float) image.height();
+                        width = element.size().x();
+                        height = width / aspect;
+                        if (height < element.size().y()) {
+                            height = element.size().y();
+                            width = height * aspect;
+                        }
+                    }
+                }
+
+                Vector2f absPos = element.absolutePosition();
+                float x = absPos.x() + element.size().x() / 2 - width / 2;
+                float y = absPos.y() + element.size().y() / 2 - height / 2;
+
+                Matrix4f model = Matrix4f.identity();
+                model = model.multiply(Matrix4f.translate(x, y, 0.0f));
+                model = model.multiply(Matrix4f.scale(width, height, 1));
+                model = model.multiply(Matrix4f.rotateX(element.rotation().x()));
+                model = model.multiply(Matrix4f.rotateY(element.rotation().y()));
+                model = model.multiply(Matrix4f.rotateZ(element.rotation().z()));
+
                 context.begin();
                 GL33.glUniformMatrix4fv(
                         context.getUniformLocation("uModel"), false, model.toArray());
@@ -39,6 +104,8 @@ public class OpenGLElementRenderers {
                 context.draw();
                 context.end();
                 validate(element);
+
+                GL33.glDisable(GL33.GL_STENCIL_TEST);
             };
 
     public static final IOpenGLRenderFunction renderGUIColorPane =
@@ -83,16 +150,6 @@ public class OpenGLElementRenderers {
                 context.draw();
                 context.end();
 
-                /*GUIRoot.getInstance()
-                .backend()
-                .drawText(
-                        element.text(),
-                        element.font(),
-                        element.position().x(),
-                        element.position().y(),
-                        element.size().x(),
-                        element.size().y(),
-                        element.textColor().toRGBA());*/
                 GUIRoot.getInstance()
                         .backend()
                         .drawText(
