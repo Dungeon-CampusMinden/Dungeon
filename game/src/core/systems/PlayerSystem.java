@@ -1,13 +1,21 @@
 package core.systems;
 
+import com.badlogic.gdx.Gdx;
+
 import core.Entity;
 import core.System;
 import core.components.PlayerComponent;
 import core.utils.components.MissingComponentException;
 
+import java.util.Map;
+
 /**
- * The PlayerSystem is used to control the player, it will trigger the {@link
- * PlayerComponent#execute(Entity, boolean)}-Method to execute the Functions registered to Keys.
+ * Controls the Player.
+ *
+ * <p>Will work on Entities that implement the {@link PlayerComponent}.
+ *
+ * <p>This System will check for each registered callback in the {@link PlayerComponent} if the Key
+ * is pressed, and if so, will execute the Callback.
  */
 public final class PlayerSystem extends System {
 
@@ -23,9 +31,13 @@ public final class PlayerSystem extends System {
     }
 
     private void execute(Entity entity) {
-        entity.fetch(PlayerComponent.class)
-                .orElseThrow(() -> MissingComponentException.build(entity, PlayerComponent.class))
-                .execute(entity, !this.running);
+        PlayerComponent pc =
+                entity.fetch(PlayerComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PlayerComponent.class));
+        execute(pc.callbacks(), entity, !this.running);
     }
 
     @Override
@@ -38,5 +50,35 @@ public final class PlayerSystem extends System {
     public void run() {
         this.run = true;
         this.running = true;
+    }
+
+    /**
+     * Execute the callback function registered to a key when it is pressed.
+     *
+     * <p>The callbacks are executed only if the game is not paused or if the callback is not
+     * pauseable.
+     *
+     * @param entity associated entity of this component.
+     * @param paused if the game is paused or not.
+     */
+    private void execute(
+            Map<Integer, PlayerComponent.InputData> callbacks,
+            final Entity entity,
+            boolean paused) {
+        callbacks.forEach(
+                (key, value) -> {
+                    if (!paused || !value.pauseable()) {
+                        execute(entity, key, value);
+                    }
+                });
+    }
+
+    private void execute(Entity entity, int key, final PlayerComponent.InputData data) {
+        if ((!data.repeat()
+                        && (Gdx.input.isKeyJustPressed(key) || Gdx.input.isButtonJustPressed(key)))
+                || (data.repeat()
+                        && (Gdx.input.isKeyPressed(key) || Gdx.input.isButtonJustPressed(key)))) {
+            data.callback().accept(entity);
+        }
     }
 }
