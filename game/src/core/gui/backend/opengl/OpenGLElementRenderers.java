@@ -150,15 +150,15 @@ public class OpenGLElementRenderers {
                 context.draw();
                 context.end();
 
+                Vector2f absPos = element.absolutePosition();
+
                 GUIRoot.getInstance()
                         .backend()
                         .drawText(
                                 element.text(),
                                 element.font(),
-                                element.position().x() + element.font().fontSize,
-                                element.position().y()
-                                        + element.size().y()
-                                        - element.font().fontSize,
+                                absPos.x() + element.font().fontSize,
+                                absPos.y() + element.size().y() - element.font().fontSize,
                                 element.size().x() - 2 * element.font().fontSize,
                                 element.size().y() - 2 * element.font().fontSize,
                                 element.textColor().toRGBA());
