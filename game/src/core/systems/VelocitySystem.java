@@ -24,12 +24,10 @@ import core.utils.components.draw.CoreAnimations;
  * VelocityComponent#currentYVelocity()} and calculate the new position of the entity based on their
  * current position stored in the {@link PositionComponent}. If the new position is a valid
  * position, which means the tile they would stand on is accessible, the new position will be set.
+ * If the new position is walled, the {@link VelocityComponent#onWallHit()} callback will be
+ * executed.
  *
- * <p>This system will also set the current animation to {@link CoreAnimations#RUN_LEFT} or {@link
- * CoreAnimations#RUN_RIGHT} if the position is valid.
- *
- * <p>If the new position is not valid, the {@link CoreAnimations#IDLE_LEFT} or {@link
- * CoreAnimations#IDLE_RIGHT} animations will be set as the new current animation.
+ * <p>This system will also queue the corresponding run or idle animation.
  *
  * <p>At the end, the {@link VelocityComponent#currentXVelocity(float)} and {@link
  * VelocityComponent#yVelocity(float)} will be set to 0.
@@ -42,7 +40,7 @@ import core.utils.components.draw.CoreAnimations;
 public final class VelocitySystem extends System {
 
     // default time an Animation should be enqueued
-    private static final int FOR_FRAMES = 1;
+    private static final int DEFAULT_FRAME_TIME = 1;
 
     /** Create a new VelocitySystem */
     public VelocitySystem() {
@@ -69,7 +67,7 @@ public final class VelocitySystem extends System {
 
         float newX = vsd.pc.position().x + velocity.x;
         float newY = vsd.pc.position().y + velocity.y;
-        boolean hitwall = false;
+        boolean hitWall = false;
         try {
             if (Game.tileAT(new Point(newX, newY)).isAccessible()) {
                 // no change in direction
@@ -77,23 +75,21 @@ public final class VelocitySystem extends System {
                 this.movementAnimation(vsd);
             } else if (Game.tileAT(new Point(newX, vsd.pc.position().y)).isAccessible()) {
                 // redirect not moving along y
-                hitwall = true;
+                hitWall = true;
                 vsd.pc.position(new Point(newX, vsd.pc.position().y));
                 this.movementAnimation(vsd);
                 vsd.vc.currentYVelocity(0.0f);
             } else if (Game.tileAT(new Point(vsd.pc.position().x, newY)).isAccessible()) {
                 // redirect not moving along x
-                hitwall = true;
+                hitWall = true;
                 vsd.pc.position(new Point(vsd.pc.position().x, newY));
                 this.movementAnimation(vsd);
                 vsd.vc.currentXVelocity(0.0f);
             } else {
-                hitwall = true;
+                hitWall = true;
             }
 
-            // remove projectiles that hit the wall or other non-accessible
-            // tiles
-            if (hitwall) vsd.vc.onWallHit().accept(vsd.e);
+            if (hitWall) vsd.vc.onWallHit().accept(vsd.e);
 
             float friction = Game.tileAT(vsd.pc.position()).friction();
             float newVX = vsd.vc.currentXVelocity() * (Math.min(1.0f, 1.0f - friction));
@@ -107,6 +103,60 @@ public final class VelocitySystem extends System {
             // for some reason the entity is out of bound
             vsd.pc().position(PositionComponent.ILLEGAL_POSITION);
             LOGGER.warning("Entity " + e + " is out of bound");
+        }
+    }
+
+    private void movementAnimation(VSData vsd) {
+        float x = vsd.vc.currentXVelocity();
+        float y = vsd.vc.currentYVelocity();
+
+        // move
+        if (x != 0 || y != 0) {
+            vsd.dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
+            if (x > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
+            else if (x < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
+            else if (y > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
+            else if (y < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
+            vsd.vc.previousXVelocity(x);
+            vsd.vc.previousYVelocity(y);
+
+            vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+        }
+        // idle
+        else {
+            // each drawComponent has an idle animation, so no check is needed
+            if (vsd.vc.previousXVelocity() < 0)
+                vsd.dc.queueAnimation(
+                        DEFAULT_FRAME_TIME,
+                        CoreAnimations.IDLE_LEFT,
+                        CoreAnimations.IDLE,
+                        CoreAnimations.IDLE_RIGHT,
+                        CoreAnimations.IDLE_DOWN,
+                        CoreAnimations.IDLE_UP);
+            else if (vsd.vc.previousXVelocity() > 0)
+                vsd.dc.queueAnimation(
+                        DEFAULT_FRAME_TIME,
+                        CoreAnimations.IDLE_RIGHT,
+                        CoreAnimations.IDLE,
+                        CoreAnimations.IDLE_LEFT,
+                        CoreAnimations.IDLE_DOWN,
+                        CoreAnimations.IDLE_UP);
+            else if (vsd.vc.previousYVelocity() > 0)
+                vsd.dc.queueAnimation(
+                        DEFAULT_FRAME_TIME,
+                        CoreAnimations.IDLE_UP,
+                        CoreAnimations.IDLE,
+                        CoreAnimations.IDLE_DOWN,
+                        CoreAnimations.IDLE_LEFT,
+                        CoreAnimations.IDLE_RIGHT);
+            else
+                vsd.dc.queueAnimation(
+                        DEFAULT_FRAME_TIME,
+                        CoreAnimations.IDLE_DOWN,
+                        CoreAnimations.IDLE,
+                        CoreAnimations.IDLE_UP,
+                        CoreAnimations.IDLE_LEFT,
+                        CoreAnimations.IDLE_RIGHT);
         }
     }
 
@@ -126,60 +176,6 @@ public final class VelocitySystem extends System {
                         .orElseThrow(() -> MissingComponentException.build(e, DrawComponent.class));
 
         return new VSData(e, vc, pc, dc);
-    }
-
-    private void movementAnimation(VSData vsd) {
-
-        float x = vsd.vc.currentXVelocity();
-        float y = vsd.vc.currentYVelocity();
-        if (x != 0 || y != 0) {
-            vsd.dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-            if (x > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-            else if (x < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-            else if (y > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
-            else if (y < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
-            vsd.vc.previousXVelocity(x);
-            vsd.vc.previousYVelocity(y);
-
-            vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
-        }
-
-        // idle
-        else {
-            // each drawComponent has an idle animation, so no check is needed
-            if (vsd.vc.previousXVelocity() < 0)
-                vsd.dc.queueAnimation(
-                        FOR_FRAMES,
-                        CoreAnimations.IDLE_LEFT,
-                        CoreAnimations.IDLE,
-                        CoreAnimations.IDLE_RIGHT,
-                        CoreAnimations.IDLE_DOWN,
-                        CoreAnimations.IDLE_UP);
-            else if (vsd.vc.previousXVelocity() > 0)
-                vsd.dc.queueAnimation(
-                        FOR_FRAMES,
-                        CoreAnimations.IDLE_RIGHT,
-                        CoreAnimations.IDLE,
-                        CoreAnimations.IDLE_LEFT,
-                        CoreAnimations.IDLE_DOWN,
-                        CoreAnimations.IDLE_UP);
-            else if (vsd.vc.previousYVelocity() > 0)
-                vsd.dc.queueAnimation(
-                        FOR_FRAMES,
-                        CoreAnimations.IDLE_UP,
-                        CoreAnimations.IDLE,
-                        CoreAnimations.IDLE_DOWN,
-                        CoreAnimations.IDLE_LEFT,
-                        CoreAnimations.IDLE_RIGHT);
-            else
-                vsd.dc.queueAnimation(
-                        FOR_FRAMES,
-                        CoreAnimations.IDLE_DOWN,
-                        CoreAnimations.IDLE,
-                        CoreAnimations.IDLE_UP,
-                        CoreAnimations.IDLE_LEFT,
-                        CoreAnimations.IDLE_RIGHT);
-        }
     }
 
     private record VSData(Entity e, VelocityComponent vc, PositionComponent pc, DrawComponent dc) {}
