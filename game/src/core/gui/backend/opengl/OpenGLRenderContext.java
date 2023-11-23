@@ -12,6 +12,7 @@ public class OpenGLRenderContext {
 
     private final HashMap<String, Integer> uniformLocations = new HashMap<>();
     private boolean begun = false;
+    private boolean begunStencil = false;
 
     public int vao, vbo, ebo, frameBuffer, renderBuffer, texture, shader;
     public Map<String, Integer> additionalBuffers = new HashMap<>();
@@ -34,6 +35,35 @@ public class OpenGLRenderContext {
         this.begun = true;
     }
 
+    public void beginStencil() {
+        GL33.glEnable(GL33.GL_STENCIL_TEST);
+        GL33.glClearStencil(0);
+        GL33.glClear(GL33.GL_STENCIL_BUFFER_BIT);
+        this.begunStencil = true;
+    }
+
+    public void writeStencil() {
+        if (!this.begunStencil) {
+            Logging.log(
+                    CustomLogLevel.WARNING,
+                    "OpenGLRenderStructure.writeStencil() called before .beginStencil()!");
+        }
+        GL33.glStencilMask(0xFF);
+        GL33.glStencilFunc(GL33.GL_ALWAYS, 1, 0xFF);
+        GL33.glStencilOp(GL33.GL_KEEP, GL33.GL_KEEP, GL33.GL_REPLACE);
+    }
+
+    public void useStencil() {
+        if (!this.begunStencil) {
+            Logging.log(
+                    CustomLogLevel.WARNING,
+                    "OpenGLRenderStructure.useStencil() called before .beginStencil()!");
+        }
+        GL33.glStencilMask(0x00);
+        GL33.glStencilFunc(GL33.GL_EQUAL, 1, 0xFF);
+        GL33.glStencilOp(GL33.GL_KEEP, GL33.GL_KEEP, GL33.GL_KEEP);
+    }
+
     public void end() {
         if (this.begun) {
             GL33.glUseProgram(0);
@@ -43,6 +73,15 @@ public class OpenGLRenderContext {
             Logging.log(
                     CustomLogLevel.WARNING, "OpenGLRenderStructure.end() called before .begin()!");
         }
+    }
+
+    public void endStencil() {
+        if (!this.begunStencil) {
+            Logging.log(
+                    CustomLogLevel.WARNING,
+                    "OpenGLRenderStructure.endStencil() called before .beginStencil()!");
+        }
+        GL33.glDisable(GL33.GL_STENCIL_TEST);
     }
 
     public void draw() {
