@@ -94,13 +94,15 @@ public class BorderLayout implements IGUILayout {
             GUIElement element = array[1];
             Vector2f size = sizes[1]; // Get preferred size of east element
             if (this.mode == BorderLayoutMode.HORIZONTAL) { // East gets remaining height
-                element.size().x(size.x()).y(parent.size().y() - sizes[0].y() - sizes[2].y());
+                float width = array[4] == null ? parent.size().x() / 2 : size.x();
+                element.size().x(width).y(parent.size().y() - sizes[0].y() - sizes[2].y());
                 element.position()
-                        .x(parent.size().x() - size.x())
+                        .x(parent.size().x() - width)
                         .y(sizes[2].y()); // Stick to bottom right edge
             } else if (this.mode == BorderLayoutMode.VERTICAL) { // East gets full height
-                element.size().x(size.x()).y(parent.size().y());
-                element.position().x(parent.size().x() - size.x()).y(0); // Stick to top right edge
+                float width = array[4] == null ? parent.size().x() / 2 : size.x();
+                element.size().x(width).y(parent.size().y());
+                element.position().x(parent.size().x() - width).y(0); // Stick to top right edge
             }
             if (element.minimalSize().y() > element.size().y()) {
                 element.size().y(element.minimalSize().y());
@@ -115,10 +117,12 @@ public class BorderLayout implements IGUILayout {
             GUIElement element = array[3];
             Vector2f size = sizes[3]; // Get preferred size of west element
             if (this.mode == BorderLayoutMode.HORIZONTAL) { // West gets remaining height
-                element.size().x(size.x()).y(parent.size().y() - sizes[0].y() - sizes[2].y());
+                float width = array[4] == null ? parent.size().x() / 2 : size.x();
+                element.size().x(width).y(parent.size().y() - sizes[0].y() - sizes[2].y());
                 element.position().x(0).y(sizes[2].y()); // Stick to bottom left edge
             } else if (this.mode == BorderLayoutMode.VERTICAL) { // West gets full height
-                element.size().x(size.x()).y(parent.size().y());
+                float width = array[4] == null ? parent.size().x() / 2 : size.x();
+                element.size().x(width).y(parent.size().y());
                 element.position().x(0).y(0); // Stick to top left edge
             }
             if (element.minimalSize().y() > element.size().y()) {
