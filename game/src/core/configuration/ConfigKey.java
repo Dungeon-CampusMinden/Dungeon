@@ -3,7 +3,6 @@ package core.configuration;
 import core.configuration.values.ConfigValue;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * A ConfigKey is a key to a value in the configuration file.
@@ -12,9 +11,9 @@ import java.util.Optional;
  */
 public class ConfigKey<Type> {
 
-    protected String[] path;
     protected final ConfigValue<Type> value;
-    protected Optional<Configuration> configuration = Optional.empty();
+    protected String[] path;
+    protected Configuration configuration;
 
     /**
      * Creates a new ConfigKey.
@@ -24,18 +23,6 @@ public class ConfigKey<Type> {
      */
     public ConfigKey(String[] path, ConfigValue<Type> defaultValue) {
         this.path = Arrays.stream(path).map(String::toLowerCase).toArray(String[]::new);
-        this.value = defaultValue;
-    }
-
-    /**
-     * Creates a new ConfigKey.
-     *
-     * @param path The path to the value in the configuration file as string, seperated by dots.
-     * @param defaultValue The default value for this key.
-     */
-    public ConfigKey(String path, ConfigValue<Type> defaultValue) {
-        this.path =
-                Arrays.stream(path.split("\\.")).map(String::toLowerCase).toArray(String[]::new);
         this.value = defaultValue;
     }
 
@@ -55,6 +42,6 @@ public class ConfigKey<Type> {
      */
     public void value(Type value) {
         this.value.value(value);
-        this.configuration.ifPresent(c -> c.update(this));
+        if (configuration != null) configuration.update((this));
     }
 }

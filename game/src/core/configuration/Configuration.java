@@ -9,27 +9,63 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+/**
+ * Provides a mechanism for managing and persisting configuration data.
+ *
+ * <p>This class allows loading, saving, and updating configuration settings from a specified file
+ * path. It supports multiple configuration classes containing annotated fields, where each field
+ * represents a configuration key. The keys are organized in a hierarchical structure, and the class
+ * provides methods to load, save, and update configuration settings.
+ *
+ * <p>The `Configuration` class utilizes the libGDX library's `JsonValue` for handling JSON data,
+ * providing a convenient way to work with configuration files.
+ *
+ * @see ConfigKey
+ * @see ConfigMap
+ * @see KeyboardConfig
+ */
 public class Configuration {
 
-    private static final HashMap<String, Configuration> loadedConfigurationFiles = new HashMap<>();
-    private static final JsonValue.PrettyPrintSettings prettyPrintSettings =
+    private static final HashMap<String, Configuration> LOADED_CONFIGURATION_FILES =
+            new HashMap<>();
+    private static final JsonValue.PrettyPrintSettings PRETTY_PRINT_SETTINGS =
             new JsonValue.PrettyPrintSettings();
     private final Class<?>[] configClasses;
+    private final String configFilePath;
     private boolean fieldsLoaded = false;
     private JsonValue configRoot;
-    private final String configFilePath;
 
     private Configuration(Class<?>[] configMapClasses, String configFilePath) {
         this.configFilePath = configFilePath;
         configClasses = configMapClasses;
-        prettyPrintSettings.outputType = JsonWriter.OutputType.json;
-        prettyPrintSettings.wrapNumericArrays = true;
-        prettyPrintSettings.singleLineColumns = 0;
+        PRETTY_PRINT_SETTINGS.outputType = JsonWriter.OutputType.json;
+        PRETTY_PRINT_SETTINGS.wrapNumericArrays = true;
+        PRETTY_PRINT_SETTINGS.singleLineColumns = 0;
         prepareFields();
+    }
+
+    /**
+     * Load the configuration from the given path and return it. If the configuration has already
+     * been loaded, the cached version will be returned.
+     *
+     * @param path Path to the configuration file
+     * @param configMapClasses Classes where the ConfigKey fields are located (may be an annotated
+     *     with ConfigMap annotation)
+     * @return Configuration
+     * @throws IOException If the file could not be read
+     */
+    public static Configuration loadAndGetConfiguration(String path, Class<?>... configMapClasses)
+            throws IOException {
+        if (LOADED_CONFIGURATION_FILES.containsKey(path)) {
+            return LOADED_CONFIGURATION_FILES.get(path);
+        }
+        Configuration config = new Configuration(configMapClasses, path);
+        config.load();
+        LOADED_CONFIGURATION_FILES.put(path, config);
+        return config;
     }
 
     /**
@@ -89,7 +125,7 @@ public class Configuration {
             File file = new File(configFilePath);
             FileOutputStream fos = new FileOutputStream(file, false);
             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
-            osw.write(configRoot.prettyPrint(prettyPrintSettings));
+            osw.write(configRoot.prettyPrint(PRETTY_PRINT_SETTINGS));
             osw.close();
             fos.close();
         } catch (IOException e) {
@@ -155,7 +191,7 @@ public class Configuration {
                                     field.getDeclaringClass().getAnnotation(ConfigMap.class).path();
                             try {
                                 ConfigKey<?> key = (ConfigKey<?>) field.get(null);
-                                key.configuration = Optional.of(this);
+                                key.configuration = this;
                                 String[] path = new String[mapPath.length + key.path.length];
                                 System.arraycopy(mapPath, 0, path, 0, mapPath.length);
                                 System.arraycopy(
@@ -177,26 +213,5 @@ public class Configuration {
         JsonValue node = findOrCreate(key.path);
         node.set(key.value.serialize());
         saveConfiguration();
-    }
-
-    /**
-     * Load the configuration from the given path and return it. If the configuration has already
-     * been loaded, the cached version will be returned.
-     *
-     * @param path Path to the configuration file
-     * @param configMapClasses Classes where the ConfigKey fields are located (may be annotated with
-     *     ConfigMap annotation)
-     * @return Configuration
-     * @throws IOException If the file could not be read
-     */
-    public static Configuration loadAndGetConfiguration(String path, Class<?>... configMapClasses)
-            throws IOException {
-        if (loadedConfigurationFiles.containsKey(path)) {
-            return loadedConfigurationFiles.get(path);
-        }
-        Configuration config = new Configuration(configMapClasses, path);
-        config.load();
-        loadedConfigurationFiles.put(path, config);
-        return config;
     }
 }
