@@ -13,7 +13,7 @@ public class OpenGLRenderContext {
     private final HashMap<String, Integer> uniformLocations = new HashMap<>();
     private boolean begun = false;
 
-    public int vao, vbo, ebo, frameBuffer, texture, shader;
+    public int vao, vbo, ebo, frameBuffer, renderBuffer, texture, shader;
     public Map<String, Integer> additionalBuffers = new HashMap<>();
 
     public OpenGLRenderContext() {

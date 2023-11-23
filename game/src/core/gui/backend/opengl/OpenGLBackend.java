@@ -57,6 +57,10 @@ public class OpenGLBackend implements IGUIBackend {
                 GL33.GL_UNSIGNED_BYTE,
                 0);
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0); // Unbinding texture
+
+        GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, this.bufferRenderContext.renderBuffer);
+        GL33.glRenderbufferStorage(GL33.GL_RENDERBUFFER, GL33.GL_DEPTH24_STENCIL8, width, height);
+        GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, 0);
     }
 
     @Override
@@ -68,18 +72,26 @@ public class OpenGLBackend implements IGUIBackend {
             GL33.glPolygonMode(GL33.GL_FRONT_AND_BACK, GL33.GL_FILL);
         }
 
-        GL33.glClear(GL33.GL_DEPTH_BUFFER_BIT);
         if (updateNextFrame
                 || elements.stream().anyMatch(e -> !e.valid())) { // Render to Framebuffer
             GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, this.bufferRenderContext.frameBuffer);
-            GL33.glViewport(0, 0, this.size.x(), this.size.y());
             GL33.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            GL33.glClear(GL33.GL_COLOR_BUFFER_BIT);
+            GL33.glViewport(0, 0, this.size.x(), this.size.y());
+            GL33.glClear(
+                    GL33.GL_DEPTH_BUFFER_BIT
+                            | GL33.GL_COLOR_BUFFER_BIT
+                            | GL33.GL_STENCIL_BUFFER_BIT);
+
+            OpenGLBlendState blendState = OpenGLBlendState.capture();
+            GL33.glEnable(GL33.GL_BLEND);
+            GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
 
             log(CustomLogLevel.DEBUG, "Updating GUI.");
             this.renderGUI(elements);
 
             if (DRAW_DEBUG_IMAGE) this.renderDebug();
+
+            blendState.apply();
 
             GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
         }
@@ -571,6 +583,18 @@ public class OpenGLBackend implements IGUIBackend {
                 GL33.GL_TEXTURE_2D,
                 this.bufferRenderContext.texture,
                 0);
+
+        this.bufferRenderContext.renderBuffer = GL33.glGenRenderbuffers();
+        GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, this.bufferRenderContext.renderBuffer);
+        GL33.glRenderbufferStorage(
+                GL33.GL_RENDERBUFFER, GL33.GL_DEPTH24_STENCIL8, this.size.x(), this.size.y());
+        GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, 0);
+        GL33.glFramebufferRenderbuffer(
+                GL33.GL_FRAMEBUFFER,
+                GL33.GL_DEPTH_STENCIL_ATTACHMENT,
+                GL33.GL_RENDERBUFFER,
+                this.bufferRenderContext.renderBuffer);
+
         GL33.glDrawBuffers(new int[] {GL33.GL_COLOR_ATTACHMENT0});
 
         // Check if framebuffer is complete
