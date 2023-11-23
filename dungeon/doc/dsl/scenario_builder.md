@@ -65,4 +65,70 @@ Das Dungeon-System führt zur Übersetzung einer `.dng`-Datei in ein spielbares 
 4. Die erstellten Räume werden basierend auf den Abhängigkeiten im `dependency_graph` miteinander verbunden,
    sodass ein zusammenhängendes Level entsteht
 
+## Definition von Szenario-Builder-Funktionen
+
+Als Szenario-Builder-Funktion werden alle Funktionen behandelt, denen als Parameter eine Aufgabendefinition
+übergeben werden kann. Aktuell stehen hierfür die Datentypen `single_choice_task`, `multiple_choice_task` und
+`assign_task` zur Verfügung (vergleiche hierzu die [Dokumentation zu Aufgabendefinitionen](task_definition.md)).
+Der Rückgabetyp für Szenario-Builder-Funktionen muss eine Menge aus Entitätsmengen sein, also `entity<><>`.
+
+Ein Beispiel für die Definition einer Szenario-Builder-Funktion könnte wie folgt aussehen:
+
+```
+fn build_scenario(single_choice_task task) -> entity<><> {
+    // Code...
+}
+```
+
+### Rückgabewert
+
+Der Rückgabewert einer Szenario-Builder-Funktion ist eine Menge aus Entitätsmengen.
+Jede *Entitätsmenge*, die in der *Gesamtmenge* enthalten ist, wird als ein Raum vom Dungeon-System interpretiert.
+Die Entitäten die in den jeweiligen *Entitätsmengen* enthalten sind, werden in den entsprechenden Räumen im Spiellevel
+platziert.
+Alle Räume, die von einer Szenario-Builder-Funktion für **die gleiche Aufgabendefinition** zurückgegeben
+werden, werden anschließend vom Dungeon-System miteinander verbunden.
+
+Hierzu ein Beispiel:
+
+```
+fn build_scenario(single_choice_task task) -> entity<><> {
+    // Deklaration der leeren Gesamtmenge
+    var return_set : entity<><>;
+
+    // Deklaration der leeren Entitätsmengen
+    var room_1 : entity<>;
+    var room_2 : entity<>;
+
+    /*
+     * Entitäten in Entätsmengen hinzufügen (Code abstrahiert)
+     *
+     * - einen Ritter zu room_1 hinzufügen
+     * - eine Truhe zu room_2 hinzufügen
+     * - Schriftrollen zu room_2 hinzufügen
+     */
+
+    // Hinzufügen der Entitätsmengen zur Gesamtmenge
+    return_set.add(room_1);
+    return_set.add(room_2);
+
+    // Rückgabe der Gesamtmenge als Rückgabewert der Funktion
+    return return_set;
+}
+```
+
+Die Menge `return_set` ist die *Gesamtmenge*, die Mengen `room_1` und `room_2` sind die *Entitätsmengen*.
+Der Kommentarblock in der Mitte symbolisiert das Füllen der *Entitätsmengen* mit Entitäten (eine genaue Erklärung
+dazu folgt in [Entitäten erstellen](#entitäten-erstellen)).
+
+Aus jeder der *Entitätsmengen* wird im Anschluss an die Ausführung der Szenario-Builder-Funktion ein Raum erstellt und
+die enthaltenen Entitäten werden platziert. Die folgenden Bilder zeigen die so erstellten Räume:
+
+![Abbildung: Raum 1](img/scenario_builder_room1.png)
+
+Oben ist der Raum abgebildet, der für `room_1` erstellt wird und nur den Ritter enthält.
+
+![Abbildung: Raum 2](img/scenario_builder_room2.png)
+
+Im Raum, der für `room_2` erstellt wird, sind eine Truhe und Schriftrollen enthalten.
 
