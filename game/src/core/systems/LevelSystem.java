@@ -30,13 +30,13 @@ import java.util.logging.Logger;
  *
  * <p>The system will store the currently active level.
  *
- * <p>The system uses the configured {@link IGenerator} to generate levels in the configured {@link
- * LevelSize}. Use {@link #generator(IGenerator)} to change the used level generator. Use {@link
- * #levelSize(LevelSize)} to set the size of the next levels that get loaded.
- *
  * <p>Each frame, this system will draw the level on the screen. The system will also check if one
  * of the entities managed by this system is positioned on the end tile of the level. If so, the
  * next level will be loaded.
+ *
+ * <p>The system uses the configured {@link IGenerator} to generate levels in the configured {@link
+ * LevelSize}. Use {@link #generator(IGenerator)} to change the used level generator. Use {@link
+ * #levelSize(LevelSize)} to set the size of the next levels that get loaded.
  *
  * <p>If a new level is loaded, the system will trigger the onLevelLoad callback given in the
  * constructor of this system.
@@ -57,37 +57,31 @@ public final class LevelSystem extends System {
      * over walls
      */
     private static final float Y_OFFSET = 0.25f;
+
+    private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
     /** Currently used level-size configuration for generating new level. */
     private static LevelSize levelSize = LevelSize.MEDIUM;
 
-    private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
-
-    /**
-     * The currently loaded level of the game.
-     *
-     * @see ILevel
-     */
     private static ILevel currentLevel;
-
     private final IVoidFunction onLevelLoad;
     private final Painter painter;
-    private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getName());
-    private IGenerator gen;
+    private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getSimpleName());
+    private IGenerator generator;
 
     /**
-     * Create a new {@link LevelSize} and register it at the game.
+     * Create a new {@link LevelSystem}.
      *
-     * <p>The system will not load a new level at generation. Use {@link #loadLevel(LevelSize,
-     * DesignLabel)} if you want to trigger the load of a level manually, otherwise the first level
-     * will be loaded if this system {@link #execute()} is executed.
+     * <p>The system will not load a new level at creation. Use {@link #loadLevel(LevelSize,
+     * DesignLabel)} if you want to trigger the load of a level manually; otherwise, the first level
+     * will be loaded if this system's {@link #execute()} is executed.
      *
      * @param painter The {@link Painter} to use to draw the level.
-     * @param generator Level generator to use to generate level.
-     * @param onLevelLoad Callback-function that is called if a new level was loaded.
+     * @param generator Level generator to use to generate the level.
+     * @param onLevelLoad Callback function that is called if a new level was loaded.
      */
     public LevelSystem(Painter painter, IGenerator generator, IVoidFunction onLevelLoad) {
         super(PlayerComponent.class, PositionComponent.class);
-        this.gen = generator;
+        this.generator = generator;
         this.onLevelLoad = onLevelLoad;
         this.painter = painter;
     }
@@ -115,7 +109,7 @@ public final class LevelSystem extends System {
      *
      * @param levelSize The new configuration size for level generation.
      */
-    public static void levelSize(LevelSize levelSize) {
+    public static void levelSize(final LevelSize levelSize) {
         LevelSystem.levelSize = levelSize;
     }
 
@@ -126,9 +120,10 @@ public final class LevelSystem extends System {
      *
      * @param level The level to be set.
      */
-    public void loadLevel(ILevel level) {
+    public void loadLevel(final ILevel level) {
         currentLevel = level;
         onLevelLoad.execute();
+        levelAPI_logger.info("A new level was loaded.");
     }
 
     /**
@@ -139,8 +134,8 @@ public final class LevelSystem extends System {
      * @param size The wanted size of the new level.
      * @param label The wanted design of the new level.
      */
-    public void loadLevel(LevelSize size, DesignLabel label) {
-        currentLevel = gen.level(label, size);
+    public void loadLevel(final LevelSize size, final DesignLabel label) {
+        currentLevel = generator.level(label, size);
         onLevelLoad.execute();
         levelAPI_logger.info("A new level was loaded.");
     }
@@ -152,7 +147,7 @@ public final class LevelSystem extends System {
      *
      * @param designLabel Wanted level design.
      */
-    public void loadLevel(DesignLabel designLabel) {
+    public void loadLevel(final DesignLabel designLabel) {
         loadLevel(levelSize, designLabel);
     }
 
@@ -163,7 +158,7 @@ public final class LevelSystem extends System {
      *
      * @param size Wanted size of the level.
      */
-    public void loadLevel(LevelSize size) {
+    public void loadLevel(final LevelSize size) {
         loadLevel(size, DesignLabel.randomDesign());
     }
 
@@ -201,7 +196,7 @@ public final class LevelSystem extends System {
      * @return The currently used level generator.
      */
     public IGenerator generator() {
-        return gen;
+        return generator;
     }
 
     /**
@@ -209,8 +204,8 @@ public final class LevelSystem extends System {
      *
      * @param generator The new level generator.
      */
-    public void generator(IGenerator generator) {
-        gen = generator;
+    public void generator(final IGenerator generator) {
+        this.generator = generator;
     }
 
     /**
@@ -219,7 +214,7 @@ public final class LevelSystem extends System {
      * @param entity The entity for which the position is checked.
      * @return True if the entity is on the end tile, else false.
      */
-    private boolean isOnEndTile(Entity entity) {
+    private boolean isOnEndTile(final Entity entity) {
         PositionComponent pc =
                 entity.fetch(PositionComponent.class)
                         .orElseThrow(
@@ -230,7 +225,7 @@ public final class LevelSystem extends System {
         return currentTile.equals(Game.endTile());
     }
 
-    private Optional<ILevel> isOnDoor(Entity entity) {
+    private Optional<ILevel> isOnDoor(final Entity entity) {
         ILevel nextLevel = null;
         PositionComponent pc =
                 entity.fetch(PositionComponent.class)
