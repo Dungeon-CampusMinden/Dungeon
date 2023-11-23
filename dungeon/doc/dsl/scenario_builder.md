@@ -132,3 +132,70 @@ Oben ist der Raum abgebildet, der für `room_1` erstellt wird und nur den Ritter
 
 Im Raum, der für `room_2` erstellt wird, sind eine Truhe und Schriftrollen enthalten.
 
+### Entitäten erstellen
+
+Wie zuvor angedeutet, können innerhalb von Szenario-Builder-Funktionen Entitäten erstellt werden.
+Vereinfacht ausgedrü: jedes sichtbare Spielelement, mit dem Spielende in irgendeiner Weise interagieren können,
+ist eine Entität. Für technische Details sei hier auf die Dokumentation
+zum [Entity-Component-System](../../../game/doc/ecs_basics.md) verwiesen.
+
+Entitäten enthalten Komponenten, welche das Verhalten und das Aussehen einer Entität im Spiel beeinflussen.
+Komponenten verfügen über Eigenschaften, welche über die DungeonDSL konfiguriert werden können.
+Alle Komponenten, die in der DSL verfügbar sind, sind in der [Komponenten Dokumentation](TODO: Verweis auf Datentyp-Dokumentation)
+aufgelistet.
+In einer `.dng`-Datei können Komponenten mit konfigurierten Eigenschaften als ein Entitätstyp definiert werden.
+Aus diesen Entitätstypen kann mit der nativen `instantiate`-Funktion eine Entität erstellt werden. Diese Entität
+kann anschließend in einem Raum platziert werden (wie bereits oben unter [Rückgabewert](#rückgabewert) beschrieben).
+
+Das folgende Snippet zeigt die Definition eines Entitätstyps, aus dem eine "Ritter"-Entität erzeugt werden kann.
+```
+// Definition eines Entitätstyp
+entity_type ritter_typ {
+    draw_component {
+        path: "character/knight"
+    },
+    position_component {},
+    interaction_component{
+        radius: 1.5
+    }
+}
+```
+
+Die `draw_component`-Komponente bestimmt die grafische Darstellung der Entität im Spiel. Durch die Konfiguration
+der `path`-Eigenschaft wird ein Verzeichnis angegeben, welches Animationstexturen enthält.
+
+Die `position_component`-Komponente ermöglicht der Entität, eine Position im Level zu haben und ist zwingend nötig,
+damit das Dungeon-System die Entität auch tatsächlich im Level platzieren kann.
+
+Die `interaction_component`-Komponente ermöglicht dem Spielcharakter, mit dem Ritter zu interagieren,
+indem in dessen Nähe die Taste "E" gedrückt wird. Die `radius`-Eigenschaft bestimmt, in welchem Radius um
+den Ritter dies möglich ist.
+
+Es ist wichtig zu erwähnen, dass durch die Erstellung eines `entity_type` noch keine Entität selbst im
+Spiel erzeugt wird. Ein `entity_type` stellt eine *Vorlage* dar, *aus der* anschließend eine Entität
+erzeugt werden kann. Der Vorgang, aus so einer Vorlage eine tatsächliche Entität zu erstellen, wird
+*Instanziierung* genannt, die erstellte Entität ist die *Instanz* eines *Entitätstyps*.
+Die im `entity_type` konfigurierten Eigenschaften werden dabei an die neue Instanz übertragen.
+
+Die Instanziierung eines Entitätstyps wird über die native `instantiate`-Funktion realisiert, wie
+im folgenden Beispiel:
+
+```
+fn build_scenario(single_choice_task task) -> entity<><> {
+    var return_set : entity<><>;
+    var room_1 : entity<>;
+
+    /*
+     * Instanziierung der Ritter-Entität
+     */
+    ar knight : entity;
+    knight = instantiate(ritter_typ)
+    room_1.add(knight);
+
+    return_set.add(room_1);
+    return return_set;
+}
+```
+
+
+### Verknüpfung der Spielelement mit der Aufgabendefinition
