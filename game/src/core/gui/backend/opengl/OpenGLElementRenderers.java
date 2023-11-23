@@ -30,8 +30,12 @@ public class OpenGLElementRenderers {
 
                 // Enable stencil testing & draw stencil mask
                 GL33.glEnable(GL33.GL_STENCIL_TEST);
+                GL33.glClearStencil(0);
                 GL33.glClear(GL33.GL_STENCIL_BUFFER_BIT);
+
                 GL33.glStencilMask(0xFF);
+                GL33.glStencilFunc(GL33.GL_ALWAYS, 1, 0xFF);
+                GL33.glStencilOp(GL33.GL_KEEP, GL33.GL_KEEP, GL33.GL_REPLACE);
 
                 // Draw element rectangle (background & stencil mask)
                 Matrix4f modelElement = createModelMatrix(element);
@@ -53,6 +57,7 @@ public class OpenGLElementRenderers {
                 // Disable stencil writing & enable stencil testing
                 GL33.glStencilMask(0x00);
                 GL33.glStencilFunc(GL33.GL_EQUAL, 1, 0xFF);
+                GL33.glStencilOp(GL33.GL_KEEP, GL33.GL_KEEP, GL33.GL_KEEP);
 
                 float width = 0;
                 float height = 0;
