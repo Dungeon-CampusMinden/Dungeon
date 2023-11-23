@@ -30,7 +30,7 @@ public final class PlayerSystem extends System {
         entityStream().forEach(this::execute);
     }
 
-    private void execute(Entity entity) {
+    private void execute(final Entity entity) {
         PlayerComponent pc =
                 entity.fetch(PlayerComponent.class)
                         .orElseThrow(
@@ -62,7 +62,7 @@ public final class PlayerSystem extends System {
      * @param paused if the game is paused or not.
      */
     private void execute(
-            Map<Integer, PlayerComponent.InputData> callbacks,
+            final Map<Integer, PlayerComponent.InputData> callbacks,
             final Entity entity,
             boolean paused) {
         callbacks.forEach(
@@ -73,7 +73,7 @@ public final class PlayerSystem extends System {
                 });
     }
 
-    private void execute(Entity entity, int key, final PlayerComponent.InputData data) {
+    private void execute(final Entity entity, int key, final PlayerComponent.InputData data) {
         if ((!data.repeat()
                         && (Gdx.input.isKeyJustPressed(key) || Gdx.input.isButtonJustPressed(key)))
                 || (data.repeat()
