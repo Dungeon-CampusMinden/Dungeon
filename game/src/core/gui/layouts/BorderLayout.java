@@ -12,6 +12,12 @@ import java.util.List;
 
 public class BorderLayout implements IGUILayout {
 
+    private static final int NORTH = BorderLayoutHint.NORTH.ordinal();
+    private static final int EAST = BorderLayoutHint.EAST.ordinal();
+    private static final int SOUTH = BorderLayoutHint.SOUTH.ordinal();
+    private static final int WEST = BorderLayoutHint.WEST.ordinal();
+    private static final int CENTER = BorderLayoutHint.CENTER.ordinal();
+
     // Reihenfolge: N, E, S, W, C
 
     /**
@@ -48,105 +54,124 @@ public class BorderLayout implements IGUILayout {
 
         GUIElement[] array = getArrangedElementes(elements);
         Vector2f[] sizes = getSizes(array);
+        Vector2f[] positions = new Vector2f[5];
 
-        // NORTH
-        if (array[0] != null) {
-            GUIElement element = array[0];
-            Vector2f size = sizes[0]; // Get preferred size of north element
-            if (this.mode == BorderLayoutMode.HORIZONTAL) { // North gets full width
-                element.size().x(parent.size().x()).y(size.y());
-                element.position().x(0).y(parent.size().y() - size.y()); // Stick to top left edge
-            } else if (this.mode == BorderLayoutMode.VERTICAL) { // North gets remaining width
-                element.size().x(parent.size().x() - sizes[1].x() - sizes[3].x()).y(size.y());
-                element.position()
-                        .x(sizes[3].x())
-                        .y(parent.size().y() - size.y()); // Stick to bottom left edge
+        if (this.mode == BorderLayoutMode.HORIZONTAL) {
+            if (array[CENTER] == null) {
+                if (array[NORTH] != null) {
+                    sizes[NORTH] = new Vector2f(parent.size().x(), parent.size().y() / 4);
+                    positions[NORTH] = new Vector2f(0, parent.size().y() - sizes[NORTH].y());
+                }
+                if (array[SOUTH] != null) {
+                    sizes[SOUTH] = new Vector2f(parent.size().x(), parent.size().y() / 4);
+                    positions[SOUTH] = new Vector2f(0, 0);
+                }
+                if (array[EAST] != null) {
+                    sizes[EAST] =
+                            new Vector2f(
+                                    parent.size().x() / 2,
+                                    parent.size().y() - sizes[NORTH].y() - sizes[SOUTH].y());
+                    positions[EAST] =
+                            new Vector2f(parent.size().x() - sizes[EAST].x(), sizes[SOUTH].y());
+                }
+                if (array[WEST] != null) {
+                    sizes[WEST] =
+                            new Vector2f(
+                                    parent.size().x() / 2,
+                                    parent.size().y() - sizes[NORTH].y() - sizes[SOUTH].y());
+                    positions[WEST] = new Vector2f(0, sizes[SOUTH].y());
+                }
+            } else {
+                if (array[NORTH] != null) {
+                    sizes[NORTH] = new Vector2f(parent.size().x(), sizes[NORTH].y());
+                    positions[NORTH] = new Vector2f(0, parent.size().y() - sizes[NORTH].y());
+                }
+                if (array[SOUTH] != null) {
+                    sizes[SOUTH] = new Vector2f(parent.size().x(), sizes[SOUTH].y());
+                    positions[SOUTH] = new Vector2f(0, 0);
+                }
+                if (array[EAST] != null) {
+                    sizes[EAST] =
+                            new Vector2f(
+                                    sizes[EAST].x(),
+                                    parent.size().y() - sizes[NORTH].y() - sizes[SOUTH].y());
+                    positions[EAST] =
+                            new Vector2f(parent.size().x() - sizes[EAST].x(), sizes[SOUTH].y());
+                }
+                if (array[WEST] != null) {
+                    sizes[WEST] =
+                            new Vector2f(
+                                    sizes[WEST].x(),
+                                    parent.size().y() - sizes[NORTH].y() - sizes[SOUTH].y());
+                    positions[WEST] = new Vector2f(0, sizes[SOUTH].y());
+                }
+                sizes[CENTER] =
+                        new Vector2f(
+                                parent.size().x() - sizes[EAST].x() - sizes[WEST].x(),
+                                parent.size().y() - sizes[NORTH].y() - sizes[SOUTH].y());
+                positions[CENTER] = new Vector2f(sizes[WEST].x(), sizes[SOUTH].y());
             }
-            if (element.minimalSize().y() > element.size().y()) {
-                element.size().y(element.minimalSize().y());
-            }
-            if (element.minimalSize().x() > element.size().x()) {
-                element.size().x(element.minimalSize().x());
+        } else {
+            if (array[CENTER] == null) {
+                if (array[EAST] != null) {
+                    sizes[EAST] = new Vector2f(parent.size().x() / 4, parent.size().y());
+                    positions[EAST] = new Vector2f(parent.size().x() - sizes[EAST].x(), 0);
+                }
+                if (array[WEST] != null) {
+                    sizes[WEST] = new Vector2f(parent.size().x() / 4, parent.size().y());
+                    positions[WEST] = new Vector2f(0, 0);
+                }
+                if (array[NORTH] != null) {
+                    sizes[NORTH] =
+                            new Vector2f(
+                                    parent.size().x() - sizes[EAST].x() - sizes[WEST].x(),
+                                    parent.size().y() / 2);
+                    positions[NORTH] =
+                            new Vector2f(sizes[WEST].x(), parent.size().y() - sizes[NORTH].y());
+                }
+                if (array[SOUTH] != null) {
+                    sizes[SOUTH] =
+                            new Vector2f(
+                                    parent.size().x() - sizes[EAST].x() - sizes[WEST].x(),
+                                    parent.size().y() / 2);
+                    positions[SOUTH] = new Vector2f(sizes[WEST].x(), 0);
+                }
+            } else {
+                if (array[EAST] != null) {
+                    sizes[EAST] = new Vector2f(sizes[EAST].x(), parent.size().y());
+                    positions[EAST] = new Vector2f(parent.size().x() - sizes[EAST].x(), 0);
+                }
+                if (array[WEST] != null) {
+                    sizes[WEST] = new Vector2f(sizes[WEST].x(), parent.size().y());
+                    positions[WEST] = new Vector2f(0, 0);
+                }
+                if (array[NORTH] != null) {
+                    sizes[NORTH] =
+                            new Vector2f(
+                                    parent.size().x() - sizes[EAST].x() - sizes[WEST].x(),
+                                    sizes[NORTH].y());
+                    positions[NORTH] =
+                            new Vector2f(sizes[WEST].x(), parent.size().y() - sizes[NORTH].y());
+                }
+                if (array[SOUTH] != null) {
+                    sizes[SOUTH] =
+                            new Vector2f(
+                                    parent.size().x() - sizes[EAST].x() - sizes[WEST].x(),
+                                    sizes[SOUTH].y());
+                    positions[SOUTH] = new Vector2f(sizes[WEST].x(), 0);
+                }
+                sizes[CENTER] =
+                        new Vector2f(
+                                parent.size().x() - sizes[EAST].x() - sizes[WEST].x(),
+                                parent.size().y() - sizes[NORTH].y() - sizes[SOUTH].y());
+                positions[CENTER] = new Vector2f(sizes[WEST].x(), sizes[SOUTH].y());
             }
         }
 
-        // SOUTH
-        if (array[2] != null) {
-            GUIElement element = array[2];
-            Vector2f size = sizes[2]; // Get preferred size of south element
-            if (this.mode == BorderLayoutMode.HORIZONTAL) { // South gets full width
-                element.size().x(parent.size().x()).y(size.y());
-                element.position().x(0).y(0); // Stick to bottom left edge
-            } else if (this.mode == BorderLayoutMode.VERTICAL) { // South gets remaining width
-                element.size().x(parent.size().x() - sizes[1].x() - sizes[3].x()).y(size.y());
-                element.position().x(sizes[3].x()).y(0); // Stick to top left edge
-            }
-            if (element.minimalSize().y() > element.size().y()) {
-                element.size().y(element.minimalSize().y());
-            }
-            if (element.minimalSize().x() > element.size().x()) {
-                element.size().x(element.minimalSize().x());
-            }
-        }
-
-        // EAST
-        if (array[1] != null) {
-            GUIElement element = array[1];
-            Vector2f size = sizes[1]; // Get preferred size of east element
-            if (this.mode == BorderLayoutMode.HORIZONTAL) { // East gets remaining height
-                float width = array[4] == null ? parent.size().x() / 2 : size.x();
-                element.size().x(width).y(parent.size().y() - sizes[0].y() - sizes[2].y());
-                element.position()
-                        .x(parent.size().x() - width)
-                        .y(sizes[2].y()); // Stick to bottom right edge
-            } else if (this.mode == BorderLayoutMode.VERTICAL) { // East gets full height
-                float width = array[4] == null ? parent.size().x() / 2 : size.x();
-                element.size().x(width).y(parent.size().y());
-                element.position().x(parent.size().x() - width).y(0); // Stick to top right edge
-            }
-            if (element.minimalSize().y() > element.size().y()) {
-                element.size().y(element.minimalSize().y());
-            }
-            if (element.minimalSize().x() > element.size().x()) {
-                element.size().x(element.minimalSize().x());
-            }
-        }
-
-        // WEST
-        if (array[3] != null) {
-            GUIElement element = array[3];
-            Vector2f size = sizes[3]; // Get preferred size of west element
-            if (this.mode == BorderLayoutMode.HORIZONTAL) { // West gets remaining height
-                float width = array[4] == null ? parent.size().x() / 2 : size.x();
-                element.size().x(width).y(parent.size().y() - sizes[0].y() - sizes[2].y());
-                element.position().x(0).y(sizes[2].y()); // Stick to bottom left edge
-            } else if (this.mode == BorderLayoutMode.VERTICAL) { // West gets full height
-                float width = array[4] == null ? parent.size().x() / 2 : size.x();
-                element.size().x(width).y(parent.size().y());
-                element.position().x(0).y(0); // Stick to top left edge
-            }
-            if (element.minimalSize().y() > element.size().y()) {
-                element.size().y(element.minimalSize().y());
-            }
-            if (element.minimalSize().x() > element.size().x()) {
-                element.size().x(element.minimalSize().x());
-            }
-        }
-
-        // CENTER
-        if (array[4] != null) {
-            GUIElement element = array[4];
-            Vector2f size = sizes[4]; // Get preferred size of center element
-            element.size()
-                    .x(parent.size().x() - sizes[1].x() - sizes[3].x())
-                    .y(parent.size().y() - sizes[0].y() - sizes[2].y());
-            element.position().x(sizes[3].x()).y(sizes[2].y()); // Stick to bottom left edge
-
-            if (element.minimalSize().y() > element.size().y()) {
-                element.size().y(element.minimalSize().y());
-            }
-            if (element.minimalSize().x() > element.size().x()) {
-                element.size().x(element.minimalSize().x());
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] != null) {
+                array[i].size().x(sizes[i].x()).y(sizes[i].y());
+                array[i].position().x(positions[i].x()).y(positions[i].y());
             }
         }
 
