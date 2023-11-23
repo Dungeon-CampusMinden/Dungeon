@@ -31,6 +31,7 @@ public final class CameraSystem extends System {
     private static final OrthographicCamera CAMERA =
             new OrthographicCamera(Constants.viewportWidth(), Constants.viewportHeight());
 
+    /** Creat a new {@link CameraSystem} */
     public CameraSystem() {
         super(CameraComponent.class, PositionComponent.class);
     }
