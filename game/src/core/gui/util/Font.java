@@ -7,7 +7,7 @@ import static org.lwjgl.stb.STBTruetype.*;
 import core.gui.GUIRoot;
 import core.gui.backend.BackendImage;
 import core.utils.logging.CustomLogLevel;
-import core.utils.math.Vector2i;
+import core.utils.math.Vector2f;
 
 import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.stb.STBTTKerningentry;
@@ -255,7 +255,7 @@ public class Font {
         return loadFont(ttfFilePath, initialFontSize, DEFAULT_CHARS);
     }
 
-    public Vector2i boundingBox(String text, int maxWidth, boolean considerKernings) {
+    public Vector2f boundingBox(String text, float maxWidth, boolean considerKernings) {
         int width = 0;
 
         int lastWrapIndex = 0;
@@ -342,7 +342,7 @@ public class Font {
             }
             currentX += glyphMap.get(codePoint).xAdvance;
         }
-        return new Vector2i(width, currentY + fontSize + lineGap + ascent + descent);
+        return new Vector2f(width, currentY + fontSize + lineGap + ascent + descent);
     }
 
     public record Glyph(
