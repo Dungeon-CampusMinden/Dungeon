@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
  * <p>The {@link core.components.DrawComponent} will automatically create Animations on creation
  * based on the given path, so normally you don't have to create your own instances.
  *
- * <p>An Animation can have different configurations. Use {@link #setTimeBetweenFrames} to set the
- * time between two frames. Use {@link #setLoop} to define if the Animation stops at the last frame
- * or should loop (starts from the beginning, this is the default setting).
+ * <p>An Animation can have different configurations. Use {@link #timeBetweenFrames(int)} to set the
+ * time between two frames. Use {@link #loop(boolean)} to define if the Animation stops at the last
+ * frame or should loop (starts from the beginning, this is the default setting).
  *
  * @see core.components.DrawComponent
  * @see IPath
@@ -31,34 +31,25 @@ public final class Animation {
     private static final boolean DEFAULT_IS_LOOP = true;
     private static final int DEFAULT_PRIO = 200;
 
-    /** The set of textures that build the animation. */
     private final List<IPath> animationFrames;
 
-    /** The count of textures for the animation. */
     private final int frames;
-
-    /** Number of frames between switching to the next animation? */
+    private final int priority;
     private int timeBetweenFrames;
-
-    /** Index of the NEXT texture that will be returned. */
     private int currentFrameIndex = 0;
-
-    /** How many frames since the last texture switching? */
     private int frameTimeCounter = 0;
-
     private boolean looping;
-
-    private int priority;
 
     /**
      * Creates an animation.
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
-     * @param frameTime How many frames to wait, before switching to the next texture?
-     * @param looping should the Animation continue to repeat ?
-     * @param prio priority for playing this animation
+     * @param frameTime       How many frames to wait, before switching to the next texture?
+     * @param looping         should the Animation continue to repeat ?
+     * @param prio            priority for playing this animation
      */
-    private Animation(Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {
+    private Animation(
+            final Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {
         assert (animationFrames != null && !animationFrames.isEmpty());
         this.animationFrames = new ArrayList<>(animationFrames);
         frames = animationFrames.size();
@@ -75,11 +66,11 @@ public final class Animation {
      * Creates an animation. repeats forever
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
-     * @param frameTime How many frames to wait, before switching to the next texture?
-     * @param prio priority for playing this animation
+     * @param frameTime       How many frames to wait, before switching to the next texture?
+     * @param prio            priority for playing this animation
      */
     public static Animation fromCollection(
-            Collection<IPath> animationFrames, int frameTime, int prio) {
+            final Collection<IPath> animationFrames, int frameTime, int prio) {
         return new Animation(animationFrames, frameTime, DEFAULT_IS_LOOP, prio);
     }
 
@@ -88,7 +79,7 @@ public final class Animation {
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
      */
-    public static Animation fromCollection(Collection<IPath> animationFrames) {
+    public static Animation fromCollection(final Collection<IPath> animationFrames) {
         return new Animation(
                 animationFrames,
                 DEFAULT_FRAME_TIME,
@@ -100,12 +91,12 @@ public final class Animation {
      * Creates an animation.
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
-     * @param frameTime How many frames to wait, before switching to the next texture?
-     * @param looping should the Animation continue to repeat ?
-     * @param prio priority for playing this animation
+     * @param frameTime       How many frames to wait, before switching to the next texture?
+     * @param looping         should the Animation continue to repeat ?
+     * @param prio            priority for playing this animation
      */
     public static Animation fromCollection(
-            Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {
+            final Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {
         return new Animation(animationFrames, frameTime, looping, prio);
     }
 
@@ -115,13 +106,13 @@ public final class Animation {
      * <p>Will sort the textures in lexicographic order. This is the order in which the animations
      * will be shown.
      *
-     * @param subDir Path to the subdirectory where the animation frames are stored
+     * @param subDir    Path to the subdirectory where the animation frames are stored
      * @param frameTime How many frames to wait, before switching to the next texture?
-     * @param loop should the Animation continue to repeat ?
-     * @param prio priority for playing this animation
+     * @param loop      should the Animation continue to repeat ?
+     * @param prio      priority for playing this animation
      * @return The created Animation instance
      */
-    public static Animation fromSubDir(File subDir, int frameTime, boolean loop, int prio) {
+    public static Animation fromSubDir(final File subDir, int frameTime, boolean loop, int prio) {
         List<IPath> fileNames =
                 Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
                         .filter(File::isFile)
@@ -142,7 +133,7 @@ public final class Animation {
      * @param subDir Path to the subdirectory where the animation frames are stored
      * @return The created Animation instance
      */
-    public static Animation fromSubDir(File subDir) {
+    public static Animation fromSubDir(final File subDir) {
         return Animation.fromSubDir(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
@@ -152,18 +143,18 @@ public final class Animation {
      * @param fileName path to the frame
      * @return The created Animation instance
      */
-    public static Animation fromSingleImage(IPath fileName) {
+    public static Animation fromSingleImage(final IPath fileName) {
         return new Animation(List.of(fileName), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
     /**
      * Create an animation from single frame and the given configuration.
      *
-     * @param fileName path to the frame
+     * @param fileName  path to the frame
      * @param frameTime How many frames to wait, before switching to the next texture?
      * @return The created Animation instance
      */
-    public static Animation fromSingleImage(IPath fileName, int frameTime) {
+    public static Animation fromSingleImage(final IPath fileName, int frameTime) {
         return new Animation(List.of(fileName), frameTime, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
@@ -178,7 +169,9 @@ public final class Animation {
     }
 
     /**
-     * Automatically updates currentFrame to next frame.
+     * Get the texture to draw.
+     *
+     * <p>Automatically updates currentFrame to next frame.
      *
      * @return The texture of the next animation step (draw this).
      */
@@ -195,6 +188,8 @@ public final class Animation {
     }
 
     /**
+     * Check if the animation is finished.
+     *
      * @return true when last frame and is not looping, otherwise false
      */
     public boolean isFinished() {
@@ -202,6 +197,8 @@ public final class Animation {
     }
 
     /**
+     * Check if the animation is looping.
+     *
      * @return true when looping, otherwise false
      */
     public boolean isLooping() {
@@ -213,8 +210,8 @@ public final class Animation {
      *
      * @return List containing the paths of the single frames of the animation.
      */
-    public List<IPath> getAnimationFrames() {
-        return animationFrames;
+    public List<IPath> animationFrames() {
+        return new ArrayList<>(animationFrames);
     }
 
     /**
@@ -222,7 +219,7 @@ public final class Animation {
      *
      * @param timeBetweenFrames Time before switching to the next animation frame.
      */
-    public void setTimeBetweenFrames(int timeBetweenFrames) {
+    public void timeBetweenFrames(int timeBetweenFrames) {
         this.timeBetweenFrames = timeBetweenFrames;
     }
 
@@ -236,7 +233,7 @@ public final class Animation {
      *
      * @param loop true if you want to loop, false if not
      */
-    public void setLoop(boolean loop) {
+    public void loop(boolean loop) {
         this.looping = loop;
     }
 

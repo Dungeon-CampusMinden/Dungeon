@@ -151,7 +151,7 @@ public class MiscFactory {
         mapping.put(
                 CoreAnimations.IDLE.pathString(), mapping.get(ChestAnimations.CLOSED.pathString()));
         // opening animation should not loop
-        mapping.get(ChestAnimations.OPENING.pathString()).setLoop(false);
+        mapping.get(ChestAnimations.OPENING.pathString()).loop(false);
         // reset Idle Animation
         dc.deQueueByPriority(CoreAnimations.IDLE.priority());
         dc.currentAnimation(CoreAnimations.IDLE);
