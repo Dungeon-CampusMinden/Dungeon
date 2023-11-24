@@ -1,12 +1,16 @@
 package core.level.elements.tile;
 
-import core.Entity;
 import core.level.Tile;
-import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 
+/**
+ * Represents the exit in the dungeon.
+ *
+ * <p>If the exit is entered by the player, the {@link core.systems.LevelSystem} will generate a new
+ * level.
+ */
 public class ExitTile extends Tile {
 
     /**
@@ -15,19 +19,12 @@ public class ExitTile extends Tile {
      * @param texturePath Path to the texture of the tile.
      * @param globalPosition Position of the tile in the global system.
      * @param designLabel Design of the Tile
-     * @param level The level this Tile belongs to
      */
     public ExitTile(
-            String texturePath, Coordinate globalPosition, DesignLabel designLabel, ILevel level) {
-        super(texturePath, globalPosition, designLabel, level);
+            final String texturePath,
+            final Coordinate globalPosition,
+            final DesignLabel designLabel) {
+        super(texturePath, globalPosition, designLabel);
         levelElement = LevelElement.EXIT;
-    }
-
-    @Override
-    public void onEntering(Entity element) {}
-
-    @Override
-    public boolean isAccessible() {
-        return levelElement.value();
     }
 }
