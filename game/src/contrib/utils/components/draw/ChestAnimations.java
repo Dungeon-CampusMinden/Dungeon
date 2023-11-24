@@ -1,7 +1,7 @@
 package contrib.utils.components.draw;
 
 import core.utils.components.draw.CoreAnimationPriorities;
-import core.utils.components.draw.IPath;
+import core.utils.components.path.IPath;
 
 /** A collection of Animations which are special for a chest and not used by any other Entities. */
 public enum ChestAnimations implements IPath {

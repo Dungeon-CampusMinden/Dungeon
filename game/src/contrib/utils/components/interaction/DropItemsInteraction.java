@@ -34,8 +34,7 @@ import java.util.function.Consumer;
  * PositionComponent}. An {@link DrawComponent} is optional.
  *
  * <p>If an {@link DrawComponent} is present, after the interaction, the {@link
- * core.utils.components.draw.CoreAnimations#IDLE_RIGHT} animation will be set as the current
- * animation.
+ * CoreAnimations#IDLE_RIGHT} animation will be set as the current animation.
  */
 public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
 
@@ -62,8 +61,7 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
      * {@link PositionComponent}. An {@link DrawComponent} is optional.
      *
      * <p>If an {@link DrawComponent} is present, after the interaction, the {@link
-     * core.utils.components.draw.CoreAnimations#IDLE_RIGHT} animation will be set as the current
-     * animation.
+     * CoreAnimations#IDLE_RIGHT} animation will be set as the current animation.
      *
      * @param entity associated entity
      * @param who The entity that triggered the interaction (could be null)

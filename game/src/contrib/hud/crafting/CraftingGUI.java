@@ -21,8 +21,8 @@ import contrib.item.Item;
 
 import core.Game;
 import core.utils.components.draw.Animation;
-import core.utils.components.draw.SimpleIPath;
 import core.utils.components.draw.TextureMap;
+import core.utils.components.path.SimpleIPath;
 
 import java.util.ArrayList;
 import java.util.Arrays;

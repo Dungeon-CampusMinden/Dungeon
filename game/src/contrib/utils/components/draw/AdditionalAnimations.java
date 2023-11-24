@@ -1,6 +1,7 @@
 package contrib.utils.components.draw;
 
-import core.utils.components.draw.IPath;
+import core.utils.components.draw.CoreAnimations;
+import core.utils.components.path.IPath;
 
 /**
  * This enum stores the paths to the animations, and their priority, used by the systems inside the
@@ -10,7 +11,7 @@ import core.utils.components.draw.IPath;
  *
  * @see core.components.DrawComponent
  * @see IPath
- * @see core.utils.components.draw.CoreAnimations
+ * @see CoreAnimations
  */
 public enum AdditionalAnimations implements IPath {
     DIE("die", AdditionalAnimationsPriorities.DIE.priority()),

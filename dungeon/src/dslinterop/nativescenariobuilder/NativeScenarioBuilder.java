@@ -15,7 +15,7 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.components.draw.Animation;
-import core.utils.components.draw.SimpleIPath;
+import core.utils.components.path.SimpleIPath;
 
 import task.Task;
 import task.TaskContent;

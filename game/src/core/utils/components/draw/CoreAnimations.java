@@ -1,8 +1,15 @@
 package core.utils.components.draw;
 
+import core.utils.components.path.IPath;
+
 /**
- * This enum stores the default paths to the animations, and their priority, used by the systems
- * inside the core package.
+ * Default paths to the animations, and their priority, used by the systems inside the core package.
+ *
+ * <p>The enums represent a path (as a string) where animations can be found. The path starts at a
+ * specific subfolder (e.g., "character/hero"), so the enums have the value of the directory inside
+ * this directory (e.g., "character/hero/idle_left").
+ *
+ * <p>You can use this values for {@link core.components.DrawComponent#queueAnimation(IPath...)}.
  */
 public enum CoreAnimations implements IPath {
     IDLE("idle", CoreAnimationPriorities.IDLE.priority()),
@@ -19,7 +26,7 @@ public enum CoreAnimations implements IPath {
     private final String value;
     private final int priority;
 
-    CoreAnimations(String value, int priority) {
+    CoreAnimations(final String value, int priority) {
         this.value = value;
         this.priority = priority;
     }

@@ -1,5 +1,8 @@
 package core.utils.components.draw;
 
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
+
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
