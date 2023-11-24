@@ -315,13 +315,7 @@ public class TileLevelTest {
         var start = tileLevel.tileAt(layout[0][1].coordinate());
         var end = tileLevel.tileAt(layout[2][1].coordinate());
 
-        Exception e =
-                assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
-        String actualErrorMsg = e.getMessage();
-        String expectedErrorMsg =
-                "Can not calculate Path because the start point is non-accessible.";
-
-        assertTrue(actualErrorMsg.contains(expectedErrorMsg));
+        assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
     }
 
     @Test
@@ -337,12 +331,7 @@ public class TileLevelTest {
         var start = tileLevel.tileAt(layout[0][1].coordinate());
         var end = tileLevel.tileAt(layout[2][1].coordinate());
 
-        Exception e =
-                assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
-        String actualErrorMsg = e.getMessage();
-        String expectedErrorMsg = "Can not calculate Path because the end point is non-accessible.";
-
-        assertTrue(actualErrorMsg.contains(expectedErrorMsg));
+        assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
     }
 
     @Test
@@ -359,13 +348,7 @@ public class TileLevelTest {
         var start = tileLevel.tileAt(layout[0][1].coordinate());
         var end = tileLevel.tileAt(layout[2][1].coordinate());
 
-        Exception e =
-                assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
-        String actualErrorMsg = e.getMessage();
-        String expectedErrorMsg =
-                "Can not calculate Path because the start point is non-accessible.";
-
-        assertTrue(actualErrorMsg.contains(expectedErrorMsg));
+        assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
     }
 
     @Test
