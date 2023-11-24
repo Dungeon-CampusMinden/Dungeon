@@ -1,16 +1,33 @@
 package core.level.elements;
 
+import com.badlogic.gdx.ai.pfa.Connection;
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
+import com.badlogic.gdx.ai.pfa.GraphPath;
+import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
+import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
+import com.badlogic.gdx.utils.Array;
+import core.Entity;
+import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.astar.TileHeuristic;
 import core.level.elements.tile.*;
+import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.IVoidFunction;
+import core.utils.Point;
+import core.utils.components.MissingComponentException;
 
 import java.util.List;
+import java.util.Random;
 
-public interface ILevel extends ITileable {
+public interface ILevel extends IndexedGraph<Tile> {
 
-    /** Mark a random tile as start */
+    Random RANDOM = new Random();
+
+    /**
+     * Mark a random tile as start
+     */
     default void randomStart() {
         startTile(randomTile(LevelElement.FLOOR));
     }
@@ -22,14 +39,16 @@ public interface ILevel extends ITileable {
      */
     void startTile(Tile start);
 
-    /** Mark a random tile as end */
+    /**
+     * Mark a random tile as end
+     */
     default void randomEnd() {
         List<FloorTile> floorTiles = floorTiles();
         if (floorTiles.size() <= 1) {
             // not enough Tiles for startTile and ExitTile
             return;
         }
-        int startTileIndex = floorTiles.indexOf(startTile());
+        int startTileIndex = floorTiles.indexOf((FloorTile) startTile());
         int index = RANDOM.nextInt(floorTiles.size() - 1);
         changeTileElementType(
                 floorTiles.get(index < startTileIndex ? index : index + 1), LevelElement.EXIT);
@@ -162,7 +181,7 @@ public interface ILevel extends ITileable {
     /**
      * Change the type of tile (including changing texture)
      *
-     * @param tile The Tile you want to change
+     * @param tile       The Tile you want to change
      * @param changeInto The LevelElement to change the Tile into.
      */
     default void changeTileElementType(Tile tile, LevelElement changeInto) {
@@ -181,7 +200,12 @@ public interface ILevel extends ITileable {
         level.addTile(newTile);
     }
 
-    @Override
+    /**
+     * Get a random Tile
+     *
+     * @param elementType Type of the Tile
+     * @return A random Tile of the given Type
+     */
     default Tile randomTile(LevelElement elementType) {
         return switch (elementType) {
             case SKIP -> skipTiles().size() > 0
@@ -206,13 +230,6 @@ public interface ILevel extends ITileable {
     }
 
     /**
-     * @return random floor tile
-     */
-    default Tile randomFloorTile() {
-        return randomTile(LevelElement.FLOOR);
-    }
-
-    /**
      * Set the function that should be executed if this level is loaded as the current level for the
      * first time.
      *
@@ -227,4 +244,147 @@ public interface ILevel extends ITileable {
      * registered function from {@link #onFirstLoad(IVoidFunction)}.
      */
     void onLoad();
+
+    /**
+     * For libGDX pathfinding algorithms
+     *
+     * @return nodeCount
+     */
+    int getNodeCount();
+
+    /**
+     * Starts the indexed A* pathfinding algorithm a returns a path.
+     *
+     * <p>Throws an IllegalArgumentException if start or end is non-accessible.
+     *
+     * @param start Start tile
+     * @param end   End tile
+     * @return Generated path
+     */
+    default GraphPath<Tile> findPath(Tile start, Tile end) {
+        if (!start.isAccessible())
+            throw new IllegalArgumentException(
+                    "Can not calculate Path because the start point is non-accessible.");
+        if (!end.isAccessible())
+            throw new IllegalArgumentException(
+                    "Can not calculate Path because the end point is non-accessible.");
+        GraphPath<Tile> path = new DefaultGraphPath<>();
+        new IndexedAStarPathFinder<>(this).searchNodePath(start, end, tileHeuristic(), path);
+        return path;
+    }
+
+    @Override
+    default int getIndex(Tile tile) {
+        return tile.index();
+    }
+
+    @Override
+    default Array<Connection<Tile>> getConnections(Tile fromNode) {
+        return fromNode.connections();
+    }
+
+    /**
+     * @return the TileHeuristic for the Level
+     */
+    TileHeuristic tileHeuristic();
+
+    /**
+     * Get the Position of the given entity in the level.
+     *
+     * @param entity Entity to get the current position from (needs a {@link PositionComponent}
+     * @return Position of the given entity.
+     */
+    default Point positionOf(Entity entity) {
+        return entity.fetch(PositionComponent.class)
+                .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class))
+                .position();
+    }
+
+    /**
+     * @return The layout of the level
+     */
+    Tile[][] layout();
+
+    /**
+     * Get the tile at the given position.
+     *
+     * @param coordinate Position form where to get the tile.
+     * @return The tile on that coordinate. null if there is no Tile or the Coordinate is out of
+     * bound
+     */
+    default Tile tileAt(Coordinate coordinate) {
+        try {
+            return layout()[coordinate.y][coordinate.x];
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get the tile at the given position.
+     *
+     * <p>Will use {@link Point#toCoordinate} to convert the point into a coordinate.
+     *
+     * @param point Position form where to get the tile.
+     * @return The tile on that point. null if there is no Tile or the Coordinate is out of bound
+     */
+    default Tile tileAt(Point point) {
+        return tileAt(point.toCoordinate());
+    }
+
+    /**
+     * @return a random Tile in the Level
+     */
+    default Tile randomTile() {
+        return layout()[RANDOM.nextInt(layout().length)][RANDOM.nextInt(layout()[0].length)];
+    }
+
+    /**
+     * Get the end tile.
+     *
+     * @return The end tile.
+     */
+    Tile endTile();
+
+    /**
+     * Get the start tile.
+     *
+     * @return The start tile.
+     */
+    Tile startTile();
+
+    /**
+     * Returns the tile the given entity is standing on.
+     *
+     * @param entity entity to check for.
+     * @return tile at the coordinate of the entity
+     */
+    default Tile tileAtEntity(Entity entity) {
+        PositionComponent pc =
+                entity.fetch(PositionComponent.class)
+                        .orElseThrow(
+                                () ->
+                                        MissingComponentException.build(
+                                                entity, PositionComponent.class));
+        return tileAt(pc.position().toCoordinate());
+    }
+
+    /**
+     * Get the position of a random Tile as Point
+     *
+     * @return Position of the Tile as Point
+     */
+    default Point randomTilePoint() {
+        return randomTile().position();
+    }
+
+    /**
+     * Get the position of a random Tile as Point
+     *
+     * @param elementTyp Type of the Tile
+     * @return Position of the Tile as Point
+     */
+    default Point randomTilePoint(LevelElement elementTyp) {
+        return randomTile(elementTyp).position();
+    }
 }
