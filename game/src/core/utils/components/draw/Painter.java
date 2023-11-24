@@ -25,7 +25,7 @@ import core.utils.Point;
  * @see core.systems.DrawSystem
  * @see core.systems.LevelSystem
  */
-public final class Painter {
+public class Painter {
     private final SpriteBatch batch;
 
     /**
