@@ -16,6 +16,8 @@ import java.util.function.Consumer;
  * <p>Use {@link #userOnFrame(IVoidFunction)}, {@link #userOnSetup(IVoidFunction)}, and {@link
  * #userOnLevelLoad(Consumer)} to configure event callbacks. This is the best way to include your
  * own program logic outside a {@link System}.
+ *
+ * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
 public final class PreRunConfiguration {
 
