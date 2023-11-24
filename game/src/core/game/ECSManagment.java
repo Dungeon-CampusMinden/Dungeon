@@ -10,16 +10,30 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-/** The class responsible for managing the ECS (Entity-Component-System) in the game. */
-public class ECSManagment {
-    private static final Logger LOGGER = Logger.getLogger("ECSManagment");
-    private static final Map<Class<? extends System>, System> systems = new LinkedHashMap<>();
-    private static final Map<ILevel, Set<EntitySystemMapper>> levelStorageMap = new HashMap<>();
+/**
+ * The class responsible for managing the ECS (Entity-Component-System) in the game.
+ *
+ * <p>It stores the {@link System systems} and the {@link Entity entities}.
+ *
+ * <p>For Entity management use: {@link #add(Entity)}, {@link #remove(Entity)} or {@link
+ * #removeAllEntities()}
+ *
+ * <p>For System management use: {@link #add(System)}, {@link #remove(Class)} or {@link
+ * #removeAllSystems()}
+ *
+ * <p>Get access via: {@link #entityStream()}, {@link #systems()}
+ *
+ * <p>All API methods can also be accessed via the {@link core.Game} class.
+ */
+public final class ECSManagment {
+    private static final Logger LOGGER = Logger.getLogger(ECSManagment.class.getSimpleName());
+    private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
+    private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
     private static Entity hero;
     private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
 
     static {
-        levelStorageMap.put(null, activeEntityStorage);
+        LEVEL_STORAGE_MAP.put(null, activeEntityStorage);
         activeEntityStorage.add(new EntitySystemMapper());
     }
 
@@ -104,9 +118,9 @@ public class ECSManagment {
      * @see System
      * @see Optional
      */
-    public static Optional<System> add(System system) {
-        System currentSystem = systems.get(system.getClass());
-        systems.put(system.getClass(), system);
+    public static Optional<System> add(final System system) {
+        System currentSystem = SYSTEMS.get(system.getClass());
+        SYSTEMS.put(system.getClass(), system);
         // add to existing filter or create new filter if no matching exists
         Optional<EntitySystemMapper> filter =
                 activeEntityStorage.stream()
@@ -119,28 +133,36 @@ public class ECSManagment {
         return Optional.ofNullable(currentSystem);
     }
 
-    protected static Map<ILevel, Set<EntitySystemMapper>> levelStorageMap() {
-        return levelStorageMap;
-    }
-
-    protected static void activeEntityStorage(Set<EntitySystemMapper> computeIfAbsent) {
-        activeEntityStorage = computeIfAbsent;
+    /**
+     * Get the current active {@link EntitySystemMapper}.
+     *
+     * @return The currently active {@link EntitySystemMapper}
+     */
+    public static Map<ILevel, Set<EntitySystemMapper>> levelStorageMap() {
+        return LEVEL_STORAGE_MAP;
     }
 
     /**
+     * Set the current active {@link EntitySystemMapper}.
+     *
+     * @param entityStorage The new active {@link EntitySystemMapper}
+     */
+    public static void activeEntityStorage(final Set<EntitySystemMapper> entityStorage) {
+        activeEntityStorage = entityStorage;
+    }
+
+    /**
+     * Get all Systems.
+     *
      * @return a copy of the map that stores all registered {@link System} in the game.
      */
     public static Map<Class<? extends System>, System> systems() {
-        return new LinkedHashMap<>(systems);
+        return new LinkedHashMap<>(SYSTEMS);
     }
 
-    /**
-     * Remove all registered systems from the game.
-     *
-     * <p>Will trigger {@link System#onEntityRemove} for each entity in each system.
-     */
+    /** Remove all registered systems from the game. */
     public static void removeAllSystems() {
-        new HashSet<>(systems.keySet()).forEach(ECSManagment::remove);
+        new HashSet<>(SYSTEMS.keySet()).forEach(ECSManagment::remove);
     }
 
     /**
@@ -159,7 +181,7 @@ public class ECSManagment {
      * @return a stream of all entities currently in the game that should be processed by the given
      *     system.
      */
-    public static Stream<Entity> entityStream(System system) {
+    public static Stream<Entity> entityStream(final System system) {
         return entityStream(system.filterRules());
     }
 
@@ -195,7 +217,7 @@ public class ECSManagment {
      *
      * @param hero the new reference of the hero
      */
-    public static void hero(Entity hero) {
+    public static void hero(final Entity hero) {
         ECSManagment.hero = hero;
     }
 
@@ -206,8 +228,8 @@ public class ECSManagment {
      *
      * @param system the class of the system to remove
      */
-    public static void remove(Class<? extends System> system) {
-        System systemInstance = systems.remove(system);
+    public static void remove(final Class<? extends System> system) {
+        System systemInstance = SYSTEMS.remove(system);
         if (systemInstance != null) activeEntityStorage.forEach(f -> f.remove(systemInstance));
     }
 
@@ -230,7 +252,7 @@ public class ECSManagment {
      */
     public static Stream<Entity> allEntities() {
         Set<Entity> allEntities = new HashSet<>();
-        levelStorageMap
+        LEVEL_STORAGE_MAP
                 .values()
                 .forEach(
                         entitySystemMappers ->
@@ -248,7 +270,7 @@ public class ECSManagment {
      * @param component Component instance where the entity is searched for.
      * @return An Optional containing the found Entity, or an empty Optional if not found.
      */
-    public static Optional<Entity> find(Component component) {
+    public static Optional<Entity> find(final Component component) {
         return allEntities()
                 .filter(
                         entity ->
