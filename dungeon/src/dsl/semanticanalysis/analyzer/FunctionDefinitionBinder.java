@@ -16,6 +16,7 @@ import java.util.Stack;
  */
 public class FunctionDefinitionBinder implements AstVisitor<Void> {
     private SymbolTable symbolTable;
+    IScope rootScope;
     Stack<IScope> scopeStack = new Stack<>();
 
     /**
@@ -25,8 +26,9 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
      * @param symbolTable the symboltable to bind the function definitions in
      * @param programRootNode the root {@link Node} of the program containing function definitions
      */
-    public void bindFunctionDefinitions(SymbolTable symbolTable, Node programRootNode) {
+    public void bindFunctionDefinitions(SymbolTable symbolTable, IScope scope, Node programRootNode) {
         this.symbolTable = symbolTable;
+        this.rootScope = scope;
         this.scopeStack = new Stack<>();
 
         programRootNode.accept(this);
@@ -73,8 +75,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     public Void visit(FuncDefNode node) {
         // check, if symbol with the name was already bound
         var funcName = node.getIdName();
-        var globalScope = symbolTable.globalScope();
-        var resolved = globalScope.resolve(funcName);
+        var resolved = this.rootScope.resolve(funcName);
         if (resolved != Symbol.NULL) {
             throw new RuntimeException(
                     "Identifier with name " + funcName + " is already bound in global scope!");
@@ -90,7 +91,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
                 }
 
                 String returnTypeName = node.getRetTypeName();
-                returnType = globalScope.resolveType(returnTypeName);
+                returnType = this.rootScope.resolveType(returnTypeName);
                 if (returnType == null) {
                     throw new RuntimeException(
                             "Could not resolve return type "
@@ -109,7 +110,8 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
                 paramIdNode.accept(this);
 
                 var paramTypeName = ((ParamDefNode) paramDefNode).getTypeName();
-                IType paramType = globalScope.resolveType(paramTypeName);
+
+                IType paramType = this.rootScope.resolveType(paramTypeName);
                 parameterTypes.add(paramType);
 
                 symbolTable.addSymbolNodeRelation((Symbol) paramType, paramIdNode, false);
@@ -117,19 +119,19 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
 
             // create function signature type (as needed)
             String functionTypeName = FunctionType.calculateTypeName(returnType, parameterTypes);
-            Symbol functionTypeSymbol = globalScope.resolve(functionTypeName);
+            Symbol functionTypeSymbol = this.rootScope.resolve(functionTypeName);
             FunctionType functionType;
 
             if (functionTypeSymbol != Symbol.NULL) {
                 functionType = (FunctionType) functionTypeSymbol;
             } else {
                 functionType = new FunctionType(returnType, parameterTypes);
-                globalScope.bind(functionType);
+                this.symbolTable.globalScope().bind(functionType);
             }
 
             // create new function symbol
-            var funcSymbol = new FunctionSymbol(funcName, globalScope, node, functionType);
-            globalScope.bind(funcSymbol);
+            var funcSymbol = new FunctionSymbol(funcName, this.rootScope, node, functionType);
+            this.rootScope.bind(funcSymbol);
             scopeStack.push(funcSymbol);
 
             // bind parameters
@@ -157,7 +159,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
                     "Parameter with name " + node.getIdName() + " was already defined");
         } else {
             // resolve parameters datatype
-            IType parameterType = this.symbolTable.globalScope().resolveType(node.getTypeName());
+            IType parameterType = this.rootScope.resolveType(node.getTypeName());
 
             Symbol parameterSymbol = new Symbol(parameterName, currentScope, parameterType);
             currentScope.bind(parameterSymbol);
@@ -171,9 +173,9 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     //  (see: https://github.com/Programmiermethoden/Dungeon/issues/931)
     @Override
     public Void visit(ListTypeIdentifierNode node) {
-        IScope globalScope = this.symbolTable.globalScope();
+        //IScope globalScope = this.symbolTable.globalScope();
         String typeName = node.getName();
-        Symbol resolvedType = globalScope.resolve(typeName);
+        Symbol resolvedType = this.rootScope.resolve(typeName);
 
         // construct a new ListType for the node, if it was not previously created
         if (resolvedType == Symbol.NULL) {
@@ -182,9 +184,10 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
             if (innerTypeNode.type != Node.Type.Identifier) {
                 innerTypeNode.accept(this);
             }
-            var innerType = globalScope.resolveType(innerTypeNode.getName());
-            Symbol listTypeSymbol = globalScope.resolve(ListType.getListTypeName(innerType));
+            var innerType = this.rootScope.resolveType(innerTypeNode.getName());
+            Symbol listTypeSymbol = this.rootScope.resolve(ListType.getListTypeName(innerType));
             if (listTypeSymbol.equals(Symbol.NULL)) {
+                IScope globalScope = this.symbolTable.globalScope();
                 ListType listType = new ListType(innerType, globalScope);
                 globalScope.bind(listType);
             }
@@ -196,9 +199,9 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
     //  (see: https://github.com/Programmiermethoden/Dungeon/issues/931)
     @Override
     public Void visit(SetTypeIdentifierNode node) {
-        IScope globalScope = this.symbolTable.globalScope();
+        //IScope globalScope = this.symbolTable.globalScope();
         String typeName = node.getName();
-        Symbol resolvedType = globalScope.resolve(typeName);
+        Symbol resolvedType = this.rootScope.resolve(typeName);
 
         // construct a new ListType for the node, if it was not previously created
         if (resolvedType == Symbol.NULL) {
@@ -207,9 +210,10 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
             if (innerTypeNode.type != Node.Type.Identifier) {
                 innerTypeNode.accept(this);
             }
-            var innerType = globalScope.resolveType(innerTypeNode.getName());
-            Symbol setTypeSymbol = globalScope.resolve(SetType.getSetTypeName(innerType));
+            var innerType = this.rootScope.resolveType(innerTypeNode.getName());
+            Symbol setTypeSymbol = this.rootScope.resolve(SetType.getSetTypeName(innerType));
             if (setTypeSymbol.equals(Symbol.NULL)) {
+                IScope globalScope = this.symbolTable.globalScope();
                 SetType setType = new SetType(innerType, globalScope);
                 globalScope.bind(setType);
             }
@@ -219,9 +223,9 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
 
     @Override
     public Void visit(MapTypeIdentifierNode node) {
-        IScope globalScope = this.symbolTable.globalScope();
+        //IScope globalScope = this.symbolTable.globalScope();
         String typeName = node.getName();
-        Symbol resolvedType = globalScope.resolve(typeName);
+        Symbol resolvedType = this.rootScope.resolve(typeName);
 
         // construct a new MapType for the node, if it was not previously created
         if (resolvedType == Symbol.NULL) {
@@ -237,8 +241,9 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
                 elementTypeNode.accept(this);
             }
 
-            var keyType = globalScope.resolveType(keyTypeNode.getName());
-            var elementType = globalScope.resolveType(elementTypeNode.getName());
+            var keyType = this.rootScope.resolveType(keyTypeNode.getName());
+            var elementType = this.rootScope.resolveType(elementTypeNode.getName());
+            IScope globalScope = this.symbolTable.globalScope();
             MapType setType = new MapType(keyType, elementType, globalScope);
             globalScope.bind(setType);
         }
