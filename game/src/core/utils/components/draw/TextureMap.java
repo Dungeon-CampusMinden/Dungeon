@@ -3,30 +3,39 @@ package core.utils.components.draw;
 import com.badlogic.gdx.graphics.Texture;
 
 import java.util.HashMap;
-import java.util.Map;
 
-public class TextureMap {
+/**
+ * Maps Paths to libGDX {@link Texture}s, to reduce unnecessary loading of textures.
+ *
+ * <p>Use {@link #instance()} to get the only instance of the {@link TextureMap}, and use {@link
+ * #textureAt(String)} to get the texture that is stored at the given path.
+ *
+ * @see Painter
+ */
+public final class TextureMap extends HashMap<String, Texture> {
     private static final TextureMap INSTANCE = new TextureMap();
-    private final Map<String, Texture> textureMap = new HashMap<>();
 
-    private TextureMap() {}
-
+    /**
+     * Get the instance of the TextureMap.
+     *
+     * @return The only instance of the TextureMap.
+     */
     public static TextureMap instance() {
         return INSTANCE;
     }
 
     /**
      * Searches the HashMap for the matching texture and returns it. If the texture is not stored in
-     * the HashMap, it is created and saved in.
+     * the HashMap, it is created and saved.
      *
-     * @param path to texture
-     * @return the Texture
+     * @param path Path to the texture.
+     * @return The Texture at the given path.
      */
-    public Texture textureAt(String path) {
-        if (!textureMap.containsKey(path)) {
-            textureMap.put(path, new Texture(path));
+    public Texture textureAt(final String path) {
+        if (!containsKey(path)) {
+            put(path, new Texture(path));
         }
 
-        return textureMap.get(path);
+        return get(path);
     }
 }

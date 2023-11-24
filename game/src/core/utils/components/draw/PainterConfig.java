@@ -2,12 +2,43 @@ package core.utils.components.draw;
 
 import com.badlogic.gdx.graphics.Texture;
 
-/** This class serves as a configuration class for the {@link Painter} class. */
-public class PainterConfig {
-    float xOffset;
-    float yOffset;
-    float xScaling;
-    float yScaling;
+/**
+ * Configuration for the {@link Painter}
+ *
+ * <p>Each Texture needs its own configuration.
+ *
+ * @see Painter
+ */
+public final class PainterConfig {
+    private final float xOffset;
+    private final float yOffset;
+    private final float xScaling;
+    private final float yScaling;
+
+    /**
+     * Create a new PainterConfig with the given offset.
+     *
+     * <p>Scaling based on the given texture.
+     *
+     * @param texturePath Path to the texture.
+     * @param xOffset The texture will be moved on the x-axis, based on this value.
+     * @param yOffset The texture will be moved on the y-axis, based on this value.
+     */
+    public PainterConfig(final String texturePath, float xOffset, float yOffset) {
+        // half the texture xOffset, yOffset is a quarter texture down
+        this(xOffset, yOffset, 1, TextureMap.instance().textureAt(texturePath));
+    }
+
+    /**
+     * Create a new PainterConfig with the given offset.
+     *
+     * <p>Scaling and offsets based on the given texture.
+     *
+     * @param texturePath Path to the texture.
+     */
+    public PainterConfig(final String texturePath) {
+        this(TextureMap.instance().textureAt(texturePath));
+    }
 
     private PainterConfig(float xOffset, float yOffset, float xScaling, float yScaling) {
         this.xOffset = xOffset;
@@ -16,7 +47,7 @@ public class PainterConfig {
         this.yScaling = yScaling;
     }
 
-    private PainterConfig(float xOffset, float yOffset, float xScaling, Texture texture) {
+    private PainterConfig(float xOffset, float yOffset, float xScaling, final Texture texture) {
         this(
                 xOffset,
                 yOffset,
@@ -29,34 +60,38 @@ public class PainterConfig {
     }
 
     /**
-     * Paints the given texture at the given position on the given batch with default offset and
-     * default scaling.
+     * Get the x-Offset in this configuration.
      *
-     * @param texturePath path to the texture
+     * @return x-Offset
      */
-    public PainterConfig(String texturePath) {
-        this(TextureMap.instance().textureAt(texturePath));
+    public float xOffset() {
+        return xOffset;
     }
 
     /**
-     * Paints the given texture at the given position on the given batch with default offset and
-     * default scaling.
+     * Get the y-Offset in this configuration.
      *
-     * @param texturePath path to the texture
+     * @return y-Offset
      */
-    public PainterConfig(String texturePath, float xOffset, float yOffset) {
-        // half the texture xOffset, yOffset is a quarter texture down
-        this(xOffset, yOffset, 1, TextureMap.instance().textureAt(texturePath));
+    public float yOffset() {
+        return yOffset;
     }
 
     /**
-     * Paints the given texture at the given position on the given batch with default offset and a
-     * specific given scaling.
+     * Get the x-Scaling in this configuration.
      *
-     * @param xScaling specific x scaling factor
-     * @param yScaling specific y scaling factor
+     * @return x-Scaling
      */
-    public PainterConfig(float xScaling, float yScaling) {
-        this(-0.85f, -0.5f, xScaling, yScaling);
+    public float xScaling() {
+        return xScaling;
+    }
+
+    /**
+     * Get the y-Scaling in this configuration.
+     *
+     * @return y-Scaling
+     */
+    public float yScaling() {
+        return yScaling;
     }
 }
