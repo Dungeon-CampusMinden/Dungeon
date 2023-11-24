@@ -8,32 +8,24 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 /**
- * The `PreRunConfiguration` class represents the pre-run configuration for the game. It includes
- * various settings such as window dimensions, frame rate, full-screen mode, and more. This class
- * contains all the necessary configurations that need to be set before the game starts.
+ * Offers API functions for the configuration of the game.
+ *
+ * <p>Includes various settings such as window dimensions, frame rate, full-screen mode, and more.
+ * This class contains all the necessary configurations that need to be set before the game starts.
+ *
+ * <p>Use {@link #userOnFrame(IVoidFunction)}, {@link #userOnSetup(IVoidFunction)}, and {@link
+ * #userOnLevelLoad(Consumer)} to configure event callbacks. This is the best way to include your
+ * own program logic outside a {@link System}.
  */
-public class PreRunConfiguration {
+public final class PreRunConfiguration {
 
-    // Window Dimensions
     private static int WINDOW_WIDTH = 1280;
     private static int WINDOW_HEIGHT = 720;
-
-    // Frame Rate
     private static int FRAME_RATE = 30;
-
-    // Full-Screen Mode
     private static boolean FULL_SCREEN = false;
-
-    // Window Title
     private static String WINDOW_TITLE = "PM-Dungeon";
-
-    // Logo Path
     private static String LOGO_PATH = "logo/cat_logo_35x35.png";
-
-    // Audio Settings
     private static boolean DISABLE_AUDIO = false;
-
-    // User-Defined Functions
     private static IVoidFunction userOnFrame = () -> {};
     private static IVoidFunction userOnSetup = () -> {};
     private static Consumer<Boolean> userOnLevelLoad = (b) -> {};
@@ -178,7 +170,7 @@ public class PreRunConfiguration {
      *
      * @param userOnFrame The user-defined function for frame logic.
      */
-    public static void userOnFrame(IVoidFunction userOnFrame) {
+    public static void userOnFrame(final IVoidFunction userOnFrame) {
         PreRunConfiguration.userOnFrame = userOnFrame;
     }
 
@@ -196,7 +188,7 @@ public class PreRunConfiguration {
      *
      * @param userOnSetup The user-defined function for setup logic.
      */
-    public static void userOnSetup(IVoidFunction userOnSetup) {
+    public static void userOnSetup(final IVoidFunction userOnSetup) {
         PreRunConfiguration.userOnSetup = userOnSetup;
     }
 
@@ -214,7 +206,7 @@ public class PreRunConfiguration {
      *
      * @param userOnLevelLoad The user-defined function for level load logic.
      */
-    public static void userOnLevelLoad(Consumer<Boolean> userOnLevelLoad) {
+    public static void userOnLevelLoad(final Consumer<Boolean> userOnLevelLoad) {
         PreRunConfiguration.userOnLevelLoad = userOnLevelLoad;
     }
 
@@ -234,7 +226,7 @@ public class PreRunConfiguration {
      * @param klass The class where the ConfigKey fields are located.
      * @throws IOException If the file could not be read.
      */
-    public static void loadConfig(String pathAsString, Class<?>... klass) throws IOException {
+    public static void loadConfig(final String pathAsString, Class<?>... klass) throws IOException {
         Configuration.loadAndGetConfiguration(pathAsString, klass);
     }
 }
