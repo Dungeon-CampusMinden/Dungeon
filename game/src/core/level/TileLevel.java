@@ -15,9 +15,15 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A level is a 2D-Array of Tiles.
+ * Basic 2D-Matrix Tile-based level.
  *
- * @author Andre Matutat
+ * <p>The level is represented by a 2D-Matrix where each entry is a {@link Tile}.
+ *
+ * <p>The coordinate of the tile defines the place in the 2D-Matrix. The matrix is saved as a
+ * 2D-Array. Note that the layout is stored [y][x], so the first index defines the y-coordinate, and
+ * the second index the x-coordinate.
+ *
+ * @see core.level.elements.ILevel
  */
 public class TileLevel implements ILevel {
 
@@ -85,9 +91,9 @@ public class TileLevel implements ILevel {
     }
 
     private void putTilesInLists() {
-        for (int y = 0; y < layout.length; y++) {
+        for (Tile[] tiles : layout) {
             for (int x = 0; x < layout[0].length; x++) {
-                addTile(layout[y][x]);
+                addTile(tiles[x]);
             }
         }
     }
@@ -107,6 +113,7 @@ public class TileLevel implements ILevel {
      *
      * @param checkTile Tile to check for.
      */
+    @Override
     public void addConnectionsToNeighbours(Tile checkTile) {
         for (Coordinate v : CONNECTION_OFFSETS) {
             Coordinate c =
@@ -199,12 +206,12 @@ public class TileLevel implements ILevel {
     @Override
     public void removeTile(Tile tile) {
         switch (tile.levelElement()) {
-            case SKIP -> skipTiles.remove(tile);
-            case FLOOR -> floorTiles.remove(tile);
-            case WALL -> wallTiles.remove(tile);
-            case HOLE -> holeTiles.remove(tile);
-            case DOOR -> doorTiles.remove(tile);
-            case EXIT -> exitTiles.remove(tile);
+            case SKIP -> skipTiles.remove((SkipTile) tile);
+            case FLOOR -> floorTiles.remove((FloorTile) tile);
+            case WALL -> wallTiles.remove((WallTile) tile);
+            case HOLE -> holeTiles.remove((HoleTile) tile);
+            case DOOR -> doorTiles.remove((DoorTile) tile);
+            case EXIT -> exitTiles.remove((ExitTile) tile);
         }
 
         tile.connections()
