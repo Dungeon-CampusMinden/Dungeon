@@ -21,6 +21,7 @@ import dsl.runtime.interop.RuntimeObjectTranslator;
 import dsl.runtime.value.*;
 import dsl.runtime.value.PrototypeValue;
 import dsl.semanticanalysis.*;
+import dsl.semanticanalysis.scope.FileScope;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
@@ -57,6 +58,7 @@ import task.tasktype.Element;
 import task.tasktype.Quiz;
 
 import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -76,6 +78,7 @@ public class GameEnvironment implements IEnvironment {
     protected final HashMap<String, Symbol> loadedFunctions = new HashMap<>();
     protected final SymbolTable symbolTable;
     protected final Scope globalScope;
+    protected final HashMap<Path, FileScope> fileScopes = new HashMap<>();
     protected final RuntimeObjectTranslator runtimeObjectTranslator = new RuntimeObjectTranslator();
 
     public Class<?>[] getBuiltInAggregateTypeClasses() {
@@ -196,6 +199,20 @@ public class GameEnvironment implements IEnvironment {
         for (Symbol func : NATIVE_FUNCTIONS) {
             globalScope.bind(func);
         }
+    }
+
+    @Override
+    public void addFileScope(FileScope fileScope) {
+        this.fileScopes.put(fileScope.file().filePath(), fileScope);
+    }
+
+    @Override
+    public IScope getFileScope(Path file) {
+        IScope scope = this.fileScopes.get(file);
+        if (scope == null) {
+            scope = Scope.NULL;
+        }
+        return scope;
     }
 
     @Override

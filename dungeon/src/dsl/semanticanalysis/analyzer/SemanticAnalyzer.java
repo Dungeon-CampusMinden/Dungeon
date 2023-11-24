@@ -26,13 +26,17 @@ import dsl.runtime.callable.ICallable;
 import dsl.runtime.callable.NativeFunction;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.scope.FileScope;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
+import entrypoint.ParsedFile;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Stack;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
@@ -164,6 +168,37 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     /**
      * Visit children node in node, create symbol table and resolve function calls
      *
+     * @return The symbol table for given node
+     */
+    public Result walk(ParsedFile file) {
+        if (!setup) {
+            errorStringBuilder.append("Symbol table parser was not setup with an environment");
+            return new Result(symbolTable, errorStringBuilder.toString());
+        }
+
+        var path = file.filePath();
+        IScope scope = this.environment.getFileScope(path);
+        if (scope == Scope.NULL) {
+            // create new file-scope
+            FileScope fs = new FileScope(file, this.environment.getGlobalScope());
+            this.environment.addFileScope(fs);
+            scope = fs;
+        }
+
+        // TODO: push the scope on scope stack
+        this.scopeStack.push(scope);
+
+        Node node = file.rootASTNode();
+        node.accept(this);
+
+        this.scopeStack.pop();
+
+        return new Result(symbolTable, errorStringBuilder.toString());
+    }
+
+    /**
+     * Visit children node in node, create symbol table and resolve function calls
+     *
      * @param node The node to walk
      * @return The symbol table for given node
      */
@@ -172,7 +207,14 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
             errorStringBuilder.append("Symbol table parser was not setup with an environment");
             return new Result(symbolTable, errorStringBuilder.toString());
         }
+
+        ParsedFile pf = new ParsedFile(null, node);
+        FileScope fs = new FileScope(pf, this.globalScope());
+        this.environment.addFileScope(fs);
+
+        this.scopeStack.push(fs);
         node.accept(this);
+        this.scopeStack.pop();
 
         return new Result(symbolTable, errorStringBuilder.toString());
     }

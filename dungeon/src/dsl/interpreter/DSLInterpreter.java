@@ -17,6 +17,7 @@ import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.scope.FileScope;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.PropertySymbol;
@@ -27,8 +28,10 @@ import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 
 import entrypoint.DSLEntryPoint;
+import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
 
+import entrypoint.ParsedFile;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -37,6 +40,10 @@ import task.dslinterop.DSLAssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 // TODO: specify EXACT semantics of value copying and setting
@@ -87,13 +94,41 @@ public class DSLInterpreter implements AstVisitor<Object> {
      * @return the interpreted {@link DungeonConfig}.
      */
     public DungeonConfig interpretEntryPoint(DSLEntryPoint entryPoint) {
-        Node filesRootASTNode = entryPoint.file().rootASTNode();
+        //Node filesRootASTNode = entryPoint.file().rootASTNode();
 
         var environment = new GameEnvironment();
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
         semanticAnalyzer.setup(environment);
-        var result = semanticAnalyzer.walk(filesRootASTNode);
 
+        // TODO: scan lib path..
+        //  hacky
+        Path path = Paths.get("dungeon/assets/scripts/lib/");
+        File libPath = new File(path.toAbsolutePath().toString());
+
+        if (libPath.exists() && libPath.isDirectory()) {
+            FileFilter scenarioDirFilter = file -> file.isDirectory() && file.getName().equals("scenario");
+            var optScenarioDir =  Arrays.stream(libPath.listFiles(scenarioDirFilter)).findFirst();
+            if (optScenarioDir.isPresent()) {
+                FileFilter scenarioFileFilter = file -> file.isFile() && file.getPath().endsWith(".dng");
+                var scenarioDir = optScenarioDir.get();
+                var scenarioFiles = scenarioDir.listFiles(scenarioFileFilter);
+
+                // add all scenario files up front for semantic analysis
+                // all other files will be loaded from the lib-directory as needed
+                for (File scenarioFile : scenarioFiles) {
+                    String content = DSLFileLoader.fileToString(path);
+                    var programAST = DungeonASTConverter.getProgramAST(content);
+                    ParsedFile parsedFile = new ParsedFile(path, programAST);
+
+                    //environment.addFileScope(new FileScope(parsedFile, environment.getGlobalScope()));
+                }
+            }
+        }
+
+        // TODO: needs to be modified to only modify the files scope
+        var result = semanticAnalyzer.walk(entryPoint.file());
+
+        // at this point, all the symbolic and semantic data must be present in the environment
         initializeRuntime(environment);
 
         return generateQuestConfig(entryPoint.configDefinitionNode());

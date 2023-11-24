@@ -23,6 +23,7 @@ package dsl.semanticanalysis.scope;
 
 import dsl.semanticanalysis.symbol.Symbol;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -117,3 +118,4 @@ public class Scope implements IScope {
         return parent;
     }
 }
+

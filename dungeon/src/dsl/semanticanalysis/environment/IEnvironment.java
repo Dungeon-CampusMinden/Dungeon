@@ -2,6 +2,7 @@ package dsl.semanticanalysis.environment;
 
 import dsl.runtime.interop.RuntimeObjectTranslator;
 import dsl.semanticanalysis.SymbolTable;
+import dsl.semanticanalysis.scope.FileScope;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
@@ -10,6 +11,7 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +36,10 @@ public interface IEnvironment {
 
     // default Symbol lookupType(String name) { return Symbol.NULL; }
 
+    void addFileScope(FileScope fileScope);
+
+    IScope getFileScope(Path file);
+
     /**
      * @return all available function definitions
      */
@@ -41,7 +47,7 @@ public interface IEnvironment {
         return new Symbol[0];
     }
 
-    // default Symbol lookupFunction(String name) { return Symbol.NULL; }
+    // TODO: needs to be extended to handle files
     /**
      * @param types AggregateTypes to load into the environment
      */
