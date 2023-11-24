@@ -12,9 +12,10 @@ import core.utils.components.MissingComponentException;
 
 import java.util.*;
 
-public class LevelUtils {
+/** Offers some utility functions to work on and with {@link core.level.elements.ILevel}. */
+public final class LevelUtils {
 
-    private static final Random random = new Random();
+    private static final Random RANDOM = new Random();
 
     /**
      * Finds the path from the given point to another given point.
@@ -56,7 +57,7 @@ public class LevelUtils {
      * @return Path from the center point to the randomly selected tile.
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(
-            final Point point, final float radius) {
+            final Point point, float radius) {
         Coordinate newPosition =
                 randomAccessibleTileCoordinateInRange(point, radius).orElse(point.toCoordinate());
         return calculatePath(point.toCoordinate(), newPosition);
@@ -76,7 +77,7 @@ public class LevelUtils {
      * @return Path from the position of the entity to the randomly selected tile.
      */
     public static GraphPath<Tile> calculatePathToRandomTileInRange(
-            final Entity entity, final float radius) {
+            final Entity entity, float radius) {
         Point point =
                 entity.fetch(PositionComponent.class)
                         .orElseThrow(
@@ -113,13 +114,13 @@ public class LevelUtils {
     /**
      * Finds the path from the position of one entity to the position of the hero.
      *
-     * <p>If no hero exist in the game, the path will be calculated from the given entity to the
+     * <p>If no hero exists in the game, the path will be calculated from the given entity to the
      * given entity.
      *
      * <p>Throws an IllegalArgumentException if one of the entities position is non-accessible.
      *
      * @param entity Entity from which the path to the hero is calculated.
-     * @return Path from the entity to the hero, if there is no hero, path from the entity to
+     * @return Path from the entity to the hero, if there is no hero, the path from the entity to
      *     itself.
      */
     public static GraphPath<Tile> calculatePathToHero(final Entity entity) {
@@ -150,7 +151,7 @@ public class LevelUtils {
      * @param radius The radius within which the tiles should be located.
      * @return List of tiles in the given radius around the center point.
      */
-    public static List<Tile> tilesInRange(final Point center, final float radius) {
+    public static List<Tile> tilesInRange(final Point center, float radius) {
         // offset of neighbour Tiles which may not be accessible
         Coordinate[] offsets =
                 new Coordinate[] {
@@ -166,17 +167,17 @@ public class LevelUtils {
         // all found tiles
         Set<Tile> tiles = new HashSet<>();
         // BFS queue
-        Queue<Tile> tileque = new ArrayDeque<>();
+        Queue<Tile> tileQueue = new ArrayDeque<>();
         Tile start = Game.tileAT(center);
-        if (start != null) tileque.add(start);
-        while (tileque.size() > 0) {
-            Tile current = tileque.remove();
+        if (start != null) tileQueue.add(start);
+        while (tileQueue.size() > 0) {
+            Tile current = tileQueue.remove();
             boolean added = tiles.add(current);
             if (added) {
                 // Tile is a new Tile so add the neighbours to be checked
                 for (Coordinate offset : offsets) {
                     Tile tile = current.level().tileAt(current.coordinate().add(offset));
-                    if (tile != null && isInRange(center, radius, tile)) tileque.add(tile);
+                    if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
                 }
             }
         }
@@ -184,27 +185,19 @@ public class LevelUtils {
         return new ArrayList<>(tiles);
     }
 
-    private static boolean isInRange(Point center, float radius, Tile tile) {
+    private static boolean isInRange(final Point center, float radius, final Tile tile) {
         return isAnyCornerOfTileInRadius(center, radius, tile)
                 || isPointBarelyInTile(center, radius, tile);
     }
 
-    /**
-     * if the radius is barely entering any side it may not touch any of the corners
-     *
-     * @param center
-     * @param radius
-     * @param tile
-     * @return
-     */
-    private static boolean isPointBarelyInTile(Point center, float radius, Tile tile) {
-        // left maxdistance
+    private static boolean isPointBarelyInTile(final Point center, float radius, final Tile tile) {
+        // left max distance
         Point xMin = new Point(-radius, 0).add(center);
-        // right maxdistance
+        // right max distance
         Point xMax = new Point(radius, 0).add(center);
-        // up maxdistance
+        // up max distance
         Point yMin = new Point(0, -radius).add(center);
-        // down maxdistance
+        // down max distance
         Point yMax = new Point(0, radius).add(center);
         return isPointInTile(xMin, tile)
                 || isPointInTile(xMax, tile)
@@ -212,18 +205,19 @@ public class LevelUtils {
                 || isPointInTile(yMax, tile);
     }
 
-    private static boolean isPointInTile(Point point, Tile tile) {
+    private static boolean isPointInTile(final Point point, final Tile tile) {
         return tile.coordinate().toPoint().x < point.x
                 && point.x < (tile.coordinate().toPoint().x + 1)
                 && tile.coordinate().toPoint().y < point.y
                 && point.y < (tile.coordinate().toPoint().y + 1);
     }
 
-    private static boolean isAnyCornerOfTileInRadius(Point center, float radius, Tile x) {
-        return Point.inRange(center, x.coordinate().toPoint(), radius)
-                || Point.inRange(center, x.coordinate().toPoint(), radius)
-                || Point.inRange(center, x.coordinate().toPoint(), radius)
-                || Point.inRange(center, x.coordinate().toPoint(), radius);
+    private static boolean isAnyCornerOfTileInRadius(
+            final Point center, float radius, final Tile tile) {
+        return Point.inRange(center, tile.coordinate().toPoint(), radius)
+                || Point.inRange(center, tile.coordinate().toPoint(), radius)
+                || Point.inRange(center, tile.coordinate().toPoint(), radius)
+                || Point.inRange(center, tile.coordinate().toPoint(), radius);
     }
 
     /**
@@ -237,7 +231,7 @@ public class LevelUtils {
      * @param radius The radius within which the accessible tiles should be located.
      * @return List of accessible tiles in the given radius around the center point.
      */
-    public static List<Tile> accessibleTilesInRange(final Point center, final float radius) {
+    public static List<Tile> accessibleTilesInRange(final Point center, float radius) {
         List<Tile> tiles = tilesInRange(center, radius);
         tiles.removeIf(tile -> !tile.isAccessible() && !(tile instanceof DoorTile));
         return tiles;
@@ -248,7 +242,7 @@ public class LevelUtils {
      *
      * <p>The range is determined by the provided radius.
      *
-     * <p>The tile at the given point can be the return value as well, if it is accessible.
+     * <p>The tile at the given point can be the return value as well if it is accessible.
      *
      * @param center The center point around which the tiles are considered.
      * @param radius The radius within which the accessible tiles should be located.
@@ -256,10 +250,10 @@ public class LevelUtils {
      *     within the range, or an empty Optional if no accessible tiles were found.
      */
     public static Optional<Coordinate> randomAccessibleTileCoordinateInRange(
-            final Point center, final float radius) {
+            final Point center, float radius) {
         List<Tile> tiles = accessibleTilesInRange(center, radius);
         if (tiles.isEmpty()) return Optional.empty();
-        Coordinate newPosition = tiles.get(random.nextInt(tiles.size())).coordinate();
+        Coordinate newPosition = tiles.get(RANDOM.nextInt(tiles.size())).coordinate();
         return Optional.of(newPosition);
     }
 
@@ -269,10 +263,9 @@ public class LevelUtils {
      * @param entity1 The first entity which is considered.
      * @param entity2 The second entity which is to be searched for in the given range.
      * @param range The range in which the two entities are positioned from each other.
-     * @return True if the position of the two entities is within the given range, else false
+     * @return True if the position of the two entities is within the given range, else false.
      */
-    public static boolean entityInRange(
-            final Entity entity1, final Entity entity2, final float range) {
+    public static boolean entityInRange(final Entity entity1, final Entity entity2, float range) {
 
         Point entity1Position =
                 entity1.fetch(PositionComponent.class)
@@ -299,7 +292,7 @@ public class LevelUtils {
      * @return True if the position of the player is within the given radius of the position of the
      *     given entity. If there is no hero, return false.
      */
-    public static boolean playerInRange(final Entity entity, final float range) {
+    public static boolean playerInRange(final Entity entity, float range) {
 
         Optional<Entity> hero = Game.hero();
         return hero.filter(value -> entityInRange(entity, value, range)).isPresent();
