@@ -1,6 +1,5 @@
 package core.components;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 import core.Component;
@@ -12,46 +11,36 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * Mark an entity as playable by the player.
+ * Marks an entity as playable by the player.
  *
  * <p>This component stores pairs of keystroke codes with an associated callback function. The
- * mappings can be added or changed via {@link #registerCallback} and deleted via {@link
- * #removeCallback}. The codes for the buttons originate from {@link Input.Keys}
- *
- * <p>The {@link core.systems.PlayerSystem} invokes the {@link #execute} method of this component,
- * which invokes for each stored tuple the associated callback if the corresponding button was
- * pressed.
+ * mappings can be added or changed via {@link #registerCallback} and removed via {@link
+ * #removeCallback}. The codes for the buttons originate from {@link Input.Keys}.
  *
  * @see Input.Keys
  * @see core.systems.PlayerSystem
  */
 public final class PlayerComponent implements Component {
 
-    public record InputData(boolean repeat, Consumer<Entity> callback, boolean pausable) {
-        public InputData(boolean repeat, Consumer<Entity> callback) {
-            this(repeat, callback, true);
-        }
-    }
-
     private final Map<Integer, InputData> callbacks;
 
-    /** Create a new PlayerComponent and add it to the associated entity. */
+    /** Create a new PlayerComponent. */
     public PlayerComponent() {
         callbacks = new HashMap<>();
     }
 
     /**
-     * Register a new callback for a key.
+     * Registers a new callback for a key.
      *
      * <p>If a callback is already registered on this key, the old callback will be replaced.
      *
      * <p>The callback will be executed repeatedly while the key is pressed. Use {@link
-     * #registerCallback(int, Consumer, boolean)} to change this behaviour.
+     * #registerCallback(int, Consumer, boolean)} to change this behavior.
      *
      * @param key The integer value of the key on which the callback should be executed.
      * @param callback The {@link Consumer} that contains the callback to execute if the key is
      *     pressed.
-     * @return Optional<Consumer<Entity>> The old callback, if one was existing. Can be null.
+     * @return Optional<Consumer < Entity>> The old callback, if one was existing. Can be null.
      * @see com.badlogic.gdx.Gdx#input
      */
     public Optional<Consumer<Entity>> registerCallback(int key, final Consumer<Entity> callback) {
@@ -64,38 +53,40 @@ public final class PlayerComponent implements Component {
     }
 
     /**
-     * Register a new callback for a key.
+     * Registers a new callback for a key.
      *
      * <p>If a callback is already registered on this key, the old callback will be replaced.
      *
      * @param key The integer value of the key on which the callback should be executed.
      * @param callback The {@link Consumer} that contains the callback to execute if the key is
+     *     pressed.
      * @param repeat If the callback should be executed repeatedly while the key is pressed.
-     * @param pausable If the callback should be executed while the game is paused.
-     * @return Optional<Consumer<Entity>> The old callback, if one was existing. Can be null.
+     * @param pauseable If the callback should be executed while the game is paused.
+     * @return Optional<Consumer < Entity>> The old callback, if one was existing. Can be null.
      */
     public Optional<Consumer<Entity>> registerCallback(
-            int key, final Consumer<Entity> callback, boolean repeat, boolean pausable) {
+            int key, final Consumer<Entity> callback, boolean repeat, boolean pauseable) {
         Consumer<Entity> oldCallback = null;
         if (callbacks.containsKey(key)) {
             oldCallback = callbacks.get(key).callback();
         }
-        callbacks.put(key, new InputData(repeat, callback, pausable));
+        callbacks.put(key, new InputData(repeat, callback, pauseable));
         return Optional.ofNullable(oldCallback);
     }
 
     /**
-     * Register a new pausable callback for a key.
+     * Registers a new pauseable callback for a key.
      *
      * <p>If a callback is already registered on this key, the old callback will be replaced.
      *
-     * <p>This exists for compatibility reasons. Use {@link #registerCallback(int, Consumer,
+     * <p>This method exists for compatibility reasons. Use {@link #registerCallback(int, Consumer,
      * boolean, boolean)} instead.
      *
      * @param key The integer value of the key on which the callback should be executed.
      * @param callback The {@link Consumer} that contains the callback to execute if the key is
+     *     pressed.
      * @param repeat If the callback should be executed repeatedly while the key is pressed.
-     * @return Optional<Consumer<Entity>> The old callback, if one was existing. Can be null.
+     * @return Optional<Consumer < Entity>> The old callback, if one was existing. Can be null.
      */
     public Optional<Consumer<Entity>> registerCallback(
             int key, final Consumer<Entity> callback, boolean repeat) {
@@ -103,7 +94,7 @@ public final class PlayerComponent implements Component {
     }
 
     /**
-     * Remove the registered callback on the given key.
+     * Removes the registered callback on the given key.
      *
      * @param key The integer value of the key.
      * @see com.badlogic.gdx.Gdx#input
@@ -113,29 +104,25 @@ public final class PlayerComponent implements Component {
     }
 
     /**
-     * Execute the callback function registered to a key when it is pressed.
+     * Gets the Key Configuration Map.
      *
-     * <p>The callbacks are executed only if the game is not paused or if the callback is not
-     * pausable.
-     *
-     * @param entity associated entity of this component.
-     * @param paused if the game is paused or not.
+     * @return A copy of the callback map.
      */
-    public void execute(final Entity entity, boolean paused) {
-        this.callbacks.forEach(
-                (key, value) -> {
-                    if (!paused || !value.pausable) {
-                        this.execute(entity, key, value);
-                    }
-                });
+    public Map<Integer, InputData> callbacks() {
+        return new HashMap<>(callbacks);
     }
 
-    private void execute(Entity entity, int key, final InputData data) {
-        if ((!data.repeat()
-                        && (Gdx.input.isKeyJustPressed(key) || Gdx.input.isButtonJustPressed(key)))
-                || (data.repeat()
-                        && (Gdx.input.isKeyPressed(key) || Gdx.input.isButtonJustPressed(key)))) {
-            data.callback().accept(entity);
+    /**
+     * Stores information for a Key Press Callback.
+     *
+     * @param repeat If the callback should be executed repeatedly while the key is pressed.
+     * @param callback The {@link Consumer} that contains the callback to execute if the key is
+     *     pressed.
+     * @param pauseable If the callback should be executed while the game is paused.
+     */
+    public record InputData(boolean repeat, Consumer<Entity> callback, boolean pauseable) {
+        public InputData(boolean repeat, Consumer<Entity> callback) {
+            this(repeat, callback, true);
         }
     }
 }
