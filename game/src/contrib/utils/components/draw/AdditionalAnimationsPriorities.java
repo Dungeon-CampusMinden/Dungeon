@@ -8,7 +8,7 @@ public enum AdditionalAnimationsPriorities {
 
     private final int priority;
 
-    AdditionalAnimationsPriorities(int priority) {
+    AdditionalAnimationsPriorities(final int priority) {
         this.priority = priority;
     }
 

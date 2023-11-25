@@ -7,7 +7,7 @@ import core.utils.components.path.IPath;
  * This enum stores the paths to the animations, and their priority, used by the systems inside the
  * contrib package.
  *
- * <p>Add your own path, if you need a new animation-type (like jumping)
+ * <p>Add your own path if you need a new animation-type (like jumping).
  *
  * @see core.components.DrawComponent
  * @see IPath
@@ -29,9 +29,9 @@ public enum AdditionalAnimations implements IPath {
     private final String value;
     private final int priority;
 
-    AdditionalAnimations(String value, int prio) {
+    AdditionalAnimations(final String value, final int priority) {
         this.value = value;
-        this.priority = prio;
+        this.priority = priority;
     }
 
     @Override
