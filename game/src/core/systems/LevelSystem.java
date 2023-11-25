@@ -235,10 +235,10 @@ public final class LevelSystem extends System {
                                                 entity, PositionComponent.class));
         for (DoorTile door : currentLevel.doorTiles()) {
             if (door.isOpen()
-                    && door.getOtherDoor().isOpen()
+                    && door.otherDoor().isOpen()
                     && door.equals(Game.tileAT(pc.position()))) {
-                door.onEntering(entity);
-                nextLevel = door.getOtherDoor().level();
+                door.otherDoor().level().startTile(door.otherDoor().doorstep());
+                nextLevel = door.otherDoor().level();
             }
         }
         return Optional.ofNullable(nextLevel);

@@ -13,11 +13,11 @@ public class TileTest {
     @Test
     public void test_isAccessible() {
         Coordinate dummyCoordinate = new Coordinate(0, 0);
-        Tile wall = new WallTile("", dummyCoordinate, DesignLabel.DEFAULT, null);
-        Tile floor = new FloorTile("", dummyCoordinate, DesignLabel.DEFAULT, null);
-        Tile exit = new ExitTile("", dummyCoordinate, DesignLabel.DEFAULT, null);
-        Tile start = new FloorTile("", dummyCoordinate, DesignLabel.DEFAULT, null);
-        Tile skip = new SkipTile("", dummyCoordinate, DesignLabel.DEFAULT, null);
+        Tile wall = new WallTile("", dummyCoordinate, DesignLabel.DEFAULT);
+        Tile floor = new FloorTile("", dummyCoordinate, DesignLabel.DEFAULT);
+        Tile exit = new ExitTile("", dummyCoordinate, DesignLabel.DEFAULT);
+        Tile start = new FloorTile("", dummyCoordinate, DesignLabel.DEFAULT);
+        Tile skip = new SkipTile("", dummyCoordinate, DesignLabel.DEFAULT);
         assertTrue(floor.isAccessible());
         assertTrue(exit.isAccessible());
         assertTrue(start.isAccessible());
@@ -27,14 +27,14 @@ public class TileTest {
 
     @Test
     public void test_directionTo() {
-        Tile north = new FloorTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null);
-        Tile south = new FloorTile("", new Coordinate(0, -1), DesignLabel.DEFAULT, null);
-        Tile east = new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null);
-        Tile west = new FloorTile("", new Coordinate(-1, 0), DesignLabel.DEFAULT, null);
-        Tile northEast = new FloorTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null);
-        Tile northWest = new FloorTile("", new Coordinate(-1, 1), DesignLabel.DEFAULT, null);
-        Tile southEast = new FloorTile("", new Coordinate(1, -1), DesignLabel.DEFAULT, null);
-        Tile southWest = new FloorTile("", new Coordinate(-1, -1), DesignLabel.DEFAULT, null);
+        Tile north = new FloorTile("", new Coordinate(0, 1), DesignLabel.DEFAULT);
+        Tile south = new FloorTile("", new Coordinate(0, -1), DesignLabel.DEFAULT);
+        Tile east = new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT);
+        Tile west = new FloorTile("", new Coordinate(-1, 0), DesignLabel.DEFAULT);
+        Tile northEast = new FloorTile("", new Coordinate(1, 1), DesignLabel.DEFAULT);
+        Tile northWest = new FloorTile("", new Coordinate(-1, 1), DesignLabel.DEFAULT);
+        Tile southEast = new FloorTile("", new Coordinate(1, -1), DesignLabel.DEFAULT);
+        Tile southWest = new FloorTile("", new Coordinate(-1, -1), DesignLabel.DEFAULT);
 
         Tile.Direction[] northToSouth = north.directionTo(south);
         assertEquals(1, northToSouth.length);

@@ -1,27 +1,22 @@
 package core.level.elements.tile;
 
-import core.Entity;
 import core.level.Tile;
-import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 
+/**
+ * Represents a Door in the game.
+ *
+ * <p>A Door connects two room-based levels.
+ *
+ * <p>You need to configure the door with {@link #otherDoor(DoorTile)} and {@link #doorstep(Tile)}.
+ */
 public class DoorTile extends Tile {
 
-    public enum DoorColor {
-        NONE,
-        RED,
-        BLUE,
-        YELLOW,
-        GREEN
-    }
-
+    private final String closedTexturePath;
     private DoorTile otherDoor;
     private Tile doorstep;
-
-    private final String closedTexturePath;
-
     private boolean open;
 
     /**
@@ -32,20 +27,16 @@ public class DoorTile extends Tile {
      * @param texturePath Path to the texture of the tile.
      * @param globalPosition Position of the tile in the global system.
      * @param designLabel Design of the Tile
-     * @param level The level this Tile belongs to
      */
     public DoorTile(
-            String texturePath, Coordinate globalPosition, DesignLabel designLabel, ILevel level) {
-        super(texturePath, globalPosition, designLabel, level);
+            final String texturePath,
+            final Coordinate globalPosition,
+            final DesignLabel designLabel) {
+        super(texturePath, globalPosition, designLabel);
         String[] splitPath = texturePath.split("\\.");
         closedTexturePath = splitPath[0] + "_closed." + splitPath[1];
         levelElement = LevelElement.DOOR;
         open = true;
-    }
-
-    @Override
-    public void onEntering(Entity element) {
-        otherDoor.level.startTile(otherDoor.doorstep);
     }
 
     @Override
@@ -59,14 +50,14 @@ public class DoorTile extends Tile {
      *
      * @param otherDoor Door that will be connected to this door
      */
-    public void setOtherDoor(DoorTile otherDoor) {
+    public void otherDoor(DoorTile otherDoor) {
         this.otherDoor = otherDoor;
     }
 
     /**
      * @return Door that is connected to this door
      */
-    public DoorTile getOtherDoor() {
+    public DoorTile otherDoor() {
         return otherDoor;
     }
 
@@ -75,42 +66,17 @@ public class DoorTile extends Tile {
      *
      * @param doorstep Tile in front of the door
      */
-    public void setDoorstep(Tile doorstep) {
+    public void doorstep(final Tile doorstep) {
         this.doorstep = doorstep;
     }
 
     /**
-     * @return Tile in front of the door
-     */
-    public Tile getDoorstep() {
-        return doorstep;
-    }
-
-    /**
-     * Sets the color of the door and changes texturePath accordingly.
+     * Get Tile in front ot the door.
      *
-     * @param color New color of this door
+     * @return Tile in front of the door.
      */
-    public void setColor(DoorColor color) {
-        if (texturePath != null) {
-            StringBuilder textureBuilder = new StringBuilder(texturePath);
-            int indexOfUnderscore = textureBuilder.indexOf("_");
-            int indexOfDot = textureBuilder.indexOf(".");
-            // TODO if (indexOfDot == -1) { error }
-            if (indexOfUnderscore == -1) {
-                if (color != DoorColor.NONE) {
-                    textureBuilder.insert(indexOfDot, "_" + color.name().toLowerCase());
-                }
-            } else {
-                if (color == DoorColor.NONE) {
-                    textureBuilder.replace(indexOfUnderscore, indexOfDot, "");
-                } else {
-                    textureBuilder.replace(
-                            indexOfUnderscore + 1, indexOfDot, color.name().toLowerCase());
-                }
-            }
-            texturePath = textureBuilder.toString();
-        } // TODO else { error }
+    public Tile doorstep() {
+        return doorstep;
     }
 
     /**

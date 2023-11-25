@@ -3,7 +3,6 @@ package core.level;
 import com.badlogic.gdx.ai.pfa.Connection;
 import com.badlogic.gdx.utils.Array;
 
-import core.Entity;
 import core.level.elements.ILevel;
 import core.level.elements.astar.TileConnection;
 import core.level.utils.Coordinate;
@@ -20,99 +19,107 @@ import java.util.List;
 /**
  * A Tile is a field of the level.
  *
- * @author Andre Matutat
+ * <p>A Tile has a {@link Coordinate} in the Level, which defines the x and y index in the Level's
+ * Tile-Matrix.
+ *
+ * <p>A Tile can be accessible or non-accessible; this is represented by a boolean value.
+ *
+ * <p>After you add a Tile to a Level, you must call {@link #level(TileLevel)}.
+ *
+ * <p>The concrete type of the Tile is defined by the inheriting class.
  */
 public abstract class Tile {
     protected final Coordinate globalPosition;
+    private final float friction;
     protected DesignLabel designLabel;
     protected String texturePath;
-
     protected ILevel level;
     protected LevelElement levelElement;
     protected transient Array<Connection<Tile>> connections = new Array<>();
     protected int index;
-    private final float friction;
 
     /**
-     * Creates a new Tile.
+     * Create a new Tile.
      *
      * @param texturePath Path to the texture of the tile.
      * @param globalPosition Position of the tile in the global system.
-     * @param designLabel Design of the Tile
-     * @param level The level this Tile belongs to
-     * @param friction The friction of this Tile
+     * @param designLabel Design of the Tile.
+     * @param friction The friction of this Tile.
      */
     public Tile(
-            String texturePath,
-            Coordinate globalPosition,
-            DesignLabel designLabel,
-            ILevel level,
+            final String texturePath,
+            final Coordinate globalPosition,
+            final DesignLabel designLabel,
             float friction) {
         this.texturePath = texturePath;
         this.globalPosition = globalPosition;
         this.designLabel = designLabel;
-        this.level = level;
         this.friction = friction;
     }
+
     /**
-     * Creates a new Tile.
+     * Create a new Tile.
      *
      * @param texturePath Path to the texture of the tile.
      * @param globalPosition Position of the tile in the global system.
-     * @param designLabel Design of the Tile
-     * @param level The level this Tile belongs to
+     * @param designLabel Design of the Tile.
      */
     public Tile(
-            String texturePath, Coordinate globalPosition, DesignLabel designLabel, ILevel level) {
-        this(texturePath, globalPosition, designLabel, level, Constants.DEFAULT_FRICTION);
+            final String texturePath,
+            final Coordinate globalPosition,
+            final DesignLabel designLabel) {
+        this(texturePath, globalPosition, designLabel, Constants.DEFAULT_FRICTION);
     }
 
     /**
-     * What happens, if someone moves on this Tile?
+     * Get the texture of this tile.
      *
-     * @param element Who entered this Tile?
-     */
-    public abstract void onEntering(Entity element);
-
-    /**
-     * @return path to the texture of this tile
+     * @return Path to the texture of this tile.
      */
     public String texturePath() {
         return texturePath;
     }
 
     /**
-     * Change texture of the tile.
+     * Change the texture of the tile.
      *
      * @param texture New texture of the tile.
      */
-    public void texturePath(String texture) {
+    public void texturePath(final String texture) {
         this.texturePath = texture;
     }
 
     /**
-     * @return The global coordinate of the tile.
+     * Get the coordinate of this tile.
+     *
+     * @return The coordinate of the tile.
      */
     public Coordinate coordinate() {
-        return globalPosition;
+        return new Coordinate(globalPosition);
     }
 
     /**
-     * @return The global coordinate of the tile as point.
+     * Get the coordinate of this tile as a point.
+     *
+     * @return The coordinate of the tile as a point.
      */
     public Point position() {
         return coordinate().toPoint();
     }
 
     /**
-     * @return the DesignLabel of this tile
+     * Get the design label of this tile.
+     *
+     * @return The DesignLabel of this tile.
      */
     public DesignLabel designLabel() {
         return designLabel;
     }
 
     /**
-     * @return the LevelElement of this tile
+     * Defines the element type of this tile.
+     *
+     * @return The LevelElement of this tile.
      */
     public LevelElement levelElement() {
         return levelElement;
@@ -123,12 +130,14 @@ public abstract class Tile {
      *
      * @param newLevelElement New type of the tile.
      */
-    public void levelElement(LevelElement newLevelElement) {
+    public void levelElement(final LevelElement newLevelElement) {
         this.levelElement = newLevelElement;
     }
 
     /**
-     * @return the Level this tile is in
+     * Get the level where this tile is in.
+     *
+     * @return The level this tile is in.
      */
     public ILevel level() {
         return level;
@@ -137,46 +146,46 @@ public abstract class Tile {
     /**
      * Sets the corresponding level for this tile.
      *
-     * @param tileLevel The level this tile is in
+     * @param tileLevel The level this tile is in.
      */
-    public void level(TileLevel tileLevel) {
+    public void level(final TileLevel tileLevel) {
         level = tileLevel;
     }
 
     /**
-     * Used by libGDX pathfinding
+     * Used by LibGDX pathfinding.
      *
-     * @return the index of this tile
+     * @return The index of this tile.
      */
     public int index() {
         return index;
     }
 
     /**
-     * Used by libGDX pathfinding
+     * Used by LibGDX pathfinding.
      *
-     * @param index value of the index
+     * @param index Value of the index.
      */
     public void index(int index) {
         this.index = index;
     }
 
     /**
-     * Get friction of this tile.
+     * Get the friction of this tile.
      *
-     * @return the friction of this tile
+     * @return The friction of this tile.
      */
     public float friction() {
         return this.friction;
     }
 
     /**
-     * connects to tile together. this mean you can go from one tile to another. Connections are
+     * Connects two tiles together. This means you can go from one tile to another. Connections are
      * needed to calculate a path through the dungeon.
      *
      * @param to Tile to connect with.
      */
-    public void addConnection(Tile to) {
+    public void addConnection(final Tile to) {
         if (connections == null) {
             connections = new Array<>();
         }
@@ -184,9 +193,9 @@ public abstract class Tile {
     }
 
     /**
-     * Used by libGDX pathfinding
+     * Used by LibGDX pathfinding.
      *
-     * @return all connections to other tile
+     * @return All connections to other tiles.
      */
     public Array<Connection<Tile>> connections() {
         return connections;
@@ -196,9 +205,9 @@ public abstract class Tile {
      * Returns the direction to a given tile.
      *
      * @param goal To which tile is the direction.
-     * @return Can either be north, east, south, west or a combination of two.
+     * @return Can either be north, east, south, west, or a combination of two.
      */
-    public Direction[] directionTo(Tile goal) {
+    public Direction[] directionTo(final Tile goal) {
         List<Direction> directions = new ArrayList<>();
         if (globalPosition.x < goal.coordinate().x) {
             directions.add(Direction.E);
@@ -213,9 +222,15 @@ public abstract class Tile {
         return directions.toArray(new Direction[0]);
     }
 
-    public abstract boolean isAccessible();
+    /**
+     * Check if this tile is accessible (like a floor) or not (like a wall).
+     *
+     * @return true if this tile is accessible, false if not.
+     */
+    public boolean isAccessible() {
+        return levelElement.value();
+    }
 
-    // --------------------------- For LibGDX Pathfinding ---------------------------
     @DSLType(name = "tile_direction")
     public enum Direction {
         N,
@@ -223,7 +238,4 @@ public abstract class Tile {
         S,
         W,
     }
-
-    // --------------------------- End LibGDX Pathfinding ---------------------------
-
 }

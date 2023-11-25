@@ -27,12 +27,12 @@ public class TileLevelTest {
         Tile[][] tileLayout =
                 new Tile[][] {
                     {
-                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
-                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
+                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT),
+                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT)
                     },
                     {
-                        new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
-                        new ExitTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
+                        new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT),
+                        new ExitTile("", new Coordinate(1, 1), DesignLabel.DEFAULT)
                     }
                 };
         TileLevel tileLevel = new TileLevel(tileLayout);
@@ -45,12 +45,12 @@ public class TileLevelTest {
         Tile[][] tileLayout =
                 new Tile[][] {
                     {
-                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT, null),
-                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null)
+                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT),
+                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT)
                     },
                     {
-                        new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT, null),
-                        new FloorTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null)
+                        new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT),
+                        new FloorTile("", new Coordinate(1, 1), DesignLabel.DEFAULT)
                     }
                 };
         TileLevel tileLevel = new TileLevel(tileLayout);
@@ -224,12 +224,12 @@ public class TileLevelTest {
         Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
+                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT);
             }
         }
-        layout[1][1] = new WallTile("", new Coordinate(1, 1), DesignLabel.DEFAULT, null);
-        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null);
-        layout[0][2] = new ExitTile("", new Coordinate(2, 0), DesignLabel.DEFAULT, null);
+        layout[1][1] = new WallTile("", new Coordinate(1, 1), DesignLabel.DEFAULT);
+        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT);
+        layout[0][2] = new ExitTile("", new Coordinate(2, 0), DesignLabel.DEFAULT);
         TileLevel tileLevel = new TileLevel(layout);
         tileLevel.startTile(layout[0][0]);
 
@@ -250,11 +250,11 @@ public class TileLevelTest {
         Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
+                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT);
             }
         }
-        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null);
-        layout[0][2] = new ExitTile("", new Coordinate(2, 0), DesignLabel.DEFAULT, null);
+        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT);
+        layout[0][2] = new ExitTile("", new Coordinate(2, 0), DesignLabel.DEFAULT);
         TileLevel tileLevel = new TileLevel(layout);
         tileLevel.startTile(layout[0][0]);
 
@@ -307,10 +307,10 @@ public class TileLevelTest {
         Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
+                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT);
             }
         }
-        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null);
+        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT);
         TileLevel tileLevel = new TileLevel(layout);
         var start = tileLevel.tileAt(layout[0][1].coordinate());
         var end = tileLevel.tileAt(layout[2][1].coordinate());
@@ -329,10 +329,10 @@ public class TileLevelTest {
         Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
+                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT);
             }
         }
-        layout[2][1] = new WallTile("", new Coordinate(1, 2), DesignLabel.DEFAULT, null);
+        layout[2][1] = new WallTile("", new Coordinate(1, 2), DesignLabel.DEFAULT);
         TileLevel tileLevel = new TileLevel(layout);
         var start = tileLevel.tileAt(layout[0][1].coordinate());
         var end = tileLevel.tileAt(layout[2][1].coordinate());
@@ -350,11 +350,11 @@ public class TileLevelTest {
         Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT, null);
+                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT);
             }
         }
-        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT, null);
-        layout[2][1] = new WallTile("", new Coordinate(1, 2), DesignLabel.DEFAULT, null);
+        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT);
+        layout[2][1] = new WallTile("", new Coordinate(1, 2), DesignLabel.DEFAULT);
         TileLevel tileLevel = new TileLevel(layout);
         var start = tileLevel.tileAt(layout[0][1].coordinate());
         var end = tileLevel.tileAt(layout[2][1].coordinate());

@@ -133,7 +133,7 @@ public class RoombasedLevelGenerator {
                     neighbourDoor = doorTile;
                     break;
                 }
-            door.setOtherDoor(neighbourDoor);
+            door.otherDoor(neighbourDoor);
 
             // place door steps
             Tile doorStep = null;
@@ -159,7 +159,7 @@ public class RoombasedLevelGenerator {
                                         new Coordinate(
                                                 door.coordinate().x + 1, door.coordinate().y));
             }
-            door.setDoorstep(doorStep);
+            door.doorstep(doorStep);
         }
     }
 }
