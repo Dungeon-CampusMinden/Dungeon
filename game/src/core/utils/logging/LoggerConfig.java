@@ -11,7 +11,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-public class LoggerConfig {
+/**
+ * Configuration for the Logger in the Dungeon.
+ *
+ * <p>Call {@link #initBaseLogger()} at the start of the program.
+ *
+ * <p>Will create a new Logfile and write the log messages into it. Disables the output of log
+ * messages on the shell.
+ */
+public final class LoggerConfig {
     private static Logger baseLogger;
     private static FileHandler customFileHandler;
 

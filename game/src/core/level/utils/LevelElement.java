@@ -2,11 +2,7 @@ package core.level.utils;
 
 import core.utils.Constants;
 
-/**
- * Each type of field in a level can be represented by an integer value.
- *
- * @author Andre Matutat
- */
+/** Each type of field in a level can be represented by an integer value. */
 public enum LevelElement {
     /** This field is a blank */
     SKIP(Constants.LEVELELEMENT_IS_NOT_ACCESSIBLE),
@@ -23,12 +19,19 @@ public enum LevelElement {
 
     private final boolean value;
 
+    /**
+     * Represents a level element with accessibility information.
+     *
+     * @param value The accessibility value of the element.
+     */
     LevelElement(boolean value) {
         this.value = value;
     }
 
     /**
-     * @return A random enum-value
+     * Checks if the element is accessible.
+     *
+     * @return true if the element is accessible, code false if not.
      */
     public boolean value() {
         return value;

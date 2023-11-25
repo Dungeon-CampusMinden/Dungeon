@@ -2,7 +2,11 @@ package core.level.utils;
 
 import core.utils.Point;
 
-/** Coordinate in the dungeon, based on array index. */
+/**
+ * Coordinate in the dungeon, based on array index.
+ *
+ * <p>No getter needed. All attributes are public.
+ */
 public class Coordinate {
 
     public int x;
@@ -24,30 +28,28 @@ public class Coordinate {
      *
      * @param copyFrom Coordinate to copy
      */
-    public Coordinate(Coordinate copyFrom) {
+    public Coordinate(final Coordinate copyFrom) {
         x = copyFrom.x;
         y = copyFrom.y;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Coordinate)) {
+    public boolean equals(final Object o) {
+        if (!(o instanceof Coordinate other)) {
             return false;
         }
-        Coordinate other = (Coordinate) o;
         return x == other.x && y == other.y;
     }
 
     @Override
     public int hashCode() {
-        assert false : "hashCode nit designed";
-        return x + y; // any arbitrary constant will do
+        return x + y;
     }
 
     /**
      * Convert Coordinate to Point
      *
-     * @return
+     * @return Coordinate converted to a point;
      */
     public Point toPoint() {
         return new Point(x, y);
@@ -59,7 +61,7 @@ public class Coordinate {
      * @param other which Coordinate to add
      * @return Coordinate where the values for x and y are added
      */
-    public Coordinate add(Coordinate other) {
+    public Coordinate add(final Coordinate other) {
         return new Coordinate(this.x + other.x, this.y + other.y);
     }
 }

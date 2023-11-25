@@ -4,14 +4,11 @@ import core.level.utils.Coordinate;
 
 /**
  * For easy handling of positions in the dungeon. <br>
- * No getter needed. All attributes are public. <br>
- * Point.x to get x <br>
- * Point.y to get y <br>
+ *
+ * <p>No getter needed. All attributes are public.
  */
-public class Point {
-
+public final class Point {
     private static final float EPSILON = 0.000001f;
-
     public float x;
     public float y;
 
@@ -27,7 +24,7 @@ public class Point {
     }
 
     /** Copies the point. */
-    public Point(Point p) {
+    public Point(final Point p) {
         x = p.x;
         y = p.y;
     }
@@ -45,22 +42,13 @@ public class Point {
     }
 
     /**
-     * Convert Point to Coordinate by parsing float to int
-     *
-     * @return the converted point
-     */
-    public Coordinate toCoordinate() {
-        return new Coordinate((int) x, (int) y);
-    }
-
-    /**
      * Creates the unit vector between point a and b
      *
      * @param a Point A
      * @param b Point B
      * @return the unit vector
      */
-    public static Point unitDirectionalVector(Point b, Point a) {
+    public static Point unitDirectionalVector(final Point b, final Point a) {
         Point interactionDir = new Point(b);
         // (interactable - a) / len(interactable - a)
         interactionDir.x -= a.x;
@@ -70,6 +58,7 @@ public class Point {
         interactionDir.y /= vecLength;
         return interactionDir;
     }
+
     /**
      * calculates the distance between two points
      *
@@ -77,10 +66,19 @@ public class Point {
      * @param p2 Point B
      * @return the Distance between the two points
      */
-    public static float calculateDistance(Point p1, Point p2) {
+    public static float calculateDistance(final Point p1, final Point p2) {
         float xDiff = p1.x - p2.x;
         float yDiff = p1.y - p2.y;
         return (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+    }
+
+    /**
+     * Convert Point to Coordinate by parsing float to int
+     *
+     * @return the converted point
+     */
+    public Coordinate toCoordinate() {
+        return new Coordinate((int) x, (int) y);
     }
 
     /**
@@ -89,7 +87,7 @@ public class Point {
      * @param other which point to add
      * @return Point where the values for x and y are added
      */
-    public Point add(Point other) {
+    public Point add(final Point other) {
         return new Point(this.x + other.x, this.y + other.y);
     }
 
@@ -99,7 +97,7 @@ public class Point {
      * @param other Point to compare with
      * @return if the x and y values of the points are equal.
      */
-    public boolean equals(Point other) {
+    public boolean equals(final Point other) {
         return Math.abs(x - other.x) < EPSILON && Math.abs(y - other.y) < EPSILON;
     }
 }

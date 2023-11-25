@@ -14,7 +14,9 @@ public enum LevelSize {
     private static final Random RANDOM = new Random();
 
     /**
-     * @return A random enum-value
+     * Get a random level size.
+     *
+     * @return A random level size.
      */
     public static LevelSize randomSize() {
         return VALUES.get(RANDOM.nextInt(SIZE));
