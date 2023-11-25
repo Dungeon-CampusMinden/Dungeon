@@ -7,7 +7,12 @@ import core.utils.components.MissingComponentException;
 
 import java.util.function.Function;
 
+/**
+ * Implementation of the transition between idle and fight mode. Switches to fight mode when the
+ * entity was attacked by another entity.
+ */
 public class SelfDefendTransition implements Function<Entity, Boolean> {
+
     @Override
     public Boolean apply(final Entity entity) {
         HealthComponent component =
