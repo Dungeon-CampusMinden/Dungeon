@@ -12,12 +12,13 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-/** a simple implementation of dropping all items of an Entity when it is dying. */
+/** A simple implementation of dropping all items of an Entity when it is dying. */
 public final class DropLoot implements Consumer<Entity> {
+
     /**
-     * drops all the Items the Entity currently holds
+     * Drops all the items the entity currently holds.
      *
-     * @param entity Entity that has died
+     * @param entity Entity that has died.
      */
     @Override
     public void accept(final Entity entity) {
@@ -31,8 +32,8 @@ public final class DropLoot implements Consumer<Entity> {
     /**
      * For Dropping Items there is a need for having an inventory and having a position.
      *
-     * @param entity which should have the PositionComponent and the InventoryComponent
-     * @return a simple record with both components
+     * @param entity Entity which should have the PositionComponent and InventoryComponent.
+     * @return A simple record with both components.
      */
     private Components prepareComponent(Entity entity) {
         InventoryComponent ic =
@@ -52,9 +53,9 @@ public final class DropLoot implements Consumer<Entity> {
     }
 
     /**
-     * handles the drop of an Item from an Inventory
+     * Handles the drop of an item from an inventory.
      *
-     * @param d the needed Data for dropping an Item
+     * @param d The needed Data for dropping an Item.
      */
     private void dropItem(DLData d) {
         d.i.drop(d.e, new Point(d.dlc.pc.position()));
