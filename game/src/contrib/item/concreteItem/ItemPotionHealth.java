@@ -8,7 +8,7 @@ import contrib.utils.components.health.DamageType;
 
 import core.Entity;
 import core.utils.components.draw.Animation;
-import core.utils.components.draw.SimpleIPath;
+import core.utils.components.path.SimpleIPath;
 
 public class ItemPotionHealth extends Item {
 

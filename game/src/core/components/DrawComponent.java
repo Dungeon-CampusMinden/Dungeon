@@ -5,8 +5,8 @@ import core.Entity;
 import core.systems.VelocitySystem;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
-import core.utils.components.draw.IPath;
-import core.utils.components.draw.SimpleIPath;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 
 import java.io.File;
 import java.io.FileNotFoundException;

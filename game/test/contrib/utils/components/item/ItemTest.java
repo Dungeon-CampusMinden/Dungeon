@@ -20,7 +20,7 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
-import core.utils.components.draw.SimpleIPath;
+import core.utils.components.path.SimpleIPath;
 
 import org.junit.After;
 import org.junit.Before;

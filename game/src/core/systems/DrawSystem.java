@@ -9,9 +9,9 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
-import core.utils.components.draw.IPath;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
+import core.utils.components.path.IPath;
 
 import java.util.*;
 import java.util.stream.Collectors;

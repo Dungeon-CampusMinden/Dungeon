@@ -1,7 +1,7 @@
 package dslinterop.dsltypeadapters;
 
 import core.utils.components.draw.Animation;
-import core.utils.components.draw.SimpleIPath;
+import core.utils.components.path.SimpleIPath;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
