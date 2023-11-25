@@ -14,9 +14,8 @@ import java.util.stream.Stream;
  * <p>This class stores a collection of systems and entities and indicates that the entities meet
  * the criteria to be processed by the systems.
  *
- * <p>The filter criteria are stored as a collection of {@link Class<? extends Component>}. If an
- * entity implements all components of this collection, it will be added to the internal list of
- * entities.
+ * <p>The filter criteria are stored as a collection of {@link Class<>}. If an entity implements all
+ * components of this collection, it will be added to the internal list of entities.
  *
  * <p>Entities must be added using {@link #add(Entity)}. This function internally checks whether the
  * filter criteria are met. When an entity is added, the {@link System#triggerOnAdd(Entity)} method
@@ -75,7 +74,7 @@ public final class EntitySystemMapper {
      */
     public boolean add(final System system) {
         if (systems.add(system)) {
-            entities.forEach(entity -> system.triggerOnAdd(entity));
+            entities.forEach(system::triggerOnAdd);
             return true;
         }
         return false;
@@ -95,7 +94,7 @@ public final class EntitySystemMapper {
      */
     public boolean remove(final System system) {
         if (systems.remove(system)) {
-            entities.forEach(entity -> system.triggerOnRemove(entity));
+            entities.forEach(system::triggerOnRemove);
             return true;
         }
         return false;
@@ -104,7 +103,7 @@ public final class EntitySystemMapper {
     /**
      * Adds a new Entity to the EntitySystemMapper.
      *
-     * <p>The Entity will be added to the EntitySystemMapper if it is not already present and it
+     * <p>The Entity will be added to the EntitySystemMapper if it is not already present, and it
      * fulfills the filter rules defined in the EntitySystemMapper. If the Entity is successfully
      * added, the {@link System#triggerOnAdd(Entity)} method of each associated System will be
      * called with the newly added Entity as the parameter.
