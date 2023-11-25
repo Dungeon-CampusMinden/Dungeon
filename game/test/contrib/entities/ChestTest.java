@@ -86,7 +86,7 @@ public class ChestTest {
      */
     /*@Test
     public void checkInteractionOnDroppedItems() {
-        List<Item> itemData = List.of(new ItemDataGenerator().generateItemData());
+        List<Item> itemData = List.of(new ItemGenerator().generateItemData());
         Point position = new Point(0, 0);
         Entity c = EntityFactory.getChest(itemData, position);
         c.getComponent(InteractionComponent.class)

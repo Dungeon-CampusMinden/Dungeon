@@ -10,7 +10,7 @@ import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.interaction.DropItemsInteraction;
-import contrib.utils.components.item.ItemDataGenerator;
+import contrib.utils.components.item.ItemGenerator;
 
 import core.Entity;
 import core.components.DrawComponent;
@@ -36,16 +36,16 @@ public class MiscFactory {
      * DrawComponent}, {@link CollideComponent} and {@link InventoryComponent}. It will use the
      * {@link DropItemsInteraction} on interaction.
      *
-     * <p>{@link ItemDataGenerator} is used to generate random items
+     * <p>{@link ItemGenerator} is used to generate random items
      *
      * @return Created Entity
      */
     public static Entity newChest() throws IOException {
-        ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
+        ItemGenerator itemGenerator = new ItemGenerator();
 
         Set<Item> items =
                 IntStream.range(0, RANDOM.nextInt(1, 3))
-                        .mapToObj(i -> itemDataGenerator.generateItemData())
+                        .mapToObj(i -> itemGenerator.generateItemData())
                         .collect(Collectors.toSet());
         return newChest(items, PositionComponent.ILLEGAL_POSITION);
     }

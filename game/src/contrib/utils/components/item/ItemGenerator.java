@@ -4,13 +4,15 @@ import contrib.item.concreteItem.*;
 
 import java.util.Random;
 
-/** Generator which creates a random ItemData based on the Templates prepared. */
-public class ItemDataGenerator {
+/** Generator which creates a random Item based on the Templates prepared. */
+public class ItemGenerator {
 
     private final Random rand = new Random();
 
     /**
-     * @return a new randomItemData
+     * Generates a new random Item.
+     *
+     * @return a new random Item.
      */
     public contrib.item.Item generateItemData() {
         return switch (rand.nextInt(8)) {
