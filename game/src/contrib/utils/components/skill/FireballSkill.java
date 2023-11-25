@@ -11,9 +11,9 @@ import core.utils.Point;
 import java.util.function.Supplier;
 
 /**
- * FireballSkill is a subclass of DamageProjectile.
+ * FireballSkill is a subclass of {@link DamageProjectile}.
  *
- * <p>The FireballSkill class extends the functionality of DamageProjectile to implement the
+ * <p>The FireballSkill class extends the functionality of {@link DamageProjectile} to implement the
  * specific behavior of the fireball skill.
  */
 public class FireballSkill extends DamageProjectile {
@@ -23,7 +23,7 @@ public class FireballSkill extends DamageProjectile {
     private static final float PROJECTILE_SPEED = 15.0f;
     private static final int DAMAGE_AMOUNT = 5;
     private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
-    private static final Point HITBOX_SIZE = new Point(1, 1);
+    private static final Point HIT_BOX_SIZE = new Point(1, 1);
     private static final float PROJECTILE_RANGE = 7f;
 
     /**
@@ -39,7 +39,7 @@ public class FireballSkill extends DamageProjectile {
                 PROJECTILE_SPEED,
                 DAMAGE_AMOUNT,
                 DAMAGE_TYPE,
-                HITBOX_SIZE,
+                HIT_BOX_SIZE,
                 targetSelection,
                 PROJECTILE_RANGE);
     }
