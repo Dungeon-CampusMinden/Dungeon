@@ -231,6 +231,7 @@ public class Debugger {
             Debugger.TOGGLE_LEVEL_SIZE();
         if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value()))
             Debugger.SPAWN_MONSTER_ON_CURSOR();
-        if (Gdx.input.isKeyJustPressed(KeyboardConfig.PAUSE.value())) Debugger.PAUSE_GAME();
+        if (Gdx.input.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value()))
+            Debugger.PAUSE_GAME();
     }
 }

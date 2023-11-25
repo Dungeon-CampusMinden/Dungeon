@@ -1,13 +1,28 @@
 package core.configuration.values;
 
-public class ConfigIntValue extends ConfigValue<Integer> {
+/**
+ * ConfigIntValue is a specialized configuration value class for storing integer values.
+ *
+ * <p>This class extends {@link ConfigValue} and is designed specifically for handling integer
+ * configuration values. It provides methods to serialize and deserialize integer values as strings.
+ *
+ * <p>This class is particularly useful for storing key references in libGDX, where keys are
+ * represented by integers (see {@link com.badlogic.gdx.Input.Keys}).
+ *
+ * @see ConfigValue
+ * @see com.badlogic.gdx.Input.Keys
+ */
+public final class ConfigIntValue extends ConfigValue<Integer> {
 
     /**
      * Creates a new ConfigValue of type Integer.
      *
+     * <p>This is used to store key references. In libGDX, keys are represented by integers.
+     *
      * @param value Value.
+     * @see com.badlogic.gdx.Input.Keys
      */
-    public ConfigIntValue(Integer value) {
+    public ConfigIntValue(final Integer value) {
         super(value);
     }
 
@@ -28,7 +43,7 @@ public class ConfigIntValue extends ConfigValue<Integer> {
      * @return The deserialized value.
      */
     @Override
-    public Integer deserialize(String value) {
+    public Integer deserialize(final String value) {
         this.value = Integer.parseInt(value);
         return this.value;
     }

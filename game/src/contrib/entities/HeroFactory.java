@@ -98,7 +98,7 @@ public class HeroFactory {
 
         // hero movement
         pc.registerCallback(
-                KeyboardConfig.MOVEMENT_UP.value(),
+                core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
                 entity -> {
                     VelocityComponent vc =
                             entity.fetch(VelocityComponent.class)
@@ -109,7 +109,7 @@ public class HeroFactory {
                     vc.currentYVelocity(1 * vc.yVelocity());
                 });
         pc.registerCallback(
-                KeyboardConfig.MOVEMENT_DOWN.value(),
+                core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
                 entity -> {
                     VelocityComponent vc =
                             entity.fetch(VelocityComponent.class)
@@ -121,7 +121,7 @@ public class HeroFactory {
                     vc.currentYVelocity(-1 * vc.yVelocity());
                 });
         pc.registerCallback(
-                KeyboardConfig.MOVEMENT_RIGHT.value(),
+                core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
                 entity -> {
                     VelocityComponent vc =
                             entity.fetch(VelocityComponent.class)
@@ -133,7 +133,7 @@ public class HeroFactory {
                     vc.currentXVelocity(1 * vc.xVelocity());
                 });
         pc.registerCallback(
-                KeyboardConfig.MOVEMENT_LEFT.value(),
+                core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
                 entity -> {
                     VelocityComponent vc =
                             entity.fetch(VelocityComponent.class)
