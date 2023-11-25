@@ -16,9 +16,6 @@ public class InteractionTool {
     public static final Function<InteractionData, Boolean> SIMPLE_REACHABLE =
             (interactionData -> (interactionData.ic().radius() - interactionData.dist()) > 0);
 
-    public static final Function<InteractionData, Boolean> CONTROLL_POINTS_REACHABLE =
-            new ControlPointReachable();
-
     public static void interactWithClosestInteractable(Entity entity) {
         interactWithClosestInteractable(entity, SIMPLE_REACHABLE);
     }
@@ -26,8 +23,8 @@ public class InteractionTool {
     /**
      * Interacts with the closest interactable entity.
      *
-     * @param who The entity that is interacting
-     * @param iReachable The function that determines if the entity is reachable
+     * @param who The entity that is interacting.
+     * @param iReachable The function that determines if the entity is reachable.
      */
     public static void interactWithClosestInteractable(
             final Entity who, final Function<InteractionData, Boolean> iReachable) {
