@@ -15,6 +15,7 @@ import core.utils.components.MissingComponentException;
 
 import java.util.function.Consumer;
 
+/** Implements an idle AI that lets the entity walk in a specific radius from a point. */
 public class StaticRadiusWalk implements Consumer<Entity> {
     private final float radius;
     private final int breakTime;
