@@ -21,30 +21,32 @@ import java.util.function.Consumer;
  */
 public class Skill {
 
-    private Consumer<Entity> skillFunction;
-    private long coolDownInMilliSeconds;
+    private final Consumer<Entity> skillFunction;
+    private final long coolDownInMilliSeconds;
     private Instant lastUsed;
     private Instant nextUsableAt = Instant.now();
 
     /**
-     * @param skillFunction functionality of the skill
-     * @param coolDownInMilliSeconds the time that needs to pass between use of the skill and the
-     *     next possible use of the skill
+     * Create a new {@link Skill}.
+     *
+     * @param skillFunction Functionality of the skill.
+     * @param coolDownInMilliSeconds The time that needs to pass between use of the skill and the
+     *     next possible use of the skill.
      */
-    public Skill(Consumer<Entity> skillFunction, long coolDownInMilliSeconds) {
+    public Skill(final Consumer<Entity> skillFunction, final long coolDownInMilliSeconds) {
         this.skillFunction = skillFunction;
         this.coolDownInMilliSeconds = coolDownInMilliSeconds;
     }
 
     /**
-     * Execute the method of this skill, save the time the skill was last used and update when it
-     * can be used again
+     * Executes the method of this skill, saves the time the skill was last used and updates when it
+     * can be used again.
      *
-     * <p>If the skill was used, the cooldown will be set.
+     * <p>If the skill was used, the cool down will be set.
      *
-     * @param entity entity which uses this skill
+     * @param entity The entity which uses this skill.
      */
-    public void execute(Entity entity) {
+    public void execute(final Entity entity) {
         if (canBeUsedAgain()) {
             skillFunction.accept(entity);
             lastUsed = Instant.now();
@@ -53,19 +55,19 @@ public class Skill {
     }
 
     /**
-     * check if the cool down has passed and the skill can be used again
+     * Checks if the cool down has passed and the skill can be used again.
      *
-     * @return true if the specified time (coolDownInSeconds) has passed
+     * @return true if the specified time (coolDownInSeconds) has passed.
      */
     public boolean canBeUsedAgain() {
-        // check if the cooldown is active, return the negated result (this avoids some problems in
+        // check if the cool down is active, return the negated result (this avoids some problems in
         // nano-sec range)
         return !(Duration.between(Instant.now(), nextUsableAt).toMillis() > 0);
     }
 
     /**
-     * adds coolDownInSeconds to the time the skill was last used and updates when this skill can be
-     * used again
+     * Adds coolDownInSeconds to the time the skill was last used and updates when this skill can be
+     * used again.
      */
     private void activateCoolDown() {
         nextUsableAt = lastUsed.plusMillis(coolDownInMilliSeconds);
