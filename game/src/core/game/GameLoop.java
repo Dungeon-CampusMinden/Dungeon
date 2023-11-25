@@ -3,7 +3,6 @@ package core.game;
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
@@ -28,12 +27,23 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-/** The heart of the framework. From here, all settings are pulled. */
-public class GameLoop extends ScreenAdapter {
-    private static final Logger LOGGER = Logger.getLogger("GameLoop");
+/**
+ * The Dungeon-GameLoop.
+ *
+ * <p>This class contains the game loop method that is connected with libGDX. It controls the system
+ * flow, will execute the Systems, and triggers the event callbacks configured in the {@link
+ * PreRunConfiguration}.
+ *
+ * <p>Use {@link #run()} to start the game.
+ *
+ * <p>All API methods can also be accessed via the {@link core.Game} class.
+ */
+public final class GameLoop extends ScreenAdapter {
+    private static final Logger LOGGER = Logger.getLogger(GameLoop.class.getSimpleName());
     private static Stage stage;
     private boolean doSetup = true;
     private boolean newLevelWasLoadedInThisLoop = false;
+
     /**
      * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
      * storage.
@@ -72,12 +82,10 @@ public class GameLoop extends ScreenAdapter {
                 PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
             };
 
-    private boolean uiDebugFlag = false;
-
     // for singleton
     private GameLoop() {}
 
-    /** Starts the dungeon and requires a {@link Game}. */
+    /** Starts the dungeon. */
     public static void run() {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setWindowSizeLimits(
@@ -104,13 +112,18 @@ public class GameLoop extends ScreenAdapter {
                 config);
     }
 
+    /**
+     * Get the {@link Stage} that can be used to draw HUD elements.
+     *
+     * @return The configured stage, can be empty.
+     */
     public static Optional<Stage> stage() {
         return Optional.ofNullable(stage);
     }
 
-    private static void updateStage(Stage x) {
-        x.act(Gdx.graphics.getDeltaTime());
-        x.draw();
+    private static void updateStage(final Stage stage) {
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
     }
 
     private static void setupStage() {
@@ -127,16 +140,20 @@ public class GameLoop extends ScreenAdapter {
     /**
      * Main game loop.
      *
-     * <p>Redraws the dungeon, updates the entity sets, and triggers the execution of the systems.
-     * Will call {@link #onFrame}.
+     * <p>Triggers the execution of the systems and the event callbacks.
      *
-     * @param delta the time since the last loop
+     * <p>Will trigger {@link #frame} and {@link PreRunConfiguration#userOnFrame()}.
+     *
+     * <p>On the first frame, {@link #setup()} and {@link PreRunConfiguration#userOnSetup()} are
+     * triggered.
+     *
+     * @param delta The time since the last loop.
      */
     @Override
     public void render(float delta) {
-        if (doSetup) onSetup();
+        if (doSetup) setup();
         DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
-        onFrame();
+        frame();
         clearScreen();
 
         for (System system : ECSManagment.systems().values()) {
@@ -160,7 +177,7 @@ public class GameLoop extends ScreenAdapter {
      *
      * <p>Will perform some setup.
      */
-    private void onSetup() {
+    private void setup() {
         doSetup = false;
         CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
         createSystems();
@@ -174,18 +191,9 @@ public class GameLoop extends ScreenAdapter {
      *
      * <p>This is the place to add basic logic that isn't part of any system.
      */
-    private void onFrame() {
-        debugKeys();
+    private void frame() {
         fullscreenKey();
         PreRunConfiguration.userOnFrame().execute();
-    }
-
-    /** Just for debugging, remove later. */
-    private void debugKeys() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            // toggle UI "debug rendering"
-            stage().ifPresent(x -> x.setDebugAll(uiDebugFlag = !uiDebugFlag));
-        }
     }
 
     private void fullscreenKey() {
@@ -207,7 +215,7 @@ public class GameLoop extends ScreenAdapter {
      *
      * @param entity entity to set on the start of the level, normally this is the hero.
      */
-    private void placeOnLevelStart(Entity entity) {
+    private void placeOnLevelStart(final Entity entity) {
         ECSManagment.add(entity);
         PositionComponent pc =
                 entity.fetch(PositionComponent.class)

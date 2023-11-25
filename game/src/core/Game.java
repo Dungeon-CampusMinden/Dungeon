@@ -31,10 +31,28 @@ import java.util.stream.Stream;
  * The Center-Point of the framework.
  *
  * <p>This class is basically an API-Class, it will forward the request to the responsible classes.
+ *
+ * <p>Use {@link #run()} to start the game.
+ *
+ * <p>For Entity management use: {@link #add(Entity)}, {@link #remove(Entity)} or {@link
+ * #removeAllEntities()}
+ *
+ * <p>Use {@link #userOnFrame(IVoidFunction)}, {@link #userOnSetup(IVoidFunction)}, and {@link
+ * #userOnLevelLoad(Consumer)} to configure event callbacks. This is the best way to include your
+ * own program logic outside a {@link java.lang.System}.
+ *
+ * <p>For System management use: {@link #add(System)}, {@link #remove(Class)} or {@link
+ * #removeAllSystems()}
+ *
+ * <p>Get access via: {@link #entityStream()}, {@link #systems()}
+ *
+ * @see PreRunConfiguration
+ * @see ECSManagment
+ * @see GameLoop
  */
 public final class Game {
 
-    private static final Logger LOGGER = Logger.getLogger("Game");
+    private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
 
     /** Starts the dungeon and requires a {@link Game}. */
     public static void run() {
@@ -100,7 +118,7 @@ public final class Game {
      *
      * @param windowTitle The new window title.
      */
-    public static void windowTitle(String windowTitle) {
+    public static void windowTitle(final String windowTitle) {
         PreRunConfiguration.windowTitle(windowTitle);
     }
 
@@ -118,7 +136,7 @@ public final class Game {
      *
      * @param userOnFrame The new user-defined function for frame updates.
      */
-    public static void userOnFrame(IVoidFunction userOnFrame) {
+    public static void userOnFrame(final IVoidFunction userOnFrame) {
         PreRunConfiguration.userOnFrame(userOnFrame);
     }
 
@@ -127,7 +145,7 @@ public final class Game {
      *
      * @param userOnSetup The new user-defined function for setup.
      */
-    public static void userOnSetup(IVoidFunction userOnSetup) {
+    public static void userOnSetup(final IVoidFunction userOnSetup) {
         PreRunConfiguration.userOnSetup(userOnSetup);
     }
 
@@ -136,7 +154,7 @@ public final class Game {
      *
      * @param userOnLevelLoad The new user-defined function for level load.
      */
-    public static void userOnLevelLoad(Consumer<Boolean> userOnLevelLoad) {
+    public static void userOnLevelLoad(final Consumer<Boolean> userOnLevelLoad) {
         PreRunConfiguration.userOnLevelLoad(userOnLevelLoad);
     }
 
@@ -158,9 +176,9 @@ public final class Game {
      * @throws IOException If the file could not be read.
      */
     public static void loadConfig(
-            String pathAsString,
-            Class<KeyboardConfig> keyboardConfigClass,
-            Class<core.configuration.KeyboardConfig> keyboardConfigClass1)
+            final String pathAsString,
+            final Class<KeyboardConfig> keyboardConfigClass,
+            final Class<core.configuration.KeyboardConfig> keyboardConfigClass1)
             throws IOException {
         PreRunConfiguration.loadConfig(pathAsString, keyboardConfigClass, keyboardConfigClass1);
     }
@@ -184,7 +202,7 @@ public final class Game {
      *
      * @param entity the entity to add.
      */
-    public static void add(Entity entity) {
+    public static void add(final Entity entity) {
         ECSManagment.add(entity);
     }
 
@@ -195,7 +213,7 @@ public final class Game {
      *
      * @param entity the entity to remove
      */
-    public static void remove(Entity entity) {
+    public static void remove(final Entity entity) {
         ECSManagment.remove(entity);
     }
 
@@ -213,13 +231,14 @@ public final class Game {
      * @return an optional that contains the previous existing system of the given system class, if
      *     one exists
      * @see System
-     * @see Optional
      */
-    public static Optional<System> add(System system) {
+    public static Optional<System> add(final System system) {
         return ECSManagment.add(system);
     }
 
     /**
+     * Get all registered systems.
+     *
      * @return a copy of the map that stores all registered {@link System} in the game.
      */
     public static Map<Class<? extends System>, System> systems() {
@@ -251,7 +270,7 @@ public final class Game {
      * @return a stream of all entities currently in the game that should be processed by the given
      *     system.
      */
-    public static Stream<Entity> entityStream(System system) {
+    public static Stream<Entity> entityStream(final System system) {
         return ECSManagment.entityStream(system);
     }
 
@@ -260,13 +279,14 @@ public final class Game {
      *
      * @return a stream of all entities currently in the game that contains the given components.
      */
-    public static Stream<Entity> entityStream(Set<Class<? extends Component>> filter) {
+    public static Stream<Entity> entityStream(final Set<Class<? extends Component>> filter) {
         return ECSManagment.entityStream(filter);
     }
 
     /**
+     * Get the player character.
+     *
      * @return the player character, can be null if not initialized
-     * @see Optional
      */
     public static Optional<Entity> hero() {
         return ECSManagment.hero();
@@ -290,7 +310,7 @@ public final class Game {
      *
      * @param system the class of the system to remove
      */
-    public static void remove(Class<? extends System> system) {
+    public static void remove(final Class<? extends System> system) {
         ECSManagment.remove(system);
     }
 
@@ -320,11 +340,13 @@ public final class Game {
      * @param component Component instance where the entity is searched for.
      * @return An Optional containing the found Entity, or an empty Optional if not found.
      */
-    public static Optional<Entity> find(Component component) {
+    public static Optional<Entity> find(final Component component) {
         return ECSManagment.find(component);
     }
 
     /**
+     * Get the current level.
+     *
      * @return the currently loaded level
      */
     public static ILevel currentLevel() {
@@ -336,24 +358,26 @@ public final class Game {
      *
      * <p>{@link Point#toCoordinate} will be used, to convert the point into a coordinate.
      *
-     * @param p Point from where to get the tile
+     * @param point Point from where to get the tile
      * @return the tile at the given point.
      */
-    public static Tile tileAT(Point p) {
-        return currentLevel().tileAt(p);
+    public static Tile tileAT(final Point point) {
+        return currentLevel().tileAt(point);
     }
 
     /**
      * Get the tile at the given coordinate in the level
      *
-     * @param c Coordinate from where to get the tile
+     * @param coordinate Coordinate from where to get the tile
      * @return the tile at the given coordinate.
      */
-    public static Tile tileAT(Coordinate c) {
-        return currentLevel().tileAt(c);
+    public static Tile tileAT(final Coordinate coordinate) {
+        return currentLevel().tileAt(coordinate);
     }
 
     /**
+     * Get a random tile in the level.
+     *
      * @return a random Tile in the Level
      */
     public static Tile randomTile() {
@@ -384,18 +408,18 @@ public final class Game {
      * @param entity entity to check for.
      * @return tile at the coordinate of the entity
      */
-    public static Tile tileAtEntity(Entity entity) {
+    public static Tile tileAtEntity(final Entity entity) {
         return currentLevel().tileAtEntity(entity);
     }
 
     /**
      * Returns the entities on the given tile.
      *
-     * @param t Tile to check for.
+     * @param check Tile to check for.
      * @return Stream of all entities on the given tile
      */
-    public static Stream<Entity> entityAtTile(Tile t) {
-        Tile tile = Game.tileAT(t.position());
+    public static Stream<Entity> entityAtTile(final Tile check) {
+        Tile tile = Game.tileAT(check.position());
 
         return ECSManagment.entityStream(Set.of(PositionComponent.class))
                 .filter(
@@ -414,31 +438,31 @@ public final class Game {
     }
 
     /**
-     * Get a random Tile
+     * Get a random tile of the given type.
      *
-     * @param elementType Type of the Tile
-     * @return A random Tile of the given Type
+     * @param elementType Type of the tile.
+     * @return A random tile of the given type.
      */
-    public static Tile randomTile(LevelElement elementType) {
+    public static Tile randomTile(final LevelElement elementType) {
         return currentLevel().randomTile(elementType);
     }
 
     /**
-     * Get the position of a random Tile as Point
+     * Get the position of a random Tile as Point.
      *
-     * @return Position of the Tile as Point
+     * @return Position of the Tile as Point.
      */
     public static Point randomTilePoint() {
         return currentLevel().randomTilePoint();
     }
 
     /**
-     * Get the position of a random Tile as Point
+     * Get the position of a random Tile as Point.
      *
-     * @param elementTyp Type of the Tile
-     * @return Position of the Tile as Point
+     * @param elementTyp Type of the Tile.
+     * @return Position of the Tile as Point.
      */
-    public static Point randomTilePoint(LevelElement elementTyp) {
+    public static Point randomTilePoint(final LevelElement elementTyp) {
         return currentLevel().randomTilePoint(elementTyp);
     }
 
@@ -451,7 +475,7 @@ public final class Game {
      * @param end End tile
      * @return Generated path
      */
-    public static GraphPath<Tile> findPath(Tile start, Tile end) {
+    public static GraphPath<Tile> findPath(final Tile start, final Tile end) {
         return currentLevel().findPath(start, end);
     }
 
@@ -461,7 +485,7 @@ public final class Game {
      * @param entity Entity to get the current position from (needs a {@link PositionComponent}
      * @return Position of the given entity.
      */
-    public static Point positionOf(Entity entity) {
+    public static Point positionOf(final Entity entity) {
         return currentLevel().positionOf(entity);
     }
 
@@ -472,7 +496,7 @@ public final class Game {
      *
      * @param level New level
      */
-    public static void currentLevel(ILevel level) {
+    public static void currentLevel(final ILevel level) {
         LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
         if (levelSystem != null) levelSystem.loadLevel(level);
         else LOGGER.warning("Can not set Level because levelSystem is null.");
@@ -496,7 +520,7 @@ public final class Game {
      *
      * @param levelSize Size of the next level.
      */
-    public static void levelSize(LevelSize levelSize) {
+    public static void levelSize(final LevelSize levelSize) {
         LevelSystem.levelSize(levelSize);
     }
 }
