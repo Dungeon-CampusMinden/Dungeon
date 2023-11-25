@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
  *
  * <p>An Animation is basically just a list of different Image files.
  *
+ * <p>Use {@link #fromCollection(Collection)} or {@link #fromSingleImage(IPath)} or {@link
+ * #fromSubDir(File)} to create an Animation.
+ *
  * <p>Animations are stored inside the {@link core.components.DrawComponent}.
  *
  * <p>An Animation is split into different frames. Each frame is one picture (usually also one image
@@ -44,9 +47,9 @@ public final class Animation {
      * Creates an animation.
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
-     * @param frameTime       How many frames to wait, before switching to the next texture?
-     * @param looping         should the Animation continue to repeat ?
-     * @param prio            priority for playing this animation
+     * @param frameTime How many frames to wait, before switching to the next texture?
+     * @param looping should the Animation continue to repeat ?
+     * @param prio priority for playing this animation
      */
     private Animation(
             final Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {
@@ -66,8 +69,8 @@ public final class Animation {
      * Creates an animation. repeats forever
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
-     * @param frameTime       How many frames to wait, before switching to the next texture?
-     * @param prio            priority for playing this animation
+     * @param frameTime How many frames to wait, before switching to the next texture?
+     * @param prio priority for playing this animation
      */
     public static Animation fromCollection(
             final Collection<IPath> animationFrames, int frameTime, int prio) {
@@ -91,9 +94,9 @@ public final class Animation {
      * Creates an animation.
      *
      * @param animationFrames The list of textures that builds the animation. Must be in order.
-     * @param frameTime       How many frames to wait, before switching to the next texture?
-     * @param looping         should the Animation continue to repeat ?
-     * @param prio            priority for playing this animation
+     * @param frameTime How many frames to wait, before switching to the next texture?
+     * @param looping should the Animation continue to repeat ?
+     * @param prio priority for playing this animation
      */
     public static Animation fromCollection(
             final Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {
@@ -106,10 +109,10 @@ public final class Animation {
      * <p>Will sort the textures in lexicographic order. This is the order in which the animations
      * will be shown.
      *
-     * @param subDir    Path to the subdirectory where the animation frames are stored
+     * @param subDir Path to the subdirectory where the animation frames are stored
      * @param frameTime How many frames to wait, before switching to the next texture?
-     * @param loop      should the Animation continue to repeat ?
-     * @param prio      priority for playing this animation
+     * @param loop should the Animation continue to repeat ?
+     * @param prio priority for playing this animation
      * @return The created Animation instance
      */
     public static Animation fromSubDir(final File subDir, int frameTime, boolean loop, int prio) {
@@ -150,7 +153,7 @@ public final class Animation {
     /**
      * Create an animation from single frame and the given configuration.
      *
-     * @param fileName  path to the frame
+     * @param fileName path to the frame
      * @param frameTime How many frames to wait, before switching to the next texture?
      * @return The created Animation instance
      */
