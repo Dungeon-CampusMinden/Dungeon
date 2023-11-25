@@ -30,20 +30,20 @@ import java.util.function.Consumer;
  *
  * <p>This function can be used to implement the loot function for chests.
  *
- * <p>Note: The entity that will use this function needs an {@link InventoryComponent} and {@link
- * PositionComponent}. An {@link DrawComponent} is optional.
+ * <p>Note: The entity that will use this function needs an {@link InventoryComponent} and a {@link
+ * PositionComponent}. A {@link DrawComponent} is optional.
  *
- * <p>If an {@link DrawComponent} is present, after the interaction, the {@link
+ * <p>If a {@link DrawComponent} is present, after the interaction, the {@link
  * CoreAnimations#IDLE_RIGHT} animation will be set as the current animation.
  */
 public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
 
     /**
-     * small Helper to determine the Position of the dropped item simple circle drop
+     * Small Helper to determine the position of the dropped item. Implements a simple circle drop.
      *
-     * @param positionComponent The PositionComponent of the Chest
-     * @param radian of the current Item
-     * @return a Point in a unit Vector around the Chest
+     * @param positionComponent The PositionComponent of the chest.
+     * @param radian Radian of the current Item.
+     * @return a Point in a unit vector around the chest.
      */
     private static Point calculateDropPosition(PositionComponent positionComponent, double radian) {
         return new Point(
@@ -57,14 +57,14 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
      *
      * <p>This function can be used to implement the loot function for chests.
      *
-     * <p>Note: The entity that will use this function needs an {@link InventoryComponent} and
-     * {@link PositionComponent}. An {@link DrawComponent} is optional.
+     * <p>Note: The entity that will use this function needs an {@link InventoryComponent} and a
+     * {@link PositionComponent}. A {@link DrawComponent} is optional.
      *
-     * <p>If an {@link DrawComponent} is present, after the interaction, the {@link
+     * <p>If a {@link DrawComponent} is present, after the interaction, the {@link
      * CoreAnimations#IDLE_RIGHT} animation will be set as the current animation.
      *
-     * @param entity associated entity
-     * @param who The entity that triggered the interaction (could be null)
+     * @param entity Entity that holds the items to drop.
+     * @param who The entity that triggered the interaction (could be null).
      */
     public void accept(final Entity entity, final @Null Entity who) {
         InventoryComponent inventoryComponent =
