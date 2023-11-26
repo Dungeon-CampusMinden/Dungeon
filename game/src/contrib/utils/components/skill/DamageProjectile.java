@@ -82,13 +82,13 @@ public abstract class DamageProjectile implements Consumer<Entity> {
      *
      * <p>For a specific implementation, see {@link FireballSkill}
      *
-     * @param pathToTexturesOfProjectile path to the textures of the projectile
-     * @param projectileSpeed speed of the projectile
-     * @param damageAmount amount of damage to be dealt
-     * @param damageType type of damage to be dealt
-     * @param projectileHitBoxSize size of the hit box
-     * @param selectionFunction specific functionality of the projectile
-     * @param projectileRange range in which the projectile is effective
+     * @param pathToTexturesOfProjectile Path to the textures of the projectile.
+     * @param projectileSpeed Speed of the projectile.
+     * @param damageAmount Amount of damage to be dealt.
+     * @param damageType Type of damage to be dealt.
+     * @param projectileHitBoxSize Size of the hit box.
+     * @param selectionFunction Specific functionality of the projectile.
+     * @param projectileRange Range in which the projectile is effective.
      */
     public DamageProjectile(
             final String pathToTexturesOfProjectile,

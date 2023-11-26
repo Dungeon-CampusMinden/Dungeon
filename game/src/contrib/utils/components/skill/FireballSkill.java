@@ -33,7 +33,7 @@ public class FireballSkill extends DamageProjectile {
      *     to.
      * @see DamageProjectile
      */
-    public FireballSkill(Supplier<Point> targetSelection) {
+    public FireballSkill(final Supplier<Point> targetSelection) {
         super(
                 PROJECTILE_TEXTURES,
                 PROJECTILE_SPEED,
