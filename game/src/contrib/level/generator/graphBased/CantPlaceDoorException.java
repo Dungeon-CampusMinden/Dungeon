@@ -13,13 +13,14 @@ import core.level.utils.LevelSize;
 public class CantPlaceDoorException extends RuntimeException {
 
     /**
-     * Create a new CantPlaceDoorException
+     * Create a new CantPlaceDoorException.
      *
-     * @param layout Layout of the room
-     * @param direction where should the door be placed
-     * @param size size of the level
+     * @param layout Layout of the room.
+     * @param direction where should the door be placed.
+     * @param size size of the level.
      */
-    public CantPlaceDoorException(LevelElement[][] layout, Direction direction, LevelSize size) {
+    public CantPlaceDoorException(
+            final LevelElement[][] layout, final Direction direction, final LevelSize size) {
         super(
                 "Cant place door at "
                         + direction

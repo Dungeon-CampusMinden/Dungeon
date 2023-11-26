@@ -35,8 +35,8 @@ public class LevelNode {
      * Creates a new node with the given collection as payload.
      *
      * @param entities The entity collection stored in this node.
-     * @param originGraph is the graph in which this node was initially created and added. It helps
-     *     to differentiate nodes in connected graphs.
+     * @param originGraph The graph in which this node was initially created and added. It helps to
+     *     differentiate nodes in connected graphs.
      */
     public LevelNode(final Set<Entity> entities, final LevelGraph originGraph) {
         this.entities = entities;
@@ -71,7 +71,7 @@ public class LevelNode {
      */
     public boolean connect(final LevelNode other) {
         List<Direction> freeDirections = possibleConnectDirections(other);
-        if (freeDirections.size() != 0) {
+        if (!freeDirections.isEmpty()) {
             Collections.shuffle(freeDirections);
             if (other.connect(this, Direction.opposite(freeDirections.get(0))))
                 return connect(other, freeDirections.get(0));
@@ -122,7 +122,9 @@ public class LevelNode {
     }
 
     /**
-     * @return the number of neighbours of this node.
+     * Retrieves the number of neighbors of this node.
+     *
+     * @return The number of neighbours of this node.
      */
     public int neighboursCount() {
         return (int) Arrays.stream(neighbours).filter(Objects::nonNull).count();
@@ -217,9 +219,11 @@ public class LevelNode {
      * <p>This method establishes the connection from this node to the other and vice versa.
      *
      * @param node The neighbor to be added.
-     * @return true if the connection was successful, false if not.
+     * @param direction The direction at which the neighbor should be added from this node's
+     *     perspective (in the neighbor's context, this corresponds to the opposite direction).
+     * @return An Optional containing the old neighbor, if there was any.
      */
-    protected Optional<LevelNode> forceNeighbor(LevelNode node, Direction direction) {
+    protected Optional<LevelNode> forceNeighbor(final LevelNode node, final Direction direction) {
         LevelNode old = neighbours[direction.value()];
         neighbours[direction.value()] = node;
         if (old != null && old != node) old.forceNeighbor(null, Direction.opposite(direction));

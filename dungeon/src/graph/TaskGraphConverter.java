@@ -2,7 +2,7 @@ package graph;
 
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.LevelGraphGenerator;
-import contrib.level.generator.graphBased.RoombasedLevelGenerator;
+import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
@@ -96,7 +96,7 @@ public class TaskGraphConverter {
      *
      * @param taskGraph graph to create the level for
      * @return the start room
-     * @see RoombasedLevelGenerator
+     * @see RoomBasedLevelGenerator
      */
     public static ILevel levelGraphFor(final TaskDependencyGraph taskGraph) {
         // Map the node of the task-graph to a levelGraph
@@ -137,7 +137,7 @@ public class TaskGraphConverter {
         connectUnconnectedGraphs(rootGraph, nodeToLevelGraph.values());
 
         // Generate the level
-        ILevel level = RoombasedLevelGenerator.level(rootGraph, DesignLabel.randomDesign());
+        ILevel level = RoomBasedLevelGenerator.level(rootGraph, DesignLabel.randomDesign());
         connectDoorsWithTaskManager(graphToTask);
 
         return level;

@@ -2,7 +2,7 @@ package client;
 
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
-import contrib.level.generator.graphBased.RoombasedLevelGenerator;
+import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 
@@ -120,7 +120,7 @@ public class Client {
                 }
             }
         }
-        ILevel level = RoombasedLevelGenerator.level(entities, DesignLabel.randomDesign());
+        ILevel level = RoomBasedLevelGenerator.level(entities, DesignLabel.randomDesign());
         Game.currentLevel(level);
     }
 

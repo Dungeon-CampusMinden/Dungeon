@@ -41,7 +41,7 @@ public class LevelGraphGenerator {
      *     node will be created, and the entity collection will be added as payload.
      * @return The generated graph.
      */
-    public static LevelGraph generate(Set<Set<Entity>> entityCollections) {
+    public static LevelGraph generate(final Set<Set<Entity>> entityCollections) {
         LevelGraph graph = new LevelGraph();
         // this will generate a tree
         entityCollections.forEach(graph::add);
@@ -54,10 +54,10 @@ public class LevelGraphGenerator {
     /**
      * Generates a {@link LevelGraph} with the given numbers of nodes.
      *
-     * @param nodeCount number of nodes in the graph.
+     * @param nodeCount Number of nodes in the graph.
      * @return The generated graph.
      */
-    public static LevelGraph generate(int nodeCount) {
+    public static LevelGraph generate(final int nodeCount) {
         Set<Set<Entity>> outerSet = new HashSet<>();
         for (int i = 0; i < nodeCount; i++) outerSet.add(Set.of(new Entity()));
         return generate(outerSet);

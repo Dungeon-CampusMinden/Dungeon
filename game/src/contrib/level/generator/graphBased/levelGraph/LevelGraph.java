@@ -102,9 +102,9 @@ public class LevelGraph {
      * Search for the first pair of nodes (one from each list) that can be connected (have suitable
      * available edges).
      *
-     * @param connect List with nodes (for example, from graph A)
-     * @param with List with nodes (for example, from graph B)
-     * @return Tuple with the first found matching node pair Tuple<NodeFromListA, NodeFromListB>
+     * @param connect List with nodes (for example, from graph A).
+     * @param with List with nodes (for example, from graph B).
+     * @return Tuple with the first found matching node pair Tuple<NodeFromListA, NodeFromListB>.
      */
     private static Optional<Tuple<LevelNode, LevelNode>> matchingEdges(
             final List<LevelNode> connect, final List<LevelNode> with) {
@@ -181,7 +181,7 @@ public class LevelGraph {
      *     number will be randomly selected between the number of nodes in the graph divided by the
      *     divider and the total number of nodes in the graph.
      */
-    public void addRandomEdges(int divider) {
+    public void addRandomEdges(final int divider) {
         // for two nodes no extra edges are needed
         if (nodes.size() >= 3) {
             int howManyExtraEdges = RANDOM.nextInt(nodes.size() / divider, nodes.size());

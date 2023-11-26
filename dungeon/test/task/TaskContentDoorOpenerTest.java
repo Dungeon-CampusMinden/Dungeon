@@ -3,7 +3,7 @@ package task;
 import static org.junit.Assert.assertTrue;
 
 import contrib.level.generator.graphBased.LevelGraphGenerator;
-import contrib.level.generator.graphBased.RoombasedLevelGenerator;
+import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 
 import core.Entity;
@@ -39,7 +39,7 @@ public class TaskContentDoorOpenerTest {
         LevelGraph taskLevelGraph = LevelGraphGenerator.generate(3);
         LevelGraph nextLevelGraph = LevelGraphGenerator.generate(2);
         taskLevelGraph.add(nextLevelGraph, taskLevelGraph);
-        RoombasedLevelGenerator.level(taskLevelGraph, DesignLabel.DEFAULT);
+        RoomBasedLevelGenerator.level(taskLevelGraph, DesignLabel.DEFAULT);
         DoorTile door =
                 null; // = GeneratorUtils.doorAt(tuple.a().level(), tuple.b()).orElseThrow();
         door.close();
