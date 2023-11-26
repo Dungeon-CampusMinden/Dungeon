@@ -24,8 +24,8 @@ public class RadiusWalk implements Consumer<Entity> {
      * Finds a point in the radius and then moves there. When the point has been reached, a new
      * point in the radius is searched for from there.
      *
-     * @param radius Radius in which a target point is to be searched for
-     * @param breakTimeInSeconds how long to wait (in seconds) before searching a new goal
+     * @param radius Radius in which a target point is to be searched for.
+     * @param breakTimeInSeconds How long to wait (in seconds) before searching a new goal.
      */
     public RadiusWalk(final float radius, final int breakTimeInSeconds) {
         this.radius = radius;

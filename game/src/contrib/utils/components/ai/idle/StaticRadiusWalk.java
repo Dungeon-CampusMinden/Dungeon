@@ -15,22 +15,20 @@ import core.utils.components.MissingComponentException;
 
 import java.util.function.Consumer;
 
-/** Implements an idle AI that lets the entity walk in a specific radius from a point. */
+/** Implements an idle AI that lets the entity walk in a specific radius from a fixed point. */
 public class StaticRadiusWalk implements Consumer<Entity> {
     private final float radius;
     private final int breakTime;
     private GraphPath<Tile> path;
     private int currentBreak = 0;
     private Point center;
-    private Point currentPosition;
-    private Point newEndTile;
 
     /**
-     * Finds a point in the radius and then moves there. When the point has been reached, a new
-     * point in the radius is searched for from the center.
+     * Finds a point in the radius of the fixed center point and then moves there. When the point
+     * has been reached, a new point in the radius is searched for from the center.
      *
-     * @param radius Radius in which a target point is to be searched for
-     * @param breakTimeInSeconds how long to wait (in seconds) before searching a new goal
+     * @param radius Radius in which a target point is to be searched for.
+     * @param breakTimeInSeconds How long to wait (in seconds) before searching a new goal.
      */
     public StaticRadiusWalk(final float radius, final int breakTimeInSeconds) {
         this.radius = radius;
@@ -61,8 +59,10 @@ public class StaticRadiusWalk implements Consumer<Entity> {
                                                 MissingComponentException.build(
                                                         entity, PositionComponent.class));
                 if (pc2.position().equals(PositionComponent.ILLEGAL_POSITION)) return;
-                currentPosition = pc2.position();
-                newEndTile =
+                Point currentPosition = pc2.position();
+                // center is the start position of the entity, so it must be
+                // accessible
+                Point newEndTile =
                         LevelUtils.randomAccessibleTileCoordinateInRange(center, radius)
                                 .map(Coordinate::toPoint)
                                 // center is the start position of the entity, so it must be

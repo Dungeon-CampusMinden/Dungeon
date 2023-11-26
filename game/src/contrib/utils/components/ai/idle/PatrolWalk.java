@@ -17,10 +17,15 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-/** Implements an idle AI that lets the entity walk a specific path. */
+/**
+ * Implements an idle AI that lets the entity walk a specific path.
+ *
+ * <p>There are different modes. The entity can walk to random checkpoints, looping the same path or
+ * walking the path back and forth.
+ */
 public class PatrolWalk implements Consumer<Entity> {
 
-    private static final Random random = new Random();
+    private static final Random RANDOM = new Random();
     private final List<Tile> checkpoints = new ArrayList<>();
     private final int numberCheckpoints;
     private final int pauseFrames;
@@ -75,7 +80,7 @@ public class PatrolWalk implements Consumer<Entity> {
         while (this.checkpoints.size() < numberCheckpoints
                 || accessibleTiles.size() == this.checkpoints.size()
                 || maxTries >= 1000) {
-            Tile t = accessibleTiles.get(random.nextInt(accessibleTiles.size()));
+            Tile t = accessibleTiles.get(RANDOM.nextInt(accessibleTiles.size()));
             if (!this.checkpoints.contains(t)) {
                 this.checkpoints.add(t);
             }
@@ -161,13 +166,13 @@ public class PatrolWalk implements Consumer<Entity> {
     }
 
     public enum MODE {
-        /** Walks to a random checkpoint. */
+        // Walks to a random checkpoint.
         RANDOM,
 
-        /** Looping the same path over and over again. */
+        // Looping the same path over and over again.
         LOOP,
 
-        /** Walks the path forward and then backward. */
+        // Walks the path forward and then backward.
         BACK_AND_FORTH
     }
 }
