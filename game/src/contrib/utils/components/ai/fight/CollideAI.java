@@ -11,6 +11,9 @@ import core.level.utils.LevelUtils;
 
 import java.util.function.Consumer;
 
+/**
+ * Implements a fight AI. The entity attacks the player if the player is colliding with the entity.
+ */
 public class CollideAI implements Consumer<Entity> {
     private final float rushRange;
     private final int delay = Game.frameRate();
@@ -21,7 +24,7 @@ public class CollideAI implements Consumer<Entity> {
      * Attacks the player by colliding if he is within the given range. Otherwise, it will move
      * towards the player.
      *
-     * @param rushRange Range in which the faster collide logic should be executed
+     * @param rushRange Range in which the faster collide logic should be executed.
      */
     public CollideAI(final float rushRange) {
         this.rushRange = rushRange;

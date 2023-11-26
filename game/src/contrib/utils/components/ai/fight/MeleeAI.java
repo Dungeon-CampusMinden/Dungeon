@@ -12,19 +12,23 @@ import core.level.utils.LevelUtils;
 
 import java.util.function.Consumer;
 
+/**
+ * Implements a fight AI. The entity attacks the player if he is in a given range. When the entity
+ * is not in range but in fight mode, the entity will be moving to ward the player.
+ */
 public class MeleeAI implements Consumer<Entity> {
     private final float attackRange;
     private final int delay = Game.frameRate();
-    private int timeSinceLastUpdate = 0;
     private final Skill fightSkill;
+    private int timeSinceLastUpdate = 0;
     private GraphPath<Tile> path;
 
     /**
      * Attacks the player if he is within the given range. Otherwise, it will move towards the
      * player.
      *
-     * @param attackRange Range in which the attack skill should be executed
-     * @param fightSkill Skill to be used when an attack is performed
+     * @param attackRange Range in which the attack skill should be executed.
+     * @param fightSkill Skill to be used when an attack is performed.
      */
     public MeleeAI(final float attackRange, final Skill fightSkill) {
         this.attackRange = attackRange;
