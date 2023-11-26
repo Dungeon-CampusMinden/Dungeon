@@ -66,8 +66,8 @@ public class Skill {
     }
 
     /**
-     * Adds coolDownInSeconds to the time the skill was last used and updates when this skill can be
-     * used again.
+     * Adds coolDownInMilliSeconds to the time the skill was last used and updates when this skill
+     * can be used again.
      */
     private void activateCoolDown() {
         nextUsableAt = lastUsed.plusMillis(coolDownInMilliSeconds);
