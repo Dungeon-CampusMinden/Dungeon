@@ -4,7 +4,7 @@ import contrib.item.concreteItem.*;
 
 import java.util.Random;
 
-/** Generator which creates a random Item based on the Templates prepared. */
+/** Generator which creates a random Item based on the Templates provided. */
 public class ItemGenerator {
 
     private final Random rand = new Random();
@@ -12,7 +12,7 @@ public class ItemGenerator {
     /**
      * Generates a new random Item.
      *
-     * @return a new random Item.
+     * @return A new random Item.
      */
     public contrib.item.Item generateItemData() {
         return switch (rand.nextInt(8)) {
