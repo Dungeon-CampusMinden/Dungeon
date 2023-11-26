@@ -11,12 +11,13 @@ import core.utils.components.MissingComponentException;
 import java.util.Optional;
 import java.util.function.Function;
 
+/** This class provides utility methods for interacting with interactable entities in the game. */
 public class InteractionTool {
 
     public static final Function<InteractionData, Boolean> SIMPLE_REACHABLE =
             (interactionData -> (interactionData.ic().radius() - interactionData.dist()) > 0);
 
-    public static void interactWithClosestInteractable(Entity entity) {
+    public static void interactWithClosestInteractable(final Entity entity) {
         interactWithClosestInteractable(entity, SIMPLE_REACHABLE);
     }
 
@@ -43,7 +44,8 @@ public class InteractionTool {
         data.ifPresent(x -> x.ic().triggerInteraction(x.e(), who));
     }
 
-    private static InteractionData convertToData(Entity entity, PositionComponent heroPosition) {
+    private static InteractionData convertToData(
+            final Entity entity, final PositionComponent heroPosition) {
 
         InteractionComponent ic =
                 entity.fetch(InteractionComponent.class)
