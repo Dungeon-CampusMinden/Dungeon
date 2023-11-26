@@ -8,7 +8,7 @@ import core.utils.components.MissingComponentException;
 
 import java.util.function.Consumer;
 
-/** Controls the AI */
+/** Controls the AI. */
 public final class AISystem extends System {
 
     private static final Consumer<Entity> executeAI =

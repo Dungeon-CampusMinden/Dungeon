@@ -15,7 +15,7 @@ import core.utils.components.MissingComponentException;
  * ProjectileComponent}s in the game. It checks if projectiles have reached their endpoints and
  * removes entities that have reached their endpoints.
  *
- * <p>Note that the velocity of the projectile is not managed in this system, that is done by the
+ * <p>Note that the velocity of the projectile is not managed in this system. That is done by the
  * {@link core.systems.VelocitySystem}.
  *
  * <p>The components required for this system are {@link ProjectileComponent}, {@link
@@ -40,7 +40,7 @@ public class ProjectileSystem extends System {
                 .forEach(this::removeEntitiesOnEndpoint);
     }
 
-    private PSData buildDataObject(Entity entity) {
+    private PSData buildDataObject(final Entity entity) {
 
         ProjectileComponent prc =
                 entity.fetch(ProjectileComponent.class)
@@ -63,27 +63,27 @@ public class ProjectileSystem extends System {
         return new PSData(entity, prc, pc, vc);
     }
 
-    private PSData setVelocity(PSData data) {
+    private PSData setVelocity(final PSData data) {
         data.vc.currentYVelocity(data.vc.yVelocity());
         data.vc.currentXVelocity(data.vc.xVelocity());
 
         return data;
     }
 
-    private void removeEntitiesOnEndpoint(PSData data) {
+    private void removeEntitiesOnEndpoint(final PSData data) {
         Game.remove(data.e);
     }
 
     /**
      * Check if the projectile has reached its endpoint or is out of range.
      *
-     * <p>A Projectile can be out of range, if it "skips" the endpoint, it has already reached the
+     * <p>A Projectile can be out of range if it "skips" the endpoint. It has already reached the
      * endpoint and can be removed.
      *
-     * @param psd the PSData to check if the projectile has reached the endpoint
-     * @return true if the endpoint was reached or passed, else false
+     * @param psd The PSData to check if the projectile has reached the endpoint.
+     * @return true if the endpoint was reached or passed, else false.
      */
-    private boolean hasReachedEndpoint(PSData psd) {
+    private boolean hasReachedEndpoint(final PSData psd) {
         Point start = psd.prc.startPosition();
         Point end = psd.prc.goalLocation();
         Point current = psd.pc.position();

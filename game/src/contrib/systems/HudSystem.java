@@ -19,13 +19,14 @@ import java.util.Optional;
  * allow EventHandling.
  */
 public final class HudSystem extends System {
+
     /**
-     * the removeListener only gets the Entity after its Component is removed. Which means no longer
+     * The removeListener only gets the Entity after its Component is removed. Which means no longer
      * any access to the Group. This is why we need the last group an entity had as a mapping.
      */
-    private Map<Entity, Group> entityGroupMap = new HashMap<>();
+    private final Map<Entity, Group> entityGroupMap = new HashMap<>();
 
-    private Map<Entity, UIComponent> entityUIComponentMap = new HashMap<>();
+    private final Map<Entity, UIComponent> entityUIComponentMap = new HashMap<>();
 
     /** The HudSystem needs the UIComponent to work. */
     public HudSystem() {
@@ -35,11 +36,11 @@ public final class HudSystem extends System {
     }
 
     /**
-     * once a UIComponent is removed its Dialog has to be removed from the Stage
+     * Once a UIComponent is removed, its Dialog has to be removed from the Stage.
      *
-     * @param entity which no longer has a UIComponent
+     * @param entity Entity which no longer has a UIComponent.
      */
-    private void removeListener(Entity entity) {
+    private void removeListener(final Entity entity) {
         Group remove = entityGroupMap.remove(entity);
         if (remove != null) {
             remove.remove();
@@ -51,12 +52,12 @@ public final class HudSystem extends System {
     }
 
     /**
-     * when an Entity with a UIComponent is added its dialog has to be added to the Stage for UI
-     * Representation
+     * When an Entity with a UIComponent is added, its dialog has to be added to the Stage for UI
+     * Representation.
      *
-     * @param entity which now has a UIComponent
+     * @param entity Entity which now has a UIComponent.
      */
-    private void addListener(Entity entity) {
+    private void addListener(final Entity entity) {
 
         UIComponent component =
                 entity.fetch(UIComponent.class)
@@ -72,7 +73,7 @@ public final class HudSystem extends System {
                         });
     }
 
-    private void addMapping(Entity entity, Group dialog, UIComponent component) {
+    private void addMapping(final Entity entity, final Group dialog, final UIComponent component) {
         Group previous = entityGroupMap.put(entity, dialog);
         if (previous != null) {
             previous.remove();
@@ -83,20 +84,20 @@ public final class HudSystem extends System {
         }
     }
 
-    private void addDialogToStage(Group d, Stage stage) {
-        if (!stage.getActors().contains(d, true)) {
-            stage.addActor(d);
+    private void addDialogToStage(final Group group, final Stage stage) {
+        if (!stage.getActors().contains(group, true)) {
+            stage.addActor(group);
         }
     }
 
     @Override
     public void execute() {
-        if (entityStream().anyMatch(x -> pausesGame(x))) pauseGame();
+        if (entityStream().anyMatch(e -> pausesGame(e))) pauseGame();
         else unpauseGame();
     }
 
-    private boolean pausesGame(Entity x) {
-        Optional<UIComponent> uiComponent = x.fetch(UIComponent.class);
+    private boolean pausesGame(final Entity entity) {
+        Optional<UIComponent> uiComponent = entity.fetch(UIComponent.class);
         return uiComponent
                 .filter(component -> component.isVisible() && component.willPauseGame())
                 .isPresent();
