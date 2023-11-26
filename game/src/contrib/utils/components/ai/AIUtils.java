@@ -10,6 +10,7 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.components.MissingComponentException;
 
+/** Utility class for AI-related operations like calculating paths. */
 public class AIUtils {
 
     /**
@@ -66,7 +67,7 @@ public class AIUtils {
     }
 
     /**
-     * Check if the entity is either on the end of the path or has left the path.
+     * Checks if the entity is either on the end of the path or has left the path.
      *
      * @param entity Entity to be checked.
      * @param path Path which the entity possibly left or has reached the end of.
