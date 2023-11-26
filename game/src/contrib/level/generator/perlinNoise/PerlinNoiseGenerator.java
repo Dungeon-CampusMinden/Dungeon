@@ -24,50 +24,9 @@ public class PerlinNoiseGenerator implements IGenerator {
     private static final int BIG_MAX_X_SIZE = 150;
     private static final int BIG_MAX_Y_SIZE = 150;
 
-    @Override
-    public ILevel level(DesignLabel designLabel, LevelSize size) {
-        return level(designLabel, size, GLOBAL_RANDOM);
-    }
-
-    @Override
-    public LevelElement[][] layout(LevelSize size) {
-        return layout(size, new Random());
-    }
-
-    /**
-     * generates a new level based on the seed
-     *
-     * <p>the same seed should give the same level
-     *
-     * @param seed seed of level
-     * @return The level.
-     */
-    public ILevel level(long seed) {
-        final Random random = new Random(seed);
-        DesignLabel designLabel = DesignLabel.values()[random.nextInt(DesignLabel.values().length)];
-        LevelSize size = LevelSize.values()[random.nextInt(LevelSize.values().length)];
-        return level(designLabel, size, random);
-    }
-
-    /**
-     * generates new Level
-     *
-     * @param designLabel the design of the level
-     * @param size the level size
-     * @param random Random Object used to generate the level
-     * @return the generated Level
-     */
-    public ILevel level(DesignLabel designLabel, LevelSize size, final Random random) {
-        // playing field
-        LevelElement[][] elements = layout(size, random);
-        TileLevel generatedLevel = new TileLevel(elements, designLabel);
-        return generatedLevel;
-    }
-
-    private static LevelElement[][] layout(LevelSize size, Random random) {
+    private static LevelElement[][] layout(final LevelSize size, final Random random) {
         final NoiseArea playingArea = generateNoiseArea(size, random);
-        LevelElement[][] elements = toLevelElementArray(playingArea, random);
-        return elements;
+        return toLevelElementArray(playingArea);
     }
 
     private static NoiseArea generateNoiseArea(final LevelSize size, final Random randomGenerator) {
@@ -102,7 +61,7 @@ public class PerlinNoiseGenerator implements IGenerator {
         return area;
     }
 
-    private static LevelElement[][] toLevelElementArray(NoiseArea playingArea, Random random) {
+    private static LevelElement[][] toLevelElementArray(final NoiseArea playingArea) {
         LevelElement[][] res = new LevelElement[playingArea.width()][playingArea.height()];
         for (int i = 0; i < playingArea.width(); i++) {
             for (int j = 0; j < playingArea.height(); j++) {
@@ -116,7 +75,7 @@ public class PerlinNoiseGenerator implements IGenerator {
         return res;
     }
 
-    private static int widthFromLevelSize(LevelSize size, Random random) {
+    private static int widthFromLevelSize(final LevelSize size, final Random random) {
         return switch (size) {
             case LARGE -> random.nextInt(BIG_MAX_X_SIZE - BIG_MIN_X_SIZE) + BIG_MIN_X_SIZE;
             case MEDIUM -> random.nextInt(MEDIUM_MAX_X_SIZE - MEDIUM_MIN_X_SIZE)
@@ -125,12 +84,51 @@ public class PerlinNoiseGenerator implements IGenerator {
         };
     }
 
-    private static int heightFromLevelSize(LevelSize size, Random random) {
+    private static int heightFromLevelSize(final LevelSize size, final Random random) {
         return switch (size) {
             case LARGE -> random.nextInt(BIG_MAX_Y_SIZE - BIG_MIN_Y_SIZE) + BIG_MIN_Y_SIZE;
             case MEDIUM -> random.nextInt(MEDIUM_MAX_Y_SIZE - MEDIUM_MIN_Y_SIZE)
                     + MEDIUM_MIN_Y_SIZE;
             default -> random.nextInt(SMALL_MAX_Y_SIZE - SMALL_MIN_Y_SIZE) + SMALL_MIN_Y_SIZE;
         };
+    }
+
+    @Override
+    public ILevel level(final DesignLabel designLabel, final LevelSize size) {
+        return level(designLabel, size, GLOBAL_RANDOM);
+    }
+
+    @Override
+    public LevelElement[][] layout(final LevelSize size) {
+        return layout(size, new Random());
+    }
+
+    /**
+     * Generates a new level based on the seed.
+     *
+     * <p>The same seed should give the same level.
+     *
+     * @param seed The seed of the level.
+     * @return The level.
+     */
+    public ILevel level(final long seed) {
+        final Random random = new Random(seed);
+        DesignLabel designLabel = DesignLabel.values()[random.nextInt(DesignLabel.values().length)];
+        LevelSize size = LevelSize.values()[random.nextInt(LevelSize.values().length)];
+        return level(designLabel, size, random);
+    }
+
+    /**
+     * Generates new Level.
+     *
+     * @param designLabel The design of the level.
+     * @param size The level size.
+     * @param random Random Object used to generate the level.
+     * @return The generated level.
+     */
+    public ILevel level(final DesignLabel designLabel, final LevelSize size, final Random random) {
+        // playing field
+        LevelElement[][] elements = layout(size, random);
+        return new TileLevel(elements, designLabel);
     }
 }

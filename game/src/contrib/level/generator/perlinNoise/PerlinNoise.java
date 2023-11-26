@@ -3,7 +3,7 @@ package contrib.level.generator.perlinNoise;
 import java.util.Random;
 
 /**
- * Class generating a perlin noise array
+ * Class generating a perlin noise array.
  *
  * <p>Source: <a href="https://flafla2.github.io/2014/08/09/perlinnoise.html">Blog by Flafla2 (09
  * August 2014)</a>
@@ -15,12 +15,12 @@ public class PerlinNoise {
     private final double[][][] permutation;
 
     /**
-     * PerlinNoise with a random seed
+     * PerlinNoise with a random seed.
      *
-     * @param repetitionWidth width of noise
-     * @param repetitionHeight height of noise
-     * @param octaves octaves for noise
-     * @param ownPermutationForOctaves flag -> should each octave have own permutation
+     * @param repetitionWidth Width of noise.
+     * @param repetitionHeight Height of noise.
+     * @param octaves Octaves for noise.
+     * @param ownPermutationForOctaves Flag if each octave should have own permutation.
      */
     public PerlinNoise(
             final int repetitionWidth,
@@ -31,13 +31,13 @@ public class PerlinNoise {
     }
 
     /**
-     * PerlinNoise
+     * Creates new PerlinNoise
      *
-     * @param repetitionWidth width of noise
-     * @param repetitionHeight height of noise
-     * @param octaves octaves for noise
-     * @param ownPermutationForOctaves flag -> should each octave have own permutation
-     * @param random Random object used for generation
+     * @param repetitionWidth Width of noise.
+     * @param repetitionHeight Height of noise.
+     * @param octaves Octaves for noise.
+     * @param ownPermutationForOctaves Flag if each octave should have own permutation.
+     * @param random Random object used for generation.
      */
     public PerlinNoise(
             final int repetitionWidth,
@@ -49,25 +49,25 @@ public class PerlinNoise {
         this.repetitionHeight = repetitionHeight;
         this.octaves = octaves;
 
-        // generati permutation
+        // generate permutation
         permutation = new double[octaves.length][repetitionWidth][repetitionHeight];
         for (int x = 0; x < repetitionWidth; x++) {
             for (int y = 0; y < repetitionHeight; y++) {
-                double zufallszahl = random.nextDouble();
+                double randomNumber = random.nextDouble();
                 for (int i = 0; i < octaves.length; i++) {
-                    permutation[i][x][y] = zufallszahl;
-                    if (ownPermutationForOctaves) zufallszahl = random.nextDouble();
+                    permutation[i][x][y] = randomNumber;
+                    if (ownPermutationForOctaves) randomNumber = random.nextDouble();
                 }
             }
         }
     }
 
     /**
-     * get the noise for one point
+     * Get the noise for one point.
      *
-     * @param x X-coordinate
-     * @param y Y-coordinate
-     * @return noise value
+     * @param x X-coordinate.
+     * @param y Y-coordinate.
+     * @return The noise value.
      */
     public double noise(final int x, final int y) {
         double fNoise = 0;
@@ -110,21 +110,22 @@ public class PerlinNoise {
     }
 
     /**
-     * interpolates the noise for a smooth transition
+     * Interpolates the noise for a smooth transition.
      *
-     * @param sample1 first sample
-     * @param sample2 second sample
-     * @param blend : ratio of distance to the sample
-     * @return : interpolated value of noise
+     * @param sample1 First sample.
+     * @param sample2 Second sample-
+     * @param blend Ratio of distance to the sample.
+     * @return Interpolated value of noise.
      */
     private double interpolate(final double sample1, final double sample2, final double blend) {
         return (blend * (sample2 - sample1) + sample1);
     }
+
     /**
-     * get the noise for all points
+     * Get the noise for all points.
      *
-     * @param zoom zoom determines to skip / repeat some values
-     * @return all noise values
+     * @param zoom Zoom determines to skip / repeat some values.
+     * @return All noise values.
      */
     public double[][] noiseAll(final double zoom) {
         final double[][] noise =
@@ -168,17 +169,17 @@ public class PerlinNoise {
                 for (int pixelNumberX = nSampleX1;
                         pixelNumberX < nSampleX2 && pixelNumberX < repetitionWidth;
                         pixelNumberX++) {
-                    for (int pixelNummerY = nSampleY1;
-                            pixelNummerY < nSampleY2 && pixelNummerY < repetitionHeight;
-                            pixelNummerY++) {
+                    for (int pixelNumberY = nSampleY1;
+                            pixelNumberY < nSampleY2 && pixelNumberY < repetitionHeight;
+                            pixelNumberY++) {
                         final double pixelTop =
                                 octaveNoise[pixelNumberX % repetitionWidth][
                                         nSampleY1 % repetitionHeight];
                         final double pixelBottom =
                                 octaveNoise[pixelNumberX % repetitionWidth][
                                         nSampleY2 % repetitionHeight];
-                        final double blendY = ((double) (pixelNummerY - nSampleY1) / nPitchY);
-                        octaveNoise[pixelNumberX][pixelNummerY] =
+                        final double blendY = ((double) (pixelNumberY - nSampleY1) / nPitchY);
+                        octaveNoise[pixelNumberX][pixelNumberY] =
                                 interpolate(pixelTop, pixelBottom, blendY);
                     }
                 }
@@ -190,18 +191,18 @@ public class PerlinNoise {
     private double[][] calculateAreaEdge(final int nPitchX, final int nPitchY, final int octave) {
         final double[][] octaveNoise = new double[repetitionWidth][repetitionHeight];
         // edges of each square
-        for (int hightY = 0; hightY < repetitionHeight; hightY += nPitchY) {
+        for (int heightY = 0; heightY < repetitionHeight; heightY += nPitchY) {
             for (int nSampleX1 = 0; nSampleX1 < repetitionWidth; nSampleX1 += nPitchX) {
                 final int nSampleX2 = (nSampleX1 + nPitchX);
                 // X-direction
                 for (int pixelNumberX = nSampleX1;
                         pixelNumberX < nSampleX2 && pixelNumberX < repetitionWidth;
                         pixelNumberX++) {
-                    final double pixelLeft = permutation[octave][nSampleX1][hightY];
+                    final double pixelLeft = permutation[octave][nSampleX1][heightY];
                     final double pixelRight =
-                            permutation[octave][nSampleX2 % repetitionWidth][hightY];
+                            permutation[octave][nSampleX2 % repetitionWidth][heightY];
                     final double blendX = ((double) (pixelNumberX - nSampleX1) / nPitchX);
-                    octaveNoise[pixelNumberX][hightY] = interpolate(pixelLeft, pixelRight, blendX);
+                    octaveNoise[pixelNumberX][heightY] = interpolate(pixelLeft, pixelRight, blendX);
                 }
             }
         }
