@@ -35,7 +35,7 @@ public final class InventoryComponent implements Component {
 
     private static final int DEFAULT_MAX_SIZE = 24;
     private final Item[] inventory;
-    private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+    private final Logger LOGGER = Logger.getLogger(InventoryComponent.class.getSimpleName());
 
     public InventoryComponent() {
         inventory = new Item[DEFAULT_MAX_SIZE];
@@ -120,7 +120,7 @@ public final class InventoryComponent implements Component {
      * @param item Item to check for.
      * @return True if the inventory contains the item, false otherwise.
      */
-    public boolean hasItem(Item item) {
+    public boolean hasItem(final Item item) {
         return Arrays.stream(this.inventory)
                 .anyMatch(invItem -> invItem != null && invItem.equals(item));
     }
@@ -163,14 +163,14 @@ public final class InventoryComponent implements Component {
     }
 
     /**
-     * Get an Set of items stored in this component that are an instance of the given class.
+     * Get a Set of items stored in this component that are an instance of the given class.
      *
      * @param klass Only return items that are an instance of this class.
-     * @return An Set of items that are in this Inventory and are an instance of the given class.
+     * @return A Set of items that are in this Inventory and are an instance of the given class.
      */
-    public Set<Item> items(Class<? extends Item> klass) {
+    public Set<Item> items(final Class<? extends Item> klass) {
         return Arrays.stream(this.inventory.clone())
-                .filter(item -> klass.isInstance(item))
+                .filter(klass::isInstance)
                 .collect(Collectors.toSet());
     }
 
@@ -180,7 +180,7 @@ public final class InventoryComponent implements Component {
      * @param index Index of item to get.
      * @param item Item to set at index.
      */
-    public void set(int index, @Null Item item) {
+    public void set(int index, final Item item) {
         if (index >= this.inventory.length || index < 0) return;
         this.inventory[index % this.inventory.length] = item;
     }

@@ -1,6 +1,8 @@
 package contrib.systems;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 import contrib.components.AIComponent;
 
@@ -10,6 +12,10 @@ import core.Game;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class AISystemTest {
 
@@ -22,7 +28,6 @@ public class AISystemTest {
         Game.removeAllEntities();
         Game.removeAllSystems();
         system = new AISystem();
-        Game.add(system);
         entity = new Entity();
         entity.add(
                 new AIComponent(
@@ -33,7 +38,6 @@ public class AISystemTest {
                             return false;
                         }));
         Game.add(entity);
-
         updateCounter = 0;
     }
 
@@ -48,5 +52,33 @@ public class AISystemTest {
     public void update() {
         system.execute();
         assertEquals(1, updateCounter);
+    }
+
+    @Test
+    public void update_executeFight() {
+        Function<Entity, Boolean> transition = Mockito.mock(Function.class);
+        Consumer<Entity> fight = Mockito.mock(Consumer.class);
+        Consumer<Entity> idle = Mockito.mock(Consumer.class);
+        when(transition.apply(entity)).thenReturn(true);
+
+        AIComponent component = new AIComponent(fight, idle, transition);
+        entity.add(component);
+        system.execute();
+        verify(fight, times(1)).accept(entity);
+        verify(idle, never()).accept(entity);
+    }
+
+    @Test
+    public void update_executeIdle() {
+        Function<Entity, Boolean> transition = Mockito.mock(Function.class);
+        Consumer<Entity> fight = Mockito.mock(Consumer.class);
+        Consumer<Entity> idle = Mockito.mock(Consumer.class);
+        when(transition.apply(entity)).thenReturn(false);
+
+        AIComponent component = new AIComponent(fight, idle, transition);
+        entity.add(component);
+        system.execute();
+        verify(idle, times(1)).accept(entity);
+        verify(fight, never()).accept(entity);
     }
 }

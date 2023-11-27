@@ -18,8 +18,7 @@ import java.util.function.Function;
  * <p>An AI-controlled entity can have two different states which define the behaviour of the
  * entity. The "idle state" describes the default behaviour of the entity, like walking around in
  * the level. The "combat state" describes the fighting behaviour, like throwing fireballs at the
- * hero. The {@link AISystem} will trigger {@link #execute(Entity)} which uses {@link #shouldFight}
- * to check if the idle or combat behaviour should be executed.
+ * hero. The {@link AISystem} will execute the correct behavior.
  *
  * <p>The {@link #idleBehavior} defines the behaviour in idle state, e.g. walking on a specific path
  * {@link PatrolWalk}.
@@ -64,15 +63,29 @@ public final class AIComponent implements Component {
     }
 
     /**
-     * Execute AI behavior.
+     * Get the function that decides if the fight behavior should be executed.
      *
-     * <p>Uses {@link #shouldFight} to check if the entity is in idle mode or in fight mode and
-     * execute the corresponding behavior
-     *
-     * @param entity associated entity of this component.
+     * @return Transition function between idle and fight behavior.
      */
-    public void execute(final Entity entity) {
-        if (shouldFight.apply(entity)) fightBehavior.accept(entity);
-        else idleBehavior.accept(entity);
+    public Function<Entity, Boolean> shouldFight() {
+        return shouldFight;
+    }
+
+    /**
+     * Get the function to execute for fighting.
+     *
+     * @return Function that implements the fight behavior.
+     */
+    public Consumer<Entity> fightBehavior() {
+        return fightBehavior;
+    }
+
+    /**
+     * Get the function to execute for idle.
+     *
+     * @return Function that implements the idle behavior.
+     */
+    public Consumer<Entity> idleBehavior() {
+        return idleBehavior;
     }
 }
