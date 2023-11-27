@@ -17,7 +17,7 @@ import java.util.function.Function;
  *
  * <p>Entity will stay in fight mode once entered.
  */
-public class ProtectOnAttack implements Function<Entity, Boolean> {
+public final class ProtectOnAttack implements Function<Entity, Boolean> {
     private final Collection<Entity> setupProtection;
     private final Set<Entity> toProtect = new HashSet<>();
     boolean setup = true;

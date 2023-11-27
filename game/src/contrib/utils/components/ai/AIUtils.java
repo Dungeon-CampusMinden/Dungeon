@@ -11,7 +11,7 @@ import core.level.utils.LevelUtils;
 import core.utils.components.MissingComponentException;
 
 /** Utility class for AI-related operations like calculating paths. */
-public class AIUtils {
+public final class AIUtils {
 
     /**
      * Sets the velocity of the passed entity so that it takes the next necessary step to get to the

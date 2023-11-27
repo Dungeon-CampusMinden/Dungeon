@@ -23,7 +23,7 @@ import java.util.function.Consumer;
  * <p>There are different modes. The entity can walk to random checkpoints, looping the same path or
  * walking the path back and forth.
  */
-public class PatrolWalk implements Consumer<Entity> {
+public final class PatrolWalk implements Consumer<Entity> {
 
     private static final Random RANDOM = new Random();
     private final List<Tile> checkpoints = new ArrayList<>();
@@ -47,8 +47,7 @@ public class PatrolWalk implements Consumer<Entity> {
      * @param pauseTime Max time in milliseconds to wait on a checkpoint. The actual time is a
      *     random number between 0 and this value.
      */
-    public PatrolWalk(
-            final float radius, final int numberCheckpoints, final int pauseTime, final MODE mode) {
+    public PatrolWalk(float radius, int numberCheckpoints, int pauseTime, final MODE mode) {
         this.radius = radius;
         this.numberCheckpoints = numberCheckpoints;
         this.pauseFrames = pauseTime / (1000 / Game.frameRate());
