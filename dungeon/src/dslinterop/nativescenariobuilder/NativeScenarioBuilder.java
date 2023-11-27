@@ -39,7 +39,7 @@ public class NativeScenarioBuilder {
         Entity questowner = new Entity("Questgeber");
         questowner.add(new PositionComponent());
         try {
-            questowner.add(new DrawComponent("character/knight"));
+            questowner.add(new DrawComponent(new SimpleIPath("character/knight")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -72,7 +72,7 @@ public class NativeScenarioBuilder {
         Entity questowner = new Entity("Questgeber");
         questowner.add(new PositionComponent());
         try {
-            questowner.add(new DrawComponent("character/knight"));
+            questowner.add(new DrawComponent(new SimpleIPath("character/knight")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

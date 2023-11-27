@@ -16,6 +16,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.components.path.SimpleIPath;
 
 import java.io.IOException;
 import java.util.Random;
@@ -152,7 +153,7 @@ public final class MiscFactory {
                                                 }
                                             });
                         }));
-        DrawComponent dc = new DrawComponent("objects/treasurechest");
+        DrawComponent dc = new DrawComponent(new SimpleIPath("objects/treasurechest"));
         var mapping = dc.animationMap();
         // set the closed chest as default idle
         mapping.put(
@@ -179,7 +180,7 @@ public final class MiscFactory {
     public static Entity newCraftingCauldron() throws IOException {
         Entity cauldron = new Entity("cauldron");
         cauldron.add(new PositionComponent());
-        cauldron.add(new DrawComponent("objects/cauldron"));
+        cauldron.add(new DrawComponent(new SimpleIPath("objects/cauldron")));
         cauldron.add(new CollideComponent());
         cauldron.add(
                 new InteractionComponent(

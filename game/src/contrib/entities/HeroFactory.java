@@ -20,6 +20,8 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -28,7 +30,7 @@ import java.util.Comparator;
 public final class HeroFactory {
 
     public static final int DEFAULT_INVENTORY_SIZE = 10;
-    private static final String HERO_FILE_PATH = "character/wizard";
+    private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
     private static final float X_SPEED_HERO = 7.5f;
     private static final float Y_SPEED_HERO = 7.5f;
     private static final int FIREBALL_COOL_DOWN = 500;

@@ -14,6 +14,8 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 
 import java.io.IOException;
 import java.util.Random;
@@ -24,19 +26,19 @@ public final class MonsterFactory {
 
     private static final Random RANDOM = new Random();
 
-    private static final String[] MONSTER_FILE_PATHS = {
-        "character/monster/chort",
-        "character/monster/imp",
-        "character/monster/big_deamon",
-        "character/monster/big_zombie",
-        "character/monster/doc",
-        "character/monster/goblin",
-        "character/monster/ice_zombie",
-        "character/monster/ogre",
-        "character/monster/orc_shaman",
-        "character/monster/orc_warrior",
-        "character/monster/pumpkin_dude",
-        "character/monster/zombie"
+    private static final IPath[] MONSTER_FILE_PATHS = {
+        new SimpleIPath("character/monster/chort"),
+        new SimpleIPath("character/monster/imp"),
+        new SimpleIPath("character/monster/big_deamon"),
+        new SimpleIPath("character/monster/big_zombie"),
+        new SimpleIPath("character/monster/doc"),
+        new SimpleIPath("character/monster/goblin"),
+        new SimpleIPath("character/monster/ice_zombie"),
+        new SimpleIPath("character/monster/ogre"),
+        new SimpleIPath("character/monster/orc_shaman"),
+        new SimpleIPath("character/monster/orc_warrior"),
+        new SimpleIPath("character/monster/pumpkin_dude"),
+        new SimpleIPath("character/monster/zombie")
     };
 
     private static final int MIN_MONSTER_HEALTH = 10;
@@ -82,7 +84,7 @@ public final class MonsterFactory {
      * @return A new Entity.
      * @throws IOException if the animation could not been loaded.
      */
-    public static Entity randomMonster(String pathToTexture) throws IOException {
+    public static Entity randomMonster(IPath pathToTexture) throws IOException {
         int health = RANDOM.nextInt(MIN_MONSTER_HEALTH, MAX_MONSTER_HEALTH);
         float speed = RANDOM.nextFloat(MIN_MONSTER_SPEED, MAX_MONSTER_SPEED);
 

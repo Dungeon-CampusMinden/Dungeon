@@ -9,6 +9,7 @@ import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.components.path.SimpleIPath;
 
 import entrypoint.DSLEntryPoint;
 
@@ -94,7 +95,7 @@ public class TaskSelector {
 
     protected static Entity npc(SingleChoice selectionQuestion) throws IOException {
         Entity npc = new Entity("Selection NPC");
-        npc.add(new DrawComponent("character/blue_knight"));
+        npc.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
         npc.add(new PositionComponent());
         npc.add(
                 new InteractionComponent(
