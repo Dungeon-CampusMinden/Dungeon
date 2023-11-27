@@ -22,9 +22,10 @@ import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
- * DamageProjectile is an abstract class that represents a projectile capable of dealing damage to
- * entities. The DamageProjectile class implements the Consumer interface, allowing it to accept an
- * entity as a parameter.
+ * Abstract class that represents a projectile capable of dealing damage to entities.
+ *
+ * <p>The DamageProjectile class implements the Consumer interface, allowing it to accept an entity
+ * as a parameter.
  */
 public abstract class DamageProjectile implements Consumer<Entity> {
 
@@ -58,12 +59,12 @@ public abstract class DamageProjectile implements Consumer<Entity> {
      */
     public DamageProjectile(
             final String pathToTexturesOfProjectile,
-            final float projectileSpeed,
-            final int damageAmount,
+            float projectileSpeed,
+            int damageAmount,
             final DamageType damageType,
             final Point projectileHitBoxSize,
             final Supplier<Point> selectionFunction,
-            final float projectileRange,
+            float projectileRange,
             final Consumer<Entity> onWallHit) {
         this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
         this.damageAmount = damageAmount;
@@ -92,12 +93,12 @@ public abstract class DamageProjectile implements Consumer<Entity> {
      */
     public DamageProjectile(
             final String pathToTexturesOfProjectile,
-            final float projectileSpeed,
-            final int damageAmount,
+            float projectileSpeed,
+            int damageAmount,
             final DamageType damageType,
             final Point projectileHitBoxSize,
             final Supplier<Point> selectionFunction,
-            final float projectileRange) {
+            float projectileRange) {
         this(
                 pathToTexturesOfProjectile,
                 projectileSpeed,

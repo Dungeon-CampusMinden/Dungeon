@@ -11,12 +11,16 @@ import core.utils.Point;
 import java.util.function.Supplier;
 
 /**
- * FireballSkill is a subclass of {@link DamageProjectile}.
+ * Subclass of {@link DamageProjectile}.
  *
  * <p>The FireballSkill class extends the functionality of {@link DamageProjectile} to implement the
- * specific behavior of the fireball skill.
+ * specific behavior of the fireball skill. *
+ *
+ * <p>The projectile will fly through the dungeon, and if it hits an entity, it will deal damage and
+ * be removed from the game. It will also be removed from the game if it hits a wall or has reached
+ * the maximum distance.
  */
-public class FireballSkill extends DamageProjectile {
+public final class FireballSkill extends DamageProjectile {
 
     private static final String PROJECTILE_TEXTURES = "skills/fireball";
     private static final String PROJECTILE_SOUND = "sounds/fireball.wav";
