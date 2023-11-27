@@ -25,19 +25,12 @@ public class Matrix4f {
     }
 
     /**
-     * Converts the matrix to a float array (column major)
+     * Converts the matrix to a float array (row major)
      *
      * @return float array
      */
     public float[] toArray() {
-        float[] result = new float[16];
-        int index = 0;
-        for (int col = 0; col < 4; col++) {
-            for (int row = 0; row < 4; row++) {
-                result[index++] = this.data[row][col];
-            }
-        }
-        return result;
+        return this.toArray(false);
     }
 
     /**
@@ -49,13 +42,19 @@ public class Matrix4f {
      */
     public float[] toArray(boolean rowMajor) {
         if (rowMajor) {
-            float[] result = new float[16];
-            for (int i = 0; i < 4; i++) {
-                System.arraycopy(this.data[i], 0, result, i * 4, 4);
-            }
-            return result;
+            return new float[] {
+                this.data[0][0], this.data[0][1], this.data[0][2], this.data[0][3],
+                this.data[1][0], this.data[1][1], this.data[1][2], this.data[1][3],
+                this.data[2][0], this.data[2][1], this.data[2][2], this.data[2][3],
+                this.data[3][0], this.data[3][1], this.data[3][2], this.data[3][3]
+            };
         } else {
-            return this.toArray();
+            return new float[] {
+                this.data[0][0], this.data[1][0], this.data[2][0], this.data[3][0],
+                this.data[0][1], this.data[1][1], this.data[2][1], this.data[3][1],
+                this.data[0][2], this.data[1][2], this.data[2][2], this.data[3][2],
+                this.data[0][3], this.data[1][3], this.data[2][3], this.data[3][3]
+            };
         }
     }
 
