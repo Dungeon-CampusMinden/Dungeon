@@ -1,7 +1,5 @@
 package contrib.utils.components.interaction;
 
-import com.badlogic.gdx.utils.Null;
-
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
@@ -34,7 +32,7 @@ import java.util.function.Consumer;
  * <p>If a {@link DrawComponent} is present, after the interaction, the {@link
  * CoreAnimations#IDLE_RIGHT} animation will be set as the current animation.
  */
-public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
+public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
 
     /**
      * Small Helper to determine the position of the dropped item. Implements a simple circle drop.
@@ -44,7 +42,7 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
      * @return A Point in a unit vector around the chest.
      */
     private static Point calculateDropPosition(
-            final PositionComponent positionComponent, final double radian) {
+            final PositionComponent positionComponent, double radian) {
         return new Point(
                 (float) Math.cos(radian * Math.PI) + positionComponent.position().x,
                 (float) Math.sin(radian * Math.PI) + positionComponent.position().y);
@@ -63,7 +61,7 @@ public class DropItemsInteraction implements BiConsumer<Entity, Entity> {
      * @param entity Entity that holds the items to drop.
      * @param who The entity that triggered the interaction (could be null).
      */
-    public void accept(final Entity entity, final @Null Entity who) {
+    public void accept(final Entity entity, final Entity who) {
         InventoryComponent inventoryComponent =
                 entity.fetch(InventoryComponent.class)
                         .orElseThrow(

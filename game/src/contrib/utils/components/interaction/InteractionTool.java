@@ -12,14 +12,19 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /** This class provides utility methods for interacting with interactable entities in the game. */
-public class InteractionTool {
+public final class InteractionTool {
 
-    public static final Function<InteractionData, Boolean> SIMPLE_REACHABLE =
-            (interactionData -> (interactionData.ic().radius() - interactionData.dist()) > 0);
-
+    /**
+     * Interacts with the closest interactable entity.
+     *
+     * @param entity Entity The entity that is interacting.
+     */
     public static void interactWithClosestInteractable(final Entity entity) {
         interactWithClosestInteractable(entity, SIMPLE_REACHABLE);
     }
+
+    private static final Function<InteractionData, Boolean> SIMPLE_REACHABLE =
+            (interactionData -> (interactionData.ic().radius() - interactionData.dist()) > 0);
 
     /**
      * Interacts with the closest interactable entity.
@@ -66,4 +71,7 @@ public class InteractionTool {
                 Point.calculateDistance(heroPosition.position(), pc.position()),
                 Point.unitDirectionalVector(heroPosition.position(), pc.position()));
     }
+
+    private record InteractionData(
+            Entity e, PositionComponent pc, InteractionComponent ic, float dist, Point unitDir) {}
 }
