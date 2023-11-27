@@ -183,7 +183,6 @@ public final class DrawComponent implements Component {
         for (IPath path : next) {
             // is an existing animation of the component
             if (animationMap.containsKey(path.pathString())) {
-                // only add the first Animation of a certain priority
                 // check if the path is already queued
                 if (animationQueue.containsKey(path)) {
                     // update time of the animation
