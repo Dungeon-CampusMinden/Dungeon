@@ -14,7 +14,7 @@ import java.util.Optional;
  * Utility class for level generation containing methods to parse tile layouts, determine door
  * directions, and find doors in a given direction.
  */
-public class GeneratorUtils {
+public final class GeneratorUtils {
 
     /**
      * Get the LevelElement[][] for a Tile[][].
