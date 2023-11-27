@@ -8,8 +8,8 @@ import core.level.elements.tile.SkipTile;
 import core.level.elements.tile.WallTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
-
 import core.utils.components.path.SimpleIPath;
+
 import org.junit.Test;
 
 public class TileTest {
@@ -35,10 +35,14 @@ public class TileTest {
         Tile south = new FloorTile(new SimpleIPath(""), new Coordinate(0, -1), DesignLabel.DEFAULT);
         Tile east = new FloorTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
         Tile west = new FloorTile(new SimpleIPath(""), new Coordinate(-1, 0), DesignLabel.DEFAULT);
-        Tile northEast = new FloorTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT);
-        Tile northWest = new FloorTile(new SimpleIPath(""), new Coordinate(-1, 1), DesignLabel.DEFAULT);
-        Tile southEast = new FloorTile(new SimpleIPath(""), new Coordinate(1, -1), DesignLabel.DEFAULT);
-        Tile southWest = new FloorTile(new SimpleIPath(""), new Coordinate(-1, -1), DesignLabel.DEFAULT);
+        Tile northEast =
+                new FloorTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT);
+        Tile northWest =
+                new FloorTile(new SimpleIPath(""), new Coordinate(-1, 1), DesignLabel.DEFAULT);
+        Tile southEast =
+                new FloorTile(new SimpleIPath(""), new Coordinate(1, -1), DesignLabel.DEFAULT);
+        Tile southWest =
+                new FloorTile(new SimpleIPath(""), new Coordinate(-1, -1), DesignLabel.DEFAULT);
 
         Tile.Direction[] northToSouth = north.directionTo(south);
         assertEquals(1, northToSouth.length);

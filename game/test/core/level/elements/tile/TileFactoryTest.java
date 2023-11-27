@@ -7,8 +7,8 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-
 import core.utils.components.path.SimpleIPath;
+
 import org.junit.Test;
 
 public class TileFactoryTest {
@@ -18,7 +18,10 @@ public class TileFactoryTest {
     public void createSKIPTile() {
         Tile t =
                 TileFactory.createTile(
-                        new SimpleIPath(""), new Coordinate(0, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
+                        new SimpleIPath(""),
+                        new Coordinate(0, 0),
+                        LevelElement.SKIP,
+                        DesignLabel.DEFAULT);
         assertEquals(SkipTile.class, t.getClass());
         assertEquals(0, t.coordinate().x);
         assertEquals(0, t.coordinate().y);
@@ -32,7 +35,10 @@ public class TileFactoryTest {
     public void createFLOORTile() {
         Tile t =
                 TileFactory.createTile(
-                        new SimpleIPath(""), new Coordinate(0, 0), LevelElement.FLOOR, DesignLabel.DEFAULT);
+                        new SimpleIPath(""),
+                        new Coordinate(0, 0),
+                        LevelElement.FLOOR,
+                        DesignLabel.DEFAULT);
         assertEquals(FloorTile.class, t.getClass());
         assertEquals(0, t.coordinate().x);
         assertEquals(0, t.coordinate().y);
@@ -46,7 +52,10 @@ public class TileFactoryTest {
     public void createWALLTile() {
         Tile t =
                 TileFactory.createTile(
-                        new SimpleIPath(""), new Coordinate(0, 0), LevelElement.WALL, DesignLabel.DEFAULT);
+                        new SimpleIPath(""),
+                        new Coordinate(0, 0),
+                        LevelElement.WALL,
+                        DesignLabel.DEFAULT);
         assertEquals(WallTile.class, t.getClass());
         assertEquals(0, t.coordinate().x);
         assertEquals(0, t.coordinate().y);
@@ -60,7 +69,10 @@ public class TileFactoryTest {
     public void createHOLETile() {
         Tile t =
                 TileFactory.createTile(
-                        new SimpleIPath(""), new Coordinate(0, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
+                        new SimpleIPath(""),
+                        new Coordinate(0, 0),
+                        LevelElement.HOLE,
+                        DesignLabel.DEFAULT);
         assertEquals(HoleTile.class, t.getClass());
         assertEquals(0, t.coordinate().x);
         assertEquals(0, t.coordinate().y);
@@ -74,7 +86,10 @@ public class TileFactoryTest {
     public void createEXITTile() {
         Tile t =
                 TileFactory.createTile(
-                        new SimpleIPath(""), new Coordinate(0, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
+                        new SimpleIPath(""),
+                        new Coordinate(0, 0),
+                        LevelElement.EXIT,
+                        DesignLabel.DEFAULT);
         assertEquals(ExitTile.class, t.getClass());
         assertEquals(0, t.coordinate().x);
         assertEquals(0, t.coordinate().y);
@@ -88,7 +103,10 @@ public class TileFactoryTest {
     public void createDOORTile() {
         Tile t =
                 TileFactory.createTile(
-                        new SimpleIPath(".png"), new Coordinate(0, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
+                        new SimpleIPath(".png"),
+                        new Coordinate(0, 0),
+                        LevelElement.DOOR,
+                        DesignLabel.DEFAULT);
         assertEquals(DoorTile.class, t.getClass());
         assertEquals(0, t.coordinate().x);
         assertEquals(0, t.coordinate().y);

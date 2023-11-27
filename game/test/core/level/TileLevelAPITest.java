@@ -23,9 +23,9 @@ import core.utils.Point;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.TextureMap;
-
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
