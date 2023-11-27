@@ -279,4 +279,30 @@ Die wesentliche Komponente ist `inventory_component`. Dem `inventory_component` 
     chest.inventory_component.add(scroll);
 ```
 
-### Verknüpfung der Spielelement mit der Aufgabendefinition
+### Event-Handler-Funktionen registrieren
+
+### Verknüpfung der Spielelemente mit Aufgabendefinitionen
+
+Ziel der Szenario-Builder-Methoden ist es, abstrakte Aufgabendefinitionen in ein konkretes Spielszenario abzubilden.
+Dafür müssen aus der Aufgabedefinition Spielelemente erstellt werden, wie in den oberen Kapiteln gezeigt.
+In den bisherigen Erklärungen wurde noch keine Verbindung zwischen den Spielelementen und der Aufgabendefinition hergestellt.
+Diese Verbindung ist wichtig für die Bearbeitung einer Aufgabe im Dungeon-Kontext, da Spielende z. B. verstehen müssen,
+welches Spielelemente welche Antwortmöglichkeit einer Single-Choice-Frage darstellt.
+Diese Verknüpfung ist auch für die Bewertung einer Aufgabe wichtig, da aus dem Spielzustand Rückschlüsse über gegebene
+Antworten etc. gezogen werden müssen.
+
+#### Manager-Entität
+
+Jeder Aufgabe muss eine Manager-Entität haben, welche das zentrale Interaktionselement für die Bearbeitung einer Aufgabe
+darstellt. Über diese Manager-Entität kann der Aufgabentext angezeigt werden und eine Antwort auf eine Aufgabe abgegeben
+werden. In folgender Abbildung ist zu sehen, wie die Interaktion mit einer Manager-Entität, die als Ritter dargestellt ist,
+aussieht:
+
+![Abbildung: Aufgabe abgeben](img/scenario_builder_manager_entity.png)
+
+Im abgebildeten Beispiel wird die Aufgabe (aus dem [Beispiel](#beispiel)) gestellt. Der
+Aufgabenname ist rot umrandet, der Aufgabentext (der Wert der
+[`description`-Eigenschaft](task_definition.md#beschreibung-der-eigenschaften)) und ein szenario-spezifischer Text.
+Der szenario-spezifische Text soll Spielenden dabei helfen, zu verstehen, welche Aktionen sie im Spiellevel
+durchführen müssen, um die Aufgabe zu bearbeiten.
+
