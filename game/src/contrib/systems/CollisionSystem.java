@@ -22,11 +22,14 @@ import java.util.stream.Stream;
  * <p>Each CollideComponent should only be informed when a collision begins or ends. For this, a map
  * with all currently active collisions is stored and allows informing the entities when a collision
  * ended.
+ *
+ * <p>Entities with the {@link CollideComponent} will be processed by this system.
  */
 public final class CollisionSystem extends System {
 
     private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
+    /** Create a new CollisionSystem. */
     public CollisionSystem() {
         super(CollideComponent.class);
     }

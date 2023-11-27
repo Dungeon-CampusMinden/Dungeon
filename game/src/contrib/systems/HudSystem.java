@@ -17,6 +17,8 @@ import java.util.Optional;
 /**
  * The basic handling of any UIComponent. Adds them to the Stage, updates the Stage each Frame to
  * allow EventHandling.
+ *
+ * <p>Entities with the {@link UIComponent} will be processed by this system.
  */
 public final class HudSystem extends System {
 
@@ -28,7 +30,7 @@ public final class HudSystem extends System {
 
     private final Map<Entity, UIComponent> entityUIComponentMap = new HashMap<>();
 
-    /** The HudSystem needs the UIComponent to work. */
+    /** Create a new HudSystem. */
     public HudSystem() {
         super(UIComponent.class);
         onEntityAdd = this::addListener;
@@ -78,9 +80,9 @@ public final class HudSystem extends System {
         if (previous != null) {
             previous.remove();
         }
-        UIComponent previousuicomponent = entityUIComponentMap.put(entity, component);
-        if (previousuicomponent != null) {
-            previousuicomponent.onClose().execute();
+        UIComponent previousUiComponent = entityUIComponentMap.put(entity, component);
+        if (previousUiComponent != null) {
+            previousUiComponent.onClose().execute();
         }
     }
 
@@ -92,7 +94,7 @@ public final class HudSystem extends System {
 
     @Override
     public void execute() {
-        if (entityStream().anyMatch(e -> pausesGame(e))) pauseGame();
+        if (entityStream().anyMatch(this::pausesGame)) pauseGame();
         else unpauseGame();
     }
 

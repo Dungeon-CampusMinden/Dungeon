@@ -20,9 +20,13 @@ import core.utils.components.MissingComponentException;
  *
  * <p>The components required for this system are {@link ProjectileComponent}, {@link
  * PositionComponent}, and {@link VelocityComponent}.
+ *
+ * <p>Entities with the {@link ProjectileComponent}, a {@link PositionComponent} and {@link
+ * VelocityComponent} will be processed by this system.
  */
-public class ProjectileSystem extends System {
+public final class ProjectileSystem extends System {
 
+    /** Create a new ProjectileSystem. */
     public ProjectileSystem() {
         super(ProjectileComponent.class, PositionComponent.class, VelocityComponent.class);
     }

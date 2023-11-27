@@ -23,8 +23,11 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * The HealthBarSystem creates a progress bar which follows the associated Entity and shows the
- * current healthPercentage.
+ * Creates a progress bar which follows the associated Entity and shows the current health
+ * percentage. *
+ *
+ * <p>Entities with the {@link HealthComponent} and {@link PositionComponent} will be processed by
+ * this system.
  */
 public final class HealthBarSystem extends System {
 
@@ -44,6 +47,7 @@ public final class HealthBarSystem extends System {
     /** Mapping from actual entity and health bar of this entity. */
     private final Map<Integer, ProgressBar> healthBarMapping = new HashMap<>();
 
+    /** Create a new HealthBarSystem */
     public HealthBarSystem() {
         super(HealthComponent.class, PositionComponent.class);
         this.onEntityAdd =

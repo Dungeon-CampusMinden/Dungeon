@@ -18,9 +18,13 @@ import java.util.stream.Stream;
 /**
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
  * the death of an entity when the health-points have fallen below 0.
+ *
+ * <p>Entities with the {@link HealthComponent} and {@link DrawComponent} will be processed by this
+ * system.
  */
 public final class HealthSystem extends System {
 
+    /** Create a new HealthSystem. */
     public HealthSystem() {
         super(HealthComponent.class, DrawComponent.class);
     }
