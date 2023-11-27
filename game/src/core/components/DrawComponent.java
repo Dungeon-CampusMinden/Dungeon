@@ -430,9 +430,28 @@ public final class DrawComponent implements Component {
                 animationMap =
                         Arrays.stream(Objects.requireNonNull(apps.listFiles()))
                                 .filter(File::isDirectory)
-                                .collect(Collectors.toMap(File::getName, Animation::fromSubDir));
+                                .collect(
+                                        Collectors.toMap(
+                                                File::getName,
+                                                DrawComponent::allFilesFromDirectory));
             } catch (URISyntaxException ignored) {
             }
         }
+    }
+
+    /**
+     * @param subDir in which to look for files for the animation
+     * @return a basic configured Animation
+     */
+    private static Animation allFilesFromDirectory(final File subDir) {
+        return Animation.fromCollection(
+                Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
+                        // only look for direct Files no recursive search
+                        .filter(File::isFile)
+                        // File object needs to be converted to IPath
+                        .map(file -> new SimpleIPath(file.getPath()))
+                        // sort by name streams may lose the ordering by name
+                        .sorted(Comparator.comparing(SimpleIPath::pathString))
+                        .collect(Collectors.toList()));
     }
 }

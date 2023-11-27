@@ -3,17 +3,15 @@ package core.utils.components.draw;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
-import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * An Animation is what you see when a {@link core.Entity} is drawn on the screen.
  *
  * <p>An Animation is basically just a list of different Image files.
  *
- * <p>Use {@link #fromCollection(Collection)} or {@link #fromSingleImage(IPath)} or {@link
- * #fromSubDir(File)} to create an Animation.
+ * <p>Use {@link #fromCollection(Collection)} or {@link #fromSingleImage(IPath)} to create an
+ * Animation.
  *
  * <p>Animations are stored inside the {@link core.components.DrawComponent}.
  *
@@ -104,43 +102,6 @@ public final class Animation {
     public static Animation fromCollection(
             final Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {
         return new Animation(animationFrames, frameTime, looping, prio);
-    }
-
-    /**
-     * Create an animation from the files in the given path and the given configuration.
-     *
-     * <p>Will sort the textures in lexicographic order. This is the order in which the animations
-     * will be shown.
-     *
-     * @param subDir Path to the subdirectory where the animation frames are stored
-     * @param frameTime How many frames to wait, before switching to the next texture?
-     * @param loop should the Animation continue to repeat ?
-     * @param prio priority for playing this animation
-     * @return The created Animation instance
-     */
-    public static Animation fromSubDir(final File subDir, int frameTime, boolean loop, int prio) {
-        List<IPath> fileNames =
-                Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
-                        .filter(File::isFile)
-                        .map(file -> new SimpleIPath(file.getPath()))
-                        // sort the files in lexicographic order (like the most os) so animations
-                        // will be played in order
-                        .sorted(Comparator.comparing(SimpleIPath::pathString))
-                        .collect(Collectors.toList());
-        return new Animation(fileNames, frameTime, loop, prio);
-    }
-
-    /**
-     * Create an animation from the files in the given path and the default configuration.
-     *
-     * <p>Will sort the textures in lexicographic order. This is the order in which the animations
-     * will be shown.
-     *
-     * @param subDir Path to the subdirectory where the animation frames are stored
-     * @return The created Animation instance
-     */
-    public static Animation fromSubDir(final File subDir) {
-        return Animation.fromSubDir(subDir, DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, DEFAULT_PRIO);
     }
 
     /**
