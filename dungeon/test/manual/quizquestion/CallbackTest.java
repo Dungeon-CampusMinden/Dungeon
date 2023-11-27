@@ -5,7 +5,7 @@ import com.badlogic.gdx.Input;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
-import contrib.hud.UIUtils;
+import contrib.hud.dialogs.TextDialog;
 import contrib.systems.*;
 
 import core.Entity;
@@ -122,7 +122,7 @@ public class CallbackTest {
                     .map(t -> (Quiz.Content) t)
                     .forEach(
                             t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
-            UIUtils.textDialog(answers.get(), "Ok", "Given answer");
+            TextDialog.textDialog(answers.get(), "Ok", "Given answer");
         };
     }
 

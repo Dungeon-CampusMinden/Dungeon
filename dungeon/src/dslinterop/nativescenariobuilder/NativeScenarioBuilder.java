@@ -5,8 +5,8 @@ import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.entities.EntityFactory;
 import contrib.entities.WorldItemBuilder;
-import contrib.hud.UIUtils;
 import contrib.hud.dialogs.OkDialog;
+import contrib.hud.dialogs.TextDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.draw.ChestAnimations;
@@ -223,7 +223,7 @@ public class NativeScenarioBuilder {
         return (task, taskContents) -> {
             float score = task.gradeTask(taskContents);
             task.managerEntity().get().remove(InteractionComponent.class);
-            UIUtils.textDialog("Your score: " + score, "Ok", "Given answer");
+            TextDialog.textDialog("Your score: " + score, "Ok", "Given answer");
         };
     }
 
