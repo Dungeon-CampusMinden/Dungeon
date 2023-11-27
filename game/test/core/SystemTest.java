@@ -7,11 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SystemTest {
-    private class DummyComponent implements Component {}
-
     private System ts;
-    private boolean[] onAdd = {false};
-    private boolean[] onRemove = {false};
+    private final boolean[] onAdd = {false};
+    private final boolean[] onRemove = {false};
 
     @Before
     public void setup() {
@@ -44,4 +42,6 @@ public class SystemTest {
         ts.triggerOnRemove(e);
         assertTrue(onRemove[0]);
     }
+
+    private class DummyComponent implements Component {}
 }

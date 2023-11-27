@@ -1,6 +1,7 @@
 package core;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
@@ -9,8 +10,8 @@ import org.mockito.Mockito;
 
 public class EntityTest {
 
-    private Entity entity;
     private final Component testComponent = Mockito.mock(Component.class);
+    private Entity entity;
 
     @Before
     public void setup() {

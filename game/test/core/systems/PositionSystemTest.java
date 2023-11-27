@@ -1,6 +1,7 @@
 package core.systems;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import core.Entity;
 import core.Game;
@@ -20,9 +21,9 @@ import org.mockito.Mockito;
 public class PositionSystemTest {
 
     private PositionSystem system;
-    private Tile mock = Mockito.mock(FloorTile.class);
-    private Point point = new Point(3, 3);
-    private ILevel level = Mockito.mock(ILevel.class);
+    private final Tile mock = Mockito.mock(FloorTile.class);
+    private final Point point = new Point(3, 3);
+    private final ILevel level = Mockito.mock(ILevel.class);
     private Entity entity;
     private PositionComponent pc;
 

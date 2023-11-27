@@ -26,18 +26,8 @@ import core.utils.components.MissingComponentException;
  * @see CameraComponent
  */
 public final class CameraSystem extends System {
-    private static final float FIELD_WIDTH_AND_HEIGHT_IN_PIXEL = 16f;
-
-    private static float viewportWidth() {
-        return Game.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
-    }
-
-    private static float viewportHeight() {
-        return Game.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
-    }
-
     public static final float DEFAULT_ZOOM_FACTOR = 0.35f;
-
+    private static final float FIELD_WIDTH_AND_HEIGHT_IN_PIXEL = 16f;
     private static final OrthographicCamera CAMERA =
             new OrthographicCamera(viewportWidth(), viewportHeight());
 
@@ -48,6 +38,36 @@ public final class CameraSystem extends System {
     /** Creat a new {@link CameraSystem} */
     public CameraSystem() {
         super(CameraComponent.class, PositionComponent.class);
+    }
+
+    private static float viewportWidth() {
+        return Game.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    }
+
+    private static float viewportHeight() {
+        return Game.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    }
+
+    /**
+     * Checks if point (x,y) is probably visible on screen. Points that are not visible should not
+     * be rendered.
+     */
+    public static boolean isPointInFrustum(float x, float y) {
+        final float OFFSET = 1f;
+        BoundingBox bounds =
+                new BoundingBox(
+                        new Vector3(x - OFFSET, y - OFFSET, 0),
+                        new Vector3(x + OFFSET, y + OFFSET, 0));
+        return CAMERA.frustum.boundsInFrustum(bounds);
+    }
+
+    /**
+     * Getter for the camera
+     *
+     * @return Orthographic Camera from the libGDX Framework
+     */
+    public static OrthographicCamera camera() {
+        return CAMERA;
     }
 
     @Override
@@ -83,27 +103,5 @@ public final class CameraSystem extends System {
 
     private void focus(Point point) {
         CAMERA.position.set(point.x, point.y, 0);
-    }
-
-    /**
-     * Checks if point (x,y) is probably visible on screen. Points that are not visible should not
-     * be rendered.
-     */
-    public static boolean isPointInFrustum(float x, float y) {
-        final float OFFSET = 1f;
-        BoundingBox bounds =
-                new BoundingBox(
-                        new Vector3(x - OFFSET, y - OFFSET, 0),
-                        new Vector3(x + OFFSET, y + OFFSET, 0));
-        return CAMERA.frustum.boundsInFrustum(bounds);
-    }
-
-    /**
-     * Getter for the camera
-     *
-     * @return Orthographic Camera from the libGDX Framework
-     */
-    public static OrthographicCamera camera() {
-        return CAMERA;
     }
 }

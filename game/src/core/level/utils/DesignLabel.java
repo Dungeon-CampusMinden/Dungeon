@@ -14,13 +14,14 @@ public enum DesignLabel {
     DARK(0), // 0% chance //we have no closed doors texture
     RAINBOW(1); // 1% chance
 
-    private final int chance;
     private static final Random RANDOM = new Random();
     private static final List<DesignLabel> VALUES = new ArrayList<>();
 
     static {
         for (DesignLabel l : values()) for (int i = 0; i < l.chance; i++) VALUES.add(l);
     }
+
+    private final int chance;
 
     /**
      * Create a new label.

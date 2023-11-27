@@ -1,6 +1,7 @@
 package core.components;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;

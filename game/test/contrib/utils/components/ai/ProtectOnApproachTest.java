@@ -14,11 +14,11 @@ import core.utils.Point;
 import org.junit.Before;
 
 public class ProtectOnApproachTest {
+    private final Point pointOfProtect = new Point(0, 0);
     private Entity entity;
     private AIComponent entityAI;
     private Entity protectedEntity;
     private Entity hero;
-    private final Point pointOfProtect = new Point(0, 0);
 
     @Before
     public void setup() {

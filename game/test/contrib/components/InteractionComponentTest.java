@@ -1,7 +1,8 @@
 package contrib.components;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import core.Entity;
 

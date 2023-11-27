@@ -12,7 +12,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
 
 import contrib.components.InventoryComponent;
-import contrib.crafting.*;
+import contrib.crafting.Crafting;
+import contrib.crafting.CraftingResult;
+import contrib.crafting.CraftingType;
+import contrib.crafting.Recipe;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.elements.ImageButton;
@@ -118,9 +121,9 @@ public class CraftingGUI extends CombinableGUI {
     }
 
     private final ArrayList<Item> items = new ArrayList<>();
-    private Recipe currentRecipe = null;
     private final ImageButton buttonOk, buttonCancel;
     private final InventoryComponent targetInventory;
+    private Recipe currentRecipe = null;
 
     /**
      * Create a CraftingGUI that has the given InventoryComponent as target inventory for

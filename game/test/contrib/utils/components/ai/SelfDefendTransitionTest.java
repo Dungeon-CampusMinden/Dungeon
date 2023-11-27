@@ -29,6 +29,7 @@ public class SelfDefendTransitionTest {
 
         assertFalse(defend.apply(entity));
     }
+
     /**
      * tests if the isInFight method returns true when the current HealthPoints of an entity are
      * lower than its max HealthPoints

@@ -4,20 +4,6 @@ import core.level.Tile;
 
 public class TileTextureFactory {
     /**
-     * Helper record class for {@link TileTextureFactory}.
-     *
-     * @param element Element to check for
-     * @param design Design of the element
-     * @param layout The level
-     * @param position Position of the element.
-     */
-    public record LevelPart(
-            LevelElement element,
-            DesignLabel design,
-            LevelElement[][] layout,
-            Coordinate position) {}
-
-    /**
      * Checks which texture must be used for the passed field based on the surrounding fields.
      *
      * @param levelPart a part of a level
@@ -895,4 +881,18 @@ public class TileTextureFactory {
             return false;
         }
     }
+
+    /**
+     * Helper record class for {@link TileTextureFactory}.
+     *
+     * @param element Element to check for
+     * @param design Design of the element
+     * @param layout The level
+     * @param position Position of the element.
+     */
+    public record LevelPart(
+            LevelElement element,
+            DesignLabel design,
+            LevelElement[][] layout,
+            Coordinate position) {}
 }

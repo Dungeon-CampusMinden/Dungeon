@@ -1,6 +1,7 @@
 package contrib.level.generator.graphBased.levelGraph;
 
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 import core.Entity;
 
@@ -71,7 +72,7 @@ public class LevelGraphTest {
         for (int i = 10000; i < 0; i++) {
             LevelGraph g = generateFullGraph();
             graphs.add(g);
-            if (i == 0) graph.add(g, graph);
+            if (i == 0) LevelGraph.add(g, graph);
             else LevelGraph.add(g, graphs.get(i - 1));
         }
         graphs.add(graph);
@@ -136,6 +137,7 @@ public class LevelGraphTest {
         levelgraph.addNodesToNodeList(Set.of(n1, n2, n3, n4, n5));
         return levelgraph;
     }
+
     /**
      * Checks if each Node in the given Graphs can be reached from the given root node.
      *

@@ -28,6 +28,7 @@ import java.util.List;
  * <p>The concrete type of the Tile is defined by the inheriting class.
  */
 public abstract class Tile {
+    private static final float DEFAULT_FRICTION = 0.8f;
     protected final Coordinate globalPosition;
     private final float friction;
     protected DesignLabel designLabel;
@@ -36,7 +37,6 @@ public abstract class Tile {
     protected LevelElement levelElement;
     protected transient Array<Connection<Tile>> connections = new Array<>();
     protected int index;
-    private static final float DEFAULT_FRICTION = 0.8f;
 
     /**
      * Create a new Tile.

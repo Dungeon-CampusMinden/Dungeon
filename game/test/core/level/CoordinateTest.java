@@ -1,6 +1,7 @@
 package core.level;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import core.level.utils.Coordinate;
 import core.utils.Point;
@@ -11,7 +12,8 @@ import org.junit.Test;
 public class CoordinateTest {
 
     private Coordinate coordinate;
-    private int x = 3, y = -3;
+    private final int x = 3;
+    private final int y = -3;
 
     @Before
     public void setup() {

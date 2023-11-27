@@ -55,6 +55,24 @@ public final class DrawSystem extends System {
     }
 
     /**
+     * Get the {@link Painter} that is used by this system.
+     *
+     * @return the {@link #PAINTER} of the DrawSystem
+     */
+    public static Painter painter() {
+        return PAINTER;
+    }
+
+    /**
+     * Get the {@link SpriteBatch} that is used by this system.
+     *
+     * @return the {@link #BATCH} of the DrawSystem
+     */
+    public static SpriteBatch batch() {
+        return BATCH;
+    }
+
+    /**
      * Will draw entities at their position with their current animation.
      *
      * <p>All entities with a {@link PlayerComponent} will be drawn on top.
@@ -127,24 +145,6 @@ public final class DrawSystem extends System {
             // changing the Animation
             dc.currentAnimation(highestPrio);
         }
-    }
-
-    /**
-     * Get the {@link Painter} that is used by this system.
-     *
-     * @return the {@link #PAINTER} of the DrawSystem
-     */
-    public static Painter painter() {
-        return PAINTER;
-    }
-
-    /**
-     * Get the {@link SpriteBatch} that is used by this system.
-     *
-     * @return the {@link #BATCH} of the DrawSystem
-     */
-    public static SpriteBatch batch() {
-        return BATCH;
     }
 
     /** DrawSystem can't be paused */
