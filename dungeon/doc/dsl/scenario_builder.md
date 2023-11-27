@@ -234,12 +234,13 @@ fn build_scenario(single_choice_task task) -> entity<><> {
 }
 ```
 
-Ein Item ist keine Entität. Die Platzierung von `quest_item`s in einem Raum setzt die Verwendung der nativen
+Ein Item ist keine Entität. Die Platzierung von `quest_item`s in einem Raum setzt daher die Verwendung der nativen
 `place_quest_item`-Funktion voraus, mit der ein `quest_item` in eine Entitätsmenge integriert wird. Intern erstellt
 diese Funktion eine neue Entität, die das `quest_item` kapselt. Diese neue Entität wird anschließend wie jede andere
-Entität im Raum platziert. Es liegt dann dort "auf dem Boden".
+Entität im Raum platziert. Die Entität liegt dann dort "auf dem Boden". Ein Beispiel dafür in folgender Abbildung,
+in der drei auf diese Art platzierte Schriftrollen zu sehen sind:
 
-TODO: screenshot
+![Abbildung: Schriftrollen auf dem Boden](img/scenario_builder_room2.png)
 
 ### Items in einem Inventar platzieren
 
@@ -266,13 +267,16 @@ Die wesentliche Komponente ist `inventory_component`. Dem `inventory_component` 
 `quest_item`s hinzugefügt werden:
 
 ```
+    // Erstellen von quest_item
     var scroll : quest_item;
     scroll = build_quest_item(mushroom_type, content);
 
+    // Instanziieren der Truhe
     var chest : entity:
     chest = instantiate(chest);
+
+    // Hinzufügen des quest_items zum inventory_component der Truhe
     chest.inventory_component.add(scroll);
 ```
 
-TODO: screenshot
 ### Verknüpfung der Spielelement mit der Aufgabendefinition
