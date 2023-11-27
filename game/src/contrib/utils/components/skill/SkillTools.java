@@ -12,7 +12,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 /** SkillTools is a collection of helper methods used for skills. */
-public class SkillTools {
+public final class SkillTools {
 
     /**
      * A skill has a range in which it is effective. This is a calculation of the last position in
@@ -24,7 +24,7 @@ public class SkillTools {
      * @return The last position in the range from startPoint to aimPoint.
      */
     public static Point calculateLastPositionInRange(
-            final Point startPoint, final Point aimPoint, final float range) {
+            final Point startPoint, final Point aimPoint, float range) {
 
         // calculate distance from startPoint to aimPoint
         float dx = aimPoint.x - startPoint.x;
@@ -51,7 +51,7 @@ public class SkillTools {
      * @param speed The speed of movement.
      * @return The velocity vector as a Point.
      */
-    public static Point calculateVelocity(final Point start, final Point goal, final float speed) {
+    public static Point calculateVelocity(final Point start, final Point goal, float speed) {
         float x1 = start.x;
         float y1 = start.y;
         float x2 = goal.x;
@@ -85,7 +85,7 @@ public class SkillTools {
         PositionComponent pc =
                 Game.hero()
                         .orElseThrow(
-                                () -> new MissingHeroException("Can't fetch position of hero."))
+                                () -> new MissingHeroException("There is no hero in the game."))
                         .fetch(PositionComponent.class)
                         .orElseThrow(
                                 () ->
