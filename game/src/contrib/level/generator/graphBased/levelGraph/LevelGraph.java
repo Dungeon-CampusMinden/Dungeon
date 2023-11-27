@@ -27,7 +27,7 @@ import java.util.*;
  *
  * <p>Use {@link #add(Set)} to add a new entity collection and thus a new node to the graph.
  */
-public class LevelGraph {
+public final class LevelGraph {
     private static final Random RANDOM = new Random();
     private final Set<LevelNode> nodes = new HashSet<>();
     private LevelNode root;
@@ -102,9 +102,9 @@ public class LevelGraph {
      * Search for the first pair of nodes (one from each list) that can be connected (have suitable
      * available edges).
      *
-     * @param connect List with nodes (for example, from graph A)
-     * @param with List with nodes (for example, from graph B)
-     * @return Tuple with the first found matching node pair Tuple<NodeFromListA, NodeFromListB>
+     * @param connect List with nodes (for example, from graph A).
+     * @param with List with nodes (for example, from graph B).
+     * @return Tuple with the first found matching node pair Tuple<NodeFromListA, NodeFromListB>.
      */
     private static Optional<Tuple<LevelNode, LevelNode>> matchingEdges(
             final List<LevelNode> connect, final List<LevelNode> with) {

@@ -21,7 +21,7 @@ import java.util.Random;
  * Supports are generated in rooms with a big baseFloor. Finally, doors are generated at the
  * outermost walls for every given door direction.
  */
-public class RoomGenerator {
+public final class RoomGenerator {
 
     private static final int WALL_BUFFER = 2;
     private static final float EXTEND_TO_SIDES = 0.5f;
@@ -43,25 +43,54 @@ public class RoomGenerator {
     private Random random;
 
     /**
+     * Get the layout of the room for debugging as String.
+     *
+     * @param layout The layout of the room.
+     * @param size The size of the room.
+     */
+    public static String layoutToString(final LevelElement[][] layout, final LevelSize size) {
+        StringBuilder result = new StringBuilder();
+        result.append("LevelSize: ").append(size.name()).append("\n");
+        result.append("xSize: ").append(layout[0].length).append("\n");
+        result.append("ySize: ").append(layout.length).append("\n");
+
+        for (int y = layout.length - 1; y >= 0; y--) {
+            for (int x = 0; x < layout[0].length; x++) {
+                switch (layout[y][x]) {
+                    case SKIP -> result.append("  ");
+                    case FLOOR -> result.append(". ");
+                    case WALL -> result.append("W ");
+                    case EXIT -> result.append("E ");
+                    case HOLE -> result.append("H ");
+                    case DOOR -> result.append("D ");
+                }
+            }
+            result.append("\n");
+        }
+        return result.toString();
+    }
+
+    /**
      * Generates a random room layout with the given parameters.
      *
-     * @param size Size of the room
-     * @param doors Array of DoorDirections to specify where doors should be generated
-     * @return The generated room layout
+     * @param size Size of the room.
+     * @param doors Array of DoorDirections to specify where doors should be generated.
+     * @return The generated room layout.
      */
-    public LevelElement[][] layout(LevelSize size, LevelNode[] doors) {
+    public LevelElement[][] layout(final LevelSize size, final LevelNode[] doors) {
         return generateRoom(size, RANDOM.nextLong(), doors);
     }
 
     /**
      * Generates a room layout with the given parameters.
      *
-     * @param size Size of the room
-     * @param seed Seed to initialize the random number generator
-     * @param doors Array of DoorDirections to specify where doors should be generated
-     * @return The generated room layout
+     * @param size Size of the room.
+     * @param seed Seed to initialize the random number generator.
+     * @param doors Array of DoorDirections to specify where doors should be generated.
+     * @return The generated room layout.
      */
-    private LevelElement[][] generateRoom(LevelSize size, long seed, LevelNode[] doors) {
+    private LevelElement[][] generateRoom(
+            final LevelSize size, long seed, final LevelNode[] doors) {
         // Initialize random number generator with seed
         random = new Random(seed);
 
@@ -179,13 +208,16 @@ public class RoomGenerator {
     /**
      * Extends the baseFloor to the maxArea on random sides.
      *
-     * @param layout The layout of the level
-     * @param maxArea Maximum area of the room on which FloorTiles can be placed
-     * @param baseFloorPadding Padding of the baseFloor
-     * @param baseFloor Area of the baseFloor
+     * @param layout The layout of the level.
+     * @param maxArea Maximum area of the room on which FloorTiles can be placed.
+     * @param baseFloorPadding Padding of the baseFloor.
+     * @param baseFloor Area of the baseFloor.
      */
     private void extendToSides(
-            LevelElement[][] layout, Area maxArea, Area baseFloorPadding, Area baseFloor) {
+            final LevelElement[][] layout,
+            final Area maxArea,
+            final Area baseFloorPadding,
+            final Area baseFloor) {
         boolean north = false;
         boolean south = false;
         boolean west = false;
@@ -247,17 +279,21 @@ public class RoomGenerator {
     /**
      * Extends the baseFloor to the maxArea in random corners.
      *
-     * @param layout The layout of the level
-     * @param maxArea Maximum area of the room on which FloorTiles can be placed
-     * @param baseFloorPadding Padding of the baseFloor
-     * @param baseFloor Area of the baseFloor
+     * @param layout The layout of the level.
+     * @param maxArea Maximum area of the room on which FloorTiles can be placed.
+     * @param baseFloorPadding Padding of the baseFloor.
+     * @param baseFloor Area of the baseFloor.
      */
     private void extendToCorners(
-            LevelElement[][] layout, Area maxArea, Area baseFloorPadding, Area baseFloor) {
+            final LevelElement[][] layout,
+            final Area maxArea,
+            final Area baseFloorPadding,
+            final Area baseFloor) {
         boolean upperLeft = false;
         boolean upperRight = false;
         boolean lowerLeft = false;
         boolean lowerRight = false;
+        int i = WALL_BUFFER + baseFloorPadding.y + baseFloor.y - baseFloor.y / 2 + 1;
         if (random.nextFloat() < PROBABILITY_CORNER) {
             upperLeft = true;
         }
@@ -271,9 +307,7 @@ public class RoomGenerator {
             lowerRight = true;
         }
         if (upperLeft) {
-            for (int y = WALL_BUFFER + baseFloorPadding.y + baseFloor.y - baseFloor.y / 2 + 1;
-                    y < WALL_BUFFER + maxArea.y;
-                    y++) {
+            for (int y = i; y < WALL_BUFFER + maxArea.y; y++) {
                 for (int x = WALL_BUFFER;
                         x < WALL_BUFFER + baseFloorPadding.x + baseFloor.x / 2 - 1;
                         x++) {
@@ -282,12 +316,8 @@ public class RoomGenerator {
             }
         }
         if (upperRight) {
-            for (int y = WALL_BUFFER + baseFloorPadding.y + baseFloor.y - baseFloor.y / 2 + 1;
-                    y < WALL_BUFFER + maxArea.y;
-                    y++) {
-                for (int x = WALL_BUFFER + baseFloorPadding.x + baseFloor.x - baseFloor.x / 2 + 1;
-                        x < WALL_BUFFER + maxArea.x;
-                        x++) {
+            for (int y = i; y < WALL_BUFFER + maxArea.y; y++) {
+                for (int x = i; x < WALL_BUFFER + maxArea.x; x++) {
                     layout[y][x] = LevelElement.FLOOR;
                 }
             }
@@ -319,11 +349,12 @@ public class RoomGenerator {
     /**
      * Adds four 3x3 support columns to the room layout.
      *
-     * @param layout The layout of the level
-     * @param baseFloorPadding Padding of the baseFloor
-     * @param baseFloor Area of the baseFloor
+     * @param layout The layout of the level.
+     * @param baseFloorPadding Padding of the baseFloor.
+     * @param baseFloor Area of the baseFloor.
      */
-    private void addSupports(LevelElement[][] layout, Area baseFloorPadding, Area baseFloor) {
+    private void addSupports(
+            final LevelElement[][] layout, final Area baseFloorPadding, final Area baseFloor) {
         int leftSupportLeftSide = WALL_BUFFER + baseFloorPadding.x + baseFloor.x / 5;
         int leftSupportRightSide = WALL_BUFFER + baseFloorPadding.x + baseFloor.x / 5 + 2;
         int bottomSupportBottomSide = WALL_BUFFER + baseFloorPadding.y + baseFloor.y / 5;
@@ -385,13 +416,16 @@ public class RoomGenerator {
     /**
      * Adds doors to the room layout.
      *
-     * @param doors Array of DoorDirections to specify where doors should be generated
-     * @param maxArea Maximum area of the room on which FloorTiles can be placed
-     * @param layout The layout of the level
-     * @param size Size of the level
+     * @param doors Array of DoorDirections to specify where doors should be generated.
+     * @param maxArea Maximum area of the room on which FloorTiles can be placed.
+     * @param layout The layout of the level.
+     * @param size Size of the level.
      */
     private void addDoors(
-            LevelNode[] doors, Area maxArea, LevelElement[][] layout, LevelSize size) {
+            final LevelNode[] doors,
+            final Area maxArea,
+            final LevelElement[][] layout,
+            final LevelSize size) {
         boolean north = doors[Direction.NORTH.value()] != null;
         boolean south = doors[Direction.SOUTH.value()] != null;
         boolean west = doors[Direction.WEST.value()] != null;
@@ -414,7 +448,7 @@ public class RoomGenerator {
                     break;
                 }
             }
-            if (possibleDoorCoordinates.size() == 0)
+            if (possibleDoorCoordinates.isEmpty())
                 throw new CantPlaceDoorException(layout, Direction.NORTH, size);
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
@@ -439,7 +473,7 @@ public class RoomGenerator {
                     break;
                 }
             }
-            if (possibleDoorCoordinates.size() == 0)
+            if (possibleDoorCoordinates.isEmpty())
                 throw new CantPlaceDoorException(layout, Direction.SOUTH, size);
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
@@ -464,7 +498,7 @@ public class RoomGenerator {
                     break;
                 }
             }
-            if (possibleDoorCoordinates.size() == 0)
+            if (possibleDoorCoordinates.isEmpty())
                 throw new CantPlaceDoorException(layout, Direction.WEST, size);
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
@@ -489,7 +523,7 @@ public class RoomGenerator {
                     break;
                 }
             }
-            if (possibleDoorCoordinates.size() == 0)
+            if (possibleDoorCoordinates.isEmpty())
                 throw new CantPlaceDoorException(layout, Direction.EAST, size);
             int doorIndex = random.nextInt(possibleDoorCoordinates.size());
             Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
@@ -502,12 +536,12 @@ public class RoomGenerator {
     /**
      * Checks if a Tile at given coordinate in the layout neighbors a FloorTile.
      *
-     * @param layout The layout of the room
-     * @param y Y-coordinate of Tile to check
-     * @param x X-coordinate of Tile to check
-     * @return true if at least one FloorTile is neighboring the Tile
+     * @param layout The layout of the room.
+     * @param y Y-coordinate of Tile to check.
+     * @param x X-coordinate of Tile to check.
+     * @return true if at least one FloorTile is neighboring the Tile.
      */
-    private boolean neighborsFloor(LevelElement[][] layout, int y, int x) {
+    private boolean neighborsFloor(final LevelElement[][] layout, int y, int x) {
         int floorNeighbors = 0;
         if (layout[y + 1][x - 1] == LevelElement.FLOOR) {
             floorNeighbors++;
@@ -534,34 +568,6 @@ public class RoomGenerator {
             floorNeighbors++;
         }
         return floorNeighbors > 0;
-    }
-
-    /**
-     * Get the layout of the room for debugging as String.
-     *
-     * @param layout The layout of the room
-     * @param size The size of the room
-     */
-    public static String layoutToString(LevelElement[][] layout, LevelSize size) {
-        StringBuilder result = new StringBuilder();
-        result.append("LevelSize: ").append(size.name()).append("\n");
-        result.append("xSize: ").append(layout[0].length).append("\n");
-        result.append("ySize: ").append(layout.length).append("\n");
-
-        for (int y = layout.length - 1; y >= 0; y--) {
-            for (int x = 0; x < layout[0].length; x++) {
-                switch (layout[y][x]) {
-                    case SKIP -> result.append("  ");
-                    case FLOOR -> result.append(". ");
-                    case WALL -> result.append("W ");
-                    case EXIT -> result.append("E ");
-                    case HOLE -> result.append("H ");
-                    case DOOR -> result.append("D ");
-                }
-            }
-            result.append("\n");
-        }
-        return result.toString();
     }
 
     private record MinMaxValue(int min, int max) {}

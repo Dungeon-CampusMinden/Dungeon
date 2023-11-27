@@ -22,7 +22,7 @@ public enum Direction {
      * @param from The direction from which the opposite direction is sought.
      * @return The opposite direction.
      */
-    public static Direction opposite(Direction from) {
+    public static Direction opposite(final Direction from) {
         return switch (from) {
             case NORTH -> SOUTH;
             case EAST -> WEST;

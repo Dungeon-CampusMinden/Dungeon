@@ -13,7 +13,10 @@ import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
-import core.level.utils.*;
+import core.level.utils.Coordinate;
+import core.level.utils.DesignLabel;
+import core.level.utils.LevelElement;
+import core.level.utils.LevelSize;
 import core.utils.IVoidFunction;
 
 import java.util.ArrayList;
@@ -43,14 +46,15 @@ import java.util.logging.Logger;
  *
  * <p>Now you can get a dot representation of the level graph in the log.
  */
-public class RoombasedLevelGenerator {
+public final class RoomBasedLevelGenerator {
 
     /** Rooms with this amount or fewer entities will be generated small. */
     private static final int MAX_ENTITIES_FOR_SMALL_ROOMS = 2;
     /** Rooms with this amount or more entities will be generated large. */
     private static final int MIN_ENTITIES_FOR_BIG_ROOM = 5;
 
-    private static final Logger LOGGER = Logger.getLogger(RoombasedLevelGenerator.class.getName());
+    private static final Logger LOGGER =
+            Logger.getLogger(RoomBasedLevelGenerator.class.getSimpleName());
 
     /**
      * Get a room-based level with a room for each given entity-set.
@@ -62,7 +66,7 @@ public class RoombasedLevelGenerator {
      * @param designLabel Design of the level.
      * @return The generated level.
      */
-    public static ILevel level(Set<Set<Entity>> entities, DesignLabel designLabel) {
+    public static ILevel level(final Set<Set<Entity>> entities, final DesignLabel designLabel) {
         return level(LevelGraphGenerator.generate(entities), designLabel);
     }
 
@@ -71,11 +75,11 @@ public class RoombasedLevelGenerator {
      *
      * <p>Now you can get a dot representation of the level graph in the log.
      *
-     * @param graph level graph to generate the level for.
+     * @param graph Level graph to generate the level for.
      * @param designLabel Design of the level.
      * @return The generated level.
      */
-    public static ILevel level(final LevelGraph graph, DesignLabel designLabel) {
+    public static ILevel level(final LevelGraph graph, final DesignLabel designLabel) {
         RoomGenerator roomG = new RoomGenerator();
         LOGGER.info(graph.toDot());
         // generate TileLevel for each Node
@@ -98,7 +102,7 @@ public class RoombasedLevelGenerator {
         return graph.root().level();
     }
 
-    private static LevelSize sizeFor(LevelNode node) {
+    private static LevelSize sizeFor(final LevelNode node) {
         AtomicInteger count = new AtomicInteger();
         node.entities()
                 .forEach(
@@ -120,7 +124,7 @@ public class RoombasedLevelGenerator {
      *
      * @param node Node to configure the doors for.
      */
-    private static void configureDoors(LevelNode node) {
+    private static void configureDoors(final LevelNode node) {
         for (DoorTile door : node.level().doorTiles()) {
             Direction doorDirection = GeneratorUtils.doorDirection(node.level(), door);
 
