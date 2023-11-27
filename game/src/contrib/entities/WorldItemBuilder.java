@@ -7,11 +7,11 @@ import contrib.item.Item;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.utils.Constants;
 import core.utils.Point;
 
 /** Class which creates all needed Components for a basic WorldItem */
 public final class WorldItemBuilder {
+    private static final float DEFAULT_ITEM_PICKUP_RADIUS = 2.0f;
 
     /**
      * Creates an Entity which then can be added to the game
@@ -25,9 +25,7 @@ public final class WorldItemBuilder {
         droppedItem.add(new DrawComponent(item.worldAnimation()));
         droppedItem.add(new ItemComponent(item));
 
-        droppedItem.add(
-                new InteractionComponent(
-                        Constants.DEFAULT_ITEM_PICKUP_RADIUS, true, item::collect));
+        droppedItem.add(new InteractionComponent(DEFAULT_ITEM_PICKUP_RADIUS, true, item::collect));
 
         return droppedItem;
     }

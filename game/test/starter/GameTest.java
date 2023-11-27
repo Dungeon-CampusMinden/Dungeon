@@ -1,12 +1,9 @@
 package starter;
 
-import static org.junit.Assert.*;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import core.Game;
-import core.utils.Constants;
 
 import org.junit.After;
 import org.junit.Before;
@@ -16,7 +13,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Game.class, Gdx.class, Constants.class})
+@PrepareForTest({Game.class, Gdx.class})
 class GameTest {
 
     private Game game;

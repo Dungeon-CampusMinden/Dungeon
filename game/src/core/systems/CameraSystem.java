@@ -10,7 +10,6 @@ import core.Game;
 import core.System;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
-import core.utils.Constants;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
@@ -27,9 +26,24 @@ import core.utils.components.MissingComponentException;
  * @see CameraComponent
  */
 public final class CameraSystem extends System {
+    private static final float FIELD_WIDTH_AND_HEIGHT_IN_PIXEL = 16f;
+
+    private static float viewportWidth() {
+        return Game.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    }
+
+    private static float viewportHeight() {
+        return Game.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    }
+
+    public static final float DEFAULT_ZOOM_FACTOR = 0.35f;
 
     private static final OrthographicCamera CAMERA =
-            new OrthographicCamera(Constants.viewportWidth(), Constants.viewportHeight());
+            new OrthographicCamera(viewportWidth(), viewportHeight());
+
+    static {
+        camera().zoom = DEFAULT_ZOOM_FACTOR;
+    }
 
     /** Creat a new {@link CameraSystem} */
     public CameraSystem() {
@@ -44,8 +58,8 @@ public final class CameraSystem extends System {
         // in tests)
         if (Gdx.graphics != null) {
             float aspectRatio = Gdx.graphics.getWidth() / (float) Gdx.graphics.getHeight();
-            CAMERA.viewportWidth = Constants.viewportWidth();
-            CAMERA.viewportHeight = Constants.viewportWidth() / aspectRatio;
+            CAMERA.viewportWidth = viewportWidth();
+            CAMERA.viewportHeight = viewportWidth() / aspectRatio;
         }
         CAMERA.update();
     }
