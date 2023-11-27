@@ -326,7 +326,20 @@ Aufgabenname ist rot umrandet, der Aufgabentext (der Wert der
 [`description`-Eigenschaft](task_definition.md#beschreibung-der-eigenschaften)) und ein Szenario-spezifischer
 Text (blau umrandet).
 
-TODO: Codebeispiel
+```
+fn build_task(single_choice_task t) -> entity<><> {
+    // Erstellung der Aufgaben-Manager-Entität
+    var knight : entity;
+    knight = instantiate_named(knight_type, "Aufgabengeber");
+
+    // Verknüpfung der Aufgabe mit der Manager-Entität
+    knight.task_component.task = t;
+
+    room_set.add(knight);
+}
+```
+Der Entitätstyp, aus dem eine Manager-Entität erstellt wird, benötigt ein `task_component`, dessen
+`task`-Eigenschaft auf die zu verwaltende Aufgabe gesetzt werden muss.
 
 ### Antwort-Auswahl-Funktion
 
