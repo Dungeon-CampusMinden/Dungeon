@@ -86,8 +86,7 @@ public class MonsterFactory {
         int itemRoll = RANDOM.nextInt(0, 10);
         BiConsumer<Entity, Entity> onDeath;
         if (itemRoll == 0) {
-            ItemGenerator itemGenerator = new ItemGenerator();
-            Item item = itemGenerator.generateItemData();
+            Item item = ItemGenerator.generateItemData();
             InventoryComponent ic = new InventoryComponent(1);
             monster.add(ic);
             ic.add(item);

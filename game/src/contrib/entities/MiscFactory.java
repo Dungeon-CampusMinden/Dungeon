@@ -41,11 +41,9 @@ public class MiscFactory {
      * @return Created Entity
      */
     public static Entity newChest() throws IOException {
-        ItemGenerator itemGenerator = new ItemGenerator();
-
         Set<Item> items =
                 IntStream.range(0, RANDOM.nextInt(1, 3))
-                        .mapToObj(i -> itemGenerator.generateItemData())
+                        .mapToObj(i -> ItemGenerator.generateItemData())
                         .collect(Collectors.toSet());
         return newChest(items, PositionComponent.ILLEGAL_POSITION);
     }
