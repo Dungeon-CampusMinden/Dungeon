@@ -291,6 +291,25 @@ welches Spielelemente welche Antwortmöglichkeit einer Single-Choice-Frage darst
 Diese Verknüpfung ist auch für die Bewertung einer Aufgabe wichtig, da aus dem Spielzustand Rückschlüsse über gegebene
 Antworten etc. gezogen werden müssen.
 
+#### Szenario-spezifische Aufgabenbeschreibung
+
+Für eine Aufgabendefinition kann eine Szenario-spezifische Aufgabenbeschreibung gesetzt werden.
+Diese soll Spielenden dabei helfen, zu verstehen, welche konkreten Aktionen sie im Spiellevel mit welchen
+Entitäten/Items durchführen müssen, um die Aufgabe zu bearbeiten.
+Da diese Beschreibung für jedes Szenario unterschiedlich ist, empfiehlt es sich, diese Beschreibung in der
+Szenario-Builder-Funktion zu setzen:
+
+```
+fn build_task(single_choice_task t) -> entity<><> {
+    // ...
+
+    t.set_scenario_text("Platziere die richtige Schriftrolle in der Quest-Truhe");
+
+    // ...
+}
+
+```
+
 #### Manager-Entität
 
 Jeder Aufgabe muss eine Manager-Entität haben, welche das zentrale Interaktionselement für die Bearbeitung einer Aufgabe
@@ -302,7 +321,6 @@ aussieht:
 
 Im abgebildeten Beispiel wird die Aufgabe (aus dem [Beispiel](#beispiel)) gestellt. Der
 Aufgabenname ist rot umrandet, der Aufgabentext (der Wert der
-[`description`-Eigenschaft](task_definition.md#beschreibung-der-eigenschaften)) und ein szenario-spezifischer Text.
-Der szenario-spezifische Text soll Spielenden dabei helfen, zu verstehen, welche Aktionen sie im Spiellevel
-durchführen müssen, um die Aufgabe zu bearbeiten.
+[`description`-Eigenschaft](task_definition.md#beschreibung-der-eigenschaften)) und ein Szenario-spezifischer
+Text (blau umrandet).
 
