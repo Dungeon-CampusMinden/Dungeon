@@ -14,19 +14,22 @@ import java.util.stream.Stream;
 /**
  * System to check for collisions between two entities.
  *
- * <p>CollisionSystem is a system which checks on execute whether the hitboxes of two entities are
+ * <p>CollisionSystem is a system which checks on execute whether the hit boxes of two entities are
  * overlapping/colliding. In which case the corresponding Methods are called on both entities.
  *
- * <p>The system does imply the hitboxes are axis aligned.
+ * <p>The system does imply the hit boxes are axis aligned.
  *
- * <p>Each CollideComponent should only be informed when a collision begins or ends. For this a map
+ * <p>Each CollideComponent should only be informed when a collision begins or ends. For this, a map
  * with all currently active collisions is stored and allows informing the entities when a collision
  * ended.
+ *
+ * <p>Entities with the {@link CollideComponent} will be processed by this system.
  */
 public final class CollisionSystem extends System {
 
     private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
+    /** Create a new CollisionSystem. */
     public CollisionSystem() {
         super(CollideComponent.class);
     }
@@ -35,7 +38,7 @@ public final class CollisionSystem extends System {
      * Test every CollideEntity with every other CollideEntity for collision.
      *
      * <p>The collision check will be performed only once for a given tuple of entities, i.e. when
-     * entity A does collide with entity B it also means B collides with A.
+     * entity A does collide with entity B, it also means B collides with A.
      */
     @Override
     public void execute() {
@@ -45,12 +48,12 @@ public final class CollisionSystem extends System {
     /**
      * Create a stream of pairs of entities.
      *
-     * <p>Pair a given entity with every other entity with a higher id.
+     * <p>Pair a given entity with every other entity with a higher ID.
      *
-     * @param a Entity which is the lower id partner
-     * @return the stream which contains every valid pair of Entities
+     * @param a Entity which is the lower ID partner.
+     * @return The stream which contains every valid pair of Entities.
      */
-    private Stream<CollisionData> createDataPairs(Entity a) {
+    private Stream<CollisionData> createDataPairs(final Entity a) {
         return entityStream().filter(b -> isSmallerThen(a, b)).map(b -> newDataPair(a, b));
     }
 
@@ -61,24 +64,24 @@ public final class CollisionSystem extends System {
      * method to create only tuples with entities with higher ID. This avoids performing a collision
      * check twice for a pair of entities, first for (a,b) and second for (b,a).
      *
-     * @param a first Entity
-     * @param b second Entity
-     * @return true when the comparison between a and b is less than zero, otherwise false
+     * @param a First Entity.
+     * @param b Second Entity
+     * @return true when the comparison between a and b is less than zero, otherwise false.
      */
-    private boolean isSmallerThen(Entity a, Entity b) {
+    private boolean isSmallerThen(final Entity a, final Entity b) {
         return a.compareTo(b) < 0;
     }
 
     /**
-     * Create a pair of CollideComponents which is the used to check whether a collision is
+     * Create a pair of CollideComponents which is then used to check whether a collision is
      * happening and to store in the internal map. Which allows informing the CollideComponents
-     * about an ended Collision
+     * about an ended Collision.
      *
-     * @param a The first Entity
-     * @param b the second Entity
-     * @return the pair of CollideComponents
+     * @param a The first Entity.
+     * @param b the second Entity.
+     * @return The pair of CollideComponents.
      */
-    private CollisionData newDataPair(Entity a, Entity b) {
+    private CollisionData newDataPair(final Entity a, final Entity b) {
         CollideComponent cca =
                 a.fetch(CollideComponent.class)
                         .orElseThrow(
@@ -94,13 +97,13 @@ public final class CollisionSystem extends System {
     /**
      * Check whether a new collision is happening or whether a collision has ended.
      *
-     * <p>Only allows a new collision to call the onEnter of the hitboxes. An ongoing collision is
-     * not calling the onEnter of the hitboxes. When a previous collision existed and no longer is
-     * an active collision the onLeave is called. The onLeave is only called once.
+     * <p>Only allows a new collision to call the onEnter of the hitBoxes. An ongoing collision is
+     * not calling the onEnter of the hitBoxes. When a previous collision existed and no longer is
+     * an active collision, onLeave is called. onLeave is only called once.
      *
-     * @param cdata the CollisionData where a collision change may happen
+     * @param cdata The CollisionData where a collision change may happen.
      */
-    private void onEnterLeaveCheck(CollisionData cdata) {
+    private void onEnterLeaveCheck(final CollisionData cdata) {
         CollisionKey key = new CollisionKey(cdata.ea.id(), cdata.eb.id());
 
         if (checkForCollision(cdata.ea, cdata.a, cdata.eb, cdata.b)) {
@@ -113,7 +116,7 @@ public final class CollisionSystem extends System {
                 cdata.b.onEnter(cdata.eb, cdata.ea, inverse(d));
             }
         } else if (collisions.remove(key) != null) {
-            // a collision was happening and the two entities are no longer colliding on Leave
+            // a collision was happening and the two entities are no longer colliding, on Leave
             // called once
             Tile.Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
             cdata.a.onLeave(cdata.ea, cdata.eb, d);
@@ -122,12 +125,12 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Simple Direction inversion
+     * Simple Direction inversion.
      *
-     * @param d to inverse
-     * @return the opposite direction
+     * @param d Direction to inverse.
+     * @return The opposite direction.
      */
-    protected Tile.Direction inverse(Tile.Direction d) {
+    Tile.Direction inverse(final Tile.Direction d) {
         return switch (d) {
             case N -> Tile.Direction.S;
             case E -> Tile.Direction.W;
@@ -137,31 +140,37 @@ public final class CollisionSystem extends System {
     }
 
     /**
-     * Check if two hitboxes intersect
+     * Check if two hitBoxes intersect.
      *
-     * @param hitbox1
-     * @param hitbox2
-     * @return true if intersection exists otherwise false
+     * @param hitBox1 First hitBox.
+     * @param hitBox2 Second hitBox.
+     * @return true if intersection exists, otherwise false.
      */
-    protected boolean checkForCollision(
-            Entity h1, CollideComponent hitbox1, Entity h2, CollideComponent hitbox2) {
-        return hitbox1.bottomLeft(h1).x < hitbox2.topRight(h2).x
-                && hitbox1.topRight(h1).x > hitbox2.bottomLeft(h2).x
-                && hitbox1.bottomLeft(h1).y < hitbox2.topRight(h2).y
-                && hitbox1.topRight(h1).y > hitbox2.bottomLeft(h2).y;
+    boolean checkForCollision(
+            final Entity h1,
+            final CollideComponent hitBox1,
+            final Entity h2,
+            final CollideComponent hitBox2) {
+        return hitBox1.bottomLeft(h1).x < hitBox2.topRight(h2).x
+                && hitBox1.topRight(h1).x > hitBox2.bottomLeft(h2).x
+                && hitBox1.bottomLeft(h1).y < hitBox2.topRight(h2).y
+                && hitBox1.topRight(h1).y > hitBox2.bottomLeft(h2).y;
     }
 
     /**
-     * Calculates the direction based on a square, can be broken once the hitboxes are rectangular.
+     * Calculates the direction based on a square, can be broken once the hitBoxes are rectangular.
      *
-     * @param hitbox1
-     * @param hitbox2
-     * @return Tile direction for where hitbox 2 is compared to hitbox 1
+     * @param hitBox1 The first hitBox.
+     * @param hitBox2 The second hitBox.
+     * @return Tile direction for where hitBox2 is compared to hitBox1.
      */
-    protected Tile.Direction checkDirectionOfCollision(
-            Entity h1, CollideComponent hitbox1, Entity h2, CollideComponent hitbox2) {
-        float y = hitbox2.center(h2).y - hitbox1.center(h1).y;
-        float x = hitbox2.center(h2).x - hitbox1.center(h1).x;
+    Tile.Direction checkDirectionOfCollision(
+            final Entity h1,
+            final CollideComponent hitBox1,
+            final Entity h2,
+            final CollideComponent hitBox2) {
+        float y = hitBox2.center(h2).y - hitBox1.center(h1).y;
+        float x = hitBox2.center(h2).x - hitBox1.center(h1).x;
         float rads = (float) Math.atan2(y, x);
         double piQuarter = Math.PI / 4;
         if (rads < 3 * -piQuarter) {

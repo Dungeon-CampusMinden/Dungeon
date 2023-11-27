@@ -8,7 +8,11 @@ import core.utils.components.MissingComponentException;
 
 import java.util.function.Consumer;
 
-/** Controls the AI */
+/**
+ * Controls the AI.
+ *
+ * <p>Entities with the {@link AIComponent} will be processed by this system.
+ */
 public final class AISystem extends System {
 
     private static final Consumer<Entity> executeAI =
@@ -20,6 +24,7 @@ public final class AISystem extends System {
                                                     entity, AIComponent.class))
                             .execute(entity);
 
+    /** Create a new AISystem */
     public AISystem() {
         super(AIComponent.class);
     }

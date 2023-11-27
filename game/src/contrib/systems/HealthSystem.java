@@ -18,9 +18,13 @@ import java.util.stream.Stream;
 /**
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
  * the death of an entity when the health-points have fallen below 0.
+ *
+ * <p>Entities with the {@link HealthComponent} and {@link DrawComponent} will be processed by this
+ * system.
  */
 public final class HealthSystem extends System {
 
+    /** Create a new HealthSystem. */
     public HealthSystem() {
         super(HealthComponent.class, DrawComponent.class);
     }
@@ -51,10 +55,10 @@ public final class HealthSystem extends System {
      * the entity has a death animation, and it is in loop mode, the entity will be marked for
      * removal.
      *
-     * @param hsd HSData to check Animations in
-     * @return true if Entity can be removed from the game
+     * @param hsd HSData to check Animations in.
+     * @return true if Entity can be removed from the game.
      */
-    private boolean testDeathAnimationStatus(HSData hsd) {
+    private boolean testDeathAnimationStatus(final HSData hsd) {
         DrawComponent dc = hsd.dc;
         // test if hsd has a DeathAnimation
         Predicate<DrawComponent> hasDeathAnimation =
@@ -69,7 +73,7 @@ public final class HealthSystem extends System {
                 || isAnimationFinished.test(dc);
     }
 
-    private HSData activateDeathAnimation(HSData hsd) {
+    private HSData activateDeathAnimation(final HSData hsd) {
         // set DeathAnimation as active animation
         Optional<Animation> deathAnimation = hsd.dc.getAnimation(AdditionalAnimations.DIE);
         deathAnimation.ifPresent(
@@ -77,7 +81,7 @@ public final class HealthSystem extends System {
         return hsd;
     }
 
-    private HSData buildDataObject(Entity entity) {
+    private HSData buildDataObject(final Entity entity) {
 
         HealthComponent hc =
                 entity.fetch(HealthComponent.class)
@@ -92,18 +96,18 @@ public final class HealthSystem extends System {
         return new HSData(entity, hc, ac);
     }
 
-    private HSData applyDamage(HSData hsd) {
+    private HSData applyDamage(final HSData hsd) {
 
         doDamageAndAnimation(
                 hsd, Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum());
         return hsd;
     }
 
-    private void doDamageAndAnimation(HSData hsd, int dmgAmount) {
+    private void doDamageAndAnimation(final HSData hsd, final int dmgAmount) {
         if (dmgAmount > 0) {
-            Optional<Animation> hitanimation = hsd.dc.getAnimation(AdditionalAnimations.HIT);
+            Optional<Animation> hitAnimation = hsd.dc.getAnimation(AdditionalAnimations.HIT);
             // we have some damage - let's show a little dance
-            hitanimation.ifPresent(
+            hitAnimation.ifPresent(
                     animation ->
                             hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.HIT));
         }
@@ -112,7 +116,7 @@ public final class HealthSystem extends System {
         hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
     }
 
-    private void removeDeadEntities(HSData hsd) {
+    private void removeDeadEntities(final HSData hsd) {
         // Entity appears to be dead, so let's clean up the mess
         hsd.hc.triggerOnDeath(hsd.e);
         Game.remove(hsd.e);

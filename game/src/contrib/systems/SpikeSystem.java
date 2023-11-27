@@ -3,13 +3,15 @@ package contrib.systems;
 import contrib.components.SpikyComponent;
 
 import core.System;
+import core.components.PositionComponent;
 
 /**
- * Reduces the current cool down for each {@link SpikyComponent} once per frame.
+ * Reduces the current cool down for each {@link SpikyComponent} once per frame. Entities with the
+ * {@link SpikyComponent} and {@link PositionComponent} will be processed by this system.
  *
  * @see SpikyComponent
  */
-public class SpikeSystem extends System {
+public final class SpikeSystem extends System {
 
     /** Create new SpikeSystem. */
     public SpikeSystem() {

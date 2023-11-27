@@ -23,49 +23,55 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * The HealthbarSystem creates a Progressbar which follows the associated Entity and shows the
- * current healthPercentage.
+ * Creates a progress bar which follows the associated Entity and shows the current health
+ * percentage. *
+ *
+ * <p>Entities with the {@link HealthComponent} and {@link PositionComponent} will be processed by
+ * this system.
  */
-public final class HealthbarSystem extends System {
+public final class HealthBarSystem extends System {
+
     // well percentage =)
     private static final float MIN = 0;
     private static final float MAX = 1;
     // bar percentage precision
     private static final float STEP_SIZE = 0.01f;
-    private static final Logger LOGGER = Logger.getLogger(HealthbarSystem.class.getSimpleName());
-    // how long the change to the Healthbar should take in seconds
-    private static final float HEALTHBAR_UPDATE_DURATION = 0.1f;
-    // the height of the healthbar which can´t be smaller than the nineslicedrawable
-    private static final int HEALTHBAR_HEIGHT = 10;
-    // the width of the healthbar which can´t be smaller than the nineslicedrawable
-    private static final int HEALTHBAR_WIDTH = 50;
+    private static final Logger LOGGER = Logger.getLogger(HealthBarSystem.class.getSimpleName());
+    // how long the change to the health bar should take in seconds
+    private static final float HEALTH_BAR_UPDATE_DURATION = 0.1f;
+    // the height of the health bar which can´t be smaller than the nineslicedrawable
+    private static final int HEALTH_BAR_HEIGHT = 10;
+    // the width of the health bar which can´t be smaller than the nineslicedrawable
+    private static final int HEALTH_BAR_WIDTH = 50;
 
-    /** Mapping from actual Entity and Healthbar of this Entity */
-    private final Map<Integer, ProgressBar> healthbarMapping = new HashMap<>();
+    /** Mapping from actual entity and health bar of this entity. */
+    private final Map<Integer, ProgressBar> healthBarMapping = new HashMap<>();
 
-    public HealthbarSystem() {
+    /** Create a new HealthBarSystem */
+    public HealthBarSystem() {
         super(HealthComponent.class, PositionComponent.class);
         this.onEntityAdd =
                 (x) -> {
-                    LOGGER.log(CustomLogLevel.TRACE, "HealthbarSystem got send a new Entity");
-                    ProgressBar newHealthbar =
-                            createNewHealthbar(x.fetch(PositionComponent.class).orElseThrow());
-                    LOGGER.log(CustomLogLevel.TRACE, "created a new Healthbar");
-                    Entity e = new Entity("Healthbar");
-                    LOGGER.log(CustomLogLevel.TRACE, "created a new Entity for the Healthbar");
-                    Container<ProgressBar> group = new Container<>(newHealthbar);
+                    LOGGER.log(CustomLogLevel.TRACE, "HealthBarSystem got send a new Entity");
+                    ProgressBar newHealthBar =
+                            createNewHealthBar(x.fetch(PositionComponent.class).orElseThrow());
+                    LOGGER.log(CustomLogLevel.TRACE, "created a new health bar");
+                    Entity e = new Entity("HealthBar");
+                    LOGGER.log(CustomLogLevel.TRACE, "created a new Entity for the health bar");
+                    Container<ProgressBar> group = new Container<>(newHealthBar);
                     // disabling layout enforcing from parent
                     group.setLayoutEnabled(false);
                     e.add(new UIComponent(group, false, false));
                     Game.add(e);
-                    LOGGER.log(CustomLogLevel.TRACE, "created a new UIComponent for the Healthbar");
-                    healthbarMapping.put(x.id(), newHealthbar);
-                    LOGGER.log(CustomLogLevel.TRACE, "HealthbarSystem added to temporary mapping");
+                    LOGGER.log(
+                            CustomLogLevel.TRACE, "created a new UIComponent for the health bar");
+                    healthBarMapping.put(x.id(), newHealthBar);
+                    LOGGER.log(CustomLogLevel.TRACE, "HealthBarSystem added to temporary mapping");
                 };
-        LOGGER.log(CustomLogLevel.TRACE, "HealthbarSystem onEntityAdd was changed");
-        this.onEntityRemove = (x) -> healthbarMapping.remove(x.id()).remove();
-        LOGGER.log(CustomLogLevel.TRACE, "HealthbarSystem onEntityRemove was changed");
-        LOGGER.info("HealthbarSystem created");
+        LOGGER.log(CustomLogLevel.TRACE, "HealthBarSystem onEntityAdd was changed");
+        this.onEntityRemove = (x) -> healthBarMapping.remove(x.id()).remove();
+        LOGGER.log(CustomLogLevel.TRACE, "HealthBarSystem onEntityRemove was changed");
+        LOGGER.info("HealthBarSystem created");
     }
 
     @Override
@@ -73,7 +79,7 @@ public final class HealthbarSystem extends System {
         entityStream().map(this::buildDataObject).forEach(this::update);
     }
 
-    private void update(EnemyData ed) {
+    private void update(final EnemyData ed) {
         if (ed.hc.currentHealthpoints() <= 0) ed.pb.remove();
         // set visible only if entity lost health
         ed.pb.setVisible(ed.hc.currentHealthpoints() != ed.hc.maximalHealthpoints());
@@ -83,32 +89,32 @@ public final class HealthbarSystem extends System {
         ed.pb.setValue((float) ed.hc.currentHealthpoints() / ed.hc.maximalHealthpoints());
     }
 
-    private EnemyData buildDataObject(Entity entity) {
+    private EnemyData buildDataObject(final Entity entity) {
         return new EnemyData(
                 entity.fetch(HealthComponent.class).orElseThrow(),
                 entity.fetch(PositionComponent.class).orElseThrow(),
-                healthbarMapping.get(entity.id()));
+                healthBarMapping.get(entity.id()));
     }
 
-    private ProgressBar createNewHealthbar(PositionComponent pc) {
+    private ProgressBar createNewHealthBar(PositionComponent pc) {
         ProgressBar progressBar =
                 new ProgressBar(MIN, MAX, STEP_SIZE, false, DEFAULT_SKIN, "healthbar");
-        progressBar.setAnimateDuration(HEALTHBAR_UPDATE_DURATION);
-        progressBar.setSize(HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT);
+        progressBar.setAnimateDuration(HEALTH_BAR_UPDATE_DURATION);
+        progressBar.setSize(HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
         progressBar.setVisible(true);
         updatePosition(progressBar, pc);
         return progressBar;
     }
 
-    /** moves the Progressbar to follow the Entity */
+    /** Moves the Progressbar to follow the Entity. */
     private void updatePosition(ProgressBar pb, PositionComponent pc) {
         Point position = pc.position();
         Vector3 conveered = new Vector3(position.x, position.y, 0);
-        // map Entity coordinates to window coords
+        // map Entity coordinates to window coordinates
         Vector3 screenPosition = CameraSystem.camera().project(conveered);
         // get the stage of the Game
         Stage stage = Game.stage().orElseThrow(() -> new RuntimeException("No Stage available"));
-        // remap window coords again stage coords
+        // remap window coordinates against stage coordinates
         screenPosition.x =
                 screenPosition.x / stage.getViewport().getScreenWidth() * stage.getWidth();
         screenPosition.y =

@@ -20,10 +20,9 @@ import java.util.Random;
  */
 public final class IdleSoundSystem extends System {
 
-    private final float CHANCE_TO_PLAY_SOUND = 0.001f;
-    private final Random RANDOM = new Random();
+    private static final Random RANDOM = new Random();
 
-    /** Create a new {@link IdleSoundSystem} */
+    /** Create a new {@link IdleSoundSystem}. */
     public IdleSoundSystem() {
         super(IdleSoundComponent.class);
     }
@@ -43,13 +42,14 @@ public final class IdleSoundSystem extends System {
                                                                                 .class))));
     }
 
-    private void playSound(IdleSoundComponent component) {
-        if (RANDOM.nextFloat(0f, 1f) < CHANCE_TO_PLAY_SOUND) {
+    private void playSound(final IdleSoundComponent component) {
+        float chanceToPlaySound = 0.001f;
+        if (RANDOM.nextFloat(0f, 1f) < chanceToPlaySound) {
             Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(component.soundEffect()));
-            long soundid = soundEffect.play();
+            long soundID = soundEffect.play();
 
-            soundEffect.setLooping(soundid, false);
-            soundEffect.setVolume(soundid, 0.35f);
+            soundEffect.setLooping(soundID, false);
+            soundEffect.setVolume(soundID, 0.35f);
         }
     }
 }
