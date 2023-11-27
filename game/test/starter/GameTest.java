@@ -13,7 +13,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Game.class, Gdx.class, Constants.class})
+@PrepareForTest({Game.class, Gdx.class})
 class GameTest {
 
     private Game game;
