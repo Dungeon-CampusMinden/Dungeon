@@ -5,8 +5,8 @@ package contrib.crafting;
  *
  * <p>It is a runtime exception because it is not expected to happen during normal execution.
  */
-public class InvalidRecipeException extends RuntimeException {
-    public InvalidRecipeException(String message) {
+public final class InvalidRecipeException extends RuntimeException {
+    public InvalidRecipeException(final String message) {
         super(message);
     }
 }

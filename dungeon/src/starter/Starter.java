@@ -155,6 +155,7 @@ public class Starter {
                     createSystems();
                     Game.currentLevel(TaskSelector.taskSelectorLevel());
                     setupMusic();
+                    Crafting.loadRecipes();
                 });
 
         // load the task selector level
@@ -223,7 +224,6 @@ public class Starter {
                 "dungeon_config.json",
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
-        Crafting.loadRecipes();
     }
 
     private static void createSystems() {

@@ -46,8 +46,8 @@ public class RoomBasedDungeon {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    Crafting.loadRecipes();
                     setupMusic();
+                    Crafting.loadRecipes();
                     createRoomBasedLevel(roomcount, monstercount, chestcount);
                 });
     }

@@ -60,8 +60,8 @@ public class RandomDungeon {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    Crafting.loadRecipes();
                     setupMusic();
+                    Crafting.loadRecipes();
                 });
     }
 
