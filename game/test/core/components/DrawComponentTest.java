@@ -3,6 +3,8 @@ package core.components;
 import static org.junit.Assert.*;
 
 import core.utils.components.draw.CoreAnimations;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +13,7 @@ import java.io.IOException;
 
 public class DrawComponentTest {
 
-    private final String animationPath = "textures/test_hero";
+    private final IPath animationPath = new SimpleIPath("textures/test_hero");
     private DrawComponent animationComponent;
 
     @Before

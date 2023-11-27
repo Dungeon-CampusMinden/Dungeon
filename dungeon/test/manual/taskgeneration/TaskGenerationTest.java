@@ -11,6 +11,8 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 
 import dsl.interpreter.DSLInterpreter;
 
@@ -109,9 +111,9 @@ public class TaskGenerationTest {
     // private static void questWizard(Quiz quiz) throws IOException {
     private static void questWizard(Quiz quiz) throws IOException {
         Random random = new Random();
-        String texture = "character/wizard";
+        IPath texture = new SimpleIPath("character/wizard");
         if (random.nextInt() % 2 == 0) {
-            texture = "character/blue_knight";
+            texture = new SimpleIPath("character/blue_knight");
         }
 
         Entity wizard = new Entity("Quest Wizard");

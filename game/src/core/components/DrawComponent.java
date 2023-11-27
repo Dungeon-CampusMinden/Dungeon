@@ -78,7 +78,7 @@ public final class DrawComponent implements Component {
      * @throws IOException if the given path does not exist.
      * @see Animation
      */
-    public DrawComponent(final String path) throws IOException {
+    public DrawComponent(final IPath path) throws IOException {
         // fetch available animations
         try {
             loadAnimationAssets(path);
@@ -329,7 +329,7 @@ public final class DrawComponent implements Component {
      * <p>Checks if the game is running in a JAR or not and will execute the corresponding loading
      * logic.
      */
-    private void loadAnimationAssets(final String path) throws IOException {
+    private void loadAnimationAssets(final IPath path) throws IOException {
         File jarFile =
                 new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
         if (jarFile.isFile()) loadAnimationsFromJar(path, jarFile);
@@ -348,7 +348,7 @@ public final class DrawComponent implements Component {
      * @param jarFile Path to the JAR files.
      * @throws IOException if the JAR file or the files in the JAR file cannot be read.
      */
-    private void loadAnimationsFromJar(final String path, final File jarFile) throws IOException {
+    private void loadAnimationsFromJar(final IPath path, final File jarFile) throws IOException {
 
         JarFile jar = new JarFile(jarFile);
         Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
@@ -371,7 +371,7 @@ public final class DrawComponent implements Component {
             // If the entry starts with the path name (character/knight/idle),
             // this is true for entries like (character/knight/idle_down/idle_down_knight_1.png) and
             // (character/knight/idle/).
-            if (fileName.startsWith(path + "/")) {
+            if (fileName.startsWith(path.pathString() + "/")) {
 
                 // Get the index of the last FileSeparator; every character after that separator is
                 // part of the filename.
@@ -422,17 +422,36 @@ public final class DrawComponent implements Component {
      *
      * @param path Path to the animations.
      */
-    private void loadAnimationsFromIDE(final String path) {
-        URL url = DrawComponent.class.getResource("/" + path);
+    private void loadAnimationsFromIDE(final IPath path) {
+        URL url = DrawComponent.class.getResource("/" + path.pathString());
         if (url != null) {
             try {
                 File apps = new File(url.toURI());
                 animationMap =
                         Arrays.stream(Objects.requireNonNull(apps.listFiles()))
                                 .filter(File::isDirectory)
-                                .collect(Collectors.toMap(File::getName, Animation::fromSubDir));
+                                .collect(
+                                        Collectors.toMap(
+                                                File::getName,
+                                                DrawComponent::allFilesFromDirectory));
             } catch (URISyntaxException ignored) {
             }
         }
+    }
+
+    /**
+     * @param subDir in which to look for files for the animation
+     * @return a basic configured Animation
+     */
+    private static Animation allFilesFromDirectory(final File subDir) {
+        return Animation.fromCollection(
+                Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
+                        // only look for direct Files no recursive search
+                        .filter(File::isFile)
+                        // File object needs to be converted to IPath
+                        .map(file -> new SimpleIPath(file.getPath()))
+                        // sort by name streams may lose the ordering by name
+                        .sorted(Comparator.comparing(SimpleIPath::pathString))
+                        .collect(Collectors.toList()));
     }
 }

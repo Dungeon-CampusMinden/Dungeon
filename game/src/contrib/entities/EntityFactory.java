@@ -9,6 +9,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
+import core.utils.components.path.IPath;
 
 import java.io.IOException;
 import java.util.Set;
@@ -71,7 +72,7 @@ public final class EntityFactory {
      * @return A new Entity.
      * @throws IOException if the animation could not been loaded.
      */
-    public static Entity randomMonster(final String pathToTexture) throws IOException {
+    public static Entity randomMonster(IPath pathToTexture) throws IOException {
         return MonsterFactory.randomMonster(pathToTexture);
     }
 

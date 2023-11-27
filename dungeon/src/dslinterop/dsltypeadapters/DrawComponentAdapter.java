@@ -1,6 +1,7 @@
 package dslinterop.dsltypeadapters;
 
 import core.components.DrawComponent;
+import core.utils.components.path.SimpleIPath;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
@@ -20,7 +21,7 @@ public class DrawComponentAdapter {
             @DSLTypeMember(name = "path") String path) {
         DrawComponent comp = null;
         try {
-            comp = new DrawComponent(path);
+            comp = new DrawComponent(new SimpleIPath(path));
         } catch (IOException e) {
             return null;
         }

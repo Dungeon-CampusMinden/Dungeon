@@ -14,6 +14,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
+import core.utils.components.path.SimpleIPath;
 
 import task.Task;
 import task.TaskContent;
@@ -103,7 +104,7 @@ public class CallbackTest {
     private static Entity questWizard() throws IOException {
         Entity wizard = new Entity("Quest Wizard");
         wizard.add(new PositionComponent());
-        wizard.add(new DrawComponent("character/wizard"));
+        wizard.add(new DrawComponent(new SimpleIPath("character/wizard")));
         wizard.add(new TaskComponent(question, wizard));
         wizard.add(
                 new InteractionComponent(

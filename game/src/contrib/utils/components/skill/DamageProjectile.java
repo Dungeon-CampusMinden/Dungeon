@@ -15,6 +15,7 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
+import core.utils.components.path.IPath;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -31,7 +32,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
 
     private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
     private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getSimpleName());
-    private final String pathToTexturesOfProjectile;
+    private final IPath pathToTexturesOfProjectile;
     private final float projectileSpeed;
     private final float projectileRange;
     private final int damageAmount;
@@ -58,7 +59,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
      * @param onWallHit Behavior when a wall is hit.
      */
     public DamageProjectile(
-            final String pathToTexturesOfProjectile,
+            final IPath pathToTexturesOfProjectile,
             float projectileSpeed,
             int damageAmount,
             final DamageType damageType,
@@ -92,7 +93,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
      * @param projectileRange Range in which the projectile is effective.
      */
     public DamageProjectile(
-            final String pathToTexturesOfProjectile,
+            final IPath pathToTexturesOfProjectile,
             float projectileSpeed,
             int damageAmount,
             final DamageType damageType,

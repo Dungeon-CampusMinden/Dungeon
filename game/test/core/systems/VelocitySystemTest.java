@@ -15,6 +15,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.components.path.SimpleIPath;
 
 import org.junit.After;
 import org.junit.Before;
@@ -49,7 +50,7 @@ public class VelocitySystemTest {
         Game.add(velocitySystem);
         velocityComponent = new VelocityComponent(xVelocity, yVelocity);
         positionComponent = new PositionComponent(new Point(startXPosition, startYPosition));
-        animationComponent = new DrawComponent("textures/test_hero");
+        animationComponent = new DrawComponent(new SimpleIPath("textures/test_hero"));
         entity.add(velocityComponent);
         entity.add(positionComponent);
         entity.add(animationComponent);

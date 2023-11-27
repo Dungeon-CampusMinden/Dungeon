@@ -25,6 +25,7 @@ import core.systems.CameraSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
 
 import java.io.IOException;
@@ -174,7 +175,7 @@ public class Debugger {
             // Add components to the monster entity
             monster.add(new PositionComponent(position));
             try {
-                monster.add(new DrawComponent("character/monster/chort"));
+                monster.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
             } catch (IOException e) {
                 LOGGER.warning(
                         "The DrawComponent for the chort cant be created. " + e.getMessage());
