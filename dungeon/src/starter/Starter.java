@@ -7,7 +7,7 @@ import contrib.components.HealthComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
-import contrib.hud.OkDialog;
+import contrib.hud.dialogs.OkDialog;
 import contrib.systems.*;
 
 import core.Entity;

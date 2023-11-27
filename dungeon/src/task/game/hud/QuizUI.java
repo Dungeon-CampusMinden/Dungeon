@@ -4,9 +4,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import contrib.components.UIComponent;
-import contrib.hud.OkDialog;
-import contrib.hud.TextDialog;
-import contrib.hud.UITools;
+import contrib.hud.UIUtils;
+import contrib.hud.dialogs.OkDialog;
+import contrib.hud.dialogs.TextDialog;
 
 import core.Entity;
 import core.Game;
@@ -20,6 +20,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class QuizUI {
+
+    public static final String DEFAULT_DIALOG_CONFIRM = "Bestätigen";
+    public static final String DEFAULT_DIALOG_ABORT = "Abbrechen";
 
     /**
      * Ask a Quizquestion on the HUD and trigger the grading function, after the player confirmed
@@ -97,8 +100,8 @@ public class QuizUI {
         Entity entity =
                 showQuizDialog(
                         question,
-                        UITools.formatStringForDialogWindow(question.taskText()),
-                        UITools.DEFAULT_DIALOG_CONFIRM,
+                        UIUtils.formatString(question.taskText()),
+                        DEFAULT_DIALOG_CONFIRM,
                         title,
                         resulthandlerLinker);
         Game.add(entity);
@@ -120,9 +123,7 @@ public class QuizUI {
                 question,
                 (entity) ->
                         createResultHandlerQuiz(
-                                entity,
-                                UITools.DEFAULT_DIALOG_CONFIRM,
-                                UITools.DEFAULT_DIALOG_ABORT));
+                                entity, DEFAULT_DIALOG_CONFIRM, DEFAULT_DIALOG_ABORT));
     }
 
     /**
@@ -144,17 +145,17 @@ public class QuizUI {
             Function<Entity, BiFunction<TextDialog, String, Boolean>> resulthandlerLinker) {
         Entity entity = new Entity();
 
-        UITools.show(
+        UIUtils.show(
                 () -> {
                     Dialog quizDialog =
                             createQuizDialog(
-                                    UITools.DEFAULT_SKIN,
+                                    UIUtils.DEFAULT_SKIN,
                                     question,
                                     questionMsg,
                                     buttonMsg,
                                     dialogTitle,
                                     resulthandlerLinker.apply(entity));
-                    UITools.centerActor(quizDialog);
+                    UIUtils.center(quizDialog);
                     return quizDialog;
                 },
                 entity);
@@ -186,7 +187,7 @@ public class QuizUI {
                 .add(QuizDialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg))
                 .grow()
                 .fill(); // changes size based on childrens;
-        textDialog.button(UITools.DEFAULT_DIALOG_ABORT, UITools.DEFAULT_DIALOG_ABORT);
+        textDialog.button(DEFAULT_DIALOG_CONFIRM, DEFAULT_DIALOG_ABORT);
         textDialog.button(buttonMsg, buttonMsg);
         textDialog.pack(); // resizes to size
         return textDialog;

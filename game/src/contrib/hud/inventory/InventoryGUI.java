@@ -17,8 +17,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
 import contrib.components.InventoryComponent;
 import contrib.configuration.KeyboardConfig;
-import contrib.hud.CombinableGUI;
-import contrib.hud.GUICombination;
+import contrib.hud.elements.CombinableGUI;
+import contrib.hud.elements.GUICombination;
 import contrib.item.Item;
 
 import core.Game;

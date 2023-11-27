@@ -1,6 +1,6 @@
 package contrib.systems;
 
-import static contrib.hud.UITools.DEFAULT_SKIN;
+import static contrib.hud.UIUtils.DEFAULT_SKIN;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;

@@ -1,7 +1,6 @@
-package contrib.hud;
+package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
@@ -38,7 +37,7 @@ public abstract class CombinableGUI {
      *
      * @param dragAndDrop the drag and drop object
      */
-    public void dragAndDrop(DragAndDrop dragAndDrop) {
+    public void dragAndDrop(final DragAndDrop dragAndDrop) {
         this.dragAndDrop = dragAndDrop;
         this.initDragAndDrop(this.dragAndDrop);
     }
@@ -57,7 +56,7 @@ public abstract class CombinableGUI {
      *
      * @param dragAndDrop the drag and drop object to initialize
      */
-    protected abstract void initDragAndDrop(DragAndDrop dragAndDrop);
+    protected abstract void initDragAndDrop(final DragAndDrop dragAndDrop);
 
     /**
      * Draw the element
@@ -66,7 +65,7 @@ public abstract class CombinableGUI {
      *
      * @param batch the batch to draw to
      */
-    protected abstract void draw(Batch batch);
+    protected abstract void draw(final Batch batch);
 
     /**
      * Draw the top layer of the element
@@ -76,7 +75,7 @@ public abstract class CombinableGUI {
      *
      * @param batch the batch to draw to
      */
-    protected void drawTopLayer(Batch batch) {}
+    protected void drawTopLayer(final Batch batch) {}
 
     /**
      * Draw debug information for the element
@@ -85,10 +84,8 @@ public abstract class CombinableGUI {
      * called if the parent {@link GUICombination} is in debug mode.
      *
      * <p>The default implementation does nothing.
-     *
-     * @param renderer the batch to draw to
      */
-    protected void drawDebug(ShapeRenderer renderer) {}
+    protected void drawDebug() {}
 
     /**
      * Calculate the preferred size of the gui element.
@@ -99,7 +96,7 @@ public abstract class CombinableGUI {
      * @param availableSpace the available space for the element to be drawn in.
      * @return the preferred size of the element.
      */
-    protected abstract Vector2 preferredSize(GUICombination.AvailableSpace availableSpace);
+    protected abstract Vector2 preferredSize(final GUICombination.AvailableSpace availableSpace);
 
     /** Called when the bounds of the element change. */
     protected void boundsUpdate() {}

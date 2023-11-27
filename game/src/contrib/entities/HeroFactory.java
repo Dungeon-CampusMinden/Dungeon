@@ -5,7 +5,7 @@ import com.badlogic.gdx.audio.Sound;
 
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
-import contrib.hud.GUICombination;
+import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.interaction.InteractionTool;

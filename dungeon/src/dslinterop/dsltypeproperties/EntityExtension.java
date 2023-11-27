@@ -3,7 +3,7 @@ package dslinterop.dsltypeproperties;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
-import contrib.hud.GUICombination;
+import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.utils.components.draw.ChestAnimations;

@@ -2,7 +2,7 @@ package manual.taskgeneration;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
-import contrib.hud.UITools;
+import contrib.hud.UIUtils;
 import contrib.systems.*;
 
 import core.Entity;
@@ -127,7 +127,7 @@ public class TaskGenerationTest {
     private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
         return (task, taskContents) -> {
             float score = task.scoringFunction().apply(task, taskContents);
-            UITools.generateNewTextDialog("Your score: " + score, "Ok", "Given answer");
+            UIUtils.textDialog("Your score: " + score, "Ok", "Given answer");
         };
     }
 }

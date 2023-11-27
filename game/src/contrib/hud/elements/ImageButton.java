@@ -1,4 +1,4 @@
-package contrib.hud;
+package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -16,21 +16,26 @@ public class ImageButton extends Button {
     /**
      * Create a new image button.
      *
-     * @param parent the parent gui
-     * @param animation the animation to display
-     * @param x the x position
-     * @param y the y position
-     * @param width the width
-     * @param height the height
+     * @param parent The parent GUI.
+     * @param animation The animation to display.
+     * @param x The x position.
+     * @param y The y position.
+     * @param width The width.
+     * @param height The height.
      */
     public ImageButton(
-            CombinableGUI parent, Animation animation, int x, int y, int width, int height) {
+            final CombinableGUI parent,
+            final Animation animation,
+            int x,
+            int y,
+            int width,
+            int height) {
         super(parent, x, y, width, height);
         this.animation = animation;
     }
 
     @Override
-    public void draw(Batch batch) {
+    public void draw(final Batch batch) {
         super.draw(batch);
         Texture nextFrame =
                 TextureMap.instance().textureAt(this.animation.nextAnimationTexturePath());
