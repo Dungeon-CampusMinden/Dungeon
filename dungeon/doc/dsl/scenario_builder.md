@@ -163,6 +163,8 @@ entity_type ritter_typ {
 
 Die `draw_component`-Komponente bestimmt die grafische Darstellung der Entität im Spiel. Durch die Konfiguration
 der `path`-Eigenschaft wird ein Verzeichnis angegeben, welches Animationstexturen enthält.
+Für weiter Informationen bzgl. des Animations-Systems und der benötigten
+Ordnerstrukturen siehe [Animationsdokumentation](../../../game/doc/animation.md#ordnerstruktur-und-pfade).
 
 Die `position_component`-Komponente ermöglicht der Entität, eine Position im Level zu haben und ist zwingend nötig,
 damit das Dungeon-System die Entität auch tatsächlich im Level platzieren kann.
