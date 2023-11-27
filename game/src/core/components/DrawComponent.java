@@ -169,7 +169,7 @@ public final class DrawComponent implements Component {
      * Queue up an Animation to be considered as the next played Animation.
      *
      * <p>Animations are given as an IPath Array or multiple variables. The First existing Animation
-     * per priority will be added to the queue. If the Animation is already added, the remaining
+     * will be added to the queue. If the Animation is already added, the remaining
      * Frames are set to the highest of remaining or new.
      *
      * <p>Animation length is set to the given parameter.
@@ -178,24 +178,19 @@ public final class DrawComponent implements Component {
      * @param next Array of IPaths representing the Animation.
      */
     public void queueAnimation(int forFrames, final IPath... next) {
-        // only add first of same priority
-        // therefor creating a Map for each priority
-        Map<Integer, IPath> firstExistingOfPrio = new HashMap<>();
         for (IPath path : next) {
             // is an existing animation of the component
             if (animationMap.containsKey(path.pathString())) {
                 // only add the first Animation of a certain priority
-                if (!firstExistingOfPrio.containsKey(path.priority())) {
-                    firstExistingOfPrio.put(path.priority(), path);
-                    // check if the path is already queued
-                    if (animationQueue.entrySet().contains(path)) {
-                        // update time of the animation
-                        animationQueue.put(path, Math.max(animationQueue.get(path), forFrames));
-                    } else {
-                        // add animation
-                        animationQueue.put(path, forFrames);
-                    }
+                // check if the path is already queued
+                if (animationQueue.containsKey(path)) {
+                    // update time of the animation
+                    animationQueue.put(path, Math.max(animationQueue.get(path), forFrames));
+                } else {
+                    // add animation
+                    animationQueue.put(path, forFrames);
                 }
+                return;
             }
         }
     }
