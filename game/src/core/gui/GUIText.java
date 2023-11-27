@@ -124,16 +124,12 @@ public class GUIText extends GUIElement {
                 return;
             }
             if (scrollX) {
-                this.scrollOffset.x(
-                        this.scrollOffset.x()
-                                + scrollEvent.scrollX * 20 * GUIConfig.SCROLL_SPEED_X.value());
+                this.scrollOffset.x(this.scrollOffset.x() + scrollEvent.scrollX * 20);
                 this.checkScrollOffset();
                 this.invalidate();
             }
             if (scrollY) {
-                this.scrollOffset.y(
-                        this.scrollOffset.y()
-                                + scrollEvent.scrollY * 20 * GUIConfig.SCROLL_SPEED_Y.value());
+                this.scrollOffset.y(this.scrollOffset.y() + scrollEvent.scrollY * 20);
                 this.checkScrollOffset();
                 this.invalidate();
             }
