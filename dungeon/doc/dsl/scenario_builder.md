@@ -132,7 +132,7 @@ Oben ist der Raum abgebildet, der für `room_1` erstellt wird und nur den Ritter
 
 Im Raum, der für `room_2` erstellt wird, sind eine Truhe und Schriftrollen enthalten.
 
-### Entitäten erstellen
+## Entitäten erstellen
 
 Wie zuvor angedeutet, können innerhalb von Szenario-Builder-Funktionen Entitäten erstellt werden.
 Vereinfacht ausgedrü: jedes sichtbare Spielelement, mit dem Spielende in irgendeiner Weise interagieren können,
@@ -197,7 +197,7 @@ fn build_scenario(single_choice_task task) -> entity<><> {
 }
 ```
 
-### Items erstellen
+## Items erstellen
 
 Items sind Spielelemente, die vom Spielcharakter aufgenommen und im Inventar transportiert werden können.
 In der DungeonDSL können `quest_item`s erstellt werden, die mit einer Aufgabe in Verbindung stehen (siehe
@@ -243,7 +243,7 @@ in der drei auf diese Art platzierte Schriftrollen zu sehen sind:
 
 ![Abbildung: Schriftrollen auf dem Boden](img/scenario_builder_room2.png)
 
-### Items in einem Inventar platzieren
+## Items in einem Inventar platzieren
 
 Falls das `quest_item` nicht wie oben beschrieben in einem Raum platziert werden soll, kann es auch einem
 `inventory_component` hinzugefügt werden.
@@ -280,9 +280,8 @@ Die wesentliche Komponente ist `inventory_component`. Dem `inventory_component` 
     chest.inventory_component.add(scroll);
 ```
 
-### Event-Handler-Funktionen registrieren
 
-### Verknüpfung der Spielelemente mit Aufgabendefinitionen
+## Verknüpfung der Spielelemente mit Aufgabendefinitionen
 
 Ziel der Szenario-Builder-Methoden ist es, abstrakte Aufgabendefinitionen in ein konkretes Spielszenario abzubilden.
 Dafür müssen aus der Aufgabedefinition Spielelemente erstellt werden, wie in den oberen Kapiteln gezeigt.
@@ -292,7 +291,10 @@ welches Spielelemente welche Antwortmöglichkeit einer Single-Choice-Frage darst
 Diese Verknüpfung ist auch für die Bewertung einer Aufgabe wichtig, da aus dem Spielzustand Rückschlüsse über gegebene
 Antworten etc. gezogen werden müssen.
 
-#### Szenario-spezifische Aufgabenbeschreibung
+Das gesamte, im Folgenden erarbeitete Beispiel ist unter [example_scenario.dng](examplescripts/example_scenario.dng) zu
+finden.
+
+### Szenario-spezifische Aufgabenbeschreibung
 
 Für eine Aufgabendefinition kann eine Szenario-spezifische Aufgabenbeschreibung gesetzt werden.
 Diese soll Spielenden dabei helfen, zu verstehen, welche konkreten Aktionen sie im Spiellevel mit welchen
@@ -310,7 +312,7 @@ fn build_task(single_choice_task t) -> entity<><> {
 }
 ```
 
-#### Manager-Entität
+### Manager-Entität
 
 Jeder Aufgabe muss eine Manager-Entität haben, welche das zentrale Interaktionselement für die Bearbeitung einer Aufgabe
 darstellt. Über diese Manager-Entität kann der Aufgabentext angezeigt werden und eine Antwort auf eine Aufgabe abgegeben
@@ -324,7 +326,9 @@ Aufgabenname ist rot umrandet, der Aufgabentext (der Wert der
 [`description`-Eigenschaft](task_definition.md#beschreibung-der-eigenschaften)) und ein Szenario-spezifischer
 Text (blau umrandet).
 
-#### Antwort-Auswahl-Funktion
+TODO: Codebeispiel
+
+### Antwort-Auswahl-Funktion
 
 Die Antwort-Auswahl-Funktion ("Answerpicker-Function") ist dafür zuständig, die gegebene
 Antwort auf eine Aufgabe aus dem Spielszenario zu ziehen. Zum aktuellen Stand können drei
@@ -343,7 +347,36 @@ fn build_task(single_choice_task t) -> entity<><> {
 Für eine genaue Auflistung der verschiedenen Antwort-Auswahl-Funktionen und ihren Funktionsweisen
 siehe [Dokumentation: native Funktionen](TODO).
 
-#### Abbildung: Antwortmöglichkeit als Item
+### Event-Handler-Funktionen
+
+Einige Komponenten (z.B. `interaction_component`) erlauben die Reaktion auf ein Ereignis aus dem Dungeon-Kontext.
+An die Eigenschaft `on_interaction` dieser Komponente kann eine Funktion übergeben werden, die aufgerufen wird,
+sobald der Spielcharakter mit der Entität, in welcher die Komponente enthalten ist, interagiert.
+
+Ein Beispiel:
+
+```
+entity_type knight_type {
+    interaction_component{
+        on_interacton: interact
+    },
+    draw_component {
+        path: "character/knight"
+    },
+    position_component{}
+}
+
+fn interact(entity knight, entity who) {
+    print("Es wurde mit dem Ritter interagiert");
+}
+```
+
+Im obigen Snippet wird die Funktion `interact` als Event-Handler-Funktion auf das `on_interact`-Event registiert.
+Für die genauen Signatur-Informationen für solche Event-Handler-Funktionen und Informationen, welche Komponenten
+dies zulassen sei hier auf die [Dokumentation für Datentypen](TODO) verwiesen.
+
+
+## Beispiel-Abbildung: Antwortmöglichkeit als Schriftrollenitem
 
 Um eine Antwortmöglichkeit (bspw. einer Single-Choice-Aufgabe) als Item im Dungeon abzubilden, muss die
 entsprechende Antwortmöglichkeit (als `task_content`) bei dem Aufruf von `build_quest_item` übergeben werden.
@@ -366,3 +399,74 @@ fn build_task(multiple_choice_task t) -> entity<><> {
     // ...
 }
 ```
+
+Dieses Snippet verteilt alle Antwortmöglichkeiten als "Schriftrolle" auf dem Boden des Spiellevels.
+Eine Möglichkeit, die Antwort vom Spielenden "einzusammeln" wäre, eine Truhen-Entität zu instanziieren,
+in deren Inventar die Spielenden die Schriftrollen, welche die richtigen Antwortmöglichkeiten repräsentieren,
+ablegen muss.
+
+Hierzu muss eine Truhe instanziiert werden. Da die Truhe als "Aufgabentruhe" verwendet werden soll, benötigt
+der entsprechende Entitätstyp ein `task_content_component`:
+
+```
+entity_type chest_type {
+    inventory_component {},
+    draw_component {
+        path: "objects/treasurechest"
+    },
+    position_component{},
+    interaction_component{
+        radius: 1.5,
+        on_interaction: open_container
+    },
+    task_content_component{}
+}
+```
+
+Die Instanziierung der Truhe als Entität sieht wie folgt aus (die native Funktion `mark_as_task_container`
+markiert die Truhe als "Container" für die Aufgabe):
+
+```
+fn build_task(multiple_choice_task t) -> entity<><> {
+    // ...
+    var chest : entity;
+    chest = instantiate(chest_type);
+    chest.mark_as_task_container(t, "Quest-Truhe");
+
+    t.set_answer_picker_function(answer_picker_single_chest);
+    // ...
+}
+```
+
+Als Antwort-Auswahl-Funktion muss `answer_picker_single_chest` festgelegt werden, da nur eine Truhe
+an der Aufgabe beteiligt ist.
+
+Die letzten Bausteine, die noch für ein funktionierendes Szenario fehlt, sind Event-Handler-Funktionen.
+
+Die `open_container`-Funktion, die weiter oben in der Definition der `chest_type` referenziert wird, öffnet
+die grafische Bedienoberfläche, über die Items zwische dem Spielerinventar und dem Truheninventar
+getauscht werden können:
+
+```
+fn open_container(entity chest, entity who) {
+    chest.inventory_component.open(who);
+}
+```
+
+Die `ask_task_finished`-Funktion realisiert den Frage-Dialog, über den die Aufgabe gestellt wird.
+Falls die Aufgabe schon bearbeitet wurde, wird ein entsprechender Info-Dialog angezeigt:
+
+```
+fn ask_task_finished(entity manager_entity, entity who) {
+    var my_task : task;
+    my_task =  knight.task_component.task;
+
+    // Überprüfung, ob die Aufgabe noch aktiv ist oder schon bearbeitet wurde
+    if my_task.is_active() {
+        ask_task_yes_no(my_task);
+    } else {
+        show_info("Du hast die Aufgabe schon bearbeitet.");
+    }
+}
+```
+
