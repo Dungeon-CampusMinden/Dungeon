@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.Comparator;
 
 /** A utility class for building the hero entity in the game world. */
-public class HeroFactory {
+public final class HeroFactory {
 
     public static final int DEFAULT_INVENTORY_SIZE = 10;
     private static final String HERO_FILE_PATH = "character/wizard";
@@ -35,12 +35,16 @@ public class HeroFactory {
     private static final int HERO_HP = 100;
 
     /**
-     * Create a new Entity that can be used as a playable character. It will have a {@link
-     * CameraComponent}, {@link PlayerComponent}. {@link PositionComponent}, {@link
-     * VelocityComponent} {@link DrawComponent}, {@link CollideComponent} and {@link
-     * HealthComponent}.
+     * Get an Entity that can be used as a playable character.
      *
-     * @return Created Entity
+     * <p>The Entity is not added to the game yet.
+     *
+     * <p>It will have a {@link * CameraComponent}, {@link core.components.PlayerComponent}. {@link
+     * PositionComponent}, {@link * VelocityComponent} {@link core.components.DrawComponent}, {@link
+     * contrib.components.CollideComponent} and {@link * HealthComponent}.
+     *
+     * @return A new Entity.
+     * @throws IOException if the animation could not been loaded.
      */
     public static Entity newHero() throws IOException {
         Entity hero = new Entity("hero");

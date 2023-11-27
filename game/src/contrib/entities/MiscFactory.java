@@ -9,7 +9,6 @@ import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.utils.components.draw.ChestAnimations;
-import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.item.ItemGenerator;
 
 import core.Entity;
@@ -25,20 +24,26 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /** A utility class for building different miscellaneous entities in the game world. */
-public class MiscFactory {
+public final class MiscFactory {
 
     private static final Random RANDOM = new Random();
 
     /**
-     * Create a new Entity that can be used as a chest.
+     * Get an Entity that can be used as a chest.
+     *
+     * <p>Will contain some random items.
+     *
+     * <p>The Entity is not added to the game yet. *
+     *
+     * <p>The Entity is not added to the game yet. *
      *
      * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
-     * DrawComponent}, {@link CollideComponent} and {@link InventoryComponent}. It will use the
-     * {@link DropItemsInteraction} on interaction.
+     * core.components.DrawComponent}, {@link contrib.components.CollideComponent} and {@link
+     * contrib.components.InventoryComponent}. It will use the * {@link
+     * contrib.utils.components.interaction.DropItemsInteraction} on interaction.
      *
-     * <p>{@link ItemGenerator} is used to generate random items
-     *
-     * @return Created Entity
+     * @return A new Entity.
+     * @throws IOException if the animation could not been loaded.
      */
     public static Entity newChest() throws IOException {
         Set<Item> items =
@@ -49,17 +54,23 @@ public class MiscFactory {
     }
 
     /**
-     * Create a new Entity that can be used as a chest.
+     * Get an Entity that can be used as a chest.
+     *
+     * <p>It will contain the given items.
+     *
+     * <p>The Entity is not added to the game yet.
      *
      * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
-     * DrawComponent}, {@link CollideComponent} and {@link InventoryComponent}. It will use the
-     * {@link DropItemsInteraction} on interaction.
+     * core.components.DrawComponent}, {@link contrib.components.CollideComponent} and {@link
+     * contrib.components.InventoryComponent}. It will use the {@link
+     * contrib.utils.components.interaction.DropItemsInteraction} on interaction.
      *
-     * @param item The {@link Item} for the Items inside the chest.
-     * @param position The position of the chest.
-     * @return Created Entity
+     * @param item Items that should be in the chest.
+     * @param position Where should the chest be placed?
+     * @return A new Entity.
+     * @throws IOException If the animation could not be loaded.
      */
-    public static Entity newChest(Set<Item> item, Point position) throws IOException {
+    public static Entity newChest(final Set<Item> item, final Point position) throws IOException {
         final float defaultInteractionRadius = 1f;
         Entity chest = new Entity("chest");
 
@@ -159,10 +170,12 @@ public class MiscFactory {
     }
 
     /**
-     * Create a new Entity that can be used as a crafting cauldron.
+     * Get an Entity that can be used as a crafting cauldron.
      *
-     * @return Created Entity
-     * @throws IOException if the textures do not exist
+     * <p>The Entity is not added to the game yet.
+     *
+     * @return A new Entity.
+     * @throws IOException if the animation could not been loaded.
      */
     public static Entity newCraftingCauldron() throws IOException {
         Entity cauldron = new Entity("cauldron");

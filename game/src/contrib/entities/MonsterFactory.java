@@ -20,7 +20,7 @@ import java.util.Random;
 import java.util.function.BiConsumer;
 
 /** A utility class for building monster entities in the game world. */
-public class MonsterFactory {
+public final class MonsterFactory {
 
     private static final Random RANDOM = new Random();
 
@@ -50,33 +50,37 @@ public class MonsterFactory {
     private static final int MONSTER_COLLIDE_COOL_DOWN = 2 * Game.frameRate();
 
     /**
-     * Create a new Entity that can be used as a Monster.
+     * Get an Entity that can be used as a monster.
+     *
+     * <p>The Entity is not added to the game yet.
      *
      * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent}
      * with random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set
-     * Animation, {@link VelocityComponent}, {@link CollideComponent} and a 10% chance for an {@link
-     * InventoryComponent}. If it has an Inventory it will use the {@link DropItemsInteraction} on
-     * death.
+     * Animation, {@link VelocityComponent}, {@link CollideComponent}, {@link IdleSoundComponent}
+     * and a 10% chance for an {@link InventoryComponent}. If it has an Inventory it will use the
+     * {@link DropItemsInteraction} on death.
      *
-     * @return The generated "Monster".
+     * @return A new Entity.
+     * @throws IOException if the animation could not been loaded.
      */
     public static Entity randomMonster() throws IOException {
         return randomMonster(MONSTER_FILE_PATHS[RANDOM.nextInt(0, MONSTER_FILE_PATHS.length)]);
     }
 
     /**
-     * Create a new Entity that can be used as a Monster.
+     * Get an Entity that can be used as a monster.
      *
-     * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent}
-     * with random AIs from the {@link AIFactory} class, {@link DrawComponent} with the Animations
-     * in the given path, {@link VelocityComponent}, {@link CollideComponent} and a 10% chance for
-     * an {@link InventoryComponent}. If it has an Inventory it will use the {@link
-     * DropItemsInteraction} on death.
+     * <p>The Entity is not added to the game yet. *
      *
-     * @param pathToTexture Path to the directory that contains the texture that should be used for
-     *     the created monster
-     * @return The generated "Monster".
-     * @see DrawComponent
+     * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent} *
+     * with random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set *
+     * Animation, {@link VelocityComponent}, {@link CollideComponent}, {@link IdleSoundComponent}
+     * and a 10% chance for an {@link * InventoryComponent}. If it has an Inventory it will use the
+     * {@link DropItemsInteraction} on * death.
+     *
+     * @param pathToTexture Textures to use for the monster.
+     * @return A new Entity.
+     * @throws IOException if the animation could not been loaded.
      */
     public static Entity randomMonster(String pathToTexture) throws IOException {
         int health = RANDOM.nextInt(MIN_MONSTER_HEALTH, MAX_MONSTER_HEALTH);
@@ -100,11 +104,7 @@ public class MonsterFactory {
         }
         monster.add(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
         monster.add(new PositionComponent());
-        monster.add(
-                new AIComponent(
-                        AIFactory.generateRandomFightAI(),
-                        AIFactory.generateRandomIdleAI(),
-                        AIFactory.generateRandomTransitionAI(monster)));
+        monster.add(AIFactory.randomAI(monster));
         monster.add(new DrawComponent(pathToTexture));
         monster.add(new VelocityComponent(speed, speed));
         monster.add(new CollideComponent());
@@ -125,9 +125,9 @@ public class MonsterFactory {
             case 2 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_03.wav"));
             default -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_04.wav"));
         }
-        long soundid = dieSoundEffect.play();
-        dieSoundEffect.setLooping(soundid, false);
-        dieSoundEffect.setVolume(soundid, 0.35f);
+        long soundID = dieSoundEffect.play();
+        dieSoundEffect.setLooping(soundID, false);
+        dieSoundEffect.setVolume(soundID, 0.35f);
     }
 
     private static String randomMonsterIdleSound() {
