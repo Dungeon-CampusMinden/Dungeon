@@ -215,7 +215,8 @@ item_type scroll_type {
 Die wesentliche Eigenschaft eines `item_type` ist der `texture_path`, dem der relative Pfad zu einer Textur zugewiesen werden
 muss, welche genutzt wird, um das Item darzustellen.
 
-Aus einem `item_type` wird wie folgt ein Item erstellt:
+Aus einem `item_type` wird wie folgt ein Item erstellt (die Bedeutung von `content` wird in
+[Antwortmöglichkeit als Item](#abbildung-antwortmöglichkeit-als-item) erklärt):
 
 ```
 fn build_scenario(single_choice_task task) -> entity<><> {
@@ -307,7 +308,6 @@ fn build_task(single_choice_task t) -> entity<><> {
 
     // ...
 }
-
 ```
 
 #### Manager-Entität
@@ -324,3 +324,45 @@ Aufgabenname ist rot umrandet, der Aufgabentext (der Wert der
 [`description`-Eigenschaft](task_definition.md#beschreibung-der-eigenschaften)) und ein Szenario-spezifischer
 Text (blau umrandet).
 
+#### Antwort-Auswahl-Funktion
+
+Die Antwort-Auswahl-Funktion ("Answerpicker-Function") ist dafür zuständig, die gegebene
+Antwort auf eine Aufgabe aus dem Spielszenario zu ziehen. Zum aktuellen Stand können drei
+**native Funktionen** als Antwort-Auswahl-Funktionen verwendet werden. Wie auch die
+[Szenario-spezifische Beschreibung](#szenario-spezifische-aufgabenbeschreibung) sollte diese
+Funktion in der Szenario-Builder-Funktion gesetzt werden:
+
+```
+fn build_task(single_choice_task t) -> entity<><> {
+    // ...
+    t.set_answer_picker_function(answer_picker_single_chest);
+    // ...
+}
+```
+
+Für eine genaue Auflistung der verschiedenen Antwort-Auswahl-Funktionen und ihren Funktionsweisen
+siehe [Dokumentation: native Funktionen](TODO).
+
+#### Abbildung: Antwortmöglichkeit als Item
+
+Um eine Antwortmöglichkeit (bspw. einer Single-Choice-Aufgabe) als Item im Dungeon abzubilden, muss die
+entsprechende Antwortmöglichkeit (als `task_content`) bei dem Aufruf von `build_quest_item` übergeben werden.
+Wie auf die Antwortmöglichkeiten einer Aufgabe zugegriffen werden kann, unterscheidet sich je nach Aufgabentyp,
+siehe dazu die [Dokumentation zu Datentypen](TODO).
+Im folgenden Snippet ist ein Beispiel für eine Multiple-Choice-Aufgabe dargestellt:
+
+```
+fn build_task(multiple_choice_task t) -> entity<><> {
+    // ...
+    var room_set : entity<>;
+
+    // Items aus Antwortmöglichkeiten erstellen
+    for task_content content in t.get_content() {
+        var scroll : quest_item;
+        scroll = build_quest_item(scroll_type, content);
+        place_quest_item(scroll, room_set);
+    }
+
+    // ...
+}
+```
