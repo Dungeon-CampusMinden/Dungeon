@@ -1,11 +1,42 @@
 # Dungeon
 
-## About
+Das Dungeon ist ein mehrdimensionales Projekt zur Gamifizierung von Studieninhalten. 
 
-The Dungeon is a tool to gamify classroom content and integrate it into a 2D Rogue-Like role-playing game.
-It provides its own description language (the Dungeon Description Language) with which tasks and game content can be defined and loaded into the game.
+Mit dem Dungeon-Framework kann Java erlernt werden, indem ein eigenes RPG programmiert wird. 
 
-The Dungeon uses the [PM-Dungeon](https://github.com/Programmiermethoden/Dungeon/tree/master/game) as a framework for game development.
+Im Dungeon-Projekt "Learning by Questing" können klassische Übungsaufgaben in das Spiel geladen und spielerisch gelöst werden. 
+
+Das Blockly-Dungeon richtet sich an komplette Neueinsteiger und dient zur Visualisierung einfacher Algorithmen.
+
+## Dungeon-Framework
+
+Dieses Java-Framework, das auf libGDX basiert, ermöglicht die einfache Entwicklung eines 2D-Rollenspiels im Stil von Rogue. Es eignet sich besonders gut für Programmieranfänger, da es komplexe Aufgaben wie die Generierung von Leveln und das Zeichnen sowie Animieren von Figuren abstrahiert. Dadurch kann sich der Anwender auf die Java-Programmierung konzentrieren.
+
+Das Framework befindet sich im Projekt [`game`](./game).
+
+Die [Dokumentation](./game/doc/) und der [Quickstart](./game/doc/quickstart.md) sollten einen schnellen Einstieg ermöglichen.
+
+![](./game/doc/img/monster.gif)
+
+
+## Learning by Questing
+
+Das Framework bietet die Möglichkeit, durch die Integration von Quests zu lernen. Quests sind dabei typische Übungsaufgaben aus dem Studienkontext. Diese Aufgaben werden in einer einfachen, eigenen Sprache definiert, ohne dass die Lehrenden selbst Spielmechaniken programmieren müssen. Das Framework wandelt die definierten Aufgaben automatisch in verschiedene Spielszenarien um und ermöglicht so das Erstellen von individuellen Lernpfaden.
+
+Das Dungeon befindet sich im Projekt [`dungeon`](./dungeon).
+
+Die [Dokumentation](./dungeon/doc) und der [Quickstart](./dungeon/doc/readme.md) sollten einen schnellen Einstieg ermöglichen.
+
+![](./dungeon/doc/dsl/img/quickstart_select_config_level.png)
+![](./dungeon/doc/dsl/img/quickstart_answer_menu.png)
+
+## Low Code: Blockly-Dungeon
+Dieser Teil des Projekts nutzt Googles Blockly, um eine grafische Low-Code-Benutzeroberfläche zu generieren. Über eine Webschnittstelle (lokal) kann die Spielfigur im Dungeon gesteuert werden, wodurch auch Anwender ohne tiefgreifende Programmierkenntnisse am Erlebnis teilhaben können.
+
+Das Blockly-Dungeon befindet sich im Projekt [`blockly`](./blockly).
+Die [Dokumentation](./blockly/doc) sollte einen schnellen Einstieg ermöglichen.
+
+![](./blockly/doc/img/examples/komplexes_beispiel.png)
 
 ## Requirements
 
