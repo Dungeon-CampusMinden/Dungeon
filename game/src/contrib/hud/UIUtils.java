@@ -9,14 +9,15 @@ import contrib.components.UIComponent;
 
 import core.Entity;
 import core.Game;
-import core.utils.Constants;
 
 import java.util.function.Supplier;
 
 /** UI utility functions, such as a formatter for the window or dialog. */
 public final class UIUtils {
 
+    /** The default UI-Skin. */
     private static final String SKIN_FOR_DIALOG = "skin/uiskin.json";
+
     public static final Skin DEFAULT_SKIN = new Skin(Gdx.files.internal(SKIN_FOR_DIALOG));
     /**
      * Limits the length of the string to 40 characters, after which a line break occurs
@@ -26,8 +27,6 @@ public final class UIUtils {
      * FontSize = MAX_ROW_LENGTH 480 / 12 = 40
      */
     private static final int MAX_ROW_LENGTH = 40;
-    /** The default UI-Skin. */
-    public static final Skin DEFAULT_SKIN = new Skin(Gdx.files.internal(Constants.SKIN_FOR_DIALOG));
 
     /**
      * Show the given dialog on the screen.
