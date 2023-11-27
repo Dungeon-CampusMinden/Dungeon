@@ -8,7 +8,6 @@ import core.level.elements.astar.TileConnection;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.Constants;
 import core.utils.Point;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
@@ -37,6 +36,7 @@ public abstract class Tile {
     protected LevelElement levelElement;
     protected transient Array<Connection<Tile>> connections = new Array<>();
     protected int index;
+    private static final float DEFAULT_FRICTION = 0.8f;
 
     /**
      * Create a new Tile.
@@ -68,7 +68,7 @@ public abstract class Tile {
             final String texturePath,
             final Coordinate globalPosition,
             final DesignLabel designLabel) {
-        this(texturePath, globalPosition, designLabel, Constants.DEFAULT_FRICTION);
+        this(texturePath, globalPosition, designLabel, DEFAULT_FRICTION);
     }
 
     /**

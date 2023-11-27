@@ -1,12 +1,9 @@
 package starter;
 
-import static org.junit.Assert.*;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import core.Game;
-import core.utils.Constants;
 
 import org.junit.After;
 import org.junit.Before;

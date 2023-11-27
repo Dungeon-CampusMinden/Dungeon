@@ -1,21 +1,19 @@
 package core.level.utils;
 
-import core.utils.Constants;
-
 /** Each type of field in a level can be represented by an integer value. */
 public enum LevelElement {
     /** This field is a blank */
-    SKIP(Constants.LEVELELEMENT_IS_NOT_ACCESSIBLE),
+    SKIP(false),
     /** This field is a floor-field */
-    FLOOR(Constants.LEVELELEMENT_IS_ACCESSIBLE),
+    FLOOR(true),
     /** This field is a wall-field */
-    WALL(Constants.LEVELELEMENT_IS_NOT_ACCESSIBLE),
+    WALL(false),
     /** This field is a hole-field */
-    HOLE(Constants.LEVELELEMENT_IS_NOT_ACCESSIBLE),
+    HOLE(false),
     /** This field is the exit-field to the next level */
-    EXIT(Constants.LEVELELEMENT_IS_ACCESSIBLE),
+    EXIT(true),
 
-    DOOR(Constants.LEVELELEMENT_IS_ACCESSIBLE);
+    DOOR(true);
 
     private final boolean value;
 

@@ -16,6 +16,8 @@ import java.util.function.Supplier;
 /** UI utility functions, such as a formatter for the window or dialog. */
 public final class UIUtils {
 
+    private static final String SKIN_FOR_DIALOG = "skin/uiskin.json";
+    public static final Skin DEFAULT_SKIN = new Skin(Gdx.files.internal(SKIN_FOR_DIALOG));
     /**
      * Limits the length of the string to 40 characters, after which a line break occurs
      * automatically.
