@@ -167,7 +167,7 @@ public class OpenGLBackend implements IGUIBackend {
 
         OpenGLBlendState blendState = OpenGLBlendState.capture();
         GL33.glEnable(GL33.GL_BLEND);
-        GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+        GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_DST_ALPHA);
 
         int initX = Math.round(x);
         int initY = Math.round(y);
