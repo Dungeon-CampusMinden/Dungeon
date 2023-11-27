@@ -4,5 +4,5 @@ package contrib.crafting;
 public enum CraftingType {
     ITEM, // Ingredient is an item
     HEALTH, // Ingredient is health points (currently unused)
-    XP; // Ingredient is experience points (currently unused)
+    XP // Ingredient is experience points (currently unused)
 }

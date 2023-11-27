@@ -11,7 +11,6 @@ import core.Entity;
 import core.Game;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
 
@@ -297,11 +296,6 @@ public class Item implements CraftingIngredient, CraftingResult {
     }
 
     @Override
-    public CraftingType ingredientType() {
-        return CraftingType.ITEM;
-    }
-
-    @Override
     public boolean match(final CraftingIngredient input) {
         if (this.getClass().isInstance(input)) return ((Item) input).stackSize() <= stackSize;
         return false;
@@ -310,15 +304,5 @@ public class Item implements CraftingIngredient, CraftingResult {
     @Override
     public CraftingType resultType() {
         return CraftingType.ITEM;
-    }
-
-    @Override
-    public void executeCrafting(final Entity entity) {
-        entity.fetch(InventoryComponent.class)
-                .ifPresentOrElse(
-                        inv -> inv.add(this),
-                        () -> {
-                            throw MissingComponentException.build(entity, InventoryComponent.class);
-                        });
     }
 }

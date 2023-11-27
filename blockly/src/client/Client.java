@@ -11,6 +11,7 @@ import core.Game;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
+import core.utils.MissingHeroException;
 
 import server.Server;
 
@@ -68,6 +69,7 @@ public class Client {
                     createHero();
                     Crafting.loadRecipes();
                     startServer();
+                    Crafting.loadRecipes();
                 });
     }
 
@@ -115,7 +117,7 @@ public class Client {
             for (int k = 0; k < chestcount; k++) {
                 try {
                     set.add(EntityFactory.newChest());
-                } catch (IOException e) {
+                } catch (IOException ignored) {
 
                 }
             }
@@ -125,7 +127,7 @@ public class Client {
     }
 
     private static void createHero() {
-        Entity hero = null;
+        Entity hero;
         try {
             hero = (EntityFactory.newHero());
         } catch (IOException e) {
@@ -146,7 +148,7 @@ public class Client {
 
     private static void startServer() {
 
-        Server blocklyServer = new Server(Game.hero().get());
+        Server blocklyServer = new Server(Game.hero().orElseThrow(MissingHeroException::new));
         try {
             blocklyServer.start();
         } catch (IOException e) {

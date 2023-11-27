@@ -16,16 +16,19 @@ import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
 /**
- * Class that handles the crafting system.
+ * Handles the crafting system.
  *
- * <p>It contains a list of recipes and methods to {@link #addRecipe(Recipe) add} and {@link
- * #removeRecipe(Recipe) remove} recipes. It also provides the method {@link
- * #recipeByIngredients(CraftingIngredient[])} to get a recipe based on the provided ingredients.
+ * <p>It contains a list of recipes and methods to {@link #addRecipe(Recipe) add} recipes. It also
+ * provides the method {@link #recipeByIngredients(CraftingIngredient[])} to get a recipe based on
+ * the provided ingredients.
+ *
+ * <p>It will load the recipes from the files via {@link #loadRecipes()}. Recipes have to be in the
+ * 'assets/recipes' directory. This will autmaticly happen an program start. Call this in your
+ * {@link core.game.PreRunConfiguration#userOnSetup onSetup callback}.
  */
-public class Crafting {
-
+public final class Crafting {
     private static final HashSet<Recipe> RECIPES = new HashSet<>();
-    private static final Logger LOGGER = Logger.getLogger(Crafting.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Crafting.class.getSimpleName());
 
     /**
      * Get a recipe based on the provided items.
@@ -37,8 +40,7 @@ public class Crafting {
      * @return The recipe that can be crafted with the provided ingredients. If none can be crafted,
      *     the returned optional will be empty.
      */
-    public static Optional<Recipe> recipeByIngredients(CraftingIngredient[] inputs) {
-
+    public static Optional<Recipe> recipeByIngredients(final CraftingIngredient[] inputs) {
         List<Recipe> possibleRecipes = new ArrayList<>();
         for (Recipe recipe : RECIPES) {
             if (recipe.canCraft(inputs)) {
@@ -62,20 +64,11 @@ public class Crafting {
      *
      * @param recipe The recipe to add.
      */
-    public static void addRecipe(Recipe recipe) {
+    public static void addRecipe(final Recipe recipe) {
         if (recipe.ingredients().length == 0) {
             throw new InvalidRecipeException("Recipes with no ingredients are not allowed!");
         }
         RECIPES.add(recipe);
-    }
-
-    /**
-     * Remove a recipe from the list of recipes programmatically.
-     *
-     * @param recipe The recipe to remove.
-     */
-    public static void removeRecipe(Recipe recipe) {
-        RECIPES.remove(recipe);
     }
 
     /** Remove all recipes. */
@@ -84,7 +77,7 @@ public class Crafting {
     }
 
     /**
-     * Load recipes from the recipes folder.
+     * Load recipes from the recipes' folder.
      *
      * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
      */
@@ -102,7 +95,7 @@ public class Crafting {
     private static void loadFromJar() {
         try {
             String path =
-                    new File(Crafting.class.getResource("").getPath())
+                    new File(Objects.requireNonNull(Crafting.class.getResource("")).getPath())
                             .getParent()
                             // for windows
                             .replaceAll("(!|file:\\\\)", "")
@@ -128,7 +121,8 @@ public class Crafting {
 
     /** Load recipes if the program was started from a folder. */
     private static void loadFromFile() {
-        File folder = new File(Crafting.class.getResource("/recipes").getPath());
+        File folder =
+                new File(Objects.requireNonNull(Crafting.class.getResource("/recipes")).getPath());
         File[] files = folder.listFiles();
         if (files == null) {
             return;
@@ -152,7 +146,7 @@ public class Crafting {
      * @param name The name of the file. Used for error logging only.
      * @return The parsed recipe.
      */
-    private static Recipe parseRecipe(InputStream stream, String name) {
+    private static Recipe parseRecipe(final InputStream stream, final String name) {
         try {
             BufferedReader reader =
                     new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
@@ -208,7 +202,11 @@ public class Crafting {
             reader.close();
 
             return recipe;
-        } catch (IOException ex) {
+        } catch (IOException
+                | InvocationTargetException
+                | InstantiationException
+                | IllegalAccessException
+                | NoSuchMethodException ex) {
             LOGGER.log(
                     CustomLogLevel.ERROR,
                     "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
@@ -217,22 +215,6 @@ public class Crafting {
             LOGGER.log(
                     CustomLogLevel.WARNING,
                     "Error parsing recipe (" + name + "): " + ex.getMessage()); // Warning
-        } catch (InvocationTargetException ex) {
-            LOGGER.log(
-                    CustomLogLevel.ERROR,
-                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
-        } catch (InstantiationException ex) {
-            LOGGER.log(
-                    CustomLogLevel.ERROR,
-                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
-        } catch (IllegalAccessException ex) {
-            LOGGER.log(
-                    CustomLogLevel.ERROR,
-                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
-        } catch (NoSuchMethodException ex) {
-            LOGGER.log(
-                    CustomLogLevel.ERROR,
-                    "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
         }
 
         return null;
