@@ -12,6 +12,9 @@ und Spielelemente, welche Lösungsmöglichkeiten für eine Aufgabe darstellen.
 Für jeden Aufgabentyp ist bereits eine default Szenario-Builder-Funktion definiert, sodass
 diese **Funktionen nicht zwingend durch Nutzende definiert werden müssen**.
 
+Für genauere Informationen zu den syntaktischen und semantischen Konzepten, die Funktionsdefinitionen
+betreffen, siehe die [Dokumentation zu den Sprachkonzepten der DungeonDSL](sprachkonzepte.md).
+
 ### Beispiel
 
 Gegeben sei als Beispiel folgende Aufgabendefinition:
