@@ -31,8 +31,7 @@ import java.util.Set;
  * neighboring nodes, and the index in the array indicates the {@link Direction} through which the
  * nodes are connected.
  */
-public class LevelGraphGenerator {
-    private static final int RANGE_OF_RANDOM_EDGE_COUNT = 3;
+public final class LevelGraphGenerator {
 
     /**
      * Generates a {@link LevelGraph} with one node for each provided collection of entities.
@@ -57,7 +56,7 @@ public class LevelGraphGenerator {
      * @param nodeCount Number of nodes in the graph.
      * @return The generated graph.
      */
-    public static LevelGraph generate(final int nodeCount) {
+    public static LevelGraph generate(int nodeCount) {
         Set<Set<Entity>> outerSet = new HashSet<>();
         for (int i = 0; i < nodeCount; i++) outerSet.add(Set.of(new Entity()));
         return generate(outerSet);

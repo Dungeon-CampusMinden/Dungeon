@@ -12,7 +12,7 @@ public enum Direction {
     private static final Random RANDOM = new Random();
     private final int value;
 
-    Direction(final int value) {
+    Direction(int value) {
         this.value = value;
     }
 

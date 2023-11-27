@@ -6,11 +6,11 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 
 /**
- * Exception to throw if a door cant be place in a room.
+ * Exception to throw if a door cannot be place in a room.
  *
  * @see RoomGenerator
  */
-public class CantPlaceDoorException extends RuntimeException {
+public final class CantPlaceDoorException extends RuntimeException {
 
     /**
      * Create a new CantPlaceDoorException.

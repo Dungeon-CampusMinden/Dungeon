@@ -21,7 +21,7 @@ import java.util.Random;
  * Supports are generated in rooms with a big baseFloor. Finally, doors are generated at the
  * outermost walls for every given door direction.
  */
-public class RoomGenerator {
+public final class RoomGenerator {
 
     private static final int WALL_BUFFER = 2;
     private static final float EXTEND_TO_SIDES = 0.5f;
@@ -90,7 +90,7 @@ public class RoomGenerator {
      * @return The generated room layout.
      */
     private LevelElement[][] generateRoom(
-            final LevelSize size, final long seed, final LevelNode[] doors) {
+            final LevelSize size, long seed, final LevelNode[] doors) {
         // Initialize random number generator with seed
         random = new Random(seed);
 
@@ -541,7 +541,7 @@ public class RoomGenerator {
      * @param x X-coordinate of Tile to check.
      * @return true if at least one FloorTile is neighboring the Tile.
      */
-    private boolean neighborsFloor(final LevelElement[][] layout, final int y, final int x) {
+    private boolean neighborsFloor(final LevelElement[][] layout, int y, int x) {
         int floorNeighbors = 0;
         if (layout[y + 1][x - 1] == LevelElement.FLOOR) {
             floorNeighbors++;

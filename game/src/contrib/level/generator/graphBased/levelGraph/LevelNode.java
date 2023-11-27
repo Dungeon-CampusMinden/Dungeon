@@ -23,9 +23,9 @@ import java.util.*;
  * neighboring nodes, and the index in the array indicates the {@link Direction} through which the
  * nodes are connected.
  */
-public class LevelNode {
+public final class LevelNode {
 
-    protected static final int MAX_NEIGHBOURS = Direction.values().length;
+    static final int MAX_NEIGHBOURS = Direction.values().length;
     private final Set<Entity> entities;
     private final LevelNode[] neighbours = new LevelNode[MAX_NEIGHBOURS];
     private final LevelGraph originGraph;
@@ -168,8 +168,7 @@ public class LevelNode {
      * node's origin graph, and vice versa.
      *
      * <p>This method only establishes the connection from this node to the other. Remember to also
-     * call {@link #connect(LevelNode, Direction)} for the given node with the opposite direction to
-     * complete the connection.
+     * call this function for the given node with the opposite direction to complete the connection.
      *
      * @param node The neighbor to be added.
      * @param direction The direction at which the neighbor should be added from this node's
@@ -223,7 +222,7 @@ public class LevelNode {
      *     perspective (in the neighbor's context, this corresponds to the opposite direction).
      * @return An Optional containing the old neighbor, if there was any.
      */
-    protected Optional<LevelNode> forceNeighbor(final LevelNode node, final Direction direction) {
+    Optional<LevelNode> forceNeighbor(final LevelNode node, final Direction direction) {
         LevelNode old = neighbours[direction.value()];
         neighbours[direction.value()] = node;
         if (old != null && old != node) old.forceNeighbor(null, Direction.opposite(direction));
@@ -235,7 +234,7 @@ public class LevelNode {
      *
      * @return List of directions without neighbors.
      */
-    protected List<Direction> freeDirections() {
+    List<Direction> freeDirections() {
         List<Direction> freeDirections = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             int directionValue = direction.value();

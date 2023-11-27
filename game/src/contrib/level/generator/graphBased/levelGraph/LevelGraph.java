@@ -27,7 +27,7 @@ import java.util.*;
  *
  * <p>Use {@link #add(Set)} to add a new entity collection and thus a new node to the graph.
  */
-public class LevelGraph {
+public final class LevelGraph {
     private static final Random RANDOM = new Random();
     private final Set<LevelNode> nodes = new HashSet<>();
     private LevelNode root;
@@ -181,7 +181,7 @@ public class LevelGraph {
      *     number will be randomly selected between the number of nodes in the graph divided by the
      *     divider and the total number of nodes in the graph.
      */
-    public void addRandomEdges(final int divider) {
+    public void addRandomEdges(int divider) {
         // for two nodes no extra edges are needed
         if (nodes.size() >= 3) {
             int howManyExtraEdges = RANDOM.nextInt(nodes.size() / divider, nodes.size());

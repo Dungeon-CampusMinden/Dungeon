@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  *
  * <p>Now you can get a dot representation of the level graph in the log.
  */
-public class RoomBasedLevelGenerator {
+public final class RoomBasedLevelGenerator {
 
     /** Rooms with this amount or fewer entities will be generated small. */
     private static final int MAX_ENTITIES_FOR_SMALL_ROOMS = 2;
