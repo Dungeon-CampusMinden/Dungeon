@@ -7,7 +7,7 @@ import contrib.components.*;
 import contrib.item.Item;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.interaction.DropItemsInteraction;
-import contrib.utils.components.item.ItemDataGenerator;
+import contrib.utils.components.item.ItemGenerator;
 
 import core.Entity;
 import core.Game;
@@ -86,8 +86,7 @@ public class MonsterFactory {
         int itemRoll = RANDOM.nextInt(0, 10);
         BiConsumer<Entity, Entity> onDeath;
         if (itemRoll == 0) {
-            ItemDataGenerator itemDataGenerator = new ItemDataGenerator();
-            Item item = itemDataGenerator.generateItemData();
+            Item item = ItemGenerator.generateItemData();
             InventoryComponent ic = new InventoryComponent(1);
             monster.add(ic);
             ic.add(item);
