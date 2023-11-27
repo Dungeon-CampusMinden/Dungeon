@@ -1,5 +1,8 @@
 package task.game.hud;
 
+import static task.game.hud.QuizUI.DEFAULT_DIALOG_ABORT;
+import static task.game.hud.QuizUI.DEFAULT_DIALOG_CONFIRM;
+
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -7,8 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.utils.SnapshotArray;
 
-import contrib.hud.TextDialog;
-import contrib.hud.UITools;
+import contrib.hud.UIUtils;
+import contrib.hud.dialogs.TextDialog;
 
 import core.Entity;
 import core.Game;
@@ -54,16 +57,16 @@ public final class UIAnswerCallback {
     /**
      * Callback after the answers were confirmed.
      *
-     * @see UITools
+     * @see UIUtils
      */
     static BiFunction<TextDialog, String, Boolean> uiCallback(
             Quiz quest, Entity hudEntity, BiConsumer<Task, Set<TaskContent>> dslCallback) {
         return (textDialog, id) -> {
-            if (Objects.equals(id, UITools.DEFAULT_DIALOG_CONFIRM)) {
+            if (Objects.equals(id, DEFAULT_DIALOG_CONFIRM)) {
                 dslCallback.accept(quest, getAnswer(quest, answerSection(textDialog)));
                 Game.remove(hudEntity);
                 return true;
-            } else if (Objects.equals(id, UITools.DEFAULT_DIALOG_ABORT)) {
+            } else if (Objects.equals(id, DEFAULT_DIALOG_ABORT)) {
                 Game.remove(hudEntity);
                 return true;
             }

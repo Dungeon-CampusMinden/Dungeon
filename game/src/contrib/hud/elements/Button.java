@@ -1,4 +1,4 @@
-package contrib.hud;
+package contrib.hud.elements;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,11 +12,13 @@ import core.utils.components.draw.TextureMap;
 import java.util.function.Consumer;
 
 /**
- * This class represents a button in the GUI.
+ * Represents a button in the GUI.
  *
- * <p>It has a position (x,y) and a size (width, height) in the root stage ({@link Game#stage()}).
+ * <p>This class defines a button with a specified position (x, y) and size (width, height) within
+ * the root stage, accessible via {@link Game#stage()}.
  *
- * <p>The button registers its own {@link InputListener} on his parents actor to detect clicks.
+ * <p>The button automatically registers its own {@link InputListener} on its parent's actor to
+ * detect clicks.
  */
 public class Button {
 
@@ -30,7 +32,7 @@ public class Button {
         TEXTURE_BUTTON_PRESS = TextureMap.instance().textureAt("hud/button/button_press.png");
     }
 
-    protected CombinableGUI parent;
+    protected final CombinableGUI parent;
     protected int x, y, width, height;
     private boolean pressed = false;
     private Consumer<Button> onClick;
@@ -44,7 +46,7 @@ public class Button {
      * @param width The width of the button
      * @param height The height of the button
      */
-    public Button(CombinableGUI parent, int x, int y, int width, int height) {
+    public Button(final CombinableGUI parent, int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
         this.width = width;

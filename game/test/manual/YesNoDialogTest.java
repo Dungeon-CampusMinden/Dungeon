@@ -3,8 +3,8 @@ package manual;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
-import contrib.hud.UITools;
-import contrib.hud.YesNoDialog;
+import contrib.hud.dialogs.TextDialog;
+import contrib.hud.dialogs.YesNoDialog;
 import contrib.systems.HudSystem;
 
 import core.Game;
@@ -33,15 +33,13 @@ public class YesNoDialogTest {
                                 new IVoidFunction() {
                                     @Override
                                     public void execute() {
-                                        UITools.generateNewTextDialog(
-                                                "Yes", "Ok", "Callback for yes.");
+                                        TextDialog.textDialog("Yes", "Ok", "Callback for yes.");
                                     }
                                 },
                                 new IVoidFunction() {
                                     @Override
                                     public void execute() {
-                                        UITools.generateNewTextDialog(
-                                                "No", "Ok", "Callback for no.");
+                                        TextDialog.textDialog("No", "Ok", "Callback for no.");
                                     }
                                 });
                     }

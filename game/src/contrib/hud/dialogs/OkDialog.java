@@ -1,7 +1,9 @@
-package contrib.hud;
+package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+
+import contrib.hud.UIUtils;
 
 import core.Entity;
 import core.Game;
@@ -11,16 +13,18 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
- * A Dialog with a "ok" Button on the Bottom.
+ * A Dialog with an "ok" Button on the Bottom.
  *
  * <p>Use {@link #showOkDialog(String, String, IVoidFunction)} to create a simple dialog.
  */
-public class OkDialog {
+public final class OkDialog {
 
     public static final String DEFAULT_OK_BUTTON = "Ok";
 
     /**
-     * Show a Ok-Dialog
+     * Show an Ok-Dialog
+     *
+     * <p>Entity will already be added to the game.
      *
      * @param text text to show in the dialog
      * @param title title of the dialog window
@@ -30,13 +34,15 @@ public class OkDialog {
     public static Entity showOkDialog(
             final String text, final String title, final IVoidFunction onOk) {
 
-        Entity entity = showOkDialog(UITools.DEFAULT_SKIN, text, title, onOk);
+        Entity entity = showOkDialog(UIUtils.DEFAULT_SKIN, text, title, onOk);
         Game.add(entity);
         return entity;
     }
 
     /**
-     * Show a Ok-Dialog.
+     * Show an Ok-Dialog.
+     *
+     * <p>Entity will already be added to the game.
      *
      * @param skin UI skin to use
      * @param text text to show in the dialog
@@ -48,15 +54,12 @@ public class OkDialog {
             final Skin skin, final String text, final String title, final IVoidFunction onOk) {
         Entity entity = new Entity();
 
-        UITools.show(
+        UIUtils.show(
                 () -> {
                     Dialog dialog =
                             createOkDialog(
-                                    skin,
-                                    text,
-                                    title,
-                                    createResultHandlerYesNo(entity, DEFAULT_OK_BUTTON, onOk));
-                    UITools.centerActor(dialog);
+                                    skin, text, title, createResultHandlerYesNo(entity, onOk));
+                    UIUtils.center(dialog);
                     return dialog;
                 },
                 entity);
@@ -72,7 +75,7 @@ public class OkDialog {
         Dialog textDialog = new TextDialog(title, skin, "Letter", resultHandler);
         textDialog
                 .getContentTable()
-                .add(DialogDesign.createTextDialog(skin, UITools.formatStringForDialogWindow(text)))
+                .add(DialogDesign.createTextDialog(skin, UIUtils.formatString(text)))
                 .center()
                 .grow();
         textDialog.button(DEFAULT_OK_BUTTON, DEFAULT_OK_BUTTON);
@@ -81,9 +84,9 @@ public class OkDialog {
     }
 
     private static BiFunction<TextDialog, String, Boolean> createResultHandlerYesNo(
-            final Entity entity, final String okButtonId, final IVoidFunction onOk) {
+            final Entity entity, final IVoidFunction onOk) {
         return (d, id) -> {
-            if (Objects.equals(id, okButtonId)) {
+            if (Objects.equals(id, OkDialog.DEFAULT_OK_BUTTON)) {
                 onOk.execute();
                 Game.remove(entity);
                 return true;

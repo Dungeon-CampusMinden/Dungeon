@@ -7,7 +7,7 @@ import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
-import contrib.hud.UITools;
+import contrib.hud.dialogs.TextDialog;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
@@ -205,7 +205,7 @@ public class Debugger {
     }
 
     private static Entity newPauseMenu() {
-        Entity entity = UITools.generateNewTextDialog("Pause", "Weiter", "Pausemenue");
+        Entity entity = TextDialog.textDialog("Pause", "Weiter", "Pausemenue");
         entity.fetch(UIComponent.class).ifPresent(y -> y.dialog().setVisible(true));
         return entity;
     }

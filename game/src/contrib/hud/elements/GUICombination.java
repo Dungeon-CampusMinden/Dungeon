@@ -1,4 +1,4 @@
-package contrib.hud;
+package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -17,15 +17,14 @@ import java.util.Arrays;
  * An object of this class represents a combination of multiple {@link CombinableGUI
  * CombinableGUIs}.
  *
- * <p>This class calculates the position and available space for each {@link CombinableGUI} and
- * calls the methods of the {@link CombinableGUI} to draw the elements and to calculate the
- * preferred size.
+ * <p>This class calculates the position and available space for each {@link CombinableGUI}, calling
+ * the methods of the {@link CombinableGUI} to draw the elements and calculate the preferred size.
  *
- * <p>The class inherits from {@link Group} so it can be added to a {@link
- * com.badlogic.gdx.scenes.scene2d.Stage Stage} to be displayed. This should happen through the use
- * of a {@link UIComponent}.
+ * <p>The class inherits from {@link Group}, allowing it to be added to a {@link
+ * com.badlogic.gdx.scenes.scene2d.Stage Stage} for display. This addition should be facilitated
+ * through the use of a {@link UIComponent}.
  */
-public class GUICombination extends Group {
+public final class GUICombination extends Group {
 
     public static final int GAP = 10;
 
@@ -35,7 +34,13 @@ public class GUICombination extends Group {
     private final ArrayList<CombinableGUI> combinableGuis;
     private final int guisPerRow;
 
-    public GUICombination(int guisPerRow, CombinableGUI... combinableGuis) {
+    /**
+     * Creates a GUICombination, a combination of multiple CombinableGUI elements.
+     *
+     * @param guisPerRow The number of CombinableGUI elements to display per row.
+     * @param combinableGuis The CombinableGUI elements to be combined.
+     */
+    public GUICombination(int guisPerRow, final CombinableGUI... combinableGuis) {
         this.guisPerRow = guisPerRow;
         this.dragAndDrop = new DragAndDrop();
         this.setSize(Game.stage().orElseThrow().getWidth(), Game.stage().orElseThrow().getHeight());
@@ -49,7 +54,12 @@ public class GUICombination extends Group {
         this.scalePositionChildren();
     }
 
-    public GUICombination(CombinableGUI... combinableGuis) {
+    /**
+     * Creates a GUICombination, a combination of multiple CombinableGUI elements.
+     *
+     * @param combinableGuis The CombinableGUI elements to be combined.
+     */
+    public GUICombination(final CombinableGUI... combinableGuis) {
         this(2, combinableGuis);
     }
 
@@ -90,22 +100,13 @@ public class GUICombination extends Group {
     }
 
     @Override
-    public void draw(Batch batch, float parentAlpha) {
-        this.combinableGuis.forEach(
-                combinableGUI -> {
-                    combinableGUI.draw(batch);
-                });
-        this.combinableGuis.forEach(
-                combinableGUI -> {
-                    combinableGUI.drawTopLayer(batch);
-                });
+    public void draw(final Batch batch, float parentAlpha) {
+        this.combinableGuis.forEach(combinableGUI -> combinableGUI.draw(batch));
+        this.combinableGuis.forEach(combinableGUI -> combinableGUI.drawTopLayer(batch));
     }
 
     @Override
-    public void drawDebug(ShapeRenderer shapes) {
-        this.combinableGuis.forEach(
-                combinableGUI -> {
-                    combinableGUI.drawDebug(shapes);
-                });
+    public void drawDebug(final ShapeRenderer shapes) {
+        this.combinableGuis.forEach(CombinableGUI::drawDebug);
     }
 }

@@ -3,7 +3,7 @@ package dsl.semanticanalysis.environment;
 import contrib.components.*;
 import contrib.entities.EntityFactory;
 import contrib.entities.WorldItemBuilder;
-import contrib.hud.OkDialog;
+import contrib.hud.dialogs.OkDialog;
 import contrib.item.Item;
 
 import core.Entity;

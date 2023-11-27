@@ -6,8 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 
-import contrib.hud.DialogDesign;
-import contrib.hud.UITools;
+import contrib.hud.UIUtils;
+import contrib.hud.dialogs.DialogDesign;
 
 import core.utils.Constants;
 
@@ -43,11 +43,7 @@ public class QuizDialogDesign {
                 .filter(answer -> answer instanceof Quiz.Content)
                 .map(answer -> (Quiz.Content) answer)
                 .filter(answer -> answer.type() != Quiz.Content.Type.IMAGE)
-                .map(
-                        answer ->
-                                new CheckBox(
-                                        UITools.formatStringForDialogWindow(answer.content()),
-                                        style))
+                .map(answer -> new CheckBox(UIUtils.formatString(answer.content()), style))
                 .forEach(
                         checkBox -> {
                             btnGroup.add(checkBox);
@@ -104,9 +100,7 @@ public class QuizDialogDesign {
             case TEXT -> vg.addActor(
                     DialogDesign.createScrollPane(
                             skin,
-                            new Label(
-                                    UITools.formatStringForDialogWindow(questionContent.content()),
-                                    skin)));
+                            new Label(UIUtils.formatString(questionContent.content()), skin)));
             case IMAGE -> vg.addActor(
                     DialogDesign.createScrollPane(
                             skin,

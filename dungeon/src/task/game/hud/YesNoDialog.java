@@ -1,6 +1,6 @@
 package task.game.hud;
 
-import contrib.hud.OkDialog;
+import contrib.hud.dialogs.OkDialog;
 
 import core.Entity;
 import core.utils.IVoidFunction;
@@ -32,7 +32,8 @@ public class YesNoDialog {
                         + System.lineSeparator()
                         + "Bist du fertig?";
         String title = task.taskName();
-        return contrib.hud.YesNoDialog.showYesNoDialog(text, title, gradeOn(task), () -> {});
+        return contrib.hud.dialogs.YesNoDialog.showYesNoDialog(
+                text, title, gradeOn(task), () -> {});
     }
 
     private static IVoidFunction gradeOn(final Task t) {

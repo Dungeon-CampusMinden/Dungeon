@@ -13,9 +13,9 @@ import com.badlogic.gdx.utils.Align;
 
 import contrib.components.InventoryComponent;
 import contrib.crafting.*;
-import contrib.hud.CombinableGUI;
-import contrib.hud.GUICombination;
-import contrib.hud.ImageButton;
+import contrib.hud.elements.CombinableGUI;
+import contrib.hud.elements.GUICombination;
+import contrib.hud.elements.ImageButton;
 import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
 
@@ -60,7 +60,7 @@ public class CraftingGUI extends CombinableGUI {
     // Positioning and sizing
     // These values should fit the background texture of the crafting GUI and should be between 0
     // and 1.
-    // 0 is the bottom left corner and 1 is the top right corner.
+    // 0 is the bottom-left corner and 1 is the top right corner.
 
     // X coordinate of the center of the input item row.
     private static final float INPUT_ITEMS_X = 0.5f;

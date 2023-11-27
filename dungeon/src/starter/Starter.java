@@ -6,7 +6,7 @@ import com.badlogic.gdx.audio.Music;
 import contrib.components.HealthComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
-import contrib.hud.OkDialog;
+import contrib.hud.dialogs.OkDialog;
 import contrib.systems.*;
 
 import core.Entity;
