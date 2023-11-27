@@ -10,15 +10,19 @@ import core.level.utils.TileTextureFactory;
 
 import java.util.Optional;
 
-public class GeneratorUtils {
+/**
+ * Utility class for level generation containing methods to parse tile layouts, determine door
+ * directions, and find doors in a given direction.
+ */
+public final class GeneratorUtils {
 
     /**
-     * Get the LevelElement[][] for a Tile[][]
+     * Get the LevelElement[][] for a Tile[][].
      *
-     * @param tileLayout tile layout to parse
-     * @return the parsed LevelElement layout.
+     * @param tileLayout Tile layout to parse.
+     * @return The parsed LevelElement layout.
      */
-    public static LevelElement[][] parseToElementLayout(Tile[][] tileLayout) {
+    public static LevelElement[][] parseToElementLayout(final Tile[][] tileLayout) {
         int ySize = tileLayout.length;
         int xSize = tileLayout[0].length;
         LevelElement[][] elementLayout = new LevelElement[ySize][xSize];
@@ -32,13 +36,13 @@ public class GeneratorUtils {
     }
 
     /**
-     * Get the direction where a door is placed
+     * Get the direction where a door is placed.
      *
      * @param level Level that contains the door.
-     * @param door door-tile where to find the direction for
-     * @return the direction of the door
+     * @param door Door-tile where to find the direction for.
+     * @return The direction of the door.
      */
-    public static Direction doorDirection(ILevel level, DoorTile door) {
+    public static Direction doorDirection(final ILevel level, final DoorTile door) {
         LevelElement[][] layout = parseToElementLayout(level.layout());
         if (TileTextureFactory.isTopWall(door.coordinate(), layout)) return Direction.NORTH;
         if (TileTextureFactory.isRightWall(door.coordinate(), layout)) return Direction.EAST;
@@ -55,7 +59,7 @@ public class GeneratorUtils {
      * @param direction Direction in which to find the door.
      * @return DoorTile in the room at the given direction.
      */
-    public static Optional<DoorTile> doorAt(ILevel level, Direction direction) {
+    public static Optional<DoorTile> doorAt(final ILevel level, final Direction direction) {
         for (DoorTile door : level.doorTiles())
             if (doorDirection(level, door) == direction) return Optional.of(door);
         return Optional.empty();
