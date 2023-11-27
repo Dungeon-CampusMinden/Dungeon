@@ -132,6 +132,9 @@ public class OpenGLElementRenderers {
             (e, context) -> {
                 GUIText element = (GUIText) e;
 
+                context.beginStencil();
+                context.writeStencil();
+
                 Matrix4f model = createModelMatrix(element);
                 context.begin();
 
@@ -150,18 +153,29 @@ public class OpenGLElementRenderers {
                 context.draw();
                 context.end();
 
+                context.useStencil();
+
                 Vector2f absPos = element.absolutePosition();
+
+                float x = absPos.x() + element.font().fontSize;
+                float y =
+                        absPos.y()
+                                + element.size().y()
+                                - element.font().fontSize
+                                - (element.scrollY() ? element.scrollOffset().y() : 0);
 
                 GUIRoot.getInstance()
                         .backend()
                         .drawText(
                                 element.text(),
                                 element.font(),
-                                absPos.x() + element.font().fontSize,
-                                absPos.y() + element.size().y() - element.font().fontSize,
+                                x,
+                                y,
                                 element.size().x() - 2 * element.font().fontSize,
                                 element.size().y() - 2 * element.font().fontSize,
                                 element.textColor().toRGBA());
+
+                context.endStencil();
                 validate(element);
             };
 

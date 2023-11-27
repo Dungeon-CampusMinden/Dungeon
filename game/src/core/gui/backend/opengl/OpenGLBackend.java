@@ -20,15 +20,15 @@ import java.util.*;
 
 public class OpenGLBackend implements IGUIBackend {
 
-    private static final boolean OPENGL_DEBUG = true, DRAW_DEBUG_IMAGE = false;
+    private static final boolean OPENGL_DEBUG = false, DRAW_DEBUG_IMAGE = false;
     private static final Map<Assets.Images, OpenGLImage> LOADED_IMAGES = new HashMap<>();
     private static final Map<Class<? extends GUIElement>, IOpenGLRenderFunction> RENDER_FUNCTIONS =
             new HashMap<>();
-    private final Vector2i size;
-    private final OpenGLRenderContext guiRenderContext = new OpenGLRenderContext();
-    private final OpenGLRenderContext bufferRenderContext = new OpenGLRenderContext();
-    private final OpenGLRenderContext debugRenderContext = new OpenGLRenderContext();
-    private final OpenGLRenderContext textRenderContext = new OpenGLRenderContext();
+    public final Vector2i size;
+    private final OpenGLRenderContext guiRenderContext = new OpenGLRenderContext(this);
+    private final OpenGLRenderContext bufferRenderContext = new OpenGLRenderContext(this);
+    private final OpenGLRenderContext debugRenderContext = new OpenGLRenderContext(this);
+    private final OpenGLRenderContext textRenderContext = new OpenGLRenderContext(this);
     private Matrix4f projection, view;
 
     public OpenGLBackend(Vector2i size) {
@@ -58,9 +58,19 @@ public class OpenGLBackend implements IGUIBackend {
                 0);
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0); // Unbinding texture
 
-        GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, this.bufferRenderContext.renderBuffer);
+        // Delete old RenderBuffer, create new and attach
+        GL33.glDeleteRenderbuffers(this.bufferRenderContext.rboDepthStencil);
+        this.bufferRenderContext.rboDepthStencil = GL33.glGenRenderbuffers();
+        GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, this.bufferRenderContext.rboDepthStencil);
         GL33.glRenderbufferStorage(GL33.GL_RENDERBUFFER, GL33.GL_DEPTH24_STENCIL8, width, height);
+        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, this.bufferRenderContext.frameBuffer);
+        GL33.glFramebufferRenderbuffer(
+                GL33.GL_FRAMEBUFFER,
+                GL33.GL_DEPTH_STENCIL_ATTACHMENT,
+                GL33.GL_RENDERBUFFER,
+                this.bufferRenderContext.rboDepthStencil);
         GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, 0);
+        GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
     }
 
     @Override
@@ -86,7 +96,8 @@ public class OpenGLBackend implements IGUIBackend {
             GL33.glEnable(GL33.GL_BLEND);
             GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
 
-            log(CustomLogLevel.DEBUG, "Updating GUI.");
+            GL33.glDisable(GL33.GL_DEPTH_TEST);
+
             this.renderGUI(elements);
 
             if (DRAW_DEBUG_IMAGE) this.renderDebug();
@@ -156,7 +167,6 @@ public class OpenGLBackend implements IGUIBackend {
         int initY = Math.round(y);
 
         float maxXCoord = initX + maxWidth;
-        // TODO: Implement maxYCoord
 
         int currentX = initX;
         int currentY = initY - (font.fontSize);
@@ -288,28 +298,6 @@ public class OpenGLBackend implements IGUIBackend {
             if (font.kerningMap.containsKey(codePoint) && i != text.length() - 1) {
                 kerning = font.kerningMap.get(codePoint).getOrDefault(nextCodepoint, 0);
             }
-
-            // TODO: Remove before merge
-            if (kerning != 0) {
-                color[i * 4] = 0xFF / 255f;
-                color[i * 4 + 1] = 0x00 / 255f;
-                color[i * 4 + 2] = 0x00 / 255f;
-                color[i * 4 + 3] = 0xFF / 255f;
-            }
-            if (font.kerningMap.containsKey(nextCodepoint)
-                    && font.kerningMap.get(nextCodepoint).getOrDefault(codePoint, 0) != 0) {
-                color[i * 4] = 0xFF / 255f;
-                color[i * 4 + 1] = 0x7b / 255f;
-                color[i * 4 + 2] = 0x00 / 255f;
-                color[i * 4 + 3] = 0xFF / 255f;
-            }
-            if (lastWrapIndex - 1 == i) {
-                color[i * 4] = 0x00 / 255f;
-                color[i * 4 + 1] = 0xFF / 255f;
-                color[i * 4 + 2] = 0x00 / 255f;
-                color[i * 4 + 3] = 0xFF / 255f;
-            }
-
             currentX += glyph.xAdvance() + kerning;
         }
 
@@ -584,8 +572,8 @@ public class OpenGLBackend implements IGUIBackend {
                 this.bufferRenderContext.texture,
                 0);
 
-        this.bufferRenderContext.renderBuffer = GL33.glGenRenderbuffers();
-        GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, this.bufferRenderContext.renderBuffer);
+        this.bufferRenderContext.rboDepthStencil = GL33.glGenRenderbuffers();
+        GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, this.bufferRenderContext.rboDepthStencil);
         GL33.glRenderbufferStorage(
                 GL33.GL_RENDERBUFFER, GL33.GL_DEPTH24_STENCIL8, this.size.x(), this.size.y());
         GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, 0);
@@ -593,9 +581,7 @@ public class OpenGLBackend implements IGUIBackend {
                 GL33.GL_FRAMEBUFFER,
                 GL33.GL_DEPTH_STENCIL_ATTACHMENT,
                 GL33.GL_RENDERBUFFER,
-                this.bufferRenderContext.renderBuffer);
-
-        GL33.glDrawBuffers(new int[] {GL33.GL_COLOR_ATTACHMENT0});
+                this.bufferRenderContext.rboDepthStencil);
 
         // Check if framebuffer is complete
         if (GL33.glCheckFramebufferStatus(GL33.GL_FRAMEBUFFER) != GL33.GL_FRAMEBUFFER_COMPLETE) {
@@ -605,6 +591,7 @@ public class OpenGLBackend implements IGUIBackend {
         // Unbind texture and framebuffer
         GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
+        GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, 0);
     }
 
     private void initDebug() {

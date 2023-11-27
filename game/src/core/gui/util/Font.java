@@ -255,41 +255,53 @@ public class Font {
         return loadFont(ttfFilePath, initialFontSize, DEFAULT_CHARS);
     }
 
-    public Vector2f boundingBox(String text, float maxWidth, boolean considerKernings) {
-        int width = 0;
+    public Vector2f boundingBox(String text, float maxWidth) {
 
-        int lastWrapIndex = 0;
-        int xOnLastWrapChar = 0;
+        if (maxWidth <= 0) {
+            maxWidth = Float.MAX_VALUE;
+        }
+
+        float width = 0;
 
         int currentX = 0;
         int currentY = 0;
 
+        int lastWrapIndex = 0;
+        boolean tried = false;
+
         for (int i = 0; i < text.length(); i++) {
             int codePoint = Character.codePointAt(text, i);
-            Glyph glyph = glyphMap.get(codePoint);
+            Font.Glyph glyph = this.glyphMap.get(codePoint);
 
             if (Font.WRAPPING_CHARACTERS.contains(codePoint)) {
                 lastWrapIndex = i;
-                xOnLastWrapChar = currentX;
+                tried = false;
             }
             if (Font.NEWLINE_CHARACTERS.contains(codePoint)) {
-                width = Math.max(width, currentX);
+                width = Math.max(currentX, width);
                 currentX = 0;
-                currentY += this.fontSize + this.lineGap + this.ascent + this.descent;
-                lastWrapIndex = i + 1;
+                currentY =
+                        currentY - (this.lineGap + this.ascent + this.descent); // TODO: Check if ok
+                lastWrapIndex = i;
+                tried = false;
                 continue;
             }
             if (Font.WHITESPACE_CHARACTERS.containsKey(codePoint)) {
-                int spaceWidth =
-                        Math.round(Font.WHITESPACE_CHARACTERS.get(codePoint) * this.fontSize);
-                if (currentX + spaceWidth > maxWidth) {
-                    width = Math.max(width, xOnLastWrapChar);
+                currentX +=
+                        Math.round(
+                                Font.WHITESPACE_CHARACTERS.getOrDefault(codePoint, 1.0f)
+                                        * this.fontSize);
+                if (currentX >= maxWidth) {
+                    width = Math.max(currentX, width);
                     currentX = 0;
-                    currentY += this.fontSize + this.lineGap + this.ascent + this.descent;
-                    lastWrapIndex = i + 1;
-                    continue;
+                    currentY =
+                            currentY
+                                    - (this.lineGap
+                                            + this.ascent
+                                            + this.descent); // TODO: Check if ok
                 }
-                currentX += Math.round(Font.WHITESPACE_CHARACTERS.get(codePoint) * this.fontSize);
+                lastWrapIndex = i;
+                tried = false;
                 continue;
             }
             if (codePoint == Font.CODEPOINT_TABULATOR) {
@@ -298,51 +310,48 @@ public class Font {
                                 * Math.round(
                                         Font.WHITESPACE_CHARACTERS.get(Font.CODEPOINT_SPACE)
                                                 * this.fontSize);
-                if (currentX + tabWith > maxWidth) {
-                    width = Math.max(width, xOnLastWrapChar);
-                    currentX = 0;
-                    currentY += this.fontSize + this.lineGap + this.ascent + this.descent;
-                    lastWrapIndex = i + 1;
-                    continue;
-                }
+                currentX = currentX + tabWith - (currentX % tabWith);
+                lastWrapIndex = i;
+                tried = false;
                 continue;
             }
 
             if (glyph == null) {
-                glyph = glyphMap.get(Character.codePointOf("?"));
+                glyph = this.glyphMap.get(Character.codePointAt("?", 0));
                 if (glyph == null) {
                     currentX +=
                             Math.round(
-                                    Font.WHITESPACE_CHARACTERS.get(Font.CODEPOINT_SPACE)
+                                    Font.WHITESPACE_CHARACTERS.getOrDefault(
+                                                    Font.CODEPOINT_SPACE, 1.0f)
                                             * this.fontSize);
-                    continue; // Skip unknown character if question mark is not available
+                    continue;
                 }
             }
 
-            if (considerKernings) {
-                if (i > 0) {
-                    Map<Integer, Integer> kerningMap = this.kerningMap.get(codePoint);
-                    if (kerningMap != null) {
-                        Integer kerning = kerningMap.get(Character.codePointAt(text, i - 1));
-                        if (kerning != null) {
-                            currentX += kerning;
-                        }
-                    }
-                }
-            } else {
-                currentX += glyph.width;
-            }
-
-            if (currentX + glyph.width > maxWidth) {
-                width = Math.max(width, xOnLastWrapChar);
+            if (currentX + glyph.width() > maxWidth && !(glyph.width() > maxWidth)) {
+                width = Math.max(currentX, width);
                 currentX = 0;
-                currentY += fontSize + lineGap;
-                i = lastWrapIndex + 1;
-                continue;
+                currentY =
+                        currentY - (this.lineGap + this.ascent + this.descent); // TODO: Check if ok
+                if (!tried) {
+                    i = lastWrapIndex;
+                    tried = true;
+                    continue;
+                } else {
+                    lastWrapIndex = i;
+                    tried = false;
+                }
             }
-            currentX += glyphMap.get(codePoint).xAdvance;
+
+            int kerning = 0;
+            int nextCodepoint = Character.codePointAt(text, Math.min(i + 1, text.length() - 1));
+            if (this.kerningMap.containsKey(codePoint) && i != text.length() - 1) {
+                kerning = this.kerningMap.get(codePoint).getOrDefault(nextCodepoint, 0);
+            }
+            currentX += glyph.xAdvance() + kerning;
         }
-        return new Vector2f(width, currentY + fontSize + lineGap + ascent + descent);
+
+        return new Vector2f(width, Math.abs(currentY) + fontSize + lineGap + ascent + descent);
     }
 
     public record Glyph(

@@ -13,17 +13,18 @@ public class OpenGLRenderContext {
     private final HashMap<String, Integer> uniformLocations = new HashMap<>();
     private boolean begun = false;
     private boolean begunStencil = false;
-
-    public int vao, vbo, ebo, frameBuffer, renderBuffer, texture, shader;
+    public int vao, vbo, ebo, frameBuffer, rboDepthStencil, texture, shader;
     public Map<String, Integer> additionalBuffers = new HashMap<>();
+    public final OpenGLBackend backend;
 
-    public OpenGLRenderContext() {
+    public OpenGLRenderContext(OpenGLBackend backend) {
         this.vao = 0;
         this.vbo = 0;
         this.ebo = 0;
         this.frameBuffer = 0;
         this.texture = 0;
         this.shader = 0;
+        this.backend = backend;
     }
 
     public void begin() {
@@ -38,6 +39,7 @@ public class OpenGLRenderContext {
     public void beginStencil() {
         GL33.glEnable(GL33.GL_STENCIL_TEST);
         GL33.glClearStencil(0);
+        GL33.glStencilMask(~0);
         GL33.glClear(GL33.GL_STENCIL_BUFFER_BIT);
         this.begunStencil = true;
     }
@@ -81,6 +83,9 @@ public class OpenGLRenderContext {
                     CustomLogLevel.WARNING,
                     "OpenGLRenderStructure.endStencil() called before .beginStencil()!");
         }
+        GL33.glClearStencil(0);
+        GL33.glStencilMask(~0);
+        GL33.glClear(GL33.GL_STENCIL_BUFFER_BIT);
         GL33.glDisable(GL33.GL_STENCIL_TEST);
     }
 
