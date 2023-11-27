@@ -1,34 +1,9 @@
 package core.utils;
 
-import core.Game;
-
 import java.net.URISyntaxException;
 import java.net.URL;
 
 public final class Constants {
-
-    /** Virtual width and height. */
-    public static final float FIELD_WIDTH_AND_HEIGHT_IN_PIXEL = 16f;
-
-    /**
-     * todo: what exactly is this?
-     *
-     * @return width of the viewport
-     */
-    public static float viewportWidth() {
-        return Game.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
-    }
-
-    /**
-     * todo: what exactly is this?
-     *
-     * @return height of the viewport
-     */
-    public static float viewportHeight() {
-        return Game.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
-    }
-
-    public static final float DEFAULT_ZOOM_FACTOR = 0.35f;
 
     /** Value for LevelElements that are accessible */
     public static final boolean LEVELELEMENT_IS_ACCESSIBLE = true;

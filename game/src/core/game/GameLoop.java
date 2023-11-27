@@ -18,7 +18,6 @@ import core.components.PositionComponent;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.systems.*;
-import core.utils.Constants;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 
@@ -179,7 +178,6 @@ public final class GameLoop extends ScreenAdapter {
      */
     private void setup() {
         doSetup = false;
-        CameraSystem.camera().zoom = Constants.DEFAULT_ZOOM_FACTOR;
         createSystems();
         setupStage();
         PreRunConfiguration.userOnSetup().execute();
