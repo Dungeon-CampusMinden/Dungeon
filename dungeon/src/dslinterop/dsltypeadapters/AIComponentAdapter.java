@@ -9,6 +9,7 @@ import core.components.DrawComponent;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
 
+/** Adapter for the {@link AIComponent} to the DSL. */
 public class AIComponentAdapter {
     /**
      * Buildermethod for creating a new {@link DrawComponent} from a path, pointing to animations.
@@ -19,9 +20,9 @@ public class AIComponentAdapter {
     public static AIComponent buildAIComponent(@DSLContextMember(name = "entity") Entity entity) {
         var comp =
                 new AIComponent(
-                        AIFactory.generateRandomFightAI(),
-                        AIFactory.generateRandomIdleAI(),
-                        AIFactory.generateRandomTransitionAI(entity));
+                        AIFactory.randomFightAI(),
+                        AIFactory.randomIdleAI(),
+                        AIFactory.randomTransition(entity));
         return comp;
     }
 }

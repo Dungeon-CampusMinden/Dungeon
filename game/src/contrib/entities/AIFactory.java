@@ -28,12 +28,14 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
- * A Class solely dedicated to randomly generating all types of AIs.
+ * A class solely dedicated to randomly generating all types of AIs.
  *
- * <p>NOTE: Random ints get a +1 inside the random function due to the exclusionary nature of
- * random.nextInt() NOTE: If the first Monster rolls a ProtectOn AI, it will Protect itself.
+ * <p>Use {@link #randomAI(Entity)} to get a complete, ready-to-use {@link AIComponent}.
+ *
+ * <p>Use {@link #randomFightAI()}, {@link #randomIdleAI()}, {@link #randomTransition(Entity)} to
+ * generate the behavior logics separately.
  */
-public class AIFactory {
+public final class AIFactory {
 
     private static final Random RANDOM = new Random();
 
@@ -80,12 +82,24 @@ public class AIFactory {
     private static final float PROTECT_RANGE_HIGH = 8f;
 
     /**
+     * Get an {@link AIComponent} with random behaviors.
+     *
+     * <p>The component will not be added to the given entity or any other entity.
+     *
+     * @param entity Entity that will contain the component, used for some AI behaviors.
+     * @return The AIComponent, ready to be added to an entity.
+     */
+    public static AIComponent randomAI(final Entity entity) {
+        return new AIComponent(randomFightAI(), randomIdleAI(), randomTransition(entity));
+    }
+
+    /**
      * Constructs a random FightAI with random parameters. Needs to be Updated whenever a new
      * FightAI is added.
      *
      * @return the generated FightAI
      */
-    public static Consumer<Entity> generateRandomFightAI() {
+    public static Consumer<Entity> randomFightAI() {
         int index = RANDOM.nextInt(0, 3);
 
         return switch (index) {
@@ -110,7 +124,7 @@ public class AIFactory {
      *
      * @return the generated IdleAI
      */
-    public static Consumer<Entity> generateRandomIdleAI() {
+    public static Consumer<Entity> randomIdleAI() {
         int index = RANDOM.nextInt(0, 3);
 
         switch (index) {
@@ -141,7 +155,7 @@ public class AIFactory {
      *
      * @return the generated TransitionAI
      */
-    public static Function<Entity, Boolean> generateRandomTransitionAI(Entity entity) {
+    public static Function<Entity, Boolean> randomTransition(final Entity entity) {
         int index = RANDOM.nextInt(0, 4);
 
         switch (index) {
