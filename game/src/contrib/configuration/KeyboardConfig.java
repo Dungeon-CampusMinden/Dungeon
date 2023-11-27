@@ -6,6 +6,7 @@ import core.configuration.ConfigKey;
 import core.configuration.ConfigMap;
 import core.configuration.values.ConfigIntValue;
 
+/** Keyboard-configuration for the core-package. */
 @ConfigMap(path = {"keyboard"})
 public class KeyboardConfig {
 
@@ -22,11 +23,6 @@ public class KeyboardConfig {
             new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Input.Keys.E));
     public static final ConfigKey<Integer> FIRST_SKILL =
             new ConfigKey<>(new String[] {"skill", "first"}, new ConfigIntValue(Input.Keys.Q));
-    public static final ConfigKey<Integer> SECOND_SKILL =
-            new ConfigKey<>(new String[] {"skill", "second"}, new ConfigIntValue(Input.Keys.R));
-
-    public static final ConfigKey<Integer> DEBUG_TOGGLE_KEY =
-            new ConfigKey<>(new String[] {"debug", "activate"}, new ConfigIntValue(Input.Keys.B));
 
     public static final ConfigKey<Integer> DEBUG_ZOOM_IN =
             new ConfigKey<>(new String[] {"debug", "zoom_in"}, new ConfigIntValue(Input.Keys.K));
@@ -57,10 +53,4 @@ public class KeyboardConfig {
     public static final ConfigKey<Integer> DEBUG_TELEPORT_TO_CURSOR =
             new ConfigKey<>(
                     new String[] {"debug", "teleport_cursor"}, new ConfigIntValue(Input.Keys.O));
-
-    public static final ConfigKey<Integer> QUESTLOG =
-            new ConfigKey<>(new String[] {"menue", "questlog"}, new ConfigIntValue(Input.Keys.M));
-
-    public static final ConfigKey<Integer> INFOS =
-            new ConfigKey<>(new String[] {"info", "game_infos"}, new ConfigIntValue(Input.Keys.L));
 }
