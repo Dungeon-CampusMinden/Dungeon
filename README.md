@@ -43,4 +43,4 @@ This [work](https://github.com/Programmiermethoden/Dungeon) by
 [contributors](https://github.com/Programmiermethoden/Dungeon/graphs/contributors)
 is licensed under [MIT](LICENSE.md).
 
-This does **not** include the [publications](./doc/publication/) which are licensed under [CC BY-SA 4.0](LICENSE-PAPER.md).
+All files [in `doc/publication/`](doc/publication/) are licensed under [CC BY-SA 4.0](LICENSE-PAPER.md).

@@ -4,4 +4,4 @@ title: "Publikationen"
 
 In diesem Verzeichnis befinden sich die Veröffentlichungen und Beiträge zu den in diesem Repository geführten Projekten.
 
-Bitte beachten Sie unbedingt die [LICENSE-PAPER.md](../../LICENSE-PAPER.md)
+Alle Dateien in diesem Ordner ([`doc/publication/`](.)) stehen abweichend von den restlichen Inhalten des Repositories unter der [CC BY-SA 4.0](../../LICENSE-PAPER.md) Lizenz.
