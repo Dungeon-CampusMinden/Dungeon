@@ -2,6 +2,7 @@ package core.gui;
 
 import core.gui.backend.BackendImage;
 import core.utils.math.Vector2f;
+import core.utils.math.Vector2i;
 import core.utils.math.Vector3f;
 import core.utils.math.Vector4f;
 
@@ -203,6 +204,21 @@ public abstract class GUIElement {
      * @param event GUIEvent
      */
     public void event(GUIEvent event) {}
+
+    /**
+     * Check whether the given point is inside the element.
+     *
+     * @param point Point to check
+     * @return true if the point is inside the element otherwise false.
+     */
+    protected boolean isPointIn(Vector2i point) {
+        Vector2i absolutePosition = this.absolutePosition().toInt();
+        Vector2i absoluteSize = this.size.toInt();
+        return point.x() >= absolutePosition.x()
+                && point.x() <= absolutePosition.x() + absoluteSize.x()
+                && point.y() >= absolutePosition.y()
+                && point.y() <= absolutePosition.y() + absoluteSize.y();
+    }
 
     /** This method is called when the element should be updated. */
     public void update() {}
