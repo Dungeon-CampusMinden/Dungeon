@@ -226,7 +226,7 @@ fn build_scenario(single_choice_task task) -> entity<><> {
      * Instanziierung einer Schriftrolle
      */
     var scroll : quest_item;
-    scroll = build_quest_item(mushroom_type, content);
+    scroll = build_quest_item(scroll_type, content);
     place_quest_item(scroll, room_1);
 
     return_set.add(room_1);
