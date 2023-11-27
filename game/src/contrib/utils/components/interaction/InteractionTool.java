@@ -11,23 +11,26 @@ import core.utils.components.MissingComponentException;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class InteractionTool {
-
-    public static final Function<InteractionData, Boolean> SIMPLE_REACHABLE =
-            (interactionData -> (interactionData.ic().radius() - interactionData.dist()) > 0);
-
-    public static final Function<InteractionData, Boolean> CONTROLL_POINTS_REACHABLE =
-            new ControlPointReachable();
-
-    public static void interactWithClosestInteractable(Entity entity) {
-        interactWithClosestInteractable(entity, SIMPLE_REACHABLE);
-    }
+/** This class provides utility methods for interacting with interactable entities in the game. */
+public final class InteractionTool {
 
     /**
      * Interacts with the closest interactable entity.
      *
-     * @param who The entity that is interacting
-     * @param iReachable The function that determines if the entity is reachable
+     * @param entity Entity The entity that is interacting.
+     */
+    public static void interactWithClosestInteractable(final Entity entity) {
+        interactWithClosestInteractable(entity, SIMPLE_REACHABLE);
+    }
+
+    private static final Function<InteractionData, Boolean> SIMPLE_REACHABLE =
+            (interactionData -> (interactionData.ic().radius() - interactionData.dist()) > 0);
+
+    /**
+     * Interacts with the closest interactable entity.
+     *
+     * @param who The entity that is interacting.
+     * @param iReachable The function that determines if the entity is reachable.
      */
     public static void interactWithClosestInteractable(
             final Entity who, final Function<InteractionData, Boolean> iReachable) {
@@ -46,7 +49,8 @@ public class InteractionTool {
         data.ifPresent(x -> x.ic().triggerInteraction(x.e(), who));
     }
 
-    private static InteractionData convertToData(Entity entity, PositionComponent heroPosition) {
+    private static InteractionData convertToData(
+            final Entity entity, final PositionComponent heroPosition) {
 
         InteractionComponent ic =
                 entity.fetch(InteractionComponent.class)
@@ -67,4 +71,7 @@ public class InteractionTool {
                 Point.calculateDistance(heroPosition.position(), pc.position()),
                 Point.unitDirectionalVector(heroPosition.position(), pc.position()));
     }
+
+    private record InteractionData(
+            Entity e, PositionComponent pc, InteractionComponent ic, float dist, Point unitDir) {}
 }
