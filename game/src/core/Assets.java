@@ -7,7 +7,6 @@ public class Assets {
 
     public enum Images implements Asset {
         DEBUG_IMAGE("/debug/debug.png"),
-
         HUD_BUTTON_HOVER("/hud/button/button_hover.png"),
         HUD_BUTTON_IDLE("/hud/button/button_idle.png"),
         HUD_BUTTON_PRESS("/hud/button/button_press.png");
@@ -15,6 +14,21 @@ public class Assets {
         private final String path;
 
         Images(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public String path() {
+            return this.path;
+        }
+    }
+
+    public enum Fonts implements Asset {
+        ARIAL("/fonts/arial.ttf");
+
+        private final String path;
+
+        Fonts(String path) {
             this.path = path;
         }
 

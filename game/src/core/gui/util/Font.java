@@ -4,6 +4,7 @@ import static core.gui.util.Logging.log;
 
 import static org.lwjgl.stb.STBTruetype.*;
 
+import core.Assets;
 import core.gui.GUIRoot;
 import core.gui.backend.BackendImage;
 import core.utils.logging.CustomLogLevel;
@@ -70,15 +71,78 @@ public class Font {
      * Load a true type font from a file.
      *
      * <p>Loads a true type font from a file from the specified path using the STBTrueType library.
+     * Only the {@link Font#DEFAULT_CHARS default characters} are loaded. If other characters are
+     * needed, use {@link #loadFont(String, int, String)}.
+     *
+     * <p>The initial font size is specified in pixels. The font is loaded as a texture atlas. Using
+     * this font with another size than the initial size may result in blurry text.
+     *
+     * @deprecated This version of loadFont() is marked as deprecated, as it uses a string to
+     *     specify the font.
+     * @param ttfFilePath The path to the true type font file.
+     * @param initialFontSize The initial font size in pixels.
+     * @return The loaded font.
+     * @throws IOException If the font could not be loaded.
+     */
+    @Deprecated
+    public static Font[] loadFont(String ttfFilePath, int initialFontSize) throws IOException {
+        return loadFont(ttfFilePath, initialFontSize, DEFAULT_CHARS);
+    }
+
+    /**
+     * Load a true type font from a file.
+     *
+     * <p>Loads a true type font from a file from the specified path using the STBTrueType library.
+     * Only the {@link Font#DEFAULT_CHARS default characters} are loaded. If other characters are
+     * needed, use {@link #loadFont(Assets.Fonts, int, String)}.
+     *
+     * <p>The initial font size is specified in pixels. The font is loaded as a texture atlas. Using
+     * this font with another size than the initial size may result in blurry text.
+     *
+     * @param font The Font Asset to load.
+     * @param initialFontSize The initial font size in pixels.
+     * @return The loaded font.
+     * @throws IOException If the font could not be loaded.
+     */
+    public static Font[] loadFont(Assets.Fonts font, int initialFontSize) throws IOException {
+        return loadFont(font.path(), initialFontSize, DEFAULT_CHARS);
+    }
+
+    /**
+     * Load a true type font from a file.
+     *
+     * <p>Loads a true type font from a file from the specified path using the STBTrueType library.
+     * Only the {@link Font#DEFAULT_CHARS default characters} are loaded. If other characters are
+     * needed, use {@link #loadFont(Assets.Fonts, int, String)}.
+     *
+     * <p>The initial font size is specified in pixels. The font is loaded as a texture atlas. Using
+     * this font with another size than the initial size may result in blurry text.
+     *
+     * @param font The Font Asset to load.
+     * @param initialFontSize The initial font size in pixels.
+     * @return The loaded font.
+     * @throws IOException If the font could not be loaded.
+     */
+    public static Font[] loadFont(Assets.Fonts font, int initialFontSize, String charactersToLoad)
+            throws IOException {
+        return loadFont(font.path(), initialFontSize, charactersToLoad);
+    }
+
+    /**
+     * Load a true type font from a file.
+     *
+     * <p>Loads a true type font from a file from the specified path using the STBTrueType library.
      * The initial font size is specified in pixels. The font is loaded as a texture atlas. Using
      * this font with another size than the initial size may result in blurry text.
      *
      * @param ttfFilePath The path to the true type font file.
      * @param fontSize The initial font size in pixels.
+     * @param charactersToLoad The characters to load. Only these characters will be available while
+     *     rendering.
      * @return The loaded font.
      * @throws IOException If the font could not be loaded.
      */
-    public static Font[] loadFont(String ttfFilePath, int fontSize, String charactersToLoad)
+    private static Font[] loadFont(String ttfFilePath, int fontSize, String charactersToLoad)
             throws IOException {
         InputStream is = Font.class.getResourceAsStream(ttfFilePath);
         if (is == null) {
@@ -234,25 +298,6 @@ public class Font {
         }
         fontInfo.free();
         return ret;
-    }
-
-    /**
-     * Load a true type font from a file.
-     *
-     * <p>Loads a true type font from a file from the specified path using the STBTrueType library.
-     * Only the default characters () are loaded. If other characters are needed, use {@link
-     * #loadFont(String, int, String)}.
-     *
-     * <p>The initial font size is specified in pixels. The font is loaded as a texture atlas. Using
-     * this font with another size than the initial size may result in blurry text.
-     *
-     * @param ttfFilePath The path to the true type font file.
-     * @param initialFontSize The initial font size in pixels.
-     * @return The loaded font.
-     * @throws IOException If the font could not be loaded.
-     */
-    public static Font[] loadFont(String ttfFilePath, int initialFontSize) throws IOException {
-        return loadFont(ttfFilePath, initialFontSize, DEFAULT_CHARS);
     }
 
     public Vector2f boundingBox(String text, float maxWidth) {
