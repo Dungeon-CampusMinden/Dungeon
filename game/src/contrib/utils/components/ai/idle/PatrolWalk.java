@@ -17,21 +17,15 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class PatrolWalk implements Consumer<Entity> {
+/**
+ * Implements an idle AI that lets the entity walk a specific path.
+ *
+ * <p>There are different modes. The entity can walk to random checkpoints, looping the same path or
+ * walking the path back and forth.
+ */
+public final class PatrolWalk implements Consumer<Entity> {
 
-    private static final Random random = new Random();
-
-    public enum MODE {
-        /** Walks to a random checkpoint. */
-        RANDOM,
-
-        /** Looping the same path over and over again. */
-        LOOP,
-
-        /** Walks the path forward and then backward. */
-        BACK_AND_FORTH
-    }
-
+    private static final Random RANDOM = new Random();
     private final List<Tile> checkpoints = new ArrayList<>();
     private final int numberCheckpoints;
     private final int pauseFrames;
@@ -45,16 +39,15 @@ public class PatrolWalk implements Consumer<Entity> {
 
     /**
      * Walks a random pattern in a radius around the entity. The checkpoints will be chosen randomly
-     * at first idle. After being initialized the checkpoints won't change anymore, only the order
+     * at first idle. After being initialized, the checkpoints won't change anymore, only the order
      * may be.
      *
-     * @param radius Max distance from the entity to walk
-     * @param numberCheckpoints Number of checkpoints to walk to
+     * @param radius Max distance from the entity to walk.
+     * @param numberCheckpoints Number of checkpoints to walk to.
      * @param pauseTime Max time in milliseconds to wait on a checkpoint. The actual time is a
-     *     random number between 0 and this value
+     *     random number between 0 and this value.
      */
-    public PatrolWalk(
-            final float radius, final int numberCheckpoints, final int pauseTime, final MODE mode) {
+    public PatrolWalk(float radius, int numberCheckpoints, int pauseTime, final MODE mode) {
         this.radius = radius;
         this.numberCheckpoints = numberCheckpoints;
         this.pauseFrames = pauseTime / (1000 / Game.frameRate());
@@ -86,7 +79,7 @@ public class PatrolWalk implements Consumer<Entity> {
         while (this.checkpoints.size() < numberCheckpoints
                 || accessibleTiles.size() == this.checkpoints.size()
                 || maxTries >= 1000) {
-            Tile t = accessibleTiles.get(random.nextInt(accessibleTiles.size()));
+            Tile t = accessibleTiles.get(RANDOM.nextInt(accessibleTiles.size()));
             if (!this.checkpoints.contains(t)) {
                 this.checkpoints.add(t);
             }
@@ -97,7 +90,7 @@ public class PatrolWalk implements Consumer<Entity> {
     @Override
     public void accept(final Entity entity) {
         if (!initialized) this.init(entity);
-        if (this.checkpoints.size() <= 0) {
+        if (this.checkpoints.isEmpty()) {
             initialized = false;
             return;
         }
@@ -169,5 +162,16 @@ public class PatrolWalk implements Consumer<Entity> {
             }
             default -> {}
         }
+    }
+
+    public enum MODE {
+        // Walks to a random checkpoint.
+        RANDOM,
+
+        // Looping the same path over and over again.
+        LOOP,
+
+        // Walks the path forward and then backward.
+        BACK_AND_FORTH
     }
 }

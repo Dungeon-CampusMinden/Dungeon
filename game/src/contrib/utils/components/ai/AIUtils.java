@@ -10,7 +10,8 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.components.MissingComponentException;
 
-public class AIUtils {
+/** Utility class for AI-related operations like calculating paths. */
+public final class AIUtils {
 
     /**
      * Sets the velocity of the passed entity so that it takes the next necessary step to get to the
@@ -66,11 +67,11 @@ public class AIUtils {
     }
 
     /**
-     * Check if the entity is on the end of the path or has left the path.
+     * Checks if the entity is either on the end of the path or has left the path.
      *
      * @param entity Entity to be checked.
-     * @param path Path which the entity possibly left or has reached the end.
-     * @return True if the entity is on the end of the path or has left the path, otherwise false.
+     * @param path Path which the entity possibly left or has reached the end of.
+     * @return true if the entity is on the end of the path or has left the path, otherwise false.
      */
     public static boolean pathFinishedOrLeft(final Entity entity, final GraphPath<Tile> path) {
         PositionComponent pc =
@@ -86,6 +87,7 @@ public class AIUtils {
         for (Tile tile : path) {
             if (currentTile == tile) {
                 onPath = true;
+                break;
             }
         }
 
@@ -93,11 +95,11 @@ public class AIUtils {
     }
 
     /**
-     * Check if the entity is on the end of the path.
+     * Checks if the entity is on the end of the path.
      *
      * @param entity Entity to be checked.
      * @param path Path on which the entity possible reached the end.
-     * @return True if the entity is on the end of the path, otherwise false.
+     * @return true if the entity is on the end of the path, otherwise false.
      */
     public static boolean pathFinished(final Entity entity, final GraphPath<Tile> path) {
         PositionComponent pc =
@@ -110,11 +112,11 @@ public class AIUtils {
     }
 
     /**
-     * Check if the entity has left the path.
+     * Checks if the entity has left the path.
      *
      * @param entity Entity to be checked.
      * @param path Path to be checked.
-     * @return True if the entity has left the path, otherwise false.
+     * @return true if the entity has left the path, otherwise false.
      */
     public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
         PositionComponent pc =
@@ -128,6 +130,7 @@ public class AIUtils {
         for (Tile tile : path) {
             if (currentTile == tile) {
                 onPath = true;
+                break;
             }
         }
         return !onPath;

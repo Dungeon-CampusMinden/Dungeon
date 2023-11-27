@@ -16,6 +16,11 @@ import core.utils.Point;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Implements a fight AI. The entity attacks the player if he is in a given maximum and minimum
+ * range. When the entity is not in range but in fight mode, the entity will be moving to within
+ * this range.
+ */
 public final class RangeAI implements Consumer<Entity> {
 
     private final float attackRange;
@@ -27,9 +32,9 @@ public final class RangeAI implements Consumer<Entity> {
      * Attacks the player if he is within the given range between attackRange and distance.
      * Otherwise, it will move into that range.
      *
-     * @param attackRange max. Range in which the attack skill should be executed
-     * @param distance min. Range in which the attack skill should be executed
-     * @param skill Skill to be used when an attack is performed
+     * @param attackRange Maximal distance to hero in which the attack skill should be executed.
+     * @param distance Minimal distance to hero in which the attack skill should be executed.
+     * @param skill Skill to be used when an attack is performed.
      */
     public RangeAI(final float attackRange, final float distance, final Skill skill) {
         if (attackRange <= distance || distance < 0) {

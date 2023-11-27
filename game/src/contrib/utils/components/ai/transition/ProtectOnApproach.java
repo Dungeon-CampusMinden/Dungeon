@@ -6,34 +6,33 @@ import core.level.utils.LevelUtils;
 import java.util.function.Function;
 
 /**
- * Implements an AI that protects an entity if hero is in the given range
+ * Implements an AI that protects an entity if the hero is in the given range.
  *
- * <p>Entity will stay in fight mode once entered
+ * <p>Entity will stay in fight mode once entered.
  */
-public class ProtectOnApproach implements Function<Entity, Boolean> {
+public final class ProtectOnApproach implements Function<Entity, Boolean> {
+
     private final float range;
-
     private final Entity toProtect;
-
     private boolean isInFight = false;
 
     /**
-     * Constructor needs a range and the entity to protect.
-     *
-     * @param range - The range in which the entity should in fight mode
-     * @param toProtect - The entity which should be protected
+     * @param range The range in which the hero can come to the protected entity. If the hero is
+     *     closer than this range to the protected entity, the protecting entity switches to fight
+     *     mode.
+     * @param toProtect The entity which will be protected.
      */
-    public ProtectOnApproach(final float range, final Entity toProtect) {
+    public ProtectOnApproach(float range, final Entity toProtect) {
         this.range = range;
         this.toProtect = toProtect;
     }
 
     /**
      * If protecting entity isn't in fight mode yet, check if player is in range of the protected
-     * entity
+     * entity.
      *
-     * @param entity that protects
-     * @return boolean
+     * @param entity Entity that is protecting.
+     * @return true when the entity is in fight mode, else false.
      */
     @Override
     public Boolean apply(final Entity entity) {

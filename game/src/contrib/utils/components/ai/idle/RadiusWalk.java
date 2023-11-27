@@ -11,20 +11,23 @@ import core.level.utils.LevelUtils;
 
 import java.util.function.Consumer;
 
-public class RadiusWalk implements Consumer<Entity> {
+/**
+ * Implements an idle AI that lets the entity walk in a specific radius from its current position.
+ */
+public final class RadiusWalk implements Consumer<Entity> {
     private final float radius;
-    private GraphPath<Tile> path;
     private final int breakTime;
+    private GraphPath<Tile> path;
     private int currentBreak = 0;
 
     /**
      * Finds a point in the radius and then moves there. When the point has been reached, a new
      * point in the radius is searched for from there.
      *
-     * @param radius Radius in which a target point is to be searched for
-     * @param breakTimeInSeconds how long to wait (in seconds) before searching a new goal
+     * @param radius Radius in which a target point is to be searched for.
+     * @param breakTimeInSeconds How long to wait (in seconds) before searching a new goal.
      */
-    public RadiusWalk(final float radius, final int breakTimeInSeconds) {
+    public RadiusWalk(float radius, int breakTimeInSeconds) {
         this.radius = radius;
         this.breakTime = breakTimeInSeconds * Game.frameRate();
     }
