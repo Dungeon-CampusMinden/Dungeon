@@ -170,8 +170,8 @@ public class BorderLayout implements IGUILayout {
 
         for (int i = 0; i < array.length; i++) {
             if (array[i] != null) {
-                array[i].size().x(sizes[i].x()).y(sizes[i].y());
-                array[i].position().x(positions[i].x()).y(positions[i].y());
+                array[i].size(sizes[i]);
+                array[i].position(positions[i]);
             }
         }
 

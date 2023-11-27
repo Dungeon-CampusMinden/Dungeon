@@ -89,7 +89,7 @@ public abstract class GUIElement {
      *
      * @param position Vector
      */
-    public final void position(Vector2f position) {
+    public void position(Vector2f position) {
         this.position = position;
     }
 
@@ -98,7 +98,7 @@ public abstract class GUIElement {
      *
      * @param size Vector
      */
-    public final void size(Vector2f size) {
+    public void size(Vector2f size) {
         this.size = size;
     }
 
