@@ -4,6 +4,8 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 
 /**
  * Represents a Door in the game.
@@ -14,7 +16,7 @@ import core.level.utils.LevelElement;
  */
 public class DoorTile extends Tile {
 
-    private final String closedTexturePath;
+    private final IPath closedTexturePath;
     private DoorTile otherDoor;
     private Tile doorstep;
     private boolean open;
@@ -29,12 +31,12 @@ public class DoorTile extends Tile {
      * @param designLabel Design of the Tile
      */
     public DoorTile(
-            final String texturePath,
+            final IPath texturePath,
             final Coordinate globalPosition,
             final DesignLabel designLabel) {
         super(texturePath, globalPosition, designLabel);
-        String[] splitPath = texturePath.split("\\.");
-        closedTexturePath = splitPath[0] + "_closed." + splitPath[1];
+        String[] splitPath = texturePath.pathString().split("\\.");
+        closedTexturePath = new SimpleIPath(splitPath[0] + "_closed." + splitPath[1]);
         levelElement = LevelElement.DOOR;
         open = true;
     }
@@ -107,7 +109,7 @@ public class DoorTile extends Tile {
     }
 
     @Override
-    public String texturePath() {
+    public IPath texturePath() {
         if (open && (otherDoor == null || otherDoor.isOpen())) return texturePath;
         else return closedTexturePath;
     }

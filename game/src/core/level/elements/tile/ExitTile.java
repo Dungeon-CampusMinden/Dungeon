@@ -4,6 +4,7 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.components.path.IPath;
 
 /**
  * Represents the exit in the dungeon.
@@ -21,7 +22,7 @@ public class ExitTile extends Tile {
      * @param designLabel Design of the Tile
      */
     public ExitTile(
-            final String texturePath,
+            final IPath texturePath,
             final Coordinate globalPosition,
             final DesignLabel designLabel) {
         super(texturePath, globalPosition, designLabel);

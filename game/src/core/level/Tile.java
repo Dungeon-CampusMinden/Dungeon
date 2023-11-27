@@ -9,6 +9,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.components.path.IPath;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 
@@ -32,7 +33,7 @@ public abstract class Tile {
     protected final Coordinate globalPosition;
     private final float friction;
     protected DesignLabel designLabel;
-    protected String texturePath;
+    protected IPath texturePath;
     protected ILevel level;
     protected LevelElement levelElement;
     protected transient Array<Connection<Tile>> connections = new Array<>();
@@ -47,7 +48,7 @@ public abstract class Tile {
      * @param friction The friction of this Tile.
      */
     public Tile(
-            final String texturePath,
+            final IPath texturePath,
             final Coordinate globalPosition,
             final DesignLabel designLabel,
             float friction) {
@@ -65,7 +66,7 @@ public abstract class Tile {
      * @param designLabel Design of the Tile.
      */
     public Tile(
-            final String texturePath,
+            final IPath texturePath,
             final Coordinate globalPosition,
             final DesignLabel designLabel) {
         this(texturePath, globalPosition, designLabel, DEFAULT_FRICTION);
@@ -76,7 +77,7 @@ public abstract class Tile {
      *
      * @return Path to the texture of this tile.
      */
-    public String texturePath() {
+    public IPath texturePath() {
         return texturePath;
     }
 
@@ -85,7 +86,7 @@ public abstract class Tile {
      *
      * @param texture New texture of the tile.
      */
-    public void texturePath(final String texture) {
+    public void texturePath(final IPath texture) {
         this.texturePath = texture;
     }
 

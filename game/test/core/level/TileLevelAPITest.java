@@ -23,6 +23,8 @@ import core.utils.Point;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.TextureMap;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 
 import org.junit.After;
 import org.junit.Before;
@@ -117,10 +119,10 @@ public class TileLevelAPITest {
 
     @Test
     public void test_execute_draw() {
-        String textureT1 = "dummyPath1";
-        String textureT2 = "dummyPath2";
-        String textureT3 = "dummyPath3";
-        String textureT4 = "dummyPath4";
+        IPath textureT1 = new SimpleIPath("dummyPath1");
+        IPath textureT2 = new SimpleIPath("dummyPath2");
+        IPath textureT3 = new SimpleIPath("dummyPath3");
+        IPath textureT4 = new SimpleIPath("dummyPath4");
         Coordinate coordinateT1 = new Coordinate(0, 0);
         Coordinate coordinateT2 = new Coordinate(0, 1);
         Coordinate coordinateT3 = new Coordinate(1, 0);

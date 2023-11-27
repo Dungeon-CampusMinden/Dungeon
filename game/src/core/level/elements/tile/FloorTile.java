@@ -4,6 +4,7 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.components.path.IPath;
 
 /** Represents a Floor in the dungeon. */
 public class FloorTile extends Tile {
@@ -16,7 +17,7 @@ public class FloorTile extends Tile {
      * @param designLabel Design of the Tile
      */
     public FloorTile(
-            final String texturePath,
+            final IPath texturePath,
             final Coordinate globalPosition,
             final DesignLabel designLabel) {
         super(texturePath, globalPosition, designLabel);
