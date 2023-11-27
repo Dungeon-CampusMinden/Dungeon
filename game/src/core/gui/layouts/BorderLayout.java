@@ -5,8 +5,8 @@ import static core.gui.util.Logging.log;
 import core.gui.GUIElement;
 import core.gui.IGUILayout;
 import core.gui.layouts.hints.BorderLayoutHint;
+import core.gui.math.Vector2f;
 import core.utils.logging.CustomLogLevel;
-import core.utils.math.Vector2f;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package core.gui;
 
-import core.utils.math.Vector2f;
+import core.gui.math.Vector2f;
 
 import java.util.List;
 

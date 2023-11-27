@@ -7,8 +7,8 @@ import static org.lwjgl.stb.STBTruetype.*;
 import core.Assets;
 import core.gui.GUIRoot;
 import core.gui.backend.BackendImage;
+import core.gui.math.Vector2f;
 import core.utils.logging.CustomLogLevel;
-import core.utils.math.Vector2f;
 
 import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.stb.STBTTKerningentry;

@@ -1,6 +1,6 @@
 package core.gui.util;
 
-import core.utils.math.Vector2i;
+import core.gui.math.Vector2i;
 
 import org.lwjgl.glfw.GLFW;
 

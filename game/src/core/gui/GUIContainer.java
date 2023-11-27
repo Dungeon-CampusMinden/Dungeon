@@ -2,7 +2,7 @@ package core.gui;
 
 import core.gui.events.GUIElementListUpdateEvent;
 import core.gui.layouts.AbsoluteLayout;
-import core.utils.math.Vector2f;
+import core.gui.math.Vector2f;
 
 import java.util.ArrayList;
 import java.util.Arrays;

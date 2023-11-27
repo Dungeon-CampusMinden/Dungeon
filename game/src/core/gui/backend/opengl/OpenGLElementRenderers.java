@@ -1,10 +1,10 @@
 package core.gui.backend.opengl;
 
 import core.gui.*;
+import core.gui.math.Matrix4f;
+import core.gui.math.Vector2f;
 import core.gui.util.Logging;
 import core.utils.logging.CustomLogLevel;
-import core.utils.math.Matrix4f;
-import core.utils.math.Vector2f;
 
 import org.lwjgl.opengl.GL33;
 

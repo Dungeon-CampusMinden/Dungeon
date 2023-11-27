@@ -5,11 +5,11 @@ import static core.gui.util.Logging.log;
 import core.Assets;
 import core.gui.*;
 import core.gui.backend.BackendImage;
+import core.gui.math.Matrix4f;
+import core.gui.math.Vector2i;
 import core.gui.util.Font;
 import core.gui.util.Logging;
 import core.utils.logging.CustomLogLevel;
-import core.utils.math.Matrix4f;
-import core.utils.math.Vector2i;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.*;

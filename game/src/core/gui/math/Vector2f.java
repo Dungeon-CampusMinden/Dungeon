@@ -1,4 +1,4 @@
-package core.utils.math;
+package core.gui.math;
 
 public class Vector2f {
 

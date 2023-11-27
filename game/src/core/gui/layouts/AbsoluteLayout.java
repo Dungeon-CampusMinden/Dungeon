@@ -2,7 +2,7 @@ package core.gui.layouts;
 
 import core.gui.GUIElement;
 import core.gui.IGUILayout;
-import core.utils.math.Vector2f;
+import core.gui.math.Vector2f;
 
 import java.util.List;
 

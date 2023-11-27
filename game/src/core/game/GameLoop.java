@@ -18,12 +18,12 @@ import core.components.PositionComponent;
 import core.gui.GUIRoot;
 import core.gui.backend.opengl.OpenGLBackend;
 import core.gui.events.GUIResizeEvent;
+import core.gui.math.Vector2i;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.systems.*;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
-import core.utils.math.Vector2i;
 
 import java.util.HashSet;
 import java.util.Map;

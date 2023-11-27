@@ -3,8 +3,8 @@ package core.gui;
 import core.gui.events.GUIMouseClickEvent;
 import core.gui.events.GUIMouseMoveEvent;
 import core.gui.events.GUIScrollEvent;
+import core.gui.math.Vector2i;
 import core.gui.util.GUIUtils;
-import core.utils.math.Vector2i;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;

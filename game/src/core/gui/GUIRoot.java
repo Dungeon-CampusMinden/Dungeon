@@ -8,10 +8,10 @@ import core.gui.events.GUIResizeEvent;
 import core.gui.layouts.BorderLayout;
 import core.gui.layouts.FillLayout;
 import core.gui.layouts.hints.BorderLayoutHint;
+import core.gui.math.Vector2f;
+import core.gui.math.Vector4f;
 import core.gui.util.Font;
 import core.utils.logging.CustomLogLevel;
-import core.utils.math.Vector2f;
-import core.utils.math.Vector4f;
 
 import java.io.IOException;
 import java.util.ArrayList;

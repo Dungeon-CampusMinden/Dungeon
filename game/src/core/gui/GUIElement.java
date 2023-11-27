@@ -1,10 +1,10 @@
 package core.gui;
 
 import core.gui.backend.BackendImage;
-import core.utils.math.Vector2f;
-import core.utils.math.Vector2i;
-import core.utils.math.Vector3f;
-import core.utils.math.Vector4f;
+import core.gui.math.Vector2f;
+import core.gui.math.Vector2i;
+import core.gui.math.Vector3f;
+import core.gui.math.Vector4f;
 
 public abstract class GUIElement {
 

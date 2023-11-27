@@ -1,9 +1,9 @@
 package core.gui;
 
 import core.gui.events.GUIScrollEvent;
+import core.gui.math.Vector2f;
+import core.gui.math.Vector4f;
 import core.gui.util.Font;
-import core.utils.math.Vector2f;
-import core.utils.math.Vector4f;
 
 public class GUIText extends GUIElement {
 

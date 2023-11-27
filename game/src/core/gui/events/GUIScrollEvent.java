@@ -1,7 +1,7 @@
 package core.gui.events;
 
 import core.gui.GUIEvent;
-import core.utils.math.Vector2i;
+import core.gui.math.Vector2i;
 
 public class GUIScrollEvent extends GUIEvent {
 

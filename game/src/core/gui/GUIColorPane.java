@@ -1,8 +1,8 @@
 package core.gui;
 
-import core.utils.math.Vector2f;
-import core.utils.math.Vector3f;
-import core.utils.math.Vector4f;
+import core.gui.math.Vector2f;
+import core.gui.math.Vector3f;
+import core.gui.math.Vector4f;
 
 public class GUIColorPane extends GUIElement {
 
