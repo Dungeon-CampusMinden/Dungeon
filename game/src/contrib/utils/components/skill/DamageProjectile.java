@@ -22,88 +22,89 @@ import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
- * DamageProjectile is an abstract class that represents a projectile capable of dealing damage to
- * entities. The DamageProjectile class implements the Consumer interface, allowing it to accept an
- * entity as a parameter.
+ * Abstract class that represents a projectile capable of dealing damage to entities.
+ *
+ * <p>The DamageProjectile class implements the Consumer interface, allowing it to accept an entity
+ * as a parameter.
  */
 public abstract class DamageProjectile implements Consumer<Entity> {
 
     private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
-    private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getSimpleName());
     private final String pathToTexturesOfProjectile;
     private final float projectileSpeed;
     private final float projectileRange;
     private final int damageAmount;
     private final DamageType damageType;
-    private final Point projectileHitboxSize;
+    private final Point projectileHitBoxSize;
     private final Supplier<Point> selectionFunction;
     private final Consumer<Entity> onWallHit;
 
     /**
      * The DamageProjectile constructor sets the path to the textures of the projectile, the speed
-     * of the projectile, the damage amount and type to be dealt, the size of the projectile's
-     * hitbox, the target selection function, the range of the projectile, and the bahavior when a
-     * wall is hit.
+     * of the projectile, the damage amount and type to be dealt, the size of the projectile's hit
+     * box, the target selection function, the range of the projectile, and the behavior when a wall
+     * is hit.
      *
-     * <p>for specific implementation, see {@link contrib.utils.components.skill.FireballSkill}
+     * <p>For a specific implementation, see {@link FireballSkill}.
      *
-     * @param pathToTexturesOfProjectile path to the textures of the projectile
-     * @param projectileSpeed speed of the projectile
-     * @param damageAmount amount of damage to be dealt
-     * @param damageType type of damage to be dealt
-     * @param projectileHitboxSize size of the Hitbox
-     * @param selectionFunction specific functionality of the projectile
-     * @param projectileRange range in which the projectile is effective
-     * @param onWallHit behavior when a wall is hit
+     * @param pathToTexturesOfProjectile Path to the textures of the projectile.
+     * @param projectileSpeed Speed of the projectile.
+     * @param damageAmount Amount of damage to be dealt.
+     * @param damageType Type of damage to be dealt.
+     * @param projectileHitBoxSize Size of the hit box.
+     * @param selectionFunction Specific functionality of the projectile.
+     * @param projectileRange Range in which the projectile is effective.
+     * @param onWallHit Behavior when a wall is hit.
      */
     public DamageProjectile(
-            String pathToTexturesOfProjectile,
+            final String pathToTexturesOfProjectile,
             float projectileSpeed,
             int damageAmount,
-            DamageType damageType,
-            Point projectileHitboxSize,
-            Supplier<Point> selectionFunction,
+            final DamageType damageType,
+            final Point projectileHitBoxSize,
+            final Supplier<Point> selectionFunction,
             float projectileRange,
-            Consumer<Entity> onWallHit) {
+            final Consumer<Entity> onWallHit) {
         this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
         this.damageAmount = damageAmount;
         this.damageType = damageType;
         this.projectileSpeed = projectileSpeed;
         this.projectileRange = projectileRange;
-        this.projectileHitboxSize = projectileHitboxSize;
+        this.projectileHitBoxSize = projectileHitBoxSize;
         this.selectionFunction = selectionFunction;
         this.onWallHit = onWallHit;
     }
 
     /**
      * The DamageProjectile constructor sets the path to the textures of the projectile, the speed
-     * of the projectile, the damage amount and type to be dealt, the size of the projectile's
-     * hitbox, the target selection function, and the range of the projectile.
+     * of the projectile, the damage amount and type to be dealt, the size of the projectile's hit
+     * box, the target selection function, and the range of the projectile.
      *
-     * <p>for specific implementation, see {@link contrib.utils.components.skill.FireballSkill}
+     * <p>For a specific implementation, see {@link FireballSkill}
      *
-     * @param pathToTexturesOfProjectile path to the textures of the projectile
-     * @param projectileSpeed speed of the projectile
-     * @param damageAmount amount of damage to be dealt
-     * @param damageType type of damage to be dealt
-     * @param projectileHitboxSize size of the Hitbox
-     * @param selectionFunction specific functionality of the projectile
-     * @param projectileRange range in which the projectile is effective
+     * @param pathToTexturesOfProjectile Path to the textures of the projectile.
+     * @param projectileSpeed Speed of the projectile.
+     * @param damageAmount Amount of damage to be dealt.
+     * @param damageType Type of damage to be dealt.
+     * @param projectileHitBoxSize Size of the hit box.
+     * @param selectionFunction Specific functionality of the projectile.
+     * @param projectileRange Range in which the projectile is effective.
      */
     public DamageProjectile(
-            String pathToTexturesOfProjectile,
+            final String pathToTexturesOfProjectile,
             float projectileSpeed,
             int damageAmount,
-            DamageType damageType,
-            Point projectileHitboxSize,
-            Supplier<Point> selectionFunction,
+            final DamageType damageType,
+            final Point projectileHitBoxSize,
+            final Supplier<Point> selectionFunction,
             float projectileRange) {
         this(
                 pathToTexturesOfProjectile,
                 projectileSpeed,
                 damageAmount,
                 damageType,
-                projectileHitboxSize,
+                projectileHitBoxSize,
                 selectionFunction,
                 projectileRange,
                 DEFAULT_ON_WALL_HIT);
@@ -120,10 +121,10 @@ public abstract class DamageProjectile implements Consumer<Entity> {
      *
      * @param entity The entity that casts the projectile. The entity's position will be the start
      *     position for the projectile.
-     * @throws MissingComponentException if the entity does not have a PositionComponent
+     * @throws MissingComponentException if the entity does not have a PositionComponent.
      */
     @Override
-    public void accept(Entity entity) {
+    public void accept(final Entity entity) {
         Entity projectile = new Entity("Projectile");
         // Get the PositionComponent of the entity
         PositionComponent epc =
@@ -138,9 +139,9 @@ public abstract class DamageProjectile implements Consumer<Entity> {
             projectile.add(new DrawComponent(pathToTexturesOfProjectile));
         } catch (IOException e) {
             LOGGER.warning(
-                    "The DrawComponent for the projectile "
-                            + entity
-                            + " cant be created. "
+                    String.format(
+                                    "The DrawComponent for the projectile %s cant be created. ",
+                                    entity)
                             + e.getMessage());
             throw new RuntimeException();
         }
@@ -186,10 +187,11 @@ public abstract class DamageProjectile implements Consumer<Entity> {
                     }
                 };
 
-        // Add the CollideComponent with the appropriate hitbox size and collision handler to the
+        // Add the CollideComponent with the appropriate hit box size and collision handler to the
         // projectile
         projectile.add(
-                new CollideComponent(new Point(0.25f, 0.25f), projectileHitboxSize, collide, null));
+                new CollideComponent(
+                        CollideComponent.DEFAULT_OFFSET, projectileHitBoxSize, collide, null));
         Game.add(projectile);
         playSound();
     }

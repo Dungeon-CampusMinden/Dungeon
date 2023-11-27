@@ -11,19 +11,23 @@ import core.utils.Point;
 import java.util.function.Supplier;
 
 /**
- * FireballSkill is a subclass of DamageProjectile.
+ * Subclass of {@link DamageProjectile}.
  *
- * <p>The FireballSkill class extends the functionality of DamageProjectile to implement the
- * specific behavior of the fireball skill.
+ * <p>The FireballSkill class extends the functionality of {@link DamageProjectile} to implement the
+ * specific behavior of the fireball skill. *
+ *
+ * <p>The projectile will fly through the dungeon, and if it hits an entity, it will deal damage and
+ * be removed from the game. It will also be removed from the game if it hits a wall or has reached
+ * the maximum distance.
  */
-public class FireballSkill extends DamageProjectile {
+public final class FireballSkill extends DamageProjectile {
 
     private static final String PROJECTILE_TEXTURES = "skills/fireball";
     private static final String PROJECTILE_SOUND = "sounds/fireball.wav";
     private static final float PROJECTILE_SPEED = 15.0f;
     private static final int DAMAGE_AMOUNT = 5;
     private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
-    private static final Point HITBOX_SIZE = new Point(1, 1);
+    private static final Point HIT_BOX_SIZE = new Point(1, 1);
     private static final float PROJECTILE_RANGE = 7f;
 
     /**
@@ -33,13 +37,13 @@ public class FireballSkill extends DamageProjectile {
      *     to.
      * @see DamageProjectile
      */
-    public FireballSkill(Supplier<Point> targetSelection) {
+    public FireballSkill(final Supplier<Point> targetSelection) {
         super(
                 PROJECTILE_TEXTURES,
                 PROJECTILE_SPEED,
                 DAMAGE_AMOUNT,
                 DAMAGE_TYPE,
-                HITBOX_SIZE,
+                HIT_BOX_SIZE,
                 targetSelection,
                 PROJECTILE_RANGE);
     }
