@@ -10,6 +10,8 @@ import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 
 import org.junit.After;
 import org.junit.Test;
@@ -19,7 +21,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 public class HealthSystemTest {
-    private static final String ANIMATION_PATH = "textures/test_hero";
+    private static final IPath ANIMATION_PATH = new SimpleIPath("textures/test_hero");
 
     @After
     public void cleanup() {
