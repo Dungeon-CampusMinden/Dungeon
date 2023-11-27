@@ -199,7 +199,7 @@ public class ItemTest {
         Item item = new Item("Test item", "Test description", defaultAnimation);
 
         Point point = new Point(3, 3);
-        item.drop(new Entity(), point);
+        item.drop(point);
         assertEquals("There should only be one entity in the game", 1, Game.entityStream().count());
         Entity worldItem = Game.entityStream().findFirst().get();
         assertTrue(worldItem.isPresent(PositionComponent.class));
@@ -214,7 +214,7 @@ public class ItemTest {
         assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
 
         Item item = new Item("Test item", "Test description", defaultAnimation);
-        item.drop(null, new Point(0, 0));
+        item.drop(new Point(0, 0));
         assertEquals("There should only be one entity in the game", 1, Game.entityStream().count());
         Entity collector = new Entity();
         collector.add(new InventoryComponent(3));
@@ -237,7 +237,7 @@ public class ItemTest {
         assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
 
         Item item = new Item("Test item", "Test description", defaultAnimation);
-        item.drop(null, new Point(0, 0));
+        item.drop(new Point(0, 0));
         assertEquals("There should only be one entity in the game", 1, Game.entityStream().count());
         Entity collector = new Entity();
         Entity worldItem = Game.entityStream().findFirst().get();
@@ -253,7 +253,7 @@ public class ItemTest {
         assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
 
         Item item = new Item("Test item", "Test description", defaultAnimation);
-        item.drop(null, new Point(0, 0));
+        item.drop(new Point(0, 0));
         assertEquals("There should only be one entity in the game", 1, Game.entityStream().count());
         Entity collector = new Entity();
         collector.add(new InventoryComponent(0));

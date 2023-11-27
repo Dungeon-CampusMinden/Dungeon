@@ -282,7 +282,6 @@ public class InventoryGUI extends CombinableGUI {
                             itemDragPayload
                                     .item()
                                     .drop(
-                                            Game.hero().get(),
                                             Game.hero()
                                                     .get()
                                                     .fetch(PositionComponent.class)
