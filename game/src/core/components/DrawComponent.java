@@ -155,9 +155,11 @@ public final class DrawComponent implements Component {
     }
 
     /**
-     * Queue up an Animation to be considered as the next played Animation. Animations are given as
-     * an IPath Array or multiple variables. Animation length is set to one frame. If you need to
-     * queue longer Animations, use {@link #queueAnimation(int, IPath...)}.
+     * Queue up an Animation to be considered as the next played Animation.
+     *
+     * <p>Animations are given as an {@link IPath} Array or multiple variables. Animation length is
+     * set to one frame. If you need to queue longer Animations, use {@link #queueAnimation(int,
+     * IPath...)}. The First existing Animation * will be added to the queue.
      *
      * @param next Array of IPaths representing the Animation.
      */
@@ -168,9 +170,9 @@ public final class DrawComponent implements Component {
     /**
      * Queue up an Animation to be considered as the next played Animation.
      *
-     * <p>Animations are given as an IPath Array or multiple variables. The First existing Animation
-     * will be added to the queue. If the Animation is already added, the remaining
-     * Frames are set to the highest of remaining or new.
+     * <p>Animations are given as an {@link IPath} Array or multiple variables. The First existing
+     * Animation will be added to the queue. If the Animation is already added, the remaining Frames
+     * are set to the highest of remaining or new.
      *
      * <p>Animation length is set to the given parameter.
      *
