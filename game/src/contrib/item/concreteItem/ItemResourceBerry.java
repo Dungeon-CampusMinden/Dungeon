@@ -10,10 +10,16 @@ import core.Entity;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
 
-public class ItemResourceBerry extends Item {
+/**
+ * A Berry that restores hit point on usage.
+ *
+ * <p>Can be used for crafting.
+ */
+public final class ItemResourceBerry extends Item {
 
     private static final int HEAL_AMOUNT = 5;
 
+    /** Create a new Berry. */
     public ItemResourceBerry() {
         super(
                 "Berry",
@@ -22,7 +28,7 @@ public class ItemResourceBerry extends Item {
     }
 
     @Override
-    public void use(Entity e) {
+    public void use(final Entity e) {
         e.fetch(InventoryComponent.class)
                 .ifPresent(
                         component -> {

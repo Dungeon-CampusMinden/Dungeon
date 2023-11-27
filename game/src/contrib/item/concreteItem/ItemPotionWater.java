@@ -10,10 +10,16 @@ import core.Entity;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
 
-public class ItemPotionWater extends Item {
+/**
+ * A Water-Potion that restores a small amount of hit point on usage.
+ *
+ * <p>Can be used for crafting.
+ */
+public final class ItemPotionWater extends Item {
 
     private static final int HEAL_AMOUNT = 5;
 
+    /** Create a new Water-Potion. */
     public ItemPotionWater() {
         super(
                 "Bottle of Water",
@@ -24,7 +30,7 @@ public class ItemPotionWater extends Item {
     }
 
     @Override
-    public void use(Entity e) {
+    public void use(final Entity e) {
         e.fetch(InventoryComponent.class)
                 .ifPresent(
                         component -> {

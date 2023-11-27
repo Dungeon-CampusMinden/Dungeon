@@ -83,7 +83,6 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
                         item -> {
                             if (item != null) {
                                 if (!item.drop(
-                                        entity,
                                         calculateDropPosition(
                                                 positionComponent,
                                                 index.getAndIncrement() / count))) {
@@ -96,7 +95,7 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
                                                                             "No Tile was found for "
                                                                                     + entity));
 
-                                    item.drop(entity, randomTile.toPoint());
+                                    item.drop(randomTile.toPoint());
                                 }
                             }
                         });

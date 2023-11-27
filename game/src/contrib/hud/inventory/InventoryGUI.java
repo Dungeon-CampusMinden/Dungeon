@@ -23,6 +23,8 @@ import contrib.item.Item;
 
 import core.Game;
 import core.components.PositionComponent;
+import core.utils.MissingHeroException;
+import core.utils.components.MissingComponentException;
 
 public class InventoryGUI extends CombinableGUI {
 
@@ -282,11 +284,15 @@ public class InventoryGUI extends CombinableGUI {
                             itemDragPayload
                                     .item()
                                     .drop(
-                                            Game.hero().get(),
                                             Game.hero()
-                                                    .get()
+                                                    .orElseThrow(MissingHeroException::new)
                                                     .fetch(PositionComponent.class)
-                                                    .get()
+                                                    .orElseThrow(
+                                                            () ->
+                                                                    MissingComponentException.build(
+                                                                            Game.hero().get(),
+                                                                            PositionComponent
+                                                                                    .class))
                                                     .position());
                         }
                     }

@@ -10,10 +10,16 @@ import core.Entity;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
 
-public class ItemResourceMushroomRed extends Item {
+/**
+ * A Mushroom that removes a small amount of hit point on usage.
+ *
+ * <p>Can be used for crafting.
+ */
+public final class ItemResourceMushroomRed extends Item {
 
     private static final int DAMAGE_AMOUNT = 20;
 
+    /** Create a new Mushroom. */
     public ItemResourceMushroomRed() {
         super(
                 "Red Mushroom",
@@ -22,7 +28,7 @@ public class ItemResourceMushroomRed extends Item {
     }
 
     @Override
-    public void use(Entity e) {
+    public void use(final Entity e) {
         e.fetch(InventoryComponent.class)
                 .ifPresent(
                         component -> {

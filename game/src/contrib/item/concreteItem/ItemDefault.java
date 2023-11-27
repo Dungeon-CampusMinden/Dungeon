@@ -11,21 +11,19 @@ import core.utils.components.draw.Animation;
  */
 public final class ItemDefault extends Item {
 
-    private static final int DEFAULT_MAX_STACKSIZE = 16;
-
     /**
      * Create a new Item.
      *
-     * @param displayName the display name of the item
-     * @param description the description of the item
-     * @param inventoryAnimation the inventory animation of the item
-     * @param worldAnimation the world animation of the item
+     * @param displayName The display name of the item.
+     * @param description The description of the item.
+     * @param inventoryAnimation The inventory animation of the item.
+     * @param worldAnimation The world animation of the item.
      */
     public ItemDefault(
-            String displayName,
-            String description,
-            Animation inventoryAnimation,
-            Animation worldAnimation) {
+            final String displayName,
+            final String description,
+            final Animation inventoryAnimation,
+            final Animation worldAnimation) {
         super(displayName, description, inventoryAnimation, worldAnimation);
     }
 }

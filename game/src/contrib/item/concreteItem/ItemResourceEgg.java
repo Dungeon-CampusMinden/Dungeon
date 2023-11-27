@@ -12,8 +12,14 @@ import core.utils.components.path.SimpleIPath;
 
 import java.io.IOException;
 
-public class ItemResourceEgg extends Item {
+/**
+ * A Egg that spawns a monster on usage.
+ *
+ * <p>Can be used for crafting.
+ */
+public final class ItemResourceEgg extends Item {
 
+    /** Create a new Egg. */
     public ItemResourceEgg() {
         super(
                 "Egg",
@@ -22,7 +28,7 @@ public class ItemResourceEgg extends Item {
     }
 
     @Override
-    public void use(Entity e) {
+    public void use(final Entity e) {
         e.fetch(InventoryComponent.class)
                 .ifPresent(
                         component -> {
