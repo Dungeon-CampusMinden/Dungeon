@@ -5,35 +5,42 @@ import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
+
 import core.Entity;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
 
-public class ItemResourceMushroomRed extends Item {
+/**
+ * A Mushroom that removes a small amount of hit point on usage.
+ *
+ * <p>Can be used for crafting.
+ */
+public final class ItemResourceMushroomRed extends Item {
 
     private static final int DAMAGE_AMOUNT = 20;
 
+    /** Create a new Mushroom. */
     public ItemResourceMushroomRed() {
         super(
-            "Red Mushroom",
-            "A red mushroom.",
-            Animation.fromSingleImage(new SimpleIPath("items/resource/mushroom_red.png")));
+                "Red Mushroom",
+                "A red mushroom.",
+                Animation.fromSingleImage(new SimpleIPath("items/resource/mushroom_red.png")));
     }
 
     @Override
     public void use(final Entity e) {
         e.fetch(InventoryComponent.class)
-            .ifPresent(
-                component -> {
-                    component.remove(this);
-                    e.fetch(HealthComponent.class)
-                        .ifPresent(
-                            hc ->
-                                hc.receiveHit(
-                                    new Damage(
-                                        DAMAGE_AMOUNT,
-                                        DamageType.POISON,
-                                        null)));
-                });
+                .ifPresent(
+                        component -> {
+                            component.remove(this);
+                            e.fetch(HealthComponent.class)
+                                    .ifPresent(
+                                            hc ->
+                                                    hc.receiveHit(
+                                                            new Damage(
+                                                                    DAMAGE_AMOUNT,
+                                                                    DamageType.POISON,
+                                                                    null)));
+                        });
     }
 }

@@ -79,8 +79,8 @@ public class Item implements CraftingIngredient, CraftingResult {
             final String description,
             final Animation inventoryAnimation,
             final Animation worldAnimation,
-            final int stackSize,
-            final int maxStackSize) {
+            int stackSize,
+            int maxStackSize) {
         this.displayName = displayName;
         this.description = description;
         this.inventoryAnimation = inventoryAnimation;
@@ -229,7 +229,7 @@ public class Item implements CraftingIngredient, CraftingResult {
      *
      * @param stackSize The new stack size.
      */
-    public void stackSize(final int stackSize) {
+    public void stackSize(int stackSize) {
         this.stackSize = stackSize;
     }
 
@@ -247,7 +247,7 @@ public class Item implements CraftingIngredient, CraftingResult {
      *
      * @param maxStackSize The new max stack size.
      */
-    public void maxStackSize(final int maxStackSize) {
+    public void maxStackSize(int maxStackSize) {
         this.maxStackSize = maxStackSize;
     }
 
