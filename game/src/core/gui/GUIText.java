@@ -117,19 +117,19 @@ public class GUIText extends GUIElement {
         if (event instanceof GUIScrollEvent scrollEvent) {
             // Check if mouse over this element
             Vector2f absPos = this.absolutePosition();
-            if (scrollEvent.mouseX < absPos.x()
-                    || scrollEvent.mouseY < absPos.y()
-                    || scrollEvent.mouseX > absPos.x() + this.size().x()
-                    || scrollEvent.mouseY > absPos.y() + this.size().y()) {
+            if (scrollEvent.mousePos.x() < absPos.x()
+                    || scrollEvent.mousePos.y() < absPos.y()
+                    || scrollEvent.mousePos.x() > absPos.x() + this.size().x()
+                    || scrollEvent.mousePos.y() > absPos.y() + this.size().y()) {
                 return;
             }
             if (scrollX) {
-                this.scrollOffset.x(this.scrollOffset.x() + scrollEvent.scrollX * 20);
+                this.scrollOffset.x(this.scrollOffset.x() + scrollEvent.scroll.x() * 20);
                 this.checkScrollOffset();
                 this.invalidate();
             }
             if (scrollY) {
-                this.scrollOffset.y(this.scrollOffset.y() + scrollEvent.scrollY * 20);
+                this.scrollOffset.y(this.scrollOffset.y() + scrollEvent.scroll.y() * 20);
                 this.checkScrollOffset();
                 this.invalidate();
             }
