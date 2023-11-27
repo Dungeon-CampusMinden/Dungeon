@@ -57,7 +57,7 @@ public class DrawComponentTest {
 
     @Test
     public void getAnimations() {
-        assertTrue(animationComponent.getAnimation(CoreAnimations.RUN_LEFT).isPresent());
+        assertTrue(animationComponent.animation(CoreAnimations.RUN_LEFT).isPresent());
     }
 
     @Test

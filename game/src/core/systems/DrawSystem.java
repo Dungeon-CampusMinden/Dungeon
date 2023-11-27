@@ -102,7 +102,9 @@ public final class DrawSystem extends System {
             entry.setValue(entry.getValue() - 1);
         }
         // remove animations when there is no remaining frame time
-        dc.animationQueue().entrySet().removeIf(x -> x.getValue() < 0);
+        dc.animationQueue().entrySet().stream()
+                .filter(x -> x.getValue() < 0)
+                .forEach(x -> dc.deQueue(x.getKey()));
     }
 
     /**
