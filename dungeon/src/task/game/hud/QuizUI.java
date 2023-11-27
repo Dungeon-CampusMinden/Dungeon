@@ -187,7 +187,7 @@ public class QuizUI {
                 .add(QuizDialogDesign.createQuizQuestion(quizQuestion, skin, outputMsg))
                 .grow()
                 .fill(); // changes size based on childrens;
-        textDialog.button(DEFAULT_DIALOG_CONFIRM, DEFAULT_DIALOG_ABORT);
+        textDialog.button(DEFAULT_DIALOG_ABORT, DEFAULT_DIALOG_ABORT);
         textDialog.button(buttonMsg, buttonMsg);
         textDialog.pack(); // resizes to size
         return textDialog;
