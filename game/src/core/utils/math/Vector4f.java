@@ -187,6 +187,11 @@ public class Vector4f {
         };
     }
 
+    public Vector4i toInt() {
+        return new Vector4i(
+                Math.round(this.x), Math.round(this.y), Math.round(this.z), Math.round(this.w));
+    }
+
     public float[] toArray() {
         return new float[] {this.x, this.y, this.z, this.w};
     }

@@ -213,6 +213,10 @@ public class Vector3f {
         };
     }
 
+    public Vector3i toInt() {
+        return new Vector3i(Math.round(this.x), Math.round(this.y), Math.round(this.z));
+    }
+
     public float[] toArray() {
         return new float[] {this.x, this.y, this.z};
     }

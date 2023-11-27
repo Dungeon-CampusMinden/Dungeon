@@ -149,6 +149,10 @@ public class Vector2f {
         };
     }
 
+    public Vector2i toInt() {
+        return new Vector2i(Math.round(this.x), Math.round(this.y));
+    }
+
     public float[] toArray() {
         return new float[] {this.x, this.y};
     }

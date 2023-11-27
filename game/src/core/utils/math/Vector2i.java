@@ -149,6 +149,10 @@ public class Vector2i {
         };
     }
 
+    public Vector2f toFloat() {
+        return new Vector2f(this.x, this.y);
+    }
+
     public int[] toArray() {
         return new int[] {this.x, this.y};
     }

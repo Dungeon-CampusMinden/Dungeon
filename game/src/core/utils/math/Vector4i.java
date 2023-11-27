@@ -187,6 +187,10 @@ public class Vector4i {
         };
     }
 
+    public Vector4f toFloat() {
+        return new Vector4f(this.x, this.y, this.z, this.w);
+    }
+
     public int[] toArray() {
         return new int[] {this.x, this.y, this.z, this.w};
     }

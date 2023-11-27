@@ -213,6 +213,10 @@ public class Vector3i {
         };
     }
 
+    public Vector3f toFloat() {
+        return new Vector3f(this.x, this.y, this.z);
+    }
+
     public int[] toArray() {
         return new int[] {this.x, this.y, this.z};
     }
