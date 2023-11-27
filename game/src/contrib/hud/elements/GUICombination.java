@@ -27,13 +27,9 @@ import java.util.Arrays;
 public final class GUICombination extends Group {
 
     public static final int GAP = 10;
-
-    public record AvailableSpace(int x, int y, int width, int height) {}
-
     private final DragAndDrop dragAndDrop;
     private final ArrayList<CombinableGUI> combinableGuis;
     private final int guisPerRow;
-
     /**
      * Creates a GUICombination, a combination of multiple CombinableGUI elements.
      *
@@ -109,4 +105,6 @@ public final class GUICombination extends Group {
     public void drawDebug(final ShapeRenderer shapes) {
         this.combinableGuis.forEach(CombinableGUI::drawDebug);
     }
+
+    public record AvailableSpace(int x, int y, int width, int height) {}
 }

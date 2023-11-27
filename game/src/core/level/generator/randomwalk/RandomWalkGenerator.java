@@ -11,8 +11,6 @@ import core.level.utils.LevelSize;
 import java.util.Random;
 
 public class RandomWalkGenerator implements IGenerator {
-    private record MinMaxValue(int min, int max) {}
-
     private static final Random RANDOM = new Random();
     private static final int SMALL_MIN_X_SIZE = 10;
     private static final int SMALL_MIN_Y_SIZE = 10;
@@ -87,4 +85,6 @@ public class RandomWalkGenerator implements IGenerator {
         }
         return layout;
     }
+
+    private record MinMaxValue(int min, int max) {}
 }

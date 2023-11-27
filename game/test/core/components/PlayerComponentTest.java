@@ -1,6 +1,7 @@
 package core.components;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import core.Entity;
 
@@ -11,7 +12,7 @@ import java.util.function.Consumer;
 
 public class PlayerComponentTest {
 
-    private static int counter = 0;
+    private static final int counter = 0;
     private PlayerComponent playableComponent;
 
     @Before

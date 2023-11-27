@@ -14,10 +14,10 @@ import java.util.function.Consumer;
 public class SkillTest {
 
     private static int value = 0;
+    private final int baseCoolDownInMilliSeconds = 2000;
     private Entity entity;
     private Skill skill;
-    private final int baseCoolDownInMilliSeconds = 2000;
-    private Consumer<Entity> skillFunction = entity -> value++;
+    private final Consumer<Entity> skillFunction = entity -> value++;
 
     @Before
     public void setup() {

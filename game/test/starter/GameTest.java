@@ -18,7 +18,7 @@ class GameTest {
 
     private Game game;
     private SpriteBatch batch;
-    private int someArbitraryValueGreater0forDelta = 7;
+    private final int someArbitraryValueGreater0forDelta = 7;
 
     // Because of use of PowerMockRunner we need an empty constructor here
     public GameTest() {}

@@ -1,6 +1,7 @@
 package core.level.elements.tile;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import core.level.Tile;
 import core.level.utils.Coordinate;
@@ -24,6 +25,7 @@ public class TileFactoryTest {
         assertEquals(DesignLabel.DEFAULT, t.designLabel());
         assertNull("No Level should be set for a newly created Tile", t.level());
     }
+
     /** checks if Tile of type FLOOR can be generated.... */
     @Test
     public void createFLOORTile() {
@@ -37,6 +39,7 @@ public class TileFactoryTest {
         assertEquals(DesignLabel.DEFAULT, t.designLabel());
         assertNull("No Level should be set for a newly created Tile", t.level());
     }
+
     /** checks if Tile of type WALL can be generated.... */
     @Test
     public void createWALLTile() {
@@ -50,6 +53,7 @@ public class TileFactoryTest {
         assertEquals(DesignLabel.DEFAULT, t.designLabel());
         assertNull("No Level should be set for a newly created Tile", t.level());
     }
+
     /** checks if Tile of type HOLE can be generated.... */
     @Test
     public void createHOLETile() {
@@ -63,6 +67,7 @@ public class TileFactoryTest {
         assertEquals(DesignLabel.DEFAULT, t.designLabel());
         assertNull("No Level should be set for a newly created Tile", t.level());
     }
+
     /** checks if Tile of type EXIT can be generated.... */
     @Test
     public void createEXITTile() {
@@ -76,6 +81,7 @@ public class TileFactoryTest {
         assertEquals(DesignLabel.DEFAULT, t.designLabel());
         assertNull("No Level should be set for a newly created Tile", t.level());
     }
+
     /** checks if Tile of type DOOR can be generated.... */
     @Test
     public void createDOORTile() {

@@ -53,11 +53,13 @@ import java.util.stream.Collectors;
  */
 public final class DrawComponent implements Component {
     private final Logger LOGGER = Logger.getLogger(this.getClass().getSimpleName());
-    private Map<String, Animation> animationMap = null;
-    private Animation currentAnimation;
     /** allows only one Element from a certain priority and orders them */
     private final Map<IPath, Integer> animationQueue =
             new TreeMap<>(Comparator.comparingInt(IPath::priority));
+
+    private Map<String, Animation> animationMap = null;
+    private Animation currentAnimation;
+
     /**
      * Create a new DrawComponent.
      *
@@ -116,6 +118,22 @@ public final class DrawComponent implements Component {
         animationMap.put(CoreAnimations.IDLE_LEFT.pathString(), idle);
         animationMap.put(CoreAnimations.IDLE_RIGHT.pathString(), idle);
         currentAnimation = idle;
+    }
+
+    /**
+     * @param subDir in which to look for files for the animation
+     * @return a basic configured Animation
+     */
+    private static Animation allFilesFromDirectory(final File subDir) {
+        return Animation.fromCollection(
+                Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
+                        // only look for direct Files no recursive search
+                        .filter(File::isFile)
+                        // File object needs to be converted to IPath
+                        .map(file -> new SimpleIPath(file.getPath()))
+                        // sort by name streams may lose the ordering by name
+                        .sorted(Comparator.comparing(SimpleIPath::pathString))
+                        .collect(Collectors.toList()));
     }
 
     /**
@@ -230,6 +248,7 @@ public final class DrawComponent implements Component {
     public Optional<Animation> animation(final IPath path) {
         return Optional.ofNullable(animationMap.get(path.pathString()));
     }
+
     /**
      * Check if the component stores an animation with the given path.
      *
@@ -437,21 +456,5 @@ public final class DrawComponent implements Component {
             } catch (URISyntaxException ignored) {
             }
         }
-    }
-
-    /**
-     * @param subDir in which to look for files for the animation
-     * @return a basic configured Animation
-     */
-    private static Animation allFilesFromDirectory(final File subDir) {
-        return Animation.fromCollection(
-                Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
-                        // only look for direct Files no recursive search
-                        .filter(File::isFile)
-                        // File object needs to be converted to IPath
-                        .map(file -> new SimpleIPath(file.getPath()))
-                        // sort by name streams may lose the ordering by name
-                        .sorted(Comparator.comparing(SimpleIPath::pathString))
-                        .collect(Collectors.toList()));
     }
 }

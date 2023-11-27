@@ -2,7 +2,6 @@ package contrib.systems;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 import contrib.components.AIComponent;
 

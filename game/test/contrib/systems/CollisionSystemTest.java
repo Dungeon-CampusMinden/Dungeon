@@ -26,13 +26,6 @@ public class CollisionSystemTest {
     private static final String MISSING_POSITION_COMPONENT =
             "PositionComponent did get removed Test no longer valid";
 
-    @After
-    public void cleanup() {
-        Game.removeAllEntities();
-        Game.currentLevel(null);
-        Game.removeAllSystems();
-    }
-
     /**
      * Helper to clean up used Class Attributes to avoid interfering with other tests
      *
@@ -61,6 +54,13 @@ public class CollisionSystemTest {
         e1.add(new PositionComponent(point1));
 
         return e1;
+    }
+
+    @After
+    public void cleanup() {
+        Game.removeAllEntities();
+        Game.currentLevel(null);
+        Game.removeAllSystems();
     }
 
     /**

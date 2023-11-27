@@ -29,6 +29,7 @@ public final class UIComponent implements Component {
         this.willPauseGame = willPauseGame;
         this.closeOnUICloseKey = closeOnUICloseKey;
     }
+
     /**
      * Create a new UIComponent.
      *

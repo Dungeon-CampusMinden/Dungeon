@@ -188,6 +188,7 @@ public class CollisionComponentTest {
        position(.5f, .5f), offset(-1, -1), size(1, 1), result(0, 0)
        position(-.5, .5), offset(0, 0), size(2,2), result(.5, 1.5)
     */
+
     /** check Center for position(0, 0), offset(0, 0), size( 1, 1), result(.5f, .5f) */
     @Test
     public void getCenterFirst() {
