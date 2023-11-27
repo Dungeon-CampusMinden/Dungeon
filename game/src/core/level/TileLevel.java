@@ -9,6 +9,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.IVoidFunction;
+import core.utils.components.path.IPath;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,7 +80,7 @@ public class TileLevel implements ILevel {
         for (int y = 0; y < layout.length; y++) {
             for (int x = 0; x < layout[0].length; x++) {
                 Coordinate coordinate = new Coordinate(x, y);
-                String texturePath =
+                IPath texturePath =
                         TileTextureFactory.findTexturePath(
                                 new TileTextureFactory.LevelPart(
                                         layout[y][x], designLabel, layout, coordinate));

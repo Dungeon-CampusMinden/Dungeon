@@ -19,6 +19,7 @@ import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
+import core.utils.components.path.IPath;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -172,19 +173,19 @@ public final class LevelSystem extends System {
     }
 
     private void drawLevel() {
-        Map<String, PainterConfig> mapping = new HashMap<>();
+        Map<IPath, PainterConfig> mapping = new HashMap<>();
 
         Tile[][] layout = currentLevel.layout();
         for (Tile[] tiles : layout) {
             for (int x = 0; x < layout[0].length; x++) {
                 Tile t = tiles[x];
                 if (t.levelElement() != LevelElement.SKIP) {
-                    String texturePath = t.texturePath();
+                    IPath texturePath = t.texturePath();
                     if (!mapping.containsKey(texturePath)) {
                         mapping.put(
-                                texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET));
+                                texturePath, new PainterConfig(texturePath.pathString(), X_OFFSET, Y_OFFSET));
                     }
-                    painter.draw(t.position(), texturePath, mapping.get(texturePath));
+                    painter.draw(t.position(), texturePath.pathString(), mapping.get(texturePath));
                 }
             }
         }

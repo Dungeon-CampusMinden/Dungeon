@@ -1,6 +1,8 @@
 package core.level.utils;
 
 import core.level.Tile;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 
 public class TileTextureFactory {
     /**
@@ -9,36 +11,36 @@ public class TileTextureFactory {
      * @param levelPart a part of a level
      * @return Path to texture
      */
-    public static String findTexturePath(LevelPart levelPart) {
+    public static IPath findTexturePath(LevelPart levelPart) {
         String prefixPath = "dungeon/" + levelPart.design().name().toLowerCase() + "/";
 
-        String path = findTexturePathFloor(levelPart);
+        IPath path = findTexturePathFloor(levelPart);
         if (path != null) {
-            return prefixPath + path + ".png";
+            return new SimpleIPath(prefixPath + path.pathString() + ".png");
         }
 
         path = findTexturePathDoor(levelPart);
         if (path != null) {
-            return prefixPath + path + ".png";
+            return new SimpleIPath(prefixPath + path.pathString() + ".png");
         }
 
         path = findTexturePathInnerCorner(levelPart);
         if (path != null) {
-            return prefixPath + path + ".png";
+            return new SimpleIPath(prefixPath + path.pathString() + ".png");
         }
 
         path = findTexturePathOuterCorner(levelPart);
         if (path != null) {
-            return prefixPath + path + ".png";
+            return new SimpleIPath(prefixPath + path.pathString() + ".png");
         }
 
         path = findTexturePathWall(levelPart);
         if (path != null) {
-            return prefixPath + path + ".png";
+            return new SimpleIPath(prefixPath + path.pathString() + ".png");
         }
 
         // Error state
-        return prefixPath + "floor/empty.png";
+        return new SimpleIPath(prefixPath + "floor/empty.png");
     }
 
     /**
@@ -48,7 +50,7 @@ public class TileTextureFactory {
      * @param layout The level
      * @return Path to texture
      */
-    public static String findTexturePath(Tile element, Tile[][] layout) {
+    public static IPath findTexturePath(Tile element, Tile[][] layout) {
         return findTexturePath(element, layout, element.levelElement());
     }
 
@@ -60,7 +62,7 @@ public class TileTextureFactory {
      * @param elementType The type ot the tile if different than the attribute
      * @return Path to texture
      */
-    public static String findTexturePath(Tile element, Tile[][] layout, LevelElement elementType) {
+    public static IPath findTexturePath(Tile element, Tile[][] layout, LevelElement elementType) {
         LevelElement[][] elementLayout = new LevelElement[layout.length][layout[0].length];
         for (int x = 0; x < layout[0].length; x++) {
             for (int y = 0; y < layout.length; y++) {
@@ -73,77 +75,77 @@ public class TileTextureFactory {
                         elementType, element.designLabel(), elementLayout, element.coordinate()));
     }
 
-    private static String findTexturePathFloor(LevelPart levelPart) {
+    private static IPath findTexturePathFloor(LevelPart levelPart) {
         if (levelPart.element() == LevelElement.SKIP) {
-            return "floor/empty";
+            return new SimpleIPath("floor/empty");
         } else if (levelPart.element() == LevelElement.FLOOR) {
-            return "floor/floor_1";
+            return new SimpleIPath("floor/floor_1");
         } else if (levelPart.element() == LevelElement.EXIT) {
-            return "floor/floor_ladder";
+            return new SimpleIPath("floor/floor_ladder");
         } else if (levelPart.element() == LevelElement.HOLE) {
             if (aboveIsHole(levelPart.position, levelPart.layout)) {
-                return "floor/floor_hole1";
+                return new SimpleIPath("floor/floor_hole1");
             } else {
-                return "floor/floor_hole";
+                return new SimpleIPath("floor/floor_hole");
             }
         }
         return null;
     }
 
-    private static String findTexturePathDoor(LevelPart levelPart) {
+    private static IPath findTexturePathDoor(LevelPart levelPart) {
         if (levelPart.element() == LevelElement.DOOR) {
             if (belowIsAccessible(levelPart.position, levelPart.layout)) {
-                return "door/top";
+                return new SimpleIPath("door/top");
             } else if (leftIsAccessible(levelPart.position, levelPart.layout)) {
-                return "door/right";
+                return new SimpleIPath("door/right");
             } else if (rightIsAccessible(levelPart.position, levelPart.layout)) {
-                return "door/left";
+                return new SimpleIPath("door/left");
             } else if (aboveIsAccessible(levelPart.position, levelPart.layout)) {
-                return "door/bottom";
+                return new SimpleIPath("door/bottom");
             }
         }
         return null;
     }
 
-    private static String findTexturePathWall(LevelPart levelPart) {
+    private static IPath findTexturePathWall(LevelPart levelPart) {
         if (isRightWall(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_right";
+            return new SimpleIPath("wall/wall_right");
         } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_left";
+            return new SimpleIPath("wall/wall_left");
         } else if (isTopWall(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_top";
+            return new SimpleIPath("wall/wall_top");
         } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_bottom";
+            return new SimpleIPath("wall/wall_bottom");
         }
         return null;
     }
 
-    private static String findTexturePathInnerCorner(LevelPart levelPart) {
+    private static IPath findTexturePathInnerCorner(LevelPart levelPart) {
         if (isCrossUpperLeftBottomRight(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_cross_upper_left_bottom_right";
+            return new SimpleIPath("wall/wall_cross_upper_left_bottom_right");
         } else if (isCrossUpperRightBottomLeft(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_cross_upper_right_bottom_left";
+            return new SimpleIPath("wall/wall_cross_upper_right_bottom_left");
         } else if (isBottomLeftInnerCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_inner_corner_bottom_left";
+            return new SimpleIPath("wall/wall_inner_corner_bottom_left");
         } else if (isBottomRightInnerCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_inner_corner_bottom_right";
+            return new SimpleIPath("wall/wall_inner_corner_bottom_right");
         } else if (isUpperRightInnerCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_inner_corner_upper_right";
+            return new SimpleIPath("wall/wall_inner_corner_upper_right");
         } else if (isUpperLeftInnerCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_inner_corner_upper_left";
+            return new SimpleIPath("wall/wall_inner_corner_upper_left");
         }
         return null;
     }
 
-    private static String findTexturePathOuterCorner(LevelPart levelPart) {
+    private static IPath findTexturePathOuterCorner(LevelPart levelPart) {
         if (isBottomLeftOuterCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_outer_corner_bottom_left";
+            return new SimpleIPath("wall/wall_outer_corner_bottom_left");
         } else if (isBottomRightOuterCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_outer_corner_bottom_right";
+            return new SimpleIPath("wall/wall_outer_corner_bottom_right");
         } else if (isUpperRightOuterCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_outer_corner_upper_right";
+            return new SimpleIPath("wall/wall_outer_corner_upper_right");
         } else if (isUpperLeftOuterCorner(levelPart.position(), levelPart.layout())) {
-            return "wall/wall_outer_corner_upper_left";
+            return new SimpleIPath("wall/wall_outer_corner_upper_left");
         }
         return null;
     }

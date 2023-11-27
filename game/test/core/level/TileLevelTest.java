@@ -14,6 +14,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 
+import core.utils.components.path.SimpleIPath;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -27,12 +28,12 @@ public class TileLevelTest {
         Tile[][] tileLayout =
                 new Tile[][] {
                     {
-                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT),
-                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT)
+                        new WallTile(new SimpleIPath(""), new Coordinate(0, 0), DesignLabel.DEFAULT),
+                        new FloorTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT)
                     },
                     {
-                        new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT),
-                        new ExitTile("", new Coordinate(1, 1), DesignLabel.DEFAULT)
+                        new WallTile(new SimpleIPath(""), new Coordinate(0, 1), DesignLabel.DEFAULT),
+                        new ExitTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT)
                     }
                 };
         TileLevel tileLevel = new TileLevel(tileLayout);
@@ -45,12 +46,12 @@ public class TileLevelTest {
         Tile[][] tileLayout =
                 new Tile[][] {
                     {
-                        new WallTile("", new Coordinate(0, 0), DesignLabel.DEFAULT),
-                        new FloorTile("", new Coordinate(1, 0), DesignLabel.DEFAULT)
+                        new WallTile(new SimpleIPath(""), new Coordinate(0, 0), DesignLabel.DEFAULT),
+                        new FloorTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT)
                     },
                     {
-                        new WallTile("", new Coordinate(0, 1), DesignLabel.DEFAULT),
-                        new FloorTile("", new Coordinate(1, 1), DesignLabel.DEFAULT)
+                        new WallTile(new SimpleIPath(""), new Coordinate(0, 1), DesignLabel.DEFAULT),
+                        new FloorTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT)
                     }
                 };
         TileLevel tileLevel = new TileLevel(tileLayout);
@@ -224,12 +225,12 @@ public class TileLevelTest {
         Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT);
+                layout[y][x] = new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
             }
         }
-        layout[1][1] = new WallTile("", new Coordinate(1, 1), DesignLabel.DEFAULT);
-        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT);
-        layout[0][2] = new ExitTile("", new Coordinate(2, 0), DesignLabel.DEFAULT);
+        layout[1][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT);
+        layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
+        layout[0][2] = new ExitTile(new SimpleIPath(""), new Coordinate(2, 0), DesignLabel.DEFAULT);
         TileLevel tileLevel = new TileLevel(layout);
         tileLevel.startTile(layout[0][0]);
 
@@ -250,11 +251,11 @@ public class TileLevelTest {
         Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT);
+                layout[y][x] = new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
             }
         }
-        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT);
-        layout[0][2] = new ExitTile("", new Coordinate(2, 0), DesignLabel.DEFAULT);
+        layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
+        layout[0][2] = new ExitTile(new SimpleIPath(""), new Coordinate(2, 0), DesignLabel.DEFAULT);
         TileLevel tileLevel = new TileLevel(layout);
         tileLevel.startTile(layout[0][0]);
 
@@ -307,10 +308,10 @@ public class TileLevelTest {
         Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT);
+                layout[y][x] = new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
             }
         }
-        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT);
+        layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
         TileLevel tileLevel = new TileLevel(layout);
         var start = tileLevel.tileAt(layout[0][1].coordinate());
         var end = tileLevel.tileAt(layout[2][1].coordinate());
@@ -323,10 +324,10 @@ public class TileLevelTest {
         Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT);
+                layout[y][x] = new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
             }
         }
-        layout[2][1] = new WallTile("", new Coordinate(1, 2), DesignLabel.DEFAULT);
+        layout[2][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 2), DesignLabel.DEFAULT);
         TileLevel tileLevel = new TileLevel(layout);
         var start = tileLevel.tileAt(layout[0][1].coordinate());
         var end = tileLevel.tileAt(layout[2][1].coordinate());
@@ -339,11 +340,11 @@ public class TileLevelTest {
         Tile[][] layout = new Tile[3][3];
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                layout[y][x] = new FloorTile("", new Coordinate(x, y), DesignLabel.DEFAULT);
+                layout[y][x] = new FloorTile(new SimpleIPath(""), new Coordinate(x, y), DesignLabel.DEFAULT);
             }
         }
-        layout[0][1] = new WallTile("", new Coordinate(1, 0), DesignLabel.DEFAULT);
-        layout[2][1] = new WallTile("", new Coordinate(1, 2), DesignLabel.DEFAULT);
+        layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
+        layout[2][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 2), DesignLabel.DEFAULT);
         TileLevel tileLevel = new TileLevel(layout);
         var start = tileLevel.tileAt(layout[0][1].coordinate());
         var end = tileLevel.tileAt(layout[2][1].coordinate());
@@ -470,7 +471,7 @@ public class TileLevelTest {
                         DesignLabel.DEFAULT);
         Tile tile =
                 TileFactory.createTile(
-                        "", new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT);
+                        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
@@ -508,7 +509,7 @@ public class TileLevelTest {
                         DesignLabel.DEFAULT);
         Tile tile =
                 TileFactory.createTile(
-                        "", new Coordinate(1, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
+                        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.EXIT, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
@@ -546,7 +547,7 @@ public class TileLevelTest {
                         DesignLabel.DEFAULT);
         Tile tile =
                 TileFactory.createTile(
-                        ".png", new Coordinate(1, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
+                        new SimpleIPath(".png"), new Coordinate(1, 0), LevelElement.DOOR, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
@@ -584,7 +585,7 @@ public class TileLevelTest {
                         DesignLabel.DEFAULT);
         Tile tile =
                 TileFactory.createTile(
-                        "", new Coordinate(1, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
+                        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.SKIP, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
@@ -616,7 +617,7 @@ public class TileLevelTest {
                         DesignLabel.DEFAULT);
         Tile tile =
                 TileFactory.createTile(
-                        "", new Coordinate(1, 0), LevelElement.WALL, DesignLabel.DEFAULT);
+                        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.WALL, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
@@ -648,7 +649,7 @@ public class TileLevelTest {
                         DesignLabel.DEFAULT);
         Tile tile =
                 TileFactory.createTile(
-                        "", new Coordinate(1, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
+                        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.HOLE, DesignLabel.DEFAULT);
         level.removeTile(level.layout()[0][1]);
         level.layout()[0][1] = tile;
         level.addTile(tile);
@@ -733,7 +734,7 @@ public class TileLevelTest {
         TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
         level.changeTileElementType(
                 TileFactory.createTile(
-                        "", new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT),
+                        new SimpleIPath(""), new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT),
                 LevelElement.WALL);
         assertEquals(3, level.getNodeCount());
         AtomicInteger counter = new AtomicInteger();

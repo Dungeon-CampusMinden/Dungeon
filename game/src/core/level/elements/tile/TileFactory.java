@@ -4,6 +4,7 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.components.path.IPath;
 
 /** Factory to create a specific {@link Tile} based on the given element type. */
 public class TileFactory {
@@ -18,7 +19,7 @@ public class TileFactory {
      * @return the newly created Tile
      */
     public static Tile createTile(
-            final String texturePath,
+            final IPath texturePath,
             final Coordinate coordinate,
             final LevelElement elementType,
             final DesignLabel designLabel) {
