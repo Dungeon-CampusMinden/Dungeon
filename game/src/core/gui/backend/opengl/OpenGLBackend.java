@@ -30,6 +30,7 @@ public class OpenGLBackend implements IGUIBackend {
     private final OpenGLRenderContext debugRenderContext = new OpenGLRenderContext(this);
     private final OpenGLRenderContext textRenderContext = new OpenGLRenderContext(this);
     private Matrix4f projection, view;
+    private boolean screenshot;
 
     public OpenGLBackend(Vector2i size) {
         this.size = size;
@@ -111,8 +112,13 @@ public class OpenGLBackend implements IGUIBackend {
 
         // Screenshot
         if (GLFW.glfwGetKey(GLFW.glfwGetCurrentContext(), GLFW.GLFW_KEY_F2) == GLFW.GLFW_PRESS) {
-            String path = OpenGLUtil.screenshot();
-            Logging.log(CustomLogLevel.INFO, "Saved screenshot to %s", path);
+            if (!this.screenshot) {
+                String path = OpenGLUtil.screenshot();
+                Logging.log(CustomLogLevel.INFO, "Saved screenshot to %s", path);
+                this.screenshot = true;
+            }
+        } else {
+            this.screenshot = false;
         }
     }
 
