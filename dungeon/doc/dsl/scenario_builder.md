@@ -188,7 +188,7 @@ fn build_scenario(single_choice_task task) -> entity<><> {
     /*
      * Instanziierung der Ritter-Entität
      */
-    ar knight : entity;
+    var knight : entity;
     knight = instantiate(ritter_typ)
     room_1.add(knight);
 
@@ -197,5 +197,82 @@ fn build_scenario(single_choice_task task) -> entity<><> {
 }
 ```
 
+### Items erstellen
 
+Items sind Spielelemente, die vom Spielcharakter aufgenommen und im Inventar transportiert werden können.
+In der DungeonDSL können `quest_item`s erstellt werden, die mit einer Aufgabe in Verbindung stehen (siehe
+[Verknüpfung Spielelemente mit der Aufgabedefinition](#verknüpfung-der-spielelement-mit-der-aufgabendefinition)).
+
+Analog zu Entitätstyp-Definitionen (siehe [Entitäten erstellen](#entitäten-erstellen)) können auch Itemtyp-Definitionen
+in der DungeonDSL erstellt werden:
+
+```
+item_type scroll_type {
+    texture_path: "items/book/wisdom_scroll.png"
+}
+```
+
+Die wesentliche Eigenschaft eines `item_type` ist der `texture_path`, dem der relative Pfad zu einer Textur zugewiesen werden
+muss, welche genutzt wird, um das Item darzustellen.
+
+Aus einem `item_type` wird wie folgt ein Item erstellt:
+
+```
+fn build_scenario(single_choice_task task) -> entity<><> {
+    var return_set : entity<><>;
+    var room_1 : entity<>;
+
+    /*
+     * Instanziierung einer Schriftrolle
+     */
+    var scroll : quest_item;
+    scroll = build_quest_item(mushroom_type, content);
+    place_quest_item(scroll, room_1);
+
+    return_set.add(room_1);
+    return return_set;
+}
+```
+
+Ein Item ist keine Entität. Die Platzierung von `quest_item`s in einem Raum setzt die Verwendung der nativen
+`place_quest_item`-Funktion voraus, mit der ein `quest_item` in eine Entitätsmenge integriert wird. Intern erstellt
+diese Funktion eine neue Entität, die das `quest_item` kapselt. Diese neue Entität wird anschließend wie jede andere
+Entität im Raum platziert. Es liegt dann dort "auf dem Boden".
+
+TODO: screenshot
+
+### Items in einem Inventar platzieren
+
+Falls das `quest_item` nicht wie oben beschrieben in einem Raum platziert werden soll, kann es auch einem
+`inventory_component` hinzugefügt werden.
+
+Gegeben sei folgender `entity_type`, der eine Truhe beschreibt:
+
+```
+entity_type chest_type {
+    inventory_component {},
+    draw_component {
+        path: "objects/treasurechest"
+    },
+    position_component{},
+    interaction_component{
+        radius: 1.5,
+        on_interaction: open_container
+    }
+}
+```
+
+Die wesentliche Komponente ist `inventory_component`. Dem `inventory_component` einer Entität können wie folgt
+`quest_item`s hinzugefügt werden:
+
+```
+    var scroll : quest_item;
+    scroll = build_quest_item(mushroom_type, content);
+
+    var chest : entity:
+    chest = instantiate(chest);
+    chest.inventory_component.add(scroll);
+```
+
+TODO: screenshot
 ### Verknüpfung der Spielelement mit der Aufgabendefinition
