@@ -29,7 +29,7 @@ public enum AdditionalAnimations implements IPath {
     private final String value;
     private final int priority;
 
-    AdditionalAnimations(final String value, final int priority) {
+    AdditionalAnimations(final String value, int priority) {
         this.value = value;
         this.priority = priority;
     }
