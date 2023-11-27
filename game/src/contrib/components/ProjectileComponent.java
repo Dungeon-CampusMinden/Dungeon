@@ -23,29 +23,18 @@ import core.utils.Point;
  * <p>The {@link #goalLocation()} method retrieves the goal position of the projectile. The {@link
  * #startPosition()} method retrieves the start position of the projectile.
  *
+ * @param startPosition The point from which to start the calculation to the goal location.
+ * @param goalLocation The point where the projectile should fly to.
  * @see contrib.utils.components.skill.DamageProjectile
  */
-public final class ProjectileComponent implements Component {
-
-    private final Point goalLocation;
-    private final Point startPosition;
-
-    /**
-     * Create a new ProjectileComponent.
-     *
-     * @param startPosition The point from which to start the calculation to the goal location.
-     * @param goalLocation The point where the projectile should fly to.
-     */
-    public ProjectileComponent(final Point startPosition, final Point goalLocation) {
-        this.goalLocation = goalLocation;
-        this.startPosition = startPosition;
-    }
+public record ProjectileComponent(Point startPosition, Point goalLocation) implements Component {
 
     /**
      * Get the target position of the projectile.
      *
      * @return The point where the projectile should fly to.
      */
+    @Override
     public Point goalLocation() {
         return goalLocation;
     }
@@ -55,6 +44,7 @@ public final class ProjectileComponent implements Component {
      *
      * @return The point from which to start the calculation to the goal location
      */
+    @Override
     public Point startPosition() {
         return startPosition;
     }

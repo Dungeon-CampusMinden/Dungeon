@@ -4,13 +4,16 @@ import static junit.framework.TestCase.assertEquals;
 
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
+import contrib.systems.AISystem;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.ProtectOnAttack;
 import contrib.utils.components.health.Damage;
 
 import core.Entity;
+import core.Game;
 import core.components.PlayerComponent;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,7 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProtectOnAttackTest {
+
+    private AISystem system;
     private Entity protector;
+
     private Entity protectedEntity;
     private Entity attacker;
     private List<Entity> entitiesToProtect;
@@ -29,9 +35,11 @@ public class ProtectOnAttackTest {
     public void setup() {
         // Get a protector
         protector = new Entity();
+        Game.add(protector);
 
         // Get a victim and its HealthComponent
         protectedEntity = new Entity();
+        Game.add(protectedEntity);
         entityHC = new HealthComponent();
         protectedEntity.add(entityHC);
 
@@ -45,8 +53,16 @@ public class ProtectOnAttackTest {
             Entity e = new Entity();
             e.add(new HealthComponent());
             entitiesToProtect.add(e);
+            Game.add(e);
         }
         updateCounter = 0;
+        system = new AISystem();
+    }
+
+    @After
+    public void cleanup() {
+        Game.removeAllSystems();
+        Game.removeAllEntities();
     }
 
     /** Add one entity to transition and inflict damage */
@@ -65,7 +81,7 @@ public class ProtectOnAttackTest {
         entityHC.receiveHit(new Damage(1, null, attacker));
 
         // then
-        attackerAI.execute(protector);
+        system.execute();
         assertEquals(1, updateCounter);
     }
 
@@ -83,7 +99,7 @@ public class ProtectOnAttackTest {
         protector.add(attackerAI);
 
         // then
-        attackerAI.execute(protector);
+        system.execute();
         assertEquals(0, updateCounter);
     }
 
@@ -108,7 +124,7 @@ public class ProtectOnAttackTest {
         }
 
         // then
-        attackerAI.execute(protector);
+        system.execute();
         assertEquals(1, updateCounter);
     }
 
@@ -127,7 +143,7 @@ public class ProtectOnAttackTest {
 
         protector.add(attackerAI);
         // then
-        attackerAI.execute(protector);
+        system.execute();
         assertEquals(0, updateCounter);
     }
 }

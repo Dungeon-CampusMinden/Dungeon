@@ -6,23 +6,12 @@ import core.Entity;
 import core.System;
 import core.utils.components.MissingComponentException;
 
-import java.util.function.Consumer;
-
 /**
  * Controls the AI.
  *
  * <p>Entities with the {@link AIComponent} will be processed by this system.
  */
 public final class AISystem extends System {
-
-    private static final Consumer<Entity> executeAI =
-            entity ->
-                    entity.fetch(AIComponent.class)
-                            .orElseThrow(
-                                    () ->
-                                            MissingComponentException.build(
-                                                    entity, AIComponent.class))
-                            .execute(entity);
 
     /** Create a new AISystem */
     public AISystem() {
@@ -31,6 +20,16 @@ public final class AISystem extends System {
 
     @Override
     public void execute() {
-        entityStream().forEach(executeAI);
+        entityStream().forEach(this::executeAI);
+    }
+
+    private void executeAI(Entity entity) {
+        AIComponent ai =
+                entity.fetch(AIComponent.class)
+                        .orElseThrow(
+                                () -> MissingComponentException.build(entity, AIComponent.class));
+
+        if (ai.shouldFight().apply(entity)) ai.fightBehavior().accept(entity);
+        else ai.idleBehavior().accept(entity);
     }
 }

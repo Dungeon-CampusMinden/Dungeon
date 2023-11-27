@@ -188,7 +188,7 @@ public final class HealthComponent implements Component {
      *
      * <p>in god mode the entity can not die.
      *
-     * @param status true to actiavte, false to deactivate.
+     * @param status true to activate, false to deactivate.
      */
     public void godMode(boolean status) {
         this.godMode = status;

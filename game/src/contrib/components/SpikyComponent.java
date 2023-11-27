@@ -29,7 +29,7 @@ import core.Component;
  *
  * @see contrib.entities.EntityFactory
  */
-public class SpikyComponent implements Component {
+public final class SpikyComponent implements Component {
     private final int damageAmount;
     private final DamageType damageType;
 
@@ -43,7 +43,7 @@ public class SpikyComponent implements Component {
      * @param damageType The type of damage to cause.
      * @param coolDown How many frames to wait before reapplying damage to an entity.
      */
-    public SpikyComponent(int damageAmount, DamageType damageType, int coolDown) {
+    public SpikyComponent(int damageAmount, final DamageType damageType, int coolDown) {
         this.damageAmount = damageAmount;
         this.damageType = damageType;
         this.coolDown = coolDown;
