@@ -35,8 +35,6 @@ public final class MiscFactory {
      *
      * <p>The Entity is not added to the game yet. *
      *
-     * <p>The Entity is not added to the game yet. *
-     *
      * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
      * core.components.DrawComponent}, {@link contrib.components.CollideComponent} and {@link
      * contrib.components.InventoryComponent}. It will use the * {@link
@@ -175,7 +173,7 @@ public final class MiscFactory {
      * <p>The Entity is not added to the game yet.
      *
      * @return A new Entity.
-     * @throws IOException if the animation could not been loaded.
+     * @throws IOException if the animation could not be loaded.
      */
     public static Entity newCraftingCauldron() throws IOException {
         Entity cauldron = new Entity("cauldron");

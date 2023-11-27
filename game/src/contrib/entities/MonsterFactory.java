@@ -61,7 +61,7 @@ public final class MonsterFactory {
      * {@link DropItemsInteraction} on death.
      *
      * @return A new Entity.
-     * @throws IOException if the animation could not been loaded.
+     * @throws IOException if the animation could not be loaded.
      */
     public static Entity randomMonster() throws IOException {
         return randomMonster(MONSTER_FILE_PATHS[RANDOM.nextInt(0, MONSTER_FILE_PATHS.length)]);

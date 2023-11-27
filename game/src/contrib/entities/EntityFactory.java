@@ -82,11 +82,9 @@ public final class EntityFactory {
      *
      * <p>The Entity is not added to the game yet. *
      *
-     * <p>The Entity is not added to the game yet. *
-     *
      * <p>It will have a {@link InteractionComponent}. {@link PositionComponent}, {@link
      * core.components.DrawComponent}, {@link contrib.components.CollideComponent} and {@link
-     * contrib.components.InventoryComponent}. It will use the * {@link
+     * contrib.components.InventoryComponent}. It will use the {@link
      * contrib.utils.components.interaction.DropItemsInteraction} on interaction.
      *
      * @return A new Entity.
