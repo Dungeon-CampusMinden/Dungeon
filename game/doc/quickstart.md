@@ -88,7 +88,13 @@ werden.
 
 ### Klasse *Game*
 
-`Game` ist Ihr Einstiegspunkt in das Dungeon. Die Klasse erstellt die Entitäten, Components und Systeme des ECS und
+*Anmerkung*: Für die bessere Verständlichkeit sprechen wir im folgenden von der Klasse `Game` gemeint
+ist dabei die Kombination der Klassen `PreRunConfiguration`,`ECSManagment` und `GameLoop`.
+Wie oben bereits beschrieben, können Sie alle API-Methoden dieser Klassen über `Game` erreichen. 
+
+
+`Game` ist Ihr Einstiegspunkt in das Dungeon.
+Die Klasse erstellt die Entitäten, Components und Systeme des ECS und
 beinhaltet die **Game-Loop**.
 
 Die **Game-Loop** ist der wichtigste Bestandteil des Spieles. Sie ist eine Endlosschleife, welche einmal pro Frame
@@ -100,7 +106,7 @@ Figuren, müssen innerhalb der Game-Loop stattfinden.
 
 *Hinweis:* Die Farbcodierung ist dieselbe wie beim UML-Klassendiagramm.
 
-*Hinweis:* `Game` erbt von `ScreenAdapter`, eine libGDX-Klasse, wo die Methode `render` vorgegeben wird, die
+*Hinweis:* `GameLoop` erbt von `ScreenAdapter`, eine libGDX-Klasse, wo die Methode `render` vorgegeben wird, die
 überschrieben wird. `render` wird von libGDX in jedem Frame aufgerufen. libGDX beinhaltet eine Loop, auf die wir keinen
 Zugriff haben, weshalb wir `render` als unseren Game-Loop benutzen.
 
@@ -108,18 +114,21 @@ Zugriff haben, weshalb wir `render` als unseren Game-Loop benutzen.
 
 `Game` implementiert noch weitere wichtige Methoden:
 
--   `setup` wird zu Beginn der Anwendung aufgerufen. In dieser Methode werden die Objekte (wie die Systeme)
+- `setup()` wird zu Beginn der Anwendung aufgerufen. In dieser Methode werden die Objekte (wie die Systeme)
     initialisiert und konfiguriert, welche bereits vor dem Spielstart existieren müssen. In der Vorgabe wird hier
-    bereits das erste Level geladen, die Systeme angelegt und der Held initialisiert.
--   `frame` wird in jedem Frame einmal aufgerufen. Dort wird der Kamerafokus gesetzt, Entitäten hinzugefügt und
-    entfernt, sowie überprüft, ob ein neues Level geladen werden muss.
--   `onLevelLoad` wird immer dann aufgerufen, wenn ein Level geladen wird. Hier werden später Entitäten erstellt, die
+    bereits das erste Level geladen und die Systeme angelegt.
+- `userOnSetup(IVoidFucntion)` erlaubt Ihnen einen Callback hinterlegen, welcher wie `setup` zu beginn des Spiels augerufen wird.
+- `frame()` wird in jedem Frame einmal aufgerufen.
+- `userOnFrame(IVoidFucntion)`erlaubt Ihnen einen Callback hinterlegen, welcher wie `frame` einmal pro Frame aufgerufen wird.
+- `onLevelLoad()` wird immer dann aufgerufen, wenn ein Level geladen wird. Hier werden später Entitäten erstellt, die
     initial im Level verteilt werden.
--   `getEntities` liefert das HashSet `entities` zurück. `entities` speichert alle Entitäten, welche sich momentan im
-    Dungeon befinden.
--   `addEntity` fügt neue Entitäten im nächsten Frame in das Spiel ein.
--   `removeEntity` entfernt Entitäten im nächsten Frame aus dem Spiel.
--   `main` startet das Spiel.
+- `userOnLevelLoad(Consumer<Boolean>)` erlaubt Ihnen eine eigene Callback-Methode hinterlegen. Der Boolean gibt an, ob das level schon einmal geladen wurden.
+- `entitieStream()` liefert einen Stream aller `entitäten` zurück.
+- `add(Entity)` fügt neue Entitäten dem Spiel hinzu.
+- `remove(Entity)` entfernt die Entitäte aus dem Spiel.
+- `add(System)` fügt neue Systeme dem Spiel hinzu.
+- `remove(System)` entfernt das System aus dem Spiel.
+- `run()` startet das Spiel.
 
 ### Entity
 
@@ -129,22 +138,17 @@ Components bestimmt werden. Entitäten haben neben den Components keine eigenen 
 Sie werden nicht durch Ableiten der Klasse `Entity` erzeugt (Ausnahme ist der Held, dazu später mehr). Stattdessen
 werden sie durch Erzeugen einer Instanz von `Entity` und Hinzufügen von`Component`s implementiert.
 
+Entitäten müssen mit `Game#add` im Spiel registriert werden.
+
 ### Component
 
-Die `Component`s sind die Datensätze der Entitäten und beschreiben dessen Eigenschaften. Eine Component-Instanz gehört
-zu genau einer Entität-Instanz.
-
-Jedes Component muss von der abstrakten Klasse `Component` abgeleitet werden. Schauen Sie sich auch die [bereits
-implementierten Components](../game/doc/ecs/components/readme.md) an.
+Die `Component`s sind die Datensätze der Entitäten und beschreiben dessen Eigenschaften. 
+Eine Entität kann nur eine Instanz eines Component-Typen speichern.
 
 ### System
 
 Systeme agieren auf den Components und ändern die Werte in diesen. Sie bestimmen also das Verhalten der Entitäten. Ein
 System kann auf mehrere Components agieren.
-
-Um ein eigenes System zu erstellen, muss von der abstrakten Klasse `System` abgeleitet werden. Schauen Sie sich auch
-die [bereits implementierten Systeme](../game/doc/ecs/systems/readme.md) an; hier finden Sie auch die Abhängigkeiten der Systeme zu
-bestimmten Components.
 
 *Hinweis:* Um mehr darüber zu erfahren, wie Sie eigene Entitäten, Components und Systeme erstellen, werfen Sie einen
 Blick in [Eigene Inhalte erstellen](create_own_content.md).
