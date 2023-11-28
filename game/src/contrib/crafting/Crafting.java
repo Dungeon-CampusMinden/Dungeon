@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.JsonValue;
 
 import contrib.item.Item;
 
+import core.Game;
 import core.utils.logging.CustomLogLevel;
 
 import java.io.*;
@@ -95,7 +96,7 @@ public final class Crafting {
     private static void loadFromJar() {
         try {
             String path =
-                    new File(Objects.requireNonNull(Crafting.class.getResource("")).getPath())
+                    new File(Objects.requireNonNull(Game.class.getResource("")).getPath())
                             .getParent()
                             // for windows
                             .replaceAll("(!|file:\\\\)", "")
@@ -109,7 +110,7 @@ public final class Crafting {
                     LOGGER.info("Load recipe: " + entry.getName());
                     Recipe r =
                             parseRecipe(
-                                    Crafting.class.getResourceAsStream("/" + entry.getName()),
+                                    Game.class.getResourceAsStream("/" + entry.getName()),
                                     entry.getName());
                     if (r != null) Crafting.RECIPES.add(r);
                 }
