@@ -87,7 +87,6 @@ public final class DrawSystem extends System {
                         .collect(
                                 Collectors.partitioningBy(
                                         entity -> entity.isPresent(PlayerComponent.class)));
-
         List<Entity> players = partitionedEntities.get(true);
         List<Entity> npcs = partitionedEntities.get(false);
 

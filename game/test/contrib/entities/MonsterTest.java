@@ -46,7 +46,7 @@ public class MonsterTest {
                         },
                         DesignLabel.DEFAULT));
 
-        Game.hero(EntityFactory.newHero());
+        Game.add(EntityFactory.newHero());
         Entity m = EntityFactory.randomMonster();
 
         Optional<DrawComponent> drawComponent = m.fetch(DrawComponent.class);

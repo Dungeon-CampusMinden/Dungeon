@@ -6,6 +6,7 @@ import contrib.components.InteractionComponent;
 
 import core.Entity;
 import core.Game;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
@@ -39,6 +40,7 @@ public class InteractionToolTest {
      */
     private static Entity testHero(boolean havingPositionComponent) {
         Entity hero = new Entity();
+        hero.add(new PlayerComponent());
         if (havingPositionComponent) hero.add(new PositionComponent(new Point(0, 0)));
         return hero;
     }
@@ -46,7 +48,6 @@ public class InteractionToolTest {
     /** cleanup to reset static Attributes from Game used by the InteractionTool */
     private static void cleanup() {
         Game.removeAllEntities();
-        Game.hero(null);
         Game.currentLevel(null);
     }
 
@@ -54,7 +55,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableHeroMissingPositionComponent() {
         cleanup();
-        Game.hero(testHero(false));
+        Game.add(testHero(false));
         Game.currentLevel(prepareLevel());
 
         MissingComponentException e =
@@ -71,7 +72,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableNoEntities() {
         cleanup();
-        Game.hero(testHero(true));
+        Game.add(testHero(true));
         Game.currentLevel(prepareLevel());
         InteractionTool.interactWithClosestInteractable(Game.hero().get());
         cleanup();
@@ -83,7 +84,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableNoInteractable() {
         cleanup();
-        Game.hero(testHero(true));
+        Game.add(testHero(true));
         Game.currentLevel(prepareLevel());
         Game.add(Game.hero().get());
         InteractionTool.interactWithClosestInteractable(Game.hero().get());
@@ -97,7 +98,7 @@ public class InteractionToolTest {
     @Test
     public void interactWithClosestInteractableOneInteractableOutOfRange() {
         cleanup();
-        Game.hero(testHero(true));
+        Game.add(testHero(true));
         Game.currentLevel(prepareLevel());
 
         Entity e = new Entity();

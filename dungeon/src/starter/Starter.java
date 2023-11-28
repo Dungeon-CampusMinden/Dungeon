@@ -212,7 +212,6 @@ public class Starter {
             throw new RuntimeException(e);
         }
         Game.add(hero);
-        Game.hero(hero);
     }
 
     private static void configGame() throws IOException {

@@ -68,7 +68,6 @@ public class RandomDungeon {
     private static void createHero() throws IOException {
         Entity hero = EntityFactory.newHero();
         Game.add(hero);
-        Game.hero(hero);
     }
 
     private static void setupMusic() {

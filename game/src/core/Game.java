@@ -293,17 +293,6 @@ public final class Game {
     }
 
     /**
-     * Set the reference of the playable character.
-     *
-     * <p>Be careful: the old hero will not be removed from the game.
-     *
-     * @param hero the new reference of the hero
-     */
-    public static void hero(Entity hero) {
-        ECSManagment.hero(hero);
-    }
-
-    /**
      * Remove the stored system of the given class from the game. If the System is successfully
      * removed, the {@link System#triggerOnRemove(Entity)} method of the System will be called for
      * each existing Entity that was associated with the removed System.
