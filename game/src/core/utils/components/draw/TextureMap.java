@@ -14,7 +14,7 @@ import java.util.HashMap;
  *
  * @see Painter
  */
-public final class TextureMap extends HashMap<IPath, Texture> {
+public final class TextureMap extends HashMap<String, Texture> {
     private static final TextureMap INSTANCE = new TextureMap();
 
     /**
@@ -35,7 +35,7 @@ public final class TextureMap extends HashMap<IPath, Texture> {
      */
     public Texture textureAt(final IPath path) {
         if (!containsKey(path)) {
-            put(path, new Texture(path.pathString()));
+            put(path.pathString(), new Texture(path.pathString()));
         }
 
         return get(path);
