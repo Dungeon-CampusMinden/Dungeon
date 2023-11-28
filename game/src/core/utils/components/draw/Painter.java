@@ -5,13 +5,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import core.systems.CameraSystem;
 import core.utils.Point;
+import core.utils.components.path.IPath;
 
 /**
  * Draws the sprites on the batch.
  *
  * <p>This class is a custom, easy-to-use API for LibGDX to draw systems.
  *
- * <p>Use {@link #draw(Point, String, PainterConfig)} to draw a sprite on the screen.
+ * <p>Use {@link #draw(Point, IPath, PainterConfig)} to draw a sprite on the screen.
  *
  * <p>The Painter will only draw sprites that are currently visible on the camera. The Painter uses
  * the {@link TextureMap} to store already loaded textures to save performance and storage.
@@ -46,7 +47,7 @@ public class Painter {
      * @param texturePath Path to the texture to draw.
      * @param config Painting configuration.
      */
-    public void draw(final Point position, final String texturePath, final PainterConfig config) {
+    public void draw(final Point position, final IPath texturePath, final PainterConfig config) {
         float realX = position.x + config.xOffset(); // including the drawOffset
         float realY = position.y + config.yOffset(); // including the drawOffset
         if (CameraSystem.isPointInFrustum(realX, realY)) {

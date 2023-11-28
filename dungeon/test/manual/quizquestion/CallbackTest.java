@@ -64,7 +64,7 @@ public class CallbackTest {
 
         LevelSystem.levelSize(LevelSize.SMALL);
         Game.loadConfig(
-                "dungeon_config.json",
+                new SimpleIPath("dungeon_config.json"),
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.frameRate(30);

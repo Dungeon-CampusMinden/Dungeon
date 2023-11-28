@@ -2,6 +2,8 @@ package core.game;
 
 import core.configuration.Configuration;
 import core.utils.IVoidFunction;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 import core.utils.logging.LoggerConfig;
 
 import java.io.IOException;
@@ -26,7 +28,7 @@ public final class PreRunConfiguration {
     private static int FRAME_RATE = 30;
     private static boolean FULL_SCREEN = false;
     private static String WINDOW_TITLE = "PM-Dungeon";
-    private static String LOGO_PATH = "logo/cat_logo_35x35.png";
+    private static IPath LOGO_PATH = new SimpleIPath("logo/cat_logo_35x35.png");
     private static boolean DISABLE_AUDIO = false;
     private static IVoidFunction userOnFrame = () -> {};
     private static IVoidFunction userOnSetup = () -> {};
@@ -127,7 +129,7 @@ public final class PreRunConfiguration {
      *
      * @return The path to the game logo.
      */
-    public static String logoPath() {
+    public static IPath logoPath() {
         return LOGO_PATH;
     }
 
@@ -136,7 +138,7 @@ public final class PreRunConfiguration {
      *
      * @param logoPath The path to the game logo.
      */
-    public static void logoPath(String logoPath) {
+    public static void logoPath(IPath logoPath) {
         LOGO_PATH = logoPath;
     }
 
@@ -224,11 +226,11 @@ public final class PreRunConfiguration {
      * Loads the configuration from the given path. If the configuration has already been loaded,
      * the cached version will be used.
      *
-     * @param pathAsString The path to the config file as a string.
+     * @param path The path to the config file.
      * @param klass The class where the ConfigKey fields are located.
      * @throws IOException If the file could not be read.
      */
-    public static void loadConfig(final String pathAsString, Class<?>... klass) throws IOException {
-        Configuration.loadAndGetConfiguration(pathAsString, klass);
+    public static void loadConfig(final IPath path, Class<?>... klass) throws IOException {
+        Configuration.loadAndGetConfiguration(path, klass);
     }
 }

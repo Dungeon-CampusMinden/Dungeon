@@ -2,17 +2,19 @@ package core.utils.components.draw;
 
 import com.badlogic.gdx.graphics.Texture;
 
+import core.utils.components.path.IPath;
+
 import java.util.HashMap;
 
 /**
  * Maps Paths to libGDX {@link Texture}s, to reduce unnecessary loading of textures.
  *
  * <p>Use {@link #instance()} to get the only instance of the {@link TextureMap}, and use {@link
- * #textureAt(String)} to get the texture that is stored at the given path.
+ * #textureAt(IPath)} to get the texture that is stored at the given path.
  *
  * @see Painter
  */
-public final class TextureMap extends HashMap<String, Texture> {
+public final class TextureMap extends HashMap<IPath, Texture> {
     private static final TextureMap INSTANCE = new TextureMap();
 
     /**
@@ -31,9 +33,9 @@ public final class TextureMap extends HashMap<String, Texture> {
      * @param path Path to the texture.
      * @return The Texture at the given path.
      */
-    public Texture textureAt(final String path) {
+    public Texture textureAt(final IPath path) {
         if (!containsKey(path)) {
-            put(path, new Texture(path));
+            put(path, new Texture(path.pathString()));
         }
 
         return get(path);

@@ -2,6 +2,8 @@ package core.utils.components.draw;
 
 import com.badlogic.gdx.graphics.Texture;
 
+import core.utils.components.path.IPath;
+
 /**
  * Configuration for the {@link Painter}
  *
@@ -24,7 +26,7 @@ public final class PainterConfig {
      * @param xOffset The texture will be moved on the x-axis, based on this value.
      * @param yOffset The texture will be moved on the y-axis, based on this value.
      */
-    public PainterConfig(final String texturePath, float xOffset, float yOffset) {
+    public PainterConfig(final IPath texturePath, float xOffset, float yOffset) {
         // half the texture xOffset, yOffset is a quarter texture down
         this(xOffset, yOffset, 1, TextureMap.instance().textureAt(texturePath));
     }
@@ -36,7 +38,7 @@ public final class PainterConfig {
      *
      * @param texturePath Path to the texture.
      */
-    public PainterConfig(final String texturePath) {
+    public PainterConfig(final IPath texturePath) {
         this(TextureMap.instance().textureAt(texturePath));
     }
 

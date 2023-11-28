@@ -132,19 +132,19 @@ public final class MonsterFactory {
         dieSoundEffect.setVolume(soundID, 0.35f);
     }
 
-    private static String randomMonsterIdleSound() {
+    private static IPath randomMonsterIdleSound() {
         switch (RANDOM.nextInt(4)) {
             case 0 -> {
-                return "sounds/monster1.wav";
+                return new SimpleIPath("sounds/monster1.wav");
             }
             case 1 -> {
-                return "sounds/monster2.wav";
+                return new SimpleIPath("sounds/monster2.wav");
             }
             case 2 -> {
-                return "sounds/monster3.wav";
+                return new SimpleIPath("sounds/monster3.wav");
             }
             default -> {
-                return "sounds/monster4.wav";
+                return new SimpleIPath("sounds/monster4.wav");
             }
         }
     }

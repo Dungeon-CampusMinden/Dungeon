@@ -46,7 +46,7 @@ public final class DrawSystem extends System {
     /** Draws objects */
     private static final Painter PAINTER = new Painter(BATCH);
 
-    private final Map<String, PainterConfig> configs;
+    private final Map<IPath, PainterConfig> configs;
 
     /** Create a new DrawSystem. */
     public DrawSystem() {
@@ -98,7 +98,7 @@ public final class DrawSystem extends System {
         reduceFrameTimer(dsd.dc);
         setNextAnimation(dsd.dc);
         final Animation animation = dsd.dc.currentAnimation();
-        String currentAnimationTexture = animation.nextAnimationTexturePath();
+        IPath currentAnimationTexture = animation.nextAnimationTexturePath();
         if (!configs.containsKey(currentAnimationTexture)) {
             configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
         }
