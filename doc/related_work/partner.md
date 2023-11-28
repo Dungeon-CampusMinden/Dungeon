@@ -29,3 +29,16 @@ title: "Übersicht anderer Projekt-Teams mit denen wir im Austausch stehen"
 [^4]: https://github.com/openHPI/codeharbor, https://codeharbor.openhpi.de/
 [^5]: https://github.com/ProFormA/proformaxml
 [^6]: https://cssplice.github.io/SIGCSE21/proc/SPLICE2021_SIGCSE_paper_13.pdf
+
+
+## StarPlay 
+
+Auf der StartPlay23 waren verschiedene Akteure zu finden. Möglicherweise könnten diese für zukünftige Projekte interessant sein.
+
+*   https://www.mtu.de/de/
+*   https://startupcenter.uni-wuppertal.de/beratung/
+*   https://www.vrlab.uni-wuppertal.de/de/
+*   https://escape-center.plus/
+*   https://eplayces.de/wp-content/uploads/2023/09/ePlayces-Serious-Gaming-fuer-moderne-Arbeitgeber.pdf
+*   https://www.esporthubsolingen.de/
+*   https://www.roblox.com/games/13987995781/FAU-Factory
