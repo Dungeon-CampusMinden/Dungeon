@@ -186,7 +186,6 @@ public class TypeBinder implements AstVisitor<Object> {
         return null;
     }
 
-
     @Override
     public Void visit(MapTypeIdentifierNode node) {
         IScope globalScope = this.environment.getGlobalScope();
@@ -215,8 +214,6 @@ public class TypeBinder implements AstVisitor<Object> {
         return null;
     }
 
-
-    // region ASTVisitor implementation for nodes unrelated to type binding
     @Override
     public Object visit(Node node) {
         visitChildren(node);
@@ -230,63 +227,8 @@ public class TypeBinder implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(IdNode node) {
-        return null;
-    }
-
-    @Override
-    public Object visit(DecNumNode node) {
-        return null;
-    }
-
-    @Override
-    public Object visit(NumNode node) {
-        return null;
-    }
-
-    @Override
-    public Object visit(StringNode node) {
-        return null;
-    }
-
-    @Override
     public Object visit(BinaryNode node) {
         visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public Object visit(DotDefNode node) {
-        return null;
-    }
-
-    @Override
-    public Object visit(EdgeRhsNode node) {
-        return null;
-    }
-
-    @Override
-    public Object visit(DotEdgeStmtNode node) {
-        return null;
-    }
-
-    @Override
-    public Object visit(EdgeOpNode node) {
-        return null;
-    }
-
-    @Override
-    public Object visit(PropertyDefNode node) {
-        return null;
-    }
-
-    @Override
-    public Object visit(ObjectDefNode node) {
-        return null;
-    }
-
-    @Override
-    public Object visit(FuncCallNode node) {
         return null;
     }
 
@@ -323,6 +265,93 @@ public class TypeBinder implements AstVisitor<Object> {
     @Override
     public Object visit(StmtBlockNode node) {
         visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Object visit(AssignmentNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Object visit(LoopStmtNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Object visit(WhileLoopStmtNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Object visit(CountingLoopStmtNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Object visit(VarDeclNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    // region ASTVisitor implementation for nodes unrelated to type binding
+
+    @Override
+    public Object visit(IdNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(DecNumNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(NumNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(StringNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(DotDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeRhsNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(DotEdgeStmtNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(EdgeOpNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(PropertyDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(ObjectDefNode node) {
+        return null;
+    }
+
+    @Override
+    public Object visit(FuncCallNode node) {
         return null;
     }
 
@@ -372,36 +401,6 @@ public class TypeBinder implements AstVisitor<Object> {
     }
 
     @Override
-    public Object visit(AssignmentNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public Object visit(LoopStmtNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public Object visit(WhileLoopStmtNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public Object visit(CountingLoopStmtNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public Object visit(VarDeclNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
     public Object visit(ListDefinitionNode node) {
         return null;
     }
@@ -410,7 +409,6 @@ public class TypeBinder implements AstVisitor<Object> {
     public Object visit(SetDefinitionNode node) {
         return null;
     }
-
 
     // endregion
 }
