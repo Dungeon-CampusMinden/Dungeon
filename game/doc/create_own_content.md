@@ -25,10 +25,10 @@ Game.add(monster);
 
 ## Komponente erstellen
 
-Um eigene Komponenten zu implementieren, muss eine Spezialisierung der abstrakten Klasse `Component` erstellt werden.
+Um eigene Komponenten zu implementieren, muss eine Implementierung des Interface  `Component` erstellt werden.
 
 ```java
-class MyComponent extends Component {
+class MyComponent implements Component {
     // meine Inhalte
 }
 ```
