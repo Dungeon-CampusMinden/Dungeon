@@ -96,7 +96,6 @@ public class ItemTest {
     public void cleanup() {
         Game.removeAllEntities();
         Game.removeAllSystems();
-        Game.hero(null);
         Game.currentLevel(null);
     }
 

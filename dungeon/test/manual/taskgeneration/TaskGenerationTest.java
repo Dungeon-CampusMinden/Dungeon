@@ -60,7 +60,6 @@ public class TaskGenerationTest {
                         Game.add(new HealthBarSystem());
                         Game.add(new HudSystem());
                         Entity hero = EntityFactory.newHero();
-                        Game.hero(hero);
                         Game.add(hero);
                     } catch (IOException e) {
                         throw new RuntimeException(e);

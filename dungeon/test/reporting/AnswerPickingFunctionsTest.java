@@ -606,7 +606,6 @@ public class AnswerPickingFunctionsTest {
 
         // setup hero
         Entity hero = EntityFactory.newHero();
-        Game.hero(hero);
         InventoryComponent ic = new InventoryComponent(3);
         hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
@@ -641,7 +640,7 @@ public class AnswerPickingFunctionsTest {
 
         // setup hero
         Entity hero = EntityFactory.newHero();
-        Game.hero(hero);
+        Game.add(hero);
         InventoryComponent ic = new InventoryComponent(3);
         hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
@@ -677,7 +676,6 @@ public class AnswerPickingFunctionsTest {
 
         // setup hero
         Entity hero = EntityFactory.newHero();
-        Game.hero(hero);
         InventoryComponent ic = new InventoryComponent(3);
         hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
@@ -710,7 +708,6 @@ public class AnswerPickingFunctionsTest {
 
         // setup hero
         Entity hero = EntityFactory.newHero();
-        Game.hero(hero);
         InventoryComponent ic = new InventoryComponent(3);
         hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
@@ -744,7 +741,6 @@ public class AnswerPickingFunctionsTest {
 
         // setup hero
         Entity hero = EntityFactory.newHero();
-        Game.hero(hero);
         InventoryComponent ic = new InventoryComponent(3);
         hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
@@ -776,7 +772,6 @@ public class AnswerPickingFunctionsTest {
 
         // setup hero
         Entity hero = EntityFactory.newHero();
-        Game.hero(hero);
         InventoryComponent ic = new InventoryComponent(3);
         hero.add(ic);
         TaskContent containerTaskContent = new Element<>(sc, hero);
