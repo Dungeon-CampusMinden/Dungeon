@@ -3,6 +3,7 @@ package core.game;
 import core.Component;
 import core.Entity;
 import core.System;
+import core.components.PlayerComponent;
 import core.level.elements.ILevel;
 import core.utils.EntitySystemMapper;
 
@@ -29,7 +30,6 @@ public final class ECSManagment {
     private static final Logger LOGGER = Logger.getLogger(ECSManagment.class.getSimpleName());
     private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
     private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
-    private static Entity hero;
     private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
 
     static {
@@ -207,18 +207,7 @@ public final class ECSManagment {
      * @see Optional
      */
     public static Optional<Entity> hero() {
-        return Optional.ofNullable(hero);
-    }
-
-    /**
-     * Set the reference of the playable character.
-     *
-     * <p>Be careful: the old hero will not be removed from the game.
-     *
-     * @param hero the new reference of the hero
-     */
-    public static void hero(final Entity hero) {
-        ECSManagment.hero = hero;
+        return entityStream().filter(e -> e.isPresent(PlayerComponent.class)).findFirst();
     }
 
     /**

@@ -134,7 +134,6 @@ public class Client {
             throw new RuntimeException(e);
         }
         Game.add(hero);
-        Game.hero(hero);
     }
 
     private static void createSystems() {
