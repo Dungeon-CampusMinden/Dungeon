@@ -1,29 +1,29 @@
-<diagram program="umletino" version="15.1"><zoom_level>9</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>153</x><y>627</y><w>135</w><h>81</h></coordinates><panel_attributes>/System/
+<diagram program="umletino" version="15.1"><zoom_level>9</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>153</x><y>621</y><w>135</w><h>81</h></coordinates><panel_attributes>/System/
 --
 + update(): void
 + toggleRun(): void
 + isRunning(): boolean
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>954</x><y>699</y><w>153</w><h>36</h></coordinates><panel_attributes>/Component/
---</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>837</x><y>537</y><w>369</w><h>99</h></coordinates><panel_attributes>Entity
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>954</x><y>693</y><w>153</w><h>36</h></coordinates><panel_attributes>&lt;&lt;Component&gt;&gt;
+--</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>837</x><y>531</y><w>369</w><h>99</h></coordinates><panel_attributes>Entity
 --
 - components: HashMap&lt;Class,Component&gt;
 --
 + addComponent(c: Component): void
 + removeComponent(klass: Class): void
-+ fetch(klass: Class): Optional&lt;Component&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>324</x><y>186</y><w>423</w><h>45</h></coordinates><panel_attributes>Game
++ fetch(klass: Class): Optional&lt;Component&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>324</x><y>180</y><w>423</w><h>45</h></coordinates><panel_attributes>Game
 
 bg=green
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>207</x><y>357</y><w>162</w><h>288</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
-m2=n</panel_attributes><additional_attributes>160;10;10;10;10;300</additional_attributes></element><element><id>Relation</id><coordinates><x>675</x><y>564</y><w>180</w><h>36</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
-m2=n</panel_attributes><additional_attributes>10;10;180;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1017</x><y>627</y><w>36</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>207</x><y>351</y><w>162</w><h>288</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=n</panel_attributes><additional_attributes>160;10;10;10;10;300</additional_attributes></element><element><id>Relation</id><coordinates><x>675</x><y>558</y><w>180</w><h>36</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=n</panel_attributes><additional_attributes>10;10;180;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1017</x><y>621</y><w>36</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
 m2=n
-</panel_attributes><additional_attributes>10;10;10;80</additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>870</y><w>135</w><h>36</h></coordinates><panel_attributes>AnimationSystem
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>153</x><y>870</y><w>135</w><h>36</h></coordinates><panel_attributes>VelocitySystem
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>306</x><y>870</y><w>135</w><h>36</h></coordinates><panel_attributes>...
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1116</x><y>870</y><w>135</w><h>36</h></coordinates><panel_attributes>...
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>963</x><y>870</y><w>135</w><h>36</h></coordinates><panel_attributes>VelocityComponent
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>810</x><y>870</y><w>135</w><h>36</h></coordinates><panel_attributes>PositionComponent
-bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>864</x><y>708</y><w>108</w><h>180</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>100;10;10;10;10;180</additional_attributes></element><element><id>Relation</id><coordinates><x>1026</x><y>726</y><w>27</w><h>162</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;160</additional_attributes></element><element><id>Relation</id><coordinates><x>1098</x><y>708</y><w>108</w><h>180</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;100;10;100;180</additional_attributes></element><element><id>Relation</id><coordinates><x>216</x><y>699</y><w>27</w><h>189</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;190</additional_attributes></element><element><id>Relation</id><coordinates><x>279</x><y>663</y><w>117</w><h>225</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;110;10;110;230</additional_attributes></element><element><id>Relation</id><coordinates><x>63</x><y>663</y><w>108</w><h>225</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>100;10;10;10;10;230</additional_attributes></element><element><id>UMLClass</id><coordinates><x>324</x><y>33</y><w>180</w><h>99</h></coordinates><panel_attributes>GameLoop
+</panel_attributes><additional_attributes>10;10;10;80</additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>864</y><w>135</w><h>36</h></coordinates><panel_attributes>AnimationSystem
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>153</x><y>864</y><w>135</w><h>36</h></coordinates><panel_attributes>VelocitySystem
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>306</x><y>864</y><w>135</w><h>36</h></coordinates><panel_attributes>...
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1116</x><y>864</y><w>135</w><h>36</h></coordinates><panel_attributes>...
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>963</x><y>864</y><w>135</w><h>36</h></coordinates><panel_attributes>VelocityComponent
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>810</x><y>864</y><w>135</w><h>36</h></coordinates><panel_attributes>PositionComponent
+bg=orange</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>864</x><y>702</y><w>108</w><h>180</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>100;10;10;10;10;180</additional_attributes></element><element><id>Relation</id><coordinates><x>1026</x><y>720</y><w>27</w><h>162</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;160</additional_attributes></element><element><id>Relation</id><coordinates><x>1098</x><y>702</y><w>108</w><h>180</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>10;10;100;10;100;180</additional_attributes></element><element><id>Relation</id><coordinates><x>216</x><y>693</y><w>27</w><h>189</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;190</additional_attributes></element><element><id>Relation</id><coordinates><x>279</x><y>657</y><w>117</w><h>225</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;110;10;110;230</additional_attributes></element><element><id>Relation</id><coordinates><x>63</x><y>657</y><w>108</w><h>225</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>100;10;10;10;10;230</additional_attributes></element><element><id>UMLClass</id><coordinates><x>324</x><y>27</y><w>180</w><h>99</h></coordinates><panel_attributes>GameLoop
 --
 - onLevelLoad(): IVoidFunction
 --
@@ -36,7 +36,7 @@ _+ start(): void_
 bg=yellow
 
 
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>6</y><w>351</w><h>144</h></coordinates><panel_attributes>PreRunConfiguration
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>0</y><w>351</w><h>144</h></coordinates><panel_attributes>PreRunConfiguration
 --
 _- userOnLevelLoad: Consumer&lt;Boolean&gt;_
 _- userOnSetup: IVoidFunction_
@@ -47,7 +47,7 @@ _+ userOnSetup(userOnSetup_ IVoidFunction): void_
 _+ userOnFrame( userOnFrame_ IVoidFunction): void_
 
 
-bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>351</x><y>267</y><w>333</w><h>198</h></coordinates><panel_attributes>ECSManagment
+bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>351</x><y>261</y><w>333</w><h>198</h></coordinates><panel_attributes>ECSManagment
 --
 _- systems: LinkedHashMap&lt;System&gt;_
 _- levelStorageMap: Map&lt;ILevel,Set&lt;EntitySystemMapper&gt;_
@@ -62,7 +62,7 @@ _+ hero(hero:Entity): void_
 _+ hero(): Optional&lt;Entity&gt;_
 _+ removeAllSystems(): void_
 _+ removeAllEntities(): void_
-bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>432</x><y>555</y><w>252</w><h>189</h></coordinates><panel_attributes>EntitySystemMapper
+bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>432</x><y>549</y><w>252</w><h>189</h></coordinates><panel_attributes>EntitySystemMapper
 --
 - filterRules: Set&lt;Class&gt;
 - entities: Set&lt;Entity&gt;
@@ -77,6 +77,6 @@ bg=yellow</panel_attributes><additional_attributes></additional_attributes></ele
 + update(entity: Entity): void
 + stream(): Stream&lt;Entity&gt;
 
-bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>648</x><y>141</y><w>27</w><h>63</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>423</x><y>123</y><w>27</w><h>81</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>522</x><y>222</y><w>27</w><h>63</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>243</x><y>564</y><w>207</w><h>81</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
-m2=n</panel_attributes><additional_attributes>210;10;10;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>549</x><y>456</y><w>36</w><h>117</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
-m2=n</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>495</x><y>78</y><w>63</w><h>27</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>50;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>216</x><y>78</y><w>153</w><h>252</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>150;260;10;260;10;10;120;10</additional_attributes></element></diagram>
+bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>648</x><y>135</y><w>27</w><h>63</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>423</x><y>117</y><w>27</w><h>81</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>522</x><y>216</y><w>27</w><h>63</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>243</x><y>558</y><w>207</w><h>81</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=n</panel_attributes><additional_attributes>210;10;10;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>549</x><y>450</y><w>36</w><h>117</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=n</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>495</x><y>72</y><w>63</w><h>27</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>50;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>216</x><y>72</y><w>153</w><h>252</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>150;260;10;260;10;10;120;10</additional_attributes></element></diagram>
