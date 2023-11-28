@@ -1,6 +1,6 @@
 # Dungeon
 
-¡[Banner](./doc/img/banner.png)
+¡[Banner](doc/img/banner.png)
 
 Das Dungeon ist ein mehrdimensionales Projekt zur Gamifizierung von Studieninhalten. 
 
