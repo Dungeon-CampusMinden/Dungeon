@@ -3,8 +3,6 @@ package core;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
-import contrib.configuration.KeyboardConfig;
-
 import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.game.GameLoop;
@@ -172,15 +170,11 @@ public final class Game {
      *
      * @param pathAsString The path to the config file as a string.
      * @param keyboardConfigClass The class where the ConfigKey fields are located.
-     * @param keyboardConfigClass1 The class where the ConfigKey fields are located.
      * @throws IOException If the file could not be read.
      */
-    public static void loadConfig(
-            final String pathAsString,
-            final Class<KeyboardConfig> keyboardConfigClass,
-            final Class<core.configuration.KeyboardConfig> keyboardConfigClass1)
+    public static void loadConfig(final String pathAsString, final Class<?>... keyboardConfigClass)
             throws IOException {
-        PreRunConfiguration.loadConfig(pathAsString, keyboardConfigClass, keyboardConfigClass1);
+        PreRunConfiguration.loadConfig(pathAsString, keyboardConfigClass);
     }
 
     /**
