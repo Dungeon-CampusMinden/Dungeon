@@ -19,14 +19,14 @@ Für das Dungeon wird das Java Development Kit 17.x.x (JDK 17) oder höher benö
 installiert haben.
 
 Laden Sie das Projekt herunter und binden Sie es als Gradle-Projekt in Ihre IDE ein. Eine genauere
-[Anleitung](https://github.com/Programmiermethoden/Dungeon/wiki/Import-Project) finden Sie in dem Projekt-Wiki.
+[Anleitung](../../doc/wiki/import-project.md) finden Sie in dem Projekt-Wiki.
 
 Sie können über die run-Funktion Ihrer IDE überprüfen, ob die Installation lauffähig ist. Alternativ können Sie per
-Konsole in das Dungeon-Verzeichnis wechseln und `./gradlew run` ausführen.
+Konsole in das Dungeon-Root-Verzeichnis wechseln und `./gradlew run` ausführen. Es sollte sich das bereits vorimplementierte Spiel starten.
 
 *Hinweis:* Falls Sie Probleme beim Installieren haben, schauen Sie in die
-[Kompatibilitätsliste](https://github.com/Programmiermethoden/Dungeon/wiki/JDK-Kompatibilität) und die
-[FAQ](https://github.com/Programmiermethoden/Dungeon/wiki/FAQ). Melden Sie sich frühzeitig, falls Ihr Problem damit
+[Kompatibilitätsliste](../../doc/wiki/jdk-Kompatibilitaet.md) und die
+[FAQ](../../doc/wiki/faq.md). Melden Sie sich frühzeitig, falls Ihr Problem damit
 nicht behoben werden konnte.
 
 ## Grundlagen
@@ -401,5 +401,5 @@ Hier finden Sie noch einige Links um Ihr Verständnis des Dungeons zu vertiefen:
 -   [Level Basics](level/readme.md)
 -   [HUD Basics](hud/readme.md)
 -   [Config](configuration/readme.md)
--   [Dungeon-Wiki](https://github.com/Programmiermethoden/Dungeon/wiki)
+-   [Dungeon-Wiki](../../doc/wiki)
 -   [LibGDX Dokumentation](https://libgdx.com/wiki/)
