@@ -35,6 +35,11 @@ public final class TextureMap extends HashMap<String, Texture> {
      */
     public Texture textureAt(final IPath path) {
         if (!containsKey(path)) {
+            // We still store the string in the map to make sure we only store each Texture once.
+            // SimplePath("file.png").equals(SimplePath("file.png")) would return false, and so we
+            // would add it twice in the map.
+            // IPath cannot override the equals method because it's an interface, and it can't be
+            // called. If it could be called, then the enums could not implement it.
             put(path.pathString(), new Texture(path.pathString()));
         }
 
