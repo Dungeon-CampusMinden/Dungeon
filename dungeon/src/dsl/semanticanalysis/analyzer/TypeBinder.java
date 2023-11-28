@@ -3,10 +3,10 @@ package dsl.semanticanalysis.analyzer;
 import dsl.parser.ast.*;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 
 public class TypeBinder implements AstVisitor<Object> {
 
@@ -140,9 +140,92 @@ public class TypeBinder implements AstVisitor<Object> {
         return typeSymbol;
     }
 
+    @Override
+    public Void visit(ListTypeIdentifierNode node) {
+        String typeName = node.getName();
+        IScope globalScope = this.environment.getGlobalScope();
+        Symbol resolvedType = this.environment.resolveInGlobalScope(typeName);
+
+        // construct a new ListType for the node, if it was not previously created
+        if (resolvedType == Symbol.NULL) {
+            // create inner type node
+            IdNode innerTypeNode = node.getInnerTypeNode();
+            if (innerTypeNode.type != Node.Type.Identifier) {
+                innerTypeNode.accept(this);
+            }
+            var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
+            Symbol listTypeSymbol = globalScope.resolve(ListType.getListTypeName(innerType));
+            if (listTypeSymbol.equals(Symbol.NULL)) {
+                ListType listType = new ListType(innerType, globalScope);
+                globalScope.bind(listType);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(SetTypeIdentifierNode node) {
+        String typeName = node.getName();
+        IScope globalScope = this.environment.getGlobalScope();
+        Symbol resolvedType = this.environment.resolveInGlobalScope(typeName);
+
+        // construct a new ListType for the node, if it was not previously created
+        if (resolvedType == Symbol.NULL) {
+            // create inner type node
+            IdNode innerTypeNode = node.getInnerTypeNode();
+            if (innerTypeNode.type != Node.Type.Identifier) {
+                innerTypeNode.accept(this);
+            }
+            var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
+            Symbol setTypeSymbol = globalScope.resolve(SetType.getSetTypeName(innerType));
+            if (setTypeSymbol.equals(Symbol.NULL)) {
+                SetType setType = new SetType(innerType, globalScope);
+                globalScope.bind(setType);
+            }
+        }
+        return null;
+    }
+
+
+    @Override
+    public Void visit(MapTypeIdentifierNode node) {
+        IScope globalScope = this.environment.getGlobalScope();
+        String typeName = node.getName();
+        Symbol resolvedType = globalScope.resolve(typeName);
+
+        // construct a new MapType for the node, if it was not previously created
+        if (resolvedType == Symbol.NULL) {
+            // create key type
+            IdNode keyTypeNode = node.getKeyTypeNode();
+            if (keyTypeNode.type != Node.Type.Identifier) {
+                keyTypeNode.accept(this);
+            }
+
+            // create element type
+            IdNode elementTypeNode = node.getElementTypeNode();
+            if (elementTypeNode.type != Node.Type.Identifier) {
+                elementTypeNode.accept(this);
+            }
+
+            var keyType = globalScope.resolveType(keyTypeNode.getName());
+            var elementType = globalScope.resolveType(elementTypeNode.getName());
+            MapType setType = new MapType(keyType, elementType, globalScope);
+            globalScope.bind(setType);
+        }
+        return null;
+    }
+
+
     // region ASTVisitor implementation for nodes unrelated to type binding
     @Override
     public Object visit(Node node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Object visit(ForLoopStmtNode node) {
+        visitChildren(node);
         return null;
     }
 
@@ -168,6 +251,7 @@ public class TypeBinder implements AstVisitor<Object> {
 
     @Override
     public Object visit(BinaryNode node) {
+        visitChildren(node);
         return null;
     }
 
@@ -208,31 +292,37 @@ public class TypeBinder implements AstVisitor<Object> {
 
     @Override
     public Object visit(FuncDefNode node) {
+        visitChildren(node);
         return null;
     }
 
     @Override
     public Object visit(ParamDefNode node) {
+        visitChildren(node);
         return null;
     }
 
     @Override
     public Object visit(ReturnStmtNode node) {
+        visitChildren(node);
         return null;
     }
 
     @Override
     public Object visit(ConditionalStmtNodeIf node) {
+        visitChildren(node);
         return null;
     }
 
     @Override
     public Object visit(ConditionalStmtNodeIfElse node) {
+        visitChildren(node);
         return null;
     }
 
     @Override
     public Object visit(StmtBlockNode node) {
+        visitChildren(node);
         return null;
     }
 
@@ -283,6 +373,31 @@ public class TypeBinder implements AstVisitor<Object> {
 
     @Override
     public Object visit(AssignmentNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Object visit(LoopStmtNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Object visit(WhileLoopStmtNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Object visit(CountingLoopStmtNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public Object visit(VarDeclNode node) {
+        visitChildren(node);
         return null;
     }
 
@@ -295,6 +410,7 @@ public class TypeBinder implements AstVisitor<Object> {
     public Object visit(SetDefinitionNode node) {
         return null;
     }
+
 
     // endregion
 }
