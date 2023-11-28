@@ -5,7 +5,8 @@ title: "Quickstart: How to Dungeon"
 Dieses Dokument liefert einen Einstieg in das Dungeon. Es erläutert die Installation des Spiels und die ersten Schritte,
 um eigene Inhalte zum Dungeon hinzuzufügen. Es dient als Grundlage für alle weiteren Praktika. Lesen Sie das Dokument
 daher aufmerksam durch und versuchen Sie sich zusätzlich selbst mit dem Aufbau vertraut zu machen. Das Spiel befindet
-sich im [Dungeon-Repo](https://github.com/Programmiermethoden/Dungeon) im Projekt [`game`](https://github.com/Programmiermethoden/Dungeon/tree/master/game).
+sich im [Dungeon-Repo](https://github.com/Programmiermethoden/Dungeon) im Projekt
+[`game`](https://github.com/Programmiermethoden/Dungeon/tree/master/game).
 
 Sie benötigen nur dieses Projekt für die Aufgaben; die zusätzlichen Abhängigkeiten werden automatisch über Gradle
 eingebunden.
@@ -22,12 +23,12 @@ Laden Sie das Projekt herunter und binden Sie es als Gradle-Projekt in Ihre IDE 
 [Anleitung](../../doc/wiki/import-project.md) finden Sie in dem Projekt-Wiki.
 
 Sie können über die run-Funktion Ihrer IDE überprüfen, ob die Installation lauffähig ist. Alternativ können Sie per
-Konsole in das Dungeon-Root-Verzeichnis wechseln und `./gradlew run` ausführen. Es sollte sich das bereits vorimplementierte Spiel starten.
+Konsole in das Dungeon-Root-Verzeichnis wechseln und `./gradlew run` ausführen. Es sollte sich das bereits
+vorimplementierte Spiel starten.
 
 *Hinweis:* Falls Sie Probleme beim Installieren haben, schauen Sie in die
-[Kompatibilitätsliste](../../doc/wiki/jdk-Kompatibilitaet.md) und die
-[FAQ](../../doc/wiki/faq.md). Melden Sie sich frühzeitig, falls Ihr Problem damit
-nicht behoben werden konnte.
+[Kompatibilitätsliste](../../doc/wiki/jdk-Kompatibilitaet.md) und die [FAQ](../../doc/wiki/faq.md). Melden Sie sich
+frühzeitig, falls Ihr Problem damit nicht behoben werden konnte.
 
 ## Grundlagen
 
@@ -47,8 +48,8 @@ Lebenspunkte) - `System`: Systeme beinhalten die eigentliche Logik und agieren a
 
 Weiteres dazu erfahren Sie unter [ECS im Dungeon](ecs_basics.md).
 
-Sie selbst nutzen und erweitern die `Component`s und `System`s der Vorgaben. Sie werden ebenfalls neue Entities,
-Components und Systeme konzipieren und implementieren. So erschaffen Sie z.B. Ihre eigenen Monster und fallengespickte
+Sie selbst nutzen und erweitern die `Component`s und `System`s der Vorgaben. Sie werden ebenfalls neue Entitäten,
+Komponenten und Systeme konzipieren und implementieren. So erschaffen Sie z.B. Ihre eigenen Monster und fallengespickte
 Level.
 
 Sie werden im Laufe der Praktika verschiedene Assets benötigen. Diese liegen per Default im `assets`-Verzeichnis. Sie
@@ -66,35 +67,28 @@ In diesem Abschnitt werden Ihnen die wichtigsten Klassen im Dungeon vorgestellt.
 
 *Anmerkung:* Das UML ist für bessere Lesbarkeit auf die wesentlichen Bestandteile gekürzt.
 
-Die in Grün gekennzeichnete Klasse `Game` ist die Basisklasse, von der alles ausgeht. Die Methode `Game#render` ist die
-Game-Loop. Das ECS wird durch die in weiß gekennzeichneten Klassen `Entity`, `Component` und `System` implementiert.
-Im weiteren Verlauf wird noch genauer hierauf eingegangen.
+Die in Grün markierte Klasse `Game` ist die zentrale API-Klasse für das Framework. Es liefert Ihnen Zugriff auf die in
+Gelb markierten Klassen (Sie können über `Game` auf alle Schnittstellen der in Gelb markierten Klassen zugreifen). Die
+Methode `GameLoop#render` ist die Gameloop.
 
-Neu erzeugte Entitäten speichern sich automatisch im HashSet `entities` der `Game`-Klasse ab. `System`e speichern
-sich automatisch im `SystemController` `systems` der `Game`-Klasse ab.
+Das ECS wird durch die in Weiß markierten Klassen `Entity`, `Component` und `System` gekennzeichnet.
 
-Die Systeme iterieren über die in `Game` gespeicherten Entitäten und greifen über die Methode `Entity#getComponent` auf
-die für die jeweilige Funktionalität benötigten Components zu. Die orangefarbenen `System`s und `Controller` sind in dem
-UML-Diagramm Beispiele für die bereits bestehenden `System`s und `Controller`.
+Die Systeme iterieren über die im `ECSManagement` gespeicherten Entitäten und greifen über die Methode Entity#fetch auf
+die benötigten Komponenten zu.
 
-Die LevelAPI generiert, zeichnet und speichert das aktuelle Level. Klassen, die rot gekennzeichnet sind, gehören zur
-Implementierung von [Level](level/readme.md).
-
-Die in Gelb hinterlegten Klassen stammen aus dem Framework vor der Umstellung auf ECS. Für ein Basisverständnis des
-Dungeons ist ein Wissen über die Funktionalität dieser Klassen nicht nötig.
+Die orangefarbenen `System`s und `Component`s sind im UML Beispiele für die bereits implementierten Systeme und
+Komponenten.
 
 Zusätzlich existieren noch eine Vielzahl an weiteren Hilfsklassen, mit denen Sie mal mehr oder mal weniger Kontakt haben
 werden.
 
 ### Klasse *Game*
 
-*Anmerkung*: Für die bessere Verständlichkeit sprechen wir im folgenden von der Klasse `Game` gemeint
-ist dabei die Kombination der Klassen `PreRunConfiguration`,`ECSManagment` und `GameLoop`.
-Wie oben bereits beschrieben, können Sie alle API-Methoden dieser Klassen über `Game` erreichen. 
+*Anmerkung*: Für die bessere Verständlichkeit sprechen wir im folgenden von der Klasse `Game` gemeint ist dabei die
+Kombination der Klassen `PreRunConfiguration`,`ECSManagment` und `GameLoop`. Wie oben bereits beschrieben, können Sie
+alle API-Methoden dieser Klassen über `Game` erreichen.
 
-
-`Game` ist Ihr Einstiegspunkt in das Dungeon.
-Die Klasse erstellt die Entitäten, Components und Systeme des ECS und
+`Game` ist Ihr Einstiegspunkt in das Dungeon. Die Klasse erstellt die Entitäten, Components und Systeme des ECS und
 beinhaltet die **Game-Loop**.
 
 Die **Game-Loop** ist der wichtigste Bestandteil des Spieles. Sie ist eine Endlosschleife, welche einmal pro Frame
@@ -114,21 +108,24 @@ Zugriff haben, weshalb wir `render` als unseren Game-Loop benutzen.
 
 `Game` implementiert noch weitere wichtige Methoden:
 
-- `setup()` wird zu Beginn der Anwendung aufgerufen. In dieser Methode werden die Objekte (wie die Systeme)
+-   `setup()` wird zu Beginn der Anwendung aufgerufen. In dieser Methode werden die Objekte (wie die Systeme)
     initialisiert und konfiguriert, welche bereits vor dem Spielstart existieren müssen. In der Vorgabe wird hier
     bereits das erste Level geladen und die Systeme angelegt.
-- `userOnSetup(IVoidFucntion)` erlaubt Ihnen einen Callback hinterlegen, welcher wie `setup` zu beginn des Spiels augerufen wird.
-- `frame()` wird in jedem Frame einmal aufgerufen.
-- `userOnFrame(IVoidFucntion)`erlaubt Ihnen einen Callback hinterlegen, welcher wie `frame` einmal pro Frame aufgerufen wird.
-- `onLevelLoad()` wird immer dann aufgerufen, wenn ein Level geladen wird. Hier werden später Entitäten erstellt, die
+-   `userOnSetup(IVoidFucntion)` erlaubt Ihnen einen Callback hinterlegen, welcher wie `setup` zu beginn des Spiels
+    augerufen wird.
+-   `frame()` wird in jedem Frame einmal aufgerufen.
+-   `userOnFrame(IVoidFucntion)`erlaubt Ihnen einen Callback hinterlegen, welcher wie `frame` einmal pro Frame
+    aufgerufen wird.
+-   `onLevelLoad()` wird immer dann aufgerufen, wenn ein Level geladen wird. Hier werden später Entitäten erstellt, die
     initial im Level verteilt werden.
-- `userOnLevelLoad(Consumer<Boolean>)` erlaubt Ihnen eine eigene Callback-Methode hinterlegen. Der Boolean gibt an, ob das level schon einmal geladen wurden.
-- `entitieStream()` liefert einen Stream aller `entitäten` zurück.
-- `add(Entity)` fügt neue Entitäten dem Spiel hinzu.
-- `remove(Entity)` entfernt die Entitäte aus dem Spiel.
-- `add(System)` fügt neue Systeme dem Spiel hinzu.
-- `remove(System)` entfernt das System aus dem Spiel.
-- `run()` startet das Spiel.
+-   `userOnLevelLoad(Consumer<Boolean>)` erlaubt Ihnen eine eigene Callback-Methode hinterlegen. Der Boolean gibt an, ob
+    das level schon einmal geladen wurden.
+-   `entitieStream()` liefert einen Stream aller `entitäten` zurück.
+-   `add(Entity)` fügt neue Entitäten dem Spiel hinzu.
+-   `remove(Entity)` entfernt die Entitäte aus dem Spiel.
+-   `add(System)` fügt neue Systeme dem Spiel hinzu.
+-   `remove(System)` entfernt das System aus dem Spiel.
+-   `run()` startet das Spiel.
 
 ### Entity
 
@@ -142,8 +139,8 @@ Entitäten müssen mit `Game#add` im Spiel registriert werden.
 
 ### Component
 
-Die `Component`s sind die Datensätze der Entitäten und beschreiben dessen Eigenschaften. 
-Eine Entität kann nur eine Instanz eines Component-Typen speichern.
+Die `Component`s sind die Datensätze der Entitäten und beschreiben dessen Eigenschaften. Eine Entität kann nur eine
+Instanz eines Component-Typen speichern.
 
 ### System
 
@@ -158,8 +155,8 @@ Blick in [Eigene Inhalte erstellen](create_own_content.md).
 Zwar gibt es in den Vorlagen bereits einen Helden (den schauen wir uns am Ende dieses Kapitels genauer an), trotzdem
 wird Ihnen hier erklärt, wie Sie Ihre erste eigene Entität in das Spiel implementieren.
 
-*Hinweis:* Wenn Sie mitprogrammieren wollen, kommentieren Sie in der
-Methode `core.Game#setup()` die Zeile `hero = new Hero();` aus.
+*Hinweis:* Wenn Sie mitprogrammieren wollen, kommentieren Sie in der Methode `core.Game#setup()` die Zeile
+`hero = new Hero();` aus.
 
 ### Held als Entität erstellen
 
@@ -207,8 +204,8 @@ public class MyHero extends Entity {
 *Hinweis:* Wenn Sie mal ein `Component` einer Entität abfragen wollen, nutzen Sie die Methode `Entity#getComponent` und
 übergeben Sie die `class` des gesuchten `Component`s. Beispiel: `hero.getComponent(PositionComponent.class);`
 
-Jetzt muss unser Held noch in das Spiel geladen werden. Dafür gehen wir in die Klasse `core.Game` und fügen den
-Helden an erster Stelle in `Game#setup` hinzu, indem Sie die bereits existierende Referenz `hero` initialisieren.
+Jetzt muss unser Held noch in das Spiel geladen werden. Dafür gehen wir in die Klasse `core.Game` und fügen den Helden
+an erster Stelle in `Game#setup` hinzu, indem Sie die bereits existierende Referenz `hero` initialisieren.
 
 ``` java
     /** Called once at the beginning of the game. */
@@ -381,8 +378,8 @@ Feuerball-[Skill](../game/doc/ecs/skills/readme.md). Dieser wird in `Hero#setupF
 
 In der Standardkonfiguration können Sie den Feuerball in Richtung Ihres Mauscursors mit der Taste R abfeuern.
 
-Zusätzlich besitzt der Held ein [`HitboxComponent`](../game/doc/ecs/components/collision_component.md). Damit kann er mit anderen
-Entitäten, die ebenfalls ein `HitboxComponent` haben, kollidieren.
+Zusätzlich besitzt der Held ein [`HitboxComponent`](../game/doc/ecs/components/collision_component.md). Damit kann er
+mit anderen Entitäten, die ebenfalls ein `HitboxComponent` haben, kollidieren.
 
 ``` java
     private void setupHitboxComponent() {
