@@ -5,7 +5,10 @@ import antlr.main.DungeonDSLParser;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.DungeonASTConverter;
+import dsl.parser.ast.IdNode;
 import dsl.parser.ast.Node;
+import dsl.parser.ast.SetTypeIdentifierNode;
+import dsl.parser.ast.SourceFileReference;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
@@ -14,6 +17,8 @@ import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -138,6 +143,16 @@ public class Helpers {
                             .getTypeBuilder()
                             .createDSLTypeForJavaTypeInScope(environment.getGlobalScope(), clazz);
             environment.loadTypes(type);
+        }
+
+        // setup entitySetSet type
+        Symbol entityTypeSymbol = environment.getGlobalScope().resolve("entity");
+        if (entityTypeSymbol != Symbol.NULL) {
+            IType entityType = (IType)entityTypeSymbol;
+            IType entitySetType = new SetType(entityType, environment.getGlobalScope());
+            environment.loadTypes(entitySetType);
+            IType entitySetSetType = new SetType(entitySetType, environment.getGlobalScope());
+            environment.loadTypes(entitySetSetType);
         }
 
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
