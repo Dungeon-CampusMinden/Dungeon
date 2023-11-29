@@ -616,73 +616,16 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     @Override
     public Void visit(ListTypeIdentifierNode node) {
-        String typeName = node.getName();
-        Symbol resolvedType = this.environment.resolveInGlobalScope(typeName);
-
-        // construct a new ListType for the node, if it was not previously created
-        if (resolvedType == Symbol.NULL) {
-            // create inner type node
-            IdNode innerTypeNode = node.getInnerTypeNode();
-            if (innerTypeNode.type != Node.Type.Identifier) {
-                innerTypeNode.accept(this);
-            }
-            var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
-            Symbol listTypeSymbol = this.globalScope().resolve(ListType.getListTypeName(innerType));
-            if (listTypeSymbol.equals(Symbol.NULL)) {
-                ListType listType = new ListType(innerType, this.globalScope());
-                this.globalScope().bind(listType);
-            }
-        }
         return null;
     }
 
     @Override
     public Void visit(SetTypeIdentifierNode node) {
-        String typeName = node.getName();
-        Symbol resolvedType = this.environment.resolveInGlobalScope(typeName);
-
-        // construct a new ListType for the node, if it was not previously created
-        if (resolvedType == Symbol.NULL) {
-            // create inner type node
-            IdNode innerTypeNode = node.getInnerTypeNode();
-            if (innerTypeNode.type != Node.Type.Identifier) {
-                innerTypeNode.accept(this);
-            }
-            var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
-            Symbol setTypeSymbol = this.globalScope().resolve(SetType.getSetTypeName(innerType));
-            if (setTypeSymbol.equals(Symbol.NULL)) {
-                SetType setType = new SetType(innerType, this.globalScope());
-                this.globalScope().bind(setType);
-            }
-        }
         return null;
     }
 
     @Override
     public Void visit(MapTypeIdentifierNode node) {
-        IScope globalScope = this.symbolTable.globalScope();
-        String typeName = node.getName();
-        Symbol resolvedType = globalScope.resolve(typeName);
-
-        // construct a new MapType for the node, if it was not previously created
-        if (resolvedType == Symbol.NULL) {
-            // create key type
-            IdNode keyTypeNode = node.getKeyTypeNode();
-            if (keyTypeNode.type != Node.Type.Identifier) {
-                keyTypeNode.accept(this);
-            }
-
-            // create element type
-            IdNode elementTypeNode = node.getElementTypeNode();
-            if (elementTypeNode.type != Node.Type.Identifier) {
-                elementTypeNode.accept(this);
-            }
-
-            var keyType = globalScope.resolveType(keyTypeNode.getName());
-            var elementType = globalScope.resolveType(elementTypeNode.getName());
-            MapType setType = new MapType(keyType, elementType, globalScope);
-            globalScope.bind(setType);
-        }
         return null;
     }
 
