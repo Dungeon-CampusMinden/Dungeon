@@ -30,7 +30,7 @@ public class GradingFunctionsTest {
     @Before
     public void setup() {
         try {
-            Game.hero(EntityFactory.newHero());
+            Game.add(EntityFactory.newHero());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

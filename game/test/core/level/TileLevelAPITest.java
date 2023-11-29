@@ -54,7 +54,7 @@ public class TileLevelAPITest {
         TextureMap textureMap = Mockito.mock(TextureMap.class);
         PowerMockito.mockStatic(TextureMap.class);
         when(TextureMap.instance()).thenReturn(textureMap);
-        when(textureMap.textureAt(anyString())).thenReturn(texture);
+        when(textureMap.textureAt(any())).thenReturn(texture);
 
         painter = Mockito.mock(Painter.class);
         generator = Mockito.mock(IGenerator.class);
@@ -162,7 +162,7 @@ public class TileLevelAPITest {
         verify(layout[0][0]).position();
         // for some reason mockito.verify can't compare the points of the tile correctly
         verify(painter, times(3))
-                .draw(any(Point.class), any(String.class), any(PainterConfig.class));
+                .draw(any(Point.class), any(IPath.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[0][0]);
 
         verify(layout[0][1]).levelElement();
@@ -170,14 +170,14 @@ public class TileLevelAPITest {
         verify(layout[0][1]).position();
         // for some reason mockito.verify can't compare the points of the tile correctly
         verify(painter, times(3))
-                .draw(any(Point.class), any(String.class), any(PainterConfig.class));
+                .draw(any(Point.class), any(IPath.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[0][1]);
         verify(layout[1][0]).levelElement();
         verify(layout[1][0]).texturePath();
         verify(layout[1][0]).position();
         // for some reason mockito.verify can't compare the points of the tile correctly
         verify(painter, times(3))
-                .draw(any(Point.class), any(String.class), any(PainterConfig.class));
+                .draw(any(Point.class), any(IPath.class), any(PainterConfig.class));
         verifyNoMoreInteractions(layout[1][0]);
 
         // do not draw skip tiles

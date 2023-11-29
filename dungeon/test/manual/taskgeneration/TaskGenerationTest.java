@@ -45,7 +45,7 @@ public class TaskGenerationTest {
         Game.initBaseLogger();
         LevelSystem.levelSize(LevelSize.MEDIUM);
         Game.loadConfig(
-                "dungeon_config.json",
+                new SimpleIPath("dungeon_config.json"),
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.disableAudio(true);
@@ -60,7 +60,6 @@ public class TaskGenerationTest {
                         Game.add(new HealthBarSystem());
                         Game.add(new HudSystem());
                         Entity hero = EntityFactory.newHero();
-                        Game.hero(hero);
                         Game.add(hero);
                     } catch (IOException e) {
                         throw new RuntimeException(e);

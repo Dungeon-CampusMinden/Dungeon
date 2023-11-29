@@ -145,16 +145,16 @@ public final class Animation {
      *
      * @return The texture of the next animation step (draw this).
      */
-    public String nextAnimationTexturePath() {
+    public IPath nextAnimationTexturePath() {
         if (isFinished()) {
-            return animationFrames.get(currentFrameIndex).pathString();
+            return animationFrames.get(currentFrameIndex);
         }
-        String stringToReturn = animationFrames.get(currentFrameIndex).pathString();
+        IPath pathToReturn = animationFrames.get(currentFrameIndex);
         frameTimeCounter = (frameTimeCounter + 1) % timeBetweenFrames;
         if (frameTimeCounter == 0) {
             currentFrameIndex = (currentFrameIndex + 1) % frames;
         }
-        return stringToReturn;
+        return pathToReturn;
     }
 
     /**

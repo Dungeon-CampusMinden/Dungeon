@@ -14,6 +14,7 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.level.elements.ILevel;
 import core.utils.components.MissingComponentException;
+import core.utils.components.path.SimpleIPath;
 
 import dsl.interpreter.DSLEntryPointFinder;
 import dsl.interpreter.DSLInterpreter;
@@ -212,7 +213,6 @@ public class Starter {
             throw new RuntimeException(e);
         }
         Game.add(hero);
-        Game.hero(hero);
     }
 
     private static void configGame() throws IOException {
@@ -221,9 +221,10 @@ public class Starter {
         Game.frameRate(30);
         Game.disableAudio(false);
         Game.loadConfig(
-                "dungeon_config.json",
+                new SimpleIPath("dungeon_config.json"),
                 contrib.configuration.KeyboardConfig.class,
-                core.configuration.KeyboardConfig.class);
+                core.configuration.KeyboardConfig.class,
+                starter.KeyboardConfig.class);
     }
 
     private static void createSystems() {

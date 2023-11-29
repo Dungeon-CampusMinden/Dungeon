@@ -3,7 +3,9 @@ package dsl.semanticanalysis;
 import dsl.helpers.Helpers;
 import dsl.parser.ast.PrototypeDefinitionNode;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
+import dsl.semanticanalysis.analyzer.TypeBinder;
 import dsl.semanticanalysis.environment.GameEnvironment;
+import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.*;
@@ -142,5 +144,44 @@ public class TestTypeBinder {
 
         var adaptedType = (AggregateTypeAdapter) memberType;
         Assert.assertEquals(TestRecordComponent.class, adaptedType.getOriginType());
+    }
+
+    @Test
+    public void testSetTypeBinding() {
+        TypeBuilder typeBuilder = new TypeBuilder();
+        var testCompType =
+                typeBuilder.createDSLTypeForJavaTypeInScope(new Scope(), TestComponent.class);
+
+        String program =
+                """
+        entity_type o {
+            test_component{
+                member1: 42,
+                member2: "Hello",
+                member3: 3.14
+            }
+        }
+
+        fn test(inventory_component<> compSet) -> bool<> {
+            var floatSetSet : float<><>;
+        }
+        """;
+
+        var ast = Helpers.getASTFromString(program);
+        var symTableParser = new SemanticAnalyzer();
+
+        var env = new GameEnvironment();
+        env.loadTypes(testCompType);
+        symTableParser.setup(env);
+
+        TypeBinder typeBinder = new TypeBinder();
+        typeBinder.bindTypes(env, ast, new StringBuilder());
+        SymbolTable symTable = env.getSymbolTable();
+
+        IScope globalScope = symTable.globalScope();
+
+        Assert.assertNotSame(Symbol.NULL, globalScope.resolve("bool<>"));
+        Assert.assertNotSame(Symbol.NULL, globalScope.resolve("float<><>"));
+        Assert.assertNotSame(Symbol.NULL, globalScope.resolve("inventory_component<>"));
     }
 }

@@ -64,7 +64,7 @@ public class CallbackTest {
 
         LevelSystem.levelSize(LevelSize.SMALL);
         Game.loadConfig(
-                "dungeon_config.json",
+                new SimpleIPath("dungeon_config.json"),
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.frameRate(30);
@@ -77,7 +77,6 @@ public class CallbackTest {
                         Game.add(new ProjectileSystem());
                         Game.add(new HudSystem());
                         Entity hero = EntityFactory.newHero();
-                        Game.hero(hero);
                         Game.add(hero);
                     } catch (IOException e) {
                         throw new RuntimeException(e);

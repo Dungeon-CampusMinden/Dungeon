@@ -57,9 +57,10 @@ public final class GameLoop extends ScreenAdapter {
     private final IVoidFunction onLevelLoad =
             () -> {
                 newLevelWasLoadedInThisLoop = true;
+                Optional<Entity> hero = ECSManagment.hero();
                 boolean firstLoad =
                         !ECSManagment.levelStorageMap().containsKey(Game.currentLevel());
-                ECSManagment.hero().ifPresent(ECSManagment::remove);
+                hero.ifPresent(ECSManagment::remove);
                 // Remove the systems so that each triggerOnRemove(entity) will be called (basically
                 // cleanup).
                 Map<Class<? extends System>, System> s = ECSManagment.systems();
@@ -72,11 +73,11 @@ public final class GameLoop extends ScreenAdapter {
                 s.values().forEach(ECSManagment::add);
 
                 try {
-                    ECSManagment.hero().ifPresent(this::placeOnLevelStart);
+                    hero.ifPresent(this::placeOnLevelStart);
                 } catch (MissingComponentException e) {
                     LOGGER.warning(e.getMessage());
                 }
-                ECSManagment.hero().ifPresent(ECSManagment::add);
+                hero.ifPresent(ECSManagment::add);
                 Game.currentLevel().onLoad();
                 PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
             };
@@ -91,7 +92,7 @@ public final class GameLoop extends ScreenAdapter {
                 PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight(), 9999, 9999);
         config.setForegroundFPS(PreRunConfiguration.frameRate());
         config.setTitle(PreRunConfiguration.windowTitle());
-        config.setWindowIcon(PreRunConfiguration.logoPath());
+        config.setWindowIcon(PreRunConfiguration.logoPath().pathString());
         config.disableAudio(PreRunConfiguration.disableAudio());
 
         if (PreRunConfiguration.fullScreen()) {

@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 
 import core.Game;
 import core.utils.components.draw.TextureMap;
+import core.utils.components.path.SimpleIPath;
 
 import java.util.function.Consumer;
 
@@ -27,9 +28,12 @@ public class Button {
     private static final Texture TEXTURE_BUTTON_PRESS;
 
     static {
-        TEXTURE_BUTTON = TextureMap.instance().textureAt("hud/button/button_idle.png");
-        TEXTURE_BUTTON_HOVER = TextureMap.instance().textureAt("hud/button/button_hover.png");
-        TEXTURE_BUTTON_PRESS = TextureMap.instance().textureAt("hud/button/button_press.png");
+        TEXTURE_BUTTON =
+                TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_idle.png"));
+        TEXTURE_BUTTON_HOVER =
+                TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_hover.png"));
+        TEXTURE_BUTTON_PRESS =
+                TextureMap.instance().textureAt(new SimpleIPath("hud/button/button_press.png"));
     }
 
     protected final CombinableGUI parent;

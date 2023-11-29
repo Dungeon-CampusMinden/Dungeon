@@ -3,8 +3,6 @@ package core;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
-import contrib.configuration.KeyboardConfig;
-
 import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.game.GameLoop;
@@ -18,6 +16,7 @@ import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.components.path.IPath;
 
 import java.io.IOException;
 import java.util.Map;
@@ -123,6 +122,24 @@ public final class Game {
     }
 
     /**
+     * Gets the path to the game logo.
+     *
+     * @return The path to the game logo.
+     */
+    public static IPath logoPath() {
+        return PreRunConfiguration.logoPath();
+    }
+
+    /**
+     * Sets the path to the game logo.
+     *
+     * @param logoPath The path to the game logo.
+     */
+    public static void logoPath(IPath logoPath) {
+        PreRunConfiguration.logoPath(logoPath);
+    }
+
+    /**
      * Sets the audio disable setting in the pre-run configuration.
      *
      * @param disableAudio True to disable audio, false otherwise.
@@ -170,17 +187,13 @@ public final class Game {
      * Loads the configuration from the given path. If the configuration has already been loaded,
      * the cached version will be used.
      *
-     * @param pathAsString The path to the config file as a string.
+     * @param path The path to the config file.
      * @param keyboardConfigClass The class where the ConfigKey fields are located.
-     * @param keyboardConfigClass1 The class where the ConfigKey fields are located.
      * @throws IOException If the file could not be read.
      */
-    public static void loadConfig(
-            final String pathAsString,
-            final Class<KeyboardConfig> keyboardConfigClass,
-            final Class<core.configuration.KeyboardConfig> keyboardConfigClass1)
+    public static void loadConfig(final IPath path, final Class<?>... keyboardConfigClass)
             throws IOException {
-        PreRunConfiguration.loadConfig(pathAsString, keyboardConfigClass, keyboardConfigClass1);
+        PreRunConfiguration.loadConfig(path, keyboardConfigClass);
     }
 
     /**
@@ -290,17 +303,6 @@ public final class Game {
      */
     public static Optional<Entity> hero() {
         return ECSManagment.hero();
-    }
-
-    /**
-     * Set the reference of the playable character.
-     *
-     * <p>Be careful: the old hero will not be removed from the game.
-     *
-     * @param hero the new reference of the hero
-     */
-    public static void hero(Entity hero) {
-        ECSManagment.hero(hero);
     }
 
     /**

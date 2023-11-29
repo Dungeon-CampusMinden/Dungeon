@@ -4,6 +4,8 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 
+import core.utils.components.path.IPath;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -29,16 +31,15 @@ import java.util.stream.Stream;
  */
 public class Configuration {
 
-    private static final HashMap<String, Configuration> LOADED_CONFIGURATION_FILES =
-            new HashMap<>();
+    private static final HashMap<IPath, Configuration> LOADED_CONFIGURATION_FILES = new HashMap<>();
     private static final JsonValue.PrettyPrintSettings PRETTY_PRINT_SETTINGS =
             new JsonValue.PrettyPrintSettings();
     private final Class<?>[] configClasses;
-    private final String configFilePath;
+    private final IPath configFilePath;
     private boolean fieldsLoaded = false;
     private JsonValue configRoot;
 
-    private Configuration(Class<?>[] configMapClasses, String configFilePath) {
+    private Configuration(Class<?>[] configMapClasses, IPath configFilePath) {
         this.configFilePath = configFilePath;
         configClasses = configMapClasses;
         PRETTY_PRINT_SETTINGS.outputType = JsonWriter.OutputType.json;
@@ -57,7 +58,7 @@ public class Configuration {
      * @return Configuration
      * @throws IOException If the file could not be read
      */
-    public static Configuration loadAndGetConfiguration(String path, Class<?>... configMapClasses)
+    public static Configuration loadAndGetConfiguration(IPath path, Class<?>... configMapClasses)
             throws IOException {
         if (LOADED_CONFIGURATION_FILES.containsKey(path)) {
             return LOADED_CONFIGURATION_FILES.get(path);
@@ -74,7 +75,7 @@ public class Configuration {
      * @throws IOException If the file could not be read
      */
     private void load() throws IOException {
-        File file = new File(configFilePath);
+        File file = new File(configFilePath.pathString());
         if (file.createNewFile()) { // Create file & load default config if not exists
             loadDefault();
             saveConfiguration();
@@ -122,7 +123,7 @@ public class Configuration {
     /** Save the current configuration to the file */
     public void saveConfiguration() {
         try {
-            File file = new File(configFilePath);
+            File file = new File(configFilePath.pathString());
             FileOutputStream fos = new FileOutputStream(file, false);
             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
             osw.write(configRoot.prettyPrint(PRETTY_PRINT_SETTINGS));
