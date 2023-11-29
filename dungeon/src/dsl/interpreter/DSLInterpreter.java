@@ -281,21 +281,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
 
     protected Symbol getScenarioBuilderReturnType() {
-        Symbol returnTypeSymbol = this.environment.getGlobalScope().resolve("entity<><>");
-        if (returnTypeSymbol == Symbol.NULL) {
-            IdNode entityId = new IdNode("entity", SourceFileReference.NULL);
-            SetTypeIdentifierNode entitySetType = new SetTypeIdentifierNode(entityId);
-            SetTypeIdentifierNode returnTypeIdentifier = new SetTypeIdentifierNode(entitySetType);
-
-            // let the semantic analyzer traverse over the type identifier nodes to create type
-            // SemanticAnalyzer and DSLInterpreter share the same global scope and symbol table in
-            // the environment
-            SemanticAnalyzer analyzer = new SemanticAnalyzer();
-            analyzer.setup(this.environment);
-            returnTypeIdentifier.accept(analyzer);
-            returnTypeSymbol = this.environment.getGlobalScope().resolve("entity<><>");
-        }
-        return returnTypeSymbol;
+        return this.environment.getGlobalScope().resolve("entity<><>");
     }
 
     protected void scanScopeForScenarioBuilders(IScope scope) {
