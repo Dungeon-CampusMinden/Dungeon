@@ -1,0 +1,449 @@
+// +++++++++++++ AUFGABEN DEFINITION+++++++++++++++
+
+
+// ++++++++++++++++++++ ENDE AUFGABEN DEFINITION ++++++++++++++++++++
+
+// ++++++++++++++++++++ SZENARIO DEFINITIONEN +++++++++++++++
+
+entity_type monster_type {
+    inventory_component {},
+    health_component {
+        max_health: 10,
+        start_health: 10,
+        on_death: drop_items
+    },
+    position_component {},
+    draw_component {
+        path: "character/monster/chort"
+    },
+    velocity_component {
+        x_velocity: 4.0,
+        y_velocity: 4.0
+    },
+    hitbox_component {},
+    ai_component{}
+    // TODO: spiky component
+    // TODO: add sound component
+}
+
+entity_type chest_type {
+    inventory_component {},
+    draw_component {
+        path: "objects/treasurechest"
+    },
+    hitbox_component {},
+    position_component{},
+    interaction_component{
+        radius: 1.5,
+        on_interaction: open_container
+    },
+    task_content_component{}
+}
+
+entity_type knight_type {
+    draw_component {
+        path: "character/knight"
+    },
+    hitbox_component {},
+    position_component{},
+    interaction_component{
+        radius: 1.5
+    },
+    task_component{}
+}
+
+entity_type wizard_type {
+    draw_component {
+        path: "character/wizard"
+    },
+    hitbox_component {},
+    position_component{},
+    interaction_component{
+        radius: 1.5
+    },
+    task_component{}
+}
+
+fn drop_items(entity me) {
+    me.inventory_component.drop_items();
+}
+
+fn open_container(entity chest, entity who) {
+    chest.inventory_component.open(who);
+}
+
+fn ask_task_finished(entity knight, entity who) {
+    var my_task : task;
+    my_task =  knight.task_component.task;
+    if my_task.is_active() {
+        ask_task_yes_no(my_task);
+    } else {
+        show_info("Du hast die Aufgabe schon bearbeitet.");
+    }
+}
+
+fn ask_task_on_ui(entity knight, entity who) {
+    var my_task : task;
+    my_task =  knight.task_component.task;
+    if my_task.is_active() {
+        show_task_on_ui(my_task);
+    } else {
+        show_info("Du hast die Aufgabe schon bearbeitet.");
+    }
+}
+
+item_type scroll_type {
+    display_name: "Eine Schriftrolle",
+    description: "Lies mich",
+    texture_path: "items/book/wisdom_scroll.png"
+}
+
+item_type mushroom_type {
+    display_name: "Ein Pilz",
+    description: "Iss mich (nicht)",
+    texture_path: "items/resource/toadstool.png"
+}
+
+entity_type kettle_type {
+    inventory_component {},
+    draw_component {
+        path: "objects/magic_kettle"
+    },
+    hitbox_component {},
+    position_component{},
+    interaction_component{
+        radius: 1.5,
+        on_interaction: open_container
+    },
+    task_content_component{}
+}
+
+fn build_task_single_ui(single_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    // quest giver knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "Questgeber");
+    knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_on_ui;
+    room_set.add(knight);
+
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+fn build_task_single_kettle(single_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    for task_content content in t.get_content() {
+        var item : entity;
+        item = build_quest_item(mushroom_type, content);
+        place_quest_item(item, room_set);
+    }
+
+    var chest : entity;
+    chest = instantiate(kettle_type);
+    //chest.add_named_task_content("This is a quest chest", t);
+    chest.mark_as_task_container(t, "Quest-Zauberkessel");
+
+    room_set.add(chest);
+    t.set_scenario_text("Platziere die richtigen Pilze in dem Quest-Zauberkessel");
+    t.set_answer_picker_function(answer_picker_single_chest);
+
+    // quest giver knight
+    var knight : entity;
+    knight = instantiate_named(wizard_type, "Questgeber");
+    knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_finished;
+    room_set.add(knight);
+
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+fn build_task_single_chest(single_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    for task_content content in t.get_content() {
+        var item : entity;
+        item = build_quest_item(scroll_type, content);
+        place_quest_item(item, room_set);
+    }
+
+    var chest : entity;
+    chest = instantiate(chest_type);
+    //chest.add_named_task_content("This is a quest chest", t);
+    chest.mark_as_task_container(t, "Quest-Truhe");
+
+    room_set.add(chest);
+    t.set_scenario_text("Platziere die richtige Schriftrolle in der Quest-Truhe");
+    t.set_answer_picker_function(answer_picker_single_chest);
+
+    // quest giver knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "Questgeber");
+    knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_finished;
+    room_set.add(knight);
+
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+fn build_task_single_chest_with_monster(single_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    for task_content content in t.get_content() {
+        var item : quest_item;
+        item = build_quest_item(scroll_type, content);
+
+        var monster: entity;
+        monster = instantiate(monster_type);
+        monster.inventory_component.add_item(item);
+        room_set.add(monster);
+    }
+
+    var chest : entity;
+    chest = instantiate(chest_type);
+    chest.mark_as_task_container(t, "Quest-Truhe");
+
+    room_set.add(chest);
+    t.set_scenario_text("Hilfe! Monster haben die Schriftrollen geklaut! Platziere die richtige Schriftrolle in der Quest-Truhe!");
+    t.set_answer_picker_function(answer_picker_single_chest);
+
+    // quest giver knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "Questgeber");
+    knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_finished;
+    room_set.add(knight);
+
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
+
+    return_set.add(room_set);
+
+    return return_set;
+}
+
+fn build_task_multi_kettle(multiple_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    // build items from content
+    for task_content content in t.get_content() {
+        var item : entity;
+        item = build_quest_item(mushroom_type, content);
+        place_quest_item(item, room_set);
+    }
+
+    // build answer chest
+    var chest : entity;
+    chest = instantiate(kettle_type);
+    chest.mark_as_task_container(t, "Quest-Zauberkessel");
+    room_set.add(chest);
+
+    // setup task
+    t.set_scenario_text("Platziere die richtigen Pilze in dem Quest-Zauberkessel");
+    t.set_answer_picker_function(answer_picker_single_chest);
+
+    // knight
+    var knight : entity;
+    knight = instantiate_named(wizard_type, "Questgeber");
+    knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_finished;
+    room_set.add(knight);
+
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+fn build_task_multi_chest(multiple_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    // build items from content
+    for task_content content in t.get_content() {
+        var item : entity;
+        item = build_quest_item(scroll_type, content);
+        place_quest_item(item, room_set);
+    }
+
+    // build answer chest
+    var chest : entity;
+    chest = instantiate(chest_type);
+    chest.mark_as_task_container(t, "Quest-Truhe");
+    room_set.add(chest);
+
+    // setup task
+    t.set_scenario_text("Platziere die richtigen Schriftrollen in der Quest-Truhe");
+    t.set_answer_picker_function(answer_picker_single_chest);
+
+    // knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "Questgeber");
+    knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_finished;
+    room_set.add(knight);
+
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+fn build_task_multi_ui(multiple_choice_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    // setup task
+    //t.set_scenario_text("Platziere die richtigen Schriftrollen in der Quest-Truhe");
+    //t.set_answer_picker_function(answer_picker_single_chest);
+
+    // knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "Questgeber");
+    knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_on_ui;
+    room_set.add(knight);
+
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+fn build_task_assign(assign_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    var solution_map : [element -> element<>];
+    solution_map = t.get_solution();
+
+    t.set_scenario_text("Platziere die richtige Schriftrolle in der richtigen Quest-Truhe");
+    t.set_answer_picker_function(answer_picker_multi_chest);
+
+    // instantiate chests
+    for element key in solution_map.get_keys() {
+        if key.is_empty() {
+            // skip
+        } else {
+            // if this variable is declared outside of the for-loop,
+            // it is not correctly placed in the set, because the internal
+            // Value will be still the same Object (with the same HashCode!!)
+            var chest : entity;
+            chest = instantiate(chest_type);
+            chest.mark_as_task_container_with_element(t, key);
+            room_set.add(chest);
+        }
+    }
+
+    var item : quest_item;
+    // instantiate all answer elements as scrolls
+    for element<> element_set in solution_map.get_elements() {
+        for element element in element_set {
+            if element.is_empty() {
+                // skip
+            } else {
+                print(element);
+                item = build_quest_item(scroll_type, element);
+                place_quest_item(item, room_set);
+            }
+        }
+    }
+
+    // quest giver knight
+    var knight : entity;
+    knight = instantiate_named(knight_type, "Questgeber");
+    knight.task_component.task = t;
+    knight.interaction_component.on_interaction = ask_task_finished;
+    room_set.add(knight);
+
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+fn build_task_assign_kettle_mushroom(assign_task t) -> entity<><> {
+    var return_set : entity<><>;
+    var room_set : entity<>;
+
+    var solution_map : [element -> element<>];
+    solution_map = t.get_solution();
+
+    t.set_scenario_text("Platziere die richtigen Pilze in den richtigen Kesseln");
+    t.set_answer_picker_function(answer_picker_multi_chest);
+
+    // instantiate chests
+    for element key in solution_map.get_keys() {
+        if key.is_empty() {
+            // skip
+        } else {
+            // if this variable is declared outside of the for-loop,
+            // it is not correctly placed in the set, because the internal
+            // Value will be still the same Object (with the same HashCode!!)
+            var chest : entity;
+            chest = instantiate(kettle_type);
+            chest.mark_as_task_container_with_element(t, key);
+            room_set.add(chest);
+        }
+    }
+
+    var item : quest_item;
+    // instantiate all answer elements as scrolls
+    for element<> element_set in solution_map.get_elements() {
+        for element element in element_set {
+            if element.is_empty() {
+                // skip
+            } else {
+                print(element);
+                item = build_quest_item(mushroom_type, element);
+                place_quest_item(item, room_set);
+            }
+        }
+    }
+
+    // quest giver wizard
+    var wizard : entity;
+    wizard = instantiate_named(wizard_type, "Questgeber");
+    wizard.task_component.task = t;
+    wizard.interaction_component.on_interaction = ask_task_finished;
+    room_set.add(wizard);
+
+    var random_entity : entity;
+    random_entity = get_random_content();
+    room_set.add(random_entity);
+
+    return_set.add(room_set);
+    return return_set;
+}
+
+// +++++++++++++++ ENDE SZENARIO DEFINITIONEN +++++++++++++++

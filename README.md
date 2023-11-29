@@ -25,13 +25,13 @@ Das Framework bietet die Möglichkeit, durch die Integration von Quests zu lerne
 
 Das Dungeon befindet sich im Projekt [`dungeon`](./dungeon).
 
-Die [Dokumentation](./dungeon/doc) und der [Quickstart](./dungeon/doc/readme.md) sollten einen schnellen Einstieg ermöglichen.
+Die [Dokumentation](./dungeon/doc/readme.md) und der [Quickstart](./dungeon/doc/quickstart.md) sollten einen schnellen Einstieg ermöglichen.
 
 ![](./dungeon/doc/dsl/img/quickstart_select_config_level.png)
 ![](./dungeon/doc/dsl/img/quickstart_answer_menu.png)
 
 
-Zur [Demo](./dungeon/demo/)
+Zur [Demo](https://github.com/Programmiermethoden/Dungeon/releases/tag/Demo)
 
 ## Low Code: Blockly-Dungeon
 Dieser Teil des Projekts nutzt Googles Blockly, um eine grafische Low-Code-Benutzeroberfläche zu generieren. Über eine Webschnittstelle (lokal) kann die Spielfigur im Dungeon gesteuert werden, wodurch auch Anwender ohne tiefgreifende Programmierkenntnisse am Erlebnis teilhaben können.
