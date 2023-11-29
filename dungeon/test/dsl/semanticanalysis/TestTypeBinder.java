@@ -146,14 +146,14 @@ public class TestTypeBinder {
         Assert.assertEquals(TestRecordComponent.class, adaptedType.getOriginType());
     }
 
-
     @Test
     public void testSetTypeBinding() {
         TypeBuilder typeBuilder = new TypeBuilder();
-        var testCompType = typeBuilder.createDSLTypeForJavaTypeInScope(new Scope(), TestComponent.class);
+        var testCompType =
+                typeBuilder.createDSLTypeForJavaTypeInScope(new Scope(), TestComponent.class);
 
         String program =
-            """
+                """
         entity_type o {
             test_component{
                 member1: 42,

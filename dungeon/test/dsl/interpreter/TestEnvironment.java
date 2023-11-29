@@ -25,8 +25,8 @@ public class TestEnvironment extends GameEnvironment {
 
         // build scenario builder return type
         Symbol entityTypeSymbol = this.getGlobalScope().resolve("entity");
-        //if (entityTypeSymbol != Symbol.NULL) {
-        IType entityType = (IType)entityTypeSymbol;
+        // if (entityTypeSymbol != Symbol.NULL) {
+        IType entityType = (IType) entityTypeSymbol;
         IType entitySetType = new SetType(entityType, this.getGlobalScope());
         this.loadTypes(entitySetType);
         IType entitySetSetType = new SetType(entitySetType, this.getGlobalScope());

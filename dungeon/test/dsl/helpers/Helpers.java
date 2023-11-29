@@ -5,10 +5,7 @@ import antlr.main.DungeonDSLParser;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.DungeonASTConverter;
-import dsl.parser.ast.IdNode;
 import dsl.parser.ast.Node;
-import dsl.parser.ast.SetTypeIdentifierNode;
-import dsl.parser.ast.SourceFileReference;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
@@ -17,8 +14,6 @@ import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 
-import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
