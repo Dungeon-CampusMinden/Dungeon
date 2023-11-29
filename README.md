@@ -62,6 +62,7 @@ feel free to contact us in English or German.
 This project is funded by [Stiftung für Innovation in der Hochschullehre](https://stiftung-hochschullehre.de)
 (["Freiraum 2022"](https://stiftung-hochschullehre.de/foerderung/freiraum2022/)).
 
+The used [Assets](doc/wiki/assets-im-dungeon.md) are blended from free resources.
 
 ---
 
@@ -75,3 +76,5 @@ This [work](https://github.com/Programmiermethoden/Dungeon) by
 is licensed under [MIT](LICENSE.md).
 
 All files in [`doc/publication/`](doc/publication/) are licensed under [CC BY-SA 4.0](LICENSE-PAPER.md).
+
+All files in [`game/assets/`](game/assets/) are licensed unter [CC-0](LICENSE-ASSETS.md).
