@@ -34,7 +34,7 @@ public final class TextureMap extends HashMap<String, Texture> {
      * @return The Texture at the given path.
      */
     public Texture textureAt(final IPath path) {
-        if (!containsKey(path)) {
+        if (!containsKey(path.pathString())) {
             // We still store the string in the map to make sure we only store each Texture once.
             // SimplePath("file.png").equals(SimplePath("file.png")) would return false, and so we
             // would add it twice in the map.
@@ -43,6 +43,6 @@ public final class TextureMap extends HashMap<String, Texture> {
             put(path.pathString(), new Texture(path.pathString()));
         }
 
-        return get(path);
+        return get(path.pathString());
     }
 }
