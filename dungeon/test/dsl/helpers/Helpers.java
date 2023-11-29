@@ -145,16 +145,6 @@ public class Helpers {
             environment.loadTypes(type);
         }
 
-        // setup entitySetSet type
-        Symbol entityTypeSymbol = environment.getGlobalScope().resolve("entity");
-        if (entityTypeSymbol != Symbol.NULL) {
-            IType entityType = (IType)entityTypeSymbol;
-            IType entitySetType = new SetType(entityType, environment.getGlobalScope());
-            environment.loadTypes(entitySetType);
-            IType entitySetSetType = new SetType(entitySetType, environment.getGlobalScope());
-            environment.loadTypes(entitySetSetType);
-        }
-
         SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
         symbolTableParser.setup(environment);
         var ast = Helpers.getASTFromString(program);
