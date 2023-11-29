@@ -345,7 +345,7 @@ public class Main {
                     }
                 };
         Game.userOnSetup(onSetup);
-        Game.loadConfig("dungeon_config.json", core.configuration.KeyboardConfig.class);
+        Game.loadConfig(new SimplePath("dungeon_config.json"), core.configuration.KeyboardConfig.class);
         Game.run();
     }
 }

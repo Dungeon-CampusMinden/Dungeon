@@ -45,7 +45,7 @@ public class TaskGenerationTest {
         Game.initBaseLogger();
         LevelSystem.levelSize(LevelSize.MEDIUM);
         Game.loadConfig(
-                "dungeon_config.json",
+                new SimpleIPath("dungeon_config.json"),
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.disableAudio(true);

@@ -13,6 +13,7 @@ import core.Entity;
 import core.Game;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
+import core.utils.components.path.SimpleIPath;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -109,7 +110,7 @@ public class RoomBasedDungeon {
 
     private static void configGame() throws IOException {
         Game.loadConfig(
-                "dungeon_config.json",
+                new SimpleIPath("dungeon_config.json"),
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.frameRate(30);

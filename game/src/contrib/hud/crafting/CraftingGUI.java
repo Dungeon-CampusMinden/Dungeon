@@ -25,6 +25,7 @@ import contrib.item.Item;
 import core.Game;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.TextureMap;
+import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
 import java.util.ArrayList;
@@ -53,8 +54,8 @@ import java.util.Arrays;
  */
 public class CraftingGUI extends CombinableGUI {
 
-    private static final String FONT_FNT = "skin/myFont.fnt";
-    private static final String FONT_PNG = "skin/myFont.png";
+    private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
+    private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
 
     // Position settings
     private static final int NUMBER_PADDING = 5;
@@ -117,7 +118,10 @@ public class CraftingGUI extends CombinableGUI {
 
         // Init Font
         bitmapFont =
-                new BitmapFont(Gdx.files.internal(FONT_FNT), Gdx.files.internal(FONT_PNG), false);
+                new BitmapFont(
+                        Gdx.files.internal(FONT_FNT.pathString()),
+                        Gdx.files.internal(FONT_PNG.pathString()),
+                        false);
     }
 
     private final ArrayList<Item> items = new ArrayList<>();

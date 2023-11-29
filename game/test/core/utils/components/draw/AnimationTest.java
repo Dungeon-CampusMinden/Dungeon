@@ -37,7 +37,9 @@ public class AnimationTest {
                         1);
         for (int i = 0; i < 100; i++) {
             for (int j = 0; j < 10; j++) {
-                assertEquals(String.valueOf(i % 3 + 1), animation.nextAnimationTexturePath());
+                assertEquals(
+                        String.valueOf(i % 3 + 1),
+                        animation.nextAnimationTexturePath().pathString());
             }
         }
     }
@@ -81,9 +83,9 @@ public class AnimationTest {
         List<IPath> testStrings =
                 Stream.of("a", "b").map(SimpleIPath::new).collect(Collectors.toList());
         Animation ta = Animation.fromCollection(testStrings, 1, false, 1);
-        assertEquals(testStrings.get(0).pathString(), ta.nextAnimationTexturePath());
-        assertEquals(testStrings.get(1).pathString(), ta.nextAnimationTexturePath());
-        assertEquals(testStrings.get(1).pathString(), ta.nextAnimationTexturePath());
+        assertEquals(testStrings.get(0), ta.nextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.nextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.nextAnimationTexturePath());
     }
 
     @Test
@@ -91,10 +93,10 @@ public class AnimationTest {
         List<IPath> testStrings =
                 Stream.of("a", "b").map(SimpleIPath::new).collect(Collectors.toList());
         Animation ta = Animation.fromCollection(testStrings, 2, false, 1);
-        assertEquals(testStrings.get(0).pathString(), ta.nextAnimationTexturePath());
-        assertEquals(testStrings.get(0).pathString(), ta.nextAnimationTexturePath());
-        assertEquals(testStrings.get(1).pathString(), ta.nextAnimationTexturePath());
-        assertEquals(testStrings.get(1).pathString(), ta.nextAnimationTexturePath());
-        assertEquals(testStrings.get(1).pathString(), ta.nextAnimationTexturePath());
+        assertEquals(testStrings.get(0), ta.nextAnimationTexturePath());
+        assertEquals(testStrings.get(0), ta.nextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.nextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.nextAnimationTexturePath());
+        assertEquals(testStrings.get(1), ta.nextAnimationTexturePath());
     }
 }

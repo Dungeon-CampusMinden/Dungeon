@@ -45,9 +45,9 @@ public final class IdleSoundSystem extends System {
     private void playSound(final IdleSoundComponent component) {
         float chanceToPlaySound = 0.001f;
         if (RANDOM.nextFloat(0f, 1f) < chanceToPlaySound) {
-            Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(component.soundEffect()));
+            Sound soundEffect =
+                    Gdx.audio.newSound(Gdx.files.internal(component.soundEffect().pathString()));
             long soundID = soundEffect.play();
-
             soundEffect.setLooping(soundID, false);
             soundEffect.setVolume(soundID, 0.35f);
         }

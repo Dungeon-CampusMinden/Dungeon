@@ -9,6 +9,8 @@ import contrib.components.UIComponent;
 
 import core.Entity;
 import core.Game;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 
 import java.util.function.Supplier;
 
@@ -16,9 +18,10 @@ import java.util.function.Supplier;
 public final class UIUtils {
 
     /** The default UI-Skin. */
-    private static final String SKIN_FOR_DIALOG = "skin/uiskin.json";
+    private static final IPath SKIN_FOR_DIALOG = new SimpleIPath("skin/uiskin.json");
 
-    public static final Skin DEFAULT_SKIN = new Skin(Gdx.files.internal(SKIN_FOR_DIALOG));
+    public static final Skin DEFAULT_SKIN =
+            new Skin(Gdx.files.internal(SKIN_FOR_DIALOG.pathString()));
     /**
      * Limits the length of the string to 40 characters, after which a line break occurs
      * automatically.

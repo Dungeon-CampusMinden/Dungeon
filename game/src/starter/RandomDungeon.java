@@ -11,6 +11,7 @@ import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.level.utils.LevelSize;
+import core.utils.components.path.SimpleIPath;
 
 import java.io.IOException;
 
@@ -79,7 +80,7 @@ public class RandomDungeon {
 
     private static void configGame() throws IOException {
         Game.loadConfig(
-                "dungeon_config.json",
+                new SimpleIPath("dungeon_config.json"),
                 contrib.configuration.KeyboardConfig.class,
                 core.configuration.KeyboardConfig.class);
         Game.frameRate(30);

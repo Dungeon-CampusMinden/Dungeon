@@ -92,7 +92,7 @@ public final class GameLoop extends ScreenAdapter {
                 PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight(), 9999, 9999);
         config.setForegroundFPS(PreRunConfiguration.frameRate());
         config.setTitle(PreRunConfiguration.windowTitle());
-        config.setWindowIcon(PreRunConfiguration.logoPath());
+        config.setWindowIcon(PreRunConfiguration.logoPath().pathString());
         config.disableAudio(PreRunConfiguration.disableAudio());
 
         if (PreRunConfiguration.fullScreen()) {
