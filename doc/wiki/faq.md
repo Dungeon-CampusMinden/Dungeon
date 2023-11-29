@@ -2,7 +2,6 @@
 title: "FAQ"
 ---
 
-
 ## Troubleshooting/FAQs
 
 ### Problem: Gradlebuild schlägt fehl
@@ -13,9 +12,9 @@ auch in den Einstellungen von IntelliJ über das Menü wie folgt gesetzt sein:
 * "File -> Settings.. -> Build, Execution, Deployment -> Build Tools -> Gradle" und dort die GradleVM auf die aktuell verwendete JVM 17.0.2. stellen (falls dies noch nicht der Fall sein sollte).
 
 Des Weiteren sollte überprüft werden, ob in den "Umgebungsvariablen" unter Windows 8/10/11 die "Systemvariable" `JAVA_HOME` auf die bei Euch installierte JVM 17.0.2 zeigt. Dies sollte in etwa so in den "Systemvariablen" auf Eurem Rechner eingetragen sein.
-| Variable    | Wert |
-| :---        | :---- |
-| `JAVA_HOME`      | `C:\Users\EUER_BENUTZERNAME\.jdks\openjdk-17.0.2` |
+| Variable    | Wert                                              |
+|:------------|:--------------------------------------------------|
+| `JAVA_HOME` | `C:\Users\EUER_BENUTZERNAME\.jdks\openjdk-17.0.2` |
 
 ### Problem: Gradle Konfiguration wird nicht erkannt
 
