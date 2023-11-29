@@ -1,4 +1,5 @@
-# Dungeon
+<h1 align="center">Dungeon</h1>
+<p align="center"><img src="doc/img/banner.png" alt="Banner"></p>
 
 Das Dungeon ist ein mehrdimensionales Projekt zur Gamifizierung von Studieninhalten. 
 
@@ -75,3 +76,6 @@ This [work](https://github.com/Programmiermethoden/Dungeon) by
 is licensed under [MIT](LICENSE.md).
 
 All files in [`doc/publication/`](doc/publication/) are licensed under [CC BY-SA 4.0](LICENSE-PAPER.md).
+
+
+<p align="right"><img src="doc/img/logo/cat_logo_64x64.png" alt="Banner"></p>
