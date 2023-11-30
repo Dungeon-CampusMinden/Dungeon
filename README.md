@@ -63,6 +63,16 @@ feel free to contact us in English or German.
 This project is funded by [Stiftung für Innovation in der Hochschullehre](https://stiftung-hochschullehre.de)
 (["Freiraum 2022"](https://stiftung-hochschullehre.de/foerderung/freiraum2022/)).
 
+The [assets](doc/wiki/assets-im-dungeon.md) in [`game/assets/`](game/assets/) are a mix from free resources:
+
+*   Textures and animations:
+    *   https://0x72.itch.io/16x16-dungeon-tileset (CC0 1.0)
+    *   https://0x72.itch.io/dungeontileset-ii (CC0 1.0)
+*   Music and soundeffects: 
+    *   https://alkakrab.itch.io/free-12-tracks-pixel-rpg-game-music-pack (CC0 1.0)
+    *   https://opengameart.org/content/50-rpg-sound-effects (CC0 1.0)
+    *   https://opengameart.org/content/hurt-death-sound-effect-for-character (CC0 1.0)
+    *   https://opengameart.org/content/80-cc0-creture-sfx-2 (CC0 1.0)
 
 ---
 
@@ -77,5 +87,6 @@ is licensed under [MIT](LICENSE.md).
 
 All files in [`doc/publication/`](doc/publication/) are licensed under [CC BY-SA 4.0](LICENSE-PAPER.md).
 
+All files in [`game/assets/`](game/assets/) are licensed under [CC0 1.0](LICENSE-ASSETS.md).
 
 <p align="right"><img src="doc/img/logo/cat_logo_64x64.png" alt="Banner"></p>

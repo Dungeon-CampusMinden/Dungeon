@@ -35,4 +35,4 @@ your contribution is automatically subject to the licence of this repository
 ## Coding Conventions
 
 If you want to contribute code to the project, please make sure to follow our
-[code conventions](https://github.com/Programmiermethoden/Dungeon/wiki/Code-Conventions).
+[code conventions](doc/wiki/code-conventions.md).
