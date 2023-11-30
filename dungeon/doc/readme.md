@@ -14,12 +14,12 @@ Das Dungeon ist ein Tool, um klassische Übungsaufgaben als Quests in ein 2D-Rog
 
 1. Öffnen Sie die Kommandozeile
 2. Navigieren Sie zum Hauptverzeichnis dieses Projekts
-3. Führen Sie das Kommando `./gradlew starterJar` aus. Hierdurch wird die `Starter.jar` kompiliert, die
-   zum Starten des Dungeons benötigt wird.
+3. Führen Sie das Kommando `./gradlew starterJar` aus. Hierdurch wird die `Starter.jar` kompiliert, die zum Starten des Dungeons benötigt wird. Sie finden die `Starter.jar` nach dem kompilieren in `build/libs/`.
 
 ### Starten des Dungeon Systems
 
 Führen Sie das Kommando `java -jar "build/libs/Starter.jar" --args "dungeon/doc/dsl/examplescripts/quickstart_example.dng"` aus.
+
 Hierdurch wird die obenstehende `.dng`-Datei geladen. Der Dungeon öffnet sich in einem separaten Fenster und sollte in
 etwa wie folgt aussehen:
 

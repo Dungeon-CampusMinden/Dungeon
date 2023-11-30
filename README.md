@@ -24,12 +24,15 @@ Die [Dokumentation](./game/doc/) und der [Quickstart](./game/doc/quickstart.md) 
 
 Das Framework bietet die Möglichkeit, durch die Integration von Quests zu lernen. Quests sind dabei typische Übungsaufgaben aus dem Studienkontext. Diese Aufgaben werden in einer einfachen, eigenen Sprache definiert, ohne dass die Lehrenden selbst Spielmechaniken programmieren müssen. Das Framework wandelt die definierten Aufgaben automatisch in verschiedene Spielszenarien um und ermöglicht so das Erstellen von individuellen Lernpfaden.
 
-Das Dungeon befindet sich im Projekt [`dungeon`](./dungeon).
+Das Dungeon befindet sich im Projekt [`dungeon`](dungeon).
 
-Die [Dokumentation](./dungeon/doc) und der [Quickstart](./dungeon/doc/readme.md) sollten einen schnellen Einstieg ermöglichen.
+Die [Dokumentation](dungeon/doc/readme.md) und der [Quickstart](dungeon/doc/quickstart.md) sollten einen schnellen Einstieg ermöglichen.
 
-![](./dungeon/doc/dsl/img/quickstart_select_config_level.png)
-![](./dungeon/doc/dsl/img/quickstart_answer_menu.png)
+![](dungeon/doc/dsl/img/quickstart_select_config_level.png)
+![](dungeon/doc/dsl/img/quickstart_answer_menu.png)
+
+
+*   [Starterkit und Demo](https://github.com/Programmiermethoden/Dungeon-StarterKit)
 
 ## Low Code: Blockly-Dungeon
 Dieser Teil des Projekts nutzt Googles Blockly, um eine grafische Low-Code-Benutzeroberfläche zu generieren. Über eine Webschnittstelle (lokal) kann die Spielfigur im Dungeon gesteuert werden, wodurch auch Anwender ohne tiefgreifende Programmierkenntnisse am Erlebnis teilhaben können.
