@@ -190,6 +190,55 @@ set_size = int_set.size();
 `list_size` hat im Anschluss an das Snippet den Wert `3`.
 
 
+### Maps
+
+Die Definition eines Map-Datentypen sieht wie folgt aus:
+
+```
+var int_to_string_map : [int -> string];
+```
+
+Dies ist so zu lesen, dass `int_to_string_map` eine Abbildung von `int` Werten auf `string` Werte
+darstellt. `int` ist dabei der "Key" oder "Schlüssel"-Datentyp, `string` ist der "Element"-Datentyp.
+Jeder Schlüsselwert kann nur einmal in einer Map enthalten sein.
+
+Werte mit einem Set-Datentyp erlauben folgende Operationen:
+
+**add**
+
+Mit der `add`-Operation können Key/Element-Paare zu der Map hinzugefügt werden:
+
+```
+int_to_string_map.add(1, "hello");
+int_to_string_map.add(5, "world");
+int_to_string_map.add(3, "hello");
+```
+
+`int_to_string_map` enthält anschließend die drei Paare `1 -> "hello"`, `2 -> "world"` und
+`3 -> "hello"`.
+
+**get_keys**
+
+Mit der `get_keys`-Operation kann eine Liste der enthaltenen Key-Werte abgefragt werden.
+
+```
+var keys : int[];
+keys = int_to_string_map.get_keys();
+```
+
+`keys` enthält im Anschluss die Werte `1`, `5` und `3`, wobei die Reihenfolge nicht garantiert ist.
+
+**get_elements**
+
+Mit der `get_elements`-Operation kann eine Liste der enthaltenen Element-Werte abgefragt werden.
+
+```
+var elements : int[];
+elements = int_to_string_map.get_elements();
+```
+
+`elements` enthält im Anschluss die Werte `"hello"`, `"world"` und `"hello`", wobei die Reihenfolge nicht garantiert ist.
+
 ### Komplexe Datentypen
 
 Komplexe Datentypen bündeln mehrere Werte anderer Datentypen und haben benannte "Member".
