@@ -10,7 +10,7 @@ Diese Anleitung beschreibt Schritt für Schritt, wie Dungeon: Learning by Questi
 
 ### Option 1: Arbeiten mit dem Starter-Kit
 
-*   [StarterKit](https://github.com/Programmiermethoden/Dungeon/releases/tag/StarterKit), um eigene Aufgaben zu definieren.
+*   [StarterKit](https://github.com/Programmiermethoden/Dungeon/releases/tag/StarterKit), um eigene Aufgaben zu definieren herunterladen.
 *   Alternativ: [Demo](https://github.com/Programmiermethoden/Dungeon/releases/tag/Demo) mit bereits vordefinierten Aufgaben herunterladen.
 *   Legen Sie die `Starter.jar` im selben Verzeichnis ab wie die mitgelieferte `.dng`.
 
