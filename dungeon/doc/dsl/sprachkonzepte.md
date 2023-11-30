@@ -78,7 +78,7 @@ Listen mit statischer Länge sind nicht vorgesehen, Listen wachsen dynamisch.
 Dass es sich bei einem Objekt oder einer Variable um eine Menge handelt, wird ebenfalls im Datentyp
 abgebildet.
 
-**Sortierte Menge:**
+**Sortierte Menge (Liste):**
 
 ```
 list = [ "Hello", "World", "!" ];
@@ -90,31 +90,14 @@ list = [ "Hello", "World", "!" ];
 set = < "elem1", "elem2" >;
 ```
 
-**Benannte Elemente:**
-
-Die Elemente einer Menge (sortiert und unsortiert) können benannt werden:
-
-```
-set = <
-  e1: "elem1",
-  x1: "elem2"
->;
-```
-
-Auf die benannten Elemente kann anschließend per `.`-Operator zugegriffen werden:
-
-```
-string_variable = set.x1
-```
-
 **Mengen in Mengen:**
 
 Mengen können andere Mengen enthalten:
 
 ```
 set = <
-  list1: ["elem1", "elem2"],
-  list2: ["elem3", "elem4"]
+  ["elem1", "elem2"],
+  ["elem3", "elem4"]
 >;
 ```
 
@@ -210,7 +193,7 @@ Variablennamens den Wert der Variablen ein.
 property_name: variable_identifier
 ```
 
-#### arithmetische Operationen
+#### arithmetische Operationen (nicht implementiert)
 
 Arithmetische Operationen (Addition, Subtraktion, Multiplikation und Division)
 können zur Berechung von arithmetischen Ausdrücken verwendet werden:
@@ -224,7 +207,7 @@ var4 = 2 / 2;
 
 Es gilt Punkt- vor Strichrechnung.
 
-#### Vergleichsoperationen
+#### Vergleichsoperationen (nicht implementiert)
 
 Mit Vergleichsoperationen können die Werte zweier Operanden verglichen werden.
 Es stehen die Operationen "größer" (`>`), "größer gleich" (`>=`), "kleiner" (`<`),
@@ -238,7 +221,7 @@ var3 = var1 > var2;
 
 Nach der Ausführung hat `var3` den Wert `true`.
 
-#### Gleichheit
+#### Gleichheit (nicht implementiert)
 
 Es stehen "gleich" (`==`) und "ungleich" (`!=`) zur Verfügung, um die
 Gleichheit von zwei Ausdrücken zu überprüfen
@@ -262,7 +245,7 @@ var1 = 2 * (3 + 5);
 
 Nach der Ausführung hat `var1` den Wert `16`.
 
-#### Unäre Operationen
+#### Unäre Operationen (nicht implementiert)
 
 Mit den unären Operationen Negation (`!`) und Negativität (`-`) können einzelne Operanden
 beeinflusst werden.
@@ -285,7 +268,7 @@ var2 = -var1;
 
 `var2` hat nach der Ausführung den Wert `-42`.
 
-#### Logische Operationen
+#### Logische Operationen (nicht implementiert)
 
 Logische Operationen umfassen `and` und `or` und dienen dazu, boolesche Ausdrücke
 miteinander zu verknüpfen:
@@ -300,20 +283,20 @@ my_var4 = my_var1 or my_var2;
 Die `and` Operation gibt basierend auf den Operanden folgende Werte zurück:
 
 | linker Operand | rechter Operand | Ergebnis |
-|-|-|-|
-|false|false|false|
-|false|true|false|
-|true|false|false|
-|true|true|true|
+|----------------|-----------------|----------|
+| false          | false           | false    |
+| false          | true            | false    |
+| true           | false           | false    |
+| true           | true            | true     |
 
 Die `or` Operation gibt basierend auf den Operanden folgende Werte zurück:
 
 | linker Operand | rechter Operand | Ergebnis |
-|-|-|-|
-|false|false|false|
-|false|true|true|
-|true|false|true|
-|true|true|true|
+|----------------|-----------------|----------|
+| false          | false           | false    |
+| false          | true            | true     |
+| true           | false           | true     |
+| true           | true            | true     |
 
 Logische Operationen können verkettet werden, wobei `and`-Operationen stärker binden
 als `or`-Operationen, d.h.:
@@ -475,17 +458,6 @@ Es besteht aktuell **keine** Möglichkeit, vor der Ausführung eines Programms f
 ob eine beliebige Entität im Dungeon-Kontext (die durch ein `entity`-Objekt in der DSL
 repräsentiert wird), auch tatsächlich über ein `DrawComponent` verfügt.
 
-### Graphendefinition
-
-Per eingebetteter dot-Syntax können Graphen definiert werden.
-
-```
-graph g {
-    A -- B
-    B -- C
-    A -- D
-}
-```
 
 ### Taskdefinition
 
@@ -505,11 +477,25 @@ single_choice_task t {
 }
 ```
 
+### Aufgabenabhängigkeiten
+
+Abhängigkeiten zwischen Aufgaben können ähnlich der Syntax eines dot-Graphen definiert werden:
+
+```
+task_dependency td {
+  t1 -> t2 [type=<dependency_type>]
+}
+```
+
+Eine Abhängigkeit zwischen zwei Aufgabendefinitionen `t1` und `t2` wird als gerichtete Kante `->` definiert, wobei
+das `type`-Attribut die Art der Abhängigkeit angibt. Alle verfügbaren Abhängigkeiten sind in der Dokumentation zu
+Petri-Netzen aufgelistet.
+
 #### Aufgabenspezifische Definitionen
 
 Es gibt einige aufgabentypspezifische Definitionen
 
-**Ersetzungsregel (für Ersetzungsaufgaben)**
+**Ersetzungsregel (für Ersetzungsaufgaben) (nicht implementiert)**
 
 ```
 rules: (
@@ -536,7 +522,7 @@ mapping_task t {
 }
 ```
 
-**Lücken (für "Lücken füllen" Aufgaben)**
+**Lücken (für "Lücken füllen" Aufgaben) (nicht implementiert)**
 
 ```
 gap_task t {
@@ -635,7 +621,7 @@ Die Ausgabe für diese Anweisungen ist:
 
 Die DungeonDSL unterstützt keine Überladung von Funktionsnamen.
 
-### Import aus anderen DSL-Files
+### Import aus anderen DSL-Files (nicht implementiert)
 
 Per `#import`-Anweisung können Definition aus anderen DSL-Dateien in die aktuelle Datei integriert werden.
 Dabei wird der (relative) Pfad der Datei in `<` und `>` gefasst, gefolgt von einem `:` und dem Namen des Symbols
@@ -657,21 +643,6 @@ Das Dungeon-System ließt die Taskbuilder-Methoden automatisch aus einem fest de
 und wählt, sofern nicht anders in der `quest_config`-Definition vorgesehen, eine passende Taskbuilder-Methode
 für den jeweiligen Aufgabentypen aus. Nur falls **eine bestimmte** Taskbuilder-Methode für eine
 Aufgabe verwendet werden soll, muss die entsprechende Definition per `#import`-Anweisung importiert werden.
-
-### Aufgabenabhängigkeiten
-
-Abhängigkeiten zwischen Aufgaben können ähnlich der Syntax eines dot-Graphen definiert werden:
-
-```
-task_dependency td {
-  t1 -> t2 [type=<dependency_type>]
-}
-```
-
-Eine Abhängigkeit zwischen zwei Aufgabendefinitionen `t1` und `t2` wird als gerichtete Kante `->` definiert, wobei
-das `type`-Attribut die Art der Abhängigkeit angibt. Alle verfügbaren Abhängigkeiten sind in der Dokumentation zu
-Petri-Netzen aufgelistet.
-
 
 ### Kontrollfluss-Steuerung
 
@@ -730,11 +701,14 @@ while condition {
 ```
 
 Eine Sonderform der Schleifen stellt die foreach-Schleife dar, mit der über
-alle Einträge einer Liste oder einer Menge iteriert werden können
+alle Einträge einer Liste oder einer Menge iteriert werden können. Hierzu
+wird im unteren Snippet die Iterationsvariable `entry` mit dem Datentypen
+`entry_type` erstellt, welche die Elemente der Liste enthält:
 
 ```
+var my_list : int[];
 my_list = [1,2,3];
-for (entry : my_list) {
+for entry_type entry in my_list {
     print(entry);
 }
 ```
@@ -745,4 +719,27 @@ Die Ausgabe des obenstehenden Listings sieht wie folgt aus:
 > "1"
 > "2"
 > "3"
+```
+
+Optional kann für eine foreach-Schleife auch eine Counter-Variable definiert werden,
+welche die aktuelle Iteration mitzählt (beginnend bei `0`):
+
+```
+var my_list : string[];
+my_list = ["element eins","element zwei","element drei"];
+for entry_type entry in my_list count i {
+    print(i);
+    print(entry);
+}
+```
+
+Die Ausgabe des obenstehenden Listings sieht wie folgt aus:
+
+```
+> "0"
+> "element eins"
+> "1"
+> "element zwei"
+> "2"
+> "element drei"
 ```
