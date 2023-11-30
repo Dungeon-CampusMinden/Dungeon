@@ -6,12 +6,21 @@ Diese Anleitung beschreibt Schritt für Schritt, wie Dungeon: Learning by Questi
 
 ## Schritt 1: Herunterladen der Ressourcen 
 
-
 Stellen Sie sicher, dass Sie Java in der Version 17 oder höher installiert haben und Java über Ihre Kommandozeile verwendbar ist. Dies können Sie testen, indem Sie ein Terminal öffnen und den Befehl `java --version` ausführen.
+
+### Option 1: Arbeiten mit dem Starter-Kit
 
 Laden Sie entweder die [Demo](https://github.com/Programmiermethoden/Dungeon/releases/tag/Demo) mit bereits vordefinierten Aufgaben herunter oder das [StarterKit](https://github.com/Programmiermethoden/Dungeon/releases/tag/StarterKit), um eigene Aufgaben zu definieren.
 
 Legen Sie die `Starter.jar` im selben Verzeichnis ab wie die mitgelieferte `.dng`.
+
+### Option 2: Repositiory Klonen
+
+* Klonen Sie dieses Repository mit dem Befehl `git clone https://github.com/Programmiermethoden/Dungeon.git`.
+* Navigieren Sie mit einem Terminal in das Verzeichnis.
+* Bauen Sie die `Starter.jar` mit dem Befehl `gradlew starterJar`.
+* Kopieren Sie die `Starter.jar` aus `build/libs/` und das `template-dng` aus `dungeon/assets/scripts/` in ein Verzeichnis.
+
 
 ## Schritt 2: Eigene Aufgaben definieren
 
@@ -27,7 +36,7 @@ IHRE AUFGABEN DEFINITION
 ```
 definieren.
 
-Eine einfache Aufgabendefinition für eine Single-Choice- und eine Multiple-Choice-Frage:
+Eine einfache Definition für eine Single-Choice-Frage und eine Multiple-Choice-Frage:
 
 ```
 single_choice_task single {
@@ -81,3 +90,29 @@ Lesen Sie die [Spielanleitung](https://github.com/Programmiermethoden/Dungeon/bl
 Wenn Sie das Spiel mit den Aufgaben an andere verbreiten möchten, müssen Sie die `Starter.jar` und die `.dng`-Datei an die betroffene Person schicken.
 Die Person kann das Spiel genau wie in Schritt 3 beschrieben starten.
 
+## Start-Skript
+
+Sie können ein einfaches Bash-Skript (Linux/MacOS) oder ein Batch-Skript (Windows) erstellen, um den Start des Spiels zu vereinfachen. Sie können diese Skripte auch verbreiten.
+
+### Bash-Skript
+
+* Datei `starter.sh` erstellen
+* Datei in einem Editor Ihrer Wahl öffnen
+* Skript (Ersetzen Sie dabei "MY_FILE" durch den Namen des `.dng`-Files):
+    ```bash
+    #!/bin/bash
+    java -XstartOnFirstThread -jar Demo.jar --args "MYFILE.dng"
+    ```
+* Mit `chmod +x starter.sh` machen Sie das Skript ausführbar
+* Mit `bash starter.sh` können Sie das Dungeon nun starten.
+
+### Batch-Skript
+
+* Datei `starter.bat` erstellen
+* Datei in einem Editor Ihrer Wahl öffnen
+* Skript (Ersetzen Sie dabei "MY_FILE" durch den Namen des `.dng`-Files):
+    ```bat
+    @echo off
+    java -XstartOnFirstThread -jar Demo.jar --args "MYFILE.dng"
+    ```
+* Mit `starter.bat` können Sie das Dungeon nun starten.
