@@ -265,9 +265,12 @@ public class TypeBuilder {
             var parametersAnnotatedType = parameter.getAnnotatedType();
 
             // if the underlying Type of the AnnotatedType is not equal to the plain Type returned
-            // by parameter.getType(), then the parameter is declared with an annotated type (List, Set, Map or
-            // an implementation of a functional interface) and we need to either create a FunctionType from
-            // it (see below) or pass the Type with annotation information to createDSLTypeForJavaTypeInScope
+            // by parameter.getType(), then the parameter is declared with an annotated type (List,
+            // Set, Map or
+            // an implementation of a functional interface) and we need to either create a
+            // FunctionType from
+            // it (see below) or pass the Type with annotation information to
+            // createDSLTypeForJavaTypeInScope
             var underlyingType = parametersAnnotatedType.getType();
             boolean typeIsAnnotated = !underlyingType.equals(parametersType);
 
@@ -287,10 +290,12 @@ public class TypeBuilder {
                     // which is
                     // not available in the `createDSLTypeForJavaTypeInScope`-method!
                     var parameterizedParameterType =
-                        (ParameterizedType) parameter.getParameterizedType();
+                            (ParameterizedType) parameter.getParameterizedType();
                     paramDSLType = createFunctionType(parameterizedParameterType, parentScope);
                 } else {
-                    paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersAnnotatedType.getType());
+                    paramDSLType =
+                            createDSLTypeForJavaTypeInScope(
+                                    parentScope, parametersAnnotatedType.getType());
                 }
             } else {
                 paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersType);
