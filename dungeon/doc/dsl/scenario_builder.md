@@ -144,7 +144,7 @@ zum [Entity-Component-System](../../../game/doc/ecs_basics.md) verwiesen.
 
 Entitäten enthalten Komponenten, welche das Verhalten und das Aussehen einer Entität im Spiel beeinflussen.
 Komponenten verfügen über Eigenschaften, welche über die DungeonDSL konfiguriert werden können.
-Alle Komponenten, die in der DSL verfügbar sind, sind in der [Komponenten Dokumentation](TODO: Verweis auf Datentyp-Dokumentation)
+Alle Komponenten, die in der DSL verfügbar sind, sind in der [Komponenten Dokumentation](datatypes.md)
 aufgelistet.
 In einer `.dng`-Datei können Komponenten mit konfigurierten Eigenschaften als ein Entitätstyp definiert werden.
 Aus diesen Entitätstypen kann mit der nativen `instantiate`-Funktion eine Entität erstellt werden. Diese Entität
@@ -391,7 +391,7 @@ fn interact(entity knight, entity who) {
 
 Im obigen Snippet wird die Funktion `interact` als Event-Handler-Funktion auf das `on_interact`-Event registiert.
 Für die genauen Signatur-Informationen für solche Event-Handler-Funktionen und Informationen, welche Komponenten
-dies zulassen sei hier auf die [Dokumentation für Datentypen](TODO) verwiesen.
+dies zulassen sei hier auf die [Dokumentation für Datentypen](datatypes.md) verwiesen.
 
 
 ## Beispiel-Abbildung: Antwortmöglichkeit als Schriftrollenitem
@@ -399,7 +399,7 @@ dies zulassen sei hier auf die [Dokumentation für Datentypen](TODO) verwiesen.
 Um eine Antwortmöglichkeit (bspw. einer Single-Choice-Aufgabe) als Item im Dungeon abzubilden, muss die
 entsprechende Antwortmöglichkeit (als `task_content`) bei dem Aufruf von `build_quest_item` übergeben werden.
 Wie auf die Antwortmöglichkeiten einer Aufgabe zugegriffen werden kann, unterscheidet sich je nach Aufgabentyp,
-siehe dazu die [Dokumentation zu Datentypen](TODO).
+siehe dazu die [Dokumentation zu Datentypen](datatypes.md).
 Im folgenden Snippet ist ein Beispiel für eine Multiple-Choice-Aufgabe dargestellt:
 
 ```
