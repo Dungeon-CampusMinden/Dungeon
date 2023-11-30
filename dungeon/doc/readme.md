@@ -183,4 +183,4 @@ verwendet wird. Für eine detaillierte Dokumentation der Aufgabendefinitionen, s
 Die bisher vorgestellten Aufgaben verwenden die Standard-Szenarien. Ein **Szenario**
 beschreibt die Abbilung einer abstrakten Aufgabenbeschreibung in das Spiel.
 Die DungeonDSL ermöglicht die Definition von eigenen Szenarien, siehe hierfür die
-[Dokumentation für die Definition eigener Szenarien (TODO)](https://github.com/Programmiermethoden/Dungeon/issues/1213).
+[Dokumentation für die Definition eigener Szenarien](dsl/scenario_builder.md).
