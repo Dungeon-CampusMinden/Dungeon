@@ -430,21 +430,9 @@ Repräsentiert ein QuestItem im Dungeon.
 
 Member in `entity_type`-Definition konfigurierbar: -
 
-| Member        | Beschreibung | Datentyp            |
-|---------------|--------------|---------------------|
-| `description` |              | [`string`](#string) |
-
 Member per `.`-Operator zugreifbar: -
 
-| Member        | Datentyp            |
-|---------------|---------------------|
-| `description` | [`string`](#string) |
-
 Methoden: -
-
-| Methoden                      | Beschreibung                                                                                    | Rückgabetyp                        | Parameter                                 |
-|-------------------------------|-------------------------------------------------------------------------------------------------|------------------------------------|-------------------------------------------|
-| `get_solution`                | Gibt die definierte Lösungsmenge als [`[task_content -> taskcontent]`](#taskcontent)-Map zurück | [`[element -> element]`](#element) | -                                         |
 
 #### velocity_component
 
