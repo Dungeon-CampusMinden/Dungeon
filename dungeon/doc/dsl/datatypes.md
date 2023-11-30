@@ -131,6 +131,25 @@ list_size = string_list.size();
 
 `list_size` hat im Anschluss an das Snippet den Wert `3`.
 
+**iteration**
+
+Mit einer [foreach-Schleife](sprachkonzepte.md#schleifen) kann über die Elemente einer Liste iteriert
+werden:
+
+```
+for string element in string_list {
+    print (element);
+}
+```
+
+Obiges Snippet erzeugt folgende Ausgabe:
+
+```
+> "hello"
+> "world"
+> "!"
+```
+
 ### Sets
 
 Die Definition eines Set-Datentypen sieht wie folgt aus:
@@ -189,6 +208,25 @@ set_size = int_set.size();
 
 `list_size` hat im Anschluss an das Snippet den Wert `3`.
 
+
+**iteration**
+
+Mit einer [foreach-Schleife](sprachkonzepte.md#schleifen) kann über die Elemente eines Sets iteriert
+werden:
+
+```
+for int element in int_set {
+    print (element);
+}
+```
+
+Obiges Snippet erzeugt folgende Ausgabe:
+
+```
+> "2"
+> "3"
+> "1"
+```
 
 ### Maps
 
