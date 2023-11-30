@@ -20,7 +20,7 @@ single_choice_task my_task {
     points_to_pass: 1,
     explanation: "Dieser Text wird angezeigt, falls die Aufgabe falsch beantwortet wird",
     grading_function: grade_single_choice_task,
-    scenario_builder my_scenario_builder:
+    scenario_builder: my_scenario_builder
 }
 ```
 
@@ -50,7 +50,7 @@ multiple_choice_task my_task {
     points_to_pass: 1,
     explanation: "Dieser Text wird angezeigt, falls die Aufgabe falsch beantwortet wird",
     grading_function: grade_multiple_choice_task,
-    scenario_builder my_scenario_builder:
+    scenario_builder: my_scenario_builder
 }
 ```
 
@@ -85,7 +85,7 @@ multiple_choice_task my_task {
     points_to_pass: 1,
     explanation: "Dieser Text wird angezeigt, falls die Aufgabe falsch beantwortet wird",
     grading_function: grade_assign_task_easy,
-    scenario_builder my_scenario_builder:
+    scenario_builder: my_scenario_builder
 }
 ```
 

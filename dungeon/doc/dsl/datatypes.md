@@ -13,7 +13,7 @@ können.
 
 Basisdatentypen sind die Datentypen, die nur zur Abbildung eines einzelnen Werts genutzt werden.
 
-**bool**:
+### bool
 
 `bool`-Werte stellen Wahrheitswerte (`true` oder `false`) dar:
 
@@ -24,7 +24,7 @@ my_bool = true;
 
 Default-Wert von `bool`-Variablen ist `false`.
 
-**int**:
+### int
 
 `int`-Werte stellen ganzzahlige Wert dar:
 
@@ -35,7 +35,7 @@ my_int = 42;
 
 Default-Wert von `int`-Variablen ist `0`.
 
-**float**:
+### float
 
 `float`-Werte stellen Dezimalwerte dar:
 
@@ -46,7 +46,7 @@ my_float = 3.14;
 
 Default-Wert von `float`-Variablen ist `0.0`.
 
-**string**:
+### string
 
 `string`-Werte stellen Zeichenketten dar:
 
@@ -57,7 +57,7 @@ my_string = "Hello, World!";
 
 Default-Wert von `string`-Variablen ist `""`, also eine leere Zeichenkette (mit keinen Zeichen).
 
-**graph**:
+### graph
 
 `graph`-Werte stellen Aufgabenabhängikeiten dar. Obwohl die Definition von `graph`-Objekten nur
 im globalen Scope möglich und komplexer als z. B. die Definition einer `string`-Variablen ist,
@@ -277,8 +277,124 @@ elements = int_to_string_map.get_elements();
 
 `elements` enthält im Anschluss die Werte `"hello"`, `"world"` und `"hello`", wobei die Reihenfolge nicht garantiert ist.
 
-### Komplexe Datentypen
+## Komplexe Datentypen
 
 Komplexe Datentypen bündeln mehrere Werte anderer Datentypen und haben benannte "Member".
+Auch alle Datentypen, die zur Kommunikation mit dem Spielszenario dienen, werden als komplexe
+Datentypen bezeichnet.
 
-Ein Beispiel für
+Ein Beispiel für komplexe Datentypen sind die [Aufgabendefinitionen](task_definition.md),
+z. B. Single Choice Aufgaben:
+
+```
+single_choice_task my_task {
+    description: "Dies ist der Aufgabentext",
+    answers: ["Antwort1", "Antwort2", "Antwort3"],
+    correct_answer_index: 1,
+    scenario_builder: my_scenario_builder
+}
+```
+
+Auf die Member eines Werts eines komplexen Datentyps kann mit dem `.`-Operator zugegriffen werden.
+Hierbei gilt allerdings die Einschränkung, dass so nicht auf **alle** Eigenschaften zugegriffen werden
+kann (aufgrund von technischen Einschränkungen).
+
+### Allgemeine komplexe Datentypen
+
+#### dungeon_config
+
+Member per `.`-Operator zugreifbar:
+
+| Member             | Datentyp            |
+|--------------------|---------------------|
+| `dependency_graph` | [`graph`](#graph)   |
+| `name`             | [`string`](#string) |
+
+### Aufgabendefinition Datentypen
+
+#### task_content
+
+Stellt einen Teil einer Lösung einer Aufgabe dar.
+
+Methoden:
+
+| Methoden | Beschreibung                               | Rückgabetyp         | Parameter |
+|----------|--------------------------------------------|---------------------|-----------|
+| `text`   | Den Inhalt des `task_content` als `string` | [`string`](#string) | -         |
+
+#### element
+
+Stellt einen Teil einer Lösung einer [Zuordnungsaufgabe](task_definition.md#zuordnungsaufgaben) dar.
+
+Methoden:
+
+| Methoden   | Beschreibung                            | Rückgabetyp     | Parameter |
+|------------|-----------------------------------------|-----------------|-----------|
+| `is_empty` | Ist das Element das "empty" Element `_` | [`bool`](#bool) | -         |
+
+#### single_choice_task
+
+Siehe [Aufgabendefinition: Single Choice](task_definition.md#single-choice-aufgaben).
+
+Member per `.`-Operator zugreifbar:
+
+| Member        | Datentyp            |
+|---------------|---------------------|
+| `description` | [`string`](#string) |
+
+
+Methoden:
+
+| Methoden                      | Beschreibung                                                                                    | Rückgabetyp                      | Parameter                                        |
+|-------------------------------|-------------------------------------------------------------------------------------------------|----------------------------------|--------------------------------------------------|
+| `get_content`                 | Gibt die Antwortoptionen als [`task_content`](#taskcontent)-Liste zurück                        | [`task_content[]`](#taskcontent) | -                                                |
+| `set_scenario_text`           | Setzt die [Szenariobeschreibung](scenario_builder.md#szenario-spezifische-aufgabenbeschreibung) | -                                | [`string`](#string)                              |
+| `set_grading_function`        | Setzt die [Bewertungsfunktion](task_definition.md#single-choice-aufgaben)                       | -                                | `fn (single_choice_task, task_content) -> float` |
+| `set_answer_picking_function` | Setzt die [Antwort-Auswahl-Funktion](scenario_builder.md#antwort-auswahl-funktion)              | -                                | `fn (single_choice_task) -> task_content`        |
+| `is_active`                   | Ist diese Aufgabe aktuell aktiv zur Bearbeitung freigeschaltet?                                 | [`bool`](#bool)                  | -                                                |
+
+#### multiple_choice_task
+
+Siehe [Aufgabendefinition: Multiple Choice](task_definition.md#multiple-choice-aufgaben).
+
+Member per `.`-Operator zugreifbar:
+
+| Member        | Datentyp            |
+|---------------|---------------------|
+| `description` | [`string`](#string) |
+
+
+Methoden:
+
+| Methoden                      | Beschreibung                                                                                    | Rückgabetyp                      | Parameter                                          |
+|-------------------------------|-------------------------------------------------------------------------------------------------|----------------------------------|----------------------------------------------------|
+| `get_content`                 | Gibt die Antwortoptionen als [`task_content`](#taskcontent)-Liste zurück                        | [`task_content[]`](#taskcontent) | -                                                  |
+| `set_scenario_text`           | Setzt die [Szenariobeschreibung](scenario_builder.md#szenario-spezifische-aufgabenbeschreibung) | -                                | [`string`](#string)                                |
+| `set_grading_function`        | Setzt die [Bewertungsfunktion](task_definition.md#multiple-choice-aufgaben)                     | -                                | `fn (multiple_choice_task, task_content) -> float` |
+| `set_answer_picking_function` | Setzt die [Antwort-Auswahl-Funktion](scenario_builder.md#antwort-auswahl-funktion)              | -                                | `fn (multiple_choice_task) -> task_content`        |
+| `is_active`                   | Ist diese Aufgabe aktuell aktiv zur Bearbeitung freigeschaltet?                                 | [`bool`](#bool)                  | -                                                  |
+
+#### assign_task
+
+Siehe [Aufgabendefinition: Zuordnung](task_definition.md#zuordnungsaufgaben).
+
+Member per `.`-Operator zugreifbar:
+
+| Member | Datentyp |
+|--------|----------|
+| -      | -        |
+
+
+Methoden:
+
+| Methoden                      | Beschreibung                                                                                    | Rückgabetyp                        | Parameter                                 |
+|-------------------------------|-------------------------------------------------------------------------------------------------|------------------------------------|-------------------------------------------|
+| `get_solution`                | Gibt die definierte Lösungsmenge als [`[task_content -> taskcontent]`](#taskcontent)-Map zurück | [`[element -> element]`](#element) | -                                         |
+| `set_scenario_text`           | Setzt die [Szenariobeschreibung](scenario_builder.md#szenario-spezifische-aufgabenbeschreibung) | -                                  | [`string`](#string)                       |
+| `set_grading_function`        | Setzt die [Bewertungsfunktion](task_definition.md#zuordnungsaufgaben)                           | -                                  | `fn (assign_task, task_content) -> float` |
+| `set_answer_picking_function` | Setzt die [Antwort-Auswahl-Funktion](scenario_builder.md#antwort-auswahl-funktion)              | -                                  | `fn (assign_task) -> task_content`        |
+| `is_active`                   | Ist diese Aufgabe aktuell aktiv zur Bearbeitung freigeschaltet?                                 | [`bool`](#bool)                    | -                                         |
+
+### Szenario-Spezifische Datentypen
+
+### Komponenten-Datentypen
