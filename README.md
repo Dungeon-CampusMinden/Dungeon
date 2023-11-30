@@ -31,7 +31,7 @@ Die [Dokumentation](dungeon/doc/readme.md) und der [Quickstart](dungeon/doc/quic
 ![](dungeon/doc/dsl/img/quickstart_answer_menu.png)
 
 
-Zur [Demo](https://github.com/Programmiermethoden/Dungeon-StarterKit)
+*   [Starterkit und Demo](https://github.com/Programmiermethoden/Dungeon-StarterKit)
 
 ## Low Code: Blockly-Dungeon
 Dieser Teil des Projekts nutzt Googles Blockly, um eine grafische Low-Code-Benutzeroberfläche zu generieren. Über eine Webschnittstelle (lokal) kann die Spielfigur im Dungeon gesteuert werden, wodurch auch Anwender ohne tiefgreifende Programmierkenntnisse am Erlebnis teilhaben können.
