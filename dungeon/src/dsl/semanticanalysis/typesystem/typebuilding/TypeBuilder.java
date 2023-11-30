@@ -262,9 +262,17 @@ public class TypeBuilder {
         for (var parameter : adapterMethod.getParameters()) {
             // translate parameters type into DSL type system
             Type parametersType = parameter.getType();
-            IType paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersType);
-            if (paramDSLType == null) {
-                var parametersAnnotatedType = parameter.getAnnotatedType();
+            var parametersAnnotatedType = parameter.getAnnotatedType();
+
+            // if the underlying Type of the AnnotatedType is not equal to the plain Type returned
+            // by parameter.getType(), then the parameter is declared with an annotated type (List, Set, Map or
+            // an implementation of a functional interface) and we need to either create a FunctionType from
+            // it (see below) or pass the Type with annotation information to createDSLTypeForJavaTypeInScope
+            var underlyingType = parametersAnnotatedType.getType();
+            boolean typeIsAnnotated = !underlyingType.equals(parametersType);
+
+            IType paramDSLType;
+            if (typeIsAnnotated) {
                 Class<?> parametersClass = (Class<?>) parametersType;
                 if (parametersClass.isAnnotationPresent(FunctionalInterface.class)) {
                     // If the parameters class is annotated with @FunctionalInterface, we need to
@@ -279,26 +287,13 @@ public class TypeBuilder {
                     // which is
                     // not available in the `createDSLTypeForJavaTypeInScope`-method!
                     var parameterizedParameterType =
-                            (ParameterizedType) parameter.getParameterizedType();
+                        (ParameterizedType) parameter.getParameterizedType();
                     paramDSLType = createFunctionType(parameterizedParameterType, parentScope);
-                } else if (List.class.isAssignableFrom((Class<?>) parametersType)) {
-                    // TODO: refactor this to be included in createDSLTypeForJavaTypeInScope, see:
-                    //  https://github.com/Programmiermethoden/Dungeon/issues/917
-                    paramDSLType =
-                            createListType(
-                                    (ParameterizedType) parametersAnnotatedType.getType(),
-                                    parentScope);
-                } else if (Set.class.isAssignableFrom((Class<?>) parametersType)) {
-                    paramDSLType =
-                            createSetType(
-                                    (ParameterizedType) parametersAnnotatedType.getType(),
-                                    parentScope);
-                } else if (Map.class.isAssignableFrom((Class<?>) parametersType)) {
-                    paramDSLType =
-                            createMapType(
-                                    (ParameterizedType) parametersAnnotatedType.getType(),
-                                    parentScope);
+                } else {
+                    paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersAnnotatedType.getType());
                 }
+            } else {
+                paramDSLType = createDSLTypeForJavaTypeInScope(parentScope, parametersType);
             }
 
             String parameterName;
