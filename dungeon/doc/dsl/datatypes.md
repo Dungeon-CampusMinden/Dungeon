@@ -397,4 +397,173 @@ Methoden:
 
 ### Szenario-Spezifische Datentypen
 
+#### entity
+
+Repräsentiert eine Entität im Dungeon.
+
+Member per `.`-Operator zugreifbar:
+
+| Member                   | Datentyp                                          |
+|--------------------------|---------------------------------------------------|
+| `velocity_component`     | [`velocity_component`](#velocitycomponent)        |
+| `position_component`     | [`position_component`](#positioncomponent)        |
+| `draw_component`         | [`draw_component`](#drawcomponent)                |
+| `task_component`         | [`task_component`](#taskcomponent)                |
+| `task_content_component` | [`task_content_component`](#taskcontentcomponent) |
+| `inventory_component`    | [`inventory_component`](#inventorycomponent)      |
+| `interaction_component`  | [`interaction_component`](#interactioncomponent)  |
+
+Methoden:
+
+| Methode                               | Beschreibung                                                                             | Rückgabetyp | Parameter           |
+|---------------------------------------|------------------------------------------------------------------------------------------|-------------|---------------------|
+| `mark_as_task_container_with_element` | Markiert eine Entität als Taskcontainer und verknüpft sie mit einem Element              | -           | (`task`, `element`) |
+| `mark_as_task_container`              | Markiert eine Entität als Taskcontainer und setzt den Namen auf den übergebenen `string` | -           | (`task`, `string`)  |
+
+#### quest_item
+
+Repräsentiert ein QuestItem im Dungeon.
+
 ### Komponenten-Datentypen
+
+#### position_component
+
+Member in `entity_type`-Definition konfigurierbar: -
+
+| Member        | Beschreibung | Datentyp            |
+|---------------|--------------|---------------------|
+| `description` |              | [`string`](#string) |
+
+Member per `.`-Operator zugreifbar: -
+
+| Member        | Datentyp            |
+|---------------|---------------------|
+| `description` | [`string`](#string) |
+
+Methoden: -
+
+| Methoden                      | Beschreibung                                                                                    | Rückgabetyp                        | Parameter                                 |
+|-------------------------------|-------------------------------------------------------------------------------------------------|------------------------------------|-------------------------------------------|
+| `get_solution`                | Gibt die definierte Lösungsmenge als [`[task_content -> taskcontent]`](#taskcontent)-Map zurück | [`[element -> element]`](#element) | -                                         |
+
+#### velocity_component
+
+Member in `entity_type`-Definition konfigurierbar:
+
+| Member       | Beschreibung                           | Datentyp          |
+|--------------|----------------------------------------|-------------------|
+| `x_velocity` | Maximale Geschwindigkeit in x-Richtung | [`float`](#float) |
+| `y_velocity` | Maximale Geschwindigkeit in y-Richtung | [`float`](#float) |
+
+Member per `.`-Operator zugreifbar:
+
+| Member       | Beschreibung                           | Datentyp          |
+|--------------|----------------------------------------|-------------------|
+| `x_velocity` | Maximale Geschwindigkeit in x-Richtung | [`float`](#float) |
+| `y_velocity` | Maximale Geschwindigkeit in y-Richtung | [`float`](#float) |
+
+Methoden: -
+
+#### health_component
+
+Member in `entity_type`-Definition konfigurierbar:
+
+| Member         | Beschreibung                      | Datentyp     |
+|----------------|-----------------------------------|--------------|
+| `on_death`     | Event-Handler für Tod der Entität | `fn(entity)` |
+| `max_health`   | Maximale Gesundheit der Entität   | `int`        |
+| `start_health` | Start-Gesundheit der Entität      | `int`        |
+
+Member per `.`-Operator zugreifbar:
+
+| Member         | Beschreibung                      | Datentyp     |
+|----------------|-----------------------------------|--------------|
+| `on_death`     | Event-Handler für Tod der Entität | `fn(entity)` |
+| `max_health`   | Maximale Gesundheit der Entität   | `int`        |
+| `start_health` | Start-Gesundheit der Entität      | `int`        |
+
+Methoden: -
+
+#### ai_component
+
+Member in `entity_type`-Definition konfigurierbar: -
+
+Member per `.`-Operator zugreifbar: -
+
+Methoden: -
+
+#### interaction_component
+
+Member in `entity_type`-Definition konfigurierbar:
+
+| Member           | Beschreibung                                                      | Datentyp          |
+|------------------|-------------------------------------------------------------------|-------------------|
+| `radius`         | Der Radius um die Entität, in dem mit ihr interagiert werden kann | [`float`](#float) |
+| `on_interaction` | Event-Handler Funktion für Interakton                             | [`float`](#float) |
+
+Member per `.`-Operator zugreifbar:
+
+| Member           | Beschreibung                                                      | Datentyp          |
+|------------------|-------------------------------------------------------------------|-------------------|
+| `radius`         | Der Radius um die Entität, in dem mit ihr interagiert werden kann | [`float`](#float) |
+| `on_interaction` | Event-Handler Funktion für Interakton                             | [`float`](#float) |
+
+Methoden:
+
+| Methoden                      | Beschreibung                                                                                    | Rückgabetyp                        | Parameter                                 |
+|-------------------------------|-------------------------------------------------------------------------------------------------|------------------------------------|-------------------------------------------|
+| `get_solution`                | Gibt die definierte Lösungsmenge als [`[task_content -> taskcontent]`](#taskcontent)-Map zurück | [`[element -> element]`](#element) | -                                         |
+
+#### draw_component
+
+Member in `entity_type`-Definition konfigurierbar: -
+
+Member per `.`-Operator zugreifbar: -
+
+Methoden: -
+
+#### task_component
+
+Member in `entity_type`-Definition konfigurierbar: -
+
+Member per `.`-Operator zugreifbar:
+
+| Member | Beschreibung                                                         | Datentyp                                                            |
+|--------|----------------------------------------------------------------------|---------------------------------------------------------------------|
+| `task` | Der mit dem `task_component` verküpfte task (die Aufgabendefinition) | `task`(`single_choice_task`, `multiple_choice_task`, `assign_task`) |
+
+Methoden: -
+
+#### task_content_component
+
+Member in `entity_type`-Definition konfigurierbar: -
+
+Member per `.`-Operator zugreifbar:
+
+| Member    | Beschreibung                                                  | Datentyp       |
+|-----------|---------------------------------------------------------------|----------------|
+| `content` | Der mit dem `task_content_component` verküpfte `task_content` | `task_content` |
+
+Methoden: -
+
+#### inventory_component
+
+Member in `entity_type`-Definition konfigurierbar: -
+
+Member per `.`-Operator zugreifbar: -
+
+Methoden:
+
+| Methoden     | Beschreibung                                      | Rückgabetyp | Parameter                                            |
+|--------------|---------------------------------------------------|-------------|------------------------------------------------------|
+| `add_item`   | Fügt ein `quest_item` zu dem Inventar hinzu       | -           | `quest_item` (das Item, was hinzugefügt werden soll) |
+| `open`       | Öffnet das Inventar als GUI                       | -           | `entity` (die Entity, welche das Inventar öffnet)    |
+| `drop_items` | Lässt alle enthaltenen Items auf den Boden fallen | -           | -                                                    |
+
+#### hitbox_component
+
+Member in `entity_type`-Definition konfigurierbar: -
+
+Member per `.`-Operator zugreifbar: -
+
+Methoden: -
