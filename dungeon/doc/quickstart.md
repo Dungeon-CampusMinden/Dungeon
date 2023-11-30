@@ -82,13 +82,13 @@ In diesem Beispiel wird zuerst die Single-Choice-Aufgabe gestellt, und nach der 
 ## Schritt 4: Verbreitung
 
 - [ ] `Starter.jar` und die `.dng`-Datei versenden.
-* Starten wie in Schritt 3 beschrieben oder per Skript (siehe unten).
+- [ ] Starten wie in Schritt 3 beschrieben oder per Skript (siehe unten).
 
 ## Start-Skript
 
 Sie können ein einfaches Bash-Skript (Linux/MacOS) oder ein Batch-Skript (Windows) erstellen, um den Start des Spiels zu vereinfachen. Sie können diese Skripte auch verbreiten.
 
-### Bash-Skript
+### Bash-Skript (Windows)
 
 - [ ] Datei `starter.sh` erstellen
 - [ ] Datei in einem Editor Ihrer Wahl öffnen
@@ -100,7 +100,7 @@ Sie können ein einfaches Bash-Skript (Linux/MacOS) oder ein Batch-Skript (Windo
 - [ ] Mit `chmod +x starter.sh` machen Sie das Skript ausführbar
 - [ ] Mit `bash starter.sh` können Sie das Dungeon nun starten.
 
-### Batch-Skript
+### Batch-Skript (Linux/MacOS)
 
 - [ ] Datei `starter.bat` erstellen
 - [ ] Datei in einem Editor Ihrer Wahl öffnen
