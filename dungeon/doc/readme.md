@@ -134,7 +134,7 @@ explizit in der Aufgabendefinition durch Nutzende konfiguriert wird.
 Die einzelne Aufgabendefinition wird noch nicht vom Dungeon-System eingelesen. Um eine Aufgabendefinition
 an das Dungeon-System zu übergeben, muss sie in einem Abhängigkeitsgraph (`graph`) referenziert werden.
 In einem Abhängigkeitsgraph können mehrere Aufgaben miteinander in Abhängigkeit zueinander gesetzt werden
-(siehe dafür [Dokumentation Aufgabenabhängigkeiten (TODO)](https://github.com/Programmiermethoden/Dungeon/issues/1215). Soll eine Aufgabe keine Abhängigkeiten zu anderen Aufgaben
+(siehe dafür [Dokumentation Aufgabenabhängigkeiten](control_mechanisms/petri_nets.md). Soll eine Aufgabe keine Abhängigkeiten zu anderen Aufgaben
 haben, reicht es aus, sie einfach mit ihrem Namen in der `graph`-Definition zu referenzieren.
 
 Der Abhängigkeitsgraph muss anschließend noch in einer `dungeon_config`-Definition referenziert werden.
