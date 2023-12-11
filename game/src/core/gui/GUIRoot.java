@@ -57,7 +57,7 @@ public class GUIRoot {
 
     private void setup() {
         try {
-            Font[] fonts = Font.loadFont(Assets.Fonts.ARIAL, 24);
+            Font[] fonts = Font.loadFont(Assets.Fonts.OPENSANS_REGULAR, 24);
 
             String longText =
                     "By in no ecstatic wondered disposal my speaking. Direct wholly valley or uneasy it at really. Sir wish like said dull and need make. Sportsman one bed departure rapturous situation disposing his. Off say yet ample ten ought hence. Depending in newspaper an september do existence strangers. Total great saw water had mirth happy new. Projecting pianoforte no of partiality is on. Nay besides joy society him totally six.\n"

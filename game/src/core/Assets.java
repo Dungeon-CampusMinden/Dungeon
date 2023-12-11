@@ -24,7 +24,8 @@ public class Assets {
     }
 
     public enum Fonts implements Asset {
-        ARIAL("/fonts/arial.ttf");
+        OPENSANS_REGULAR("/fonts/opensans_regular.ttf"),
+        OPENSANS_VARIABLE("/fonts/opensans_variable.ttf");
 
         private final String path;
 
