@@ -21,6 +21,10 @@ public class GUIText extends GUIElement {
         this.textBounds = this.font.boundingBox(this.text, this.size.x());
     }
 
+    public GUIText(String text) {
+        this(text, Font.DEFAULT_FONT);
+    }
+
     public Font font() {
         return font;
     }
