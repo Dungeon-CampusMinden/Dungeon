@@ -29,6 +29,8 @@ public class Font {
     public static final int CODEPOINT_TABULATOR = 0x0009;
     public static final int CODEPOINT_SPACE = 0x0020;
     public static final int ADDITIONAL_LINE_GAP = 4;
+    public static Font DEFAULT_FONT = null;
+    private static final HashMap<String, Font[]> CACHE = new HashMap<>();
 
     static {
         String wrappingCharacters = ".,:;!?-";
@@ -144,6 +146,11 @@ public class Font {
      */
     private static Font[] loadFont(String ttfFilePath, int fontSize, String charactersToLoad)
             throws IOException {
+
+        if (CACHE.containsKey(ttfFilePath)) {
+            return CACHE.get(ttfFilePath);
+        }
+
         InputStream is = Font.class.getResourceAsStream(ttfFilePath);
         if (is == null) {
             throw new IOException("Font not found at: " + ttfFilePath);
@@ -297,6 +304,7 @@ public class Font {
             ret[fontIndex] = font;
         }
         fontInfo.free();
+        CACHE.put(ttfFilePath, ret);
         return ret;
     }
 

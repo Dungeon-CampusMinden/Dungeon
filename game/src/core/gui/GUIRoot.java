@@ -32,6 +32,11 @@ public class GUIRoot {
 
     public static void init(IGUIBackend backend) {
         instance = new GUIRoot(backend);
+        try {
+            Font.DEFAULT_FONT = Font.loadFont(Assets.Fonts.OPENSANS_REGULAR, 24)[0];
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     private final IGUIBackend backend;
