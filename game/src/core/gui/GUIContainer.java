@@ -116,6 +116,15 @@ public class GUIContainer extends GUIElement {
         return this;
     }
 
+    public IGUILayout layout() {
+        return layout;
+    }
+
+    public GUIContainer layout(IGUILayout layout) {
+        this.layout = layout;
+        return this;
+    }
+
     @Override
     public Vector2f minimalSize() {
         return this.layout.calcMinSize(this, this.elements);
