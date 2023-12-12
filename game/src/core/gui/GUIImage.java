@@ -1,7 +1,6 @@
 package core.gui;
 
 import core.gui.backend.BackendImage;
-import core.gui.math.Vector2f;
 import core.gui.math.Vector4f;
 
 public class GUIImage extends GUIElement {
@@ -39,16 +38,5 @@ public class GUIImage extends GUIElement {
     public GUIImage scaleMode(ScaleMode scaleMode) {
         this.scaleMode = scaleMode;
         return this;
-    }
-
-    @Override
-    public Vector2f minimalSize() {
-        float aspectRatio = (float) this.image.width() / (float) this.image.height();
-        return new Vector2f(100, 100 / aspectRatio);
-    }
-
-    @Override
-    public Vector2f preferredSize() {
-        return new Vector2f(this.image.width(), this.image.height());
     }
 }

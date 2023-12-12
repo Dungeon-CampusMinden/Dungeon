@@ -230,11 +230,11 @@ public class BorderLayout implements IGUILayout {
 
     private Vector2f[] getSizes(GUIElement[] arrangedElements) {
         return new Vector2f[] {
-            arrangedElements[0] != null ? arrangedElements[0].minimalSize() : Vector2f.zero(),
-            arrangedElements[1] != null ? arrangedElements[1].minimalSize() : Vector2f.zero(),
-            arrangedElements[2] != null ? arrangedElements[2].minimalSize() : Vector2f.zero(),
-            arrangedElements[3] != null ? arrangedElements[3].minimalSize() : Vector2f.zero(),
-            arrangedElements[4] != null ? arrangedElements[4].minimalSize() : Vector2f.zero()
+            arrangedElements[0] != null ? arrangedElements[0].size() : Vector2f.zero(),
+            arrangedElements[1] != null ? arrangedElements[1].size() : Vector2f.zero(),
+            arrangedElements[2] != null ? arrangedElements[2].size() : Vector2f.zero(),
+            arrangedElements[3] != null ? arrangedElements[3].size() : Vector2f.zero(),
+            arrangedElements[4] != null ? arrangedElements[4].size() : Vector2f.zero()
         };
     }
 }

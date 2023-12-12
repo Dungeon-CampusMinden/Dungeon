@@ -2,7 +2,6 @@ package core.gui;
 
 import core.gui.events.GUIElementListUpdateEvent;
 import core.gui.layouts.AbsoluteLayout;
-import core.gui.math.Vector2f;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,15 +122,5 @@ public class GUIContainer extends GUIElement {
     public GUIContainer layout(IGUILayout layout) {
         this.layout = layout;
         return this;
-    }
-
-    @Override
-    public Vector2f minimalSize() {
-        return this.layout.calcMinSize(this, this.elements);
-    }
-
-    @Override
-    public Vector2f preferredSize() {
-        return this.minimalSize();
     }
 }

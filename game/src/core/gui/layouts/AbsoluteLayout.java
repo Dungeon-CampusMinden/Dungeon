@@ -16,7 +16,7 @@ public class AbsoluteLayout implements IGUILayout {
         float maxX = 0;
         float maxY = 0;
         for (GUIElement element : elements) {
-            Vector2f minSize = element.minimalSize();
+            Vector2f minSize = element.size();
             float x = element.position().x() + minSize.x();
             float y = element.position().y() + minSize.y();
             maxX = Math.max(maxX, x);

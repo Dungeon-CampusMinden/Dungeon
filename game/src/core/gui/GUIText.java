@@ -106,16 +106,6 @@ public class GUIText extends GUIElement {
     }
 
     @Override
-    public Vector2f preferredSize() {
-        return new Vector2f(500, 200);
-    }
-
-    @Override
-    public Vector2f minimalSize() {
-        return new Vector2f(100, 100);
-    }
-
-    @Override
     public void event(GUIEvent event) {
         super.event(event);
         if (event instanceof GUIScrollEvent scrollEvent) {

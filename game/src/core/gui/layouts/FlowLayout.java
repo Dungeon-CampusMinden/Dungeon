@@ -46,14 +46,14 @@ public class FlowLayout implements IGUILayout {
 
         if (this.direction == FlowDirection.COLUMN) {
             for (GUIElement element : elements) {
-                Vector2f minSize = element.minimalSize();
+                Vector2f minSize = element.size();
                 element.position(pos);
                 element.size(new Vector2f(size.x(), minSize.y()));
                 pos.y(pos.y() + minSize.y() + this.gap);
             }
         } else if (this.direction == FlowDirection.ROW) {
             for (GUIElement element : elements) {
-                Vector2f minSize = element.minimalSize();
+                Vector2f minSize = element.size();
                 element.position(pos);
                 element.size(new Vector2f(minSize.x(), size.y()));
                 pos.x(pos.x() + minSize.x() + this.gap);
@@ -66,13 +66,13 @@ public class FlowLayout implements IGUILayout {
         Vector2f size = Vector2f.zero();
         if (this.direction == FlowDirection.COLUMN) {
             for (GUIElement element : elements) {
-                Vector2f minSize = element.minimalSize();
+                Vector2f minSize = element.size();
                 size.x(Math.max(size.x(), minSize.x()));
                 size.y(size.y() + minSize.y());
             }
         } else if (this.direction == FlowDirection.ROW) {
             for (GUIElement element : elements) {
-                Vector2f minSize = element.minimalSize();
+                Vector2f minSize = element.size();
                 size.x(size.x() + minSize.x());
                 size.y(Math.max(size.y(), minSize.y()));
             }

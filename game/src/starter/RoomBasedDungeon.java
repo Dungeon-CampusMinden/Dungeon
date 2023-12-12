@@ -16,14 +16,11 @@ import core.gui.GUIContainer;
 import core.gui.GUIRoot;
 import core.gui.GUIText;
 import core.gui.layouts.BorderLayout;
+import core.gui.layouts.FlowLayout;
 import core.gui.layouts.hints.BorderLayoutHint;
-import core.gui.layouts.hints.RelativeLayoutHint;
-import core.gui.math.Vector4f;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.utils.components.path.SimpleIPath;
-
-import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -63,26 +60,23 @@ public class RoomBasedDungeon {
 
                     // Create GUI
                     GUIContainer container = GUIRoot.getInstance().rootContainer();
+                    container.layout(new BorderLayout(BorderLayout.BorderLayoutMode.HORIZONTAL));
 
-                    GUIButton button = new GUIButton();
-                    button.layout(new BorderLayout(BorderLayout.BorderLayoutMode.HORIZONTAL));
-                    button.onClick(
-                            (btn, event) -> {
-                                if (event.action == GLFW.GLFW_PRESS) {
-                                    System.out.println("Button clicked: " + event.action);
-                                    btn.backgroundColor(
-                                            new Vector4f(
-                                                    (float) Math.random(),
-                                                    (float) Math.random(),
-                                                    (float) Math.random(),
-                                                    1.0f));
-                                }
-                            });
+                    FlowLayout layout =
+                            new FlowLayout(
+                                    FlowLayout.FlowDirection.ROW, FlowLayout.FlowAlignment.START);
+                    layout.gap(20);
+                    GUIContainer topContainer = new GUIContainer(layout);
 
-                    GUIText buttonText = new GUIText("Test");
-                    button.add(buttonText, BorderLayoutHint.CENTER);
+                    for (int i = 0; i < 10; i++) {
+                        GUIButton button = new GUIButton();
+                        button.layout(new BorderLayout(BorderLayout.BorderLayoutMode.HORIZONTAL));
+                        GUIText text = new GUIText("Test " + i);
+                        button.add(text, BorderLayoutHint.CENTER);
+                        topContainer.add(button);
+                    }
 
-                    container.add(button, new RelativeLayoutHint(0.1f, 0.1f, 0.125f, 0.125f));
+                    container.add(topContainer, BorderLayoutHint.NORTH);
                 });
     }
 

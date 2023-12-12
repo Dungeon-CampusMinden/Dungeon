@@ -16,37 +16,18 @@ public abstract class GUIElement {
     protected Vector4f backgroundColor;
     protected BackendImage backgroundImage;
     protected boolean valid = false;
-    protected Vector2f minimalSize;
 
     public GUIElement() {
         this.position = new Vector2f(0, 0);
         this.size = new Vector2f(0, 0);
-        this.minimalSize = new Vector2f(0, 0);
         this.rotation = new Vector3f(0, 0, 0);
     }
 
-    public GUIElement(Vector2f position, Vector2f size, Vector2f minimalSize, Vector3f rotation) {
+    public GUIElement(Vector2f position, Vector2f size, Vector3f rotation) {
         this.position = position;
         this.size = size;
         this.rotation = rotation;
-        this.minimalSize = minimalSize;
     }
-
-    /**
-     * Get the minimal size of the element.
-     *
-     * @return {@link Vector2f} representing the minimal size.
-     */
-    public Vector2f minimalSize() {
-        return this.minimalSize;
-    }
-
-    /**
-     * Get the preferred size of the element.
-     *
-     * @return {@link Vector2f} representing the preferred size.
-     */
-    public abstract Vector2f preferredSize();
 
     /**
      * Get the position vector
@@ -102,16 +83,6 @@ public abstract class GUIElement {
      */
     public void size(Vector2f size) {
         this.size = size;
-        this.invalidate();
-    }
-
-    /**
-     * Set the minimal size.
-     *
-     * @param minimalSize Vector2f
-     */
-    public final void minimalSize(Vector2f minimalSize) {
-        this.minimalSize = minimalSize;
         this.invalidate();
     }
 

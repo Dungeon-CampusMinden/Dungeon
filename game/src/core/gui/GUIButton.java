@@ -2,7 +2,6 @@ package core.gui;
 
 import core.gui.events.GUIMouseClickEvent;
 import core.gui.events.GUIMouseMoveEvent;
-import core.gui.math.Vector2f;
 import core.gui.math.Vector4f;
 
 import java.util.function.BiConsumer;
@@ -40,14 +39,9 @@ public class GUIButton extends GUIContainer {
 
         if (event instanceof GUIMouseClickEvent mouseClickEvent) {
             if (this.isPointIn(mouseClickEvent.mousePos)) {
-                this.onClick.accept(this, mouseClickEvent);
+                if (this.onClick != null) this.onClick.accept(this, mouseClickEvent);
             }
             return;
         }
-    }
-
-    @Override
-    public Vector2f preferredSize() {
-        return this.layout.calcMinSize(this, this.elements);
     }
 }
