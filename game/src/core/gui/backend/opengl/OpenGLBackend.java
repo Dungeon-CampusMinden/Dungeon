@@ -361,6 +361,9 @@ public class OpenGLBackend implements IGUIBackend {
                 element -> {
                     Class<? extends GUIElement> elementClass = element.getClass();
                     IOpenGLRenderFunction renderFunction = RENDER_FUNCTIONS.get(elementClass);
+                    if (element instanceof GUIContainer) {
+                        renderFunction = RENDER_FUNCTIONS.get(GUIContainer.class);
+                    }
                     if (renderFunction != null) {
                         renderFunction.render(element, guiRenderContext);
                     }
@@ -517,6 +520,7 @@ public class OpenGLBackend implements IGUIBackend {
         RENDER_FUNCTIONS.put(GUIColorPane.class, OpenGLElementRenderers.renderGUIColorPane);
         RENDER_FUNCTIONS.put(GUIImage.class, OpenGLElementRenderers.renderGUIImage);
         RENDER_FUNCTIONS.put(GUIText.class, OpenGLElementRenderers.renderGUIText);
+        RENDER_FUNCTIONS.put(GUIContainer.class, OpenGLElementRenderers.renderGUIContainer);
     }
 
     private void initBuffer() {

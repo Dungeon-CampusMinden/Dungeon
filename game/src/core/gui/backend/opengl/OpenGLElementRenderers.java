@@ -179,6 +179,39 @@ public class OpenGLElementRenderers {
                 validate(element);
             };
 
+    public static final IOpenGLRenderFunction renderGUIContainer =
+            (e, context) -> {
+                GUIContainer element = (GUIContainer) e;
+
+                Matrix4f model = createModelMatrix(element);
+                context.begin();
+
+                GL33.glUniformMatrix4fv(
+                        context.getUniformLocation("uModel"), false, model.toArray());
+
+                int props = PROP_NONE;
+
+                if (element.backgroundColor() != null) {
+                    props |= PROP_HAS_BACKGROUND_COLOR;
+                    GL33.glUniform4fv(
+                            context.getUniformLocation("uBackgroundColor"),
+                            element.backgroundColor().toArray());
+                }
+                if (element.backgroundImage() != null) {
+                    props |= PROP_HAS_BACKGROUND_IMAGE;
+                    GL33.glUniform1i(context.getUniformLocation("uBackgroundTexture"), 0);
+                    GL33.glActiveTexture(GL33.GL_TEXTURE0);
+                    GL33.glBindTexture(
+                            GL33.GL_TEXTURE_2D,
+                            ((OpenGLImage) element.backgroundImage()).glTextureHandle);
+                }
+                GL33.glUniform1i(context.getUniformLocation("uProperties"), props);
+
+                context.draw();
+                context.end();
+                validate(element);
+            };
+
     private static Matrix4f createModelMatrix(GUIElement element) {
         Vector2f absPos = element.absolutePosition();
         Matrix4f model = Matrix4f.identity();
