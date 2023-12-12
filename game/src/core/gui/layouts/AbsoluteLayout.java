@@ -19,8 +19,8 @@ public class AbsoluteLayout implements IGUILayout {
             Vector2f minSize = element.minimalSize();
             float x = element.position().x() + minSize.x();
             float y = element.position().y() + minSize.y();
-            if (x > maxX) maxX = x;
-            if (y > maxY) maxY = y;
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
         }
         return new Vector2f(maxX, maxY);
     }
