@@ -186,11 +186,11 @@ public final class GameLoop extends ScreenAdapter {
         doSetup = false;
         createSystems();
         setupStage();
-        PreRunConfiguration.userOnSetup().execute();
         GUIRoot.init(new OpenGLBackend(new Vector2i(Game.windowWidth(), Game.windowHeight())));
         GUIRoot.getInstanceOptional()
                 .ifPresent(
                         x -> x.event(new GUIResizeEvent(Game.windowWidth(), Game.windowHeight())));
+        PreRunConfiguration.userOnSetup().execute();
     }
 
     /**
