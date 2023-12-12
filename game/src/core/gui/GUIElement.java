@@ -92,6 +92,7 @@ public abstract class GUIElement {
      */
     public void position(Vector2f position) {
         this.position = position;
+        this.invalidate();
     }
 
     /**
@@ -101,10 +102,17 @@ public abstract class GUIElement {
      */
     public void size(Vector2f size) {
         this.size = size;
+        this.invalidate();
     }
 
+    /**
+     * Set the minimal size.
+     *
+     * @param minimalSize Vector2f
+     */
     public final void minimalSize(Vector2f minimalSize) {
         this.minimalSize = minimalSize;
+        this.invalidate();
     }
 
     /**
@@ -114,6 +122,7 @@ public abstract class GUIElement {
      */
     public final void rotation(Vector3f rotation) {
         this.rotation = rotation;
+        this.invalidate();
     }
 
     /**
@@ -141,6 +150,7 @@ public abstract class GUIElement {
      */
     public final GUIElement layoutHint(ILayoutHint hint) {
         this.layoutHint = hint;
+        this.invalidate();
         return this;
     }
 
@@ -161,6 +171,7 @@ public abstract class GUIElement {
      */
     public GUIElement backgroundColor(Vector4f backgroundColor) {
         this.backgroundColor = backgroundColor;
+        this.invalidate();
         return this;
     }
 
