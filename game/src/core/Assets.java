@@ -39,7 +39,7 @@ public class Assets {
         }
     }
 
-    private interface Asset {
+    public interface Asset {
         String path = "";
 
         String path();
