@@ -11,9 +11,19 @@ import contrib.utils.components.Debugger;
 
 import core.Entity;
 import core.Game;
+import core.gui.GUIButton;
+import core.gui.GUIContainer;
+import core.gui.GUIRoot;
+import core.gui.GUIText;
+import core.gui.layouts.BorderLayout;
+import core.gui.layouts.hints.BorderLayoutHint;
+import core.gui.layouts.hints.RelativeLayoutHint;
+import core.gui.math.Vector4f;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.utils.components.path.SimpleIPath;
+
+import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -50,6 +60,29 @@ public class RoomBasedDungeon {
                     setupMusic();
                     Crafting.loadRecipes();
                     createRoomBasedLevel(roomcount, monstercount, chestcount);
+
+                    // Create GUI
+                    GUIContainer container = GUIRoot.getInstance().rootContainer();
+
+                    GUIButton button = new GUIButton();
+                    button.layout(new BorderLayout(BorderLayout.BorderLayoutMode.HORIZONTAL));
+                    button.onClick(
+                            (btn, event) -> {
+                                if (event.action == GLFW.GLFW_PRESS) {
+                                    System.out.println("Button clicked: " + event.action);
+                                    btn.backgroundColor(
+                                            new Vector4f(
+                                                    (float) Math.random(),
+                                                    (float) Math.random(),
+                                                    (float) Math.random(),
+                                                    1.0f));
+                                }
+                            });
+
+                    GUIText buttonText = new GUIText("Test");
+                    button.add(buttonText, BorderLayoutHint.CENTER);
+
+                    container.add(button, new RelativeLayoutHint(0.1f, 0.1f, 0.125f, 0.125f));
                 });
     }
 
