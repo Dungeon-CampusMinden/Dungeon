@@ -11,7 +11,7 @@ public class GUIButton extends GUIContainer {
     private BiConsumer<GUIButton, GUIMouseClickEvent> onClick;
 
     public GUIButton() {
-        this.backgroundColor = new Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
+        this.backgroundColor = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
     }
 
     public BiConsumer<GUIButton, GUIMouseClickEvent> onClick() {
