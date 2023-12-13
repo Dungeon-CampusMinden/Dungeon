@@ -115,6 +115,21 @@ public abstract class GUIElement {
     }
 
     /**
+     * Get the current layout hint as the given class
+     *
+     * @param clazz Class of the layout hint
+     * @return LayoutHint or null if the layout hint is not of the given class
+     * @param <T> Type of the layout hint
+     */
+    public final <T extends ILayoutHint> T layoutHint(Class<T> clazz) {
+        if (clazz.isInstance(this.layoutHint)) {
+            return clazz.cast(this.layoutHint);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Set the current layout hint
      *
      * @param hint LayoutHint
