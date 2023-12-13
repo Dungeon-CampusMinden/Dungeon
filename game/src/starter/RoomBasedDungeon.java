@@ -16,8 +16,10 @@ import core.gui.GUIContainer;
 import core.gui.GUIRoot;
 import core.gui.GUIText;
 import core.gui.layouts.BorderLayout;
-import core.gui.layouts.FlowLayout;
+import core.gui.layouts.FillLayout;
 import core.gui.layouts.hints.BorderLayoutHint;
+import core.gui.layouts.hints.FillLayoutHint;
+import core.gui.math.Vector4f;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.utils.components.path.SimpleIPath;
@@ -62,18 +64,17 @@ public class RoomBasedDungeon {
                     GUIContainer container = GUIRoot.getInstance().rootContainer();
                     container.layout(new BorderLayout(BorderLayout.BorderLayoutMode.HORIZONTAL));
 
-                    FlowLayout layout =
-                            new FlowLayout(
-                                    FlowLayout.FlowDirection.ROW, FlowLayout.FlowAlignment.START);
+                    FillLayout layout = new FillLayout(FillLayout.FlowDirection.ROW);
                     layout.gap(20);
                     GUIContainer topContainer = new GUIContainer(layout);
+                    topContainer.backgroundColor(Vector4f.fromRGBA(0xff0000ff));
 
                     for (int i = 0; i < 10; i++) {
                         GUIButton button = new GUIButton();
                         button.layout(new BorderLayout(BorderLayout.BorderLayoutMode.HORIZONTAL));
                         GUIText text = new GUIText("Test " + i);
                         button.add(text, BorderLayoutHint.CENTER);
-                        topContainer.add(button);
+                        topContainer.add(button, new FillLayoutHint((float) Math.random()));
                     }
 
                     container.add(topContainer, BorderLayoutHint.NORTH);
