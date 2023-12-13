@@ -36,11 +36,6 @@ public class FillLayout implements IGUILayout {
                 });
     }
 
-    @Override
-    public Vector2f calcMinSize(GUIElement parent, List<GUIElement> elements) {
-        return parent.size();
-    }
-
     private void calcSizes(GUIElement parent, List<GUIElement> elements) {
         float totalWeight =
                 elements.stream()

@@ -188,23 +188,6 @@ public class BorderLayout implements IGUILayout {
                 });
     }
 
-    @Override
-    public Vector2f calcMinSize(GUIElement parent, List<GUIElement> elements) {
-        GUIElement[] array = getArrangedElementes(elements);
-        Vector2f[] sizes = getSizes(array);
-
-        float width = 0;
-        float height = 0;
-        height += sizes[0].y(); // North
-        height += sizes[2].y(); // South
-        height += sizes[4].y(); // Center
-        width += sizes[1].x(); // East
-        width += sizes[3].x(); // West
-        width += sizes[4].x(); // Center
-
-        return new Vector2f(width, height);
-    }
-
     private GUIElement[] getArrangedElementes(List<GUIElement> elements) {
         GUIElement[] array = new GUIElement[5];
         elements.forEach(

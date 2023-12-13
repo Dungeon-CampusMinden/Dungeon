@@ -33,9 +33,4 @@ public class RelativeLayout implements IGUILayout {
                                             hint.y * parent.size().y()));
                         });
     }
-
-    @Override
-    public Vector2f calcMinSize(GUIElement parent, List<GUIElement> elements) {
-        return parent.size();
-    }
 }
