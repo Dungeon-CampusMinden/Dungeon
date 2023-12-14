@@ -36,8 +36,6 @@ public class GUIRoot {
     private final IGUIBackend backend;
     private GUIContainer rootContainer;
     private final List<GUIElement> elementList = new ArrayList<>();
-    private boolean updateNextFrame = true;
-    private boolean firstFrame = true;
 
     private GUIRoot(IGUIBackend backend) {
         this.backend = backend;
@@ -47,13 +45,8 @@ public class GUIRoot {
     }
 
     public void render(float delta) {
-        if (firstFrame) {
-            firstFrame = false;
-            this.update();
-            this.updateNextFrame = true;
-        }
-        this.backend.render(this.elementList, this.updateNextFrame);
-        this.updateNextFrame = false;
+        this.update();
+        this.backend.render(this.elementList, true);
     }
 
     public void event(GUIEvent event) {
@@ -73,7 +66,6 @@ public class GUIRoot {
     /** Invalidates the current layout and redraws & updates it. */
     public void update() {
         this.updateElementList(this.elementList, this.rootContainer);
-        this.updateNextFrame = true;
     }
 
     private void updateElementList(List<GUIElement> list, GUIContainer container) {
