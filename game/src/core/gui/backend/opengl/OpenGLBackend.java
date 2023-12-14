@@ -359,10 +359,14 @@ public class OpenGLBackend implements IGUIBackend {
 
         elements.forEach(
                 element -> {
-                    Class<? extends GUIElement> elementClass = element.getClass();
+                    Class<?> elementClass = element.getClass();
                     IOpenGLRenderFunction renderFunction = RENDER_FUNCTIONS.get(elementClass);
-                    if (element instanceof GUIContainer) {
-                        renderFunction = RENDER_FUNCTIONS.get(GUIContainer.class);
+                    while (renderFunction == null) {
+                        elementClass = elementClass.getSuperclass();
+                        if (elementClass == null || elementClass == Object.class) {
+                            break;
+                        }
+                        renderFunction = RENDER_FUNCTIONS.get(elementClass);
                     }
                     if (renderFunction != null) {
                         renderFunction.render(element, guiRenderContext);
