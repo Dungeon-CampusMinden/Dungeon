@@ -32,6 +32,7 @@ public class GUIRootListener {
                             if (cursorPosCallbackI != null)
                                 cursorPosCallbackI.invoke(window, xpos, ypos);
                             Vector2i mousePos = new Vector2i((int) xpos, (int) ypos);
+                            mousePos.y(GUIUtils.getFrameSize().y() - mousePos.y()); // Flip y
                             root.event(new GUIMouseMoveEvent(lastMousePos, mousePos));
                             lastMousePos = mousePos;
                         });
