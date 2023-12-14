@@ -171,6 +171,18 @@ public abstract class GUIElement {
     }
 
     /**
+     * Set the background image
+     *
+     * @param backgroundImage {@link BackendImage}
+     * @return Self {@link GUIElement}
+     */
+    public GUIElement backgroundImage(BackendImage backgroundImage) {
+        this.backgroundImage = backgroundImage;
+        this.invalidate();
+        return this;
+    }
+
+    /**
      * Get if this element is valid or if it has to be redrawn/updated.
      *
      * @return true if valid otherwise false.
