@@ -183,7 +183,7 @@ spotbugsTest {
 spotless {
     java {
         targetExclude("build/generated-src/**")
-        googleJavaFormat().aosp()
+        googleJavaFormat()
     }
 }
 
