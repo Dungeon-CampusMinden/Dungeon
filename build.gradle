@@ -7,6 +7,12 @@ plugins {
     id 'antlr'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 // store name of method parameter names in .class files (used to build
 // DSL-adapter types, which contain the names of the parameters as members)
 tasks.withType(JavaCompile) {
@@ -55,7 +61,7 @@ dependencies {
     antlr "org.antlr:antlr4:4.11.1"
 }
 
-sourceCompatibility = 17
+sourceCompatibility = 21
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
 sourceSets.main.java.srcDirs = ["game/src/", "dungeon/src/", "blockly/src/", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/"]
