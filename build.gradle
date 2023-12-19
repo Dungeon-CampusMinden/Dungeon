@@ -34,7 +34,7 @@ ext {
     // we can not use the + operator here
     gdxVersion = "1.12.1"
     aiVersion = "1.8.2"
-    gsonVersion = "2.9.0"
+    gsonVersion = "2.10.1"
     checkstyleVersion = "10.11.0"
 }
 
