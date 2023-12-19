@@ -5,7 +5,7 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeNameMember
 
 @DSLType
 public class TestClassWithName {
-    @DSLTypeNameMember private String name;
+  @DSLTypeNameMember private String name;
 
-    public TestClassWithName() {}
+  public TestClassWithName() {}
 }

@@ -8,142 +8,139 @@ import contrib.systems.AISystem;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.ProtectOnAttack;
 import contrib.utils.components.health.Damage;
-
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ProtectOnAttackTest {
 
-    private AISystem system;
-    private Entity protector;
+  private AISystem system;
+  private Entity protector;
 
-    private Entity protectedEntity;
-    private Entity attacker;
-    private List<Entity> entitiesToProtect;
-    private HealthComponent entityHC;
-    private int updateCounter;
+  private Entity protectedEntity;
+  private Entity attacker;
+  private List<Entity> entitiesToProtect;
+  private HealthComponent entityHC;
+  private int updateCounter;
 
-    @Before
-    public void setup() {
-        // Get a protector
-        protector = new Entity();
-        Game.add(protector);
+  @Before
+  public void setup() {
+    // Get a protector
+    protector = new Entity();
+    Game.add(protector);
 
-        // Get a victim and its HealthComponent
-        protectedEntity = new Entity();
-        Game.add(protectedEntity);
-        entityHC = new HealthComponent();
-        protectedEntity.add(entityHC);
+    // Get a victim and its HealthComponent
+    protectedEntity = new Entity();
+    Game.add(protectedEntity);
+    entityHC = new HealthComponent();
+    protectedEntity.add(entityHC);
 
-        // Get an attacker
-        attacker = new Entity();
-        attacker.add(new PlayerComponent());
+    // Get an attacker
+    attacker = new Entity();
+    attacker.add(new PlayerComponent());
 
-        // Prepare a list of entities with a HealthComponent
-        entitiesToProtect = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            Entity e = new Entity();
-            e.add(new HealthComponent());
-            entitiesToProtect.add(e);
-            Game.add(e);
-        }
-        updateCounter = 0;
-        system = new AISystem();
+    // Prepare a list of entities with a HealthComponent
+    entitiesToProtect = new ArrayList<>();
+    for (int i = 0; i < 5; i++) {
+      Entity e = new Entity();
+      e.add(new HealthComponent());
+      entitiesToProtect.add(e);
+      Game.add(e);
+    }
+    updateCounter = 0;
+    system = new AISystem();
+  }
+
+  @After
+  public void cleanup() {
+    Game.removeAllSystems();
+    Game.removeAllEntities();
+  }
+
+  /** Add one entity to transition and inflict damage */
+  @Test
+  public void oneEntityAdded() {
+    // given
+    AIComponent attackerAI =
+        new AIComponent(
+            entity -> {
+              updateCounter++;
+            },
+            new RadiusWalk(2, 2),
+            new ProtectOnAttack(protectedEntity));
+    protector.add(attackerAI);
+    // when
+    entityHC.receiveHit(new Damage(1, null, attacker));
+
+    // then
+    system.execute();
+    assertEquals(1, updateCounter);
+  }
+
+  /** Add one entity to transition and inflict no damage */
+  @Test
+  public void oneEntityAddedWithoutDamage() {
+    // given
+    AIComponent attackerAI =
+        new AIComponent(
+            entity -> {
+              updateCounter++;
+            },
+            new RadiusWalk(2, 2),
+            new ProtectOnAttack(protectedEntity));
+    protector.add(attackerAI);
+
+    // then
+    system.execute();
+    assertEquals(0, updateCounter);
+  }
+
+  /** Add a list of entities to the transition and inflict damage to all */
+  @Test
+  public void dmgToAllEntities() {
+    // given
+    AIComponent attackerAI =
+        new AIComponent(
+            entity -> {
+              updateCounter++;
+            },
+            new RadiusWalk(2, 2),
+            new ProtectOnAttack(entitiesToProtect));
+    protector.add(attackerAI);
+    // when
+    for (Entity e : entitiesToProtect) {
+      if (e.fetch(HealthComponent.class).isPresent()) {
+        HealthComponent hCp = e.fetch(HealthComponent.class).get();
+        hCp.receiveHit(new Damage(1, null, attacker));
+      }
     }
 
-    @After
-    public void cleanup() {
-        Game.removeAllSystems();
-        Game.removeAllEntities();
-    }
+    // then
+    system.execute();
+    assertEquals(1, updateCounter);
+  }
 
-    /** Add one entity to transition and inflict damage */
-    @Test
-    public void oneEntityAdded() {
-        // given
-        AIComponent attackerAI =
-                new AIComponent(
-                        entity -> {
-                            updateCounter++;
-                        },
-                        new RadiusWalk(2, 2),
-                        new ProtectOnAttack(protectedEntity));
-        protector.add(attackerAI);
-        // when
-        entityHC.receiveHit(new Damage(1, null, attacker));
+  /** Add an empty list of entities to the transition */
+  @Test
+  public void emptyListOfEntities() {
+    List<Entity> emptyList = new ArrayList<>();
+    // given
+    AIComponent attackerAI =
+        new AIComponent(
+            entity -> {
+              updateCounter++;
+            },
+            new RadiusWalk(2, 2),
+            new ProtectOnAttack(protectedEntity));
 
-        // then
-        system.execute();
-        assertEquals(1, updateCounter);
-    }
-
-    /** Add one entity to transition and inflict no damage */
-    @Test
-    public void oneEntityAddedWithoutDamage() {
-        // given
-        AIComponent attackerAI =
-                new AIComponent(
-                        entity -> {
-                            updateCounter++;
-                        },
-                        new RadiusWalk(2, 2),
-                        new ProtectOnAttack(protectedEntity));
-        protector.add(attackerAI);
-
-        // then
-        system.execute();
-        assertEquals(0, updateCounter);
-    }
-
-    /** Add a list of entities to the transition and inflict damage to all */
-    @Test
-    public void dmgToAllEntities() {
-        // given
-        AIComponent attackerAI =
-                new AIComponent(
-                        entity -> {
-                            updateCounter++;
-                        },
-                        new RadiusWalk(2, 2),
-                        new ProtectOnAttack(entitiesToProtect));
-        protector.add(attackerAI);
-        // when
-        for (Entity e : entitiesToProtect) {
-            if (e.fetch(HealthComponent.class).isPresent()) {
-                HealthComponent hCp = e.fetch(HealthComponent.class).get();
-                hCp.receiveHit(new Damage(1, null, attacker));
-            }
-        }
-
-        // then
-        system.execute();
-        assertEquals(1, updateCounter);
-    }
-
-    /** Add an empty list of entities to the transition */
-    @Test
-    public void emptyListOfEntities() {
-        List<Entity> emptyList = new ArrayList<>();
-        // given
-        AIComponent attackerAI =
-                new AIComponent(
-                        entity -> {
-                            updateCounter++;
-                        },
-                        new RadiusWalk(2, 2),
-                        new ProtectOnAttack(protectedEntity));
-
-        protector.add(attackerAI);
-        // then
-        system.execute();
-        assertEquals(0, updateCounter);
-    }
+    protector.add(attackerAI);
+    // then
+    system.execute();
+    assertEquals(0, updateCounter);
+  }
 }

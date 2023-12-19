@@ -8,10 +8,10 @@ package contrib.crafting;
  */
 public interface CraftingIngredient {
 
-    /**
-     * Check if the Ingredient matches the input.
-     *
-     * @return True if the ingredient matches the input, false otherwise.
-     */
-    boolean match(final CraftingIngredient input);
+  /**
+   * Check if the Ingredient matches the input.
+   *
+   * @return True if the ingredient matches the input, false otherwise.
+   */
+  boolean match(final CraftingIngredient input);
 }

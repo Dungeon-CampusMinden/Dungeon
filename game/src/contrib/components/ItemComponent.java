@@ -1,7 +1,6 @@
 package contrib.components;
 
 import contrib.item.Item;
-
 import core.Component;
 import core.Entity;
 
@@ -36,23 +35,23 @@ import core.Entity;
  * @see contrib.entities.WorldItemBuilder
  */
 public final class ItemComponent implements Component {
-    private final Item itemData;
+  private final Item itemData;
 
-    /**
-     * Creates a new {@link ItemComponent}.
-     *
-     * @param itemData The data of the item to store in this component.
-     */
-    public ItemComponent(final Item itemData) {
-        this.itemData = itemData;
-    }
+  /**
+   * Creates a new {@link ItemComponent}.
+   *
+   * @param itemData The data of the item to store in this component.
+   */
+  public ItemComponent(final Item itemData) {
+    this.itemData = itemData;
+  }
 
-    /**
-     * Gets the {@link Item} of this component.
-     *
-     * @return The {@link Item} stored in this component.
-     */
-    public Item item() {
-        return itemData;
-    }
+  /**
+   * Gets the {@link Item} of this component.
+   *
+   * @return The {@link Item} stored in this component.
+   */
+  public Item item() {
+    return itemData;
+  }
 }

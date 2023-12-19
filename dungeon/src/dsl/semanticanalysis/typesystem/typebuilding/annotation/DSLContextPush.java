@@ -8,10 +8,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface DSLContextPush {
-    /**
-     * The name to use to push this object on the context
-     *
-     * @return
-     */
-    public String name();
+  /**
+   * The name to use to push this object on the context
+   *
+   * @return
+   */
+  public String name();
 }

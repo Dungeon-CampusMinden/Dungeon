@@ -2,7 +2,6 @@ package entrypoint;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
-
 import graph.taskdependencygraph.TaskDependencyGraph;
 
 /**
@@ -14,5 +13,5 @@ import graph.taskdependencygraph.TaskDependencyGraph;
  */
 @DSLType
 public record DungeonConfig(
-        @DSLTypeMember TaskDependencyGraph dependencyGraph,
-        @DSLTypeMember(name = "name") String displayName) {}
+    @DSLTypeMember TaskDependencyGraph dependencyGraph,
+    @DSLTypeMember(name = "name") String displayName) {}

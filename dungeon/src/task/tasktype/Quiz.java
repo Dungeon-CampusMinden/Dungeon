@@ -1,21 +1,18 @@
 package task.tasktype;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import task.Task;
 import task.TaskContent;
 import task.game.hud.QuizUI;
 import task.tasktype.quizquestion.FreeText;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents a single quiz question, including the question itself, possible answer choices, and
@@ -32,186 +29,186 @@ import java.util.Optional;
  * <p>The question will be stored as {@link Content} and can be accessed via {@link #question()}.
  */
 public abstract class Quiz extends Task {
-    private final Content question;
-    private final HashSet<Integer> correctAnswerIndices;
+  private final Content question;
+  private final HashSet<Integer> correctAnswerIndices;
+
+  /**
+   * Create a new {@link Quiz} with the given configuration.
+   *
+   * <p>This will create a new {@link Content} instance as the question reference.
+   *
+   * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(Quiz.Content)} to add
+   * possible answers to the question.
+   *
+   * @param questionText The question itself (can contain a path to images).
+   * @param image The image if this question contains one.
+   */
+  public Quiz(String questionText, Image image) {
+    super();
+    taskText(questionText);
+    question = new Content(questionText, image);
+    question.task(this);
+    this.correctAnswerIndices = new HashSet<>();
+  }
+
+  /**
+   * Mark an answer in the stored content as correct.
+   *
+   * @param index the index of the stored content
+   * @return false, if the index is out of bounds of the stored content or the corresponding content
+   *     was already marked as correct
+   */
+  public boolean addCorrectAnswerIndex(int index) {
+    if (this.content.size() < index) {
+      return false;
+    }
+    return this.correctAnswerIndices.add(index);
+  }
+
+  /**
+   * Remove an index from the correct answer indices.
+   *
+   * @param index the index to remove
+   * @return true, if removing succeeded
+   */
+  public boolean removeCorrectAnswerIndex(int index) {
+    return this.correctAnswerIndices.remove(index);
+  }
+
+  public List<Integer> correctAnswerIndices() {
+    return new ArrayList<>(this.correctAnswerIndices);
+  }
+
+  /**
+   * Create a new {@link Quiz} with the given configuration.
+   *
+   * <p>This will create a new {@link Content} instance as the question reference.
+   *
+   * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(Quiz.Content)} to add
+   * possible answers to the question.
+   *
+   * @param questionText The question itself (can contain a path to images).
+   */
+  public Quiz(String questionText) {
+    this(questionText, null);
+  }
+
+  /**
+   * Add a {@link Content} answer instance as a possible answer for this question.
+   *
+   * <p>If the answer has no task reference yet, the reference will be set to this task and the
+   * answer will be added to this task's content. If the answer already has a task reference, the
+   * answer will not be added to this task's content.
+   *
+   * @param answer The answer (can contain a path to images).
+   * @return true if the answer was added to this task's content, false if not.
+   */
+  public boolean addAnswer(Quiz.Content answer) {
+    if (answer.task(this)) {
+      addContent(answer);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Get the question instance.
+   *
+   * @return The question instance.
+   */
+  public Content question() {
+    return question;
+  }
+
+  @Override
+  public String correctAnswersAsString() {
+    StringBuilder answers = new StringBuilder();
+    correctAnswerIndices.forEach(
+        i -> answers.append(contentByIndex(i).toString()).append(System.lineSeparator()));
+    return answers.toString();
+  }
+
+  /**
+   * Content for a {@link Quiz}-
+   *
+   * <p>Is used as answer and question for a {@link Quiz}.
+   */
+  @DSLType
+  public static class Content extends TaskContent {
+
+    private final Image image;
+    @DSLTypeMember private final String content;
+
+    private final Type type;
 
     /**
-     * Create a new {@link Quiz} with the given configuration.
+     * Creates a new {@link Content}.
      *
-     * <p>This will create a new {@link Content} instance as the question reference.
-     *
-     * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(Quiz.Content)} to add
-     * possible answers to the question.
-     *
-     * @param questionText The question itself (can contain a path to images).
-     * @param image The image if this question contains one.
+     * @param content The answer itself (can contain a path to images).
+     * @param image Image if this content contains one.
      */
-    public Quiz(String questionText, Image image) {
-        super();
-        taskText(questionText);
-        question = new Content(questionText, image);
-        question.task(this);
-        this.correctAnswerIndices = new HashSet<>();
+    public Content(String content, Image image) {
+      super();
+      this.image = image;
+      this.content = content;
+      if (image == null) type = Type.TEXT;
+      else if (!content.equals("")) type = Type.TEXT_AND_IMAGE;
+      else type = Type.IMAGE;
     }
 
     /**
-     * Mark an answer in the stored content as correct.
+     * Creates a new {@link Content}.
      *
-     * @param index the index of the stored content
-     * @return false, if the index is out of bounds of the stored content or the corresponding
-     *     content was already marked as correct
+     * @param content The answer itself (can contain a path to images).
      */
-    public boolean addCorrectAnswerIndex(int index) {
-        if (this.content.size() < index) {
-            return false;
-        }
-        return this.correctAnswerIndices.add(index);
+    public Content(String content) {
+      this(content, null);
     }
 
     /**
-     * Remove an index from the correct answer indices.
+     * Get the content string.
      *
-     * @param index the index to remove
-     * @return true, if removing succeeded
+     * @return The content string.
      */
-    public boolean removeCorrectAnswerIndex(int index) {
-        return this.correctAnswerIndices.remove(index);
-    }
-
-    public List<Integer> correctAnswerIndices() {
-        return new ArrayList<>(this.correctAnswerIndices);
+    public String content() {
+      return content;
     }
 
     /**
-     * Create a new {@link Quiz} with the given configuration.
+     * Get the image associated with this content, if available.
      *
-     * <p>This will create a new {@link Content} instance as the question reference.
-     *
-     * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(Quiz.Content)} to add
-     * possible answers to the question.
-     *
-     * @param questionText The question itself (can contain a path to images).
+     * @return an {@link Optional} containing the image, or an empty {@link Optional} if this task
+     *     does not contain an image.
      */
-    public Quiz(String questionText) {
-        this(questionText, null);
+    public Optional<Image> image() {
+      return Optional.ofNullable(image);
     }
 
     /**
-     * Add a {@link Content} answer instance as a possible answer for this question.
+     * Get the type of the {@link Content}.
      *
-     * <p>If the answer has no task reference yet, the reference will be set to this task and the
-     * answer will be added to this task's content. If the answer already has a task reference, the
-     * answer will not be added to this task's content.
-     *
-     * @param answer The answer (can contain a path to images).
-     * @return true if the answer was added to this task's content, false if not.
+     * @return The type of this content.
      */
-    public boolean addAnswer(Quiz.Content answer) {
-        if (answer.task(this)) {
-            addContent(answer);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Get the question instance.
-     *
-     * @return The question instance.
-     */
-    public Content question() {
-        return question;
+    public Type type() {
+      return type;
     }
 
     @Override
-    public String correctAnswersAsString() {
-        StringBuilder answers = new StringBuilder();
-        correctAnswerIndices.forEach(
-                i -> answers.append(contentByIndex(i).toString()).append(System.lineSeparator()));
-        return answers.toString();
+    public String toString() {
+      return content;
     }
 
     /**
-     * Content for a {@link Quiz}-
-     *
-     * <p>Is used as answer and question for a {@link Quiz}.
+     * The QuizQuestionContentType enum represents the different types of content that can be
+     * associated with a quiz question. The available types are TEXT, IMAGE, and TEXT_AND_IMAGE.
+     * TEXT represents a question or answer choice as text. IMAGE represents a question or answer
+     * choice as an image. TEXT_AND_IMAGE represents a question or answer choice as both text and an
+     * image.
      */
-    @DSLType
-    public static class Content extends TaskContent {
-
-        private final Image image;
-        @DSLTypeMember private final String content;
-
-        private final Type type;
-
-        /**
-         * Creates a new {@link Content}.
-         *
-         * @param content The answer itself (can contain a path to images).
-         * @param image Image if this content contains one.
-         */
-        public Content(String content, Image image) {
-            super();
-            this.image = image;
-            this.content = content;
-            if (image == null) type = Type.TEXT;
-            else if (!content.equals("")) type = Type.TEXT_AND_IMAGE;
-            else type = Type.IMAGE;
-        }
-
-        /**
-         * Creates a new {@link Content}.
-         *
-         * @param content The answer itself (can contain a path to images).
-         */
-        public Content(String content) {
-            this(content, null);
-        }
-
-        /**
-         * Get the content string.
-         *
-         * @return The content string.
-         */
-        public String content() {
-            return content;
-        }
-
-        /**
-         * Get the image associated with this content, if available.
-         *
-         * @return an {@link Optional} containing the image, or an empty {@link Optional} if this
-         *     task does not contain an image.
-         */
-        public Optional<Image> image() {
-            return Optional.ofNullable(image);
-        }
-
-        /**
-         * Get the type of the {@link Content}.
-         *
-         * @return The type of this content.
-         */
-        public Type type() {
-            return type;
-        }
-
-        @Override
-        public String toString() {
-            return content;
-        }
-
-        /**
-         * The QuizQuestionContentType enum represents the different types of content that can be
-         * associated with a quiz question. The available types are TEXT, IMAGE, and TEXT_AND_IMAGE.
-         * TEXT represents a question or answer choice as text. IMAGE represents a question or
-         * answer choice as an image. TEXT_AND_IMAGE represents a question or answer choice as both
-         * text and an image.
-         */
-        public enum Type {
-            TEXT,
-            IMAGE,
-            TEXT_AND_IMAGE
-        }
+    public enum Type {
+      TEXT,
+      IMAGE,
+      TEXT_AND_IMAGE
     }
+  }
 }

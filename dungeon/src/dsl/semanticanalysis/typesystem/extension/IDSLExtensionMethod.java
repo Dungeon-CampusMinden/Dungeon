@@ -3,7 +3,6 @@ package dsl.semanticanalysis.typesystem.extension;
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.callable.IInstanceCallable;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
-
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -19,15 +18,15 @@ import java.util.List;
  */
 public interface IDSLExtensionMethod<T, R> {
 
-    /**
-     * Implementation of the method's logic.
-     *
-     * @param instance the object, which provides the context for the method execution
-     * @param params the List of parameters for the method call.
-     * @return The return value of the method call.
-     */
-    R call(T instance, List<Object> params);
+  /**
+   * Implementation of the method's logic.
+   *
+   * @param instance the object, which provides the context for the method execution
+   * @param params the List of parameters for the method call.
+   * @return The return value of the method call.
+   */
+  R call(T instance, List<Object> params);
 
-    /** Should return an in-order list of the classes, which will be used for the parameters. */
-    List<Type> getParameterTypes();
+  /** Should return an in-order list of the classes, which will be used for the parameters. */
+  List<Type> getParameterTypes();
 }

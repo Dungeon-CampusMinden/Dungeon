@@ -4,23 +4,23 @@ import java.util.List;
 
 public class DotIdList extends Node {
 
-    /**
-     * Return the stored IdNodes of this DotIdList-Node, in order of definition. Will cast each
-     * stored Node to IdNode
-     *
-     * @return a List of IdNodes defined in this DotIdList-Node
-     */
-    public List<IdNode> getIdNodes() {
-        return this.getChildren().stream().map(node -> (IdNode) node).toList();
-    }
+  /**
+   * Return the stored IdNodes of this DotIdList-Node, in order of definition. Will cast each stored
+   * Node to IdNode
+   *
+   * @return a List of IdNodes defined in this DotIdList-Node
+   */
+  public List<IdNode> getIdNodes() {
+    return this.getChildren().stream().map(node -> (IdNode) node).toList();
+  }
 
-    public DotIdList(List<Node> idNodes) {
-        super(Type.DotIdList);
-        idNodes.forEach(this::addChild);
-    }
+  public DotIdList(List<Node> idNodes) {
+    super(Type.DotIdList);
+    idNodes.forEach(this::addChild);
+  }
 
-    @Override
-    public <T> T accept(AstVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
+  @Override
+  public <T> T accept(AstVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }

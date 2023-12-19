@@ -24,56 +24,50 @@ import core.utils.components.MissingComponentException;
  */
 public final class PositionSystem extends System {
 
-    /** Create a new PositionSystem */
-    public PositionSystem() {
-        super(PositionComponent.class);
+  /** Create a new PositionSystem */
+  public PositionSystem() {
+    super(PositionComponent.class);
+  }
+
+  @Override
+  public void execute() {
+    entityStream()
+        .map(this::buildDataObject)
+        .filter(data -> data.pc.position().equals(PositionComponent.ILLEGAL_POSITION))
+        .forEach(this::randomPosition);
+  }
+
+  /**
+   * Assigns a random position to the entity if its current position is illegal. The new position is
+   * a random accessible tile in the current level.
+   *
+   * @param data The PSData object containing entity and position component information.
+   */
+  private void randomPosition(final PSData data) {
+    if (Game.currentLevel() != null) {
+      Coordinate randomPosition = Game.randomTile(LevelElement.FLOOR).coordinate();
+      boolean otherEntityIsOnThisCoordinate =
+          entityStream()
+              .map(this::buildDataObject)
+              .anyMatch(psData -> psData.pc().position().toCoordinate().equals(randomPosition));
+      if (!otherEntityIsOnThisCoordinate) {
+        Point position = randomPosition.toPoint();
+        // place on center
+        position.x += 0.5f;
+        position.y += 0.5f;
+        data.pc().position(position);
+      } else randomPosition(data);
     }
+  }
 
-    @Override
-    public void execute() {
-        entityStream()
-                .map(this::buildDataObject)
-                .filter(data -> data.pc.position().equals(PositionComponent.ILLEGAL_POSITION))
-                .forEach(this::randomPosition);
-    }
+  private PSData buildDataObject(final Entity e) {
 
-    /**
-     * Assigns a random position to the entity if its current position is illegal. The new position
-     * is a random accessible tile in the current level.
-     *
-     * @param data The PSData object containing entity and position component information.
-     */
-    private void randomPosition(final PSData data) {
-        if (Game.currentLevel() != null) {
-            Coordinate randomPosition = Game.randomTile(LevelElement.FLOOR).coordinate();
-            boolean otherEntityIsOnThisCoordinate =
-                    entityStream()
-                            .map(this::buildDataObject)
-                            .anyMatch(
-                                    psData ->
-                                            psData.pc()
-                                                    .position()
-                                                    .toCoordinate()
-                                                    .equals(randomPosition));
-            if (!otherEntityIsOnThisCoordinate) {
-                Point position = randomPosition.toPoint();
-                // place on center
-                position.x += 0.5f;
-                position.y += 0.5f;
-                data.pc().position(position);
-            } else randomPosition(data);
-        }
-    }
+    PositionComponent pc =
+        e.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
 
-    private PSData buildDataObject(final Entity e) {
+    return new PSData(e, pc);
+  }
 
-        PositionComponent pc =
-                e.fetch(PositionComponent.class)
-                        .orElseThrow(
-                                () -> MissingComponentException.build(e, PositionComponent.class));
-
-        return new PSData(e, pc);
-    }
-
-    private record PSData(Entity e, PositionComponent pc) {}
+  private record PSData(Entity e, PositionComponent pc) {}
 }

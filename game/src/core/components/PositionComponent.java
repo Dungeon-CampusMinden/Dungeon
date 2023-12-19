@@ -3,7 +3,6 @@ package core.components;
 import core.Component;
 import core.level.Tile;
 import core.utils.Point;
-
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 
 /**
@@ -29,68 +28,68 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 @DSLType(name = "position_component")
 public final class PositionComponent implements Component {
 
-    public static final Point ILLEGAL_POSITION = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
-    private Point position;
+  public static final Point ILLEGAL_POSITION = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
+  private Point position;
 
-    /**
-     * Create a new PositionComponent with given position.
-     *
-     * <p>Sets the position to the given point.
-     *
-     * @param position The position in the level.
-     */
-    public PositionComponent(final Point position) {
-        this.position = position;
-    }
+  /**
+   * Create a new PositionComponent with given position.
+   *
+   * <p>Sets the position to the given point.
+   *
+   * @param position The position in the level.
+   */
+  public PositionComponent(final Point position) {
+    this.position = position;
+  }
 
-    /**
-     * Create a new PositionComponent.
-     *
-     * <p>Sets the position to a point with the given x and y positions.
-     *
-     * @param x x-position
-     * @param y y-position
-     */
-    public PositionComponent(float x, float y) {
-        this(new Point(x, y));
-    }
+  /**
+   * Create a new PositionComponent.
+   *
+   * <p>Sets the position to a point with the given x and y positions.
+   *
+   * @param x x-position
+   * @param y y-position
+   */
+  public PositionComponent(float x, float y) {
+    this(new Point(x, y));
+  }
 
-    /**
-     * Creates a new PositionComponent with a random position.
-     *
-     * <p>Sets the position of this entity to {@link #ILLEGAL_POSITION}. Keep in mind that if the
-     * associated entity is processed by the {@link core.systems.PositionSystem}, {@link
-     * #ILLEGAL_POSITION} will be replaced with a random accessible position.
-     */
-    public PositionComponent() {
-        position = ILLEGAL_POSITION;
-    }
+  /**
+   * Creates a new PositionComponent with a random position.
+   *
+   * <p>Sets the position of this entity to {@link #ILLEGAL_POSITION}. Keep in mind that if the
+   * associated entity is processed by the {@link core.systems.PositionSystem}, {@link
+   * #ILLEGAL_POSITION} will be replaced with a random accessible position.
+   */
+  public PositionComponent() {
+    position = ILLEGAL_POSITION;
+  }
 
-    /**
-     * Get the position.
-     *
-     * @return The position.
-     */
-    public Point position() {
-        return new Point(position);
-    }
+  /**
+   * Get the position.
+   *
+   * @return The position.
+   */
+  public Point position() {
+    return new Point(position);
+  }
 
-    /**
-     * Set the position.
-     *
-     * @param position new Position
-     */
-    public void position(final Point position) {
-        this.position = new Point(position);
-    }
+  /**
+   * Set the position.
+   *
+   * @param position new Position
+   */
+  public void position(final Point position) {
+    this.position = new Point(position);
+  }
 
-    /**
-     * Set the position
-     *
-     * @param tile The tile where the new position is located.
-     * @see Tile
-     */
-    public void position(final Tile tile) {
-        position(tile.position());
-    }
+  /**
+   * Set the position
+   *
+   * @param tile The tile where the new position is located.
+   * @see Tile
+   */
+  public void position(final Tile tile) {
+    position(tile.position());
+  }
 }

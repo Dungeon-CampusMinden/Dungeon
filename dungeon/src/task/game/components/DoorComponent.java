@@ -2,7 +2,6 @@ package task.game.components;
 
 import core.Component;
 import core.level.elements.tile.DoorTile;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,23 +19,23 @@ import java.util.Set;
  */
 public final class DoorComponent implements Component {
 
-    private final Set<DoorTile> doors;
+  private final Set<DoorTile> doors;
 
-    /**
-     * Creates a new DoorOpenerComponent.
-     *
-     * @param doors The DoorTiles to store in this component.
-     */
-    public DoorComponent(final Set<DoorTile> doors) {
-        this.doors = doors;
-    }
+  /**
+   * Creates a new DoorOpenerComponent.
+   *
+   * @param doors The DoorTiles to store in this component.
+   */
+  public DoorComponent(final Set<DoorTile> doors) {
+    this.doors = doors;
+  }
 
-    /**
-     * Returns the stored doorTiles in this component.
-     *
-     * @return The DoorTiles stored in this component.
-     */
-    public Set<DoorTile> doors() {
-        return new HashSet<>(doors);
-    }
+  /**
+   * Returns the stored doorTiles in this component.
+   *
+   * @return The DoorTiles stored in this component.
+   */
+  public Set<DoorTile> doors() {
+    return new HashSet<>(doors);
+  }
 }

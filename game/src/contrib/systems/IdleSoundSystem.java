@@ -2,12 +2,9 @@ package contrib.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
-
 import contrib.components.IdleSoundComponent;
-
 import core.System;
 import core.utils.components.MissingComponentException;
-
 import java.util.Random;
 
 /**
@@ -20,36 +17,32 @@ import java.util.Random;
  */
 public final class IdleSoundSystem extends System {
 
-    private static final Random RANDOM = new Random();
+  private static final Random RANDOM = new Random();
 
-    /** Create a new {@link IdleSoundSystem}. */
-    public IdleSoundSystem() {
-        super(IdleSoundComponent.class);
-    }
+  /** Create a new {@link IdleSoundSystem}. */
+  public IdleSoundSystem() {
+    super(IdleSoundComponent.class);
+  }
 
-    @Override
-    public void execute() {
-        entityStream()
-                .forEach(
-                        e ->
-                                playSound(
-                                        e.fetch(IdleSoundComponent.class)
-                                                .orElseThrow(
-                                                        () ->
-                                                                MissingComponentException.build(
-                                                                        e,
-                                                                        IdleSoundComponent
-                                                                                .class))));
-    }
+  @Override
+  public void execute() {
+    entityStream()
+        .forEach(
+            e ->
+                playSound(
+                    e.fetch(IdleSoundComponent.class)
+                        .orElseThrow(
+                            () -> MissingComponentException.build(e, IdleSoundComponent.class))));
+  }
 
-    private void playSound(final IdleSoundComponent component) {
-        float chanceToPlaySound = 0.001f;
-        if (RANDOM.nextFloat(0f, 1f) < chanceToPlaySound) {
-            Sound soundEffect =
-                    Gdx.audio.newSound(Gdx.files.internal(component.soundEffect().pathString()));
-            long soundID = soundEffect.play();
-            soundEffect.setLooping(soundID, false);
-            soundEffect.setVolume(soundID, 0.35f);
-        }
+  private void playSound(final IdleSoundComponent component) {
+    float chanceToPlaySound = 0.001f;
+    if (RANDOM.nextFloat(0f, 1f) < chanceToPlaySound) {
+      Sound soundEffect =
+          Gdx.audio.newSound(Gdx.files.internal(component.soundEffect().pathString()));
+      long soundID = soundEffect.play();
+      soundEffect.setLooping(soundID, false);
+      soundEffect.setVolume(soundID, 0.35f);
     }
+  }
 }

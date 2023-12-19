@@ -3,30 +3,29 @@ package dsl.interpreter.mockecs;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLCallback;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
-
 import java.util.List;
 import java.util.function.Function;
 
 @DSLType
 public class TestComponentListCallback extends Component {
-    private Entity entity;
+  private Entity entity;
 
-    public Entity getEntity() {
-        return entity;
-    }
+  public Entity getEntity() {
+    return entity;
+  }
 
-    @DSLCallback private Function<List<Entity>, Boolean> onInteraction;
+  @DSLCallback private Function<List<Entity>, Boolean> onInteraction;
 
-    public Function<List<Entity>, Boolean> getOnInteraction() {
-        return onInteraction;
-    }
+  public Function<List<Entity>, Boolean> getOnInteraction() {
+    return onInteraction;
+  }
 
-    public TestComponentListCallback(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity);
-        this.entity = entity;
-    }
+  public TestComponentListCallback(@DSLContextMember(name = "entity") Entity entity) {
+    super(entity);
+    this.entity = entity;
+  }
 
-    public Boolean executeCallbackWithText(List<Entity> entities) {
-        return onInteraction.apply(entities);
-    }
+  public Boolean executeCallbackWithText(List<Entity> entities) {
+    return onInteraction.apply(entities);
+  }
 }

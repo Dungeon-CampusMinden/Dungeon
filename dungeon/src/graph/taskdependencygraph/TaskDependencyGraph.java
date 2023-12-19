@@ -20,35 +20,35 @@ import java.util.Iterator;
  * <p>You can obtain an iterator over all nodes using {@link #nodeIterator()}.
  */
 public class TaskDependencyGraph {
-    private final ArrayList<TaskEdge> edges;
-    private final ArrayList<TaskNode> nodes;
+  private final ArrayList<TaskEdge> edges;
+  private final ArrayList<TaskNode> nodes;
 
-    /**
-     * Create a TaskDependencyGraph.
-     *
-     * @param edges All edges in the graph.
-     * @param nodes All nodes in the graph.
-     */
-    public TaskDependencyGraph(ArrayList<TaskEdge> edges, ArrayList<TaskNode> nodes) {
-        this.edges = edges;
-        this.nodes = nodes;
-    }
+  /**
+   * Create a TaskDependencyGraph.
+   *
+   * @param edges All edges in the graph.
+   * @param nodes All nodes in the graph.
+   */
+  public TaskDependencyGraph(ArrayList<TaskEdge> edges, ArrayList<TaskNode> nodes) {
+    this.edges = edges;
+    this.nodes = nodes;
+  }
 
-    /**
-     * Returns an iterator that can be used to traverse through all the edges in the graph.
-     *
-     * @return An iterator over all edges in the graph.
-     */
-    public Iterator<TaskEdge> edgeIterator() {
-        return edges.iterator();
-    }
+  /**
+   * Returns an iterator that can be used to traverse through all the edges in the graph.
+   *
+   * @return An iterator over all edges in the graph.
+   */
+  public Iterator<TaskEdge> edgeIterator() {
+    return edges.iterator();
+  }
 
-    /**
-     * Returns an iterator that can be used to traverse through all the nodes in the graph.
-     *
-     * @return An iterator over all nodes in the graph.
-     */
-    public Iterator<TaskNode> nodeIterator() {
-        return nodes.iterator();
-    }
+  /**
+   * Returns an iterator that can be used to traverse through all the nodes in the graph.
+   *
+   * @return An iterator over all nodes in the graph.
+   */
+  public Iterator<TaskNode> nodeIterator() {
+    return nodes.iterator();
+  }
 }

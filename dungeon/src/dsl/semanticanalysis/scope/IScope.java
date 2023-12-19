@@ -23,58 +23,57 @@ package dsl.semanticanalysis.scope;
 
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-
 import java.util.List;
 
 /** Represents the capabilities of a scope. */
 public interface IScope {
-    /**
-     * Binds the symbol to this scope
-     *
-     * @param symbol The symbol to bind
-     * @return True on success (the symbols was not previously bound to this scope) and false
-     *     otherwise
-     */
-    boolean bind(Symbol symbol);
+  /**
+   * Binds the symbol to this scope
+   *
+   * @param symbol The symbol to bind
+   * @return True on success (the symbols was not previously bound to this scope) and false
+   *     otherwise
+   */
+  boolean bind(Symbol symbol);
 
-    /**
-     * Try to resolve a name in this scope or the parent scopes.
-     *
-     * @param name The name to resolve
-     * @return The symbol with the name or Symbol.NULL, if the symbol could not be resolved
-     */
-    Symbol resolve(String name);
+  /**
+   * Try to resolve a name in this scope or the parent scopes.
+   *
+   * @param name The name to resolve
+   * @return The symbol with the name or Symbol.NULL, if the symbol could not be resolved
+   */
+  Symbol resolve(String name);
 
-    /**
-     * Try to resolve a name in this scope or the parent scopes.
-     *
-     * @param name The name to resolve
-     * @return The symbol with the name or Symbol.NULL, if the symbol could not be resolved
-     */
-    Symbol resolve(String name, boolean resolveInParent);
+  /**
+   * Try to resolve a name in this scope or the parent scopes.
+   *
+   * @param name The name to resolve
+   * @return The symbol with the name or Symbol.NULL, if the symbol could not be resolved
+   */
+  Symbol resolve(String name, boolean resolveInParent);
 
-    /**
-     * Get all symbols of this scope in a List
-     *
-     * @return List containing all symbols in this scope.
-     */
-    List<Symbol> getSymbols();
+  /**
+   * Get all symbols of this scope in a List
+   *
+   * @return List containing all symbols in this scope.
+   */
+  List<Symbol> getSymbols();
 
-    /**
-     * Get the parent scope of this scope.
-     *
-     * @return The parent scope.
-     */
-    IScope getParent();
+  /**
+   * Get the parent scope of this scope.
+   *
+   * @return The parent scope.
+   */
+  IScope getParent();
 
-    default IType resolveType(String name) {
-        var resolvedType = resolve(name, true);
-        if (resolvedType == Symbol.NULL) {
-            throw new RuntimeException("Type '" + name + "' could not be resolved");
-        } else if (!(resolvedType instanceof IType)) {
-            throw new RuntimeException("Symbol of name '" + name + "' is no type");
-        } else {
-            return (IType) resolvedType;
-        }
+  default IType resolveType(String name) {
+    var resolvedType = resolve(name, true);
+    if (resolvedType == Symbol.NULL) {
+      throw new RuntimeException("Type '" + name + "' could not be resolved");
+    } else if (!(resolvedType instanceof IType)) {
+      throw new RuntimeException("Symbol of name '" + name + "' is no type");
+    } else {
+      return (IType) resolvedType;
     }
+  }
 }

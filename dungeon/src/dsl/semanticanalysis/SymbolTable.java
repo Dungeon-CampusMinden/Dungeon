@@ -24,149 +24,146 @@ package dsl.semanticanalysis;
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /** The results of semantic analysis done by SymbolTableParser */
 public class SymbolTable {
-    /** The global scope of the program */
-    IScope globalScope;
-    /** Store all symbols in a key-value store for easy referencing by their index */
-    private final HashMap<Integer, Symbol> symbolIdxToSymbol;
+  /** The global scope of the program */
+  IScope globalScope;
+  /** Store all symbols in a key-value store for easy referencing by their index */
+  private final HashMap<Integer, Symbol> symbolIdxToSymbol;
 
-    /** Store all referenced astNodes in a key-value store for easy referencing by their index */
-    private final HashMap<Integer, Node> astNodeIdxToAstNode;
+  /** Store all referenced astNodes in a key-value store for easy referencing by their index */
+  private final HashMap<Integer, Node> astNodeIdxToAstNode;
 
-    /**
-     * Creates an association between a specific AST node (by index) and a symbol (by index) -> e.g.
-     * "which symbol is referenced by the identifier in a specific AST node?"
-     */
-    private final HashMap<Integer, ArrayList<Integer>> astNodeSymbolRelation;
+  /**
+   * Creates an association between a specific AST node (by index) and a symbol (by index) -> e.g.
+   * "which symbol is referenced by the identifier in a specific AST node?"
+   */
+  private final HashMap<Integer, ArrayList<Integer>> astNodeSymbolRelation;
 
-    /**
-     * Creates an association between a specific symbol (by Idx) and an ast node (by index) -> e.g.
-     * "by which ast node was this symbol created?"
-     */
-    private final HashMap<Integer, Integer> symbolToAstNodeRelation;
+  /**
+   * Creates an association between a specific symbol (by Idx) and an ast node (by index) -> e.g.
+   * "by which ast node was this symbol created?"
+   */
+  private final HashMap<Integer, Integer> symbolToAstNodeRelation;
 
-    /**
-     * Getter for the global {@link IScope}, which is the topmost scope in the scope stack
-     *
-     * @return the global {@link IScope}
-     */
-    public IScope globalScope() {
-        return globalScope;
+  /**
+   * Getter for the global {@link IScope}, which is the topmost scope in the scope stack
+   *
+   * @return the global {@link IScope}
+   */
+  public IScope globalScope() {
+    return globalScope;
+  }
+
+  /**
+   * Add an association between symbol and AST node. The nodeOfSymbol passed to this method with a
+   * symbol, which was not previously passed, will be treated as the node, which created the symbol
+   *
+   * @param symbol The symbol
+   * @param nodeOfSymbol The AST Node, which references the symbol
+   */
+  public void addSymbolNodeRelation(Symbol symbol, Node nodeOfSymbol, boolean isNodeCreationNode) {
+    if (!astNodeSymbolRelation.containsKey(nodeOfSymbol.getIdx())) {
+      astNodeSymbolRelation.put(nodeOfSymbol.getIdx(), new ArrayList<>());
     }
 
-    /**
-     * Add an association between symbol and AST node. The nodeOfSymbol passed to this method with a
-     * symbol, which was not previously passed, will be treated as the node, which created the
-     * symbol
-     *
-     * @param symbol The symbol
-     * @param nodeOfSymbol The AST Node, which references the symbol
-     */
-    public void addSymbolNodeRelation(
-            Symbol symbol, Node nodeOfSymbol, boolean isNodeCreationNode) {
-        if (!astNodeSymbolRelation.containsKey(nodeOfSymbol.getIdx())) {
-            astNodeSymbolRelation.put(nodeOfSymbol.getIdx(), new ArrayList<>());
-        }
+    // TODO: are there situations, in which multiple symbols are associated with the same
+    // AST-Node?
+    //  if not, this could be simplified
+    astNodeSymbolRelation.get(nodeOfSymbol.getIdx()).add(symbol.getIdx());
 
-        // TODO: are there situations, in which multiple symbols are associated with the same
-        // AST-Node?
-        //  if not, this could be simplified
-        astNodeSymbolRelation.get(nodeOfSymbol.getIdx()).add(symbol.getIdx());
-
-        if (isNodeCreationNode) {
-            setCreationAstNode(symbol, nodeOfSymbol);
-        }
-
-        /*
-        // treat the first astNodeToSymbol relation as the creationASTNode
-        if (!symbolIdxToSymbol.containsKey(symbol.getIdx())) {
-            symbolToAstNodeRelation.put(symbol.getIdx(), nodeOfSymbol.getIdx());
-        }*/
-
-        symbolIdxToSymbol.put(symbol.getIdx(), symbol);
-        astNodeIdxToAstNode.put(nodeOfSymbol.getIdx(), nodeOfSymbol);
+    if (isNodeCreationNode) {
+      setCreationAstNode(symbol, nodeOfSymbol);
     }
 
-    /**
-     * Try to get the Symbol referenced by a specific AST node
-     *
-     * @param node The AST node
-     * @return The Symbol referenced by node, or Symbol.NULL, if no Symbol could be found
-     */
-    public ArrayList<Symbol> getSymbolsForAstNode(Node node) {
-        if (!astNodeSymbolRelation.containsKey(node.getIdx())) {
-            // TODO: just empty list?
-            var list = new ArrayList<Symbol>();
-            list.add(Symbol.NULL);
-            return list;
-        }
+    /*
+    // treat the first astNodeToSymbol relation as the creationASTNode
+    if (!symbolIdxToSymbol.containsKey(symbol.getIdx())) {
+        symbolToAstNodeRelation.put(symbol.getIdx(), nodeOfSymbol.getIdx());
+    }*/
 
-        var symbolIdxs = astNodeSymbolRelation.get(node.getIdx());
-        var returnList = new ArrayList<Symbol>();
-        for (int idx : symbolIdxs) {
-            if (symbolIdxToSymbol.containsKey(idx)) {
-                var symbol = symbolIdxToSymbol.get(idx);
-                // TODO: why is this a list? if every AST-Node is ever associated with at most one
-                //  symbol, this could be simplified -> not to be confused with the likely reference
-                // of one symbol by
-                //  multiple AST-Nodes
-                returnList.add(symbol);
-            }
-        }
-        return returnList;
+    symbolIdxToSymbol.put(symbol.getIdx(), symbol);
+    astNodeIdxToAstNode.put(nodeOfSymbol.getIdx(), nodeOfSymbol);
+  }
+
+  /**
+   * Try to get the Symbol referenced by a specific AST node
+   *
+   * @param node The AST node
+   * @return The Symbol referenced by node, or Symbol.NULL, if no Symbol could be found
+   */
+  public ArrayList<Symbol> getSymbolsForAstNode(Node node) {
+    if (!astNodeSymbolRelation.containsKey(node.getIdx())) {
+      // TODO: just empty list?
+      var list = new ArrayList<Symbol>();
+      list.add(Symbol.NULL);
+      return list;
     }
 
-    private void setCreationAstNode(Symbol symbol, Node creationNode) {
-        symbolToAstNodeRelation.put(symbol.getIdx(), creationNode.getIdx());
+    var symbolIdxs = astNodeSymbolRelation.get(node.getIdx());
+    var returnList = new ArrayList<Symbol>();
+    for (int idx : symbolIdxs) {
+      if (symbolIdxToSymbol.containsKey(idx)) {
+        var symbol = symbolIdxToSymbol.get(idx);
+        // TODO: why is this a list? if every AST-Node is ever associated with at most one
+        //  symbol, this could be simplified -> not to be confused with the likely reference
+        // of one symbol by
+        //  multiple AST-Nodes
+        returnList.add(symbol);
+      }
+    }
+    return returnList;
+  }
+
+  private void setCreationAstNode(Symbol symbol, Node creationNode) {
+    symbolToAstNodeRelation.put(symbol.getIdx(), creationNode.getIdx());
+  }
+
+  /**
+   * Gets the AST Node, which was passed to {@link #addSymbolNodeRelation(Symbol, Node, boolean)}
+   * the first time the symbol was passed to that method, which will be treated as the AST Node,
+   * which creates the Symbol
+   *
+   * @param symbol The symbol to get the creation AST node for
+   * @return The creation AST node or Node.NONE, if none could be found for the passed symbol
+   */
+  public Node getCreationAstNode(Symbol symbol) {
+    if (!symbolToAstNodeRelation.containsKey(symbol.getIdx())) {
+      return Node.NONE;
     }
 
-    /**
-     * Gets the AST Node, which was passed to {@link #addSymbolNodeRelation(Symbol, Node, boolean)}
-     * the first time the symbol was passed to that method, which will be treated as the AST Node,
-     * which creates the Symbol
-     *
-     * @param symbol The symbol to get the creation AST node for
-     * @return The creation AST node or Node.NONE, if none could be found for the passed symbol
-     */
-    public Node getCreationAstNode(Symbol symbol) {
-        if (!symbolToAstNodeRelation.containsKey(symbol.getIdx())) {
-            return Node.NONE;
-        }
-
-        var astNodeIdx = symbolToAstNodeRelation.get(symbol.getIdx());
-        if (!astNodeIdxToAstNode.containsKey(astNodeIdx)) {
-            return Node.NONE;
-        }
-
-        return astNodeIdxToAstNode.get(astNodeIdx);
+    var astNodeIdx = symbolToAstNodeRelation.get(symbol.getIdx());
+    if (!astNodeIdxToAstNode.containsKey(astNodeIdx)) {
+      return Node.NONE;
     }
 
-    /**
-     * Get the {@link Symbol} with passed index
-     *
-     * @param idx the index of the {@link Symbol} to get
-     * @return the {@link Symbol} with passed index or Symbol.NULL, if no symbol with given index
-     *     exists
-     */
-    public Symbol getSymbolByIdx(int idx) {
-        return symbolIdxToSymbol.getOrDefault(idx, Symbol.NULL);
-    }
+    return astNodeIdxToAstNode.get(astNodeIdx);
+  }
 
-    /**
-     * Constructor
-     *
-     * @param globalScope the global scope to use for this symbol Table
-     */
-    public SymbolTable(IScope globalScope) {
-        this.globalScope = globalScope;
-        astNodeSymbolRelation = new HashMap<>();
-        symbolIdxToSymbol = new HashMap<>();
-        astNodeIdxToAstNode = new HashMap<>();
-        symbolToAstNodeRelation = new HashMap<>();
-    }
+  /**
+   * Get the {@link Symbol} with passed index
+   *
+   * @param idx the index of the {@link Symbol} to get
+   * @return the {@link Symbol} with passed index or Symbol.NULL, if no symbol with given index
+   *     exists
+   */
+  public Symbol getSymbolByIdx(int idx) {
+    return symbolIdxToSymbol.getOrDefault(idx, Symbol.NULL);
+  }
+
+  /**
+   * Constructor
+   *
+   * @param globalScope the global scope to use for this symbol Table
+   */
+  public SymbolTable(IScope globalScope) {
+    this.globalScope = globalScope;
+    astNodeSymbolRelation = new HashMap<>();
+    symbolIdxToSymbol = new HashMap<>();
+    astNodeIdxToAstNode = new HashMap<>();
+    symbolToAstNodeRelation = new HashMap<>();
+  }
 }

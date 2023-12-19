@@ -6,7 +6,6 @@ import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,48 +14,48 @@ import java.util.List;
 //  'TestEnvironment' would be a parallel implementation, not a deriving implementation
 public class TestEnvironment extends GameEnvironment {
 
-    @Override
-    public TypeBuilder getTypeBuilder() {
-        return super.getTypeBuilder();
-    }
+  @Override
+  public TypeBuilder getTypeBuilder() {
+    return super.getTypeBuilder();
+  }
 
-    public TestEnvironment() {
-        super();
+  public TestEnvironment() {
+    super();
 
-        // build scenario builder return type
-        Symbol entityTypeSymbol = this.getGlobalScope().resolve("entity");
-        // if (entityTypeSymbol != Symbol.NULL) {
-        IType entityType = (IType) entityTypeSymbol;
-        IType entitySetType = new SetType(entityType, this.getGlobalScope());
-        this.loadTypes(entitySetType);
-        IType entitySetSetType = new SetType(entitySetType, this.getGlobalScope());
-        this.loadTypes(entitySetSetType);
-    }
+    // build scenario builder return type
+    Symbol entityTypeSymbol = this.getGlobalScope().resolve("entity");
+    // if (entityTypeSymbol != Symbol.NULL) {
+    IType entityType = (IType) entityTypeSymbol;
+    IType entitySetType = new SetType(entityType, this.getGlobalScope());
+    this.loadTypes(entitySetType);
+    IType entitySetSetType = new SetType(entitySetType, this.getGlobalScope());
+    this.loadTypes(entitySetSetType);
+  }
 
-    @Override
-    public Class<?>[] getBuiltInAggregateTypeClasses() {
-        return new Class[] {CustomQuestConfig.class};
-    }
+  @Override
+  public Class<?>[] getBuiltInAggregateTypeClasses() {
+    return new Class[] {CustomQuestConfig.class};
+  }
 
-    @Override
-    public List<IDSLExtensionProperty<?, ?>> getBuiltInProperties() {
-        return new ArrayList<>();
-    }
+  @Override
+  public List<IDSLExtensionProperty<?, ?>> getBuiltInProperties() {
+    return new ArrayList<>();
+  }
 
-    @Override
-    protected void registerDefaultRuntimeObjectTranslators() {}
+  @Override
+  protected void registerDefaultRuntimeObjectTranslators() {}
 
-    @Override
-    protected void registerDefaultTypeAdapters() {}
+  @Override
+  protected void registerDefaultTypeAdapters() {}
 
-    @Override
-    protected ArrayList<Symbol> buildDependantNativeFunctions() {
-        return new ArrayList<>();
-    }
+  @Override
+  protected ArrayList<Symbol> buildDependantNativeFunctions() {
+    return new ArrayList<>();
+  }
 
-    @Override
-    protected void bindBuiltInProperties() {}
+  @Override
+  protected void bindBuiltInProperties() {}
 
-    @Override
-    protected void bindBuiltInMethods() {}
+  @Override
+  protected void bindBuiltInMethods() {}
 }

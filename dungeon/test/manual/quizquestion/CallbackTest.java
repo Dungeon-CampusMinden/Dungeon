@@ -2,12 +2,10 @@ package manual.quizquestion;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
 import contrib.hud.dialogs.TextDialog;
 import contrib.systems.*;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -15,7 +13,10 @@ import core.components.PositionComponent;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 import core.utils.components.path.SimpleIPath;
-
+import java.io.IOException;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -24,11 +25,6 @@ import task.tasktype.Quiz;
 import task.tasktype.quizquestion.FreeText;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
-
-import java.io.IOException;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 
 /**
  * Test scenario for the UI Callbacks.
@@ -44,113 +40,111 @@ import java.util.function.BiConsumer;
  */
 public class CallbackTest {
 
-    private static Quiz question = multipleChoiceDummy();
+  private static Quiz question = multipleChoiceDummy();
 
-    // to toggle between question types
-    private static int toggle = 0;
+  // to toggle between question types
+  private static int toggle = 0;
 
-    private static void toggleQuiz() {
-        toggle = (toggle + 1) % 3;
-        switch (toggle) {
-            case 0 -> question = singleChoiceDummy();
-            case 1 -> question = multipleChoiceDummy();
-            case 2 -> question = freeTextDummy();
-        }
+  private static void toggleQuiz() {
+    toggle = (toggle + 1) % 3;
+    switch (toggle) {
+      case 0 -> question = singleChoiceDummy();
+      case 1 -> question = multipleChoiceDummy();
+      case 2 -> question = freeTextDummy();
     }
+  }
 
-    public static void main(String[] args) throws IOException {
-        Game.initBaseLogger();
-        // start the game
+  public static void main(String[] args) throws IOException {
+    Game.initBaseLogger();
+    // start the game
 
-        LevelSystem.levelSize(LevelSize.SMALL);
-        Game.loadConfig(
-                new SimpleIPath("dungeon_config.json"),
-                contrib.configuration.KeyboardConfig.class,
-                core.configuration.KeyboardConfig.class);
-        Game.frameRate(30);
-        Game.userOnSetup(
-                () -> {
-                    try {
-                        Game.add(new AISystem());
-                        Game.add(new CollisionSystem());
-                        Game.add(new HealthSystem());
-                        Game.add(new ProjectileSystem());
-                        Game.add(new HudSystem());
-                        Entity hero = EntityFactory.newHero();
-                        Game.add(hero);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-        Game.userOnFrame(
-                () -> {
-                    if (Gdx.input.isKeyJustPressed(Input.Keys.V)) toggleQuiz();
-                });
-        Game.userOnLevelLoad(
-                (loadFirstTime) -> {
-                    try {
-                        if (loadFirstTime) Game.add(questWizard());
-                    } catch (IOException e) {
-                        throw new RuntimeException();
-                    }
-                });
-        Game.windowTitle("Quest Wizard");
+    LevelSystem.levelSize(LevelSize.SMALL);
+    Game.loadConfig(
+        new SimpleIPath("dungeon_config.json"),
+        contrib.configuration.KeyboardConfig.class,
+        core.configuration.KeyboardConfig.class);
+    Game.frameRate(30);
+    Game.userOnSetup(
+        () -> {
+          try {
+            Game.add(new AISystem());
+            Game.add(new CollisionSystem());
+            Game.add(new HealthSystem());
+            Game.add(new ProjectileSystem());
+            Game.add(new HudSystem());
+            Entity hero = EntityFactory.newHero();
+            Game.add(hero);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+    Game.userOnFrame(
+        () -> {
+          if (Gdx.input.isKeyJustPressed(Input.Keys.V)) toggleQuiz();
+        });
+    Game.userOnLevelLoad(
+        (loadFirstTime) -> {
+          try {
+            if (loadFirstTime) Game.add(questWizard());
+          } catch (IOException e) {
+            throw new RuntimeException();
+          }
+        });
+    Game.windowTitle("Quest Wizard");
 
-        // build and start game
-        Game.run();
-    }
+    // build and start game
+    Game.run();
+  }
 
-    private static Entity questWizard() throws IOException {
-        Entity wizard = new Entity("Quest Wizard");
-        wizard.add(new PositionComponent());
-        wizard.add(new DrawComponent(new SimpleIPath("character/wizard")));
-        wizard.add(new TaskComponent(question, wizard));
-        wizard.add(
-                new InteractionComponent(
-                        1,
-                        false,
-                        (entity, who) ->
-                                UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
-                                        .accept(entity, who)));
-        return wizard;
-    }
+  private static Entity questWizard() throws IOException {
+    Entity wizard = new Entity("Quest Wizard");
+    wizard.add(new PositionComponent());
+    wizard.add(new DrawComponent(new SimpleIPath("character/wizard")));
+    wizard.add(new TaskComponent(question, wizard));
+    wizard.add(
+        new InteractionComponent(
+            1,
+            false,
+            (entity, who) ->
+                UIAnswerCallback.askOnInteraction(question, showAnswersOnHud())
+                    .accept(entity, who)));
+    return wizard;
+  }
 
-    private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
-        return (task, taskContents) -> {
-            AtomicReference<String> answers = new AtomicReference<>("");
-            taskContents.stream()
-                    .map(t -> (Quiz.Content) t)
-                    .forEach(
-                            t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
-            TextDialog.textDialog(answers.get(), "Ok", "Given answer");
-        };
-    }
+  private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
+    return (task, taskContents) -> {
+      AtomicReference<String> answers = new AtomicReference<>("");
+      taskContents.stream()
+          .map(t -> (Quiz.Content) t)
+          .forEach(t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
+      TextDialog.textDialog(answers.get(), "Ok", "Given answer");
+    };
+  }
 
-    public static Quiz singleChoiceDummy() {
-        Quiz question = new SingleChoice("Was ist kein Ziel von Refactoring?");
-        question.addAnswer(new Quiz.Content("Lesbarkeit von Code verbessern"));
-        question.addAnswer(new Quiz.Content("Verständlichkeit von Code verbessern"));
-        question.addAnswer(new Quiz.Content("Wartbarkeit von Code verbessern"));
-        question.addAnswer(new Quiz.Content("Fehler im Code ausmerzen"));
-        return question;
-    }
+  public static Quiz singleChoiceDummy() {
+    Quiz question = new SingleChoice("Was ist kein Ziel von Refactoring?");
+    question.addAnswer(new Quiz.Content("Lesbarkeit von Code verbessern"));
+    question.addAnswer(new Quiz.Content("Verständlichkeit von Code verbessern"));
+    question.addAnswer(new Quiz.Content("Wartbarkeit von Code verbessern"));
+    question.addAnswer(new Quiz.Content("Fehler im Code ausmerzen"));
+    return question;
+  }
 
-    public static Quiz multipleChoiceDummy() {
-        Quiz question =
-                new MultipleChoice(
-                        "Welche der hier genannten Komponenten sind \"atomare Komponenten\"?");
-        question.addAnswer(new Quiz.Content("Buttons"));
-        question.addAnswer(new Quiz.Content("Frames"));
-        question.addAnswer(new Quiz.Content("Label"));
-        question.addAnswer(new Quiz.Content("Panels"));
-        question.addAnswer(new Quiz.Content("Groups"));
-        question.addAnswer(new Quiz.Content("EventListener"));
-        question.addAnswer(new Quiz.Content("Events"));
-        return question;
-    }
+  public static Quiz multipleChoiceDummy() {
+    Quiz question =
+        new MultipleChoice("Welche der hier genannten Komponenten sind \"atomare Komponenten\"?");
+    question.addAnswer(new Quiz.Content("Buttons"));
+    question.addAnswer(new Quiz.Content("Frames"));
+    question.addAnswer(new Quiz.Content("Label"));
+    question.addAnswer(new Quiz.Content("Panels"));
+    question.addAnswer(new Quiz.Content("Groups"));
+    question.addAnswer(new Quiz.Content("EventListener"));
+    question.addAnswer(new Quiz.Content("Events"));
+    return question;
+  }
 
-    public static Quiz freeTextDummy() {
-        return new FreeText(
-                "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");
-    }
+  public static Quiz freeTextDummy() {
+    return new FreeText(
+        "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");
+  }
 }

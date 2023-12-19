@@ -1,7 +1,6 @@
 package contrib.utils.components.skill;
 
 import core.Entity;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Consumer;
@@ -21,55 +20,55 @@ import java.util.function.Consumer;
  */
 public class Skill {
 
-    private final Consumer<Entity> skillFunction;
-    private final long coolDownInMilliSeconds;
-    private Instant lastUsed;
-    private Instant nextUsableAt = Instant.now();
+  private final Consumer<Entity> skillFunction;
+  private final long coolDownInMilliSeconds;
+  private Instant lastUsed;
+  private Instant nextUsableAt = Instant.now();
 
-    /**
-     * Create a new {@link Skill}.
-     *
-     * @param skillFunction Functionality of the skill.
-     * @param coolDownInMilliSeconds The time that needs to pass between use of the skill and the
-     *     next possible use of the skill.
-     */
-    public Skill(final Consumer<Entity> skillFunction, final long coolDownInMilliSeconds) {
-        this.skillFunction = skillFunction;
-        this.coolDownInMilliSeconds = coolDownInMilliSeconds;
-    }
+  /**
+   * Create a new {@link Skill}.
+   *
+   * @param skillFunction Functionality of the skill.
+   * @param coolDownInMilliSeconds The time that needs to pass between use of the skill and the next
+   *     possible use of the skill.
+   */
+  public Skill(final Consumer<Entity> skillFunction, final long coolDownInMilliSeconds) {
+    this.skillFunction = skillFunction;
+    this.coolDownInMilliSeconds = coolDownInMilliSeconds;
+  }
 
-    /**
-     * Executes the method of this skill, saves the time the skill was last used and updates when it
-     * can be used again.
-     *
-     * <p>If the skill was used, the cool down will be set.
-     *
-     * @param entity The entity which uses this skill.
-     */
-    public void execute(final Entity entity) {
-        if (canBeUsedAgain()) {
-            skillFunction.accept(entity);
-            lastUsed = Instant.now();
-            activateCoolDown();
-        }
+  /**
+   * Executes the method of this skill, saves the time the skill was last used and updates when it
+   * can be used again.
+   *
+   * <p>If the skill was used, the cool down will be set.
+   *
+   * @param entity The entity which uses this skill.
+   */
+  public void execute(final Entity entity) {
+    if (canBeUsedAgain()) {
+      skillFunction.accept(entity);
+      lastUsed = Instant.now();
+      activateCoolDown();
     }
+  }
 
-    /**
-     * Checks if the cool down has passed and the skill can be used again.
-     *
-     * @return true if the specified time (coolDownInSeconds) has passed.
-     */
-    public boolean canBeUsedAgain() {
-        // check if the cool down is active, return the negated result (this avoids some problems in
-        // nano-sec range)
-        return !(Duration.between(Instant.now(), nextUsableAt).toMillis() > 0);
-    }
+  /**
+   * Checks if the cool down has passed and the skill can be used again.
+   *
+   * @return true if the specified time (coolDownInSeconds) has passed.
+   */
+  public boolean canBeUsedAgain() {
+    // check if the cool down is active, return the negated result (this avoids some problems in
+    // nano-sec range)
+    return !(Duration.between(Instant.now(), nextUsableAt).toMillis() > 0);
+  }
 
-    /**
-     * Adds coolDownInMilliSeconds to the time the skill was last used and updates when this skill
-     * can be used again.
-     */
-    private void activateCoolDown() {
-        nextUsableAt = lastUsed.plusMillis(coolDownInMilliSeconds);
-    }
+  /**
+   * Adds coolDownInMilliSeconds to the time the skill was last used and updates when this skill can
+   * be used again.
+   */
+  private void activateCoolDown() {
+    nextUsableAt = lastUsed.plusMillis(coolDownInMilliSeconds);
+  }
 }

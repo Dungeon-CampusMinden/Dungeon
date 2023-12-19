@@ -3,30 +3,29 @@ package dsl.interpreter.mockecs;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLCallback;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
-
 import java.util.Set;
 import java.util.function.Function;
 
 @DSLType
 public class TestComponentSetPassThroughCallback extends Component {
-    private Entity entity;
+  private Entity entity;
 
-    public Entity getEntity() {
-        return entity;
-    }
+  public Entity getEntity() {
+    return entity;
+  }
 
-    @DSLCallback private Function<Set<Entity>, Set<Entity>> onInteraction;
+  @DSLCallback private Function<Set<Entity>, Set<Entity>> onInteraction;
 
-    public Function<Set<Entity>, Set<Entity>> getOnInteraction() {
-        return onInteraction;
-    }
+  public Function<Set<Entity>, Set<Entity>> getOnInteraction() {
+    return onInteraction;
+  }
 
-    public Set<Entity> executeCallback(Set<Entity> entities) {
-        return onInteraction.apply(entities);
-    }
+  public Set<Entity> executeCallback(Set<Entity> entities) {
+    return onInteraction.apply(entities);
+  }
 
-    public TestComponentSetPassThroughCallback(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity);
-        this.entity = entity;
-    }
+  public TestComponentSetPassThroughCallback(@DSLContextMember(name = "entity") Entity entity) {
+    super(entity);
+    this.entity = entity;
+  }
 }

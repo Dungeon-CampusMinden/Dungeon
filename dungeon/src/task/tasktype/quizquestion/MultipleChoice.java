@@ -1,7 +1,6 @@
 package task.tasktype.quizquestion;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-
 import task.reporting.GradingFunctions;
 import task.tasktype.Quiz;
 
@@ -10,13 +9,13 @@ import task.tasktype.Quiz;
  * possibilities.
  */
 public class MultipleChoice extends Quiz {
-    public MultipleChoice(String questionText, Image image) {
-        super(questionText, image);
-        scoringFunction(GradingFunctions.multipeChoiceGrading());
-    }
+  public MultipleChoice(String questionText, Image image) {
+    super(questionText, image);
+    scoringFunction(GradingFunctions.multipeChoiceGrading());
+  }
 
-    public MultipleChoice(String questionText) {
-        super(questionText);
-        scoringFunction(GradingFunctions.multipeChoiceGrading());
-    }
+  public MultipleChoice(String questionText) {
+    super(questionText);
+    scoringFunction(GradingFunctions.multipeChoiceGrading());
+  }
 }

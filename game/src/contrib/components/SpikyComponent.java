@@ -2,7 +2,6 @@ package contrib.components;
 
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-
 import core.Component;
 
 /**
@@ -30,60 +29,60 @@ import core.Component;
  * @see contrib.entities.EntityFactory
  */
 public final class SpikyComponent implements Component {
-    private final int damageAmount;
-    private final DamageType damageType;
+  private final int damageAmount;
+  private final DamageType damageType;
 
-    private final int coolDown;
-    private int currentCoolDown;
+  private final int coolDown;
+  private int currentCoolDown;
 
-    /**
-     * Create a new {@link SpikyComponent}.
-     *
-     * @param damageAmount The amount of damage that should be caused on collision.
-     * @param damageType The type of damage to cause.
-     * @param coolDown How many frames to wait before reapplying damage to an entity.
-     */
-    public SpikyComponent(int damageAmount, final DamageType damageType, int coolDown) {
-        this.damageAmount = damageAmount;
-        this.damageType = damageType;
-        this.coolDown = coolDown;
-        this.currentCoolDown = coolDown;
-    }
+  /**
+   * Create a new {@link SpikyComponent}.
+   *
+   * @param damageAmount The amount of damage that should be caused on collision.
+   * @param damageType The type of damage to cause.
+   * @param coolDown How many frames to wait before reapplying damage to an entity.
+   */
+  public SpikyComponent(int damageAmount, final DamageType damageType, int coolDown) {
+    this.damageAmount = damageAmount;
+    this.damageType = damageType;
+    this.coolDown = coolDown;
+    this.currentCoolDown = coolDown;
+  }
 
-    /**
-     * Amount of damage to cause.
-     *
-     * @return amount of damage.
-     */
-    public int damageAmount() {
-        return damageAmount;
-    }
+  /**
+   * Amount of damage to cause.
+   *
+   * @return amount of damage.
+   */
+  public int damageAmount() {
+    return damageAmount;
+  }
 
-    /**
-     * Type of damage to cause.
-     *
-     * @return the type of damage.
-     */
-    public DamageType damageType() {
-        return damageType;
-    }
+  /**
+   * Type of damage to cause.
+   *
+   * @return the type of damage.
+   */
+  public DamageType damageType() {
+    return damageType;
+  }
 
-    /**
-     * Is the cool down 0?
-     *
-     * @return true if the cool down is 0, false if not.
-     */
-    public boolean isActive() {
-        return currentCoolDown == 0;
-    }
+  /**
+   * Is the cool down 0?
+   *
+   * @return true if the cool down is 0, false if not.
+   */
+  public boolean isActive() {
+    return currentCoolDown == 0;
+  }
 
-    /** Set the current cool down to the cool down configured in the constructor. */
-    public void activateCoolDown() {
-        currentCoolDown = coolDown;
-    }
+  /** Set the current cool down to the cool down configured in the constructor. */
+  public void activateCoolDown() {
+    currentCoolDown = coolDown;
+  }
 
-    /** Reduce the current cool down by one. */
-    public void reduceCoolDown() {
-        currentCoolDown = Math.max(0, currentCoolDown - 1);
-    }
+  /** Reduce the current cool down by one. */
+  public void reduceCoolDown() {
+    currentCoolDown = Math.max(0, currentCoolDown - 1);
+  }
 }

@@ -9,10 +9,10 @@ package contrib.crafting;
  */
 public interface CraftingResult {
 
-    /**
-     * Returns the type of the crafting result.
-     *
-     * @return The type of the crafting result.
-     */
-    CraftingType resultType();
+  /**
+   * Returns the type of the crafting result.
+   *
+   * @return The type of the crafting result.
+   */
+  CraftingType resultType();
 }

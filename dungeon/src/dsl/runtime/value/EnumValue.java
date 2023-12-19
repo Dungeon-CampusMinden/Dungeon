@@ -8,20 +8,20 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.EnumType;
  * representing the variant).
  */
 public class EnumValue extends Value {
-    /**
-     * Constructor.
-     *
-     * @param enumType The {@link EnumType} of this Value
-     * @param enumVariantSymbol The {@link Symbol} representing the variant
-     */
-    public EnumValue(EnumType enumType, Symbol enumVariantSymbol) {
-        super(enumType, enumVariantSymbol);
-    }
+  /**
+   * Constructor.
+   *
+   * @param enumType The {@link EnumType} of this Value
+   * @param enumVariantSymbol The {@link Symbol} representing the variant
+   */
+  public EnumValue(EnumType enumType, Symbol enumVariantSymbol) {
+    super(enumType, enumVariantSymbol);
+  }
 
-    /**
-     * @return the variant represented by this {@link EnumValue}
-     */
-    public Symbol getEnumVariantSymbol() {
-        return (Symbol) this.getInternalValue();
-    }
+  /**
+   * @return the variant represented by this {@link EnumValue}
+   */
+  public Symbol getEnumVariantSymbol() {
+    return (Symbol) this.getInternalValue();
+  }
 }

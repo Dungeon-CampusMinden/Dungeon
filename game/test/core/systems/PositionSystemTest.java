@@ -12,7 +12,6 @@ import core.level.elements.tile.FloorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,50 +19,50 @@ import org.mockito.Mockito;
 
 public class PositionSystemTest {
 
-    private PositionSystem system;
-    private final Tile mock = Mockito.mock(FloorTile.class);
-    private final Point point = new Point(3, 3);
-    private final ILevel level = Mockito.mock(ILevel.class);
-    private Entity entity;
-    private PositionComponent pc;
+  private PositionSystem system;
+  private final Tile mock = Mockito.mock(FloorTile.class);
+  private final Point point = new Point(3, 3);
+  private final ILevel level = Mockito.mock(ILevel.class);
+  private Entity entity;
+  private PositionComponent pc;
 
-    @Before
-    public void setup() {
-        pc = new PositionComponent();
-        Game.add(new LevelSystem(null, null, () -> {}));
-        Game.currentLevel(level);
-        system = new PositionSystem();
-        Game.add(system);
-        entity = new Entity();
-        Game.add(entity);
+  @Before
+  public void setup() {
+    pc = new PositionComponent();
+    Game.add(new LevelSystem(null, null, () -> {}));
+    Game.currentLevel(level);
+    system = new PositionSystem();
+    Game.add(system);
+    entity = new Entity();
+    Game.add(entity);
 
-        entity.add(pc);
+    entity.add(pc);
 
-        Mockito.when(level.randomTile(LevelElement.FLOOR)).thenReturn(mock);
-        Mockito.when(mock.position()).thenReturn(point);
-        Mockito.when(mock.coordinate()).thenReturn(new Coordinate(3, 3));
-    }
+    Mockito.when(level.randomTile(LevelElement.FLOOR)).thenReturn(mock);
+    Mockito.when(mock.position()).thenReturn(point);
+    Mockito.when(mock.coordinate()).thenReturn(new Coordinate(3, 3));
+  }
 
-    @After
-    public void cleanup() {
-        Game.removeAllSystems();
-        Game.removeAllEntities();
-        Game.currentLevel(null);
-    }
+  @After
+  public void cleanup() {
+    Game.removeAllSystems();
+    Game.removeAllEntities();
+    Game.currentLevel(null);
+  }
 
-    @Test
-    public void test_illegalPosition() {
-        pc.position(PositionComponent.ILLEGAL_POSITION);
-        // entities will be placed in the center of a tile, so add the offset for check
-        Point offsetPoint = new Point(point.x + 0.5f, point.y + 0.5f);
-        system.execute();
-        assertTrue(pc.position().equals(offsetPoint));
-    }
+  @Test
+  public void test_illegalPosition() {
+    pc.position(PositionComponent.ILLEGAL_POSITION);
+    // entities will be placed in the center of a tile, so add the offset for check
+    Point offsetPoint = new Point(point.x + 0.5f, point.y + 0.5f);
+    system.execute();
+    assertTrue(pc.position().equals(offsetPoint));
+  }
 
-    @Test
-    public void test_legalPosition() {
-        pc.position(new Point(2, 2));
-        system.execute();
-        assertFalse("Nothing should have changed", pc.position().equals(point));
-    }
+  @Test
+  public void test_legalPosition() {
+    pc.position(new Point(2, 2));
+    system.execute();
+    assertFalse("Nothing should have changed", pc.position().equals(point));
+  }
 }
