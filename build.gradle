@@ -32,7 +32,7 @@ repositories {
 
 ext {
     // we can not use the + operator here
-    gdxVersion = "1.11.0"
+    gdxVersion = "1.12.1"
     aiVersion = "1.8.2"
     gsonVersion = "2.9.0"
     checkstyleVersion = "10.11.0"
