@@ -13,6 +13,7 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+    sourceCompatibility = JavaVersion.VERSION_21
 }
 
 // store name of method parameter names in .class files (used to build
