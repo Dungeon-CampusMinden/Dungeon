@@ -29,6 +29,7 @@ import core.utils.components.path.SimpleIPath;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -42,10 +43,13 @@ public class TileLevelAPITest {
     private IVoidFunction onLevelLoader;
     private ILevel level;
 
+    private MockedConstruction<Texture> textureMockedConstruction;
+
     @Before
     public void setup() {
         Texture texture = Mockito.mock(Texture.class);
         TextureMap textureMap = Mockito.mock(TextureMap.class);
+        textureMockedConstruction = Mockito.mockConstruction(Texture.class);
 
         try (MockedStatic<TextureMap> textureMapMock = Mockito.mockStatic(TextureMap.class)) {
             textureMapMock.when(TextureMap::instance).thenReturn(textureMap);
@@ -65,6 +69,7 @@ public class TileLevelAPITest {
         Game.currentLevel(null);
         Game.removeAllEntities();
         Game.removeAllSystems();
+        textureMockedConstruction.close();
     }
 
     @Test
@@ -146,8 +151,6 @@ public class TileLevelAPITest {
         when(layout[1][1].position()).thenReturn(coordinateT4.toPoint());
 
         when(level.layout()).thenReturn(layout);
-
-        System.out.println("Test: " + TextureMap.instance().textureAt(new SimpleIPath("test")));
 
         api.loadLevel(level);
         api.execute();
