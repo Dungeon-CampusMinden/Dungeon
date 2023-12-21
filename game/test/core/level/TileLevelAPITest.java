@@ -29,16 +29,11 @@ import core.utils.components.path.SimpleIPath;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({TextureMap.class})
 public class TileLevelAPITest {
 
     private LevelSystem api;
@@ -49,11 +44,12 @@ public class TileLevelAPITest {
 
     @Before
     public void setup() {
-
         Texture texture = Mockito.mock(Texture.class);
         TextureMap textureMap = Mockito.mock(TextureMap.class);
-        PowerMockito.mockStatic(TextureMap.class);
-        when(TextureMap.instance()).thenReturn(textureMap);
+
+        try (MockedStatic<TextureMap> textureMapMock = Mockito.mockStatic(TextureMap.class)) {
+            textureMapMock.when(TextureMap::instance).thenReturn(textureMap);
+        }
         when(textureMap.textureAt(any())).thenReturn(texture);
 
         painter = Mockito.mock(Painter.class);
@@ -150,6 +146,8 @@ public class TileLevelAPITest {
         when(layout[1][1].position()).thenReturn(coordinateT4.toPoint());
 
         when(level.layout()).thenReturn(layout);
+
+        System.out.println("Test: " + TextureMap.instance().textureAt(new SimpleIPath("test")));
 
         api.loadLevel(level);
         api.execute();
