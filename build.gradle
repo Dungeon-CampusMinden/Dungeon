@@ -51,11 +51,8 @@ dependencies {
     // JUnit 4, Mockito and Powermock for testing:
     // https://mvnrepository.com/artifact/junit/junit
     testImplementation "junit:junit:4.13.2"
-
-    // https://mvnrepository.com/artifact/org.powermock/powermock-module-junit4
-    testImplementation "org.powermock:powermock-module-junit4:2.0.9"
-    // https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
-    testImplementation "org.powermock:powermock-api-mockito2:2.0.9"
+    
+    testImplementation "org.mockito:mockito-core:5.8.0"
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation group: "com.google.code.gson", name: "gson", version: gsonVersion
