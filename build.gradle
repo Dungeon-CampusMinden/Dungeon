@@ -82,7 +82,7 @@ task run(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs += ["-XstartOnFirstThread"]
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -95,7 +95,7 @@ task runRandom(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs += ["-XstartOnFirstThread"]
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -108,7 +108,7 @@ task start(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs += ["-XstartOnFirstThread"]
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -121,7 +121,7 @@ task blockly(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs += ["-XstartOnFirstThread"]
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -135,7 +135,7 @@ task debug(dependsOn: classes, type: JavaExec) {
     ignoreExitValue = true
     debug = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs += ["-XstartOnFirstThread"]
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -242,7 +242,7 @@ task runManualQuizTest(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs += ["-XstartOnFirstThread"]
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -255,7 +255,7 @@ task runYesNoDialogTest(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs += ["-XstartOnFirstThread"]
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -268,7 +268,7 @@ task runCallbackTest(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs += ["-XstartOnFirstThread"]
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -281,7 +281,7 @@ task runLoaderTest(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs += ["-XstartOnFirstThread"]
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -294,7 +294,7 @@ task taskGenerationTest(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs += ["-XstartOnFirstThread"]
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
