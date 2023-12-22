@@ -1,7 +1,6 @@
 package contrib.systems;
 
 import contrib.components.AIComponent;
-
 import core.Entity;
 import core.System;
 import core.utils.components.MissingComponentException;

@@ -4,13 +4,10 @@ import static org.junit.Assert.*;
 
 import contrib.components.HealthComponent;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
-
 import core.Entity;
 import core.utils.components.MissingComponentException;
-
-import org.junit.Test;
-
 import java.util.function.Function;
+import org.junit.Test;
 
 public class SelfDefendTransitionTest {
 

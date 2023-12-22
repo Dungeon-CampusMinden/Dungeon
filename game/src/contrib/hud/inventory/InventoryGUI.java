@@ -14,13 +14,11 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-
 import contrib.components.InventoryComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.item.Item;
-
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.MissingHeroException;
@@ -42,6 +40,7 @@ public class InventoryGUI extends CombinableGUI {
     private static final BitmapFont bitmapFont;
     private static final Texture texture;
     private static final TextureRegion background, hoverBackground;
+
     /**
      * Boolean to check if the opened inventory belongs to the hero. Items that are in an inventory
      * which does not belong to the hero, e.g. a treasure chest, are not usable.

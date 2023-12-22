@@ -5,7 +5,6 @@ import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-
 import core.Entity;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;

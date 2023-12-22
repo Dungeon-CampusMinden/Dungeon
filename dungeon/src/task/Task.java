@@ -2,20 +2,12 @@ package task;
 
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
-
 import core.Entity;
 import core.Game;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
-
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
-
 import graph.petrinet.Place;
-
-import task.game.components.TaskComponent;
-import task.game.components.TaskContentComponent;
-import task.game.content.QuestItem;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -27,6 +19,9 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.stream.Stream;
+import task.game.components.TaskComponent;
+import task.game.components.TaskContentComponent;
+import task.game.content.QuestItem;
 
 /**
  * A task that needs to be solved in the game.

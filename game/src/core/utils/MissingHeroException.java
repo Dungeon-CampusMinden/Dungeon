@@ -1,7 +1,6 @@
 package core.utils;
 
 import core.utils.logging.CustomLogLevel;
-
 import java.util.logging.Logger;
 
 /** Exception stating that there is no hero in the game. */

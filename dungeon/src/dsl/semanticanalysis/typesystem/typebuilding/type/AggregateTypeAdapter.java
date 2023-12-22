@@ -1,7 +1,6 @@
 package dsl.semanticanalysis.typesystem.typebuilding.type;
 
 import dsl.semanticanalysis.scope.IScope;
-
 import java.lang.reflect.Method;
 
 public class AggregateTypeAdapter extends AggregateType {

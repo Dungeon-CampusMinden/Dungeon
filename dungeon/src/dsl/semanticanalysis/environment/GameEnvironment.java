@@ -5,13 +5,11 @@ import contrib.entities.EntityFactory;
 import contrib.entities.WorldItemBuilder;
 import contrib.hud.dialogs.OkDialog;
 import contrib.item.Item;
-
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
-
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.callable.ICallable;
@@ -30,7 +28,6 @@ import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
-
 import dslinterop.dslnativefunction.NativeInstantiate;
 import dslinterop.dslnativefunction.NativeInstantiateNamed;
 import dslinterop.dslnativefunction.NativePrint;
@@ -40,9 +37,11 @@ import dslinterop.dsltypeadapters.QuestItemAdapter;
 import dslinterop.dsltypeproperties.EntityExtension;
 import dslinterop.dsltypeproperties.QuestItemExtension;
 import dslinterop.nativescenariobuilder.NativeScenarioBuilder;
-
 import entrypoint.DungeonConfig;
-
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import task.*;
 import task.dslinterop.*;
 import task.game.components.TaskComponent;
@@ -55,11 +54,6 @@ import task.reporting.GradingFunctions;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
-
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class GameEnvironment implements IEnvironment {
     // TODO: the TypeBuilder should be completely encapsulated, so that types can only
@@ -879,6 +873,7 @@ public class GameEnvironment implements IEnvironment {
             return ICallable.Type.Native;
         }
     }
+
     // endregion
 
     // region native answer picking

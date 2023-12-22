@@ -3,14 +3,12 @@ package contrib.systems;
 import contrib.components.HealthComponent;
 import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.DamageType;
-
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
-
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;

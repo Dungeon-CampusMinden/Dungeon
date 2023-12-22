@@ -6,10 +6,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-
 import contrib.components.HealthComponent;
 import contrib.components.UIComponent;
-
 import core.Entity;
 import core.Game;
 import core.System;
@@ -17,7 +15,6 @@ import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.logging.CustomLogLevel;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;

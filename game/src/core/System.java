@@ -1,7 +1,6 @@
 package core;
 
 import core.utils.EntitySystemMapper;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -45,6 +44,7 @@ public abstract class System {
      * <p>The default implementation is just empty.
      */
     protected Consumer<Entity> onEntityAdd = (e) -> {};
+
     /**
      * Will be called after an entity was removed from the corresponding {@link EntitySystemMapper}.
      *

@@ -6,7 +6,6 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
-
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
@@ -18,7 +17,6 @@ import core.level.utils.TileTextureFactory;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-
 import java.util.List;
 import java.util.Random;
 

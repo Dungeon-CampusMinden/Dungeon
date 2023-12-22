@@ -4,7 +4,6 @@ import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
 import contrib.hud.dialogs.TextDialog;
 import contrib.systems.*;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -13,24 +12,20 @@ import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import dsl.interpreter.DSLInterpreter;
-
 import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
-
-import task.Task;
-import task.TaskContent;
-import task.game.components.TaskComponent;
-import task.game.hud.UIAnswerCallback;
-import task.tasktype.Quiz;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import task.Task;
+import task.TaskContent;
+import task.game.components.TaskComponent;
+import task.game.hud.UIAnswerCallback;
+import task.tasktype.Quiz;
 
 /**
  * <a

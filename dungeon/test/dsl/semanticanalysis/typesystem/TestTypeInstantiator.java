@@ -9,18 +9,14 @@ import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
-
 import entrypoint.DungeonConfig;
-
 import graph.taskdependencygraph.TaskDependencyGraph;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class TestTypeInstantiator {
     @Test

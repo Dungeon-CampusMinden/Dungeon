@@ -6,7 +6,6 @@ import dsl.runtime.value.Value;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
-
 import java.util.List;
 
 /**

@@ -15,10 +15,8 @@ import contrib.utils.components.ai.transition.SelfDefendTransition;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
-
 import core.Entity;
 import core.Game;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;

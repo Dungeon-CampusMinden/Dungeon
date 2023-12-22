@@ -24,7 +24,6 @@ package dsl.semanticanalysis;
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -32,6 +31,7 @@ import java.util.HashMap;
 public class SymbolTable {
     /** The global scope of the program */
     IScope globalScope;
+
     /** Store all symbols in a key-value store for easy referencing by their index */
     private final HashMap<Integer, Symbol> symbolIdxToSymbol;
 

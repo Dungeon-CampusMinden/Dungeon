@@ -4,7 +4,6 @@ import static org.junit.Assert.assertNotNull;
 
 import core.level.elements.ILevel;
 import core.level.generator.randomwalk.RandomWalkGenerator;
-
 import org.junit.Before;
 import org.junit.Test;
 

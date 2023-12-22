@@ -1,13 +1,11 @@
 package dsl.semanticanalysis.typesystem.callbackadapter;
 
 import core.utils.TriConsumer;
-
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.callable.ICallable;
 import dsl.runtime.environment.RuntimeEnvironment;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
-
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;

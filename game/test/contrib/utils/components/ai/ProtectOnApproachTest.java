@@ -5,12 +5,10 @@ import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.ProtectOnApproach;
 import contrib.utils.components.ai.transition.RangeTransition;
-
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
-
 import org.junit.Before;
 
 public class ProtectOnApproachTest {

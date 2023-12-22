@@ -1,7 +1,6 @@
 package core.level.utils;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
-
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -9,7 +8,6 @@ import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-
 import java.util.*;
 
 /** Offers some utility functions to work on and with {@link core.level.elements.ILevel}. */

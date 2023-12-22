@@ -2,13 +2,11 @@ package contrib.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
-
 import contrib.components.*;
 import contrib.item.Item;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.item.ItemGenerator;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -16,7 +14,6 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.IOException;
 import java.util.Random;
 import java.util.function.BiConsumer;

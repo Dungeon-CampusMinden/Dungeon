@@ -2,12 +2,9 @@ package contrib.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
-
 import contrib.components.IdleSoundComponent;
-
 import core.System;
 import core.utils.components.MissingComponentException;
-
 import java.util.Random;
 
 /**

@@ -3,7 +3,6 @@ package dsl.interpreter.mockecs;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLCallback;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
-
 import java.util.function.Consumer;
 
 @DSLType

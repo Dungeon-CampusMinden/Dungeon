@@ -3,9 +3,7 @@ package contrib.level.generator.graphBased;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
-
 import core.Entity;
-
 import java.util.HashSet;
 import java.util.Set;
 

@@ -1,9 +1,7 @@
 package starter;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 import core.Game;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

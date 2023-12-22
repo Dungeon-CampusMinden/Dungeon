@@ -10,7 +10,6 @@ import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.draw.Painter;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

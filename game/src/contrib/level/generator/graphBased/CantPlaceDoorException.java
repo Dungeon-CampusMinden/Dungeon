@@ -1,7 +1,6 @@
 package contrib.level.generator.graphBased;
 
 import contrib.level.generator.graphBased.levelGraph.Direction;
-
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 

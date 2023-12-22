@@ -1,7 +1,6 @@
 package contrib.components;
 
 import contrib.item.Item;
-
 import core.Component;
 import core.Entity;
 

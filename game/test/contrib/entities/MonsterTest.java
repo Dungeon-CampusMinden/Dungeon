@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -14,13 +13,11 @@ import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
-
+import java.io.IOException;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.Optional;
 
 public class MonsterTest {
     @Before

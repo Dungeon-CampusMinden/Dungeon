@@ -10,13 +10,15 @@ import contrib.hud.dialogs.TextDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.draw.ChestAnimations;
-
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
-
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -28,11 +30,6 @@ import task.reporting.AnswerPickingFunctions;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.BiConsumer;
 
 public class NativeScenarioBuilder {
     public static Set<Set<Entity>> quizOnHud(Quiz quiz) {

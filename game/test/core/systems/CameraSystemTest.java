@@ -3,7 +3,6 @@ package core.systems;
 import static org.junit.Assert.*;
 
 import com.badlogic.gdx.utils.GdxNativesLoader;
-
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
@@ -11,7 +10,6 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.utils.Point;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

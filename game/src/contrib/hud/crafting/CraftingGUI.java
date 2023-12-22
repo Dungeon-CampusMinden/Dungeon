@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
-
 import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
 import contrib.crafting.CraftingResult;
@@ -21,13 +20,11 @@ import contrib.hud.elements.GUICombination;
 import contrib.hud.elements.ImageButton;
 import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
-
 import core.Game;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 

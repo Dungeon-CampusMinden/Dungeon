@@ -6,9 +6,7 @@ import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-
 import entrypoint.*;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;

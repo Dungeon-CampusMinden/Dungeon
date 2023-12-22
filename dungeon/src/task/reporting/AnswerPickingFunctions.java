@@ -2,12 +2,15 @@ package task.reporting;
 
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
-
 import core.Entity;
 import core.Game;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
-
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import task.Task;
 import task.TaskContent;
 import task.game.content.QuestItem;
@@ -15,12 +18,6 @@ import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 
 /**
  * Contains different Functions to create a Callback-Function for {@link

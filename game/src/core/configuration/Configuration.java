@@ -3,9 +3,7 @@ package core.configuration;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
-
 import core.utils.components.path.IPath;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

@@ -7,10 +7,8 @@ import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-
-import task.Task;
-
 import java.util.*;
+import task.Task;
 
 /**
  * This class stores {@link FunctionSymbol}s, which refer to scenario builder methods (which take a

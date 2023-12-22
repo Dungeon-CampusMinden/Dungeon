@@ -3,7 +3,6 @@ package dsl.semanticanalysis.typesystem.typebuilding.type;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
-
 import java.lang.reflect.Field;
 import java.util.HashMap;
 

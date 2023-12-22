@@ -1,10 +1,8 @@
 package task.game.hud;
 
 import contrib.hud.dialogs.OkDialog;
-
 import core.Entity;
 import core.utils.IVoidFunction;
-
 import task.Task;
 
 /**

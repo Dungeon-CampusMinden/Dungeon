@@ -1,7 +1,6 @@
 package contrib.configuration;
 
 import com.badlogic.gdx.Input;
-
 import core.configuration.ConfigKey;
 import core.configuration.ConfigMap;
 import core.configuration.values.ConfigIntValue;

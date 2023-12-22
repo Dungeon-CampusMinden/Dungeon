@@ -1,12 +1,10 @@
 package core.systems;
 
 import com.badlogic.gdx.Gdx;
-
 import core.Entity;
 import core.System;
 import core.components.PlayerComponent;
 import core.utils.components.MissingComponentException;
-
 import java.util.Map;
 
 /**

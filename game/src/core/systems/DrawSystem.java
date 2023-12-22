@@ -1,7 +1,6 @@
 package core.systems;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
@@ -12,7 +11,6 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.path.IPath;
-
 import java.util.*;
 import java.util.stream.Collectors;
 

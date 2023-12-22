@@ -4,7 +4,6 @@ import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.callable.IInstanceCallable;
 import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
-
 import java.util.*;
 
 /** Implements a set value */
@@ -33,6 +32,7 @@ public class SetValue extends Value {
     public HashSet<Value> internalSet() {
         return ((HashSet<Value>) this.object);
     }
+
     /**
      * Add a Value to the set. The Value will only be added to the set, if no other Value with the
      * same internal value of the passed Value is already stored in this set.

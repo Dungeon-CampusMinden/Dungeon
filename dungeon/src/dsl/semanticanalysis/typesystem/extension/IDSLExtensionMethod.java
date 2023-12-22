@@ -3,7 +3,6 @@ package dsl.semanticanalysis.typesystem.extension;
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.callable.IInstanceCallable;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
-
 import java.lang.reflect.Type;
 import java.util.List;
 

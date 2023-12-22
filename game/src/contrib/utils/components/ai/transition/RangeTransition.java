@@ -2,7 +2,6 @@ package contrib.utils.components.ai.transition;
 
 import core.Entity;
 import core.level.utils.LevelUtils;
-
 import java.util.function.Function;
 
 /**

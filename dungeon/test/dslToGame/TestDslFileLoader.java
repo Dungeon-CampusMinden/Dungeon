@@ -3,15 +3,13 @@ package dslToGame;
 import static org.junit.Assert.*;
 
 import entrypoint.DSLFileLoader;
-
-import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Set;
+import org.junit.Test;
 
 public class TestDslFileLoader {
 

@@ -2,7 +2,6 @@ package dsl.semanticanalysis.typesystem.typebuilding.type;
 
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,9 +1,7 @@
 package contrib.utils.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
-
 import contrib.utils.components.ai.AIUtils;
-
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -11,7 +9,6 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

@@ -6,7 +6,6 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextPush;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
-
 import java.util.ArrayList;
 import java.util.List;
 

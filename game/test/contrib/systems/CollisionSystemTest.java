@@ -3,17 +3,14 @@ package contrib.systems;
 import static org.junit.Assert.*;
 
 import contrib.components.CollideComponent;
-
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
-
 import org.junit.After;
 import org.junit.Test;
-
 import testingUtils.SimpleCounter;
 
 public class CollisionSystemTest {

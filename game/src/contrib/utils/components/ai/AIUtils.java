@@ -1,7 +1,6 @@
 package contrib.utils.components.ai;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
-
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;

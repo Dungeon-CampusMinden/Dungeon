@@ -5,11 +5,9 @@ import static org.junit.Assert.*;
 import contrib.components.CollideComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
-
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
-
 import dsl.helpers.Helpers;
 import dsl.interpreter.mockecs.*;
 import dsl.parser.ast.IdNode;
@@ -27,26 +25,11 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
-
 import dslinterop.dslnativefunction.NativeInstantiate;
-
 import entrypoint.DungeonConfig;
-
 import graph.taskdependencygraph.TaskDependencyGraph;
 import graph.taskdependencygraph.TaskEdge;
 import graph.taskdependencygraph.TaskNode;
-
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import task.*;
-import task.game.components.TaskContentComponent;
-import task.game.content.QuestItem;
-import task.tasktype.AssignTask;
-import task.tasktype.Element;
-import task.tasktype.Quiz;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -54,6 +37,15 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import task.*;
+import task.game.components.TaskContentComponent;
+import task.game.content.QuestItem;
+import task.tasktype.AssignTask;
+import task.tasktype.Element;
+import task.tasktype.Quiz;
 
 public class TestDSLInterpreter {
     /** Tests, if a native function call is evaluated by the DSLInterpreter */

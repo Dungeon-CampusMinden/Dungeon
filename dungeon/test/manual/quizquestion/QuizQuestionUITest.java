@@ -4,11 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-
 import contrib.systems.HudSystem;
-
 import core.Game;
-
+import java.util.Random;
+import java.util.Set;
+import java.util.function.BiFunction;
 import task.Task;
 import task.TaskContent;
 import task.game.hud.QuizUI;
@@ -16,10 +16,6 @@ import task.tasktype.Quiz;
 import task.tasktype.quizquestion.FreeText;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
-
-import java.util.Random;
-import java.util.Set;
-import java.util.function.BiFunction;
 
 /**
  * This is a manual test for the QuizQuestion-UI.

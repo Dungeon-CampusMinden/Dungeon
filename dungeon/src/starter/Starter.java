@@ -2,37 +2,30 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-
 import contrib.components.HealthComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.hud.dialogs.OkDialog;
 import contrib.systems.*;
-
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.level.elements.ILevel;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
-
 import dsl.interpreter.DSLEntryPointFinder;
 import dsl.interpreter.DSLInterpreter;
-
 import entrypoint.DSLEntryPoint;
 import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
-
 import graph.TaskGraphConverter;
-
-import task.Task;
-
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import task.Task;
 
 /**
  * Generic Game starter.Starter for a game that uses DSL inputs.

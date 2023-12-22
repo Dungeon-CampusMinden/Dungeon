@@ -2,7 +2,6 @@ package core.utils.components;
 
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
-
 import java.util.logging.Logger;
 
 /**

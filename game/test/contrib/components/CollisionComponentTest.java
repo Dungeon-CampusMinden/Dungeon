@@ -8,9 +8,7 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
-
 import org.junit.Test;
-
 import testingUtils.SimpleCounter;
 
 public class CollisionComponentTest {

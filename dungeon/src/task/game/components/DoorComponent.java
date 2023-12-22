@@ -2,7 +2,6 @@ package task.game.components;
 
 import core.Component;
 import core.level.elements.tile.DoorTile;
-
 import java.util.HashSet;
 import java.util.Set;
 

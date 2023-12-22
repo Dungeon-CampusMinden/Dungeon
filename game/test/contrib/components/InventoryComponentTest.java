@@ -3,17 +3,14 @@ package contrib.components;
 import static org.junit.Assert.*;
 
 import contrib.item.Item;
-
 import core.Entity;
 import core.Game;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
-
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.Arrays;
 
 public class InventoryComponentTest {
 

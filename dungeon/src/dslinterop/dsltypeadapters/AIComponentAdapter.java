@@ -2,10 +2,8 @@ package dslinterop.dsltypeadapters;
 
 import contrib.components.AIComponent;
 import contrib.entities.AIFactory;
-
 import core.Entity;
 import core.components.DrawComponent;
-
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
 

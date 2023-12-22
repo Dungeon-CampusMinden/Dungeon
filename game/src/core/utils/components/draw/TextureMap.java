@@ -1,9 +1,7 @@
 package core.utils.components.draw;
 
 import com.badlogic.gdx.graphics.Texture;
-
 import core.utils.components.path.IPath;
-
 import java.util.HashMap;
 
 /**

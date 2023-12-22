@@ -1,14 +1,12 @@
 package dslToGame;
 
 import contrib.components.HealthComponent;
-
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
-
 import dsl.helpers.Helpers;
 import dsl.interpreter.DSLInterpreter;
 import dsl.interpreter.TestEnvironment;
@@ -19,7 +17,6 @@ import dsl.interpreter.mockecs.TestComponentWithExternalType;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.environment.GameEnvironment;
-
 import org.junit.Assert;
 import org.junit.Test;
 

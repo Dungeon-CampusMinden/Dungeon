@@ -1,7 +1,6 @@
 package dsl.semanticanalysis.typesystem;
 
 import core.utils.Point;
-
 import dsl.interpreter.mockecs.Component;
 import dsl.interpreter.mockecs.Entity;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;

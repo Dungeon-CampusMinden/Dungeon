@@ -1,7 +1,6 @@
 package core.configuration;
 
 import com.badlogic.gdx.Input;
-
 import core.configuration.values.ConfigIntValue;
 
 /** Keyboardconfiguration for the core-package. */

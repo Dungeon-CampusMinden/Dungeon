@@ -3,7 +3,6 @@ package dsl.semanticanalysis.typesystem.callbackadapter;
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.callable.ICallable;
 import dsl.runtime.environment.RuntimeEnvironment;
-
 import java.util.function.BiFunction;
 
 public class BiFunctionCallbackAdapter extends CallbackAdapter implements BiFunction {

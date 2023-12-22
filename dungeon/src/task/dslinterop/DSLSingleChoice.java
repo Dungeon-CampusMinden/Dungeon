@@ -1,22 +1,19 @@
 package task.dslinterop;
 
 import core.Entity;
-
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.*;
-
-import task.Task;
-import task.TaskContent;
-import task.reporting.GradingFunctions;
-import task.tasktype.Quiz;
-import task.tasktype.quizquestion.SingleChoice;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import task.Task;
+import task.TaskContent;
+import task.reporting.GradingFunctions;
+import task.tasktype.Quiz;
+import task.tasktype.quizquestion.SingleChoice;
 
 /** Typeadapter for the creation of {@link SingleChoice} instances via dsl. */
 public class DSLSingleChoice {

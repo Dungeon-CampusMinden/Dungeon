@@ -5,14 +5,11 @@ import static org.mockito.Mockito.times;
 
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-
 import core.Entity;
 import core.Game;
-
+import java.util.function.Consumer;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.function.Consumer;
 
 public class HealthComponentTest {
 

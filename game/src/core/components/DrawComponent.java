@@ -6,7 +6,6 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -53,6 +52,7 @@ import java.util.stream.Collectors;
  */
 public final class DrawComponent implements Component {
     private final Logger LOGGER = Logger.getLogger(this.getClass().getSimpleName());
+
     /** allows only one Element from a certain priority and orders them */
     private final Map<IPath, Integer> animationQueue =
             new TreeMap<>(Comparator.comparingInt(IPath::priority));

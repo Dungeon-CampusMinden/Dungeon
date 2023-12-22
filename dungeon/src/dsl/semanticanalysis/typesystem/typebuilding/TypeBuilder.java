@@ -1,7 +1,6 @@
 package dsl.semanticanalysis.typesystem.typebuilding;
 
 import core.utils.TriConsumer;
-
 import dsl.runtime.callable.ExtensionMethod;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.PropertySymbol;
@@ -10,9 +9,7 @@ import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.*;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
-
 import graph.taskdependencygraph.TaskDependencyGraph;
-
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.BiConsumer;

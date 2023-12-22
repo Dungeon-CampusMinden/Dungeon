@@ -5,7 +5,6 @@ import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -16,7 +15,6 @@ import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
-
 import java.io.IOException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;

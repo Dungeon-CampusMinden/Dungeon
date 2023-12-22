@@ -5,7 +5,6 @@ import contrib.entities.EntityFactory;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
-
 import core.Entity;
 import core.Game;
 import core.level.elements.ILevel;
@@ -13,12 +12,10 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.MissingHeroException;
 import core.utils.components.path.SimpleIPath;
-
-import server.Server;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import server.Server;
 
 public class Client {
     public static void main(String[] args) throws IOException {

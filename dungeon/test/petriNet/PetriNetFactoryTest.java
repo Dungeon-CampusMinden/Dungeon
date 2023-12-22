@@ -4,9 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import graph.petrinet.PetriNet;
 import graph.petrinet.PetriNetFactory;
-
 import org.junit.Test;
-
 import task.Task;
 
 public class PetriNetFactoryTest {

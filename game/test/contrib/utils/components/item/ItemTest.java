@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -21,14 +20,12 @@ import core.utils.Point;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
 import core.utils.components.path.SimpleIPath;
-
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ItemTest {
 

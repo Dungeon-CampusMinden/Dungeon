@@ -6,14 +6,12 @@ import contrib.crafting.CraftingResult;
 import contrib.crafting.CraftingType;
 import contrib.entities.WorldItemBuilder;
 import contrib.item.concreteItem.*;
-
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;

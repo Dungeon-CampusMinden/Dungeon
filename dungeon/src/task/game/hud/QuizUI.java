@@ -2,22 +2,18 @@ package task.game.hud;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.OkDialog;
 import contrib.hud.dialogs.TextDialog;
-
 import core.Entity;
 import core.Game;
 import core.utils.IVoidFunction;
-
-import task.Task;
-import task.tasktype.Quiz;
-
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import task.Task;
+import task.tasktype.Quiz;
 
 public class QuizUI {
 

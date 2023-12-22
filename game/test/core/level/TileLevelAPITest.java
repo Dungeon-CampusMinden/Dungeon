@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.graphics.Texture;
-
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -25,15 +24,13 @@ import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
+import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-
-import java.io.IOException;
 
 public class TileLevelAPITest {
 

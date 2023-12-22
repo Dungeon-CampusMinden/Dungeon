@@ -8,7 +8,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.path.SimpleIPath;
-
 import org.junit.Test;
 
 public class TileFactoryTest {

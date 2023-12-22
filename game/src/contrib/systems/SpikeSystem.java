@@ -1,7 +1,6 @@
 package contrib.systems;
 
 import contrib.components.SpikyComponent;
-
 import core.System;
 import core.components.PositionComponent;
 

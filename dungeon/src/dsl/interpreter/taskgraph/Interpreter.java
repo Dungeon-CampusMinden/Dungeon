@@ -4,15 +4,12 @@ import dsl.interpreter.DSLInterpreter;
 // CHECKSTYLE:ON: AvoidStarImport
 import dsl.parser.ast.*;
 import dsl.runtime.value.Value;
-
 import graph.taskdependencygraph.TaskDependencyGraph;
 // CHECKSTYLE:OFF: AvoidStarImport
 import graph.taskdependencygraph.TaskEdge;
 import graph.taskdependencygraph.TaskNode;
-
-import task.Task;
-
 import java.util.*;
+import task.Task;
 
 public class Interpreter implements AstVisitor<TaskNode> {
     private final DSLInterpreter dslInterpreter;

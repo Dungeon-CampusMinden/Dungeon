@@ -5,11 +5,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import core.Entity;
-
+import java.util.function.BiConsumer;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.function.BiConsumer;
 
 public class InteractionComponentTest {
 

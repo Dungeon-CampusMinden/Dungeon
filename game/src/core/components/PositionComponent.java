@@ -3,7 +3,6 @@ package core.components;
 import core.Component;
 import core.level.Tile;
 import core.utils.Point;
-
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 
 /**

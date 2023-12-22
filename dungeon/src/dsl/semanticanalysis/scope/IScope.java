@@ -23,7 +23,6 @@ package dsl.semanticanalysis.scope;
 
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-
 import java.util.List;
 
 /** Represents the capabilities of a scope. */
