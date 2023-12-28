@@ -16,5 +16,4 @@ public class BasicStarter {
         Game.windowTitle("Basic Dungeon");
         Game.run();
     }
-
 }
