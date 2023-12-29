@@ -4,7 +4,7 @@ plugins {
     // we can not use ext variables here
     id "java"
     id "checkstyle"
-    id "com.github.spotbugs" version "6.0.3"
+    id "com.github.spotbugs" version "6.0.4"
     id "com.diffplug.spotless" version "6.23.3"
     id 'antlr'
 }
@@ -36,7 +36,7 @@ ext {
     gdxVersion = "1.12.1"
     aiVersion = "1.8.2"
     gsonVersion = "2.10.1"
-    checkstyleVersion = "10.11.0"
+    checkstyleVersion = "10.12.6"
 }
 
 dependencies {
@@ -54,13 +54,12 @@ dependencies {
     testImplementation "org.mockito:mockito-core:5.8.0"
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation group: "com.google.code.gson", name: "gson", version: gsonVersion
+    implementation "com.google.code.gson:gson:$gsonVersion"
 
     // ANTLR version 4 for DSL Grammar
-    antlr "org.antlr:antlr4:4.11.1"
+    antlr "org.antlr:antlr4:4.13.1"
 }
 
-sourceCompatibility = 21
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
 sourceSets.main.java.srcDirs = ["game/src/", "dungeon/src/", "blockly/src/", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/"]
