@@ -2,7 +2,6 @@ package core.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
-
 import core.Entity;
 import core.Game;
 import core.System;
@@ -20,7 +19,6 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.path.IPath;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -53,6 +51,7 @@ import java.util.logging.Logger;
 public final class LevelSystem extends System {
     /** offset the coordinate by half a tile, it makes every Entity not walk on the sidewalls */
     private static final float X_OFFSET = 0.5f;
+
     /**
      * offset the coordinate by a quarter tile,it looks a bit more like every Entity is not walking
      * over walls
@@ -60,6 +59,7 @@ public final class LevelSystem extends System {
     private static final float Y_OFFSET = 0.25f;
 
     private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
+
     /** Currently used level-size configuration for generating new level. */
     private static LevelSize levelSize = LevelSize.MEDIUM;
 

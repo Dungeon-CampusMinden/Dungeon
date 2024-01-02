@@ -2,7 +2,6 @@ package contrib.level.generator.graphBased.levelGraph;
 
 import core.Entity;
 import core.level.elements.ILevel;
-
 import java.util.*;
 
 /**

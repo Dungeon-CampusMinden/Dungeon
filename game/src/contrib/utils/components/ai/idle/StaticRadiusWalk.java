@@ -1,9 +1,7 @@
 package contrib.utils.components.ai.idle;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
-
 import contrib.utils.components.ai.AIUtils;
-
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -12,7 +10,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-
 import java.util.function.Consumer;
 
 /** Implements an idle AI that lets the entity walk in a specific radius from a fixed point. */

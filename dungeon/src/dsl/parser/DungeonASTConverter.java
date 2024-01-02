@@ -2,12 +2,13 @@ package dsl.parser;
 
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
-
 import dsl.parser.ast.*;
-
 import graph.taskdependencygraph.TaskEdge;
 // CHECKSTYLE:ON: AvoidStarImport
-
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -15,13 +16,9 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
+
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
 
 /**
  * This class converts the {@link ParseTree} created by the antlr parser into an AST. While walking

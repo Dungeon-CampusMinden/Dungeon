@@ -14,7 +14,6 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
-
 import org.junit.Assert;
 import org.junit.Test;
 

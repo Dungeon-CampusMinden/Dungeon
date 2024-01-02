@@ -19,7 +19,6 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
 import dsl.semanticanalysis.typesystem.typebuilding.type.EnumType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -202,6 +201,7 @@ public class TypeInstantiator {
         var valuesType = value.getDataType();
         return convertValueToObject(value, valuesType);
     }
+
     /**
      * Converts a {@link Value} to a regular Java Object. The conversion is dependent on the kind of
      * datatype of the {@link Value} instance.

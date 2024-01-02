@@ -2,7 +2,6 @@ package core;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-
 import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.game.GameLoop;
@@ -17,7 +16,6 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;

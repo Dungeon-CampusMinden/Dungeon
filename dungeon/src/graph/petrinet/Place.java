@@ -1,11 +1,10 @@
 package graph.petrinet;
 
-import task.Task;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import task.Task;
 
 /**
  * Represents a Place in the Petri Net.

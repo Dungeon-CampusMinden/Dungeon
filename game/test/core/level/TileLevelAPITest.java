@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.graphics.Texture;
-
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -25,20 +24,14 @@ import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
+import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.IOException;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({TextureMap.class})
 public class TileLevelAPITest {
 
     private LevelSystem api;
@@ -47,13 +40,17 @@ public class TileLevelAPITest {
     private IVoidFunction onLevelLoader;
     private ILevel level;
 
+    private MockedConstruction<Texture> textureMockedConstruction;
+
     @Before
     public void setup() {
-
         Texture texture = Mockito.mock(Texture.class);
         TextureMap textureMap = Mockito.mock(TextureMap.class);
-        PowerMockito.mockStatic(TextureMap.class);
-        when(TextureMap.instance()).thenReturn(textureMap);
+        textureMockedConstruction = Mockito.mockConstruction(Texture.class);
+
+        try (MockedStatic<TextureMap> textureMapMock = Mockito.mockStatic(TextureMap.class)) {
+            textureMapMock.when(TextureMap::instance).thenReturn(textureMap);
+        }
         when(textureMap.textureAt(any())).thenReturn(texture);
 
         painter = Mockito.mock(Painter.class);
@@ -69,6 +66,7 @@ public class TileLevelAPITest {
         Game.currentLevel(null);
         Game.removeAllEntities();
         Game.removeAllSystems();
+        textureMockedConstruction.close();
     }
 
     @Test

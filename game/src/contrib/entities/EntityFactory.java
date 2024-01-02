@@ -3,14 +3,12 @@ package contrib.entities;
 import contrib.components.*;
 import contrib.item.Item;
 import contrib.utils.components.interaction.DropItemsInteraction;
-
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.path.IPath;
-
 import java.io.IOException;
 import java.util.Set;
 

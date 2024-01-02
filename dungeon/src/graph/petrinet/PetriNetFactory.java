@@ -3,10 +3,8 @@ package graph.petrinet;
 import graph.TaskGraphConverter;
 import graph.taskdependencygraph.TaskDependencyGraph;
 import graph.taskdependencygraph.TaskEdge;
-
-import task.Task;
-
 import java.util.Set;
+import task.Task;
 
 /**
  * Creates PetriNet for {@link Task} and connect it with other Petri-Nets.
@@ -181,6 +179,7 @@ public class PetriNetFactory {
         connect.finished().addTokenOnFire(helper);
         on.activateTask().addDependency(helper);
     }
+
     /**
      * Connect the given PetriNet to another PetriNet as a mandatory pre-task.
      *

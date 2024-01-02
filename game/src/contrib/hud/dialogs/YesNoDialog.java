@@ -2,13 +2,10 @@ package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-
 import contrib.hud.UIUtils;
-
 import core.Entity;
 import core.Game;
 import core.utils.IVoidFunction;
-
 import java.util.Objects;
 import java.util.function.BiFunction;
 

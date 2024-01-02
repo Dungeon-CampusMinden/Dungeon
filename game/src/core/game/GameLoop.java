@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
-
 import core.Entity;
 import core.Game;
 import core.System;
@@ -20,7 +19,6 @@ import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.systems.*;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;

@@ -3,7 +3,6 @@ package dsl.semanticanalysis.typesystem.typebuilding;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
-
 import java.lang.reflect.ParameterizedType;
 
 /** Builder interface for a {@link FunctionType} for a callback method */

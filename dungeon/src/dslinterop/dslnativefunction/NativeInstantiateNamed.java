@@ -2,7 +2,6 @@ package dslinterop.dslnativefunction;
 
 import core.Component;
 import core.Entity;
-
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.callable.ICallable;
@@ -17,7 +16,6 @@ import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

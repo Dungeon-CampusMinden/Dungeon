@@ -5,11 +5,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-
 import contrib.components.UIComponent;
-
 import core.Game;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -30,6 +27,7 @@ public final class GUICombination extends Group {
     private final DragAndDrop dragAndDrop;
     private final ArrayList<CombinableGUI> combinableGuis;
     private final int guisPerRow;
+
     /**
      * Creates a GUICombination, a combination of multiple CombinableGUI elements.
      *

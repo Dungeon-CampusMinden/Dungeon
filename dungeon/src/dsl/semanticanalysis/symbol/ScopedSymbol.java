@@ -24,7 +24,6 @@ package dsl.semanticanalysis.symbol;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -1,10 +1,19 @@
+import com.github.spotbugs.snom.Confidence;
+
 plugins {
     // we can not use ext variables here
     id "java"
     id "checkstyle"
-    id "com.github.spotbugs" version "5.0.14"
-    id "com.diffplug.spotless" version "6.18.0"
+    id "com.github.spotbugs" version "6.0.4"
+    id "com.diffplug.spotless" version "6.23.3"
     id 'antlr'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    sourceCompatibility = JavaVersion.VERSION_21
 }
 
 // store name of method parameter names in .class files (used to build
@@ -24,9 +33,9 @@ repositories {
 
 ext {
     // we can not use the + operator here
-    gdxVersion = "1.11.0"
+    gdxVersion = "1.12.1"
     aiVersion = "1.8.2"
-    gsonVersion = "2.9.0"
+    gsonVersion = "2.10.1"
     checkstyleVersion = "10.11.0"
 }
 
@@ -42,20 +51,15 @@ dependencies {
     // JUnit 4, Mockito and Powermock for testing:
     // https://mvnrepository.com/artifact/junit/junit
     testImplementation "junit:junit:4.13.2"
-
-    // https://mvnrepository.com/artifact/org.powermock/powermock-module-junit4
-    testImplementation "org.powermock:powermock-module-junit4:2.0.9"
-    // https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2
-    testImplementation "org.powermock:powermock-api-mockito2:2.0.9"
+    testImplementation "org.mockito:mockito-core:5.8.0"
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation group: "com.google.code.gson", name: "gson", version: gsonVersion
+    implementation "com.google.code.gson:gson:$gsonVersion"
 
     // ANTLR version 4 for DSL Grammar
-    antlr "org.antlr:antlr4:4.11.1"
+    antlr "org.antlr:antlr4:4.13.1"
 }
 
-sourceCompatibility = 17
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
 sourceSets.main.java.srcDirs = ["game/src/", "dungeon/src/", "blockly/src/", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/"]
@@ -74,7 +78,7 @@ task run(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs("-XstartOnFirstThread")
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -87,7 +91,7 @@ task runRandom(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs("-XstartOnFirstThread")
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -100,7 +104,7 @@ task start(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs("-XstartOnFirstThread")
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -113,7 +117,7 @@ task blockly(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs("-XstartOnFirstThread")
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -127,7 +131,7 @@ task debug(dependsOn: classes, type: JavaExec) {
     ignoreExitValue = true
     debug = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs("-XstartOnFirstThread")
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -149,7 +153,7 @@ checkstyle {
 spotbugs {
     ignoreFailures = true
     showStackTraces = false
-    reportLevel = "low"
+    reportLevel = Confidence.valueOf("LOW")
 }
 
 spotbugsMain {
@@ -186,6 +190,7 @@ spotless {
         googleJavaFormat().aosp()
     }
 }
+
 
 // generate ANTLR visitor and listener classes from grammar
 generateGrammarSource {
@@ -233,7 +238,7 @@ task runManualQuizTest(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs("-XstartOnFirstThread")
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -246,7 +251,7 @@ task runYesNoDialogTest(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs("-XstartOnFirstThread")
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -259,7 +264,7 @@ task runCallbackTest(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs("-XstartOnFirstThread")
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -272,7 +277,7 @@ task runLoaderTest(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs("-XstartOnFirstThread")
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
@@ -285,7 +290,7 @@ task taskGenerationTest(dependsOn: classes, type: JavaExec) {
     standardInput = System.in
     ignoreExitValue = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        allJvmArgs += ["-XstartOnFirstThread"]
+        jvmArgs("-XstartOnFirstThread")
     }
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)

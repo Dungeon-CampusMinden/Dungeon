@@ -3,24 +3,21 @@ package task.dslinterop;
 import static task.tasktype.AssignTask.EMPTY_ELEMENT;
 
 import core.Entity;
-
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeNameMember;
-
-import task.Task;
-import task.TaskContent;
-import task.reporting.GradingFunctions;
-import task.tasktype.AssignTask;
-import task.tasktype.Element;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import task.Task;
+import task.TaskContent;
+import task.reporting.GradingFunctions;
+import task.tasktype.AssignTask;
+import task.tasktype.Element;
 
 public class DSLAssignTask {
     public static final String EMPTY_ELEMENT_NAME = AssignTask.EMPTY_ELEMENT_NAME;

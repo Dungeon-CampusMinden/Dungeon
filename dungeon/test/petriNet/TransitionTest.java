@@ -4,10 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import graph.petrinet.Place;
 import graph.petrinet.Transition;
-
-import org.junit.Test;
-
 import java.util.Set;
+import org.junit.Test;
 
 public class TransitionTest {
 

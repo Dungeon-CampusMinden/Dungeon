@@ -2,7 +2,6 @@ package contrib.components;
 
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-
 import core.Component;
 
 /**

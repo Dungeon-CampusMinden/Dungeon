@@ -4,7 +4,6 @@ import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import contrib.utils.level.NoTileFoundException;
-
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -13,7 +12,6 @@ import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
-
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;

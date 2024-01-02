@@ -5,19 +5,15 @@ import static org.junit.Assert.assertTrue;
 import contrib.level.generator.graphBased.LevelGraphGenerator;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
-
 import core.Entity;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
-
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import task.game.components.DoorComponent;
 import task.game.components.TaskComponent;
-
-import java.util.Set;
 
 public class TaskContentDoorOpenerTest {
 

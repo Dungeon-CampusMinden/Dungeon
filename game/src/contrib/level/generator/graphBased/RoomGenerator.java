@@ -4,11 +4,9 @@ import static core.level.elements.ILevel.RANDOM;
 
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
-
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
-
 import java.util.ArrayList;
 import java.util.Random;
 

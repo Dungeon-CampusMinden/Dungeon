@@ -12,7 +12,6 @@ import core.level.elements.tile.FloorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,7 +1,6 @@
 package starter;
 
 import contrib.components.InteractionComponent;
-
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -10,18 +9,15 @@ import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.path.SimpleIPath;
-
 import entrypoint.DSLEntryPoint;
-
+import java.io.IOException;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import task.Task;
 import task.TaskContent;
 import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.SingleChoice;
-
-import java.io.IOException;
-import java.util.Set;
-import java.util.function.BiConsumer;
 
 /**
  * This class contains static methods to create the TaskSelector-Level to select the tasks at the

@@ -2,12 +2,9 @@ package contrib.crafting;
 
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
-
 import contrib.item.Item;
-
 import core.Game;
 import core.utils.logging.CustomLogLevel;
-
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;

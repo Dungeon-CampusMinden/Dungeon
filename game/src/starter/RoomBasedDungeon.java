@@ -2,19 +2,16 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
-
 import core.Entity;
 import core.Game;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;

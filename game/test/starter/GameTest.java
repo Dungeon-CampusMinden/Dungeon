@@ -1,20 +1,12 @@
 package starter;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 import core.Game;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Game.class, Gdx.class})
-class GameTest {
+public class GameTest {
 
     private Game game;
     private SpriteBatch batch;

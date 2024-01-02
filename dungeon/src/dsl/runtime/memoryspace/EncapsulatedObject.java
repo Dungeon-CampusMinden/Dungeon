@@ -11,7 +11,6 @@ import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;

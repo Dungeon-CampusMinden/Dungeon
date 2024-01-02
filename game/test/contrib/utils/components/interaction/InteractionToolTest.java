@@ -3,7 +3,6 @@ package contrib.utils.components.interaction;
 import static org.junit.Assert.*;
 
 import contrib.components.InteractionComponent;
-
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -14,9 +13,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-
 import org.junit.Test;
-
 import testingUtils.SimpleCounter;
 
 public class InteractionToolTest {

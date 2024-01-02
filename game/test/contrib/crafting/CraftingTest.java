@@ -6,10 +6,8 @@ import contrib.item.Item;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceMushroomRed;
-
-import org.junit.Test;
-
 import java.util.Optional;
+import org.junit.Test;
 
 public class CraftingTest {
 

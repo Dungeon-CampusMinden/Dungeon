@@ -6,7 +6,6 @@ import dsl.parser.ast.Node;
 import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
-
 import java.util.List;
 
 public class FunctionSymbol extends ScopedSymbol implements ICallable {

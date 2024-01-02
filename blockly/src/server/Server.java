@@ -4,18 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
-
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

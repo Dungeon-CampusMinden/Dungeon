@@ -2,7 +2,6 @@ package core.utils.components.draw;
 
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

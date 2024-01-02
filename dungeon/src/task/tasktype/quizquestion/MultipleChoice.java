@@ -1,7 +1,6 @@
 package task.tasktype.quizquestion;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-
 import task.reporting.GradingFunctions;
 import task.tasktype.Quiz;
 

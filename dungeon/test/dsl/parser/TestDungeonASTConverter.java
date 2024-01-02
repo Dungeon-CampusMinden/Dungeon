@@ -5,14 +5,12 @@ import static org.junit.Assert.assertNotEquals;
 
 import dsl.helpers.Helpers;
 import dsl.parser.ast.*;
-
 import graph.taskdependencygraph.TaskEdge;
-
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-// CHECKSTYLE:OFF: AvoidStarImport
 
-import java.util.List;
+// CHECKSTYLE:OFF: AvoidStarImport
 
 // CHECKSTYLE:ON: AvoidStarImport
 

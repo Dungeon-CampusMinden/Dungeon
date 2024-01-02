@@ -1,13 +1,11 @@
 package contrib.level.generator;
 
 import contrib.level.generator.graphBased.levelGraph.Direction;
-
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
-
 import java.util.Optional;
 
 /**

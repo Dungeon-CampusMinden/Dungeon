@@ -1,7 +1,6 @@
 package contrib.components;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-
 import core.Component;
 import core.utils.IVoidFunction;
 

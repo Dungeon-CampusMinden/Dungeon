@@ -2,9 +2,7 @@ package manual.level.generator.graphBased;
 
 import contrib.level.generator.graphBased.LevelGraphGenerator;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
-
 import core.Entity;
-
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;

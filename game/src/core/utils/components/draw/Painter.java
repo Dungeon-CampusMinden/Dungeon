@@ -2,7 +2,6 @@ package core.utils.components.draw;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.components.path.IPath;

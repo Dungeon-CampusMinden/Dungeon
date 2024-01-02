@@ -4,12 +4,10 @@ import static org.junit.Assert.*;
 
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
-import org.junit.Test;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.Test;
 
 public class AnimationTest {
 

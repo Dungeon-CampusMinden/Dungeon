@@ -1,11 +1,9 @@
 package contrib.utils.components.ai.transition;
 
 import contrib.components.HealthComponent;
-
 import core.Entity;
 import core.components.PlayerComponent;
 import core.utils.components.MissingComponentException;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;

@@ -10,13 +10,10 @@ import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
-
 import graph.taskdependencygraph.TaskDependencyGraph;
-
+import java.lang.reflect.InvocationTargetException;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.lang.reflect.InvocationTargetException;
 
 public class TestTypeBuilder {
     @Test

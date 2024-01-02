@@ -8,17 +8,14 @@ import contrib.systems.AISystem;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.ProtectOnAttack;
 import contrib.utils.components.health.Damage;
-
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProtectOnAttackTest {
 

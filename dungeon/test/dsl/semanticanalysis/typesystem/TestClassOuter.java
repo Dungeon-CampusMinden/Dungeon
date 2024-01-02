@@ -2,7 +2,6 @@ package dsl.semanticanalysis.typesystem;
 
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
-
 import graph.taskdependencygraph.TaskDependencyGraph;
 
 @DSLType

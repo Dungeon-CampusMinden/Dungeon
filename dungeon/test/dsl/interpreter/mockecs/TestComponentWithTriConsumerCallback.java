@@ -1,7 +1,6 @@
 package dsl.interpreter.mockecs;
 
 import core.utils.TriConsumer;
-
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLCallback;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;

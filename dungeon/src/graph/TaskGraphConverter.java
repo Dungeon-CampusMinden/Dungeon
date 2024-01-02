@@ -6,24 +6,19 @@ import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
-
 import core.Entity;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
-
 import dsl.interpreter.DSLInterpreter;
-
 import graph.petrinet.PetriNet;
 import graph.petrinet.PetriNetFactory;
 import graph.taskdependencygraph.TaskDependencyGraph;
 import graph.taskdependencygraph.TaskNode;
-
+import java.util.*;
 import task.Task;
 import task.game.components.DoorComponent;
 import task.game.components.TaskComponent;
-
-import java.util.*;
 
 /**
  * Offers functions to generate a {@link LevelGraph} or Petri-Net for a TaskGraph .

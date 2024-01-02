@@ -6,7 +6,6 @@ import core.System;
 import core.components.PlayerComponent;
 import core.level.elements.ILevel;
 import core.utils.EntitySystemMapper;
-
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;

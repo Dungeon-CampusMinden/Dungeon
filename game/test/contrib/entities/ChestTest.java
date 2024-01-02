@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -15,13 +14,11 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
-
-import org.junit.After;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
+import org.junit.After;
+import org.junit.Test;
 
 public class ChestTest {
 

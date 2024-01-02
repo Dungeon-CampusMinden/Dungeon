@@ -1,14 +1,13 @@
 package task.tasktype;
 
-import task.Task;
-import task.TaskContent;
-import task.reporting.GradingFunctions;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import task.Task;
+import task.TaskContent;
+import task.reporting.GradingFunctions;
 
 /**
  * Assignment Task.

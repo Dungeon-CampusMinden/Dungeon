@@ -5,14 +5,17 @@ import static org.junit.Assert.assertEquals;
 import contrib.components.InventoryComponent;
 import contrib.entities.EntityFactory;
 import contrib.item.Item;
-
 import core.Entity;
 import core.Game;
-
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import task.*;
 import task.game.components.TaskContentComponent;
 import task.game.content.QuestItem;
@@ -22,13 +25,6 @@ import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.SingleChoice;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 
 public class AnswerPickingFunctionsTest {
 

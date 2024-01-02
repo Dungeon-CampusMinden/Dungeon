@@ -1,12 +1,10 @@
 package contrib.systems;
 
 import contrib.components.CollideComponent;
-
 import core.Entity;
 import core.System;
 import core.level.Tile;
 import core.utils.components.MissingComponentException;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;

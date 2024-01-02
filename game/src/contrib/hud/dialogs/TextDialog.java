@@ -4,13 +4,10 @@ import static contrib.hud.UIUtils.DEFAULT_SKIN;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
-
 import core.Entity;
 import core.Game;
-
 import java.util.Objects;
 import java.util.function.BiFunction;
 

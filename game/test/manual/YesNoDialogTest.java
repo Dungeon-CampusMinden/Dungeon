@@ -2,11 +2,9 @@ package manual;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-
 import contrib.hud.dialogs.TextDialog;
 import contrib.hud.dialogs.YesNoDialog;
 import contrib.systems.HudSystem;
-
 import core.Game;
 import core.utils.IVoidFunction;
 

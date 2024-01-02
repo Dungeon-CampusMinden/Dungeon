@@ -3,13 +3,15 @@ package reporting;
 import static org.junit.Assert.assertEquals;
 
 import contrib.entities.EntityFactory;
-
 import core.Game;
-
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import task.*;
 import task.reporting.GradingFunctions;
 import task.tasktype.AssignTask;
@@ -18,12 +20,6 @@ import task.tasktype.Quiz;
 import task.tasktype.ReplacementTask;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 public class GradingFunctionsTest {
 

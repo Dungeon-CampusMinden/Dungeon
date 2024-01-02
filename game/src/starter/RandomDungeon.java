@@ -2,17 +2,14 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
-
 import core.Entity;
 import core.Game;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.IOException;
 
 public class RandomDungeon {

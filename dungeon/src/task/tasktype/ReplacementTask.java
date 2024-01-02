@@ -1,10 +1,9 @@
 package task.tasktype;
 
-import task.Task;
-import task.reporting.GradingFunctions;
-
 import java.util.ArrayList;
 import java.util.List;
+import task.Task;
+import task.reporting.GradingFunctions;
 
 /**
  * A Replacement Task.

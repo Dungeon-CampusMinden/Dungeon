@@ -1,11 +1,9 @@
 package core.systems;
 
 import static junit.framework.TestCase.assertTrue;
-
 import static org.junit.Assert.assertEquals;
 
 import com.badlogic.gdx.math.Vector2;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -16,13 +14,11 @@ import core.level.elements.ILevel;
 import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.SimpleIPath;
-
+import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.io.IOException;
 
 public class VelocitySystemTest {
 

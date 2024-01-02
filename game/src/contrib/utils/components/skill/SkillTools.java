@@ -3,7 +3,6 @@ package contrib.utils.components.skill;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-
 import core.Game;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;

@@ -3,7 +3,6 @@ package core.components;
 import static junit.framework.TestCase.assertTrue;
 
 import core.utils.Point;
-
 import org.junit.Before;
 import org.junit.Test;
 

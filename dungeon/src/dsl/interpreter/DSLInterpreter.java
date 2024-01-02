@@ -2,7 +2,6 @@ package dsl.interpreter;
 
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
-
 import dsl.interpreter.taskgraph.Interpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.*;
@@ -25,19 +24,15 @@ import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.callbackadapter.CallbackAdapter;
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
-
 import entrypoint.DSLEntryPoint;
 import entrypoint.DungeonConfig;
-
+import java.util.*;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-
 import task.Task;
 import task.dslinterop.DSLAssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
-
-import java.util.*;
 
 // TODO: specify EXACT semantics of value copying and setting
 
@@ -1392,6 +1387,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
         return null;
     }
+
     // endregion
 
     // region function execution
@@ -1621,6 +1617,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         assert Objects.requireNonNull(statementStack.peek()).type == Node.Type.ReturnMark;
         statementStack.pop();
     }
+
     // endregion
 
     // region ASTVisitor implementation for nodes which do not need to be interpreted
@@ -1649,6 +1646,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     public Object visit(ParamDefNode node) {
         return null;
     }
+
     // endregion
 
     // region helpers for native functions/methods

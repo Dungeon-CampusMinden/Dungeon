@@ -2,12 +2,10 @@ package manual.quizquestion;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
 import contrib.hud.dialogs.TextDialog;
 import contrib.systems.*;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -15,7 +13,10 @@ import core.components.PositionComponent;
 import core.level.utils.LevelSize;
 import core.systems.LevelSystem;
 import core.utils.components.path.SimpleIPath;
-
+import java.io.IOException;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -24,11 +25,6 @@ import task.tasktype.Quiz;
 import task.tasktype.quizquestion.FreeText;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
-
-import java.io.IOException;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 
 /**
  * Test scenario for the UI Callbacks.

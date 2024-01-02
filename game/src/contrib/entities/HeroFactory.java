@@ -2,7 +2,6 @@ package contrib.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
-
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.elements.GUICombination;
@@ -12,7 +11,6 @@ import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
-
 import core.Entity;
 import core.Game;
 import core.components.*;
@@ -22,7 +20,6 @@ import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.IOException;
 import java.util.Comparator;
 

@@ -5,7 +5,6 @@ import dsl.runtime.callable.ICallable;
 import dsl.runtime.callable.NativeFunction;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
-
 import java.util.List;
 
 public class DummyNativeFunction extends NativeFunction {

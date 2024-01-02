@@ -3,7 +3,6 @@ package core.utils;
 import core.Component;
 import core.Entity;
 import core.System;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;

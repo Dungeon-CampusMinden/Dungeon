@@ -1,10 +1,8 @@
 package contrib.utils.components.ai.transition;
 
 import contrib.components.HealthComponent;
-
 import core.Entity;
 import core.utils.components.MissingComponentException;
-
 import java.util.function.Function;
 
 /**

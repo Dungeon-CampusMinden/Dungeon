@@ -3,13 +3,11 @@ package contrib.item.concreteItem;
 import contrib.components.InventoryComponent;
 import contrib.entities.EntityFactory;
 import contrib.item.Item;
-
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.IOException;
 
 /**

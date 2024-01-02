@@ -4,7 +4,6 @@ import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.callable.IInstanceCallable;
 import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -2,7 +2,6 @@ package dsl.semanticanalysis.typesystem;
 
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
-
 import org.junit.Assert;
 import org.junit.Test;
 

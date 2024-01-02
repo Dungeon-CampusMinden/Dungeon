@@ -3,7 +3,6 @@ package dsl.semanticanalysis.typesystem.typebuilding;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 

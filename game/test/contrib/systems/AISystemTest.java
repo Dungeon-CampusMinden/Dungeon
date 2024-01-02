@@ -4,17 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 import contrib.components.AIComponent;
-
 import core.Entity;
 import core.Game;
-
+import java.util.function.Consumer;
+import java.util.function.Function;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class AISystemTest {
 

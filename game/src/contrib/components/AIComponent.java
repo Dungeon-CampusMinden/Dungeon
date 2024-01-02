@@ -5,10 +5,8 @@ import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
-
 import core.Component;
 import core.Entity;
-
 import java.util.function.Consumer;
 import java.util.function.Function;
 

@@ -10,14 +10,12 @@ import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.item.ItemGenerator;
-
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.IOException;
 import java.util.Random;
 import java.util.Set;

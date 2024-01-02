@@ -1,14 +1,13 @@
 package task.reporting;
 
+import java.util.*;
+import java.util.function.BiFunction;
 import task.*;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.ReplacementTask;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
-
-import java.util.*;
-import java.util.function.BiFunction;
 
 /** Contanins different grading functions for the different task types. */
 public class GradingFunctions {

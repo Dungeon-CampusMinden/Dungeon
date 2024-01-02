@@ -6,7 +6,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
-
 import org.junit.Before;
 import org.junit.Test;
 

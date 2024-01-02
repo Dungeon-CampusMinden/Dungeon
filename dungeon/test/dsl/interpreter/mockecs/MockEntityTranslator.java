@@ -9,7 +9,6 @@ import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-
 import java.lang.reflect.Field;
 
 public class MockEntityTranslator implements IObjectToValueTranslator {

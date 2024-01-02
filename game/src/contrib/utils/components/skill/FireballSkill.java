@@ -3,13 +3,10 @@ package contrib.utils.components.skill;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
-
 import contrib.utils.components.health.DamageType;
-
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.function.Supplier;
 
 /**

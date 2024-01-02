@@ -6,7 +6,6 @@ import dsl.runtime.value.*;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

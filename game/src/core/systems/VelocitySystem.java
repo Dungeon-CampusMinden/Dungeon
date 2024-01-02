@@ -2,7 +2,6 @@ package core.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
-
 import core.Entity;
 import core.Game;
 import core.System;

@@ -2,19 +2,15 @@ package dsl.interpreter;
 
 import entrypoint.DSLEntryPoint;
 import entrypoint.DungeonConfig;
-
 import graph.taskdependencygraph.TaskNode;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import task.Task;
-
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Assert;
+import org.junit.Test;
+import task.Task;
 
 public class TetsDSLEntryPointFinder {
 

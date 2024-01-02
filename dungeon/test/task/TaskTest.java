@@ -1,22 +1,17 @@
 package task;
 
 import static junit.framework.TestCase.assertEquals;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import core.Entity;
-
 import graph.petrinet.Place;
-
+import java.util.List;
+import java.util.function.BiFunction;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import task.game.components.TaskComponent;
-
-import java.util.List;
-import java.util.function.BiFunction;
 
 public class TaskTest {
 

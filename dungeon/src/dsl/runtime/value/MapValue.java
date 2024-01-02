@@ -4,7 +4,6 @@ import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.runtime.callable.IInstanceCallable;
 import dsl.semanticanalysis.typesystem.typebuilding.type.MapType;
-
 import java.util.*;
 
 public class MapValue extends Value {

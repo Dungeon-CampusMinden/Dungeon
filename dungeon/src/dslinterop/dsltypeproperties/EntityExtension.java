@@ -8,29 +8,25 @@ import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.interaction.DropItemsInteraction;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
-
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
 import task.game.components.TaskContentComponent;
 import task.game.content.QuestItem;
 import task.tasktype.Element;
-
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * This class implements {@link IDSLExtensionProperty} for the {@link Entity} class, in order to

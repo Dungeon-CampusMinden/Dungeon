@@ -4,14 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-
 import contrib.components.UIComponent;
-
 import core.Entity;
 import core.Game;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.function.Supplier;
 
 /** UI utility functions, such as a formatter for the window or dialog. */
@@ -22,6 +19,7 @@ public final class UIUtils {
 
     public static final Skin DEFAULT_SKIN =
             new Skin(Gdx.files.internal(SKIN_FOR_DIALOG.pathString()));
+
     /**
      * Limits the length of the string to 40 characters, after which a line break occurs
      * automatically.

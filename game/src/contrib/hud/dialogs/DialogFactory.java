@@ -2,7 +2,6 @@ package contrib.hud.dialogs;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-
 import java.util.function.BiFunction;
 
 /**

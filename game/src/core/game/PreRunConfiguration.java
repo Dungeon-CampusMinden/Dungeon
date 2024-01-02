@@ -5,7 +5,6 @@ import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.LoggerConfig;
-
 import java.io.IOException;
 import java.util.function.Consumer;
 

@@ -4,7 +4,6 @@ import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
-
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -18,7 +17,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.utils.IVoidFunction;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +48,7 @@ public final class RoomBasedLevelGenerator {
 
     /** Rooms with this amount or fewer entities will be generated small. */
     private static final int MAX_ENTITIES_FOR_SMALL_ROOMS = 2;
+
     /** Rooms with this amount or more entities will be generated large. */
     private static final int MIN_ENTITIES_FOR_BIG_ROOM = 5;
 

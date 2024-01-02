@@ -9,23 +9,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.utils.SnapshotArray;
-
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.TextDialog;
-
 import core.Entity;
 import core.Game;
-
-import task.Task;
-import task.TaskContent;
-import task.tasktype.Quiz;
-import task.tasktype.quizquestion.FreeText;
-
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import task.Task;
+import task.TaskContent;
+import task.tasktype.Quiz;
+import task.tasktype.quizquestion.FreeText;
 
 /**
  * Contains functions to build an easy-to-use Consumer as a callback for the {@link

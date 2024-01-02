@@ -1,21 +1,18 @@
 package task.tasktype;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import task.Task;
 import task.TaskContent;
 import task.game.hud.QuizUI;
 import task.tasktype.quizquestion.FreeText;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents a single quiz question, including the question itself, possible answer choices, and

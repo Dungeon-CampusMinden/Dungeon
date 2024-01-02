@@ -1,14 +1,11 @@
 package contrib.utils.components.ai.fight;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
-
 import contrib.utils.components.ai.AIUtils;
-
 import core.Entity;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
-
 import java.util.function.Consumer;
 
 /**

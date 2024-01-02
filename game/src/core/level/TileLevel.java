@@ -10,7 +10,6 @@ import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

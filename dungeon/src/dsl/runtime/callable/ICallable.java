@@ -3,7 +3,6 @@ package dsl.runtime.callable;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
-
 import java.util.List;
 
 public interface ICallable {
