@@ -8,17 +8,17 @@ Dieses Dokument erklärt das Grundkonzept der graphenbasierten Level und erläut
 
 ## Grundkonzept
 
-Zuerst wird ein Levelgraph generiert. Ein Levelgraph besteht aus mehreren Knoten. 
+Zuerst wird ein Levelgraph generiert. Ein Levelgraph besteht aus mehreren Knoten.
 Jeder Knoten im Graphen wird später zu einem Raum in einem Level (Erinnerung: Ein Raum ist eine eigene `ILevel`-Instanz).
-Jeder Knoten speichert eine `Set<Entity>` als Payload; diese Entitäten werden später im Raum platziert. 
-Die Kanten im Graphen geben an, dass die Räume miteinander verbunden sind. Im Spiel bedeutet das, dass eine Tür von einem Raum in den anderen führt. Das System ist so implementiert, dass eine Tür, die rechts im Raum A platziert ist, den Spieler links in Raum B eintreten lässt und umgekehrt. 
+Jeder Knoten speichert eine `Set<Entity>` als Payload; diese Entitäten werden später im Raum platziert.
+Die Kanten im Graphen geben an, dass die Räume miteinander verbunden sind. Im Spiel bedeutet das, dass eine Tür von einem Raum in den anderen führt. Das System ist so implementiert, dass eine Tür, die rechts im Raum A platziert ist, den Spieler links in Raum B eintreten lässt und umgekehrt.
 Die Türen werden als `DoorTile` implementiert und logisch miteinander verbunden (die Türen wissen also, welche andere Tür zu ihn gehört/zu ihnen führt/ zu denen sie führen).
 Das `LevelSystem` prüft, ob sich der Spieler auf einer Tür befindet, und wenn ja, wird das Level geladen, zu dem die Tür führt, und der Spieler wird bei der zugehörigen Tür im neuen Raum platziert.
 
 Diese Level haben keinen klassischen Ausgang (keine Falltür); dieser kann jedoch über die `ILevel`-API hinzugefügt werden.
 
-Der Generierungsprozess läuft wie folgt ab: 
-Der `LevelGraphGenerator` generiert einen `LevelGraph`, und für jeden Knoten im Graphen generiert der `RoomGenerator` einen Raum und speichert diesen im Knoten. 
+Der Generierungsprozess läuft wie folgt ab:
+Der `LevelGraphGenerator` generiert einen `LevelGraph`, und für jeden Knoten im Graphen generiert der `RoomGenerator` einen Raum und speichert diesen im Knoten.
 Der `RoomBasedLevelGenerator` (der die beiden anderen auch anstößt) führt dann die logische Verbindung der Türen durch und platziert die Entitäten im Raum.
 
 ## Anwendung: Für Studierende
