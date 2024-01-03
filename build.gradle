@@ -1,9 +1,6 @@
-import com.github.spotbugs.snom.Confidence;
-
 plugins {
     // we can not use ext variables here
     id "java"
-    id "com.github.spotbugs" version "6.0.4"
     id "com.diffplug.spotless" version "6.23.3"
     id 'antlr'
 }
@@ -139,40 +136,6 @@ task debug(dependsOn: classes, type: JavaExec) {
 test {
     testLogging {
         events "passed", "skipped", "failed"
-    }
-}
-
-spotbugs {
-    ignoreFailures = true
-    showStackTraces = false
-    reportLevel = Confidence.valueOf("LOW")
-}
-
-spotbugsMain {
-    reports {
-        xml {
-            required = true
-            outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.xml")
-        }
-        html {
-            required = true
-            outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
-            stylesheet = "fancy-hist.xsl"
-        }
-    }
-}
-
-spotbugsTest {
-    reports {
-        xml {
-            required = true
-            outputLocation = file("$buildDir/reports/spotbugs/test/spotbugs.xml")
-        }
-        html {
-            required = true
-            outputLocation = file("$buildDir/reports/spotbugs/test/spotbugs.html")
-            stylesheet = "fancy-hist.xsl"
-        }
     }
 }
 
