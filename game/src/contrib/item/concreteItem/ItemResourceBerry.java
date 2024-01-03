@@ -16,30 +16,24 @@ import core.utils.components.path.SimpleIPath;
  */
 public final class ItemResourceBerry extends Item {
 
-    private static final int HEAL_AMOUNT = 5;
+  private static final int HEAL_AMOUNT = 5;
 
-    /** Create a new Berry. */
-    public ItemResourceBerry() {
-        super(
-                "Berry",
-                "A berry.",
-                Animation.fromSingleImage(new SimpleIPath("items/resource/berry.png")));
-    }
+  /** Create a new Berry. */
+  public ItemResourceBerry() {
+    super(
+        "Berry",
+        "A berry.",
+        Animation.fromSingleImage(new SimpleIPath("items/resource/berry.png")));
+  }
 
-    @Override
-    public void use(final Entity e) {
-        e.fetch(InventoryComponent.class)
-                .ifPresent(
-                        component -> {
-                            component.remove(this);
-                            e.fetch(HealthComponent.class)
-                                    .ifPresent(
-                                            hc ->
-                                                    hc.receiveHit(
-                                                            new Damage(
-                                                                    -HEAL_AMOUNT,
-                                                                    DamageType.HEAL,
-                                                                    null)));
-                        });
-    }
+  @Override
+  public void use(final Entity e) {
+    e.fetch(InventoryComponent.class)
+        .ifPresent(
+            component -> {
+              component.remove(this);
+              e.fetch(HealthComponent.class)
+                  .ifPresent(hc -> hc.receiveHit(new Damage(-HEAL_AMOUNT, DamageType.HEAL, null)));
+            });
+  }
 }

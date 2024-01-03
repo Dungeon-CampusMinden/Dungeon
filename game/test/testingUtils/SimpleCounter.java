@@ -1,13 +1,13 @@
 package testingUtils;
 
 public final class SimpleCounter {
-    private int count = 0;
+  private int count = 0;
 
-    public void inc() {
-        count++;
-    }
+  public void inc() {
+    count++;
+  }
 
-    public int getCount() {
-        return count;
-    }
+  public int getCount() {
+    return count;
+  }
 }

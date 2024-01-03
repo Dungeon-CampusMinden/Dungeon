@@ -31,203 +31,203 @@ import java.util.function.Consumer;
 @DSLType(name = "velocity_component")
 public final class VelocityComponent implements Component {
 
-    private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = e -> {};
-    private float currentXVelocity;
-    private float currentYVelocity;
-    private @DSLTypeMember(name = "x_velocity") float xVelocity;
-    private @DSLTypeMember(name = "y_velocity") float yVelocity;
-    private float previousXVelocity;
-    private float previousYVelocity;
-    private Consumer<Entity> onWallHit;
+  private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = e -> {};
+  private float currentXVelocity;
+  private float currentYVelocity;
+  private @DSLTypeMember(name = "x_velocity") float xVelocity;
+  private @DSLTypeMember(name = "y_velocity") float yVelocity;
+  private float previousXVelocity;
+  private float previousYVelocity;
+  private Consumer<Entity> onWallHit;
 
-    /**
-     * Create a new VelocityComponent with the given configuration.
-     *
-     * @param xVelocity Speed with which the entity can move on the x-axis.
-     * @param yVelocity Speed with which the entity can move on the y-axis.
-     */
-    public VelocityComponent(float xVelocity, float yVelocity, Consumer<Entity> onWallHit) {
-        this.currentXVelocity = 0;
-        this.currentYVelocity = 0;
-        this.xVelocity = xVelocity;
-        this.yVelocity = yVelocity;
-        this.onWallHit = onWallHit;
-    }
+  /**
+   * Create a new VelocityComponent with the given configuration.
+   *
+   * @param xVelocity Speed with which the entity can move on the x-axis.
+   * @param yVelocity Speed with which the entity can move on the y-axis.
+   */
+  public VelocityComponent(float xVelocity, float yVelocity, Consumer<Entity> onWallHit) {
+    this.currentXVelocity = 0;
+    this.currentYVelocity = 0;
+    this.xVelocity = xVelocity;
+    this.yVelocity = yVelocity;
+    this.onWallHit = onWallHit;
+  }
 
-    /**
-     * Create a new VelocityComponent with the given configuration.
-     *
-     * @param xVelocity Speed with which the entity can move on the x-axis.
-     * @param yVelocity Speed with which the entity can move on the y-axis.
-     */
-    public VelocityComponent(float xVelocity, float yVelocity) {
-        this(xVelocity, yVelocity, DEFAULT_ON_WALL_HIT);
-    }
+  /**
+   * Create a new VelocityComponent with the given configuration.
+   *
+   * @param xVelocity Speed with which the entity can move on the x-axis.
+   * @param yVelocity Speed with which the entity can move on the y-axis.
+   */
+  public VelocityComponent(float xVelocity, float yVelocity) {
+    this(xVelocity, yVelocity, DEFAULT_ON_WALL_HIT);
+  }
 
-    /**
-     * Create a new VelocityComponent with the default configuration.
-     *
-     * <p>In the default configuration, the movement speed is set to 0, so the entity will not move.
-     */
-    public VelocityComponent() {
-        this(0, 0, DEFAULT_ON_WALL_HIT);
-    }
+  /**
+   * Create a new VelocityComponent with the default configuration.
+   *
+   * <p>In the default configuration, the movement speed is set to 0, so the entity will not move.
+   */
+  public VelocityComponent() {
+    this(0, 0, DEFAULT_ON_WALL_HIT);
+  }
 
-    /**
-     * Get the current x-velocity speed.
-     *
-     * <p>Note that a positive velocity means that the entity is moving right, and a negative
-     * velocity means that the entity is moving left. If the x and y velocity are 0, that means the
-     * entity is currently not moving.
-     *
-     * @return Current velocity on the x-axis.
-     */
-    public float currentXVelocity() {
-        return currentXVelocity;
-    }
+  /**
+   * Get the current x-velocity speed.
+   *
+   * <p>Note that a positive velocity means that the entity is moving right, and a negative velocity
+   * means that the entity is moving left. If the x and y velocity are 0, that means the entity is
+   * currently not moving.
+   *
+   * @return Current velocity on the x-axis.
+   */
+  public float currentXVelocity() {
+    return currentXVelocity;
+  }
 
-    /**
-     * Set the current velocity on the x-axis. This value will be used by the {@link
-     * core.systems.VelocitySystem} to calculate the next position of this entity.
-     *
-     * <p>Note that a positive velocity means that the entity is moving right, and a negative
-     * velocity means that the entity is moving left. If the x and y velocity are 0, that means the
-     * entity is currently not moving.
-     *
-     * @param currentXVelocity Set the current speed on the x-axis.
-     */
-    public void currentXVelocity(float currentXVelocity) {
-        this.currentXVelocity = currentXVelocity;
-    }
+  /**
+   * Set the current velocity on the x-axis. This value will be used by the {@link
+   * core.systems.VelocitySystem} to calculate the next position of this entity.
+   *
+   * <p>Note that a positive velocity means that the entity is moving right, and a negative velocity
+   * means that the entity is moving left. If the x and y velocity are 0, that means the entity is
+   * currently not moving.
+   *
+   * @param currentXVelocity Set the current speed on the x-axis.
+   */
+  public void currentXVelocity(float currentXVelocity) {
+    this.currentXVelocity = currentXVelocity;
+  }
 
-    /**
-     * Get the current y-velocity speed.
-     *
-     * <p>Note that a positive velocity means that the entity is moving up, and a negative velocity
-     * means that the entity is moving down. If the x and y velocity are 0, that means the entity is
-     * currently not moving.
-     *
-     * @return Current velocity on the y-axis.
-     */
-    public float currentYVelocity() {
-        return currentYVelocity;
-    }
+  /**
+   * Get the current y-velocity speed.
+   *
+   * <p>Note that a positive velocity means that the entity is moving up, and a negative velocity
+   * means that the entity is moving down. If the x and y velocity are 0, that means the entity is
+   * currently not moving.
+   *
+   * @return Current velocity on the y-axis.
+   */
+  public float currentYVelocity() {
+    return currentYVelocity;
+  }
 
-    /**
-     * Set the current velocity on the y-axis. This value will be used by the {@link
-     * core.systems.VelocitySystem} to calculate the next position of this entity.
-     *
-     * <p>Note that a positive velocity means that the entity is moving up, and a negative velocity
-     * means that the entity is moving down. If the x and y velocity are 0, that means the entity is
-     * currently not moving.
-     *
-     * @param currentYVelocity Set the current speed on the y-axis.
-     */
-    public void currentYVelocity(float currentYVelocity) {
-        this.currentYVelocity = currentYVelocity;
-    }
+  /**
+   * Set the current velocity on the y-axis. This value will be used by the {@link
+   * core.systems.VelocitySystem} to calculate the next position of this entity.
+   *
+   * <p>Note that a positive velocity means that the entity is moving up, and a negative velocity
+   * means that the entity is moving down. If the x and y velocity are 0, that means the entity is
+   * currently not moving.
+   *
+   * @param currentYVelocity Set the current speed on the y-axis.
+   */
+  public void currentYVelocity(float currentYVelocity) {
+    this.currentYVelocity = currentYVelocity;
+  }
 
-    /**
-     * Get the velocity with which the entity should move on the x-axis.
-     *
-     * <p>This value will be used by other systems to set the current velocity.
-     *
-     * @return Velocity with which the entity should move on the x-axis.
-     */
-    public float xVelocity() {
-        return xVelocity;
-    }
+  /**
+   * Get the velocity with which the entity should move on the x-axis.
+   *
+   * <p>This value will be used by other systems to set the current velocity.
+   *
+   * @return Velocity with which the entity should move on the x-axis.
+   */
+  public float xVelocity() {
+    return xVelocity;
+  }
 
-    /**
-     * Set the velocity with which the entity should move on the x-axis.
-     *
-     * <p>This value will be used by other systems to set the current velocity.
-     *
-     * @param xVelocity Set the speed with which the entity should move on the x-axis.
-     */
-    public void xVelocity(float xVelocity) {
-        this.xVelocity = xVelocity;
-    }
+  /**
+   * Set the velocity with which the entity should move on the x-axis.
+   *
+   * <p>This value will be used by other systems to set the current velocity.
+   *
+   * @param xVelocity Set the speed with which the entity should move on the x-axis.
+   */
+  public void xVelocity(float xVelocity) {
+    this.xVelocity = xVelocity;
+  }
 
-    /**
-     * Get the velocity with which the entity should move on the y-axis.
-     *
-     * <p>This value will be used by other systems to set the current velocity.
-     *
-     * @return Velocity with which the entity should move on the y-axis.
-     */
-    public float yVelocity() {
-        return yVelocity;
-    }
+  /**
+   * Get the velocity with which the entity should move on the y-axis.
+   *
+   * <p>This value will be used by other systems to set the current velocity.
+   *
+   * @return Velocity with which the entity should move on the y-axis.
+   */
+  public float yVelocity() {
+    return yVelocity;
+  }
 
-    /**
-     * Set the velocity with which the entity should move on the y-axis.
-     *
-     * <p>This value will be used by other systems to set the current-velocity.
-     *
-     * @param yVelocity set speed with which the entity can should on the y-axis
-     */
-    public void yVelocity(float yVelocity) {
-        this.yVelocity = yVelocity;
-    }
+  /**
+   * Set the velocity with which the entity should move on the y-axis.
+   *
+   * <p>This value will be used by other systems to set the current-velocity.
+   *
+   * @param yVelocity set speed with which the entity can should on the y-axis
+   */
+  public void yVelocity(float yVelocity) {
+    this.yVelocity = yVelocity;
+  }
 
-    /**
-     * Set the previous x velocity of the entity.
-     *
-     * <p>This method is used to store the last moved x velocity of the entity. This information is
-     * helpful when the entity stops, as it allows maintaining the direction.
-     *
-     * @param previousXVelocity The last x velocity of the entity.
-     */
-    public void previousXVelocity(float previousXVelocity) {
-        this.previousXVelocity = previousXVelocity;
-    }
+  /**
+   * Set the previous x velocity of the entity.
+   *
+   * <p>This method is used to store the last moved x velocity of the entity. This information is
+   * helpful when the entity stops, as it allows maintaining the direction.
+   *
+   * @param previousXVelocity The last x velocity of the entity.
+   */
+  public void previousXVelocity(float previousXVelocity) {
+    this.previousXVelocity = previousXVelocity;
+  }
 
-    /**
-     * Get the previous x velocity from the last movement.
-     *
-     * @return The x velocity from the last movement.
-     */
-    public float previousXVelocity() {
-        return previousXVelocity;
-    }
+  /**
+   * Get the previous x velocity from the last movement.
+   *
+   * @return The x velocity from the last movement.
+   */
+  public float previousXVelocity() {
+    return previousXVelocity;
+  }
 
-    /**
-     * Set the previous y velocity of the entity.
-     *
-     * <p>This method is used to store the last moved x velocity of the entity. This information is
-     * helpful when the entity stops, as it allows maintaining the direction.
-     *
-     * @param previousYVelocity The last y velocity of the entity.
-     */
-    public void previousYVelocity(float previousYVelocity) {
-        this.previousYVelocity = previousYVelocity;
-    }
+  /**
+   * Set the previous y velocity of the entity.
+   *
+   * <p>This method is used to store the last moved x velocity of the entity. This information is
+   * helpful when the entity stops, as it allows maintaining the direction.
+   *
+   * @param previousYVelocity The last y velocity of the entity.
+   */
+  public void previousYVelocity(float previousYVelocity) {
+    this.previousYVelocity = previousYVelocity;
+  }
 
-    /**
-     * Get the previous y velocity from the last movement.
-     *
-     * @return The y velocity from the last movement.
-     */
-    public float previousYVelocity() {
-        return previousYVelocity;
-    }
+  /**
+   * Get the previous y velocity from the last movement.
+   *
+   * @return The y velocity from the last movement.
+   */
+  public float previousYVelocity() {
+    return previousYVelocity;
+  }
 
-    /**
-     * Sets the behavior when a wall is hit.
-     *
-     * @param onWallHit The callback to be executed when a wall is hit.
-     */
-    public void onWallHit(final Consumer<Entity> onWallHit) {
-        this.onWallHit = onWallHit;
-    }
+  /**
+   * Sets the behavior when a wall is hit.
+   *
+   * @param onWallHit The callback to be executed when a wall is hit.
+   */
+  public void onWallHit(final Consumer<Entity> onWallHit) {
+    this.onWallHit = onWallHit;
+  }
 
-    /**
-     * Get the callback that should be executed if the entity hits a wall.
-     *
-     * @return The behavior when a wall is hit.
-     */
-    public Consumer<Entity> onWallHit() {
-        return onWallHit;
-    }
+  /**
+   * Get the callback that should be executed if the entity hits a wall.
+   *
+   * @return The behavior when a wall is hit.
+   */
+  public Consumer<Entity> onWallHit() {
+    return onWallHit;
+  }
 }

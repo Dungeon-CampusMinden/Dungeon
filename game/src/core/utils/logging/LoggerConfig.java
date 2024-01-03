@@ -20,38 +20,38 @@ import java.util.logging.SimpleFormatter;
  * messages on the shell.
  */
 public final class LoggerConfig {
-    private static Logger baseLogger;
-    private static FileHandler customFileHandler;
+  private static Logger baseLogger;
+  private static FileHandler customFileHandler;
 
-    private static void createCustomFileHandler() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy'T'HH-mm-ss");
-        String timestamp = dateFormat.format(new Date());
-        String directoryPath = "./logs/systemlogs/";
-        String filepath = directoryPath + timestamp + ".log";
-        File newLogFile = new File(filepath);
-        try {
-            Files.createDirectories(Paths.get(directoryPath));
-            if (newLogFile.exists()) {
-                baseLogger.info("Logfile already exists;");
-            } else {
-                newLogFile.createNewFile();
-                baseLogger.info("Logfile '" + filepath + "' was created.");
-            }
-            customFileHandler = new FileHandler(filepath);
-            customFileHandler.setFormatter(new SimpleFormatter());
-        } catch (IOException ioE) {
-            baseLogger.warning(
-                    "Creation of FileHandler in class 'LoggerConfig' failed: " + ioE.getMessage());
-        }
+  private static void createCustomFileHandler() {
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy'T'HH-mm-ss");
+    String timestamp = dateFormat.format(new Date());
+    String directoryPath = "./logs/systemlogs/";
+    String filepath = directoryPath + timestamp + ".log";
+    File newLogFile = new File(filepath);
+    try {
+      Files.createDirectories(Paths.get(directoryPath));
+      if (newLogFile.exists()) {
+        baseLogger.info("Logfile already exists;");
+      } else {
+        newLogFile.createNewFile();
+        baseLogger.info("Logfile '" + filepath + "' was created.");
+      }
+      customFileHandler = new FileHandler(filepath);
+      customFileHandler.setFormatter(new SimpleFormatter());
+    } catch (IOException ioE) {
+      baseLogger.warning(
+          "Creation of FileHandler in class 'LoggerConfig' failed: " + ioE.getMessage());
     }
+  }
 
-    /** Creates a new base logger that records all occurring logs to a file. */
-    public static void initBaseLogger() {
-        baseLogger = Logger.getLogger("");
-        baseLogger.setLevel(Level.ALL);
-        // remove console handler
-        baseLogger.removeHandler(baseLogger.getHandlers()[0]);
-        createCustomFileHandler();
-        baseLogger.addHandler(customFileHandler);
-    }
+  /** Creates a new base logger that records all occurring logs to a file. */
+  public static void initBaseLogger() {
+    baseLogger = Logger.getLogger("");
+    baseLogger.setLevel(Level.ALL);
+    // remove console handler
+    baseLogger.removeHandler(baseLogger.getHandlers()[0]);
+    createCustomFileHandler();
+    baseLogger.addHandler(customFileHandler);
+  }
 }

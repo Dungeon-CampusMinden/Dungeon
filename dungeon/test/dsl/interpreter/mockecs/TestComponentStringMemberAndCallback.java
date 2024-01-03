@@ -8,26 +8,26 @@ import java.util.function.Consumer;
 
 @DSLType
 public class TestComponentStringMemberAndCallback extends Component {
-    private Entity entity;
+  private Entity entity;
 
-    public Entity getEntity() {
-        return entity;
-    }
+  public Entity getEntity() {
+    return entity;
+  }
 
-    @DSLTypeMember private String member1;
+  @DSLTypeMember private String member1;
 
-    @DSLCallback Consumer<TestComponent2> consumer;
+  @DSLCallback Consumer<TestComponent2> consumer;
 
-    public TestComponentStringMemberAndCallback(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity);
-        this.entity = entity;
-    }
+  public TestComponentStringMemberAndCallback(@DSLContextMember(name = "entity") Entity entity) {
+    super(entity);
+    this.entity = entity;
+  }
 
-    public String getMember1() {
-        return member1;
-    }
+  public String getMember1() {
+    return member1;
+  }
 
-    public Consumer<TestComponent2> getConsumer() {
-        return consumer;
-    }
+  public Consumer<TestComponent2> getConsumer() {
+    return consumer;
+  }
 }

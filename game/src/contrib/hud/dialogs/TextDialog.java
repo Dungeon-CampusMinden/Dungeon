@@ -19,103 +19,103 @@ import java.util.function.BiFunction;
  */
 public final class TextDialog extends Dialog {
 
-    /** Handler for Button presses */
-    private final BiFunction<TextDialog, String, Boolean> resultHandler;
+  /** Handler for Button presses */
+  private final BiFunction<TextDialog, String, Boolean> resultHandler;
 
-    /**
-     * creates a Textdialog with the given title and skin and stores the functional interface for
-     * Button events.
-     *
-     * @param skin Skin for the dialog (resources that can be used by UI widgets)
-     * @param title Title of the dialog
-     * @param resultHandler controls the button presses
-     */
-    public TextDialog(
-            final String title,
-            final Skin skin,
-            final BiFunction<TextDialog, String, Boolean> resultHandler) {
-        super(title, skin);
-        this.resultHandler = resultHandler;
-    }
+  /**
+   * creates a Textdialog with the given title and skin and stores the functional interface for
+   * Button events.
+   *
+   * @param skin Skin for the dialog (resources that can be used by UI widgets)
+   * @param title Title of the dialog
+   * @param resultHandler controls the button presses
+   */
+  public TextDialog(
+      final String title,
+      final Skin skin,
+      final BiFunction<TextDialog, String, Boolean> resultHandler) {
+    super(title, skin);
+    this.resultHandler = resultHandler;
+  }
 
-    /**
-     * creates a Textdialog with the given title and skin and stores the functional interface for
-     * Button events.
-     *
-     * @param title Title of the dialog
-     * @param skin Skin for the dialog (resources that can be used by UI widgets)
-     * @param windowStyleName the name of the style which should be used
-     * @param resultHandler controls the button presses
-     */
-    public TextDialog(
-            final String title,
-            final Skin skin,
-            final String windowStyleName,
-            final BiFunction<TextDialog, String, Boolean> resultHandler) {
-        super(title, skin, windowStyleName);
-        this.resultHandler = resultHandler;
-    }
+  /**
+   * creates a Textdialog with the given title and skin and stores the functional interface for
+   * Button events.
+   *
+   * @param title Title of the dialog
+   * @param skin Skin for the dialog (resources that can be used by UI widgets)
+   * @param windowStyleName the name of the style which should be used
+   * @param resultHandler controls the button presses
+   */
+  public TextDialog(
+      final String title,
+      final Skin skin,
+      final String windowStyleName,
+      final BiFunction<TextDialog, String, Boolean> resultHandler) {
+    super(title, skin, windowStyleName);
+    this.resultHandler = resultHandler;
+  }
 
-    /**
-     * Creates a dialog for displaying the text message.
-     *
-     * <p>The entity will already be added to the game.
-     *
-     * @param content Text which should be shown in the body of the dialog.
-     * @param buttonText Text which should be shown in the button for closing the TextDialog.
-     * @param windowText Text which should be shown as the name for the TextDialog.
-     * @return Entity that contains the {@link UIComponent}. The entity will already be added to the
-     *     game by this method.
-     */
-    public static Entity textDialog(
-            final String content, final String buttonText, final String windowText) {
-        Entity entity = new Entity();
-        UIUtils.show(
-                () -> {
-                    Dialog textDialog =
-                            DialogFactory.createTextDialog(
-                                    DEFAULT_SKIN,
-                                    content,
-                                    buttonText,
-                                    windowText,
-                                    createResultHandler(entity, buttonText));
-                    UIUtils.center(textDialog);
-                    return textDialog;
-                },
-                entity);
-        Game.add(entity);
-        return entity;
-    }
+  /**
+   * Creates a dialog for displaying the text message.
+   *
+   * <p>The entity will already be added to the game.
+   *
+   * @param content Text which should be shown in the body of the dialog.
+   * @param buttonText Text which should be shown in the button for closing the TextDialog.
+   * @param windowText Text which should be shown as the name for the TextDialog.
+   * @return Entity that contains the {@link UIComponent}. The entity will already be added to the
+   *     game by this method.
+   */
+  public static Entity textDialog(
+      final String content, final String buttonText, final String windowText) {
+    Entity entity = new Entity();
+    UIUtils.show(
+        () -> {
+          Dialog textDialog =
+              DialogFactory.createTextDialog(
+                  DEFAULT_SKIN,
+                  content,
+                  buttonText,
+                  windowText,
+                  createResultHandler(entity, buttonText));
+          UIUtils.center(textDialog);
+          return textDialog;
+        },
+        entity);
+    Game.add(entity);
+    return entity;
+  }
 
-    /**
-     * Create a {@link BiFunction} that removes the UI-Entity from the game and closes the dialog if
-     * the close button was pressed.
-     *
-     * @param entity UI-Entity
-     * @param closeButtonID ID of the close button. The handler will use the ID to execute the
-     *     correct close logic.
-     * @return The configured BiFunction that closes the window and removes the entity from the game
-     *     if the close button was pressed.
-     */
-    private static BiFunction<TextDialog, String, Boolean> createResultHandler(
-            final Entity entity, final String closeButtonID) {
-        return (d, id) -> {
-            if (Objects.equals(id, closeButtonID)) {
-                Game.remove(entity);
-                return true;
-            }
-            return false;
-        };
-    }
+  /**
+   * Create a {@link BiFunction} that removes the UI-Entity from the game and closes the dialog if
+   * the close button was pressed.
+   *
+   * @param entity UI-Entity
+   * @param closeButtonID ID of the close button. The handler will use the ID to execute the correct
+   *     close logic.
+   * @return The configured BiFunction that closes the window and removes the entity from the game
+   *     if the close button was pressed.
+   */
+  private static BiFunction<TextDialog, String, Boolean> createResultHandler(
+      final Entity entity, final String closeButtonID) {
+    return (d, id) -> {
+      if (Objects.equals(id, closeButtonID)) {
+        Game.remove(entity);
+        return true;
+      }
+      return false;
+    };
+  }
 
-    /**
-     * when a Button event happened calls the stored resultHandler and when the resultHandler
-     * returns a false stops the default hide on button press.
-     *
-     * @param object Object associated with the button
-     */
-    @Override
-    protected void result(final Object object) {
-        if (!resultHandler.apply(this, object.toString())) cancel();
-    }
+  /**
+   * when a Button event happened calls the stored resultHandler and when the resultHandler returns
+   * a false stops the default hide on button press.
+   *
+   * @param object Object associated with the button
+   */
+  @Override
+  protected void result(final Object object) {
+    if (!resultHandler.apply(this, object.toString())) cancel();
+  }
 }

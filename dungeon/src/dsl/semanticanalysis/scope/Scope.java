@@ -28,91 +28,91 @@ import java.util.List;
 
 public class Scope implements IScope {
 
-    public static Scope NULL = new Scope();
+  public static Scope NULL = new Scope();
 
-    protected IScope parent;
-    protected HashMap<String, Symbol> symbols;
+  protected IScope parent;
+  protected HashMap<String, Symbol> symbols;
 
-    /**
-     * Constructor
-     *
-     * @param parentScope the parent scope of the new scope
-     */
-    public Scope(IScope parentScope) {
-        parent = parentScope;
-        symbols = new HashMap<>();
+  /**
+   * Constructor
+   *
+   * @param parentScope the parent scope of the new scope
+   */
+  public Scope(IScope parentScope) {
+    parent = parentScope;
+    symbols = new HashMap<>();
+  }
+
+  /** Constructor */
+  public Scope() {
+    parent = NULL;
+    symbols = new HashMap<>();
+  }
+
+  /**
+   * Bind a new symbol in this scope
+   *
+   * @param symbol The symbol to bind
+   * @return True, if no symbol with the same name exists in this scope, false otherwise
+   */
+  public boolean bind(Symbol symbol) {
+    if (this == NULL) {
+      throw new RuntimeException("Binding in NULL scope!");
     }
-
-    /** Constructor */
-    public Scope() {
-        parent = NULL;
-        symbols = new HashMap<>();
+    var name = symbol.getName();
+    if (symbols.containsKey(name)) {
+      return false;
+    } else {
+      symbols.put(name, symbol);
+      return true;
     }
+  }
 
-    /**
-     * Bind a new symbol in this scope
-     *
-     * @param symbol The symbol to bind
-     * @return True, if no symbol with the same name exists in this scope, false otherwise
-     */
-    public boolean bind(Symbol symbol) {
-        if (this == NULL) {
-            throw new RuntimeException("Binding in NULL scope!");
-        }
-        var name = symbol.getName();
-        if (symbols.containsKey(name)) {
-            return false;
-        } else {
-            symbols.put(name, symbol);
-            return true;
-        }
+  /**
+   * Try to resolve the passed name in this scope (or the parent scope).
+   *
+   * @param name the name of the symbol to resolvle
+   * @param resolveInParent if set to true, and the name could not be resolved in this scope,
+   *     resolve it in the parent scope
+   * @return the resolved symbol or Symbol.NULL, if the name could not be resolved
+   */
+  public Symbol resolve(String name, boolean resolveInParent) {
+    if (symbols.containsKey(name)) {
+      return symbols.get(name);
+    } else if (parent != null && resolveInParent) {
+      return parent.resolve(name);
+    } else {
+      return Symbol.NULL;
     }
+  }
 
-    /**
-     * Try to resolve the passed name in this scope (or the parent scope).
-     *
-     * @param name the name of the symbol to resolvle
-     * @param resolveInParent if set to true, and the name could not be resolved in this scope,
-     *     resolve it in the parent scope
-     * @return the resolved symbol or Symbol.NULL, if the name could not be resolved
-     */
-    public Symbol resolve(String name, boolean resolveInParent) {
-        if (symbols.containsKey(name)) {
-            return symbols.get(name);
-        } else if (parent != null && resolveInParent) {
-            return parent.resolve(name);
-        } else {
-            return Symbol.NULL;
-        }
-    }
+  /**
+   * Try to resolve the passed name in this scope (or the parent scope).
+   *
+   * @param name the name of the symbol to resolvle
+   * @return the resolved symbol or Symbol.NULL, if the name could not be resolved
+   */
+  public Symbol resolve(String name) {
+    return resolve(name, true);
+  }
 
-    /**
-     * Try to resolve the passed name in this scope (or the parent scope).
-     *
-     * @param name the name of the symbol to resolvle
-     * @return the resolved symbol or Symbol.NULL, if the name could not be resolved
-     */
-    public Symbol resolve(String name) {
-        return resolve(name, true);
-    }
+  /**
+   * Getter for a List of all bound symbols
+   *
+   * @return a List of all bound symbols
+   */
+  @Override
+  public List<Symbol> getSymbols() {
+    return new ArrayList<>(symbols.values());
+  }
 
-    /**
-     * Getter for a List of all bound symbols
-     *
-     * @return a List of all bound symbols
-     */
-    @Override
-    public List<Symbol> getSymbols() {
-        return new ArrayList<>(symbols.values());
-    }
-
-    /**
-     * Getter for the parent scope of this scope
-     *
-     * @return the parent of this scope
-     */
-    @Override
-    public IScope getParent() {
-        return parent;
-    }
+  /**
+   * Getter for the parent scope of this scope
+   *
+   * @return the parent of this scope
+   */
+  @Override
+  public IScope getParent() {
+    return parent;
+  }
 }

@@ -23,86 +23,83 @@ import java.util.Arrays;
  */
 public final class GUICombination extends Group {
 
-    public static final int GAP = 10;
-    private final DragAndDrop dragAndDrop;
-    private final ArrayList<CombinableGUI> combinableGuis;
-    private final int guisPerRow;
+  public static final int GAP = 10;
+  private final DragAndDrop dragAndDrop;
+  private final ArrayList<CombinableGUI> combinableGuis;
+  private final int guisPerRow;
 
-    /**
-     * Creates a GUICombination, a combination of multiple CombinableGUI elements.
-     *
-     * @param guisPerRow The number of CombinableGUI elements to display per row.
-     * @param combinableGuis The CombinableGUI elements to be combined.
-     */
-    public GUICombination(int guisPerRow, final CombinableGUI... combinableGuis) {
-        this.guisPerRow = guisPerRow;
-        this.dragAndDrop = new DragAndDrop();
-        this.setSize(Game.stage().orElseThrow().getWidth(), Game.stage().orElseThrow().getHeight());
-        this.setPosition(0, 0);
-        this.combinableGuis = new ArrayList<>(Arrays.asList(combinableGuis));
-        this.combinableGuis.forEach(
-                combinableGUI -> {
-                    combinableGUI.dragAndDrop(this.dragAndDrop);
-                    this.addActor(combinableGUI.actor());
-                });
-        this.scalePositionChildren();
+  /**
+   * Creates a GUICombination, a combination of multiple CombinableGUI elements.
+   *
+   * @param guisPerRow The number of CombinableGUI elements to display per row.
+   * @param combinableGuis The CombinableGUI elements to be combined.
+   */
+  public GUICombination(int guisPerRow, final CombinableGUI... combinableGuis) {
+    this.guisPerRow = guisPerRow;
+    this.dragAndDrop = new DragAndDrop();
+    this.setSize(Game.stage().orElseThrow().getWidth(), Game.stage().orElseThrow().getHeight());
+    this.setPosition(0, 0);
+    this.combinableGuis = new ArrayList<>(Arrays.asList(combinableGuis));
+    this.combinableGuis.forEach(
+        combinableGUI -> {
+          combinableGUI.dragAndDrop(this.dragAndDrop);
+          this.addActor(combinableGUI.actor());
+        });
+    this.scalePositionChildren();
+  }
+
+  /**
+   * Creates a GUICombination, a combination of multiple CombinableGUI elements.
+   *
+   * @param combinableGuis The CombinableGUI elements to be combined.
+   */
+  public GUICombination(final CombinableGUI... combinableGuis) {
+    this(2, combinableGuis);
+  }
+
+  private void scalePositionChildren() {
+    int rows = (int) Math.ceil(this.combinableGuis.size() / (float) this.guisPerRow);
+    int columns = Math.min(this.combinableGuis.size(), this.guisPerRow);
+    int width = ((int) this.getWidth() - (GAP * (columns + 1))) / columns;
+    int height = ((int) this.getHeight() - (GAP * (rows + 1))) / rows;
+
+    for (int i = 0; i < this.combinableGuis.size(); i++) {
+      CombinableGUI combinableGUI = this.combinableGuis.get(i);
+      int row = i / columns;
+      int column = i % columns;
+      AvailableSpace avs =
+          new AvailableSpace(
+              column * width + (column + 1) * GAP, row * height + (row + 1) * GAP, width, height);
+      Vector2 size = combinableGUI.preferredSize(avs);
+      combinableGUI.width((int) size.x);
+      combinableGUI.height((int) size.y);
+      combinableGUI.x(avs.x + (avs.width - (int) size.x) / 2);
+      combinableGUI.y(avs.y + (avs.height - (int) size.y) / 2);
+      combinableGUI.boundsUpdate();
     }
+  }
 
-    /**
-     * Creates a GUICombination, a combination of multiple CombinableGUI elements.
-     *
-     * @param combinableGuis The CombinableGUI elements to be combined.
-     */
-    public GUICombination(final CombinableGUI... combinableGuis) {
-        this(2, combinableGuis);
+  @Override
+  public void act(float delta) {
+    int stageWidth = (int) Game.stage().orElseThrow().getWidth();
+    int stageHeight = (int) Game.stage().orElseThrow().getHeight();
+    if (stageWidth != this.getWidth() || stageHeight != this.getHeight()) {
+      this.setSize(stageWidth, stageHeight);
+      this.setPosition(0, 0);
+      this.scalePositionChildren();
     }
+  }
 
-    private void scalePositionChildren() {
-        int rows = (int) Math.ceil(this.combinableGuis.size() / (float) this.guisPerRow);
-        int columns = Math.min(this.combinableGuis.size(), this.guisPerRow);
-        int width = ((int) this.getWidth() - (GAP * (columns + 1))) / columns;
-        int height = ((int) this.getHeight() - (GAP * (rows + 1))) / rows;
+  @Override
+  public void draw(final Batch batch, float parentAlpha) {
+    this.combinableGuis.forEach(combinableGUI -> combinableGUI.draw(batch));
+    this.combinableGuis.forEach(combinableGUI -> combinableGUI.drawTopLayer(batch));
+  }
 
-        for (int i = 0; i < this.combinableGuis.size(); i++) {
-            CombinableGUI combinableGUI = this.combinableGuis.get(i);
-            int row = i / columns;
-            int column = i % columns;
-            AvailableSpace avs =
-                    new AvailableSpace(
-                            column * width + (column + 1) * GAP,
-                            row * height + (row + 1) * GAP,
-                            width,
-                            height);
-            Vector2 size = combinableGUI.preferredSize(avs);
-            combinableGUI.width((int) size.x);
-            combinableGUI.height((int) size.y);
-            combinableGUI.x(avs.x + (avs.width - (int) size.x) / 2);
-            combinableGUI.y(avs.y + (avs.height - (int) size.y) / 2);
-            combinableGUI.boundsUpdate();
-        }
-    }
+  @Override
+  public void drawDebug(final ShapeRenderer shapes) {
+    this.combinableGuis.forEach(CombinableGUI::drawDebug);
+  }
 
-    @Override
-    public void act(float delta) {
-        int stageWidth = (int) Game.stage().orElseThrow().getWidth();
-        int stageHeight = (int) Game.stage().orElseThrow().getHeight();
-        if (stageWidth != this.getWidth() || stageHeight != this.getHeight()) {
-            this.setSize(stageWidth, stageHeight);
-            this.setPosition(0, 0);
-            this.scalePositionChildren();
-        }
-    }
-
-    @Override
-    public void draw(final Batch batch, float parentAlpha) {
-        this.combinableGuis.forEach(combinableGUI -> combinableGUI.draw(batch));
-        this.combinableGuis.forEach(combinableGUI -> combinableGUI.drawTopLayer(batch));
-    }
-
-    @Override
-    public void drawDebug(final ShapeRenderer shapes) {
-        this.combinableGuis.forEach(CombinableGUI::drawDebug);
-    }
-
-    public record AvailableSpace(int x, int y, int width, int height) {}
+  public record AvailableSpace(int x, int y, int width, int height) {}
 }

@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface DSLTypeDependsOn {
-    // TODO: implement
-    Class<?>[] type();
+  // TODO: implement
+  Class<?>[] type();
 }

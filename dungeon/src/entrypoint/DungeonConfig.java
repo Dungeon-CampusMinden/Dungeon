@@ -13,5 +13,5 @@ import graph.taskdependencygraph.TaskDependencyGraph;
  */
 @DSLType
 public record DungeonConfig(
-        @DSLTypeMember TaskDependencyGraph dependencyGraph,
-        @DSLTypeMember(name = "name") String displayName) {}
+    @DSLTypeMember TaskDependencyGraph dependencyGraph,
+    @DSLTypeMember(name = "name") String displayName) {}

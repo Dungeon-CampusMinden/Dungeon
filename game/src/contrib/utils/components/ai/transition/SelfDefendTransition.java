@@ -11,14 +11,12 @@ import java.util.function.Function;
  */
 public final class SelfDefendTransition implements Function<Entity, Boolean> {
 
-    @Override
-    public Boolean apply(final Entity entity) {
-        HealthComponent component =
-                entity.fetch(HealthComponent.class)
-                        .orElseThrow(
-                                () ->
-                                        MissingComponentException.build(
-                                                entity, HealthComponent.class));
-        return component.currentHealthpoints() < component.maximalHealthpoints();
-    }
+  @Override
+  public Boolean apply(final Entity entity) {
+    HealthComponent component =
+        entity
+            .fetch(HealthComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, HealthComponent.class));
+    return component.currentHealthpoints() < component.maximalHealthpoints();
+  }
 }

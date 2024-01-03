@@ -22,126 +22,124 @@ import org.junit.Test;
 
 public class ChestTest {
 
-    @After
-    public void cleanup() {
-        Game.removeAllEntities();
-        Game.currentLevel(null);
-        Game.removeAllSystems();
-    }
+  @After
+  public void cleanup() {
+    Game.removeAllEntities();
+    Game.currentLevel(null);
+    Game.removeAllSystems();
+  }
 
-    /** checks the correct creation of the Chest */
-    @Test
-    public void checkCreation() throws IOException {
-        Set<Item> itemData = Set.of();
-        Point position = new Point(0, 0);
-        Entity c = null;
-        c = EntityFactory.newChest(itemData, position);
+  /** checks the correct creation of the Chest */
+  @Test
+  public void checkCreation() throws IOException {
+    Set<Item> itemData = Set.of();
+    Point position = new Point(0, 0);
+    Entity c = null;
+    c = EntityFactory.newChest(itemData, position);
 
-        assertTrue(
-                "Needs the AnimationComponent to be visible to the player.",
-                c.fetch(DrawComponent.class).isPresent());
-        Optional<InventoryComponent> inventoryComponent = c.fetch(InventoryComponent.class);
-        assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
-        assertEquals(
-                "Chest should have the given Items",
-                new Item[] {},
-                inventoryComponent.get().items());
-        Optional<PositionComponent> positionComponent = c.fetch(PositionComponent.class);
-        assertTrue(
-                "Needs the PositionComponent to be somewhere in the Level",
-                positionComponent.isPresent());
-        assertTrue(
-                "Position should be equal to the given Position",
-                position.equals(
-                        positionComponent.map(PositionComponent.class::cast).get().position()));
-    }
+    assertTrue(
+        "Needs the AnimationComponent to be visible to the player.",
+        c.fetch(DrawComponent.class).isPresent());
+    Optional<InventoryComponent> inventoryComponent = c.fetch(InventoryComponent.class);
+    assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
+    assertEquals(
+        "Chest should have the given Items", new Item[] {}, inventoryComponent.get().items());
+    Optional<PositionComponent> positionComponent = c.fetch(PositionComponent.class);
+    assertTrue(
+        "Needs the PositionComponent to be somewhere in the Level", positionComponent.isPresent());
+    assertTrue(
+        "Position should be equal to the given Position",
+        position.equals(positionComponent.map(PositionComponent.class::cast).get().position()));
+  }
 
-    /**
-     * checks the Chest Dropping all the Items it holds
-     *
-     * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
-     * cant be tested.
-     */
-    /* @Test
-    public void checkInteractionDroppingItems() {
-        Point position = new Point(0, 0);
-        Entity c = EntityFactory.getChest(itemData, position);
+  /**
+   * checks the Chest Dropping all the Items it holds
+   *
+   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
+   * cant be tested.
+   */
+  /* @Test
+  public void checkInteractionDroppingItems() {
+      Point position = new Point(0, 0);
+      Entity c = EntityFactory.getChest(itemData, position);
 
-       // assertEquals(1, Game.getEntitiesStream().count());
-        c.getComponent(InteractionComponent.class)
-                .map(InteractionComponent.class::cast)
-                .get()
-                .triggerInteraction();
-       // assertEquals(2, Game.getEntitiesStream().count());
-    }*/
+     // assertEquals(1, Game.getEntitiesStream().count());
+      c.getComponent(InteractionComponent.class)
+              .map(InteractionComponent.class::cast)
+              .get()
+              .triggerInteraction();
+     // assertEquals(2, Game.getEntitiesStream().count());
+  }*/
 
-    /**
-     * checks the dropped Item
-     *
-     * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
-     * cant be tested.
-     */
-    /*@Test
-    public void checkInteractionOnDroppedItems() {
-        List<Item> itemData = List.of(new ItemGenerator().generateItemData());
-        Point position = new Point(0, 0);
-        Entity c = EntityFactory.getChest(itemData, position);
-        c.getComponent(InteractionComponent.class)
-                .map(InteractionComponent.class::cast)
-                .ifPresent(InteractionComponent::triggerInteraction);
-        Game.removeEntity(c);
+  /**
+   * checks the dropped Item
+   *
+   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
+   * cant be tested.
+   */
+  /*@Test
+  public void checkInteractionOnDroppedItems() {
+      List<Item> itemData = List.of(new ItemGenerator().generateItemData());
+      Point position = new Point(0, 0);
+      Entity c = EntityFactory.getChest(itemData, position);
+      c.getComponent(InteractionComponent.class)
+              .map(InteractionComponent.class::cast)
+              .ifPresent(InteractionComponent::triggerInteraction);
+      Game.removeEntity(c);
 
-        assertEquals(1, Game.getEntitiesStream().count());
-        Entity droppedItem = Game.getEntitiesStream().iterator().next();
-        assertTrue(
-                "droppedItem should have the HitboxComponent",
-                droppedItem
-                        .getComponent(CollideComponent.class)
-                        .map(CollideComponent.class::cast)
-                        .isPresent());
-    }*/
-    @Test
-    public void checkGeneratorMethod() throws IOException {
-        Game.add(new LevelSystem(null, null, () -> {}));
+      assertEquals(1, Game.getEntitiesStream().count());
+      Entity droppedItem = Game.getEntitiesStream().iterator().next();
+      assertTrue(
+              "droppedItem should have the HitboxComponent",
+              droppedItem
+                      .getComponent(CollideComponent.class)
+                      .map(CollideComponent.class::cast)
+                      .isPresent());
+  }*/
+  @Test
+  public void checkGeneratorMethod() throws IOException {
+    Game.add(new LevelSystem(null, null, () -> {}));
 
-        Game.currentLevel(
-                new TileLevel(
-                        new LevelElement[][] {
-                            new LevelElement[] {
-                                LevelElement.FLOOR,
-                            }
-                        },
-                        DesignLabel.DEFAULT));
-        Entity newChest = EntityFactory.newChest();
+    Game.currentLevel(
+        new TileLevel(
+            new LevelElement[][] {
+              new LevelElement[] {
+                LevelElement.FLOOR,
+              }
+            },
+            DesignLabel.DEFAULT));
+    Entity newChest = EntityFactory.newChest();
 
-        // assertTrue("Chest is added to Game", Game.getEntitiesStream().anyMatch(e -> e ==
-        // newChest));
-        assertTrue(
-                "Needs the AnimationComponent to be visible to the player.",
-                newChest.fetch(DrawComponent.class).isPresent());
-        Optional<InventoryComponent> inventoryComponent = newChest.fetch(InventoryComponent.class);
-        assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
-        assertTrue(
-                "Chest should have at least 1 Item",
-                1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);
+    // assertTrue("Chest is added to Game", Game.getEntitiesStream().anyMatch(e -> e ==
+    // newChest));
+    assertTrue(
+        "Needs the AnimationComponent to be visible to the player.",
+        newChest.fetch(DrawComponent.class).isPresent());
+    Optional<InventoryComponent> inventoryComponent = newChest.fetch(InventoryComponent.class);
+    assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
+    assertTrue(
+        "Chest should have at least 1 Item",
+        1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);
 
-        assertEquals(
-                "x Position has to be ILLEGAL",
-                PositionComponent.ILLEGAL_POSITION.x,
-                newChest.fetch(PositionComponent.class)
-                        .map(PositionComponent.class::cast)
-                        .get()
-                        .position()
-                        .x,
-                0.00001f);
-        assertEquals(
-                "y Position has to be ILLEGAL",
-                PositionComponent.ILLEGAL_POSITION.y,
-                newChest.fetch(PositionComponent.class)
-                        .map(PositionComponent.class::cast)
-                        .get()
-                        .position()
-                        .y,
-                0.00001f);
-    }
+    assertEquals(
+        "x Position has to be ILLEGAL",
+        PositionComponent.ILLEGAL_POSITION.x,
+        newChest
+            .fetch(PositionComponent.class)
+            .map(PositionComponent.class::cast)
+            .get()
+            .position()
+            .x,
+        0.00001f);
+    assertEquals(
+        "y Position has to be ILLEGAL",
+        PositionComponent.ILLEGAL_POSITION.y,
+        newChest
+            .fetch(PositionComponent.class)
+            .map(PositionComponent.class::cast)
+            .get()
+            .position()
+            .y,
+        0.00001f);
+  }
 }

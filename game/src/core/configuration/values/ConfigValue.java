@@ -15,48 +15,48 @@ package core.configuration.values;
  */
 public abstract class ConfigValue<T> {
 
-    /** The current value of the configuration. */
-    protected T value;
+  /** The current value of the configuration. */
+  protected T value;
 
-    /**
-     * Creates a new ConfigValue with an initial value.
-     *
-     * @param value The initial value.
-     */
-    public ConfigValue(final T value) {
-        this.value = value;
-    }
+  /**
+   * Creates a new ConfigValue with an initial value.
+   *
+   * @param value The initial value.
+   */
+  public ConfigValue(final T value) {
+    this.value = value;
+  }
 
-    /**
-     * Serialize the value to a string.
-     *
-     * @return The serialized value.
-     */
-    public abstract String serialize();
+  /**
+   * Serialize the value to a string.
+   *
+   * @return The serialized value.
+   */
+  public abstract String serialize();
 
-    /**
-     * Deserialize the value from a string.
-     *
-     * @param value The string to deserialize.
-     * @return The deserialized value.
-     */
-    public abstract T deserialize(final String value);
+  /**
+   * Deserialize the value from a string.
+   *
+   * @param value The string to deserialize.
+   * @return The deserialized value.
+   */
+  public abstract T deserialize(final String value);
 
-    /**
-     * Get the current value.
-     *
-     * @return The current value.
-     */
-    public T value() {
-        return value;
-    }
+  /**
+   * Get the current value.
+   *
+   * @return The current value.
+   */
+  public T value() {
+    return value;
+  }
 
-    /**
-     * Set the value.
-     *
-     * @param value The new value.
-     */
-    public void value(final T value) {
-        this.value = value;
-    }
+  /**
+   * Set the value.
+   *
+   * @param value The new value.
+   */
+  public void value(final T value) {
+    this.value = value;
+  }
 }

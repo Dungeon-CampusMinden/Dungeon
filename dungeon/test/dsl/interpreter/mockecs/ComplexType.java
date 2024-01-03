@@ -5,8 +5,8 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 
 @DSLType
 public class ComplexType {
-    @DSLTypeMember int member1;
-    @DSLTypeMember float member2;
-    @DSLTypeMember String member3;
-    @DSLTypeMember Integer member4;
+  @DSLTypeMember int member1;
+  @DSLTypeMember float member2;
+  @DSLTypeMember String member3;
+  @DSLTypeMember Integer member4;
 }

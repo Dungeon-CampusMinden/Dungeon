@@ -5,11 +5,11 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 
 @DSLType
 public class ComponentWithDefaultCtor {
-    @DSLTypeMember private String member1;
-    @DSLTypeMember private int member2;
-    @DSLTypeMember private String memberWithDefaultValue;
+  @DSLTypeMember private String member1;
+  @DSLTypeMember private int member2;
+  @DSLTypeMember private String memberWithDefaultValue;
 
-    public ComponentWithDefaultCtor() {
-        this.memberWithDefaultValue = "DEFAULT VALUE";
-    }
+  public ComponentWithDefaultCtor() {
+    this.memberWithDefaultValue = "DEFAULT VALUE";
+  }
 }

@@ -21,136 +21,133 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestRuntimeObjectTranslator {
-    @Test
-    public void testEntityTranslation() {
-        Entity entity = new Entity();
-        entity.add(new CameraComponent());
-        entity.add(new PositionComponent(new Point(0, 0)));
-        entity.add(new VelocityComponent());
-        entity.add(new HealthComponent());
-        Game.add(entity);
+  @Test
+  public void testEntityTranslation() {
+    Entity entity = new Entity();
+    entity.add(new CameraComponent());
+    entity.add(new PositionComponent(new Point(0, 0)));
+    entity.add(new VelocityComponent());
+    entity.add(new HealthComponent());
+    Game.add(entity);
 
-        String program = """
+    String program = """
             dungeon_config my_quest_config {}
             """;
 
-        var env = new GameEnvironment();
-        var interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+    var env = new GameEnvironment();
+    var interpreter = new DSLInterpreter();
+    Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
-        AggregateValue entityAsValue =
-                (AggregateValue)
-                        interpreter
-                                .getRuntimeEnvironment()
-                                .translateRuntimeObject(entity, interpreter.getGlobalMemorySpace());
+    AggregateValue entityAsValue =
+        (AggregateValue)
+            interpreter
+                .getRuntimeEnvironment()
+                .translateRuntimeObject(entity, interpreter.getGlobalMemorySpace());
 
-        var velocityComponent =
-                (AggregateValue) entityAsValue.getMemorySpace().resolve("velocity_component");
-        Assert.assertNotEquals(Value.NONE, velocityComponent);
+    var velocityComponent =
+        (AggregateValue) entityAsValue.getMemorySpace().resolve("velocity_component");
+    Assert.assertNotEquals(Value.NONE, velocityComponent);
 
-        var positionComponent =
-                (AggregateValue) entityAsValue.getMemorySpace().resolve("position_component");
-        Assert.assertNotEquals(Value.NONE, positionComponent);
-    }
+    var positionComponent =
+        (AggregateValue) entityAsValue.getMemorySpace().resolve("position_component");
+    Assert.assertNotEquals(Value.NONE, positionComponent);
+  }
 
-    @Test
-    public void testIsolatedComponentTranslation() {
-        Entity entity = new Entity();
-        entity.add(new CameraComponent());
-        entity.add(new PositionComponent(new Point(0, 0)));
-        entity.add(new VelocityComponent());
-        entity.add(new HealthComponent());
-        Game.add(entity);
+  @Test
+  public void testIsolatedComponentTranslation() {
+    Entity entity = new Entity();
+    entity.add(new CameraComponent());
+    entity.add(new PositionComponent(new Point(0, 0)));
+    entity.add(new VelocityComponent());
+    entity.add(new HealthComponent());
+    Game.add(entity);
 
-        String program = """
+    String program = """
             dungeon_config my_quest_config {}
             """;
 
-        var env = new GameEnvironment();
-        var interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+    var env = new GameEnvironment();
+    var interpreter = new DSLInterpreter();
+    Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
-        var componentObject = entity.fetch(VelocityComponent.class).get();
+    var componentObject = entity.fetch(VelocityComponent.class).get();
 
-        AggregateValue velocityValue =
-                (AggregateValue)
-                        interpreter
-                                .getRuntimeEnvironment()
-                                .translateRuntimeObject(
-                                        componentObject, interpreter.getGlobalMemorySpace());
+    AggregateValue velocityValue =
+        (AggregateValue)
+            interpreter
+                .getRuntimeEnvironment()
+                .translateRuntimeObject(componentObject, interpreter.getGlobalMemorySpace());
 
-        var xVelocityValue = velocityValue.getMemorySpace().resolve("x_velocity");
-        var internalXVelocityValue = xVelocityValue.getInternalValue();
-        Assert.assertEquals(0.0f, internalXVelocityValue);
+    var xVelocityValue = velocityValue.getMemorySpace().resolve("x_velocity");
+    var internalXVelocityValue = xVelocityValue.getInternalValue();
+    Assert.assertEquals(0.0f, internalXVelocityValue);
 
-        xVelocityValue.setInternalValue(42.0f);
-        float xVelocityFromComponent = componentObject.xVelocity();
-        Assert.assertEquals(42.0f, xVelocityFromComponent, 0.0f);
-    }
+    xVelocityValue.setInternalValue(42.0f);
+    float xVelocityFromComponent = componentObject.xVelocity();
+    Assert.assertEquals(42.0f, xVelocityFromComponent, 0.0f);
+  }
 
-    @Test
-    public void testIsolatedComponentTranslationPODAdapted() {
-        String program = """
+  @Test
+  public void testIsolatedComponentTranslationPODAdapted() {
+    String program = """
             quest_config my_quest_config {}
             """;
 
-        var env = new TestEnvironment();
-        env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, env.getGlobalScope());
-        var interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomTypes(
-                program,
-                env,
-                interpreter,
-                dsl.interpreter.mockecs.Entity.class,
-                ExternalType.class,
-                TestComponentWithExternalType.class);
+    var env = new TestEnvironment();
+    env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, env.getGlobalScope());
+    var interpreter = new DSLInterpreter();
+    Helpers.generateQuestConfigWithCustomTypes(
+        program,
+        env,
+        interpreter,
+        dsl.interpreter.mockecs.Entity.class,
+        ExternalType.class,
+        TestComponentWithExternalType.class);
 
-        dsl.interpreter.mockecs.Entity entity = new dsl.interpreter.mockecs.Entity();
-        TestComponentWithExternalType componentObject = new TestComponentWithExternalType(entity);
-        componentObject.setMemberExternalType(ExternalTypeBuilder.buildExternalType("Hello"));
+    dsl.interpreter.mockecs.Entity entity = new dsl.interpreter.mockecs.Entity();
+    TestComponentWithExternalType componentObject = new TestComponentWithExternalType(entity);
+    componentObject.setMemberExternalType(ExternalTypeBuilder.buildExternalType("Hello"));
 
-        Value externalTypeValue =
-                (Value)
-                        interpreter
-                                .getRuntimeEnvironment()
-                                .translateRuntimeObject(
-                                        componentObject.getMemberExternalType(),
-                                        interpreter.getGlobalMemorySpace());
-        ExternalType object = (ExternalType) externalTypeValue.getInternalValue();
-        Assert.assertEquals(42, object.member1);
-        Assert.assertEquals(12, object.member2);
-        Assert.assertEquals("Hello", object.member3);
-    }
+    Value externalTypeValue =
+        (Value)
+            interpreter
+                .getRuntimeEnvironment()
+                .translateRuntimeObject(
+                    componentObject.getMemberExternalType(), interpreter.getGlobalMemorySpace());
+    ExternalType object = (ExternalType) externalTypeValue.getInternalValue();
+    Assert.assertEquals(42, object.member1);
+    Assert.assertEquals(12, object.member2);
+    Assert.assertEquals("Hello", object.member3);
+  }
 
-    @Test
-    public void testIsolatedComponentTranslationAggregateAdapted() {
-        String program = """
+  @Test
+  public void testIsolatedComponentTranslationAggregateAdapted() {
+    String program = """
             quest_config my_quest_config {}
             """;
 
-        var env = new TestEnvironment();
-        env.getTypeBuilder()
-                .registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
-        var interpreter = new DSLInterpreter();
-        Helpers.generateQuestConfigWithCustomTypes(
-                program,
-                env,
-                interpreter,
-                dsl.interpreter.mockecs.Entity.class,
-                ExternalType.class,
-                TestComponentWithExternalType.class);
+    var env = new TestEnvironment();
+    env.getTypeBuilder()
+        .registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
+    var interpreter = new DSLInterpreter();
+    Helpers.generateQuestConfigWithCustomTypes(
+        program,
+        env,
+        interpreter,
+        dsl.interpreter.mockecs.Entity.class,
+        ExternalType.class,
+        TestComponentWithExternalType.class);
 
-        dsl.interpreter.mockecs.Entity entity = new dsl.interpreter.mockecs.Entity();
-        TestComponentWithExternalType componentObject = new TestComponentWithExternalType(entity);
-        componentObject.setMemberExternalType(ExternalTypeBuilder.buildExternalType("Hello"));
+    dsl.interpreter.mockecs.Entity entity = new dsl.interpreter.mockecs.Entity();
+    TestComponentWithExternalType componentObject = new TestComponentWithExternalType(entity);
+    componentObject.setMemberExternalType(ExternalTypeBuilder.buildExternalType("Hello"));
 
-        Value externalTypeValue =
-                (Value)
-                        interpreter
-                                .getRuntimeEnvironment()
-                                .translateRuntimeObject(
-                                        componentObject.getMemberExternalType(),
-                                        interpreter.getGlobalMemorySpace());
-        Assert.assertTrue(true);
-    }
+    Value externalTypeValue =
+        (Value)
+            interpreter
+                .getRuntimeEnvironment()
+                .translateRuntimeObject(
+                    componentObject.getMemberExternalType(), interpreter.getGlobalMemorySpace());
+    Assert.assertTrue(true);
+  }
 }

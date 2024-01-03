@@ -10,5 +10,5 @@ import java.util.List;
  * built-in native methods only, for external methods, use {@link IDSLExtensionMethod}!
  */
 public interface IInstanceCallable {
-    Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters);
+  Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters);
 }

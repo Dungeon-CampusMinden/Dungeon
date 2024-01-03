@@ -8,9 +8,9 @@ import java.util.Set;
 
 @DSLType(name = "quest_config")
 public record CustomQuestConfig(
-        @DSLTypeMember Entity entity,
-        @DSLTypeMember Entity secondEntity,
-        @DSLTypeMember List<Integer> intList,
-        @DSLTypeMember Set<Float> floatSet,
-        @DSLTypeMember Set<String> stringSet,
-        @DSLTypeMember List<String> stringList) {}
+    @DSLTypeMember Entity entity,
+    @DSLTypeMember Entity secondEntity,
+    @DSLTypeMember List<Integer> intList,
+    @DSLTypeMember Set<Float> floatSet,
+    @DSLTypeMember Set<String> stringSet,
+    @DSLTypeMember List<String> stringList) {}
