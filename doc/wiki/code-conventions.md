@@ -28,11 +28,3 @@ Sie können alle Java-Dateien mit dem Aufruf `./gradlew :spotlessApply` formatie
             </component>
         </project>
         ```
-
-## Code-Checks
-
-Das Tool SpotBugs prüft für uns den Code auf typische Anti-Pattern.
-
-Die von SpotBugs verwendete Standard-Konfiguration haben wir unverändert gelassen.
-
-> SpotBugs checks for more than 400 bug patterns. Bug descriptions can be found [here](https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html)
