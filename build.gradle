@@ -80,19 +80,6 @@ task run(dependsOn: classes, type: JavaExec) {
     }
 }
 
-task runRandom(dependsOn: classes, type: JavaExec) {
-    mainClass = "starter.RandomDungeon"
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
-}
-
 task start(dependsOn: classes, type: JavaExec) {
     mainClass = "starter.Starter"
     classpath = sourceSets.main.runtimeClasspath
