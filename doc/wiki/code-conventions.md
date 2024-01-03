@@ -19,15 +19,15 @@ Sie können alle Java-Dateien mit dem Aufruf `./gradlew :spotlessApply` formatie
         - Code Style: AOSP
     - Alternativ fügen Sie die folgende Konfigurationsdatei in `.idea/google-java-format.xml` hinzu:
 
-    ```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <project version="4">
-        <component name="GoogleJavaFormatSettings">
-            <option name="enabled" value="true"/>
-            <option name="style" value="AOSP"/>
-        </component>
-    </project>
-    ```
+        ```xml
+        <?xml version="1.0" encoding="UTF-8"?>
+        <project version="4">
+            <component name="GoogleJavaFormatSettings">
+                <option name="enabled" value="true"/>
+                <option name="style" value="AOSP"/>
+            </component>
+        </project>
+        ```
 
 ## Code-Checks
 
