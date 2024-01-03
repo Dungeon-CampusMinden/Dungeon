@@ -3,7 +3,6 @@ package starter;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.IOException;
 
 public class BasicStarter {
