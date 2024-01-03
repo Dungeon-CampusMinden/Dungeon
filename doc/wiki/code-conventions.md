@@ -30,14 +30,7 @@ Sie können alle Java-Dateien mit dem Aufruf `./gradlew :spotlessApply` formatie
 
 ## Code-Checks
 
-Die Tools SpotBugs und Checkstyle prüfen für uns den Code auf typische Anti-Pattern.
-
-Die von Checkstyle verwendete Konfiguration finden Sie unter `code/checkstyle-config/checks.xml`.
-
-Wir setzen dabei zunächst nur folgende Module ein (der Name ist Programm):
-- "ConstantName"
-- "EmptyBlock"
-- "Indentation"
+Das Tool SpotBugs prüft für uns den Code auf typische Anti-Pattern.
 
 Die von SpotBugs verwendete Standard-Konfiguration haben wir unverändert gelassen.
 
