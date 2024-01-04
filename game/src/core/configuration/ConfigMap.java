@@ -7,10 +7,10 @@ import java.lang.annotation.Target;
 @Target({java.lang.annotation.ElementType.TYPE})
 public @interface ConfigMap {
 
-    /**
-     * JSON-Path prefix for fields in annotated class
-     *
-     * @return JSON-Path prefix
-     */
-    String[] path() default {};
+  /**
+   * JSON-Path prefix for fields in annotated class
+   *
+   * @return JSON-Path prefix
+   */
+  String[] path() default {};
 }

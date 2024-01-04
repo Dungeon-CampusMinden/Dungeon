@@ -11,29 +11,29 @@ import task.game.content.QuestItem;
  * IDSLExtensionMethod}) for {@link QuestItem}s
  */
 public class QuestItemExtension {
-    // private ctor, because this class should not be instantiated
-    private QuestItemExtension() {}
+  // private ctor, because this class should not be instantiated
+  private QuestItemExtension() {}
 
-    /**
-     * {@link IDSLExtensionProperty} extension to access the {@link TaskContentComponent} of a
-     * {@link QuestItem} instance. Not settable.
-     */
-    @DSLTypeProperty(
-            name = "task_content_component",
-            extendedType = QuestItem.class,
-            isSettable = false)
-    public static class TaskContentComponentProperty
-            implements IDSLExtensionProperty<QuestItem, TaskContentComponent> {
-        public static TaskContentComponentProperty instance = new TaskContentComponentProperty();
+  /**
+   * {@link IDSLExtensionProperty} extension to access the {@link TaskContentComponent} of a {@link
+   * QuestItem} instance. Not settable.
+   */
+  @DSLTypeProperty(
+      name = "task_content_component",
+      extendedType = QuestItem.class,
+      isSettable = false)
+  public static class TaskContentComponentProperty
+      implements IDSLExtensionProperty<QuestItem, TaskContentComponent> {
+    public static TaskContentComponentProperty instance = new TaskContentComponentProperty();
 
-        private TaskContentComponentProperty() {}
+    private TaskContentComponentProperty() {}
 
-        @Override
-        public void set(QuestItem instance, TaskContentComponent valueToSet) {}
+    @Override
+    public void set(QuestItem instance, TaskContentComponent valueToSet) {}
 
-        @Override
-        public TaskContentComponent get(QuestItem instance) {
-            return instance.taskContentComponent();
-        }
+    @Override
+    public TaskContentComponent get(QuestItem instance) {
+      return instance.taskContentComponent();
     }
+  }
 }

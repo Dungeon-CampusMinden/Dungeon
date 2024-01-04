@@ -6,17 +6,17 @@ package contrib.utils.components.draw;
  * @see core.utils.components.draw.CoreAnimationPriorities
  */
 public enum AdditionalAnimationsPriorities {
-    DIE(5000),
-    HIT(4000),
-    FIGHT(3000);
+  DIE(5000),
+  HIT(4000),
+  FIGHT(3000);
 
-    private final int priority;
+  private final int priority;
 
-    AdditionalAnimationsPriorities(int priority) {
-        this.priority = priority;
-    }
+  AdditionalAnimationsPriorities(int priority) {
+    this.priority = priority;
+  }
 
-    public int priority() {
-        return priority;
-    }
+  public int priority() {
+    return priority;
+  }
 }

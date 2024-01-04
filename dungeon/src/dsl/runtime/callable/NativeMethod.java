@@ -14,41 +14,37 @@ import java.util.List;
  * data type.
  */
 public class NativeMethod extends Symbol implements ICallable {
-    private final IInstanceCallable instanceCallable;
+  private final IInstanceCallable instanceCallable;
 
-    /**
-     * Constructor.
-     *
-     * @param name The name of the method
-     * @param parentScope The parent scope of this symbol
-     * @param functionType The {@link FunctionType} containing the signature information of the
-     *     method
-     * @param callable The {@link IInstanceCallable}, which contains the actual implementation of
-     *     the method's logic
-     */
-    public NativeMethod(
-            String name,
-            IScope parentScope,
-            FunctionType functionType,
-            IInstanceCallable callable) {
-        super(name, parentScope, functionType);
-        this.instanceCallable = callable;
-    }
+  /**
+   * Constructor.
+   *
+   * @param name The name of the method
+   * @param parentScope The parent scope of this symbol
+   * @param functionType The {@link FunctionType} containing the signature information of the method
+   * @param callable The {@link IInstanceCallable}, which contains the actual implementation of the
+   *     method's logic
+   */
+  public NativeMethod(
+      String name, IScope parentScope, FunctionType functionType, IInstanceCallable callable) {
+    super(name, parentScope, functionType);
+    this.instanceCallable = callable;
+  }
 
-    @Override
-    public Object call(DSLInterpreter interperter, List<Node> parameters) {
-        // resolve "THIS_VALUE"
-        Value instance = interperter.getCurrentInstanceMemorySpace().resolve(Value.THIS_NAME);
-        return this.instanceCallable.call(interperter, instance, parameters);
-    }
+  @Override
+  public Object call(DSLInterpreter interperter, List<Node> parameters) {
+    // resolve "THIS_VALUE"
+    Value instance = interperter.getCurrentInstanceMemorySpace().resolve(Value.THIS_NAME);
+    return this.instanceCallable.call(interperter, instance, parameters);
+  }
 
-    @Override
-    public ICallable.Type getCallableType() {
-        return null;
-    }
+  @Override
+  public ICallable.Type getCallableType() {
+    return null;
+  }
 
-    @Override
-    public FunctionType getFunctionType() {
-        return (FunctionType) this.dataType;
-    }
+  @Override
+  public FunctionType getFunctionType() {
+    return (FunctionType) this.dataType;
+  }
 }

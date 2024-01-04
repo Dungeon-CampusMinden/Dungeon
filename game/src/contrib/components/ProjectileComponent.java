@@ -29,23 +29,23 @@ import core.utils.Point;
  */
 public record ProjectileComponent(Point startPosition, Point goalLocation) implements Component {
 
-    /**
-     * Get the target position of the projectile.
-     *
-     * @return The point where the projectile should fly to.
-     */
-    @Override
-    public Point goalLocation() {
-        return goalLocation;
-    }
+  /**
+   * Get the target position of the projectile.
+   *
+   * @return The point where the projectile should fly to.
+   */
+  @Override
+  public Point goalLocation() {
+    return goalLocation;
+  }
 
-    /**
-     * Get the start position of the projectile.
-     *
-     * @return The point from which to start the calculation to the goal location
-     */
-    @Override
-    public Point startPosition() {
-        return startPosition;
-    }
+  /**
+   * Get the start position of the projectile.
+   *
+   * @return The point from which to start the calculation to the goal location
+   */
+  @Override
+  public Point startPosition() {
+    return startPosition;
+  }
 }

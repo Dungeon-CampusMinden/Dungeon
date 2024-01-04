@@ -5,5 +5,5 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
 
 @DSLType
 public class ComponentWithInterfaceMember {
-    private @DSLTypeMember ITestInterface interfaceMember;
+  private @DSLTypeMember ITestInterface interfaceMember;
 }

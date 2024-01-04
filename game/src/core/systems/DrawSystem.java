@@ -35,134 +35,129 @@ import java.util.stream.Collectors;
  */
 public final class DrawSystem extends System {
 
-    /**
-     * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
-     * batch.
-     */
-    private static final SpriteBatch BATCH = new SpriteBatch();
+  /**
+   * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
+   * batch.
+   */
+  private static final SpriteBatch BATCH = new SpriteBatch();
 
-    /** Draws objects */
-    private static final Painter PAINTER = new Painter(BATCH);
+  /** Draws objects */
+  private static final Painter PAINTER = new Painter(BATCH);
 
-    private final Map<IPath, PainterConfig> configs;
+  private final Map<IPath, PainterConfig> configs;
 
-    /** Create a new DrawSystem. */
-    public DrawSystem() {
-        super(DrawComponent.class, PositionComponent.class);
-        configs = new HashMap<>();
+  /** Create a new DrawSystem. */
+  public DrawSystem() {
+    super(DrawComponent.class, PositionComponent.class);
+    configs = new HashMap<>();
+  }
+
+  /**
+   * Get the {@link Painter} that is used by this system.
+   *
+   * @return the {@link #PAINTER} of the DrawSystem
+   */
+  public static Painter painter() {
+    return PAINTER;
+  }
+
+  /**
+   * Get the {@link SpriteBatch} that is used by this system.
+   *
+   * @return the {@link #BATCH} of the DrawSystem
+   */
+  public static SpriteBatch batch() {
+    return BATCH;
+  }
+
+  /**
+   * Will draw entities at their position with their current animation.
+   *
+   * <p>All entities with a {@link PlayerComponent} will be drawn on top.
+   *
+   * @see DrawComponent
+   * @see Animation
+   */
+  @Override
+  public void execute() {
+    Map<Boolean, List<Entity>> partitionedEntities =
+        entityStream()
+            .collect(Collectors.partitioningBy(entity -> entity.isPresent(PlayerComponent.class)));
+    List<Entity> players = partitionedEntities.get(true);
+    List<Entity> npcs = partitionedEntities.get(false);
+
+    npcs.forEach(entity -> draw(buildDataObject(entity)));
+    players.forEach(entity -> draw(buildDataObject(entity)));
+  }
+
+  private void draw(final DSData dsd) {
+    reduceFrameTimer(dsd.dc);
+    setNextAnimation(dsd.dc);
+    final Animation animation = dsd.dc.currentAnimation();
+    IPath currentAnimationTexture = animation.nextAnimationTexturePath();
+    if (!configs.containsKey(currentAnimationTexture)) {
+      configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
     }
+    PAINTER.draw(dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
+  }
 
-    /**
-     * Get the {@link Painter} that is used by this system.
-     *
-     * @return the {@link #PAINTER} of the DrawSystem
-     */
-    public static Painter painter() {
-        return PAINTER;
+  /**
+   * Reduce the frame timer for each animation in the queue, remove animations that have a frame
+   * time < 0.
+   *
+   * @param dc Component to iterate over
+   */
+  private void reduceFrameTimer(final DrawComponent dc) {
+    // iterate through animationQueue
+    for (Map.Entry<IPath, Integer> entry : dc.animationQueue().entrySet()) {
+      // reduce remaining frame time of animation by 1
+      entry.setValue(entry.getValue() - 1);
     }
+    // remove animations when there is no remaining frame time
+    dc.animationQueue().entrySet().stream()
+        .filter(x -> x.getValue() < 0)
+        .forEach(x -> dc.deQueue(x.getKey()));
+  }
 
-    /**
-     * Get the {@link SpriteBatch} that is used by this system.
-     *
-     * @return the {@link #BATCH} of the DrawSystem
-     */
-    public static SpriteBatch batch() {
-        return BATCH;
-    }
+  /**
+   * Checks the status of animations in the animationQueue and selects the next animation by
+   * priority.
+   *
+   * @param dc DrawComponent to draw
+   */
+  private void setNextAnimation(final DrawComponent dc) {
 
-    /**
-     * Will draw entities at their position with their current animation.
-     *
-     * <p>All entities with a {@link PlayerComponent} will be drawn on top.
-     *
-     * @see DrawComponent
-     * @see Animation
-     */
-    @Override
-    public void execute() {
-        Map<Boolean, List<Entity>> partitionedEntities =
-                entityStream()
-                        .collect(
-                                Collectors.partitioningBy(
-                                        entity -> entity.isPresent(PlayerComponent.class)));
-        List<Entity> players = partitionedEntities.get(true);
-        List<Entity> npcs = partitionedEntities.get(false);
-
-        npcs.forEach(entity -> draw(buildDataObject(entity)));
-        players.forEach(entity -> draw(buildDataObject(entity)));
-    }
-
-    private void draw(final DSData dsd) {
-        reduceFrameTimer(dsd.dc);
-        setNextAnimation(dsd.dc);
-        final Animation animation = dsd.dc.currentAnimation();
-        IPath currentAnimationTexture = animation.nextAnimationTexturePath();
-        if (!configs.containsKey(currentAnimationTexture)) {
-            configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
-        }
-        PAINTER.draw(
-                dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
-    }
-
-    /**
-     * Reduce the frame timer for each animation in the queue, remove animations that have a frame
-     * time < 0.
-     *
-     * @param dc Component to iterate over
-     */
-    private void reduceFrameTimer(final DrawComponent dc) {
-        // iterate through animationQueue
-        for (Map.Entry<IPath, Integer> entry : dc.animationQueue().entrySet()) {
-            // reduce remaining frame time of animation by 1
-            entry.setValue(entry.getValue() - 1);
-        }
-        // remove animations when there is no remaining frame time
+    Optional<Map.Entry<IPath, Integer>> highestFind =
         dc.animationQueue().entrySet().stream()
-                .filter(x -> x.getValue() < 0)
-                .forEach(x -> dc.deQueue(x.getKey()));
+            .max(Comparator.comparingInt(x -> x.getKey().priority()));
+
+    // when there is an animation load it
+    if (highestFind.isPresent()) {
+      IPath highestPrio = highestFind.get().getKey();
+      // making sure the animation exists
+      dc.animationMap().get(highestPrio.pathString());
+      // changing the Animation
+      dc.currentAnimation(highestPrio);
     }
+  }
 
-    /**
-     * Checks the status of animations in the animationQueue and selects the next animation by
-     * priority.
-     *
-     * @param dc DrawComponent to draw
-     */
-    private void setNextAnimation(final DrawComponent dc) {
+  /** DrawSystem can't be paused */
+  @Override
+  public void stop() {
+    run = true;
+  }
 
-        Optional<Map.Entry<IPath, Integer>> highestFind =
-                dc.animationQueue().entrySet().stream()
-                        .max(Comparator.comparingInt(x -> x.getKey().priority()));
+  private DSData buildDataObject(final Entity entity) {
+    DrawComponent dc =
+        entity
+            .fetch(DrawComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    return new DSData(entity, dc, pc);
+  }
 
-        // when there is an animation load it
-        if (highestFind.isPresent()) {
-            IPath highestPrio = highestFind.get().getKey();
-            // making sure the animation exists
-            dc.animationMap().get(highestPrio.pathString());
-            // changing the Animation
-            dc.currentAnimation(highestPrio);
-        }
-    }
-
-    /** DrawSystem can't be paused */
-    @Override
-    public void stop() {
-        run = true;
-    }
-
-    private DSData buildDataObject(final Entity entity) {
-        DrawComponent dc =
-                entity.fetch(DrawComponent.class)
-                        .orElseThrow(
-                                () -> MissingComponentException.build(entity, DrawComponent.class));
-        PositionComponent pc =
-                entity.fetch(PositionComponent.class)
-                        .orElseThrow(
-                                () ->
-                                        MissingComponentException.build(
-                                                entity, PositionComponent.class));
-        return new DSData(entity, dc, pc);
-    }
-
-    private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {}
+  private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {}
 }

@@ -5,33 +5,33 @@ import core.utils.components.path.IPath;
 
 /** A collection of Animations which are special for a chest and not used by any other Entities. */
 public enum ChestAnimations implements IPath {
-    CLOSED("idle_closed", CoreAnimationPriorities.IDLE.priority()),
-    // once the chest is open, there are two states: with items or without
-    OPEN_EMPTY("open_empty", CoreAnimationPriorities.IDLE.priority() + 100),
-    OPEN_FULL("open_full", CoreAnimationPriorities.IDLE.priority() + 100),
-    // animation
-    OPENING("opening", CoreAnimationPriorities.IDLE.priority() + 200);
+  CLOSED("idle_closed", CoreAnimationPriorities.IDLE.priority()),
+  // once the chest is open, there are two states: with items or without
+  OPEN_EMPTY("open_empty", CoreAnimationPriorities.IDLE.priority() + 100),
+  OPEN_FULL("open_full", CoreAnimationPriorities.IDLE.priority() + 100),
+  // animation
+  OPENING("opening", CoreAnimationPriorities.IDLE.priority() + 200);
 
-    private final String value;
-    private final int priority;
+  private final String value;
+  private final int priority;
 
-    ChestAnimations(final String value, int priority) {
-        this.value = value;
-        this.priority = priority;
-    }
+  ChestAnimations(final String value, int priority) {
+    this.value = value;
+    this.priority = priority;
+  }
 
-    @Override
-    public String pathString() {
-        return value;
-    }
+  @Override
+  public String pathString() {
+    return value;
+  }
 
-    @Override
-    public String toString() {
-        return "ChestAnimation[" + this.value + "]";
-    }
+  @Override
+  public String toString() {
+    return "ChestAnimation[" + this.value + "]";
+  }
 
-    @Override
-    public int priority() {
-        return priority;
-    }
+  @Override
+  public int priority() {
+    return priority;
+  }
 }

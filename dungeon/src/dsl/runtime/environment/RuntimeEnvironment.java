@@ -17,98 +17,98 @@ import java.util.HashMap;
 // this extends the normal IEnvironment definition by storing prototypes
 // which are basically evaluated type definitions (of game objects)
 public class RuntimeEnvironment implements IEnvironment {
-    private final SymbolTable symbolTable;
-    private final HashMap<String, Symbol> functions;
-    private final HashMap<String, PrototypeValue> prototypes;
-    private final HashMap<Type, IType> javaTypeToDSLType;
-    private final RuntimeObjectTranslator runtimeObjectTranslator;
-    private final TypeBuilder typeBuilder;
-    private final TypeInstantiator typeInstantiator;
+  private final SymbolTable symbolTable;
+  private final HashMap<String, Symbol> functions;
+  private final HashMap<String, PrototypeValue> prototypes;
+  private final HashMap<Type, IType> javaTypeToDSLType;
+  private final RuntimeObjectTranslator runtimeObjectTranslator;
+  private final TypeBuilder typeBuilder;
+  private final TypeInstantiator typeInstantiator;
 
-    public RuntimeObjectTranslator getRuntimeObjectTranslator() {
-        return runtimeObjectTranslator;
+  public RuntimeObjectTranslator getRuntimeObjectTranslator() {
+    return runtimeObjectTranslator;
+  }
+
+  /**
+   * Constructor. Create new runtime environment from an existing environment and add all type
+   * definitions to the stored types.
+   *
+   * @param other the other environment to create a new RuntimeEnvironment from
+   */
+  public RuntimeEnvironment(IEnvironment other, DSLInterpreter interpreter) {
+    this.symbolTable = other.getSymbolTable();
+    this.typeBuilder = other.getTypeBuilder();
+
+    var functions = other.getFunctions();
+    this.functions = new HashMap<>();
+    for (var function : functions) {
+      this.functions.put(function.getName(), function);
     }
 
-    /**
-     * Constructor. Create new runtime environment from an existing environment and add all type
-     * definitions to the stored types.
-     *
-     * @param other the other environment to create a new RuntimeEnvironment from
-     */
-    public RuntimeEnvironment(IEnvironment other, DSLInterpreter interpreter) {
-        this.symbolTable = other.getSymbolTable();
-        this.typeBuilder = other.getTypeBuilder();
+    this.prototypes = new HashMap<>();
 
-        var functions = other.getFunctions();
-        this.functions = new HashMap<>();
-        for (var function : functions) {
-            this.functions.put(function.getName(), function);
-        }
+    this.javaTypeToDSLType = other.javaTypeToDSLTypeMap();
 
-        this.prototypes = new HashMap<>();
+    this.runtimeObjectTranslator = other.getRuntimeObjectTranslator();
+    this.typeInstantiator = new TypeInstantiator(interpreter);
+  }
 
-        this.javaTypeToDSLType = other.javaTypeToDSLTypeMap();
+  /**
+   * Lookup a {@link PrototypeValue} with name
+   *
+   * @param name the name of the Prototype to lookup
+   * @return the Prototype with the passed name or Prototype.NONE
+   */
+  public PrototypeValue lookupPrototype(String name) {
+    return this.prototypes.getOrDefault(name, PrototypeValue.NONE);
+  }
 
-        this.runtimeObjectTranslator = other.getRuntimeObjectTranslator();
-        this.typeInstantiator = new TypeInstantiator(interpreter);
+  /**
+   * Add new {@link PrototypeValue}
+   *
+   * @param prototype the new Prototype
+   * @return true on success, false otherwise
+   */
+  public boolean addPrototype(PrototypeValue prototype) {
+    if (this.prototypes.containsKey(prototype.getName())) {
+      return false;
+    } else {
+      this.prototypes.put(prototype.getName(), prototype);
+      return true;
     }
+  }
 
-    /**
-     * Lookup a {@link PrototypeValue} with name
-     *
-     * @param name the name of the Prototype to lookup
-     * @return the Prototype with the passed name or Prototype.NONE
-     */
-    public PrototypeValue lookupPrototype(String name) {
-        return this.prototypes.getOrDefault(name, PrototypeValue.NONE);
-    }
+  @Override
+  public TypeBuilder getTypeBuilder() {
+    return this.typeBuilder;
+  }
 
-    /**
-     * Add new {@link PrototypeValue}
-     *
-     * @param prototype the new Prototype
-     * @return true on success, false otherwise
-     */
-    public boolean addPrototype(PrototypeValue prototype) {
-        if (this.prototypes.containsKey(prototype.getName())) {
-            return false;
-        } else {
-            this.prototypes.put(prototype.getName(), prototype);
-            return true;
-        }
-    }
+  @Override
+  public SymbolTable getSymbolTable() {
+    return this.symbolTable;
+  }
 
-    @Override
-    public TypeBuilder getTypeBuilder() {
-        return this.typeBuilder;
-    }
+  @Override
+  public IScope getGlobalScope() {
+    return this.symbolTable.globalScope();
+  }
 
-    @Override
-    public SymbolTable getSymbolTable() {
-        return this.symbolTable;
-    }
+  @Override
+  public HashMap<Type, IType> javaTypeToDSLTypeMap() {
+    return this.javaTypeToDSLType;
+  }
 
-    @Override
-    public IScope getGlobalScope() {
-        return this.symbolTable.globalScope();
-    }
+  public Object translateRuntimeObject(Object object, IMemorySpace parentMemorySpace) {
+    return this.runtimeObjectTranslator.translateRuntimeObject(object, parentMemorySpace, this);
+  }
 
-    @Override
-    public HashMap<Type, IType> javaTypeToDSLTypeMap() {
-        return this.javaTypeToDSLType;
-    }
+  public Object translateRuntimeObject(
+      Object object, IMemorySpace parentMemorySpace, IType targetType) {
+    return this.runtimeObjectTranslator.translateRuntimeObject(
+        object, parentMemorySpace, this, targetType);
+  }
 
-    public Object translateRuntimeObject(Object object, IMemorySpace parentMemorySpace) {
-        return this.runtimeObjectTranslator.translateRuntimeObject(object, parentMemorySpace, this);
-    }
-
-    public Object translateRuntimeObject(
-            Object object, IMemorySpace parentMemorySpace, IType targetType) {
-        return this.runtimeObjectTranslator.translateRuntimeObject(
-                object, parentMemorySpace, this, targetType);
-    }
-
-    public TypeInstantiator getTypeInstantiator() {
-        return this.typeInstantiator;
-    }
+  public TypeInstantiator getTypeInstantiator() {
+    return this.typeInstantiator;
+  }
 }

@@ -30,60 +30,60 @@ import java.util.function.Function;
  * @see AISystem
  */
 public final class AIComponent implements Component {
-    private final Consumer<Entity> fightBehavior;
-    private final Consumer<Entity> idleBehavior;
-    private final Function<Entity, Boolean> shouldFight;
+  private final Consumer<Entity> fightBehavior;
+  private final Consumer<Entity> idleBehavior;
+  private final Function<Entity, Boolean> shouldFight;
 
-    /**
-     * Create an AIComponent with the given behavior.
-     *
-     * @param fightBehavior The combat behavior.
-     * @param idleBehavior The idle behavior.
-     * @param shouldFight Determines when to fight.
-     */
-    public AIComponent(
-            final Consumer<Entity> fightBehavior,
-            final Consumer<Entity> idleBehavior,
-            final Function<Entity, Boolean> shouldFight) {
-        this.fightBehavior = fightBehavior;
-        this.idleBehavior = idleBehavior;
-        this.shouldFight = shouldFight;
-    }
+  /**
+   * Create an AIComponent with the given behavior.
+   *
+   * @param fightBehavior The combat behavior.
+   * @param idleBehavior The idle behavior.
+   * @param shouldFight Determines when to fight.
+   */
+  public AIComponent(
+      final Consumer<Entity> fightBehavior,
+      final Consumer<Entity> idleBehavior,
+      final Function<Entity, Boolean> shouldFight) {
+    this.fightBehavior = fightBehavior;
+    this.idleBehavior = idleBehavior;
+    this.shouldFight = shouldFight;
+  }
 
-    /**
-     * Create an AIComponent with default behavior.
-     *
-     * <p>The default behavior uses {@link RadiusWalk} as the idle behavior, {@link RangeTransition}
-     * as the transition function, and {@link CollideAI} as the fight behavior.
-     */
-    public AIComponent() {
-        this(new CollideAI(2f), new RadiusWalk(5, 2), new RangeTransition(5f));
-    }
+  /**
+   * Create an AIComponent with default behavior.
+   *
+   * <p>The default behavior uses {@link RadiusWalk} as the idle behavior, {@link RangeTransition}
+   * as the transition function, and {@link CollideAI} as the fight behavior.
+   */
+  public AIComponent() {
+    this(new CollideAI(2f), new RadiusWalk(5, 2), new RangeTransition(5f));
+  }
 
-    /**
-     * Get the function that decides if the fight behavior should be executed.
-     *
-     * @return Transition function between idle and fight behavior.
-     */
-    public Function<Entity, Boolean> shouldFight() {
-        return shouldFight;
-    }
+  /**
+   * Get the function that decides if the fight behavior should be executed.
+   *
+   * @return Transition function between idle and fight behavior.
+   */
+  public Function<Entity, Boolean> shouldFight() {
+    return shouldFight;
+  }
 
-    /**
-     * Get the function to execute for fighting.
-     *
-     * @return Function that implements the fight behavior.
-     */
-    public Consumer<Entity> fightBehavior() {
-        return fightBehavior;
-    }
+  /**
+   * Get the function to execute for fighting.
+   *
+   * @return Function that implements the fight behavior.
+   */
+  public Consumer<Entity> fightBehavior() {
+    return fightBehavior;
+  }
 
-    /**
-     * Get the function to execute for idle.
-     *
-     * @return Function that implements the idle behavior.
-     */
-    public Consumer<Entity> idleBehavior() {
-        return idleBehavior;
-    }
+  /**
+   * Get the function to execute for idle.
+   *
+   * @return Function that implements the idle behavior.
+   */
+  public Consumer<Entity> idleBehavior() {
+    return idleBehavior;
+  }
 }

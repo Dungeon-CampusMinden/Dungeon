@@ -4,7 +4,7 @@ import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
 
 @DSLType
 public enum MyEnum {
-    A,
-    B,
-    C
+  A,
+  B,
+  C
 }

@@ -30,133 +30,122 @@ import task.tasktype.quizquestion.SingleChoice;
  */
 public class AnswerPickingFunctions {
 
-    /**
-     * This Callback will check the first container of the given {@link Task} and will return a
-     * Collection that contains each TaskContent in the container.
-     *
-     * <p>This function assumes that the container is an Entity that has an {@link
-     * InventoryComponent}
-     *
-     * <p>This function assumes that the given answers are {@link QuestItem}s
-     *
-     * <p>This function ignores other items in the container. Will also ignore QuestItems from other
-     * tasks.
-     *
-     * <p>Use this function as a callback for {@link SingleChoice} and {@link MultipleChoice} Tasks.
-     *
-     * @return Function that can be used as a callback for {@link
-     *     Task#answerPickingFunction(Function)}
-     */
-    public static Function<Task, Set<TaskContent>> singleChestPicker() {
-        return task -> {
-            TaskContent containerContent =
-                    (TaskContent) task.containerStream().findFirst().orElseThrow();
+  /**
+   * This Callback will check the first container of the given {@link Task} and will return a
+   * Collection that contains each TaskContent in the container.
+   *
+   * <p>This function assumes that the container is an Entity that has an {@link InventoryComponent}
+   *
+   * <p>This function assumes that the given answers are {@link QuestItem}s
+   *
+   * <p>This function ignores other items in the container. Will also ignore QuestItems from other
+   * tasks.
+   *
+   * <p>Use this function as a callback for {@link SingleChoice} and {@link MultipleChoice} Tasks.
+   *
+   * @return Function that can be used as a callback for {@link
+   *     Task#answerPickingFunction(Function)}
+   */
+  public static Function<Task, Set<TaskContent>> singleChestPicker() {
+    return task -> {
+      TaskContent containerContent = (TaskContent) task.containerStream().findFirst().orElseThrow();
 
-            Entity container =
+      Entity container =
+          task.find((TaskContent) containerContent)
+              .orElseThrow(
+                  () -> new NullPointerException("The container does not exist in the game."));
+      InventoryComponent ic =
+          container
+              .fetch(InventoryComponent.class)
+              .orElseThrow(
+                  () -> MissingComponentException.build(container, InventoryComponent.class));
+      Set<Item> answerItems = ic.items(QuestItem.class);
+      Set<TaskContent> res = new HashSet<>();
+      for (Item i : answerItems) {
+        TaskContent content = ((QuestItem) i).taskContentComponent().content();
+        if (content.task() == task) res.add(content);
+      }
+      return res;
+    };
+  }
+
+  /**
+   * This Callback will check all containers of the given {@link Task} and will return a single
+   * wrapper {@link Element} that stores a {@link Map<TaskContent, Set<TaskContent>>}.
+   *
+   * <p>Use the wrapper Element's content to get the answer map.
+   *
+   * <p>This function assumes that the containers are Entities with {@link InventoryComponent}s.
+   *
+   * <p>This function assumes that the given answers are {@link QuestItem}s
+   *
+   * <p>This function ignores other items in the container. Will also ignore QuestItems from other
+   * tasks.
+   *
+   * <p>Use this function as a callback for {@link AssignTask}s.
+   *
+   * @return Function that can be used as a callback for {@link
+   *     Task#answerPickingFunction(Function)}
+   */
+  public static Function<Task, Set<TaskContent>> multipleChestPicker() {
+    return task -> {
+      Map<TaskContent, Set<TaskContent>> answerMap = new HashMap<>();
+      Element wrapperElement = new Element(task, answerMap);
+
+      task.containerStream()
+          .forEach(
+              containerContent -> {
+                Entity container =
                     task.find((TaskContent) containerContent)
-                            .orElseThrow(
-                                    () ->
-                                            new NullPointerException(
-                                                    "The container does not exist in the game."));
-            InventoryComponent ic =
+                        .orElseThrow(
+                            () ->
+                                new NullPointerException(
+                                    "The container does not exist in the game."));
+                InventoryComponent ic =
                     container
-                            .fetch(InventoryComponent.class)
-                            .orElseThrow(
-                                    () ->
-                                            MissingComponentException.build(
-                                                    container, InventoryComponent.class));
-            Set<Item> answerItems = ic.items(QuestItem.class);
-            Set<TaskContent> res = new HashSet<>();
-            for (Item i : answerItems) {
-                TaskContent content = ((QuestItem) i).taskContentComponent().content();
-                if (content.task() == task) res.add(content);
-            }
-            return res;
-        };
-    }
+                        .fetch(InventoryComponent.class)
+                        .orElseThrow(
+                            () ->
+                                MissingComponentException.build(
+                                    container, InventoryComponent.class));
+                Set<Item> answerItems = ic.items(QuestItem.class);
+                Set<TaskContent> res = new HashSet<>();
+                for (Item i : answerItems) {
+                  TaskContent content = ((QuestItem) i).taskContentComponent().content();
+                  if (content.task() == task) res.add(content);
+                }
+                answerMap.put((TaskContent) containerContent, res);
+              });
+      return Set.of(wrapperElement);
+    };
+  }
 
-    /**
-     * This Callback will check all containers of the given {@link Task} and will return a single
-     * wrapper {@link Element} that stores a {@link Map<TaskContent, Set<TaskContent>>}.
-     *
-     * <p>Use the wrapper Element's content to get the answer map.
-     *
-     * <p>This function assumes that the containers are Entities with {@link InventoryComponent}s.
-     *
-     * <p>This function assumes that the given answers are {@link QuestItem}s
-     *
-     * <p>This function ignores other items in the container. Will also ignore QuestItems from other
-     * tasks.
-     *
-     * <p>Use this function as a callback for {@link AssignTask}s.
-     *
-     * @return Function that can be used as a callback for {@link
-     *     Task#answerPickingFunction(Function)}
-     */
-    public static Function<Task, Set<TaskContent>> multipleChestPicker() {
-        return task -> {
-            Map<TaskContent, Set<TaskContent>> answerMap = new HashMap<>();
-            Element wrapperElement = new Element(task, answerMap);
-
-            task.containerStream()
-                    .forEach(
-                            containerContent -> {
-                                Entity container =
-                                        task.find((TaskContent) containerContent)
-                                                .orElseThrow(
-                                                        () ->
-                                                                new NullPointerException(
-                                                                        "The container does not exist in the game."));
-                                InventoryComponent ic =
-                                        container
-                                                .fetch(InventoryComponent.class)
-                                                .orElseThrow(
-                                                        () ->
-                                                                MissingComponentException.build(
-                                                                        container,
-                                                                        InventoryComponent.class));
-                                Set<Item> answerItems = ic.items(QuestItem.class);
-                                Set<TaskContent> res = new HashSet<>();
-                                for (Item i : answerItems) {
-                                    TaskContent content =
-                                            ((QuestItem) i).taskContentComponent().content();
-                                    if (content.task() == task) res.add(content);
-                                }
-                                answerMap.put((TaskContent) containerContent, res);
-                            });
-            return Set.of(wrapperElement);
-        };
-    }
-
-    /**
-     * This Callback will check the heroes inventory and will return a Collection that contains each
-     * TaskContent if the given task in the container.
-     *
-     * <p>This function assumes that the given answers are {@link QuestItem}s
-     *
-     * <p>This function ignores other items in the container.
-     *
-     * <p>Use this function as a callback for {@link SingleChoice} and {@link MultipleChoice} Tasks.
-     *
-     * @return Function that can be used as a callback for {@link
-     *     Task#answerPickingFunction(Function)}
-     */
-    public static Function<Task, Set<TaskContent>> heroInventoryPicker() {
-        return task -> {
-            Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
-            InventoryComponent ic =
-                    hero.fetch(InventoryComponent.class)
-                            .orElseThrow(
-                                    () ->
-                                            MissingComponentException.build(
-                                                    hero, InventoryComponent.class));
-            Set<Item> answerItems = ic.items(QuestItem.class);
-            Set<TaskContent> res = new HashSet<>();
-            for (Item i : answerItems) {
-                TaskContent content = ((QuestItem) i).taskContentComponent().content();
-                if (content.task() == task) res.add(content);
-            }
-            return res;
-        };
-    }
+  /**
+   * This Callback will check the heroes inventory and will return a Collection that contains each
+   * TaskContent if the given task in the container.
+   *
+   * <p>This function assumes that the given answers are {@link QuestItem}s
+   *
+   * <p>This function ignores other items in the container.
+   *
+   * <p>Use this function as a callback for {@link SingleChoice} and {@link MultipleChoice} Tasks.
+   *
+   * @return Function that can be used as a callback for {@link
+   *     Task#answerPickingFunction(Function)}
+   */
+  public static Function<Task, Set<TaskContent>> heroInventoryPicker() {
+    return task -> {
+      Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
+      InventoryComponent ic =
+          hero.fetch(InventoryComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(hero, InventoryComponent.class));
+      Set<Item> answerItems = ic.items(QuestItem.class);
+      Set<TaskContent> res = new HashSet<>();
+      for (Item i : answerItems) {
+        TaskContent content = ((QuestItem) i).taskContentComponent().content();
+        if (content.task() == task) res.add(content);
+      }
+      return res;
+    };
+  }
 }

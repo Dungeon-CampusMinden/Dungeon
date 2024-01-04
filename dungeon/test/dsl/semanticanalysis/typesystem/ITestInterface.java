@@ -1,5 +1,5 @@
 package dsl.semanticanalysis.typesystem;
 
 public interface ITestInterface {
-    boolean getThing();
+  boolean getThing();
 }

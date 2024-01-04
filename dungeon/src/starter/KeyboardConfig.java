@@ -8,9 +8,9 @@ import core.configuration.values.ConfigIntValue;
 /** Keyboard-configuration for the dungeon-package. */
 @ConfigMap(path = {"keyboard"})
 public class KeyboardConfig {
-    public static final ConfigKey<Integer> QUESTLOG =
-            new ConfigKey<>(new String[] {"menu", "questlog"}, new ConfigIntValue(Input.Keys.M));
+  public static final ConfigKey<Integer> QUESTLOG =
+      new ConfigKey<>(new String[] {"menu", "questlog"}, new ConfigIntValue(Input.Keys.M));
 
-    public static final ConfigKey<Integer> INFOS =
-            new ConfigKey<>(new String[] {"info", "game_infos"}, new ConfigIntValue(Input.Keys.L));
+  public static final ConfigKey<Integer> INFOS =
+      new ConfigKey<>(new String[] {"info", "game_infos"}, new ConfigIntValue(Input.Keys.L));
 }

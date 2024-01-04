@@ -12,13 +12,13 @@ import core.components.PositionComponent;
  */
 public final class SpikeSystem extends System {
 
-    /** Create new SpikeSystem. */
-    public SpikeSystem() {
-        super(SpikyComponent.class);
-    }
+  /** Create new SpikeSystem. */
+  public SpikeSystem() {
+    super(SpikyComponent.class);
+  }
 
-    @Override
-    public void execute() {
-        entityStream().forEach(e -> e.fetch(SpikyComponent.class).orElseThrow().reduceCoolDown());
-    }
+  @Override
+  public void execute() {
+    entityStream().forEach(e -> e.fetch(SpikyComponent.class).orElseThrow().reduceCoolDown());
+  }
 }

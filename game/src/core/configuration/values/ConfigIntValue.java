@@ -14,37 +14,37 @@ package core.configuration.values;
  */
 public final class ConfigIntValue extends ConfigValue<Integer> {
 
-    /**
-     * Creates a new ConfigValue of type Integer.
-     *
-     * <p>This is used to store key references. In libGDX, keys are represented by integers.
-     *
-     * @param value Value.
-     * @see com.badlogic.gdx.Input.Keys
-     */
-    public ConfigIntValue(final Integer value) {
-        super(value);
-    }
+  /**
+   * Creates a new ConfigValue of type Integer.
+   *
+   * <p>This is used to store key references. In libGDX, keys are represented by integers.
+   *
+   * @param value Value.
+   * @see com.badlogic.gdx.Input.Keys
+   */
+  public ConfigIntValue(final Integer value) {
+    super(value);
+  }
 
-    /**
-     * Serialize the integer value to a string.
-     *
-     * @return The serialized value.
-     */
-    @Override
-    public String serialize() {
-        return value.toString();
-    }
+  /**
+   * Serialize the integer value to a string.
+   *
+   * @return The serialized value.
+   */
+  @Override
+  public String serialize() {
+    return value.toString();
+  }
 
-    /**
-     * Deserialize the integer value from a string.
-     *
-     * @param value The string to deserialize.
-     * @return The deserialized value.
-     */
-    @Override
-    public Integer deserialize(final String value) {
-        this.value = Integer.parseInt(value);
-        return this.value;
-    }
+  /**
+   * Deserialize the integer value from a string.
+   *
+   * @param value The string to deserialize.
+   * @return The deserialized value.
+   */
+  @Override
+  public Integer deserialize(final String value) {
+    this.value = Integer.parseInt(value);
+    return this.value;
+  }
 }

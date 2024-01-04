@@ -9,24 +9,24 @@ package core.utils.components.path;
  * the dungeon framework.
  */
 public class SimpleIPath implements IPath {
-    private final String path;
+  private final String path;
 
-    /**
-     * Create a new Path.
-     *
-     * @param path Path to store, as a string.
-     */
-    public SimpleIPath(String path) {
-        this.path = path;
-    }
+  /**
+   * Create a new Path.
+   *
+   * @param path Path to store, as a string.
+   */
+  public SimpleIPath(String path) {
+    this.path = path;
+  }
 
-    @Override
-    public String pathString() {
-        return path;
-    }
+  @Override
+  public String pathString() {
+    return path;
+  }
 
-    @Override
-    public int priority() {
-        return 0;
-    }
+  @Override
+  public int priority() {
+    return 0;
+  }
 }

@@ -11,49 +11,49 @@ import org.junit.Test;
 
 public class SkillTest {
 
-    private static int value = 0;
-    private final int baseCoolDownInMilliSeconds = 2000;
-    private Entity entity;
-    private Skill skill;
-    private final Consumer<Entity> skillFunction = entity -> value++;
+  private static int value = 0;
+  private final int baseCoolDownInMilliSeconds = 2000;
+  private Entity entity;
+  private Skill skill;
+  private final Consumer<Entity> skillFunction = entity -> value++;
 
-    @Before
-    public void setup() {
-        entity = new Entity();
-        skill = new Skill(skillFunction, baseCoolDownInMilliSeconds);
-    }
+  @Before
+  public void setup() {
+    entity = new Entity();
+    skill = new Skill(skillFunction, baseCoolDownInMilliSeconds);
+  }
 
-    @After
-    public void cleanup() {
-        value = 0;
-        Game.removeAllEntities();
-    }
+  @After
+  public void cleanup() {
+    value = 0;
+    Game.removeAllEntities();
+  }
 
-    @Test
-    public void execute() {
-        assertTrue("Skill should be executable", skill.canBeUsedAgain());
-        skill.execute(entity);
-        assertEquals("Skill should have been executed once", 1, value);
-        assertFalse("Skill is in cool down and can not be executable", skill.canBeUsedAgain());
-    }
+  @Test
+  public void execute() {
+    assertTrue("Skill should be executable", skill.canBeUsedAgain());
+    skill.execute(entity);
+    assertEquals("Skill should have been executed once", 1, value);
+    assertFalse("Skill is in cool down and can not be executable", skill.canBeUsedAgain());
+  }
 
-    @Test
-    public void executeWhenCoolDownActive() {
-        skill.execute(entity);
-        assertFalse("Skill should not be executable", skill.canBeUsedAgain());
-        skill.execute(entity);
-        assertEquals("Skill should have been executed once", 1, value);
-    }
+  @Test
+  public void executeWhenCoolDownActive() {
+    skill.execute(entity);
+    assertFalse("Skill should not be executable", skill.canBeUsedAgain());
+    skill.execute(entity);
+    assertEquals("Skill should have been executed once", 1, value);
+  }
 
-    @Test
-    public void executeWhenCoolDownExpired() throws InterruptedException {
-        final long baseCoolDown = 1;
-        skill = new Skill(skillFunction, baseCoolDown);
-        skill.execute(entity);
-        assertEquals("Skill should have been executed once", 1, value);
-        Thread.sleep(5);
-        assertTrue("Skill should be usable again", skill.canBeUsedAgain());
-        skill.execute(entity);
-        assertEquals("Skill should have been executed twice", 2, value);
-    }
+  @Test
+  public void executeWhenCoolDownExpired() throws InterruptedException {
+    final long baseCoolDown = 1;
+    skill = new Skill(skillFunction, baseCoolDown);
+    skill.execute(entity);
+    assertEquals("Skill should have been executed once", 1, value);
+    Thread.sleep(5);
+    assertTrue("Skill should be usable again", skill.canBeUsedAgain());
+    skill.execute(entity);
+    assertEquals("Skill should have been executed twice", 2, value);
+  }
 }

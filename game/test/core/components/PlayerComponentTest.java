@@ -10,36 +10,36 @@ import org.junit.Test;
 
 public class PlayerComponentTest {
 
-    private static final int counter = 0;
-    private PlayerComponent playableComponent;
+  private static final int counter = 0;
+  private PlayerComponent playableComponent;
 
-    @Before
-    public void setup() {
-        playableComponent = new PlayerComponent();
-    }
+  @Before
+  public void setup() {
+    playableComponent = new PlayerComponent();
+  }
 
-    @Test
-    public void addFunction() {
-        Consumer<Entity> function =
-                new Consumer<Entity>() {
-                    @Override
-                    public void accept(Entity entity) {}
-                };
-        assertTrue(playableComponent.registerCallback(1, function).isEmpty());
-    }
+  @Test
+  public void addFunction() {
+    Consumer<Entity> function =
+        new Consumer<Entity>() {
+          @Override
+          public void accept(Entity entity) {}
+        };
+    assertTrue(playableComponent.registerCallback(1, function).isEmpty());
+  }
 
-    public void addFunction_exisitng() {
-        Consumer<Entity> function =
-                new Consumer<Entity>() {
-                    @Override
-                    public void accept(Entity entity) {}
-                };
-        Consumer<Entity> newfunction =
-                new Consumer<Entity>() {
-                    @Override
-                    public void accept(Entity entity) {}
-                };
-        playableComponent.registerCallback(1, function).get();
-        assertEquals(function, playableComponent.registerCallback(1, newfunction).get());
-    }
+  public void addFunction_exisitng() {
+    Consumer<Entity> function =
+        new Consumer<Entity>() {
+          @Override
+          public void accept(Entity entity) {}
+        };
+    Consumer<Entity> newfunction =
+        new Consumer<Entity>() {
+          @Override
+          public void accept(Entity entity) {}
+        };
+    playableComponent.registerCallback(1, function).get();
+    assertEquals(function, playableComponent.registerCallback(1, newfunction).get());
+  }
 }

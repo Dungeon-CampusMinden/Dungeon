@@ -9,40 +9,40 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
  * instance for this property.
  */
 public class PropertyValue extends Value {
-    private final IDSLExtensionProperty<Object, Object> property;
-    private final boolean isSettable;
-    private final boolean isGettable;
+  private final IDSLExtensionProperty<Object, Object> property;
+  private final boolean isSettable;
+  private final boolean isGettable;
 
-    public PropertyValue(
-            IType type, IDSLExtensionProperty<Object, Object> property, Object instance) {
-        super(type, instance);
-        this.property = property;
+  public PropertyValue(
+      IType type, IDSLExtensionProperty<Object, Object> property, Object instance) {
+    super(type, instance);
+    this.property = property;
 
-        var annotation = property.getClass().getAnnotation(DSLTypeProperty.class);
-        this.isSettable = annotation.isSettable();
-        this.isGettable = annotation.isGettable();
+    var annotation = property.getClass().getAnnotation(DSLTypeProperty.class);
+    this.isSettable = annotation.isSettable();
+    this.isGettable = annotation.isGettable();
+  }
+
+  @Override
+  public Object getInternalValue() {
+    if (!this.isGettable) {
+      return null;
+    } else {
+      return property.get(this.object);
     }
+  }
 
-    @Override
-    public Object getInternalValue() {
-        if (!this.isGettable) {
-            return null;
-        } else {
-            return property.get(this.object);
-        }
+  @Override
+  public boolean setInternalValue(Object internalValue) {
+    if (!this.isSettable) {
+      return false;
+    } else {
+      try {
+        property.set(this.object, internalValue);
+        return true;
+      } catch (ClassCastException ex) {
+        return false;
+      }
     }
-
-    @Override
-    public boolean setInternalValue(Object internalValue) {
-        if (!this.isSettable) {
-            return false;
-        } else {
-            try {
-                property.set(this.object, internalValue);
-                return true;
-            } catch (ClassCastException ex) {
-                return false;
-            }
-        }
-    }
+  }
 }

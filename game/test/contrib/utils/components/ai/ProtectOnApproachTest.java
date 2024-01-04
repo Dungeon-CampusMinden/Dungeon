@@ -12,41 +12,39 @@ import core.utils.Point;
 import org.junit.Before;
 
 public class ProtectOnApproachTest {
-    private final Point pointOfProtect = new Point(0, 0);
-    private Entity entity;
-    private AIComponent entityAI;
-    private Entity protectedEntity;
-    private Entity hero;
+  private final Point pointOfProtect = new Point(0, 0);
+  private Entity entity;
+  private AIComponent entityAI;
+  private Entity protectedEntity;
+  private Entity hero;
 
-    @Before
-    public void setup() {
+  @Before
+  public void setup() {
 
-        // Protected Entity
-        protectedEntity = new Entity();
+    // Protected Entity
+    protectedEntity = new Entity();
 
-        // Add AI Component
-        AIComponent protectedAI =
-                new AIComponent(new CollideAI(0.2f), new RadiusWalk(0, 50), new RangeTransition(2));
-        entity.add(protectedAI);
+    // Add AI Component
+    AIComponent protectedAI =
+        new AIComponent(new CollideAI(0.2f), new RadiusWalk(0, 50), new RangeTransition(2));
+    entity.add(protectedAI);
 
-        // Add Position Component
-        entity.add(new PositionComponent(pointOfProtect));
+    // Add Position Component
+    entity.add(new PositionComponent(pointOfProtect));
 
-        // Protecting Entity
-        entity = new Entity();
+    // Protecting Entity
+    entity = new Entity();
 
-        // Add AI Component
-        entityAI =
-                new AIComponent(
-                        new CollideAI(0.2f),
-                        new RadiusWalk(0, 50),
-                        new ProtectOnApproach(2f, protectedEntity));
-        entity.add(entityAI);
+    // Add AI Component
+    entityAI =
+        new AIComponent(
+            new CollideAI(0.2f), new RadiusWalk(0, 50), new ProtectOnApproach(2f, protectedEntity));
+    entity.add(entityAI);
 
-        // Add Position Component
-        entity.add(new PositionComponent(new Point(0f, 0f)));
+    // Add Position Component
+    entity.add(new PositionComponent(new Point(0f, 0f)));
 
-        // Hero
-        hero = Game.hero().orElse(new Entity());
-    }
+    // Hero
+    hero = Game.hero().orElse(new Entity());
+  }
 }

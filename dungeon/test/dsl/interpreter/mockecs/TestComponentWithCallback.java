@@ -7,20 +7,20 @@ import java.util.function.Consumer;
 
 @DSLType
 public class TestComponentWithCallback extends Component {
-    private Entity entity;
+  private Entity entity;
 
-    public Entity getEntity() {
-        return entity;
-    }
+  public Entity getEntity() {
+    return entity;
+  }
 
-    @DSLCallback private Consumer<Entity> onInteraction;
+  @DSLCallback private Consumer<Entity> onInteraction;
 
-    public Consumer<Entity> getOnInteraction() {
-        return onInteraction;
-    }
+  public Consumer<Entity> getOnInteraction() {
+    return onInteraction;
+  }
 
-    public TestComponentWithCallback(@DSLContextMember(name = "entity") Entity entity) {
-        super(entity);
-        this.entity = entity;
-    }
+  public TestComponentWithCallback(@DSLContextMember(name = "entity") Entity entity) {
+    super(entity);
+    this.entity = entity;
+  }
 }

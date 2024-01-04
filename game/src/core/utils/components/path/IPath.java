@@ -6,15 +6,15 @@ package core.utils.components.path;
  * @see core.components.DrawComponent
  */
 public interface IPath {
-    /**
-     * Make sure that your enum values are strings so the {@link core.components.DrawComponent} can
-     * use them to read in directories.
-     *
-     * <p>Return the value of the enums.
-     *
-     * @return The value as a string that can be used as a path
-     */
-    String pathString();
+  /**
+   * Make sure that your enum values are strings so the {@link core.components.DrawComponent} can
+   * use them to read in directories.
+   *
+   * <p>Return the value of the enums.
+   *
+   * @return The value as a string that can be used as a path
+   */
+  String pathString();
 
-    int priority();
+  int priority();
 }

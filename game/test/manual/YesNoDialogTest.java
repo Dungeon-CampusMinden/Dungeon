@@ -19,31 +19,31 @@ import core.utils.IVoidFunction;
  */
 public class YesNoDialogTest {
 
-    public static void main(String[] args) {
-        Game.initBaseLogger();
-        Game.add(new HudSystem());
-        Game.userOnFrame(
-                () -> {
-                    if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-                        YesNoDialog.showYesNoDialog(
-                                "Test",
-                                "Test",
-                                new IVoidFunction() {
-                                    @Override
-                                    public void execute() {
-                                        TextDialog.textDialog("Yes", "Ok", "Callback for yes.");
-                                    }
-                                },
-                                new IVoidFunction() {
-                                    @Override
-                                    public void execute() {
-                                        TextDialog.textDialog("No", "Ok", "Callback for no.");
-                                    }
-                                });
-                    }
+  public static void main(String[] args) {
+    Game.initBaseLogger();
+    Game.add(new HudSystem());
+    Game.userOnFrame(
+        () -> {
+          if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            YesNoDialog.showYesNoDialog(
+                "Test",
+                "Test",
+                new IVoidFunction() {
+                  @Override
+                  public void execute() {
+                    TextDialog.textDialog("Yes", "Ok", "Callback for yes.");
+                  }
+                },
+                new IVoidFunction() {
+                  @Override
+                  public void execute() {
+                    TextDialog.textDialog("No", "Ok", "Callback for no.");
+                  }
                 });
+          }
+        });
 
-        // build and start game
-        Game.run();
-    }
+    // build and start game
+    Game.run();
+  }
 }

@@ -19,50 +19,50 @@ import task.TaskContent;
 @DSLType
 public final class TaskContentComponent implements Component {
 
-    private TaskContent content;
+  private TaskContent content;
 
-    /**
-     * Create a new TaskContentComponent and add it to the associated entity.
-     *
-     * @param content Single {@link TaskContent} that this Component represent
-     */
-    public TaskContentComponent(final TaskContent content) {
-        this.content = content;
+  /**
+   * Create a new TaskContentComponent and add it to the associated entity.
+   *
+   * @param content Single {@link TaskContent} that this Component represent
+   */
+  public TaskContentComponent(final TaskContent content) {
+    this.content = content;
+  }
+
+  /** Create a new TaskContentComponent. */
+  public TaskContentComponent() {}
+
+  /**
+   * Return the internal represented {@link TaskContent}.
+   *
+   * @return internal {@link TaskContent}
+   */
+  public TaskContent content() {
+    return content;
+  }
+
+  /** Set the internal represented {@link TaskContent}. */
+  public void content(TaskContent content) {
+    this.content = content;
+  }
+
+  @DSLTypeProperty(name = "content", extendedType = TaskContentComponent.class)
+  public static class ContentProperty
+      implements IDSLExtensionProperty<TaskContentComponent, TaskContent> {
+    public static TaskContentComponent.ContentProperty instance =
+        new TaskContentComponent.ContentProperty();
+
+    private ContentProperty() {}
+
+    @Override
+    public void set(TaskContentComponent instance, TaskContent valueToSet) {
+      instance.content(valueToSet);
     }
 
-    /** Create a new TaskContentComponent. */
-    public TaskContentComponent() {}
-
-    /**
-     * Return the internal represented {@link TaskContent}.
-     *
-     * @return internal {@link TaskContent}
-     */
-    public TaskContent content() {
-        return content;
+    @Override
+    public TaskContent get(TaskContentComponent instance) {
+      return instance.content();
     }
-
-    /** Set the internal represented {@link TaskContent}. */
-    public void content(TaskContent content) {
-        this.content = content;
-    }
-
-    @DSLTypeProperty(name = "content", extendedType = TaskContentComponent.class)
-    public static class ContentProperty
-            implements IDSLExtensionProperty<TaskContentComponent, TaskContent> {
-        public static TaskContentComponent.ContentProperty instance =
-                new TaskContentComponent.ContentProperty();
-
-        private ContentProperty() {}
-
-        @Override
-        public void set(TaskContentComponent instance, TaskContent valueToSet) {
-            instance.content(valueToSet);
-        }
-
-        @Override
-        public TaskContent get(TaskContentComponent instance) {
-            return instance.content();
-        }
-    }
+  }
 }
