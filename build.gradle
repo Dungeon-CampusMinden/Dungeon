@@ -1,22 +1,22 @@
 plugins {
     // we can not use ext variables here
-    id "java"
+    id "application"
     id "com.diffplug.spotless" version "6.23.3"
-    id 'antlr'
+    id "antlr"
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
-    sourceCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 // store name of method parameter names in .class files (used to build
 // DSL-adapter types, which contain the names of the parameters as members)
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     configure(options) {
-        options.compilerArgs << '-parameters'
+        options.compilerArgs << "-parameters"
     }
 }
 
@@ -30,8 +30,6 @@ repositories {
 ext {
     // we can not use the + operator here
     gdxVersion = "1.12.1"
-    aiVersion = "1.8.2"
-    gsonVersion = "2.10.1"
 }
 
 dependencies {
@@ -41,7 +39,7 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
-    implementation "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+    implementation "com.badlogicgames.gdx:gdx-ai:1.8.2"
 
     // JUnit 4, Mockito and Powermock for testing:
     // https://mvnrepository.com/artifact/junit/junit
@@ -49,7 +47,7 @@ dependencies {
     testImplementation "org.mockito:mockito-core:5.8.0"
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation "com.google.code.gson:gson:2.10.1"
 
     // ANTLR version 4 for DSL Grammar
     antlr "org.antlr:antlr4:4.13.1"
@@ -59,7 +57,7 @@ dependencies {
 sourceSets.main.java.srcDirs = ["game/src/", "dungeon/src/", "blockly/src/", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/", "dungeon/assets/", "blockly/assets/"]
 sourceSets.test.resources.srcDirs = ["dungeon/assets/", "game/test_resources", "dungeon/test_resources"]
-sourceSets.test.java.srcDirs = ["game/test/","dungeon/test"]
+sourceSets.test.java.srcDirs = ["game/test/", "dungeon/test"]
 sourceSets.main.antlr.srcDirs = ["dungeon/src/dsl/antlr"]
 
 project.ext.mainClassName = "starter.BasicStarter"
@@ -67,56 +65,61 @@ project.ext.assetsDir = new File("game/assets")
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
-task run(dependsOn: classes, type: JavaExec) {
-    mainClass = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
+tasks.register("printOperatingSystem") {
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
     }
 }
 
-task start(dependsOn: classes, type: JavaExec) {
+application {
+    mainClass = project.mainClassName
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        jvmArgs("-XstartOnFirstThread")
+    }
+}
+
+tasks.register("runRandom", JavaExec) {
+    dependsOn classes
+    mainClass = "starter.RandomDungeon"
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        jvmArgs("-XstartOnFirstThread")
+    }
+}
+
+tasks.register("start", JavaExec) {
+    dependsOn classes
     mainClass = "starter.Starter"
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
-    ignoreExitValue = true
+    ignoreExitValue true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
         jvmArgs("-XstartOnFirstThread")
     }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
 }
 
-task blockly(dependsOn: classes, type: JavaExec) {
+tasks.register("blockly", JavaExec) {
+    dependsOn classes
     mainClass = "client.Client"
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
-    ignoreExitValue = true
+    ignoreExitValue true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
         jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
     }
 }
 
-task debug(dependsOn: classes, type: JavaExec) {
+tasks.register("debug", JavaExec) {
+    dependsOn classes
     mainClass = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
-    ignoreExitValue = true
+    ignoreExitValue true
     debug = true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
         jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
     }
 }
 
@@ -137,31 +140,31 @@ spotless {
 // generate ANTLR visitor and listener classes from grammar
 generateGrammarSource {
     maxHeapSize = "64m"
-    arguments += ["-visitor", "-listener" ]
+    arguments += ["-visitor", "-listener"]
 }
 
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
-        attributes 'Main-Class': project.mainClassName
+        attributes "Main-Class": project.mainClassName
     }
 
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', "META-INF/*module-info.class"
+    exclude "META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*module-info.class"
 }
 
-task starterJar(type: Jar) {
+tasks.register("starterJar", Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
-        attributes 'Main-Class': "starter/Starter"
+        attributes "Main-Class": "starter/Starter"
     }
 
-    archiveFileName = 'Starter.jar'
+    archiveFileName = "Starter.jar"
 
     from sourceSets.main.output
 
@@ -169,72 +172,73 @@ task starterJar(type: Jar) {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', "META-INF/*module-info.class"
+    exclude "META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*module-info.class"
 }
 
 //MANUAL TESTS
 
-task runManualQuizTest(dependsOn: classes, type: JavaExec) {
+tasks.register("runManualQuizTests", JavaExec) {
+    dependsOn classes
     mainClass = "manual.quizquestion.QuizQuestionUITest"
     classpath = sourceSets.test.runtimeClasspath
     standardInput = System.in
-    ignoreExitValue = true
+    ignoreExitValue true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
         jvmArgs("-XstartOnFirstThread")
     }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
 }
 
-task runYesNoDialogTest(dependsOn: classes, type: JavaExec) {
+tasks.register("runYesNoDialogTests", JavaExec) {
+    dependsOn classes
     mainClass = "manual.YesNoDialogTest"
     classpath = sourceSets.test.runtimeClasspath
     standardInput = System.in
-    ignoreExitValue = true
+    ignoreExitValue true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
         jvmArgs("-XstartOnFirstThread")
     }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
 }
 
-task runCallbackTest(dependsOn: classes, type: JavaExec) {
+tasks.register("runCallbackTests", JavaExec) {
+    dependsOn classes
     mainClass = "manual.quizquestion.CallbackTest"
     classpath = sourceSets.test.runtimeClasspath
     standardInput = System.in
-    ignoreExitValue = true
+    ignoreExitValue true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
         jvmArgs("-XstartOnFirstThread")
     }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
 }
 
-task runLoaderTest(dependsOn: classes, type: JavaExec) {
+tasks.register("runLoaderTests", JavaExec) {
+    dependsOn classes
     mainClass = "manual.dslFileReader.DslFileReaderTest"
     classpath = sourceSets.test.runtimeClasspath
     standardInput = System.in
-    ignoreExitValue = true
+    ignoreExitValue true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
         jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
     }
 }
 
-task taskGenerationTest(dependsOn: classes, type: JavaExec) {
+tasks.register("taskGenerationTests", JavaExec) {
+    dependsOn classes
     mainClass = "manual.taskgeneration.TaskGenerationTest"
     classpath = sourceSets.test.runtimeClasspath
     standardInput = System.in
-    ignoreExitValue = true
+    ignoreExitValue true
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
         jvmArgs("-XstartOnFirstThread")
     }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
 }
+
+run.dependsOn(printOperatingSystem)
+runRandom.dependsOn(printOperatingSystem)
+start.dependsOn(printOperatingSystem)
+blockly.dependsOn(printOperatingSystem)
+debug.dependsOn(printOperatingSystem)
+runManualQuizTests.dependsOn(printOperatingSystem)
+runYesNoDialogTests.dependsOn(printOperatingSystem)
+runCallbackTests.dependsOn(printOperatingSystem)
+runLoaderTests.dependsOn(printOperatingSystem)
+taskGenerationTests.dependsOn(printOperatingSystem)
