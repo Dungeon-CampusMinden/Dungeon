@@ -65,62 +65,25 @@ project.ext.assetsDir = new File("game/assets")
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
-tasks.register("printOperatingSystem") {
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
-}
-
 application {
     mainClass = project.mainClassName
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
 }
 
 tasks.register("runRandom", JavaExec) {
-    dependsOn classes
     mainClass = "starter.RandomDungeon"
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
 }
 
 tasks.register("start", JavaExec) {
-    dependsOn classes
     mainClass = "starter.Starter"
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
 }
 
 tasks.register("blockly", JavaExec) {
-    dependsOn classes
     mainClass = "client.Client"
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
 }
 
 tasks.register("debug", JavaExec) {
-    dependsOn classes
     mainClass = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue true
     debug = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
 }
 
 test {
@@ -135,7 +98,6 @@ spotless {
         googleJavaFormat()
     }
 }
-
 
 // generate ANTLR visitor and listener classes from grammar
 generateGrammarSource {
@@ -175,70 +137,39 @@ tasks.register("starterJar", Jar) {
     exclude "META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*module-info.class"
 }
 
-//MANUAL TESTS
+// MANUAL TESTS
 
 tasks.register("runManualQuizTests", JavaExec) {
-    dependsOn classes
     mainClass = "manual.quizquestion.QuizQuestionUITest"
-    classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
 }
 
 tasks.register("runYesNoDialogTests", JavaExec) {
-    dependsOn classes
     mainClass = "manual.YesNoDialogTest"
-    classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
 }
 
 tasks.register("runCallbackTests", JavaExec) {
-    dependsOn classes
     mainClass = "manual.quizquestion.CallbackTest"
-    classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
 }
 
 tasks.register("runLoaderTests", JavaExec) {
-    dependsOn classes
     mainClass = "manual.dslFileReader.DslFileReaderTest"
-    classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
 }
 
 tasks.register("taskGenerationTests", JavaExec) {
-    dependsOn classes
     mainClass = "manual.taskgeneration.TaskGenerationTest"
-    classpath = sourceSets.test.runtimeClasspath
+}
+
+// Add default arguments to all JavaExec tasks:
+
+tasks.withType(JavaExec).configureEach {
+    dependsOn classes
+    classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     ignoreExitValue true
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
         jvmArgs("-XstartOnFirstThread")
     }
 }
-
-run.dependsOn(printOperatingSystem)
-runRandom.dependsOn(printOperatingSystem)
-start.dependsOn(printOperatingSystem)
-blockly.dependsOn(printOperatingSystem)
-debug.dependsOn(printOperatingSystem)
-runManualQuizTests.dependsOn(printOperatingSystem)
-runYesNoDialogTests.dependsOn(printOperatingSystem)
-runCallbackTests.dependsOn(printOperatingSystem)
-runLoaderTests.dependsOn(printOperatingSystem)
-taskGenerationTests.dependsOn(printOperatingSystem)
