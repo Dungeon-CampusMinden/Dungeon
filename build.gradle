@@ -30,6 +30,11 @@ repositories {
 ext {
     // we can not use the + operator here
     gdxVersion = "1.12.1"
+    aiVersion = "1.8.2"
+    junitVersion = "4.13.2"
+    mockitoVersion = "5.2.0"
+    antlrVersion = "4.13.0"
+    gsonVersion = "2.10.1"
 }
 
 dependencies {
@@ -39,18 +44,18 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
-    implementation "com.badlogicgames.gdx:gdx-ai:1.8.2"
+    implementation "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+
+    // Gson
+    implementation "com.google.code.gson:gson:$gsonVersion"
 
     // JUnit 4, Mockito and Powermock for testing:
     // https://mvnrepository.com/artifact/junit/junit
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "org.mockito:mockito-core:5.8.0"
-
-    // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation "com.google.code.gson:gson:2.10.1"
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
 
     // ANTLR version 4 for DSL Grammar
-    antlr "org.antlr:antlr4:4.13.1"
+    antlr "org.antlr:antlr4:$antlrVersion"
 }
 
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
