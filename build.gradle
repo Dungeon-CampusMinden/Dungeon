@@ -148,27 +148,27 @@ tasks.register("starterJar", Jar) {
 
 // MANUAL TESTS
 
-tasks.register("runManualQuizTests", JavaExec) {
+tasks.register("runManualQuizTest", JavaExec) {
     mainClass = "manual.quizquestion.QuizQuestionUITest"
     classpath = sourceSets.test.runtimeClasspath
 }
 
-tasks.register("runYesNoDialogTests", JavaExec) {
+tasks.register("runYesNoDialogTest", JavaExec) {
     mainClass = "manual.YesNoDialogTest"
     classpath = sourceSets.test.runtimeClasspath
 }
 
-tasks.register("runCallbackTests", JavaExec) {
+tasks.register("runCallbackTest", JavaExec) {
     mainClass = "manual.quizquestion.CallbackTest"
     classpath = sourceSets.test.runtimeClasspath
 }
 
-tasks.register("runLoaderTests", JavaExec) {
+tasks.register("runLoaderTest", JavaExec) {
     mainClass = "manual.dslFileReader.DslFileReaderTest"
     classpath = sourceSets.test.runtimeClasspath
 }
 
-tasks.register("taskGenerationTests", JavaExec) {
+tasks.register("taskGenerationTest", JavaExec) {
     mainClass = "manual.taskgeneration.TaskGenerationTest"
     classpath = sourceSets.test.runtimeClasspath
 }
