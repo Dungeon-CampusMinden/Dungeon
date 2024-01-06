@@ -75,18 +75,22 @@ application {
 }
 
 tasks.register("runRandom", JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
     mainClass = "starter.RandomDungeon"
 }
 
 tasks.register("start", JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
     mainClass = "starter.Starter"
 }
 
 tasks.register("blockly", JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
     mainClass = "client.Client"
 }
 
 tasks.register("debug", JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
     mainClass = project.mainClassName
     debug = true
 }
@@ -146,29 +150,33 @@ tasks.register("starterJar", Jar) {
 
 tasks.register("runManualQuizTests", JavaExec) {
     mainClass = "manual.quizquestion.QuizQuestionUITest"
+    classpath = sourceSets.test.runtimeClasspath
 }
 
 tasks.register("runYesNoDialogTests", JavaExec) {
     mainClass = "manual.YesNoDialogTest"
+    classpath = sourceSets.test.runtimeClasspath
 }
 
 tasks.register("runCallbackTests", JavaExec) {
     mainClass = "manual.quizquestion.CallbackTest"
+    classpath = sourceSets.test.runtimeClasspath
 }
 
 tasks.register("runLoaderTests", JavaExec) {
     mainClass = "manual.dslFileReader.DslFileReaderTest"
+    classpath = sourceSets.test.runtimeClasspath
 }
 
 tasks.register("taskGenerationTests", JavaExec) {
     mainClass = "manual.taskgeneration.TaskGenerationTest"
+    classpath = sourceSets.test.runtimeClasspath
 }
 
 // Add default arguments to all JavaExec tasks:
 
 tasks.withType(JavaExec).configureEach {
     dependsOn classes
-    classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     ignoreExitValue true
     doFirst {
