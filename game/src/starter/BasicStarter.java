@@ -7,12 +7,12 @@ import java.io.IOException;
 
 public class BasicStarter {
 
-    public static void main(String[] args) throws IOException {
-        Game.initBaseLogger();
-        Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
-        Game.disableAudio(true);
-        Game.frameRate(30);
-        Game.windowTitle("Basic Dungeon");
-        Game.run();
-    }
+  public static void main(String[] args) throws IOException {
+    Game.initBaseLogger();
+    Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
+    Game.disableAudio(true);
+    Game.frameRate(30);
+    Game.windowTitle("Basic Dungeon");
+    Game.run();
+  }
 }
