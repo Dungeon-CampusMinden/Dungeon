@@ -49,8 +49,7 @@ dependencies {
     // Gson
     implementation "com.google.code.gson:gson:$gsonVersion"
 
-    // JUnit 4, Mockito and Powermock for testing:
-    // https://mvnrepository.com/artifact/junit/junit
+    // JUnit 4 and Mockito for testing
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
 
@@ -109,7 +108,7 @@ spotless {
     }
 }
 
-// generate ANTLR visitor and listener classes from grammar
+// generate ANTLR visitor and listener classes from grammar:
 generateGrammarSource {
     maxHeapSize = "64m"
     arguments += ["-visitor", "-listener"]
@@ -147,7 +146,7 @@ tasks.register("starterJar", Jar) {
     exclude "META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*module-info.class"
 }
 
-// MANUAL TESTS
+// MANUAL TESTS:
 
 tasks.register("runManualQuizTest", JavaExec) {
     mainClass = "manual.quizquestion.QuizQuestionUITest"
