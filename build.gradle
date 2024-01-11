@@ -5,12 +5,12 @@ plugins {
     id 'antlr'
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-    sourceCompatibility = JavaVersion.VERSION_21
-}
+//java {
+//    toolchain {
+//        languageVersion = JavaLanguageVersion.of(21)
+//    }
+//    sourceCompatibility = JavaVersion.VERSION_21
+//}
 
 // store name of method parameter names in .class files (used to build
 // DSL-adapter types, which contain the names of the parameters as members)
@@ -55,7 +55,7 @@ dependencies {
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-sourceSets.main.java.srcDirs = ['game/src/', 'dungeon/src/', 'blockly/src/', '$projectDir/build/generated-src/']
+sourceSets.main.java.srcDirs = ['game/src/', 'dungeon/src/', 'blockly/src/', "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ['game/assets/']
 sourceSets.test.resources.srcDirs = ['dungeon/assets/', 'game/test_resources', 'dungeon/test_resources']
 sourceSets.test.java.srcDirs = ['game/test/', 'dungeon/test']
