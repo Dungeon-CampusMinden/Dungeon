@@ -1,8 +1,8 @@
 plugins {
     // we can not use ext variables here
-    id "application"
-    id "com.diffplug.spotless" version "+"
-    id "antlr"
+    id 'application'
+    id 'com.diffplug.spotless' version '+'
+    id 'antlr'
 }
 
 java {
@@ -16,25 +16,24 @@ java {
 // DSL-adapter types, which contain the names of the parameters as members)
 tasks.withType(JavaCompile).configureEach {
     configure(options) {
-        options.compilerArgs << "-parameters"
+        options.compilerArgs << '-parameters'
     }
 }
 
 repositories {
     mavenCentral()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     gradlePluginPortal()
     google()
 }
 
 ext {
-    // we can not use the + operator here
-    gdxVersion = "1.12.1"
-    aiVersion = "1.8.2"
-    junitVersion = "4.13.2"
-    mockitoVersion = "5.8.0"
-    antlrVersion = "4.13.1"
-    gsonVersion = "2.10.1"
+    gdxVersion = '1.12.1'
+    aiVersion = '1.8.2'
+    junitVersion = '4.13.2'
+    mockitoVersion = '5.8.0'
+    antlrVersion = '4.13.1'
+    gsonVersion = '2.10.1'
 }
 
 dependencies {
@@ -57,15 +56,15 @@ dependencies {
     antlr "org.antlr:antlr4:$antlrVersion"
 }
 
-[compileJava, compileTestJava]*.options*.encoding = "UTF-8"
-sourceSets.main.java.srcDirs = ["game/src/", "dungeon/src/", "blockly/src/", "$projectDir/build/generated-src/"]
-sourceSets.main.resources.srcDirs = ["game/assets/", "dungeon/assets/", "blockly/assets/"]
-sourceSets.test.resources.srcDirs = ["dungeon/assets/", "game/test_resources", "dungeon/test_resources"]
-sourceSets.test.java.srcDirs = ["game/test/", "dungeon/test"]
-sourceSets.main.antlr.srcDirs = ["dungeon/src/dsl/antlr"]
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+sourceSets.main.java.srcDirs = ['game/src/', 'dungeon/src/', 'blockly/src/', '$projectDir/build/generated-src/']
+sourceSets.main.resources.srcDirs = ['game/assets/']
+sourceSets.test.resources.srcDirs = ['dungeon/assets/', 'game/test_resources', 'dungeon/test_resources']
+sourceSets.test.java.srcDirs = ['game/test/', 'dungeon/test']
+sourceSets.main.antlr.srcDirs = ['dungeon/src/dsl/antlr']
 
-project.ext.mainClassName = "starter.BasicStarter"
-project.ext.assetsDir = new File("game/assets")
+project.ext.mainClassName = 'starter.RoomBasedDungeon'
+project.ext.assetsDir = new File('game/assets')
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
@@ -73,22 +72,22 @@ application {
     mainClass = project.mainClassName
 }
 
-tasks.register("runRandom", JavaExec) {
+tasks.register('runRandom', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = "starter.RandomDungeon"
+    mainClass = 'starter.RandomDungeon'
 }
 
-tasks.register("start", JavaExec) {
+tasks.register('start', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = "starter.Starter"
+    mainClass = 'starter.Starter'
 }
 
-tasks.register("blockly", JavaExec) {
+tasks.register('blockly', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = "client.Client"
+    mainClass = 'client.Client'
 }
 
-tasks.register("debug", JavaExec) {
+tasks.register('debug', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = project.mainClassName
     debug = true
@@ -96,45 +95,45 @@ tasks.register("debug", JavaExec) {
 
 test {
     testLogging {
-        events "passed", "skipped", "failed"
+        events 'passed', 'skipped', 'failed'
     }
 }
 
 spotless {
     java {
-        targetExclude("build/generated-src/**")
+        targetExclude('build/generated-src/**')
         googleJavaFormat()
     }
 }
 
 // generate ANTLR visitor and listener classes from grammar:
 generateGrammarSource {
-    maxHeapSize = "64m"
-    arguments += ["-visitor", "-listener"]
+    maxHeapSize = '64m'
+    arguments += ['-visitor', '-listener']
 }
 
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
-        attributes "Main-Class": project.mainClassName
+        attributes 'Main-Class': project.mainClassName
     }
 
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 
-    exclude "META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*module-info.class"
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*module-info.class'
 }
 
-tasks.register("starterJar", Jar) {
+tasks.register('starterJar', Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
-        attributes "Main-Class": "starter/Starter"
+        attributes 'Main-Class': 'starter/Starter'
     }
 
-    archiveFileName = "Starter.jar"
+    archiveFileName = 'Starter.jar'
 
     from sourceSets.main.output
 
@@ -142,33 +141,33 @@ tasks.register("starterJar", Jar) {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 
-    exclude "META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*module-info.class"
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*module-info.class'
 }
 
 // MANUAL TESTS:
 
-tasks.register("runManualQuizTest", JavaExec) {
-    mainClass = "manual.quizquestion.QuizQuestionUITest"
+tasks.register('runManualQuizTest', JavaExec) {
+    mainClass = 'manual.quizquestion.QuizQuestionUITest'
     classpath = sourceSets.test.runtimeClasspath
 }
 
-tasks.register("runYesNoDialogTest", JavaExec) {
-    mainClass = "manual.YesNoDialogTest"
+tasks.register('runYesNoDialogTest', JavaExec) {
+    mainClass = 'manual.YesNoDialogTest'
     classpath = sourceSets.test.runtimeClasspath
 }
 
-tasks.register("runCallbackTest", JavaExec) {
-    mainClass = "manual.quizquestion.CallbackTest"
+tasks.register('runCallbackTest', JavaExec) {
+    mainClass = 'manual.quizquestion.CallbackTest'
     classpath = sourceSets.test.runtimeClasspath
 }
 
-tasks.register("runLoaderTest", JavaExec) {
-    mainClass = "manual.dslFileReader.DslFileReaderTest"
+tasks.register('runLoaderTest', JavaExec) {
+    mainClass = 'manual.dslFileReader.DslFileReaderTest'
     classpath = sourceSets.test.runtimeClasspath
 }
 
-tasks.register("taskGenerationTest", JavaExec) {
-    mainClass = "manual.taskgeneration.TaskGenerationTest"
+tasks.register('taskGenerationTest', JavaExec) {
+    mainClass = 'manual.taskgeneration.TaskGenerationTest'
     classpath = sourceSets.test.runtimeClasspath
 }
 
@@ -182,6 +181,6 @@ tasks.withType(JavaExec).configureEach {
         println(DefaultNativePlatform.currentOperatingSystem)
     }
     if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
+        jvmArgs('-XstartOnFirstThread')
     }
 }
