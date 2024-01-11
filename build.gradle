@@ -1,6 +1,6 @@
 plugins {
     // we can not use ext variables here
-    id "java"
+    id "application"
     id "com.diffplug.spotless" version "+"
     id "antlr"
 }
@@ -69,8 +69,7 @@ project.ext.assetsDir = new File("game/assets")
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
-tasks.register("run", JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
+application {
     mainClass = project.mainClassName
 }
 
