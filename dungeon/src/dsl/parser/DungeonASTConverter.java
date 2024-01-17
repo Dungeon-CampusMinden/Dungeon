@@ -5,10 +5,7 @@ import antlr.main.DungeonDSLParser;
 import dsl.parser.ast.*;
 import graph.taskdependencygraph.TaskEdge;
 // CHECKSTYLE:ON: AvoidStarImport
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -92,6 +89,39 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
   @Override
   public void exitDefinition(DungeonDSLParser.DefinitionContext ctx) {}
+
+  @Override
+  public void enterImport_unnamed(DungeonDSLParser.Import_unnamedContext ctx) {}
+
+  @Override
+  public void exitImport_unnamed(DungeonDSLParser.Import_unnamedContext ctx) {
+    // pop id node
+    Node idNode = this.astStack.pop();
+
+    // pop path node
+    Node pathNode = this.astStack.pop();
+
+    Node importNode = new ImportNode(pathNode, idNode);
+    this.astStack.push(importNode);
+  }
+
+  @Override
+  public void enterImport_named(DungeonDSLParser.Import_namedContext ctx) {}
+
+  @Override
+  public void exitImport_named(DungeonDSLParser.Import_namedContext ctx) {
+    // pop "as" id node
+    Node asIdNode = this.astStack.pop();
+
+    // pop id node
+    Node idNode = this.astStack.pop();
+
+    // pop path node
+    Node pathNode = this.astStack.pop();
+
+    Node importNode = new ImportNode(pathNode, idNode, asIdNode);
+    this.astStack.push(importNode);
+  }
 
   @Override
   public void enterFn_def(DungeonDSLParser.Fn_defContext ctx) {}
@@ -211,24 +241,30 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
   }
 
   @Override
-  public void enterExpression(DungeonDSLParser.ExpressionContext ctx) {}
+  public void enterExpr_assignment(DungeonDSLParser.Expr_assignmentContext ctx) {}
 
   @Override
-  public void exitExpression(DungeonDSLParser.ExpressionContext ctx) {
-    if (ctx.expression_rhs() != null) {
-      Node expressionRhs = astStack.pop();
-      Node assignment = astStack.pop();
-      var memberAccessNode = new MemberAccessNode(assignment, expressionRhs);
-      astStack.push(memberAccessNode);
-    }
+  public void exitExpr_assignment(DungeonDSLParser.Expr_assignmentContext ctx) {
+    // pop the inner nodes
+    Node expression = astStack.pop();
+    Node assignee = astStack.pop();
+
+    Node newExpression = new AssignmentNode(assignee, expression);
+    astStack.push(newExpression);
   }
+
+  @Override
+  public void enterExpr_trivial(DungeonDSLParser.Expr_trivialContext ctx) {}
+
+  @Override
+  public void exitExpr_trivial(DungeonDSLParser.Expr_trivialContext ctx) {}
 
   @Override
   public void enterMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {}
 
   @Override
   public void exitMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {
-    if (ctx.expression_rhs() != null) {
+    if (ctx.member_access_rhs() != null) {
       Node expressionRhs = astStack.pop();
       Node funcCall = astStack.pop();
       var memberAccessNode = new MemberAccessNode(funcCall, expressionRhs);
@@ -241,7 +277,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
   @Override
   public void exitMember_access_expression(DungeonDSLParser.Member_access_expressionContext ctx) {
-    if (ctx.expression_rhs() != null) {
+    if (ctx.member_access_rhs() != null) {
       Node expressionRhs = astStack.pop();
       Node identifier = astStack.pop();
       var memberAccessNode = new MemberAccessNode(identifier, expressionRhs);
@@ -250,24 +286,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
   }
 
   @Override
-  public void enterAssignment(DungeonDSLParser.AssignmentContext ctx) {}
+  public void enterAssignee_func(DungeonDSLParser.Assignee_funcContext ctx) {}
 
   @Override
-  public void exitAssignment(DungeonDSLParser.AssignmentContext ctx) {
-    // pop the inner node
-    Node assignment = astStack.pop();
-    if (ctx.assignee() != null) {
-      Node assignee = astStack.pop();
-      assignment = new AssignmentNode(assignee, assignment);
-    }
-    astStack.push(assignment);
-  }
-
-  @Override
-  public void enterAssignee_func_call(DungeonDSLParser.Assignee_func_callContext ctx) {}
-
-  @Override
-  public void exitAssignee_func_call(DungeonDSLParser.Assignee_func_callContext ctx) {
+  public void exitAssignee_func(DungeonDSLParser.Assignee_funcContext ctx) {
     Node rhs = astStack.pop();
     Node funcCall = astStack.pop();
     Node assignee = new MemberAccessNode(funcCall, rhs);
@@ -275,10 +297,10 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
   }
 
   @Override
-  public void enterAssignee_qualified_name(DungeonDSLParser.Assignee_qualified_nameContext ctx) {}
+  public void enterAssignee_member_access(DungeonDSLParser.Assignee_member_accessContext ctx) {}
 
   @Override
-  public void exitAssignee_qualified_name(DungeonDSLParser.Assignee_qualified_nameContext ctx) {
+  public void exitAssignee_member_access(DungeonDSLParser.Assignee_member_accessContext ctx) {
     Node rhs = astStack.pop();
     Node identifier = astStack.pop();
     Node assignee = new MemberAccessNode(identifier, rhs);
@@ -832,7 +854,11 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
   @Override
   public void exitGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {
-    throw new UnsupportedOperationException();
+    Node innerExpression = astStack.pop();
+    ArrayList<Node> list = new ArrayList<>();
+    list.add(innerExpression);
+    Node groupedExpression = new Node(Node.Type.GroupedExpression, list);
+    astStack.push(groupedExpression);
   }
 
   @Override
@@ -865,7 +891,14 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
   public void enterPrimary(DungeonDSLParser.PrimaryContext ctx) {}
 
   @Override
-  public void exitPrimary(DungeonDSLParser.PrimaryContext ctx) {}
+  public void exitPrimary(DungeonDSLParser.PrimaryContext ctx) {
+    if (ctx.member_access_rhs() != null) {
+      var rhsExpression = astStack.pop();
+      var lhs = astStack.pop();
+      var memberAccess = new MemberAccessNode(lhs, rhsExpression);
+      astStack.push(memberAccess);
+    }
+  }
 
   @Override
   public void enterDot_def(DungeonDSLParser.Dot_defContext ctx) {}

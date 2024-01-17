@@ -166,4 +166,38 @@ public class Value implements IClonable {
       return internalValue.toString();
     }
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Value value)) {
+      return false;
+    }
+    // compare based on addresses -> are we comparing to the same object?
+    if (this == value) {
+      return true;
+    }
+    if (!this.dataType.equals(value.dataType)) {
+      return false;
+    }
+    if (this.getInternalValue() == null || value.getInternalValue() == null) {
+      return false;
+    }
+    var myInternalValue = this.getInternalValue();
+    var otherInternalValue = value.getInternalValue();
+    return myInternalValue.equals(otherInternalValue);
+  }
+
+  /**
+   * Perform an assignment of this {@link Value} from another {@link Value}. This requires, that the
+   * {@link IType}s of both {@link Value}s are assignable to each other.
+   *
+   * @param other The {@link Value} to assign from.
+   * @return true, if assigning succeeded, false otherwise
+   */
+  public boolean setFrom(Value other) {
+    if (!this.getDataType().equals(other.getDataType())) {
+      throw new RuntimeException("Incompatible data types, can't assign value!");
+    }
+    return this.setInternalValue(other.getInternalValue());
+  }
 }

@@ -24,4 +24,18 @@ public class EnumValue extends Value {
   public Symbol getEnumVariantSymbol() {
     return (Symbol) this.getInternalValue();
   }
+
+  @Override
+  public boolean setFrom(Value other) {
+    return super.setFrom(other);
+  }
+
+  @Override
+  public String toString() {
+    // concatenate name of enum type and variant
+    EnumType enumType = (EnumType) this.dataType;
+    String enumTypeName = enumType.toString();
+    String variantName = this.object.toString();
+    return enumTypeName + "." + variantName;
+  }
 }

@@ -61,6 +61,22 @@ public class ListValue extends Value {
     internalList().clear();
   }
 
+  @Override
+  public Object clone() {
+    var cloneValue = new ListValue(this.getDataType());
+    cloneValue.object = this.object;
+    return cloneValue;
+  }
+
+  @Override
+  public boolean setFrom(Value other) {
+    if (!(other instanceof ListValue otherListValue)) {
+      throw new RuntimeException("Other value is not a list value!");
+    }
+
+    return super.setFrom(otherListValue);
+  }
+
   // region native_methods
 
   /**
@@ -126,6 +142,20 @@ public class ListValue extends Value {
       } else {
         return listValue.internalList().get(index);
       }
+    }
+  }
+
+  public static class ClearMethod implements IInstanceCallable {
+
+    public static ClearMethod instance = new ClearMethod();
+
+    private ClearMethod() {}
+
+    @Override
+    public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+      ListValue listValue = (ListValue) instance;
+      listValue.internalList().clear();
+      return null;
     }
   }
   // endregion

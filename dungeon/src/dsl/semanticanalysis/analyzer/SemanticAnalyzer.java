@@ -26,12 +26,14 @@ import dsl.runtime.callable.ICallable;
 import dsl.runtime.callable.NativeFunction;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.scope.FileScope;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
+import entrypoint.ParsedFile;
 import java.util.Stack;
 
 // importing all required classes from symbolTable will be to verbose
@@ -45,6 +47,11 @@ import java.util.Stack;
 public class SemanticAnalyzer implements AstVisitor<Void> {
   private SymbolTable symbolTable;
   private IEnvironment environment;
+
+  // TODO: this is just for testing and will be set to the NULL-File created in
+  //  this.walk in order to reconstruct the status quo while working on implementation of
+  //  multifile
+  public ParsedFile latestParsedFile = null;
   Stack<IScope> scopeStack = new Stack<>();
   StringBuilder errorStringBuilder = new StringBuilder();
   private boolean setup = false;
@@ -81,6 +88,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
    *
    * @return the bottom of the scopeStack
    */
+  // TODO: needs to be modified/assessed -> when is the global scope really needed and
+  //  when is the current scope / file scope adequate
   private IScope globalScope() {
     return scopeStack.get(0);
   }
@@ -164,6 +173,36 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   /**
    * Visit children node in node, create symbol table and resolve function calls
    *
+   * @return The symbol table for given node
+   */
+  public Result walk(ParsedFile file) {
+    if (!setup) {
+      errorStringBuilder.append("Symbol table parser was not setup with an environment");
+      return new Result(symbolTable, errorStringBuilder.toString());
+    }
+
+    var path = file.filePath();
+    IScope scope = this.environment.getFileScope(path);
+    if (scope == Scope.NULL) {
+      // create new file-scope
+      FileScope fs = new FileScope(file, this.environment.getGlobalScope());
+      this.environment.addFileScope(fs);
+      scope = fs;
+    }
+
+    this.scopeStack.push(scope);
+
+    Node node = file.rootASTNode();
+    node.accept(this);
+
+    this.scopeStack.pop();
+
+    return new Result(symbolTable, errorStringBuilder.toString());
+  }
+
+  /**
+   * Visit children node in node, create symbol table and resolve function calls
+   *
    * @param node The node to walk
    * @return The symbol table for given node
    */
@@ -172,8 +211,18 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
       errorStringBuilder.append("Symbol table parser was not setup with an environment");
       return new Result(symbolTable, errorStringBuilder.toString());
     }
-    node.accept(this);
 
+    ParsedFile pf = new ParsedFile(null, node);
+    latestParsedFile = pf;
+    FileScope fs = new FileScope(pf, this.globalScope());
+    this.environment.addFileScope(fs);
+
+    this.scopeStack.push(fs);
+    node.accept(this);
+    this.scopeStack.pop();
+
+    // TODO: got a feeling, this should also return the file scope -> otherwise it won't be
+    //  accessed afterwards by the DSLInterpreter, i guess
     return new Result(symbolTable, errorStringBuilder.toString());
   }
 
@@ -181,25 +230,29 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   public Void visit(Node node) {
     switch (node.type) {
       case Program:
+        IScope topMostScope = this.scopeStack.peek();
         // bind all type definitions
         TypeBinder tb = new TypeBinder();
-        tb.bindTypes(environment, node, errorStringBuilder);
+        tb.bindTypes(environment, topMostScope, node, errorStringBuilder);
 
         // bind all object definitions / variable assignments to enable object
         // references before
         // definition
         VariableBinder vb = new VariableBinder();
-        vb.bindVariables(symbolTable, globalScope(), node, errorStringBuilder);
+        vb.bindVariables(symbolTable, topMostScope, node, errorStringBuilder);
 
         FunctionDefinitionBinder fdb = new FunctionDefinitionBinder();
-        fdb.bindFunctionDefinitions(symbolTable, node);
+        fdb.bindFunctionDefinitions(symbolTable, topMostScope, node);
+
+        ImportAnalyzer ia = new ImportAnalyzer(this.environment);
+        ia.analyze(node, this, topMostScope);
 
         visitChildren(node);
 
         break;
       case PropertyDefinitionList:
-        visitChildren(node);
       case ParamList:
+      case GroupedExpression:
         visitChildren(node);
       default:
         break;
@@ -240,7 +293,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   public Void visit(ItemPrototypeDefinitionNode node) {
     // resolve datatype of definition
     var typeName = node.getIdName();
-    var typeSymbol = this.globalScope().resolve(typeName);
+    var typeSymbol = currentScope().resolve(typeName);
     if (typeSymbol.equals(Symbol.NULL) || typeSymbol == null) {
       errorStringBuilder.append("Could not resolve type " + typeName);
     } else {
@@ -257,7 +310,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   public Void visit(PrototypeDefinitionNode node) {
     // resolve datatype of definition
     var typeName = node.getIdName();
-    var typeSymbol = this.globalScope().resolve(typeName);
+    var typeSymbol = this.currentScope().resolve(typeName);
     if (typeSymbol.equals(Symbol.NULL) || typeSymbol == null) {
       errorStringBuilder.append("Could not resolve type " + typeName);
     } else {
@@ -334,7 +387,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   public Void visit(ObjectDefNode node) {
     // resolve the type of the object definition and push it on the stack
     var typeName = node.getTypeSpecifierName();
-    var typeSymbol = globalScope().resolve(typeName);
+    // TODO: this should be revised to be the current scope
+    var typeSymbol = this.currentScope().resolve(typeName);
 
     // TODO: errorhandling
     if (typeSymbol == Symbol.NULL) {
@@ -369,7 +423,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
       Symbol funcSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
       if (funcSymbol == Symbol.NULL) {
         String funcName = node.getIdName();
-        funcSymbol = currentScope().resolve(funcName, true);
+        funcSymbol = resolve(funcName);
         if (funcSymbol.equals(Symbol.NULL)) {
           throw new RuntimeException("Function with name " + funcName + " could not be resolved!");
         }
@@ -391,7 +445,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   @Override
   public Void visit(FuncDefNode node) {
     var funcName = node.getIdName();
-    Symbol resolved = globalScope().resolve(funcName);
+    // TODO: current scope
+    Symbol resolved = resolve(funcName);
     if (resolved == Symbol.NULL) {
       errorStringBuilder.append(
           "Could not resolve Identifier with name " + funcName + " in global scope!");
@@ -559,44 +614,44 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(LogicOrNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    visitChildren(node);
+    return null;
   }
 
   @Override
   public Void visit(LogicAndNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    visitChildren(node);
+    return null;
   }
 
   @Override
   public Void visit(EqualityNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    visitChildren(node);
+    return null;
   }
 
   @Override
   public Void visit(ComparisonNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    visitChildren(node);
+    return null;
   }
 
   @Override
   public Void visit(TermNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    visitChildren(node);
+    return null;
   }
 
   @Override
   public Void visit(FactorNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    visitChildren(node);
+    return null;
   }
 
   @Override
   public Void visit(UnaryNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    visitChildren(node);
+    return null;
   }
 
   @Override
@@ -651,6 +706,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     return variableSymbol;
   }
 
+  // TODO: make sure, that currentScope is passed to this
   private Symbol createVariableSymbolInScope(IdNode typeIdNode, IdNode nameIdNode, IScope scope) {
     // resolve the type name
     String typeName = typeIdNode.getName();
@@ -748,6 +804,12 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   }
 
   // region ASTVisitor implementation for nodes unrelated to semantic analysis
+
+  @Override
+  public Void visit(ImportNode node) {
+    return null;
+  }
+
   @Override
   public Void visit(DecNumNode node) {
     return null;

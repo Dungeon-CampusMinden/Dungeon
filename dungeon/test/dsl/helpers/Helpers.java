@@ -2,6 +2,7 @@ package dsl.helpers;
 
 import antlr.main.DungeonDSLLexer;
 import antlr.main.DungeonDSLParser;
+import core.Entity;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.Node;
@@ -12,13 +13,19 @@ import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
+import entrypoint.DungeonConfig;
+import entrypoint.ParsedFile;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashSet;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import task.tasktype.quizquestion.SingleChoice;
 
 public class Helpers {
 
@@ -141,9 +148,10 @@ public class Helpers {
     symbolTableParser.setup(environment);
     var ast = Helpers.getASTFromString(program);
     symbolTableParser.walk(ast);
+    ParsedFile latestParsedFile = symbolTableParser.latestParsedFile;
 
-    interpreter.initializeRuntime(environment);
-    Value questConfigValue = (Value) interpreter.generateQuestConfig(ast);
+    interpreter.initializeRuntime(environment, latestParsedFile.filePath());
+    Value questConfigValue = (Value) interpreter.generateQuestConfig(ast, latestParsedFile);
     return questConfigValue.getInternalValue();
   }
 
@@ -166,9 +174,22 @@ public class Helpers {
     symbolTableParser.setup(environment);
     var ast = Helpers.getASTFromString(program);
     symbolTableParser.walk(ast);
+    ParsedFile latestParsedFile = symbolTableParser.latestParsedFile;
 
-    interpreter.initializeRuntime(environment);
+    interpreter.initializeRuntime(environment, latestParsedFile.filePath());
 
-    return interpreter.generateQuestConfig(ast);
+    return interpreter.generateQuestConfig(ast, latestParsedFile);
+  }
+
+  public static HashSet<HashSet<Entity>> buildTask(
+      String program, ByteArrayOutputStream outputStream) {
+    DSLInterpreter interpreter = new DSLInterpreter();
+    DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+    var task = (SingleChoice) config.dependencyGraph().nodeIterator().next().task();
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    System.setOut(new PrintStream(outputStream));
+    return (HashSet<HashSet<Entity>>) interpreter.buildTask(task).get();
   }
 }

@@ -40,6 +40,14 @@ public class ListType extends ScopedSymbol implements IType {
             new FunctionType(elementType, BuiltInType.intType),
             ListValue.GetMethod.instance);
     this.bind(getMethod);
+
+    NativeMethod clearMethod =
+        new NativeMethod(
+            "clear",
+            this,
+            new FunctionType(BuiltInType.noType, BuiltInType.noType),
+            ListValue.ClearMethod.instance);
+    this.bind(clearMethod);
   }
 
   @Override

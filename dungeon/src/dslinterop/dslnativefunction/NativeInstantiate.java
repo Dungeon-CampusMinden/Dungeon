@@ -69,10 +69,6 @@ public class NativeInstantiate extends NativeFunction {
         }
         Value memberValue = valueEntry.getValue();
         if (memberValue instanceof AggregateValue) {
-          // TODO: this is needed, because Prototype does not extend AggregateType
-          // currently,
-          //  which should be fixed
-
           // TODO: temporary fix!!!
           if (memberValue.getDataType().getName().equals("ai_component")) {
             laterEntries.add(valueEntry);

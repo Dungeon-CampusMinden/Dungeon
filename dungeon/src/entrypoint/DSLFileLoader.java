@@ -66,6 +66,7 @@ public class DSLFileLoader {
    * @return Collection of Path objects representing all DSL files in the ".jar/scripts" directory.
    */
   private static Set<Path> findDSLFilesInJar(String jarPath) {
+    // TODO: make this public and usable for lib-Files
     Set<Path> dngPaths = new HashSet<>();
 
     try (JarFile jarFile = new JarFile(jarPath)) {

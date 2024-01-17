@@ -15,6 +15,7 @@ import java.util.Stack;
  */
 public class FunctionDefinitionBinder implements AstVisitor<Void> {
   private SymbolTable symbolTable;
+  IScope rootScope;
   Stack<IScope> scopeStack = new Stack<>();
 
   /**
@@ -24,8 +25,9 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
    * @param symbolTable the symboltable to bind the function definitions in
    * @param programRootNode the root {@link Node} of the program containing function definitions
    */
-  public void bindFunctionDefinitions(SymbolTable symbolTable, Node programRootNode) {
+  public void bindFunctionDefinitions(SymbolTable symbolTable, IScope scope, Node programRootNode) {
     this.symbolTable = symbolTable;
+    this.rootScope = scope;
     this.scopeStack = new Stack<>();
 
     programRootNode.accept(this);
@@ -72,8 +74,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
   public Void visit(FuncDefNode node) {
     // check, if symbol with the name was already bound
     var funcName = node.getIdName();
-    var globalScope = symbolTable.globalScope();
-    var resolved = globalScope.resolve(funcName);
+    var resolved = this.rootScope.resolve(funcName);
     if (resolved != Symbol.NULL) {
       throw new RuntimeException(
           "Identifier with name " + funcName + " is already bound in global scope!");
@@ -89,7 +90,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
         }
 
         String returnTypeName = node.getRetTypeName();
-        returnType = globalScope.resolveType(returnTypeName);
+        returnType = this.rootScope.resolveType(returnTypeName);
         if (returnType == null) {
           throw new RuntimeException(
               "Could not resolve return type " + returnTypeName + " of function " + funcName);
@@ -105,7 +106,8 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
         paramIdNode.accept(this);
 
         var paramTypeName = ((ParamDefNode) paramDefNode).getTypeName();
-        IType paramType = globalScope.resolveType(paramTypeName);
+
+        IType paramType = this.rootScope.resolveType(paramTypeName);
         parameterTypes.add(paramType);
 
         symbolTable.addSymbolNodeRelation((Symbol) paramType, paramIdNode, false);
@@ -113,19 +115,19 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
 
       // create function signature type (as needed)
       String functionTypeName = FunctionType.calculateTypeName(returnType, parameterTypes);
-      Symbol functionTypeSymbol = globalScope.resolve(functionTypeName);
+      Symbol functionTypeSymbol = this.rootScope.resolve(functionTypeName);
       FunctionType functionType;
 
       if (functionTypeSymbol != Symbol.NULL) {
         functionType = (FunctionType) functionTypeSymbol;
       } else {
         functionType = new FunctionType(returnType, parameterTypes);
-        globalScope.bind(functionType);
+        this.symbolTable.globalScope().bind(functionType);
       }
 
       // create new function symbol
-      var funcSymbol = new FunctionSymbol(funcName, globalScope, node, functionType);
-      globalScope.bind(funcSymbol);
+      var funcSymbol = new FunctionSymbol(funcName, this.rootScope, node, functionType);
+      this.rootScope.bind(funcSymbol);
       scopeStack.push(funcSymbol);
 
       // bind parameters
@@ -153,7 +155,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
           "Parameter with name " + node.getIdName() + " was already defined");
     } else {
       // resolve parameters datatype
-      IType parameterType = this.symbolTable.globalScope().resolveType(node.getTypeName());
+      IType parameterType = this.rootScope.resolveType(node.getTypeName());
 
       Symbol parameterSymbol = new Symbol(parameterName, currentScope, parameterType);
       currentScope.bind(parameterSymbol);
@@ -175,6 +177,11 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
 
   @Override
   public Void visit(MapTypeIdentifierNode node) {
+    return null;
+  }
+
+  @Override
+  public Void visit(ImportNode node) {
     return null;
   }
 }

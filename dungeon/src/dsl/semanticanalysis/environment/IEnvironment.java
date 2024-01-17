@@ -2,6 +2,7 @@ package dsl.semanticanalysis.environment;
 
 import dsl.runtime.interop.RuntimeObjectTranslator;
 import dsl.semanticanalysis.SymbolTable;
+import dsl.semanticanalysis.scope.FileScope;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
@@ -9,6 +10,8 @@ import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +36,20 @@ public interface IEnvironment {
 
   // default Symbol lookupType(String name) { return Symbol.NULL; }
 
+  void addFileScope(FileScope fileScope);
+
+  FileScope getFileScope(Path file);
+
+  /**
+   * The {@link FileScope} relating to "no file" needs the {@link IEnvironment}-specific global
+   * Scope as a parent, so we define it here
+   *
+   * @return
+   */
+  FileScope getNullFileScope();
+
+  HashMap<Path, FileScope> getFileScopes();
+
   /**
    * @return all available function definitions
    */
@@ -40,7 +57,7 @@ public interface IEnvironment {
     return new Symbol[0];
   }
 
-  // default Symbol lookupFunction(String name) { return Symbol.NULL; }
+  // TODO: needs to be extended to handle files
   /**
    * @param types AggregateTypes to load into the environment
    */
@@ -90,4 +107,27 @@ public interface IEnvironment {
   }
 
   RuntimeObjectTranslator getRuntimeObjectTranslator();
+
+  Path defaultRelLibPath = Paths.get("dungeon/assets/scripts/lib");
+  String defaultScenarioSubDirName = "scenario";
+
+  default Path relLibPath() {
+    return defaultRelLibPath;
+  }
+
+  default String scenarioSubDirName() {
+    return defaultScenarioSubDirName;
+  }
+
+  default Path relScenarioPath() {
+    return Paths.get(relLibPath() + "/" + scenarioSubDirName());
+  }
+
+  default Path libPath() {
+    return relLibPath().toAbsolutePath();
+  }
+
+  default Path scenarioPath() {
+    return relScenarioPath().toAbsolutePath();
+  }
 }

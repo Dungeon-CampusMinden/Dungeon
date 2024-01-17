@@ -10,7 +10,7 @@ public class MapValue extends Value {
 
   // stores the internal values of the Value-instances in order to ensure,
   // that only Value-instances with distinct internal values are stored
-  private HashMap<Object, Object> internalObjectMap = new HashMap<>();
+  private HashMap<Object, Value> internalObjectMap = new HashMap<>();
 
   /**
    * Constructor
@@ -41,14 +41,13 @@ public class MapValue extends Value {
    */
   public boolean addValue(Value key, Value entry) {
     var internalKeyValue = key.getInternalValue();
-    var internalEntryValue = entry.getInternalValue();
 
     if (internalObjectMap.containsKey(internalKeyValue)) {
       // don't add value
       return false;
     }
 
-    internalObjectMap.put(internalKeyValue, internalEntryValue);
+    internalObjectMap.put(internalKeyValue, entry);
     internalMap().put(key, entry);
 
     return true;
@@ -85,6 +84,48 @@ public class MapValue extends Value {
   public void clearMap() {
     internalObjectMap.clear();
     internalMap().clear();
+  }
+
+  @Override
+  public boolean setFrom(Value other) {
+    if (!(other instanceof MapValue otherMapValue)) {
+      throw new RuntimeException("Other value is not a set value!");
+    }
+
+    boolean didSetValue = super.setFrom(other);
+    if (didSetValue) {
+      this.internalObjectMap = otherMapValue.internalObjectMap;
+    }
+    return didSetValue;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof MapValue otherMapValue)) {
+      return false;
+    }
+
+    var valueEquals = super.equals(obj);
+    if (!valueEquals) {
+      var allEntriesMatch = false;
+
+      var myInternalObjectMap = this.internalObjectMap;
+      var otherInternalObjectMap = otherMapValue.internalObjectMap;
+
+      if (myInternalObjectMap.size() == otherInternalObjectMap.size()) {
+        // check each key and value mapping
+        for (var key : myInternalObjectMap.keySet()) {
+          var myValue = myInternalObjectMap.get(key);
+          var otherValue = otherInternalObjectMap.getOrDefault(key, Value.NONE);
+          allEntriesMatch = myValue.equals(otherValue);
+          if (!allEntriesMatch) {
+            break;
+          }
+        }
+      }
+      return allEntriesMatch;
+    }
+    return true;
   }
 
   // region native_methods
@@ -137,6 +178,21 @@ public class MapValue extends Value {
       ArrayList<Value> values = new ArrayList<>();
       values.addAll(mapValue.internalMap().values());
       return values;
+    }
+  }
+
+  public static class ClearMethod implements IInstanceCallable {
+
+    public static MapValue.ClearMethod instance = new MapValue.ClearMethod();
+
+    private ClearMethod() {}
+
+    @Override
+    public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+      MapValue mapValue = (MapValue) instance;
+      mapValue.internalObjectMap.clear();
+      mapValue.internalMap().clear();
+      return null;
     }
   }
   // endregion

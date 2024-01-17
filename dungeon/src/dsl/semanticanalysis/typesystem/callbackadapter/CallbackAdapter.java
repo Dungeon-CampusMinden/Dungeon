@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  * callback-function defined in the DSL. Implements the functional interfaces needed for assigning
  * an instance of this class to the callback-fields in the components of the Dungeons ECS.
  */
-public class CallbackAdapter implements Consumer, TriConsumer, BiConsumer {
+public class CallbackAdapter extends Value implements Consumer, TriConsumer, BiConsumer {
 
   private final RuntimeEnvironment rtEnv;
   private final FunctionType functionType;
@@ -23,6 +23,7 @@ public class CallbackAdapter implements Consumer, TriConsumer, BiConsumer {
   private final DSLInterpreter interpreter;
 
   CallbackAdapter(RuntimeEnvironment rtEnv, ICallable callable, DSLInterpreter interpreter) {
+    super(callable.getFunctionType(), callable);
     this.rtEnv = rtEnv;
     this.functionType = callable.getFunctionType();
     this.callable = callable;

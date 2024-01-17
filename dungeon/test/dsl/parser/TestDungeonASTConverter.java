@@ -153,10 +153,10 @@ public class TestDungeonASTConverter {
   public void testGameObjectDefinitionSimpleComponent() {
     String program =
         """
-                entity_type test_object {
-                    this_is_a_component
-                    }
-                """;
+            entity_type test_object {
+                this_is_a_component
+                }
+            """;
     var ast = Helpers.getASTFromString(program);
 
     var objDef = ast.getChild(0);
@@ -184,12 +184,12 @@ public class TestDungeonASTConverter {
   public void testItemTypeDefinition() {
     String program =
         """
-            item_type test_object {
-                value1: 1,
-                value2: 2,
-                value3: 3
-            }
-            """;
+        item_type test_object {
+            value1: 1,
+            value2: 2,
+            value3: 3
+        }
+        """;
     var ast = Helpers.getASTFromString(program);
 
     var objDef = ast.getChild(0);
@@ -219,13 +219,13 @@ public class TestDungeonASTConverter {
   public void testGameObjectDefinition() {
     String program =
         """
-                entity_type test_object {
-                    complex_component {
-                        prop1: 123,
-                        prop2: "Hello, World!"
-                    }
+            entity_type test_object {
+                complex_component {
+                    prop1: 123,
+                    prop2: "Hello, World!"
                 }
-                """;
+            }
+            """;
     var ast = Helpers.getASTFromString(program);
 
     var objDef = ast.getChild(0);
@@ -259,17 +259,17 @@ public class TestDungeonASTConverter {
   public void testGameObjectDefinitionMultiComponent() {
     String program =
         """
-            entity_type test_object {
-                complex_component1 {
-                    prop1: 123,
-                    prop2: "Hello, World!"
-                },
-                complex_component2 {
-                    prop3: func(test),
-                    prop4: "42"
-                }
+        entity_type test_object {
+            complex_component1 {
+                prop1: 123,
+                prop2: "Hello, World!"
+            },
+            complex_component2 {
+                prop3: func(test),
+                prop4: "42"
             }
-                """;
+        }
+            """;
     var ast = Helpers.getASTFromString(program);
 
     var objDef = ast.getChild(0);
@@ -311,16 +311,16 @@ public class TestDungeonASTConverter {
   public void adaptedAggregateType() {
     String program =
         """
-            entity_type my_obj {
-                test_component_with_external_type {
-                    member_external_type: external_type { str: "Hello, World!", n: 42 }
-                }
+        entity_type my_obj {
+            test_component_with_external_type {
+                member_external_type: external_type { str: "Hello, World!", n: 42 }
             }
+        }
 
-            quest_config config {
-                entity: my_obj
-            }
-            """;
+        quest_config config {
+            entity: my_obj
+        }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var gameObjectDef = (PrototypeDefinitionNode) ast.getChild(0);
@@ -355,10 +355,10 @@ public class TestDungeonASTConverter {
   public void funcDefFull() {
     String program =
         """
-        fn test_func(int param1, float param2, string param3) -> ret_type {
-            print("hello");
-        }
-        """;
+    fn test_func(int param1, float param2, string param3) -> ret_type {
+        print("hello");
+    }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -388,10 +388,10 @@ public class TestDungeonASTConverter {
   public void returnStmt() {
     String program =
         """
-                fn test_func() -> ret_type {
-                    return 42;
-                }
-            """;
+            fn test_func() -> ret_type {
+                return 42;
+            }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -408,15 +408,15 @@ public class TestDungeonASTConverter {
   public void nestedBlocks() {
     String program =
         """
-            fn test_func(int param1, float param2, string param3) -> int
+        fn test_func(int param1, float param2, string param3) -> int
+        {
             {
                 {
-                    {
-                        print(param1);
-                    }
+                    print(param1);
                 }
             }
-            """;
+        }
+        """;
 
     var ast = Helpers.getASTFromString(program);
 
@@ -441,12 +441,12 @@ public class TestDungeonASTConverter {
   public void ifStmt() {
     String program =
         """
-            fn test_func() {
-                if expr {
-                    print("hello");
-                }
+        fn test_func() {
+            if expr {
+                print("hello");
             }
-        """;
+        }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -467,13 +467,13 @@ public class TestDungeonASTConverter {
   public void ifElseStmt() {
     String program =
         """
-            fn test_func() {
-                if expr {
-                    print("hello");
-                } else
-                  print("world");
-            }
-        """;
+        fn test_func() {
+            if expr {
+                print("hello");
+            } else
+              print("world");
+        }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -497,13 +497,13 @@ public class TestDungeonASTConverter {
   public void elseIfStmt() {
     String program =
         """
-            fn test_func() {
-                if expr {
-                    print("hello");
-                } else if other_expr
-                  print("world");
-            }
-        """;
+        fn test_func() {
+            if expr {
+                print("hello");
+            } else if other_expr
+              print("world");
+        }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -531,16 +531,16 @@ public class TestDungeonASTConverter {
   public void elseIfElseStmt() {
     String program =
         """
-            fn test_func() {
-                if expr {
-                    print("hello");
-                } else if other_expr {
-                  print("world");
-                } else {
-                  print("!");
-                }
+        fn test_func() {
+            if expr {
+                print("hello");
+            } else if other_expr {
+              print("world");
+            } else {
+              print("!");
             }
-        """;
+        }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -571,18 +571,18 @@ public class TestDungeonASTConverter {
   public void nestedIfElseStmts() {
     String program =
         """
-            fn test_func() {
-                if outer_expr {
-                  if inner_expr {
-                    print("hello");
-                  } else if inner_else_if_expr {
-                    print("moin");
-                  }
-                } else {
-                  print("world");
-                }
+        fn test_func() {
+            if outer_expr {
+              if inner_expr {
+                print("hello");
+              } else if inner_else_if_expr {
+                print("moin");
+              }
+            } else {
+              print("world");
             }
-        """;
+        }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -613,11 +613,11 @@ public class TestDungeonASTConverter {
   public void testUnary() {
     String program =
         """
-                fn test_func() {
-                    !true;
-                    -4;
-                }
-            """;
+            fn test_func() {
+                !true;
+                -4;
+            }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -640,11 +640,11 @@ public class TestDungeonASTConverter {
   public void testFactor() {
     String program =
         """
-                fn test_func() {
-                    4 * 2;
-                    3 / 1;
-                }
-            """;
+            fn test_func() {
+                4 * 2;
+                3 / 1;
+            }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -685,11 +685,11 @@ public class TestDungeonASTConverter {
   public void testTerm() {
     String program =
         """
-                fn test_func() {
-                    4 + 2;
-                    3 - 1;
-                }
-            """;
+            fn test_func() {
+                4 + 2;
+                3 - 1;
+            }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -730,13 +730,13 @@ public class TestDungeonASTConverter {
   public void testComparison() {
     String program =
         """
-            fn test_func() {
-                1 > 5;
-                2 >= 6;
-                3 < 7;
-                4 <= 8;
-            }
-        """;
+        fn test_func() {
+            1 > 5;
+            2 >= 6;
+            3 < 7;
+            4 <= 8;
+        }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -775,11 +775,11 @@ public class TestDungeonASTConverter {
   public void testEquality() {
     String program =
         """
-                fn test_func() {
-                    test == other_test;
-                    test != other_test;
-                }
-            """;
+            fn test_func() {
+                test == other_test;
+                test != other_test;
+            }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -804,10 +804,10 @@ public class TestDungeonASTConverter {
   public void testLogicAnd() {
     String program =
         """
-                fn test_func() {
-                    lhs and rhs;
-                }
-            """;
+            fn test_func() {
+                lhs and rhs;
+            }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -821,10 +821,10 @@ public class TestDungeonASTConverter {
   public void testLogicOr() {
     String program =
         """
-                fn test_func() {
-                    lhs or rhs;
-                }
-            """;
+            fn test_func() {
+                lhs or rhs;
+            }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -836,12 +836,11 @@ public class TestDungeonASTConverter {
 
   @Test
   public void testAssignmentId() {
-    String program =
-        """
-            fn test_func() {
-                my_var = 4;
-            }
-        """;
+    String program = """
+        fn test_func() {
+            my_var = 4;
+        }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -856,12 +855,11 @@ public class TestDungeonASTConverter {
 
   @Test
   public void testAssignmentMemberAccessWithCall() {
-    String program =
-        """
-            fn test_func() {
-                my_func().test = 4;
-            }
-        """;
+    String program = """
+        fn test_func() {
+            my_func().test = 4;
+        }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -883,10 +881,10 @@ public class TestDungeonASTConverter {
   public void testAssignmentMemberAccess() {
     String program =
         """
-                fn test_func() {
-                    my_var.test = 4;
-                }
-            """;
+            fn test_func() {
+                my_var.test = 4;
+            }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -908,10 +906,10 @@ public class TestDungeonASTConverter {
   public void testMethodCallExpression() {
     String program =
         """
-                fn test_func() {
-                    test = expr.func();
-                }
-            """;
+            fn test_func() {
+                test = expr.func();
+            }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -933,10 +931,10 @@ public class TestDungeonASTConverter {
   public void testMemberAccessExpression() {
     String program =
         """
-                fn test_func() {
-                    test = expr.identifier;
-                }
-            """;
+            fn test_func() {
+                test = expr.identifier;
+            }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -956,12 +954,11 @@ public class TestDungeonASTConverter {
 
   @Test
   public void testListDefinition() {
-    String program =
-        """
-            fn test_func() {
-                [1,2,3];
-            }
-        """;
+    String program = """
+        fn test_func() {
+            [1,2,3];
+        }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -979,12 +976,11 @@ public class TestDungeonASTConverter {
 
   @Test
   public void testSetDefinition() {
-    String program =
-        """
-            fn test_func() {
-                <1,2,3>;
-            }
-        """;
+    String program = """
+        fn test_func() {
+            <1,2,3>;
+        }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -1004,12 +1000,12 @@ public class TestDungeonASTConverter {
   public void testForLoop() {
     String program =
         """
-        fn test_func() {
-            for var_type var_name in iterable {
-                print(id);
-            }
+    fn test_func() {
+        for var_type var_name in iterable {
+            print(id);
         }
-    """;
+    }
+""";
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -1034,12 +1030,12 @@ public class TestDungeonASTConverter {
   public void testCountingForLoop() {
     String program =
         """
-        fn test_func() {
-            for var_type var_name in iterable count i {
-                print(id);
-            }
+    fn test_func() {
+        for var_type var_name in iterable count i {
+            print(id);
         }
-    """;
+    }
+""";
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -1067,12 +1063,12 @@ public class TestDungeonASTConverter {
   public void testWhileLoop() {
     String program =
         """
-        fn test_func() {
-            while expr {
-                print(id);
-            }
+    fn test_func() {
+        while expr {
+            print(id);
         }
-    """;
+    }
+""";
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -1089,12 +1085,11 @@ public class TestDungeonASTConverter {
 
   @Test
   public void testGraphEdgeAttribute() {
-    String program =
-        """
-            graph g {
-                t1 -> t2 [type=seq]
-            }
-            """;
+    String program = """
+        graph g {
+            t1 -> t2 [type=seq]
+        }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var dotDefNode = (DotDefNode) ast.getChild(0);
@@ -1116,5 +1111,98 @@ public class TestDungeonASTConverter {
     Assert.assertEquals("type", attrNode.getLhsIdName());
     Assert.assertEquals("seq", attrNode.getRhsIdName());
     Assert.assertEquals(TaskEdge.Type.sequence, attrNode.getDependencyType());
+  }
+
+  @Test
+  public void testImportStmtUnnamed() {
+
+    String program = """
+            #import "hello.dng":moin
+            """;
+
+    var ast = Helpers.getASTFromString(program);
+    var unnamedImportStmt = ast.getChild(0);
+    Assert.assertEquals(Node.Type.ImportNode, unnamedImportStmt.type);
+    ImportNode unnamedImportNode = (ImportNode) unnamedImportStmt;
+    Assert.assertEquals(ImportNode.Type.unnamed, unnamedImportNode.importType());
+
+    var pathNode = unnamedImportNode.pathNode();
+    Assert.assertEquals(Node.Type.StringLiteral, pathNode.type);
+    StringNode stringNode = (StringNode) pathNode;
+    Assert.assertEquals("hello.dng", stringNode.getValue());
+
+    var idChild = unnamedImportNode.idNode();
+    Assert.assertEquals(Node.Type.Identifier, idChild.type);
+    IdNode idNode = (IdNode) idChild;
+    Assert.assertEquals("moin", idNode.getName());
+  }
+
+  @Test
+  public void testImportStmtNamed() {
+
+    String program = """
+            #import "hello.dng":kuckuck as no
+            """;
+
+    var ast = Helpers.getASTFromString(program);
+    var namedImportStmt = ast.getChild(0);
+    Assert.assertEquals(Node.Type.ImportNode, namedImportStmt.type);
+    ImportNode namedImportNode = (ImportNode) namedImportStmt;
+    Assert.assertEquals(ImportNode.Type.named, namedImportNode.importType());
+
+    var pathNode = namedImportNode.pathNode();
+    Assert.assertEquals(Node.Type.StringLiteral, pathNode.type);
+    StringNode stringNode = (StringNode) pathNode;
+    Assert.assertEquals("hello.dng", stringNode.getValue());
+
+    var idChild = namedImportNode.idNode();
+    Assert.assertEquals(Node.Type.Identifier, idChild.type);
+    IdNode idNode = (IdNode) idChild;
+    Assert.assertEquals("kuckuck", idNode.getName());
+
+    var asIdChild = namedImportNode.asIdNode();
+    Assert.assertEquals(Node.Type.Identifier, asIdChild.type);
+    IdNode asIdNode = (IdNode) asIdChild;
+    Assert.assertEquals("no", asIdNode.getName());
+  }
+
+  @Test
+  public void testEqualityWithMemberAccess() {
+    String program =
+        """
+            fn test() {
+                x.y.z == u.v.w;
+            }
+            """;
+
+    var ast = Helpers.getASTFromString(program);
+    var funcDefNode = (FuncDefNode) ast.getChild(0);
+    var stmts = funcDefNode.getStmts();
+
+    var equalityStmt = stmts.get(0);
+    Assert.assertEquals(Node.Type.Equality, equalityStmt.type);
+    var equalityNode = (EqualityNode) equalityStmt;
+
+    var lhs = equalityNode.getLhs();
+    Assert.assertEquals(Node.Type.MemberAccess, lhs.type);
+    var lhsMemAccess = (MemberAccessNode) lhs;
+    var xNode = (IdNode) lhsMemAccess.getLhs();
+    Assert.assertEquals("x", xNode.getName());
+    var yzNode = (MemberAccessNode) lhsMemAccess.getRhs();
+    var yNode = (IdNode) yzNode.getLhs();
+    Assert.assertEquals("y", yNode.getName());
+    var zNode = (IdNode) yzNode.getRhs();
+    Assert.assertEquals("z", zNode.getName());
+
+    var rhs = equalityNode.getRhs();
+    Assert.assertEquals(Node.Type.MemberAccess, rhs.type);
+    var rhsMemAccess = (MemberAccessNode) rhs;
+    var uNode = (IdNode) rhsMemAccess.getLhs();
+    Assert.assertEquals("u", uNode.getName());
+    var vwNode = (MemberAccessNode) rhsMemAccess.getRhs();
+    var vNode = (IdNode) vwNode.getLhs();
+    Assert.assertEquals("v", vNode.getName());
+    var wNode = (IdNode) vwNode.getRhs();
+    Assert.assertEquals("w", wNode.getName());
   }
 }

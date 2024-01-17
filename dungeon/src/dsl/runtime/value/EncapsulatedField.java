@@ -29,4 +29,18 @@ public class EncapsulatedField extends Value {
       throw new RuntimeException(e);
     }
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Value value)) {
+      return false;
+    }
+    var myInternalObject = this.getInternalValue();
+    if (myInternalObject instanceof Value myInternalValue) {
+      return value.equals(myInternalValue);
+    } else {
+      var otherInternalObject = value.getInternalValue();
+      return myInternalObject.equals(otherInternalObject);
+    }
+  }
 }

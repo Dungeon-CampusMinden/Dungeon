@@ -46,11 +46,17 @@ program : definition* EOF
 
 definition
         : dot_def
+        | import_def
         | object_def
         | entity_type_def
         | item_type_def
         | fn_def
         ;
+
+import_def
+    : '#import' path=STRING_LITERAL ':' sym_id=ID                   #import_unnamed
+    | '#import' path=STRING_LITERAL ':' sym_id=ID 'as' sym_name=ID  #import_named
+    ;
 
 fn_def
     : 'fn' ID '(' param_def_list? ')' ret_type_def? stmt_block
@@ -77,23 +83,19 @@ var_decl
     ;
 
 expression
-    : assignment expression_rhs?
+    : assignee '=' expression           #expr_assignment
+    | logic_or                          #expr_trivial
     ;
 
-expression_rhs
-    : '.' func_call expression_rhs?  #method_call_expression
-    | '.' ID expression_rhs?         #member_access_expression
-    ;
-
-assignment
-    : assignee '=' expression
-    | logic_or
+member_access_rhs
+    : '.' func_call member_access_rhs?  #method_call_expression
+    | '.' ID member_access_rhs?         #member_access_expression
     ;
 
 assignee
-    : func_call '.' assignee    #assignee_func_call
-    | ID '.' assignee           #assignee_qualified_name
-    | ID                        #assignee_identifier
+    : func_call member_access_rhs   #assignee_func
+    | ID member_access_rhs          #assignee_member_access
+    | ID                            #assignee_identifier
     ;
 
 logic_or
@@ -223,7 +225,13 @@ set_definition
     : '<' expression_list? '>'
     ;
 
-primary : ID
+/*mem_acc_prim
+    : func_call '.' mem_acc_prim    //#assignee_func_call
+    | ID '.' mem_acc_prim           //#assignee_qualified_name
+    | ID                        //#assignee_identifier
+    ;*/
+
+primary : ID member_access_rhs?
         | STRING_LITERAL
         | TRUE
         | FALSE
@@ -231,8 +239,8 @@ primary : ID
         | NUM_DEC
         | aggregate_value_def
         | set_definition
-        | grouped_expression
-        | func_call
+        | grouped_expression member_access_rhs?
+        | func_call member_access_rhs?
         | list_definition
         ;
 

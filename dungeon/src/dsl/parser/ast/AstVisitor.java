@@ -496,6 +496,16 @@ public interface AstVisitor<T> {
   }
 
   /**
+   * Visitor method for ImportNodes
+   *
+   * @param node Node to visit
+   * @return T
+   */
+  default T visit(ImportNode node) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Visit all children of the passed node
    *
    * @param node The node to visit all children of

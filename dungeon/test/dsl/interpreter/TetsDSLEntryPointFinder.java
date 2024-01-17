@@ -1,5 +1,8 @@
 package dsl.interpreter;
 
+import dsl.semanticanalysis.scope.IScope;
+import dsl.semanticanalysis.symbol.FunctionSymbol;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import entrypoint.DSLEntryPoint;
 import entrypoint.DungeonConfig;
 import graph.taskdependencygraph.TaskNode;
@@ -116,5 +119,43 @@ public class TetsDSLEntryPointFinder {
     taskNode = config.dependencyGraph().nodeIterator().next();
     task = taskNode.task();
     Assert.assertEquals("Kuckuck2", task.taskText());
+  }
+
+  @Test
+  public void testParsingOfLibFiles() {
+    List<DSLEntryPoint> entryPoints = new ArrayList<>();
+    DSLEntryPointFinder finder = new DSLEntryPointFinder();
+    URL resource1 = getClass().getClassLoader().getResource("config1.dng");
+    assert resource1 != null;
+    Path firstPath = null;
+    try {
+      firstPath = Path.of(resource1.toURI());
+      var entryPointsFromFile = finder.getEntryPoints(firstPath).get();
+      entryPoints.addAll(entryPointsFromFile);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+    DSLInterpreter interpreter = new DSLInterpreter();
+
+    DSLEntryPoint firstEntryPoint = entryPoints.get(0);
+    DungeonConfig config = interpreter.interpretEntryPoint(firstEntryPoint);
+
+    var rtEnv = interpreter.getRuntimeEnvironment();
+    var fileScopes = rtEnv.getFileScopes();
+    var scenarioFileSet =
+        fileScopes.keySet().stream()
+            .filter(p -> p.toString().contains(rtEnv.relScenarioPath().toString()))
+            .toList();
+    Assert.assertFalse(scenarioFileSet.isEmpty());
+
+    var scenarioFilePath = Path.of(rtEnv.scenarioPath() + "/scenarios.dng");
+    IScope fileScope = rtEnv.getFileScope(scenarioFilePath);
+
+    var symbols = fileScope.getSymbols();
+    var typeCount = symbols.stream().filter(s -> s instanceof AggregateType).count();
+    Assert.assertEquals(7, typeCount);
+
+    var funcCount = symbols.stream().filter(s -> s instanceof FunctionSymbol).count();
+    Assert.assertEquals(13, funcCount);
   }
 }

@@ -11,10 +11,12 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 public class TypeBinder implements AstVisitor<Object> {
 
   private StringBuilder errorStringBuilder;
-  private IEnvironment environment;
+  // private IEnvironment environment;
+  private IScope scope;
+  private SymbolTable symbolTable;
 
   private SymbolTable symbolTable() {
-    return this.environment.getSymbolTable();
+    return this.symbolTable;
   }
 
   /**
@@ -25,8 +27,11 @@ public class TypeBinder implements AstVisitor<Object> {
    * @param rootNode the root node of the program to scan for types
    * @param errorStringBuilder a string builder to which errors will be appended
    */
-  public void bindTypes(IEnvironment environment, Node rootNode, StringBuilder errorStringBuilder) {
-    this.environment = environment;
+  public void bindTypes(
+      IEnvironment environment, IScope scope, Node rootNode, StringBuilder errorStringBuilder) {
+    // this.environment = environment;
+    this.symbolTable = environment.getSymbolTable();
+    this.scope = scope;
     this.errorStringBuilder = errorStringBuilder;
     visitChildren(rootNode);
   }
@@ -39,13 +44,13 @@ public class TypeBinder implements AstVisitor<Object> {
   public Object visit(PrototypeDefinitionNode node) {
     // create new type with name of definition node
     var newTypeName = node.getIdName();
-    if (resolveGlobal(newTypeName) != Symbol.NULL) {
+    if (this.scope.resolve(newTypeName) != Symbol.NULL) {
       // TODO: reference file and location of definition
       this.errorStringBuilder.append("Symbol with name '" + newTypeName + "' already defined");
       // TODO: return explicit null-Type?
       return null;
     }
-    var newType = new AggregateType(newTypeName, this.symbolTable().globalScope());
+    var newType = new AggregateType(newTypeName, this.scope);
     symbolTable().addSymbolNodeRelation(newType, node, true);
 
     // visit all component definitions and get type and create new symbol in gameObject type
@@ -62,7 +67,7 @@ public class TypeBinder implements AstVisitor<Object> {
       }
     }
 
-    this.environment.loadTypes(newType);
+    this.scope.bind(newType);
     return newType;
   }
 
@@ -77,10 +82,10 @@ public class TypeBinder implements AstVisitor<Object> {
       return null;
     }
 
-    var itemType = new AggregateType(newTypeName, this.symbolTable().globalScope());
+    var itemType = new AggregateType(newTypeName, this.scope);
     symbolTable().addSymbolNodeRelation(itemType, node, true);
 
-    Symbol questItemTypeSymbol = this.environment.resolveInGlobalScope("quest_item");
+    Symbol questItemTypeSymbol = this.scope.resolve("quest_item");
     if (Symbol.NULL == questItemTypeSymbol) {
       throw new RuntimeException("'quest_item' cannot be resolved in global scope!");
     }
@@ -114,7 +119,8 @@ public class TypeBinder implements AstVisitor<Object> {
       symbolTable().addSymbolNodeRelation(memberSymbol, propertyDefinitionNode, true);
     }
 
-    this.environment.loadTypes(itemType);
+    // this.environment.loadTypes(itemType);
+    this.scope.bind(itemType);
     return itemType;
   }
 
@@ -139,8 +145,8 @@ public class TypeBinder implements AstVisitor<Object> {
   @Override
   public Void visit(ListTypeIdentifierNode node) {
     String typeName = node.getName();
-    IScope globalScope = this.environment.getGlobalScope();
-    Symbol resolvedType = this.environment.resolveInGlobalScope(typeName);
+    IScope scopeToResolveTypeIn = this.scope;
+    Symbol resolvedType = scopeToResolveTypeIn.resolve(typeName);
 
     // construct a new ListType for the node, if it was not previously created
     if (resolvedType == Symbol.NULL) {
@@ -149,9 +155,10 @@ public class TypeBinder implements AstVisitor<Object> {
       if (innerTypeNode.type != Node.Type.Identifier) {
         innerTypeNode.accept(this);
       }
-      var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
-      Symbol listTypeSymbol = globalScope.resolve(ListType.getListTypeName(innerType));
+      var innerType = (IType) scopeToResolveTypeIn.resolve(innerTypeNode.getName());
+      Symbol listTypeSymbol = scopeToResolveTypeIn.resolve(ListType.getListTypeName(innerType));
       if (listTypeSymbol.equals(Symbol.NULL)) {
+        IScope globalScope = this.symbolTable.globalScope();
         ListType listType = new ListType(innerType, globalScope);
         globalScope.bind(listType);
       }
@@ -162,8 +169,8 @@ public class TypeBinder implements AstVisitor<Object> {
   @Override
   public Void visit(SetTypeIdentifierNode node) {
     String typeName = node.getName();
-    IScope globalScope = this.environment.getGlobalScope();
-    Symbol resolvedType = this.environment.resolveInGlobalScope(typeName);
+    IScope scopeToResolveTypeIn = this.scope;
+    Symbol resolvedType = scopeToResolveTypeIn.resolve(typeName);
 
     // construct a new ListType for the node, if it was not previously created
     if (resolvedType == Symbol.NULL) {
@@ -172,9 +179,10 @@ public class TypeBinder implements AstVisitor<Object> {
       if (innerTypeNode.type != Node.Type.Identifier) {
         innerTypeNode.accept(this);
       }
-      var innerType = (IType) this.environment.resolveInGlobalScope(innerTypeNode.getName());
-      Symbol setTypeSymbol = globalScope.resolve(SetType.getSetTypeName(innerType));
+      var innerType = (IType) scopeToResolveTypeIn.resolve(innerTypeNode.getName());
+      Symbol setTypeSymbol = scopeToResolveTypeIn.resolve(SetType.getSetTypeName(innerType));
       if (setTypeSymbol.equals(Symbol.NULL)) {
+        IScope globalScope = symbolTable.globalScope();
         SetType setType = new SetType(innerType, globalScope);
         globalScope.bind(setType);
       }
@@ -184,9 +192,9 @@ public class TypeBinder implements AstVisitor<Object> {
 
   @Override
   public Void visit(MapTypeIdentifierNode node) {
-    IScope globalScope = this.environment.getGlobalScope();
     String typeName = node.getName();
-    Symbol resolvedType = globalScope.resolve(typeName);
+    IScope scopeToResolveTypeIn = this.scope;
+    Symbol resolvedType = scopeToResolveTypeIn.resolve(typeName);
 
     // construct a new MapType for the node, if it was not previously created
     if (resolvedType == Symbol.NULL) {
@@ -202,8 +210,9 @@ public class TypeBinder implements AstVisitor<Object> {
         elementTypeNode.accept(this);
       }
 
-      var keyType = globalScope.resolveType(keyTypeNode.getName());
-      var elementType = globalScope.resolveType(elementTypeNode.getName());
+      var keyType = scopeToResolveTypeIn.resolveType(keyTypeNode.getName());
+      var elementType = scopeToResolveTypeIn.resolveType(elementTypeNode.getName());
+      IScope globalScope = this.symbolTable.globalScope();
       MapType setType = new MapType(keyType, elementType, globalScope);
       globalScope.bind(setType);
     }
@@ -295,6 +304,11 @@ public class TypeBinder implements AstVisitor<Object> {
   }
 
   // region ASTVisitor implementation for nodes unrelated to type binding
+
+  @Override
+  public Object visit(ImportNode node) {
+    return null;
+  }
 
   @Override
   public Object visit(IdNode node) {

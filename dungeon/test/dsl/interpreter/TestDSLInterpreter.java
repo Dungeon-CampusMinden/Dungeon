@@ -3,6 +3,7 @@ package dsl.interpreter;
 import static org.junit.Assert.*;
 
 import contrib.components.CollideComponent;
+import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import core.components.DrawComponent;
@@ -15,6 +16,7 @@ import dsl.interpreter.mockecs.*;
 import dsl.parser.ast.IdNode;
 import dsl.parser.ast.Node;
 import dsl.runtime.memoryspace.EncapsulatedObject;
+import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.PrototypeValue;
 import dsl.runtime.value.Value;
@@ -27,6 +29,7 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
 import dslinterop.dslnativefunction.NativeInstantiate;
 import entrypoint.DungeonConfig;
+import entrypoint.ParsedFile;
 import graph.taskdependencygraph.TaskDependencyGraph;
 import graph.taskdependencygraph.TaskEdge;
 import graph.taskdependencygraph.TaskNode;
@@ -35,10 +38,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import task.*;
 import task.game.components.TaskContentComponent;
@@ -46,17 +49,20 @@ import task.game.content.QuestItem;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
+import task.tasktype.quizquestion.SingleChoice;
 
 public class TestDSLInterpreter {
+  private static final Path testLibPath = Path.of("dungeon/test_resources/testlib");
+
   /** Tests, if a native function call is evaluated by the DSLInterpreter */
   @Test
   public void funcCall() {
     String program =
         """
-                dungeon_config c {
-                    test: print("Hello, World!")
-                }
-                    """;
+            dungeon_config c {
+                test: print("Hello, World!")
+            }
+                """;
     DSLInterpreter interpreter = new DSLInterpreter();
 
     // print currently just prints to system.out, so we need to
@@ -72,10 +78,10 @@ public class TestDSLInterpreter {
   public void funcCallReturn() {
     String program =
         """
-                quest_config c {
-                    test: print(testReturnHelloWorld())
-                }
-                    """;
+            quest_config c {
+                test: print(testReturnHelloWorld())
+            }
+                """;
     TestEnvironment env = new TestEnvironment();
     env.loadFunctions(TestFunctionReturnHelloWorld.func);
 
@@ -83,15 +89,16 @@ public class TestDSLInterpreter {
     symbolTableParser.setup(env);
     var ast = Helpers.getASTFromString(program);
     symbolTableParser.walk(ast);
+    ParsedFile latestParsedFile = symbolTableParser.latestParsedFile;
 
     DSLInterpreter interpreter = new DSLInterpreter();
-    interpreter.initializeRuntime(env);
+    interpreter.initializeRuntime(env, latestParsedFile.filePath());
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
     var outputStream = new ByteArrayOutputStream();
     System.setOut(new PrintStream(outputStream));
-    interpreter.generateQuestConfig(ast);
+    interpreter.generateQuestConfig(ast, latestParsedFile);
 
     assertTrue(outputStream.toString().contains("Hello, World!"));
   }
@@ -100,32 +107,33 @@ public class TestDSLInterpreter {
   public void funcCallDoubleReturnUserFunc() {
     String program =
         """
-                fn ret_string2() -> string {
-                    return "Hello, World!";
-                }
+            fn ret_string2() -> string {
+                return "Hello, World!";
+            }
 
-                fn ret_string1() -> string {
-                    return ret_string2();
-                }
+            fn ret_string1() -> string {
+                return ret_string2();
+            }
 
-                quest_config c {
-                    test: print(ret_string1())
-                }
-                    """;
+            quest_config c {
+                test: print(ret_string1())
+            }
+                """;
     TestEnvironment env = new TestEnvironment();
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
     symbolTableParser.setup(env);
     var ast = Helpers.getASTFromString(program);
     symbolTableParser.walk(ast);
+    ParsedFile pf = symbolTableParser.latestParsedFile;
 
     DSLInterpreter interpreter = new DSLInterpreter();
-    interpreter.initializeRuntime(env);
+    interpreter.initializeRuntime(env, pf.filePath());
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
     var outputStream = new ByteArrayOutputStream();
     System.setOut(new PrintStream(outputStream));
-    interpreter.generateQuestConfig(ast);
+    interpreter.generateQuestConfig(ast, pf);
 
     assertTrue(outputStream.toString().contains("Hello, World!"));
   }
@@ -134,33 +142,34 @@ public class TestDSLInterpreter {
   public void funcCallDoubleReturnUserFuncDifferentValues() {
     String program =
         """
-                    fn ret_string2() -> string {
-                        return "Moin";
-                    }
+                fn ret_string2() -> string {
+                    return "Moin";
+                }
 
-                    fn ret_string1() -> string {
-                        ret_string2();
-                        return "Hello, World!";
-                    }
+                fn ret_string1() -> string {
+                    ret_string2();
+                    return "Hello, World!";
+                }
 
-                    quest_config c {
-                        test: print(ret_string1())
-                    }
-                """;
+                quest_config c {
+                    test: print(ret_string1())
+                }
+            """;
     TestEnvironment env = new TestEnvironment();
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
     symbolTableParser.setup(env);
     var ast = Helpers.getASTFromString(program);
     symbolTableParser.walk(ast);
+    ParsedFile pf = symbolTableParser.latestParsedFile;
 
     DSLInterpreter interpreter = new DSLInterpreter();
-    interpreter.initializeRuntime(env);
+    interpreter.initializeRuntime(env, pf.filePath());
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
     var outputStream = new ByteArrayOutputStream();
     System.setOut(new PrintStream(outputStream));
-    interpreter.generateQuestConfig(ast);
+    interpreter.generateQuestConfig(ast, pf);
 
     assertTrue(outputStream.toString().contains("Hello, World!"));
     assertFalse(outputStream.toString().contains("Moin"));
@@ -170,14 +179,14 @@ public class TestDSLInterpreter {
   public void funcCallReturnUserFunc() {
     String program =
         """
-                    fn ret_string() -> string {
-                        return "Hello, World!";
-                    }
+                fn ret_string() -> string {
+                    return "Hello, World!";
+                }
 
-                    quest_config c {
-                        test: print(ret_string())
-                    }
-                """;
+                quest_config c {
+                    test: print(ret_string())
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -196,18 +205,18 @@ public class TestDSLInterpreter {
   public void funcCallReturnUserFuncNestedBlock() {
     String program =
         """
-                    fn ret_string() -> string {
+                fn ret_string() -> string {
+                    {
                         {
-                            {
-                                return "Hello, World!";
-                            }
+                            return "Hello, World!";
                         }
                     }
+                }
 
-                    quest_config c {
-                        test: print(ret_string())
-                    }
-                """;
+                quest_config c {
+                    test: print(ret_string())
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -225,18 +234,18 @@ public class TestDSLInterpreter {
   public void funcCallNestedStmtBlock() {
     String program =
         """
-                    fn print_string() {
+                fn print_string() {
+                    {
                         {
-                            {
-                                print("Hello, World!");
-                            }
+                            print("Hello, World!");
                         }
                     }
+                }
 
-                    quest_config c {
-                        test: print_string()
-                    }
-                """;
+                quest_config c {
+                    test: print_string()
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -255,14 +264,14 @@ public class TestDSLInterpreter {
   public void funcCallReturnUserFuncWithoutReturnType() {
     String program =
         """
-                        fn ret_string() {
-                            return "Hello, World!";
-                        }
-
-                    quest_config c {
-                        test: print(ret_string())
+                    fn ret_string() {
+                        return "Hello, World!";
                     }
-                """;
+
+                quest_config c {
+                    test: print(ret_string())
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -282,10 +291,10 @@ public class TestDSLInterpreter {
   public void testDontSetNullValue() {
     String program =
         """
-                dungeon_config c {
-                    this_value_does_not_exist_in_type: 42
-                }
-                    """;
+            dungeon_config c {
+                this_value_does_not_exist_in_type: 42
+            }
+                """;
     DSLInterpreter interpreter = new DSLInterpreter();
     interpreter.getQuestConfig(program);
     assertNotSame(42, Value.NONE.getInternalValue());
@@ -321,25 +330,25 @@ public class TestDSLInterpreter {
   public void aggregateTypeWithDefaults() {
     String program =
         """
-                entity_type c {
-                    test_component{
-                        member1: 42,
-                        member2: "Hello, World!"
-                    },
-                    other_component{
-                        member3: 314
-                    }
+            entity_type c {
+                test_component{
+                    member1: 42,
+                    member2: "Hello, World!"
+                },
+                other_component{
+                    member3: 314
                 }
-                """;
+            }
+            """;
 
     var env = new GameEnvironment();
     var interpreter = new DSLInterpreter();
     Helpers.generateQuestConfigWithCustomTypes(
         program, env, interpreter, TestComponent.class, OtherComponent.class);
 
-    var rtEnv = interpreter.getRuntimeEnvironment();
+    IMemorySpace ms = interpreter.getEntryPointFileMemorySpace();
 
-    var typeWithDefaults = rtEnv.lookupPrototype("c");
+    var typeWithDefaults = (PrototypeValue) ms.resolve("c");
     assertNotEquals(PrototypeValue.NONE, typeWithDefaults);
 
     var firstCompWithDefaults = typeWithDefaults.getDefaultValue("test_component");
@@ -366,21 +375,21 @@ public class TestDSLInterpreter {
   public void aggregateTypeInstancing() {
     String program =
         """
-                entity_type my_obj {
-                    test_component1 {
-                        member1: 42,
-                        member2: 12.34
-                    },
-                    test_component2 {
-                        member1: "Hallo",
-                        member2: 123
-                    }
+            entity_type my_obj {
+                test_component1 {
+                    member1: 42,
+                    member2: 12.34
+                },
+                test_component2 {
+                    member1: "Hallo",
+                    member2: 123
                 }
+            }
 
-                quest_config config {
-                    entity: instantiate(my_obj)
-                }
-                """;
+            quest_config config {
+                entity: instantiate(my_obj)
+            }
+            """;
 
     var env = new TestEnvironment();
     env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
@@ -393,7 +402,7 @@ public class TestDSLInterpreter {
 
     var entity = ((CustomQuestConfig) questConfig).entity();
     var rtEnv = interpreter.getRuntimeEnvironment();
-    var globalMs = interpreter.getGlobalMemorySpace();
+    var globalMs = interpreter.getFileMemorySpace(rtEnv.entryPointFileScope());
 
     // the config should contain the my_obj definition on the entity-value, which should
     // encapsulate the actual
@@ -440,22 +449,22 @@ public class TestDSLInterpreter {
   public void objectEncapsulation() {
     String program =
         """
-                entity_type my_obj {
-                    test_component1 {
-                        member1: 42,
-                        member2: 12.34
-                    },
-                    test_component2 {
-                        member1: "Hallo",
-                        member2: 123
-                    }
+            entity_type my_obj {
+                test_component1 {
+                    member1: 42,
+                    member2: 12.34
+                },
+                test_component2 {
+                    member1: "Hallo",
+                    member2: 123
                 }
+            }
 
-                quest_config config {
-                    entity: instantiate(my_obj),
-                    second_entity: instantiate(my_obj)
-                }
-                """;
+            quest_config config {
+                entity: instantiate(my_obj),
+                second_entity: instantiate(my_obj)
+            }
+            """;
 
     var env = new TestEnvironment();
     env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
@@ -468,7 +477,7 @@ public class TestDSLInterpreter {
 
     var entity = ((CustomQuestConfig) questConfig).entity();
     var rtEnv = interpreter.getRuntimeEnvironment();
-    var globalMs = interpreter.getGlobalMemorySpace();
+    var globalMs = interpreter.getEntryPointFileMemorySpace();
 
     // the config should contain the my_obj definition on the entity-value, which should
     // encapsulate the actual
@@ -495,14 +504,14 @@ public class TestDSLInterpreter {
   public void aggregateTypeInstancingNonSupportedExternalType() {
     String program =
         """
-                entity_type my_obj {
-                    component_with_external_type_member { }
-                }
+            entity_type my_obj {
+                component_with_external_type_member { }
+            }
 
-                quest_config config {
-                    entity: instantiate(my_obj)
-                }
-                """;
+            quest_config config {
+                entity: instantiate(my_obj)
+            }
+            """;
 
     var env = new TestEnvironment();
     env.getTypeBuilder()
@@ -516,7 +525,7 @@ public class TestDSLInterpreter {
 
     Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter, Entity.class);
 
-    var globalMs = interpreter.getGlobalMemorySpace();
+    var globalMs = interpreter.getEntryPointFileMemorySpace();
 
     // check, if the component was instantiated and the
     // Point member is set to null, because the Point type is not supported
@@ -539,20 +548,20 @@ public class TestDSLInterpreter {
   public void adaptedInstancing() {
     String program =
         """
-                entity_type my_obj {
-                    test_component1 {
-                        member1: 42,
-                        member2: 12
-                    },
-                    test_component_with_external_type {
-                        member_external_type: external_type { str: "Hello, World!" }
-                    }
+            entity_type my_obj {
+                test_component1 {
+                    member1: 42,
+                    member2: 12
+                },
+                test_component_with_external_type {
+                    member_external_type: external_type { str: "Hello, World!" }
                 }
+            }
 
-                quest_config config {
-                    entity: instantiate(my_obj)
-                }
-                """;
+            quest_config config {
+                entity: instantiate(my_obj)
+            }
+            """;
 
     // setup test type system
     var env = new TestEnvironment();
@@ -567,7 +576,7 @@ public class TestDSLInterpreter {
     Helpers.generateQuestConfigWithCustomTypes(
         program, env, interpreter, Entity.class, TestComponent1.class);
 
-    var globalMs = interpreter.getGlobalMemorySpace();
+    var globalMs = interpreter.getEntryPointFileMemorySpace();
     AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
     AggregateValue myObj = (AggregateValue) config.getMemorySpace().resolve("entity");
     AggregateValue component =
@@ -587,20 +596,20 @@ public class TestDSLInterpreter {
   public void adaptedInstancingMultiParam() {
     String program =
         """
-                entity_type my_obj {
-                    test_component1 {
-                        member1: 42,
-                        member2: 12
-                    },
-                    test_component_with_external_type {
-                        member_external_type: external_type { string: "Hello, World!", number: 42 }
-                    }
+            entity_type my_obj {
+                test_component1 {
+                    member1: 42,
+                    member2: 12
+                },
+                test_component_with_external_type {
+                    member_external_type: external_type { string: "Hello, World!", number: 42 }
                 }
+            }
 
-                quest_config config {
-                    entity: instantiate(my_obj)
-                }
-                """;
+            quest_config config {
+                entity: instantiate(my_obj)
+            }
+            """;
 
     // setup test type system
     var env = new TestEnvironment();
@@ -612,15 +621,9 @@ public class TestDSLInterpreter {
         .bindProperty(env.getGlobalScope(), Entity.TestComponentWithExternalTypeProperty.instance);
     DSLInterpreter interpreter = new DSLInterpreter();
     Helpers.generateQuestConfigWithCustomTypes(
-        program,
-        env,
-        interpreter,
-        Entity.class,
-        TestComponent1.class,
-        // TestComponentWithExternalType.class,
-        ExternalType.class);
+        program, env, interpreter, Entity.class, TestComponent1.class, ExternalType.class);
 
-    var globalMs = interpreter.getGlobalMemorySpace();
+    var globalMs = interpreter.getEntryPointFileMemorySpace();
     AggregateValue config = (AggregateValue) (globalMs.resolve("config"));
     AggregateValue myObj = (AggregateValue) config.getMemorySpace().resolve("entity");
     AggregateValue component =
@@ -672,14 +675,14 @@ public class TestDSLInterpreter {
   public void testIfStmtFalse() {
     String program =
         """
-                fn test_func() {
-                    if 0 print("Hello, World!");
-                }
+            fn test_func() {
+                if 0 print("Hello, World!");
+            }
 
-                quest_config c {
-                    test: test_func()
-                }
-                    """;
+            quest_config c {
+                test: test_func()
+            }
+                """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -697,14 +700,14 @@ public class TestDSLInterpreter {
   public void testIfStmtTrue() {
     String program =
         """
-                fn test_func() {
-                    if 1 print("Hello, World!");
-                }
+            fn test_func() {
+                if 1 print("Hello, World!");
+            }
 
-                quest_config c {
-                    test: test_func()
-                }
-                    """;
+            quest_config c {
+                test: test_func()
+            }
+                """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -722,15 +725,15 @@ public class TestDSLInterpreter {
   public void testElseStmt() {
     String program =
         """
-                fn test_func() {
-                    if 0 print("Hello");
-                    else print ("World");
-                }
+            fn test_func() {
+                if 0 print("Hello");
+                else print ("World");
+            }
 
-                quest_config c {
-                    test: test_func()
-                }
-                    """;
+            quest_config c {
+                test: test_func()
+            }
+                """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -748,16 +751,16 @@ public class TestDSLInterpreter {
   public void testIfElseStmt() {
     String program =
         """
-                fn test_func() {
-                    if 0 print("Hello");
-                    else if 0 print ("World");
-                    else print("!");
-                }
+            fn test_func() {
+                if 0 print("Hello");
+                else if 0 print ("World");
+                else print("!");
+            }
 
-                quest_config c {
-                    test: test_func()
-                }
-                    """;
+            quest_config c {
+                test: test_func()
+            }
+                """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -775,16 +778,16 @@ public class TestDSLInterpreter {
   public void testIfElseStmtSecondIf() {
     String program =
         """
-                fn test_func() {
-                    if false print("Hello");
-                    else if true print ("World");
-                    else print("!");
-                }
+            fn test_func() {
+                if false print("Hello");
+                else if true print ("World");
+                else print("!");
+            }
 
-                quest_config c {
-                    test: test_func()
-                }
-                    """;
+            quest_config c {
+                test: test_func()
+            }
+                """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -803,21 +806,21 @@ public class TestDSLInterpreter {
   public void testBranchingReturn() {
     String program =
         """
-                fn test_func() {
-                    if false {
-                        print("branch1");
-                    } else {
-                        print("branch2 stmt1");
-                        print("branch2 stmt2");
-                        return;
-                        print("after return stmt");
-                    }
+            fn test_func() {
+                if false {
+                    print("branch1");
+                } else {
+                    print("branch2 stmt1");
+                    print("branch2 stmt2");
+                    return;
+                    print("after return stmt");
                 }
+            }
 
-                quest_config c {
-                    test: test_func()
-                }
-                    """;
+            quest_config c {
+                test: test_func()
+            }
+                """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -838,28 +841,28 @@ public class TestDSLInterpreter {
   public void testBranchingReturnNested() {
     String program =
         """
-                fn other_func() -> string {
-                    print("other_func stmt1");
-                    print("other_func stmt2");
-                    return "hello" ;
-                    print("other_func stmt3");
-                }
+            fn other_func() -> string {
+                print("other_func stmt1");
+                print("other_func stmt2");
+                return "hello" ;
+                print("other_func stmt3");
+            }
 
-                fn test_func() {
-                    if false {
-                        print("branch1");
-                    } else {
-                        print("branch2 stmt1");
-                        print(other_func());
-                        return;
-                        print("after return stmt");
-                    }
+            fn test_func() {
+                if false {
+                    print("branch1");
+                } else {
+                    print("branch2 stmt1");
+                    print(other_func());
+                    return;
+                    print("after return stmt");
                 }
+            }
 
-                quest_config c {
-                    test: test_func()
-                }
-                    """;
+            quest_config c {
+                test: test_func()
+            }
+                """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -886,20 +889,20 @@ public class TestDSLInterpreter {
   public void testFuncRefValue() {
     String program =
         """
-                    entity_type my_type {
-                        test_component_with_callback {
-                            on_interaction: other_func
-                        }
+                entity_type my_type {
+                    test_component_with_callback {
+                        on_interaction: other_func
                     }
+                }
 
-                    fn other_func(entity my_entity) {
-                        print("Hello, World!");
-                    }
+                fn other_func(entity my_entity) {
+                    print("Hello, World!");
+                }
 
-                    quest_config c {
-                        entity: instantiate(my_type)
-                    }
-                """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -919,20 +922,20 @@ public class TestDSLInterpreter {
   public void testFuncRefValueCall() {
     String program =
         """
-                    entity_type my_type {
-                        test_component_with_string_consumer_callback {
-                            on_interaction: other_func
-                        }
+                entity_type my_type {
+                    test_component_with_string_consumer_callback {
+                        on_interaction: other_func
                     }
+                }
 
-                    fn other_func(string text) {
-                        print(text);
-                    }
+                fn other_func(string text) {
+                    print(text);
+                }
 
-                    quest_config c {
-                        entity: instantiate(my_type)
-                    }
-                """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -964,20 +967,20 @@ public class TestDSLInterpreter {
   public void testFuncRefValueCallReturn() {
     String program =
         """
-                    entity_type my_type {
-                        test_component_with_string_function_callback {
-                            on_interaction: other_func
-                        }
+                entity_type my_type {
+                    test_component_with_string_function_callback {
+                        on_interaction: other_func
                     }
+                }
 
-                    fn other_func(string text) -> string {
-                        return text;
-                    }
+                fn other_func(string text) -> string {
+                    return text;
+                }
 
-                    quest_config c {
-                        entity: instantiate(my_type)
-                    }
-                """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1006,11 +1009,11 @@ public class TestDSLInterpreter {
   public void registerListAndSetTypesInEnvironment() {
     String program =
         """
-                    quest_config c {
-                        int_list: [1,2,3],
-                        string_list: ["Hello", "World", "!"]
-                    }
-                """;
+                quest_config c {
+                    int_list: [1,2,3],
+                    string_list: ["Hello", "World", "!"]
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1039,11 +1042,11 @@ public class TestDSLInterpreter {
   public void setListValues() {
     String program =
         """
-                    quest_config c {
-                        int_list: [1,2,3],
-                        string_list: ["Hello", "World", "!"]
-                    }
-                """;
+                quest_config c {
+                    int_list: [1,2,3],
+                    string_list: ["Hello", "World", "!"]
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1070,11 +1073,11 @@ public class TestDSLInterpreter {
   public void setSetValues() {
     String program =
         """
-                    quest_config c {
-                        float_set: <1.2,2.3,3.0,3.0>,
-                        string_set: <"Hello", "Hello", "World", "!">
-                    }
-                """;
+                quest_config c {
+                    float_set: <1.2,2.3,3.0,3.0>,
+                    string_set: <"Hello", "Hello", "World", "!">
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1104,20 +1107,20 @@ public class TestDSLInterpreter {
   public void passListValueToFunc() {
     String program =
         """
-                    fn test_func(entity[] my_entities) -> bool {
-                        return true;
-                    }
+                fn test_func(entity[] my_entities) -> bool {
+                    return true;
+                }
 
-                    entity_type my_type{
-                        test_component_list_callback{
-                            on_interaction: test_func
-                        }
+                entity_type my_type{
+                    test_component_list_callback{
+                        on_interaction: test_func
                     }
+                }
 
-                    quest_config c {
-                        entity: instantiate(my_type)
-                    }
-                """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1151,20 +1154,20 @@ public class TestDSLInterpreter {
   public void passListValueThroughFunc() {
     String program =
         """
-                    fn test_func(entity[] my_entities) -> entity[] {
-                        return my_entities;
-                    }
+                fn test_func(entity[] my_entities) -> entity[] {
+                    return my_entities;
+                }
 
-                    entity_type my_type{
-                        test_component_list_pass_through_callback{
-                            on_interaction: test_func
-                        }
+                entity_type my_type{
+                    test_component_list_pass_through_callback{
+                        on_interaction: test_func
                     }
+                }
 
-                    quest_config c {
-                        entity: instantiate(my_type)
-                    }
-                """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1201,20 +1204,20 @@ public class TestDSLInterpreter {
   public void passSetValueThroughFunc() {
     String program =
         """
-                    fn test_func(entity<> my_entities) -> entity<> {
-                        return my_entities;
-                    }
+                fn test_func(entity<> my_entities) -> entity<> {
+                    return my_entities;
+                }
 
-                    entity_type my_type{
-                        test_component_set_pass_through_callback{
-                            on_interaction: test_func
-                        }
+                entity_type my_type{
+                    test_component_set_pass_through_callback{
+                        on_interaction: test_func
                     }
+                }
 
-                    quest_config c {
-                        entity: instantiate(my_type)
-                    }
-                """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1249,26 +1252,26 @@ public class TestDSLInterpreter {
   public void taskDefinition() {
     String program =
         """
-                    single_choice_task t1 {
-                        description: "Hello",
-                        answers: ["1", "2", "3"],
-                        correct_answer_index: 1
-                    }
+                single_choice_task t1 {
+                    description: "Hello",
+                    answers: ["1", "2", "3"],
+                    correct_answer_index: 1
+                }
 
-                    multiple_choice_task t2 {
-                        description: "Tschüss",
-                        answers: ["4", "5", "6"],
-                        correct_answer_indices: [0,1]
-                    }
+                multiple_choice_task t2 {
+                    description: "Tschüss",
+                    answers: ["4", "5", "6"],
+                    correct_answer_indices: [0,1]
+                }
 
-                    graph g {
-                        t1 -> t2 [type=st_m]
-                    }
+                graph g {
+                    t1 -> t2 [type=st_m]
+                }
 
-                    dungeon_config c {
-                        dependency_graph: g
-                    }
-                """;
+                dungeon_config c {
+                    dependency_graph: g
+                }
+            """;
 
     DSLInterpreter interpreter = new DSLInterpreter();
     var config = (DungeonConfig) interpreter.getQuestConfig(program);
@@ -1299,23 +1302,23 @@ public class TestDSLInterpreter {
   public void testMemberAccess() {
     String program =
         """
-                    fn test_func(test_component2 component) {
-                        print(component.member1);
-                    }
+                fn test_func(test_component2 component) {
+                    print(component.member1);
+                }
 
-                    entity_type my_type{
-                        test_component_string_member_and_callback{
-                            consumer: test_func
-                        },
-                        test_component2 {
-                            member1: "Hello, World!"
-                        }
+                entity_type my_type{
+                    test_component_string_member_and_callback{
+                        consumer: test_func
+                    },
+                    test_component2 {
+                        member1: "Hello, World!"
                     }
+                }
 
-                    quest_config c {
-                        entity: instantiate(my_type)
-                    }
-                """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1347,28 +1350,28 @@ public class TestDSLInterpreter {
   public void testMemberAccessFuncCall() {
     String program =
         """
-                    fn return_component(test_component2 component) -> test_component2 {
-                        return component;
-                    }
+                fn return_component(test_component2 component) -> test_component2 {
+                    return component;
+                }
 
-                    fn use_function(test_component2 component) {
-                        // setting of the component parameter does not work!
-                        print(return_component(component).member1);
-                    }
+                fn use_function(test_component2 component) {
+                    // setting of the component parameter does not work!
+                    print(return_component(component).member1);
+                }
 
-                    entity_type my_type{
-                        test_component_string_member_and_callback{
-                            consumer: use_function
-                        },
-                        test_component2 {
-                            member1: "Hello, World!"
-                        }
+                entity_type my_type{
+                    test_component_string_member_and_callback{
+                        consumer: use_function
+                    },
+                    test_component2 {
+                        member1: "Hello, World!"
                     }
+                }
 
-                    quest_config c {
-                        entity: instantiate(my_type)
-                    }
-                """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1400,24 +1403,24 @@ public class TestDSLInterpreter {
   public void testProperty() {
     String program =
         """
-                entity_type my_type {
-                    test_component2 {
-                        member2: 42,
-                        this_is_a_float: 3.14
-                    },
-                    test_component_with_callback {
-                        consumer: get_property
-                    }
+            entity_type my_type {
+                test_component2 {
+                    member2: 42,
+                    this_is_a_float: 3.14
+                },
+                test_component_with_callback {
+                    consumer: get_property
                 }
+            }
 
-                fn get_property(test_component2 comp) {
-                    print(comp.this_is_a_float);
-                }
+            fn get_property(test_component2 comp) {
+                print(comp.this_is_a_float);
+            }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-                """;
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1452,25 +1455,25 @@ public class TestDSLInterpreter {
   public void testPropertyOfComplexType() {
     String program =
         """
-                entity_type my_type {
-                    test_component2 {
-                        member2: 42,
-                        this_is_complex: complex_type { member1: 42 }
-                    },
-                    test_component_with_callback {
-                        consumer: get_property
-                    }
+            entity_type my_type {
+                test_component2 {
+                    member2: 42,
+                    this_is_complex: complex_type { member1: 42 }
+                },
+                test_component_with_callback {
+                    consumer: get_property
                 }
+            }
 
-                fn get_property(test_component2 comp) {
-                    print(comp.this_is_complex.member1);
-                    print(comp.this_is_complex.member3);
-                }
+            fn get_property(test_component2 comp) {
+                print(comp.this_is_complex.member1);
+                print(comp.this_is_complex.member3);
+            }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-                """;
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1506,24 +1509,24 @@ public class TestDSLInterpreter {
   public void testComponentPropertyOfEntity() {
     String program =
         """
-                entity_type my_type {
-                    test_component2 {
-                        member2: 42
-                    },
-                    test_component_with_callback {
-                        consumer: get_property
-                    }
+            entity_type my_type {
+                test_component2 {
+                    member2: 42
+                },
+                test_component_with_callback {
+                    consumer: get_property
                 }
+            }
 
-                fn get_property(entity ent) {
-                    print(ent.test_component1.member1);
-                    print(ent.test_component2.member2);
-                }
+            fn get_property(entity ent) {
+                print(ent.test_component1.member1);
+                print(ent.test_component2.member2);
+            }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-                """;
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1556,23 +1559,23 @@ public class TestDSLInterpreter {
   public void testComponentPropertyOfEntityUpdateValue() {
     String program =
         """
-                entity_type my_type {
-                    test_component2 {
-                        member2: 42
-                    },
-                    test_component_with_callback {
-                        consumer: get_property
-                    }
+            entity_type my_type {
+                test_component2 {
+                    member2: 42
+                },
+                test_component_with_callback {
+                    consumer: get_property
                 }
+            }
 
-                fn get_property(entity ent) {
-                    print(ent.test_component2.member2);
-                }
+            fn get_property(entity ent) {
+                print(ent.test_component2.member2);
+            }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-                """;
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1624,26 +1627,26 @@ public class TestDSLInterpreter {
   public void testAssignmentProperty() {
     String program =
         """
-                    entity_type my_type {
-                        test_component2 {
-                            member1: "ja",
-                            member3: "nein"
-                        },
-                        test_component_with_callback {
-                            consumer: get_property
-                        }
+                entity_type my_type {
+                    test_component2 {
+                        member1: "ja",
+                        member3: "nein"
+                    },
+                    test_component_with_callback {
+                        consumer: get_property
                     }
+                }
 
-                    fn get_property(entity ent) {
-                        ent.test_component2.member3 = ent.test_component2.member1 = "kuckuck";
-                        print(ent.test_component2.member1);
-                        print(ent.test_component2.member3);
-                    }
+                fn get_property(entity ent) {
+                    ent.test_component2.member3 = ent.test_component2.member1 = "kuckuck";
+                    print(ent.test_component2.member1);
+                    print(ent.test_component2.member3);
+                }
 
-                    quest_config c {
-                        entity: instantiate(my_type)
-                    }
-                """;
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1683,27 +1686,27 @@ public class TestDSLInterpreter {
   public void testAssignmentObjectMember() {
     String program =
         """
-                entity_type my_type {
-                    test_component2 {
-                        member1: "ja",
-                        member3: "nein"
-                    },
-                    test_component_with_callback {
-                        consumer: set_property
-                    }
+            entity_type my_type {
+                test_component2 {
+                    member1: "ja",
+                    member3: "nein"
+                },
+                test_component_with_callback {
+                    consumer: set_property
                 }
+            }
 
-                fn set_property(entity ent) {
-                    c.second_entity = ent;
-                    print(c.second_entity.test_component2.member1);
-                    ent.test_component2.member1 = "nein";
-                    print(c.second_entity.test_component2.member1);
-                }
+            fn set_property(entity ent) {
+                c.second_entity = ent;
+                print(c.second_entity.test_component2.member1);
+                ent.test_component2.member1 = "nein";
+                print(c.second_entity.test_component2.member1);
+            }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-                """;
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1744,22 +1747,22 @@ public class TestDSLInterpreter {
   public void testAssignmentFuncParam() {
     String program =
         """
-                entity_type my_type {
-                    test_component_with_string_consumer_callback {
-                        on_interaction: set_param
-                    }
+            entity_type my_type {
+                test_component_with_string_consumer_callback {
+                    on_interaction: set_param
                 }
+            }
 
-                fn set_param(string text) {
-                    print(text);
-                    text = "my text";
-                    print(text);
-                }
+            fn set_param(string text) {
+                print(text);
+                text = "my text";
+                print(text);
+            }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-                """;
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1796,59 +1799,6 @@ public class TestDSLInterpreter {
   public void testVariableCreation() {
     String program =
         """
-                entity_type my_type {
-                    test_component_with_string_consumer_callback {
-                        on_interaction: get_property
-                    }
-                }
-
-                fn get_property(string param) {
-                    var test : string;
-                    print(test);
-                }
-
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-                """;
-
-    // print currently just prints to system.out, so we need to
-    // check the contents for the printed string
-    var outputStream = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(outputStream));
-
-    TestEnvironment env = new TestEnvironment();
-    DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(
-            env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
-
-    var config =
-        (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
-
-    var entity = config.entity();
-
-    TestComponentWithStringConsumerCallback componentWithConsumer =
-        (TestComponentWithStringConsumerCallback)
-            entity.components.stream()
-                .filter(c -> c instanceof TestComponentWithStringConsumerCallback)
-                .toList()
-                .get(0);
-
-    componentWithConsumer.executeCallbackWithText("hello");
-
-    // the output stream should only contain the default value for a string variable ("") and
-    // the
-    // line separator from the print-call
-    String output = outputStream.toString();
-    assertEquals(output, System.lineSeparator());
-  }
-
-  @Test
-  public void testVariableCreationAndAssignment() {
-    String program =
-        """
             entity_type my_type {
                 test_component_with_string_consumer_callback {
                     on_interaction: get_property
@@ -1857,7 +1807,6 @@ public class TestDSLInterpreter {
 
             fn get_property(string param) {
                 var test : string;
-                test = "Hello, World!";
                 print(test);
             }
 
@@ -1896,6 +1845,60 @@ public class TestDSLInterpreter {
     // the
     // line separator from the print-call
     String output = outputStream.toString();
+    assertEquals(output, System.lineSeparator());
+  }
+
+  @Test
+  public void testVariableCreationAndAssignment() {
+    String program =
+        """
+        entity_type my_type {
+            test_component_with_string_consumer_callback {
+                on_interaction: get_property
+            }
+        }
+
+        fn get_property(string param) {
+            var test : string;
+            test = "Hello, World!";
+            print(test);
+        }
+
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    TestEnvironment env = new TestEnvironment();
+    DSLInterpreter interpreter = new DSLInterpreter();
+    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.getTypeBuilder()
+        .createDSLTypeForJavaTypeInScope(
+            env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
+
+    var config =
+        (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+    var entity = config.entity();
+
+    TestComponentWithStringConsumerCallback componentWithConsumer =
+        (TestComponentWithStringConsumerCallback)
+            entity.components.stream()
+                .filter(c -> c instanceof TestComponentWithStringConsumerCallback)
+                .toList()
+                .get(0);
+
+    componentWithConsumer.executeCallbackWithText("hello");
+
+    // the output stream should only contain the default value for a string variable ("") and
+    // the
+    // line separator from the print-call
+    String output = outputStream.toString();
     assertEquals(output, "Hello, World!" + System.lineSeparator());
   }
 
@@ -1903,25 +1906,25 @@ public class TestDSLInterpreter {
   public void testVariableCreationAndAssignmentEntity() {
     String program =
         """
-            entity_type my_type {
-                test_component2 {
-                    member1: "Hello, World!"
-                },
-                test_component_with_callback {
-                    consumer: func
-                }
+        entity_type my_type {
+            test_component2 {
+                member1: "Hello, World!"
+            },
+            test_component_with_callback {
+                consumer: func
             }
+        }
 
-            fn func(entity ent) {
-                var test : entity;
-                test = ent;
-                print(test.test_component2.member1);
-            }
+        fn func(entity ent) {
+            var test : entity;
+            test = ent;
+            print(test.test_component2.member1);
+        }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-            """;
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -1963,26 +1966,26 @@ public class TestDSLInterpreter {
   public void testVariableCreationList() {
     String program =
         """
-        entity_type my_type {
-            test_component2 {
-                member1: "Hello, World!"
-            },
-            test_component_with_callback {
-                consumer: func
-            }
+    entity_type my_type {
+        test_component2 {
+            member1: "Hello, World!"
+        },
+        test_component_with_callback {
+            consumer: func
         }
+    }
 
-        fn func(entity ent) {
-            var test : entity[];
-            if test {
-                print("Hello, World!");
-            }
+    fn func(entity ent) {
+        var test : entity[];
+        if test {
+            print("Hello, World!");
         }
+    }
 
-        quest_config c {
-            entity: instantiate(my_type)
-        }
-        """;
+    quest_config c {
+        entity: instantiate(my_type)
+    }
+    """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -2024,25 +2027,25 @@ public class TestDSLInterpreter {
   public void testVariableCreationIfStmtBlock() {
     String program =
         """
-        entity_type my_type {
-            test_component_with_callback {
-                consumer: func
-            }
+    entity_type my_type {
+        test_component_with_callback {
+            consumer: func
         }
+    }
 
-        fn func(entity ent) {
-            var test : string;
-            if true {
-                var test : int;
-                test = 42;
-            }
-            print(test);
+    fn func(entity ent) {
+        var test : string;
+        if true {
+            var test : int;
+            test = 42;
         }
+        print(test);
+    }
 
-        quest_config c {
-            entity: instantiate(my_type)
-        }
-        """;
+    quest_config c {
+        entity: instantiate(my_type)
+    }
+    """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -2081,23 +2084,23 @@ public class TestDSLInterpreter {
   public void testVariableCreationIfStmtSingleStmt() {
     String program =
         """
-            entity_type my_type {
-                test_component_with_callback {
-                    consumer: func
-                }
+        entity_type my_type {
+            test_component_with_callback {
+                consumer: func
             }
+        }
 
-            fn func(entity ent) {
-                var test : string;
-                if true
-                    var test : int;
-                print(test);
-            }
+        fn func(entity ent) {
+            var test : string;
+            if true
+                var test : int;
+            print(test);
+        }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-            """;
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -2137,32 +2140,32 @@ public class TestDSLInterpreter {
   public void testVariableCreationIfElseStmtSingleStmt() {
     String program =
         """
-            entity_type my_type {
-                test_component_with_callback {
-                    consumer: func
-                }
+        entity_type my_type {
+            test_component_with_callback {
+                consumer: func
             }
+        }
 
-            fn func(entity ent) {
-                var test : string;
+        fn func(entity ent) {
+            var test : string;
 
-                if true
-                    var test : int;
-                else
-                    var test : int;
-                print(test);
+            if true
+                var test : int;
+            else
+                var test : int;
+            print(test);
 
-                if false
-                    var test : int;
-                else
-                    var test : int;
-                print(test);
-            }
+            if false
+                var test : int;
+            else
+                var test : int;
+            print(test);
+        }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-            """;
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -2202,27 +2205,27 @@ public class TestDSLInterpreter {
   public void testNativeMethodCallList() {
     String program =
         """
-        entity_type my_type {
-            test_component_with_callback {
-                consumer: func
-            }
+    entity_type my_type {
+        test_component_with_callback {
+            consumer: func
         }
+    }
 
-        fn func(entity ent) {
-            var test : string[];
-            {
-                test.add("hello");
-                test.add("world");
-            }
-            print(test);
-            print(test.size());
-            print(test.get(1));
+    fn func(entity ent) {
+        var test : string[];
+        {
+            test.add("hello");
+            test.add("world");
         }
+        print(test);
+        print(test.size());
+        print(test.get(1));
+    }
 
-        quest_config c {
-            entity: instantiate(my_type)
-        }
-        """;
+    quest_config c {
+        entity: instantiate(my_type)
+    }
+    """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -2269,27 +2272,27 @@ public class TestDSLInterpreter {
   public void testNativeMethodCallSet() {
     String program =
         """
-    entity_type my_type {
-        test_component_with_callback {
-            consumer: func
-        }
+entity_type my_type {
+    test_component_with_callback {
+        consumer: func
     }
+}
 
-    fn func(entity ent) {
-        var test : string<>;
-        {
-            test.add("hello");
-            test.add("world");
-        }
-        print(test.size());
-        print(test.contains("hello"));
-        print(test.contains("!"));
+fn func(entity ent) {
+    var test : string<>;
+    {
+        test.add("hello");
+        test.add("world");
     }
+    print(test.size());
+    print(test.contains("hello"));
+    print(test.contains("!"));
+}
 
-    quest_config c {
-        entity: instantiate(my_type)
-    }
-    """;
+quest_config c {
+    entity: instantiate(my_type)
+}
+""";
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -2332,70 +2335,6 @@ public class TestDSLInterpreter {
   public void testExtensionMethodCall() {
     String program =
         """
-        entity_type my_type {
-            test_component1 {
-                member1: 42,
-                member2: 3.14,
-                member3: "Hello, World!"
-            },
-            test_component2 {},
-            test_component_with_callback {
-                consumer: func
-            }
-        }
-
-        fn func(entity ent) {
-            // in test_component2.my_method, `member2` of the instance will be set to the first parameter
-            ent.test_component2.my_method(ent.test_component1.member1, 42);
-            print(ent.test_component2.member2);
-        }
-
-        quest_config c {
-            entity: instantiate(my_type)
-        }
-        """;
-
-    // print currently just prints to system.out, so we need to
-    // check the contents for the printed string
-    var outputStream = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(outputStream));
-
-    TestEnvironment env = new TestEnvironment();
-    DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(
-            env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
-    env.getTypeBuilder().bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
-
-    var config =
-        (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
-
-    var entity = config.entity();
-
-    TestComponentEntityConsumerCallback componentWithConsumer =
-        (TestComponentEntityConsumerCallback)
-            entity.components.stream()
-                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
-                .toList()
-                .get(0);
-
-    componentWithConsumer.consumer.accept(entity);
-
-    String output = outputStream.toString();
-    assertEquals("42" + System.lineSeparator(), output);
-  }
-
-  @Test
-  public void testChainedExtensionMethodCall() {
-    String program =
-        """
     entity_type my_type {
         test_component1 {
             member1: 42,
@@ -2410,7 +2349,7 @@ public class TestDSLInterpreter {
 
     fn func(entity ent) {
         // in test_component2.my_method, `member2` of the instance will be set to the first parameter
-        ent.test_component2.my_method(ent.test_component1.member1, 42).my_method(42, 42);
+        ent.test_component2.my_method(ent.test_component1.member1, 42);
         print(ent.test_component2.member2);
     }
 
@@ -2457,42 +2396,71 @@ public class TestDSLInterpreter {
   }
 
   @Test
-  public void testInstantiateEntityDrawComponent() {
+  public void testChainedExtensionMethodCall() {
     String program =
         """
-            entity_type wizard_type {
-                draw_component {
-                    path: "character/wizard"
-                },
-                hitbox_component {},
-                position_component{}
-            }
+entity_type my_type {
+    test_component1 {
+        member1: 42,
+        member2: 3.14,
+        member3: "Hello, World!"
+    },
+    test_component2 {},
+    test_component_with_callback {
+        consumer: func
+    }
+}
 
-            dungeon_config c { }
-            """;
+fn func(entity ent) {
+    // in test_component2.my_method, `member2` of the instance will be set to the first parameter
+    ent.test_component2.my_method(ent.test_component1.member1, 42).my_method(42, 42);
+    print(ent.test_component2.member2);
+}
 
+quest_config c {
+    entity: instantiate(my_type)
+}
+""";
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    var config = (DungeonConfig) interpreter.getQuestConfig(program);
+    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.getTypeBuilder()
+        .createDSLTypeForJavaTypeInScope(
+            env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
+    env.getTypeBuilder()
+        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
+    env.getTypeBuilder()
+        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+    env.getTypeBuilder().bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
 
-    // call the native `instantiate` function manually
-    // resolve function in rtEnv
-    var runtimeEnvironment = interpreter.getRuntimeEnvironment();
-    NativeInstantiate instantiateFunc =
-        (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
-    // create new IdNode for "wizard_type` to pass to native instantiate
-    IdNode node = new IdNode("wizard_type", null);
-    // call the function
-    var value = (AggregateValue) instantiateFunc.call(interpreter, List.of(node));
-    // extract the entity from the Value-instance
-    core.Entity entity = (core.Entity) value.getInternalValue();
+    var config =
+        (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
 
-    Assert.assertTrue(entity.isPresent(DrawComponent.class));
-    Assert.assertTrue(entity.isPresent(CollideComponent.class));
-    Assert.assertTrue(entity.isPresent(PositionComponent.class));
+    var entity = config.entity();
+
+    TestComponentEntityConsumerCallback componentWithConsumer =
+        (TestComponentEntityConsumerCallback)
+            entity.components.stream()
+                .filter(c -> c instanceof TestComponentEntityConsumerCallback)
+                .toList()
+                .get(0);
+
+    componentWithConsumer.consumer.accept(entity);
+
+    String output = outputStream.toString();
+    assertEquals("42" + System.lineSeparator(), output);
   }
 
   @Test
-  public void testInstantiateEntityDrawComponentAccessPath() {
+  public void testInstantiateEntityDrawComponent() {
     String program =
         """
         entity_type wizard_type {
@@ -2501,10 +2469,6 @@ public class TestDSLInterpreter {
             },
             hitbox_component {},
             position_component{}
-        }
-
-        fn test_func(entity ent) {
-            print(ent.draw_component.path);
         }
 
         dungeon_config c { }
@@ -2520,6 +2484,54 @@ public class TestDSLInterpreter {
         (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
     // create new IdNode for "wizard_type` to pass to native instantiate
     IdNode node = new IdNode("wizard_type", null);
+
+    // push file related memoryspace as context
+    interpreter.setContextFileByPath(null);
+
+    // call the function
+    var value = (AggregateValue) interpreter.callCallable(instantiateFunc, List.of(node));
+
+    // extract the entity from the Value-instance
+    core.Entity entity = (core.Entity) value.getInternalValue();
+
+    Assert.assertTrue(entity.isPresent(DrawComponent.class));
+    Assert.assertTrue(entity.isPresent(CollideComponent.class));
+    Assert.assertTrue(entity.isPresent(PositionComponent.class));
+  }
+
+  @Test
+  public void testInstantiateEntityDrawComponentAccessPath() {
+    String program =
+        """
+    entity_type wizard_type {
+        draw_component {
+            path: "character/wizard"
+        },
+        hitbox_component {},
+        position_component{}
+    }
+
+    fn test_func(entity ent) {
+        print(ent.draw_component.path);
+    }
+
+    dungeon_config c { }
+    """;
+
+    DSLInterpreter interpreter = new DSLInterpreter();
+    var config = (DungeonConfig) interpreter.getQuestConfig(program);
+
+    // call the native `instantiate` function manually
+    // resolve function in rtEnv
+    var runtimeEnvironment = interpreter.getRuntimeEnvironment();
+    NativeInstantiate instantiateFunc =
+        (NativeInstantiate) runtimeEnvironment.getGlobalScope().resolve("instantiate");
+    // create new IdNode for "wizard_type` to pass to native instantiate
+    IdNode node = new IdNode("wizard_type", null);
+
+    // set file context
+    interpreter.setContextFileByPath(null);
+
     // call the function
     var value = (AggregateValue) instantiateFunc.call(interpreter, List.of(node));
     // extract the entity from the Value-instance
@@ -2530,8 +2542,9 @@ public class TestDSLInterpreter {
     var outputStream = new ByteArrayOutputStream();
     System.setOut(new PrintStream(outputStream));
 
-    FunctionSymbol fnSym =
-        (FunctionSymbol) runtimeEnvironment.getGlobalScope().resolve("test_func");
+    var fileScope = runtimeEnvironment.getFileScope(null);
+
+    FunctionSymbol fnSym = (FunctionSymbol) fileScope.resolve("test_func");
     interpreter.executeUserDefinedFunctionRawParameters(
         fnSym, Arrays.stream(new Object[] {entity}).toList());
 
@@ -2548,27 +2561,27 @@ public class TestDSLInterpreter {
   public void testTaskDependencyGraphNonConnected() {
     String program =
         """
-            single_choice_task t1 {
-                description: "Task1",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            single_choice_task t2 {
-                description: "Task2",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t2 {
+            description: "Task2",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            graph tdg {
-                t1;
-                t2;
-            }
+        graph tdg {
+            t1;
+            t2;
+        }
 
-            dungeon_config c {
-                dependency_graph: tdg
-            }
-            """;
+        dungeon_config c {
+            dependency_graph: tdg
+        }
+        """;
 
     DSLInterpreter interpreter = new DSLInterpreter();
     DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
@@ -2595,54 +2608,54 @@ public class TestDSLInterpreter {
   public void testTaskDependencyGraph() {
     String program =
         """
-            single_choice_task t1 {
-                description: "Task1",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            single_choice_task t2 {
-                description: "Task2",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t2 {
+            description: "Task2",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            single_choice_task t3 {
-                description: "Task3",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t3 {
+            description: "Task3",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            single_choice_task t4 {
-                description: "Task4",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t4 {
+            description: "Task4",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            single_choice_task t5 {
-                description: "Task5",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t5 {
+            description: "Task5",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            single_choice_task t6 {
-                description: "Task6",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t6 {
+            description: "Task6",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            graph tdg {
-                t1 -> t2 [type=st_m]
-                t1 -> t3 [type=st_o]
-                t1 -> t4 [type=seq]
-                t1 -> t5 [type=c_f]
-                t1 -> t6 [type=c_c]
-            }
+        graph tdg {
+            t1 -> t2 [type=st_m]
+            t1 -> t3 [type=st_o]
+            t1 -> t4 [type=seq]
+            t1 -> t5 [type=c_f]
+            t1 -> t6 [type=c_c]
+        }
 
-            dungeon_config c {
-                dependency_graph: tdg
-            }
-            """;
+        dungeon_config c {
+            dependency_graph: tdg
+        }
+        """;
 
     DSLInterpreter interpreter = new DSLInterpreter();
     DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
@@ -2708,50 +2721,50 @@ public class TestDSLInterpreter {
   public void testTaskDependencyGraphGroupNotation() {
     String program =
         """
-            single_choice_task t1 {
-                description: "Task1",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            single_choice_task t2 {
-                description: "Task2",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t2 {
+            description: "Task2",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            single_choice_task t3 {
-                description: "Task3",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t3 {
+            description: "Task3",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            single_choice_task t4 {
-                description: "Task4",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t4 {
+            description: "Task4",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            single_choice_task t5 {
-                description: "Task5",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t5 {
+            description: "Task5",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            single_choice_task t6 {
-                description: "Task6",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2
-            }
+        single_choice_task t6 {
+            description: "Task6",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2
+        }
 
-            graph tdg {
-                t1,t2 -> t3,t4 -> t5,t6 [type=seq_or]
-            }
+        graph tdg {
+            t1,t2 -> t3,t4 -> t5,t6 [type=seq_or]
+        }
 
-            dungeon_config c {
-                dependency_graph: tdg
-            }
-            """;
+        dungeon_config c {
+            dependency_graph: tdg
+        }
+        """;
 
     DSLInterpreter interpreter = new DSLInterpreter();
     DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
@@ -2821,61 +2834,61 @@ public class TestDSLInterpreter {
   public void testScenarioBuilderIntegration() {
     String program =
         """
-        single_choice_task t1 {
-            description: "Task1",
-            answers: ["1", "2", "3"],
-            correct_answer_index: 2,
-            scenario_builder: build_scenario1
-        }
+    single_choice_task t1 {
+        description: "Task1",
+        answers: ["1", "2", "3"],
+        correct_answer_index: 2,
+        scenario_builder: build_scenario1
+    }
 
-        graph g {
-            t1
-        }
+    graph g {
+        t1
+    }
 
-        dungeon_config c {
-            dependency_graph: g
-        }
+    dungeon_config c {
+        dependency_graph: g
+    }
 
-        entity_type wizard_type {
-            draw_component {
-                path: "character/wizard"
-            },
-            hitbox_component {},
-            position_component{},
-            task_component{}
-        }
+    entity_type wizard_type {
+        draw_component {
+            path: "character/wizard"
+        },
+        hitbox_component {},
+        position_component{},
+        task_component{}
+    }
 
-        entity_type knight_type {
-            draw_component {
-                path: "character/blue_knight"
-            },
-            hitbox_component {},
-            position_component{}
-        }
+    entity_type knight_type {
+        draw_component {
+            path: "character/blue_knight"
+        },
+        hitbox_component {},
+        position_component{}
+    }
 
-        fn build_scenario1(single_choice_task t) -> entity<><> {
-            var ret_set : entity<><>;
+    fn build_scenario1(single_choice_task t) -> entity<><> {
+        var ret_set : entity<><>;
 
-            var first_room_set : entity<>;
-            var second_room_set : entity<>;
+        var first_room_set : entity<>;
+        var second_room_set : entity<>;
 
-            var wizard : entity;
-            var knight : entity;
+        var wizard : entity;
+        var knight : entity;
 
-            wizard = instantiate(wizard_type);
-            wizard.task_component.task = t;
+        wizard = instantiate(wizard_type);
+        wizard.task_component.task = t;
 
-            knight = instantiate(knight_type);
+        knight = instantiate(knight_type);
 
-            first_room_set.add(wizard);
-            second_room_set.add(knight);
+        first_room_set.add(wizard);
+        second_room_set.add(knight);
 
-            ret_set.add(first_room_set);
-            ret_set.add(second_room_set);
+        ret_set.add(first_room_set);
+        ret_set.add(second_room_set);
 
-            return ret_set;
-        }
-        """;
+        return ret_set;
+    }
+    """;
 
     DSLInterpreter interpreter = new DSLInterpreter();
     DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
@@ -2909,58 +2922,23 @@ public class TestDSLInterpreter {
   }
 
   @Test
-  // native scenario builders will make this test case obsolete
-  @Ignore
-  public void testScenarioBuilderTypeCreation() {
-    String program =
-        """
-        single_choice_task t1 {
-            description: "Task1",
-            answers: ["1", "2", "3"],
-            correct_answer_index: 2
-        }
-
-        graph g {
-            t1
-        }
-
-        dungeon_config c {
-            dependency_graph: g
-        }
-
-        """;
-
-    DSLInterpreter interpreter = new DSLInterpreter();
-    DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
-
-    var task = config.dependencyGraph().nodeIterator().next().task();
-
-    // because the program does not declare any functions returning the `entity<><>` type
-    // (e.g. no scenario builder function), the type for `entity<><>` won't be created before
-    // scanning for scenario builders. It should be created on demand by the DSLInterpreter.
-    // if this fails, this call will throw a RuntimeException, if not, it returns an
-    Optional<Object> builtTask = interpreter.buildTask(task);
-    Assert.assertTrue(builtTask.isEmpty());
-  }
-
-  @Test
   public void testEnumVariantInstantiation() {
     String program =
         """
-                entity_type my_type {
-                    test_component_with_function_callback {
-                        get_enum: func
-                    }
+            entity_type my_type {
+                test_component_with_function_callback {
+                    get_enum: func
                 }
+            }
 
-                fn func(entity ent) -> my_enum {
-                    return my_enum.A;
-                }
+            fn func(entity ent) -> my_enum {
+                return my_enum.A;
+            }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-                """;
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -2995,24 +2973,24 @@ public class TestDSLInterpreter {
   public void testEnumCallbackParameter() {
     String program =
         """
-                entity_type my_type {
-                    test_component_with_function_callback {
-                        function_with_enum_param: func
-                    }
+            entity_type my_type {
+                test_component_with_function_callback {
+                    function_with_enum_param: func
                 }
+            }
 
-                fn func(my_enum value) -> bool {
-                    if value {
-                        return true;
-                    } else {
-                        return false;
-                    }
+            fn func(my_enum value) -> bool {
+                if value {
+                    return true;
+                } else {
+                    return false;
                 }
+            }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-                """;
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -3048,47 +3026,47 @@ public class TestDSLInterpreter {
   public void testCollisionCallback() {
     String program =
         """
-                single_choice_task t {
-                    description: "hello",
-                    answers: [1,2,3],
-                    correct_answer_index: 1,
-                    scenario_builder: build_scenario
+            single_choice_task t {
+                description: "hello",
+                answers: [1,2,3],
+                correct_answer_index: 1,
+                scenario_builder: build_scenario
+            }
+
+            graph g {
+                t;
+            }
+
+            dungeon_config c {
+                dependency_graph: g
+            }
+
+            entity_type my_type {
+                hitbox_component {
+                    collide_enter: callback
                 }
+            }
 
-                graph g {
-                    t;
-                }
-
-                dungeon_config c {
-                    dependency_graph: g
-                }
-
-                entity_type my_type {
-                    hitbox_component {
-                        collide_enter: callback
-                    }
-                }
-
-                fn callback(entity ent1, entity ent2, tile_direction dir) {
-                    print(dir);
-                }
+            fn callback(entity ent1, entity ent2, tile_direction dir) {
+                print(dir);
+            }
 
 
-                fn build_scenario(single_choice_task t) -> entity<><> {
-                    var main_set : entity<><>;
-                    var room_set : entity<>;
+            fn build_scenario(single_choice_task t) -> entity<><> {
+                var main_set : entity<><>;
+                var room_set : entity<>;
 
-                    var wizard1 : entity;
-                    var wizard2 : entity;
-                    wizard1 = instantiate(my_type);
-                    wizard2 = instantiate(my_type);
+                var wizard1 : entity;
+                var wizard2 : entity;
+                wizard1 = instantiate(my_type);
+                wizard2 = instantiate(my_type);
 
-                    room_set.add(wizard1);
-                    room_set.add(wizard2);
-                    main_set.add(room_set);
-                    return main_set;
-                }
-                """;
+                room_set.add(wizard1);
+                room_set.add(wizard2);
+                main_set.add(room_set);
+                return main_set;
+            }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -3118,27 +3096,27 @@ public class TestDSLInterpreter {
   public void testForLoop() {
     String program =
         """
-            entity_type my_type {
-                test_component1 {},
-                test_component_with_callback {
-                    consumer: func
-                }
+        entity_type my_type {
+            test_component1 {},
+            test_component_with_callback {
+                consumer: func
             }
+        }
 
-            fn func(entity ent) {
-                var my_list : int[];
-                my_list.add(1);
-                my_list.add(2);
-                my_list.add(3);
-                for int entry in my_list {
-                    print(entry);
-                }
+        fn func(entity ent) {
+            var my_list : int[];
+            my_list.add(1);
+            my_list.add(2);
+            my_list.add(3);
+            for int entry in my_list {
+                print(entry);
             }
+        }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-            """;
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -3178,30 +3156,30 @@ public class TestDSLInterpreter {
   public void testForLoopIterableExpression() {
     String program =
         """
-            entity_type my_type {
-                test_component_with_callback {
-                    consumer: func
-                }
+        entity_type my_type {
+            test_component_with_callback {
+                consumer: func
             }
+        }
 
-            fn func(entity ent) {
-                var my_list_of_lists : int[][];
+        fn func(entity ent) {
+            var my_list_of_lists : int[][];
 
-                var my_list : int[];
-                my_list.add(1);
-                my_list.add(2);
-                my_list.add(3);
+            var my_list : int[];
+            my_list.add(1);
+            my_list.add(2);
+            my_list.add(3);
 
-                my_list_of_lists.add(my_list);
-                for int entry in my_list_of_lists.get(0) {
-                    print(entry);
-                }
+            my_list_of_lists.add(my_list);
+            for int entry in my_list_of_lists.get(0) {
+                print(entry);
             }
+        }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-            """;
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -3239,28 +3217,28 @@ public class TestDSLInterpreter {
   public void testCountingForLoop() {
     String program =
         """
-            entity_type my_type {
-                test_component1 {},
-                test_component_with_callback {
-                    consumer: func
-                }
+        entity_type my_type {
+            test_component1 {},
+            test_component_with_callback {
+                consumer: func
             }
+        }
 
-            fn func(entity ent) {
-                var my_list : string[];
-                my_list.add("Hello");
-                my_list.add("World");
-                my_list.add("!");
-                for int entry in my_list count i {
-                    print(i);
-                    print(entry);
-                }
+        fn func(entity ent) {
+            var my_list : string[];
+            my_list.add("Hello");
+            my_list.add("World");
+            my_list.add("!");
+            for string entry in my_list count i {
+                print(i);
+                print(entry);
             }
+        }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-            """;
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -3311,38 +3289,38 @@ public class TestDSLInterpreter {
   public void testWhileLoop() {
     String program =
         """
-                entity_type my_type {
-                    test_component1 {},
-                    test_component_with_callback {
-                        consumer: func
-                    }
+            entity_type my_type {
+                test_component1 {},
+                test_component_with_callback {
+                    consumer: func
                 }
+            }
 
-                fn func(entity ent) {
-                    var my_list : int[];
-                    my_list.add(1);
-                    my_list.add(2);
-                    my_list.add(3);
-                    my_list.add(0);
+            fn func(entity ent) {
+                var my_list : int[];
+                my_list.add(1);
+                my_list.add(2);
+                my_list.add(3);
+                my_list.add(0);
 
-                    var list_entry : int;
-                    list_entry = my_list.get(0);
+                var list_entry : int;
+                list_entry = my_list.get(0);
 
-                    // as arithmetic operations are not supported at the time this test is written,
-                    // we need some way of updating the condition of the loop;
-                    // the `my_list` is setup in a way, that the entries used as the index will
-                    // return the next list-entry, until the entry with value `0` is returned,
-                    // which will be interpreted as boolean false in the condition of the loop
-                    while list_entry {
-                        print(list_entry);
-                        list_entry = my_list.get(list_entry);
-                    }
+                // as arithmetic operations are not supported at the time this test is written,
+                // we need some way of updating the condition of the loop;
+                // the `my_list` is setup in a way, that the entries used as the index will
+                // return the next list-entry, until the entry with value `0` is returned,
+                // which will be interpreted as boolean false in the condition of the loop
+                while list_entry {
+                    print(list_entry);
+                    list_entry = my_list.get(list_entry);
                 }
+            }
 
-                quest_config c {
-                    entity: instantiate(my_type)
-                }
-                """;
+            quest_config c {
+                entity: instantiate(my_type)
+            }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -3383,10 +3361,67 @@ public class TestDSLInterpreter {
   public void testItemTypeInstantiationSingleChoice() {
     String program =
         """
-        single_choice_task t1 {
+    single_choice_task t1 {
+        description: "Task1",
+            answers: ["1", "2", "3"],
+        correct_answer_index: 2,
+        scenario_builder: build_scenario1
+    }
+
+    graph g {
+        t1
+    }
+
+    dungeon_config c {
+        dependency_graph: g
+    }
+
+    item_type item_type1 {
+        display_name: "MyName",
+        description: "Hello, this is a description",
+        texture_path: "items/book/wisdom_scroll.png"
+    }
+
+    fn build_scenario1(single_choice_task t) -> entity<><> {
+        var ret_set : entity<><>;
+
+        var first_room_set : entity<>;
+
+        var item : quest_item;
+        var content : task_content[];
+        content = t.get_content();
+
+        item = build_quest_item(item_type1, content.get(1));
+        place_quest_item(item, first_room_set);
+
+        ret_set.add(first_room_set);
+        return ret_set;
+    }
+    """;
+
+    DSLInterpreter interpreter = new DSLInterpreter();
+    DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+    var task = config.dependencyGraph().nodeIterator().next().task();
+    var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+    var entityIterator = builtTask.iterator().next().iterator();
+    // this will be the placed quest item
+    var questItem = entityIterator.next();
+    ItemComponent itemComponent = questItem.fetch(ItemComponent.class).get();
+    QuestItem item = (QuestItem) itemComponent.item();
+    // Assert.assertEquals("MyName", item.displayName());
+    Quiz.Content content = (Quiz.Content) item.taskContentComponent().content();
+    Assert.assertEquals("2", content.content());
+  }
+
+  @Test
+  public void testItemTypeInstantiationMultipleChoice() {
+    String program =
+        """
+        multiple_choice_task t1 {
             description: "Task1",
-                answers: ["1", "2", "3"],
-            correct_answer_index: 2,
+            answers: ["1", "2", "3"],
+            correct_answer_indices: [1,2],
             scenario_builder: build_scenario1
         }
 
@@ -3404,7 +3439,7 @@ public class TestDSLInterpreter {
             texture_path: "items/book/wisdom_scroll.png"
         }
 
-        fn build_scenario1(single_choice_task t) -> entity<><> {
+        fn build_scenario1(multiple_choice_task t) -> entity<><> {
             var ret_set : entity<><>;
 
             var first_room_set : entity<>;
@@ -3437,81 +3472,24 @@ public class TestDSLInterpreter {
   }
 
   @Test
-  public void testItemTypeInstantiationMultipleChoice() {
-    String program =
-        """
-            multiple_choice_task t1 {
-                description: "Task1",
-                answers: ["1", "2", "3"],
-                correct_answer_indices: [1,2],
-                scenario_builder: build_scenario1
-            }
-
-            graph g {
-                t1
-            }
-
-            dungeon_config c {
-                dependency_graph: g
-            }
-
-            item_type item_type1 {
-                display_name: "MyName",
-                description: "Hello, this is a description",
-                texture_path: "items/book/wisdom_scroll.png"
-            }
-
-            fn build_scenario1(multiple_choice_task t) -> entity<><> {
-                var ret_set : entity<><>;
-
-                var first_room_set : entity<>;
-
-                var item : quest_item;
-                var content : task_content[];
-                content = t.get_content();
-
-                item = build_quest_item(item_type1, content.get(1));
-                place_quest_item(item, first_room_set);
-
-                ret_set.add(first_room_set);
-                return ret_set;
-            }
-            """;
-
-    DSLInterpreter interpreter = new DSLInterpreter();
-    DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
-    var task = config.dependencyGraph().nodeIterator().next().task();
-    var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
-
-    var entityIterator = builtTask.iterator().next().iterator();
-    // this will be the placed quest item
-    var questItem = entityIterator.next();
-    ItemComponent itemComponent = questItem.fetch(ItemComponent.class).get();
-    QuestItem item = (QuestItem) itemComponent.item();
-    // Assert.assertEquals("MyName", item.displayName());
-    Quiz.Content content = (Quiz.Content) item.taskContentComponent().content();
-    Assert.assertEquals("2", content.content());
-  }
-
-  @Test
   public void testSetGradingFuncSingleChoice() {
     String program =
         """
-            single_choice_task t1 {
-                description: "Task1",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 2,
-                grading_function: grade_single_choice_task
-            }
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 2,
+            grading_function: grade_single_choice_task
+        }
 
-            graph g {
-                t1
-            }
+        graph g {
+            t1
+        }
 
-            dungeon_config c {
-                dependency_graph: g
-            }
-        """;
+        dungeon_config c {
+            dependency_graph: g
+        }
+    """;
 
     DSLInterpreter interpreter = new DSLInterpreter();
     DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
@@ -3528,21 +3506,21 @@ public class TestDSLInterpreter {
   public void testSetGradingFuncMultipleChoice() {
     String program =
         """
-        multiple_choice_task t1 {
-            description: "Task1",
-            answers: ["1", "2", "3"],
-            correct_answer_indices: [2,1],
-            grading_function: grade_multiple_choice_task
-        }
+    multiple_choice_task t1 {
+        description: "Task1",
+        answers: ["1", "2", "3"],
+        correct_answer_indices: [2,1],
+        grading_function: grade_multiple_choice_task
+    }
 
-        graph g {
-            t1
-        }
+    graph g {
+        t1
+    }
 
-        dungeon_config c {
-            dependency_graph: g
-        }
-    """;
+    dungeon_config c {
+        dependency_graph: g
+    }
+""";
 
     DSLInterpreter interpreter = new DSLInterpreter();
     DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
@@ -3557,31 +3535,31 @@ public class TestDSLInterpreter {
   public void testSetGradingFunctionInScenarioBuilderSingleChoice() {
     String program =
         """
-        single_choice_task t1 {
-            description: "Task1",
-            answers: ["1", "2", "3"],
-            correct_answer_index: 2,
-            scenario_builder: build_scenario1
-        }
+    single_choice_task t1 {
+        description: "Task1",
+        answers: ["1", "2", "3"],
+        correct_answer_index: 2,
+        scenario_builder: build_scenario1
+    }
 
-        graph g {
-            t1
-        }
+    graph g {
+        t1
+    }
 
-        dungeon_config c {
-            dependency_graph: g
-        }
+    dungeon_config c {
+        dependency_graph: g
+    }
 
-        fn build_scenario1(single_choice_task t) -> entity<><> {
-            var ret_set : entity<><>;
-            var first_room_set : entity<>;
+    fn build_scenario1(single_choice_task t) -> entity<><> {
+        var ret_set : entity<><>;
+        var first_room_set : entity<>;
 
-            t.set_grading_function(grade_single_choice_task);
+        t.set_grading_function(grade_single_choice_task);
 
-            ret_set.add(first_room_set);
-            return ret_set;
-        }
-        """;
+        ret_set.add(first_room_set);
+        return ret_set;
+    }
+    """;
 
     DSLInterpreter interpreter = new DSLInterpreter();
     DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
@@ -3604,20 +3582,20 @@ public class TestDSLInterpreter {
   public void testNameSymbol() {
     String program =
         """
-                single_choice_task t1 {
-                    description: "Task1",
-                    answers: ["1", "2", "3"],
-                    correct_answer_index: 2
-                }
+            single_choice_task t1 {
+                description: "Task1",
+                answers: ["1", "2", "3"],
+                correct_answer_index: 2
+            }
 
-                graph g {
-                    t1
-                }
+            graph g {
+                t1
+            }
 
-                dungeon_config c {
-                    dependency_graph: g
-                }
-                """;
+            dungeon_config c {
+                dependency_graph: g
+            }
+            """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -3635,19 +3613,19 @@ public class TestDSLInterpreter {
   public void testDeclareAssignmentTask() {
     String program =
         """
-                assign_task t1 {
-                    description: "Task1",
-                    solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["derp", _]>
-                }
+            assign_task t1 {
+                description: "Task1",
+                solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["derp", _]>
+            }
 
-                graph g {
-                    t1
-                }
+            graph g {
+                t1
+            }
 
-                dungeon_config c {
-                    dependency_graph: g
-                }
-            """;
+            dungeon_config c {
+                dependency_graph: g
+            }
+        """;
 
     DSLInterpreter interpreter = new DSLInterpreter();
     DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
@@ -3705,76 +3683,76 @@ public class TestDSLInterpreter {
   public void testAssignmentTaskScenarioBuilder() {
     String program =
         """
-        assign_task t1 {
-            description: "Task1",
-            solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["!", _]>
+    assign_task t1 {
+        description: "Task1",
+        solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["!", _]>
+    }
+
+    graph g {
+        t1
+    }
+
+    dungeon_config c {
+        dependency_graph: g
+    }
+
+    entity_type chest_type {
+        inventory_component {},
+        draw_component {
+            path: "objects/treasurechest"
+        },
+        hitbox_component {},
+        position_component{},
+        interaction_component{},
+        task_content_component{}
+    }
+
+    item_type scroll_type {
+        display_name: "A scroll",
+        description: "Please read me",
+        texture_path: "items/book/wisdom_scroll.png"
+    }
+
+    fn build_task(assign_task t) -> entity<><> {
+        var return_set : entity<><>;
+        var room_set : entity<>;
+
+        var solution_map : [element -> element<>];
+        solution_map = t.get_solution();
+
+        // instantiate chests
+        for element key in solution_map.get_keys() {
+            if key.is_empty() {
+                // skip
+            } else {
+                // if this variable is declared outside of the for-loop,
+                // it is not correctly placed in the set, because the internal
+                // Value will be still the same Object (with the same HashCode!!)
+                var chest : entity;
+                chest = instantiate(chest_type);
+                chest.task_content_component.content = key;
+                room_set.add(chest);
+            }
         }
 
-        graph g {
-            t1
-        }
-
-        dungeon_config c {
-            dependency_graph: g
-        }
-
-        entity_type chest_type {
-            inventory_component {},
-            draw_component {
-                path: "objects/treasurechest"
-            },
-            hitbox_component {},
-            position_component{},
-            interaction_component{},
-            task_content_component{}
-        }
-
-        item_type scroll_type {
-            display_name: "A scroll",
-            description: "Please read me",
-            texture_path: "items/book/wisdom_scroll.png"
-        }
-
-        fn build_task(assign_task t) -> entity<><> {
-            var return_set : entity<><>;
-            var room_set : entity<>;
-
-            var solution_map : [element -> element<>];
-            solution_map = t.get_solution();
-
-            // instantiate chests
-            for element key in solution_map.get_keys() {
-                if key.is_empty() {
+        var item : quest_item;
+        // instantiate all answer elements as scrolls
+        for element<> element_set in solution_map.get_elements() {
+            for element element in element_set {
+                if element.is_empty() {
                     // skip
                 } else {
-                    // if this variable is declared outside of the for-loop,
-                    // it is not correctly placed in the set, because the internal
-                    // Value will be still the same Object (with the same HashCode!!)
-                    var chest : entity;
-                    chest = instantiate(chest_type);
-                    chest.task_content_component.content = key;
-                    room_set.add(chest);
+                    print(element);
+                    item = build_quest_item(scroll_type, element);
+                    place_quest_item(item, room_set);
                 }
             }
-
-            var item : quest_item;
-            // instantiate all answer elements as scrolls
-            for element<> element_set in solution_map.get_elements() {
-                for element element in element_set {
-                    if element.is_empty() {
-                        // skip
-                    } else {
-                        print(element);
-                        item = build_quest_item(scroll_type, element);
-                        place_quest_item(item, room_set);
-                    }
-                }
-            }
-
-            return_set.add(room_set);
-            return return_set;
         }
-        """;
+
+        return_set.add(room_set);
+        return return_set;
+    }
+    """;
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
     var outputStream = new ByteArrayOutputStream();
@@ -3831,53 +3809,53 @@ public class TestDSLInterpreter {
   public void testNamedInstantiate() {
     String program =
         """
-        single_choice_task t1 {
-            description: "Task1",
-            answers: ["1", "HELLO", "3"],
-            correct_answer_index: 2,
-            scenario_builder: build_task
-        }
+    single_choice_task t1 {
+        description: "Task1",
+        answers: ["1", "HELLO", "3"],
+        correct_answer_index: 2,
+        scenario_builder: build_task
+    }
 
-        graph g {
-            t1
-        }
+    graph g {
+        t1
+    }
 
-        dungeon_config c {
-            dependency_graph: g
-        }
+    dungeon_config c {
+        dependency_graph: g
+    }
 
-        entity_type chest_type {
-            inventory_component {},
-            draw_component {
-                path: "objects/treasurechest"
-            },
-            hitbox_component {},
-            position_component{},
-            interaction_component{},
-            task_content_component{}
-        }
+    entity_type chest_type {
+        inventory_component {},
+        draw_component {
+            path: "objects/treasurechest"
+        },
+        hitbox_component {},
+        position_component{},
+        interaction_component{},
+        task_content_component{}
+    }
 
-        item_type scroll_type {
-            display_name: "A scroll",
-            description: "Please read me",
-            texture_path: "items/book/wisdom_scroll.png"
-        }
+    item_type scroll_type {
+        display_name: "A scroll",
+        description: "Please read me",
+        texture_path: "items/book/wisdom_scroll.png"
+    }
 
-        fn build_task(single_choice_task t) -> entity<><> {
-            var return_set : entity<><>;
-            var room_set : entity<>;
+    fn build_task(single_choice_task t) -> entity<><> {
+        var return_set : entity<><>;
+        var room_set : entity<>;
 
-            var ent : entity;
-            var content : task_content;
-            content = t.get_content().get(1);
-            ent = instantiate_named(chest_type, content.text());
-            room_set.add(ent);
-            t.set_scenario_text("CUSTOM TEXT");
+        var ent : entity;
+        var content : task_content;
+        content = t.get_content().get(1);
+        ent = instantiate_named(chest_type, content.text());
+        room_set.add(ent);
+        t.set_scenario_text("CUSTOM TEXT");
 
-            return_set.add(room_set);
-            return return_set;
-        }
-        """;
+        return_set.add(room_set);
+        return return_set;
+    }
+    """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -3892,5 +3870,174 @@ public class TestDSLInterpreter {
     core.Entity entity = builtTask.stream().toList().get(0).stream().findFirst().get();
     Assert.assertTrue(entity.toString().contains("HELLO"));
     Assert.assertEquals("CUSTOM TEXT", task.scenarioText());
+  }
+
+  @Test
+  public void testImportFuncCall() {
+    String program =
+        """
+        #import "test.dng":test_fn as print_hello_world
+
+        entity_type my_type {
+            interaction_component {
+                on_interaction: func
+            }
+        }
+
+        fn func(entity ent, entity other_ent) {
+            print_hello_world();
+        }
+
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "HELLO", "3"],
+            correct_answer_index: 2,
+            scenario_builder: mock_builder
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        fn mock_builder(single_choice_task t) -> entity<><> {
+            var return_set : entity<><>;
+            var room_set : entity<>;
+
+            var my_ent : entity;
+            my_ent = instantiate(my_type);
+            room_set.add(my_ent);
+            return_set.add(room_set);
+            return return_set;
+        }
+        """;
+
+    var env = new GameEnvironment(testLibPath);
+    var interpreter = new DSLInterpreter();
+    DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program, env);
+    var task = (SingleChoice) config.dependencyGraph().nodeIterator().next().task();
+    var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+    var entitySet = builtTask.iterator().next();
+    var entity = entitySet.iterator().next();
+
+    var ic = entity.fetch(InteractionComponent.class).get();
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    ic.triggerInteraction(entity, entity);
+
+    String output = outputStream.toString();
+    assertEquals("Hello, World!" + System.lineSeparator(), output);
+  }
+
+  @Test
+  public void testImportEntityType() {
+    String program =
+        """
+        #import "test.dng":my_ent_type as my_type
+
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "HELLO", "3"],
+            correct_answer_index: 2,
+            scenario_builder: mock_builder
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        fn mock_builder(single_choice_task t) -> entity<><> {
+            var return_set : entity<><>;
+            var room_set : entity<>;
+
+            var my_ent : entity;
+            my_ent = instantiate(my_type);
+            room_set.add(my_ent);
+            return_set.add(room_set);
+            return return_set;
+        }
+        """;
+
+    var env = new GameEnvironment(testLibPath);
+    var interpreter = new DSLInterpreter();
+    DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program, env);
+    var task = (SingleChoice) config.dependencyGraph().nodeIterator().next().task();
+    var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+    var entitySet = builtTask.iterator().next();
+    var entity = entitySet.iterator().next();
+
+    var ic = entity.fetch(InteractionComponent.class).get();
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    ic.triggerInteraction(entity, entity);
+
+    String output = outputStream.toString();
+    assertEquals("my_interaction_handler" + System.lineSeparator(), output);
+  }
+
+  @Test
+  public void testImportItemType() {
+    String program =
+        """
+        #import "test.dng":my_item_type as my_type
+
+        single_choice_task t1 {
+            description: "Task1",
+            answers: ["1", "HELLO", "3"],
+            correct_answer_index: 2,
+            scenario_builder: mock_builder
+        }
+
+        graph g {
+            t1
+        }
+
+        dungeon_config c {
+            dependency_graph: g
+        }
+
+        fn mock_builder(single_choice_task t) -> entity<><> {
+            var return_set : entity<><>;
+            var room_set : entity<>;
+
+            var item : quest_item;
+            var content : task_content;
+            content = t.get_content().get(0);
+            item = build_quest_item(my_type, content);
+            place_quest_item(item, room_set);
+
+            return_set.add(room_set);
+            return return_set;
+        }
+        """;
+
+    var env = new GameEnvironment(testLibPath);
+    var interpreter = new DSLInterpreter();
+    DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program, env);
+    var task = (SingleChoice) config.dependencyGraph().nodeIterator().next().task();
+    var builtTask = (HashSet<HashSet<core.Entity>>) interpreter.buildTask(task).get();
+
+    var entitySet = builtTask.iterator().next();
+    var entity = entitySet.iterator().next();
+    var ic = entity.fetch(ItemComponent.class).get();
+    Assert.assertEquals(
+        "1", ((Quiz.Content) ((QuestItem) ic.item()).taskContentComponent().content()).content());
   }
 }

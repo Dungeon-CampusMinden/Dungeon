@@ -1,0 +1,31 @@
+#import "export.dng":my_exported_type as my_imported_type
+
+fn test_fn() {
+    print("Hello, World!");
+}
+
+fn test_fn_param(int param) {
+    print(pararm);
+}
+
+fn my_interaction_handler(entity ent1, entity ent2) {
+    print("my_interaction_handler");
+}
+
+entity_type my_ent_type {
+    interaction_component {
+        on_interaction: my_interaction_handler
+    }
+}
+
+entity_type my_ent_type {
+    interaction_component {
+        on_interaction: my_interaction_handler
+    }
+}
+
+item_type my_item_type {
+    display_name: "Ein Itemtyp",
+    description: "Ja!",
+    texture_path: "items/book/wisdom_scroll.png"
+}

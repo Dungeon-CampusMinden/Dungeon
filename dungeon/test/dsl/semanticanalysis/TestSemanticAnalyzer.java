@@ -12,6 +12,7 @@ import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
+import dsl.semanticanalysis.symbol.ImportFunctionSymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
@@ -20,23 +21,25 @@ import dslinterop.dslnativefunction.NativePrint;
 import graph.taskdependencygraph.TaskDependencyGraph;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.file.Path;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestSemanticAnalyzer {
+  private static final Path testLibPath = Path.of("dungeon/test_resources/testlib");
 
   /** Test, if the name of symbols is set correctly */
   @Test
   public void testSymbolName() {
     String program =
         """
-                graph g {
-                    A -> B
-                }
-                dungeon_config c {
-                    level_graph: g
-                }
-                """;
+            graph g {
+                A -> B
+            }
+            dungeon_config c {
+                level_graph: g
+            }
+            """;
 
     var ast = Helpers.getASTFromString(program);
     var symtableResult = Helpers.getSymtableForAST(ast);
@@ -64,16 +67,16 @@ public class TestSemanticAnalyzer {
   public void testSymbolReferenceComponent() {
     String program =
         """
-                graph g {
-                    A -> B
-                }
+            graph g {
+                A -> B
+            }
 
-                entity_type c {
-                    test_component{
-                        level_graph: g
-                    }
+            entity_type c {
+                test_component{
+                    level_graph: g
                 }
-                """;
+            }
+            """;
 
     // setup
     var ast = Helpers.getASTFromString(program);
@@ -112,12 +115,12 @@ public class TestSemanticAnalyzer {
   public void testItemTypeDeclaration() {
     String program =
         """
-            item_type item_type1 {
-                display_name: "MyName",
-                description: "Hello, this is a description",
-                texture_path: "texture/path"
-            }
-            """;
+        item_type item_type1 {
+            display_name: "MyName",
+            description: "Hello, this is a description",
+            texture_path: "texture/path"
+        }
+        """;
 
     // setup
     var ast = Helpers.getASTFromString(program);
@@ -127,7 +130,8 @@ public class TestSemanticAnalyzer {
     semanticAnalyzer.setup(env);
     var result = semanticAnalyzer.walk(ast);
     SymbolTable symbolTable = result.symbolTable;
-    Symbol itemTypeSymbol = symbolTable.globalScope.resolve("item_type1");
+    var fileScope = env.getFileScope(null);
+    Symbol itemTypeSymbol = fileScope.resolve("item_type1");
     Assert.assertNotEquals(Symbol.NULL, itemTypeSymbol);
     Assert.assertTrue(itemTypeSymbol instanceof ScopedSymbol);
 
@@ -148,13 +152,13 @@ public class TestSemanticAnalyzer {
   public void testSymbolReference() {
     String program =
         """
-                graph g {
-                    A -> B
-                }
-                dungeon_config c {
-                    level_graph: g
-                }
-                """;
+            graph g {
+                A -> B
+            }
+            dungeon_config c {
+                level_graph: g
+            }
+            """;
 
     var ast = Helpers.getASTFromString(program);
     var symtableResult = Helpers.getSymtableForAST(ast);
@@ -184,10 +188,10 @@ public class TestSemanticAnalyzer {
   public void testSetupNativeFunctions() {
     String program =
         """
-                dungeon_config c {
-                    points: print("Hello")
-                }
-                        """;
+            dungeon_config c {
+                points: print("Hello")
+            }
+                    """;
 
     var ast = Helpers.getASTFromString(program);
     var symtableResult = Helpers.getSymtableForAST(ast);
@@ -203,10 +207,10 @@ public class TestSemanticAnalyzer {
   public void testResolveNativeFunction() {
     String program =
         """
-                dungeon_config c {
-                    points: print("Hello")
-                }
-                        """;
+            dungeon_config c {
+                points: print("Hello")
+            }
+                    """;
 
     var ast = Helpers.getASTFromString(program);
     var symtableResult = Helpers.getSymtableForAST(ast);
@@ -236,16 +240,16 @@ public class TestSemanticAnalyzer {
   public void testPropertyReference() {
     String program =
         """
-                graph g {
-                    A -> B
-                }
-                dungeon_config c {
-                    dependency_graph: g
-                }
-                dungeon_config d {
-                    dependency_graph: g
-                }
-                    """;
+            graph g {
+                A -> B
+            }
+            dungeon_config c {
+                dependency_graph: g
+            }
+            dungeon_config d {
+                dependency_graph: g
+            }
+                """;
 
     // generate symbol table
     var ast = Helpers.getASTFromString(program);
@@ -276,19 +280,20 @@ public class TestSemanticAnalyzer {
   public void funcDef() {
     String program =
         """
-                fn test_func(int param1, float param2, string param3) -> int {
-                    print(param1);
-                }
-                """;
+            fn test_func(int param1, float param2, string param3) -> int {
+                print(param1);
+            }
+            """;
 
     var ast = Helpers.getASTFromString(program);
-    var symtableResult = Helpers.getSymtableForAST(ast);
+    var env = new GameEnvironment();
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var fileScope = env.getFileScope(null);
 
-    var funcSymbol = (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func");
+    var funcSymbol = (FunctionSymbol) fileScope.resolve("test_func");
     Assert.assertEquals("test_func", funcSymbol.getName());
 
-    IType functionType =
-        (IType) symtableResult.symbolTable.globalScope.resolve("$fn(int, float, string) -> int$");
+    IType functionType = (IType) fileScope.resolve("$fn(int, float, string) -> int$");
     Assert.assertEquals(functionType, funcSymbol.getDataType());
     Assert.assertEquals(ICallable.Type.UserDefined, funcSymbol.getCallableType());
     Assert.assertNotEquals(Symbol.NULL, funcSymbol.resolve("param1"));
@@ -300,13 +305,15 @@ public class TestSemanticAnalyzer {
   public void resolveParameterInFunctionBody() {
     String program =
         """
-                fn test_func(int param1, float param2, string param3) -> int {
-                    print(param1);
-                }
-                """;
+            fn test_func(int param1, float param2, string param3) -> int {
+                print(param1);
+            }
+            """;
 
     var ast = Helpers.getASTFromString(program);
-    var symtableResult = Helpers.getSymtableForAST(ast);
+    var env = new GameEnvironment();
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var fileScope = env.getFileScope(null);
 
     var funcDefNode = ast.getChild(0);
     var stmtBlock = funcDefNode.getChild(3);
@@ -316,35 +323,13 @@ public class TestSemanticAnalyzer {
     var firstParam = paramList.getChild(0);
 
     var symbolForParam1 = symtableResult.symbolTable.getSymbolsForAstNode(firstParam).get(0);
-    var funcDef = symtableResult.symbolTable.globalScope.resolve("test_func");
+    var funcDef = fileScope.resolve("test_func");
     var parameterSymbolFromFunctionSymbol = ((FunctionSymbol) funcDef).resolve("param1");
     Assert.assertEquals(parameterSymbolFromFunctionSymbol, symbolForParam1);
   }
 
   @Test
   public void funcDefFuncType() {
-    String program =
-        """
-                fn test_func_1(int param1, float param2, string param3) -> int {
-                    print(param1);
-                }
-                fn test_func_2(int param4, float param5, string param6) -> int {
-                    print(param4);
-                }
-                """;
-
-    var ast = Helpers.getASTFromString(program);
-    var symtableResult = Helpers.getSymtableForAST(ast);
-
-    var funcSymbol1 =
-        (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func_1");
-    var funcSymbol2 =
-        (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func_2");
-    Assert.assertEquals(funcSymbol1.getDataType(), funcSymbol2.getDataType());
-  }
-
-  @Test
-  public void funcTypeObjectEquality() {
     String program =
         """
             fn test_func_1(int param1, float param2, string param3) -> int {
@@ -356,13 +341,35 @@ public class TestSemanticAnalyzer {
             """;
 
     var ast = Helpers.getASTFromString(program);
-    var symtableResult = Helpers.getSymtableForAST(ast);
+    var env = new GameEnvironment();
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var fileScope = env.getFileScope(null);
 
-    var funcSymbol1 =
-        (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func_1");
+    var funcSymbol1 = (FunctionSymbol) fileScope.resolve("test_func_1");
+    var funcSymbol2 = (FunctionSymbol) fileScope.resolve("test_func_2");
+    Assert.assertEquals(funcSymbol1.getDataType(), funcSymbol2.getDataType());
+  }
+
+  @Test
+  public void funcTypeObjectEquality() {
+    String program =
+        """
+        fn test_func_1(int param1, float param2, string param3) -> int {
+            print(param1);
+        }
+        fn test_func_2(int param4, float param5, string param6) -> int {
+            print(param4);
+        }
+        """;
+
+    var ast = Helpers.getASTFromString(program);
+    var env = new GameEnvironment();
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var fileScope = env.getFileScope(null);
+
+    var funcSymbol1 = (FunctionSymbol) fileScope.resolve("test_func_1");
     var funcType1 = funcSymbol1.getDataType();
-    var funcSymbol2 =
-        (FunctionSymbol) symtableResult.symbolTable.globalScope.resolve("test_func_2");
+    var funcSymbol2 = (FunctionSymbol) fileScope.resolve("test_func_2");
     var funcType2 = funcSymbol2.getDataType();
     Assert.assertEquals(funcType1.hashCode(), funcType2.hashCode());
   }
@@ -408,10 +415,11 @@ public class TestSemanticAnalyzer {
     symbolTableParser.walk(ast);
 
     var symbolTableParserEnvironment = symbolTableParser.getEnvironment();
+    var fileScope = symbolTableParserEnvironment.getFileScope(null);
 
-    var dummyFunc1Sym = symbolTableParserEnvironment.getGlobalScope().resolve("dummyFunc1");
-    var dummyFunc2Sym = symbolTableParserEnvironment.getGlobalScope().resolve("dummyFunc2");
-    var testFunc1 = symbolTableParserEnvironment.getGlobalScope().resolve("test_func_1");
+    var dummyFunc1Sym = fileScope.resolve("dummyFunc1");
+    var dummyFunc2Sym = fileScope.resolve("dummyFunc2");
+    var testFunc1 = fileScope.resolve("test_func_1");
     Assert.assertEquals(
         dummyFunc1Sym.getDataType().hashCode(), dummyFunc2Sym.getDataType().hashCode());
     Assert.assertEquals(dummyFunc1Sym.getDataType().hashCode(), testFunc1.getDataType().hashCode());
@@ -422,15 +430,15 @@ public class TestSemanticAnalyzer {
   public void funcDefNestedBlocks() {
     String program =
         """
-            fn test_func(int param1, float param2, string param3) -> int
+        fn test_func(int param1, float param2, string param3) -> int
+        {
             {
                 {
-                    {
-                        print(param1);
-                    }
+                    print(param1);
                 }
             }
-            """;
+        }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForAST(ast);
@@ -456,17 +464,17 @@ public class TestSemanticAnalyzer {
   public void funcDefIfElse() {
     String program =
         """
-            fn test_func(int param1, float param2, string param3) -> int
-            {
-                if print() {
-                    print();
-                } else if print() {
-                    print();
-                } else {
-                    print();
-                }
+        fn test_func(int param1, float param2, string param3) -> int
+        {
+            if print() {
+                print();
+            } else if print() {
+                print();
+            } else {
+                print();
             }
-            """;
+        }
+        """;
 
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForAST(ast);
@@ -505,11 +513,11 @@ public class TestSemanticAnalyzer {
   public void memberAccessSimple() {
     String program =
         """
-            fn test_func(test_component2 comp)
-            {
-                print(comp.member1);
-            }
-            """;
+        fn test_func(test_component2 comp)
+        {
+            print(comp.member1);
+        }
+        """;
 
     TestEnvironment env = new TestEnvironment();
     env.getTypeBuilder()
@@ -563,15 +571,15 @@ public class TestSemanticAnalyzer {
   public void memberAccessFuncCall() {
     String program =
         """
-            fn other_func(test_component2 comp) -> test_component2 {
-                return comp;
-            }
+        fn other_func(test_component2 comp) -> test_component2 {
+            return comp;
+        }
 
-            fn test_func(test_component2 comp)
-            {
-                print(other_func(comp).member1);
-            }
-            """;
+        fn test_func(test_component2 comp)
+        {
+            print(other_func(comp).member1);
+        }
+        """;
 
     TestEnvironment env = new TestEnvironment();
     env.getTypeBuilder()
@@ -621,15 +629,15 @@ public class TestSemanticAnalyzer {
   public void memberAccessFuncCallChainedMethod() {
     String program =
         """
-        fn other_func(test_component2 comp) -> test_component2 {
-            return comp;
-        }
+    fn other_func(test_component2 comp) -> test_component2 {
+        return comp;
+    }
 
-        fn test_func(test_component2 comp)
-        {
-            print(other_func(comp).my_method(42,42).member1);
-        }
-        """;
+    fn test_func(test_component2 comp)
+    {
+        print(other_func(comp).my_method(42,42).member1);
+    }
+    """;
 
     TestEnvironment env = new TestEnvironment();
     env.getTypeBuilder()
@@ -639,6 +647,7 @@ public class TestSemanticAnalyzer {
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
     var symbolTable = result.symbolTable;
+    var fileScope = env.getFileScope(null);
 
     FuncDefNode otherFuncDefNode = (FuncDefNode) ast.getChild(0);
     FunctionSymbol otherFuncSymbol =
@@ -667,8 +676,7 @@ public class TestSemanticAnalyzer {
     var symbolsForMethodCall = symbolTable.getSymbolsForAstNode(methodCallNode);
     Assert.assertEquals(1, symbolsForMethodCall.size());
 
-    AggregateType testComponent2Type =
-        (AggregateType) symbolTable.globalScope.resolveType("test_component2");
+    AggregateType testComponent2Type = (AggregateType) fileScope.resolveType("test_component2");
     Symbol methodDeclSymbol = testComponent2Type.resolve("my_method");
 
     var symbolForMethodCall = symbolsForMethodCall.get(0);
@@ -690,20 +698,20 @@ public class TestSemanticAnalyzer {
   public void testVariableCreation() {
     String program =
         """
-    entity_type my_type {
-        test_component_with_callback {
-            consumer: get_property
-        }
+entity_type my_type {
+    test_component_with_callback {
+        consumer: get_property
     }
+}
 
-    fn get_property(entity ent) {
-        var test : string;
-    }
+fn get_property(entity ent) {
+    var test : string;
+}
 
-    quest_config c {
-        entity: instantiate(my_type)
-    }
-    """;
+quest_config c {
+    entity: instantiate(my_type)
+}
+""";
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -719,8 +727,9 @@ public class TestSemanticAnalyzer {
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
     var symbolTable = result.symbolTable;
+    var fileScope = env.getFileScope(null);
 
-    FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("get_property");
+    FunctionSymbol funcSymbol = (FunctionSymbol) fileScope.resolve("get_property");
     FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
     VarDeclNode declNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
     Symbol testVariableSymbol = symbolTable.getSymbolsForAstNode(declNode).get(0);
@@ -733,23 +742,23 @@ public class TestSemanticAnalyzer {
   public void testVariableCreationIfStmt() {
     String program =
         """
-            entity_type my_type {
-                test_component_with_string_consumer_callback {
-                    on_interaction: callback
-                }
+        entity_type my_type {
+            test_component_with_string_consumer_callback {
+                on_interaction: callback
             }
+        }
 
-            fn callback(entity ent) {
-                if true
-                    var test : string;
-                else
-                    var test : string;
-            }
+        fn callback(entity ent) {
+            if true
+                var test : string;
+            else
+                var test : string;
+        }
 
-            quest_config c {
-                entity: instantiate(my_type)
-            }
-            """;
+        quest_config c {
+            entity: instantiate(my_type)
+        }
+        """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -765,8 +774,9 @@ public class TestSemanticAnalyzer {
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
     var symbolTable = result.symbolTable;
+    var fileScope = env.getFileScope(null);
 
-    FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("callback");
+    FunctionSymbol funcSymbol = (FunctionSymbol) fileScope.resolve("callback");
 
     FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
     ConditionalStmtNodeIfElse conditional =
@@ -798,10 +808,10 @@ public class TestSemanticAnalyzer {
   public void testEnumVariantBinding() {
     String program =
         """
-        fn callback(entity ent) -> my_enum {
-            return my_enum.A;
-        }
-        """;
+    fn callback(entity ent) -> my_enum {
+        return my_enum.A;
+    }
+    """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -819,14 +829,16 @@ public class TestSemanticAnalyzer {
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
     var symbolTable = result.symbolTable;
+    var fileScope = env.getFileScope(null);
 
     // check creation and binding of enum type in global scope
-    Symbol myEnumType = symbolTable.globalScope.resolve("my_enum");
+    Symbol myEnumType = fileScope.resolve("my_enum");
     Assert.assertNotEquals(Symbol.NULL, myEnumType);
     Assert.assertTrue(myEnumType instanceof EnumType);
 
     // get the function definition as symbol and AST-Node
-    FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("callback");
+    // TODO: probably must be resolved in file Scope
+    FunctionSymbol funcSymbol = (FunctionSymbol) fileScope.resolve("callback");
     FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
 
     // check, if the return type id is bound to enum type
@@ -852,10 +864,10 @@ public class TestSemanticAnalyzer {
   public void testEnumVariantBindingIllegalAccess() {
     String program =
         """
-        fn callback(entity ent) -> my_enum {
-            return my_enum.A.B;
-        }
-        """;
+    fn callback(entity ent) -> my_enum {
+        return my_enum.A.B;
+    }
+    """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -883,13 +895,13 @@ public class TestSemanticAnalyzer {
   public void testEnumVariantBindingIllegalAccessVariable() {
     String program =
         """
-        fn callback(entity ent) -> my_enum {
-            var variable :  my_enum;
-            variable = my_enum.A;
-            var other_variable : my_enum;
-            other_variable = variable.B;
-        }
-        """;
+    fn callback(entity ent) -> my_enum {
+        var variable :  my_enum;
+        variable = my_enum.A;
+        var other_variable : my_enum;
+        other_variable = variable.B;
+    }
+    """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -919,22 +931,22 @@ public class TestSemanticAnalyzer {
   public void testTaskReferenceInGraph() {
     String program =
         """
-            single_choice_task t1 {
-                description: "Hello",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 1
-            }
+        single_choice_task t1 {
+            description: "Hello",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 1
+        }
 
-            multiple_choice_task t2 {
-                description: "Tschüss",
-                answers: ["4", "5", "6"],
-                correct_answer_indices: [0,1]
-            }
+        multiple_choice_task t2 {
+            description: "Tschüss",
+            answers: ["4", "5", "6"],
+            correct_answer_indices: [0,1]
+        }
 
-            graph g {
-                t1 -> t2
-            }
-            """;
+        graph g {
+            t1 -> t2
+        }
+        """;
 
     // setup
     var ast = Helpers.getASTFromString(program);
@@ -948,9 +960,10 @@ public class TestSemanticAnalyzer {
     env.loadTypes(testComponentType);
     symbolTableParser.setup(env);
     var symbolTable = symbolTableParser.walk(ast).symbolTable;
+    var fileScope = env.getFileScope(null);
 
-    Symbol t1TaskSymbol = symbolTable.globalScope.resolve("t1");
-    Symbol t2TaskSymbol = symbolTable.globalScope.resolve("t2");
+    Symbol t1TaskSymbol = fileScope.resolve("t1");
+    Symbol t2TaskSymbol = fileScope.resolve("t2");
 
     DotDefNode dotDefNode = (DotDefNode) ast.getChild(2);
 
@@ -971,23 +984,23 @@ public class TestSemanticAnalyzer {
   public void testTaskReferenceInGraphForwardReference() {
     String program =
         """
-            graph g {
-                t1 -> t2
-            }
+        graph g {
+            t1 -> t2
+        }
 
-            single_choice_task t1 {
-                description: "Hello",
-                answers: ["1", "2", "3"],
-                correct_answer_index: 1
-            }
+        single_choice_task t1 {
+            description: "Hello",
+            answers: ["1", "2", "3"],
+            correct_answer_index: 1
+        }
 
-            multiple_choice_task t2 {
-                description: "Tschüss",
-                answers: ["4", "5", "6"],
-                correct_answer_indices: [0,1]
-            }
+        multiple_choice_task t2 {
+            description: "Tschüss",
+            answers: ["4", "5", "6"],
+            correct_answer_indices: [0,1]
+        }
 
-            """;
+        """;
 
     // setup
     var ast = Helpers.getASTFromString(program);
@@ -1001,9 +1014,10 @@ public class TestSemanticAnalyzer {
     env.loadTypes(testComponentType);
     symbolTableParser.setup(env);
     var symbolTable = symbolTableParser.walk(ast).symbolTable;
+    var fileScope = env.getFileScope(null);
 
-    Symbol t1TaskSymbol = symbolTable.globalScope.resolve("t1");
-    Symbol t2TaskSymbol = symbolTable.globalScope.resolve("t2");
+    Symbol t1TaskSymbol = fileScope.resolve("t1");
+    Symbol t2TaskSymbol = fileScope.resolve("t2");
 
     DotDefNode dotDefNode = (DotDefNode) ast.getChild(0);
 
@@ -1024,14 +1038,14 @@ public class TestSemanticAnalyzer {
   public void testForLoopVariableBinding() {
     String program =
         """
-        fn test() {
-            var my_list : int[];
-            for int entry in my_list {
-                print(entry);
-            }
+    fn test() {
+        var my_list : int[];
+        for int entry in my_list {
+            print(entry);
         }
+    }
 
-        """;
+    """;
 
     // setup
     var ast = Helpers.getASTFromString(program);
@@ -1040,9 +1054,10 @@ public class TestSemanticAnalyzer {
     var env = new GameEnvironment();
     symbolTableParser.setup(env);
     var symbolTable = symbolTableParser.walk(ast).symbolTable;
+    var fileScope = env.getFileScope(null);
 
     // get variable declaration
-    FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("test");
+    FunctionSymbol funcSymbol = (FunctionSymbol) fileScope.resolve("test");
     FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
     VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
     Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
@@ -1069,15 +1084,15 @@ public class TestSemanticAnalyzer {
   public void testCountingLoopVariableBinding() {
     String program =
         """
-        fn test() {
-            var my_list : int[];
-            for int entry in my_list count i{
-                print(entry);
-                print(i);
-            }
+    fn test() {
+        var my_list : int[];
+        for int entry in my_list count i{
+            print(entry);
+            print(i);
         }
+    }
 
-        """;
+    """;
 
     // setup
     var ast = Helpers.getASTFromString(program);
@@ -1086,9 +1101,10 @@ public class TestSemanticAnalyzer {
     var env = new GameEnvironment();
     symbolTableParser.setup(env);
     var symbolTable = symbolTableParser.walk(ast).symbolTable;
+    var fileScope = env.getFileScope(null);
 
     // get variable declaration
-    FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("test");
+    FunctionSymbol funcSymbol = (FunctionSymbol) fileScope.resolve("test");
     FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
     VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
     Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
@@ -1129,14 +1145,14 @@ public class TestSemanticAnalyzer {
   public void testWhileLoop() {
     String program =
         """
-        fn test() {
-            var my_list : int[];
-            while my_list {
-                print(my_list);
-            }
+    fn test() {
+        var my_list : int[];
+        while my_list {
+            print(my_list);
         }
+    }
 
-        """;
+    """;
 
     // setup
     var ast = Helpers.getASTFromString(program);
@@ -1145,9 +1161,10 @@ public class TestSemanticAnalyzer {
     var env = new GameEnvironment();
     symbolTableParser.setup(env);
     var symbolTable = symbolTableParser.walk(ast).symbolTable;
+    var fileScope = env.getFileScope(null);
 
     // get variable declaration
-    FunctionSymbol funcSymbol = (FunctionSymbol) symbolTable.globalScope.resolve("test");
+    FunctionSymbol funcSymbol = (FunctionSymbol) fileScope.resolve("test");
     FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
     VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
     Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
@@ -1158,5 +1175,79 @@ public class TestSemanticAnalyzer {
     Node expressionIdNode = loopNode.getExpressionNode();
     Symbol expressionRefNode = symbolTable.getSymbolsForAstNode(expressionIdNode).get(0);
     Assert.assertEquals(myListSymbol, expressionRefNode);
+  }
+
+  @Test
+  public void testImportFunc() {
+    String program = """
+        #import "test.dng":test_fn_param as my_func
+        """;
+
+    // setup
+    var ast = Helpers.getASTFromString(program);
+    SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+
+    var env = new GameEnvironment(testLibPath);
+    symbolTableParser.setup(env);
+    var symbolTable = symbolTableParser.walk(ast).symbolTable;
+    var fileScope = env.getFileScope(null);
+    Symbol myFuncSymbol = fileScope.resolve("my_func");
+    Assert.assertNotEquals(Symbol.NULL, myFuncSymbol);
+
+    ImportFunctionSymbol importFunctionSymbol = (ImportFunctionSymbol) myFuncSymbol;
+    FunctionSymbol originalFunctionSymbol = importFunctionSymbol.originalFunctionSymbol();
+    Assert.assertEquals("test_fn_param", originalFunctionSymbol.getName());
+    Assert.assertNotEquals(importFunctionSymbol.getScope(), originalFunctionSymbol.getScope());
+
+    // test parameter resolving
+    Symbol paramSymbol = importFunctionSymbol.resolve("param");
+    Assert.assertEquals(originalFunctionSymbol, paramSymbol.getScope());
+  }
+
+  @Test
+  public void testImportType() {
+    String program = """
+            #import "test.dng":my_ent_type as my_type
+            """;
+
+    // setup
+    var ast = Helpers.getASTFromString(program);
+    SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+
+    var env = new GameEnvironment(testLibPath);
+    symbolTableParser.setup(env);
+    var symbolTable = symbolTableParser.walk(ast).symbolTable;
+    var fileScope = env.getFileScope(null);
+    Symbol myTypeSymbol = fileScope.resolve("my_type");
+    Assert.assertNotEquals(Symbol.NULL, myTypeSymbol);
+
+    ImportAggregateTypeSymbol importSymbol = (ImportAggregateTypeSymbol) myTypeSymbol;
+    AggregateType originalType = importSymbol.originalTypeSymbol();
+    Assert.assertEquals("my_ent_type", originalType.getName());
+    Assert.assertNotEquals(fileScope, originalType.getScope());
+
+    // resolve
+    Symbol member = originalType.resolve("interaction_component");
+    Assert.assertEquals(originalType, member.getScope());
+  }
+
+  @Test
+  public void testBlockImportImportedType() {
+    String program = """
+        #import "test.dng":my_imported_type as my_type
+        """;
+
+    // setup
+    var ast = Helpers.getASTFromString(program);
+    SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+
+    var env = new GameEnvironment(testLibPath);
+    symbolTableParser.setup(env);
+    try {
+      var symbolTable = symbolTableParser.walk(ast).symbolTable;
+      Assert.fail("Semantic analysis is supposed to throw an exception!");
+    } catch (RuntimeException ex) {
+      Assert.assertEquals("Importing an imported symbol is not allowed!", ex.getMessage());
+    }
   }
 }

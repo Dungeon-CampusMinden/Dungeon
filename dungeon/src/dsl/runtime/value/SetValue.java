@@ -29,7 +29,7 @@ public class SetValue extends Value {
   /**
    * @return the internal HashSet of this {@link SetValue}.
    */
-  public HashSet<Value> internalSet() {
+  protected HashSet<Value> internalSet() {
     return ((HashSet<Value>) this.object);
   }
 
@@ -46,8 +46,11 @@ public class SetValue extends Value {
       return false;
     }
     internalValueSet.add(internalValue);
-    internalSet().add(value);
-    return true;
+
+    var insertionValue = (Value) value.clone();
+    insertionValue.setFrom(value);
+
+    return internalSet().add(insertionValue);
   }
 
   /**
@@ -60,6 +63,60 @@ public class SetValue extends Value {
   public void clearSet() {
     internalValueSet.clear();
     internalSet().clear();
+  }
+
+  @Override
+  public Object clone() {
+    var cloneValue = new SetValue(this.getDataType());
+    cloneValue.internalValueSet = this.internalValueSet;
+    cloneValue.object = this.object;
+    return cloneValue;
+  }
+
+  @Override
+  public boolean setFrom(Value other) {
+    if (!(other instanceof SetValue otherSetValue)) {
+      throw new RuntimeException("Other value is not a set value!");
+    }
+
+    boolean didSetValue = super.setFrom(other);
+    if (didSetValue) {
+      this.internalValueSet = otherSetValue.internalValueSet;
+    }
+    return didSetValue;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    // can't use default implementation of HashSet, because it
+    // uses the hashCode()-method for checking equality, which
+    // does not align with the values produced by comparing two
+    // Value-instances with `equals`
+    if (!(obj instanceof SetValue otherValue)) {
+      return false;
+    }
+
+    if (this == otherValue) {
+      return true;
+    }
+    if (!this.dataType.equals(otherValue.dataType)) {
+      return false;
+    }
+    if (this.getInternalValue() == null || otherValue.getInternalValue() == null) {
+      return false;
+    }
+
+    var myInternalValueSet = this.internalValueSet;
+    var otherInternalValueSet = otherValue.internalValueSet;
+    if (myInternalValueSet.size() != otherInternalValueSet.size()) {
+      return false;
+    }
+    for (var value : myInternalValueSet) {
+      if (!otherInternalValueSet.contains(value)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // region native_methods
@@ -97,7 +154,7 @@ public class SetValue extends Value {
     public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
       SetValue setValue = (SetValue) instance;
 
-      return setValue.internalSet().size();
+      return setValue.internalValueSet.size();
     }
   }
 
@@ -122,6 +179,20 @@ public class SetValue extends Value {
       return setValue.internalValueSet.contains(valueToCheck.getInternalValue());
     }
   }
-  // endregion
 
+  public static class ClearMethod implements IInstanceCallable {
+
+    public static SetValue.ClearMethod instance = new SetValue.ClearMethod();
+
+    private ClearMethod() {}
+
+    @Override
+    public Object call(DSLInterpreter interpreter, Object instance, List<Node> parameters) {
+      SetValue setValue = (SetValue) instance;
+      setValue.internalValueSet.clear();
+      setValue.internalSet().clear();
+      return null;
+    }
+  }
+  // endregion
 }

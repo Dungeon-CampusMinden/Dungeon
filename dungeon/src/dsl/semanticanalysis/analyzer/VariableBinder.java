@@ -174,6 +174,12 @@ public class VariableBinder implements AstVisitor<Void> {
   }
 
   // region ASTVisitor implementation of Nodes unrelated to variable binding
+
+  @Override
+  public Void visit(ImportNode node) {
+    return null;
+  }
+
   @Override
   public Void visit(DecNumNode node) {
     return null;

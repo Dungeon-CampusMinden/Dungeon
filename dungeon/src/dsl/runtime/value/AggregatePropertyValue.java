@@ -80,4 +80,9 @@ public class AggregatePropertyValue extends AggregateValue {
       }
     }
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    return super.equals(obj);
+  }
 }

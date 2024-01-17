@@ -73,7 +73,8 @@ public class Node {
     LoopStmtNode,
     LoopBottomMark,
     ItemPrototypeDefinition,
-    VarDeclNode
+    VarDeclNode,
+    ImportNode
   }
 
   public static Node NONE = new Node(Type.NONE, new ArrayList<>());

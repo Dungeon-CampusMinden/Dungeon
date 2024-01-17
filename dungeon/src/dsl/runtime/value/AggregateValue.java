@@ -1,7 +1,9 @@
 package dsl.runtime.value;
 
+import dsl.runtime.memoryspace.EncapsulatedObject;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.memoryspace.MemorySpace;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +17,8 @@ public class AggregateValue extends Value {
   public IMemorySpace getMemorySpace() {
     return memorySpace;
   }
+
+  private IMemorySpace parentMemorySpace;
 
   /**
    * Constructor
@@ -39,9 +43,19 @@ public class AggregateValue extends Value {
     initializeMemorySpace(parentSpace);
   }
 
+  public static AggregateValue fromEncapsulatedObject(
+      IMemorySpace parentMemorySpace, EncapsulatedObject encapsulatedObject) {
+    var val =
+        new AggregateValue(
+            encapsulatedObject.dataType, parentMemorySpace, encapsulatedObject.object);
+    val.setMemorySpace(encapsulatedObject);
+    return val;
+  }
+
   private void initializeMemorySpace(IMemorySpace parentSpace) {
     this.memorySpace = new MemorySpace(parentSpace);
     this.memorySpace.bindValue(THIS_NAME, this);
+    this.parentMemorySpace = parentSpace;
   }
 
   /**
@@ -63,7 +77,11 @@ public class AggregateValue extends Value {
 
   @Override
   public Object clone() {
-    return this;
+    var cloneValue =
+        new AggregateValue(this.dataType, this.parentMemorySpace, this.getInternalValue());
+    cloneValue.dirty = this.dirty;
+    cloneValue.setMemorySpace(this.getMemorySpace());
+    return cloneValue;
   }
 
   /**
@@ -86,5 +104,79 @@ public class AggregateValue extends Value {
             .count();
 
     return internalValueNull && dataMemberCount == 0;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof AggregateValue aggregateValue)) {
+      return false;
+    }
+    // compare based on addresses -> are we comparing to the same object?
+    if (this == aggregateValue) {
+      return true;
+    }
+    if (!this.dataType.equals(aggregateValue.dataType)) {
+      return false;
+    }
+    if (this.getInternalValue() != null && aggregateValue.getInternalValue() != null) {
+      // compare internal values, if they are not null
+      return this.getInternalValue().equals(aggregateValue.getInternalValue());
+    }
+
+    // compare count of values in memory space
+    long myMsSizeWithoutThis =
+        this.getMemorySpace().getValueSet().stream()
+            .filter(e -> !e.getKey().equals(Value.THIS_NAME))
+            .count();
+    long otherMsSizeWithoutThis =
+        aggregateValue.getMemorySpace().getValueSet().stream()
+            .filter(e -> !e.getKey().equals(Value.THIS_NAME))
+            .count();
+    if (myMsSizeWithoutThis != otherMsSizeWithoutThis) {
+      return false;
+    }
+
+    // compare values in memoryspace
+    var otherMs = aggregateValue;
+    boolean equalMemorySpaces = true;
+    for (var entry : this.getValueSet()) {
+      String name = entry.getKey();
+      Value value = entry.getValue();
+      var valueInOtherMs = aggregateValue.getMemorySpace().resolve(name);
+      if (valueInOtherMs.equals(NONE)) {
+        equalMemorySpaces = false;
+        break;
+      }
+      equalMemorySpaces &= value.equals(valueInOtherMs);
+    }
+    return equalMemorySpaces;
+  }
+
+  @Override
+  public boolean setFrom(Value other) {
+    if (!(other instanceof AggregateValue otherAggregateValue)) {
+      throw new RuntimeException("Other value is not an aggregate Value!");
+    }
+
+    AggregateType myType = (AggregateType) this.getDataType();
+    AggregateType otherType = (AggregateType) otherAggregateValue.getDataType();
+
+    boolean typesAreIncompatible = false;
+    if (!myType.equals(otherType)) {
+      if (!myType.getOriginType().isAssignableFrom(otherType.getOriginType())) {
+        typesAreIncompatible = true;
+      }
+    }
+
+    if (typesAreIncompatible) {
+      throw new RuntimeException("Incompatible data types, can't assign value!");
+    }
+
+    boolean didSetValue = this.setInternalValue(other.getInternalValue());
+    if (didSetValue) {
+      this.parentMemorySpace = otherAggregateValue.parentMemorySpace;
+      this.memorySpace = otherAggregateValue.memorySpace;
+    }
+    return didSetValue;
   }
 }

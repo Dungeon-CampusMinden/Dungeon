@@ -40,6 +40,14 @@ public class SetType extends ScopedSymbol implements IType {
             new FunctionType(BuiltInType.boolType, elementType),
             SetValue.ContainsMethod.instance);
     this.bind(getMethod);
+
+    NativeMethod clearMethod =
+        new NativeMethod(
+            "clear",
+            this,
+            new FunctionType(BuiltInType.noType, BuiltInType.noType),
+            SetValue.ClearMethod.instance);
+    this.bind(clearMethod);
   }
 
   @Override

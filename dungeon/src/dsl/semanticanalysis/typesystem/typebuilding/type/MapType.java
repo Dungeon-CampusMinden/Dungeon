@@ -48,6 +48,14 @@ public class MapType extends ScopedSymbol implements IType {
             new FunctionType(elementListType),
             MapValue.GetElementsMethod.instance);
     this.bind(getElementsMethod);
+
+    NativeMethod clearMethod =
+        new NativeMethod(
+            "clear",
+            this,
+            new FunctionType(BuiltInType.noType, BuiltInType.noType),
+            MapValue.ClearMethod.instance);
+    this.bind(clearMethod);
   }
 
   @Override

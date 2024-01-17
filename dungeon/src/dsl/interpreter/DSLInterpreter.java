@@ -16,7 +16,9 @@ import dsl.semanticanalysis.*;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.scope.FileScope;
 import dsl.semanticanalysis.scope.IScope;
+import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
@@ -25,7 +27,12 @@ import dsl.semanticanalysis.typesystem.callbackadapter.CallbackAdapter;
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import entrypoint.DSLEntryPoint;
+import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
+import entrypoint.ParsedFile;
+import java.io.File;
+import java.io.FileFilter;
+import java.nio.file.Path;
 import java.util.*;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -43,7 +50,9 @@ import task.tasktype.Quiz;
 public class DSLInterpreter implements AstVisitor<Object> {
   private RuntimeEnvironment environment;
   private final ArrayDeque<IMemorySpace> memoryStack;
+  private final ArrayDeque<IMemorySpace> fileMemoryStack;
   private final ArrayDeque<IMemorySpace> instanceMemoryStack;
+  private final HashMap<FileScope, IMemorySpace> fileScopeToMemorySpace;
   private IMemorySpace globalSpace;
 
   private SymbolTable symbolTable() {
@@ -67,11 +76,52 @@ public class DSLInterpreter implements AstVisitor<Object> {
   /** Constructor. */
   public DSLInterpreter() {
     memoryStack = new ArrayDeque<>();
+    fileMemoryStack = new ArrayDeque<>();
     instanceMemoryStack = new ArrayDeque<>();
     globalSpace = new MemorySpace();
     statementStack = new ArrayDeque<>();
     scenarioBuilderStorage = new ScenarioBuilderStorage();
+    fileScopeToMemorySpace = new HashMap<>();
     memoryStack.push(globalSpace);
+  }
+
+  /**
+   * Set the execution context for the DSLInterpreter (load the memoryspace associated with the
+   * passed file with {@link Path}
+   *
+   * @param filePath the path of the file to set as context
+   */
+  public void setContextFileByPath(Path filePath) {
+    IScope scope = this.environment.getFileScope(filePath);
+    if (scope.equals(Scope.NULL)) {
+      throw new RuntimeException(
+          "No file scope associated with the passed filePath '" + filePath + "'");
+    }
+    FileScope fileScope = (FileScope) scope;
+    setContextFileScope(fileScope);
+  }
+
+  /**
+   * Set the execution context for the DSLInterpreter (load the memoryspace associated with the
+   * passed {@link FileScope})
+   *
+   * @param fileScope the fileScope of the file to set as context
+   */
+  public void setContextFileScope(FileScope fileScope) {
+    IMemorySpace ms = this.fileScopeToMemorySpace.get(fileScope);
+    this.fileMemoryStack.push(ms);
+    this.memoryStack.push(ms);
+  }
+
+  /**
+   * Pops all file memory spaces and all memoryspaces on memory stack until only the global space
+   * remains.
+   */
+  public void resetFileContext() {
+    this.fileMemoryStack.clear();
+    while (this.memoryStack.peek() != null && !this.memoryStack.peek().equals(globalSpace)) {
+      this.memoryStack.pop();
+    }
   }
 
   /**
@@ -82,16 +132,58 @@ public class DSLInterpreter implements AstVisitor<Object> {
    * @return the interpreted {@link DungeonConfig}.
    */
   public DungeonConfig interpretEntryPoint(DSLEntryPoint entryPoint) {
-    Node filesRootASTNode = entryPoint.file().rootASTNode();
-
+    // TODO: could add information about the file being loaded from a jar file
     var environment = new GameEnvironment();
+    return interpretEntryPoint(entryPoint, environment);
+  }
+
+  /**
+   * Create a {@link DungeonConfig} instance for given {@link DSLEntryPoint}, this will reset the
+   * environment of this {@link DSLInterpreter}
+   *
+   * @param entryPoint the {@link DSLEntryPoint} to interpret.
+   * @param environment the {@link IEnvironment} to use
+   * @return the interpreted {@link DungeonConfig}.
+   */
+  public DungeonConfig interpretEntryPoint(DSLEntryPoint entryPoint, IEnvironment environment) {
     SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
     semanticAnalyzer.setup(environment);
-    var result = semanticAnalyzer.walk(filesRootASTNode);
 
-    initializeRuntime(environment);
+    // TODO: scan lib path (hacky)..
+    File libraryPath = new File(environment.libPath().toString());
 
-    return generateQuestConfig(entryPoint.configDefinitionNode());
+    if (libraryPath.exists() && libraryPath.isDirectory()) {
+      FileFilter scenarioDirFilter =
+          file -> file.isDirectory() && file.getName().equals(environment.scenarioSubDirName());
+      var optScenarioDir = Arrays.stream(libraryPath.listFiles(scenarioDirFilter)).findFirst();
+      if (optScenarioDir.isPresent()) {
+        FileFilter scenarioFileFilter = file -> file.isFile() && file.getPath().endsWith(".dng");
+        var scenarioDir = optScenarioDir.get();
+        var scenarioFiles = scenarioDir.listFiles(scenarioFileFilter);
+
+        // add all scenario files up front for semantic analysis
+        // all other files will be loaded from the lib-directory as needed
+        for (File scenarioFile : scenarioFiles) {
+          var filePath = scenarioFile.toPath();
+          String content = DSLFileLoader.fileToString(filePath);
+          var programAST = DungeonASTConverter.getProgramAST(content);
+          ParsedFile parsedFile = new ParsedFile(filePath, programAST);
+
+          environment.addFileScope(new FileScope(parsedFile, environment.getGlobalScope()));
+          semanticAnalyzer.walk(parsedFile);
+        }
+      }
+    }
+
+    var result = semanticAnalyzer.walk(entryPoint.file());
+
+    // at this point, all the symbolic and semantic data must be present in the environment
+    initializeRuntime(environment, entryPoint.file().filePath());
+
+    // scan the entrypoint file (the main .dng file) for scenario builder functions
+    scanFileForScenarioBuilders(entryPoint.file().filePath());
+
+    return generateQuestConfig(entryPoint.configDefinitionNode(), entryPoint.file());
   }
 
   /**
@@ -108,6 +200,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
     return this.globalSpace;
   }
 
+  public IMemorySpace getEntryPointFileMemorySpace() {
+    var fs = this.environment.entryPointFileScope();
+    return this.fileScopeToMemorySpace.get(fs);
+  }
+
+  // region prototypes
+
   /**
    * Creates {@link PrototypeValue} instances for all `entity_type` and `item_type` definitions in
    * the global scope of the passed {@link IEnvironment}.
@@ -115,9 +214,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
    * @param environment the {@link IEnvironment} in which's global scope to search for prototype
    *     definitions.
    */
-  public void createPrototypes(IEnvironment environment) {
-    createGameObjectPrototypes(environment);
-    createItemPrototypes(environment);
+  public void createPrototypes(IEnvironment environment, IScope scope) {
+    createGameObjectPrototypes(environment, scope);
+    createItemPrototypes(environment, scope);
   }
 
   /**
@@ -126,9 +225,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
    *
    * @param environment the environment to check for game object definitions
    */
-  public void createGameObjectPrototypes(IEnvironment environment) {
+  public void createGameObjectPrototypes(IEnvironment environment, IScope scope) {
+    // TODO: needs to be scoped...
+
     // iterate over all types
-    for (var type : environment.getTypes()) {
+    var types =
+        scope.getSymbols().stream().filter(s -> s instanceof IType).map(s -> (IType) s).toList();
+    for (var type : types) {
       if (type.getTypeKind().equals(IType.Kind.Aggregate)) {
         // if the type has a creation node, it is user defined, and we need to
         // create a prototype for it
@@ -143,8 +246,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
             var componentPrototype = createComponentPrototype(compDefNode);
             prototype.addDefaultValue(compDefNode.getIdName(), componentPrototype);
           }
-          this.environment.addPrototype(prototype);
-          this.getGlobalMemorySpace().bindValue(prototype.getName(), prototype);
+          // needs to be added to file-memoryspace, not the environment
+          // this.environment.addPrototype(prototype);
+          // TODO: needs to use current file-memoryspace
+          this.getCurrentMemorySpace().bindValue(prototype.getName(), prototype);
+          // this.getGlobalMemorySpace().bindValue(prototype.getName(), prototype);
         }
       }
     }
@@ -158,9 +264,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
    *
    * @param environment the {@link IEnvironment} to search for item prototype definitions
    */
-  public void createItemPrototypes(IEnvironment environment) {
+  public void createItemPrototypes(IEnvironment environment, IScope scope) {
     // iterate over all types
-    for (var type : environment.getTypes()) {
+    var types =
+        scope.getSymbols().stream().filter(s -> s instanceof IType).map(s -> (IType) s).toList();
+    for (var type : types) {
       if (type.getTypeKind().equals(IType.Kind.Aggregate)) {
         // if the type has a creation node, it is user defined, and we need to
         // create a prototype for it
@@ -168,8 +276,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
         if (creationAstNode.type.equals(Node.Type.ItemPrototypeDefinition)) {
           var prototype = createItemPrototype((ItemPrototypeDefinitionNode) creationAstNode);
 
-          this.environment.addPrototype(prototype);
-          this.getGlobalMemorySpace().bindValue(prototype.getName(), prototype);
+          // this.environment.addPrototype(prototype);
+          // this.getGlobalMemorySpace().bindValue(prototype.getName(), prototype);
+          this.getCurrentMemorySpace().bindValue(prototype.getName(), prototype);
         }
       }
     }
@@ -268,12 +377,21 @@ public class DSLInterpreter implements AstVisitor<Object> {
     return componentPrototype;
   }
 
+  // endregion
+
   protected void initializeScenarioBuilderStorage() {
     this.scenarioBuilderStorage.initializeScenarioBuilderStorage(this.environment);
   }
 
   protected Symbol getScenarioBuilderReturnType() {
     return this.environment.getGlobalScope().resolve("entity<><>");
+  }
+
+  protected void scanFileForScenarioBuilders(Path path) {
+    IScope fileScope = this.environment.getFileScope(path);
+    if (!fileScope.equals(Scope.NULL)) {
+      scanScopeForScenarioBuilders(fileScope);
+    }
   }
 
   protected void scanScopeForScenarioBuilders(IScope scope) {
@@ -348,8 +466,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
       scenarioBuilder = optionalScenarioBuilder.get();
     }
 
+    FileScope entryPointFS = this.environment.entryPointFileScope();
+    setContextFileScope(entryPointFS);
+
     Value retValue = (Value) this.callCallableRawParameters(scenarioBuilder, List.of(task));
     var typeInstantiator = this.environment.getTypeInstantiator();
+
+    resetFileContext();
 
     // create the java representation of the return Value
     return Optional.of(typeInstantiator.instantiate(retValue));
@@ -360,28 +483,39 @@ public class DSLInterpreter implements AstVisitor<Object> {
    *
    * @param environment The environment to bind the functions, objects and data types from.
    */
-  public void initializeRuntime(IEnvironment environment) {
+  public void initializeRuntime(IEnvironment environment, Path entryPointFilePath) {
     // reinitialize global memory space
     this.memoryStack.clear();
     this.globalSpace = new MemorySpace();
     this.memoryStack.push(this.globalSpace);
 
-    this.environment = new RuntimeEnvironment(environment, this);
+    FileScope fs = environment.getFileScope(entryPointFilePath);
+    this.environment = new RuntimeEnvironment(environment, this, fs);
 
-    evaluateGlobalSymbols();
     initializeScenarioBuilderStorage();
 
-    scanScopeForScenarioBuilders(this.environment.getGlobalScope());
+    // scan for scenario builders in scenario lib files
+    var files = this.environment.getFileScopes().keySet();
+    var scenarioFiles =
+        files.stream()
+            .filter(
+                p ->
+                    p != null
+                        && p.toString().contains(this.environment.relScenarioPath().toString()))
+            .toList();
+
+    for (var scenarioFile : scenarioFiles) {
+      IScope fileScope = this.environment.getFileScope(scenarioFile);
+      scanScopeForScenarioBuilders(fileScope);
+    }
   }
 
-  private void evaluateGlobalSymbols() {
+  private void evaluateGlobalSymbolsOfScope(IScope scope) {
     // bind all function definition and object definition symbols to values
     // in global memorySpace
 
-    // TODO: this should potentially done on a file basis, not globally for the whole
-    //  DSLInterpreter; should define a file-scope...
     HashMap<Symbol, Value> globalValues = new HashMap<>();
-    List<Symbol> globalSymbols = symbolTable().globalScope().getSymbols();
+    List<Symbol> globalSymbols = scope.getSymbols();
     for (var symbol : globalSymbols) {
       IType type = symbol.getDataType();
       if (type != null && type.getTypeKind().equals(IType.Kind.FunctionType)) {
@@ -456,8 +590,14 @@ public class DSLInterpreter implements AstVisitor<Object> {
       return Value.NONE;
     }
     if (type.getTypeKind().equals(IType.Kind.Basic)) {
-      Object internalValue = Value.getDefaultValue(type);
-      return new Value(type, internalValue);
+      if (type.equals(PrototypeValue.PROTOTYPE)) {
+        return new PrototypeValue(PrototypeValue.PROTOTYPE, null);
+      } else if (type.equals(PrototypeValue.ITEM_PROTOTYPE)) {
+        return new PrototypeValue(PrototypeValue.ITEM_PROTOTYPE, null);
+      } else {
+        Object internalValue = Value.getDefaultValue(type);
+        return new Value(type, internalValue);
+      }
     } else if (type.getTypeKind().equals(IType.Kind.Aggregate)
         || type.getTypeKind().equals(IType.Kind.AggregateAdapted)) {
       AggregateValue value = new AggregateValue(type, getCurrentMemorySpace());
@@ -488,9 +628,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
    * further evaluation and interpretation.
    *
    * @param configScript The script (in the DungeonDSL) to parse
+   * @param environment The environment to use
    * @return The first questConfig object found in the configScript
    */
-  public Object getQuestConfig(String configScript) {
+  public Object getQuestConfig(String configScript, IEnvironment environment) {
+    // TODO: make relLibPath settable (or make the Environment settable)
     var stream = CharStreams.fromString(configScript);
     var lexer = new DungeonDSLLexer(stream);
 
@@ -501,52 +643,110 @@ public class DSLInterpreter implements AstVisitor<Object> {
     DungeonASTConverter astConverter = new DungeonASTConverter();
     var programAST = astConverter.walk(programParseTree);
 
-    var environment = new GameEnvironment();
     SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
     semanticAnalyzer.setup(environment);
     var result = semanticAnalyzer.walk(programAST);
+    ParsedFile pf = semanticAnalyzer.latestParsedFile;
 
-    initializeRuntime(environment);
+    initializeRuntime(environment, pf.filePath());
+    scanFileForScenarioBuilders(pf.filePath());
 
-    Value questConfigValue = (Value) generateQuestConfig(programAST);
+    Value questConfigValue = (Value) generateQuestConfig(programAST, pf);
     return questConfigValue.getInternalValue();
+  }
+
+  /**
+   * Parse the config script and return the questConfig object, which serves as an entry point for
+   * further evaluation and interpretation.
+   *
+   * @param configScript The script (in the DungeonDSL) to parse
+   * @return The first questConfig object found in the configScript
+   */
+  public Object getQuestConfig(String configScript) {
+    return this.getQuestConfig(configScript, new GameEnvironment());
   }
 
   /**
    * @param programAST The AST of the DSL program to generate a quest config object from
    * @return the object, which represents the quest config of the passed DSL program. The type of
    *     this object depends on the Class, which is set up as the 'quest_config' type in the {@link
-   *     IEnvironment} used by the DSLInterpreter (set by {@link #initializeRuntime(IEnvironment)})
+   *     IEnvironment} used by the DSLInterpreter (set by initializeRuntime)
    */
-  public Object generateQuestConfig(Node programAST) {
-    createPrototypes(this.environment);
+  public Object generateQuestConfig(Node programAST, ParsedFile parsedFile) {
+    IScope fs = this.environment.getFileScope(parsedFile.filePath());
 
+    var filesMemorySpace = initializeFileMemorySpace((FileScope) fs);
+    this.memoryStack.push(filesMemorySpace);
+    this.fileMemoryStack.push(filesMemorySpace);
+
+    Object questConfigObject = Value.NONE;
     // find quest_config definition
     for (var node : programAST.getChildren()) {
       if (node.type == Node.Type.ObjectDefinition) {
         var objDefNode = (ObjectDefNode) node;
         if (objDefNode.getTypeSpecifierName().equals("quest_config")
             || objDefNode.getTypeSpecifierName().equals("dungeon_config")) {
-          return objDefNode.accept(this);
+          questConfigObject = objDefNode.accept(this);
+          break;
         }
       }
     }
-    return Value.NONE;
+
+    this.memoryStack.pop();
+    this.fileMemoryStack.pop();
+
+    return questConfigObject;
   }
 
-  protected DungeonConfig generateQuestConfig(ObjectDefNode configDefinitionNode) {
-    createPrototypes(this.environment);
+  public IMemorySpace getFileMemorySpace(FileScope fs) {
+    return this.fileScopeToMemorySpace.get(fs);
+  }
+
+  protected IMemorySpace initializeFileMemorySpace(FileScope fs) {
+    IMemorySpace filesMemorySpace;
+    if (this.fileScopeToMemorySpace.containsKey(fs)) {
+      // if the fileScope is already in the hashmap, we assume, it is initialized
+      filesMemorySpace = this.fileScopeToMemorySpace.get(fs);
+    } else {
+      filesMemorySpace = new MemorySpace(this.globalSpace);
+      this.fileScopeToMemorySpace.put(fs, filesMemorySpace);
+
+      this.memoryStack.push(filesMemorySpace);
+      evaluateGlobalSymbolsOfScope(fs);
+      createPrototypes(this.environment, fs);
+      this.memoryStack.pop();
+    }
+    return filesMemorySpace;
+  }
+
+  protected DungeonConfig generateQuestConfig(ObjectDefNode configDefinitionNode, ParsedFile pf) {
+    // TODO: this needs to be done for every "entry point into the interpreter"
+
+    IScope scope = this.environment.getFileScope(pf.filePath());
+    if (scope.equals(Scope.NULL)) {
+      throw new RuntimeException("Scope for file '" + pf.filePath() + "' is null");
+    }
+
+    FileScope fs = (FileScope) scope;
+
+    IMemorySpace fileMemorySpace = initializeFileMemorySpace(fs);
+    this.memoryStack.push(fileMemorySpace);
+    this.fileMemoryStack.push(fileMemorySpace);
+
+    DungeonConfig dungeonConfig = null;
     Value configValue = (Value) configDefinitionNode.accept(this);
     Object config = configValue.getInternalValue();
     if (config instanceof DungeonConfig) {
-      DungeonConfig dungeonConfig = (DungeonConfig) config;
+      dungeonConfig = (DungeonConfig) config;
       if (dungeonConfig.displayName().isEmpty()) {
         String objectName = configDefinitionNode.getIdName();
         dungeonConfig = new DungeonConfig(dungeonConfig.dependencyGraph(), objectName);
       }
-      return dungeonConfig;
     }
-    return null;
+
+    this.memoryStack.pop();
+    this.fileMemoryStack.pop();
+    return dungeonConfig;
   }
 
   protected Value instantiateDSLValue(AggregateType type) {
@@ -635,7 +835,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
   //
   @Override
   public Object visit(PrototypeDefinitionNode node) {
-    return this.environment.lookupPrototype(node.getIdName());
+    // TODO: does this need to be specially treated? could this not be the normal resolving of
+    // types?
+    // return this.environment.lookupPrototype(node.getIdName());
+    boolean b = true;
+    return this.getCurrentMemorySpace().resolve(node.getIdName());
   }
 
   public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
@@ -744,6 +948,22 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
     if (symbol instanceof FunctionSymbol functionSymbol) {
       return new FunctionValue(functionSymbol.getFunctionType(), functionSymbol);
+    }
+    if (symbol instanceof ImportAggregateTypeSymbol aggregateTypeSymbol) {
+      // get file associated memory space of original definition
+      AggregateType originalType = aggregateTypeSymbol.originalTypeSymbol();
+      IScope originalScope = originalType.getScope();
+      assert originalScope instanceof FileScope;
+      FileScope originalFileScope = (FileScope) originalScope;
+
+      // at this point, the memory space of the original file could still be uninitialized
+      IMemorySpace originalFileMemorySpace;
+      if (!this.fileScopeToMemorySpace.containsKey(originalFileScope)) {
+        originalFileMemorySpace = initializeFileMemorySpace(originalFileScope);
+      } else {
+        originalFileMemorySpace = this.fileScopeToMemorySpace.get(originalFileScope);
+      }
+      return originalFileMemorySpace.resolve(originalType.getName());
     }
 
     return this.getCurrentMemorySpace().resolve(node.getName(), true);
@@ -953,44 +1173,237 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
   @Override
   public Object visit(LogicOrNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    Value lhs = (Value) node.getLhs().accept(this);
+
+    // short-circuiting implementation
+    boolean lhsBool = isBooleanTrue(lhs);
+    if (lhsBool) {
+      return new Value(BuiltInType.boolType, true);
+    }
+
+    Value rhs = (Value) node.getRhs().accept(this);
+    return new Value(BuiltInType.boolType, isBooleanTrue(rhs));
   }
 
   @Override
   public Object visit(LogicAndNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    Value lhs = (Value) node.getLhs().accept(this);
+
+    // short-circuiting implementation
+    boolean lhsBool = isBooleanTrue(lhs);
+    if (!lhsBool) {
+      return new Value(BuiltInType.boolType, false);
+    }
+
+    Value rhs = (Value) node.getRhs().accept(this);
+    return new Value(BuiltInType.boolType, isBooleanTrue(rhs));
   }
 
   @Override
   public Object visit(EqualityNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    var lhsValue = (Value) node.getLhs().accept(this);
+    var rhsValue = (Value) node.getRhs().accept(this);
+    boolean equals = lhsValue.equals(rhsValue);
+    return switch (node.getEqualityType()) {
+      case equals -> new Value(BuiltInType.boolType, equals);
+      case notEquals -> new Value(BuiltInType.boolType, !equals);
+    };
   }
 
   @Override
   public Object visit(ComparisonNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    Value lhs = (Value) node.getLhs().accept(this);
+    Value rhs = (Value) node.getRhs().accept(this);
+
+    assert lhs.getDataType() == rhs.getDataType();
+    IType valueType = lhs.getDataType();
+    switch (node.getComparisonType()) {
+      case lessThan:
+        if (valueType.equals(BuiltInType.intType)) {
+          Integer lhsInt = (Integer) lhs.getInternalValue();
+          Integer rhsInt = (Integer) rhs.getInternalValue();
+          boolean comp = lhsInt < rhsInt;
+          return new Value(BuiltInType.boolType, comp);
+        } else if (valueType.equals(BuiltInType.floatType)) {
+          Float lhsFloat = (Float) lhs.getInternalValue();
+          Float rhsFloat = (Float) rhs.getInternalValue();
+          boolean comp = lhsFloat < rhsFloat;
+          return new Value(BuiltInType.boolType, comp);
+        } else {
+          throw new RuntimeException("Invalid type '" + valueType + "' for comparison!");
+        }
+      case lessEquals:
+        if (valueType.equals(BuiltInType.intType)) {
+          Integer lhsInt = (Integer) lhs.getInternalValue();
+          Integer rhsInt = (Integer) rhs.getInternalValue();
+          boolean comp = lhsInt <= rhsInt;
+          return new Value(BuiltInType.boolType, comp);
+        } else if (valueType.equals(BuiltInType.floatType)) {
+          Float lhsFloat = (Float) lhs.getInternalValue();
+          Float rhsFloat = (Float) rhs.getInternalValue();
+          boolean comp = lhsFloat <= rhsFloat;
+          return new Value(BuiltInType.boolType, comp);
+        } else {
+          throw new RuntimeException("Invalid type '" + valueType + "' for comparison!");
+        }
+      case greaterThan:
+        if (valueType.equals(BuiltInType.intType)) {
+          Integer lhsInt = (Integer) lhs.getInternalValue();
+          Integer rhsInt = (Integer) rhs.getInternalValue();
+          boolean comp = lhsInt > rhsInt;
+          return new Value(BuiltInType.boolType, comp);
+        } else if (valueType.equals(BuiltInType.floatType)) {
+          Float lhsFloat = (Float) lhs.getInternalValue();
+          Float rhsFloat = (Float) rhs.getInternalValue();
+          boolean comp = lhsFloat > rhsFloat;
+          return new Value(BuiltInType.boolType, comp);
+        } else {
+          throw new RuntimeException("Invalid type '" + valueType + "' for comparison!");
+        }
+      case greaterEquals:
+        if (valueType.equals(BuiltInType.intType)) {
+          Integer lhsInt = (Integer) lhs.getInternalValue();
+          Integer rhsInt = (Integer) rhs.getInternalValue();
+          boolean comp = lhsInt >= rhsInt;
+          return new Value(BuiltInType.boolType, comp);
+        } else if (valueType.equals(BuiltInType.floatType)) {
+          Float lhsFloat = (Float) lhs.getInternalValue();
+          Float rhsFloat = (Float) rhs.getInternalValue();
+          boolean comp = lhsFloat >= rhsFloat;
+          return new Value(BuiltInType.boolType, comp);
+        } else {
+          throw new RuntimeException("Invalid type '" + valueType + "' for comparison!");
+        }
+    }
+    return Value.NONE;
   }
 
   @Override
   public Object visit(TermNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    Value lhs = (Value) node.getLhs().accept(this);
+    Value rhs = (Value) node.getRhs().accept(this);
+
+    assert lhs.getDataType() == rhs.getDataType();
+    IType valueType = lhs.getDataType();
+
+    // we just assume, that lhs and rhs have the same datatype, checked in semantic analysis
+    switch (node.getTermType()) {
+      case plus:
+        {
+          if (valueType.equals(BuiltInType.intType)) {
+            Integer lhsInt = (Integer) lhs.getInternalValue();
+            Integer rhsInt = (Integer) rhs.getInternalValue();
+            Integer sum = lhsInt + rhsInt;
+            return new Value(BuiltInType.intType, sum);
+          } else if (valueType.equals(BuiltInType.floatType)) {
+            Float lhsFloat = (Float) lhs.getInternalValue();
+            Float rhsFloat = (Float) rhs.getInternalValue();
+            Float sum = lhsFloat + rhsFloat;
+            return new Value(BuiltInType.floatType, sum);
+          } else if (valueType.equals(BuiltInType.stringType)) {
+            // concatenate strings
+            String lhsString = (String) lhs.getInternalValue();
+            String rhsString = (String) rhs.getInternalValue();
+            String concat = lhsString + rhsString;
+            return new Value(BuiltInType.stringType, concat);
+          } else {
+            throw new RuntimeException("Invalid type '" + valueType + "' for addition!");
+          }
+        }
+      case minus:
+        {
+          if (valueType.equals(BuiltInType.intType)) {
+            Integer lhsInt = (Integer) lhs.getInternalValue();
+            Integer rhsInt = (Integer) rhs.getInternalValue();
+            Integer sub = lhsInt - rhsInt;
+            return new Value(BuiltInType.intType, sub);
+          } else if (valueType.equals(BuiltInType.floatType)) {
+            Float lhsFloat = (Float) lhs.getInternalValue();
+            Float rhsFloat = (Float) rhs.getInternalValue();
+            Float sub = lhsFloat - rhsFloat;
+            return new Value(BuiltInType.floatType, sub);
+          } else {
+            throw new RuntimeException("Invalid type '" + valueType + "' for subtraction!");
+          }
+        }
+    }
+    return Value.NONE;
   }
 
   @Override
   public Object visit(FactorNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    Value lhs = (Value) node.getLhs().accept(this);
+    Value rhs = (Value) node.getRhs().accept(this);
+
+    assert lhs.getDataType() == rhs.getDataType();
+    IType valueType = lhs.getDataType();
+
+    // we just assume, that lhs and rhs have the same datatype, checked in semantic analysis
+    switch (node.getFactorType()) {
+      case divide:
+        {
+          if (valueType.equals(BuiltInType.intType)) {
+            Integer lhsInt = (Integer) lhs.getInternalValue();
+            Integer rhsInt = (Integer) rhs.getInternalValue();
+            Integer div = lhsInt / rhsInt;
+            return new Value(BuiltInType.intType, div);
+          } else if (valueType.equals(BuiltInType.floatType)) {
+            Float lhsFloat = (Float) lhs.getInternalValue();
+            Float rhsFloat = (Float) rhs.getInternalValue();
+            Float div = lhsFloat / rhsFloat;
+            return new Value(BuiltInType.floatType, div);
+          } else {
+            throw new RuntimeException("Invalid type '" + valueType + "' for division!");
+          }
+        }
+      case multiply:
+        {
+          if (valueType.equals(BuiltInType.intType)) {
+            Integer lhsInt = (Integer) lhs.getInternalValue();
+            Integer rhsInt = (Integer) rhs.getInternalValue();
+            Integer mul = lhsInt * rhsInt;
+            return new Value(BuiltInType.intType, mul);
+          } else if (valueType.equals(BuiltInType.floatType)) {
+            Float lhsFloat = (Float) lhs.getInternalValue();
+            Float rhsFloat = (Float) rhs.getInternalValue();
+            Float mul = lhsFloat * rhsFloat;
+            return new Value(BuiltInType.floatType, mul);
+          } else {
+            throw new RuntimeException("Invalid type '" + valueType + "' for multiplication!");
+          }
+        }
+    }
+    return Value.NONE;
   }
 
   @Override
   public Object visit(UnaryNode node) {
-    // TODO: implement
-    throw new UnsupportedOperationException();
+    Value innerValue = (Value) node.getInnerNode().accept(this);
+    IType valueType = innerValue.getDataType();
+
+    // we just assume, that lhs and rhs have the same datatype, checked in semantic analysis
+    switch (node.getUnaryType()) {
+      case not:
+        {
+          boolean invertedBooleanValue = !isBooleanTrue(innerValue);
+          return new Value(BuiltInType.boolType, invertedBooleanValue);
+        }
+      case minus:
+        {
+          if (valueType.equals(BuiltInType.intType)) {
+            Integer internalValue = (Integer) innerValue.getInternalValue();
+            Integer res = -internalValue;
+            return new Value(BuiltInType.intType, res);
+          } else if (valueType.equals(BuiltInType.floatType)) {
+            Float internalValue = (Float) innerValue.getInternalValue();
+            Float res = -internalValue;
+            return new Value(BuiltInType.floatType, res);
+          } else {
+            throw new RuntimeException("Invalid type '" + valueType + "' for unary minus!");
+          }
+        }
+    }
+    return Value.NONE;
   }
 
   @Override
@@ -1067,38 +1480,35 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
   @Override
   public Object visit(Node node) {
-    if (node.type.equals(Node.Type.ScopeExitMark)) {
-      this.memoryStack.pop();
+    switch (node.type) {
+      case ScopeExitMark:
+        this.memoryStack.pop();
+      case GroupedExpression:
+        return node.getChild(0).accept(this);
+      default:
+        break;
     }
     return null;
   }
 
   // region value-setting
   private void setAggregateValue(AggregateValue aggregateAssignee, Value valueToAssign) {
-    if (!(valueToAssign instanceof AggregateValue aggregateValueToAssign)) {
+    AggregateValue aggregateValueToAssign;
+    if (!(valueToAssign instanceof AggregateValue)) {
       // if the value to assign is not an aggregate value, we might have
       // the case, where we want to assign a basic Value to a Content object
 
       IType assigneesType = aggregateAssignee.getDataType();
+      Object objectToEncapsulate;
       if (assigneesType.getName().equals("content")) {
         // TODO: this is a temporary solution for "casting" the value to a content
         //  once typechecking is implemented, this will be refactored
 
         String stringValue = valueToAssign.getInternalValue().toString();
-        Quiz.Content content = new Quiz.Content(stringValue);
-        EncapsulatedObject encapsulatedObject =
-            new EncapsulatedObject(content, (AggregateType) assigneesType, this.environment);
-
-        aggregateAssignee.setMemorySpace(encapsulatedObject);
-        aggregateAssignee.setInternalValue(content);
+        objectToEncapsulate = new Quiz.Content(stringValue);
       } else if (assigneesType.getName().equals("element")) {
         String stringValue = valueToAssign.getInternalValue().toString();
-        Element<String> content = new Element<>(stringValue);
-        EncapsulatedObject encapsulatedObject =
-            new EncapsulatedObject(content, (AggregateType) assigneesType, this.environment);
-
-        aggregateAssignee.setMemorySpace(encapsulatedObject);
-        aggregateAssignee.setInternalValue(content);
+        objectToEncapsulate = new Element<>(stringValue);
       } else {
         throw new RuntimeException(
             "Can't assign Value of type "
@@ -1106,10 +1516,18 @@ public class DSLInterpreter implements AstVisitor<Object> {
                 + " to Value of "
                 + assigneesType);
       }
+
+      // do the encapsulation
+      EncapsulatedObject encapsulatedObject =
+          new EncapsulatedObject(
+              objectToEncapsulate, (AggregateType) assigneesType, this.environment);
+      aggregateValueToAssign =
+          AggregateValue.fromEncapsulatedObject(this.getCurrentMemorySpace(), encapsulatedObject);
+      aggregateAssignee.setFrom(aggregateValueToAssign);
     } else {
-      aggregateAssignee.setMemorySpace(aggregateValueToAssign.getMemorySpace());
-      aggregateAssignee.setInternalValue(aggregateValueToAssign.getInternalValue());
+      aggregateValueToAssign = (AggregateValue) valueToAssign;
     }
+    aggregateAssignee.setFrom(aggregateValueToAssign);
   }
 
   private boolean setSetValue(SetValue assignee, Value valueToAssign) {
@@ -1118,20 +1536,26 @@ public class DSLInterpreter implements AstVisitor<Object> {
           "Can't assign value " + valueToAssign + " to SetValue, it is not a SetValue itself!");
     }
 
-    assignee.clearSet();
+    IType assigneeEntryType = assignee.getDataType().getElementType();
+    IType newValueEntryType = setValueToAssign.getDataType().getElementType();
+    if (assigneeEntryType.equals(newValueEntryType)) {
+      return assignee.setFrom(setValueToAssign);
+    } else {
+      assignee.clearSet();
+      // TODO: this should not be done implicitly but done specifically, if the
+      //  semantic analysis leads to the conclusion that the types are different
+      Set<Value> valuesToAdd = setValueToAssign.getValues();
+      for (Value valueToAdd : valuesToAdd) {
+        Value entryAssigneeValue = createDefaultValue(assigneeEntryType);
 
-    IType entryType = assignee.getDataType().getElementType();
-    Set<Value> valuesToAdd = setValueToAssign.getValues();
-    for (Value valueToAdd : valuesToAdd) {
-      Value entryAssigneeValue = createDefaultValue(entryType);
+        // we cannot directly set the entryValueToAssign, because we potentially
+        // have to do type conversions (convert a String into a Content-Object)
+        setValue(entryAssigneeValue, valueToAdd);
 
-      // we cannot directly set the entryValueToAssign, because we potentially
-      // have to do type conversions (convert a String into a Content-Object)
-      setValue(entryAssigneeValue, valueToAdd);
-
-      assignee.addValue(entryAssigneeValue);
+        assignee.addValue(entryAssigneeValue);
+      }
+      return true;
     }
-    return true;
   }
 
   private boolean setMapValue(MapValue assignee, Value valueToAssign) {
@@ -1140,25 +1564,33 @@ public class DSLInterpreter implements AstVisitor<Object> {
           "Can't assign value " + valueToAssign + " to MapValue, it is not a MapValue itself!");
     }
 
-    assignee.clearMap();
+    IType assigneeKeyType = assignee.getDataType().getKeyType();
+    IType assigneeEntryType = assignee.getDataType().getElementType();
+    IType valueKeyType = mapValueToAssign.getDataType().getKeyType();
+    IType valueEntryType = mapValueToAssign.getDataType().getElementType();
 
-    IType keyType = assignee.getDataType().getKeyType();
-    IType entryType = assignee.getDataType().getElementType();
+    if (assigneeKeyType.equals(valueKeyType) && assigneeEntryType.equals(valueEntryType)) {
+      return assignee.setFrom(mapValueToAssign);
+    } else {
+      assignee.clearMap();
+      // TODO: this should not be done implicitly but done specifically, if the
+      //  semantic analysis leads to the conclusion that the types are different
 
-    Map<Value, Value> valuesToAdd = mapValueToAssign.internalMap();
-    for (var entryToAdd : valuesToAdd.entrySet()) {
+      Map<Value, Value> valuesToAdd = mapValueToAssign.internalMap();
+      for (var entryToAdd : valuesToAdd.entrySet()) {
 
-      Value entryKeyValue = createDefaultValue(keyType);
-      Value entryElementValue = createDefaultValue(entryType);
+        Value entryKeyValue = createDefaultValue(assigneeKeyType);
+        Value entryElementValue = createDefaultValue(assigneeEntryType);
 
-      // we cannot directly set the entryValueToAssign, because we potentially
-      // have to do type conversions (convert a String into a Content-Object)
-      setValue(entryKeyValue, entryToAdd.getKey());
-      setValue(entryElementValue, entryToAdd.getValue());
+        // we cannot directly set the entryValueToAssign, because we potentially
+        // have to do type conversions (convert a String into a Content-Object)
+        setValue(entryKeyValue, entryToAdd.getKey());
+        setValue(entryElementValue, entryToAdd.getValue());
 
-      assignee.addValue(entryKeyValue, entryElementValue);
+        assignee.addValue(entryKeyValue, entryElementValue);
+      }
+      return true;
     }
-    return true;
   }
 
   private boolean setListValue(ListValue assignee, Value valueToAssign) {
@@ -1167,19 +1599,26 @@ public class DSLInterpreter implements AstVisitor<Object> {
           "Can't assign value " + valueToAssign + " to ListValue, it is not a ListValue itself!");
     }
 
-    assignee.clearList();
+    // TODO: should just implement the cloning-behaviour for this
+    IType assigneeEntryType = assignee.getDataType().getElementType();
+    IType newValueEntryType = listValueToAssign.getDataType().getElementType();
+    if (assigneeEntryType.equals(newValueEntryType)) {
+      return assignee.setFrom(listValueToAssign);
+    } else {
+      // TODO: this should not be done implicitly but done specifically, if the
+      //  semantic analysis leads to the conclusion that the types are different
+      assignee.clearList();
+      for (var valueToAdd : listValueToAssign.getValues()) {
+        Value entryAssigneeValue = createDefaultValue(assigneeEntryType);
 
-    IType entryType = assignee.getDataType().getElementType();
-    for (var valueToAdd : listValueToAssign.getValues()) {
-      Value entryAssigneeValue = createDefaultValue(entryType);
+        // we cannot directly set the entryValueToAssign, because we potentially
+        // have to do type conversions (convert a String into a Content-Object)
+        setValue(entryAssigneeValue, valueToAdd);
 
-      // we cannot directly set the entryValueToAssign, because we potentially
-      // have to do type conversions (convert a String into a Content-Object)
-      setValue(entryAssigneeValue, valueToAdd);
-
-      assignee.addValue(entryAssigneeValue);
+        assignee.addValue(entryAssigneeValue);
+      }
+      return true;
     }
-    return true;
   }
 
   private boolean setFunctionValue(FunctionValue assignee, Value valueToAssign) {
@@ -1196,7 +1635,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     return true;
   }
 
-  private boolean setValue(Value assignee, Value valueToAssign) {
+  public boolean setValue(Value assignee, Value valueToAssign) {
     if (assignee == Value.NONE) {
       return false;
     }
@@ -1217,13 +1656,14 @@ public class DSLInterpreter implements AstVisitor<Object> {
       assignee.setInternalValue(instantiatedValue);
     } else if (assignee instanceof EncapsulatedField encapsulatedField) {
       if (assignee.getDataType().getTypeKind().equals(IType.Kind.FunctionType)) {
-        var instantiatedValue = this.environment.getTypeInstantiator().instantiate(valueToAssign);
-        assignee.setInternalValue(instantiatedValue);
+        // instantiate a new callback adapter to encapsulate the function call
+        var callbackAdapter = this.environment.getTypeInstantiator().instantiate(valueToAssign);
+        assignee.setInternalValue(callbackAdapter);
       } else {
-        assignee.setInternalValue(valueToAssign.getInternalValue());
+        assignee.setFrom(valueToAssign);
       }
     } else {
-      assignee.setInternalValue(valueToAssign.getInternalValue());
+      return assignee.setFrom(valueToAssign);
     }
     return true;
   }
@@ -1259,7 +1699,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
       internalIterator = internalList.iterator();
     } else if (iterableType.getTypeKind().equals(IType.Kind.SetType)) {
       var setValue = (SetValue) iterableValue;
-      Set<Value> internalSet = setValue.internalSet();
+      Set<Value> internalSet = setValue.getValues();
       internalIterator = internalSet.iterator();
     } else {
       throw new RuntimeException("Non iterable type '" + iterableType + "' used in for loop!");
@@ -1414,7 +1854,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     if (callable.getCallableType().equals(ICallable.Type.Native)) {
       NativeFunction func = (NativeFunction) callable;
 
-      IMemorySpace functionMemorySpace = createFunctionMemorySpace(func);
+      IMemorySpace functionMemorySpace =
+          createFunctionMemorySpace(func, this.getCurrentMemorySpace());
       setupFunctionParametersRaw(func, functionMemorySpace, parameterObjects);
 
       // create mock ID-nodes
@@ -1432,7 +1873,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
       return returnValue;
     } else if (callable.getCallableType().equals(ICallable.Type.UserDefined)) {
       FunctionSymbol functionSymbol = (FunctionSymbol) callable;
-      return executeUserDefinedFunctionRawParameters(functionSymbol, parameterObjects);
+
+      Object retObject = executeUserDefinedFunctionRawParameters(functionSymbol, parameterObjects);
+      return retObject;
     }
     return null;
   }
@@ -1446,12 +1889,35 @@ public class DSLInterpreter implements AstVisitor<Object> {
    */
   protected Object executeUserDefinedFunctionRawParameters(
       FunctionSymbol symbol, List<Object> parameterObjects) {
-    IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol);
+    IScope scope = symbol.getScope();
+    assert scope instanceof FileScope;
+    FileScope fs = (FileScope) scope;
+    boolean otherFileMSOnTop = isDifferentMemorySpaceOnTop(fs);
+
+    IMemorySpace functionsParentMS;
+    if (otherFileMSOnTop) {
+      functionsParentMS = initializeFileMemorySpace(fs);
+    } else {
+      functionsParentMS = this.getCurrentMemorySpace();
+    }
+
+    // check, whether file scopes memory space is on top of file memory stack
+    IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol, functionsParentMS);
     setupFunctionParametersRaw(symbol, functionMemorySpace, parameterObjects);
+
+    if (otherFileMSOnTop) {
+      this.memoryStack.push(functionsParentMS);
+      this.fileMemoryStack.push(functionsParentMS);
+    }
 
     this.memoryStack.push(functionMemorySpace);
     executeUserDefinedFunctionBody(symbol);
     functionMemorySpace = memoryStack.pop();
+
+    if (otherFileMSOnTop) {
+      this.memoryStack.pop();
+      this.fileMemoryStack.pop();
+    }
 
     return getReturnValueFromMemorySpace(functionMemorySpace);
   }
@@ -1464,15 +1930,44 @@ public class DSLInterpreter implements AstVisitor<Object> {
    * @return The return value of the function call
    */
   public Object executeUserDefinedFunction(FunctionSymbol symbol, List<Node> parameterNodes) {
-    IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol);
+    // TODO PROBLEM: parameterNodes must be evaluated in call memory space, then the files
+    //  memory space must be pushed, then the function memory space must be pushed
+    //  -> current creation of function memory space does not work with this, order of
+    //  operations is wrong -> memory space checking could be done in createFunctionMemorySpace
+
+    // TODO: File Memory Space checking
+    // TODO: check client code for duplicate file memory space checking
+    IScope scope = symbol.getScope();
+    assert scope instanceof FileScope;
+    FileScope fs = (FileScope) scope;
+    boolean otherFileMSOnTop = isDifferentMemorySpaceOnTop(fs);
+
+    IMemorySpace functionsParentMS;
+    if (otherFileMSOnTop) {
+      functionsParentMS = initializeFileMemorySpace(fs);
+    } else {
+      functionsParentMS = this.getCurrentMemorySpace();
+    }
+
+    IMemorySpace functionMemorySpace = createFunctionMemorySpace(symbol, functionsParentMS);
     // can't push memory space yet! If a passed argument has the same identifier
     // as a parameter, the name will be resolved in the new memory space and not
     // the enclosing memory space, containing the argument
     setupFunctionParameters(symbol, functionMemorySpace, parameterNodes);
 
+    if (otherFileMSOnTop) {
+      this.memoryStack.push(functionsParentMS);
+      this.fileMemoryStack.push(functionsParentMS);
+    }
+
     this.memoryStack.push(functionMemorySpace);
     executeUserDefinedFunctionBody(symbol);
     functionMemorySpace = memoryStack.pop();
+
+    if (otherFileMSOnTop) {
+      this.memoryStack.pop();
+      this.fileMemoryStack.pop();
+    }
 
     return getReturnValueFromMemorySpace(functionMemorySpace);
   }
@@ -1528,6 +2023,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
     }
   }
 
+  private boolean isDifferentMemorySpaceOnTop(FileScope fs) {
+    IMemorySpace filesMemorySpace = initializeFileMemorySpace(fs);
+
+    IMemorySpace topMS = this.fileMemoryStack.peek();
+    return topMS == null || !topMS.equals(filesMemorySpace);
+  }
+
   /**
    * Create a new IMemorySpace for a function call and bind the return Value, if the function has a
    * return type
@@ -1535,9 +2037,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
    * @param functionSymbol The Symbol representing the function definition
    * @return The created IMemorySpace
    */
-  private IMemorySpace createFunctionMemorySpace(ScopedSymbol functionSymbol) {
+  private IMemorySpace createFunctionMemorySpace(
+      ScopedSymbol functionSymbol, IMemorySpace parentSpace) {
+
     // push new memorySpace and parameters on spaceStack
-    var functionMemSpace = new MemorySpace(memoryStack.peek());
+    var functionMemSpace = new MemorySpace(parentSpace);
 
     // create and bind the return value
     var functionType = (FunctionType) functionSymbol.getDataType();

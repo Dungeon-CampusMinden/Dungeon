@@ -1,0 +1,3 @@
+entity_type my_exported_type {
+    interaction_component {}
+}
