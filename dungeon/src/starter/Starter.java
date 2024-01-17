@@ -103,8 +103,22 @@ public class Starter {
       };
 
   public static void main(String[] args) throws IOException {
+    Set<DSLEntryPoint> entryPoints;
+
+    String dngPath = null;
+    if (args.length == 0) {
+      // open a JFileChooser to select a single dng file
+      dngPath = DngJFileChooser.selectSingleDngFile();
+    }
+
     // read in DSL-Files
-    Set<DSLEntryPoint> entryPoints = processCLIArguments(args);
+    if (dngPath == null) {
+      // read in the default command line arguments
+      entryPoints = processCLIArguments(args);
+    } else {
+      // read in the chosen dng file
+      entryPoints = processCLIArguments(new String[] {dngPath});
+    }
 
     // some game Setup
     configGame();
