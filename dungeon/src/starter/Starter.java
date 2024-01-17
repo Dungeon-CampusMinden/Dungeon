@@ -103,14 +103,13 @@ public class Starter {
       };
 
   public static void main(String[] args) throws IOException {
-    Set<DSLEntryPoint> entryPoints;
-
     String dngPath = null;
     if (args.length == 0) {
       // open a JFileChooser to select a single dng file
       dngPath = DngJFileChooser.selectSingleDngFile();
     }
 
+    Set<DSLEntryPoint> entryPoints;
     // read in DSL-Files
     if (dngPath == null) {
       // read in the default command line arguments
