@@ -11,6 +11,7 @@ public class DngJFileChooser {
    */
   public static String selectSingleDngFile() {
     JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("Dungeon: Bitte öffne eine DNG-Datei (siehe auch Readme)");
     fileChooser.setMultiSelectionEnabled(false);
     fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
     fileChooser.setFileFilter(new FileNameExtensionFilter("Nur DNG Dateien", "dng"));
