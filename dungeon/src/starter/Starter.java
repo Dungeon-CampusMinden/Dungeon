@@ -24,6 +24,7 @@ import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import task.Task;
 
@@ -106,7 +107,12 @@ public class Starter {
     Set<DSLEntryPoint> entryPoints;
     if (args.length == 0) {
       // open a JFileChooser to select a single dng file
-      entryPoints = processCLIArguments(new String[] {DngJFileChooser.selectSingleDngFile()});
+      String selectedFile = DngJFileChooser.selectSingleDngFile();
+      if (selectedFile == null) {
+        Logger.getGlobal().info("No dng file selected. The Dungeon game will not start.");
+        return;
+      }
+      entryPoints = processCLIArguments(new String[] {selectedFile});
     }
 
     // read in DSL-Files
