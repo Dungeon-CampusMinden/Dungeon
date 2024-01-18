@@ -1159,14 +1159,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
       value = Value.NONE;
     }
 
-    // create new Value in memory space (overwrite existing one)
+    // get variable symbol
+    // Node variableIdentifierNode = node.getIdentifier();
+    Symbol variableSymbol = symbolTable().getSymbolsForAstNode(node).get(0);
+    value = bindFromSymbol(variableSymbol, this.getCurrentMemorySpace());
     if (node.getDeclType().equals(VarDeclNode.DeclType.assignmentDecl)) {
-      throw new UnsupportedOperationException("Assignment declaration currently not supported");
-    } else {
-      // get variable symbol
-      // Node variableIdentifierNode = node.getIdentifier();
-      Symbol variableSymbol = symbolTable().getSymbolsForAstNode(node).get(0);
-      value = bindFromSymbol(variableSymbol, this.getCurrentMemorySpace());
+        Value rhsValue = (Value)node.getRhs().accept(this);
+        setValue(value, rhsValue);
     }
     return value;
   }
