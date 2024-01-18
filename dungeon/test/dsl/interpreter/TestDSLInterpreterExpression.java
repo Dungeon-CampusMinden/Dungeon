@@ -612,4 +612,31 @@ public class TestDSLInterpreterExpression {
             + System.lineSeparator(),
         output);
   }
+
+    @Test
+    public void varDeclAssignmentInt() {
+        String program =
+            testProgramPreamble
+                + """
+                fn build_task(single_choice_task t) -> entity<><> {
+                    var return_set : entity<><>;
+                    var room_set : entity<>;
+
+                    var int_var = 42;
+                    print(int_var);
+
+                    return_set.add(room_set);
+                    return return_set;
+                }
+                """;
+
+        var outputStream = new ByteArrayOutputStream();
+        Helpers.buildTask(program, outputStream);
+
+        String output = outputStream.toString();
+        Assert.assertEquals(
+            "42"
+                + System.lineSeparator(),
+            output);
+    }
 }
