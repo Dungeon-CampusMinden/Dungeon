@@ -1,7 +1,7 @@
 plugins {
     // we can not use ext variables here
     id 'application'
-    id 'com.diffplug.spotless' version '+'
+    id 'com.diffplug.spotless' version '6.23.3'
     id 'antlr'
 }
 

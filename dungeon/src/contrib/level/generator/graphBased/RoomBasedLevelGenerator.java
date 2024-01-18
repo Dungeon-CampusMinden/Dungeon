@@ -140,18 +140,14 @@ public final class RoomBasedLevelGenerator {
       // place door steps
       Tile doorStep = null;
       switch (doorDirection) {
-        case NORTH ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y - 1));
-        case EAST ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x - 1, door.coordinate().y));
-        case SOUTH ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y + 1));
-        case WEST ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x + 1, door.coordinate().y));
+        case NORTH -> doorStep =
+            door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y - 1));
+        case EAST -> doorStep =
+            door.level().tileAt(new Coordinate(door.coordinate().x - 1, door.coordinate().y));
+        case SOUTH -> doorStep =
+            door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y + 1));
+        case WEST -> doorStep =
+            door.level().tileAt(new Coordinate(door.coordinate().x + 1, door.coordinate().y));
       }
       door.doorstep(doorStep);
     }
