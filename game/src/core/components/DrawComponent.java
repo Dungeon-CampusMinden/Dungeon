@@ -361,6 +361,7 @@ public final class DrawComponent implements Component {
                           .toExternalForm())
                   .normalize()));
     } else {
+      // Loading animations from IDE
       loadAnimationsFromIDE(path);
     }
   }
@@ -453,7 +454,7 @@ public final class DrawComponent implements Component {
   private void loadAnimationsFromIDE(final IPath path) {
     URL url = DrawComponent.class.getResource("/" + path.pathString());
     if (url != null) {
-      File apps = new File(url.toExternalForm());
+      File apps = new File(URI.create(url.toExternalForm()).normalize());
       animationMap =
           Arrays.stream(Objects.requireNonNull(apps.listFiles()))
               .filter(File::isDirectory)
