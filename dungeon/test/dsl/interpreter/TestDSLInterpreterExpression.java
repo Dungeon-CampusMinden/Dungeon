@@ -639,4 +639,62 @@ public class TestDSLInterpreterExpression {
                 + System.lineSeparator(),
             output);
     }
+
+    @Test
+    public void varDeclAssignmentBool() {
+        String program =
+            testProgramPreamble
+                + """
+                fn build_task(single_choice_task t) -> entity<><> {
+                    var return_set : entity<><>;
+                    var room_set : entity<>;
+
+                    var bool_var = true;
+                    print(bool_var);
+
+                    return_set.add(room_set);
+                    return return_set;
+                }
+                """;
+
+        var outputStream = new ByteArrayOutputStream();
+        Helpers.buildTask(program, outputStream);
+
+        String output = outputStream.toString();
+        Assert.assertEquals(
+            "true"
+                + System.lineSeparator(),
+            output);
+    }
+
+    @Test
+    public void varDeclAssignmentFuncCall() {
+        String program =
+            testProgramPreamble
+                + """
+                fn test() -> int {
+                    return 42;
+                }
+
+                fn build_task(single_choice_task t) -> entity<><> {
+                    var return_set : entity<><>;
+                    var room_set : entity<>;
+
+                    var int_var = test();
+                    print(int_var);
+
+                    return_set.add(room_set);
+                    return return_set;
+                }
+                """;
+
+        var outputStream = new ByteArrayOutputStream();
+        Helpers.buildTask(program, outputStream);
+
+        String output = outputStream.toString();
+        Assert.assertEquals(
+            "42"
+                + System.lineSeparator(),
+            output);
+    }
 }
