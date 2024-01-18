@@ -72,9 +72,8 @@ public class Helpers {
    * @throws URISyntaxException on invalid URI syntax
    * @throws IOException if the file does not exist
    */
-  public static Node getASTFromResourceFile(URL fileResourceURL)
-      throws URISyntaxException, IOException {
-    var file = new File(fileResourceURL.toURI());
+  public static Node getASTFromResourceFile(URL fileResourceURL) throws IOException {
+    var file = new File(fileResourceURL.toExternalForm());
     var stream = CharStreams.fromFileName(file.getAbsolutePath());
 
     var parseTree = getParseTreeFromCharStream(stream);

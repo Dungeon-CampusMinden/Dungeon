@@ -7,6 +7,7 @@ import core.Game;
 import core.utils.logging.CustomLogLevel;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -92,14 +93,18 @@ public final class Crafting {
   /** Load recipes if the program was started from a jar file. */
   private static void loadFromJar() {
     try {
-      String path =
-          new File(Objects.requireNonNull(Game.class.getResource("")).getPath())
-              .getParent()
-              // for windows
-              .replaceAll("(!|file:\\\\)", "")
-              // for unix/macos
-              .replaceAll("(!|file:)", "");
-      JarFile jar = new JarFile(path);
+
+      JarFile jar =
+          new JarFile(
+              new File(
+                  URI.create(
+                          Crafting.class
+                              .getProtectionDomain()
+                              .getCodeSource()
+                              .getLocation()
+                              .toExternalForm())
+                      .normalize()));
+
       Enumeration<JarEntry> entries = jar.entries();
       while (entries.hasMoreElements()) {
         JarEntry entry = entries.nextElement();
