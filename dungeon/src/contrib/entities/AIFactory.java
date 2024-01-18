@@ -102,12 +102,15 @@ public final class AIFactory {
 
     return switch (index) {
       case 0 -> new CollideAI(RANDOM.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH));
-      case 1 -> new RangeAI(
-          RANDOM.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
-          RANDOM.nextFloat(DISTANCE_LOW, DISTANCE_HIGH),
-          new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), FIREBALL_COOL_DOWN));
-      default -> new MeleeAI(
-          1f, new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), FIREBALL_COOL_DOWN));
+      case 1 ->
+          new RangeAI(
+              RANDOM.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
+              RANDOM.nextFloat(DISTANCE_LOW, DISTANCE_HIGH),
+              new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), FIREBALL_COOL_DOWN));
+      default ->
+          new MeleeAI(
+              1f,
+              new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), FIREBALL_COOL_DOWN));
     };
   }
 

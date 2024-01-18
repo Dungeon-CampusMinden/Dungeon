@@ -39,15 +39,18 @@ public class RandomWalkGenerator implements IGenerator {
    */
   public LevelElement[][] layout(LevelSize size) {
     return switch (size) {
-      case SMALL -> drunkWalk(
-          new MinMaxValue(SMALL_MIN_X_SIZE, SMALL_MAX_X_SIZE),
-          new MinMaxValue(SMALL_MIN_Y_SIZE, SMALL_MAX_Y_SIZE));
-      case LARGE -> drunkWalk(
-          new MinMaxValue(BIG_MIN_X_SIZE, BIG_MAX_X_SIZE),
-          new MinMaxValue(BIG_MIN_Y_SIZE, BIG_MAX_Y_SIZE));
-      default -> drunkWalk(
-          new MinMaxValue(MEDIUM_MIN_X_SIZE, MEDIUM_MAX_X_SIZE),
-          new MinMaxValue(MEDIUM_MIN_Y_SIZE, MEDIUM_MAX_Y_SIZE));
+      case SMALL ->
+          drunkWalk(
+              new MinMaxValue(SMALL_MIN_X_SIZE, SMALL_MAX_X_SIZE),
+              new MinMaxValue(SMALL_MIN_Y_SIZE, SMALL_MAX_Y_SIZE));
+      case LARGE ->
+          drunkWalk(
+              new MinMaxValue(BIG_MIN_X_SIZE, BIG_MAX_X_SIZE),
+              new MinMaxValue(BIG_MIN_Y_SIZE, BIG_MAX_Y_SIZE));
+      default ->
+          drunkWalk(
+              new MinMaxValue(MEDIUM_MIN_X_SIZE, MEDIUM_MAX_X_SIZE),
+              new MinMaxValue(MEDIUM_MIN_Y_SIZE, MEDIUM_MAX_Y_SIZE));
     };
   }
 
