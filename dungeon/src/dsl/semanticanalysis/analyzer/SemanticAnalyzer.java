@@ -55,6 +55,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   Stack<IScope> scopeStack = new Stack<>();
   StringBuilder errorStringBuilder = new StringBuilder();
   private boolean setup = false;
+  private TypeInferrer typeInferrer;
 
   public class Result {
     public final SymbolTable symbolTable;
@@ -143,6 +144,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         }
       }
     }
+
+    this.typeInferrer = new TypeInferrer(this.symbolTable);
 
     this.setup = true;
   }
@@ -728,13 +731,17 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     // create new symbol for the variable
     // get the type of the variable
     if (node.getDeclType().equals(VarDeclNode.DeclType.assignmentDecl)) {
-      throw new RuntimeException("Inference of variable type currently not supported!");
+      // infer type
+        IType rhsType = this.typeInferrer.inferType(node.getRhs());
+        IdNode nameIdNode = (IdNode) node.getIdentifier();
+        Symbol symbol = createVariableSymbolInScope(rhsType, nameIdNode, this.currentScope());
+        this.symbolTable.addSymbolNodeRelation(symbol, node, true);
+    } else {
+        IdNode typeDeclNode = (IdNode) node.getRhs();
+        IdNode nameIdNode = (IdNode) node.getIdentifier();
+        Symbol symbol = createVariableSymbolInScope(typeDeclNode, nameIdNode, this.currentScope());
+        this.symbolTable.addSymbolNodeRelation(symbol, node, true);
     }
-
-    IdNode typeDeclNode = (IdNode) node.getRhs();
-    IdNode nameIdNode = (IdNode) node.getIdentifier();
-    Symbol symbol = createVariableSymbolInScope(typeDeclNode, nameIdNode, this.currentScope());
-    this.symbolTable.addSymbolNodeRelation(symbol, node, true);
 
     return null;
   }
