@@ -10,7 +10,7 @@ import core.utils.logging.CustomLogLevel;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -350,34 +350,23 @@ public final class DrawComponent implements Component {
    * href="https://github.com/Dungeon-CampusMinden/Dungeon/issues/1361">Issue #1361</a>)
    */
   private void loadAnimationAssets(final IPath path) throws IOException {
-
-    Thread thread = Thread.currentThread();
-    StackTraceElement[] stack = thread.getStackTrace();
-
-    StackTraceElement currentElement = null;
-    Class<?> clazz = null;
-    for (int i = 1; i < stack.length; i++) {
-      currentElement = stack[i];
-      if (!currentElement.getClassName().equals(DrawComponent.class.getName())) {
-        try {
-          clazz = ClassLoader.getSystemClassLoader().loadClass(currentElement.getClassName());
-        } catch (ClassNotFoundException e) {
-          System.err.println(
-              "Could not load class " + currentElement.getClassName() + " from stacktrace.");
-        }
-        break;
-      }
+    if (Objects.requireNonNull(DrawComponent.class.getResource("DrawComponent.class"))
+        .toString()
+        .startsWith("jar:")) {
+      // Loading animations from JAR
+      loadAnimationsFromJar(
+          path,
+          new File(
+              URI.create(
+                      getClass()
+                          .getProtectionDomain()
+                          .getCodeSource()
+                          .getLocation()
+                          .toExternalForm())
+                  .normalize()));
+    } else {
+      loadAnimationsFromIDE(path);
     }
-
-    File jarFile =
-        new File(
-            (clazz == null ? getClass() : clazz)
-                .getProtectionDomain()
-                .getCodeSource()
-                .getLocation()
-                .getPath());
-    if (jarFile.isFile()) loadAnimationsFromJar(path, jarFile);
-    else loadAnimationsFromIDE(path);
   }
 
   /**
@@ -468,20 +457,11 @@ public final class DrawComponent implements Component {
   private void loadAnimationsFromIDE(final IPath path) {
     URL url = DrawComponent.class.getResource("/" + path.pathString());
     if (url != null) {
-      try {
-        try {
-          File apps = new File(url.toURI());
-          animationMap =
-              Arrays.stream(Objects.requireNonNull(apps.listFiles()))
-                  .filter(File::isDirectory)
-                  .collect(Collectors.toMap(File::getName, DrawComponent::allFilesFromDirectory));
-        } catch (IllegalArgumentException e) {
-          LOGGER.log(
-              CustomLogLevel.ERROR, "Could not load animations from directory: " + url.toURI(), e);
-        }
-      } catch (URISyntaxException e) {
-        LOGGER.log(CustomLogLevel.ERROR, "Could not load animations from directory", e);
-      }
+      File apps = new File(url.toExternalForm());
+      animationMap =
+          Arrays.stream(Objects.requireNonNull(apps.listFiles()))
+              .filter(File::isDirectory)
+              .collect(Collectors.toMap(File::getName, DrawComponent::allFilesFromDirectory));
     }
   }
 }
