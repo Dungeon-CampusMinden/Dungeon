@@ -731,16 +731,19 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     // create new symbol for the variable
     // get the type of the variable
     if (node.getDeclType().equals(VarDeclNode.DeclType.assignmentDecl)) {
+      // visit rhs
+      node.getRhs().accept(this);
+
       // infer type
-        IType rhsType = this.typeInferrer.inferType(node.getRhs());
-        IdNode nameIdNode = (IdNode) node.getIdentifier();
-        Symbol symbol = createVariableSymbolInScope(rhsType, nameIdNode, this.currentScope());
-        this.symbolTable.addSymbolNodeRelation(symbol, node, true);
+      IType rhsType = this.typeInferrer.inferType(node.getRhs());
+      IdNode nameIdNode = (IdNode) node.getIdentifier();
+      Symbol symbol = createVariableSymbolInScope(rhsType, nameIdNode, this.currentScope());
+      this.symbolTable.addSymbolNodeRelation(symbol, node, true);
     } else {
-        IdNode typeDeclNode = (IdNode) node.getRhs();
-        IdNode nameIdNode = (IdNode) node.getIdentifier();
-        Symbol symbol = createVariableSymbolInScope(typeDeclNode, nameIdNode, this.currentScope());
-        this.symbolTable.addSymbolNodeRelation(symbol, node, true);
+      IdNode typeDeclNode = (IdNode) node.getRhs();
+      IdNode nameIdNode = (IdNode) node.getIdentifier();
+      Symbol symbol = createVariableSymbolInScope(typeDeclNode, nameIdNode, this.currentScope());
+      this.symbolTable.addSymbolNodeRelation(symbol, node, true);
     }
 
     return null;
