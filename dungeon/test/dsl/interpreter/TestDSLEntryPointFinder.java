@@ -3,6 +3,7 @@ package dsl.interpreter;
 import entrypoint.DSLEntryPoint;
 import entrypoint.DungeonConfig;
 import graph.taskdependencygraph.TaskNode;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -11,17 +12,17 @@ import org.junit.Assert;
 import org.junit.Test;
 import task.Task;
 
-public class TetsDSLEntryPointFinder {
+public class TestDSLEntryPointFinder {
 
   @Test
-  public void testReadEntrtyPoints() {
+  public void testReadEntryPoints() {
     List<DSLEntryPoint> entryPoints = new ArrayList<>();
     DSLEntryPointFinder finder = new DSLEntryPointFinder();
     URL resource1 = getClass().getClassLoader().getResource("config1.dng");
     assert resource1 != null;
-    Path firstPath = null;
+    Path firstPath;
     {
-      firstPath = Path.of(resource1.toExternalForm());
+      firstPath = Path.of(URI.create(resource1.toExternalForm()).normalize());
       var entryPointsFromFile = finder.getEntryPoints(firstPath).orElseThrow();
       entryPoints.addAll(entryPointsFromFile);
     }
@@ -30,7 +31,7 @@ public class TetsDSLEntryPointFinder {
     assert resource2 != null;
     Path secondPath;
     {
-      secondPath = Path.of(resource2.toExternalForm());
+      secondPath = Path.of(URI.create(resource2.toExternalForm()).normalize());
       var entryPointsFromFile = finder.getEntryPoints(secondPath).orElseThrow();
       entryPoints.addAll(entryPointsFromFile);
     }
@@ -64,7 +65,7 @@ public class TetsDSLEntryPointFinder {
     assert resource1 != null;
     Path firstPath;
     {
-      firstPath = Path.of(resource1.toExternalForm());
+      firstPath = Path.of(URI.create(resource1.toExternalForm()).normalize());
       var entryPointsFromFile = finder.getEntryPoints(firstPath).orElseThrow();
       entryPoints.addAll(entryPointsFromFile);
     }
@@ -73,7 +74,7 @@ public class TetsDSLEntryPointFinder {
     assert resource2 != null;
     Path secondPath;
     {
-      secondPath = Path.of(resource2.toExternalForm());
+      secondPath = Path.of(URI.create(resource2.toExternalForm()).normalize());
       var entryPointsFromFile = finder.getEntryPoints(secondPath).orElseThrow();
       entryPoints.addAll(entryPointsFromFile);
     }
