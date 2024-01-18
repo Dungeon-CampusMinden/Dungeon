@@ -14,6 +14,7 @@ import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import org.antlr.v4.runtime.CharStream;
@@ -73,7 +74,7 @@ public class Helpers {
    * @throws IOException if the file does not exist
    */
   public static Node getASTFromResourceFile(URL fileResourceURL) throws IOException {
-    var file = new File(fileResourceURL.toExternalForm());
+    var file = new File(URI.create(fileResourceURL.toExternalForm()).normalize());
     var stream = CharStreams.fromFileName(file.getAbsolutePath());
 
     var parseTree = getParseTreeFromCharStream(stream);
