@@ -1,6 +1,6 @@
 ext {
     // -- PLUGINS
-    spotlessVersion = '5.15.0'
+    spotlessVersion = '6.23.3'
     benmanesVersion = '0.36.0'
 
     //-- DEPENDENCIES
