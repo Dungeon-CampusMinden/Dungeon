@@ -10,7 +10,7 @@ Die Level werden als ein 2D Tile-Array gespeichert, wobei jedes Tile eine feste 
 
 Das `LevelSystem` speichert das aktuelle Level, zeichnet dieses und prüft, ob ein neues Level geladen werden muss. Im `LevelSystem` ist ein Levelgenerator hinterlegt, welcher immer wieder neue Level generiert. Befindet sich der Spieler auf einem Ausgang, wird ein neues Level generiert und geladen.
 
-Die [Raumbasierten Level](./room_level.md) verwenden keine klassischen Ausgänge, sondern Türen. Daher prüft der Levelgenerator, ob der Spieler sich auf einer Tür befindet, und wenn ja, lädt das Level zu der Tür, die führt. Wenn der [Graphenbasierte Levelgenerator](./graphbased.md) verwendet wird, werden die Räume und die Levelstruktur zu Beginn des Spiels generiert. Es findet keine neue Generierung statt, das Level ist also endlos.
+Die [Raumbasierten Level](room_level.md) verwenden keine klassischen Ausgänge, sondern Türen. Daher prüft der Levelgenerator, ob der Spieler sich auf einer Tür befindet, und wenn ja, lädt das Level zu der Tür, die führt. Wenn der [Graphenbasierte Levelgenerator](graphbased.md) verwendet wird, werden die Räume und die Levelstruktur zu Beginn des Spiels generiert. Es findet keine neue Generierung statt, das Level ist also endlos.
 
 In der Standardkonfiguration wird der [Drunkard Walk](https://de.wikipedia.org/wiki/Drunkard%E2%80%99s_Walk) Algorithmus zum Generieren von Leveln verwendet.
 

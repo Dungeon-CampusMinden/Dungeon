@@ -57,31 +57,18 @@ dependencies {
 
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
 sourceSets.main.java.srcDirs = ["game/src/", "dungeon/src/", "blockly/src/", "$projectDir/build/generated-src/"]
-sourceSets.main.resources.srcDirs = ["game/assets/"]
+sourceSets.main.resources.srcDirs = ["game/assets/", "dungeon/assets/", "blockly/assets/"]
 sourceSets.test.resources.srcDirs = ["dungeon/assets/", "game/test_resources", "dungeon/test_resources"]
 sourceSets.test.java.srcDirs = ["game/test/","dungeon/test"]
 sourceSets.main.antlr.srcDirs = ["dungeon/src/dsl/antlr"]
 
-project.ext.mainClassName = "starter.RoomBasedDungeon"
+project.ext.mainClassName = "starter.BasicStarter"
 project.ext.assetsDir = new File("game/assets")
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 task run(dependsOn: classes, type: JavaExec) {
     mainClass = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
-}
-
-task runRandom(dependsOn: classes, type: JavaExec) {
-    mainClass = "starter.RandomDungeon"
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     ignoreExitValue = true
