@@ -1,7 +1,7 @@
 plugins {
     // we can not use ext variables here
     id 'application'
-    id 'com.diffplug.spotless' version 'latest.release'
+    id 'com.diffplug.spotless' version '6.23.3'
     id 'antlr'
 }
 
@@ -27,12 +27,12 @@ repositories {
     google()
 }
 
-def gdxVersion = 'latest.release'
-def aiVersion = 'latest.release'
-def junitVersion = 'latest.release'
-def mockitoVersion = 'latest.release'
-def antlrVersion = 'latest.release'
-def gsonVersion = 'latest.release'
+def gdxVersion = '1.12.1'
+def aiVersion = '1.8.2'
+def junitVersion = '4.13.2'
+def mockitoVersion = '5.8.0'
+def antlrVersion = '4.13.1'
+def gsonVersion = '2.10.1'
 
 dependencies {
     // LibGDX
