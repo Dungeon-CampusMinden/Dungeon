@@ -12,9 +12,8 @@ import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import java.io.File;
+import helper.DetermineEnvironment;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import org.antlr.v4.runtime.CharStream;
@@ -74,7 +73,7 @@ public class Helpers {
    * @throws IOException if the file does not exist
    */
   public static Node getASTFromResourceFile(URL fileResourceURL) throws IOException {
-    var file = new File(URI.create(fileResourceURL.toExternalForm()).normalize());
+    var file = DetermineEnvironment.getNormalizedFileFromUrl(fileResourceURL);
     var stream = CharStreams.fromFileName(file.getAbsolutePath());
 
     var parseTree = getParseTreeFromCharStream(stream);

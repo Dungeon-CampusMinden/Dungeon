@@ -5,9 +5,9 @@ import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
 import core.Game;
 import core.utils.logging.CustomLogLevel;
+import helper.DetermineEnvironment;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -93,17 +93,7 @@ public final class Crafting {
   /** Load recipes if the program was started from a jar file. */
   private static void loadFromJar() {
     try {
-
-      JarFile jar =
-          new JarFile(
-              new File(
-                  URI.create(
-                          Crafting.class
-                              .getProtectionDomain()
-                              .getCodeSource()
-                              .getLocation()
-                              .toExternalForm())
-                      .normalize()));
+      JarFile jar = new JarFile(DetermineEnvironment.getInstance().getFileToJarFile());
 
       Enumeration<JarEntry> entries = jar.entries();
       while (entries.hasMoreElements()) {
