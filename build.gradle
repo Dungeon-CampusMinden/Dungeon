@@ -1,13 +1,8 @@
-buildscript {
-    apply from: 'dependencies.gradle'
-}
-
 plugins {
+    // we can not use ext variables here
     id 'application'
-    id 'com.diffplug.spotless' version "${spotlessVersion}"
+    id 'com.diffplug.spotless' version 'latest.release'
     id 'antlr'
-    id 'com.github.ben-manes.versions' version "${benmanesVersion}"
-    // use: gradlew dependencyUpdates -Drevision=release
 }
 
 java {
@@ -32,24 +27,31 @@ repositories {
     google()
 }
 
+def gdxVersion = 'latest.release'
+def aiVersion = 'latest.release'
+def junitVersion = 'latest.release'
+def mockitoVersion = 'latest.release'
+def antlrVersion = 'latest.release'
+def gsonVersion = 'latest.release'
+
 dependencies {
     // LibGDX
-    implementation supportDependencies.gdx
-    implementation supportDependencies.gdx_freetype
-    implementation supportDependencies.gdx_backend_lwjgl3
-    implementation supportDependencies.gdx_platform
-    implementation supportDependencies.gdx_freetype_platform
-    implementation supportDependencies.gdx_ai
+    implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+    implementation "com.badlogicgames.gdx:gdx-ai:$aiVersion"
 
     // Gson
-    implementation supportDependencies.gson
+    implementation "com.google.code.gson:gson:$gsonVersion"
 
     // JUnit 4 and Mockito for testing
-    testImplementation supportDependencies.junit
-    testImplementation supportDependencies.mockito_core
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
 
     // ANTLR version 4 for DSL Grammar
-    antlr supportDependencies.antlr
+    antlr "org.antlr:antlr4:$antlrVersion"
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
