@@ -6,11 +6,10 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import core.utils.logging.CustomLogLevel;
+import helper.DetermineEnvironment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -350,20 +349,9 @@ public final class DrawComponent implements Component {
    * href="https://github.com/Dungeon-CampusMinden/Dungeon/issues/1361">Issue #1361</a>)
    */
   private void loadAnimationAssets(final IPath path) throws IOException {
-    if (Objects.requireNonNull(DrawComponent.class.getResource("DrawComponent.class"))
-        .toString()
-        .startsWith("jar:")) {
+    if (DetermineEnvironment.isStartedInJarFile()) {
       // Loading animations from JAR
-      loadAnimationsFromJar(
-          path,
-          new File(
-              URI.create(
-                      getClass()
-                          .getProtectionDomain()
-                          .getCodeSource()
-                          .getLocation()
-                          .toExternalForm())
-                  .normalize()));
+      loadAnimationsFromJar(path, DetermineEnvironment.getInstance().getFileToJarFile());
     } else {
       // Loading animations from IDE
       loadAnimationsFromIDE(path);
@@ -458,7 +446,7 @@ public final class DrawComponent implements Component {
   private void loadAnimationsFromIDE(final IPath path) {
     URL url = DrawComponent.class.getResource("/" + path.pathString());
     if (url != null) {
-      File apps = new File(URI.create(url.toExternalForm()).normalize());
+      File apps = DetermineEnvironment.getNormalizedFileFromUrl(url);
       animationMap =
           Arrays.stream(Objects.requireNonNull(apps.listFiles()))
               .filter(File::isDirectory)
