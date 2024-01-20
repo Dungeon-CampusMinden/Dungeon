@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -42,7 +43,7 @@ public class DSLFileLoader {
    * @return Set containing all paths to DSL files.
    * @throws IOException if an I/O error occurs while reading the files.
    */
-  public static Set<Path> processArguments(String[] args) throws IOException {
+  public static Set<Path> processArguments(List<String> args) throws IOException {
     Set<Path> foundPaths = new HashSet<>();
     for (String arg : args) {
       Path path = Paths.get(arg);

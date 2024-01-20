@@ -17,6 +17,7 @@ import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -73,7 +74,7 @@ public class TaskGenerationTest {
 
             Set<Path> dslFilePaths;
             try {
-              dslFilePaths = DSLFileLoader.processArguments(args);
+              dslFilePaths = DSLFileLoader.processArguments(Arrays.asList(args));
             } catch (IOException e) {
               throw new RuntimeException(e);
             }
