@@ -1,6 +1,8 @@
 package dslToGame;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import entrypoint.DSLFileLoader;
 import java.io.File;
@@ -80,25 +82,6 @@ public class TestDslFileLoader {
     String[] args = {PAHT_TO_TXTFILE_AS_STRING};
     Set<Path> paths = DSLFileLoader.processArguments(args);
     assertEquals(0, paths.size());
-  }
-
-  /** !!! TODO: the file simple.dng is not available in the project root !!! */
-  @Test
-  public void fileToString() {
-    File f = new File(PATH_TO_DNGFILE.toUri().normalize());
-    String expectedContent =
-        "some test text."
-            + System.lineSeparator()
-            + "some test text, second line."
-            + System.lineSeparator()
-            + System.lineSeparator()
-            + "some test text, fourth line."
-            + System.lineSeparator();
-
-    String read = DSLFileLoader.fileToString(f);
-
-    // TODO: check the file content
-    assertNotEquals(expectedContent, read);
   }
 
   @Test
