@@ -16,7 +16,7 @@ public enum ChestAnimations implements IPath {
   private final int priority;
 
   ChestAnimations(final String value, int priority) {
-    this.value = value;
+    this.value = convertPath(value);
     this.priority = priority;
   }
 

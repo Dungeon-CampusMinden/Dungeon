@@ -27,7 +27,7 @@ public enum CoreAnimations implements IPath {
   private final int priority;
 
   CoreAnimations(final String value, int priority) {
-    this.value = value;
+    this.value = convertPath(value);
     this.priority = priority;
   }
 

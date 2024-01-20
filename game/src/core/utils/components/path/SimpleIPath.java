@@ -9,25 +9,34 @@ package core.utils.components.path;
  * the dungeon framework.
  */
 public class SimpleIPath implements IPath {
-  private final String path;
+  private final String pathString;
+  private final int priority;
 
-  /**
-   * Create a new Path.
-   *
-   * @param path Path to store, as a string.
-   */
-  public SimpleIPath(String path) {
-    this.path = path;
+  public SimpleIPath(String pathString) {
+    this(pathString, 0);
   }
 
+  public SimpleIPath(String pathString, int priority) {
+    this.pathString = convertPath(pathString);
+    this.priority = priority;
+  }
+
+  /**
+   * Make sure that your enum values are strings so the {@link core.components.DrawComponent} can
+   * use them to read in directories.
+   *
+   * <p>Return the value of the enums.
+   *
+   * @return The value as a string that can be used as a path
+   */
   @Override
   public String pathString() {
-    return path;
+    return pathString;
   }
 
   @Override
   public int priority() {
-    return 0;
+    return priority;
   }
 
   @Override

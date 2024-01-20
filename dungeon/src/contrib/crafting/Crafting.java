@@ -81,11 +81,11 @@ public final class Crafting {
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    if (Objects.requireNonNull(Crafting.class.getResource("/recipes"))
-        .toString()
-        .startsWith("jar:")) {
+    if (DetermineEnvironment.isStartedInJarFile()) {
+      // Started in jar file so load from jar
       loadFromJar();
     } else {
+      // Started in IDE so load from file
       loadFromFile();
     }
   }
