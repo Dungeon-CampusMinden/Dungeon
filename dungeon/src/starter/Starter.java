@@ -21,7 +21,10 @@ import entrypoint.DungeonConfig;
 import graph.TaskGraphConverter;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -43,13 +46,8 @@ import task.Task;
  * paths.
  */
 public class Starter {
-
-  private static int loadCounter = 0;
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final DSLInterpreter dslInterpreter = new DSLInterpreter();
-
-  private static boolean realGameStarted = false;
-  private static long startTime = 0;
   private static final Consumer<Entity> showQuestLog =
       entity -> {
         StringBuilder questLogBuilder = new StringBuilder();
@@ -67,6 +65,9 @@ public class Starter {
         String questLog = questLogBuilder.toString();
         OkDialog.showOkDialog(questLog, "Questlog", () -> {});
       };
+  private static int loadCounter = 0;
+  private static boolean realGameStarted = false;
+  private static long startTime = 0;
   private static final Consumer<Entity> showInfos =
       entity -> {
         StringBuilder infos = new StringBuilder();
@@ -104,41 +105,6 @@ public class Starter {
         // show list for task: reached points
       };
 
-  /**
-   * Selects a single DNG file using a file chooser dialog.
-   *
-   * @return the absolute path of the selected DNG file, or an empty array if no file was selected
-   */
-  private static String[] selectSingleDngFile() {
-    JFileChooser fileChooser = new JFileChooser();
-    fileChooser.setDialogTitle("Dungeon: Bitte öffne eine DNG-Datei (siehe auch Readme)");
-    fileChooser.setMultiSelectionEnabled(false);
-    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    fileChooser.setFileFilter(new FileNameExtensionFilter("Nur DNG Dateien", "dng"));
-    fileChooser.setAcceptAllFileFilterUsed(false);
-    if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-      return new String[] {fileChooser.getSelectedFile().getAbsolutePath()};
-    }
-    return new String[0];
-  }
-
-  /**
-   * If no <code>args</code> are given, will ask the user to select a single DNG file. Processes
-   * then all given <code>args</code>. If the <code>args</code> array are empty, a "dummy" Dungeon
-   * game will be started.
-   *
-   * @param args the command line arguments
-   * @return the set of DSLEntryPoints
-   * @throws IOException if <code>starter.Starter#processCLIArguments(java.lang.String[])</code>
-   *     fails
-   */
-  private static Set<DSLEntryPoint> processArguments(String[] args) throws IOException {
-    if (args.length == 0) {
-      args = selectSingleDngFile();
-    }
-    return processCLIArguments(args);
-  }
-
   public static void main(String[] args) throws IOException {
     // process CLI arguments and read in DSL-Files
     Set<DSLEntryPoint> entryPoints = processArguments(args);
@@ -155,20 +121,57 @@ public class Starter {
     Game.run();
   }
 
-  private static void onEntryPointSelection() {
-    Game.userOnFrame(
-        () -> {
-          // the player selected a Task/DSL-Entrypoint but it´s not loaded yet:
-          if (!realGameStarted && TaskSelector.selectedDSLEntryPoint != null) {
-            realGameStarted = true;
+  /**
+   * If no {@code args} are given, will ask the user to select a single DNG file, and if no DNG file
+   * was selected, a "dummy" Dungeon game will be started. Otherwise, processes the given arguments.
+   *
+   * @param args the command line arguments
+   * @return the set of DSLEntryPoints
+   * @throws IOException if {@link starter.Starter#processCLIArguments(List)} fails
+   */
+  private static Set<DSLEntryPoint> processArguments(String[] args) throws IOException {
+    if (args.length == 0) {
+      processCLIArguments(selectSingleDngFile().stream().toList());
+    }
+    return processCLIArguments(Arrays.asList(args));
+  }
 
-            DungeonConfig config =
-                dslInterpreter.interpretEntryPoint(TaskSelector.selectedDSLEntryPoint);
-            ILevel level = TaskGraphConverter.convert(config.dependencyGraph(), dslInterpreter);
+  private static Set<DSLEntryPoint> processCLIArguments(List<String> args) throws IOException {
+    Set<DSLEntryPoint> entryPoints = new HashSet<>();
+    DSLEntryPointFinder finder = new DSLEntryPointFinder();
+    DSLFileLoader.processArguments(args)
+        .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
+    return entryPoints;
+  }
 
-            Game.currentLevel(level);
-          }
-        });
+  /**
+   * Selects a single DNG file using a file chooser dialog.
+   *
+   * @return the absolute path of the selected DNG file, or an empty array if no file was selected
+   */
+  private static Optional<String> selectSingleDngFile() {
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("Dungeon: Bitte öffne eine DNG-Datei (siehe auch Readme)");
+    fileChooser.setMultiSelectionEnabled(false);
+    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    fileChooser.setFileFilter(new FileNameExtensionFilter("Nur DNG Dateien", "dng"));
+    fileChooser.setAcceptAllFileFilterUsed(false);
+    if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+      return Optional.of(fileChooser.getSelectedFile().getAbsolutePath());
+    }
+    return Optional.empty();
+  }
+
+  private static void configGame() throws IOException {
+    Game.initBaseLogger();
+    Game.windowTitle("DSL Dungeon");
+    Game.frameRate(30);
+    Game.disableAudio(false);
+    Game.loadConfig(
+        new SimpleIPath("dungeon_config.json"),
+        contrib.configuration.KeyboardConfig.class,
+        core.configuration.KeyboardConfig.class,
+        starter.KeyboardConfig.class);
   }
 
   private static void taskSelectorOnSetup(Set<DSLEntryPoint> entryPoints) {
@@ -202,14 +205,6 @@ public class Starter {
         });
   }
 
-  private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws IOException {
-    Set<DSLEntryPoint> entryPoints = new HashSet<>();
-    DSLEntryPointFinder finder = new DSLEntryPointFinder();
-    DSLFileLoader.processArguments(args)
-        .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
-    return entryPoints;
-  }
-
   private static void createHero() {
     Entity hero;
     try {
@@ -232,18 +227,6 @@ public class Starter {
     Game.add(hero);
   }
 
-  private static void configGame() throws IOException {
-    Game.initBaseLogger();
-    Game.windowTitle("DSL Dungeon");
-    Game.frameRate(30);
-    Game.disableAudio(false);
-    Game.loadConfig(
-        new SimpleIPath("dungeon_config.json"),
-        contrib.configuration.KeyboardConfig.class,
-        core.configuration.KeyboardConfig.class,
-        starter.KeyboardConfig.class);
-  }
-
   private static void createSystems() {
     Game.add(new AISystem());
     Game.add(new CollisionSystem());
@@ -260,5 +243,21 @@ public class Starter {
     backgroundMusic.setLooping(true);
     backgroundMusic.play();
     backgroundMusic.setVolume(.1f);
+  }
+
+  private static void onEntryPointSelection() {
+    Game.userOnFrame(
+        () -> {
+          // the player selected a Task/DSL-Entrypoint but it´s not loaded yet:
+          if (!realGameStarted && TaskSelector.selectedDSLEntryPoint != null) {
+            realGameStarted = true;
+
+            DungeonConfig config =
+                dslInterpreter.interpretEntryPoint(TaskSelector.selectedDSLEntryPoint);
+            ILevel level = TaskGraphConverter.convert(config.dependencyGraph(), dslInterpreter);
+
+            Game.currentLevel(level);
+          }
+        });
   }
 }
