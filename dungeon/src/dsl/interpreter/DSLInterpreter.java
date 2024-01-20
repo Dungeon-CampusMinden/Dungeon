@@ -1164,8 +1164,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     Symbol variableSymbol = symbolTable().getSymbolsForAstNode(node).get(0);
     value = bindFromSymbol(variableSymbol, this.getCurrentMemorySpace());
     if (node.getDeclType().equals(VarDeclNode.DeclType.assignmentDecl)) {
-        Value rhsValue = (Value)node.getRhs().accept(this);
-        setValue(value, rhsValue);
+      Value rhsValue = (Value) node.getRhs().accept(this);
+      setValue(value, rhsValue);
     }
     return value;
   }

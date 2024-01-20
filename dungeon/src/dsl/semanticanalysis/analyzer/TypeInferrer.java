@@ -17,7 +17,7 @@ public class TypeInferrer implements AstVisitor<IType> {
   }
 
   IType inferType(Node node) {
-      return node.accept(this);
+    return node.accept(this);
   }
 
   @Override

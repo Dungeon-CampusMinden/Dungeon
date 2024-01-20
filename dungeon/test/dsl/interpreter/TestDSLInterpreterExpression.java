@@ -613,11 +613,11 @@ public class TestDSLInterpreterExpression {
         output);
   }
 
-    @Test
-    public void varDeclAssignmentInt() {
-        String program =
-            testProgramPreamble
-                + """
+  @Test
+  public void varDeclAssignmentInt() {
+    String program =
+        testProgramPreamble
+            + """
                 fn build_task(single_choice_task t) -> entity<><> {
                     var return_set : entity<><>;
                     var room_set : entity<>;
@@ -630,21 +630,18 @@ public class TestDSLInterpreterExpression {
                 }
                 """;
 
-        var outputStream = new ByteArrayOutputStream();
-        Helpers.buildTask(program, outputStream);
+    var outputStream = new ByteArrayOutputStream();
+    Helpers.buildTask(program, outputStream);
 
-        String output = outputStream.toString();
-        Assert.assertEquals(
-            "42"
-                + System.lineSeparator(),
-            output);
-    }
+    String output = outputStream.toString();
+    Assert.assertEquals("42" + System.lineSeparator(), output);
+  }
 
-    @Test
-    public void varDeclAssignmentBool() {
-        String program =
-            testProgramPreamble
-                + """
+  @Test
+  public void varDeclAssignmentBool() {
+    String program =
+        testProgramPreamble
+            + """
                 fn build_task(single_choice_task t) -> entity<><> {
                     var return_set : entity<><>;
                     var room_set : entity<>;
@@ -657,21 +654,18 @@ public class TestDSLInterpreterExpression {
                 }
                 """;
 
-        var outputStream = new ByteArrayOutputStream();
-        Helpers.buildTask(program, outputStream);
+    var outputStream = new ByteArrayOutputStream();
+    Helpers.buildTask(program, outputStream);
 
-        String output = outputStream.toString();
-        Assert.assertEquals(
-            "true"
-                + System.lineSeparator(),
-            output);
-    }
+    String output = outputStream.toString();
+    Assert.assertEquals("true" + System.lineSeparator(), output);
+  }
 
-    @Test
-    public void varDeclAssignmentFuncCall() {
-        String program =
-            testProgramPreamble
-                + """
+  @Test
+  public void varDeclAssignmentFuncCall() {
+    String program =
+        testProgramPreamble
+            + """
                 fn test() -> int {
                     return 42;
                 }
@@ -688,21 +682,18 @@ public class TestDSLInterpreterExpression {
                 }
                 """;
 
-        var outputStream = new ByteArrayOutputStream();
-        Helpers.buildTask(program, outputStream);
+    var outputStream = new ByteArrayOutputStream();
+    Helpers.buildTask(program, outputStream);
 
-        String output = outputStream.toString();
-        Assert.assertEquals(
-            "42"
-                + System.lineSeparator(),
-            output);
-    }
+    String output = outputStream.toString();
+    Assert.assertEquals("42" + System.lineSeparator(), output);
+  }
 
   @Test
   public void varDeclAssignmentVar() {
     String program =
-      testProgramPreamble
-        + """
+        testProgramPreamble
+            + """
                 fn build_task(single_choice_task t) -> entity<><> {
                     var return_set : entity<><>;
                     var room_set : entity<>;
@@ -722,9 +713,6 @@ public class TestDSLInterpreterExpression {
     Helpers.buildTask(program, outputStream);
 
     String output = outputStream.toString();
-    Assert.assertEquals(
-      "42"
-        + System.lineSeparator(),
-      output);
+    Assert.assertEquals("42" + System.lineSeparator(), output);
   }
 }
