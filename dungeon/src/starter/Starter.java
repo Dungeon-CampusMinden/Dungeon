@@ -24,8 +24,9 @@ import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import task.Task;
 
 /**
@@ -103,23 +104,44 @@ public class Starter {
         // show list for task: reached points
       };
 
-  public static void main(String[] args) throws IOException {
-    Set<DSLEntryPoint> entryPoints;
-    if (args.length == 0) {
-      // open a JFileChooser to select a single dng file
-      String selectedFile = DngJFileChooser.selectSingleDngFile();
-      if (selectedFile == null) {
-        Logger.getGlobal().info("No dng file selected. The Dungeon game will not start.");
-        return;
-      }
-      entryPoints = processCLIArguments(new String[] {selectedFile});
+  /**
+   * Selects a single DNG file using a file chooser dialog.
+   *
+   * @return the absolute path of the selected DNG file, or an empty array if no file was selected
+   */
+  private static String[] selectSingleDngFile() {
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("Dungeon: Bitte öffne eine DNG-Datei (siehe auch Readme)");
+    fileChooser.setMultiSelectionEnabled(false);
+    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    fileChooser.setFileFilter(new FileNameExtensionFilter("Nur DNG Dateien", "dng"));
+    fileChooser.setAcceptAllFileFilterUsed(false);
+    if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+      return new String[] {fileChooser.getSelectedFile().getAbsolutePath()};
     }
+    return new String[0];
+  }
 
-    // read in DSL-Files
-    else {
-      // read in the default command line arguments
-      entryPoints = processCLIArguments(args);
+  /**
+   * If no <code>args</code> are given, will ask the user to select a single DNG file. Processes
+   * then all given <code>args</code>. If the <code>args</code> array are empty, a "dummy" Dungeon
+   * game will be started.
+   *
+   * @param args the command line arguments
+   * @return the set of DSLEntryPoints
+   * @throws IOException if <code>starter.Starter#processCLIArguments(java.lang.String[])</code>
+   *     fails
+   */
+  private static Set<DSLEntryPoint> processArguments(String[] args) throws IOException {
+    if (args.length == 0) {
+      args = selectSingleDngFile();
     }
+    return processCLIArguments(args);
+  }
+
+  public static void main(String[] args) throws IOException {
+    // process CLI arguments and read in DSL-Files
+    Set<DSLEntryPoint> entryPoints = processArguments(args);
 
     // some game Setup
     configGame();
