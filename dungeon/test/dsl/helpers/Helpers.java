@@ -192,4 +192,15 @@ public class Helpers {
     System.setOut(new PrintStream(outputStream));
     return (HashSet<HashSet<Entity>>) interpreter.buildTask(task).get();
   }
+
+  public static HashSet<HashSet<Entity>> buildTask(
+    String program, ByteArrayOutputStream outputStream, DSLInterpreter interpreter) {
+    DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+    var task = (SingleChoice) config.dependencyGraph().nodeIterator().next().task();
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    System.setOut(new PrintStream(outputStream));
+    return (HashSet<HashSet<Entity>>) interpreter.buildTask(task).get();
+  }
 }
