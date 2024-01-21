@@ -2,6 +2,17 @@ package dsl.interpreter;
 
 import dsl.helpers.Helpers;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
+
+import dsl.parser.ast.FuncDefNode;
+import dsl.parser.ast.Node;
+import dsl.semanticanalysis.scope.FileScope;
+import dsl.semanticanalysis.symbol.FunctionSymbol;
+import dsl.semanticanalysis.symbol.Symbol;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -714,5 +725,103 @@ public class TestDSLInterpreterExpression {
 
     String output = outputStream.toString();
     Assert.assertEquals("42" + System.lineSeparator(), output);
+  }
+
+  @Test
+  public void varDeclAssignmentList() {
+    String program =
+      testProgramPreamble
+        + """
+                fn build_task(single_choice_task t) -> entity<><> {
+                    var return_set : entity<><>;
+                    var room_set : entity<>;
+
+                    var list_var = [1,2,3];
+
+                    print(list_var);
+
+                    return_set.add(room_set);
+                    return return_set;
+                }
+                """;
+
+    var outputStream = new ByteArrayOutputStream();
+    Helpers.buildTask(program, outputStream);
+
+    String output = outputStream.toString();
+    Assert.assertEquals("[1, 2, 3]" + System.lineSeparator(), output);
+  }
+
+  @Test
+  public void varDeclAssignmentListOfSets() {
+    String program =
+      testProgramPreamble
+        + """
+                fn build_task(single_choice_task t) -> entity<><> {
+                    var return_set : entity<><>;
+                    var room_set : entity<>;
+
+                    var set1 = <1>;
+                    var set2 = <2>;
+                    var set3 = <3>;
+                    var list_var = [set1,set2,set3];
+
+                    print(list_var);
+
+                    return_set.add(room_set);
+                    return return_set;
+                }
+                """;
+
+    var outputStream = new ByteArrayOutputStream();
+    DSLInterpreter interpreter = new DSLInterpreter();
+    Helpers.buildTask(program, outputStream, interpreter);
+
+    String output = outputStream.toString();
+    Assert.assertEquals("[[1], [2], [3]]" + System.lineSeparator(), output);
+
+    // check for correct type of list_var
+    var rtEnv = interpreter.getRuntimeEnvironment();
+    FileScope fs = rtEnv.getFileScopes().values().stream().findFirst().get();;
+    FunctionSymbol functionSymbol = (FunctionSymbol)fs.resolve("build_task");
+    FuncDefNode rootNode = functionSymbol.getAstRootNode();
+    Node listVarDeclNode = rootNode.getStmts().get(5);
+    Symbol varDeclSymbol = rtEnv.getSymbolTable().getSymbolsForAstNode(listVarDeclNode).getFirst();
+    IType varDeclDataType = varDeclSymbol.getDataType();
+    Assert.assertEquals("int<>[]", varDeclDataType.getName());
+    Assert.assertTrue(varDeclDataType instanceof ListType);
+    ListType listType = (ListType)varDeclDataType;
+    Assert.assertTrue(listType.getElementType() instanceof SetType);
+    SetType setType = (SetType) listType.getElementType();
+    Assert.assertEquals(BuiltInType.intType, setType.getElementType());
+  }
+
+  @Test
+  public void varDeclAssignmentSet() {
+    String program =
+      testProgramPreamble
+        + """
+                fn build_task(single_choice_task t) -> entity<><> {
+                    var return_set : entity<><>;
+                    var room_set : entity<>;
+
+                    var set_var = <1,2,3>;
+
+                    print(set_var);
+
+                    return_set.add(room_set);
+                    return return_set;
+                }
+                """;
+
+    var outputStream = new ByteArrayOutputStream();
+    Helpers.buildTask(program, outputStream);
+
+    String output = outputStream.toString();
+    Assert.assertTrue(output.contains("1"));
+    Assert.assertTrue(output.contains("2"));
+    Assert.assertTrue(output.contains("3"));
+    Assert.assertTrue(output.contains("["));
+    Assert.assertTrue(output.contains("]"));
   }
 }
