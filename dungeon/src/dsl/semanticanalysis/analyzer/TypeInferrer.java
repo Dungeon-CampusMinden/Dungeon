@@ -2,22 +2,23 @@ package dsl.semanticanalysis.analyzer;
 
 import dsl.parser.ast.*;
 import dsl.semanticanalysis.SymbolTable;
+import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
 
 public class TypeInferrer implements AstVisitor<IType> {
-  // Deque<IScope> scopeStack;
   SymbolTable symbolTable;
 
   public TypeInferrer(SymbolTable symbolTable) {
     this.symbolTable = symbolTable;
-    // this.scopeStack = new ArrayDeque<>();
   }
 
   IType inferType(Node node) {
-    return node.accept(this);
+      return node.accept(this);
   }
 
   @Override
@@ -67,7 +68,7 @@ public class TypeInferrer implements AstVisitor<IType> {
 
   @Override
   public IType visit(MemberAccessNode node) {
-    // TODO
+    // TODO!
     throw new UnsupportedOperationException();
   }
 
@@ -124,14 +125,42 @@ public class TypeInferrer implements AstVisitor<IType> {
 
   @Override
   public IType visit(ListDefinitionNode node) {
-    Symbol symbol = this.symbolTable.getSymbolsForAstNode(node).getFirst();
-    return symbol.getDataType();
+    if (node.getEntries().isEmpty()) {
+      throw new RuntimeException("Can't infer type of empty list definition!");
+    }
+    var firstEntry = node.getEntries().getFirst();
+    IType innerType = firstEntry.accept(this);
+    String listTypeName = ListType.getListTypeName(innerType);
+    Symbol resolvedSymbol = this.symbolTable.globalScope().resolve(listTypeName);
+    ListType listType;
+    if (resolvedSymbol.equals(Symbol.NULL)) {
+      IScope globalScope = symbolTable.globalScope();
+      listType = new ListType(innerType, globalScope);
+      globalScope.bind(listType);
+    } else {
+      listType = (ListType) resolvedSymbol;
+    }
+    return listType;
   }
 
   @Override
   public IType visit(SetDefinitionNode node) {
-    Symbol symbol = this.symbolTable.getSymbolsForAstNode(node).getFirst();
-    return symbol.getDataType();
+    if (node.getEntries().isEmpty()) {
+      throw new RuntimeException("Can't infer type of empty set definition!");
+    }
+    var firstEntry = node.getEntries().getFirst();
+    IType innerType = firstEntry.accept(this);
+    String setTypeName = SetType.getSetTypeName(innerType);
+    Symbol resolvedSymbol = this.symbolTable.globalScope().resolve(setTypeName);
+    SetType setType;
+    if (resolvedSymbol.equals(Symbol.NULL)) {
+      IScope globalScope = symbolTable.globalScope();
+      setType = new SetType(innerType, globalScope);
+      globalScope.bind(setType);
+    } else {
+      setType = (SetType) resolvedSymbol;
+    }
+    return setType;
   }
 
   @Override
