@@ -1,7 +1,13 @@
+buildscript {
+    apply from: 'dependencies.gradle'
+}
+
 plugins {
     id 'application'
-    id 'com.diffplug.spotless' version '6.23.3'
+    id 'com.diffplug.spotless' version "${spotlessVersion}"
     id 'antlr'
+    id 'com.github.ben-manes.versions' version "${benmanesVersion}"
+    // use: gradlew dependencyUpdates -Drevision=release
 }
 
 java {
@@ -26,31 +32,24 @@ repositories {
     google()
 }
 
-def gdxVersion = '1.12.1'
-def aiVersion = '1.8.2'
-def junitVersion = '4.13.2'
-def mockitoVersion = '5.8.0'
-def antlrVersion = '4.13.1'
-def gsonVersion = '2.10.1'
-
 dependencies {
     // LibGDX
-    implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
-    implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
-    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-    implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
-    implementation "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+    implementation supportDependencies.gdx
+    implementation supportDependencies.gdx_freetype
+    implementation supportDependencies.gdx_backend_lwjgl3
+    implementation supportDependencies.gdx_platform
+    implementation supportDependencies.gdx_freetype_platform
+    implementation supportDependencies.gdx_ai
 
     // Gson
-    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation supportDependencies.gson
 
     // JUnit 4 and Mockito for testing
-    testImplementation "junit:junit:$junitVersion"
-    testImplementation "org.mockito:mockito-core:$mockitoVersion"
+    testImplementation supportDependencies.junit
+    testImplementation supportDependencies.mockito_core
 
     // ANTLR version 4 for DSL Grammar
-    antlr "org.antlr:antlr4:$antlrVersion"
+    antlr supportDependencies.antlr
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
