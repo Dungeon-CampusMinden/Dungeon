@@ -1,9 +1,9 @@
 package dsl.semanticanalysis.analyzer;
 
 import dsl.parser.ast.*;
+import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.scope.IScope;
-import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
@@ -18,7 +18,7 @@ public class TypeInferrer implements AstVisitor<IType> {
   }
 
   IType inferType(Node node) {
-      return node.accept(this);
+    return node.accept(this);
   }
 
   @Override
@@ -51,9 +51,8 @@ public class TypeInferrer implements AstVisitor<IType> {
   @Override
   public IType visit(FuncCallNode node) {
     // resolve func symbol
-    FunctionSymbol funcSymbol =
-        (FunctionSymbol) this.symbolTable.getSymbolsForAstNode(node).getFirst();
-    return funcSymbol.getFunctionType().getReturnType();
+    ICallable callable = (ICallable) this.symbolTable.getSymbolsForAstNode(node).getFirst();
+    return callable.getFunctionType().getReturnType();
   }
 
   @Override
@@ -68,8 +67,16 @@ public class TypeInferrer implements AstVisitor<IType> {
 
   @Override
   public IType visit(MemberAccessNode node) {
-    // TODO!
-    throw new UnsupportedOperationException();
+    Node rhsNode = node.getRhs();
+    while (rhsNode.type.equals(Node.Type.MemberAccess)) {
+      rhsNode = ((MemberAccessNode) rhsNode).getRhs();
+    }
+
+    Symbol rhsSymbol = this.symbolTable.getSymbolsForAstNode(rhsNode).getFirst();
+    if (rhsSymbol.equals(Symbol.NULL)) {
+      return BuiltInType.noType;
+    }
+    return rhsSymbol.getDataType();
   }
 
   @Override
