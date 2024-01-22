@@ -59,8 +59,6 @@ sourceSets.main.antlr.srcDirs = ['dungeon/src/dsl/antlr']
 project.ext.mainClassName = 'starter.BasicStarter'
 project.ext.assetsDir = new File('game/assets')
 
-import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-
 application {
     mainClass = project.mainClassName
 }
@@ -173,7 +171,7 @@ tasks.withType(JavaExec).configureEach {
     doFirst {
         println(DefaultNativePlatform.currentOperatingSystem)
     }
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+    if (System.properties['os.name'].toLowerCase().contains('mac')) {
         jvmArgs('-XstartOnFirstThread')
     }
 }
