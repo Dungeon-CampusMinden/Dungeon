@@ -20,6 +20,7 @@ repositories {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 dependencies {
     // LibGDX
     implementation supportDependencies.gdx
@@ -37,6 +38,18 @@ def mockitoVersion = '5.8.0'
 def antlrVersion = '4.13.1'
 def gsonVersion = '2.10.1'
 >>>>>>> 1234030e (Split Project into Subprojects)
+=======
+subprojects {
+    ext {
+        gdxVersion = '1.12.1'
+        aiVersion = '1.8.2'
+        junitVersion = '4.13.2'
+        mockitoVersion = '5.8.0'
+        antlrVersion = '4.13.1'
+        gsonVersion = '2.10.1'
+    }
+}
+>>>>>>> 0cfcb52c (Version variables)
 
 dependencies {}
 
