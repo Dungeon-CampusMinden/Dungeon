@@ -194,7 +194,7 @@ public class Helpers {
   }
 
   public static HashSet<HashSet<Entity>> buildTask(
-    String program, ByteArrayOutputStream outputStream, DSLInterpreter interpreter) {
+      String program, ByteArrayOutputStream outputStream, DSLInterpreter interpreter) {
     DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
     var task = (SingleChoice) config.dependencyGraph().nodeIterator().next().task();
 
