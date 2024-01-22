@@ -46,8 +46,13 @@ import task.Task;
  * paths.
  */
 public class Starter {
+
+  private static int loadCounter = 0;
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final DSLInterpreter dslInterpreter = new DSLInterpreter();
+
+  private static boolean realGameStarted = false;
+  private static long startTime = 0;
   private static final Consumer<Entity> showQuestLog =
       entity -> {
         StringBuilder questLogBuilder = new StringBuilder();
@@ -65,9 +70,6 @@ public class Starter {
         String questLog = questLogBuilder.toString();
         OkDialog.showOkDialog(questLog, "Questlog", () -> {});
       };
-  private static int loadCounter = 0;
-  private static boolean realGameStarted = false;
-  private static long startTime = 0;
   private static final Consumer<Entity> showInfos =
       entity -> {
         StringBuilder infos = new StringBuilder();
@@ -162,16 +164,20 @@ public class Starter {
     return Optional.empty();
   }
 
-  private static void configGame() throws IOException {
-    Game.initBaseLogger();
-    Game.windowTitle("DSL Dungeon");
-    Game.frameRate(30);
-    Game.disableAudio(false);
-    Game.loadConfig(
-        new SimpleIPath("dungeon_config.json"),
-        contrib.configuration.KeyboardConfig.class,
-        core.configuration.KeyboardConfig.class,
-        starter.KeyboardConfig.class);
+  private static void onEntryPointSelection() {
+    Game.userOnFrame(
+        () -> {
+          // the player selected a Task/DSL-Entrypoint but it´s not loaded yet:
+          if (!realGameStarted && TaskSelector.selectedDSLEntryPoint != null) {
+            realGameStarted = true;
+
+            DungeonConfig config =
+                dslInterpreter.interpretEntryPoint(TaskSelector.selectedDSLEntryPoint);
+            ILevel level = TaskGraphConverter.convert(config.dependencyGraph(), dslInterpreter);
+
+            Game.currentLevel(level);
+          }
+        });
   }
 
   private static void taskSelectorOnSetup(Set<DSLEntryPoint> entryPoints) {
@@ -227,6 +233,18 @@ public class Starter {
     Game.add(hero);
   }
 
+  private static void configGame() throws IOException {
+    Game.initBaseLogger();
+    Game.windowTitle("DSL Dungeon");
+    Game.frameRate(30);
+    Game.disableAudio(false);
+    Game.loadConfig(
+        new SimpleIPath("dungeon_config.json"),
+        contrib.configuration.KeyboardConfig.class,
+        core.configuration.KeyboardConfig.class,
+        starter.KeyboardConfig.class);
+  }
+
   private static void createSystems() {
     Game.add(new AISystem());
     Game.add(new CollisionSystem());
@@ -243,21 +261,5 @@ public class Starter {
     backgroundMusic.setLooping(true);
     backgroundMusic.play();
     backgroundMusic.setVolume(.1f);
-  }
-
-  private static void onEntryPointSelection() {
-    Game.userOnFrame(
-        () -> {
-          // the player selected a Task/DSL-Entrypoint but it´s not loaded yet:
-          if (!realGameStarted && TaskSelector.selectedDSLEntryPoint != null) {
-            realGameStarted = true;
-
-            DungeonConfig config =
-                dslInterpreter.interpretEntryPoint(TaskSelector.selectedDSLEntryPoint);
-            ILevel level = TaskGraphConverter.convert(config.dependencyGraph(), dslInterpreter);
-
-            Game.currentLevel(level);
-          }
-        });
   }
 }
