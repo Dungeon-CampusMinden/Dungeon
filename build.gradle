@@ -169,7 +169,7 @@ tasks.withType(JavaExec).configureEach {
     standardInput = System.in
     ignoreExitValue true
     doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
+        println(System.properties['os.name'])
     }
     if (System.properties['os.name'].toLowerCase().contains('mac')) {
         jvmArgs('-XstartOnFirstThread')
