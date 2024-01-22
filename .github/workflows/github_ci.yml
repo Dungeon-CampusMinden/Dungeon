@@ -52,7 +52,7 @@ jobs:
     if: ${{ needs.check.outputs.tests_changed == 'true' }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -67,9 +67,8 @@ jobs:
         run: ./gradlew test
 
   junit:
-    name: JUnit
-    needs: [build, check]
-    if: ${{ needs.check.outputs.tests_changed == 'false' }}
+    name: JUnit (Linux only)
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -83,7 +82,7 @@ jobs:
       - name: JUnit
         run: ./gradlew test
 
-  spotless-java-format:
+  spotless:
     name: Spotless
     needs: build
     runs-on: ubuntu-latest
