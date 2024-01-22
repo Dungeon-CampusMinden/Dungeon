@@ -1,9 +1,6 @@
 package dsl.interpreter;
 
 import dsl.helpers.Helpers;
-import java.io.ByteArrayOutputStream;
-import java.util.List;
-
 import dsl.parser.ast.FuncDefNode;
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.scope.FileScope;
@@ -13,6 +10,7 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
+import java.io.ByteArrayOutputStream;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -730,8 +728,8 @@ public class TestDSLInterpreterExpression {
   @Test
   public void varDeclAssignmentList() {
     String program =
-      testProgramPreamble
-        + """
+        testProgramPreamble
+            + """
                 fn build_task(single_choice_task t) -> entity<><> {
                     var return_set : entity<><>;
                     var room_set : entity<>;
@@ -755,8 +753,8 @@ public class TestDSLInterpreterExpression {
   @Test
   public void varDeclAssignmentListOfSets() {
     String program =
-      testProgramPreamble
-        + """
+        testProgramPreamble
+            + """
                 fn build_task(single_choice_task t) -> entity<><> {
                     var return_set : entity<><>;
                     var room_set : entity<>;
@@ -782,15 +780,16 @@ public class TestDSLInterpreterExpression {
 
     // check for correct type of list_var
     var rtEnv = interpreter.getRuntimeEnvironment();
-    FileScope fs = rtEnv.getFileScopes().values().stream().findFirst().get();;
-    FunctionSymbol functionSymbol = (FunctionSymbol)fs.resolve("build_task");
+    FileScope fs = rtEnv.getFileScopes().values().stream().findFirst().get();
+    ;
+    FunctionSymbol functionSymbol = (FunctionSymbol) fs.resolve("build_task");
     FuncDefNode rootNode = functionSymbol.getAstRootNode();
     Node listVarDeclNode = rootNode.getStmts().get(5);
     Symbol varDeclSymbol = rtEnv.getSymbolTable().getSymbolsForAstNode(listVarDeclNode).getFirst();
     IType varDeclDataType = varDeclSymbol.getDataType();
     Assert.assertEquals("int<>[]", varDeclDataType.getName());
     Assert.assertTrue(varDeclDataType instanceof ListType);
-    ListType listType = (ListType)varDeclDataType;
+    ListType listType = (ListType) varDeclDataType;
     Assert.assertTrue(listType.getElementType() instanceof SetType);
     SetType setType = (SetType) listType.getElementType();
     Assert.assertEquals(BuiltInType.intType, setType.getElementType());
@@ -799,8 +798,8 @@ public class TestDSLInterpreterExpression {
   @Test
   public void varDeclAssignmentSet() {
     String program =
-      testProgramPreamble
-        + """
+        testProgramPreamble
+            + """
                 fn build_task(single_choice_task t) -> entity<><> {
                     var return_set : entity<><>;
                     var room_set : entity<>;
@@ -823,5 +822,37 @@ public class TestDSLInterpreterExpression {
     Assert.assertTrue(output.contains("3"));
     Assert.assertTrue(output.contains("["));
     Assert.assertTrue(output.contains("]"));
+  }
+
+  @Test
+  public void varDeclAssignmentMemberAccess() {
+    String program =
+        testProgramPreamble
+            + """
+                entity_type my_type {
+                  interaction_component{
+                    radius: 42.0
+                  }
+                }
+
+                fn build_task(single_choice_task t) -> entity<><> {
+                    var return_set : entity<><>;
+                    var room_set : entity<>;
+
+                    var my_ent = instantiate(my_type);
+                    var float_var = my_ent.interaction_component.radius;
+
+                    print(float_var);
+
+                    return_set.add(room_set);
+                    return return_set;
+                }
+                """;
+
+    var outputStream = new ByteArrayOutputStream();
+    Helpers.buildTask(program, outputStream);
+
+    String output = outputStream.toString();
+    Assert.assertEquals("42.0" + System.lineSeparator(), output);
   }
 }
