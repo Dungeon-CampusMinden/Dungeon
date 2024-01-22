@@ -3,11 +3,9 @@ buildscript {
 }
 
 plugins {
-    id 'application'
-    id 'com.diffplug.spotless' version "${spotlessVersion}"
-    id 'antlr'
-    id 'com.github.ben-manes.versions' version "${benmanesVersion}"
-    // use: gradlew dependencyUpdates -Drevision=release
+    // we can not use ext variables here
+    id "java"
+    id "com.diffplug.spotless" version "6.23.3"
 }
 
 java {
@@ -17,18 +15,11 @@ java {
     sourceCompatibility = JavaVersion.VERSION_21
 }
 
-// store name of method parameter names in .class files (used to build
-// DSL-adapter types, which contain the names of the parameters as members)
-tasks.withType(JavaCompile).configureEach {
-    configure(options) {
-        options.compilerArgs << '-parameters'
-    }
-}
-
 repositories {
     mavenCentral()
 }
 
+<<<<<<< HEAD
 dependencies {
     // LibGDX
     implementation supportDependencies.gdx
@@ -38,10 +29,18 @@ dependencies {
     implementation supportDependencies.gdx_platform
     implementation supportDependencies.gdx_freetype_platform
     implementation supportDependencies.gdx_ai
+=======
+def gdxVersion = '1.12.1'
+def aiVersion = '1.8.2'
+def junitVersion = '4.13.2'
+def mockitoVersion = '5.8.0'
+def antlrVersion = '4.13.1'
+def gsonVersion = '2.10.1'
+>>>>>>> 1234030e (Split Project into Subprojects)
 
-    // Gson
-    implementation supportDependencies.gson
+dependencies {}
 
+<<<<<<< HEAD
     // JUnit 4 and Mockito for testing
     testImplementation supportDependencies.junit
     testImplementation supportDependencies.mockito_core
@@ -81,6 +80,9 @@ tasks.register('debug', JavaExec) {
     mainClass = 'starter.BasicStarter'
     debug = true
 }
+=======
+[compileJava, compileTestJava]*.options*.encoding = "UTF-8"
+>>>>>>> 1234030e (Split Project into Subprojects)
 
 test {
     testLogging {
@@ -94,6 +96,7 @@ spotless {
         googleJavaFormat()
     }
 }
+<<<<<<< HEAD
 
 // generate ANTLR visitor and listener classes from grammar:
 generateGrammarSource {
@@ -167,3 +170,5 @@ tasks.withType(JavaExec).configureEach {
     standardInput = System.in
     ignoreExitValue true
 }
+=======
+>>>>>>> 1234030e (Split Project into Subprojects)
