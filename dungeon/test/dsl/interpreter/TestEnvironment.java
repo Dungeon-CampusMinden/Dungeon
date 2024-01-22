@@ -1,11 +1,15 @@
 package dsl.interpreter;
 
+import dsl.runtime.callable.NativeFunction;
 import dsl.semanticanalysis.environment.GameEnvironment;
+import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
+import dslinterop.dslnativefunction.NativeInstantiate;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +54,11 @@ public class TestEnvironment extends GameEnvironment {
 
   @Override
   protected ArrayList<Symbol> buildDependantNativeFunctions() {
-    return new ArrayList<>();
+    ArrayList<Symbol> nativeFunctions = new ArrayList<>();
+    IType entityType = (IType) this.globalScope.resolve("entity");
+    NativeFunction nativeInstantiate = new NativeInstantiate(Scope.NULL, entityType);
+    nativeFunctions.add(nativeInstantiate);
+    return nativeFunctions;
   }
 
   @Override
