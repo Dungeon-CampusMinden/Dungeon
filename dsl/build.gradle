@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    sourceCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral();
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" };
+    gradlePluginPortal();
+    google();
+}
+
+dependencies {
+    // JUnit 4, Mockito and Powermock for testing:
+    // https://mvnrepository.com/artifact/junit/junit
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "org.mockito:mockito-core:5.8.0"
+}
+
+sourceSets.main.java.srcDirs = ["src/"]
+sourceSets.test.java.srcDirs = ["test/"]
