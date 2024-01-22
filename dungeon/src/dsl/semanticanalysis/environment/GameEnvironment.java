@@ -339,11 +339,15 @@ public class GameEnvironment implements IEnvironment {
 
   protected ArrayList<Symbol> buildDependantNativeFunctions() {
     ArrayList<Symbol> nativeFunctions = new ArrayList<>();
+
+    IType entityType = (IType) this.globalScope.resolve("entity");
+    NativeFunction nativeInstantiate = new NativeInstantiate(Scope.NULL, entityType);
+    nativeFunctions.add(nativeInstantiate);
+
     nativeFunctions.add(ShowInfoFunction.func);
 
     // build functions with dependency on specific non-builtin types
     IType questItemType = (IType) this.globalScope.resolve("quest_item");
-    IType entityType = (IType) this.globalScope.resolve("entity");
     SetType entitySetType = new SetType(entityType, this.globalScope);
     this.globalScope.bind(entitySetType);
 
@@ -442,7 +446,6 @@ public class GameEnvironment implements IEnvironment {
   protected ArrayList<Symbol> buildNativeFunctions() {
     ArrayList<Symbol> nativeFunctions = new ArrayList<>();
     nativeFunctions.add(NativePrint.func);
-    nativeFunctions.add(NativeInstantiate.func);
     nativeFunctions.add(NativeInstantiateNamed.func);
 
     var dependantNativeFunctions = buildDependantNativeFunctions();

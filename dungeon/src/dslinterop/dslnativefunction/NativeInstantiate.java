@@ -11,27 +11,25 @@ import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.PrototypeValue;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.scope.IScope;
-import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class NativeInstantiate extends NativeFunction {
-  public static NativeInstantiate func = new NativeInstantiate(Scope.NULL);
+  // public static NativeInstantiate func = new NativeInstantiate(Scope.NULL);
 
   /**
    * Constructor
    *
    * @param parentScope parent scope of this function
    */
-  private NativeInstantiate(IScope parentScope) {
-    super(
-        "instantiate", parentScope, new FunctionType(BuiltInType.noType, PrototypeValue.PROTOTYPE));
+  public NativeInstantiate(IScope parentScope, IType entityType) {
+    super("instantiate", parentScope, new FunctionType(entityType, PrototypeValue.PROTOTYPE));
 
     // bind parameters
     Symbol param = new Symbol("param", this, PrototypeValue.PROTOTYPE);
