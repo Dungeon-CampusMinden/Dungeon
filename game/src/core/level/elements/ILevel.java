@@ -245,24 +245,18 @@ public interface ILevel extends IndexedGraph<Tile> {
    */
   default Tile randomTile(final LevelElement elementType) {
     return switch (elementType) {
-      case SKIP -> skipTiles().size() > 0
-          ? skipTiles().get(RANDOM.nextInt(skipTiles().size()))
-          : null;
-      case FLOOR -> floorTiles().size() > 0
-          ? floorTiles().get(RANDOM.nextInt(floorTiles().size()))
-          : null;
-      case WALL -> wallTiles().size() > 0
-          ? wallTiles().get(RANDOM.nextInt(wallTiles().size()))
-          : null;
-      case HOLE -> holeTiles().size() > 0
-          ? holeTiles().get(RANDOM.nextInt(holeTiles().size()))
-          : null;
-      case EXIT -> exitTiles().size() > 0
-          ? exitTiles().get(RANDOM.nextInt(exitTiles().size()))
-          : null;
-      case DOOR -> doorTiles().size() > 0
-          ? doorTiles().get(RANDOM.nextInt(doorTiles().size()))
-          : null;
+      case SKIP ->
+          skipTiles().size() > 0 ? skipTiles().get(RANDOM.nextInt(skipTiles().size())) : null;
+      case FLOOR ->
+          floorTiles().size() > 0 ? floorTiles().get(RANDOM.nextInt(floorTiles().size())) : null;
+      case WALL ->
+          wallTiles().size() > 0 ? wallTiles().get(RANDOM.nextInt(wallTiles().size())) : null;
+      case HOLE ->
+          holeTiles().size() > 0 ? holeTiles().get(RANDOM.nextInt(holeTiles().size())) : null;
+      case EXIT ->
+          exitTiles().size() > 0 ? exitTiles().get(RANDOM.nextInt(exitTiles().size())) : null;
+      case DOOR ->
+          doorTiles().size() > 0 ? doorTiles().get(RANDOM.nextInt(doorTiles().size())) : null;
     };
   }
 
