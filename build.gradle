@@ -21,6 +21,7 @@ repositories {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 dependencies {
     // LibGDX
     implementation supportDependencies.gdx
@@ -51,6 +52,8 @@ subprojects {
 }
 >>>>>>> 0cfcb52c (Version variables)
 
+=======
+>>>>>>> 0dc9ae19 (Remove versions from root build.gradle)
 dependencies {}
 
 <<<<<<< HEAD
