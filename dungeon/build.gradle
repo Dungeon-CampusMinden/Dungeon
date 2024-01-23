@@ -31,6 +31,9 @@ dependencies {
     implementation project(":dsl")
     api project(":game")
 
+    testImplementation supportDependencies.junit
+    testImplementation supportDependencies.mockito_core
+
     // ANTLR version 4 for DSL Grammar
     antlr supportDependencies.antlr
 }
