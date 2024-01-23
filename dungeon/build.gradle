@@ -32,7 +32,7 @@ dependencies {
     api project(":game")
 
     // ANTLR version 4 for DSL Grammar
-    antlr "org.antlr:antlr4:$antlrVersion"
+    antlr supportDependencies.antlr
 }
 
 sourceSets.main.java.srcDirs = ["src/", "$projectDir/build/generated-src/antlr/main/"]
