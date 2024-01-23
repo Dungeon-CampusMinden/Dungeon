@@ -41,7 +41,7 @@ dependencies {
 sourceSets.main.java.srcDirs = ["src/", "$projectDir/build/generated-src/antlr/main/"]
 sourceSets.test.java.srcDirs = ["test/"]
 sourceSets.main.resources.srcDirs = ["assets/"]
-sourceSets.test.resources.srcDirs = ["test_resources/"]
+sourceSets.test.resources.srcDirs = ["test_resources/", "assets/"]
 sourceSets.main.antlr.srcDirs = ["src/dsl/antlr"]
 
 
