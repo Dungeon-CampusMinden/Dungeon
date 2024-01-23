@@ -20,13 +20,13 @@ import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
 import graph.TaskGraphConverter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -109,8 +109,7 @@ public class Starter {
         // show list for task: reached points
       };
 
-  public static void main(String[] args)
-      throws IOException, InterruptedException, InvocationTargetException {
+  public static void main(String[] args) throws IOException, InterruptedException {
     // process CLI arguments and read in DSL-Files
     Set<DSLEntryPoint> entryPoints = processArguments(args);
 
@@ -135,7 +134,7 @@ public class Starter {
    * @throws IOException if {@link starter.Starter#processCLIArguments(List)} fails
    */
   private static Set<DSLEntryPoint> processArguments(String[] args)
-      throws IOException, InterruptedException, InvocationTargetException {
+      throws IOException, InterruptedException {
     if (args.length == 0) {
       processCLIArguments(selectSingleDngFile().stream().toList());
     }
@@ -155,23 +154,25 @@ public class Starter {
    *
    * @return the absolute path of the selected DNG file, or an empty array if no file was selected
    */
-  private static Optional<String> selectSingleDngFile()
-      throws InterruptedException, InvocationTargetException {
+  private static Optional<String> selectSingleDngFile() throws InterruptedException {
     AtomicReference<Optional<String>> path = new AtomicReference<>();
-    SwingUtilities.invokeAndWait(
+    CountDownLatch conditionLatch = new CountDownLatch(1);
+    SwingUtilities.invokeLater(
         () -> {
           JFileChooser fileChooser = new JFileChooser();
-          fileChooser.setDialogTitle("Dungeon: Bitte öffne eine DNG-Datei (siehe auch Readme)");
+          fileChooser.setDialogTitle("Dungeon: Please select one DNG file (see also Readme)");
           fileChooser.setMultiSelectionEnabled(false);
           fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-          fileChooser.setFileFilter(new FileNameExtensionFilter("Nur DNG Dateien", "dng"));
+          fileChooser.setFileFilter(new FileNameExtensionFilter("Only DNG files", "dng"));
           fileChooser.setAcceptAllFileFilterUsed(false);
           if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             path.set(Optional.of(fileChooser.getSelectedFile().getAbsolutePath()));
           } else {
             path.set(Optional.empty());
           }
+          conditionLatch.countDown();
         });
+    conditionLatch.await();
     return path.get();
   }
 
