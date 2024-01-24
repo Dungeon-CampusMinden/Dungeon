@@ -2,6 +2,7 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import contrib.components.HealthComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
@@ -157,22 +158,36 @@ public class Starter {
   private static Optional<String> selectSingleDngFile() throws InterruptedException {
     AtomicReference<Optional<String>> path = new AtomicReference<>();
     CountDownLatch conditionLatch = new CountDownLatch(1);
-    SwingUtilities.invokeLater(
-        () -> {
-          JFileChooser fileChooser = new JFileChooser();
-          fileChooser.setDialogTitle("Dungeon: Please select one DNG file (see also Readme)");
-          fileChooser.setMultiSelectionEnabled(false);
-          fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-          fileChooser.setFileFilter(new FileNameExtensionFilter("Only DNG files", "dng"));
-          fileChooser.setAcceptAllFileFilterUsed(false);
-          if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            path.set(Optional.of(fileChooser.getSelectedFile().getAbsolutePath()));
-          } else {
-            path.set(Optional.empty());
+    com.badlogic.gdx.Game dummy =
+        new com.badlogic.gdx.Game() {
+          @Override
+          public void create() {
+            Gdx.app.postRunnable(
+                () -> {
+                  JFileChooser fileChooser = new JFileChooser();
+                  fileChooser.setDialogTitle(
+                      "Dungeon: Please select one DNG file (see also Readme)");
+                  fileChooser.setMultiSelectionEnabled(false);
+                  fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                  fileChooser.setFileFilter(new FileNameExtensionFilter("Only DNG files", "dng"));
+                  fileChooser.setAcceptAllFileFilterUsed(false);
+                  if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    path.set(Optional.of(fileChooser.getSelectedFile().getAbsolutePath()));
+                  } else {
+                    path.set(Optional.empty());
+                  }
+                  conditionLatch.countDown();
+                });
           }
-          conditionLatch.countDown();
-        });
+        };
+    Lwjgl3Application application = new Lwjgl3Application(dummy);
     conditionLatch.await();
+
+    // ??
+    dummy.dispose();
+    application.exit();
+    Gdx.app.exit();
+
     return path.get();
   }
 
