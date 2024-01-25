@@ -346,8 +346,26 @@ public final class DrawComponent implements Component {
    * logic.
    */
   private void loadAnimationAssets(final IPath path) throws IOException {
+
+    Thread thread = Thread.currentThread();
+    StackTraceElement[] stack = thread.getStackTrace();
+
+    StackTraceElement currentElement = null;
+    Class<?> clazz = null;
+    for(int i = 1; i < stack.length; i ++) {
+      currentElement = stack[i];
+      if(!currentElement.getClassName().equals(DrawComponent.class.getName())) {
+        try {
+          clazz = ClassLoader.getSystemClassLoader().loadClass(currentElement.getClassName());
+        } catch(ClassNotFoundException e) {
+          System.err.println("Could not load class " + currentElement.getClassName() + " from stacktrace.");
+        }
+        break;
+      }
+    }
+
     File jarFile =
-        new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        new File((clazz == null ? getClass() : clazz).getProtectionDomain().getCodeSource().getLocation().getPath());
     if (jarFile.isFile()) loadAnimationsFromJar(path, jarFile);
     else loadAnimationsFromIDE(path);
   }
