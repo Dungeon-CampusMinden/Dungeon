@@ -94,21 +94,18 @@ public final class RoomGenerator {
     // Define max room size
     Area maxArea;
     switch (size) {
-      case SMALL ->
-          maxArea =
-              new Area(
-                  random.nextInt(SMALL_MIN_X_SIZE, SMALL_MAX_X_SIZE + 1),
-                  random.nextInt(SMALL_MIN_Y_SIZE, SMALL_MAX_Y_SIZE + 1));
-      case LARGE ->
-          maxArea =
-              new Area(
-                  random.nextInt(BIG_MIN_X_SIZE, BIG_MAX_X_SIZE + 1),
-                  random.nextInt(BIG_MIN_Y_SIZE, BIG_MAX_Y_SIZE + 1));
-      default ->
-          maxArea =
-              new Area(
-                  random.nextInt(MEDIUM_MIN_X_SIZE, MEDIUM_MAX_X_SIZE + 1),
-                  random.nextInt(MEDIUM_MIN_Y_SIZE, MEDIUM_MAX_Y_SIZE + 1));
+      case SMALL -> maxArea =
+          new Area(
+              random.nextInt(SMALL_MIN_X_SIZE, SMALL_MAX_X_SIZE + 1),
+              random.nextInt(SMALL_MIN_Y_SIZE, SMALL_MAX_Y_SIZE + 1));
+      case LARGE -> maxArea =
+          new Area(
+              random.nextInt(BIG_MIN_X_SIZE, BIG_MAX_X_SIZE + 1),
+              random.nextInt(BIG_MIN_Y_SIZE, BIG_MAX_Y_SIZE + 1));
+      default -> maxArea =
+          new Area(
+              random.nextInt(MEDIUM_MIN_X_SIZE, MEDIUM_MAX_X_SIZE + 1),
+              random.nextInt(MEDIUM_MIN_Y_SIZE, MEDIUM_MAX_Y_SIZE + 1));
     }
 
     // Initialize layout with additional buffer for wall and skip layer

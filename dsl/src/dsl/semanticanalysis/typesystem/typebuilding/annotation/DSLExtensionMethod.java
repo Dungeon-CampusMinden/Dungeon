@@ -5,7 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Annotation to mark an {@link dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod} implementation. */
+/**
+ * Annotation to mark an {@link dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod}
+ * implementation.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface DSLExtensionMethod {
@@ -19,7 +22,8 @@ public @interface DSLExtensionMethod {
   /**
    * The Java-Class corresponding to the dsl type, which should be extended by this method.
    *
-   * <p>For {@link dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod} instances, this should be the adapter-class.
+   * <p>For {@link dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod} instances, this
+   * should be the adapter-class.
    */
   Class<?> extendedType();
 }

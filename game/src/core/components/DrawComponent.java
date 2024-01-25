@@ -352,20 +352,26 @@ public final class DrawComponent implements Component {
 
     StackTraceElement currentElement = null;
     Class<?> clazz = null;
-    for(int i = 1; i < stack.length; i ++) {
+    for (int i = 1; i < stack.length; i++) {
       currentElement = stack[i];
-      if(!currentElement.getClassName().equals(DrawComponent.class.getName())) {
+      if (!currentElement.getClassName().equals(DrawComponent.class.getName())) {
         try {
           clazz = ClassLoader.getSystemClassLoader().loadClass(currentElement.getClassName());
-        } catch(ClassNotFoundException e) {
-          System.err.println("Could not load class " + currentElement.getClassName() + " from stacktrace.");
+        } catch (ClassNotFoundException e) {
+          System.err.println(
+              "Could not load class " + currentElement.getClassName() + " from stacktrace.");
         }
         break;
       }
     }
 
     File jarFile =
-        new File((clazz == null ? getClass() : clazz).getProtectionDomain().getCodeSource().getLocation().getPath());
+        new File(
+            (clazz == null ? getClass() : clazz)
+                .getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .getPath());
     if (jarFile.isFile()) loadAnimationsFromJar(path, jarFile);
     else loadAnimationsFromIDE(path);
   }

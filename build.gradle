@@ -110,6 +110,8 @@ spotless {
     java {
         targetExclude('build/generated-src/**')
         googleJavaFormat()
+
+        target "**/*.java"
     }
 }
 <<<<<<< HEAD

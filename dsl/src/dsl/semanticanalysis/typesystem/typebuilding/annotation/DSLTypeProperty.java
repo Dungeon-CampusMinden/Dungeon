@@ -18,7 +18,8 @@ public @interface DSLTypeProperty {
   /**
    * The Java-Class corresponding to the the dsl type, which should be extended by this property.
    *
-   * <p>For {@link dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter} instances, this should be the adapter-class.
+   * <p>For {@link dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter}
+   * instances, this should be the adapter-class.
    *
    * @return
    */
