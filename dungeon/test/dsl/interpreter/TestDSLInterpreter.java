@@ -2846,7 +2846,7 @@ public class TestDSLInterpreter {
 
         entity_type knight_type {
             draw_component {
-                path: "character/knight"
+                path: "character/blue_knight"
             },
             hitbox_component {},
             position_component{}
