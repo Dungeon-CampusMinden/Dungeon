@@ -1,11 +1,11 @@
 <h1 align="center">Dungeon</h1>
 <p align="center"><img src="doc/img/banner.png" alt="Banner"></p>
 
-Das Dungeon ist ein mehrdimensionales Projekt zur Gamifizierung von Studieninhalten. 
+Das Dungeon ist ein mehrdimensionales Projekt zur Gamifizierung von Studieninhalten.
 
-Mit dem Dungeon-Framework kann Java erlernt werden, indem ein eigenes RPG programmiert wird. 
+Mit dem Dungeon-Framework kann Java erlernt werden, indem ein eigenes RPG programmiert wird.
 
-Im Dungeon-Projekt "Learning by Questing" können klassische Übungsaufgaben in das Spiel geladen und spielerisch gelöst werden. 
+Im Dungeon-Projekt "Learning by Questing" können klassische Übungsaufgaben in das Spiel geladen und spielerisch gelöst werden.
 
 Das Blockly-Dungeon richtet sich an komplette Neueinsteiger und dient zur Visualisierung einfacher Algorithmen.
 
@@ -71,7 +71,7 @@ The [assets](doc/wiki/assets-im-dungeon.md) in [`game/assets/`](game/assets/) ar
 *   Textures and animations:
     *   https://0x72.itch.io/16x16-dungeon-tileset (CC0 1.0)
     *   https://0x72.itch.io/dungeontileset-ii (CC0 1.0)
-*   Music and soundeffects: 
+*   Music and soundeffects:
     *   https://alkakrab.itch.io/free-12-tracks-pixel-rpg-game-music-pack (CC0 1.0)
     *   https://opengameart.org/content/50-rpg-sound-effects (CC0 1.0)
     *   https://opengameart.org/content/hurt-death-sound-effect-for-character (CC0 1.0)
@@ -83,8 +83,7 @@ The [assets](doc/wiki/assets-im-dungeon.md) in [`game/assets/`](game/assets/) ar
 
 This [work](https://github.com/Programmiermethoden/Dungeon) by
 [André Matutat](https://github.com/AMatutat),
-[Malte Reinsch](https://github.com/malt-r),
-[Carsten Gips](https://github.com/cagix), and
+[Malte Reinsch](https://github.com/malt-r), and
 [contributors](https://github.com/Programmiermethoden/Dungeon/graphs/contributors)
 is licensed under [MIT](LICENSE.md).
 
