@@ -10,7 +10,17 @@ import helper.DetermineEnvironment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -96,7 +106,7 @@ public final class DrawComponent implements Component {
         animationMap.put(CoreAnimations.IDLE.pathString(), Animation.defaultAnimation());
         currentAnimation(CoreAnimations.IDLE);
       }
-    } catch (NullPointerException np) {
+    } catch (NullPointerException | URISyntaxException ex) {
       // We convert the "NullPointerException" to a "FileNotFoundException" because the only
       // reason for a NullPointerException is if the directory does not exist.
       throw new FileNotFoundException("Path " + path + " not found.");
@@ -339,25 +349,7 @@ public final class DrawComponent implements Component {
     this.animationMap = new HashMap<>(animationMap);
   }
 
-  /**
-   * Loading animation assets.
-   *
-   * <p>Checks if the game is running in a JAR or not and will execute the corresponding loading
-   * logic.
-   *
-   * <p>TODO: This is only a quick fix! We need to implement a proper way of loading assets. (See <a
-   * href="https://github.com/Dungeon-CampusMinden/Dungeon/issues/1361">Issue #1361</a>)
-   */
-  private void loadAnimationAssets(final IPath path) throws IOException {
-    if (DetermineEnvironment.isStartedInJarFile()) {
-      // Loading animations from JAR
-      loadAnimationsFromJar(path, DetermineEnvironment.getInstance().getFileToJarFile());
-    } else {
-      // Loading animations from IDE
-      loadAnimationsFromIDE(path);
-    }
-  }
-
+  // never used, can be removed
   /**
    * Load the animation assets if the game is running in a JAR.
    *
@@ -438,6 +430,7 @@ public final class DrawComponent implements Component {
     jar.close();
   }
 
+  // never used, can be removed
   /**
    * Load animations if the game is running in the IDE (or over the shell).
    *
@@ -452,5 +445,62 @@ public final class DrawComponent implements Component {
               .filter(File::isDirectory)
               .collect(Collectors.toMap(File::getName, DrawComponent::allFilesFromDirectory));
     }
+  }
+
+  private void loadAnimationAssets(final IPath pathToDirectory)
+      throws IOException, URISyntaxException {
+    Map<Path, List<IPath>> dirSubdirMap = new HashMap<>();
+
+    if (DetermineEnvironment.isStartedInJarFile()) {
+      // inside JAR
+      try (FileSystem fileSystem =
+          FileSystems.newFileSystem(
+              new URI(
+                  "jar",
+                  DetermineEnvironment.getInstance().getFileToJarFile().toURI().toString(),
+                  null),
+              Collections.emptyMap())) {
+        Files.walkFileTree(
+            fileSystem.getPath(pathToDirectory.pathString()),
+            new SimpleFileVisitor<>() {
+              @Override
+              public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                if (!Files.isDirectory(file)) {
+                  String absPath = file.toString();
+                  String relative =
+                      new File(pathToDirectory.pathString())
+                          .toURI()
+                          .relativize(new File(absPath).toURI())
+                          .getPath();
+                  dirSubdirMap
+                      .computeIfAbsent(file.getParent(), k -> new ArrayList<>())
+                      .add(new SimpleIPath(relative));
+                }
+                return FileVisitResult.CONTINUE;
+              }
+            });
+      }
+    } else {
+      // normal filesystem, e.g. in IDE
+      Files.walkFileTree(
+          Paths.get(URI.create(pathToDirectory.pathString())),
+          new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+              if (!Files.isDirectory(file)) {
+                dirSubdirMap
+                    .computeIfAbsent(file.getParent(), k -> new ArrayList<>())
+                    .add(new SimpleIPath(file.toString()));
+              }
+              return FileVisitResult.CONTINUE;
+            }
+          });
+    }
+
+    animationMap =
+        dirSubdirMap.entrySet().stream()
+            .collect(
+                Collectors.toMap(
+                    x -> x.getKey().toString(), x -> Animation.fromCollection(x.getValue())));
   }
 }

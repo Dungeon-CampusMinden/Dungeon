@@ -2,6 +2,7 @@ package helper;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
 
@@ -9,10 +10,15 @@ public class DetermineEnvironment {
   private static DetermineEnvironment INST = null;
 
   public static boolean isStartedInJarFile() {
-    return Objects.requireNonNull(
-            DetermineEnvironment.class.getResource("DetermineEnvironment.class"))
-        .toString()
-        .startsWith("jar:");
+    try {
+      return Objects.requireNonNull(
+              DetermineEnvironment.class.getResource("DetermineEnvironment.class"))
+          .toURI()
+          .getScheme()
+          .equals("jar");
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public static File getNormalizedFileFromUrl(URL url) {
