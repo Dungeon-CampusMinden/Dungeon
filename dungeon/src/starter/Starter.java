@@ -2,7 +2,6 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import contrib.components.HealthComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
@@ -21,6 +20,7 @@ import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
 import graph.TaskGraphConverter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -112,7 +112,7 @@ public class Starter {
 
   public static void main(String[] args) throws IOException, InterruptedException {
     // process CLI arguments and read in DSL-Files
-    Set<DSLEntryPoint> entryPoints = processArguments(args);
+    Set<DSLEntryPoint> entryPoints = processCLIArguments(Arrays.asList(args));
 
     // some game Setup
     configGame();
@@ -126,69 +126,12 @@ public class Starter {
     Game.run();
   }
 
-  /**
-   * If no {@code args} are given, will ask the user to select a single DNG file, and if no DNG file
-   * was selected, a "dummy" Dungeon game will be started. Otherwise, processes the given arguments.
-   *
-   * @param args the command line arguments
-   * @return the set of DSLEntryPoints
-   * @throws IOException if {@link starter.Starter#processCLIArguments(List)} fails
-   */
-  private static Set<DSLEntryPoint> processArguments(String[] args)
-      throws IOException, InterruptedException {
-    if (args.length == 0) {
-      processCLIArguments(selectSingleDngFile().stream().toList());
-    }
-    return processCLIArguments(Arrays.asList(args));
-  }
-
   private static Set<DSLEntryPoint> processCLIArguments(List<String> args) throws IOException {
     Set<DSLEntryPoint> entryPoints = new HashSet<>();
     DSLEntryPointFinder finder = new DSLEntryPointFinder();
     DSLFileLoader.processArguments(args)
         .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
     return entryPoints;
-  }
-
-  /**
-   * Selects a single DNG file using a file chooser dialog.
-   *
-   * @return the absolute path of the selected DNG file, or an empty array if no file was selected
-   */
-  private static Optional<String> selectSingleDngFile() throws InterruptedException {
-    AtomicReference<Optional<String>> path = new AtomicReference<>();
-    CountDownLatch conditionLatch = new CountDownLatch(1);
-    com.badlogic.gdx.Game dummy =
-        new com.badlogic.gdx.Game() {
-          @Override
-          public void create() {
-            Gdx.app.postRunnable(
-                () -> {
-                  JFileChooser fileChooser = new JFileChooser();
-                  fileChooser.setDialogTitle(
-                      "Dungeon: Please select one DNG file (see also Readme)");
-                  fileChooser.setMultiSelectionEnabled(false);
-                  fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                  fileChooser.setFileFilter(new FileNameExtensionFilter("Only DNG files", "dng"));
-                  fileChooser.setAcceptAllFileFilterUsed(false);
-                  if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                    path.set(Optional.of(fileChooser.getSelectedFile().getAbsolutePath()));
-                  } else {
-                    path.set(Optional.empty());
-                  }
-                  conditionLatch.countDown();
-                });
-          }
-        };
-    Lwjgl3Application application = new Lwjgl3Application(dummy);
-    conditionLatch.await();
-
-    // ??
-    dummy.dispose();
-    application.exit();
-    Gdx.app.exit();
-
-    return path.get();
   }
 
   private static void onEntryPointSelection() {
@@ -224,8 +167,43 @@ public class Starter {
           // this will be at the start of the game
           if (firstTime && TaskSelector.selectedDSLEntryPoint == null) {
             try {
+              if (entryPoints.isEmpty()) {
+                AtomicReference<Optional<String>> path = new AtomicReference<>();
+                CountDownLatch conditionLatch = new CountDownLatch(1);
+                SwingUtilities.invokeLater(
+                    () -> {
+                      /*
+                       * Selects a single DNG file using a file chooser dialog.
+                       *
+                       * @return the absolute path of the selected DNG file, or an empty optional if no file was selected
+                       */
+                      JFileChooser fileChooser = new JFileChooser();
+                      fileChooser.setDialogTitle(
+                          "Dungeon: Please select one DNG file (see also Readme)");
+                      fileChooser.setMultiSelectionEnabled(false);
+                      fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                      fileChooser.setFileFilter(
+                          new FileNameExtensionFilter("Only DNG files", "dng"));
+                      fileChooser.setAcceptAllFileFilterUsed(false);
+                      if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                        path.set(Optional.of(fileChooser.getSelectedFile().getAbsolutePath()));
+                      } else {
+                        path.set(Optional.empty());
+                      }
+                      conditionLatch.countDown();
+                    });
+                conditionLatch.await();
+                if (path.get().isPresent()) {
+                  entryPoints.addAll(
+                      new DSLEntryPointFinder()
+                          .getEntryPoints(Path.of(path.get().orElseThrow()))
+                          .orElseThrow());
+                }
+                // else: no file selected or cancelled, exit?
+              }
+
               Game.add(TaskSelector.npc(TaskSelector.selectTaskQuestion(entryPoints)));
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
               throw new RuntimeException(e);
             }
           } else if (loadCounter == 5) {
