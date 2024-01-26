@@ -3,7 +3,7 @@ package dsl.interpreter;
 import entrypoint.DSLEntryPoint;
 import entrypoint.DungeonConfig;
 import graph.taskdependencygraph.TaskNode;
-import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -12,28 +12,32 @@ import org.junit.Assert;
 import org.junit.Test;
 import task.Task;
 
-public class TestDSLEntryPointFinder {
+public class TetsDSLEntryPointFinder {
 
   @Test
-  public void testReadEntryPoints() {
+  public void testReadEntrtyPoints() {
     List<DSLEntryPoint> entryPoints = new ArrayList<>();
     DSLEntryPointFinder finder = new DSLEntryPointFinder();
     URL resource1 = getClass().getClassLoader().getResource("config1.dng");
     assert resource1 != null;
-    Path firstPath;
-    {
-      firstPath = Path.of(URI.create(resource1.toExternalForm()).normalize());
-      var entryPointsFromFile = finder.getEntryPoints(firstPath).orElseThrow();
+    Path firstPath = null;
+    try {
+      firstPath = Path.of(resource1.toURI());
+      var entryPointsFromFile = finder.getEntryPoints(firstPath).get();
       entryPoints.addAll(entryPointsFromFile);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
     }
 
     URL resource2 = getClass().getClassLoader().getResource("config2.dng");
     assert resource2 != null;
-    Path secondPath;
-    {
-      secondPath = Path.of(URI.create(resource2.toExternalForm()).normalize());
-      var entryPointsFromFile = finder.getEntryPoints(secondPath).orElseThrow();
+    Path secondPath = null;
+    try {
+      secondPath = Path.of(resource2.toURI());
+      var entryPointsFromFile = finder.getEntryPoints(secondPath).get();
       entryPoints.addAll(entryPointsFromFile);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
     }
 
     Assert.assertEquals(4, entryPoints.size());
@@ -63,20 +67,24 @@ public class TestDSLEntryPointFinder {
     DSLEntryPointFinder finder = new DSLEntryPointFinder();
     URL resource1 = getClass().getClassLoader().getResource("config1.dng");
     assert resource1 != null;
-    Path firstPath;
-    {
-      firstPath = Path.of(URI.create(resource1.toExternalForm()).normalize());
-      var entryPointsFromFile = finder.getEntryPoints(firstPath).orElseThrow();
+    Path firstPath = null;
+    try {
+      firstPath = Path.of(resource1.toURI());
+      var entryPointsFromFile = finder.getEntryPoints(firstPath).get();
       entryPoints.addAll(entryPointsFromFile);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
     }
 
     URL resource2 = getClass().getClassLoader().getResource("config2.dng");
     assert resource2 != null;
-    Path secondPath;
-    {
-      secondPath = Path.of(URI.create(resource2.toExternalForm()).normalize());
-      var entryPointsFromFile = finder.getEntryPoints(secondPath).orElseThrow();
+    Path secondPath = null;
+    try {
+      secondPath = Path.of(resource2.toURI());
+      var entryPointsFromFile = finder.getEntryPoints(secondPath).get();
       entryPoints.addAll(entryPointsFromFile);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
     }
 
     DSLInterpreter interpreter = new DSLInterpreter();

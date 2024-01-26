@@ -1,5 +1,7 @@
 package core.utils.components.path;
 
+import com.badlogic.gdx.files.FileHandle;
+
 /**
  * Simple implementation of the {@link IPath} interface.
  *
@@ -9,20 +11,19 @@ package core.utils.components.path;
  * the dungeon framework.
  */
 public class SimpleIPath implements IPath {
-  private final String path;
+  private final FileHandle fileHandle;
 
   /**
    * Create a new Path.
    *
-   * @param path Path to store, as a string.
    */
-  public SimpleIPath(String path) {
-    this.path = path;
+  public SimpleIPath(String libgdxFileName) {
+    this.fileHandle = new FileHandle(libgdxFileName);
   }
 
   @Override
   public String pathString() {
-    return path;
+    return fileHandle.path();
   }
 
   @Override

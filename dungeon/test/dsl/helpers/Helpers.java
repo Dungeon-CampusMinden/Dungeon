@@ -12,7 +12,7 @@ import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import helper.DetermineEnvironment;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -72,8 +72,9 @@ public class Helpers {
    * @throws URISyntaxException on invalid URI syntax
    * @throws IOException if the file does not exist
    */
-  public static Node getASTFromResourceFile(URL fileResourceURL) throws IOException {
-    var file = DetermineEnvironment.getNormalizedFileFromUrl(fileResourceURL);
+  public static Node getASTFromResourceFile(URL fileResourceURL)
+      throws URISyntaxException, IOException {
+    var file = new File(fileResourceURL.toURI());
     var stream = CharStreams.fromFileName(file.getAbsolutePath());
 
     var parseTree = getParseTreeFromCharStream(stream);
