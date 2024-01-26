@@ -2,13 +2,13 @@ package dsl.semanticanalysis.typesystem;
 
 import static org.junit.Assert.*;
 
+import dsl.annotation.DSLType;
+import dsl.annotation.DSLTypeMember;
 import dsl.interpreter.TestEnvironment;
 import dsl.interpreter.mockecs.*;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
-import dsl.annotation.DSLType;
-import dsl.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import graph.taskdependencygraph.TaskDependencyGraph;
 import java.lang.reflect.InvocationTargetException;

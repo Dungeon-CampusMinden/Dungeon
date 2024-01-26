@@ -1,8 +1,8 @@
 package dsl.interpreter;
 
-import dsl.interpreter.mockecs.Entity;
 import dsl.annotation.DSLType;
 import dsl.annotation.DSLTypeMember;
+import dsl.interpreter.mockecs.Entity;
 import java.util.List;
 import java.util.Set;
 

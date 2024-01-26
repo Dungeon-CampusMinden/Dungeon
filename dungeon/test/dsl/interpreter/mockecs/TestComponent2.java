@@ -75,8 +75,7 @@ public class TestComponent2 extends Component {
     return entity;
   }
 
-  @DSLTypeMember
-  private String member1;
+  @DSLTypeMember private String member1;
   @DSLTypeMember private int member2;
   @DSLTypeMember private String member3;
 

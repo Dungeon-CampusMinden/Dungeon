@@ -1,5 +1,7 @@
 package dsl.semanticanalysis;
 
+import dsl.annotation.DSLType;
+import dsl.annotation.DSLTypeMember;
 import dsl.helpers.Helpers;
 import dsl.interpreter.DummyNativeFunction;
 import dsl.interpreter.TestEnvironment;
@@ -13,8 +15,6 @@ import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
-import dsl.annotation.DSLType;
-import dsl.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import dslinterop.dslnativefunction.NativePrint;
 import graph.taskdependencygraph.TaskDependencyGraph;

@@ -1,5 +1,7 @@
 package dsl.semanticanalysis;
 
+import dsl.annotation.DSLType;
+import dsl.annotation.DSLTypeMember;
 import dsl.helpers.Helpers;
 import dsl.parser.ast.PrototypeDefinitionNode;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
@@ -10,8 +12,6 @@ import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.*;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
-import dsl.annotation.DSLType;
-import dsl.annotation.DSLTypeMember;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
 import org.junit.Assert;

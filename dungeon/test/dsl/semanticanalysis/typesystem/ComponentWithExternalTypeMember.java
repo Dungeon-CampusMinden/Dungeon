@@ -1,11 +1,11 @@
 package dsl.semanticanalysis.typesystem;
 
 import core.utils.Point;
-import dsl.interpreter.mockecs.Component;
-import dsl.interpreter.mockecs.Entity;
 import dsl.annotation.DSLContextMember;
 import dsl.annotation.DSLType;
 import dsl.annotation.DSLTypeMember;
+import dsl.interpreter.mockecs.Component;
+import dsl.interpreter.mockecs.Entity;
 
 @DSLType
 public class ComponentWithExternalTypeMember extends Component {

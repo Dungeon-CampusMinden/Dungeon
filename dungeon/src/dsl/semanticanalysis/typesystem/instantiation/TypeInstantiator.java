@@ -1,5 +1,9 @@
 package dsl.semanticanalysis.typesystem.instantiation;
 
+import dsl.annotation.DSLCallback;
+import dsl.annotation.DSLContextMember;
+import dsl.annotation.DSLTypeMember;
+import dsl.annotation.DSLTypeNameMember;
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.callable.ICallable;
 import dsl.runtime.memoryspace.EncapsulatedObject;
@@ -11,10 +15,6 @@ import dsl.semanticanalysis.typesystem.callbackadapter.CallbackAdapter;
 import dsl.semanticanalysis.typesystem.callbackadapter.CallbackAdapterBuilder;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.*;
-import dsl.annotation.DSLCallback;
-import dsl.annotation.DSLContextMember;
-import dsl.annotation.DSLTypeMember;
-import dsl.annotation.DSLTypeNameMember;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
 import dsl.semanticanalysis.typesystem.typebuilding.type.EnumType;
