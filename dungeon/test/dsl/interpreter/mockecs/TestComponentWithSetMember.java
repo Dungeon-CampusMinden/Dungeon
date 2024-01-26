@@ -1,8 +1,8 @@
 package dsl.interpreter.mockecs;
 
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
+import dsl.annotation.DSLContextMember;
+import dsl.annotation.DSLType;
+import dsl.annotation.DSLTypeMember;
 import java.util.Set;
 
 @DSLType

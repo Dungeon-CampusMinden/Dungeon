@@ -1,9 +1,9 @@
 package dsl.interpreter.mockecs;
 
 import core.utils.TriConsumer;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLCallback;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.annotation.DSLCallback;
+import dsl.annotation.DSLContextMember;
+import dsl.annotation.DSLType;
 
 @DSLType
 public class TestComponentWithTriConsumerCallback extends Component {

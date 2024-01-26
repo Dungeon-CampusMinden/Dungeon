@@ -1,6 +1,6 @@
 package dsl.semanticanalysis.typesystem;
 
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
+import dsl.annotation.DSLTypeAdapter;
 
 public class RecordBuilder {
   @DSLTypeAdapter

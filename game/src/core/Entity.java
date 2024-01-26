@@ -1,8 +1,8 @@
 package core;
 
 import core.game.ECSManagment;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextPush;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.annotation.DSLContextPush;
+import dsl.annotation.DSLType;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.logging.Logger;

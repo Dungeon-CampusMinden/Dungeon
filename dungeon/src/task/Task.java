@@ -6,7 +6,7 @@ import core.Entity;
 import core.Game;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.annotation.DSLType;
 import graph.petrinet.Place;
 import java.io.IOException;
 import java.nio.file.Files;

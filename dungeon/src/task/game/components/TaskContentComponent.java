@@ -2,8 +2,8 @@ package task.game.components;
 
 import core.Component;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
+import dsl.annotation.DSLType;
+import dsl.annotation.DSLTypeProperty;
 import task.TaskContent;
 
 /**

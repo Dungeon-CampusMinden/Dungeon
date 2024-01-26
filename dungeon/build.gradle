@@ -28,7 +28,6 @@ repositories {
 }
 
 dependencies {
-    implementation project(":dsl")
     api project(":game")
 
     testImplementation supportDependencies.junit

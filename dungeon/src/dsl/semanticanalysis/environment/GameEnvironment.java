@@ -26,7 +26,7 @@ import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLExtensionMethod;
+import dsl.annotation.DSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import dslinterop.dslnativefunction.NativeInstantiate;
 import dslinterop.dslnativefunction.NativeInstantiateNamed;

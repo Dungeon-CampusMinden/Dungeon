@@ -2,7 +2,7 @@ package dsl.semanticanalysis.symbol;
 
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
+import dsl.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 

@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Null;
 import contrib.item.Item;
 import core.Component;
 import core.utils.logging.CustomLogLevel;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.annotation.DSLType;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;

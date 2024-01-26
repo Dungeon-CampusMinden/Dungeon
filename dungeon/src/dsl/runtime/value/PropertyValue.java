@@ -1,7 +1,7 @@
 package dsl.runtime.value;
 
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
+import dsl.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 /**
