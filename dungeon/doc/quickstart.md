@@ -4,18 +4,18 @@ title: "Dungeon: Quickstart"
 
 Diese Anleitung beschreibt Schritt für Schritt, wie Dungeon: Learning by Questing heruntergeladen, konfiguriert und gestartet werden kann.
 
-## Schritt 1: Herunterladen der Ressourcen 
+## Schritt 1: Herunterladen der Ressourcen
 
 - [ ] Überprüfen Sie die Java-Version: `java -version` sollte 'java version "17.0.9" 2023-10-17 LTS' oder ähnlich liefern.
 
 ### Option 1: Arbeiten mit dem Starter-Kit
 
-- [ ] [StarterKit](https://github.com/Programmiermethoden/Dungeon-StarterKit) herunterladen, um eigene Aufgaben zu definieren.
+- [ ] [StarterKit](https://github.com/Dungeon-CampusMinden/Dungeon-StarterKit) herunterladen, um eigene Aufgaben zu definieren.
 - [ ] Legen Sie die `Starter.jar` im selben Verzeichnis wie die mitgelieferte `.dng` ab.
 
 ### Option 2: Repository Klonen
 
-- [ ] Klonen Sie dieses Repository mit dem Befehl `git clone https://github.com/Programmiermethoden/Dungeon.git`.
+- [ ] Klonen Sie dieses Repository mit dem Befehl `git clone https://github.com/Dungeon-CampusMinden/Dungeon.git`.
 - [ ] Navigieren Sie mit einem Terminal in das Verzeichnis.
 - [ ] Bauen Sie die `Starter.jar` mit dem Befehl `gradlew starterJar`.
 - [ ] Kopieren Sie die `Starter.jar` aus `build/libs/` und das `template-dng` aus `dungeon/assets/scripts/` in ein Verzeichnis.
@@ -24,7 +24,7 @@ Diese Anleitung beschreibt Schritt für Schritt, wie Dungeon: Learning by Questi
 ## Schritt 2: Eigene Aufgaben definieren
 
 - [ ] Öffnen Sie die Datei `template.dng` mit einem Editor Ihrer Wahl.
-- [ ] Definieren Sie Ihre eigenen [Aufgaben](https://github.com/Programmiermethoden/Dungeon/blob/Demo/dungeon/doc/readme.md#definition-einer-aufgabe) und [Aufgabengraphen](https://github.com/Programmiermethoden/Dungeon/blob/Demo/dungeon/doc/readme.md#definition-von-aufgabenabh%C3%A4ngigkeiten) im Abschnitt 
+- [ ] Definieren Sie Ihre eigenen [Aufgaben](https://github.com/Dungeon-CampusMinden/Dungeon/blob/Demo/dungeon/doc/readme.md#definition-einer-aufgabe) und [Aufgabengraphen](https://github.com/Dungeon-CampusMinden/Dungeon/blob/Demo/dungeon/doc/readme.md#definition-von-aufgabenabh%C3%A4ngigkeiten) im Abschnitt
 ```
 // +++++++++++++ AUFGABEN DEFINITION+++++++++++++++
 IHRE AUFGABEN DEFINITION
@@ -77,7 +77,7 @@ In diesem Beispiel wird zuerst die Single-Choice-Aufgabe gestellt, und nach der 
   `java -XstartOnFirstThread -jar Starter.jar --args "MY_FILE.dng"`
   ein. Ersetzen Sie dabei "MY_FILE" durch den Namen des `.dng`-Files.
 
-- [ ] Lesen Sie die [Spielanleitung](https://github.com/Programmiermethoden/Dungeon/blob/Demo/dungeon/doc/how_to_play.md), wenn Sie Hilfe benötigen.
+- [ ] Lesen Sie die [Spielanleitung](https://github.com/Dungeon-CampusMinden/Dungeon/blob/Demo/dungeon/doc/how_to_play.md), wenn Sie Hilfe benötigen.
 
 ## Schritt 4: Verbreitung
 

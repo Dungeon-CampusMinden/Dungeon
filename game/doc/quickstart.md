@@ -5,8 +5,8 @@ title: "Quickstart: How to Dungeon"
 Dieses Dokument liefert einen Einstieg in das Dungeon. Es erläutert die Installation des Spiels und die ersten Schritte,
 um eigene Inhalte zum Dungeon hinzuzufügen. Es dient als Grundlage für alle weiteren Praktika. Lesen Sie das Dokument
 daher aufmerksam durch und versuchen Sie sich zusätzlich selbst mit dem Aufbau vertraut zu machen. Das Spiel befindet
-sich im [Dungeon-Repo](https://github.com/Programmiermethoden/Dungeon) im Projekt
-[`game`](https://github.com/Programmiermethoden/Dungeon/tree/master/game).
+sich im [Dungeon-Repo](https://github.com/Dungeon-CampusMinden/Dungeon) im Projekt
+[`game`](https://github.com/Dungeon-CampusMinden/Dungeon/tree/master/game).
 
 Sie benötigen nur dieses Projekt für die Aufgaben; die zusätzlichen Abhängigkeiten werden automatisch über Gradle
 eingebunden.

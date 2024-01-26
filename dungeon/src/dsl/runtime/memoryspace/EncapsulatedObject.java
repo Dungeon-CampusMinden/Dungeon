@@ -159,7 +159,7 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
   // TODO: define the semantics for this based on, if the value is a POD type or
   //  a complex type -> what happens, if we want to set a component of an
   //  entity or a complex datatype of a component (e.g. Point)?!
-  //  (will be done in https://github.com/Programmiermethoden/Dungeon/issues/156)
+  //  (will be done in https://github.com/Dungeon-CampusMinden/Dungeon/issues/156)
   @Override
   public boolean setValue(String name, Value value) {
     // handle this value

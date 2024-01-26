@@ -15,7 +15,7 @@ Die folgenden Punkte werden als Javadoc im Source-Code beschrieben:
 * Falls es für nötig erachtet wird, können auch nicht-`public` Klassen, Methoden und Variablen dokumentiert werden.
 * Des Weiteren können komplexere Codeabschnitte innerhalb von Methoden durch einfache Kommentare (`//`) detaillierter beschrieben werden.
 
-Als Orientierung für die Javadoc dient der [Oracle Javadoc Guide](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html). Bitte beachten Sie insbesondere den Punkt _Add description beyond the API name_ des Guides. Eine Kurzform findet ihr in der [Online-Präsentation](https://www.hsbi.de/elearning/data/FH-Bielefeld/lm_data/lm_1359639/coding/javadoc.html) des Programmiermethoden-Kurses.
+Als Orientierung für die Javadoc dient der [Oracle Javadoc Guide](https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html). Bitte beachten Sie insbesondere den Punkt _Add description beyond the API name_ des Guides. Eine Kurzform findet ihr in der [Online-Präsentation](https://www.hsbi.de/elearning/data/FH-Bielefeld/lm_data/lm_1359639/coding/javadoc.html) des Dungeon-CampusMinden-Kurses.
 
 ## Dokumentation im `/doc`-Ordner
 

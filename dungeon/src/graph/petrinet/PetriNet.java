@@ -6,7 +6,7 @@ import task.Task;
  * Basic Petri Net for a {@link Task}
  *
  * <p>Use the {@link PetriNetFactory} to create a PetriNet and connect it with other. See <a
- * href=https://github.com/Programmiermethoden/Dungeon/tree/master/doc/control_mechanisms/petri_net_parsing.md>
+ * href=https://github.com/Dungeon-CampusMinden/Dungeon/tree/master/doc/control_mechanisms/petri_net_parsing.md>
  * documentation</a> for more.
  *
  * @param taskNotActivated

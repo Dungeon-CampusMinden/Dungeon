@@ -34,9 +34,9 @@ Interaktion des `DSLInterpreter`s mit diesem Petri-Netz-Interpreter aussieht.
 Issues hierzu:
 
 - [Funktionsschnittstelle - PR
-\#97](https://github.com/Programmiermethoden/Dungeon/issues/97)
+\#97](https://github.com/Dungeon-CampusMinden/Dungeon/issues/97)
 - [Konzept zur Interpretation von Petri-Netzen zur Laufzeit - PR
-\#707](https://github.com/Programmiermethoden/Dungeon/issues/707)
+\#707](https://github.com/Dungeon-CampusMinden/Dungeon/issues/707)
 
 ### Laufzeitinitialisierung
 
@@ -123,7 +123,7 @@ public Object visit(NumNode node) {
 
 Die im Folgenden beschriebenen Aspekte bzgl. `quest_config` als zentralem Übergabepunkt von
 DSL -> Dungeon sind WIP und können sich daher noch grundlegend ändern (siehe hierzu [Issue
-\#195](https://github.com/Programmiermethoden/Dungeon/issues/195)).
+\#195](https://github.com/Dungeon-CampusMinden/Dungeon/issues/195)).
 
 Der zentrale Übergabepunkt zwischen dem DSL Programm und dem Dungeon-Framework wird durch
 die `quest_config`-Definition gebildet. Daher sucht der `DSLInterpreter` im nächsten Schritt
@@ -291,7 +291,7 @@ genutzt werden.
 ## Funktionsaufrufe
 
 TODO (sobald Implementierung dafür auch steht)
-- Wie funktionieren die Builder-Funktionen, um Tasks zu definieren? ([Issue #197](https://github.com/Programmiermethoden/Dungeon/issues/197))
+- Wie funktionieren die Builder-Funktionen, um Tasks zu definieren? ([Issue #197](https://github.com/Dungeon-CampusMinden/Dungeon/issues/197))
 
 Funktionen sind `ICallable`-Instanzen, wodurch sie eine `call()`-Methode implementieren.
 Diese Methode erwartet als Parameter den `DSLInterpreter`, welcher den Funktionsaufruf
@@ -323,7 +323,7 @@ public Object call(DSLInterpreter interperter, List<Node> parameters) {
 ### Per DSL definierte Funktionen
 
 Note: Die Doku hierzu wird in [Issue
-\#345](https://github.com/Programmiermethoden/Dungeon/issues/345) ausgebaut und
+\#345](https://github.com/Dungeon-CampusMinden/Dungeon/issues/345) ausgebaut und
 aktualisiert.
 
 Per DSL definierte Funktionen (‘user-defined functions’) werden als `FunctionSymbol`

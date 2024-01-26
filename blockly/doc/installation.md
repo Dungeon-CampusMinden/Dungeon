@@ -16,7 +16,7 @@ Bevor mit der Installation begonnen werden kann, müssen folgende Voraussetzunge
 Öffnen Sie Ihr bevorzugtes Terminal und navigieren Sie zu dem Verzeichnis, in dem Sie "Blocky-Dungeon" speichern möchten. Führen Sie den folgenden Befehl aus, um das Repository zu klonen:
 
 ```bash
-git clone https://github.com/Programmiermethoden/Dungeon.git
+git clone https://github.com/Dungeon-CampusMinden/Dungeon.git
 ```
 
 ## Schritt 2: Wechsel in den Projektordner

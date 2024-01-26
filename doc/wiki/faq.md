@@ -28,7 +28,7 @@ Nutzen Sie zum formatieren aller java-Dateien die Konsole: `./gradlew spotlessAp
 
 ### Problem: Eclipse stellt sich beim Import des Projekts quer
 
-Clonen Sie zuerst das [pm-dungeon](https://github.com/Programmiermethoden/pm-dungeon) Repo. Öffnen Sie Ihren Eclipse-Workspace und wählen Sie "File -> Import... -> Existing Gradle Project". Wählen Sie als "Projekt root directory" `<absolute path to repo>/dungeon-starter/code` aus(!) Überschreiben Sie nicht die Workspace settings und nutzen Sie den Gradle wrapper. Der Import-Preview sollte dann in etwa so sein:
+Clonen Sie zuerst das [pm-dungeon](https://github.com/Dungeon-CampusMinden/pm-dungeon) Repo. Öffnen Sie Ihren Eclipse-Workspace und wählen Sie "File -> Import... -> Existing Gradle Project". Wählen Sie als "Projekt root directory" `<absolute path to repo>/dungeon-starter/code` aus(!) Überschreiben Sie nicht die Workspace settings und nutzen Sie den Gradle wrapper. Der Import-Preview sollte dann in etwa so sein:
 
 ![image](https://user-images.githubusercontent.com/85501570/162235250-a4c92ec3-e1b6-4eac-80e6-5c9cbf367ca1.png)
 

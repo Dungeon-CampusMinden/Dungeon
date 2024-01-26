@@ -59,7 +59,7 @@ Räumen sind die nötigen Entitäten zur Realisierung der Aufgabe im Dungeon ent
 
 Um unterschiedliche Szenarien für den gleichen Aufgabentyp zu realisieren, können per DSL
 `task_builder`-Methoden definiert werden (**TODO** [Issue #197 - Einlesen und Verwenden von
-Task-Builder-Methoden](https://github.com/Programmiermethoden/Dungeon/issues/197)). Diese
+Task-Builder-Methoden](https://github.com/Dungeon-CampusMinden/Dungeon/issues/197)). Diese
 können auch durch DSL-Nutzende definiert werden. Vereinfachend wird hier angenommen, das
 `task_builder`-Methoden nur aus fest definierten Verzeichnissen aus DSL-Dateien eingelesen
 werden. Die `task_builder`-Methoden werden in einer map gespeichert, sodass sie nach den
@@ -82,7 +82,7 @@ Hier ist zwar die Rede von “Räumen”, ob es sich dabei allerdings direkt um 
 in Dungeon-Level handelt, ist noch nicht klar. Wahrscheinlich wird das erstmal nur eine
 abstrakte Definition sein, die losgelöst von tatsächlichen Level-Tiles im Level ist (**TODO**:
 [Issue #196 - Aufgabe in mehreren Räumen
-verteilen](https://github.com/Programmiermethoden/Dungeon/issues/196)).
+verteilen](https://github.com/Dungeon-CampusMinden/Dungeon/issues/196)).
 
 Der für die `task`-Definition erzeugte Subgraph mit erzeugten Entitäten wird an den Dungeon
 zurückgegeben und dann wie oben beschrieben in den Supergraphen eingebaut.

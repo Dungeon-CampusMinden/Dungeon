@@ -68,6 +68,6 @@ Ist der entsprechende DSL-Datentyp für die Klasse des Objekts
 [adaptiert](typebuilding.md#typadaptierung), handelt es sich beim Java-Objekt mit hoher
 Wahrscheinlichkeit um ein komplexes Objekt. Es existiert aktuell noch keine Möglichkeit, auf
 die Member eines adaptierten Datentyps zuzugreifen, was mit [Issue
-#781](https://github.com/Programmiermethoden/Dungeon/issues/781) erweitert wird (**TODO**).
+#781](https://github.com/Dungeon-CampusMinden/Dungeon/issues/781) erweitert wird (**TODO**).
 Daher wird aktuell für diesen Fall auch eine einfache `Value`-Instanz erstellt, welche eine
 Referenz auf das zu übersetzende Objekt enthält.
