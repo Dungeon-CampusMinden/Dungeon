@@ -344,6 +344,9 @@ public final class DrawComponent implements Component {
    *
    * <p>Checks if the game is running in a JAR or not and will execute the corresponding loading
    * logic.
+   *
+   * TODO: This is only a quick fix! We need to implement a proper way of loading assets.
+   * (See <a href="https://github.com/Dungeon-CampusMinden/Dungeon/issues/1361">Issue #1361</a>)
    */
   private void loadAnimationAssets(final IPath path) throws IOException {
 
