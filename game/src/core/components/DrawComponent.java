@@ -347,18 +347,11 @@ public final class DrawComponent implements Component {
     }
   }
 
-  public URI getUriToJarFileEntry() {
-    try {
-      return new URI(
-          "jar",
-          URI.create(
-                  getClass().getProtectionDomain().getCodeSource().getLocation().toExternalForm())
-              .normalize()
-              .toString(),
-          null);
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
+  public static URI getUriToJarFileEntry() {
+    return URI.create(
+            Objects.requireNonNull(DrawComponent.class.getResource("DrawComponent.class"))
+                .toExternalForm())
+        .normalize();
   }
 
   private void loadAnimationAssets(final IPath pathToDirectory)
