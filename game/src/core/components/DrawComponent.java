@@ -6,13 +6,10 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import helper.DetermineEnvironment;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -21,9 +18,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -127,22 +130,6 @@ public final class DrawComponent implements Component {
     animationMap.put(CoreAnimations.IDLE_LEFT.pathString(), idle);
     animationMap.put(CoreAnimations.IDLE_RIGHT.pathString(), idle);
     currentAnimation = idle;
-  }
-
-  /**
-   * @param subDir in which to look for files for the animation
-   * @return a basic configured Animation
-   */
-  private static Animation allFilesFromDirectory(final File subDir) {
-    return Animation.fromCollection(
-        Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
-            // only look for direct Files no recursive search
-            .filter(File::isFile)
-            // File object needs to be converted to IPath
-            .map(file -> new SimpleIPath(file.getPath()))
-            // sort by name streams may lose the ordering by name
-            .sorted(Comparator.comparing(SimpleIPath::pathString))
-            .collect(Collectors.toList()));
   }
 
   /**
@@ -349,132 +336,50 @@ public final class DrawComponent implements Component {
     this.animationMap = new HashMap<>(animationMap);
   }
 
-  // never used, can be removed
-  /**
-   * Load the animation assets if the game is running in a JAR.
-   *
-   * <p>This function will create a map of directories (String) and the files (LinkedList<String>)
-   * inside these directories. The map will be filled with the directories inside the given path
-   * (e.g., "character/knight"). Ultimately, this function will manually create an Animation for
-   * each entry within this map.
-   *
-   * @param path Path to the assets.
-   * @param jarFile Path to the JAR files.
-   * @throws IOException if the JAR file or the files in the JAR file cannot be read.
-   */
-  private void loadAnimationsFromJar(final IPath path, final File jarFile) throws IOException {
-
-    JarFile jar = new JarFile(jarFile);
-    Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
-
-    // This will be used to map the directory names (e.g., "idle") and the texture files.
-    // Ultimately, we will create animations out of this by using the
-    // Animation(LinkedList<String>) constructor.
-
-    HashMap<String, List<IPath>> storage = new HashMap<>();
-    animationMap = new HashMap<>();
-
-    // Iterate over each file and directory in the JAR.
-
-    while (entries.hasMoreElements()) {
-      // example: character/knight/idle_down/idle_down_knight_1.png
-      // but also: character/knight/idle/
-      // and: character/knight/
-      String fileName = entries.nextElement().getName();
-
-      // If the entry starts with the path name (character/knight/idle),
-      // this is true for entries like (character/knight/idle_down/idle_down_knight_1.png) and
-      // (character/knight/idle/).
-      if (fileName.startsWith(path.pathString() + "/")) {
-
-        // Get the index of the last FileSeparator; every character after that separator is
-        // part of the filename.
-        int lastSlashIndex = fileName.lastIndexOf("/");
-
-        // Ignore directories, so we only work with strings like
-        // (character/knight/idle_down/idle_down_knight_1.png).
-        if (lastSlashIndex != fileName.length() - 1) {
-          // Get the index of the second-to-last part of the string.
-          // For example, in "character/knight/idle_down/idle_down_knight_1.png", this
-          // would
-          // be the
-          // index of the slash in "/idle".
-
-          int secondLastSlashIndex = fileName.lastIndexOf("/", lastSlashIndex - 1);
-
-          // Get the name of the directory. The directory name is between the
-          // second-to-last and the last separator index.
-          // The directory name serves as the key of the animation in the animation map
-          // (similar to what the IPATh values are for them).
-          // For example: "idle"
-
-          String lastDir = fileName.substring(secondLastSlashIndex + 1, lastSlashIndex);
-
-          // add animation-files to new or existing storage map
-          if (storage.containsKey(lastDir)) storage.get(lastDir).add(new SimpleIPath(fileName));
-          else {
-            LinkedList<IPath> list = new LinkedList<>();
-            list.add(new SimpleIPath(fileName));
-            storage.put(lastDir, list);
-          }
-        }
-      }
+  public static boolean isStartedInJarFile() {
+    try {
+      return Objects.requireNonNull(DrawComponent.class.getResource("DrawComponent.class"))
+          .toURI()
+          .getScheme()
+          .equals("jar");
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
     }
-
-    // sort the files in lexicographic order (like the most os)
-    // animations will be played in order
-    storage.values().forEach(x -> x.sort(Comparator.comparing(IPath::pathString)));
-    // create animations
-    storage.forEach(
-        (name, textureSet) -> animationMap.put(name, Animation.fromCollection(textureSet)));
-    jar.close();
   }
 
-  // never used, can be removed
-  /**
-   * Load animations if the game is running in the IDE (or over the shell).
-   *
-   * @param path Path to the animations.
-   */
-  private void loadAnimationsFromIDE(final IPath path) {
-    URL url = DrawComponent.class.getResource("/" + path.pathString());
-    if (url != null) {
-      File apps = DetermineEnvironment.getNormalizedFileFromUrl(url);
-      animationMap =
-          Arrays.stream(Objects.requireNonNull(apps.listFiles()))
-              .filter(File::isDirectory)
-              .collect(Collectors.toMap(File::getName, DrawComponent::allFilesFromDirectory));
+  public URI getUriToJarFileEntry() {
+    try {
+      return new URI(
+          "jar",
+          URI.create(
+                  getClass().getProtectionDomain().getCodeSource().getLocation().toExternalForm())
+              .normalize()
+              .toString(),
+          null);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
     }
   }
 
   private void loadAnimationAssets(final IPath pathToDirectory)
       throws IOException, URISyntaxException {
-    Map<Path, List<IPath>> dirSubdirMap = new HashMap<>();
+    Map<String, List<IPath>> dirSubdirMap = new HashMap<>();
 
-    if (DetermineEnvironment.isStartedInJarFile()) {
+    if (isStartedInJarFile()) {
       // inside JAR
       try (FileSystem fileSystem =
-          FileSystems.newFileSystem(
-              new URI(
-                  "jar",
-                  DetermineEnvironment.getInstance().getFileToJarFile().toURI().toString(),
-                  null),
-              Collections.emptyMap())) {
+          FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
         Files.walkFileTree(
             fileSystem.getPath(pathToDirectory.pathString()),
             new SimpleFileVisitor<>() {
               @Override
               public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 if (!Files.isDirectory(file)) {
-                  String absPath = file.toString();
-                  String relative =
-                      new File(pathToDirectory.pathString())
-                          .toURI()
-                          .relativize(new File(absPath).toURI())
-                          .getPath();
+                  String parentDirName = file.getParent().getFileName().toString();
+                  String halfAbsPath = file.toString();
                   dirSubdirMap
-                      .computeIfAbsent(file.getParent(), k -> new ArrayList<>())
-                      .add(new SimpleIPath(relative));
+                      .computeIfAbsent(parentDirName, k -> new ArrayList<>())
+                      .add(new SimpleIPath(halfAbsPath));
                 }
                 return FileVisitResult.CONTINUE;
               }
@@ -483,14 +388,16 @@ public final class DrawComponent implements Component {
     } else {
       // normal filesystem, e.g. in IDE
       Files.walkFileTree(
-          Paths.get(URI.create(pathToDirectory.pathString())),
+          Paths.get(pathToDirectory.pathString()),
           new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
               if (!Files.isDirectory(file)) {
+                String parentDirName = file.getParent().getFileName().toString();
+                String halfAbsPath = file.toString();
                 dirSubdirMap
-                    .computeIfAbsent(file.getParent(), k -> new ArrayList<>())
-                    .add(new SimpleIPath(file.toString()));
+                    .computeIfAbsent(parentDirName, k -> new ArrayList<>())
+                    .add(new SimpleIPath(halfAbsPath));
               }
               return FileVisitResult.CONTINUE;
             }
@@ -500,7 +407,6 @@ public final class DrawComponent implements Component {
     animationMap =
         dirSubdirMap.entrySet().stream()
             .collect(
-                Collectors.toMap(
-                    x -> x.getKey().toString(), x -> Animation.fromCollection(x.getValue())));
+                Collectors.toMap(Map.Entry::getKey, x -> Animation.fromCollection(x.getValue())));
   }
 }
