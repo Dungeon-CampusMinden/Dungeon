@@ -8,6 +8,7 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
@@ -348,10 +349,16 @@ public final class DrawComponent implements Component {
   }
 
   public static URI getUriToJarFileEntry() {
-    return URI.create(
-            Objects.requireNonNull(DrawComponent.class.getResource("DrawComponent.class"))
-                .toExternalForm())
-        .normalize();
+    try {
+      return new URI(
+          Objects.requireNonNull(
+              Objects.requireNonNull(DrawComponent.class.getResource("DrawComponent.class"))
+                  .toURI()
+                  .toURL()
+                  .toExternalForm()));
+    } catch (URISyntaxException | MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private void loadAnimationAssets(final IPath pathToDirectory)
