@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -27,8 +28,7 @@ import java.util.logging.Logger;
  * the provided ingredients.
  *
  * <p>It will load the recipes from the files via {@link #loadRecipes()}. Recipes have to be in the
- * 'assets/recipes' directory. This will autmaticly happen an program start. Call this in your
- * {@link core.game.PreRunConfiguration#userOnSetup onSetup callback}.
+ * 'assets/recipes' directory. This will automatically happen at program start.
  */
 public final class Crafting {
   private static final HashSet<Recipe> RECIPES = new HashSet<>();
@@ -86,18 +86,18 @@ public final class Crafting {
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    final FilesystemUtil dummy = new FilesystemUtil();
+    final Object dummy = new FilesystemUtil();
     Map<String, List<String>> stringListMap =
         FilesystemUtil.searchAssetFilesWithEnding("/recipes", ".recipe", dummy);
-    for (List<String> entry : stringListMap.values()) {
-      for (String s : entry) {
-        InputStream is = dummy.getClass().getResourceAsStream(s);
-        Recipe r = parseRecipe(is, s);
-        if (r != null) {
-          RECIPES.add(r);
-        }
-      }
-    }
+    stringListMap
+        .values()
+        .forEach(
+            x ->
+                x.forEach(
+                    y ->
+                        RECIPES.add(
+                            Objects.requireNonNull(
+                                parseRecipe(dummy.getClass().getResourceAsStream(y), y)))));
   }
 
   /**
