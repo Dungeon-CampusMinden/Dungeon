@@ -91,7 +91,6 @@ public final class Crafting {
         FilesystemUtil.searchAssetFilesWithEnding("/recipes", ".recipe", dummy);
     for (List<String> entry : stringListMap.values()) {
       for (String s : entry) {
-        LOGGER.info("Load recipe: " + s);
         InputStream is = dummy.getClass().getResourceAsStream(s);
         Recipe r = parseRecipe(is, s);
         if (r != null) {
