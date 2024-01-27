@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/** This class contains utility methods for working with files and directories. */
 public class FilesystemUtil {
   private static boolean isStartedInJarFile(final Object instance) {
     try {
@@ -48,11 +49,28 @@ public class FilesystemUtil {
     }
   }
 
+  /**
+   * Searches for asset files in the given directory or JAR file. This method can determine if the
+   * application is running in a JAR file or in a normal filesystem.
+   *
+   * @param pathToDirectory the path to the directory to search
+   * @param instance the instance to search for
+   * @return a map of file endings to lists of file paths
+   */
   public static Map<String, List<String>> searchAssetFiles(
       final String pathToDirectory, final Object instance) {
     return searchAssetFilesWithEnding(pathToDirectory, "", instance);
   }
 
+  /**
+   * Searches for asset files with a specific ending in the given directory or JAR file. This method
+   * can determine if the application is running in a JAR file or in a normal filesystem.
+   *
+   * @param pathToDirectory the path to the directory or JAR file
+   * @param ending the ending of the asset files to search for
+   * @param instance the instance representing the directory or JAR file
+   * @return a map containing directory paths as keys and a list of matching file names as values
+   */
   public static Map<String, List<String>> searchAssetFilesWithEnding(
       final String pathToDirectory, final String ending, final Object instance) {
     Map<String, List<String>> dirSubdirMap = new HashMap<>();
