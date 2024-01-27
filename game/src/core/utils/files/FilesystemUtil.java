@@ -1,4 +1,4 @@
-package core.utils;
+package core.utils.files;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -6,13 +6,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,12 +16,12 @@ import java.util.Objects;
 
 /** This class contains utility methods for working with files and directories. */
 public class FilesystemUtil {
-  public static final Object DUMMY_INST = new DummyClazz();
+  public static final Object DUMMY_INST = new DummyClazzInOwnCodeBase();
 
   private static boolean isStartedInJarFile() {
     try {
       return Objects.requireNonNull(
-              DUMMY_INST.getClass().getResource("FilesystemUtil$DummyClazz.class"))
+              DUMMY_INST.getClass().getResource(DUMMY_INST.getClass().getSimpleName() + ".class"))
           .toURI()
           .getScheme()
           .equals("jar");
@@ -49,7 +44,9 @@ public class FilesystemUtil {
       return new URI(
           Objects.requireNonNull(
               Objects.requireNonNull(
-                      DUMMY_INST.getClass().getResource("FilesystemUtil$DummyClazz.class"))
+                      DUMMY_INST
+                          .getClass()
+                          .getResource(DUMMY_INST.getClass().getSimpleName() + ".class"))
                   .toURI()
                   .toURL()
                   .toExternalForm()));
@@ -90,17 +87,19 @@ public class FilesystemUtil {
                         Thread.currentThread().getContextClassLoader().getResource(pathToDirectory))
                     .toURI()
                     .normalize()),
-            new MyFileVisitor(ending, dirSubdirMap));
+            new DefaultSimpleFileVisitor(ending, dirSubdirMap));
       } else if (isStartedInJarFile()) {
         // inside JAR file
         try (FileSystem fileSystem =
             FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
           Files.walkFileTree(
-              fileSystem.getPath(pathToDirectory), new MyFileVisitor(ending, dirSubdirMap));
+              fileSystem.getPath(pathToDirectory),
+              new DefaultSimpleFileVisitor(ending, dirSubdirMap));
         }
       } else {
         // normal filesystem, e.g. in IDE
-        Files.walkFileTree(Paths.get(pathToDirectory), new MyFileVisitor(ending, dirSubdirMap));
+        Files.walkFileTree(
+            Paths.get(pathToDirectory), new DefaultSimpleFileVisitor(ending, dirSubdirMap));
       }
     } catch (IOException | URISyntaxException e) {
       throw new RuntimeException(e);
@@ -108,26 +107,4 @@ public class FilesystemUtil {
 
     return dirSubdirMap;
   }
-
-  private static class MyFileVisitor extends SimpleFileVisitor<Path> {
-    private final String ending;
-    private final Map<String, List<String>> dirSubdirMap;
-
-    public MyFileVisitor(final String ending, final Map<String, List<String>> dirSubdirMap) {
-      this.ending = ending;
-      this.dirSubdirMap = dirSubdirMap;
-    }
-
-    @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-      if (!Files.isDirectory(file) && file.toString().endsWith(ending)) {
-        String parentDirName = file.getParent().getFileName().toString();
-        String halfAbsPath = file.toString();
-        dirSubdirMap.computeIfAbsent(parentDirName, k -> new ArrayList<>()).add(halfAbsPath);
-      }
-      return FileVisitResult.CONTINUE;
-    }
-  }
-
-  private static class DummyClazz {}
 }

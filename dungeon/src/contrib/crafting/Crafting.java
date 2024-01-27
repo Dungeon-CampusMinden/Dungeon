@@ -3,7 +3,7 @@ package contrib.crafting;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
-import core.utils.FilesystemUtil;
+import core.utils.files.FilesystemUtil;
 import core.utils.logging.CustomLogLevel;
 import java.io.BufferedReader;
 import java.io.IOException;

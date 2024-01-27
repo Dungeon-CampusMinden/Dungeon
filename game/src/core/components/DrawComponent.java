@@ -2,11 +2,11 @@ package core.components;
 
 import core.Component;
 import core.systems.VelocitySystem;
-import core.utils.FilesystemUtil;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.files.FilesystemUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Comparator;
