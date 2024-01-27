@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
 import core.Game;
+import core.utils.FilesystemUtil;
 import core.utils.logging.CustomLogLevel;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -80,12 +81,18 @@ public final class Crafting {
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    if (Objects.requireNonNull(Crafting.class.getResource("/recipes"))
-        .toString()
-        .startsWith("jar:")) {
-      loadFromJar();
-    } else {
-      loadFromFile();
+    final FilesystemUtil dummy = new FilesystemUtil();
+    Map<String, List<String>> stringListMap =
+        FilesystemUtil.searchAssetFilesWithEnding("/recipes", ".recipe", dummy);
+    for (List<String> entry : stringListMap.values()) {
+      for (String s : entry) {
+        LOGGER.info("Load recipe: " + s);
+        InputStream is = dummy.getClass().getResourceAsStream(s);
+        Recipe r = parseRecipe(is, s);
+        if (r != null) {
+          RECIPES.add(r);
+        }
+      }
     }
   }
 
