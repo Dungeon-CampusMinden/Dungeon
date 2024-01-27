@@ -2,6 +2,7 @@ package core.components;
 
 import core.Component;
 import core.systems.VelocitySystem;
+import core.utils.FilesystemUtil;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
@@ -345,11 +346,19 @@ public final class DrawComponent implements Component {
    * <p>Checks if the game is running in a JAR or not and will execute the corresponding loading
    * logic.
    */
-  private void loadAnimationAssets(final IPath path) throws IOException {
-    File jarFile =
-        new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
-    if (jarFile.isFile()) loadAnimationsFromJar(path, jarFile);
-    else loadAnimationsFromIDE(path);
+  private void loadAnimationAssets(final IPath path) {
+    Map<String, List<String>> stringListMap =
+        FilesystemUtil.searchAssetFiles(path.pathString(), this);
+    animationMap =
+        stringListMap.entrySet().stream()
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    x ->
+                        Animation.fromCollection(
+                            x.getValue().stream()
+                                .map(SimpleIPath::new)
+                                .collect(Collectors.toList()))));
   }
 
   /**
