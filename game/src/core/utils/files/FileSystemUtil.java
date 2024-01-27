@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.Objects;
 
 /** This class contains utility methods for working with files and directories. */
-public class FilesystemUtil {
+public class FileSystemUtil {
   public static final Object DUMMY_INST = new DummyClazzInOwnCodeBase();
 
   private static boolean isStartedInJarFile() {

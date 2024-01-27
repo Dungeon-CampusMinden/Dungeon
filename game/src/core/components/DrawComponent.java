@@ -6,7 +6,7 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import core.utils.files.FilesystemUtil;
+import core.utils.files.FileSystemUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -338,7 +338,7 @@ public final class DrawComponent implements Component {
    */
   private void loadAnimationAssets(final IPath path) {
     final Map<String, List<IPath>> subdirectoryMap = new HashMap<>();
-    FilesystemUtil.searchAssetFilesInSubdirectories(
+    FileSystemUtil.searchAssetFilesInSubdirectories(
         path.pathString(),
         new SimpleFileVisitor<>() {
           @Override

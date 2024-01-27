@@ -3,7 +3,7 @@ package contrib.crafting;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
-import core.utils.files.FilesystemUtil;
+import core.utils.files.FileSystemUtil;
 import core.utils.logging.CustomLogLevel;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -90,7 +90,7 @@ public final class Crafting {
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    FilesystemUtil.searchAssetFilesInSubdirectories(
+    FileSystemUtil.searchAssetFilesInSubdirectories(
         "/recipes",
         new SimpleFileVisitor<>() {
           @Override
@@ -99,7 +99,7 @@ public final class Crafting {
               RECIPES.add(
                   Objects.requireNonNull(
                       parseRecipe(
-                          FilesystemUtil.DUMMY_INST.getClass().getResourceAsStream(file.toString()),
+                          FileSystemUtil.DUMMY_INST.getClass().getResourceAsStream(file.toString()),
                           file.toString())));
             }
             return FileVisitResult.CONTINUE;
