@@ -86,9 +86,8 @@ public final class Crafting {
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    final Object dummy = new FilesystemUtil();
     Map<String, List<String>> stringListMap =
-        FilesystemUtil.searchAssetFilesWithEnding("/recipes", ".recipe", dummy);
+        FilesystemUtil.searchAssetFilesWithEnding("/recipes", ".recipe");
     stringListMap
         .values()
         .forEach(
@@ -97,7 +96,9 @@ public final class Crafting {
                     y ->
                         RECIPES.add(
                             Objects.requireNonNull(
-                                parseRecipe(dummy.getClass().getResourceAsStream(y), y)))));
+                                parseRecipe(
+                                    FilesystemUtil.DUMMY_INST.getClass().getResourceAsStream(y),
+                                    y)))));
   }
 
   /**

@@ -100,7 +100,7 @@ public final class DrawComponent implements Component {
     } catch (NullPointerException np) {
       // We convert the "NullPointerException" to a "FileNotFoundException" because the only
       // reason for a NullPointerException is if the directory does not exist.
-      throw new FileNotFoundException("Path " + path + " not found.");
+      throw new FileNotFoundException("Path " + path.pathString() + " not found.");
     }
   }
 
@@ -331,8 +331,7 @@ public final class DrawComponent implements Component {
    * logic.
    */
   private void loadAnimationAssets(final IPath path) {
-    Map<String, List<String>> stringListMap =
-        FilesystemUtil.searchAssetFiles(path.pathString(), this);
+    Map<String, List<String>> stringListMap = FilesystemUtil.searchAssetFiles(path.pathString());
     animationMap =
         stringListMap.entrySet().stream()
             .collect(

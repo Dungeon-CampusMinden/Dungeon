@@ -21,10 +21,12 @@ import java.util.Objects;
 
 /** This class contains utility methods for working with files and directories. */
 public class FilesystemUtil {
-  private static boolean isStartedInJarFile(final Object instance) {
+  public static final Object DUMMY_INST = new DummyClazz();
+
+  private static boolean isStartedInJarFile() {
     try {
       return Objects.requireNonNull(
-              instance.getClass().getResource(instance.getClass().getSimpleName() + ".class"))
+              DUMMY_INST.getClass().getResource("FilesystemUtil$DummyClazz.class"))
           .toURI()
           .getScheme()
           .equals("jar");
@@ -42,14 +44,12 @@ public class FilesystemUtil {
     return false;
   }
 
-  private static URI getUriToJarFileEntry(final Object instance) {
+  private static URI getUriToJarFileEntry() {
     try {
       return new URI(
           Objects.requireNonNull(
               Objects.requireNonNull(
-                      instance
-                          .getClass()
-                          .getResource(instance.getClass().getSimpleName() + ".class"))
+                      DUMMY_INST.getClass().getResource("FilesystemUtil$DummyClazz.class"))
                   .toURI()
                   .toURL()
                   .toExternalForm()));
@@ -63,12 +63,10 @@ public class FilesystemUtil {
    * application is running in a JAR file or in a normal filesystem.
    *
    * @param pathToDirectory the path to the directory to search
-   * @param instance the instance to search for
    * @return a map of file endings to lists of file paths
    */
-  public static Map<String, List<String>> searchAssetFiles(
-      final String pathToDirectory, final Object instance) {
-    return searchAssetFilesWithEnding(pathToDirectory, "", instance);
+  public static Map<String, List<String>> searchAssetFiles(final String pathToDirectory) {
+    return searchAssetFilesWithEnding(pathToDirectory, "");
   }
 
   /**
@@ -77,11 +75,10 @@ public class FilesystemUtil {
    *
    * @param pathToDirectory the path to the directory or JAR file
    * @param ending the ending of the asset files to search for
-   * @param instance the instance representing the directory or JAR file
    * @return a map containing directory paths as keys and a list of matching file names as values
    */
   public static Map<String, List<String>> searchAssetFilesWithEnding(
-      final String pathToDirectory, final String ending, final Object instance) {
+      final String pathToDirectory, final String ending) {
     Map<String, List<String>> dirSubdirMap = new HashMap<>();
 
     try {
@@ -94,10 +91,10 @@ public class FilesystemUtil {
                     .toURI()
                     .normalize()),
             new MyFileVisitor(ending, dirSubdirMap));
-      } else if (isStartedInJarFile(instance)) {
-        // inside JAR
+      } else if (isStartedInJarFile()) {
+        // inside JAR file
         try (FileSystem fileSystem =
-            FileSystems.newFileSystem(getUriToJarFileEntry(instance), Collections.emptyMap())) {
+            FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
           Files.walkFileTree(
               fileSystem.getPath(pathToDirectory), new MyFileVisitor(ending, dirSubdirMap));
         }
@@ -131,4 +128,6 @@ public class FilesystemUtil {
       return FileVisitResult.CONTINUE;
     }
   }
+
+  private static class DummyClazz {}
 }
