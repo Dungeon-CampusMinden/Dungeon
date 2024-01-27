@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import entrypoint.DSLFileLoader;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -83,14 +84,15 @@ public class TestDslFileLoader {
   }
 
   @Test
-  public void fileToString() {
-    // TODO: Fix this test.
-    ClassLoader classLoader = getClass().getClassLoader();
+  public void fileToString() throws URISyntaxException {
     File f =
         new File(
             Objects.requireNonNull(
-                    classLoader.getResource(PATH_TO_DNGFILE.toString().replace("\\", "/")))
-                .getFile());
+                    Thread.currentThread()
+                        .getContextClassLoader()
+                        .getResource(PATH_TO_DNGFILE.toString()))
+                .toURI()
+                .normalize());
     String expectedContent =
         "some test text."
             + System.lineSeparator()
