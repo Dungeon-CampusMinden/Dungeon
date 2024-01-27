@@ -50,52 +50,7 @@ public class FilesystemUtil {
 
   public static Map<String, List<String>> searchAssetFiles(
       final String pathToDirectory, final Object instance) {
-    Map<String, List<String>> dirSubdirMap = new HashMap<>();
-
-    try {
-      if (isStartedInJarFile(instance)) {
-        // inside JAR
-        try (FileSystem fileSystem =
-            FileSystems.newFileSystem(getUriToJarFileEntry(instance), Collections.emptyMap())) {
-          Files.walkFileTree(
-              fileSystem.getPath(pathToDirectory),
-              new SimpleFileVisitor<>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                  if (!Files.isDirectory(file)) {
-                    String parentDirName = file.getParent().getFileName().toString();
-                    String halfAbsPath = file.toString();
-                    dirSubdirMap
-                        .computeIfAbsent(parentDirName, k -> new ArrayList<>())
-                        .add(halfAbsPath);
-                  }
-                  return FileVisitResult.CONTINUE;
-                }
-              });
-        }
-      } else {
-        // normal filesystem, e.g. in IDE
-        Files.walkFileTree(
-            Paths.get(pathToDirectory),
-            new SimpleFileVisitor<>() {
-              @Override
-              public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                if (!Files.isDirectory(file)) {
-                  String parentDirName = file.getParent().getFileName().toString();
-                  String halfAbsPath = file.toString();
-                  dirSubdirMap
-                      .computeIfAbsent(parentDirName, k -> new ArrayList<>())
-                      .add(halfAbsPath);
-                }
-                return FileVisitResult.CONTINUE;
-              }
-            });
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    return dirSubdirMap;
+    return searchAssetFilesWithEnding(pathToDirectory, "", instance);
   }
 
   public static Map<String, List<String>> searchAssetFilesWithEnding(
@@ -108,43 +63,36 @@ public class FilesystemUtil {
         try (FileSystem fileSystem =
             FileSystems.newFileSystem(getUriToJarFileEntry(instance), Collections.emptyMap())) {
           Files.walkFileTree(
-              fileSystem.getPath(pathToDirectory),
-              new SimpleFileVisitor<>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                  if (!Files.isDirectory(file) && file.toString().endsWith(ending)) {
-                    String parentDirName = file.getParent().getFileName().toString();
-                    String halfAbsPath = file.toString();
-                    dirSubdirMap
-                        .computeIfAbsent(parentDirName, k -> new ArrayList<>())
-                        .add(halfAbsPath);
-                  }
-                  return FileVisitResult.CONTINUE;
-                }
-              });
+              fileSystem.getPath(pathToDirectory), new MyFileVisitor(ending, dirSubdirMap));
         }
       } else {
         // normal filesystem, e.g. in IDE
-        Files.walkFileTree(
-            Paths.get(pathToDirectory),
-            new SimpleFileVisitor<>() {
-              @Override
-              public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                if (!Files.isDirectory(file) && file.toString().endsWith(ending)) {
-                  String parentDirName = file.getParent().getFileName().toString();
-                  String halfAbsPath = file.toString();
-                  dirSubdirMap
-                      .computeIfAbsent(parentDirName, k -> new ArrayList<>())
-                      .add(halfAbsPath);
-                }
-                return FileVisitResult.CONTINUE;
-              }
-            });
+        Files.walkFileTree(Paths.get(pathToDirectory), new MyFileVisitor(ending, dirSubdirMap));
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
 
     return dirSubdirMap;
+  }
+
+  private static class MyFileVisitor extends SimpleFileVisitor<Path> {
+    private final String ending;
+    private final Map<String, List<String>> dirSubdirMap;
+
+    public MyFileVisitor(final String ending, final Map<String, List<String>> dirSubdirMap) {
+      this.ending = ending;
+      this.dirSubdirMap = dirSubdirMap;
+    }
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+      if (!Files.isDirectory(file) && file.toString().endsWith(ending)) {
+        String parentDirName = file.getParent().getFileName().toString();
+        String halfAbsPath = file.toString();
+        dirSubdirMap.computeIfAbsent(parentDirName, k -> new ArrayList<>()).add(halfAbsPath);
+      }
+      return FileVisitResult.CONTINUE;
+    }
   }
 }
