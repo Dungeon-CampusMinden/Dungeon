@@ -9,6 +9,12 @@ import core.utils.components.path.SimpleIPath;
 import core.utils.files.FilesystemUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -331,16 +337,24 @@ public final class DrawComponent implements Component {
    * logic.
    */
   private void loadAnimationAssets(final IPath path) {
-    Map<String, List<String>> stringListMap = FilesystemUtil.searchAssetFiles(path.pathString());
+    final Map<String, List<IPath>> subdirectoryMap = new HashMap<>();
+    FilesystemUtil.searchAssetFilesInSubdirectories(
+        path.pathString(),
+        new SimpleFileVisitor<>() {
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+            if (Files.isRegularFile(file)) {
+              subdirectoryMap
+                  .computeIfAbsent(
+                      file.getParent().getFileName().toString(), k -> new ArrayList<>())
+                  .add(new SimpleIPath(file.toString()));
+            }
+            return FileVisitResult.CONTINUE;
+          }
+        });
     animationMap =
-        stringListMap.entrySet().stream()
+        subdirectoryMap.entrySet().stream()
             .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey,
-                    x ->
-                        Animation.fromCollection(
-                            x.getValue().stream()
-                                .map(SimpleIPath::new)
-                                .collect(Collectors.toList()))));
+                Collectors.toMap(Map.Entry::getKey, x -> Animation.fromCollection(x.getValue())));
   }
 }

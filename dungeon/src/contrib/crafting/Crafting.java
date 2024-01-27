@@ -11,11 +11,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -86,19 +90,21 @@ public final class Crafting {
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    Map<String, List<String>> stringListMap =
-        FilesystemUtil.searchAssetFilesWithEnding("/recipes", ".recipe");
-    stringListMap
-        .values()
-        .forEach(
-            x ->
-                x.forEach(
-                    y ->
-                        RECIPES.add(
-                            Objects.requireNonNull(
-                                parseRecipe(
-                                    FilesystemUtil.DUMMY_INST.getClass().getResourceAsStream(y),
-                                    y)))));
+    FilesystemUtil.searchAssetFilesInSubdirectories(
+        "/recipes",
+        new SimpleFileVisitor<>() {
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+            if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
+              RECIPES.add(
+                  Objects.requireNonNull(
+                      parseRecipe(
+                          FilesystemUtil.DUMMY_INST.getClass().getResourceAsStream(file.toString()),
+                          file.toString())));
+            }
+            return FileVisitResult.CONTINUE;
+          }
+        });
   }
 
   /**
