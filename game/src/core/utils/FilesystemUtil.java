@@ -33,6 +33,15 @@ public class FilesystemUtil {
     }
   }
 
+  private static boolean isStartedInJUnitTest() {
+    for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+      if (element.getClassName().startsWith("org.junit.")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private static URI getUriToJarFileEntry(final Object instance) {
     try {
       return new URI(
@@ -76,7 +85,16 @@ public class FilesystemUtil {
     Map<String, List<String>> dirSubdirMap = new HashMap<>();
 
     try {
-      if (isStartedInJarFile(instance)) {
+      if (isStartedInJUnitTest()) {
+        // inside JUnit test
+        Files.walkFileTree(
+            Paths.get(
+                Objects.requireNonNull(
+                        Thread.currentThread().getContextClassLoader().getResource(pathToDirectory))
+                    .toURI()
+                    .normalize()),
+            new MyFileVisitor(ending, dirSubdirMap));
+      } else if (isStartedInJarFile(instance)) {
         // inside JAR
         try (FileSystem fileSystem =
             FileSystems.newFileSystem(getUriToJarFileEntry(instance), Collections.emptyMap())) {
@@ -87,7 +105,7 @@ public class FilesystemUtil {
         // normal filesystem, e.g. in IDE
         Files.walkFileTree(Paths.get(pathToDirectory), new MyFileVisitor(ending, dirSubdirMap));
       }
-    } catch (IOException e) {
+    } catch (IOException | URISyntaxException e) {
       throw new RuntimeException(e);
     }
 

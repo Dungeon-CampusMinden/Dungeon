@@ -84,6 +84,7 @@ public class TestDslFileLoader {
 
   @Test
   public void fileToString() {
+    // TODO: Fix this test.
     ClassLoader classLoader = getClass().getClassLoader();
     File f =
         new File(
