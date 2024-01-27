@@ -13,10 +13,7 @@ import com.badlogic.gdx.files.FileHandle;
 public class SimpleIPath implements IPath {
   private final FileHandle fileHandle;
 
-  /**
-   * Create a new Path.
-   *
-   */
+  /** Create a new Path. */
   public SimpleIPath(String libgdxFileName) {
     this.fileHandle = new FileHandle(libgdxFileName);
   }
