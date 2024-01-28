@@ -20,7 +20,6 @@ import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
 import graph.TaskGraphConverter;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -110,7 +109,7 @@ public class Starter {
         // show list for task: reached points
       };
 
-  public static void main(String[] args) throws IOException, InterruptedException {
+  public static void main(String[] args) throws IOException {
     // process CLI arguments and read in DSL-Files
     Set<DSLEntryPoint> entryPoints = processCLIArguments(Arrays.asList(args));
 
@@ -127,11 +126,49 @@ public class Starter {
   }
 
   private static Set<DSLEntryPoint> processCLIArguments(List<String> args) throws IOException {
+    if (args.isEmpty()) {
+      args =
+          List.of(
+              selectSingleDngFile().orElseThrow(() -> new IOException("No DNG file selected!")));
+    }
+
     Set<DSLEntryPoint> entryPoints = new HashSet<>();
     DSLEntryPointFinder finder = new DSLEntryPointFinder();
     DSLFileLoader.processArguments(args)
         .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
     return entryPoints;
+  }
+
+  /**
+   * Selects a single DNG file using a file chooser dialog.
+   *
+   * @return the absolute path of the selected DNG file, or an empty optional if no file was
+   *     selected.
+   */
+  private static Optional<String> selectSingleDngFile() {
+    AtomicReference<Optional<String>> path = new AtomicReference<>();
+    CountDownLatch conditionLatch = new CountDownLatch(1);
+    SwingUtilities.invokeLater(
+        () -> {
+          JFileChooser fileChooser = new JFileChooser();
+          fileChooser.setDialogTitle("Dungeon: Please select one DNG file (see also Readme)");
+          fileChooser.setMultiSelectionEnabled(false);
+          fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+          fileChooser.setFileFilter(new FileNameExtensionFilter("Only DNG files", "dng"));
+          fileChooser.setAcceptAllFileFilterUsed(false);
+          if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            path.set(Optional.of(fileChooser.getSelectedFile().getAbsolutePath()));
+          } else {
+            path.set(Optional.empty());
+          }
+          conditionLatch.countDown();
+        });
+    try {
+      conditionLatch.await();
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+    return path.get();
   }
 
   private static void onEntryPointSelection() {
@@ -167,43 +204,8 @@ public class Starter {
           // this will be at the start of the game
           if (firstTime && TaskSelector.selectedDSLEntryPoint == null) {
             try {
-              if (entryPoints.isEmpty()) {
-                AtomicReference<Optional<String>> path = new AtomicReference<>();
-                CountDownLatch conditionLatch = new CountDownLatch(1);
-                SwingUtilities.invokeLater(
-                    () -> {
-                      /*
-                       * Selects a single DNG file using a file chooser dialog.
-                       *
-                       * @return the absolute path of the selected DNG file, or an empty optional if no file was selected
-                       */
-                      JFileChooser fileChooser = new JFileChooser();
-                      fileChooser.setDialogTitle(
-                          "Dungeon: Please select one DNG file (see also Readme)");
-                      fileChooser.setMultiSelectionEnabled(false);
-                      fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                      fileChooser.setFileFilter(
-                          new FileNameExtensionFilter("Only DNG files", "dng"));
-                      fileChooser.setAcceptAllFileFilterUsed(false);
-                      if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                        path.set(Optional.of(fileChooser.getSelectedFile().getAbsolutePath()));
-                      } else {
-                        path.set(Optional.empty());
-                      }
-                      conditionLatch.countDown();
-                    });
-                conditionLatch.await();
-                if (path.get().isPresent()) {
-                  entryPoints.addAll(
-                      new DSLEntryPointFinder()
-                          .getEntryPoints(Path.of(path.get().orElseThrow()))
-                          .orElseThrow());
-                }
-                // else: no file selected or cancelled, exit?
-              }
-
               Game.add(TaskSelector.npc(TaskSelector.selectTaskQuestion(entryPoints)));
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException e) {
               throw new RuntimeException(e);
             }
           } else if (loadCounter == 5) {
