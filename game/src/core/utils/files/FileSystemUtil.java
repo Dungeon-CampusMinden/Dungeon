@@ -15,6 +15,10 @@ import java.util.Objects;
 
 /** This class contains utility methods for working with files and directories. */
 public class FileSystemUtil {
+  /**
+   * This instance constant can be used to determine from where the game was started, or for reading
+   * single files.
+   */
   public static final Object DUMMY_INST = new DummyClazzInOwnCodeBase();
 
   private static boolean isStartedInJarFile() {
@@ -54,6 +58,19 @@ public class FileSystemUtil {
     }
   }
 
+  /**
+   * This method searches for all asset files in the subdirectories of the specified directory. It
+   * is not necessary to explicitly specify the asset storage location, as this method automatically
+   * determines the storage location and how the game was started. Furthermore, a {@link
+   * SimpleFileVisitor} must be passed, which is called for each file or folder found. You can then
+   * specify yourself what should happen to the files found, for example mapping them into another
+   * structure or reading them to use them in the game.
+   *
+   * @param pathToDirectory is a {@link String} relative to the root asset directory of the game to
+   *     search.
+   * @param visitor is a {@link SimpleFileVisitor} for {@link Path}, which is called for each file
+   *     or folder found.
+   */
   public static void searchAssetFilesInSubdirectories(
       final String pathToDirectory, final SimpleFileVisitor<Path> visitor) {
     try {
