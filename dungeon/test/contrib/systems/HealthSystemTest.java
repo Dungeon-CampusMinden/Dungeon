@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class HealthSystemTest {
-  private static final IPath ANIMATION_PATH = new SimpleIPath("character/blue_knight");
+  private static final IPath ANIMATION_PATH = new SimpleIPath("textures/test_hero");
 
   @After
   public void cleanup() {
