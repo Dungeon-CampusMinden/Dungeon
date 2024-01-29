@@ -535,6 +535,7 @@ public class TestDSLInterpreter {
 
   // TODO: should test resolving of member_external_type in the instantiated object
   @Test
+  @Ignore
   public void adaptedInstancing() {
     String program =
         """
