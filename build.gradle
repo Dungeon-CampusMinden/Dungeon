@@ -3,22 +3,14 @@ buildscript {
 }
 
 plugins {
-    // we can not use ext variables here
-    id "java"
     id "com.diffplug.spotless" version "6.23.3"
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-    sourceCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
     mavenCentral()
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -106,6 +98,8 @@ test {
     }
 }
 
+=======
+>>>>>>> 12b96eca (Remove java plugin from root project (no java srcs))
 spotless {
     java {
         targetExclude('build/generated-src/**')
@@ -114,6 +108,7 @@ spotless {
         target "**/*.java"
     }
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -206,3 +201,5 @@ tasks.withType(JavaExec).configureEach {
     }
 }
 >>>>>>> 9852fba7 (Simplify JavaExec tasks)
+=======
+>>>>>>> 12b96eca (Remove java plugin from root project (no java srcs))
