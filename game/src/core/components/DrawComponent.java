@@ -6,6 +6,7 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.CustomLogLevel;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -468,12 +469,18 @@ public final class DrawComponent implements Component {
     URL url = DrawComponent.class.getResource("/" + path.pathString());
     if (url != null) {
       try {
-        File apps = new File(url.toURI());
-        animationMap =
-            Arrays.stream(Objects.requireNonNull(apps.listFiles()))
-                .filter(File::isDirectory)
-                .collect(Collectors.toMap(File::getName, DrawComponent::allFilesFromDirectory));
-      } catch (URISyntaxException ignored) {
+        try {
+          File apps = new File(url.toURI());
+          animationMap =
+              Arrays.stream(Objects.requireNonNull(apps.listFiles()))
+                  .filter(File::isDirectory)
+                  .collect(Collectors.toMap(File::getName, DrawComponent::allFilesFromDirectory));
+        } catch (IllegalArgumentException e) {
+          LOGGER.log(
+              CustomLogLevel.ERROR, "Could not load animations from directory: " + url.toURI(), e);
+        }
+      } catch (URISyntaxException e) {
+        LOGGER.log(CustomLogLevel.ERROR, "Could not load animations from directory", e);
       }
     }
   }
