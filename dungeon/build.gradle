@@ -43,17 +43,8 @@ generateGrammarSource {
 }
 
 tasks.register('start', JavaExec) {
-    dependsOn 'classes'
     mainClass = "starter.Starter"
     classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
 }
 
 tasks.register('starterJar', org.gradle.jvm.tasks.Jar) {
@@ -75,43 +66,29 @@ tasks.register('starterJar', org.gradle.jvm.tasks.Jar) {
 }
 
 tasks.register('runManualQuizTest', JavaExec) {
-    dependsOn 'classes'
     mainClass = "manual.quizquestion.QuizQuestionUITest"
     classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
 }
 
 tasks.register('runCallbackTest', JavaExec) {
-    dependsOn 'classes'
     mainClass = "manual.quizquestion.CallbackTest"
     classpath = sourceSets.test.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
 }
 
 tasks.register('runTaskGenerationTest', JavaExec) {
-    dependsOn 'classes'
     mainClass = "manual.taskgeneration.TaskGenerationTest"
     classpath = sourceSets.test.runtimeClasspath
+}
+
+// Add default arguments to all JavaExec tasks:
+tasks.withType(JavaExec).configureEach {
+    dependsOn 'classes'
     standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
+    ignoreExitValue true
     doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
+        println("OS: " + System.properties['os.name'])
+    }
+    if (System.properties['os.name'].toLowerCase().contains('mac')) {
+        jvmArgs('-XstartOnFirstThread')
     }
 }

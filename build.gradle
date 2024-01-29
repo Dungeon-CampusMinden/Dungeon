@@ -115,6 +115,7 @@ spotless {
     }
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 // generate ANTLR visitor and listener classes from grammar:
 generateGrammarSource {
@@ -190,3 +191,18 @@ tasks.withType(JavaExec).configureEach {
 }
 =======
 >>>>>>> 1234030e (Split Project into Subprojects)
+=======
+
+// Add default arguments to all JavaExec tasks:
+tasks.withType(JavaExec).configureEach {
+    dependsOn 'classes'
+    standardInput = System.in
+    ignoreExitValue true
+    doFirst {
+        println("OS: " + System.properties['os.name'])
+    }
+    if (System.properties['os.name'].toLowerCase().contains('mac')) {
+        jvmArgs('-XstartOnFirstThread')
+    }
+}
+>>>>>>> 9852fba7 (Simplify JavaExec tasks)

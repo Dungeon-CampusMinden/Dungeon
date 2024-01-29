@@ -54,71 +54,40 @@ sourceSets.test.resources.srcDirs = ["test_resources/"]
 tasks.register('run', JavaExec) {
     mainClass = "starter.RoomBasedDungeon"
     classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-
-    }
 }
 
 tasks.register('debug', JavaExec) {
-    dependsOn 'classes'
     mainClass = "starter.RoomBasedDungeon"
     classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
     debug = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
 }
 
 tasks.register('runRandomDungeon', JavaExec) {
     mainClass = "starter.RandomDungeon"
     classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
 }
 
 tasks.register('debugRandomDungeon', JavaExec) {
-    dependsOn 'classes'
     mainClass = "starter.RandomDungeon"
     classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
     debug = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
-    doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
-    }
 }
 
 tasks.register('runYesNoDialogTest', JavaExec) {
-    dependsOn 'classes'
     mainClass = "manual.YesNoDialogTest"
     classpath = sourceSets.test.runtimeClasspath
+}
+
+// Add default arguments to all JavaExec tasks:
+tasks.withType(JavaExec).configureEach {
+    dependsOn 'classes'
     standardInput = System.in
-    ignoreExitValue = true
-    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
-        jvmArgs("-XstartOnFirstThread")
-    }
+    ignoreExitValue true
     doFirst {
-        println(DefaultNativePlatform.currentOperatingSystem)
+        println("OS: " + System.properties['os.name'])
+    }
+    if (System.properties['os.name'].toLowerCase().contains('mac')) {
+        jvmArgs('-XstartOnFirstThread')
     }
 }
 
