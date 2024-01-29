@@ -5,20 +5,6 @@ plugins {
     id 'antlr'
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-    sourceCompatibility = JavaVersion.VERSION_21
-}
-
-repositories {
-    mavenCentral()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-    gradlePluginPortal()
-    google()
-}
-
 dependencies {
     api project(":game")
 
@@ -78,17 +64,4 @@ tasks.register('runCallbackTest', JavaExec) {
 tasks.register('runTaskGenerationTest', JavaExec) {
     mainClass = "manual.taskgeneration.TaskGenerationTest"
     classpath = sourceSets.test.runtimeClasspath
-}
-
-// Add default arguments to all JavaExec tasks:
-tasks.withType(JavaExec).configureEach {
-    dependsOn 'classes'
-    standardInput = System.in
-    ignoreExitValue true
-    doFirst {
-        println("OS: " + System.properties['os.name'])
-    }
-    if (System.properties['os.name'].toLowerCase().contains('mac')) {
-        jvmArgs('-XstartOnFirstThread')
-    }
 }

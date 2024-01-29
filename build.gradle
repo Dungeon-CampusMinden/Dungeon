@@ -6,6 +6,34 @@ plugins {
     id "com.diffplug.spotless" version "6.23.3"
 }
 
+allprojects {
+    apply plugin: 'java'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+        sourceCompatibility = JavaVersion.VERSION_21
+    }
+
+    repositories {
+        mavenCentral();
+    }
+
+    tasks.withType(JavaExec).configureEach {
+        dependsOn 'classes'
+        standardInput = System.in
+        ignoreExitValue true
+        doFirst {
+            println("OS: " + System.properties['os.name'])
+        }
+        if (System.properties['os.name'].toLowerCase().contains('mac')) {
+            jvmArgs('-XstartOnFirstThread')
+        }
+    }
+
+}
+
 repositories {
     mavenCentral()
 }
