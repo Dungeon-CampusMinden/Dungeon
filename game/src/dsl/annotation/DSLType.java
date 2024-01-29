@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 public @interface DSLType {
   /**
    * The name to use for the corresponding DSL data type. If it is not set, the original class name
-   * will be converted by {@link dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder}
+   * will be converted by TypeBuilder.
    *
    * @return
    */
