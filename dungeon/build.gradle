@@ -65,3 +65,9 @@ tasks.register('runTaskGenerationTest', JavaExec) {
     mainClass = "manual.taskgeneration.TaskGenerationTest"
     classpath = sourceSets.test.runtimeClasspath
 }
+
+tasks.withType(JavaCompile).configureEach {
+    configure(options) {
+        options.compilerArgs << '-parameters'
+    }
+}
