@@ -19,7 +19,7 @@ public class FileSystemUtil {
    * This instance constant can be used to determine from where the game was started, or for reading
    * single files.
    */
-  public static final Object DUMMY_INST = new DummyClazzInOwnCodeBase();
+  public static final Object DUMMY_INST = new FileSystemUtil();
 
   private static boolean isStartedInJarFile() {
     try {
