@@ -1244,7 +1244,7 @@ public class TestDSLInterpreter {
 
   @Test
   // TODO: requires implementation of task dependency graph parsing (see:
-  // https://github.com/Programmiermethoden/Dungeon/issues/520)
+  // https://github.com/Dungeon-CampusMinden/Dungeon/issues/520)
   public void taskDefinition() {
     String program =
         """

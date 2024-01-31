@@ -170,7 +170,7 @@ verwendet. Die definierte Abhängigkeit lässt sich wie folgt lesen: `Aufgabe1` 
 `Aufgabe2` und `Aufgabe2` bildet eine Sequenz mit `Aufgabe3`. Hierdurch muss `Aufgabe1` zuerst bearbeitet werden,
 danach muss `Aufgabe2` bearbeitet werden und abschließend `Aufgabe3`. Ob eine Aufgabe richtig oder falsch bearbeitet
 wird spielt hierbei keine Rolle. Für eine Auflistung und Erklärung aller Abhängigkeitstypen siehe
-[TODO: Dokumentation zu Abhängigkeitstypen](https://github.com/Programmiermethoden/Dungeon/issues/1215).
+[TODO: Dokumentation zu Abhängigkeitstypen](https://github.com/Dungeon-CampusMinden/Dungeon/issues/1215).
 
 Das oben vorgestellte Skript kann wie unter [Starten des Dungeon Systems](#starten-des-dungeon-systems) beschrieben
 gestartet werden.

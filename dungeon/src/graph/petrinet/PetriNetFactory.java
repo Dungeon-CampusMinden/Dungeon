@@ -21,7 +21,7 @@ import task.Task;
  * TaskGraphConverter#petriNetFor(TaskDependencyGraph)}.
  *
  * <p>See <a
- * href="https://github.com/Programmiermethoden/Dungeon/tree/master/doc/control_mechanisms/petri_net_parsing.md">documentation</a>
+ * href="https://github.com/Dungeon-CampusMinden/Dungeon/tree/master/doc/control_mechanisms/petri_net_parsing.md">documentation</a>
  * for more.
  */
 public class PetriNetFactory {

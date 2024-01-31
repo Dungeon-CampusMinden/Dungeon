@@ -3,7 +3,7 @@ title: "Room-Level: Konzept Designentscheidungen"
 ---
 
 Dieses Dokument ist eher Sammlung von Gedanken/Problemen/Ideen, die mit der Integration von Graphenebenen zu tun haben.
-Das ist der Milestone [Graphenebenen integrieren](https://github.com/Programmiermethoden/Dungeon/milestone/56).
+Das ist der Milestone [Graphenebenen integrieren](https://github.com/Dungeon-CampusMinden/Dungeon/milestone/56).
 
 ## 1. Ausgangssituation
 
@@ -15,20 +15,20 @@ Die Level können als Graph gezeichnet werden, wobei jeder Knoten ein Level ist 
 
 Die Kanten setzen wir mit Türen um, wobei an jeder Raumseite (oben, unten, links, rechts) maximal eine Tür platziert werden kann. Das bedeutet auch, dass jeder Raum maximal 4 Kanten haben kann. (vielleicht doch mehr, siehe 4.3)
 
-Bei der Generierung der Räume und der Türen ist darauf zu achten, dass hier eine konstante Logik verfolgt wird. Eine Tür, die oben in Raum A liegt, sollte mich unten in Raum B herausbringen, und wenn ich durch die Tür zurückgehe, sollte ich wieder oben in Raum A herauskommen. Eine Tür ist ein `Tile`. 
+Bei der Generierung der Räume und der Türen ist darauf zu achten, dass hier eine konstante Logik verfolgt wird. Eine Tür, die oben in Raum A liegt, sollte mich unten in Raum B herausbringen, und wenn ich durch die Tür zurückgehe, sollte ich wieder oben in Raum A herauskommen. Eine Tür ist ein `Tile`.
 
 *Anmerkung* Die gesetzten Grenzen hatten wir uns damals beim Prototypen überlegt, da wir die Implementierung so deutlich einfacher gestalten konnten, und die gesetzten Grenzen sind nicht einschränkend für das eigentliche Ziel.
 
 
-## 2. Generierung der Level 
+## 2. Generierung der Level
 
 Für die Generierung solcher Level verwenden wir unterschiedliche Generatoren und Schritte.
 
 1. Graphengenerator: Dieser generiert einen Graphen (unter Berücksichtigung der oben aufgeführten Grenzen).
 
 *Anmerkung* Wir betrachten jetzt die Levelgenerierung für eine Aufgabe. Für die Verkettung der Aufgaben siehe weitere Informationen unter Fragen 3.2.
-Damit der Generator weiß, wie viele Knoten im Graphen enthalten sein sollen, wird ein `Set<Set<Entity>>` beim Generierungsprozess übergeben. Jedes `Set<Entity>` enthält die Entitäten für einen Raum (damit kann ich dann gezielt angeben, dass bestimmte Entitäten im gleichen Raum sein sollen bzw. in unterschiedlichen Räumen). `Set<Set<Entity>>.size()` gibt daher an, wie viele Knoten der Graph haben muss. 
-Der Generator legt dann das `Set<Entity>` als Payload in den Knoten des Graphen ab. 
+Damit der Generator weiß, wie viele Knoten im Graphen enthalten sein sollen, wird ein `Set<Set<Entity>>` beim Generierungsprozess übergeben. Jedes `Set<Entity>` enthält die Entitäten für einen Raum (damit kann ich dann gezielt angeben, dass bestimmte Entitäten im gleichen Raum sein sollen bzw. in unterschiedlichen Räumen). `Set<Set<Entity>>.size()` gibt daher an, wie viele Knoten der Graph haben muss.
+Der Generator legt dann das `Set<Entity>` als Payload in den Knoten des Graphen ab.
 Die Kanten können vom Generator nach Belieben gezogen werden, auf die Verbindung der Räume für eine Aufgabe habe ich in der Eingabe also keinen Einfluss.
 
 2. Raumgenerator: Der Raumgenerator erzeugt für jeden Knoten ein `ILevel` und platziert die Entitäten in diesem Level (siehe auch #900).
@@ -41,69 +41,69 @@ Dafür siehe auch 3.2 und 3.3.
 
 ## 3. Fragen
 
-Eine Sammlung an Fragen die es noch zu klären gilt. 
+Eine Sammlung an Fragen die es noch zu klären gilt.
 
 ### 3.1 Wo werden die `Set<Set<Entity>>` initial gespeichert (mit @malte-r geklärt)
 
-Der `TaskBuilder` wird "mir" diese Collections zurückgeben. der TaskBuilder wird für jedes `Task` Objekt aufgerufen => für jede Teilaufgabe. 
+Der `TaskBuilder` wird "mir" diese Collections zurückgeben. der TaskBuilder wird für jedes `Task` Objekt aufgerufen => für jede Teilaufgabe.
 
 
 ### 3.2 Werden alle Level für alle Aufgaben direkt generiert oder "on demand"? Wie werden die Level der verschiedenen Aufgabe miteinander verbunden?
 
 Bei der Generierung der Graphen und Level stellt sich die Frage, ob direkt das gesamte Petri-Netz "übersetzt" wird (Vollständige Generierung vor der Spielzeit) oder die Graphen und Level erst generiert werden, wenn sie benötigt werden (Generierung "on demand").
 
-Grundsätzlich wird der Ansatz verfolgt, für jede Aufgabe einen eigenen Sub-Graphen zu generieren der dann mit den Subgraphen der anderen Aufgaben verbunden wird. 
+Grundsätzlich wird der Ansatz verfolgt, für jede Aufgabe einen eigenen Sub-Graphen zu generieren der dann mit den Subgraphen der anderen Aufgaben verbunden wird.
 
 #### Vollständige Generierung vor der Spielzeit. (<= Präferiertes Vorgehen, da einfacher in der Implementierung, Wartung und Dokumentation)
 
 Das Gesamte Petri-Netz wird beim Start des Spiels in einen Level-Graph übersetzt.
-Alle Kanten werden durch Türen implementiert, auch wenn im Spiel nur eine davon betretbar ist (Verzweigung im Petri-Netz), 
+Alle Kanten werden durch Türen implementiert, auch wenn im Spiel nur eine davon betretbar ist (Verzweigung im Petri-Netz),
 
 Vorteile:
-- Es muss nur einmal der Generierungsprozess gestartet werden, es entfällt daher Konzeptioneller Aufwand die Generierung aus verschiedenen Stellen im Code anzuregen. 
-- Die verschiedenen Pfade durch das Petri-Netz werden auch im Spiel visualisiert, da hier mehrere verschlossene Türen zu sehen sind und sich nur einige Türen davon öffnen, je nachdem welcher Pfad gewählt wird.  
-- Die Türen können bereits alle logisch miteinander Verbunden werden, da bereits alle Räume existieren. 
+- Es muss nur einmal der Generierungsprozess gestartet werden, es entfällt daher Konzeptioneller Aufwand die Generierung aus verschiedenen Stellen im Code anzuregen.
+- Die verschiedenen Pfade durch das Petri-Netz werden auch im Spiel visualisiert, da hier mehrere verschlossene Türen zu sehen sind und sich nur einige Türen davon öffnen, je nachdem welcher Pfad gewählt wird.
+- Die Türen können bereits alle logisch miteinander Verbunden werden, da bereits alle Räume existieren.
 
 Nachteile:
 - Es werden Level generiert, die vielleicht vom Spieler nie gesehen werden, da dieser a) vorher aufhört/stirbt oder b) durch bedingte Verzweigungen einen anderen Pfad durch das Petr Netz geht
 
 Mögliche Subform:
-Man könnte auch nur den vollständigen Graphen generieren und den konkreten Raum erst dann, wenn der Spieler den Raum betritt. Das Würde die Laufzeitbelastung etwas besser aufteilen. 
+Man könnte auch nur den vollständigen Graphen generieren und den konkreten Raum erst dann, wenn der Spieler den Raum betritt. Das Würde die Laufzeitbelastung etwas besser aufteilen.
 
-Ergänzung von @malt-r : Man könnte auch die Sub-Graphen erst generieren, wenn der "Levelabschnitt" des Subgraphen zum ersten mal betreten wird. Solange könnte ein Place-Holder Raum für den gesamten Task als Placeholder agieren, welcher dann durch das sub-graphen Konstrukt ausgetauscht wird.  Der initiale Graph wäre dann quasi eine Übersetzung des Petri-Netz auf höchster ebene, also ohne Teilaufgaben. 
+Ergänzung von @malt-r : Man könnte auch die Sub-Graphen erst generieren, wenn der "Levelabschnitt" des Subgraphen zum ersten mal betreten wird. Solange könnte ein Place-Holder Raum für den gesamten Task als Placeholder agieren, welcher dann durch das sub-graphen Konstrukt ausgetauscht wird.  Der initiale Graph wäre dann quasi eine Übersetzung des Petri-Netz auf höchster ebene, also ohne Teilaufgaben.
 
 #### Generierung "on demand"
 
-Das Petri-Netz wird schrittweise in einen Level-Graph übersetzt. 
+Das Petri-Netz wird schrittweise in einen Level-Graph übersetzt.
 
 Vorteil:
 - Keine unnötige (vor) Generierung
-- Bei Verzweigungen im Petri-Netz muss nur eine Tür implementiert werden, dessen logische Verbindung dann on-demand gesetzt wird. Das könnte weniger verwirrend sein, als eine Tür die für mich niemals aufgeht. 
+- Bei Verzweigungen im Petri-Netz muss nur eine Tür implementiert werden, dessen logische Verbindung dann on-demand gesetzt wird. Das könnte weniger verwirrend sein, als eine Tür die für mich niemals aufgeht.
 
 Nachteil:
 - Konzeptioneller Aufwand: Wann und wie wird aus dem Code heraus der Generierungsprozess erneut gestartet
-- Konzeptioneller Aufwand: Wie funktioniert das logische Verbinden der Türen zur Laufzeit? 
-- Keine Visualisierung der verschiedenen Pfade durch das Petri-Netz im Level. 
+- Konzeptioneller Aufwand: Wie funktioniert das logische Verbinden der Türen zur Laufzeit?
+- Keine Visualisierung der verschiedenen Pfade durch das Petri-Netz im Level.
 
 #### Kombination beider vorgehen
 
-Denkbar wäre es auch, einen Graphen nur solange "vor" zu generieren bis es im Petri-Netz eine Verzweigung gibt. 
-Mein Bauchgefühl sagt mir aber, dass ich mir dann nur die Nachteile beider Konzepte in die Tasche packe.... 
+Denkbar wäre es auch, einen Graphen nur solange "vor" zu generieren bis es im Petri-Netz eine Verzweigung gibt.
+Mein Bauchgefühl sagt mir aber, dass ich mir dann nur die Nachteile beider Konzepte in die Tasche packe....
 
 
-### 3.3 `Tiles#onEnter`? #504 
+### 3.3 `Tiles#onEnter`? #504
 
 Die Tür-Tiles müssen so implementiert werden, dass sie beim betreten den Spieler in den nächsten Raum setzen (und den Raum laden).
-Im Prototypen haben wir das über eine `Tile#onEnter` Methode umgesetzt. Es wurde dann überprüft, auf welchen Tile der Held  steht und für das Tiel die Methode gertiggerd, im Falle eine Tür, das laden des nächsten Raums. 
+Im Prototypen haben wir das über eine `Tile#onEnter` Methode umgesetzt. Es wurde dann überprüft, auf welchen Tile der Held  steht und für das Tiel die Methode gertiggerd, im Falle eine Tür, das laden des nächsten Raums.
 
-Für mich riecht das eigentlich stark nach Hitbox und Kollision. Und dann kommt das Thema #504 wieder auf. 
+Für mich riecht das eigentlich stark nach Hitbox und Kollision. Und dann kommt das Thema #504 wieder auf.
 
 
-### 3.4 Wie werden die so erzeugten Level in das aktuelle System integriert?                                     
+### 3.4 Wie werden die so erzeugten Level in das aktuelle System integriert?
 
 Für die Variante "Vollständige Generierung vor der Spielzeit" ist die Frage recht einfach zu beantworten.
-Nach der Generierung wird das `currentLevel` auf das erste Level im Graphen gesetzt und danach kann der Generator des Dungeons deaktiviert werden. 
-Für die "on demand" Lösung stellt sich die Frage, ob das `LevelSystem` die Generierung anstößt (das macht mir Kopfweh) oder das Petri-Netz das irgendwie macht (macht mir auch Kopfweh); 
+Nach der Generierung wird das `currentLevel` auf das erste Level im Graphen gesetzt und danach kann der Generator des Dungeons deaktiviert werden.
+Für die "on demand" Lösung stellt sich die Frage, ob das `LevelSystem` die Generierung anstößt (das macht mir Kopfweh) oder das Petri-Netz das irgendwie macht (macht mir auch Kopfweh);
 
 ## 4. Begründungen für Designentscheidungen
 
@@ -129,7 +129,7 @@ Zusätzlich stellt sich die Frage: Was würde mit den aktuellen Levels geschehen
 
 Bisher konnte ich keine Antwort auf die Frage finden, warum es sinnvoll sein könnte, Levels als eine Menge von Räumen zu speichern.
 
-### 4.2 Warum überhaupt Graphen, wenn ich diese in der DSL eh nicht definiere? 
+### 4.2 Warum überhaupt Graphen, wenn ich diese in der DSL eh nicht definiere?
 
 Ursprünglich war geplant, dass der Level-Graph über die DSL definiert werden kann, da dies wohl kaum ein Lehrender wirklich tun würde. Die verbleibende Zeit von uns verlangt jedoch, starke Prioritäten zu setzen, weshalb diese Idee gekippt wurde.
 
@@ -142,10 +142,10 @@ Dafür bräuchten wir aber streng genommen noch keinen konkreten Graphen. Wir k�
 Der Level-Graph soll letztendlich mit dem Petri-Netz gemappt werden. Dadurch soll das Implementieren der Steuerelemente vereinfacht werden. Wir können eine Transition im Petri-Netz mit einer Kante im Level-Graphen, also einer Tür im Level, mappen. Die Tür wird dann erst geöffnet, wenn die entsprechende Transition geschaltet wurde.
 
 
-### 4.3 Warum nur vier Kanten pro Knoten? 
+### 4.3 Warum nur vier Kanten pro Knoten?
 
-Edit: Beim Ausarbeiten der Begründung für diese Entscheidung ist mir aufgefallen, dass es dafür eigentlich keine starken Argumente gibt. Tatsächlich sogt das aufhaben dieser Regel für einige Vereinfachungen im Code. 
+Edit: Beim Ausarbeiten der Begründung für diese Entscheidung ist mir aufgefallen, dass es dafür eigentlich keine starken Argumente gibt. Tatsächlich sogt das aufhaben dieser Regel für einige Vereinfachungen im Code.
 
-Edit 2: Beim implementieren ist mir aufgefallen, dass es das doch einfacher macht (grade beim verbinden der Türen). 
+Edit 2: Beim implementieren ist mir aufgefallen, dass es das doch einfacher macht (grade beim verbinden der Türen).
 
-=> Die begrenzte Anzahl an Kanten erleichtert die Implementierung + macht die Level für die Spielenden Einfachher zu handeln (viele Türen auf einer Seite können schnell verwirren) 
+=> Die begrenzte Anzahl an Kanten erleichtert die Implementierung + macht die Level für die Spielenden Einfachher zu handeln (viele Türen auf einer Seite können schnell verwirren)

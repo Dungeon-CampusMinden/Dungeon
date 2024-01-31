@@ -17,7 +17,7 @@ authors:
     family-names: Matutat
   - given-names: Malte
     family-names: Reinsch
-repository-code: 'https://github.com/Programmiermethoden/Dungeon'
+repository-code: 'https://github.com/Dungeon-CampusMinden/Dungeon'
 abstract: >-
   The Dungeon is a tool to gamify classroom content and
   integrate it into a 2D Rogue-Like role-playing game. It

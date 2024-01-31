@@ -32,7 +32,7 @@ Die [Dokumentation](dungeon/doc/readme.md) und der [Quickstart](dungeon/doc/quic
 ![](dungeon/doc/dsl/img/quickstart_answer_menu.png)
 
 
-*   [Starterkit und Demo](https://github.com/Programmiermethoden/Dungeon-StarterKit)
+*   [Starterkit und Demo](https://github.com/Dungeon-CampusMinden/Dungeon-StarterKit)
 
 ## Low Code: Blockly-Dungeon
 Dieser Teil des Projekts nutzt Googles Blockly, um eine grafische Low-Code-Benutzeroberfläche zu generieren. Über eine Webschnittstelle (lokal) kann die Spielfigur im Dungeon gesteuert werden, wodurch auch Anwender ohne tiefgreifende Programmierkenntnisse am Erlebnis teilhaben können.
@@ -81,10 +81,10 @@ The [assets](doc/wiki/assets-im-dungeon.md) in [`game/assets/`](game/assets/) ar
 
 ## License
 
-This [work](https://github.com/Programmiermethoden/Dungeon) by
+This [work](https://github.com/Dungeon-CampusMinden/Dungeon) by
 [André Matutat](https://github.com/AMatutat),
 [Malte Reinsch](https://github.com/malt-r), and
-[contributors](https://github.com/Programmiermethoden/Dungeon/graphs/contributors)
+[contributors](https://github.com/Dungeon-CampusMinden/Dungeon/graphs/contributors)
 is licensed under [MIT](LICENSE.md).
 
 All files in [`doc/publication/`](doc/publication/) are licensed under [CC BY-SA 4.0](LICENSE-PAPER.md).

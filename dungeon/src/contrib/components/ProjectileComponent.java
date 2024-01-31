@@ -10,7 +10,7 @@ import core.utils.Point;
  *
  * <p>A projectile will need a {@link core.components.VelocityComponent VelocityComponent} and
  * {@link core.components.PositionComponent PositionComponent} as well. See <a
- * href="https://github.com/Programmiermethoden/Dungeon/tree/master/doc/ecs/systems">System-Overview</a>.
+ * href="https://github.com/Dungeon-CampusMinden/Dungeon/tree/master/doc/ecs/systems">System-Overview</a>.
  *
  * <p>The {@link contrib.systems.ProjectileSystem ProjectileSystem} will calculate a flight path
  * from the start to the goal and will then set the velocity in the {@link
