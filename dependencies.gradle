@@ -3,7 +3,7 @@ ext {
     spotlessVersion = '6.25.0'
     benmanesVersion = '0.51.0'
 
-    //-- DEPENDENCIES
+    // -- DEPENDENCIES
     gdxVersion = '1.12.1'
     aiVersion = '1.8.2'
     junitVersion = '4.13.2'
@@ -13,21 +13,22 @@ ext {
 
     supportDependencies = [
         // LibGDX
-        gdx                   : "com.badlogicgames.gdx:gdx:$gdxVersion",
-        gdx_freetype          : "com.badlogicgames.gdx:gdx-freetype:$gdxVersion",
-        gdx_backend_lwjgl3    : "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion",
-        gdx_platform          : "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop",
-        gdx_freetype_platform : "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop",
-        gdx_ai                : "com.badlogicgames.gdx:gdx-ai:$aiVersion",
+        gdx                       : "com.badlogicgames.gdx:gdx:$gdxVersion",
+        gdx_freetype              : "com.badlogicgames.gdx:gdx-freetype:$gdxVersion",
+        gdx_backend_lwjgl3        : "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion",
+        gdx_lwjgl3_glfw_awt_macos : "com.badlogicgames.gdx:gdx-lwjgl3-glfw-awt-macos:$gdxVersion",
+        gdx_platform              : "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop",
+        gdx_freetype_platform     : "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop",
+        gdx_ai                    : "com.badlogicgames.gdx:gdx-ai:$aiVersion",
 
         // Gson
-        gson                  : "com.google.code.gson:gson:$gsonVersion",
+        gson                      : "com.google.code.gson:gson:$gsonVersion",
 
         // JUnit 4 and Mockito for testing
-        junit                 : "junit:junit:$junitVersion",
-        mockito_core          : "org.mockito:mockito-core:$mockitoVersion",
+        junit                     : "junit:junit:$junitVersion",
+        mockito_core              : "org.mockito:mockito-core:$mockitoVersion",
 
         // ANTLR version 4 for DSL Grammar
-        antlr                 : "org.antlr:antlr4:$antlrVersion",
+        antlr                     : "org.antlr:antlr4:$antlrVersion",
     ]
 }

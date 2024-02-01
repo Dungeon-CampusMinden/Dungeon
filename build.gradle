@@ -34,6 +34,7 @@ dependencies {
     implementation supportDependencies.gdx
     implementation supportDependencies.gdx_freetype
     implementation supportDependencies.gdx_backend_lwjgl3
+    implementation supportDependencies.gdx_lwjgl3_glfw_awt_macos
     implementation supportDependencies.gdx_platform
     implementation supportDependencies.gdx_freetype_platform
     implementation supportDependencies.gdx_ai
@@ -168,10 +169,4 @@ tasks.withType(JavaExec).configureEach {
     dependsOn classes
     standardInput = System.in
     ignoreExitValue true
-    doFirst {
-        println(System.properties['os.name'])
-    }
-    if (System.properties['os.name'].toLowerCase().contains('mac')) {
-        jvmArgs('-XstartOnFirstThread')
-    }
 }
