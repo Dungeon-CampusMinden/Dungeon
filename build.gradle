@@ -169,10 +169,4 @@ tasks.withType(JavaExec).configureEach {
     dependsOn classes
     standardInput = System.in
     ignoreExitValue true
-    doFirst {
-        println(System.properties['os.name'])
-    }
-    if (System.properties['os.name'].toLowerCase().contains('mac')) {
-        jvmArgs('-XstartOnFirstThread')
-    }
 }
