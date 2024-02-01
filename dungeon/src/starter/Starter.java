@@ -140,26 +140,24 @@ public class Starter {
   }
 
   /**
-   * Selects a single DNG file using a file chooser dialog.
+   * Select a single DNG file using a JFileChooser dialog.
    *
    * @return the absolute path of the selected DNG file, or an empty optional if no file was
    *     selected.
    */
   private static Optional<String> selectSingleDngFile() {
-    AtomicReference<Optional<String>> path = new AtomicReference<>();
+    AtomicReference<Optional<String>> path = new AtomicReference<>(Optional.empty());
     CountDownLatch conditionLatch = new CountDownLatch(1);
     SwingUtilities.invokeLater(
         () -> {
           JFileChooser fileChooser = new JFileChooser();
-          fileChooser.setDialogTitle("Dungeon: Please select one DNG file (see also Readme)");
+          fileChooser.setDialogTitle("Dungeon: Please select a .dng file");
           fileChooser.setMultiSelectionEnabled(false);
           fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-          fileChooser.setFileFilter(new FileNameExtensionFilter("Only DNG files", "dng"));
+          fileChooser.setFileFilter(new FileNameExtensionFilter(".dng file", "dng"));
           fileChooser.setAcceptAllFileFilterUsed(false);
           if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             path.set(Optional.of(fileChooser.getSelectedFile().getAbsolutePath()));
-          } else {
-            path.set(Optional.empty());
           }
           conditionLatch.countDown();
         });
