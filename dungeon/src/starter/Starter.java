@@ -20,11 +20,15 @@ import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
 import graph.TaskGraphConverter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import task.Task;
 
 /**
@@ -63,7 +67,7 @@ public class Starter {
                         .append(System.lineSeparator())
                         .append(System.lineSeparator()));
         String questLog = questLogBuilder.toString();
-        OkDialog.showOkDialog(questLog, "Questlog", () -> {});
+        OkDialog.showOkDialog(questLog, "Quest log", () -> {});
       };
   private static final Consumer<Entity> showInfos =
       entity -> {
@@ -102,20 +106,58 @@ public class Starter {
         // show list for task: reached points
       };
 
-  public static void main(String[] args) throws IOException {
-    // read in DSL-Files
-    Set<DSLEntryPoint> entryPoints = processCLIArguments(args);
+  public static void main(String[] args) {
+    try {
+      // if file names have been supplied on CLI, let's use these
+      // otherwise try to get a file name of a configuration file interactively
+      String[] dslFileNames = args.length > 0 ? args : new String[] {selectSingleDngFile()};
 
-    // some game Setup
-    configGame();
-    // will load the level to select the task/DSL-Entrypoint on Game start
-    taskSelectorOnSetup(entryPoints);
+      // read in DSL-Files
+      Set<DSLEntryPoint> entryPoints = processCLIArguments(dslFileNames);
 
-    // will generate the TaskDependencyGraph, execute the TaskBuilder, generate and set the
-    // Level and generate the PetriNet after the player selected an DSLEntryPoint
-    onEntryPointSelection();
-    startTime = System.currentTimeMillis();
-    Game.run();
+      // some game Setup
+      configGame();
+      // will load the level to select the task/DSL-Entrypoint on Game start
+      taskSelectorOnSetup(entryPoints);
+
+      // will generate the TaskDependencyGraph, execute the TaskBuilder, generate and set the
+      // Level and generate the PetriNet after the player selected an DSLEntryPoint
+      onEntryPointSelection();
+      startTime = System.currentTimeMillis();
+
+      // let's do this
+      Game.run();
+
+    } catch (NullPointerException | InterruptedException | InvocationTargetException e) {
+      // no configuration, so let's abort here
+      System.err.println("No .dng file selected. Exiting ...");
+    } catch (IOException e) {
+      // could not read configuration, so let's abort here
+      System.err.println("Couldn't read specified .dng. Exiting ...");
+    }
+  }
+
+  /*
+   * Select a single DNG file using a JFileChooser dialog.
+   *
+   * @return the absolute path of the selected DNG file, or null if no file was selected
+   */
+  private static String selectSingleDngFile()
+      throws InterruptedException, InvocationTargetException {
+    AtomicReference<String> path = new AtomicReference<>(null);
+    SwingUtilities.invokeAndWait(
+        () -> {
+          JFileChooser fileChooser = new JFileChooser();
+          fileChooser.setDialogTitle("Dungeon: Please select a .dng file");
+          fileChooser.setMultiSelectionEnabled(false);
+          fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+          fileChooser.setFileFilter(new FileNameExtensionFilter(".dng file", "dng"));
+          fileChooser.setAcceptAllFileFilterUsed(false);
+          if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            path.set(fileChooser.getSelectedFile().getAbsolutePath());
+          }
+        });
+    return path.get();
   }
 
   private static void onEntryPointSelection() {
