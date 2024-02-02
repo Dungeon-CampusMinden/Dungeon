@@ -126,11 +126,12 @@ public class Starter {
   }
 
   /**
-   * Process the command line arguments and returns a set of DSL entry points. Can exit the game.
+   * Process the command line arguments and returns a set of {@link DSLEntryPoint}s. Can exit the
+   * game.
    *
    * @param args the list of command line arguments
+   * @return a set of {@link DSLEntryPoint}s
    * @throws IOException if the given arguments cannot be processed
-   * @return a set of DSL entry points
    */
   private static Set<DSLEntryPoint> processCLIArguments(List<String> args) throws IOException {
     if (args.isEmpty()) {
