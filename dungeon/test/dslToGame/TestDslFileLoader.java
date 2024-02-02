@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.Test;
@@ -34,7 +33,8 @@ public class TestDslFileLoader {
 
   @Test
   public void processArguments_oneJar() throws IOException {
-    Set<Path> paths = DSLFileLoader.processArguments(List.of(PATH_TO_JAR_AS_STRING));
+    String[] args = {PATH_TO_JAR_AS_STRING};
+    Set<Path> paths = DSLFileLoader.processArguments(args);
     assertEquals(2, paths.size());
     assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_DNGFILE_IN_JAR.normalize())));
     assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_SECOND_DNGFILE_IN_JAR.normalize())));
@@ -43,7 +43,8 @@ public class TestDslFileLoader {
 
   @Test
   public void processArguments_oneDSLFile() throws IOException {
-    Set<Path> paths = DSLFileLoader.processArguments(List.of(PATH_TO_DNGFILE_AS_STRING));
+    String[] args = {PATH_TO_DNGFILE_AS_STRING};
+    Set<Path> paths = DSLFileLoader.processArguments(args);
     assertEquals(1, paths.size());
     Path p = (Path) paths.toArray()[0];
     assertTrue(p.endsWith(PATH_TO_DNGFILE.normalize()));
@@ -51,8 +52,8 @@ public class TestDslFileLoader {
 
   @Test
   public void processArguments_oneJarOneDSL() throws IOException {
-    Set<Path> paths =
-        DSLFileLoader.processArguments(List.of(PATH_TO_JAR_AS_STRING, PATH_TO_DNGFILE_AS_STRING));
+    String[] args = {PATH_TO_JAR_AS_STRING, PATH_TO_DNGFILE_AS_STRING};
+    Set<Path> paths = DSLFileLoader.processArguments(args);
     assertEquals(3, paths.size());
     assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_DNGFILE_IN_JAR.normalize())));
     assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_SECOND_DNGFILE_IN_JAR.normalize())));
@@ -62,10 +63,10 @@ public class TestDslFileLoader {
 
   @Test
   public void processArguments_mixed() throws IOException {
-    Set<Path> paths =
-        DSLFileLoader.processArguments(
-            List.of(
-                PATH_TO_EMPTY_DNGFILE_AS_STRING, PATH_TO_JAR_AS_STRING, PATH_TO_DNGFILE_AS_STRING));
+    String[] args = {
+      PATH_TO_EMPTY_DNGFILE_AS_STRING, PATH_TO_JAR_AS_STRING, PATH_TO_DNGFILE_AS_STRING
+    };
+    Set<Path> paths = DSLFileLoader.processArguments(args);
     assertEquals(4, paths.size());
     assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_FIRST_DNGFILE_IN_JAR.normalize())));
     assertTrue(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_SECOND_DNGFILE_IN_JAR.normalize())));
@@ -76,7 +77,8 @@ public class TestDslFileLoader {
 
   @Test
   public void processArguments_nonDSLFile() throws IOException {
-    Set<Path> paths = DSLFileLoader.processArguments(List.of(PAHT_TO_TXTFILE_AS_STRING));
+    String[] args = {PAHT_TO_TXTFILE_AS_STRING};
+    Set<Path> paths = DSLFileLoader.processArguments(args);
     assertEquals(0, paths.size());
   }
 
@@ -103,7 +105,8 @@ public class TestDslFileLoader {
 
   @Test
   public void argFileToString() throws IOException {
-    Set<Path> paths = DSLFileLoader.processArguments(List.of(PATH_TO_DNGFILE_AS_STRING));
+    String[] args = {PATH_TO_DNGFILE_AS_STRING};
+    Set<Path> paths = DSLFileLoader.processArguments(args);
     assertEquals(1, paths.size());
     Path p = (Path) paths.toArray()[0];
     String read = DSLFileLoader.fileToString(p.toFile());

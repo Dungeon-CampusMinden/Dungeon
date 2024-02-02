@@ -20,18 +20,11 @@ import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
 import graph.TaskGraphConverter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import task.Task;
 
 /**
@@ -70,7 +63,7 @@ public class Starter {
                         .append(System.lineSeparator())
                         .append(System.lineSeparator()));
         String questLog = questLogBuilder.toString();
-        OkDialog.showOkDialog(questLog, "Quest log", () -> {});
+        OkDialog.showOkDialog(questLog, "Questlog", () -> {});
       };
   private static final Consumer<Entity> showInfos =
       entity -> {
@@ -110,8 +103,8 @@ public class Starter {
       };
 
   public static void main(String[] args) throws IOException {
-    // process CLI arguments and read in DSL-Files
-    Set<DSLEntryPoint> entryPoints = processCLIArguments(Arrays.asList(args));
+    // read in DSL-Files
+    Set<DSLEntryPoint> entryPoints = processCLIArguments(args);
 
     // some game Setup
     configGame();
@@ -123,56 +116,6 @@ public class Starter {
     onEntryPointSelection();
     startTime = System.currentTimeMillis();
     Game.run();
-  }
-
-  /**
-   * Process the command line arguments and returns a set of {@link DSLEntryPoint}s. Can exit the
-   * game.
-   *
-   * @param args the list of command line arguments
-   * @return a set of {@link DSLEntryPoint}s
-   * @throws IOException if the given arguments cannot be processed
-   */
-  private static Set<DSLEntryPoint> processCLIArguments(List<String> args) throws IOException {
-    if (args.isEmpty()) {
-      try {
-        args = List.of(Objects.requireNonNull(selectSingleDngFile()));
-      } catch (Exception e) {
-        System.err.println("No file selected. Please try again, and select a .dng file.");
-        System.err.println("Dungeon will now exit ...");
-        System.err.println("Error: " + e.getMessage());
-        System.exit(0);
-      }
-    }
-
-    Set<DSLEntryPoint> entryPoints = new HashSet<>();
-    DSLEntryPointFinder finder = new DSLEntryPointFinder();
-    DSLFileLoader.processArguments(args)
-        .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
-    return entryPoints;
-  }
-
-  /**
-   * Select a single DNG file using a JFileChooser dialog.
-   *
-   * @return the absolute path of the selected DNG file, or null if no file was selected
-   */
-  private static String selectSingleDngFile()
-      throws InterruptedException, InvocationTargetException {
-    AtomicReference<String> path = new AtomicReference<>(null);
-    SwingUtilities.invokeAndWait(
-        () -> {
-          JFileChooser fileChooser = new JFileChooser();
-          fileChooser.setDialogTitle("Dungeon: Please select a .dng file");
-          fileChooser.setMultiSelectionEnabled(false);
-          fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-          fileChooser.setFileFilter(new FileNameExtensionFilter(".dng file", "dng"));
-          fileChooser.setAcceptAllFileFilterUsed(false);
-          if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            path.set(fileChooser.getSelectedFile().getAbsolutePath());
-          }
-        });
-    return path.get();
   }
 
   private static void onEntryPointSelection() {
@@ -220,6 +163,14 @@ public class Starter {
             }
           }
         });
+  }
+
+  private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws IOException {
+    Set<DSLEntryPoint> entryPoints = new HashSet<>();
+    DSLEntryPointFinder finder = new DSLEntryPointFinder();
+    DSLFileLoader.processArguments(args)
+        .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
+    return entryPoints;
   }
 
   private static void createHero() {
