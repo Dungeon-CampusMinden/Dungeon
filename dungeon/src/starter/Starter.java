@@ -133,7 +133,7 @@ public class Starter {
     Game.run();
   }
 
-  /**
+  /*
    * Select a single DNG file using a JFileChooser dialog.
    *
    * @return the absolute path of the selected DNG file, or null if no file was selected
