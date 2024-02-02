@@ -109,8 +109,7 @@ public class Starter {
         // show list for task: reached points
       };
 
-  public static void main(String[] args)
-      throws IOException, InterruptedException, InvocationTargetException {
+  public static void main(String[] args) throws IOException {
     // process CLI arguments and read in DSL-Files
     Set<DSLEntryPoint> entryPoints = processCLIArguments(Arrays.asList(args));
 
@@ -126,10 +125,16 @@ public class Starter {
     Game.run();
   }
 
-  private static Set<DSLEntryPoint> processCLIArguments(List<String> args)
-      throws IOException, InterruptedException, InvocationTargetException {
+  private static Set<DSLEntryPoint> processCLIArguments(List<String> args) throws IOException {
     if (args.isEmpty()) {
-      args = List.of(selectSingleDngFile().orElseThrow());
+      try {
+        args = List.of(selectSingleDngFile().orElseThrow());
+      } catch (Exception e) {
+        System.err.println("No file selected. Please try again, and select a .dng file.");
+        System.err.println("Dungeon will now exit ...");
+        System.err.println("Error: " + e.getMessage());
+        System.exit(0);
+      }
     }
 
     Set<DSLEntryPoint> entryPoints = new HashSet<>();
