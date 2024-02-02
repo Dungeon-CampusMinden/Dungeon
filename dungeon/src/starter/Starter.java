@@ -25,7 +25,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -128,7 +128,7 @@ public class Starter {
   private static Set<DSLEntryPoint> processCLIArguments(List<String> args) throws IOException {
     if (args.isEmpty()) {
       try {
-        args = List.of(selectSingleDngFile().orElseThrow());
+        args = List.of(Objects.requireNonNull(selectSingleDngFile()));
       } catch (Exception e) {
         System.err.println("No file selected. Please try again, and select a .dng file.");
         System.err.println("Dungeon will now exit ...");
@@ -150,9 +150,9 @@ public class Starter {
    * @return the absolute path of the selected DNG file, or an empty optional if no file was
    *     selected.
    */
-  private static Optional<String> selectSingleDngFile()
+  private static String selectSingleDngFile()
       throws InterruptedException, InvocationTargetException {
-    AtomicReference<Optional<String>> path = new AtomicReference<>(Optional.empty());
+    AtomicReference<String> path = new AtomicReference<>(null);
     SwingUtilities.invokeAndWait(
         () -> {
           JFileChooser fileChooser = new JFileChooser();
@@ -162,7 +162,7 @@ public class Starter {
           fileChooser.setFileFilter(new FileNameExtensionFilter(".dng file", "dng"));
           fileChooser.setAcceptAllFileFilterUsed(false);
           if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            path.set(Optional.of(fileChooser.getSelectedFile().getAbsolutePath()));
+            path.set(fileChooser.getSelectedFile().getAbsolutePath());
           }
         });
     return path.get();
