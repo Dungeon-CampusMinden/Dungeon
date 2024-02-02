@@ -70,7 +70,7 @@ public class Starter {
                         .append(System.lineSeparator())
                         .append(System.lineSeparator()));
         String questLog = questLogBuilder.toString();
-        OkDialog.showOkDialog(questLog, "Questlog", () -> {});
+        OkDialog.showOkDialog(questLog, "Quest log", () -> {});
       };
   private static final Consumer<Entity> showInfos =
       entity -> {
