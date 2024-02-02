@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -107,30 +106,35 @@ public class Starter {
         // show list for task: reached points
       };
 
-  public static void main(String[] args) throws IOException {
-    if (args.length == 0) {
-      try {
-        args = new String[] {Objects.requireNonNull(selectSingleDngFile())};
-      } catch (InterruptedException | InvocationTargetException | NullPointerException e) {
-        System.err.println("No file selected. Please try again, and select a .dng file.");
-        System.err.println("Dungeon will now exit ...");
-        System.exit(0);
-      }
+  public static void main(String[] args) {
+    try {
+      // if file names have been supplied on CLI, let's use these
+      // otherwise try to get a file name of a configuration file interactively
+      String[] dslFileNames = args.length > 0 ? args : new String[] {selectSingleDngFile()};
+
+      // read in DSL-Files
+      Set<DSLEntryPoint> entryPoints = processCLIArguments(dslFileNames);
+
+      // some game Setup
+      configGame();
+      // will load the level to select the task/DSL-Entrypoint on Game start
+      taskSelectorOnSetup(entryPoints);
+
+      // will generate the TaskDependencyGraph, execute the TaskBuilder, generate and set the
+      // Level and generate the PetriNet after the player selected an DSLEntryPoint
+      onEntryPointSelection();
+      startTime = System.currentTimeMillis();
+
+      // let's do this
+      Game.run();
+
+    } catch (NullPointerException | InterruptedException | InvocationTargetException e) {
+      // no configuration, so let's abort here
+      System.err.println("No .dng file selected. Exiting ...");
+    } catch (IOException e) {
+      // could not read configuration, so let's abort here
+      System.err.println("Couldn't read specified .dng. Exiting ...");
     }
-
-    // read in DSL-Files
-    Set<DSLEntryPoint> entryPoints = processCLIArguments(args);
-
-    // some game Setup
-    configGame();
-    // will load the level to select the task/DSL-Entrypoint on Game start
-    taskSelectorOnSetup(entryPoints);
-
-    // will generate the TaskDependencyGraph, execute the TaskBuilder, generate and set the
-    // Level and generate the PetriNet after the player selected an DSLEntryPoint
-    onEntryPointSelection();
-    startTime = System.currentTimeMillis();
-    Game.run();
   }
 
   /*
