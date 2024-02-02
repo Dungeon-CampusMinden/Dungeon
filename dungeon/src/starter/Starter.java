@@ -20,13 +20,13 @@ import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
 import graph.TaskGraphConverter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -109,7 +109,8 @@ public class Starter {
         // show list for task: reached points
       };
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args)
+      throws IOException, InterruptedException, InvocationTargetException {
     // process CLI arguments and read in DSL-Files
     Set<DSLEntryPoint> entryPoints = processCLIArguments(Arrays.asList(args));
 
@@ -125,11 +126,10 @@ public class Starter {
     Game.run();
   }
 
-  private static Set<DSLEntryPoint> processCLIArguments(List<String> args) throws IOException {
+  private static Set<DSLEntryPoint> processCLIArguments(List<String> args)
+      throws IOException, InterruptedException, InvocationTargetException {
     if (args.isEmpty()) {
-      args =
-          List.of(
-              selectSingleDngFile().orElseThrow(() -> new IOException("No DNG file selected!")));
+      args = List.of(selectSingleDngFile().orElseThrow());
     }
 
     Set<DSLEntryPoint> entryPoints = new HashSet<>();
@@ -145,10 +145,10 @@ public class Starter {
    * @return the absolute path of the selected DNG file, or an empty optional if no file was
    *     selected.
    */
-  private static Optional<String> selectSingleDngFile() {
+  private static Optional<String> selectSingleDngFile()
+      throws InterruptedException, InvocationTargetException {
     AtomicReference<Optional<String>> path = new AtomicReference<>(Optional.empty());
-    CountDownLatch conditionLatch = new CountDownLatch(1);
-    SwingUtilities.invokeLater(
+    SwingUtilities.invokeAndWait(
         () -> {
           JFileChooser fileChooser = new JFileChooser();
           fileChooser.setDialogTitle("Dungeon: Please select a .dng file");
@@ -159,13 +159,7 @@ public class Starter {
           if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             path.set(Optional.of(fileChooser.getSelectedFile().getAbsolutePath()));
           }
-          conditionLatch.countDown();
         });
-    try {
-      conditionLatch.await();
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
     return path.get();
   }
 
