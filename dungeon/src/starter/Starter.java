@@ -147,8 +147,7 @@ public class Starter {
   /**
    * Select a single DNG file using a JFileChooser dialog.
    *
-   * @return the absolute path of the selected DNG file, or an empty optional if no file was
-   *     selected.
+   * @return the absolute path of the selected DNG file, or null if no file was selected
    */
   private static String selectSingleDngFile()
       throws InterruptedException, InvocationTargetException {
