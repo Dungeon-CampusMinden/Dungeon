@@ -9,7 +9,7 @@
     <module name="TreeWalker">
         <module name="DeclarationOrder"/>
         <module name="com.github.sevntu.checkstyle.checks.coding.CustomDeclarationOrderCheck">
-            <property name="customDeclarationOrder" value="Field(.*public .*) ### Field(.*protected .*) ### Field(.*private .*) ### CTOR(.*) ### MainMethod(.*) ### GetterSetter(.*) ### Method(.*) ### InnerClass(.*) ### InnerInterface(.*) ### InnerEnum(.*)"/>
+            <property name="customDeclarationOrder" value="Field(.*public .*) ### Field(.*protected .*) ### Field(.*private .*) ### CTOR(.*) ### MainMethod(.*) ### GetterSetter(.*) ### Method(.* .* .* a.*) ### Method(.* .* .* b.*) ### Method(.* .* .* c.*) ### Method(.* .* .* d.*) ### Method(.* .* .* e.*) ### Method(.* .* .* f.*) ### Method(.* .* .* g.*) ### Method(.* .* .* h.*) ### Method(.* .* .* i.*) ### Method(.* .* .* j.*) ### Method(.* .* .* k.*) ### Method(.* .* .* l.*) ### Method(.* .* .* m.*) ### Method(.* .* .* n.*) ### Method(.* .* .* o.*) ### Method(.* .* .* p.*) ### Method(.* .* .* q.*) ### Method(.* .* .* r.*) ### Method(.* .* .* s.*) ### Method(.* .* .* t.*) ### Method(.* .* .* u.*) ### Method(.* .* .* v.*) ### Method(.* .* .* w.*) ### Method(.* .* .* x.*) ### Method(.* .* .* y.*) ### Method(.* .* .* z.*) ### InnerClass(.*) ### InnerInterface(.*) ### InnerEnum(.*)"/>
         </module>
     </module>
 </module>
