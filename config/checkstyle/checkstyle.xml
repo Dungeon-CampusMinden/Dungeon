@@ -8,6 +8,8 @@
     </module>
     <module name="TreeWalker">
         <module name="DeclarationOrder"/>
-        <module name="com.github.sevntu.checkstyle.checks.coding.CustomDeclarationOrderCheck"/>
+        <module name="com.github.sevntu.checkstyle.checks.coding.CustomDeclarationOrderCheck">
+            <property name="customDeclarationOrder" value="Field(.*public .*) ### Field(.*protected .*) ### Field(.*private .*) ### CTOR(.*) ### MainMethod(.*) ### GetterSetter(.*) ### Method(.*) ### InnerClass(.*) ### InnerInterface(.*) ### InnerEnum(.*)"/>
+        </module>
     </module>
 </module>
