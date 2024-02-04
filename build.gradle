@@ -4,7 +4,7 @@ buildscript {
 
 plugins {
     id 'application'
-    id 'checkstyle'
+//    id 'checkstyle'
     id 'com.diffplug.spotless' version "${spotlessVersion}"
     id 'antlr'
     id 'com.github.ben-manes.versions' version "${benmanesVersion}"
@@ -98,44 +98,44 @@ configurations.checkstyle {
     }
 }
 
-checkstyle {
-    project.ext.checkstyleVersion = '10.13.0'
-    project.ext.sevntuChecksVersion = '1.44.1'
-
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        // we keep artifacts in maven central too,
-        // but this is just example of usage from our old maven repo on github
-        maven {
-            url "https://sevntu-checkstyle.github.com/sevntu.checkstyle/maven2"
-        }
-    }
-
-    ignoreFailures = true
-    configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
-
-    //sourceSets = [sourceSets.main]
-    //showViolations = true
-    //reportsDir = file("$project.buildDir/checkstyleReports")
-    //configProperties = ['baseDir': "$project.projectDir"]
-
-    //https://discuss.gradle.org/t/some-checkstyle-rules-dont-work-in-gradle/16102/4
-    checkstyleMain {
-        source = sourceSets.main.allSource
-    }
-
-    configurations {
-        checkstyle
-    }
-
-    dependencies {
-        assert project.hasProperty("checkstyleVersion")
-
-        checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
-        checkstyle "com.github.sevntu-checkstyle:sevntu-checks:${sevntuChecksVersion}"
-    }
-}
+//checkstyle {
+//    project.ext.checkstyleVersion = '10.13.0'
+//    project.ext.sevntuChecksVersion = '1.44.1'
+//
+//    repositories {
+//        mavenLocal()
+//        mavenCentral()
+//        // we keep artifacts in maven central too,
+//        // but this is just example of usage from our old maven repo on github
+//        maven {
+//            url "https://sevntu-checkstyle.github.com/sevntu.checkstyle/maven2"
+//        }
+//    }
+//
+//    ignoreFailures = true
+//    configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
+//
+//    //sourceSets = [sourceSets.main]
+//    //showViolations = true
+//    //reportsDir = file("$project.buildDir/checkstyleReports")
+//    //configProperties = ['baseDir': "$project.projectDir"]
+//
+//    //https://discuss.gradle.org/t/some-checkstyle-rules-dont-work-in-gradle/16102/4
+//    checkstyleMain {
+//        source = sourceSets.main.allSource
+//    }
+//
+//    configurations {
+//        checkstyle
+//    }
+//
+//    dependencies {
+//        assert project.hasProperty("checkstyleVersion")
+//
+//        checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
+//        checkstyle "com.github.sevntu-checkstyle:sevntu-checks:${sevntuChecksVersion}"
+//    }
+//}
 
 spotless {
     java {
