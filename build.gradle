@@ -92,11 +92,11 @@ test {
     }
 }
 
-configurations.checkstyle {
-    resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
-        select("com.google.guava:guava:0")
-    }
-}
+//configurations.checkstyle {
+//    resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
+//        select("com.google.guava:guava:0")
+//    }
+//}
 
 //checkstyle {
 //    project.ext.checkstyleVersion = '10.13.0'
