@@ -140,7 +140,9 @@ test {
 spotless {
     java {
         targetExclude('build/generated-src/**')
-        googleJavaFormat()
+//        googleJavaFormat()
+        eclipse()
+//        eclipse().configFile(rootProject.file('config/eclipse-formatting.xml'))
     }
 }
 
