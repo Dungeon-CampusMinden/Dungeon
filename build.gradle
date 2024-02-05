@@ -95,6 +95,8 @@ spotless {
     java {
         targetExclude('build/generated-src/**')
         googleJavaFormat()
+//        prettier(['prettier': '3.0.3', 'prettier-plugin-java': '2.3.0'])
+//            .config(['parser': 'java', 'tabWidth': 2, 'plugins': ['prettier-plugin-java']])
     }
 }
 
