@@ -57,11 +57,8 @@ sourceSets.test.resources.srcDirs = ['dungeon/assets/', 'game/test_resources', '
 sourceSets.test.java.srcDirs = ['game/test/', 'dungeon/test']
 sourceSets.main.antlr.srcDirs = ['dungeon/src/dsl/antlr']
 
-project.ext.mainClassName = 'starter.BasicStarter'
-project.ext.assetsDir = new File('game/assets')
-
 application {
-    mainClass = project.mainClassName
+    mainClass = 'starter.BasicStarter'
 }
 
 tasks.register('runRandom', JavaExec) {
@@ -105,35 +102,25 @@ generateGrammarSource {
 }
 
 jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
     manifest {
-        attributes 'Main-Class': project.mainClassName
+        attributes 'Main-Class': 'starter.BasicStarter'
     }
-
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*module-info.class'
 }
 
 tasks.register('starterJar', Jar) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
     manifest {
         attributes 'Main-Class': 'starter/Starter'
     }
-
     archiveFileName = 'Starter.jar'
-
     from sourceSets.main.output
+}
 
+tasks.withType(Jar).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*module-info.class'
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
-
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*module-info.class'
 }
 
 // MANUAL TESTS:
