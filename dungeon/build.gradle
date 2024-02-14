@@ -54,12 +54,15 @@ tasks.register('runRoomBasedDungeon', JavaExec) {
 
 // create our Starter.jar
 tasks.register('buildStarterJar', Jar) {
+    dependsOn ':game:jar'
+
     manifest {
-        attributes 'Main-Class': 'starter/Starter'
+        attributes 'Main-Class': 'starter.Starter'
     }
     archiveFileName = 'Starter.jar'
 
     from sourceSets.main.output
+    from project(":game").sourceSets.main.output
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
