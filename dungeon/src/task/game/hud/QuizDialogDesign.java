@@ -95,15 +95,17 @@ public class QuizDialogDesign {
     VerticalGroup vg = new VerticalGroup();
 
     switch (questionContent.type()) {
-      case TEXT -> vg.addActor(
-          DialogDesign.createScrollPane(
-              skin, new Label(UIUtils.formatString(questionContent.content()), skin)));
-      case IMAGE -> vg.addActor(
-          DialogDesign.createScrollPane(
-              skin,
-              questionContent
-                  .image()
-                  .orElse(new Image(new Texture("animation/missing_texture.png")))));
+      case TEXT ->
+          vg.addActor(
+              DialogDesign.createScrollPane(
+                  skin, new Label(UIUtils.formatString(questionContent.content()), skin)));
+      case IMAGE ->
+          vg.addActor(
+              DialogDesign.createScrollPane(
+                  skin,
+                  questionContent
+                      .image()
+                      .orElse(new Image(new Texture("animation/missing_texture.png")))));
 
       case TEXT_AND_IMAGE -> {
         vg.addActor(
