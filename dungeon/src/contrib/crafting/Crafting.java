@@ -3,6 +3,7 @@ package contrib.crafting;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
+import core.utils.components.path.SimpleIPath;
 import core.utils.files.FileSystemUtil;
 import core.utils.logging.CustomLogLevel;
 import java.io.BufferedReader;
@@ -91,7 +92,7 @@ public final class Crafting {
    */
   public static void loadRecipes() {
     FileSystemUtil.searchAssetFilesInSubdirectories(
-        "/recipes",
+        new SimpleIPath("/recipes"),
         new SimpleFileVisitor<>() {
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {

@@ -339,7 +339,7 @@ public final class DrawComponent implements Component {
   private void loadAnimationAssets(final IPath path) {
     final Map<String, List<IPath>> subdirectoryMap = new HashMap<>();
     FileSystemUtil.searchAssetFilesInSubdirectories(
-        path.pathString(),
+        path,
         new SimpleFileVisitor<>() {
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {

@@ -1,5 +1,6 @@
 package core.utils.files;
 
+import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -66,20 +67,22 @@ public class FileSystemUtil {
    * specify yourself what should happen to the files found, for example mapping them into another
    * structure or reading them to use them in the game.
    *
-   * @param pathToDirectory is a {@link String} relative to the root asset directory of the game to
+   * @param pathToDirectory is a {@link IPath} relative to the root asset directory of the game to
    *     search.
    * @param visitor is a {@link SimpleFileVisitor} for {@link Path}, which is called for each file
    *     or folder found.
    */
   public static void searchAssetFilesInSubdirectories(
-      final String pathToDirectory, final SimpleFileVisitor<Path> visitor) {
+      final IPath pathToDirectory, final SimpleFileVisitor<Path> visitor) {
     try {
       if (isStartedInJUnitTest()) {
         // inside JUnit test
         Files.walkFileTree(
             Paths.get(
                 Objects.requireNonNull(
-                        Thread.currentThread().getContextClassLoader().getResource(pathToDirectory))
+                        Thread.currentThread()
+                            .getContextClassLoader()
+                            .getResource(pathToDirectory.pathString()))
                     .toURI()
                     .normalize()),
             visitor);
@@ -87,11 +90,11 @@ public class FileSystemUtil {
         // inside JAR file
         try (FileSystem fileSystem =
             FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
-          Files.walkFileTree(fileSystem.getPath(pathToDirectory), visitor);
+          Files.walkFileTree(fileSystem.getPath(pathToDirectory.pathString()), visitor);
         }
       } else {
         // normal filesystem, e.g. in IDE
-        Files.walkFileTree(Paths.get(pathToDirectory), visitor);
+        Files.walkFileTree(Paths.get(pathToDirectory.pathString()), visitor);
       }
     } catch (IOException | URISyntaxException e) {
       throw new RuntimeException(e);
