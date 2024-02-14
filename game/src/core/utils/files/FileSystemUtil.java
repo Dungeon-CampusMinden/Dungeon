@@ -20,12 +20,12 @@ public class FileSystemUtil {
    * This instance constant can be used to determine from where the game was started, or for reading
    * single files.
    */
-  public static final Object DUMMY_INST = new FileSystemUtil();
+  private static final Object HELPER_INST = new FileSystemUtil();
 
   private static boolean isStartedInJarFile() {
     try {
       return Objects.requireNonNull(
-              DUMMY_INST.getClass().getResource(DUMMY_INST.getClass().getSimpleName() + ".class"))
+              HELPER_INST.getClass().getResource(HELPER_INST.getClass().getSimpleName() + ".class"))
           .toURI()
           .getScheme()
           .equals("jar");
@@ -48,9 +48,9 @@ public class FileSystemUtil {
       return new URI(
           Objects.requireNonNull(
               Objects.requireNonNull(
-                      DUMMY_INST
+                      HELPER_INST
                           .getClass()
-                          .getResource(DUMMY_INST.getClass().getSimpleName() + ".class"))
+                          .getResource(HELPER_INST.getClass().getSimpleName() + ".class"))
                   .toURI()
                   .toURL()
                   .toExternalForm()));
