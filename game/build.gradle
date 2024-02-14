@@ -14,12 +14,12 @@ dependencies {
     api supportDependencies.gdx_ai
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation supportDependencies.gson
+    api supportDependencies.gson
 
     // JUnit 4, Mockito and Powermock for testing:
     // https://mvnrepository.com/artifact/junit/junit
-    testImplementation supportDependencies.junit
-    testImplementation supportDependencies.mockito_core
+    api supportDependencies.junit
+    api supportDependencies.mockito_core
 }
 
 
