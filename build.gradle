@@ -2,9 +2,12 @@ buildscript {
     apply from: 'dependencies.gradle'
 }
 
+
 plugins {
-    id "com.diffplug.spotless" version "6.23.3"
+    id 'com.diffplug.spotless' version "${spotlessVersion}"
+    id 'com.github.ben-manes.versions' version "${benmanesVersion}"
 }
+
 
 allprojects {
     apply plugin: 'java'
@@ -16,27 +19,19 @@ allprojects {
         sourceCompatibility = JavaVersion.VERSION_21
     }
 
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
     repositories {
-        mavenCentral();
+        mavenCentral()
     }
 
     tasks.withType(JavaExec).configureEach {
-        dependsOn 'classes'
+        dependsOn classes
         standardInput = System.in
         ignoreExitValue true
-        doFirst {
-            println("OS: " + System.properties['os.name'])
-        }
-        if (System.properties['os.name'].toLowerCase().contains('mac')) {
-            jvmArgs('-XstartOnFirstThread')
-        }
     }
-
 }
 
-repositories {
-    mavenCentral()
-}
 
 <<<<<<< HEAD
 <<<<<<< HEAD

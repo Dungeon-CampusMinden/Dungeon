@@ -1,26 +1,33 @@
-import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-
 plugins {
     id 'java-library'
     id 'antlr'
 }
 
+
 dependencies {
     api project(":game")
-
-    testImplementation supportDependencies.junit
-    testImplementation supportDependencies.mockito_core
 
     // ANTLR version 4 for DSL Grammar
     antlr supportDependencies.antlr
 }
 
-sourceSets.main.java.srcDirs = ["src/", "$projectDir/build/generated-src/antlr/main/"]
-sourceSets.test.java.srcDirs = ["test/"]
-sourceSets.main.resources.srcDirs = ["assets/"]
-sourceSets.test.resources.srcDirs = ["test_resources/", "assets/"]
-sourceSets.main.antlr.srcDirs = ["src/dsl/antlr"]
 
+sourceSets.main.java.srcDirs = ['src/', "$projectDir/build/generated-src/antlr/main/"]
+sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
+sourceSets.test.resources.srcDirs = ['test_resources/', 'assets/']
+
+sourceSets.main.antlr.srcDirs = ['src/dsl/antlr']
+
+
+// store name of method parameter names in .class files (used to build
+// DSL-adapter types, which contain the names of the parameters as members)
+tasks.withType(JavaCompile).configureEach {
+    configure(options) {
+        options.compilerArgs << '-parameters'
+    }
+}
 
 // generate ANTLR visitor and listener classes from grammar
 generateGrammarSource {
@@ -28,46 +35,56 @@ generateGrammarSource {
     arguments += ["-visitor", "-listener" ]
 }
 
-tasks.register('start', JavaExec) {
-    mainClass = "starter.Starter"
+
+// start the dungeon (different configurations)
+tasks.register('runStarter', JavaExec) {
+    mainClass = 'starter.Starter'
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('starterJar', org.gradle.jvm.tasks.Jar) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+tasks.register('runRandomDungeon', JavaExec) {
+    mainClass = 'starter.RandomDungeon'
+    classpath = sourceSets.main.runtimeClasspath
+}
 
+tasks.register('runRoomBasedDungeon', JavaExec) {
+    mainClass = 'starter.RoomBasedDungeon'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+// create our Starter.jar
+tasks.register('buildStarterJar', Jar) {
     manifest {
-        attributes 'Main-Class': "starter/Starter"
+        attributes 'Main-Class': 'starter/Starter'
     }
-
     archiveFileName = 'Starter.jar'
 
     from sourceSets.main.output
-
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', "META-INF/*module-info.class"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*module-info.class'
 }
 
-tasks.register('runManualQuizTest', JavaExec) {
-    mainClass = "manual.quizquestion.QuizQuestionUITest"
+// some manual tests (wtf? this should be real tests! to be removed.)
+tasks.register('runCallbackTest', JavaExec) {
+    mainClass = 'manual.quizquestion.CallbackTest'
     classpath = sourceSets.test.runtimeClasspath
 }
 
-tasks.register('runCallbackTest', JavaExec) {
-    mainClass = "manual.quizquestion.CallbackTest"
+tasks.register('runManualQuizTest', JavaExec) {
+    mainClass = 'manual.quizquestion.QuizQuestionUITest'
     classpath = sourceSets.test.runtimeClasspath
 }
 
 tasks.register('runTaskGenerationTest', JavaExec) {
-    mainClass = "manual.taskgeneration.TaskGenerationTest"
+    mainClass = 'manual.taskgeneration.TaskGenerationTest'
     classpath = sourceSets.test.runtimeClasspath
 }
 
-tasks.withType(JavaCompile).configureEach {
-    configure(options) {
-        options.compilerArgs << '-parameters'
-    }
+tasks.register('runYesNoDialogTest', JavaExec) {
+    mainClass = 'manual.YesNoDialogTest'
+    classpath = sourceSets.test.runtimeClasspath
 }

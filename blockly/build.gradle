@@ -1,14 +1,12 @@
-plugins {
-    id 'java'
-}
-
 dependencies {
     implementation project(":dungeon")
 }
 
-sourceSets.main.java.srcDirs = ["src/"]
 
-tasks.register('run', JavaExec) {
-    mainClass = "client.Client"
+sourceSets.main.java.srcDirs = ['src/']
+
+
+tasks.register('runBlockly', JavaExec) {
+    mainClass = 'client.Client'
     classpath = sourceSets.main.runtimeClasspath
 }

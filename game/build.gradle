@@ -1,93 +1,42 @@
-import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-
 plugins {
     id 'java-library'
 }
 
+
 dependencies {
     // LibGDX
-
     api supportDependencies.gdx
     api supportDependencies.gdx_freetype
     api supportDependencies.gdx_backend_lwjgl3
+    api supportDependencies.gdx_lwjgl3_glfw_awt_macos
     api supportDependencies.gdx_platform
     api supportDependencies.gdx_freetype_platform
     api supportDependencies.gdx_ai
+
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation supportDependencies.gson
 
     // JUnit 4, Mockito and Powermock for testing:
     // https://mvnrepository.com/artifact/junit/junit
     testImplementation supportDependencies.junit
     testImplementation supportDependencies.mockito_core
-
-    // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    implementation supportDependencies.gson
-}
-
-// store name of method parameter names in .class files (used to build
-// DSL-adapter types, which contain the names of the parameters as members)
-tasks.withType(JavaCompile) {
-    configure(options) {
-        options.compilerArgs << '-parameters'
-    }
 }
 
 
-sourceSets.main.java.srcDirs = ["src/"]
-sourceSets.test.java.srcDirs = ["test/"]
-sourceSets.main.resources.srcDirs = ["assets/"]
-sourceSets.test.resources.srcDirs = ["test_resources/"]
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
 
-tasks.register('run', JavaExec) {
-    mainClass = "starter.RoomBasedDungeon"
+sourceSets.test.java.srcDirs = ['test/']
+sourceSets.test.resources.srcDirs = ['test_resources/']
+
+
+tasks.register('runBasicStarter', JavaExec) {
+    mainClass = "starter.BasicStarter"
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('debug', JavaExec) {
+tasks.register('debugBasicStarter', JavaExec) {
     mainClass = "starter.RoomBasedDungeon"
     classpath = sourceSets.main.runtimeClasspath
     debug = true
-}
-
-tasks.register('runRandomDungeon', JavaExec) {
-    mainClass = "starter.RandomDungeon"
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-tasks.register('debugRandomDungeon', JavaExec) {
-    mainClass = "starter.RandomDungeon"
-    classpath = sourceSets.main.runtimeClasspath
-    debug = true
-}
-
-tasks.register('runYesNoDialogTest', JavaExec) {
-    mainClass = "manual.YesNoDialogTest"
-    classpath = sourceSets.test.runtimeClasspath
-}
-
-tasks.register('jarRandomDungeon', org.gradle.jvm.tasks.Jar) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes 'Main-Class': 'starter.RandomDungeon'
-    }
-
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', "META-INF/*module-info.class"
-}
-
-tasks.register('jarRoomBasedDungeon', org.gradle.jvm.tasks.Jar) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes 'Main-Class': 'starter.RoomBasedDungeon'
-    }
-
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', "META-INF/*module-info.class"
 }
