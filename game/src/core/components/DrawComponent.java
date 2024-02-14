@@ -352,9 +352,16 @@ public final class DrawComponent implements Component {
             return FileVisitResult.CONTINUE;
           }
         });
+    // A Map with sorted values (IPath lists) in natural string order (ascending)
     animationMap =
         subdirectoryMap.entrySet().stream()
             .collect(
-                Collectors.toMap(Map.Entry::getKey, x -> Animation.fromCollection(x.getValue())));
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    x ->
+                        Animation.fromCollection(
+                            x.getValue().stream()
+                                .sorted(Comparator.comparing(IPath::pathString))
+                                .toList())));
   }
 }
