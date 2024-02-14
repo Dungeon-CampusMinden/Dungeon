@@ -1,6 +1,7 @@
 package core.utils.files;
 
 import core.utils.components.path.IPath;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -16,8 +17,8 @@ import java.util.Objects;
 
 /** This class contains utility methods for working with files and directories. */
 public class FileSystemUtil {
-  // This instance constant can be used to determine from where the game was started, or for reading
-  // single files.
+  // This instance constant can be used to determine from where the game was started.
+  @SuppressWarnings("InstantiationOfUtilityClass")
   private static final Object HELPER_INST = new FileSystemUtil();
 
   private static boolean isStartedInJarFile() {
@@ -93,6 +94,38 @@ public class FileSystemUtil {
       } else {
         // normal filesystem, e.g. in IDE
         Files.walkFileTree(Paths.get(pathToDirectory.pathString()), visitor);
+      }
+    } catch (IOException | URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Returns a simple {@link File} that is located within the resource directory.
+   *
+   * @param filePath the path to the resource file, relative to the asset directory root
+   * @return a simple {@link File} that is located within the resource directory
+   */
+  public static File getSingleFile(final IPath filePath) {
+    try {
+      if (isStartedInJUnitTest()) {
+        // inside JUnit test
+        return new File(
+            Objects.requireNonNull(
+                    Thread.currentThread()
+                        .getContextClassLoader()
+                        .getResource(filePath.pathString()))
+                .toURI()
+                .normalize());
+      } else if (isStartedInJarFile()) {
+        // inside JAR file
+        try (FileSystem fileSystem =
+            FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
+          return fileSystem.getPath(filePath.pathString()).toFile();
+        }
+      } else {
+        // normal filesystem, e.g. in IDE
+        return new File(filePath.pathString());
       }
     } catch (IOException | URISyntaxException e) {
       throw new RuntimeException(e);
