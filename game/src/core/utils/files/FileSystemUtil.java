@@ -16,10 +16,8 @@ import java.util.Objects;
 
 /** This class contains utility methods for working with files and directories. */
 public class FileSystemUtil {
-  /**
-   * This instance constant can be used to determine from where the game was started, or for reading
-   * single files.
-   */
+  // This instance constant can be used to determine from where the game was started, or for reading
+  // single files.
   private static final Object HELPER_INST = new FileSystemUtil();
 
   private static boolean isStartedInJarFile() {
