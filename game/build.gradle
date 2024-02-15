@@ -36,7 +36,7 @@ tasks.register('runBasicStarter', JavaExec) {
 }
 
 tasks.register('debugBasicStarter', JavaExec) {
-    mainClass = "starter.RoomBasedDungeon"
+    mainClass = "starter.BasicStarter"
     classpath = sourceSets.main.runtimeClasspath
     debug = true
 }
