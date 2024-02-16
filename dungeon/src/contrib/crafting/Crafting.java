@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  * <p>It will load the recipes from the files via {@link #loadRecipes()}. Recipes have to be in the
  * 'assets/recipes' directory. This will automatically happen at program start.
  */
-public final class Crafting {
+public class Crafting {
   private static final HashSet<Recipe> RECIPES = new HashSet<>();
   private static final Logger LOGGER = Logger.getLogger(Crafting.class.getSimpleName());
 
@@ -92,7 +92,7 @@ public final class Crafting {
    */
   public static void loadRecipes() {
     //noinspection InstantiationOfUtilityClass
-    final FileSystemUtil helper = new FileSystemUtil();
+    final Object caller = new FileSystemUtil();
     FileSystemUtil.searchAssetFilesInSubdirectories(
         new SimpleIPath("/recipes"),
         new SimpleFileVisitor<>() {
@@ -102,12 +102,13 @@ public final class Crafting {
               RECIPES.add(
                   Objects.requireNonNull(
                       parseRecipe(
-                          helper.getClass().getResourceAsStream(file.toString()),
+                          caller.getClass().getResourceAsStream(file.toString()),
                           file.toString())));
             }
             return FileVisitResult.CONTINUE;
           }
-        });
+        },
+        caller);
   }
 
   /**
