@@ -2,168 +2,42 @@ buildscript {
     apply from: 'dependencies.gradle'
 }
 
+
 plugins {
-    id 'application'
     id 'com.diffplug.spotless' version "${spotlessVersion}"
-    id 'antlr'
     id 'com.github.ben-manes.versions' version "${benmanesVersion}"
-    // use: gradlew dependencyUpdates -Drevision=release
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+
+allprojects {
+    apply plugin: 'java'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+        sourceCompatibility = JavaVersion.VERSION_21
     }
-    sourceCompatibility = JavaVersion.VERSION_21
-}
 
-// store name of method parameter names in .class files (used to build
-// DSL-adapter types, which contain the names of the parameters as members)
-tasks.withType(JavaCompile).configureEach {
-    configure(options) {
-        options.compilerArgs << '-parameters'
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+    repositories {
+        mavenCentral()
     }
-}
 
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    // LibGDX
-    implementation supportDependencies.gdx
-    implementation supportDependencies.gdx_freetype
-    implementation supportDependencies.gdx_backend_lwjgl3
-    implementation supportDependencies.gdx_lwjgl3_glfw_awt_macos
-    implementation supportDependencies.gdx_platform
-    implementation supportDependencies.gdx_freetype_platform
-    implementation supportDependencies.gdx_ai
-
-    // Gson
-    implementation supportDependencies.gson
-
-    // JUnit 4 and Mockito for testing
-    testImplementation supportDependencies.junit
-    testImplementation supportDependencies.mockito_core
-
-    // ANTLR version 4 for DSL Grammar
-    antlr supportDependencies.antlr
-}
-
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-sourceSets.main.java.srcDirs = ['game/src/', 'dungeon/src/', 'blockly/src/', "$projectDir/build/generated-src/"]
-sourceSets.main.resources.srcDirs = ['game/assets/', 'dungeon/assets/', 'blockly/assets/']
-sourceSets.test.resources.srcDirs = ['dungeon/assets/', 'game/test_resources', 'dungeon/test_resources']
-sourceSets.test.java.srcDirs = ['game/test/', 'dungeon/test']
-sourceSets.main.antlr.srcDirs = ['dungeon/src/dsl/antlr']
-
-application {
-    mainClass = 'starter.BasicStarter'
-}
-
-tasks.register('runRandom', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'starter.RandomDungeon'
-}
-
-tasks.register('start', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'starter.Starter'
-}
-
-tasks.register('blockly', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'client.Client'
-}
-
-tasks.register('debug', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'starter.BasicStarter'
-    debug = true
-}
-
-test {
-    testLogging {
-        events 'passed', 'skipped', 'failed'
+    tasks.withType(JavaExec).configureEach {
+        dependsOn classes
+        standardInput = System.in
+        ignoreExitValue true
     }
 }
+
 
 spotless {
     java {
         targetExclude('build/generated-src/**')
         googleJavaFormat()
+
+        target '**/*.java'
     }
-}
-
-// generate ANTLR visitor and listener classes from grammar:
-generateGrammarSource {
-    maxHeapSize = '64m'
-    arguments += ['-visitor', '-listener']
-}
-
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes 'Main-Class': 'starter.BasicStarter'
-    }
-
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*module-info.class'
-}
-
-tasks.register('starterJar', Jar) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes 'Main-Class': 'starter/Starter'
-    }
-
-    archiveFileName = 'Starter.jar'
-
-    from sourceSets.main.output
-
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*module-info.class'
-}
-
-// MANUAL TESTS:
-
-tasks.register('runManualQuizTest', JavaExec) {
-    mainClass = 'manual.quizquestion.QuizQuestionUITest'
-    classpath = sourceSets.test.runtimeClasspath
-}
-
-tasks.register('runYesNoDialogTest', JavaExec) {
-    mainClass = 'manual.YesNoDialogTest'
-    classpath = sourceSets.test.runtimeClasspath
-}
-
-tasks.register('runCallbackTest', JavaExec) {
-    mainClass = 'manual.quizquestion.CallbackTest'
-    classpath = sourceSets.test.runtimeClasspath
-}
-
-tasks.register('runLoaderTest', JavaExec) {
-    mainClass = 'manual.dslFileReader.DslFileReaderTest'
-    classpath = sourceSets.test.runtimeClasspath
-}
-
-tasks.register('taskGenerationTest', JavaExec) {
-    mainClass = 'manual.taskgeneration.TaskGenerationTest'
-    classpath = sourceSets.test.runtimeClasspath
-}
-
-// Add default arguments to all JavaExec tasks:
-
-tasks.withType(JavaExec).configureEach {
-    dependsOn classes
-    standardInput = System.in
-    ignoreExitValue true
 }

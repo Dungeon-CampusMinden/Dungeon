@@ -1,8 +1,8 @@
 package task.tasktype;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
+import dsl.annotation.DSLType;
+import dsl.annotation.DSLTypeMember;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

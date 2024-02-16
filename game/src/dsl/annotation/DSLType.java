@@ -1,6 +1,5 @@
-package dsl.semanticanalysis.typesystem.typebuilding.annotation;
+package dsl.annotation;
 
-import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,7 +10,7 @@ import java.lang.annotation.Target;
 public @interface DSLType {
   /**
    * The name to use for the corresponding DSL data type. If it is not set, the original class name
-   * will be converted by {@link TypeBuilder}
+   * will be converted by TypeBuilder.
    *
    * @return
    */

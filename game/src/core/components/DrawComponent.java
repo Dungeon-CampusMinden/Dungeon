@@ -6,6 +6,7 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.CustomLogLevel;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -344,10 +345,37 @@ public final class DrawComponent implements Component {
    *
    * <p>Checks if the game is running in a JAR or not and will execute the corresponding loading
    * logic.
+   *
+   * <p>TODO: This is only a quick fix! We need to implement a proper way of loading assets. (See <a
+   * href="https://github.com/Dungeon-CampusMinden/Dungeon/issues/1361">Issue #1361</a>)
    */
   private void loadAnimationAssets(final IPath path) throws IOException {
+
+    Thread thread = Thread.currentThread();
+    StackTraceElement[] stack = thread.getStackTrace();
+
+    StackTraceElement currentElement = null;
+    Class<?> clazz = null;
+    for (int i = 1; i < stack.length; i++) {
+      currentElement = stack[i];
+      if (!currentElement.getClassName().equals(DrawComponent.class.getName())) {
+        try {
+          clazz = ClassLoader.getSystemClassLoader().loadClass(currentElement.getClassName());
+        } catch (ClassNotFoundException e) {
+          System.err.println(
+              "Could not load class " + currentElement.getClassName() + " from stacktrace.");
+        }
+        break;
+      }
+    }
+
     File jarFile =
-        new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        new File(
+            (clazz == null ? getClass() : clazz)
+                .getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .getPath());
     if (jarFile.isFile()) loadAnimationsFromJar(path, jarFile);
     else loadAnimationsFromIDE(path);
   }
@@ -441,12 +469,18 @@ public final class DrawComponent implements Component {
     URL url = DrawComponent.class.getResource("/" + path.pathString());
     if (url != null) {
       try {
-        File apps = new File(url.toURI());
-        animationMap =
-            Arrays.stream(Objects.requireNonNull(apps.listFiles()))
-                .filter(File::isDirectory)
-                .collect(Collectors.toMap(File::getName, DrawComponent::allFilesFromDirectory));
-      } catch (URISyntaxException ignored) {
+        try {
+          File apps = new File(url.toURI());
+          animationMap =
+              Arrays.stream(Objects.requireNonNull(apps.listFiles()))
+                  .filter(File::isDirectory)
+                  .collect(Collectors.toMap(File::getName, DrawComponent::allFilesFromDirectory));
+        } catch (IllegalArgumentException e) {
+          LOGGER.log(
+              CustomLogLevel.ERROR, "Could not load animations from directory: " + url.toURI(), e);
+        }
+      } catch (URISyntaxException e) {
+        LOGGER.log(CustomLogLevel.ERROR, "Could not load animations from directory", e);
       }
     }
   }

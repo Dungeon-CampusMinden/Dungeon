@@ -4,8 +4,8 @@ import contrib.components.AIComponent;
 import contrib.entities.AIFactory;
 import core.Entity;
 import core.components.DrawComponent;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLContextMember;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
+import dsl.annotation.DSLContextMember;
+import dsl.annotation.DSLTypeAdapter;
 
 /** Adapter for the {@link AIComponent} to the DSL. */
 public class AIComponentAdapter {

@@ -1,6 +1,5 @@
-package dsl.semanticanalysis.typesystem.typebuilding.annotation;
+package dsl.annotation;
 
-import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -19,7 +18,7 @@ public @interface DSLTypeProperty {
   /**
    * The Java-Class corresponding to the the dsl type, which should be extended by this property.
    *
-   * <p>For {@link AggregateTypeAdapter} instances, this should be the adapter-class.
+   * <p>For AggregateTypeAdapter instances, this should be the adapter-class.
    *
    * @return
    */

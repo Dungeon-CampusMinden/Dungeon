@@ -1,9 +1,9 @@
 package task.dslinterop;
 
 import core.Entity;
+import dsl.annotation.*;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.*;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
