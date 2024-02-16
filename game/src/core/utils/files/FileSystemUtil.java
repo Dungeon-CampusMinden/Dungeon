@@ -3,9 +3,7 @@ package core.utils.files;
 import core.utils.components.path.IPath;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -18,12 +16,10 @@ import java.util.Objects;
 /** This class contains utility methods for working with files and directories. */
 public class FileSystemUtil {
 
-  private static boolean isStartedInJarFile() {
-    //noinspection InstantiationOfUtilityClass
-    final FileSystemUtil helper = new FileSystemUtil();
+  private static boolean isStartedInJarFile(final Object caller) {
     try {
       return Objects.requireNonNull(
-              helper.getClass().getResource(helper.getClass().getSimpleName() + ".class"))
+              caller.getClass().getResource(caller.getClass().getSimpleName() + ".class"))
           .toURI()
           .getScheme()
           .equals("jar");
@@ -41,14 +37,12 @@ public class FileSystemUtil {
     return false;
   }
 
-  private static URI getUriToJarFileEntry() {
-    //noinspection InstantiationOfUtilityClass
-    final FileSystemUtil helper = new FileSystemUtil();
+  private static URI getUriToJarFileEntry(final Object caller) {
     try {
       return new URI(
           Objects.requireNonNull(
               Objects.requireNonNull(
-                      helper.getClass().getResource(helper.getClass().getSimpleName() + ".class"))
+                      caller.getClass().getResource(caller.getClass().getSimpleName() + ".class"))
                   .toURI()
                   .toURL()
                   .toExternalForm()));
@@ -71,7 +65,7 @@ public class FileSystemUtil {
    *     or folder found.
    */
   public static void searchAssetFilesInSubdirectories(
-      final IPath pathToDirectory, final SimpleFileVisitor<Path> visitor) {
+      final IPath pathToDirectory, final SimpleFileVisitor<Path> visitor, final Object caller) {
     if (isStartedInJUnitTest()) {
       // inside JUnit test
       try {
@@ -87,14 +81,11 @@ public class FileSystemUtil {
       } catch (IOException | URISyntaxException e) {
         throw new RuntimeException(e);
       }
-    } else if (isStartedInJarFile()) {
+    } else if (isStartedInJarFile(caller)) {
       // inside JAR file
       try (FileSystem fileSystem =
-          FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
+          FileSystems.newFileSystem(getUriToJarFileEntry(caller), Collections.emptyMap())) {
         Files.walkFileTree(fileSystem.getPath(pathToDirectory.pathString()), visitor);
-        /*
-        NoSuchFileException occurs here, even if was not started inside jar file
-         */
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -114,31 +105,16 @@ public class FileSystemUtil {
    * @param filePath the path to the resource file, relative to the asset directory root
    * @return a simple {@link File} that is located within the resource directory
    */
-  public static File getSingleFile(final IPath filePath) {
-    if (isStartedInJUnitTest()) {
-      // inside JUnit test
-      try {
-        return new File(
-            Objects.requireNonNull(
-                    Thread.currentThread()
-                        .getContextClassLoader()
-                        .getResource(filePath.pathString()))
-                .toURI()
-                .normalize());
-      } catch (URISyntaxException e) {
-        throw new RuntimeException(e);
-      }
-    } else if (isStartedInJarFile()) {
-      // inside JAR file
-      try (FileSystem fileSystem =
-          FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
-        return fileSystem.getPath(filePath.pathString()).toFile();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    } else {
-      // normal filesystem, e.g. in IDE
-      return new File(filePath.pathString());
+  public static File getSingleJUnitFile(final IPath filePath) {
+    // inside JUnit test
+    try {
+      return new File(
+          Objects.requireNonNull(
+                  Thread.currentThread().getContextClassLoader().getResource(filePath.pathString()))
+              .toURI()
+              .normalize());
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
     }
   }
 }
