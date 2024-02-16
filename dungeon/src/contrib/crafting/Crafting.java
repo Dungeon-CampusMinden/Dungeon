@@ -91,7 +91,8 @@ public final class Crafting {
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    final FileSystemUtil HELPER_INST = new FileSystemUtil();
+    //noinspection InstantiationOfUtilityClass
+    final FileSystemUtil helper = new FileSystemUtil();
     FileSystemUtil.searchAssetFilesInSubdirectories(
         new SimpleIPath("/recipes"),
         new SimpleFileVisitor<>() {
@@ -101,7 +102,7 @@ public final class Crafting {
               RECIPES.add(
                   Objects.requireNonNull(
                       parseRecipe(
-                          HELPER_INST.getClass().getResourceAsStream(file.toString()),
+                          helper.getClass().getResourceAsStream(file.toString()),
                           file.toString())));
             }
             return FileVisitResult.CONTINUE;
