@@ -86,7 +86,7 @@ public class TestDslFileLoader {
 
   @Test
   public void fileToString() {
-    File f = FileSystemUtil.getSingleFile(new SimpleIPath(PATH_TO_DNGFILE.toString()));
+    File f = FileSystemUtil.getSingleJUnitFile(new SimpleIPath(PATH_TO_DNGFILE.toString()));
     String expectedContent =
         "some test text."
             + System.lineSeparator()
