@@ -16,7 +16,7 @@ sourceSets.main.java.srcDirs = ['src/', "$projectDir/build/generated-src/antlr/m
 sourceSets.main.resources.srcDirs = ['assets/', {project(':game').sourceSets.main.resources.srcDirs}]
 
 sourceSets.test.java.srcDirs = ['test/']
-sourceSets.test.resources.srcDirs = ['test_resources/', 'assets/']
+sourceSets.test.resources.srcDirs = ['test_resources/']
 
 sourceSets.main.antlr.srcDirs = ['src/dsl/antlr']
 
