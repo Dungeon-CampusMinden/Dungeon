@@ -17,14 +17,13 @@ import java.util.Objects;
 
 /** This class contains utility methods for working with files and directories. */
 public class FileSystemUtil {
-  // This instance constant can be used to determine from where the game was started.
-  @SuppressWarnings("InstantiationOfUtilityClass")
-  private static final Object HELPER_INST = new FileSystemUtil();
 
   private static boolean isStartedInJarFile() {
+    //noinspection InstantiationOfUtilityClass
+    final FileSystemUtil helper = new FileSystemUtil();
     try {
       return Objects.requireNonNull(
-              HELPER_INST.getClass().getResource(HELPER_INST.getClass().getSimpleName() + ".class"))
+              helper.getClass().getResource(helper.getClass().getSimpleName() + ".class"))
           .toURI()
           .getScheme()
           .equals("jar");
@@ -43,13 +42,13 @@ public class FileSystemUtil {
   }
 
   private static URI getUriToJarFileEntry() {
+    //noinspection InstantiationOfUtilityClass
+    final FileSystemUtil helper = new FileSystemUtil();
     try {
       return new URI(
           Objects.requireNonNull(
               Objects.requireNonNull(
-                      HELPER_INST
-                          .getClass()
-                          .getResource(HELPER_INST.getClass().getSimpleName() + ".class"))
+                      helper.getClass().getResource(helper.getClass().getSimpleName() + ".class"))
                   .toURI()
                   .toURL()
                   .toExternalForm()));
