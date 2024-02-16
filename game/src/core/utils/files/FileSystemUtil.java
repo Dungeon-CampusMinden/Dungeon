@@ -72,9 +72,9 @@ public class FileSystemUtil {
    */
   public static void searchAssetFilesInSubdirectories(
       final IPath pathToDirectory, final SimpleFileVisitor<Path> visitor) {
-    try {
-      if (isStartedInJUnitTest()) {
-        // inside JUnit test
+    if (isStartedInJUnitTest()) {
+      // inside JUnit test
+      try {
         Files.walkFileTree(
             Paths.get(
                 Objects.requireNonNull(
@@ -84,18 +84,27 @@ public class FileSystemUtil {
                     .toURI()
                     .normalize()),
             visitor);
-      } else if (isStartedInJarFile()) {
-        // inside JAR file
-        try (FileSystem fileSystem =
-            FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
-          Files.walkFileTree(fileSystem.getPath(pathToDirectory.pathString()), visitor);
-        }
-      } else {
-        // normal filesystem, e.g. in IDE
-        Files.walkFileTree(Paths.get(pathToDirectory.pathString()), visitor);
+      } catch (IOException | URISyntaxException e) {
+        throw new RuntimeException(e);
       }
-    } catch (IOException | URISyntaxException e) {
-      throw new RuntimeException(e);
+    } else if (isStartedInJarFile()) {
+      // inside JAR file
+      try (FileSystem fileSystem =
+          FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
+        Files.walkFileTree(fileSystem.getPath(pathToDirectory.pathString()), visitor);
+        /*
+        NoSuchFileException occurs here, even if was not started inside jar file
+         */
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      // normal filesystem, e.g. in IDE
+      try {
+        Files.walkFileTree(Paths.get(pathToDirectory.pathString()), visitor);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -106,9 +115,9 @@ public class FileSystemUtil {
    * @return a simple {@link File} that is located within the resource directory
    */
   public static File getSingleFile(final IPath filePath) {
-    try {
-      if (isStartedInJUnitTest()) {
-        // inside JUnit test
+    if (isStartedInJUnitTest()) {
+      // inside JUnit test
+      try {
         return new File(
             Objects.requireNonNull(
                     Thread.currentThread()
@@ -116,18 +125,20 @@ public class FileSystemUtil {
                         .getResource(filePath.pathString()))
                 .toURI()
                 .normalize());
-      } else if (isStartedInJarFile()) {
-        // inside JAR file
-        try (FileSystem fileSystem =
-            FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
-          return fileSystem.getPath(filePath.pathString()).toFile();
-        }
-      } else {
-        // normal filesystem, e.g. in IDE
-        return new File(filePath.pathString());
+      } catch (URISyntaxException e) {
+        throw new RuntimeException(e);
       }
-    } catch (IOException | URISyntaxException e) {
-      throw new RuntimeException(e);
+    } else if (isStartedInJarFile()) {
+      // inside JAR file
+      try (FileSystem fileSystem =
+          FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
+        return fileSystem.getPath(filePath.pathString()).toFile();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      // normal filesystem, e.g. in IDE
+      return new File(filePath.pathString());
     }
   }
 }
