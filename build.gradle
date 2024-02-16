@@ -38,6 +38,6 @@ spotless {
         targetExclude('build/generated-src/**')
         googleJavaFormat()
 
-        target "**/*.java"
+        target '**/*.java'
     }
 }

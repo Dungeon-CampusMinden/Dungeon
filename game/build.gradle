@@ -31,12 +31,12 @@ sourceSets.test.resources.srcDirs = ['test_resources/']
 
 
 tasks.register('runBasicStarter', JavaExec) {
-    mainClass = "starter.BasicStarter"
+    mainClass = 'starter.BasicStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.register('debugBasicStarter', JavaExec) {
-    mainClass = "starter.BasicStarter"
+    mainClass = 'starter.BasicStarter'
     classpath = sourceSets.main.runtimeClasspath
     debug = true
 }

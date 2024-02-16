@@ -5,7 +5,7 @@ plugins {
 
 
 dependencies {
-    api project(":game")
+    api project(':game')
 
     // ANTLR version 4 for DSL Grammar
     antlr supportDependencies.antlr
@@ -31,8 +31,8 @@ tasks.withType(JavaCompile).configureEach {
 
 // generate ANTLR visitor and listener classes from grammar
 generateGrammarSource {
-    maxHeapSize = "64m"
-    arguments += ["-visitor", "-listener" ]
+    maxHeapSize = '64m'
+    arguments += ['-visitor', '-listener' ]
 }
 
 
@@ -62,7 +62,7 @@ tasks.register('buildStarterJar', Jar) {
     archiveFileName = 'Starter.jar'
 
     from sourceSets.main.output
-    from project(":game").sourceSets.main.output
+    from project(':game').sourceSets.main.output
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
