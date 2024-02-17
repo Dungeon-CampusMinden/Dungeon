@@ -109,37 +109,48 @@ public class Starter {
       };
 
   public static void main(String[] args) {
+    // if file names have been supplied on CLI, let's use these
+    // otherwise try to get a file name of a configuration file interactively
+    String[] dslFileNames;
     try {
-      // if file names have been supplied on CLI, let's use these
-      // otherwise try to get a file name of a configuration file interactively
-      String[] dslFileNames = args.length > 0 ? args : new String[] {selectSingleDngFile()};
-
-      // read in DSL-Files
-      Set<DSLEntryPoint> entryPoints = processCLIArguments(dslFileNames);
-
-      // some game Setup
-      configGame();
-      // will load the level to select the task/DSL-Entrypoint on Game start
-      taskSelectorOnSetup(entryPoints);
-
-      // will generate the TaskDependencyGraph, execute the TaskBuilder, generate and set the
-      // Level and generate the PetriNet after the player selected an DSLEntryPoint
-      onEntryPointSelection();
-      startTime = System.currentTimeMillis();
-
-      // let's do this
-      Game.run();
-
+      dslFileNames = args.length > 0 ? args : new String[] {selectSingleDngFile()};
     } catch (NullPointerException | InterruptedException | InvocationTargetException e) {
       // no configuration, so let's abort here
       System.err.println("No .dng file selected. Exiting ...");
+      throw new RuntimeException(e);
+    }
+
+    // read in DSL-Files
+    Set<DSLEntryPoint> entryPoints;
+    try {
+      entryPoints = processCLIArguments(dslFileNames);
     } catch (IOException e) {
       // could not open configuration, so let's abort here
       System.err.println("Couldn't open specified .dng. Exiting ...");
+      throw new RuntimeException(e);
     } catch (ParseException e) {
       // could not find entry points in configuration, so let's abort here
       System.err.println("Couldn't find tasks in .dng. Exiting ...");
+      throw new RuntimeException(e);
     }
+
+    // some game Setup
+    try {
+      configGame();
+    } catch (IOException e) {
+      // some other exception during game config
+      throw new RuntimeException(e);
+    }
+    // will load the level to select the task/DSL-Entrypoint on Game start
+    taskSelectorOnSetup(entryPoints);
+
+    // will generate the TaskDependencyGraph, execute the TaskBuilder, generate and set the
+    // Level and generate the PetriNet after the player selected an DSLEntryPoint
+    onEntryPointSelection();
+    startTime = System.currentTimeMillis();
+
+    // let's do this
+    Game.run();
   }
 
   /*
