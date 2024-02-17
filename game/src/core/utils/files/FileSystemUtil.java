@@ -92,9 +92,6 @@ public class FileSystemUtil {
       try (FileSystem fileSystem =
           FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
         Files.walkFileTree(fileSystem.getPath(pathToDirectory.pathString()), visitor);
-        /*
-        NoSuchFileException occurs here, even if was not started inside jar file
-         */
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
