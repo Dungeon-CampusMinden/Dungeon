@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -133,8 +134,11 @@ public class Starter {
       // no configuration, so let's abort here
       System.err.println("No .dng file selected. Exiting ...");
     } catch (IOException e) {
-      // could not read configuration, so let's abort here
-      System.err.println("Couldn't read specified .dng. Exiting ...");
+      // could not open configuration, so let's abort here
+      System.err.println("Couldn't open specified .dng. Exiting ...");
+    } catch (ParseException e) {
+      // could not find entry points in configuration, so let's abort here
+      System.err.println("Couldn't find tasks in .dng. Exiting ...");
     }
   }
 
@@ -209,11 +213,13 @@ public class Starter {
         });
   }
 
-  private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws IOException {
+  private static Set<DSLEntryPoint> processCLIArguments(String[] args)
+      throws IOException, ParseException {
     Set<DSLEntryPoint> entryPoints = new HashSet<>();
     DSLEntryPointFinder finder = new DSLEntryPointFinder();
     DSLFileLoader.processArguments(args)
         .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
+    if (entryPoints.isEmpty()) throw new ParseException("no entry points found", 0);
     return entryPoints;
   }
 
