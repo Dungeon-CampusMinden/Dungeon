@@ -29,11 +29,6 @@ allprojects {
         standardInput = System.in
         ignoreExitValue true
     }
-
-//    tasks.withType(Copy).configureEach {
-//        // for duplicate assets:
-//        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//    }
 }
 
 

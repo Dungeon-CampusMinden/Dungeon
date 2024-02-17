@@ -92,7 +92,7 @@ public class Crafting {
    */
   public static void loadRecipes() {
     //noinspection InstantiationOfUtilityClass
-    final Object caller = new FileSystemUtil();
+    final Crafting helper = new Crafting();
     FileSystemUtil.searchAssetFilesInSubdirectories(
         new SimpleIPath("/recipes"),
         new SimpleFileVisitor<>() {
@@ -102,13 +102,12 @@ public class Crafting {
               RECIPES.add(
                   Objects.requireNonNull(
                       parseRecipe(
-                          caller.getClass().getResourceAsStream(file.toString()),
+                          helper.getClass().getResourceAsStream(file.toString()),
                           file.toString())));
             }
             return FileVisitResult.CONTINUE;
           }
-        },
-        caller);
+        });
   }
 
   /**

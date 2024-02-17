@@ -3,7 +3,9 @@ package core.utils.files;
 import core.utils.components.path.IPath;
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -16,10 +18,12 @@ import java.util.Objects;
 /** This class contains utility methods for working with files and directories. */
 public class FileSystemUtil {
 
-  private static boolean isStartedInJarFile(final Object caller) {
+  private static boolean isStartedInJarFile() {
+    //noinspection InstantiationOfUtilityClass
+    final FileSystemUtil helper = new FileSystemUtil();
     try {
       return Objects.requireNonNull(
-              caller.getClass().getResource(caller.getClass().getSimpleName() + ".class"))
+              helper.getClass().getResource(helper.getClass().getSimpleName() + ".class"))
           .toURI()
           .getScheme()
           .equals("jar");
@@ -37,12 +41,14 @@ public class FileSystemUtil {
     return false;
   }
 
-  private static URI getUriToJarFileEntry(final Object caller) {
+  private static URI getUriToJarFileEntry() {
+    //noinspection InstantiationOfUtilityClass
+    final FileSystemUtil helper = new FileSystemUtil();
     try {
       return new URI(
           Objects.requireNonNull(
               Objects.requireNonNull(
-                      caller.getClass().getResource(caller.getClass().getSimpleName() + ".class"))
+                      helper.getClass().getResource(helper.getClass().getSimpleName() + ".class"))
                   .toURI()
                   .toURL()
                   .toExternalForm()));
@@ -65,7 +71,7 @@ public class FileSystemUtil {
    *     or folder found.
    */
   public static void searchAssetFilesInSubdirectories(
-      final IPath pathToDirectory, final SimpleFileVisitor<Path> visitor, final Object caller) {
+      final IPath pathToDirectory, final SimpleFileVisitor<Path> visitor) {
     if (isStartedInJUnitTest()) {
       // inside JUnit test
       try {
@@ -81,11 +87,14 @@ public class FileSystemUtil {
       } catch (IOException | URISyntaxException e) {
         throw new RuntimeException(e);
       }
-    } else if (isStartedInJarFile(caller)) {
+    } else if (isStartedInJarFile()) {
       // inside JAR file
       try (FileSystem fileSystem =
-          FileSystems.newFileSystem(getUriToJarFileEntry(caller), Collections.emptyMap())) {
+          FileSystems.newFileSystem(getUriToJarFileEntry(), Collections.emptyMap())) {
         Files.walkFileTree(fileSystem.getPath(pathToDirectory.pathString()), visitor);
+        /*
+        NoSuchFileException occurs here, even if was not started inside jar file
+         */
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
