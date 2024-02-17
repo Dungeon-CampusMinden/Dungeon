@@ -19,6 +19,7 @@ import entrypoint.DSLEntryPoint;
 import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
 import graph.TaskGraphConverter;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
@@ -149,6 +150,7 @@ public class Starter {
         () -> {
           JFileChooser fileChooser = new JFileChooser();
           fileChooser.setDialogTitle("Dungeon: Please select a .dng file");
+          fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
           fileChooser.setMultiSelectionEnabled(false);
           fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
           fileChooser.setFileFilter(new FileNameExtensionFilter(".dng file", "dng"));
