@@ -52,7 +52,7 @@ public class DSLFileLoader {
           Set<Path> jarPaths = findDSLFilesInJar(arg);
           foundPaths.addAll(jarPaths);
         } else if (fileName.endsWith(DSL_FILE_ENDING)) {
-          foundPaths.add(path);
+          foundPaths.add(path.toAbsolutePath());
         }
       }
     }
