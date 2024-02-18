@@ -6,10 +6,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
 import core.utils.logging.CustomLogLevel;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -103,6 +100,9 @@ public class Crafting {
     final String dirName = "recipes/";
     try {
       List<URL> resources = getResources(dirName);
+      if (resources.isEmpty()) {
+        throw new FileNotFoundException(dirName);
+      }
       for (URL url : resources) {
         Path file = Paths.get(url.toURI().normalize());
         if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
