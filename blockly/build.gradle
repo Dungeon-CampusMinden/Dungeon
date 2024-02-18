@@ -9,7 +9,7 @@ dependencies {
 
 
 sourceSets.main.java.srcDirs = ['src/']
-sourceSets.main.resources.srcDirs += '../dungeon/assets'
+sourceSets.main.resources.srcDirs += {project(':dungeon').sourceSets.main.resources.srcDirs}
 
 processResources {
     from new File(project(':game').projectDir,    '/assets')
