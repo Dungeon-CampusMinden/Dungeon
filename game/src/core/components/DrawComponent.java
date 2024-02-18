@@ -362,6 +362,9 @@ public final class DrawComponent implements Component {
     try {
       List<URL> resources = new ArrayList<>();
       getResourcesRecursively(path.pathString(), resources);
+      if (resources.isEmpty()) {
+        throw new FileNotFoundException(path.toString());
+      }
       for (URL url : resources) {
         Path file = Paths.get(url.toURI().normalize());
         subdirectoryMap
