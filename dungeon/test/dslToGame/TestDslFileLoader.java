@@ -2,11 +2,10 @@ package dslToGame;
 
 import static org.junit.Assert.*;
 
-import core.utils.components.path.SimpleIPath;
-import core.utils.files.FileSystemUtil;
 import entrypoint.DSLFileLoader;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -85,8 +84,15 @@ public class TestDslFileLoader {
   }
 
   @Test
-  public void fileToString() {
-    File f = FileSystemUtil.getSingleJUnitFile(new SimpleIPath(PATH_TO_DNGFILE.toString()));
+  public void fileToString() throws URISyntaxException {
+    File f =
+        new File(
+            Objects.requireNonNull(
+                    Thread.currentThread()
+                        .getContextClassLoader()
+                        .getResource(PATH_TO_DNGFILE.toString()))
+                .toURI()
+                .normalize());
     String expectedContent =
         "some test text."
             + System.lineSeparator()

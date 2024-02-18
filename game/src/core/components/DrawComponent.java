@@ -1,26 +1,18 @@
 package core.components;
 
+import static java.util.stream.Collectors.toList;
+
 import core.Component;
 import core.systems.VelocitySystem;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import core.utils.files.FileSystemUtil;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -330,6 +322,18 @@ public final class DrawComponent implements Component {
     this.animationMap = new HashMap<>(animationMap);
   }
 
+  // See https://stackoverflow.com/a/28985785
+  public static List<URL> getResources(final String path) throws IOException {
+    final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+    try (final InputStream is = loader.getResourceAsStream(path)) {
+      assert is != null;
+      try (final InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
+          final BufferedReader br = new BufferedReader(isr)) {
+        return br.lines().map(l -> path + "/" + l).map(loader::getResource).collect(toList());
+      }
+    }
+  }
+
   /**
    * Loading animation assets.
    *
@@ -338,20 +342,21 @@ public final class DrawComponent implements Component {
    */
   private void loadAnimationAssets(final IPath path) {
     final Map<String, List<IPath>> subdirectoryMap = new HashMap<>();
-    FileSystemUtil.searchAssetFilesInSubdirectories(
-        path,
-        new SimpleFileVisitor<>() {
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            if (Files.isRegularFile(file)) {
-              subdirectoryMap
-                  .computeIfAbsent(
-                      file.getParent().getFileName().toString(), k -> new ArrayList<>())
-                  .add(new SimpleIPath(file.toString()));
-            }
-            return FileVisitResult.CONTINUE;
-          }
-        });
+    try {
+      List<URL> resources = getResources(path.pathString());
+      System.out.println("resources = " + resources);
+      for (URL url : resources) {
+        Path file = Paths.get(url.toURI().normalize());
+        if (Files.isRegularFile(file)) {
+          subdirectoryMap
+              .computeIfAbsent(file.getParent().getFileName().toString(), k -> new ArrayList<>())
+              .add(new SimpleIPath(file.toString()));
+        }
+      }
+    } catch (Exception e) {
+      System.err.println("File not found: " + path);
+      throw new RuntimeException(e);
+    }
     // A Map with sorted values (IPath lists) in natural string order (ascending)
     animationMap =
         subdirectoryMap.entrySet().stream()

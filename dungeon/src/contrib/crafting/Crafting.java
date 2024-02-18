@@ -1,22 +1,19 @@
 package contrib.crafting;
 
+import static java.util.stream.Collectors.toList;
+
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
-import core.utils.components.path.SimpleIPath;
-import core.utils.files.FileSystemUtil;
 import core.utils.logging.CustomLogLevel;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -85,29 +82,38 @@ public class Crafting {
     RECIPES.clear();
   }
 
+  // See https://stackoverflow.com/a/28985785
+  public static List<URL> getResources(final String path) throws IOException {
+    final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+    try (final InputStream is = loader.getResourceAsStream(path)) {
+      assert is != null;
+      try (final InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
+          final BufferedReader br = new BufferedReader(isr)) {
+        return br.lines().map(l -> path + "/" + l).map(loader::getResource).collect(toList());
+      }
+    }
+  }
+
   /**
    * Load recipes from the recipes' folder.
    *
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    //noinspection InstantiationOfUtilityClass
-    final Crafting helper = new Crafting();
-    FileSystemUtil.searchAssetFilesInSubdirectories(
-        new SimpleIPath("/recipes"),
-        new SimpleFileVisitor<>() {
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
-              RECIPES.add(
-                  Objects.requireNonNull(
-                      parseRecipe(
-                          helper.getClass().getResourceAsStream(file.toString()),
-                          file.toString())));
-            }
-            return FileVisitResult.CONTINUE;
-          }
-        });
+    final String dirName = "recipes";
+    try {
+      List<URL> resources = getResources(dirName);
+      System.out.println("resources = " + resources);
+      for (URL url : resources) {
+        Path file = Paths.get(url.toURI().normalize());
+        if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
+          RECIPES.add(Objects.requireNonNull(parseRecipe(url.openStream(), file.toString())));
+        }
+      }
+    } catch (Exception e) {
+      System.err.println("Dir not found: " + dirName);
+      throw new RuntimeException(e);
+    }
   }
 
   /**
