@@ -4,11 +4,12 @@ plugins {
 
 
 dependencies {
-    implementation project(":dungeon")
+    implementation project(':dungeon')
 }
 
 
 sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs += '../dungeon/assets'
 
 processResources {
     from new File(project(':game').projectDir,    '/assets')
