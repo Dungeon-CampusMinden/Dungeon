@@ -100,10 +100,9 @@ public class Crafting {
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    final String dirName = "recipes";
+    final String dirName = "recipes/";
     try {
       List<URL> resources = getResources(dirName);
-      System.out.println("resources = " + resources);
       for (URL url : resources) {
         Path file = Paths.get(url.toURI().normalize());
         if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
