@@ -9,6 +9,7 @@ import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.*;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -334,6 +335,22 @@ public final class DrawComponent implements Component {
     }
   }
 
+  public static void getResourcesRecursively(final String path, final List<URL> foundList)
+      throws IOException, URISyntaxException {
+    List<URL> resources = getResources(path);
+    for (URL url : resources) {
+      Path file = Paths.get(url.toURI().normalize());
+      if (Files.isRegularFile(file)) {
+        foundList.add(url);
+      } else if (Files.isDirectory(file)) {
+        String relPath = path + "/" + file.getFileName();
+        getResourcesRecursively(relPath, foundList);
+      } else {
+        throw new RuntimeException("Neither file nor directory: " + file);
+      }
+    }
+  }
+
   /**
    * Loading animation assets.
    *
@@ -343,15 +360,13 @@ public final class DrawComponent implements Component {
   private void loadAnimationAssets(final IPath path) {
     final Map<String, List<IPath>> subdirectoryMap = new HashMap<>();
     try {
-      List<URL> resources = getResources(path.pathString());
-      System.out.println("resources = " + resources);
+      List<URL> resources = new ArrayList<>();
+      getResourcesRecursively(path.pathString(), resources);
       for (URL url : resources) {
         Path file = Paths.get(url.toURI().normalize());
-        if (Files.isRegularFile(file)) {
-          subdirectoryMap
-              .computeIfAbsent(file.getParent().getFileName().toString(), k -> new ArrayList<>())
-              .add(new SimpleIPath(file.toString()));
-        }
+        subdirectoryMap
+            .computeIfAbsent(file.getParent().getFileName().toString(), k -> new ArrayList<>())
+            .add(new SimpleIPath(file.toString()));
       }
     } catch (Exception e) {
       System.err.println("File not found: " + path);
