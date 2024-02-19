@@ -118,8 +118,7 @@ public final class Crafting {
         }
       }
     } catch (Exception e) {
-      System.err.println("Dir not found: " + dirName);
-      throw new RuntimeException(e);
+      throw new RuntimeException("Dir not found: " + dirName, e);
     }
   }
 
