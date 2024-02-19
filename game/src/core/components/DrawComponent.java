@@ -383,8 +383,7 @@ public final class DrawComponent implements Component {
             .add(new SimpleIPath(file.toString()));
       }
     } catch (Exception e) {
-      System.err.println("File not found: " + path);
-      throw new RuntimeException(e);
+      throw new RuntimeException("File not found: " + path, e);
     }
     // A Map with sorted values (IPath lists) in natural string order (ascending)
     animationMap =
