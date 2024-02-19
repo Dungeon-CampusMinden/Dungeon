@@ -79,7 +79,14 @@ public class Crafting {
     RECIPES.clear();
   }
 
-  // See https://stackoverflow.com/a/28985785
+  /**
+   * Retrieves a list of resources located at the specified resource path directory.
+   *
+   * <p>See also <a href="https://stackoverflow.com/a/28985785">StackOverflow question</a>.
+   *
+   * @param path the path directory of the resources
+   * @return a list of URLs representing the resources
+   */
   private static List<URL> getResources(final String path) throws IOException {
     final ClassLoader loader = Thread.currentThread().getContextClassLoader();
     try (final InputStream is = loader.getResourceAsStream(path)) {
