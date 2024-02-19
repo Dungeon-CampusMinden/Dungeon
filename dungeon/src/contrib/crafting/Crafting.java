@@ -80,7 +80,7 @@ public class Crafting {
   }
 
   // See https://stackoverflow.com/a/28985785
-  public static List<URL> getResources(final String path) throws IOException {
+  private static List<URL> getResources(final String path) throws IOException {
     final ClassLoader loader = Thread.currentThread().getContextClassLoader();
     try (final InputStream is = loader.getResourceAsStream(path)) {
       assert is != null;
