@@ -27,7 +27,8 @@ import java.util.logging.Logger;
  * the provided ingredients.
  *
  * <p>It will load the recipes from the files via {@link #loadRecipes()}. Recipes have to be in the
- * 'assets/recipes' directory. This will automatically happen at program start.
+ * 'assets/recipes' directory. This will automatically happen at program start. Call this in your
+ * callback method to load recipes.
  */
 public final class Crafting {
   private static final HashSet<Recipe> RECIPES = new HashSet<>();
