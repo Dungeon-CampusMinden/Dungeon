@@ -99,7 +99,7 @@ public final class DrawComponent implements Component {
     } catch (NullPointerException np) {
       // We convert the "NullPointerException" to a "FileNotFoundException" because the only
       // reason for a NullPointerException is if the directory does not exist.
-      throw new FileNotFoundException("Path " + path.pathString() + " not found.");
+      throw new FileNotFoundException("Path " + path + " not found.");
     }
   }
 
