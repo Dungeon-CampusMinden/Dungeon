@@ -324,7 +324,7 @@ public final class DrawComponent implements Component {
   }
 
   // See https://stackoverflow.com/a/28985785
-  public static List<URL> getResources(final String path) throws IOException {
+  private static List<URL> getResources(final String path) throws IOException {
     final ClassLoader loader = Thread.currentThread().getContextClassLoader();
     try (final InputStream is = loader.getResourceAsStream(path)) {
       assert is != null;
@@ -335,7 +335,7 @@ public final class DrawComponent implements Component {
     }
   }
 
-  public static void getResourcesRecursively(final String path, final List<URL> foundList)
+  private static void getResourcesRecursively(final String path, final List<URL> foundList)
       throws IOException, URISyntaxException {
     List<URL> resources = getResources(path);
     for (URL url : resources) {
