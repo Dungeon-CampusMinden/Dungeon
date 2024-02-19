@@ -323,7 +323,14 @@ public final class DrawComponent implements Component {
     this.animationMap = new HashMap<>(animationMap);
   }
 
-  // See https://stackoverflow.com/a/28985785
+  /**
+   * Retrieves a list of resources located at the specified resource path directory.
+   *
+   * <p>See also <a href="https://stackoverflow.com/a/28985785">StackOverflow question</a>.
+   *
+   * @param path the path directory of the resources
+   * @return a list of URLs representing the resources
+   */
   private static List<URL> getResources(final String path) throws IOException {
     final ClassLoader loader = Thread.currentThread().getContextClassLoader();
     try (final InputStream is = loader.getResourceAsStream(path)) {
@@ -335,6 +342,14 @@ public final class DrawComponent implements Component {
     }
   }
 
+  /**
+   * Recursively finds and adds resources to the given list.
+   *
+   * @param path the path to search for resources
+   * @param foundList the list to which found resources will be added
+   * @throws IOException If an I/O error occurs
+   * @throws URISyntaxException If a string could not be parsed as a URI reference
+   */
   private static void getResourcesRecursively(final String path, final List<URL> foundList)
       throws IOException, URISyntaxException {
     List<URL> resources = getResources(path);
