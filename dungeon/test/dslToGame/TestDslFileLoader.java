@@ -85,7 +85,7 @@ public class TestDslFileLoader {
 
   @Test
   public void fileToString() {
-    File f;
+    File f = null;
     try {
       f =
           new File(
