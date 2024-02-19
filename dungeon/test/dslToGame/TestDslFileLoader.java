@@ -84,8 +84,8 @@ public class TestDslFileLoader {
   }
 
   @Test
-  public void fileToString() {
-    File f = null;
+  public void fileToString() throws IOException {
+    File f;
     try {
       f =
           new File(
@@ -96,7 +96,7 @@ public class TestDslFileLoader {
                   .toURI()
                   .normalize());
     } catch (URISyntaxException e) {
-      fail("Invalid path to test resource file: " + PATH_TO_DNGFILE);
+      throw new IOException("Invalid path to test resource file: " + PATH_TO_DNGFILE, e);
     }
     String expectedContent =
         "some test text."
