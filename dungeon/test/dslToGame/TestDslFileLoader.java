@@ -84,15 +84,20 @@ public class TestDslFileLoader {
   }
 
   @Test
-  public void fileToString() throws URISyntaxException {
-    File f =
-        new File(
-            Objects.requireNonNull(
-                    Thread.currentThread()
-                        .getContextClassLoader()
-                        .getResource(PATH_TO_DNGFILE.toString()))
-                .toURI()
-                .normalize());
+  public void fileToString() {
+    File f;
+    try {
+      f =
+          new File(
+              Objects.requireNonNull(
+                      Thread.currentThread()
+                          .getContextClassLoader()
+                          .getResource(PATH_TO_DNGFILE.toString()))
+                  .toURI()
+                  .normalize());
+    } catch (URISyntaxException e) {
+      fail("Invalid path to test resource file: " + PATH_TO_DNGFILE);
+    }
     String expectedContent =
         "some test text."
             + System.lineSeparator()
