@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  * <p>It will load the recipes from the files via {@link #loadRecipes()}. Recipes have to be in the
  * 'assets/recipes' directory. This will automatically happen at program start.
  */
-public class Crafting {
+public final class Crafting {
   private static final HashSet<Recipe> RECIPES = new HashSet<>();
   private static final Logger LOGGER = Logger.getLogger(Crafting.class.getSimpleName());
 
