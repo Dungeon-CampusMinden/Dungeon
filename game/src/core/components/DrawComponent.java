@@ -366,12 +366,8 @@ public final class DrawComponent implements Component {
     }
   }
 
-  /**
-   * Loading animation assets.
-   *
-   * <p>Checks if the game is running in a JAR or not and will execute the corresponding loading
-   * logic.
-   */
+  // Helper method that loads the animation assets from the given path. Called by the constructor,
+  // the animation map will be constructed from the subdirectories of the given path.
   private void loadAnimationAssets(final IPath path) {
     final Map<String, List<IPath>> subdirectoryMap = new HashMap<>();
     try {
