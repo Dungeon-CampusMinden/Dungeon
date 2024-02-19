@@ -155,7 +155,7 @@ Das folgende Snippet zeigt die Definition eines Entitätstyps, aus dem eine "Rit
 // Definition eines Entitätstyp
 entity_type ritter_typ {
     draw_component {
-        path: "character/knight"
+        path: "character/blue_knight"
     },
     position_component {},
     interaction_component{
@@ -379,7 +379,7 @@ entity_type knight_type {
         on_interacton: interact
     },
     draw_component {
-        path: "character/knight"
+        path: "character/blue_knight"
     },
     position_component{}
 }
