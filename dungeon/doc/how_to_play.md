@@ -17,7 +17,7 @@ An Zauberkesseln ![Zauberkessel](../../game/assets/objects/cauldron/idle/cauldro
 
 ## Deine Quest
 
-Im Level sind verschiedene NPCs (Non-Playable Characters) ![Knight](../../game/assets/character/knight/idle_down/idle_down_knight_1.png) ![Blue Knight](../../dungeon/assets/character/blue_knight/idle_left/knight_m_idle_anim_mirrored_f0.png) verteilt. Wenn du dich ihnen näherst, kannst du mit der Taste "E" mit ihnen reden. Jeder von ihnen wird dir eine Aufgabe stellen, welche du beantworten musst.
+Im Level sind verschiedene NPCs (Non-Playable Characters), z.B. ![Blue Knight](../assets/character/blue_knight/idle_left/knight_m_idle_anim_mirrored_f0.png), verteilt. Wenn du dich ihnen näherst, kannst du mit der Taste "E" mit ihnen reden. Jeder von ihnen wird dir eine Aufgabe stellen, welche du beantworten musst.
 
 Manchmal musst du Items in eine Kiste legen, um deine Antworten abzugeben. Dafür kannst du dir in deinem Inventar die Itembeschreibung anschauen, lege dafür deinen Mauszeiger auf das Item im Inventar. Dort steht, welche Antwort das Item ist und zu welcher Aufgabe das Item gehört.
 Die Kisten, in die du die Items legen sollst, sind ebenfalls im HUD beschrieben. Gehe dafür einfach zu einer Kiste hin und drücke "E". Wenn es sich um eine Questkiste handelt, wird die Aufgabe im Namen der Kiste angezeigt.
