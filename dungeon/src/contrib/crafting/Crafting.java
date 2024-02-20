@@ -81,16 +81,15 @@ public final class Crafting {
   public static void loadRecipes() {
     final String dirName = "recipes/";
     try {
-      FileSystemUtil.visitResources(
+      core.components.FileSystemUtil.visitResources(
           dirName,
           new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                 throws IOException {
-              if (file.toString().endsWith(".recipe")) {
-                System.out.println("file = " + file);
-                Recipe recipe = parseRecipe(file.toUri().toURL().openStream(), file.toString());
-                System.out.println("recipe = " + recipe);
+              if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
+                final Recipe recipe =
+                    parseRecipe(file.toUri().toURL().openStream(), file.toString());
                 if (recipe != null) {
                   RECIPES.add(recipe);
                 }
