@@ -1,7 +1,5 @@
 package core.components;
 
-import static java.util.stream.Collectors.toList;
-
 import core.Component;
 import core.systems.VelocitySystem;
 import core.utils.components.draw.Animation;
@@ -9,10 +7,8 @@ import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -323,65 +319,25 @@ public final class DrawComponent implements Component {
     this.animationMap = new HashMap<>(animationMap);
   }
 
-  /**
-   * Retrieves a list of resources located at the specified resource path directory.
-   *
-   * <p>See also <a href="https://stackoverflow.com/a/28985785">StackOverflow question</a>.
-   *
-   * @param path the path directory of the resources
-   * @return a list of URLs representing the resources
-   */
-  private static List<URL> getResources(final String path) throws IOException {
-    final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-    try (final InputStream is = loader.getResourceAsStream(path)) {
-      assert is != null;
-      try (final InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
-          final BufferedReader br = new BufferedReader(isr)) {
-        return br.lines().map(l -> path + "/" + l).map(loader::getResource).collect(toList());
-      }
-    }
-  }
-
-  /**
-   * Recursively finds and adds resources to the given list.
-   *
-   * @param path the path to search for resources
-   * @param foundList the list to which found resources will be added
-   * @throws IOException If an I/O error occurs
-   * @throws URISyntaxException If a string could not be parsed as a URI reference
-   */
-  private static void getResourcesRecursively(final String path, final List<URL> foundList)
-      throws IOException, URISyntaxException {
-    List<URL> resources = getResources(path);
-    for (URL url : resources) {
-      Path file = Paths.get(url.toURI().normalize());
-      if (Files.isRegularFile(file)) {
-        foundList.add(url);
-      } else if (Files.isDirectory(file)) {
-        String relPath = path + "/" + file.getFileName();
-        getResourcesRecursively(relPath, foundList);
-      } else {
-        throw new RuntimeException("Neither file nor directory: " + file);
-      }
-    }
-  }
-
   // Helper method that loads the animation assets from the given path. Called by the constructor,
   // the animation map will be constructed from the subdirectories of the given path.
   private void loadAnimationAssets(final IPath path) {
     final Map<String, List<IPath>> subdirectoryMap = new HashMap<>();
     try {
-      List<URL> resources = new ArrayList<>();
-      getResourcesRecursively(path.pathString(), resources);
-      if (resources.isEmpty()) {
-        throw new FileNotFoundException(path.toString());
-      }
-      for (URL url : resources) {
-        Path file = Paths.get(url.toURI().normalize());
-        subdirectoryMap
-            .computeIfAbsent(file.getParent().getFileName().toString(), k -> new ArrayList<>())
-            .add(new SimpleIPath(file.toString()));
-      }
+      FileSystemUtil.visitResources(
+          path.pathString(),
+          new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+              if (Files.isRegularFile(file)) {
+                subdirectoryMap
+                    .computeIfAbsent(
+                        file.getParent().getFileName().toString(), k -> new ArrayList<>())
+                    .add(new SimpleIPath(file.toString()));
+              }
+              return FileVisitResult.CONTINUE;
+            }
+          });
     } catch (Exception e) {
       throw new RuntimeException("File not found: " + path, e);
     }

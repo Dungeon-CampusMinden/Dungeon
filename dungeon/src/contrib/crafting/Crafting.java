@@ -1,22 +1,15 @@
 package contrib.crafting;
 
-import static java.util.stream.Collectors.toList;
-
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
 import core.utils.logging.CustomLogLevel;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -81,25 +74,6 @@ public final class Crafting {
   }
 
   /**
-   * Retrieves a list of resources located at the specified resource path directory.
-   *
-   * <p>See also <a href="https://stackoverflow.com/a/28985785">StackOverflow question</a>.
-   *
-   * @param path the path directory of the resources
-   * @return a list of URLs representing the resources
-   */
-  private static List<URL> getResources(final String path) throws IOException {
-    final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-    try (final InputStream is = loader.getResourceAsStream(path)) {
-      assert is != null;
-      try (final InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
-          final BufferedReader br = new BufferedReader(isr)) {
-        return br.lines().map(l -> path + "/" + l).map(loader::getResource).collect(toList());
-      }
-    }
-  }
-
-  /**
    * Load recipes from the recipes' folder.
    *
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
@@ -107,16 +81,23 @@ public final class Crafting {
   public static void loadRecipes() {
     final String dirName = "recipes/";
     try {
-      List<URL> resources = getResources(dirName);
-      if (resources.isEmpty()) {
-        throw new FileNotFoundException(dirName);
-      }
-      for (URL url : resources) {
-        Path file = Paths.get(url.toURI().normalize());
-        if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
-          RECIPES.add(Objects.requireNonNull(parseRecipe(url.openStream(), file.toString())));
-        }
-      }
+      FileSystemUtil.visitResources(
+          dirName,
+          new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+              if (file.toString().endsWith(".recipe")) {
+                System.out.println("file = " + file);
+                Recipe recipe = parseRecipe(file.toUri().toURL().openStream(), file.toString());
+                System.out.println("recipe = " + recipe);
+                if (recipe != null) {
+                  RECIPES.add(recipe);
+                }
+              }
+              return FileVisitResult.CONTINUE;
+            }
+          });
     } catch (Exception e) {
       throw new RuntimeException("Dir not found: " + dirName, e);
     }
