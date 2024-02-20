@@ -15,8 +15,31 @@ public class FileSystemUtil {
 
   private FileSystemUtil() {}
 
-  public static void visitResources(final String path, final SimpleFileVisitor<Path> visitor)
-      throws Exception {
+  private static boolean isStartedInJUnitTest() {
+    for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+      if (element.getClassName().startsWith("org.junit.")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static void visitResourcesViaJUnit(
+      final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
+    if (!isStartedInJUnitTest()) {
+      throw new IllegalStateException(
+          "FileSystemUtil.visitResourcesViaJUnit can only be used in JUnit tests");
+    }
+    Files.walkFileTree(
+        Paths.get(
+            Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(path))
+                .toURI()
+                .normalize()),
+        visitor);
+  }
+
+  private static void visitResourcesViaContextClassLoader(
+      final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
     final ClassLoader loader = Thread.currentThread().getContextClassLoader();
     try (final InputStream is = loader.getResourceAsStream(path)) {
       assert is != null;
@@ -33,8 +56,7 @@ public class FileSystemUtil {
                   try {
                     final Path path2 =
                         Paths.get(
-                            loader
-                                .getResource(p.replace("//", "/"))
+                            Objects.requireNonNull(loader.getResource(p.replace("//", "/")))
                                 .toExternalForm()
                                 .substring(6)
                                 .replace("%20", " "));
@@ -48,20 +70,74 @@ public class FileSystemUtil {
                   }
                 });
       }
-    } catch (IOException e) {
-      //noinspection InstantiationOfUtilityClass
-      final FileSystemUtil util = new FileSystemUtil();
-      final String jarPath1 =
-          Objects.requireNonNull(
-                  util.getClass().getResource(util.getClass().getSimpleName() + ".class"))
-              .toExternalForm();
-      final String jarPath2 =
-          jarPath1.substring(0, jarPath1.lastIndexOf('!')).replace("game", "dungeon");
-      System.out.println("jarPath2 = " + jarPath2);
-      try (FileSystem fileSystem =
-          FileSystems.newFileSystem(URI.create(jarPath2), Collections.emptyMap())) {
-        Files.walkFileTree(fileSystem.getPath(path), visitor);
-      }
+    }
+  }
+
+  private static void visitResourcesViaGameJarFile(
+      final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
+    //noinspection InstantiationOfUtilityClass
+    final FileSystemUtil util = new FileSystemUtil();
+    final String jarPath1 =
+        Objects.requireNonNull(
+                util.getClass().getResource(util.getClass().getSimpleName() + ".class"))
+            .toExternalForm();
+    String jarPath2 = jarPath1.substring(0, jarPath1.lastIndexOf('!'));
+    if (jarPath2.contains("/dungeon/")) {
+      jarPath2 = jarPath2.replace("/dungeon/", "/game/");
+      jarPath2 = jarPath2.replace("dungeon.jar", "game.jar");
+    }
+    System.out.println("jarPath2 = " + jarPath2);
+    try (FileSystem fileSystem =
+        FileSystems.newFileSystem(URI.create(jarPath2), Collections.emptyMap())) {
+      Files.walkFileTree(fileSystem.getPath(path), visitor);
+    }
+  }
+
+  private static void visitResourcesViaDungeonJarFile(
+      final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
+    //noinspection InstantiationOfUtilityClass
+    final FileSystemUtil util = new FileSystemUtil();
+    final String jarPath1 =
+        Objects.requireNonNull(
+                util.getClass().getResource(util.getClass().getSimpleName() + ".class"))
+            .toExternalForm();
+    String jarPath2 = jarPath1.substring(0, jarPath1.lastIndexOf('!'));
+    if (jarPath2.contains("/game/")) {
+      jarPath2 = jarPath2.replace("/game/", "/dungeon/");
+      jarPath2 = jarPath2.replace("game.jar", "dungeon.jar");
+    }
+    System.out.println("jarPath2 = " + jarPath2);
+    try (FileSystem fileSystem =
+        FileSystems.newFileSystem(URI.create(jarPath2), Collections.emptyMap())) {
+      Files.walkFileTree(fileSystem.getPath(path), visitor);
+    }
+  }
+
+  public static void visitResources(final String path, final SimpleFileVisitor<Path> visitor)
+      throws Exception {
+    try {
+      visitResourcesViaJUnit(path, visitor);
+      return;
+    } catch (Exception e) {
+      System.out.println("Not found in JUnit: " + path + "(" + e.getMessage() + ")");
+    }
+    try {
+      visitResourcesViaContextClassLoader(path, visitor);
+      return;
+    } catch (Exception e) {
+      System.out.println("Not found in ContextClassLoader: " + path + "(" + e.getMessage() + ")");
+    }
+    try {
+      visitResourcesViaGameJarFile(path, visitor);
+      return;
+    } catch (Exception e) {
+      System.out.println("Not found in GameJar: " + path + "(" + e.getMessage() + ")");
+    }
+    try {
+      visitResourcesViaDungeonJarFile(path, visitor);
+    } catch (Exception e) {
+      System.out.println("Not found in DungeonJar: " + path + "(" + e.getMessage() + ")");
+      throw e;
     }
   }
 }
