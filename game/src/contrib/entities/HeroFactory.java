@@ -246,4 +246,16 @@ public final class HeroFactory {
 
     return hero;
   }
+
+    public static Entity newHeroDummy() throws IOException {
+        Entity hero = new Entity("hero");
+        CameraComponent cc = new CameraComponent();
+        hero.add(cc);
+        PositionComponent poc = new PositionComponent(PositionComponent.ILLEGAL_POSITION);
+        hero.add(poc);
+        hero.add(new DrawComponent(HERO_FILE_PATH));
+        hero.add(new PlayerComponent());
+        hero.add(new VelocityComponent(1, 1));
+        return hero;
+    }
 }

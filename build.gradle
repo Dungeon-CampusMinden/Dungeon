@@ -53,10 +53,18 @@ dependencies {
 
     // ANTLR version 4 for DSL Grammar
     antlr "org.antlr:antlr4:4.13.1"
+
+    //websocket and jetty
+    compileOnly 'jakarta.websocket:jakarta.websocket-api:2.1.0'
+    implementation 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server:12.0.5'
+
+    implementation 'org.slf4j:slf4j-api:2.0.11'
+    implementation 'org.slf4j:log4j-over-slf4j:2.0.11'
+    implementation 'org.slf4j:slf4j-simple:2.0.11'
 }
 
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
-sourceSets.main.java.srcDirs = ["game/src/", "dungeon/src/", "blockly/src/", "$projectDir/build/generated-src/"]
+sourceSets.main.java.srcDirs = ["game/src/", "dungeon/src/", "blockly/src/", "VisuPrg/backend/", "$projectDir/build/generated-src/"]
 sourceSets.main.resources.srcDirs = ["game/assets/"]
 sourceSets.test.resources.srcDirs = ["dungeon/assets/", "game/test_resources", "dungeon/test_resources"]
 sourceSets.test.java.srcDirs = ["game/test/","dungeon/test"]
@@ -108,6 +116,19 @@ task start(dependsOn: classes, type: JavaExec) {
 
 task blockly(dependsOn: classes, type: JavaExec) {
     mainClass = "client.Client"
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    ignoreExitValue = true
+    if (DefaultNativePlatform.currentOperatingSystem.isMacOsX()) {
+        jvmArgs("-XstartOnFirstThread")
+    }
+    doFirst {
+        println(DefaultNativePlatform.currentOperatingSystem)
+    }
+}
+
+task visualProgramming(dependsOn: classes, type: JavaExec) {
+    mainClass = "starter.VisualProgrammingStarter"
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     ignoreExitValue = true

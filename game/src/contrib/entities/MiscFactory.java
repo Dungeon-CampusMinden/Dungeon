@@ -1,5 +1,6 @@
 package contrib.entities;
 
+import components.ValueComponent;
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
@@ -16,6 +17,7 @@ import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.SimpleIPath;
+
 import java.io.IOException;
 import java.util.Random;
 import java.util.Set;
@@ -150,6 +152,18 @@ public final class MiscFactory {
     dc.currentAnimation(CoreAnimations.IDLE);
     chest.add(dc);
 
+    return chest;
+  }
+
+  // Todo - Add Variables/Chest that can contain a string
+  public static Entity newChestDummy(final Point position, String variableName, int value) throws IOException{
+    Entity chest = new Entity(variableName);
+    chest.add(new ValueComponent(value));
+    chest.add(new PositionComponent(position));
+    DrawComponent dc = new DrawComponent(new SimpleIPath("objects/treasurechest"));
+    var mapping = dc.animationMap();
+    mapping.put(CoreAnimations.IDLE.pathString(), mapping.get(ChestAnimations.CLOSED.pathString()));
+    chest.add(dc);
     return chest;
   }
 

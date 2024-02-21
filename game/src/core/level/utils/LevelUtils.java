@@ -120,6 +120,12 @@ public final class LevelUtils {
     else return calculatePath(entity, entity);
   }
 
+  public static GraphPath<Tile> calculatePathFromHero(final Entity entity){
+    Optional<Entity> hero = Game.hero();
+      if (hero.isPresent()) return calculatePath(hero.get(), entity);
+      else return calculatePath(entity, entity);
+  }
+
   /**
    * Get the last Tile in the given GraphPath.
    *

@@ -9,6 +9,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.path.IPath;
+
 import java.io.IOException;
 import java.util.Set;
 
@@ -35,6 +36,10 @@ public final class EntityFactory {
    */
   public static Entity newHero() throws IOException {
     return HeroFactory.newHero();
+  }
+
+  public static Entity newHeroDummy() throws IOException{
+    return HeroFactory.newHeroDummy();
   }
 
   /**
@@ -91,6 +96,10 @@ public final class EntityFactory {
    */
   public static Entity newChest() throws IOException {
     return MiscFactory.newChest();
+  }
+
+  public static Entity newChestDummy(final Point position, String variableName, int value) throws IOException{
+      return MiscFactory.newChestDummy(position, variableName, value);
   }
 
   /**
