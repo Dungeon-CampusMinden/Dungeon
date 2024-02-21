@@ -60,7 +60,6 @@ public class FileSystemUtil {
                                 .toExternalForm()
                                 .substring(6)
                                 .replace("%20", " "));
-                    System.out.println("path2 = " + path2);
                     visitor.visitFile(path2, null);
                     if (Files.isDirectory(path2)) {
                       visitResources(p, visitor);
@@ -86,7 +85,6 @@ public class FileSystemUtil {
       jarPath2 = jarPath2.replace("/dungeon/", "/game/");
       jarPath2 = jarPath2.replace("dungeon.jar", "game.jar");
     }
-    System.out.println("jarPath2 = " + jarPath2);
     try (FileSystem fileSystem =
         FileSystems.newFileSystem(URI.create(jarPath2), Collections.emptyMap())) {
       Files.walkFileTree(fileSystem.getPath(path), visitor);
@@ -106,7 +104,6 @@ public class FileSystemUtil {
       jarPath2 = jarPath2.replace("/game/", "/dungeon/");
       jarPath2 = jarPath2.replace("game.jar", "dungeon.jar");
     }
-    System.out.println("jarPath2 = " + jarPath2);
     try (FileSystem fileSystem =
         FileSystems.newFileSystem(URI.create(jarPath2), Collections.emptyMap())) {
       Files.walkFileTree(fileSystem.getPath(path), visitor);
@@ -119,25 +116,21 @@ public class FileSystemUtil {
       visitResourcesViaJUnit(path, visitor);
       return;
     } catch (Exception e) {
-      System.out.println("Not found in JUnit: " + path + "(" + e.getMessage() + ")");
+      // Not found in JUnit, try via ContextClassLoader next
     }
     try {
       visitResourcesViaContextClassLoader(path, visitor);
       return;
     } catch (Exception e) {
-      System.out.println("Not found in ContextClassLoader: " + path + "(" + e.getMessage() + ")");
+      // Not found in ContextClassLoader, try via GameJar next
     }
     try {
       visitResourcesViaGameJarFile(path, visitor);
       return;
     } catch (Exception e) {
-      System.out.println("Not found in GameJar: " + path + "(" + e.getMessage() + ")");
+      // Not found in GameJar, try via DungeonJar next
     }
-    try {
-      visitResourcesViaDungeonJarFile(path, visitor);
-    } catch (Exception e) {
-      System.out.println("Not found in DungeonJar: " + path + "(" + e.getMessage() + ")");
-      throw e;
-    }
+    visitResourcesViaDungeonJarFile(path, visitor);
+    //   Not found in DungeonJar, throw exception to the caller
   }
 }
