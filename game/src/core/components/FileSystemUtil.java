@@ -88,7 +88,7 @@ public class FileSystemUtil {
                                 .toURI());
                     visitor.visitFile(path2, null);
                     if (Files.isDirectory(path2)) {
-                      visitResources(p, visitor);
+                      visitResourcesViaContextClassLoader(p, visitor);
                     }
                   } catch (Exception e) {
                     throw new RuntimeException(e);
