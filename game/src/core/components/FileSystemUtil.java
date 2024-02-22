@@ -76,36 +76,37 @@ public class FileSystemUtil {
       final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
     //noinspection InstantiationOfUtilityClass
     final FileSystemUtil util = new FileSystemUtil();
-    final String jarPath1 =
+    final URI jarUri =
         Objects.requireNonNull(
                 util.getClass().getResource(util.getClass().getSimpleName() + ".class"))
-            .toExternalForm();
-    String jarPath2 = jarPath1.substring(0, jarPath1.lastIndexOf('!'));
-    if (jarPath2.contains("/dungeon/")) {
-      jarPath2 = jarPath2.replace("/dungeon/", "/game/");
-      jarPath2 = jarPath2.replace("dungeon.jar", "game.jar");
-    }
-    try (FileSystem fileSystem =
-        FileSystems.newFileSystem(URI.create(jarPath2), Collections.emptyMap())) {
+            .toURI();
+    try (FileSystem fileSystem = FileSystems.newFileSystem(jarUri, null)) {
       Files.walkFileTree(fileSystem.getPath(path), visitor);
     }
   }
 
   private static void visitResourcesViaDungeonJarFile(
       final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
-    //noinspection InstantiationOfUtilityClass
-    final FileSystemUtil util = new FileSystemUtil();
-    final String jarPath1 =
+    final Object util =
+        Class.forName("contrib.crafting.Crafting").getDeclaredConstructor().newInstance();
+    final URI jarUri =
         Objects.requireNonNull(
                 util.getClass().getResource(util.getClass().getSimpleName() + ".class"))
-            .toExternalForm();
-    String jarPath2 = jarPath1.substring(0, jarPath1.lastIndexOf('!'));
-    if (jarPath2.contains("/game/")) {
-      jarPath2 = jarPath2.replace("/game/", "/dungeon/");
-      jarPath2 = jarPath2.replace("game.jar", "dungeon.jar");
+            .toURI();
+    try (FileSystem fileSystem = FileSystems.newFileSystem(jarUri, null)) {
+      Files.walkFileTree(fileSystem.getPath(path), visitor);
     }
-    try (FileSystem fileSystem =
-        FileSystems.newFileSystem(URI.create(jarPath2), Collections.emptyMap())) {
+  }
+
+  private static void visitResourcesViaDungeonFiles(
+      final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
+    final Object util =
+        Class.forName("contrib.crafting.Crafting").getDeclaredConstructor().newInstance();
+    final URI uri =
+        Objects.requireNonNull(
+                util.getClass().getResource(util.getClass().getSimpleName() + ".class"))
+            .toURI();
+    try (FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
       Files.walkFileTree(fileSystem.getPath(path), visitor);
     }
   }
@@ -115,22 +116,32 @@ public class FileSystemUtil {
     try {
       visitResourcesViaJUnit(path, visitor);
       return;
-    } catch (Exception e) {
-      // Not found in JUnit, try via ContextClassLoader next
+    } catch (Exception ignore) {
     }
+    // Not found in JUnit, try via ContextClassLoader next
+
     try {
       visitResourcesViaContextClassLoader(path, visitor);
       return;
-    } catch (Exception e) {
-      // Not found in ContextClassLoader, try via GameJar next
+    } catch (Exception ignore) {
     }
+    // Not found in ContextClassLoader, try via GameJar next
+
     try {
       visitResourcesViaGameJarFile(path, visitor);
       return;
-    } catch (Exception e) {
-      // Not found in GameJar, try via DungeonJar next
+    } catch (Exception ignore) {
     }
-    visitResourcesViaDungeonJarFile(path, visitor);
-    //   Not found in DungeonJar, throw exception to the caller
+    // Not found in GameJar, try via DungeonJar next
+
+    try {
+      visitResourcesViaDungeonJarFile(path, visitor);
+      return;
+    } catch (Exception ignore) {
+    }
+    // Not found in DungeonJar, try via DungeonFiles next
+
+    visitResourcesViaDungeonFiles(path, visitor);
+    // Not found in DungeonFiles also, throw an exception as last resort
   }
 }
