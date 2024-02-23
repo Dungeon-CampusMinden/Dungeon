@@ -13,6 +13,9 @@ import java.util.Objects;
 
 /**
  * This class contains a search (visit) method to recursively visit resources, also called assets.
+ *
+ * <p>Techniques for all methods: Recursively depth-first search in alphabetical order, not
+ * following symlinks.
  */
 public class FileSystemUtil {
 
@@ -165,6 +168,8 @@ public class FileSystemUtil {
    * of them work, it throws an exception as a last resort. The order is: JUnit, ContextClassLoader,
    * GameJar, DungeonJar, DungeonFiles. If none of them work, you can be sure that the path to the
    * resources does not exist.
+   *
+   * <p>Techniques: Recursively depth-first search in alphabetical order, not following symlinks.
    *
    * @param path the path to the resources
    * @param visitor the file visitor to use
