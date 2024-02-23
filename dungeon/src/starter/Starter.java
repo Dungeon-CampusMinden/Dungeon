@@ -132,7 +132,7 @@ public class Starter {
     } catch (IllegalStateException e) {
       // no configuration, so let's abort here
       System.err.println("No .dng file selected. Exiting ...");
-    } catch (IOException | ParseException e) {
+    } catch (ParseException e) {
       // could not open configuration, so let's abort here
       System.err.println("Couldn't open specified .dng. Exiting ...");
     } catch (GameConfigException e) {
@@ -215,14 +215,17 @@ public class Starter {
         });
   }
 
-  private static Set<DSLEntryPoint> processCLIArguments(String[] args)
-      throws IOException, ParseException {
-    Set<DSLEntryPoint> entryPoints = new HashSet<>();
-    DSLEntryPointFinder finder = new DSLEntryPointFinder();
-    DSLFileLoader.processArguments(args)
-        .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
-    if (entryPoints.isEmpty()) throw new ParseException("no entry points found", 0);
-    return entryPoints;
+  private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws ParseException {
+    try {
+      Set<DSLEntryPoint> entryPoints = new HashSet<>();
+      DSLEntryPointFinder finder = new DSLEntryPointFinder();
+      DSLFileLoader.processArguments(args)
+          .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
+      if (entryPoints.isEmpty()) throw new ParseException("no entry points found", 0);
+      return entryPoints;
+    } catch (IOException e) {
+      throw new ParseException(e.getMessage(), 0);
+    }
   }
 
   private static void createHero() {
