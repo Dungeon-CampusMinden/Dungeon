@@ -21,7 +21,6 @@ import entrypoint.DungeonConfig;
 import graph.TaskGraphConverter;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.HashSet;
@@ -130,7 +129,7 @@ public class Starter {
       // let's do this
       Game.run();
 
-    } catch (NullPointerException | InterruptedException | InvocationTargetException e) {
+    } catch (IllegalStateException e) {
       // no configuration, so let's abort here
       System.err.println("No .dng file selected. Exiting ...");
     } catch (IOException | ParseException e) {
@@ -139,10 +138,6 @@ public class Starter {
     } catch (GameConfigException e) {
       // could not find entry points in configuration, so let's abort here
       System.err.println("Couldn't find tasks in .dng. Exiting ...");
-    } catch (Exception e) {
-      // something went wrong inside game loop, so let's abort here
-      System.err.println("Something went wrong inside game loop. Exiting ...");
-      throw e;
     }
   }
 
@@ -151,23 +146,26 @@ public class Starter {
    *
    * @return the absolute path of the selected DNG file, or null if no file was selected
    */
-  private static String selectSingleDngFile()
-      throws InterruptedException, InvocationTargetException {
-    AtomicReference<String> path = new AtomicReference<>(null);
-    SwingUtilities.invokeAndWait(
-        () -> {
-          JFileChooser fileChooser = new JFileChooser();
-          fileChooser.setDialogTitle("Dungeon: Please select a .dng file");
-          fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
-          fileChooser.setMultiSelectionEnabled(false);
-          fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-          fileChooser.setFileFilter(new FileNameExtensionFilter(".dng file", "dng"));
-          fileChooser.setAcceptAllFileFilterUsed(false);
-          if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            path.set(fileChooser.getSelectedFile().getAbsolutePath());
-          }
-        });
-    return path.get();
+  private static String selectSingleDngFile() throws IllegalStateException {
+    try {
+      AtomicReference<String> path = new AtomicReference<>(null);
+      SwingUtilities.invokeAndWait(
+          () -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Dungeon: Please select a .dng file");
+            fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+            fileChooser.setMultiSelectionEnabled(false);
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileChooser.setFileFilter(new FileNameExtensionFilter(".dng file", "dng"));
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+              path.set(fileChooser.getSelectedFile().getAbsolutePath());
+            }
+          });
+      return path.get();
+    } catch (Exception e) {
+      throw new IllegalStateException("No .dng file was selected.");
+    }
   }
 
   private static void onEntryPointSelection() {
