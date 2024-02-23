@@ -46,7 +46,7 @@ public class FileSystemUtil {
    * @param visitor the file visitor to use
    * @throws Exception if the method is not called in a JUnit test
    */
-  private static void visitResourcesViaJUnit(
+  private static void visitJUnitResourcesViaWalkFileTree(
       final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
     if (!isStartedInJUnitTest()) {
       throw new IllegalStateException(
@@ -69,7 +69,7 @@ public class FileSystemUtil {
    * @param visitor the file visitor to use
    * @throws Exception if the method is not called in a JUnit test
    */
-  private static void visitResourcesViaContextClassLoader(
+  private static void visitResourcesViaGetResourceAsStream(
       final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
     final ClassLoader loader = Thread.currentThread().getContextClassLoader();
     try (final InputStream is = loader.getResourceAsStream(path)) {
@@ -91,7 +91,7 @@ public class FileSystemUtil {
                                 .toURI());
                     visitor.visitFile(path2, null);
                     if (Files.isDirectory(path2)) {
-                      visitResourcesViaContextClassLoader(p, visitor);
+                      visitResourcesViaGetResourceAsStream(p, visitor);
                     }
                   } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -108,7 +108,7 @@ public class FileSystemUtil {
    * @param visitor the file visitor to visit the resources
    * @throws Exception if an error occurs during the process
    */
-  private static void visitResourcesViaGameJarFile(
+  private static void visitGameJarResourcesViaNewFileSystemNull(
       final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
     //noinspection InstantiationOfUtilityClass
     final FileSystemUtil util = new FileSystemUtil();
@@ -129,7 +129,7 @@ public class FileSystemUtil {
    * @param visitor the file visitor to visit the resources
    * @throws Exception if an error occurs during the process
    */
-  private static void visitResourcesViaDungeonJarFile(
+  private static void visitDungeonJarResourcesViaNewFileSystemNull(
       final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
     final Object util =
         Class.forName("contrib.crafting.Crafting").getDeclaredConstructor().newInstance();
@@ -150,8 +150,9 @@ public class FileSystemUtil {
    * @param visitor the file visitor to visit the resources
    * @throws Exception if an error occurs during the process
    */
-  private static void visitResourcesViaDungeonFiles(
+  private static void visitDungeonJarResourcesViaNewFileSystemEmptyMap(
       final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
+    // we need at least one class form dungeon to instantiate here
     final Object util =
         Class.forName("contrib.crafting.Crafting").getDeclaredConstructor().newInstance();
     final URI uri =
@@ -179,7 +180,7 @@ public class FileSystemUtil {
       throws Exception {
     try {
       // tries to test if the method is called in a JUnit test, and if we can get results from it
-      visitResourcesViaJUnit(path, visitor);
+      visitJUnitResourcesViaWalkFileTree(path, visitor);
       return; // successful with JUnit, no need to continue
     } catch (Exception ignore) {
     }
@@ -187,7 +188,7 @@ public class FileSystemUtil {
 
     try {
       // tries to test if we can get results from the ContextClassLoader
-      visitResourcesViaContextClassLoader(path, visitor);
+      visitResourcesViaGetResourceAsStream(path, visitor);
       return; // successful with ContextClassLoader, no need to continue
     } catch (Exception ignore) {
     }
@@ -195,7 +196,7 @@ public class FileSystemUtil {
 
     try {
       // tries to test if we can get results from the GameJar file
-      visitResourcesViaGameJarFile(path, visitor);
+      visitGameJarResourcesViaNewFileSystemNull(path, visitor);
       return; // successful with GameJar, no need to continue
     } catch (Exception ignore) {
     }
@@ -203,14 +204,14 @@ public class FileSystemUtil {
 
     try {
       // tries to test if we can get results from the DungeonJar file
-      visitResourcesViaDungeonJarFile(path, visitor);
+      visitDungeonJarResourcesViaNewFileSystemNull(path, visitor);
       return; // successful with DungeonJar, no need to continue
     } catch (Exception ignore) {
     }
     // Not found in DungeonJar, try via DungeonFiles next
 
     // also tries to test if we can get results from the Dungeon files
-    visitResourcesViaDungeonFiles(path, visitor);
+    visitDungeonJarResourcesViaNewFileSystemEmptyMap(path, visitor);
 
     // No exception: Successful with DungeonFiles, normal end of method
     // Exception: Not found in DungeonFiles also, throw an exception as last resort
