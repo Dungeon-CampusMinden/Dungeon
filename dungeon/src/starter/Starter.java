@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -110,46 +109,16 @@ public class Starter {
       };
 
   public static void main(String[] args) {
-    String[] dslFileNames;
     try {
       // if file names have been supplied on CLI, let's use these
       // otherwise try to get a file name of a configuration file interactively
-      dslFileNames = args.length > 0 ? args : new String[] {selectSingleDngFile()};
-    } catch (Exception e) {
-      // no configuration, so let's abort here
-      System.err.println("No .dng file selected. Exiting ...");
-      System.err.printf(
-          "Please report error message: %s%n%s",
-          e.getMessage(), Arrays.toString(e.getStackTrace()));
-      return;
-    }
+      String[] dslFileNames = args.length > 0 ? args : new String[] {selectSingleDngFile()};
 
-    Set<DSLEntryPoint> entryPoints;
-    try {
-      // read in DSL-Files and get entry points
-      entryPoints = processCLIArguments(dslFileNames);
-    } catch (Exception e) {
-      // could not open configuration, so let's abort here
-      System.err.println("Couldn't open specified .dng. Exiting ...");
-      System.err.printf(
-          "Please report error message: %s%n%s",
-          e.getMessage(), Arrays.toString(e.getStackTrace()));
-      return;
-    }
+      // read in DSL-Files
+      Set<DSLEntryPoint> entryPoints = processCLIArguments(dslFileNames);
 
-    // some game Setup
-    try {
+      // some game Setup
       configGame();
-    } catch (IOException e) {
-      // could not find entry points in configuration, so let's abort here
-      System.err.println("Couldn't find tasks in .dng. Exiting ...");
-      System.err.printf(
-          "Please report error message: %s%n%s",
-          e.getMessage(), Arrays.toString(e.getStackTrace()));
-      return;
-    }
-
-    try {
       // will load the level to select the task/DSL-Entrypoint on Game start
       taskSelectorOnSetup(entryPoints);
 
@@ -160,12 +129,16 @@ public class Starter {
 
       // let's do this
       Game.run();
-    } catch (Exception e) {
-      // something went wrong, so let's abort here
-      System.err.println("Something went wrong. Exiting ...");
-      System.err.printf(
-          "Please report error message: %s%n%s",
-          e.getMessage(), Arrays.toString(e.getStackTrace()));
+
+    } catch (NullPointerException | InterruptedException | InvocationTargetException e) {
+      // no configuration, so let's abort here
+      System.err.println("No .dng file selected. Exiting ...");
+    } catch (IOException e) {
+      // could not open configuration, so let's abort here
+      System.err.println("Couldn't open specified .dng. Exiting ...");
+    } catch (ParseException e) {
+      // could not find entry points in configuration, so let's abort here
+      System.err.println("Couldn't find tasks in .dng. Exiting ...");
     }
   }
 
