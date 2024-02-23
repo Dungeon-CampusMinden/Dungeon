@@ -133,12 +133,16 @@ public class Starter {
     } catch (NullPointerException | InterruptedException | InvocationTargetException e) {
       // no configuration, so let's abort here
       System.err.println("No .dng file selected. Exiting ...");
-    } catch (IOException e) {
+    } catch (IOException | ParseException e) {
       // could not open configuration, so let's abort here
       System.err.println("Couldn't open specified .dng. Exiting ...");
-    } catch (ParseException e) {
+    } catch (GameConfigException e) {
       // could not find entry points in configuration, so let's abort here
       System.err.println("Couldn't find tasks in .dng. Exiting ...");
+    } catch (Exception e) {
+      // something went wrong inside game loop, so let's abort here
+      System.err.println("Something went wrong inside game loop. Exiting ...");
+      throw e;
     }
   }
 
@@ -245,16 +249,27 @@ public class Starter {
     Game.add(hero);
   }
 
-  private static void configGame() throws IOException {
-    Game.initBaseLogger();
-    Game.windowTitle("DSL Dungeon");
-    Game.frameRate(30);
-    Game.disableAudio(false);
-    Game.loadConfig(
-        new SimpleIPath("dungeon_config.json"),
-        contrib.configuration.KeyboardConfig.class,
-        core.configuration.KeyboardConfig.class,
-        starter.KeyboardConfig.class);
+  /** Exception class for game configuration errors, can be thrown by {@link Starter#configGame}. */
+  public static final class GameConfigException extends Exception {
+    public GameConfigException(String message, Throwable cause) {
+      super(message, cause);
+    }
+  }
+
+  private static void configGame() throws GameConfigException {
+    try {
+      Game.initBaseLogger();
+      Game.windowTitle("DSL Dungeon");
+      Game.frameRate(30);
+      Game.disableAudio(false);
+      Game.loadConfig(
+          new SimpleIPath("dungeon_config.json"),
+          contrib.configuration.KeyboardConfig.class,
+          core.configuration.KeyboardConfig.class,
+          starter.KeyboardConfig.class);
+    } catch (IOException e) {
+      throw new GameConfigException("Failed to load game configuration", e);
+    }
   }
 
   private static void createSystems() {
