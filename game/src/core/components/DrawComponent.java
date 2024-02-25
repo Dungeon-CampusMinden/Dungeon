@@ -334,8 +334,10 @@ public final class DrawComponent implements Component {
                   .add(new SimpleIPath(file.toString()));
             }
             return FileVisitResult.CONTINUE;
-          });
-    } catch (Exception e) {
+          },
+          // this is necessary because this class is outside our codebase!
+          "contrib.crafting.Crafting");
+    } catch (FileNotFoundException e) {
       throw new RuntimeException("File not found: " + path, e);
     }
 
