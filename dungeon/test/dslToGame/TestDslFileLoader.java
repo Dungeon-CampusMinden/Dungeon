@@ -90,19 +90,16 @@ public class TestDslFileLoader {
   @Test
   public void fileToString() throws IOException {
     List<Path> list = new ArrayList<>();
-    try {
-      FileSystemUtil.visitResources(
-          PATH_TO_DNGFILE.toString(),
-          (file, attrs) -> {
-            if (Files.isRegularFile(file)) {
-              list.add(file);
-            }
-            return FileVisitResult.TERMINATE;
-          });
-    } catch (Exception e) {
-      throw new IOException("Invalid path to test resource file: " + PATH_TO_DNGFILE, e);
-    }
+    FileSystemUtil.visitResources(
+        PATH_TO_DNGFILE.toString(),
+        (file, attrs) -> {
+          if (Files.isRegularFile(file)) {
+            list.add(file);
+          }
+          return FileVisitResult.TERMINATE;
+        });
     File f = list.getFirst().toFile();
+
     String expectedContent =
         "some test text."
             + System.lineSeparator()
