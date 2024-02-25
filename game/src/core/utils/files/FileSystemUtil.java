@@ -31,7 +31,7 @@ public class FileSystemUtil {
    * @throws Exception if the method is not called in a JUnit test
    */
   private static void visitJUnitResourcesViaWalkFileTree(
-      final String path, final MySimpleFileVisitor visitor) throws Exception {
+      final String path, final SimpleFilePathVisitorI visitor) throws Exception {
     Files.walkFileTree(
         Paths.get(
             Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(path))
@@ -50,7 +50,7 @@ public class FileSystemUtil {
    * @throws Exception if the method is not called in a JUnit test
    */
   private static void visitResourcesViaGetResourceAsStream(
-      final String path, final MySimpleFileVisitor visitor) throws Exception {
+      final String path, final SimpleFilePathVisitorI visitor) throws Exception {
     final ClassLoader loader = Thread.currentThread().getContextClassLoader();
     try (final InputStream is = loader.getResourceAsStream(path)) {
       assert is != null;
@@ -91,7 +91,7 @@ public class FileSystemUtil {
    * @throws Exception if an error occurs during the process
    */
   private static void visitGameJarResourcesViaNewFileSystemNull(
-      final String path, final MySimpleFileVisitor visitor) throws Exception {
+      final String path, final SimpleFilePathVisitorI visitor) throws Exception {
     //noinspection InstantiationOfUtilityClass
     final FileSystemUtil util = new FileSystemUtil();
     final URI jarUri =
@@ -112,7 +112,7 @@ public class FileSystemUtil {
    * @throws Exception if an error occurs during the process
    */
   private static void visitDungeonJarResourcesViaNewFileSystemNull(
-      final String path, final MySimpleFileVisitor visitor) throws Exception {
+      final String path, final SimpleFilePathVisitorI visitor) throws Exception {
     final Object util =
         Class.forName("contrib.crafting.Crafting").getDeclaredConstructor().newInstance();
     final URI jarUri =
@@ -133,7 +133,7 @@ public class FileSystemUtil {
    * @throws Exception if an error occurs during the process
    */
   private static void visitDungeonJarResourcesViaNewFileSystemEmptyMap(
-      final String path, final MySimpleFileVisitor visitor) throws Exception {
+      final String path, final SimpleFilePathVisitorI visitor) throws Exception {
     // we need at least one class form dungeon to instantiate here
     final Object util =
         Class.forName("contrib.crafting.Crafting").getDeclaredConstructor().newInstance();
@@ -158,7 +158,7 @@ public class FileSystemUtil {
    * @param visitor the file visitor to use
    * @throws Exception if none of the lookup methods work
    */
-  public static void visitResources(final String path, final MySimpleFileVisitor visitor)
+  public static void visitResources(final String path, final SimpleFilePathVisitorI visitor)
       throws Exception {
     try {
       // tries to test if the method is called in a JUnit test, and if we can get results from it

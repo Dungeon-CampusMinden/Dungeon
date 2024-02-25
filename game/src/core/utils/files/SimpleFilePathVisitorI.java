@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public interface MySimpleFileVisitor extends FileVisitor<Path> {
+public interface SimpleFilePathVisitorI extends FileVisitor<Path> {
   SimpleFileVisitor<Path> INSTANCE = new SimpleFileVisitor<>() {};
 
   @Override
