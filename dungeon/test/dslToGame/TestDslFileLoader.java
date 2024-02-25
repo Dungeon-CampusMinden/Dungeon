@@ -2,12 +2,16 @@ package dslToGame;
 
 import static org.junit.Assert.*;
 
+import core.components.FileSystemUtil;
 import entrypoint.DSLFileLoader;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.Test;
@@ -85,19 +89,20 @@ public class TestDslFileLoader {
 
   @Test
   public void fileToString() throws IOException {
-    File f;
+    List<Path> list = new ArrayList<>();
     try {
-      f =
-          new File(
-              Objects.requireNonNull(
-                      Thread.currentThread()
-                          .getContextClassLoader()
-                          .getResource(PATH_TO_DNGFILE.toString()))
-                  .toURI()
-                  .normalize());
-    } catch (URISyntaxException e) {
+      FileSystemUtil.visitResources(
+          PATH_TO_DNGFILE.toString(),
+          (file, attrs) -> {
+            if (Files.isRegularFile(file)) {
+              list.add(file);
+            }
+            return FileVisitResult.TERMINATE;
+          });
+    } catch (Exception e) {
       throw new IOException("Invalid path to test resource file: " + PATH_TO_DNGFILE, e);
     }
+    File f = list.getFirst().toFile();
     String expectedContent =
         "some test text."
             + System.lineSeparator()
