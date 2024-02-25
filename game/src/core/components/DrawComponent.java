@@ -338,16 +338,16 @@ public final class DrawComponent implements Component {
     } catch (Exception e) {
       throw new RuntimeException("File not found: " + path, e);
     }
+
     // A Map with sorted values (IPath lists) in natural string order (ascending)
     animationMap =
         subdirectoryMap.entrySet().stream()
-            .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey,
-                    x ->
-                        Animation.fromCollection(
-                            x.getValue().stream()
-                                .sorted(Comparator.comparing(IPath::pathString))
-                                .toList())));
+            .collect(Collectors.toMap(Map.Entry::getKey, DrawComponent::getAnimationFromMapEntry));
+  }
+
+  /** Returns an Animation with sorted paths from the given Map.Entry. */
+  private static Animation getAnimationFromMapEntry(Map.Entry<String, List<IPath>> x) {
+    return Animation.fromCollection(
+        x.getValue().stream().sorted(Comparator.comparing(IPath::pathString)).toList());
   }
 }
