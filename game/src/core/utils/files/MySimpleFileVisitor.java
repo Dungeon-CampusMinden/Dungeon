@@ -1,4 +1,4 @@
-package core.components;
+package core.utils.files;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

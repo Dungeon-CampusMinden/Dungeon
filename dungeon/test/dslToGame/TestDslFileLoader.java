@@ -2,7 +2,7 @@ package dslToGame;
 
 import static org.junit.Assert.*;
 
-import core.components.FileSystemUtil;
+import core.utils.files.FileSystemUtil;
 import entrypoint.DSLFileLoader;
 import java.io.File;
 import java.io.IOException;
