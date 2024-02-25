@@ -91,9 +91,11 @@ public final class Crafting {
               }
             }
             return FileVisitResult.CONTINUE;
-          });
-    } catch (Exception e) {
-      // A generic exception is thrown if something goes wrong within the file visitor or parsing
+          },
+          Crafting.class.getName());
+    } catch (FileNotFoundException e) {
+      // A FileNotFoundException is thrown if something goes wrong within the file visitor or
+      // parsing
       // the recipes
       throw new RuntimeException("Dir not found: " + dirName, e);
     }
