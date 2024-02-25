@@ -8,7 +8,6 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.*;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -326,17 +325,14 @@ public final class DrawComponent implements Component {
     try {
       FileSystemUtil.visitResources(
           path.pathString(),
-          new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-              if (Files.isRegularFile(file)) {
-                subdirectoryMap
-                    .computeIfAbsent(
-                        file.getParent().getFileName().toString(), k -> new ArrayList<>())
-                    .add(new SimpleIPath(file.toString()));
-              }
-              return FileVisitResult.CONTINUE;
+          (file, attrs) -> {
+            if (Files.isRegularFile(file)) {
+              subdirectoryMap
+                  .computeIfAbsent(
+                      file.getParent().getFileName().toString(), k -> new ArrayList<>())
+                  .add(new SimpleIPath(file.toString()));
             }
+            return FileVisitResult.CONTINUE;
           });
     } catch (Exception e) {
       throw new RuntimeException("File not found: " + path, e);
