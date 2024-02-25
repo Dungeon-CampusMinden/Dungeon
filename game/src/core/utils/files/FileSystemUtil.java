@@ -154,8 +154,8 @@ public class FileSystemUtil {
    *
    * <p>Techniques: Recursively depth-first search in alphabetical order, not following symlinks.
    *
-   * @param path the path to the resources
-   * @param visitor the file visitor to use
+   * @param path a {@link String} path to the resources
+   * @param visitor a {@link SimpleFilePathVisitorI} to use for the visit
    * @throws Exception if none of the lookup methods work
    */
   public static void visitResources(final String path, final SimpleFilePathVisitorI visitor)
