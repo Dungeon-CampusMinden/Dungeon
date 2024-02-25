@@ -22,22 +22,6 @@ public class FileSystemUtil {
   private FileSystemUtil() {}
 
   /**
-   * Defines a method that checks if the current thread is running inside a JUnit test by inspecting
-   * the stack trace. If any of the stack trace elements' class names start with "org.junit.", the
-   * method returns true; otherwise, it returns false.
-   *
-   * @return true if the current thread is running inside a JUnit test, false otherwise
-   */
-  private static boolean isStartedInJUnitTest() {
-    for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
-      if (element.getClassName().startsWith("org.junit.")) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
    * This method tries to recursively visit resources using the test resources directory. It checks
    * if the method is called in a JUnit test and throws an exception if not. Then it walks the file
    * tree starting from the specified path, using the provided file visitor.
@@ -47,11 +31,7 @@ public class FileSystemUtil {
    * @throws Exception if the method is not called in a JUnit test
    */
   private static void visitJUnitResourcesViaWalkFileTree(
-      final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
-    if (!isStartedInJUnitTest()) {
-      throw new IllegalStateException(
-          "FileSystemUtil.visitResourcesViaJUnit can only be used in JUnit tests");
-    }
+      final String path, final MySimpleFileVisitor visitor) throws Exception {
     Files.walkFileTree(
         Paths.get(
             Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(path))
@@ -70,7 +50,7 @@ public class FileSystemUtil {
    * @throws Exception if the method is not called in a JUnit test
    */
   private static void visitResourcesViaGetResourceAsStream(
-      final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
+      final String path, final MySimpleFileVisitor visitor) throws Exception {
     final ClassLoader loader = Thread.currentThread().getContextClassLoader();
     try (final InputStream is = loader.getResourceAsStream(path)) {
       assert is != null;
@@ -94,6 +74,8 @@ public class FileSystemUtil {
                       visitResourcesViaGetResourceAsStream(p, visitor);
                     }
                   } catch (Exception e) {
+                    // A generic exception is thrown if something goes wrong within the visitor or
+                    // recursive call
                     throw new RuntimeException(e);
                   }
                 });
@@ -109,7 +91,7 @@ public class FileSystemUtil {
    * @throws Exception if an error occurs during the process
    */
   private static void visitGameJarResourcesViaNewFileSystemNull(
-      final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
+      final String path, final MySimpleFileVisitor visitor) throws Exception {
     //noinspection InstantiationOfUtilityClass
     final FileSystemUtil util = new FileSystemUtil();
     final URI jarUri =
@@ -130,7 +112,7 @@ public class FileSystemUtil {
    * @throws Exception if an error occurs during the process
    */
   private static void visitDungeonJarResourcesViaNewFileSystemNull(
-      final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
+      final String path, final MySimpleFileVisitor visitor) throws Exception {
     final Object util =
         Class.forName("contrib.crafting.Crafting").getDeclaredConstructor().newInstance();
     final URI jarUri =
@@ -151,7 +133,7 @@ public class FileSystemUtil {
    * @throws Exception if an error occurs during the process
    */
   private static void visitDungeonJarResourcesViaNewFileSystemEmptyMap(
-      final String path, final SimpleFileVisitor<Path> visitor) throws Exception {
+      final String path, final MySimpleFileVisitor visitor) throws Exception {
     // we need at least one class form dungeon to instantiate here
     final Object util =
         Class.forName("contrib.crafting.Crafting").getDeclaredConstructor().newInstance();
@@ -176,7 +158,7 @@ public class FileSystemUtil {
    * @param visitor the file visitor to use
    * @throws Exception if none of the lookup methods work
    */
-  public static void visitResources(final String path, final SimpleFileVisitor<Path> visitor)
+  public static void visitResources(final String path, final MySimpleFileVisitor visitor)
       throws Exception {
     try {
       // tries to test if the method is called in a JUnit test, and if we can get results from it
