@@ -1,9 +1,6 @@
 package core.utils.files;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -109,17 +106,18 @@ public class FileSystemUtil {
    *
    * @param path the path to the game jar file
    * @param visitor the file visitor to visit the resources
+   * @param fqClassName the fully qualified class name of the class to search in, or null
    * @throws Exception if an error occurs during the process
    */
   private static void visitDungeonJarResourcesViaNewFileSystemNull(
-      final String path, final SimpleFilePathVisitorI visitor) throws Exception {
-    final Object util =
-        Class.forName("contrib.crafting.Crafting").getDeclaredConstructor().newInstance();
-    final URI jarUri =
+      final String path, final SimpleFilePathVisitorI visitor, final String fqClassName)
+      throws Exception {
+    final Object util = Class.forName(fqClassName).getDeclaredConstructor().newInstance();
+    final URI uri =
         Objects.requireNonNull(
                 util.getClass().getResource(util.getClass().getSimpleName() + ".class"))
             .toURI();
-    try (FileSystem fileSystem = FileSystems.newFileSystem(jarUri, null)) {
+    try (FileSystem fileSystem = FileSystems.newFileSystem(uri, null)) {
       Files.walkFileTree(fileSystem.getPath(path), visitor);
     }
   }
@@ -130,13 +128,13 @@ public class FileSystemUtil {
    *
    * @param path the path to the game jar file
    * @param visitor the file visitor to visit the resources
+   * @param fqClassName the fully qualified class name of the class to search in, or null
    * @throws Exception if an error occurs during the process
    */
   private static void visitDungeonJarResourcesViaNewFileSystemEmptyMap(
-      final String path, final SimpleFilePathVisitorI visitor) throws Exception {
-    // we need at least one class form dungeon to instantiate here
-    final Object util =
-        Class.forName("contrib.crafting.Crafting").getDeclaredConstructor().newInstance();
+      final String path, final SimpleFilePathVisitorI visitor, final String fqClassName)
+      throws Exception {
+    final Object util = Class.forName(fqClassName).getDeclaredConstructor().newInstance();
     final URI uri =
         Objects.requireNonNull(
                 util.getClass().getResource(util.getClass().getSimpleName() + ".class"))
@@ -156,10 +154,12 @@ public class FileSystemUtil {
    *
    * @param path a {@link String} path to the resources
    * @param visitor a {@link SimpleFilePathVisitorI} to use for the visit
-   * @throws Exception if none of the lookup methods work
+   * @param fqClassNames the fully qualified class names of the classes to search in, or null
+   * @throws FileNotFoundException if none of the lookup methods work
    */
-  public static void visitResources(final String path, final SimpleFilePathVisitorI visitor)
-      throws Exception {
+  public static void visitResources(
+      final String path, final SimpleFilePathVisitorI visitor, final String... fqClassNames)
+      throws FileNotFoundException {
     try {
       visitJUnitResourcesViaWalkFileTree(path, visitor);
       return;
@@ -179,17 +179,24 @@ public class FileSystemUtil {
       return;
     } catch (Exception ignore) {
     }
-    // Not found in GameJar, try via DungeonJar next
+    // Not found in GameJar, try via classesToSearchIn next
 
-    try {
-      visitDungeonJarResourcesViaNewFileSystemNull(path, visitor);
-      return;
-    } catch (Exception ignore) {
+    if (fqClassNames != null) {
+      for (final var fqClassName : fqClassNames) {
+        try {
+          visitDungeonJarResourcesViaNewFileSystemNull(path, visitor, fqClassName);
+          return;
+        } catch (Exception ignore) {
+        }
+        try {
+          visitDungeonJarResourcesViaNewFileSystemEmptyMap(path, visitor, fqClassName);
+          return;
+        } catch (Exception ignore) {
+        }
+      }
     }
-    // Not found in DungeonJar, try via DungeonFiles next
 
-    visitDungeonJarResourcesViaNewFileSystemEmptyMap(path, visitor);
-    // No exception: Successful with DungeonFiles, normal end of method
-    // Exception: Not found in DungeonFiles also, throw an exception if none of the methods work
+    // Not found in any of the methods, throw an exception, can go sure the path does not exist
+    throw new FileNotFoundException(path);
   }
 }
