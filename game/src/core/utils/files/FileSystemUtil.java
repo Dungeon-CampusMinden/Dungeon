@@ -161,41 +161,35 @@ public class FileSystemUtil {
   public static void visitResources(final String path, final SimpleFilePathVisitorI visitor)
       throws Exception {
     try {
-      // tries to test if the method is called in a JUnit test, and if we can get results from it
       visitJUnitResourcesViaWalkFileTree(path, visitor);
-      return; // successful with JUnit, no need to continue
+      return;
     } catch (Exception ignore) {
     }
     // Not found in JUnit, try via ContextClassLoader next
 
     try {
-      // tries to test if we can get results from the ContextClassLoader
       visitResourcesViaGetResourceAsStream(path, visitor);
-      return; // successful with ContextClassLoader, no need to continue
+      return;
     } catch (Exception ignore) {
     }
     // Not found in ContextClassLoader, try via GameJar next
 
     try {
-      // tries to test if we can get results from the GameJar file
       visitGameJarResourcesViaNewFileSystemNull(path, visitor);
-      return; // successful with GameJar, no need to continue
+      return;
     } catch (Exception ignore) {
     }
     // Not found in GameJar, try via DungeonJar next
 
     try {
-      // tries to test if we can get results from the DungeonJar file
       visitDungeonJarResourcesViaNewFileSystemNull(path, visitor);
-      return; // successful with DungeonJar, no need to continue
+      return;
     } catch (Exception ignore) {
     }
     // Not found in DungeonJar, try via DungeonFiles next
 
-    // also tries to test if we can get results from the Dungeon files
     visitDungeonJarResourcesViaNewFileSystemEmptyMap(path, visitor);
-
     // No exception: Successful with DungeonFiles, normal end of method
-    // Exception: Not found in DungeonFiles also, throw an exception as last resort
+    // Exception: Not found in DungeonFiles also, throw an exception if none of the methods work
   }
 }
