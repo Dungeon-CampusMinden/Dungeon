@@ -51,14 +51,14 @@ public class RandomDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          createSystems();
           try {
+            createSystems();
             createHero();
+            setupMusic();
+            Crafting.loadRecipes();
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
-          setupMusic();
-          Crafting.loadRecipes();
         });
   }
 
