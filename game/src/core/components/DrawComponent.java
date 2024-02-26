@@ -335,7 +335,7 @@ public final class DrawComponent implements Component {
             }
             return FileVisitResult.CONTINUE;
           },
-          // this is necessary because this class is outside our codebase!
+          /* this hardcoded string path is necessary because this class is outside our codebase, but not the corresponding resources! */
           "contrib.crafting.Crafting");
     } catch (FileNotFoundException e) {
       throw new RuntimeException("File not found: " + path, e);
@@ -347,7 +347,9 @@ public final class DrawComponent implements Component {
             .collect(Collectors.toMap(Map.Entry::getKey, DrawComponent::getAnimationFromMapEntry));
   }
 
-  /** Returns an Animation with sorted paths from the given Map.Entry. */
+  /**
+   * Returns an Animation with sorted paths from the given {@code Map.Entry<String, List<IPath>> x}.
+   */
   private static Animation getAnimationFromMapEntry(Map.Entry<String, List<IPath>> x) {
     return Animation.fromCollection(
         x.getValue().stream().sorted(Comparator.comparing(IPath::pathString)).toList());
