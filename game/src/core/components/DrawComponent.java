@@ -321,9 +321,8 @@ public final class DrawComponent implements Component {
 
   // Helper method that loads the animation assets from the given path. Called by the constructor,
   // the animation map will be constructed from the subdirectories of the given path.
-  private void loadAnimationAssets(final IPath path) {
+  private void loadAnimationAssets(final IPath path) throws IOException {
     final Map<String, List<IPath>> subdirectoryMap = new HashMap<>();
-    try {
       FileSystemUtil.visitResources(
           path.pathString(),
           (file, attrs) -> {
@@ -337,9 +336,6 @@ public final class DrawComponent implements Component {
           },
           /* this hardcoded string path is necessary because this class is outside our codebase, but not the corresponding resources! */
           "contrib.crafting.Crafting");
-    } catch (FileNotFoundException e) {
-      throw new RuntimeException("File not found: " + path, e);
-    }
 
     // A Map with sorted values (IPath lists) in natural string order (ascending)
     animationMap =
