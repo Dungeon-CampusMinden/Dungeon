@@ -323,19 +323,18 @@ public final class DrawComponent implements Component {
   // the animation map will be constructed from the subdirectories of the given path.
   private void loadAnimationAssets(final IPath path) throws IOException {
     final Map<String, List<IPath>> subdirectoryMap = new HashMap<>();
-      FileSystemUtil.visitResources(
-          path.pathString(),
-          (file, attrs) -> {
-            if (Files.isRegularFile(file)) {
-              subdirectoryMap
-                  .computeIfAbsent(
-                      file.getParent().getFileName().toString(), k -> new ArrayList<>())
-                  .add(new SimpleIPath(file.toString()));
-            }
-            return FileVisitResult.CONTINUE;
-          },
-          /* this hardcoded string path is necessary because this class is outside our codebase, but not the corresponding resources! */
-          "contrib.crafting.Crafting");
+    FileSystemUtil.visitResources(
+        path.pathString(),
+        (file, attrs) -> {
+          if (Files.isRegularFile(file)) {
+            subdirectoryMap
+                .computeIfAbsent(file.getParent().getFileName().toString(), k -> new ArrayList<>())
+                .add(new SimpleIPath(file.toString()));
+          }
+          return FileVisitResult.CONTINUE;
+        },
+        /* this hardcoded string path is necessary because this class is outside our codebase, but not the corresponding resources! */
+        "contrib.crafting.Crafting");
 
     // A Map with sorted values (IPath lists) in natural string order (ascending)
     animationMap =

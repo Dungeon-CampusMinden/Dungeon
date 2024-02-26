@@ -80,18 +80,18 @@ public final class Crafting {
    */
   public static void loadRecipes() throws FileNotFoundException {
     final String dirName = "recipes/";
-      FileSystemUtil.visitResources(
-          dirName,
-          (file, attrs) -> {
-            if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
-              final Recipe recipe = parseRecipe(file.toUri().toURL().openStream(), file.toString());
-              if (recipe != null) {
-                RECIPES.add(recipe);
-              }
+    FileSystemUtil.visitResources(
+        dirName,
+        (file, attrs) -> {
+          if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
+            final Recipe recipe = parseRecipe(file.toUri().toURL().openStream(), file.toString());
+            if (recipe != null) {
+              RECIPES.add(recipe);
             }
-            return FileVisitResult.CONTINUE;
-          },
-          Crafting.class.getName());
+          }
+          return FileVisitResult.CONTINUE;
+        },
+        Crafting.class.getName());
   }
 
   /**
