@@ -94,9 +94,7 @@ public final class Crafting {
           },
           Crafting.class.getName());
     } catch (FileNotFoundException e) {
-      // A FileNotFoundException is thrown if something goes wrong within the file visitor or
-      // parsing
-      // the recipes
+      /* A FileNotFoundException is thrown if something goes wrong within the file visitor or parsing the recipes */
       throw new RuntimeException("Dir not found: " + dirName, e);
     }
   }
