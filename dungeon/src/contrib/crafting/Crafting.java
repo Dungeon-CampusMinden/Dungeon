@@ -78,9 +78,8 @@ public final class Crafting {
    *
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
-  public static void loadRecipes() {
+  public static void loadRecipes() throws FileNotFoundException {
     final String dirName = "recipes/";
-    try {
       FileSystemUtil.visitResources(
           dirName,
           (file, attrs) -> {
@@ -93,10 +92,6 @@ public final class Crafting {
             return FileVisitResult.CONTINUE;
           },
           Crafting.class.getName());
-    } catch (FileNotFoundException e) {
-      /* A FileNotFoundException is thrown if something goes wrong within the file visitor or parsing the recipes */
-      throw new RuntimeException("Dir not found: " + dirName, e);
-    }
   }
 
   /**
