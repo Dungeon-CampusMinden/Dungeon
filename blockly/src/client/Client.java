@@ -67,7 +67,6 @@ public class Client {
             createHero();
             Crafting.loadRecipes();
             startServer();
-            // Crafting.loadRecipes();
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
