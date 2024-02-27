@@ -4,16 +4,20 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
 import core.Game;
+import core.utils.ResourceUtil;
 import core.utils.logging.CustomLogLevel;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Handles the crafting system.
@@ -82,13 +86,38 @@ public final class Crafting {
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    if (Objects.requireNonNull(Crafting.class.getResource("/recipes"))
-        .toString()
-        .startsWith("jar:")) {
-      loadFromJar();
-    } else {
-      loadFromFile();
+    try {
+      // get Path for resource folder
+      Path recipesFolder = ResourceUtil.pathOf("recipes");
+
+      // traverse this directory and parse all recipes
+      if (Files.isDirectory(recipesFolder)) {
+        Set<Recipe> recipes =
+            Files.walk(recipesFolder)
+                .filter(Files::isRegularFile)
+                .filter(p -> p.toString().endsWith(".recipe"))
+                .map(ResourceUtil::newInputStream)
+                .flatMap(Optional::stream)
+                .map(Crafting::parseRecipe)
+                .collect(Collectors.toSet());
+        Crafting.RECIPES.addAll(recipes);
+      }
+    } catch (Exception e) {
+      LOGGER.log(CustomLogLevel.ERROR, "Error parsing recipes in 'recipes'");
     }
+  }
+
+  /**
+   * Parse a recipe from a file.
+   *
+   * <p>Temporary method to call original method with empty string (only needed for error message).
+   * Needs to be fixed.
+   *
+   * @param stream The stream to read from.
+   * @return The parsed recipe.
+   */
+  private static Recipe parseRecipe(final InputStream stream) {
+    return parseRecipe(stream, "");
   }
 
   /** Load recipes if the program was started from a jar file. */
