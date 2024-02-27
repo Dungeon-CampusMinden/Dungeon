@@ -3,10 +3,12 @@ package contrib.crafting;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
-import core.Game;
 import core.utils.ResourceUtil;
 import core.utils.logging.CustomLogLevel;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
@@ -14,8 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -118,51 +118,6 @@ public final class Crafting {
    */
   private static Recipe parseRecipe(final InputStream stream) {
     return parseRecipe(stream, "");
-  }
-
-  /** Load recipes if the program was started from a jar file. */
-  private static void loadFromJar() {
-    try {
-      String path =
-          new File(Objects.requireNonNull(Game.class.getResource("")).getPath())
-              .getParent()
-              // for windows
-              .replaceAll("(!|file:\\\\)", "")
-              // for unix/macos
-              .replaceAll("(!|file:)", "");
-      JarFile jar = new JarFile(path);
-      Enumeration<JarEntry> entries = jar.entries();
-      while (entries.hasMoreElements()) {
-        JarEntry entry = entries.nextElement();
-        if (entry.getName().startsWith("recipes") && entry.getName().endsWith(".recipe")) {
-          LOGGER.info("Load recipe: " + entry.getName());
-          Recipe r =
-              parseRecipe(Game.class.getResourceAsStream("/" + entry.getName()), entry.getName());
-          if (r != null) Crafting.RECIPES.add(r);
-        }
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /** Load recipes if the program was started from a folder. */
-  private static void loadFromFile() {
-    File folder =
-        new File(Objects.requireNonNull(Crafting.class.getResource("/recipes")).getPath());
-    File[] files = folder.listFiles();
-    if (files == null) {
-      return;
-    }
-    for (File file : files) {
-      if (file.getName().endsWith(".recipe")) {
-        LOGGER.info("Load recipe: " + file.getName());
-        Recipe r =
-            parseRecipe(
-                Crafting.class.getResourceAsStream("/recipes/" + file.getName()), file.getName());
-        if (r != null) Crafting.RECIPES.add(r);
-      }
-    }
   }
 
   /**
