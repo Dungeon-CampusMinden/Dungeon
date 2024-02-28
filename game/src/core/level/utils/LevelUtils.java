@@ -211,10 +211,20 @@ public final class LevelUtils {
 
   private static boolean isAnyCornerOfTileInRadius(
       final Point center, float radius, final Tile tile) {
-    return Point.inRange(center, tile.coordinate().toPoint(), radius)
-        || Point.inRange(center, tile.coordinate().toPoint(), radius)
-        || Point.inRange(center, tile.coordinate().toPoint(), radius)
-        || Point.inRange(center, tile.coordinate().toPoint(), radius);
+    return Point.inRange(
+            center, new Point(tile.coordinate().toPoint().x, tile.coordinate().toPoint().y), radius)
+        || Point.inRange(
+            center,
+            new Point(tile.coordinate().toPoint().x + 1, tile.coordinate().toPoint().y),
+            radius)
+        || Point.inRange(
+            center,
+            new Point(tile.coordinate().toPoint().x, tile.coordinate().toPoint().y + 1),
+            radius)
+        || Point.inRange(
+            center,
+            new Point(tile.coordinate().toPoint().x + 1, tile.coordinate().toPoint().y + 1),
+            radius);
   }
 
   /**
