@@ -1,7 +1,10 @@
 package contrib.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.Vector2;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.elements.GUICombination;
@@ -15,6 +18,7 @@ import core.Entity;
 import core.Game;
 import core.components.*;
 import core.level.Tile;
+import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
@@ -26,10 +30,9 @@ import java.util.Comparator;
 /** A utility class for building the hero entity in the game world. */
 public final class HeroFactory {
 
-  public static final int DEFAULT_INVENTORY_SIZE = 10;
+  public static final boolean ENABLE_MOUSE_MOVEMENT = true;
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final float X_SPEED_HERO = 7.5f;
-  private static final float Y_SPEED_HERO = 7.5f;
+  private static final Vector2 SPEED_HERO = new Vector2(7.5f, 7.5f);
   private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 100;
 
@@ -51,7 +54,7 @@ public final class HeroFactory {
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
-    hero.add(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO, entity -> {}, true));
+    hero.add(new VelocityComponent(SPEED_HERO.x, SPEED_HERO.y, entity -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
     HealthComponent hc =
         new HealthComponent(
@@ -99,49 +102,54 @@ public final class HeroFactory {
         new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
     // hero movement
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-          vc.currentYVelocity(1 * vc.yVelocity());
-        });
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
+    registerMovement(pc, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), new Vector2(0, 1));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_UP_SECOND.value(), new Vector2(0, 1));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), new Vector2(0, -1));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_DOWN_SECOND.value(), new Vector2(0, -1));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), new Vector2(1, 0));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_RIGHT_SECOND.value(), new Vector2(1, 0));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), new Vector2(-1, 0));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT_SECOND.value(), new Vector2(-1, 0));
+    // Mouse movement
+    if (ENABLE_MOUSE_MOVEMENT) {
+      pc.registerCallback(
+          Input.Buttons.RIGHT, // right mouse button
+          innerHero -> {
 
-          vc.currentYVelocity(-1 * vc.yVelocity());
-        });
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
+            // Prevent Movement if in inventory
+            if (InventoryGUI.inHeroInventory) return;
+            Point mousePosition = SkillTools.cursorPositionAsPoint();
+            Point heroPos =
+                innerHero
+                    .fetch(PositionComponent.class)
+                    .map(PositionComponent::position)
+                    .orElse(null);
+            if (heroPos == null) return;
 
-          vc.currentXVelocity(1 * vc.xVelocity());
-        });
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
+            GraphPath<Tile> path = LevelUtils.calculatePath(heroPos, mousePosition);
+            if (path == null || path.getCount() == 0) return;
 
-          vc.currentXVelocity(-1 * vc.xVelocity());
-        });
+            innerHero
+                .fetch(PathComponent.class)
+                .ifPresentOrElse(
+                    pathComponent -> {
+                      pathComponent.path(path);
+                    },
+                    () -> {
+                      PathComponent pathComponent = new PathComponent(path);
+                      innerHero.add(pathComponent);
+                    });
+          },
+          false,
+          false);
+    }
 
     pc.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(),
@@ -245,5 +253,29 @@ public final class HeroFactory {
     pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
     return hero;
+  }
+
+  private static void registerMovement(PlayerComponent pc, int key, Vector2 direction) {
+    pc.registerCallback(
+        key,
+        entity -> {
+          VelocityComponent vc =
+              entity
+                  .fetch(VelocityComponent.class)
+                  .orElseThrow(
+                      () -> MissingComponentException.build(entity, VelocityComponent.class));
+          if (direction.x != 0) {
+            vc.currentXVelocity(direction.x * vc.xVelocity());
+          }
+          if (direction.y != 0) {
+            vc.currentYVelocity(direction.y * vc.yVelocity());
+          }
+          // Abort any path finding on own movement
+          if (ENABLE_MOUSE_MOVEMENT) {
+            PathComponent pathComponent = entity.fetch(PathComponent.class).orElse(null);
+            if (pathComponent == null) return;
+            pathComponent.clear();
+          }
+        });
   }
 }
