@@ -227,6 +227,11 @@ public abstract class Tile {
     return levelElement.value();
   }
 
+  @Override
+  public String toString() {
+    return "Tile{" + "globalPosition=" + globalPosition + ", friction=" + friction + '}';
+  }
+
   @DSLType(name = "tile_direction")
   public enum Direction {
     N,

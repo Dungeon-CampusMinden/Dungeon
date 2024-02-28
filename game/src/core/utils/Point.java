@@ -100,4 +100,9 @@ public final class Point {
   public boolean equals(final Point other) {
     return Math.abs(x - other.x) < EPSILON && Math.abs(y - other.y) < EPSILON;
   }
+
+  @Override
+  public String toString() {
+    return "Point{" + "x=" + x + ", y=" + y + '}';
+  }
 }

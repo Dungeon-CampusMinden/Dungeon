@@ -64,4 +64,9 @@ public class Coordinate {
   public Coordinate add(final Coordinate other) {
     return new Coordinate(this.x + other.x, this.y + other.y);
   }
+
+  @Override
+    public String toString() {
+        return "Coordinate{" + "x=" + x + ", y=" + y + '}';
+    }
 }
