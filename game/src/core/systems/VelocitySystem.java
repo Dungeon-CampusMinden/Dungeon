@@ -8,6 +8,8 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
+import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
@@ -67,18 +69,23 @@ public final class VelocitySystem extends System {
     float newX = vsd.pc.position().x + velocity.x;
     float newY = vsd.pc.position().y + velocity.y;
     boolean hitWall = false;
+    boolean canEnterEmptyTiles =
+        vsd.e
+            .fetch(VelocityComponent.class)
+            .map(VelocityComponent::canEnterEmptyTiles)
+            .orElse(false);
     try {
-      if (Game.tileAT(new Point(newX, newY)).isAccessible()) {
+      if (isAccessible(Game.tileAT(new Point(newX, newY)), canEnterEmptyTiles)) {
         // no change in direction
         vsd.pc.position(new Point(newX, newY));
         this.movementAnimation(vsd);
-      } else if (Game.tileAT(new Point(newX, vsd.pc.position().y)).isAccessible()) {
+      } else if (isAccessible(Game.tileAT(new Point(newX, vsd.pc.position().y)), canEnterEmptyTiles)) {
         // redirect not moving along y
         hitWall = true;
         vsd.pc.position(new Point(newX, vsd.pc.position().y));
         this.movementAnimation(vsd);
         vsd.vc.currentYVelocity(0.0f);
-      } else if (Game.tileAT(new Point(vsd.pc.position().x, newY)).isAccessible()) {
+      } else if (isAccessible(Game.tileAT(new Point(vsd.pc.position().x, newY)), canEnterEmptyTiles)) {
         // redirect not moving along x
         hitWall = true;
         vsd.pc.position(new Point(vsd.pc.position().x, newY));
@@ -105,6 +112,19 @@ public final class VelocitySystem extends System {
     }
   }
 
+  /**
+   * Small helper function to check if a tile is accessible and also considers if the entity can
+   * enter empty tiles.
+   *
+   * @param tile The tile to check.
+   * @param canEnterEmptyTiles If the entity can enter empty tiles.
+   * @return true if the tile is accessible, false if not.
+   */
+  private boolean isAccessible(Tile tile, boolean canEnterEmptyTiles) {
+    return tile.isAccessible()
+        || (canEnterEmptyTiles && tile.levelElement().equals(LevelElement.SKIP));
+  }
+  
   private void movementAnimation(VSData vsd) {
     float x = vsd.vc.currentXVelocity();
     float y = vsd.vc.currentYVelocity();
