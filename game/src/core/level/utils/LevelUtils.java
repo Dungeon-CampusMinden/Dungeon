@@ -273,7 +273,6 @@ public final class LevelUtils {
    * @return True if the position of the two entities is within the given range, else false.
    */
   public static boolean entityInRange(final Entity entity1, final Entity entity2, float range) {
-
     Point entity1Position =
         entity1
             .fetch(PositionComponent.class)
@@ -296,7 +295,6 @@ public final class LevelUtils {
    *     given entity. If there is no hero, return false.
    */
   public static boolean playerInRange(final Entity entity, float range) {
-
     Optional<Entity> hero = Game.hero();
     return hero.filter(value -> entityInRange(entity, value, range)).isPresent();
   }
