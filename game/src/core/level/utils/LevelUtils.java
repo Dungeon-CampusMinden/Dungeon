@@ -1,5 +1,6 @@
 package core.level.utils;
 
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import core.Entity;
 import core.Game;
@@ -38,6 +39,10 @@ public final class LevelUtils {
    * @return Path from the start coordinate to the end coordinate.
    */
   public static GraphPath<Tile> calculatePath(final Coordinate from, final Coordinate to) {
+    Tile fromTile = Game.tileAT(from);
+    Tile toTile = Game.tileAT(to);
+    if (fromTile == null || !fromTile.isAccessible()) return new DefaultGraphPath<>();
+    if (toTile == null || !toTile.isAccessible()) return new DefaultGraphPath<>();
     return Game.findPath(Game.tileAT(from), Game.tileAT(to));
   }
 
@@ -167,6 +172,7 @@ public final class LevelUtils {
       if (added) {
         // Tile is a new Tile so add the neighbours to be checked
         for (Coordinate offset : offsets) {
+          if (current.level() == null) continue;
           Tile tile = current.level().tileAt(current.coordinate().add(offset));
           if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
         }
