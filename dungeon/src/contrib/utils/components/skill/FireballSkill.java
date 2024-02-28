@@ -24,7 +24,7 @@ public final class FireballSkill extends DamageProjectile {
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");
   private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
   private static final float PROJECTILE_SPEED = 15.0f;
-  private static final int DAMAGE_AMOUNT = 5;
+  private static final int DAMAGE_AMOUNT = 1;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final Point HIT_BOX_SIZE = new Point(1, 1);
   private static final float PROJECTILE_RANGE = 7f;

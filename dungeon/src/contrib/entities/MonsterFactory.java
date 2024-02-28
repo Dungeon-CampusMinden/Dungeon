@@ -40,12 +40,11 @@ public final class MonsterFactory {
 
   private static final int MIN_MONSTER_HEALTH = 10;
 
-  // NOTE: +1 for health as nextInt() is exclusive
-  private static final int MAX_MONSTER_HEALTH = 50 + 1;
+  private static final int MAX_MONSTER_HEALTH = 10;
   private static final float MIN_MONSTER_SPEED = 5.0f;
   private static final float MAX_MONSTER_SPEED = 8.5f;
   private static final DamageType MONSTER_COLLIDE_DAMAGE_TYPE = DamageType.PHYSICAL;
-  private static final int MONSTER_COLLIDE_DAMAGE = 10;
+  private static final int MONSTER_COLLIDE_DAMAGE = 2;
   private static final int MONSTER_COLLIDE_COOL_DOWN = 2 * Game.frameRate();
 
   /**
@@ -82,7 +81,7 @@ public final class MonsterFactory {
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity randomMonster(IPath pathToTexture) throws IOException {
-    int health = RANDOM.nextInt(MIN_MONSTER_HEALTH, MAX_MONSTER_HEALTH);
+    int health = RANDOM.nextInt(MIN_MONSTER_HEALTH, MAX_MONSTER_HEALTH +1);
     float speed = RANDOM.nextFloat(MIN_MONSTER_SPEED, MAX_MONSTER_SPEED);
 
     Entity monster = new Entity("monster");
