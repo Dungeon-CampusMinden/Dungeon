@@ -123,10 +123,14 @@ public final class HeroFactory {
       pc.registerCallback(
           Input.Buttons.RIGHT, // right mouse button
           innerHero -> {
-
-            // Prevent Movement if in inventory
+            // Check if the inventory GUI is open, preventing movement
             if (InventoryGUI.inHeroInventory) return;
-            Point mousePosition = SkillTools.cursorPositionAsPoint();
+
+            // Small adjustment to get the correct tile
+            Point mousePos = SkillTools.cursorPositionAsPoint();
+            mousePos.x = mousePos.x - 0.5f;
+            mousePos.y = mousePos.y - 0.25f;
+
             Point heroPos =
                 innerHero
                     .fetch(PositionComponent.class)
@@ -134,19 +138,27 @@ public final class HeroFactory {
                     .orElse(null);
             if (heroPos == null) return;
 
-            GraphPath<Tile> path = LevelUtils.calculatePath(heroPos, mousePosition);
-            if (path == null || path.getCount() == 0) return;
+            GraphPath<Tile> path = LevelUtils.calculatePath(heroPos, mousePos);
+            // If the path is null or empty, try to find a nearby tile that is accessible and
+            // calculate a path to it
+            if (path == null || path.getCount() == 0) {
+              Tile nearTile =
+                  LevelUtils.tilesInRange(mousePos, 1f).stream()
+                      .filter(tile -> LevelUtils.calculatePath(heroPos, tile.position()) != null)
+                      .findFirst()
+                      .orElse(null);
+              // If no accessible tile is found, abort
+              if (nearTile == null) return;
+              path = LevelUtils.calculatePath(heroPos, nearTile.position());
+            }
 
+            // final, so it can be used in the lambda expression below
+            final GraphPath<Tile> finalPath = path;
             innerHero
                 .fetch(PathComponent.class)
                 .ifPresentOrElse(
-                    pathComponent -> {
-                      pathComponent.path(path);
-                    },
-                    () -> {
-                      PathComponent pathComponent = new PathComponent(path);
-                      innerHero.add(pathComponent);
-                    });
+                    pathComponent -> pathComponent.path(finalPath),
+                    () -> innerHero.add(new PathComponent(finalPath)));
           },
           false,
           false);
