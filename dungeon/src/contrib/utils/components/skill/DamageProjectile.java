@@ -1,6 +1,5 @@
 package contrib.utils.components.skill;
 
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;

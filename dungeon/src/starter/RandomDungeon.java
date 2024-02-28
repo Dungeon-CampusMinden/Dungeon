@@ -6,16 +6,9 @@ import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
-import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
-import core.System;
-import core.components.PositionComponent;
-import core.level.Tile;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelSize;
-import core.systems.VelocitySystem;
-import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 

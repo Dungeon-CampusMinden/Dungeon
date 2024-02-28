@@ -79,13 +79,15 @@ public final class VelocitySystem extends System {
         // no change in direction
         vsd.pc.position(new Point(newX, newY));
         this.movementAnimation(vsd);
-      } else if (isAccessible(Game.tileAT(new Point(newX, vsd.pc.position().y)), canEnterEmptyTiles)) {
+      } else if (isAccessible(
+          Game.tileAT(new Point(newX, vsd.pc.position().y)), canEnterEmptyTiles)) {
         // redirect not moving along y
         hitWall = true;
         vsd.pc.position(new Point(newX, vsd.pc.position().y));
         this.movementAnimation(vsd);
         vsd.vc.currentYVelocity(0.0f);
-      } else if (isAccessible(Game.tileAT(new Point(vsd.pc.position().x, newY)), canEnterEmptyTiles)) {
+      } else if (isAccessible(
+          Game.tileAT(new Point(vsd.pc.position().x, newY)), canEnterEmptyTiles)) {
         // redirect not moving along x
         hitWall = true;
         vsd.pc.position(new Point(vsd.pc.position().x, newY));
@@ -124,7 +126,7 @@ public final class VelocitySystem extends System {
     return tile.isAccessible()
         || (canEnterEmptyTiles && tile.levelElement().equals(LevelElement.SKIP));
   }
-  
+
   private void movementAnimation(VSData vsd) {
     float x = vsd.vc.currentXVelocity();
     float y = vsd.vc.currentYVelocity();

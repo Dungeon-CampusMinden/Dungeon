@@ -219,7 +219,12 @@ public class TileLevel implements ILevel {
                     .removeValue(new TileConnection(x.getToNode(), tile), false));
     if (tile.isAccessible()) removeIndex(tile.index());
 
-    Tile newTile = TileFactory.createTile(TileTextureFactory.getEmptyFloorPath(), tile.coordinate(), LevelElement.SKIP, tile.designLabel());
+    Tile newTile =
+        TileFactory.createTile(
+            TileTextureFactory.getEmptyFloorPath(),
+            tile.coordinate(),
+            LevelElement.SKIP,
+            tile.designLabel());
     newTile.index(tile.index());
     layout[tile.coordinate().y][tile.coordinate().x] = newTile;
   }

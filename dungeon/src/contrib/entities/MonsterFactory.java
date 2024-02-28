@@ -81,7 +81,7 @@ public final class MonsterFactory {
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity randomMonster(IPath pathToTexture) throws IOException {
-    int health = RANDOM.nextInt(MIN_MONSTER_HEALTH, MAX_MONSTER_HEALTH +1);
+    int health = RANDOM.nextInt(MIN_MONSTER_HEALTH, MAX_MONSTER_HEALTH + 1);
     float speed = RANDOM.nextFloat(MIN_MONSTER_SPEED, MAX_MONSTER_SPEED);
 
     Entity monster = new Entity("monster");

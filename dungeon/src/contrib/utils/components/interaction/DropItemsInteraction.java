@@ -3,7 +3,6 @@ package contrib.utils.components.interaction;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
-import contrib.utils.level.NoTileFoundException;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -14,7 +13,6 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 

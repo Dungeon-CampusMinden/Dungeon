@@ -73,7 +73,8 @@ public final class AIUtils {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    boolean finished = path.getCount() == 0 || LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()));
+    boolean finished =
+        path.getCount() == 0 || LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()));
 
     boolean onPath = false;
     Tile currentTile = Game.tileAT(pc.position());
