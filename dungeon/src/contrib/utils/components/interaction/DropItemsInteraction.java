@@ -5,6 +5,7 @@ import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import contrib.utils.level.NoTileFoundException;
 import core.Entity;
+import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
@@ -69,23 +70,31 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Item[] itemData = inventoryComponent.items();
-    double count = itemData.length;
-    // used for calculation of drop position
-    AtomicInteger index = new AtomicInteger();
     Arrays.stream(itemData)
         .forEach(
             item -> {
               if (item != null) {
-                if (!item.drop(
-                    calculateDropPosition(positionComponent, index.getAndIncrement() / count))) {
+                boolean itemDropped = false;
+                for (int i = 1; i <= 10; i++) {
                   Coordinate randomTile =
                       LevelUtils.randomAccessibleTileCoordinateInRange(
-                              positionComponent.position(), 1)
-                          .orElseThrow(
-                              () -> new NoTileFoundException("No Tile was found for " + entity));
-
-                  item.drop(randomTile.toPoint());
+                              positionComponent.position(), i)
+                          .orElse(null);
+                  if (randomTile != null) {
+                    item.drop(randomTile.toPoint());
+                    itemDropped = true;
+                    break;
+                  }
                 }
+                if (!itemDropped) {
+                  // if no tile was found, drop on the hero
+                  item.drop(
+                      Game.hero()
+                          .flatMap(hero -> hero.fetch(PositionComponent.class))
+                          .map(PositionComponent::position)
+                          .orElseGet(() -> new Point(0, 0)));
+                }
+                System.out.println("Dropped item: " + item);
               }
             });
 
