@@ -11,22 +11,12 @@ import java.util.Objects;
 /**
  * This class contains a search (visit) method to recursively visit resources, also called assets.
  *
- * <p>Techniques for all methods: Recursively depth-first search in alphabetical order, not
- * following symlinks.
+ * <p>Techniques for all methods: Recursively depth-first search in alphabetical order.
  */
 public class FileSystemUtil {
 
   private FileSystemUtil() {}
 
-  /**
-   * This method tries to recursively visit resources using the test resources directory. It checks
-   * if the method is called in a JUnit test and throws an exception if not. Then it walks the file
-   * tree starting from the specified path, using the provided file visitor.
-   *
-   * @param path the path to the resources
-   * @param visitor the file visitor to use
-   * @throws Exception if the method is not called in a JUnit test
-   */
   private static void visitJUnitResourcesViaWalkFileTree(
       final String path, final SimpleFilePathVisitorI visitor) throws Exception {
     Files.walkFileTree(
@@ -37,15 +27,6 @@ public class FileSystemUtil {
         visitor);
   }
 
-  /**
-   * This method tries to recursively visit resources using the context class loader. If it fails,
-   * an exception is thrown. Then it walks the file tree starting from the specified path, using the
-   * provided file visitor.
-   *
-   * @param path the path to the resources
-   * @param visitor the file visitor to use
-   * @throws Exception if the method is not called in a JUnit test
-   */
   private static void visitResourcesViaGetResourceAsStream(
       final String path, final SimpleFilePathVisitorI visitor) throws Exception {
     final ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -80,14 +61,7 @@ public class FileSystemUtil {
     }
   }
 
-  /**
-   * This method tries to recursively visit resources using the game jar file.
-   *
-   * @param path the path to the game jar file
-   * @param visitor the file visitor to visit the resources
-   * @throws Exception if an error occurs during the process
-   */
-  private static void visitGameJarResourcesViaNewFileSystemNull(
+  private static void visitResourcesViaNewFileSystemNull(
       final String path, final SimpleFilePathVisitorI visitor) throws Exception {
     //noinspection InstantiationOfUtilityClass
     final FileSystemUtil util = new FileSystemUtil();
@@ -100,16 +74,7 @@ public class FileSystemUtil {
     }
   }
 
-  /**
-   * This method tries to recursively visit resources using the dungeon jar file or in the assets
-   * directory if it is started from an IDE.
-   *
-   * @param path the path to the game jar file
-   * @param visitor the file visitor to visit the resources
-   * @param fqClassName the fully qualified class name of the class to search in, or null
-   * @throws Exception if an error occurs during the process
-   */
-  private static void visitDungeonJarResourcesViaNewFileSystemNull(
+  private static void visitResourcesViaNewFileSystemNull(
       final String path, final SimpleFilePathVisitorI visitor, final String fqClassName)
       throws Exception {
     final Object util = Class.forName(fqClassName).getDeclaredConstructor().newInstance();
@@ -122,16 +87,7 @@ public class FileSystemUtil {
     }
   }
 
-  /**
-   * This method also tries to recursively visit resources using the dungeon jar file or in the
-   * assets directory if it is started from an IDE, but uses a different approach.
-   *
-   * @param path the path to the game jar file
-   * @param visitor the file visitor to visit the resources
-   * @param fqClassName the fully qualified class name of the class to search in, or null
-   * @throws Exception if an error occurs during the process
-   */
-  private static void visitDungeonJarResourcesViaNewFileSystemEmptyMap(
+  private static void visitResourcesViaNewFileSystemEmptyMap(
       final String path, final SimpleFilePathVisitorI visitor, final String fqClassName)
       throws Exception {
     final Object util = Class.forName(fqClassName).getDeclaredConstructor().newInstance();
@@ -145,12 +101,9 @@ public class FileSystemUtil {
   }
 
   /**
-   * This method tries to visit resources using different methods in a specific order, and if none
-   * of them work, it throws an exception as a last resort. The order is: JUnit, ContextClassLoader,
-   * GameJar, DungeonJar, DungeonFiles. If none of them work, you can be sure that the path to the
-   * resources does not exist.
+   * This method tries to visit resources using different methods in a specific order.
    *
-   * <p>Techniques: Recursively depth-first search in alphabetical order, not following symlinks.
+   * <p>Techniques: Recursively depth-first search in alphabetical order.
    *
    * @param path a {@link String} path to the resources
    * @param visitor a {@link SimpleFilePathVisitorI} to use for the visit
@@ -165,31 +118,28 @@ public class FileSystemUtil {
       return;
     } catch (Exception ignore) {
     }
-    // Not found in JUnit, try via ContextClassLoader next
 
     try {
       visitResourcesViaGetResourceAsStream(path, visitor);
       return;
     } catch (Exception ignore) {
     }
-    // Not found in ContextClassLoader, try via GameJar next
 
     try {
-      visitGameJarResourcesViaNewFileSystemNull(path, visitor);
+      visitResourcesViaNewFileSystemNull(path, visitor);
       return;
     } catch (Exception ignore) {
     }
-    // Not found in GameJar, try via classesToSearchIn next
 
     if (fqClassNames != null) {
       for (final var fqClassName : fqClassNames) {
         try {
-          visitDungeonJarResourcesViaNewFileSystemNull(path, visitor, fqClassName);
+          visitResourcesViaNewFileSystemNull(path, visitor, fqClassName);
           return;
         } catch (Exception ignore) {
         }
         try {
-          visitDungeonJarResourcesViaNewFileSystemEmptyMap(path, visitor, fqClassName);
+          visitResourcesViaNewFileSystemEmptyMap(path, visitor, fqClassName);
           return;
         } catch (Exception ignore) {
         }
