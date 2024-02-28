@@ -91,6 +91,10 @@ public class TileTextureFactory {
     return null;
   }
 
+  public static SimpleIPath getEmptyFloorPath() {
+    return new SimpleIPath("floor/empty");
+  }
+
   private static IPath findTexturePathDoor(LevelPart levelPart) {
     if (levelPart.element() == LevelElement.DOOR) {
       if (belowIsAccessible(levelPart.position, levelPart.layout)) {
