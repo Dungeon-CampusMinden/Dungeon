@@ -10,8 +10,14 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 
 public class FallingSystem extends System {
+
+  public FallingSystem() {
+    super(PositionComponent.class, HealthComponent.class);
+  }
+
   @Override
   public void execute() {
     entityStream().filter(this::filterFalling).forEach(this::handleFalling);
@@ -19,10 +25,12 @@ public class FallingSystem extends System {
 
   private boolean filterFalling(Entity entity) {
     Point entityPosition =
-        entity.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
-    if (entityPosition == null) return false;
+        entity
+            .fetch(PositionComponent.class)
+            .map(PositionComponent::position)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Tile currentTile = Game.tileAT(entityPosition);
-    return currentTile.levelElement().equals(LevelElement.SKIP);
+    return currentTile == null || currentTile.levelElement().equals(LevelElement.SKIP);
   }
 
   private void handleFalling(Entity entity) {
