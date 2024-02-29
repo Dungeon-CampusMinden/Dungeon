@@ -232,6 +232,10 @@ public abstract class Tile {
     return "Tile{" + "globalPosition=" + globalPosition + ", friction=" + friction + '}';
   }
 
+  public boolean canSeeThrough() {
+    return levelElement.canSeeThrough();
+  }
+
   @DSLType(name = "tile_direction")
   public enum Direction {
     N,

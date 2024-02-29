@@ -2,10 +2,14 @@ package core.systems;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import core.Entity;
+import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.level.Tile;
+import core.level.utils.LevelUtils;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
@@ -86,8 +90,36 @@ public final class DrawSystem extends System {
     List<Entity> players = partitionedEntities.get(true);
     List<Entity> npcs = partitionedEntities.get(false);
 
-    npcs.forEach(entity -> draw(buildDataObject(entity)));
+    npcs.stream().filter(this::shouldDraw).forEach(entity -> draw(buildDataObject(entity)));
     players.forEach(entity -> draw(buildDataObject(entity)));
+  }
+
+  /**
+   * Checks if an entity should be drawn. By checking if a wall, or obstacle is in the way.
+   *
+   * @param entity the entity to check
+   * @return true if the entity should be drawn, false otherwise
+   */
+  private boolean shouldDraw(Entity entity) {
+    PositionComponent targetPos = entity.fetch(PositionComponent.class).orElse(null);
+    if (targetPos == null) {
+      return false;
+    }
+    PositionComponent heroPos =
+        Game.hero().isPresent()
+            ? Game.hero().get().fetch(PositionComponent.class).orElse(null)
+            : null;
+    if (heroPos == null) {
+      return false;
+    }
+
+    // Positons
+    Point target = targetPos.position();
+    Point hero = heroPos.position();
+
+    // Ray
+    List<Tile> ray = LevelUtils.ray(hero, target, 2, 100000);
+    return ray.stream().allMatch(Tile::canSeeThrough);
   }
 
   private void draw(final DSData dsd) {

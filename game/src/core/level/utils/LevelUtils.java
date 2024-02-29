@@ -298,4 +298,43 @@ public final class LevelUtils {
     Optional<Entity> hero = Game.hero();
     return hero.filter(value -> entityInRange(entity, value, range)).isPresent();
   }
+
+  /**
+   * Get the tiles in the line of sight between two points.
+   *
+   * @param start The start point.
+   * @param end The end point.
+   * @return List of tiles in the line of sight between the two points.
+   */
+  public static List<Tile> ray(Point start, Point end, int sampleSize, int maxIterations) {
+    List<Tile> tiles = new ArrayList<>();
+    int x0 = (int) start.x;
+    int y0 = (int) start.y;
+    int x1 = (int) end.x;
+    int y1 = (int) end.y;
+    int dx = Math.abs(x1 - x0);
+    int dy = Math.abs(y1 - y0);
+    int sx = x0 < x1 ? 1 : -1;
+    int sy = y0 < y1 ? 1 : -1;
+    int err = dx - dy;
+    int iterations = 0;
+    while (iterations < maxIterations) {
+      if (iterations % sampleSize == 0) {
+        Tile tile = Game.tileAT(new Point(x0, y0));
+        if (tile != null) tiles.add(tile);
+      }
+      if (x0 == x1 && y0 == y1) break;
+      int e2 = 2 * err;
+      if (e2 > -dy) {
+        err -= dy;
+        x0 += sx;
+      }
+      if (e2 < dx) {
+        err += dx;
+        y0 += sy;
+      }
+      iterations++;
+    }
+    return tiles;
+  }
 }
