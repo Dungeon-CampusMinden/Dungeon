@@ -128,8 +128,8 @@ public final class HeroFactory {
       pc.registerCallback(
           core.configuration.KeyboardConfig.MOUSE_MOVE.value(),
           innerHero -> {
-            // Check if the inventory GUI is open, preventing movement
-            if (InventoryGUI.inHeroInventory) return;
+            // Check if any UI is open, if so, don't move by mouse
+            if (hero.isPresent(UIComponent.class)) return;
 
             // Small adjustment to get the correct tile
             Point mousePos = SkillTools.cursorPositionAsPoint();
@@ -237,7 +237,13 @@ public final class HeroFactory {
     if (!Objects.equals(
         KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
       pc.registerCallback(
-          KeyboardConfig.MOUSE_FIRST_SKILL.value(), fireball::execute, true, false);
+          KeyboardConfig.MOUSE_FIRST_SKILL.value(),
+          (hero) -> {
+            if (hero.isPresent(UIComponent.class)) return;
+            fireball.execute(hero);
+          },
+          true,
+          false);
       pc.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
           HeroFactory::handleInteractWithClosestInteractable,
@@ -252,6 +258,7 @@ public final class HeroFactory {
             Point mousePosition = SkillTools.cursorPositionAsPoint();
             Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
             if (interactable == null || !interactable.isPresent(InteractionComponent.class)) {
+              if (hero.isPresent(UIComponent.class)) return;
               fireball.execute(hero);
             } else {
               handleInteractWithClosestInteractable(hero);

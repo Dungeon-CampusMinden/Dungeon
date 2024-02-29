@@ -47,8 +47,6 @@ public class Skill {
    * @param entity The entity which uses this skill.
    */
   public void execute(final Entity entity) {
-    if (InventoryGUI.inHeroInventory) return;
-
     if (canBeUsedAgain()) {
       skillFunction.accept(entity);
       lastUsed = Instant.now();
