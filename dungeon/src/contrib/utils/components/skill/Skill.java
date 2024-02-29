@@ -1,5 +1,6 @@
 package contrib.utils.components.skill;
 
+import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import java.time.Duration;
 import java.time.Instant;
@@ -46,6 +47,8 @@ public class Skill {
    * @param entity The entity which uses this skill.
    */
   public void execute(final Entity entity) {
+    if (InventoryGUI.inHeroInventory) return;
+
     if (canBeUsedAgain()) {
       skillFunction.accept(entity);
       lastUsed = Instant.now();
