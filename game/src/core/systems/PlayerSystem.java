@@ -64,7 +64,7 @@ public final class PlayerSystem extends System {
       boolean paused) {
     callbacks.forEach(
         (key, value) -> {
-          if (!paused || !value.pauseable()) {
+          if (!paused || value.pauseable()) {
             execute(entity, key, value);
           }
         });

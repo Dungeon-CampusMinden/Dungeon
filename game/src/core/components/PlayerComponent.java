@@ -88,7 +88,7 @@ public final class PlayerComponent implements Component {
    */
   public Optional<Consumer<Entity>> registerCallback(
       int key, final Consumer<Entity> callback, boolean repeat) {
-    return this.registerCallback(key, callback, repeat, true);
+    return this.registerCallback(key, callback, repeat, false);
   }
 
   /**
@@ -120,7 +120,7 @@ public final class PlayerComponent implements Component {
    */
   public record InputData(boolean repeat, Consumer<Entity> callback, boolean pauseable) {
     public InputData(boolean repeat, Consumer<Entity> callback) {
-      this(repeat, callback, true);
+      this(repeat, callback, false);
     }
   }
 }

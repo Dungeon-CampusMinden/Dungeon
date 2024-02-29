@@ -128,9 +128,6 @@ public final class HeroFactory {
       pc.registerCallback(
           core.configuration.KeyboardConfig.MOUSE_MOVE.value(),
           innerHero -> {
-            // Check if any UI is open, if so, don't move by mouse
-            if (hero.isPresent(UIComponent.class)) return;
-
             // Small adjustment to get the correct tile
             Point mousePos = SkillTools.cursorPositionAsPoint();
             mousePos.x = mousePos.x - 0.5f;
@@ -147,6 +144,7 @@ public final class HeroFactory {
             // If the path is null or empty, try to find a nearby tile that is accessible and
             // calculate a path to it
             if (path == null || path.getCount() == 0) {
+              System.out.println("Path is null or empty");
               Tile nearTile =
                   LevelUtils.tilesInRange(mousePos, 1f).stream()
                       .filter(tile -> LevelUtils.calculatePath(heroPos, tile.position()) != null)
@@ -165,7 +163,6 @@ public final class HeroFactory {
                     pathComponent -> pathComponent.path(finalPath),
                     () -> innerHero.add(new PathComponent(finalPath)));
           },
-          false,
           false);
     }
 
@@ -183,7 +180,6 @@ public final class HeroFactory {
             e.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
           }
         },
-        false,
         false);
 
     pc.registerCallback(
@@ -220,7 +216,7 @@ public final class HeroFactory {
           }
         },
         false,
-        false);
+        true);
 
     pc.registerCallback(
         KeyboardConfig.INTERACT_WORLD.value(),
@@ -238,10 +234,7 @@ public final class HeroFactory {
         KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
       pc.registerCallback(
           KeyboardConfig.MOUSE_FIRST_SKILL.value(),
-          (hero) -> {
-            if (hero.isPresent(UIComponent.class)) return;
-            fireball.execute(hero);
-          },
+              fireball::execute,
           true,
           false);
       pc.registerCallback(
@@ -258,7 +251,6 @@ public final class HeroFactory {
             Point mousePosition = SkillTools.cursorPositionAsPoint();
             Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
             if (interactable == null || !interactable.isPresent(InteractionComponent.class)) {
-              if (hero.isPresent(UIComponent.class)) return;
               fireball.execute(hero);
             } else {
               handleInteractWithClosestInteractable(hero);
