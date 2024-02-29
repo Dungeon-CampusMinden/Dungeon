@@ -91,7 +91,7 @@ public final class Crafting {
           }
           return FileVisitResult.CONTINUE;
         },
-        Crafting.class.getName());
+        Crafting.class);
   }
 
   /**

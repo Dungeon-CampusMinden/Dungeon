@@ -12,18 +12,9 @@ import java.nio.file.attribute.BasicFileAttributes;
  * {@link core.utils.files.FileSystemUtil}. You only have to implement {@link #visitFile(Path,
  * BasicFileAttributes)} for the files you want to visit.
  */
-public interface SimpleFilePathVisitorI extends FileVisitor<Path> {
+public interface FileSystemUtilVisitor extends FileVisitor<Path> {
   SimpleFileVisitor<Path> INSTANCE = new SimpleFileVisitor<>() {};
 
-  /**
-   * Decide what to do with a file found in the file system. See also {@link
-   * FileVisitor#visitFile(Object, BasicFileAttributes)}.
-   *
-   * @param file a reference to the file
-   * @param attrs the file's basic attributes
-   * @return see {@link FileVisitor#visitFile(Object, BasicFileAttributes)}
-   * @throws IOException see {@link FileVisitor#visitFile(Object, BasicFileAttributes)}
-   */
   @Override
   FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException;
 

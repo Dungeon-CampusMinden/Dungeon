@@ -18,7 +18,7 @@ public class FileSystemUtil {
   private FileSystemUtil() {}
 
   private static void visitJUnitResourcesViaWalkFileTree(
-      final String path, final SimpleFilePathVisitorI visitor) throws Exception {
+      final String path, final FileSystemUtilVisitor visitor) throws Exception {
     Files.walkFileTree(
         Paths.get(
             Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(path))
@@ -28,7 +28,7 @@ public class FileSystemUtil {
   }
 
   private static void visitResourcesViaGetResourceAsStream(
-      final String path, final SimpleFilePathVisitorI visitor) throws Exception {
+      final String path, final FileSystemUtilVisitor visitor) throws Exception {
     final ClassLoader loader = Thread.currentThread().getContextClassLoader();
     try (final InputStream is = loader.getResourceAsStream(path)) {
       assert is != null;
@@ -62,7 +62,7 @@ public class FileSystemUtil {
   }
 
   private static void visitResourcesViaNewFileSystemNull(
-      final String path, final SimpleFilePathVisitorI visitor) throws Exception {
+      final String path, final FileSystemUtilVisitor visitor) throws Exception {
     //noinspection InstantiationOfUtilityClass
     final FileSystemUtil util = new FileSystemUtil();
     final URI jarUri =
@@ -75,7 +75,7 @@ public class FileSystemUtil {
   }
 
   private static void visitResourcesViaNewFileSystemNull(
-      final String path, final SimpleFilePathVisitorI visitor, final String fqClassName)
+      final String path, final FileSystemUtilVisitor visitor, final String fqClassName)
       throws Exception {
     final Object util = Class.forName(fqClassName).getDeclaredConstructor().newInstance();
     final URI uri =
@@ -88,7 +88,7 @@ public class FileSystemUtil {
   }
 
   private static void visitResourcesViaNewFileSystemEmptyMap(
-      final String path, final SimpleFilePathVisitorI visitor, final String fqClassName)
+      final String path, final FileSystemUtilVisitor visitor, final String fqClassName)
       throws Exception {
     final Object util = Class.forName(fqClassName).getDeclaredConstructor().newInstance();
     final URI uri =
@@ -101,17 +101,15 @@ public class FileSystemUtil {
   }
 
   /**
-   * This method tries to visit resources using different methods in a specific order.
+   * This method tries to visit junit resources.
    *
    * <p>Techniques: Recursively depth-first search in alphabetical order.
    *
-   * @param path a {@link String} path to the resources
-   * @param visitor a {@link SimpleFilePathVisitorI} to use for the visit
-   * @param fqClassNames the fully qualified class names of the classes to search in, or null
-   * @throws FileNotFoundException if none of the lookup methods work
+   * @param path a relative path to the junit resource directory you want to visit
+   * @param visitor a {@link FileSystemUtilVisitor} instance you want to use
+   * @throws FileNotFoundException if the path does not exist
    */
-  public static void visitResources(
-      final String path, final SimpleFilePathVisitorI visitor, final String... fqClassNames)
+  public static void visitResourcesJUnit(final String path, final FileSystemUtilVisitor visitor)
       throws FileNotFoundException {
     try {
       visitJUnitResourcesViaWalkFileTree(path, visitor);
@@ -119,6 +117,22 @@ public class FileSystemUtil {
     } catch (Exception ignore) {
     }
 
+    throw new FileNotFoundException(path);
+  }
+
+  /**
+   * This method tries to visit resources using different methods in a specific order.
+   *
+   * <p>Techniques: Recursively depth-first search in alphabetical order.
+   *
+   * @param path a relative path to the resource directory you want to visit
+   * @param visitor a {@link FileSystemUtilVisitor} instance you want to use
+   * @param callerClass the class that called this method
+   * @throws FileNotFoundException if the path does not exist
+   */
+  public static void visitResources(
+      final String path, final FileSystemUtilVisitor visitor, Class<?> callerClass)
+      throws FileNotFoundException {
     try {
       visitResourcesViaGetResourceAsStream(path, visitor);
       return;
@@ -131,19 +145,55 @@ public class FileSystemUtil {
     } catch (Exception ignore) {
     }
 
-    if (fqClassNames != null) {
-      for (final var fqClassName : fqClassNames) {
-        try {
-          visitResourcesViaNewFileSystemNull(path, visitor, fqClassName);
-          return;
-        } catch (Exception ignore) {
-        }
-        try {
-          visitResourcesViaNewFileSystemEmptyMap(path, visitor, fqClassName);
-          return;
-        } catch (Exception ignore) {
-        }
-      }
+    try {
+      visitResourcesViaNewFileSystemNull(path, visitor, callerClass.getName());
+      return;
+    } catch (Exception ignore) {
+    }
+    try {
+      visitResourcesViaNewFileSystemEmptyMap(path, visitor, callerClass.getName());
+      return;
+    } catch (Exception ignore) {
+    }
+
+    // Not found in any of the methods, throw an exception, can go sure the path does not exist
+    throw new FileNotFoundException(path);
+  }
+
+  /**
+   * This method tries to visit resources using different methods in a specific order.
+   *
+   * <p>Techniques: Recursively depth-first search in alphabetical order.
+   *
+   * @param path a relative path to the resource directory you want to visit
+   * @param visitor a {@link FileSystemUtilVisitor} instance you want to use
+   * @param fqClassName the fully qualified name of the class you want to use
+   * @throws FileNotFoundException if the path does not exist
+   */
+  public static void visitResources(
+      final String path, final FileSystemUtilVisitor visitor, final String fqClassName)
+      throws FileNotFoundException {
+    try {
+      visitResourcesViaGetResourceAsStream(path, visitor);
+      return;
+    } catch (Exception ignore) {
+    }
+
+    try {
+      visitResourcesViaNewFileSystemNull(path, visitor);
+      return;
+    } catch (Exception ignore) {
+    }
+
+    try {
+      visitResourcesViaNewFileSystemNull(path, visitor, fqClassName);
+      return;
+    } catch (Exception ignore) {
+    }
+    try {
+      visitResourcesViaNewFileSystemEmptyMap(path, visitor, fqClassName);
+      return;
+    } catch (Exception ignore) {
     }
 
     // Not found in any of the methods, throw an exception, can go sure the path does not exist

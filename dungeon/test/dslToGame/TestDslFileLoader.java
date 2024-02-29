@@ -90,7 +90,7 @@ public class TestDslFileLoader {
   @Test
   public void fileToString() throws IOException {
     List<Path> list = new ArrayList<>();
-    FileSystemUtil.visitResources(
+    FileSystemUtil.visitResourcesJUnit(
         PATH_TO_DNGFILE.toString(),
         (file, attrs) -> {
           if (Files.isRegularFile(file)) {
