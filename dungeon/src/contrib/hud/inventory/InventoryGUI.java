@@ -30,7 +30,7 @@ public class InventoryGUI extends CombinableGUI {
 
   private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
   private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
-  private static final int MAX_ITEMS_PER_ROW = 8;
+  private static final int DEFAULT_MAX_ITEMS_PER_ROW = 8;
   private static final int BORDER_COLOR = 0x9dc1ebff;
   private static final int BACKGROUND_COLOR = 0x3e3e63e1;
   private static final int HOVER_BACKGROUND_COLOR = 0xffffffff;
@@ -69,6 +69,30 @@ public class InventoryGUI extends CombinableGUI {
   private String title;
   private int slotSize = 0;
   private int slotsPerRow = 0;
+  private int maxItemsPerRow = DEFAULT_MAX_ITEMS_PER_ROW;
+  private boolean isInteractive = true;
+
+  /**
+   * Create a new inventory GUI
+   *
+   * @param title the title of the inventory
+   * @param inventoryComponent the inventory component on which the GUI is based.
+   * @param maxItemsPerRow the maximum number of items per row in the inventory
+   * @param isInteractive if the inventory is interactive
+   */
+  public InventoryGUI(
+      String title,
+      InventoryComponent inventoryComponent,
+      int maxItemsPerRow,
+      boolean isInteractive) {
+    super();
+    this.inventoryComponent = inventoryComponent;
+    this.title = title;
+    this.maxItemsPerRow = maxItemsPerRow;
+    this.slotsPerRow = Math.min(maxItemsPerRow, this.inventoryComponent.items().length);
+    this.isInteractive = isInteractive;
+    if (this.isInteractive) addInputListener();
+  }
 
   /**
    * Create a new inventory GUI
@@ -80,7 +104,7 @@ public class InventoryGUI extends CombinableGUI {
     super();
     this.inventoryComponent = inventoryComponent;
     this.title = title;
-    this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
+    this.slotsPerRow = Math.min(maxItemsPerRow, this.inventoryComponent.items().length);
     addInputListener();
   }
 
@@ -95,7 +119,7 @@ public class InventoryGUI extends CombinableGUI {
         .ifPresentOrElse(e -> this.title = e.toString(), () -> this.title = "Inventory");
     title = title.split("_(?=\\d+)")[0]; // remove id
     title = title.toUpperCase();
-    this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
+    this.slotsPerRow = Math.min(maxItemsPerRow, this.inventoryComponent.items().length);
     addInputListener();
   }
 
@@ -112,7 +136,7 @@ public class InventoryGUI extends CombinableGUI {
     this.drawItems(batch);
 
     // Draw inventory title
-    this.drawInventoryTitle(batch);
+    if (!this.title.isEmpty()) this.drawInventoryTitle(batch);
   }
 
   @Override
@@ -238,6 +262,8 @@ public class InventoryGUI extends CombinableGUI {
 
   @Override
   protected void initDragAndDrop(DragAndDrop dragAndDrop) {
+    if (!this.isInteractive) return;
+
     dragAndDrop.addSource(
         new DragAndDrop.Source(this.actor()) {
           @Override
@@ -386,5 +412,26 @@ public class InventoryGUI extends CombinableGUI {
    */
   public void title(String title) {
     this.title = title;
+  }
+
+  /**
+   * Sets the interactivity of the InventoryGUI. If set to true, the InventoryGUI will respond to
+   * user inputs. If set to false, the InventoryGUI will ignore user inputs.
+   *
+   * @param isInteractive a boolean value representing the interactivity of the InventoryGUI
+   */
+  public void isInteractive(boolean isInteractive) {
+    this.isInteractive = isInteractive;
+  }
+
+  /**
+   * Returns the interactivity of the InventoryGUI. If the returned value is true, the InventoryGUI
+   * is interactive and responds to user inputs. If the returned value is false, the InventoryGUI is
+   * not interactive and ignores user inputs.
+   *
+   * @return a boolean value representing the interactivity of the InventoryGUI
+   */
+  public boolean isInteractive() {
+    return this.isInteractive;
   }
 }

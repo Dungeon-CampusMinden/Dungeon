@@ -226,6 +226,10 @@ public final class HeroFactory {
     // skills
     pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
+    // hud
+    UIComponent uiComponent =
+        new UIComponent(new GUICombination(new InventoryGUI("", ic, 3, false)), false, false);
+    hero.add(uiComponent);
     return hero;
   }
 
