@@ -1,7 +1,6 @@
 package contrib.entities;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
@@ -26,6 +25,8 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Objects;
+import java.util.Optional;
 
 /** A utility class for building the hero entity in the game world. */
 public final class HeroFactory {
@@ -120,8 +121,12 @@ public final class HeroFactory {
         pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT_SECOND.value(), new Vector2(-1, 0));
     // Mouse movement
     if (ENABLE_MOUSE_MOVEMENT) {
+      // Mouse Left Click
+      registerMouseLeftClick(pc, fireball);
+
+      // Mouse Movement (Right Click)
       pc.registerCallback(
-          Input.Buttons.RIGHT, // right mouse button
+          core.configuration.KeyboardConfig.MOUSE_MOVE.value(),
           innerHero -> {
             // Check if the inventory GUI is open, preventing movement
             if (InventoryGUI.inHeroInventory) return;
@@ -222,50 +227,72 @@ public final class HeroFactory {
         InteractionTool::interactWithClosestInteractable,
         false);
 
-    pc.registerCallback(
-        KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
-        hero1 -> {
-          // only interact with entities the cursor points at
-          Point mousePosition = SkillTools.cursorPositionAsPoint();
-          Tile mouseTile = Game.tileAT(mousePosition);
-          if (mouseTile == null) return; // mouse out of bound
-
-          Game.entityAtTile(mouseTile)
-              .filter(e -> e.isPresent(InteractionComponent.class))
-              .findFirst()
-              .ifPresent(
-                  interactable -> {
-                    InteractionComponent ic1 =
-                        interactable
-                            .fetch(InteractionComponent.class)
-                            .orElseThrow(
-                                () ->
-                                    MissingComponentException.build(
-                                        interactable, InteractionComponent.class));
-                    PositionComponent pc1 =
-                        interactable
-                            .fetch(PositionComponent.class)
-                            .orElseThrow(
-                                () ->
-                                    MissingComponentException.build(
-                                        interactable, PositionComponent.class));
-                    PositionComponent heroPC =
-                        hero1
-                            .fetch(PositionComponent.class)
-                            .orElseThrow(
-                                () ->
-                                    MissingComponentException.build(
-                                        hero1, PositionComponent.class));
-                    if (Point.calculateDistance(pc1.position(), heroPC.position()) < ic1.radius())
-                      ic1.triggerInteraction(interactable, hero1);
-                  });
-        },
-        false);
-
     // skills
     pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
     return hero;
+  }
+
+  private static void registerMouseLeftClick(PlayerComponent pc, Skill fireball) {
+    if (!Objects.equals(
+        KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
+      pc.registerCallback(
+          KeyboardConfig.MOUSE_FIRST_SKILL.value(), fireball::execute, false, false);
+      pc.registerCallback(
+          KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
+          HeroFactory::handleInteractWithClosestInteractable,
+          false,
+          false);
+    } else {
+      // If interact and skill are the same, only one callback is needed, so we only interact if
+      // interaction is possible
+      pc.registerCallback(
+          KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
+          (hero) -> {
+            Point mousePosition = SkillTools.cursorPositionAsPoint();
+            Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
+            if (interactable == null || !interactable.isPresent(InteractionComponent.class)) {
+              fireball.execute(hero);
+            } else {
+              handleInteractWithClosestInteractable(hero);
+            }
+          },
+          false,
+          false);
+    }
+  }
+
+  private static void handleInteractWithClosestInteractable(Entity hero) {
+    Point mousePosition = SkillTools.cursorPositionAsPoint();
+    Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
+    if (interactable == null) return;
+    InteractionComponent ic =
+        interactable
+            .fetch(InteractionComponent.class)
+            .orElseThrow(
+                () -> MissingComponentException.build(interactable, InteractionComponent.class));
+    PositionComponent pc =
+        interactable
+            .fetch(PositionComponent.class)
+            .orElseThrow(
+                () -> MissingComponentException.build(interactable, PositionComponent.class));
+    PositionComponent heroPC =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius())
+      ic.triggerInteraction(interactable, hero);
+  }
+
+  private static Optional<Entity> checkIfClickOnInteractable(Point pos)
+      throws MissingComponentException {
+    pos.x = pos.x - 0.5f;
+    pos.y = pos.y - 0.25f;
+    Tile mouseTile = Game.tileAT(pos);
+    if (mouseTile == null) return Optional.empty();
+
+    return Game.entityAtTile(mouseTile)
+        .filter(e -> e.isPresent(InteractionComponent.class))
+        .findFirst();
   }
 
   private static void registerMovement(PlayerComponent pc, int key, Vector2 direction) {
