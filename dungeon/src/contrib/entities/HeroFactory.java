@@ -32,11 +32,11 @@ import java.util.Optional;
 public final class HeroFactory {
 
   public static final boolean ENABLE_MOUSE_MOVEMENT = true;
-  private static final int DEFAULT_INVENTORY_SIZE = 10;
+  private static final int DEFAULT_INVENTORY_SIZE = 6;
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
   private static final Vector2 SPEED_HERO = new Vector2(7.5f, 7.5f);
   private static final int FIREBALL_COOL_DOWN = 500;
-  private static final int HERO_HP = 10;
+  private static final int HERO_HP = 20;
 
   /**
    * Get an Entity that can be used as a playable character.
@@ -237,7 +237,7 @@ public final class HeroFactory {
     if (!Objects.equals(
         KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
       pc.registerCallback(
-          KeyboardConfig.MOUSE_FIRST_SKILL.value(), fireball::execute, false, false);
+          KeyboardConfig.MOUSE_FIRST_SKILL.value(), fireball::execute, true, false);
       pc.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
           HeroFactory::handleInteractWithClosestInteractable,
@@ -257,7 +257,7 @@ public final class HeroFactory {
               handleInteractWithClosestInteractable(hero);
             }
           },
-          false,
+          true,
           false);
     }
   }
