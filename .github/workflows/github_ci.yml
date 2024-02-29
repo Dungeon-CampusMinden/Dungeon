@@ -1,99 +1,98 @@
 name: Java CI
 
 on:
-  pull_request:
-  workflow_dispatch:
+    pull_request:
+    workflow_dispatch:
 
 jobs:
-  build:
-    name: Build
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: gradle
-      - name: Build with Gradle
-        run: ./gradlew assemble
 
-  check:
-    name: Check files
-    outputs:
-        tests_changed: ${{ steps.check_files.outputs.tests_changed }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Check modified files
-        id: check_files
-        run: |
-          git diff --name-only origin/master HEAD > files.txt
-          tests_changed=false
-          while IFS= read -r file; do
-            if [[ $file == */test/* ]]; then
-              tests_changed=true
-              break
-            fi
-          done < files.txt
-          echo "tests_changed=$tests_changed" >> $GITHUB_OUTPUT
+    check:
+        name: Check files
+        outputs:
+            tests_changed: ${{ steps.check_files.outputs.tests_changed }}
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+                with:
+                    fetch-depth: 0
+            -   name: Check modified files
+                id: check_files
+                run: |
+                    git diff --name-only origin/master HEAD > files.txt
+                    tests_changed=false
+                    while IFS= read -r file; do
+                      if [[ $file == */test/* ]]; then
+                        tests_changed=true
+                        break
+                      fi
+                    done < files.txt
+                    echo "tests_changed=$tests_changed" >> $GITHUB_OUTPUT
 
-  junit_test_changed:
-    name: JUnit (matrix build)
-    needs: [build, check]
-    if: ${{ needs.check.outputs.tests_changed == 'true' }}
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: gradle
-      - name: JUnit
-        run: ./gradlew test
+    build:
+        name: Build
+        needs: check
+        strategy:
+            matrix:
+                os: [ ubuntu-latest, windows-latest, macos-latest ]
+        runs-on: ${{ matrix.os }}
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+            -   name: Set up JDK 21
+                uses: actions/setup-java@v4
+                with:
+                    java-version: '21'
+                    distribution: 'temurin'
+                    cache: gradle
+            -   name: Build with Gradle
+                run: ./gradlew clean assemble
 
-  junit:
-    name: JUnit (Linux only)
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: gradle
-      - name: JUnit
-        run: ./gradlew test
+    spotless:
+        name: Spotless
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+            -   name: Set up JDK 21
+                uses: actions/setup-java@v4
+                with:
+                    java-version: '21'
+                    distribution: 'temurin'
+            -   name: Spotless
+                run: ./gradlew spotlessJavaCheck
 
-  spotless:
-    name: Spotless
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: gradle
-      - name: Spotless
-        run: ./gradlew spotlessJavaCheck
+    junit:
+        name: JUnit (Linux only)
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+            -   name: Set up JDK 21
+                uses: actions/setup-java@v4
+                with:
+                    java-version: '21'
+                    distribution: 'temurin'
+            -   name: JUnit
+                run: ./gradlew test
+
+    junit_test_changed:
+        name: JUnit (matrix build)
+        needs: build
+        if: ${{ needs.check.outputs.tests_changed == 'true' }}
+        strategy:
+            matrix:
+                os: [ windows-latest, macos-latest ]
+        runs-on: ${{ matrix.os }}
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+            -   name: Set up JDK 21
+                uses: actions/setup-java@v4
+                with:
+                    java-version: '21'
+                    distribution: 'temurin'
+            -   name: JUnit
+                run: ./gradlew test
