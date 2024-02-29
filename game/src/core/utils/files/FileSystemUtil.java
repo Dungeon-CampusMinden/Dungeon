@@ -113,11 +113,9 @@ public class FileSystemUtil {
       throws FileNotFoundException {
     try {
       visitJUnitResourcesViaWalkFileTree(path, visitor);
-      return;
-    } catch (Exception ignore) {
+    } catch (Exception e) {
+      throw new FileNotFoundException(path);
     }
-
-    throw new FileNotFoundException(path);
   }
 
   /**
@@ -133,31 +131,7 @@ public class FileSystemUtil {
   public static void visitResources(
       final String path, final FileSystemUtilVisitor visitor, Class<?> callerClass)
       throws FileNotFoundException {
-    try {
-      visitResourcesViaGetResourceAsStream(path, visitor);
-      return;
-    } catch (Exception ignore) {
-    }
-
-    try {
-      visitResourcesViaNewFileSystemNull(path, visitor);
-      return;
-    } catch (Exception ignore) {
-    }
-
-    try {
-      visitResourcesViaNewFileSystemNull(path, visitor, callerClass.getName());
-      return;
-    } catch (Exception ignore) {
-    }
-    try {
-      visitResourcesViaNewFileSystemEmptyMap(path, visitor, callerClass.getName());
-      return;
-    } catch (Exception ignore) {
-    }
-
-    // Not found in any of the methods, throw an exception, can go sure the path does not exist
-    throw new FileNotFoundException(path);
+    visitResources(path, visitor, callerClass.getName());
   }
 
   /**
