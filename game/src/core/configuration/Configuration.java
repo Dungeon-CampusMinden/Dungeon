@@ -70,7 +70,7 @@ public class Configuration {
   /**
    * Loads the configuration from the given path
    *
-   * <p>Side effect: Will create a new file containing a default configuration, if (a) there is no
+   * <p>SIDE EFFECT: Will create a new file containing a default configuration, if (a) there is no
    * configuration file, or (b) if the file exists, but does not contain valid JSON.
    *
    * @throws IOException If the file could not be read
