@@ -12,7 +12,7 @@ sourceSets.main.java.srcDirs = ['src/']
 
 processResources {
     from new File(project(':game').projectDir,    '/assets')
-    from new File(project(':dungeon').projectDir, "/assets")
+    from new File(project(':dungeon').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
