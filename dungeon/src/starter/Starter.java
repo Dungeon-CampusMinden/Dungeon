@@ -157,7 +157,7 @@ public class Starter {
           });
       return path.get();
     } catch (Exception e) {
-      throw new IOException("No .dng file selected.");
+      throw new IOException(String.join(" ", "No .dng file selected.", e.getMessage()));
     }
   }
 
@@ -219,7 +219,7 @@ public class Starter {
       }
       return entryPoints;
     } catch (IOException e) {
-      throw new IOException("Couldn't open specified .dng. " + e.getMessage());
+      throw new IOException(String.join(" ", "Couldn't open specified .dng.", e.getMessage()));
     }
   }
 
@@ -257,7 +257,7 @@ public class Starter {
           core.configuration.KeyboardConfig.class,
           starter.KeyboardConfig.class);
     } catch (IOException e) {
-      throw new IOException("Failed to load game configuration.");
+      throw new IOException(String.join(" ", "Failed to load game configuration.", e.getMessage()));
     }
   }
 
