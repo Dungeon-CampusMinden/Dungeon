@@ -22,6 +22,7 @@ import graph.TaskGraphConverter;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -214,12 +215,10 @@ public class Starter {
       DSLEntryPointFinder finder = new DSLEntryPointFinder();
       DSLFileLoader.processArguments(args)
           .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
-      if (entryPoints.isEmpty()) {
-        throw new ParseException("entry points empty", 0);
-      }
+      if (entryPoints.isEmpty()) throw new ParseException("no entry points found", 0);
       return entryPoints;
-    } catch (IOException e) {
-      throw new IOException(String.join(" ", "Couldn't open specified .dng.", e.getMessage()), e);
+    } catch (Exception e) {
+      throw new IOException(String.join(" ", "Couldn't open specified .dng.", e.getMessage()));
     }
   }
 
