@@ -302,39 +302,42 @@ public final class LevelUtils {
   /**
    * Get the tiles in the line of sight between two points.
    *
-   * @param start The start point.
-   * @param end The end point.
+   * @param startPoint The start point.
+   * @param endPoint The end point.
+   * @param sampleSize The number of tiles to skip before adding the next tile to the list.
+   *                   A higher sample size will result in a faster calculation, but may miss some tiles.
+   * @param maxIterations The maximum number of iterations before the calculation is stopped. (Distance in Tiles)
    * @return List of tiles in the line of sight between the two points.
    */
-  public static List<Tile> ray(Point start, Point end, int sampleSize, int maxIterations) {
-    List<Tile> tiles = new ArrayList<>();
-    int x0 = (int) start.x;
-    int y0 = (int) start.y;
-    int x1 = (int) end.x;
-    int y1 = (int) end.y;
-    int dx = Math.abs(x1 - x0);
-    int dy = Math.abs(y1 - y0);
-    int sx = x0 < x1 ? 1 : -1;
-    int sy = y0 < y1 ? 1 : -1;
-    int err = dx - dy;
-    int iterations = 0;
-    while (iterations < maxIterations) {
-      if (iterations % sampleSize == 0) {
-        Tile tile = Game.tileAT(new Point(x0, y0));
-        if (tile != null) tiles.add(tile);
+  public static List<Tile> ray(Point startPoint, Point endPoint, int sampleSize, int maxIterations) {
+      List<Tile> tilesInRay = new ArrayList<>();
+      float startX = startPoint.x;
+      float startY = startPoint.y;
+      float endX = endPoint.x;
+      float endY = endPoint.y;
+      int deltaX = Math.round(Math.abs(endX - startX));
+      int deltaY = Math.round(Math.abs(endY - startY));
+      int stepX = startX < endX ? 1 : -1;
+      int stepY = startY < endY ? 1 : -1;
+      int error = deltaX - deltaY;
+      int iterationCount = 0;
+      while (iterationCount < maxIterations) {
+          if (iterationCount % sampleSize == 0) {
+              Tile tile = Game.tileAT(new Point(startX, startY));
+              if (tile != null) tilesInRay.add(tile);
+          }
+          if (startX == endX && startY == endY) break;
+          int error2 = 2 * error;
+          if (error2 > -deltaY) {
+              error -= deltaY;
+              startX += stepX;
+          }
+          if (error2 < deltaX) {
+              error += deltaX;
+              startY += stepY;
+          }
+          iterationCount++;
       }
-      if (x0 == x1 && y0 == y1) break;
-      int e2 = 2 * err;
-      if (e2 > -dy) {
-        err -= dy;
-        x0 += sx;
-      }
-      if (e2 < dx) {
-        err += dx;
-        y0 += sy;
-      }
-      iterations++;
-    }
-    return tiles;
+      return tilesInRay;
   }
 }

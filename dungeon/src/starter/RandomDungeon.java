@@ -8,9 +8,10 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.level.utils.LevelSize;
+import core.level.utils.*;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.*;
 
 public class RandomDungeon {
 
@@ -95,5 +96,6 @@ public class RandomDungeon {
     Game.add(new IdleSoundSystem());
     Game.add(new FallingSystem());
     Game.add(new PathSystem());
+    Game.add(new FogOfWarSystem());
   }
 }
