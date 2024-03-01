@@ -19,20 +19,20 @@ import java.util.*;
 public class FogOfWarSystem extends System {
   public static final int VIEW_DISTANCE = 15;
   public static final int RESOLUTION = 90;
-  private static final Map<Tile, IPath> originalTextures = new HashMap<>();
-  private static final Set<Tile> darkenedTiles = new HashSet<>();
-  private static final List<Entity> hiddenEntities = new ArrayList<>();
-  private static Point lastHeroPos = new Point(0, 0);
+  private final Map<Tile, IPath> originalTextures = new HashMap<>();
+  private final Set<Tile> darkenedTiles = new HashSet<>();
+  private final List<Entity> hiddenEntities = new ArrayList<>();
+  private Point lastHeroPos = new Point(0, 0);
 
 
-  public static void reset() {
+  public void reset() {
     originalTextures.clear();
     darkenedTiles.clear();
     hiddenEntities.clear();
     lastHeroPos = new Point(0, 0);
   }
 
-  private static List<Point> generatePointsAroundHero(Point heroPos, int resolution) {
+  private List<Point> generatePointsAroundHero(Point heroPos, int resolution) {
     List<Point> points = new ArrayList<>();
     double angleIncrement = 360.0 / resolution;
     for (int i = 0; i < resolution; i++) {
@@ -45,7 +45,7 @@ public class FogOfWarSystem extends System {
     return points;
   }
 
-  private static List<Tile> raycastToEachPoint(Point heroPos, List<Point> points, int distance) {
+  private List<Tile> raycastToEachPoint(Point heroPos, List<Point> points, int distance) {
     List<Tile> currentDarkenedTiles = new ArrayList<>();
     points.forEach(
         point -> {
@@ -66,7 +66,7 @@ public class FogOfWarSystem extends System {
     return currentDarkenedTiles;
   }
 
-  private static void darkenTile(Tile tile, Point point) {
+  private void darkenTile(Tile tile, Point point) {
     if (!originalTextures.containsKey(tile)) {
       originalTextures.put(tile, tile.texturePath());
     }
@@ -79,12 +79,12 @@ public class FogOfWarSystem extends System {
                   new LevelElement[][] {},
                   point.toCoordinate()));
       tile.texturePath(newTexture);
-      FogOfWarSystem.darkenedTiles.add(tile);
+      darkenedTiles.add(tile);
     }
   }
 
-  private static void revertTilesBackToLight(Point heroPos, List<Tile> current, int distance) {
-    Iterator<Tile> iterator = FogOfWarSystem.darkenedTiles.iterator();
+  private void revertTilesBackToLight(Point heroPos, List<Tile> current, int distance) {
+    Iterator<Tile> iterator = darkenedTiles.iterator();
     while (iterator.hasNext()) {
       Tile tile = iterator.next();
       // match non-current tile or tile that are far away
@@ -96,7 +96,7 @@ public class FogOfWarSystem extends System {
     }
   }
 
-  private static void darkenTilesFurtherThanDistance(Point heroPos, int distance) {
+  private void darkenTilesFurtherThanDistance(Point heroPos, int distance) {
     Tile[][] allTiles = Game.currentLevel().layout();
     for (Tile[] allTile : allTiles) {
       for (int x = 0; x < allTiles[0].length; x++) {
@@ -108,7 +108,7 @@ public class FogOfWarSystem extends System {
     }
   }
 
-  private static void hideAllHiddenEntities() {
+  private void hideAllHiddenEntities() {
     for (Tile darkenTile : darkenedTiles) {
       for (Entity entity : Game.entityAtTile(darkenTile).toList()) {
         if (entity.isPresent(DrawComponent.class)) {
@@ -123,7 +123,7 @@ public class FogOfWarSystem extends System {
     }
   }
 
-  private static void revealHiddenEntities() {
+  private void revealHiddenEntities() {
     for (Entity entity : hiddenEntities) {
       PositionComponent pc =
           entity

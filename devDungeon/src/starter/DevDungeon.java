@@ -46,7 +46,8 @@ public class DevDungeon {
                 });
         // Check if FogOfWar exists, if so reset it
         if (Game.systems().containsKey(FogOfWarSystem.class)) {
-            FogOfWarSystem.reset();
+            FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
+            fogOfWarSystem.reset();
         }
     }
 
