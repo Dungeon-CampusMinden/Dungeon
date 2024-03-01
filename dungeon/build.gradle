@@ -20,6 +20,11 @@ sourceSets.test.resources.srcDirs = ['test_resources/']
 
 sourceSets.main.antlr.srcDirs = ['src/dsl/antlr']
 
+processResources {
+    from new File(project(':game').projectDir, '/assets')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 
 // store name of method parameter names in .class files (used to build
 // DSL-adapter types, which contain the names of the parameters as members)

@@ -68,15 +68,10 @@ public class TaskGenerationTest {
               Game.add(EntityFactory.randomMonster());
               Game.add(EntityFactory.newChest());
             } catch (IOException e) {
-              // oh well
+              // oh well // WTF?
             }
 
-            Set<Path> dslFilePaths;
-            try {
-              dslFilePaths = DSLFileLoader.processArguments(args);
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
+            Set<Path> dslFilePaths = DSLFileLoader.processArguments(args);
 
             List<String> fileContents =
                 dslFilePaths.stream().map(DSLFileLoader::fileToString).toList();
