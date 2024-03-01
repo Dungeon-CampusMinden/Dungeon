@@ -215,7 +215,7 @@ public class Starter {
       DSLFileLoader.processArguments(args)
           .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
       if (entryPoints.isEmpty()) {
-        throw new IOException("entry points are empty");
+        throw new IOException("No entry points found.");
       }
       return entryPoints;
     } catch (IOException e) {
