@@ -219,7 +219,7 @@ public class Starter {
       }
       return entryPoints;
     } catch (IOException e) {
-      throw new IOException("Couldn't open specified .dng.");
+      throw new IOException("Couldn't open specified .dng. " + e.getMessage());
     }
   }
 
