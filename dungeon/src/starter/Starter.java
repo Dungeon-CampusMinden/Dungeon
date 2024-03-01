@@ -215,11 +215,11 @@ public class Starter {
       DSLFileLoader.processArguments(args)
           .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
       if (entryPoints.isEmpty()) {
-        throw new IOException("No entry points found.");
+        throw new ParseException("entry points empty", 0);
       }
       return entryPoints;
     } catch (IOException e) {
-      throw new IOException(String.join(" ", "Couldn't open specified .dng.", e.getMessage()));
+      throw new IOException(String.join(" ", "Couldn't open specified .dng.", e.getMessage()), e);
     }
   }
 
