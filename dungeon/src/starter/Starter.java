@@ -186,15 +186,11 @@ public class Starter {
   private static void taskSelectorOnSetup(Set<DSLEntryPoint> entryPoints) {
     Game.userOnSetup(
         () -> {
-          try {
-            createHero();
-            createSystems();
-            Game.currentLevel(TaskSelector.taskSelectorLevel());
-            setupMusic();
-            Crafting.loadRecipes();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+          createHero();
+          createSystems();
+          Game.currentLevel(TaskSelector.taskSelectorLevel());
+          setupMusic();
+          Crafting.loadRecipes();
         });
 
     // load the task selector level
