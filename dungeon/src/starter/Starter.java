@@ -246,19 +246,15 @@ public class Starter {
   }
 
   private static void configGame() throws IOException {
-    try {
-      Game.initBaseLogger();
-      Game.windowTitle("DSL Dungeon");
-      Game.frameRate(30);
-      Game.disableAudio(false);
-      Game.loadConfig(
-          new SimpleIPath("dungeon_config.json"),
-          contrib.configuration.KeyboardConfig.class,
-          core.configuration.KeyboardConfig.class,
-          starter.KeyboardConfig.class);
-    } catch (IOException e) {
-      throw new IOException(String.join(" ", "Failed to load game configuration.", e.getMessage()));
-    }
+    Game.initBaseLogger();
+    Game.windowTitle("DSL Dungeon");
+    Game.frameRate(30);
+    Game.disableAudio(false);
+    Game.loadConfig(
+        new SimpleIPath("dungeon_config.json"),
+        contrib.configuration.KeyboardConfig.class,
+        core.configuration.KeyboardConfig.class,
+        starter.KeyboardConfig.class);
   }
 
   private static void createSystems() {
