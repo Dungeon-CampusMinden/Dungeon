@@ -148,38 +148,18 @@ public final class LevelUtils {
    * @return List of tiles in the given radius around the center point.
    */
   public static List<Tile> tilesInRange(final Point center, float radius) {
-    // offset of neighbour Tiles which may not be accessible
-    Coordinate[] offsets =
-        new Coordinate[] {
-          new Coordinate(-1, -1),
-          new Coordinate(0, -1),
-          new Coordinate(1, -1),
-          new Coordinate(-1, 0),
-          new Coordinate(1, 0),
-          new Coordinate(-1, 1),
-          new Coordinate(0, 1),
-          new Coordinate(1, 1),
-        };
-    // all found tiles
-    Set<Tile> tiles = new HashSet<>();
-    // BFS queue
-    Queue<Tile> tileQueue = new ArrayDeque<>();
-    Tile start = Game.tileAT(center);
-    if (start != null) tileQueue.add(start);
-    while (tileQueue.size() > 0) {
-      Tile current = tileQueue.remove();
-      boolean added = tiles.add(current);
-      if (added) {
-        // Tile is a new Tile so add the neighbours to be checked
-        for (Coordinate offset : offsets) {
-          if (current.level() == null) continue;
-          Tile tile = current.level().tileAt(current.coordinate().add(offset));
-          if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
-        }
+      List<Tile> allTiles = new ArrayList<>();
+      for (float x = -radius; x < radius; x++) {
+          for (float y = -radius; y < radius; y++) {
+              Tile tile = Game.tileAT(new Point(center.x + x, center.y + y));
+              if (tile != null) {
+                  allTiles.add(tile);
+              }
+          }
       }
-    }
-    tiles.removeIf(Objects::isNull);
-    return new ArrayList<>(tiles);
+
+      allTiles.removeIf(Objects::isNull);
+      return allTiles;
   }
 
   private static boolean isInRange(final Point center, float radius, final Tile tile) {

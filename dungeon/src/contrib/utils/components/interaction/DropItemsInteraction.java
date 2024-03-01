@@ -73,7 +73,7 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
             item -> {
               if (item != null) {
                 boolean itemDropped = false;
-                for (int i = 1; i <= 10; i++) {
+                for (float i = 0.5f; i <= 10.0f; i += 0.5f) {
                   Coordinate randomTile =
                       LevelUtils.randomAccessibleTileCoordinateInRange(
                               positionComponent.position(), i)
