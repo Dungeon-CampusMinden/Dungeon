@@ -1,0 +1,41 @@
+'@context': https://schema.org/
+creativeWorkStatus: Published
+type: LearningResource
+name: Dungeon
+description: >-
+  The Dungeon is a tool to gamify classroom content and integrate it into a 2D
+  Rogue-Like role-playing game. It provides its own description language (the
+  Dungeon Description Language) with which tasks and game content can be defined
+  and loaded into the game.
+license: https://opensource.org/license/mit
+id: https://github.com/Dungeon-CampusMinden/Dungeon
+creator:
+  - givenName: André
+    familyName: Matutat
+    type: Person
+    affiliation:
+      name: Hochschule Bielefeld
+      type: Organization
+  - givenName: Malte
+    familyName: Reinsch
+    type: Person
+    affiliation:
+      name: Hochschule Bielefeld
+      type: Organization
+keywords:
+  - java
+  - dungeon crawler
+  - roguelike
+  - game based learning
+  - oer
+inLanguage:
+  - de
+about:
+  - https://w3id.org/kim/hochschulfaechersystematik/n079
+image: >-
+  https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/logo/cat_logo_128x128.png?raw=true
+learningResourceType:
+  - https://w3id.org/kim/hcrt/application
+educationalLevel:
+  - https://w3id.org/kim/educationalLevel/level_6
+datePublished: '2024-02-28'
