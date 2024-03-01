@@ -40,9 +40,8 @@ public class DSLFileLoader {
    *
    * @param args Strings that could be paths; typically, these are the command line arguments.
    * @return Set containing all paths to DSL files.
-   * @throws IOException if an I/O error occurs while reading the files.
    */
-  public static Set<Path> processArguments(String[] args) throws IOException {
+  public static Set<Path> processArguments(String[] args) {
     Set<Path> foundPaths = new HashSet<>();
     for (String arg : args) {
       Path path = Paths.get(arg);
@@ -82,7 +81,7 @@ public class DSLFileLoader {
         }
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      e.printStackTrace(); // WTF?
     }
 
     return dngPaths;
