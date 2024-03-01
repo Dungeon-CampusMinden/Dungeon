@@ -128,6 +128,7 @@ public class Starter {
 
       // let's do this
       Game.run();
+
     } catch (Exception e) {
       // Something went wrong
       System.err.println(e.getMessage());
