@@ -9,7 +9,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.IPath;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
+import dsl.annotation.DSLType;
 import java.util.ArrayList;
 import java.util.List;
 

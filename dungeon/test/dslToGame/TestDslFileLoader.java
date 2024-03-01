@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public class TestDslFileLoader {
 
-  private static final String PATH_TO_ASSETS_AS_STRING = "./dungeon/test_resources/dslFileLoader";
+  private static final String PATH_TO_ASSETS_AS_STRING = "./test_resources/dslFileLoader";
   private static final String PATH_TO_DNGFILE_AS_STRING = PATH_TO_ASSETS_AS_STRING + "/simple.dng";
 
   private static final String PATH_TO_JAR_AS_STRING = PATH_TO_ASSETS_AS_STRING + "/testjar.jar";

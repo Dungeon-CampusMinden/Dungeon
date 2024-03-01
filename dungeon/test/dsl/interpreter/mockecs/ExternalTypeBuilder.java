@@ -1,6 +1,6 @@
 package dsl.interpreter.mockecs;
 
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
+import dsl.annotation.DSLTypeAdapter;
 
 public class ExternalTypeBuilder {
   @DSLTypeAdapter

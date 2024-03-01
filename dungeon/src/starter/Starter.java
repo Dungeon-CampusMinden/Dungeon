@@ -19,9 +19,10 @@ import entrypoint.DSLEntryPoint;
 import entrypoint.DSLFileLoader;
 import entrypoint.DungeonConfig;
 import graph.TaskGraphConverter;
+import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -128,12 +129,10 @@ public class Starter {
       // let's do this
       Game.run();
 
-    } catch (NullPointerException | InterruptedException | InvocationTargetException e) {
-      // no configuration, so let's abort here
-      System.err.println("No .dng file selected. Exiting ...");
-    } catch (IOException e) {
-      // could not read configuration, so let's abort here
-      System.err.println("Couldn't read specified .dng. Exiting ...");
+    } catch (Exception e) {
+      // Something went wrong
+      System.err.println(e.getMessage());
+      System.err.println("Exiting ...");
     }
   }
 
@@ -142,22 +141,26 @@ public class Starter {
    *
    * @return the absolute path of the selected DNG file, or null if no file was selected
    */
-  private static String selectSingleDngFile()
-      throws InterruptedException, InvocationTargetException {
-    AtomicReference<String> path = new AtomicReference<>(null);
-    SwingUtilities.invokeAndWait(
-        () -> {
-          JFileChooser fileChooser = new JFileChooser();
-          fileChooser.setDialogTitle("Dungeon: Please select a .dng file");
-          fileChooser.setMultiSelectionEnabled(false);
-          fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-          fileChooser.setFileFilter(new FileNameExtensionFilter(".dng file", "dng"));
-          fileChooser.setAcceptAllFileFilterUsed(false);
-          if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-            path.set(fileChooser.getSelectedFile().getAbsolutePath());
-          }
-        });
-    return path.get();
+  private static String selectSingleDngFile() throws IOException {
+    try {
+      AtomicReference<String> path = new AtomicReference<>(null);
+      SwingUtilities.invokeAndWait(
+          () -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Dungeon: Please select a .dng file");
+            fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+            fileChooser.setMultiSelectionEnabled(false);
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileChooser.setFileFilter(new FileNameExtensionFilter(".dng file", "dng"));
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+              path.set(fileChooser.getSelectedFile().getAbsolutePath());
+            }
+          });
+      return path.get();
+    } catch (Exception e) {
+      throw new IOException(String.join(" ", "No .dng file selected.", e.getMessage()));
+    }
   }
 
   private static void onEntryPointSelection() {
@@ -208,11 +211,16 @@ public class Starter {
   }
 
   private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws IOException {
-    Set<DSLEntryPoint> entryPoints = new HashSet<>();
-    DSLEntryPointFinder finder = new DSLEntryPointFinder();
-    DSLFileLoader.processArguments(args)
-        .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
-    return entryPoints;
+    try {
+      Set<DSLEntryPoint> entryPoints = new HashSet<>();
+      DSLEntryPointFinder finder = new DSLEntryPointFinder();
+      DSLFileLoader.processArguments(args)
+          .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
+      if (entryPoints.isEmpty()) throw new ParseException("No entry points found.", 0);
+      return entryPoints;
+    } catch (Exception e) {
+      throw new IOException(String.join(" ", "Couldn't open specified .dng.", e.getMessage()));
+    }
   }
 
   private static void createHero() {
@@ -238,15 +246,19 @@ public class Starter {
   }
 
   private static void configGame() throws IOException {
-    Game.initBaseLogger();
-    Game.windowTitle("DSL Dungeon");
-    Game.frameRate(30);
-    Game.disableAudio(false);
-    Game.loadConfig(
-        new SimpleIPath("dungeon_config.json"),
-        contrib.configuration.KeyboardConfig.class,
-        core.configuration.KeyboardConfig.class,
-        starter.KeyboardConfig.class);
+    try {
+      Game.initBaseLogger();
+      Game.windowTitle("DSL Dungeon");
+      Game.frameRate(30);
+      Game.disableAudio(false);
+      Game.loadConfig(
+          new SimpleIPath("dungeon_config.json"),
+          contrib.configuration.KeyboardConfig.class,
+          core.configuration.KeyboardConfig.class,
+          starter.KeyboardConfig.class);
+    } catch (IOException e) {
+      throw new IOException(String.join(" ", "Failed to load game configuration.", e.getMessage()));
+    }
   }
 
   private static void createSystems() {

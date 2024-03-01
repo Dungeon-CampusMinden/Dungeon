@@ -1,7 +1,7 @@
 package dsl.interpreter.mockecs;
 
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLType;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
+import dsl.annotation.DSLType;
+import dsl.annotation.DSLTypeMember;
 
 @DSLType
 public class ComplexType {

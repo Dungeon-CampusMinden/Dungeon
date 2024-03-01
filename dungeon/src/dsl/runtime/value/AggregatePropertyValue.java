@@ -1,10 +1,10 @@
 package dsl.runtime.value;
 
+import dsl.annotation.DSLTypeProperty;
 import dsl.runtime.memoryspace.IMemorySpace;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 /**

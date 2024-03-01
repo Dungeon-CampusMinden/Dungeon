@@ -1,0 +1,42 @@
+plugins {
+    id 'java-library'
+}
+
+
+dependencies {
+    // LibGDX
+    api supportDependencies.gdx
+    api supportDependencies.gdx_freetype
+    api supportDependencies.gdx_backend_lwjgl3
+    api supportDependencies.gdx_lwjgl3_glfw_awt_macos
+    api supportDependencies.gdx_platform
+    api supportDependencies.gdx_freetype_platform
+    api supportDependencies.gdx_ai
+
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    api supportDependencies.gson
+
+    // JUnit 4, Mockito and Powermock for testing:
+    // https://mvnrepository.com/artifact/junit/junit
+    api supportDependencies.junit
+    api supportDependencies.mockito_core
+}
+
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
+sourceSets.test.resources.srcDirs = ['test_resources/']
+
+
+tasks.register('runBasicStarter', JavaExec) {
+    mainClass = 'starter.BasicStarter'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('debugBasicStarter', JavaExec) {
+    mainClass = 'starter.BasicStarter'
+    classpath = sourceSets.main.runtimeClasspath
+    debug = true
+}

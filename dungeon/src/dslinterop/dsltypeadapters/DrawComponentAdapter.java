@@ -2,8 +2,8 @@ package dslinterop.dsltypeadapters;
 
 import core.components.DrawComponent;
 import core.utils.components.path.SimpleIPath;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeAdapter;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeMember;
+import dsl.annotation.DSLTypeAdapter;
+import dsl.annotation.DSLTypeMember;
 import java.io.IOException;
 
 /** Typeadapter for creation of {@link DrawComponent}s. */

@@ -29,4 +29,9 @@ public class SimpleIPath implements IPath {
   public int priority() {
     return 0;
   }
+
+  @Override
+  public String toString() {
+    return String.format("SimpleIPath{path=%s}", this.path);
+  }
 }

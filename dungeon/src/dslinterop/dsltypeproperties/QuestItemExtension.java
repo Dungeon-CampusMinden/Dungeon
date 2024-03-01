@@ -1,8 +1,8 @@
 package dslinterop.dsltypeproperties;
 
+import dsl.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.typebuilding.annotation.DSLTypeProperty;
 import task.game.components.TaskContentComponent;
 import task.game.content.QuestItem;
 
