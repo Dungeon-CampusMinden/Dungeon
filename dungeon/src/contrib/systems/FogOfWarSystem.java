@@ -24,6 +24,14 @@ public class FogOfWarSystem extends System {
   private static final List<Entity> hiddenEntities = new ArrayList<>();
   private static Point lastHeroPos = new Point(0, 0);
 
+
+  public static void reset() {
+    originalTextures.clear();
+    darkenedTiles.clear();
+    hiddenEntities.clear();
+    lastHeroPos = new Point(0, 0);
+  }
+
   private static List<Point> generatePointsAroundHero(Point heroPos, int resolution) {
     List<Point> points = new ArrayList<>();
     double angleIncrement = 360.0 / resolution;
