@@ -210,17 +210,14 @@ public class Starter {
         });
   }
 
-  private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws IOException {
-    try {
-      Set<DSLEntryPoint> entryPoints = new HashSet<>();
-      DSLEntryPointFinder finder = new DSLEntryPointFinder();
-      DSLFileLoader.processArguments(args)
-          .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
-      if (entryPoints.isEmpty()) throw new ParseException("No entry points found.", 0);
-      return entryPoints;
-    } catch (Exception e) {
-      throw new IOException(String.join(" ", "Couldn't open specified .dng.", e.getMessage()));
-    }
+  private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws ParseException {
+    Set<DSLEntryPoint> entryPoints = new HashSet<>();
+    DSLEntryPointFinder finder = new DSLEntryPointFinder();
+    DSLFileLoader.processArguments(args)
+        .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll)); // WTF?
+
+    if (entryPoints.isEmpty()) throw new ParseException("No entry points found.", 0);
+    else return entryPoints;
   }
 
   private static void createHero() {
