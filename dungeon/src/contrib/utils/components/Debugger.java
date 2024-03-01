@@ -178,8 +178,6 @@ public class Debugger {
       monster.add(new VelocityComponent(0.1f, 0.1f));
       monster.add(new HealthComponent());
       monster.add(new CollideComponent());
-      monster.add(
-          new AIComponent(new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
 
       Game.add(monster);
       // Log that the monster was spawned
