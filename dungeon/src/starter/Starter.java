@@ -22,7 +22,6 @@ import graph.TaskGraphConverter;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -128,16 +127,10 @@ public class Starter {
 
       // let's do this
       Game.run();
-
-    } catch (IllegalStateException e) {
-      // no configuration, so let's abort here
-      System.err.println("No .dng file selected. Exiting ...");
-    } catch (ParseException e) {
-      // could not open configuration, so let's abort here
-      System.err.println("Couldn't open specified .dng. Exiting ...");
-    } catch (GameConfigException e) {
-      // could not find entry points in configuration, so let's abort here
-      System.err.println("Couldn't find tasks in .dng. Exiting ...");
+    } catch (Exception e) {
+      // Something went wrong
+      System.err.println(e.getMessage());
+      System.err.println("Exiting ...");
     }
   }
 
@@ -146,7 +139,7 @@ public class Starter {
    *
    * @return the absolute path of the selected DNG file, or null if no file was selected
    */
-  private static String selectSingleDngFile() throws IllegalStateException {
+  private static String selectSingleDngFile() throws IOException {
     try {
       AtomicReference<String> path = new AtomicReference<>(null);
       SwingUtilities.invokeAndWait(
@@ -164,7 +157,7 @@ public class Starter {
           });
       return path.get();
     } catch (Exception e) {
-      throw new IllegalStateException("No .dng file selected.");
+      throw new IOException("No .dng file selected.");
     }
   }
 
@@ -215,16 +208,18 @@ public class Starter {
         });
   }
 
-  private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws ParseException {
+  private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws IOException {
     try {
       Set<DSLEntryPoint> entryPoints = new HashSet<>();
       DSLEntryPointFinder finder = new DSLEntryPointFinder();
       DSLFileLoader.processArguments(args)
           .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll));
-      if (entryPoints.isEmpty()) throw new ParseException("no entry points found", 0);
+      if (entryPoints.isEmpty()) {
+        throw new IOException("entry points are empty");
+      }
       return entryPoints;
     } catch (IOException e) {
-      throw new ParseException(e.getMessage(), 0);
+      throw new IOException("Couldn't open specified .dng.");
     }
   }
 
@@ -250,14 +245,7 @@ public class Starter {
     Game.add(hero);
   }
 
-  /** Exception class for game configuration errors, can be thrown by {@link Starter#configGame}. */
-  public static final class GameConfigException extends Exception {
-    public GameConfigException(String message, Throwable cause) {
-      super(message, cause);
-    }
-  }
-
-  private static void configGame() throws GameConfigException {
+  private static void configGame() throws IOException {
     try {
       Game.initBaseLogger();
       Game.windowTitle("DSL Dungeon");
@@ -269,7 +257,7 @@ public class Starter {
           core.configuration.KeyboardConfig.class,
           starter.KeyboardConfig.class);
     } catch (IOException e) {
-      throw new GameConfigException("Failed to load game configuration", e);
+      throw new IOException("Failed to load game configuration.");
     }
   }
 
