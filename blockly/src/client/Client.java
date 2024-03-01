@@ -62,29 +62,22 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          try {
-            createSystems();
-            createHero();
-            Crafting.loadRecipes();
-            startServer();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+          createSystems();
+          createHero();
+          Crafting.loadRecipes();
+          startServer();
+          Crafting.loadRecipes();
         });
   }
 
   private static void onSetupRoomBasedLevel(int roomcount, int monstercount, int chestcount) {
     Game.userOnSetup(
         () -> {
-          try {
-            createSystems();
-            createHero();
-            Crafting.loadRecipes();
-            createRoomBasedLevel(roomcount, monstercount, chestcount);
-            startServer();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+          createSystems();
+          createHero();
+          Crafting.loadRecipes();
+          createRoomBasedLevel(roomcount, monstercount, chestcount);
+          startServer();
         });
   }
 
