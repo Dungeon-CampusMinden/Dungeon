@@ -21,7 +21,7 @@ sourceSets.test.resources.srcDirs = ['test_resources/']
 sourceSets.main.antlr.srcDirs = ['src/dsl/antlr']
 
 processResources {
-    from new File(project(':game').projectDir, "/assets")
+    from new File(project(':game').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
