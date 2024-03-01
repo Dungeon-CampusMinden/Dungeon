@@ -70,28 +70,33 @@ public class Configuration {
   /**
    * Loads the configuration from the given path
    *
+   * <p>SIDE EFFECT: Will create a new file containing a default configuration, if (a) there is no
+   * configuration file, or (b) if the file exists, but does not contain valid JSON.
+   *
    * @throws IOException If the file could not be read
    */
   private void load() throws IOException {
     File file = new File(configFilePath.pathString());
-    if (file.createNewFile()) { // Create file & load default config if not exists
-      loadDefault();
-      saveConfiguration();
+
+    if (!file.exists()) {
+      createAndLoadDefaultConfiguration(file);
       return;
     }
 
-    FileInputStream fis = new FileInputStream(file);
-    InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-    JsonReader jsonReader = new JsonReader();
-    configRoot = jsonReader.parse(isr);
-    isr.close();
-    fis.close();
+    try (InputStreamReader isr =
+        new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
+      JsonReader jsonReader = new JsonReader();
+      configRoot = jsonReader.parse(isr);
+    } catch (IOException e) {
+      throw new IOException(String.join(" ", "Failed to load game configuration.", e.getMessage()));
+    }
 
     if (configRoot == null) {
       loadDefault();
       saveConfiguration();
     }
 
+    // WTF? What happens here?
     AtomicBoolean dirty = new AtomicBoolean(false);
     Stream.of(findConfigFields())
         .map(
@@ -115,6 +120,19 @@ public class Configuration {
             });
     if (dirty.get()) {
       saveConfiguration();
+    }
+  }
+
+  // Create file & load default config if not exists
+  private void createAndLoadDefaultConfiguration(File file) throws IOException {
+    try {
+      if (file.createNewFile()) {
+        loadDefault();
+        saveConfiguration();
+      }
+    } catch (IOException e) {
+      throw new IOException(
+          String.join(" ", "Failed to create a new default game configuration.", e.getMessage()));
     }
   }
 
