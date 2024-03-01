@@ -8,7 +8,6 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.level.utils.LevelUtils;
 import core.level.utils.TileTextureFactory;
 import core.utils.MissingHeroException;
 import core.utils.Point;
@@ -17,13 +16,15 @@ import core.utils.components.path.IPath;
 import java.util.*;
 
 public class FogOfWarSystem extends System {
-  public static final int VIEW_DISTANCE = 15;
-  public static final int RESOLUTION = 90;
+  public static final int VIEW_DISTANCE = 20;
+  private static final int[][] mult = {
+    {1, 0, 0, -1}, {0, 1, -1, 0}, {0, -1, -1, 0}, {-1, 0, 0, -1},
+    {-1, 0, 0, 1}, {0, -1, 1, 0}, {0, 1, 1, 0}, {1, 0, 0, 1}
+  };
   private final Map<Tile, IPath> originalTextures = new HashMap<>();
   private final Set<Tile> darkenedTiles = new HashSet<>();
   private final List<Entity> hiddenEntities = new ArrayList<>();
   private Point lastHeroPos = new Point(0, 0);
-
 
   public void reset() {
     originalTextures.clear();
@@ -32,41 +33,64 @@ public class FogOfWarSystem extends System {
     lastHeroPos = new Point(0, 0);
   }
 
-  private List<Point> generatePointsAroundHero(Point heroPos, int resolution) {
-    List<Point> points = new ArrayList<>();
-    double angleIncrement = 360.0 / resolution;
-    for (int i = 0; i < resolution; i++) {
-      double angle = Math.toRadians(i * angleIncrement);
-      double dx = (VIEW_DISTANCE * Math.cos(angle));
-      double dy = (VIEW_DISTANCE * Math.sin(angle));
-      points.add(new Point((float) (heroPos.x + dx), (float) (heroPos.y + dy)));
+  private List<Tile> castLight(
+      int row, float start, float end, int radius, int xx, int xy, int yx, int yy, Point heroPos) {
+    List<Tile> visibleTiles = new ArrayList<>();
+    if (start < end) {
+      return visibleTiles;
     }
+    float newStart = 0.0f;
+    for (int i = row; i <= radius; i++) {
+      int dx = -i - 1;
+      int dy = -i;
+      boolean blocked = false;
+      while (dx <= 0) {
+        dx += 1;
+        // Translate the dx, dy coordinates into map coordinates
+        int X = (int) (heroPos.x + (dx * xx + dy * xy));
+        int Y = (int) (heroPos.y + (dx * yx + dy * yy));
+        // l_slope and r_slope store the slopes of the left and right extremities of the square
+        // we're considering
+        float lSlope = (dx - 0.5f) / (dy + 0.5f);
+        float rSlope = (dx + 0.5f) / (dy - 0.5f);
+        if (start < rSlope) {
+          continue;
+        } else if (end > lSlope) {
+          break;
+        } else {
+          // Our light beam is touching this square; light it
+          if (dx * dx + dy * dy < radius * radius) {
+            Tile tile = Game.tileAT(new Point(X, Y));
+            visibleTiles.add(tile);
+          }
+          Tile tile = Game.tileAT(new Point(X, Y));
+          if (tile == null) {
+            continue;
+          }
+          if (blocked) { // previous step was a blocking square
 
-    return points;
-  }
-
-  private List<Tile> raycastToEachPoint(Point heroPos, List<Point> points, int distance) {
-    List<Tile> currentDarkenedTiles = new ArrayList<>();
-    points.forEach(
-        point -> {
-          List<Tile> tilesInRay = LevelUtils.ray(heroPos, point, 1, distance);
-          boolean wallEncountered = false;
-
-          for (Tile tile : tilesInRay) {
-            if (!wallEncountered && !tile.canSeeThrough()) {
-              wallEncountered = true;
+            if (!tile.canSeeThrough()) { // this step is a blocking square
+              newStart = rSlope;
               continue;
+            } else {
+              blocked = false;
+              start = newStart;
             }
-            if (wallEncountered) {
-              darkenTile(tile, point);
-              currentDarkenedTiles.add(tile);
+          } else {
+            if (!tile.canSeeThrough() && i < radius) { // this step is a blocking square
+              blocked = true;
+              visibleTiles.addAll(castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
+              newStart = rSlope;
             }
           }
-        });
-    return currentDarkenedTiles;
+        }
+      }
+      if (blocked) break;
+    }
+    return visibleTiles;
   }
 
-  private void darkenTile(Tile tile, Point point) {
+  private void darkenTile(Tile tile) {
     if (!originalTextures.containsKey(tile)) {
       originalTextures.put(tile, tile.texturePath());
     }
@@ -74,36 +98,24 @@ public class FogOfWarSystem extends System {
       IPath newTexture =
           TileTextureFactory.findTexturePath(
               new TileTextureFactory.LevelPart(
-                  LevelElement.FLOOR,
+                  LevelElement.SKIP, //TODO: Change Texture to a darkened version or add Variable at top
                   DesignLabel.DARK,
                   new LevelElement[][] {},
-                  point.toCoordinate()));
+                  tile.position().toCoordinate()));
       tile.texturePath(newTexture);
       darkenedTiles.add(tile);
     }
   }
 
-  private void revertTilesBackToLight(Point heroPos, List<Tile> current, int distance) {
+  private void revertTilesBackToLight(List<Tile> visibleTiles) {
     Iterator<Tile> iterator = darkenedTiles.iterator();
     while (iterator.hasNext()) {
-      Tile tile = iterator.next();
+      Tile darkenTile = iterator.next();
       // match non-current tile or tile that are far away
-      if (!current.contains(tile) || heroPos.distance(tile.position()) > distance - 1) {
-        IPath originalTexture = originalTextures.get(tile);
-        tile.texturePath(originalTexture);
+      if (visibleTiles.contains(darkenTile)) {
+        IPath originalTexture = originalTextures.get(darkenTile);
+        darkenTile.texturePath(originalTexture);
         iterator.remove();
-      }
-    }
-  }
-
-  private void darkenTilesFurtherThanDistance(Point heroPos, int distance) {
-    Tile[][] allTiles = Game.currentLevel().layout();
-    for (Tile[] allTile : allTiles) {
-      for (int x = 0; x < allTiles[0].length; x++) {
-        Tile tile = allTile[x];
-        if (heroPos.distance(tile.position()) > distance - 1) {
-          darkenTile(tile, tile.position());
-        }
       }
     }
   }
@@ -140,6 +152,19 @@ public class FogOfWarSystem extends System {
     }
   }
 
+  private List<Tile> getAllTilesInRange(Point heroPos, int range) {
+    List<Tile> allTiles = new ArrayList<>();
+    for (int x = -range; x < range; x++) {
+      for (int y = -range; y < range; y++) {
+        Tile tile = Game.tileAT(new Point(heroPos.x + x, heroPos.y + y));
+        if (tile != null) {
+          allTiles.add(tile);
+        }
+      }
+    }
+    return allTiles;
+  }
+
   @Override
   public void execute() {
     // Only update the fog of war if the hero has moved
@@ -153,13 +178,36 @@ public class FogOfWarSystem extends System {
     if (lastHeroPos.distance(heroPos) > 0.5) {
       lastHeroPos = heroPos;
 
-      List<Point> currentPoints = generatePointsAroundHero(heroPos, RESOLUTION);
-      List<Tile> current = raycastToEachPoint(heroPos, currentPoints, VIEW_DISTANCE);
-      revertTilesBackToLight(heroPos, current, VIEW_DISTANCE);
-      darkenTilesFurtherThanDistance(heroPos, VIEW_DISTANCE);
-      // entities
+      List<Tile> allTilesInView = getAllTilesInRange(heroPos, VIEW_DISTANCE);
+
+      List<Tile> visibleTiles = new ArrayList<>();
+      visibleTiles.add(Game.tileAT(heroPos));
+      // Cast light into the surrounding tiles
+      for (int octant = 0; octant < 8; octant++) {
+        visibleTiles.addAll(
+            castLight(
+                1,
+                1.0f,
+                0.0f,
+                VIEW_DISTANCE,
+                mult[octant][0],
+                mult[octant][1],
+                mult[octant][2],
+                mult[octant][3],
+                heroPos));
+      }
+
+      // Invert
+      allTilesInView.removeAll(visibleTiles);
+      allTilesInView.forEach(this::darkenTile);
+      // Revert tiles back to light
+      revertTilesBackToLight(visibleTiles);
+
+      // Hide entities in the fog of war
       hideAllHiddenEntities();
     }
+
+    // Reveal entities in the visible area
     revealHiddenEntities();
   }
 }
