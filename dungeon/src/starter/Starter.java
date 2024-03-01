@@ -139,28 +139,32 @@ public class Starter {
   /*
    * Select a single DNG file using a JFileChooser dialog.
    *
-   * @return the absolute path of the selected DNG file, or null if no file was selected
+   * @return the absolute path of the selected DNG file
+   * @throws IOException if no file was selected
    */
   private static String selectSingleDngFile() throws IOException {
+    AtomicReference<String> path = new AtomicReference<>(null);
+    Runnable fileChooser =
+        () -> {
+          JFileChooser fileChooser1 = new JFileChooser();
+          fileChooser1.setDialogTitle("Dungeon: Please select a .dng file");
+          fileChooser1.setCurrentDirectory(new File(System.getProperty("user.dir")));
+          fileChooser1.setMultiSelectionEnabled(false);
+          fileChooser1.setFileSelectionMode(JFileChooser.FILES_ONLY);
+          fileChooser1.setFileFilter(new FileNameExtensionFilter(".dng file", "dng"));
+          fileChooser1.setAcceptAllFileFilterUsed(false);
+          if (fileChooser1.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            path.set(fileChooser1.getSelectedFile().getAbsolutePath());
+          }
+        };
+
     try {
-      AtomicReference<String> path = new AtomicReference<>(null);
-      SwingUtilities.invokeAndWait(
-          () -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Dungeon: Please select a .dng file");
-            fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
-            fileChooser.setMultiSelectionEnabled(false);
-            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            fileChooser.setFileFilter(new FileNameExtensionFilter(".dng file", "dng"));
-            fileChooser.setAcceptAllFileFilterUsed(false);
-            if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-              path.set(fileChooser.getSelectedFile().getAbsolutePath());
-            }
-          });
-      return path.get();
+      SwingUtilities.invokeAndWait(fileChooser);
     } catch (Exception e) {
       throw new IOException(String.join(" ", "No .dng file selected.", e.getMessage()));
     }
+
+    return path.get();
   }
 
   private static void onEntryPointSelection() {
