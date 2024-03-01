@@ -105,4 +105,14 @@ public final class Point {
   public String toString() {
     return "Point{" + "x=" + x + ", y=" + y + '}';
   }
+
+  /**
+   * Calculates the Euclidean distance between this point and the given point.
+   *
+   * @param heroPos The point to which the distance is calculated.
+   * @return The Euclidean distance between this point and the given point.
+   */
+  public double distance(Point heroPos) {
+    return Math.sqrt(Math.pow(heroPos.x - x, 2) + Math.pow(heroPos.y - y, 2));
+  }
 }
