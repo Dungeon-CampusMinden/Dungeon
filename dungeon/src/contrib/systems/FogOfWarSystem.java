@@ -20,7 +20,7 @@ public class FogOfWarSystem extends System {
   public static final int VIEW_DISTANCE = 15;
   public static final int RESOLUTION = 90;
   private static final Map<Tile, IPath> originalTextures = new HashMap<>();
-    private static final Set<Tile> darkenedTiles = new HashSet<>();
+  private static final Set<Tile> darkenedTiles = new HashSet<>();
   private static final List<Entity> hiddenEntities = new ArrayList<>();
   private static Point lastHeroPos = new Point(0, 0);
 
@@ -62,15 +62,17 @@ public class FogOfWarSystem extends System {
     if (!originalTextures.containsKey(tile)) {
       originalTextures.put(tile, tile.texturePath());
     }
-    IPath newTexture =
-        TileTextureFactory.findTexturePath(
-            new TileTextureFactory.LevelPart(
-                LevelElement.FLOOR,
-                DesignLabel.DARK,
-                new LevelElement[][] {},
-                point.toCoordinate()));
-    tile.texturePath(newTexture);
-    FogOfWarSystem.darkenedTiles.add(tile);
+    if (!darkenedTiles.contains(tile)) {
+      IPath newTexture =
+          TileTextureFactory.findTexturePath(
+              new TileTextureFactory.LevelPart(
+                  LevelElement.FLOOR,
+                  DesignLabel.DARK,
+                  new LevelElement[][] {},
+                  point.toCoordinate()));
+      tile.texturePath(newTexture);
+      FogOfWarSystem.darkenedTiles.add(tile);
+    }
   }
 
   private static void revertTilesBackToLight(Point heroPos, List<Tile> current, int distance) {
@@ -143,8 +145,8 @@ public class FogOfWarSystem extends System {
     if (lastHeroPos.distance(heroPos) > 0.5) {
       lastHeroPos = heroPos;
 
-      List<Point> points = generatePointsAroundHero(heroPos, RESOLUTION);
-      List<Tile> current = raycastToEachPoint(heroPos, points, VIEW_DISTANCE);
+      List<Point> currentPoints = generatePointsAroundHero(heroPos, RESOLUTION);
+      List<Tile> current = raycastToEachPoint(heroPos, currentPoints, VIEW_DISTANCE);
       revertTilesBackToLight(heroPos, current, VIEW_DISTANCE);
       darkenTilesFurtherThanDistance(heroPos, VIEW_DISTANCE);
       // entities
