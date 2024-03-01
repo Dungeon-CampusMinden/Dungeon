@@ -164,7 +164,7 @@ public class Starter {
           });
       return path.get();
     } catch (Exception e) {
-      throw new IllegalStateException("No .dng file was selected.");
+      throw new IllegalStateException("No .dng file selected.");
     }
   }
 
