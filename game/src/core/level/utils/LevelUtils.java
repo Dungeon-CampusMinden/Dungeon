@@ -240,6 +240,9 @@ public final class LevelUtils {
    */
   public static List<Tile> accessibleTilesInRange(final Point center, float radius) {
     List<Tile> tiles = tilesInRange(center, radius);
+    if (radius > 7) {
+      // System.out.println("Tiles in range(" + radius + "): " + tiles);
+    }
     tiles.removeIf(tile -> !tile.isAccessible() && !(tile instanceof DoorTile));
     return tiles;
   }
