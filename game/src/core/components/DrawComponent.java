@@ -60,6 +60,7 @@ public final class DrawComponent implements Component {
 
   private Map<String, Animation> animationMap = null;
   private Animation currentAnimation;
+  private boolean isVisable = true;
 
   /**
    * Create a new DrawComponent.
@@ -458,6 +459,14 @@ public final class DrawComponent implements Component {
     storage.forEach(
         (name, textureSet) -> animationMap.put(name, Animation.fromCollection(textureSet)));
     jar.close();
+  }
+
+  public boolean isVisible() {
+    return isVisable;
+  }
+
+  public void setVisible(boolean visible) {
+    isVisable = visible;
   }
 
   /**

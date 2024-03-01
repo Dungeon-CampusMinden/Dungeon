@@ -95,31 +95,17 @@ public final class DrawSystem extends System {
   }
 
   /**
-   * Checks if an entity should be drawn. By checking if a wall, or obstacle is in the way.
+   * Checks if an entity should be drawn. By checking if its visible or no
    *
    * @param entity the entity to check
    * @return true if the entity should be drawn, false otherwise
    */
   private boolean shouldDraw(Entity entity) {
-    PositionComponent targetPos = entity.fetch(PositionComponent.class).orElse(null);
-    if (targetPos == null) {
-      return false;
-    }
-    PositionComponent heroPos =
-        Game.hero().isPresent()
-            ? Game.hero().get().fetch(PositionComponent.class).orElse(null)
-            : null;
-    if (heroPos == null) {
-      return false;
-    }
-
-    // Positons
-    Point target = targetPos.position();
-    Point hero = heroPos.position();
-
-    // Ray
-    List<Tile> ray = LevelUtils.ray(hero, target, 2, 100000);
-    return ray.stream().allMatch(Tile::canSeeThrough);
+    DrawComponent dc =
+        entity
+            .fetch(DrawComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+    return dc.isVisible();
   }
 
   private void draw(final DSData dsd) {
