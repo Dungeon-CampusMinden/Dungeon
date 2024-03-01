@@ -227,20 +227,16 @@ public final class HeroFactory {
     pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
     // hud
-    UIComponent uiComponent =
-        new UIComponent(new GUICombination(new InventoryGUI("", ic, 3, false)), false, false);
-    hero.add(uiComponent);
+    //    UIComponent uiComponent =
+    //        new UIComponent(new GUICombination(new InventoryGUI("", ic, 3, false)), false, false);
+    //    hero.add(uiComponent);
     return hero;
   }
 
   private static void registerMouseLeftClick(PlayerComponent pc, Skill fireball) {
     if (!Objects.equals(
         KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
-      pc.registerCallback(
-          KeyboardConfig.MOUSE_FIRST_SKILL.value(),
-              fireball::execute,
-          true,
-          false);
+      pc.registerCallback(KeyboardConfig.MOUSE_FIRST_SKILL.value(), fireball::execute, true, false);
       pc.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
           HeroFactory::handleInteractWithClosestInteractable,
