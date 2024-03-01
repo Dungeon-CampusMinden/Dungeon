@@ -38,15 +38,15 @@ public class RoomBasedDungeon {
   private static void onSetup(int roomcount, int monstercount, int chestcount) {
     Game.userOnSetup(
         () -> {
+          createSystems();
           try {
-            createSystems();
             createHero();
-            setupMusic();
-            Crafting.loadRecipes();
-            createRoomBasedLevel(roomcount, monstercount, chestcount);
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
+          setupMusic();
+          Crafting.loadRecipes();
+          createRoomBasedLevel(roomcount, monstercount, chestcount);
         });
   }
 
