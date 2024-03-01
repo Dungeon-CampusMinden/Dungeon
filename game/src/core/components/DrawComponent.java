@@ -332,9 +332,7 @@ public final class DrawComponent implements Component {
                 .add(new SimpleIPath(file.toString()));
           }
           return FileVisitResult.CONTINUE;
-        },
-        /* this hardcoded string path is necessary because this class is outside our codebase, but not the corresponding resources! */
-        "contrib.crafting.Crafting");
+        });
 
     // A Map with sorted values (IPath lists) in natural string order (ascending)
     animationMap =

@@ -78,20 +78,23 @@ public final class Crafting {
    *
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
-  public static void loadRecipes() throws FileNotFoundException {
+  public static void loadRecipes() {
     final String dirName = "recipes/";
-    FileSystemUtil.visitResources(
-        dirName,
-        (file, attrs) -> {
-          if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
-            final Recipe recipe = parseRecipe(file.toUri().toURL().openStream(), file.toString());
-            if (recipe != null) {
-              RECIPES.add(recipe);
+    try {
+      FileSystemUtil.visitResources(
+          dirName,
+          (file, attrs) -> {
+            if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
+              final Recipe recipe = parseRecipe(file.toUri().toURL().openStream(), file.toString());
+              if (recipe != null) {
+                RECIPES.add(recipe);
+              }
             }
-          }
-          return FileVisitResult.CONTINUE;
-        },
-        Crafting.class);
+            return FileVisitResult.CONTINUE;
+          });
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
