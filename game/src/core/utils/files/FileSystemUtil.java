@@ -17,7 +17,7 @@ public class FileSystemUtil {
 
   private FileSystemUtil() {}
 
-  public static void visitJUnitResourcesViaWalkFileTree(
+  private static void visitResourcesViaWalkFileTree(
       final String path, final FileSystemUtilVisitor visitor) throws IOException {
     try {
       Files.walkFileTree(
@@ -38,21 +38,17 @@ public class FileSystemUtil {
 
   public static void visitResources(final String path, final FileSystemUtilVisitor visitor)
       throws IOException {
-    // Try first to visit test resources, cause some tests need it in Crafting and DrawComponent
-    // class
     try {
-      visitJUnitResourcesViaWalkFileTree(path, visitor);
+      visitResourcesViaWalkFileTree(path, visitor);
+    } catch (IOException e) {
       paths.add(path);
       if (paths.size() > max_paths) {
         max_paths = paths.size();
         LOGGER.log(Level.WARNING, "Warnung: Paths: Max: " + max_paths);
         LOGGER.log(Level.WARNING, "Warnung: Paths: " + paths);
       }
-      return;
-    } catch (IOException ignore) {
-    }
 
-    // Fall back to normal file system
-    Files.walkFileTree(Paths.get(path), visitor);
+      throw e;
+    }
   }
 }
