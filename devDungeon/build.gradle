@@ -13,3 +13,8 @@ sourceSets.main.resources.srcDirs = ['assets/']
 
 sourceSets.test.java.srcDirs = ['test/']
 sourceSets.test.resources.srcDirs = ['test_resources/']
+
+tasks.register('runDevDungeon', JavaExec) {
+    mainClass = 'starter.DevDungeon'
+    classpath = sourceSets.main.runtimeClasspath
+}
