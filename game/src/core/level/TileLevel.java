@@ -227,6 +227,7 @@ public class TileLevel implements ILevel {
             tile.designLabel());
     newTile.index(tile.index());
     layout[tile.coordinate().y][tile.coordinate().x] = newTile;
+    addTile(newTile);
   }
 
   private void removeIndex(int index) {

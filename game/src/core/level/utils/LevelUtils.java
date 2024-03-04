@@ -148,18 +148,38 @@ public final class LevelUtils {
    * @return List of tiles in the given radius around the center point.
    */
   public static List<Tile> tilesInRange(final Point center, float radius) {
-    List<Tile> allTiles = new ArrayList<>();
-    for (float x = -radius; x < radius; x++) {
-      for (float y = -radius; y < radius; y++) {
-        Tile tile = Game.tileAT(new Point(center.x + x, center.y + y));
-        if (tile != null) {
-          allTiles.add(tile);
+    // offset of neighbour Tiles which may not be accessible
+    Coordinate[] offsets =
+        new Coordinate[] {
+          new Coordinate(-1, -1),
+          new Coordinate(0, -1),
+          new Coordinate(1, -1),
+          new Coordinate(-1, 0),
+          new Coordinate(1, 0),
+          new Coordinate(-1, 1),
+          new Coordinate(0, 1),
+          new Coordinate(1, 1),
+        };
+    // all found tiles
+    Set<Tile> tiles = new HashSet<>();
+    // BFS queue
+    Queue<Tile> tileQueue = new ArrayDeque<>();
+    Tile start = Game.tileAT(center);
+    if (start != null) tileQueue.add(start);
+    while (tileQueue.size() > 0) {
+      Tile current = tileQueue.remove();
+      boolean added = tiles.add(current);
+      if (added) {
+        // Tile is a new Tile so add the neighbours to be checked
+        for (Coordinate offset : offsets) {
+          if (current.level() == null) continue;
+          Tile tile = current.level().tileAt(current.coordinate().add(offset));
+          if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
         }
       }
     }
-
-    allTiles.removeIf(Objects::isNull);
-    return allTiles;
+    tiles.removeIf(Objects::isNull);
+    return new ArrayList<>(tiles);
   }
 
   private static boolean isInRange(final Point center, float radius, final Tile tile) {
@@ -220,9 +240,6 @@ public final class LevelUtils {
    */
   public static List<Tile> accessibleTilesInRange(final Point center, float radius) {
     List<Tile> tiles = tilesInRange(center, radius);
-    if (radius > 7) {
-      // System.out.println("Tiles in range(" + radius + "): " + tiles);
-    }
     tiles.removeIf(tile -> !tile.isAccessible() && !(tile instanceof DoorTile));
     return tiles;
   }
