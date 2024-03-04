@@ -5,16 +5,16 @@ title: "Dojo-Dungeon"
 ## Einleitung
 
 Das folgende Konzept beschreibt die Ideen und Elemente für ein 2D Dungeon-Spiel mit dem
-Titel ”Dojo-Dungeon”. In diesem Spiel erkundet der Spieler verschiedene Level,
+Titel "Dojo-Dungeon". In diesem Spiel erkundet der Spieler verschiedene Level,
 löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für jedes Level.
 
 ![Abbildung: Introduction-Picture](img/introduction_pic.png)
 
-## Level 1: ”Der Vergessene Wald”
+## Level 1: "Der Vergessene Wald"
 
 - Umgebung:
-    - Ein geheimnisvoller Wald mit dichtem Un-
-      terholz und moosbedecktem Boden.
+    - Ein geheimnisvoller Wald mit dichtem
+      Unterholz und moosbedecktem Boden.
     - Der Wald besteht aus drei Räumen.
 - Ziele und Aufgaben:
     - Der Spieler muss den versteckten Schlüssel
@@ -30,7 +30,7 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       Fehlermeldungen vor.
     - Der Spieler muss den Fehler identifizieren
       und korrigieren, um voranzukommen.
-- Bosskampf ”OgreX”:
+- Bosskampf "OgreX":
     - OgreX hat verschiedene Angriffsmuster, die
       aus regulären Ausdrücken bestehen. Der
       Spieler muss daraufhin einen zum regulären
@@ -39,11 +39,10 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       ist der Boss erledigt und die nächste Ebene
       öffnet sich.
 
-## Level 2: ”Tempel der verlorenen Geheimnisse”
+## Level 2: "Tempel der verlorenen Geheimnisse"
 
 - Umgebung:
-    - Ein uralter Tempel mit geheimnisvollen In-
-      schriften.
+    - Ein uralter Tempel mit geheimnisvollen Inschriften.
     - Der Tempel besteht aus drei Räumen.
 - Ziele und Aufgaben:
     - Der Spieler muss den versteckten Saphir
@@ -55,26 +54,25 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
     - Zusätzlich befinden sich Truhen im Raum,
       die Ausrüstung beinhalten.
 - Rätsel im zweiten Raum:
-    - Eine Schriftrolle befindet sich auf dem Bo-
-      den, mit der Aufgabe, dass der Spieler
+    - Eine Schriftrolle befindet sich auf dem Boden,
+      mit der Aufgabe, dass der Spieler
       ein Monster mit verschiedenen Eigenschaften
       (z.B. Gesundheit, Angriffskraft) erstellen
       muss, um weiterzukommen.
-- Bosskampf ”Skelettdoktor der Code Refac-
-  torer”:
+- Bosskampf "Skelettdoktor der Code Refactorer":
     - Der Skelettdoktor ist verzweifelt, weil der
-      Quellcode miserabel, unvollständig und in-
-      effizient ist und bittet den Spieler um Hilfe.
+      Quellcode miserabel, unvollständig und ineffizient ist und
+      bittet den Spieler um Hilfe.
       Ziel ist es, den Code zu optimieren, Fehler
       zu beheben und die Lesbarkeit zu verbessern.
       Falls die Lösung zufriedenstellend ist, öffnet
       sich die Tür zur nächsten Ebene.
 
-## Level 3: ”Kerker des Grauens”
+## Level 3: "Kerker des Grauens"
 
 - Umgebung:
-    - Ein düsterer, verfallener Kerker mit steiner-
-      nen Wänden und alten Türen.
+    - Ein düsterer, verfallener Kerker mit steinernen
+      Wänden und alten Türen.
     - Der Kerker besteht aus drei Räumen.
 - Ziele und Aufgaben:
     - Der Spieler muss Schriftrollen mit Tieren
@@ -86,13 +84,12 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       Zombies, die ihn angreifen.
 - Rätsel im zweiten Raum:
     - Ein friedlicher Imp will, dass der Spieler in
-      einem vorgegeben Code Fehler findet und ko-
-      rrigiert.
+      einem vorgegeben Code Fehler findet und korrigiert.
     - Dies kann dazu beitragen, das Verständnis
       für häufige Fehler und Debugging-Techniken
       zu vertiefen.
-- Bosskampf ”Zauberer von Patternson”:
-    - Der ”Zauber von Patternson” verlangt vom
+- Bosskampf "Zauberer von Patternson":
+    - Der "Zauber von Patternson" verlangt vom
       Spieler, dass er verschiedene Design Patterns
       (z.B. Singleton, Factory, Observer) ins Spiel
       implementieren muss, damit er in die nächste
@@ -100,7 +97,7 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
     - Ziel: Der Spieler kann diese Muster erkennen
       und anwenden.
 
-## Level 4: ”Die Vulkanhöhle”
+## Level 4: "Die Vulkanhöhle"
 
 - Umgebung:
     - Eine unterirdische Höhle mit fließender Lava
@@ -109,24 +106,22 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
 - Ziele und Aufgaben:
     - Der Spieler muss alle Monster erledigen um
       weiterzukommen.
-    - Folgende Monster sind anzutreffen: ”Imps”
-      und ”kleiner Dämon.”
-    - In einer Truhe befindet sich das “Eisschw-
-      ert”, mit dem man mehr Schaden anrichten
-      kann.
+    - Folgende Monster sind anzutreffen: "Imps"
+      und "kleiner Dämon".
+    - In einer Truhe befindet sich das "Eisschwert",
+      mit dem man mehr Schaden anrichten kann.
 - Rätsel im zweiten Raum:
     - Der Spieler trifft auf einen mysteriösen NPC.
     - Der NPC stellt Fragen zu Lambda-
       Ausdrücken und Funktionsinterfaces.
-    - Der Spieler muss die Fragen richtig beant-
-      worten, um weiterzukommen.
-- Bosskampf ”Der Artefakt Dämon”:
-    - Der ”Artefakt Dämon” ist friedlich und wird
+    - Der Spieler muss die Fragen richtig beantworten, um weiterzukommen.
+- Bosskampf "Der Artefakt Dämon":
+    - Der "Artefakt Dämon" ist friedlich und wird
       den Spieler nicht angreifen.
-    - Der Spieler erhält eine Beschreibung des er-
-      warteten Verhaltens und der Schnittstelle,
+    - Der Spieler erhält eine Beschreibung des erwarteten
+      Verhaltens und der Schnittstelle,
       die das Artefakt implementieren muss.
-    - Der “Artefakt Dämon” erteilt dem Spieler
+    - Der "Artefakt Dämon" erteilt dem Spieler
       die Aufgabe, eine Java-Klasse zu schreiben,
       die dieses Verhalten implementiert und die
       Schnittstelle implementiert.
@@ -136,39 +131,33 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       das Artefakt erhalten, kommt er in die
       nächste Ebene.
 
-## Level 5: ”Spezial-Welt Bielefeld”
+## Level 5: "Spezial-Welt Bielefeld"
 
 - Umgebung:
-    - Die Stadt Bielefeld mit ihren Se-
-      henswürdigkeiten.
+    - Die Stadt Bielefeld mit ihren Sehenswürdigkeiten.
 - Ziele und Aufgaben:
-    - Der Spieler muss verhindern, dass der Zus-
-      tand der Gebäude nicht unter 50 % fällt.
+    - Der Spieler muss verhindern, dass der Zustand der Gebäude
+      nicht unter 50 % fällt.
     - Der Spieler muss alle Monster erledigen um
       weiterzukommen.
-- Rätsel ”Java-Quiz”:
-    - Der Spieler trifft auf einen weisen alten Za-
-      uberer.
+- Rätsel "Java-Quiz":
+    - Der Spieler trifft auf einen weisen alten Zauberer.
     - Der Zauberer stellt ihm Fragen zu Java-
       Konzepten und -Syntax.
-    - Der Spieler muss sein Java-Wissen unter Be-
-      weis stellen, um den Zauberer zu beein-
-      drucken.
-- Bosskampf ”Mr. Unbekannt”:
+    - Der Spieler muss sein Java Wissen unter Beweis stellen, um den Zauberer
+      zu beeindrucken.
+- Bosskampf "Mr. Unbekannt":
     - Der Boss stellt ihm eine Reihe von Fragen zu
       Java-Programmierung.
-    - Der Spieler muss die Fragen richtig beant-
-      worten, um den Boss zu besiegen.
+    - Der Spieler muss die Fragen richtig beantworten, um den Boss zu besiegen.
 
 ## Allgemeine Struktur der Level
 
-![Abbildung: Level-Struktur](img/level_structure.png)
+![Abbildung: Level-Structure](img/level_structure.png)
 
 ## Ziele
 
-Die Studenten sollen spielerisch lernen, indem sie die im Spiel eingebauten fachlichen Auf-
-gaben lösen. Dabei werden gezielt Themen aus den Vorlesungen eingesetzt, um den Fortschritt
+Die Studenten sollen spielerisch lernen, indem sie die im Spiel eingebauten fachlichen Aufgaben
+lösen. Dabei werden gezielt Themen aus den Vorlesungen eingesetzt, um den Fortschritt
 im Spiel zu ermöglichen. Gleichzeitig ist es wichtig, dass der Spaß nicht zu kurz kommt und
 die Level herausfordernd, aber machbar sind.
-
-
