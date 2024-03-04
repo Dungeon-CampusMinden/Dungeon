@@ -26,7 +26,7 @@ public class LevelLoader {
     getAllLevelFilePaths();
   }
 
-  private static void getAllLevelFilePaths() {
+  private static void getAllLevelFilePaths() { //TODO: only works with local file-system
     try {
       URI uri = Objects.requireNonNull(LevelLoader.class.getResource("/levels")).toURI();
       Path path = Paths.get(uri);
