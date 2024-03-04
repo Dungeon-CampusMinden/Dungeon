@@ -8,6 +8,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.level.utils.LevelUtils;
 import core.level.utils.TileTextureFactory;
 import core.utils.MissingHeroException;
 import core.utils.Point;
@@ -153,19 +154,6 @@ public class FogOfWarSystem extends System {
     }
   }
 
-  private List<Tile> getAllTilesInRange(Point heroPos, int range) {
-    List<Tile> allTiles = new ArrayList<>();
-    for (int x = -range; x < range; x++) {
-      for (int y = -range; y < range; y++) {
-        Tile tile = Game.tileAT(new Point(heroPos.x + x, heroPos.y + y));
-        if (tile != null) {
-          allTiles.add(tile);
-        }
-      }
-    }
-    return allTiles;
-  }
-
   @Override
   public void execute() {
     // Only update the fog of war if the hero has moved
@@ -179,7 +167,7 @@ public class FogOfWarSystem extends System {
     if (lastHeroPos.distance(heroPos) > 0.5) {
       lastHeroPos = heroPos;
 
-      List<Tile> allTilesInView = getAllTilesInRange(heroPos, VIEW_DISTANCE);
+      List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, VIEW_DISTANCE);
 
       List<Tile> visibleTiles = new ArrayList<>();
       visibleTiles.add(Game.tileAT(heroPos));
