@@ -16,9 +16,8 @@ import core.level.utils.*;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
-import level.LevelLoader;
-
 import java.io.IOException;
+import level.LevelLoader;
 
 public class DevDungeon {
 

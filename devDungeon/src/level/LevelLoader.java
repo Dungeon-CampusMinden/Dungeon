@@ -4,7 +4,6 @@ import core.Game;
 import core.level.elements.ILevel;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;

@@ -1,6 +1,5 @@
 package contrib.utils.components.skill;
 
-import contrib.hud.inventory.InventoryGUI;
 import core.Entity;
 import java.time.Duration;
 import java.time.Instant;

@@ -22,7 +22,8 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> FIRST_SKILL =
       new ConfigKey<>(new String[] {"skill", "first"}, new ConfigIntValue(Input.Keys.Q));
   public static final ConfigKey<Integer> MOUSE_FIRST_SKILL =
-            new ConfigKey<>(new String[] {"skill", "mouse_first"}, new ConfigIntValue(Input.Buttons.LEFT));
+      new ConfigKey<>(
+          new String[] {"skill", "mouse_first"}, new ConfigIntValue(Input.Buttons.LEFT));
   public static final ConfigKey<Integer> DEBUG_ZOOM_IN =
       new ConfigKey<>(new String[] {"debug", "zoom_in"}, new ConfigIntValue(Input.Keys.K));
 

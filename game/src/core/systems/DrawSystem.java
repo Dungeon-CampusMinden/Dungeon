@@ -2,14 +2,10 @@ package core.systems;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import core.Entity;
-import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.level.Tile;
-import core.level.utils.LevelUtils;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;

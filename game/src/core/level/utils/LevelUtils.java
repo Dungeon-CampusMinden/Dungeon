@@ -148,18 +148,18 @@ public final class LevelUtils {
    * @return List of tiles in the given radius around the center point.
    */
   public static List<Tile> tilesInRange(final Point center, float radius) {
-      List<Tile> allTiles = new ArrayList<>();
-      for (float x = -radius; x < radius; x++) {
-          for (float y = -radius; y < radius; y++) {
-              Tile tile = Game.tileAT(new Point(center.x + x, center.y + y));
-              if (tile != null) {
-                  allTiles.add(tile);
-              }
-          }
+    List<Tile> allTiles = new ArrayList<>();
+    for (float x = -radius; x < radius; x++) {
+      for (float y = -radius; y < radius; y++) {
+        Tile tile = Game.tileAT(new Point(center.x + x, center.y + y));
+        if (tile != null) {
+          allTiles.add(tile);
+        }
       }
+    }
 
-      allTiles.removeIf(Objects::isNull);
-      return allTiles;
+    allTiles.removeIf(Objects::isNull);
+    return allTiles;
   }
 
   private static boolean isInRange(final Point center, float radius, final Tile tile) {
@@ -287,40 +287,42 @@ public final class LevelUtils {
    *
    * @param startPoint The start point.
    * @param endPoint The end point.
-   * @param sampleSize The number of tiles to skip before adding the next tile to the list.
-   *                   A higher sample size will result in a faster calculation, but may miss some tiles.
-   * @param maxIterations The maximum number of iterations before the calculation is stopped. (Distance in Tiles)
+   * @param sampleSize The number of tiles to skip before adding the next tile to the list. A higher
+   *     sample size will result in a faster calculation, but may miss some tiles.
+   * @param maxIterations The maximum number of iterations before the calculation is stopped.
+   *     (Distance in Tiles)
    * @return List of tiles in the line of sight between the two points.
    */
-  public static List<Tile> ray(Point startPoint, Point endPoint, int sampleSize, int maxIterations) {
-      List<Tile> tilesInRay = new ArrayList<>();
-      float startX = startPoint.x;
-      float startY = startPoint.y;
-      float endX = endPoint.x;
-      float endY = endPoint.y;
-      int deltaX = Math.round(Math.abs(endX - startX));
-      int deltaY = Math.round(Math.abs(endY - startY));
-      int stepX = startX < endX ? 1 : -1;
-      int stepY = startY < endY ? 1 : -1;
-      int error = deltaX - deltaY;
-      int iterationCount = 0;
-      while (iterationCount < maxIterations) {
-          if (iterationCount % sampleSize == 0) {
-              Tile tile = Game.tileAT(new Point(startX, startY));
-              if (tile != null) tilesInRay.add(tile);
-          }
-          if (startX == endX && startY == endY) break;
-          int error2 = 2 * error;
-          if (error2 > -deltaY) {
-              error -= deltaY;
-              startX += stepX;
-          }
-          if (error2 < deltaX) {
-              error += deltaX;
-              startY += stepY;
-          }
-          iterationCount++;
+  public static List<Tile> ray(
+      Point startPoint, Point endPoint, int sampleSize, int maxIterations) {
+    List<Tile> tilesInRay = new ArrayList<>();
+    float startX = startPoint.x;
+    float startY = startPoint.y;
+    float endX = endPoint.x;
+    float endY = endPoint.y;
+    int deltaX = Math.round(Math.abs(endX - startX));
+    int deltaY = Math.round(Math.abs(endY - startY));
+    int stepX = startX < endX ? 1 : -1;
+    int stepY = startY < endY ? 1 : -1;
+    int error = deltaX - deltaY;
+    int iterationCount = 0;
+    while (iterationCount < maxIterations) {
+      if (iterationCount % sampleSize == 0) {
+        Tile tile = Game.tileAT(new Point(startX, startY));
+        if (tile != null) tilesInRay.add(tile);
       }
-      return tilesInRay;
+      if (startX == endX && startY == endY) break;
+      int error2 = 2 * error;
+      if (error2 > -deltaY) {
+        error -= deltaY;
+        startX += stepX;
+      }
+      if (error2 < deltaX) {
+        error += deltaX;
+        startY += stepY;
+      }
+      iterationCount++;
+    }
+    return tilesInRay;
   }
 }

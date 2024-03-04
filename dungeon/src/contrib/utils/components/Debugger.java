@@ -1,15 +1,11 @@
 package contrib.utils.components;
 
 import com.badlogic.gdx.Gdx;
-import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.dialogs.TextDialog;
-import contrib.utils.components.ai.fight.CollideAI;
-import contrib.utils.components.ai.idle.RadiusWalk;
-import contrib.utils.components.ai.transition.SelfDefendTransition;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;

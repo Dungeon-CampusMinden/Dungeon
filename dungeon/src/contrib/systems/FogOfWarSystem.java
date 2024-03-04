@@ -98,7 +98,8 @@ public class FogOfWarSystem extends System {
       IPath newTexture =
           TileTextureFactory.findTexturePath(
               new TileTextureFactory.LevelPart(
-                  LevelElement.SKIP, //TODO: Change Texture to a darkened version or add Variable at top
+                  LevelElement
+                      .SKIP, // TODO: Change Texture to a darkened version or add Variable at top
                   DesignLabel.DARK,
                   new LevelElement[][] {},
                   tile.position().toCoordinate()));
