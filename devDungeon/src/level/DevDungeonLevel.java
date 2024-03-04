@@ -22,14 +22,14 @@ public class DevDungeonLevel extends TileLevel {
 
   public static DevDungeonLevel loadFromPath(IPath path) {
     // Load file from the path
-    File file = new File(path.toString());
+    File file = new File(path.pathString());
     if (!file.exists()) {
       throw new MissingLevelException(path.toString());
     }
 
     try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
       // Parse DesignLabel
-      String designLabelLine = reader.readLine().trim().split("#")[0];
+      String designLabelLine = readLine(reader);
       DesignLabel designLabel = parseDesignLabel(designLabelLine);
 
       // Parse Hero Position
@@ -54,10 +54,10 @@ public class DevDungeonLevel extends TileLevel {
       // Parse LAYOUT
       List<String> layoutLines = new ArrayList<>();
       String line;
-      while (!(line = reader.readLine()).isEmpty()) {
+      while (!(line = readLine(reader)).isEmpty()) {
         layoutLines.add(line);
       }
-      LevelElement[][] layout = loadLevelLayoutFromString(layoutLines.toArray(new String[0]));
+      LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
       return new DevDungeonLevel(layout, designLabel);
     } catch (IOException e) {
@@ -119,12 +119,12 @@ public class DevDungeonLevel extends TileLevel {
     return entities;
   }
 
-  private static LevelElement[][] loadLevelLayoutFromString(String[] lines) {
-    LevelElement[][] layout = new LevelElement[lines.length][lines[0].length()];
+  private static LevelElement[][] loadLevelLayoutFromString(List<String> lines) {
+    LevelElement[][] layout = new LevelElement[lines.size()][lines.getFirst().length()];
 
-    for (int y = 0; y < lines.length; y++) {
-      for (int x = 0; x < lines[y].length(); x++) {
-        char c = lines[y].charAt(x);
+    for (int y = 0; y < lines.size(); y++) {
+      for (int x = 0; x < lines.getFirst().length(); x++) {
+        char c = lines.get(y).charAt(x);
         switch (c) {
           case 'F':
             layout[y][x] = LevelElement.FLOOR;
@@ -137,6 +137,12 @@ public class DevDungeonLevel extends TileLevel {
             break;
           case 'S':
             layout[y][x] = LevelElement.SKIP;
+            break;
+          case 'H':
+            layout[y][x] = LevelElement.HOLE;
+            break;
+          case 'D':
+            layout[y][x] = LevelElement.DOOR;
             break;
           default:
             throw new IllegalArgumentException("Invalid character in level layout: " + c);

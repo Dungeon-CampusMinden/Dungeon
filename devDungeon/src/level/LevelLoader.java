@@ -11,20 +11,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class LevelLoader {
 
+  private static final Logger LOGGER = Logger.getLogger(LevelLoader.class.getSimpleName());
   private static final Random RANDOM = new Random();
   private static final String LEVEL_PATH_PREFIX = "levels/";
   private static final Map<Integer, List<String>> levels = new HashMap<>();
   public static int CURRENT_LEVEL = 0;
 
   static {
-    loadLevelFiles();
+    getAllLevelFilePaths();
   }
 
-  private static void loadLevelFiles() {
+  private static void getAllLevelFilePaths() {
     try {
       URI uri = Objects.requireNonNull(LevelLoader.class.getResource("/levels")).toURI();
       Path path = Paths.get(uri);
@@ -38,7 +40,10 @@ public class LevelLoader {
                     String[] parts = fileName.split("_");
                     if (parts.length == 2) {
                       int levelNumber = Integer.parseInt(parts[0]);
-                      levels.computeIfAbsent(levelNumber, k -> new ArrayList<>()).add(fileName);
+                        String levelFilePath = file.toString();
+                        levels.computeIfAbsent(levelNumber, k -> new ArrayList<>()).add(levelFilePath);
+                    } else {
+                      LOGGER.warning("Invalid level file name: " + fileName);
                     }
                   }
                 });
@@ -57,8 +62,7 @@ public class LevelLoader {
 
     // Random Level Variant Path
     IPath levelPath =
-        new SimpleIPath(
-            LEVEL_PATH_PREFIX + levelVariants.get(RANDOM.nextInt(levelVariants.size())));
+        new SimpleIPath(levelVariants.get(RANDOM.nextInt(levelVariants.size())));
 
     return DevDungeonLevel.loadFromPath(levelPath);
   }
