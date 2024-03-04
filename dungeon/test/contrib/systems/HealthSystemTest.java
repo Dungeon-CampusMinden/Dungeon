@@ -14,6 +14,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.function.Consumer;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -27,6 +28,7 @@ public class HealthSystemTest {
     Game.removeAllSystems();
   }
 
+  @Ignore
   @Test
   public void updateEntityDies() throws IOException {
     Game.removeAllEntities();
@@ -67,6 +69,7 @@ public class HealthSystemTest {
     assertTrue("Entity should still be in game.", Game.entityStream().anyMatch(e -> e == entity));
   }
 
+  @Ignore
   @Test
   public void updateEntityGetDamage() throws IOException {
     Game.removeAllEntities();

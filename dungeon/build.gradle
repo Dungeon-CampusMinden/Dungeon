@@ -25,11 +25,6 @@ processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-processTestResources {
-    from new File('/assets', 'test_resources/')
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
 
 // store name of method parameter names in .class files (used to build
 // DSL-adapter types, which contain the names of the parameters as members)

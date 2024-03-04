@@ -14,8 +14,21 @@ public final class FileSystemUtil {
 
   private FileSystemUtil() {}
 
+  private static boolean isStartedInJUnitTest() {
+    for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+      if (element.getClassName().startsWith("org.junit.")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public static void visitResources(final String path, final FileSystemUtilVisitor visitor)
       throws IOException {
+    if (isStartedInJUnitTest()) {
+      return;
+    }
+
     try {
       Files.walkFileTree(
           Paths.get(

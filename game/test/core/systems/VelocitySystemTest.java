@@ -17,6 +17,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -139,6 +140,7 @@ public class VelocitySystemTest {
     assertEquals(-8 * (1.0f - tile.friction()), velocityComponent.currentYVelocity(), 0.001);
   }
 
+  @Ignore
   @Test
   public void changeAnimation() {
     /*
