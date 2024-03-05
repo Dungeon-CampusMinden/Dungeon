@@ -144,7 +144,6 @@ public final class HeroFactory {
             // If the path is null or empty, try to find a nearby tile that is accessible and
             // calculate a path to it
             if (path == null || path.getCount() == 0) {
-              System.out.println("Path is null or empty");
               Tile nearTile =
                   LevelUtils.tilesInRange(mousePos, 1f).stream()
                       .filter(tile -> LevelUtils.calculatePath(heroPos, tile.position()) != null)

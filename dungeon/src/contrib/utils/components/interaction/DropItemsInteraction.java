@@ -92,7 +92,6 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
                           .map(PositionComponent::position)
                           .orElseGet(() -> new Point(0, 0)));
                 }
-                System.out.println("Dropped item: " + item);
               }
             });
 
