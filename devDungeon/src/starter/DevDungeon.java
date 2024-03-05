@@ -11,7 +11,6 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.System;
-import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.*;
 import core.systems.LevelSystem;
@@ -20,6 +19,7 @@ import core.utils.components.path.SimpleIPath;
 import entities.MonsterType;
 import java.io.IOException;
 import level.LevelLoader;
+import utils.MonsterUtils;
 
 public class DevDungeon {
 
@@ -114,13 +114,7 @@ public class DevDungeon {
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
               java.lang.System.out.println(Game.currentLevel().printLevel());
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) {
-              try {
-                Entity newMob = MonsterType.CHORT.buildMonster();
-                newMob.fetch(PositionComponent.class).get().position(mosPos);
-                Game.add(newMob);
-              } catch (IOException e) {
-                e.printStackTrace();
-              }
+              MonsterUtils.spawnMonster(MonsterType.CHORT, mosPos);
             }
           }
         });
