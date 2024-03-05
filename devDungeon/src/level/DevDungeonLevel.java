@@ -41,16 +41,6 @@ public class DevDungeonLevel extends TileLevel {
               .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
       heroPosComp.position(heroPos);
 
-      // Parse Hostile Entities
-      String monsterLine = readLine(reader);
-      List<Entity> hostileEntities = parseHostileMobs(monsterLine);
-      hostileEntities.forEach(Game::add);
-
-      // Parse Misc Entities
-      String miscEntitiesLine = readLine(reader);
-      List<Entity> miscEntities = parseMiscEntities(miscEntitiesLine);
-      miscEntities.forEach(Game::add);
-
       // Parse LAYOUT
       List<String> layoutLines = new ArrayList<>();
       String line;
@@ -67,6 +57,7 @@ public class DevDungeonLevel extends TileLevel {
 
   /**
    * Read a line from the reader, ignoring comments and empty lines.
+   * It skips lines that start with a '#' (comments)
    *
    * @param reader The reader to read from
    * @return The next non-empty, non-comment line
@@ -74,7 +65,9 @@ public class DevDungeonLevel extends TileLevel {
    */
   private static String readLine(BufferedReader reader) throws IOException {
     String line = reader.readLine();
-    if (line == null) return "";
+    while (line.trim().startsWith("#")) {
+        line = reader.readLine();
+    }
     line = line.trim().split("#")[0];
 
     return line;
@@ -100,20 +93,6 @@ public class DevDungeonLevel extends TileLevel {
     } catch (IllegalArgumentException e) {
       throw new RuntimeException("Invalid DesignLabel: " + line);
     }
-  }
-
-  private static List<Entity> parseHostileMobs(String line) {
-    List<Entity> entities = new ArrayList<>();
-    if (line.isEmpty()) return entities;
-    // TODO: Implement this method
-    return entities;
-  }
-
-  private static List<Entity> parseMiscEntities(String line) {
-    List<Entity> entities = new ArrayList<>();
-    if (line.isEmpty()) return entities;
-    // TODO: Implement this method
-    return entities;
   }
 
   private static LevelElement[][] loadLevelLayoutFromString(List<String> lines) {
