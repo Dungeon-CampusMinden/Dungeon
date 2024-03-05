@@ -142,8 +142,8 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       weiterzukommen.
 - Rätsel "Java-Quiz":
     - Der Spieler trifft auf einen weisen alten Zauberer.
-    - Der Zauberer stellt ihm Fragen zu Java-
-      Konzepten und -Syntax.
+    - Der Zauberer stellt ihm Fragen zu Java-Konzepten
+      und -Syntax.
     - Der Spieler muss sein Java Wissen unter Beweis stellen, um den Zauberer
       zu beeindrucken.
 - Bosskampf "Mr. Unbekannt":
