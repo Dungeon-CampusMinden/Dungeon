@@ -21,6 +21,7 @@ processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+
 // start the dungeon (different configurations)
 tasks.register('runDojoStarter', JavaExec) {
     mainClass = 'starter.DojoStarter'
