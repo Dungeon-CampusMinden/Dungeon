@@ -65,10 +65,11 @@ public class DevDungeonLevel extends TileLevel {
    */
   private static String readLine(BufferedReader reader) throws IOException {
     String line = reader.readLine();
+    if (line == null) return "";
     while (line.trim().startsWith("#")) {
         line = reader.readLine();
     }
-    line = line.trim().split("#")[0];
+      line = line.trim().split("#")[0].trim();
 
     return line;
   }
