@@ -12,13 +12,13 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.level.Tile;
-import core.level.utils.*;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import entities.MonsterType;
 import java.io.IOException;
-import level.LevelLoader;
+import level.DungeonSaver;
+import level.DungeonLoader;
 import utils.MonsterUtils;
 
 public class DevDungeon {
@@ -63,7 +63,7 @@ public class DevDungeon {
           }
           setupMusic();
           Crafting.loadRecipes();
-          LevelLoader.loadNextLevel();
+          DungeonLoader.loadNextLevel();
         });
   }
 
@@ -112,7 +112,7 @@ public class DevDungeon {
 
               LevelSystem.level().removeTile(tile);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
-              java.lang.System.out.println(Game.currentLevel().printLevel());
+              DungeonSaver.saveCurrentDungeon();
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) {
               MonsterUtils.spawnMonster(MonsterType.CHORT, mosPos);
             }
