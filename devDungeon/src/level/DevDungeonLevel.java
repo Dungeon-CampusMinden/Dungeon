@@ -73,14 +73,11 @@ public class DevDungeonLevel extends TileLevel {
    * @throws IOException If an error occurs while reading from the reader
    */
   private static String readLine(BufferedReader reader) throws IOException {
-    String line;
-    while ((line = reader.readLine()) != null) {
-      line = line.trim().split("#")[0];
-      if (!line.isEmpty()) {
-        return line;
-      }
-    }
-    return "";
+    String line = reader.readLine();
+    if (line == null) return "";
+    line = line.trim().split("#")[0];
+
+    return line;
   }
 
   private static Point parseHeroPosition(String heroPositionLine) {
