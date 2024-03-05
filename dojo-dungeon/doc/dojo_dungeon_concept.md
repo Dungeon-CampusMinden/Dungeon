@@ -112,8 +112,8 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       mit dem man mehr Schaden anrichten kann.
 - Rätsel im zweiten Raum:
     - Der Spieler trifft auf einen mysteriösen NPC.
-    - Der NPC stellt Fragen zu Lambda-
-      Ausdrücken und Funktionsinterfaces.
+    - Der NPC stellt Fragen zu Lambda-Ausdrücken
+      und Funktionsinterfaces.
     - Der Spieler muss die Fragen richtig beantworten, um weiterzukommen.
 - Bosskampf "Der Artefakt Dämon":
     - Der "Artefakt Dämon" ist friedlich und wird
