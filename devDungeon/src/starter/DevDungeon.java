@@ -11,11 +11,13 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.*;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
+import entities.MonsterType;
 import java.io.IOException;
 import level.LevelLoader;
 
@@ -84,7 +86,7 @@ public class DevDungeon {
         core.configuration.KeyboardConfig.class);
     Game.frameRate(30);
     Game.disableAudio(false);
-    Game.windowTitle("My Dungeon");
+    Game.windowTitle("DevDungeon");
   }
 
   private static void createSystems() {
@@ -103,14 +105,22 @@ public class DevDungeon {
         new System() {
           @Override
           public void execute() {
+            Point mosPos = SkillTools.cursorPositionAsPoint();
+            mosPos = new Point(mosPos.x - 0.5f, mosPos.y - 0.25f);
             if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-              Point mosPos = SkillTools.cursorPositionAsPoint();
-              mosPos = new Point(mosPos.x - 0.5f, mosPos.y - 0.25f);
               Tile tile = Game.tileAT(mosPos);
 
               LevelSystem.level().removeTile(tile);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
               java.lang.System.out.println(Game.currentLevel().printLevel());
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) {
+              try {
+                Entity newMob = MonsterType.CHORT.buildMonster();
+                newMob.fetch(PositionComponent.class).get().position(mosPos);
+                Game.add(newMob);
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
             }
           }
         });
