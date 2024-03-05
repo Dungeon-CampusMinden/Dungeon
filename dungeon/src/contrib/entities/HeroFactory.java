@@ -226,6 +226,15 @@ public final class HeroFactory {
     pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
     // hud
+    InventoryGUI invGUI = new InventoryGUI("", ic, 3, false);
+    GUICombination guiComb = new GUICombination(invGUI);
+    UIComponent uiComponent = new UIComponent(guiComb, false, false);
+    hero.add(uiComponent);
+    guiComb.fullScreen(false);
+
+    // Place bottom right
+    guiComb.setSize(100f,100f);
+
     //    UIComponent uiComponent =
     //        new UIComponent(new GUICombination(new InventoryGUI("", ic, 3, false)), false, false);
     //    hero.add(uiComponent);

@@ -27,6 +27,7 @@ public final class GUICombination extends Group {
   private final DragAndDrop dragAndDrop;
   private final ArrayList<CombinableGUI> combinableGuis;
   private final int guisPerRow;
+  private boolean isFullScreen = false;
 
   /**
    * Creates a GUICombination, a combination of multiple CombinableGUI elements.
@@ -84,10 +85,20 @@ public final class GUICombination extends Group {
     int stageWidth = (int) Game.stage().orElseThrow().getWidth();
     int stageHeight = (int) Game.stage().orElseThrow().getHeight();
     if (stageWidth != this.getWidth() || stageHeight != this.getHeight()) {
-      this.setSize(stageWidth, stageHeight);
+      if (!this.isFullScreen) {
+        this.setSize(stageWidth, stageHeight);
+      }
       this.setPosition(0, 0);
       this.scalePositionChildren();
     }
+  }
+
+  public boolean fullScreen() {
+    return this.isFullScreen;
+  }
+
+  public void fullScreen(boolean fullScreen) {
+    this.isFullScreen = fullScreen;
   }
 
   @Override
