@@ -39,7 +39,7 @@ public final class MonsterFactory {
   };
 
   private static final int MIN_MONSTER_HEALTH = 10;
-  private static final int MAX_MONSTER_HEALTH = 10;
+  private static final int MAX_MONSTER_HEALTH = 20;
   private static final float MIN_MONSTER_SPEED = 5.0f;
   private static final float MAX_MONSTER_SPEED = 8.5f;
   private static final DamageType MONSTER_COLLIDE_DAMAGE_TYPE = DamageType.PHYSICAL;
@@ -82,47 +82,38 @@ public final class MonsterFactory {
   public static Entity randomMonster(IPath pathToTexture) throws IOException {
     int health = RANDOM.nextInt(MIN_MONSTER_HEALTH, MAX_MONSTER_HEALTH + 1);
     float speed = RANDOM.nextFloat(MIN_MONSTER_SPEED, MAX_MONSTER_SPEED);
+    float itemChance = RANDOM.nextFloat();
+    Sound deathSound = randomMonsterDeathSound();
+    int collideDamage = MONSTER_COLLIDE_DAMAGE;
+    int collideCooldown = MONSTER_COLLIDE_COOL_DOWN;
+    IdleSoundComponent idleSoundComponent = new IdleSoundComponent(randomMonsterIdleSound());
 
-    Entity monster = new Entity("monster");
-    int itemRoll = RANDOM.nextInt(0, 10);
-    BiConsumer<Entity, Entity> onDeath;
-    if (itemRoll == 0) {
-      Item item = ItemGenerator.generateItemData();
-      InventoryComponent ic = new InventoryComponent(1);
-      monster.add(ic);
-      ic.add(item);
-      onDeath =
-          (e, who) -> {
-            playMonsterDieSound();
-            new DropItemsInteraction().accept(e, who);
-          };
-    } else {
-      onDeath = (e, who) -> playMonsterDieSound();
-    }
-    monster.add(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
-    monster.add(new PositionComponent());
-    monster.add(AIFactory.randomAI(monster));
-    monster.add(new DrawComponent(pathToTexture));
-    monster.add(new VelocityComponent(speed, speed));
-    monster.add(new CollideComponent());
-    monster.add(
-        new SpikyComponent(
-            MONSTER_COLLIDE_DAMAGE, MONSTER_COLLIDE_DAMAGE_TYPE, MONSTER_COLLIDE_COOL_DOWN));
-    monster.add(new IdleSoundComponent(randomMonsterIdleSound()));
-    return monster;
+    return buildMonster(
+        "monster",
+        pathToTexture,
+        health,
+        speed,
+        itemChance,
+        deathSound,
+        null,
+        collideDamage,
+        collideCooldown,
+        idleSoundComponent);
   }
 
-  private static void playMonsterDieSound() {
-    Sound dieSoundEffect;
-    switch (RANDOM.nextInt(4)) {
-      case 0 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_01.wav"));
-      case 1 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_02.wav"));
-      case 2 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_03.wav"));
-      default -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_04.wav"));
-    }
-    long soundID = dieSoundEffect.play();
-    dieSoundEffect.setLooping(soundID, false);
-    dieSoundEffect.setVolume(soundID, 0.35f);
+  private static Sound randomMonsterDeathSound() {
+    return switch (RANDOM.nextInt(4)) {
+      case 0 -> Gdx.audio.newSound(Gdx.files.internal("sounds/die_01.wav"));
+      case 1 -> Gdx.audio.newSound(Gdx.files.internal("sounds/die_02.wav"));
+      case 2 -> Gdx.audio.newSound(Gdx.files.internal("sounds/die_03.wav"));
+      default -> Gdx.audio.newSound(Gdx.files.internal("sounds/die_04.wav"));
+    };
+  }
+
+  private static void playMonsterDieSound(Sound sound) {
+    long soundID = sound.play();
+    sound.setLooping(soundID, false);
+    sound.setVolume(soundID, 0.35f);
   }
 
   private static IPath randomMonsterIdleSound() {
@@ -140,5 +131,65 @@ public final class MonsterFactory {
         return new SimpleIPath("sounds/monster4.wav");
       }
     }
+  }
+
+    /**
+     * Builds a monster entity with the given parameters.
+     *
+     * @param name The name of the monster.
+     * @param texture The path to the texture to use for the monster.
+     * @param health The health of the monster.
+     * @param speed The speed of the monster.
+     * @param itemChance The chance that the monster will drop an item upon death.
+     * @param deathSound The sound to play when the monster dies.
+     * @param ai The AI component of the monster.
+     * @param collideDamage The damage the monster inflicts upon collision.
+     * @param collideCooldown The cooldown time between monster's collision damage.
+     * @param idleSoundComponent The sound component for the monster's idle sound.
+     * @return A new Entity representing the monster.
+     * @throws IOException if the animation could not be loaded.
+     */
+  public static Entity buildMonster(
+      String name,
+      IPath texture,
+      int health,
+      float speed,
+      float itemChance,
+      Sound deathSound,
+      AIComponent ai,
+      int collideDamage,
+      int collideCooldown,
+      IdleSoundComponent idleSoundComponent)
+      throws IOException {
+    Entity monster = new Entity(name);
+    // rolls a dice for item chance (itemChance == 0 means no item, 1.0 means always item)
+    BiConsumer<Entity, Entity> onDeath;
+    if (RANDOM.nextFloat() < itemChance) {
+      Item item = ItemGenerator.generateItemData();
+      InventoryComponent ic = new InventoryComponent(1);
+      monster.add(ic);
+      ic.add(item);
+      onDeath =
+          (e, who) -> {
+            playMonsterDieSound(deathSound);
+            new DropItemsInteraction().accept(e, who);
+          };
+    } else {
+      onDeath = (e, who) -> playMonsterDieSound(deathSound);
+    }
+    monster.add(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
+    monster.add(new PositionComponent());
+    if (ai == null) {
+        ai = AIFactory.randomAI(monster);
+    }
+    monster.add(ai);
+    monster.add(new DrawComponent(texture));
+    monster.add(new VelocityComponent(speed, speed));
+    monster.add(new CollideComponent());
+    if (collideDamage > 0) {
+      monster.add(new SpikyComponent(collideDamage, MONSTER_COLLIDE_DAMAGE_TYPE, collideCooldown));
+    }
+    monster.add(idleSoundComponent);
+    return monster;
   }
 }
