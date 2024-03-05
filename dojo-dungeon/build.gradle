@@ -15,6 +15,11 @@ sourceSets.main.resources.srcDirs = ['assets/']
 sourceSets.test.java.srcDirs = ['test/']
 sourceSets.test.resources.srcDirs = ['test_resources/']
 
+processResources {
+    from new File(project(':game').projectDir, '/assets')
+    from new File(project(':dungeon').projectDir, '/assets')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
 
 // start the dungeon (different configurations)
 tasks.register('runDojoStarter', JavaExec) {
