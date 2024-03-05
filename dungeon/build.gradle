@@ -41,6 +41,12 @@ generateGrammarSource {
 }
 
 
+
+tasks.register('andre', JavaExec) {
+    mainClass = 'starter.AndresWelt'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 // start the dungeon (different configurations)
 tasks.register('runStarter', JavaExec) {
     mainClass = 'starter.Starter'

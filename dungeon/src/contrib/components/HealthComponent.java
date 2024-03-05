@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 @DSLType(name = "health_component")
 public final class HealthComponent implements Component {
   private final List<Damage> damageToGet;
-  private @DSLCallback(name = "on_death") final Consumer<Entity> onDeath;
+  private @DSLCallback(name = "on_death") Consumer<Entity> onDeath;
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
   private @DSLTypeMember(name = "max_health") int maximalHealthpoints;
   private @DSLTypeMember(name = "start_health") int currentHealthpoints;
@@ -64,6 +64,10 @@ public final class HealthComponent implements Component {
    */
   public HealthComponent() {
     this(1, onDeath -> {});
+  }
+
+  public void onDeath(Consumer<Entity> onDeath) {
+    this.onDeath = onDeath;
   }
 
   /**
