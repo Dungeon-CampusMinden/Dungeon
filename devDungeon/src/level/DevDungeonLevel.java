@@ -56,11 +56,11 @@ public class DevDungeonLevel extends TileLevel {
   }
 
   /**
-   * Read a line from the reader, ignoring comments and empty lines.
-   * It skips lines that start with a '#' (comments)
+   * Read a line from the reader, ignoring comments.
+   * It skips lines that start with a '#' (comments) and returns the next non-empty line.
    *
    * @param reader The reader to read from
-   * @return The next non-empty, non-comment line
+   * @return The next non-empty, non-comment line without any comments
    * @throws IOException If an error occurs while reading from the reader
    */
   private static String readLine(BufferedReader reader) throws IOException {
