@@ -2,13 +2,17 @@ package entities;
 
 import com.badlogic.gdx.audio.Sound;
 import contrib.components.AIComponent;
-import contrib.components.IdleSoundComponent;
 import contrib.entities.MonsterFactory;
+import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.idle.RadiusWalk;
+import contrib.utils.components.ai.transition.SelfDefendTransition;
 import core.Entity;
 import core.Game;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public enum MonsterType {
   CHORT(
@@ -18,10 +22,12 @@ public enum MonsterType {
       3.0f,
       0.0f,
       MonsterDeathSound.LOWER_PITCH,
-      null,
+      new CollideAI(0.5f),
+      new RadiusWalk(5f, 2),
+      new SelfDefendTransition(),
       2,
       2 * Game.frameRate(),
-      MonsterIdleSound.HIGH_PITCH);
+      MonsterIdleSound.LOW_PITCH);
 
   private final String name;
   private final IPath texture;
@@ -29,7 +35,7 @@ public enum MonsterType {
   private final AIComponent ai;
   private final int collideDamage;
   private final int collideCooldown;
-  private final IdleSoundComponent idleSoundComponent;
+  private final IPath idleSoundPath;
   private final int health;
   private final float speed;
   private final float itemChance; // 0.0f means no items, 1.0f means always items
@@ -41,7 +47,9 @@ public enum MonsterType {
       float speed,
       float canHaveItems,
       MonsterDeathSound deathSound,
-      AIComponent ai,
+      Consumer<Entity> fightAI,
+      Consumer<Entity> idleAI,
+      Function<Entity, Boolean> transitionAI,
       int collideDamage,
       int collideCooldown,
       MonsterIdleSound idleSound) {
@@ -51,10 +59,10 @@ public enum MonsterType {
     this.speed = speed;
     this.itemChance = canHaveItems;
     this.deathSound = deathSound.getSound();
-    this.ai = ai;
+    this.ai = new AIComponent(fightAI, idleAI, transitionAI);
     this.collideDamage = collideDamage;
     this.collideCooldown = collideCooldown;
-    this.idleSoundComponent = new IdleSoundComponent(idleSound.getSound());
+    this.idleSoundPath = idleSound.getSound();
   }
 
   public Entity buildMonster() throws IOException {
@@ -68,6 +76,6 @@ public enum MonsterType {
         ai,
         collideDamage,
         collideCooldown,
-        idleSoundComponent);
+        idleSoundPath);
   }
 }
