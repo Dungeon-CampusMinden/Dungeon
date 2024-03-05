@@ -10,13 +10,13 @@ public enum MonsterIdleSound {
   HIGH_PITCH("sounds/monster1.wav"),
   NONE("");
 
-  private final IPath sound;
+  private final IPath path;
 
   MonsterIdleSound(String path) {
-    this.sound = new SimpleIPath(path);
+    this.path = new SimpleIPath(path);
   }
 
-  public IPath getSound() {
-    return sound;
+  public IPath getPath() {
+    return path;
   }
 }

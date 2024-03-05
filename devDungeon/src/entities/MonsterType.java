@@ -62,7 +62,7 @@ public enum MonsterType {
     this.ai = new AIComponent(fightAI, idleAI, transitionAI);
     this.collideDamage = collideDamage;
     this.collideCooldown = collideCooldown;
-    this.idleSoundPath = idleSound.getSound();
+    this.idleSoundPath = idleSound.getPath();
   }
 
   public Entity buildMonster() throws IOException {
