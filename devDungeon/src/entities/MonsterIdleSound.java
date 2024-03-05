@@ -7,7 +7,8 @@ public enum MonsterIdleSound {
   BASIC("sounds/monster2.wav"),
   CURSED("sounds/monster3.wav"),
   LOW_PITCH("sounds/monster4.wav"),
-  HIGH_PITCH("sounds/monster1.wav");
+  HIGH_PITCH("sounds/monster1.wav"),
+  NONE("");
 
   private final IPath sound;
 

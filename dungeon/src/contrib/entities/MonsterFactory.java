@@ -86,7 +86,6 @@ public final class MonsterFactory {
     Sound deathSound = randomMonsterDeathSound();
     int collideDamage = MONSTER_COLLIDE_DAMAGE;
     int collideCooldown = MONSTER_COLLIDE_COOL_DOWN;
-    IdleSoundComponent idleSoundComponent = new IdleSoundComponent(randomMonsterIdleSound());
 
     return buildMonster(
         "monster",
@@ -98,7 +97,7 @@ public final class MonsterFactory {
         null,
         collideDamage,
         collideCooldown,
-        idleSoundComponent);
+        randomMonsterIdleSound());
   }
 
   private static Sound randomMonsterDeathSound() {
@@ -111,6 +110,9 @@ public final class MonsterFactory {
   }
 
   private static void playMonsterDieSound(Sound sound) {
+    if (sound == null) {
+      return;
+    }
     long soundID = sound.play();
     sound.setLooping(soundID, false);
     sound.setVolume(soundID, 0.35f);
@@ -133,22 +135,24 @@ public final class MonsterFactory {
     }
   }
 
-    /**
-     * Builds a monster entity with the given parameters.
-     *
-     * @param name The name of the monster.
-     * @param texture The path to the texture to use for the monster.
-     * @param health The health of the monster.
-     * @param speed The speed of the monster.
-     * @param itemChance The chance that the monster will drop an item upon death.
-     * @param deathSound The sound to play when the monster dies.
-     * @param ai The AI component of the monster.
-     * @param collideDamage The damage the monster inflicts upon collision.
-     * @param collideCooldown The cooldown time between monster's collision damage.
-     * @param idleSoundComponent The sound component for the monster's idle sound.
-     * @return A new Entity representing the monster.
-     * @throws IOException if the animation could not be loaded.
-     */
+  /**
+   * Builds a monster entity with the given parameters.
+   *
+   * @param name The name of the monster.
+   * @param texture The path to the texture to use for the monster.
+   * @param health The health of the monster.
+   * @param speed The speed of the monster.
+   * @param itemChance The chance that the monster will drop an item upon death. If 0, no item will
+   *     be dropped. If 1, an item will always be dropped.
+   * @param deathSound The sound to play when the monster dies. If null, no sound will be played.
+   * @param ai The AI component of the monster. If null, a random AI will be used.
+   * @param collideDamage The damage the monster inflicts upon collision.
+   * @param collideCooldown The cooldown time between monster's collision damage.
+   * @param idleSoundPath The sound component for the monster's idle sound. If empty, no sound will
+   *     be played.
+   * @return A new Entity representing the monster.
+   * @throws IOException if the animation could not be loaded.
+   */
   public static Entity buildMonster(
       String name,
       IPath texture,
@@ -159,7 +163,7 @@ public final class MonsterFactory {
       AIComponent ai,
       int collideDamage,
       int collideCooldown,
-      IdleSoundComponent idleSoundComponent)
+      IPath idleSoundPath)
       throws IOException {
     Entity monster = new Entity(name);
     // rolls a dice for item chance (itemChance == 0 means no item, 1.0 means always item)
@@ -180,7 +184,7 @@ public final class MonsterFactory {
     monster.add(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
     monster.add(new PositionComponent());
     if (ai == null) {
-        ai = AIFactory.randomAI(monster);
+      ai = AIFactory.randomAI(monster);
     }
     monster.add(ai);
     monster.add(new DrawComponent(texture));
@@ -189,7 +193,7 @@ public final class MonsterFactory {
     if (collideDamage > 0) {
       monster.add(new SpikyComponent(collideDamage, MONSTER_COLLIDE_DAMAGE_TYPE, collideCooldown));
     }
-    monster.add(idleSoundComponent);
+    if (!idleSoundPath.pathString().isEmpty()) monster.add(new IdleSoundComponent(idleSoundPath));
     return monster;
   }
 }
