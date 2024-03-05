@@ -14,9 +14,9 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class LevelLoader {
+public class DungeonLoader {
 
-  private static final Logger LOGGER = Logger.getLogger(LevelLoader.class.getSimpleName());
+  private static final Logger LOGGER = Logger.getLogger(DungeonLoader.class.getSimpleName());
   private static final Random RANDOM = new Random();
   private static final String LEVEL_PATH_PREFIX = "levels/";
   private static final Map<Integer, List<String>> levels = new HashMap<>();
@@ -28,7 +28,7 @@ public class LevelLoader {
 
   private static void getAllLevelFilePaths() { //TODO: only works with local file-system
     try {
-      URI uri = Objects.requireNonNull(LevelLoader.class.getResource("/levels")).toURI();
+      URI uri = Objects.requireNonNull(DungeonLoader.class.getResource("/levels")).toURI();
       Path path = Paths.get(uri);
       try (Stream<Path> paths = Files.walk(path)) {
         paths
