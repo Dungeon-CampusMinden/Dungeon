@@ -1,12 +1,18 @@
 package entities;
 
 import com.badlogic.gdx.audio.Sound;
+import components.ReviveComponent;
 import contrib.components.AIComponent;
+import contrib.entities.AIFactory;
 import contrib.entities.MonsterFactory;
 import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.fight.RangeAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
+import contrib.utils.components.ai.idle.StaticRadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
-import contrib.utils.components.ai.transition.SelfDefendTransition;
+import contrib.utils.components.skill.FireballSkill;
+import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.utils.components.path.IPath;
@@ -19,16 +25,49 @@ public enum MonsterType {
   CHORT(
       "Chort",
       "character/monster/chort",
-      20,
-      3.0f,
-      0.0f,
+      8,
+      2.5f,
+      0.5f,
       MonsterDeathSound.LOWER_PITCH,
       new CollideAI(0.5f),
       new RadiusWalk(5f, 2),
       new RangeTransition(5),
       4,
       2 * Game.frameRate(),
-      MonsterIdleSound.LOW_PITCH);
+      MonsterIdleSound.LOW_PITCH,
+      0),
+  IMP(
+      "Imp",
+      "character/monster/imp",
+      4,
+      5.0f,
+      0.2f,
+      MonsterDeathSound.HIGH_PITCH,
+      new RangeAI(
+          7f,
+          2f,
+          new Skill(
+              new FireballSkill(SkillTools::heroPositionAsPoint), AIFactory.FIREBALL_COOL_DOWN)),
+      new StaticRadiusWalk(5f, 2),
+      new RangeTransition(8),
+      0,
+      2 * Game.frameRate(), // While collideDamage is 0, this value is irrelevant
+      MonsterIdleSound.HIGH_PITCH,
+      0),
+  ZOMBIE(
+      "Zombie",
+      "character/monster/zombie",
+      10,
+      3.5f,
+      0.33f,
+      MonsterDeathSound.LOW_PITCH,
+      new CollideAI(0.5f),
+      new RadiusWalk(5f, 5),
+      new RangeTransition(5),
+      3,
+      2 * Game.frameRate(),
+      MonsterIdleSound.LOW_PITCH,
+      1);
 
   private final String name;
   private final IPath texture;
@@ -40,6 +79,7 @@ public enum MonsterType {
   private final int health;
   private final float speed;
   private final float itemChance; // 0.0f means no items, 1.0f means always items
+  private final int reviveCount;
 
   MonsterType(
       String name,
@@ -53,13 +93,15 @@ public enum MonsterType {
       Function<Entity, Boolean> transitionAI,
       int collideDamage,
       int collideCooldown,
-      MonsterIdleSound idleSound) {
+      MonsterIdleSound idleSound,
+      int reviveCount) {
     this.name = name;
     this.texture = new SimpleIPath(texture);
     this.health = health;
     this.speed = speed;
     this.itemChance = canHaveItems;
     this.deathSound = deathSound.getSound();
+    this.reviveCount = reviveCount;
     this.ai = new AIComponent(fightAI, idleAI, transitionAI);
     this.collideDamage = collideDamage;
     this.collideCooldown = collideCooldown;
@@ -67,16 +109,21 @@ public enum MonsterType {
   }
 
   public Entity buildMonster() throws IOException {
-    return MonsterFactory.buildMonster(
-        name,
-        texture,
-        health,
-        speed,
-        itemChance,
-        deathSound,
-        ai,
-        collideDamage,
-        collideCooldown,
-        idleSoundPath);
+    Entity newEntity =
+        MonsterFactory.buildMonster(
+            name,
+            texture,
+            health,
+            speed,
+            itemChance,
+            deathSound,
+            ai,
+            collideDamage,
+            collideCooldown,
+            idleSoundPath);
+    if (reviveCount > 0) {
+      newEntity.add(new ReviveComponent(reviveCount));
+    }
+    return newEntity;
   }
 }

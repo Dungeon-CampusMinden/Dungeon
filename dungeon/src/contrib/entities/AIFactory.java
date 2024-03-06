@@ -41,7 +41,7 @@ public final class AIFactory {
   // CollideAI
   private static final float RUSH_RANGE_LOW = 0.5f;
   private static final float RUSH_RANGE_HIGH = 2.0f;
-  private static final int FIREBALL_COOL_DOWN = 750;
+  public static final int FIREBALL_COOL_DOWN = 750;
 
   // RangeAI
   private static final float ATTACK_RANGE_LOW = 2.1f;

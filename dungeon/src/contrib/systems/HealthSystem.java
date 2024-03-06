@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  * <p>Entities with the {@link HealthComponent} and {@link DrawComponent} will be processed by this
  * system.
  */
-public final class HealthSystem extends System {
+public class HealthSystem extends System {
 
   /** Create a new HealthSystem. */
   public HealthSystem() {
@@ -56,7 +56,7 @@ public final class HealthSystem extends System {
    * @param hsd HSData to check Animations in.
    * @return true if Entity can be removed from the game.
    */
-  private boolean testDeathAnimationStatus(final HSData hsd) {
+  protected boolean testDeathAnimationStatus(final HSData hsd) {
     DrawComponent dc = hsd.dc;
     // test if hsd has a DeathAnimation
     Predicate<DrawComponent> hasDeathAnimation =
@@ -71,7 +71,7 @@ public final class HealthSystem extends System {
         || isAnimationFinished.test(dc);
   }
 
-  private HSData activateDeathAnimation(final HSData hsd) {
+  protected HSData activateDeathAnimation(final HSData hsd) {
     // set DeathAnimation as active animation
     Optional<Animation> deathAnimation = hsd.dc.animation(AdditionalAnimations.DIE);
     deathAnimation.ifPresent(
@@ -79,7 +79,7 @@ public final class HealthSystem extends System {
     return hsd;
   }
 
-  private HSData buildDataObject(final Entity entity) {
+  protected HSData buildDataObject(final Entity entity) {
 
     HealthComponent hc =
         entity
@@ -92,7 +92,7 @@ public final class HealthSystem extends System {
     return new HSData(entity, hc, ac);
   }
 
-  private HSData applyDamage(final HSData hsd) {
+  protected HSData applyDamage(final HSData hsd) {
 
     doDamageAndAnimation(
         hsd, Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum());
@@ -111,12 +111,12 @@ public final class HealthSystem extends System {
     hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
   }
 
-  private void removeDeadEntities(final HSData hsd) {
+  protected void removeDeadEntities(final HSData hsd) {
     // Entity appears to be dead, so let's clean up the mess
     hsd.hc.triggerOnDeath(hsd.e);
     Game.remove(hsd.e);
   }
 
   // private record to hold all data during streaming
-  private record HSData(Entity e, HealthComponent hc, DrawComponent dc) {}
+  protected record HSData(Entity e, HealthComponent hc, DrawComponent dc) {}
 }

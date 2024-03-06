@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
-import contrib.entities.EntityFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.SkillTools;
@@ -17,13 +16,12 @@ import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import entities.DevHeroFactory;
 import entities.MonsterType;
-import java.io.IOException;
-import level.DungeonSaver;
-import level.DungeonLoader;
 import entities.MonsterUtils;
-import systems.FallingSystem;
-import systems.FogOfWarSystem;
-import systems.PathSystem;
+import java.io.IOException;
+import level.DungeonLoader;
+import level.DungeonSaver;
+import systems.*;
+import systems.HealthSystem;
 
 public class DevDungeon {
 
@@ -96,6 +94,7 @@ public class DevDungeon {
   private static void createSystems() {
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
+    Game.add(new ReviveSystem());
     Game.add(new HealthSystem());
     Game.add(new ProjectileSystem());
     Game.add(new HealthBarSystem());
@@ -119,6 +118,10 @@ public class DevDungeon {
               DungeonSaver.saveCurrentDungeon();
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) {
               MonsterUtils.spawnMonster(MonsterType.CHORT, mosPos);
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) {
+              MonsterUtils.spawnMonster(MonsterType.IMP, mosPos);
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
+              MonsterUtils.spawnMonster(MonsterType.ZOMBIE, mosPos);
             }
           }
         });

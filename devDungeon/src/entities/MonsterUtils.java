@@ -7,7 +7,6 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -24,19 +23,20 @@ public class MonsterUtils {
    *     accessible else the monster will not be spawned
    * @throws MissingComponentException if the monster does not have a PositionComponent
    * @throws RuntimeException if an error occurs while spawning the monster
+   * @return the spawned monster
    * @see Game#add(Entity)
    * @see MonsterType
    */
-  public static void spawnMonster(MonsterType monsterType, Point position) {
+  public static Entity spawnMonster(MonsterType monsterType, Point position) {
     Tile tile = Game.tileAT(position);
     if (tile == null || !tile.isAccessible()) {
       LOGGER.warning(
           "Cannot spawn monster at "
               + position
               + " because the tile is not accessible or does not exist");
-      return;
+      return null;
     }
-    spawnMonster(monsterType, tile.coordinate());
+    return spawnMonster(monsterType, tile.coordinate());
   }
 
   /**
@@ -47,17 +47,18 @@ public class MonsterUtils {
    *     accessible else the monster will not be spawned
    * @throws MissingComponentException if the monster does not have a PositionComponent
    * @throws RuntimeException if an error occurs while spawning the monster
+   * @return the spawned monster
    * @see Game#add(Entity)
    * @see MonsterType
    */
-  public static void spawnMonster(MonsterType monsterType, Coordinate coordinate) {
+  public static Entity spawnMonster(MonsterType monsterType, Coordinate coordinate) {
     Tile tile = Game.tileAT(coordinate);
     if (tile == null || !tile.isAccessible()) {
       LOGGER.warning(
           "Cannot spawn monster at "
               + coordinate
               + " because the tile is not accessible or does not exist");
-      return;
+      return null;
     }
     try {
       Entity newMob = monsterType.buildMonster();
@@ -67,6 +68,7 @@ public class MonsterUtils {
               .orElseThrow(() -> MissingComponentException.build(newMob, PositionComponent.class));
       positionComponent.position(tile.position());
       Game.add(newMob);
+      return newMob;
     } catch (IOException e) {
       throw new RuntimeException("Error spawning monster", e);
     }
