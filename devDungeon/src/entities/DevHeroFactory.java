@@ -115,7 +115,7 @@ public class DevHeroFactory extends HeroFactory {
           },
           false);
     }
-    return HeroFactory.newHero();
+    return hero;
   }
 
   private static void registerMouseLeftClick(PlayerComponent pc, Skill fireball) {
