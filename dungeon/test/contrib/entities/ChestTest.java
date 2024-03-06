@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ChestTest {
@@ -31,7 +30,6 @@ public class ChestTest {
   }
 
   /** checks the correct creation of the Chest */
-  @Ignore
   @Test
   public void checkCreation() throws IOException {
     Set<Item> itemData = Set.of();
@@ -98,8 +96,6 @@ public class ChestTest {
                       .map(CollideComponent.class::cast)
                       .isPresent());
   }*/
-
-  @Ignore
   @Test
   public void checkGeneratorMethod() throws IOException {
     Game.add(new LevelSystem(null, null, () -> {}));

@@ -8,7 +8,6 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class DrawComponentTest {
@@ -21,7 +20,6 @@ public class DrawComponentTest {
     animationComponent = new DrawComponent(animationPath);
   }
 
-  @Ignore
   @Test
   public void currentAnimation() {
     // Ensure that the current animation is initially set to the expected value
@@ -31,7 +29,6 @@ public class DrawComponentTest {
     assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_RIGHT));
   }
 
-  @Ignore
   @Test
   public void currentAnimationWithMultiplePaths() {
     // IDLE_DOWN and IDLE_UP don't exist, so IDLE_LEFT is expected
@@ -45,7 +42,6 @@ public class DrawComponentTest {
     assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_RIGHT));
   }
 
-  @Ignore
   @Test
   public void currentAnimationWithMultiplePathsAllValid() {
     // IDLE_LEFT and IDLE_RIGHT exist, but IDLE_RIGHT is the first animation, so expected value
@@ -53,7 +49,6 @@ public class DrawComponentTest {
     assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_LEFT));
   }
 
-  @Ignore
   @Test
   public void animationWithMultiplePathsNoValid() {
     // Animation does not exist, no change in animation
@@ -61,13 +56,11 @@ public class DrawComponentTest {
     assertTrue(animationComponent.isCurrentAnimation(CoreAnimations.IDLE_LEFT));
   }
 
-  @Ignore
   @Test
   public void getAnimations() {
     assertTrue(animationComponent.animation(CoreAnimations.RUN_LEFT).isPresent());
   }
 
-  @Ignore
   @Test
   public void hasAnimations() {
     assertTrue(animationComponent.hasAnimation(CoreAnimations.RUN_LEFT));

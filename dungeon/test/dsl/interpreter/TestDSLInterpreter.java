@@ -2817,7 +2817,6 @@ public class TestDSLInterpreter {
     Assert.assertEquals(taskNode6, t4t6edge.endNode());
   }
 
-  @Ignore
   @Test
   public void testScenarioBuilderIntegration() {
     String program =
