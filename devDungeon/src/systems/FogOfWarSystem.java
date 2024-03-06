@@ -157,7 +157,8 @@ public class FogOfWarSystem extends System {
   @Override
   public void execute() {
     // Only update the fog of war if the hero has moved
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.hero().orElse(null);
+    if (hero == null) return; // If hero dies, the system will not be updated
     Point heroPos =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class))
