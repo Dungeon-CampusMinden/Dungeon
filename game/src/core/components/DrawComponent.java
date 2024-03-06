@@ -6,9 +6,10 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import core.utils.files.FileSystemUtil;
 import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -322,16 +323,32 @@ public final class DrawComponent implements Component {
   // Helper method that loads the animation assets from the given path. Called by the constructor,
   // the animation map will be constructed from the subdirectories of the given path.
   private void loadAnimationAssets(final IPath path) throws IOException {
+    Path path2;
+    try {
+      path2 =
+          Paths.get(
+              Objects.requireNonNull(
+                      Thread.currentThread().getContextClassLoader().getResource(path.pathString()))
+                  .toURI());
+    } catch (URISyntaxException e) {
+      throw new IOException(e);
+    }
     final Map<String, List<IPath>> subdirectoryMap = new HashMap<>();
-    FileSystemUtil.visitResources(
-        path.pathString(),
-        (file, attrs) -> {
-          if (Files.isRegularFile(file)) {
-            subdirectoryMap
-                .computeIfAbsent(file.getParent().getFileName().toString(), k -> new ArrayList<>())
-                .add(new SimpleIPath(file.toString()));
+
+    // Walk through the (sub)directories of path2 and fill the subdirectoryMap.
+    Files.walkFileTree(
+        path2,
+        new SimpleFileVisitor<>() {
+          @Override
+          public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) {
+            if (Files.isRegularFile(file)) {
+              subdirectoryMap
+                  .computeIfAbsent(
+                      file.getParent().getFileName().toString(), k -> new ArrayList<>())
+                  .add(new SimpleIPath(file.toString()));
+            }
+            return FileVisitResult.CONTINUE;
           }
-          return FileVisitResult.CONTINUE;
         });
 
     // A Map with sorted values (IPath lists) in natural string order (ascending)

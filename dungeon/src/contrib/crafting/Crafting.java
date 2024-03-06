@@ -3,12 +3,13 @@ package contrib.crafting;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
-import core.utils.files.FileSystemUtil;
 import core.utils.logging.CustomLogLevel;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -81,18 +82,27 @@ public final class Crafting {
   public static void loadRecipes() {
     final String dirName = "recipes/";
     try {
-      FileSystemUtil.visitResources(
-          dirName,
-          (file, attrs) -> {
-            if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
-              final Recipe recipe = parseRecipe(file.toUri().toURL().openStream(), file.toString());
-              if (recipe != null) {
-                RECIPES.add(recipe);
+      // Walk through the 'recipes' directory and load all recipes.
+      Files.walkFileTree(
+          Paths.get(
+              Objects.requireNonNull(
+                      Thread.currentThread().getContextClassLoader().getResource(dirName))
+                  .toURI()),
+          new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
+                throws IOException {
+              if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
+                final Recipe recipe =
+                    parseRecipe(file.toUri().toURL().openStream(), file.toString());
+                if (recipe != null) {
+                  RECIPES.add(recipe);
+                }
               }
+              return FileVisitResult.CONTINUE;
             }
-            return FileVisitResult.CONTINUE;
           });
-    } catch (IOException e) {
+    } catch (IOException | URISyntaxException e) {
       throw new RuntimeException(e);
     }
   }
