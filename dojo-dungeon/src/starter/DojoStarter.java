@@ -3,7 +3,6 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.components.HealthComponent;
-import contrib.components.InteractionComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.MonsterFactory;
@@ -16,8 +15,6 @@ import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import contrib.systems.*;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
@@ -35,6 +32,8 @@ import java.util.Set;
 public class DojoStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
+  private static final Entity invisibleManagerEntity = new Entity();
+
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger();
     configGame();
@@ -44,8 +43,8 @@ public class DojoStarter {
 
   private static void createLevel() {
     // make the graph
-    LevelGraph graph =
-        new LevelGraph(); // NOTE: The graph normally has a Set of all nodes in the graph. Normally
+    LevelGraph graph = new LevelGraph();
+    // NOTE: The graph normally has a Set of all nodes in the graph. Normally
     // you would add a Node via LevelGraph.add(node), but this is for random
     // graphs. tldr: The nodes list in the LevelGraph does not contain our
     // Nodes
@@ -53,24 +52,22 @@ public class DojoStarter {
     LevelNode room2 = new LevelNode(graph);
     LevelNode room3 = new LevelNode(graph);
 
-    // connect room 1 and room 2 on the east side
-    room1.connect(room2, Direction.EAST);
-    room2.connect(room1, Direction.WEST);
+    // connect the rooms
+    room1.connect(room2, Direction.SOUTH);
+    room2.connect(room1, Direction.NORTH);
 
     room2.connect(room3, Direction.SOUTH);
     room3.connect(room2, Direction.NORTH);
 
-    // generate the rooms
-    RoomGenerator roomG = new RoomGenerator();
-    room1.level(
-        new TileLevel(
-            roomG.layout(LevelSize.SMALL, room1.neighbours()), DesignLabel.randomDesign()));
-    room2.level(
-        new TileLevel(
-            roomG.layout(LevelSize.SMALL, room2.neighbours()), DesignLabel.randomDesign()));
-    room3.level(
-        new TileLevel(
-            roomG.layout(LevelSize.SMALL, room3.neighbours()), DesignLabel.randomDesign()));
+    RoomGenerator gen = new RoomGenerator();
+
+    try {
+      createRoom_1(gen, room1, room2);
+      createRoom_2(gen, room2, room3);
+      createRoom_3(gen, room3, room2);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
 
     // remove trap doors, config doors
     configDoors(room1);
@@ -78,52 +75,56 @@ public class DojoStarter {
     configDoors(room3);
 
     // close the doors
-    DoorTile room1ToRoom2 = GeneratorUtils.doorAt(room1.level(), Direction.EAST).orElseThrow();
-    DoorTile room2ToRoom3 = GeneratorUtils.doorAt(room2.level(), Direction.SOUTH).orElseThrow();
-    room1ToRoom2.close();
-    room2ToRoom3.close();
+    GeneratorUtils.doorAt(room1.level(), Direction.SOUTH).orElseThrow().close();
+    GeneratorUtils.doorAt(room2.level(), Direction.NORTH).orElseThrow().close();
 
-    // add entities to rooms
-    Set<Entity> room1Entities = new HashSet<>();
-    Set<Entity> room2Entities = new HashSet<>();
-    Set<Entity> room3Entities = new HashSet<>();
-    try {
-      // Door 1 will open after killing the monster
-      Entity monster = MonsterFactory.randomMonster();
-      monster.fetch(HealthComponent.class).orElseThrow().onDeath(entity -> room1ToRoom2.open());
-      room1Entities.add(monster);
+    GeneratorUtils.doorAt(room2.level(), Direction.SOUTH).orElseThrow().close();
+    GeneratorUtils.doorAt(room3.level(), Direction.NORTH).orElseThrow().close();
 
-      // Door 2 will open/close after talking to the knight
-      Entity talkToMe = new Entity();
-      talkToMe.add(new PositionComponent());
-      talkToMe.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
-      talkToMe.add(
-          new InteractionComponent(
-              1,
-              true,
-              (entity, entity2) -> {
-                if (room2ToRoom3.isOpen()) room2ToRoom3.close();
-                else room2ToRoom3.open();
-              }));
-      room2Entities.add(MonsterFactory.randomMonster());
-      room2Entities.add(talkToMe);
-
-      // EPIC LOOT
-      room3Entities.add(EntityFactory.newChest());
-
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    // add the entities as payload to the LevelNode
-    room1.entities(room1Entities);
-    room2.entities(room2Entities);
-    room3.entities(room3Entities);
-    // this will add the entities (in the node payload) to the game, at the moment the level get
-    // loaded for the first time
-    room1.level().onFirstLoad(() -> room1.entities().forEach(Game::add));
-    room2.level().onFirstLoad(() -> room2.entities().forEach(Game::add));
-    room3.level().onFirstLoad(() -> room3.entities().forEach(Game::add));
+    //
+    //    // add entities to rooms
+    //    Set<Entity> room1Entities = new HashSet<>();
+    //    Set<Entity> room2Entities = new HashSet<>();
+    //    Set<Entity> room3Entities = new HashSet<>();
+    //    try {
+    //      // Door 1 will open after killing the monster
+    //      Entity monster = MonsterFactory.randomMonster();
+    //      monster.fetch(HealthComponent.class).orElseThrow().onDeath(entity ->
+    // room1ToRoom2.open());
+    //      room1Entities.add(monster);
+    //
+    //      // Door 2 will open/close after talking to the knight
+    //      Entity talkToMe = new Entity();
+    //      talkToMe.add(new PositionComponent());
+    //      talkToMe.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
+    //      talkToMe.add(
+    //          new InteractionComponent(
+    //              1,
+    //              true,
+    //              (entity, entity2) -> {
+    //                if (room2ToRoom3.isOpen()) room2ToRoom3.close();
+    //                else room2ToRoom3.open();
+    //              }));
+    //      room2Entities.add(MonsterFactory.randomMonster());
+    //      room2Entities.add(talkToMe);
+    //
+    //      // EPIC LOOT
+    //      room3Entities.add(EntityFactory.newChest());
+    //
+    //    } catch (IOException e) {
+    //      throw new RuntimeException(e);
+    //    }
+    //
+    //    // add the entities as payload to the LevelNode
+    //    room1.entities(room1Entities);
+    //    room2.entities(room2Entities);
+    //    room3.entities(room3Entities);
+    //    // this will add the entities (in the node payload) to the game, at the moment the level
+    // get
+    //    // loaded for the first time
+    //    room1.level().onFirstLoad(() -> room1.entities().forEach(Game::add));
+    //    room2.level().onFirstLoad(() -> room2.entities().forEach(Game::add));
+    //    room3.level().onFirstLoad(() -> room3.entities().forEach(Game::add));
 
     // set room1 as start level
     Game.currentLevel(room1.level());
@@ -135,6 +136,13 @@ public class DojoStarter {
     List<Tile> exits = new ArrayList<>(level.exitTiles());
     exits.forEach(exit -> level.changeTileElementType(exit, LevelElement.FLOOR));
     RoomBasedLevelGenerator.configureDoors(node);
+  }
+
+  private static void openDoors(LevelNode fromLevel, LevelNode toLevel) {
+    DoorTile door = GeneratorUtils.doorAt(fromLevel.level(), Direction.SOUTH).orElseThrow();
+    door.open();
+    door = GeneratorUtils.doorAt(toLevel.level(), Direction.NORTH).orElseThrow();
+    door.open();
   }
 
   private static void onSetup() {
@@ -179,5 +187,76 @@ public class DojoStarter {
     Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     Game.add(new IdleSoundSystem());
+  }
+
+  private static void createRoom_1(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
+      throws IOException {
+    // generate the room
+    room.level(
+        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
+
+    // add entities to room
+    Set<Entity> roomEntities = new HashSet<>();
+
+    // add a chest
+    roomEntities.add(EntityFactory.newChest());
+
+    // Door will open after killing the monster
+    Entity monster = MonsterFactory.randomMonster();
+    monster.fetch(HealthComponent.class).orElseThrow().onDeath(entity -> openDoors(room, nextRoom));
+    roomEntities.add(monster);
+
+    // add the entities as payload to the LevelNode
+    room.entities(roomEntities);
+    // this will add the entities (in the node payload) to the game, at the moment the level get
+    // loaded for the first time
+    room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
+  }
+
+  private static void createRoom_2(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
+      throws IOException {
+    // generate the room
+    room.level(
+        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
+
+    // add entities to room
+    Set<Entity> roomEntities = new HashSet<>();
+
+    // add a chest
+    roomEntities.add(EntityFactory.newChest());
+
+    // Door will open after killing the monster
+    Entity monster = MonsterFactory.randomMonster();
+    monster.fetch(HealthComponent.class).orElseThrow().onDeath(entity -> openDoors(room, nextRoom));
+    roomEntities.add(monster);
+
+    // add the entities as payload to the LevelNode
+    room.entities(roomEntities);
+    // this will add the entities (in the node payload) to the game, at the moment the level get
+    // loaded for the first time
+    room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
+  }
+
+  private static void createRoom_3(RoomGenerator gen, LevelNode room, LevelNode prevRoom)
+      throws IOException {
+    // generate the room
+    room.level(
+        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
+
+    // add entities to room
+    Set<Entity> roomEntities = new HashSet<>();
+
+    // add a chest (testing only)
+    roomEntities.add(EntityFactory.newChest());
+
+    // add a monster (testing only)
+    Entity monster = MonsterFactory.randomMonster();
+    roomEntities.add(monster);
+
+    // add the entities as payload to the LevelNode
+    room.entities(roomEntities);
+    // this will add the entities (in the node payload) to the game, at the moment the level get
+    // loaded for the first time
+    room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
   }
 }
