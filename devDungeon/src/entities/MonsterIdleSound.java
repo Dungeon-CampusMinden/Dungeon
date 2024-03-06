@@ -5,7 +5,7 @@ import core.utils.components.path.SimpleIPath;
 
 public enum MonsterIdleSound {
   BASIC("sounds/monster2.wav"),
-  CURSED("sounds/monster3.wav"),
+  BURP("sounds/monster3.wav"),
   LOW_PITCH("sounds/monster4.wav"),
   HIGH_PITCH("sounds/monster1.wav"),
   NONE("");
