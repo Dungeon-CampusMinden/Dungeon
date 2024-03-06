@@ -115,7 +115,7 @@ public class HeroFactory {
 
     pc.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(),
-        (e) -> {
+        (e) -> { // TODO: Change this
           UIComponent uiComponent = e.fetch(UIComponent.class).orElse(null);
           if (uiComponent != null) {
             if (uiComponent.dialog() instanceof GUICombination) {

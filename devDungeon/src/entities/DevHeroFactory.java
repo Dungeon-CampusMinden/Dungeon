@@ -37,17 +37,17 @@ public class DevHeroFactory extends HeroFactory {
             .orElseThrow(() -> MissingComponentException.build(hero, PlayerComponent.class));
 
     // hud inventory
+    // TODO: WIP - Goal is a Small Inventory Hud in the bottom right corner
     InventoryComponent ic =
         hero.fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, InventoryComponent.class));
     InventoryGUI invGUI = new InventoryGUI("", ic, 3, false);
     GUICombination guiComb = new GUICombination(invGUI);
-    UIComponent uiComponent = new UIComponent(guiComb, false, false);
-    hero.add(uiComponent);
+    guiComb.setSize(10, 10); // TODO: Not working anymore?
     guiComb.fullScreen(false);
+    UIComponent uiComponent = new UIComponent(guiComb, false, false);
 
-    // Place bottom right
-    guiComb.setSize(100f, 100f);
+    hero.add(uiComponent);
 
     // hero movement again to allow for mouse movement
     registerMovement(pc, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), new Vector2(0, 1));

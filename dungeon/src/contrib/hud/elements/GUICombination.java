@@ -85,7 +85,7 @@ public final class GUICombination extends Group {
     int stageWidth = (int) Game.stage().orElseThrow().getWidth();
     int stageHeight = (int) Game.stage().orElseThrow().getHeight();
     if (stageWidth != this.getWidth() || stageHeight != this.getHeight()) {
-      if (!this.isFullScreen) {
+      if (!this.fullScreen()) {
         this.setSize(stageWidth, stageHeight);
       }
       this.setPosition(0, 0);
