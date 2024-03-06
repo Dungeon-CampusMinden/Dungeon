@@ -13,11 +13,11 @@ public enum MonsterDeathSound {
   private final Sound sound;
 
   MonsterDeathSound(String path) {
-      if (path.isEmpty()) {
-          this.sound = null;
-      } else {
-          this.sound = Gdx.audio.newSound(Gdx.files.internal(path));
-      }
+    if (path.isEmpty()) {
+      this.sound = null;
+    } else {
+      this.sound = Gdx.audio.newSound(Gdx.files.internal(path));
+    }
   }
 
   /**

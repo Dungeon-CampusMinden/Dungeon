@@ -56,8 +56,8 @@ public class DevDungeonLevel extends TileLevel {
   }
 
   /**
-   * Read a line from the reader, ignoring comments.
-   * It skips lines that start with a '#' (comments) and returns the next non-empty line.
+   * Read a line from the reader, ignoring comments. It skips lines that start with a '#' (comments)
+   * and returns the next non-empty line.
    *
    * @param reader The reader to read from
    * @return The next non-empty, non-comment line without any comments
@@ -67,9 +67,9 @@ public class DevDungeonLevel extends TileLevel {
     String line = reader.readLine();
     if (line == null) return "";
     while (line.trim().startsWith("#")) {
-        line = reader.readLine();
+      line = reader.readLine();
     }
-      line = line.trim().split("#")[0].trim();
+    line = line.trim().split("#")[0].trim();
 
     return line;
   }

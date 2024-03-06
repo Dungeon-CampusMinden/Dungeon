@@ -1,7 +1,6 @@
 package systems;
 
 import components.ReviveComponent;
-import core.Game;
 
 public class HealthSystem extends contrib.systems.HealthSystem {
   public HealthSystem() {

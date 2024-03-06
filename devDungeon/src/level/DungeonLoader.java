@@ -26,7 +26,7 @@ public class DungeonLoader {
     getAllLevelFilePaths();
   }
 
-  private static void getAllLevelFilePaths() { //TODO: only works with local file-system
+  private static void getAllLevelFilePaths() { // TODO: only works with local file-system
     try {
       URI uri = Objects.requireNonNull(DungeonLoader.class.getResource("/levels")).toURI();
       Path path = Paths.get(uri);
@@ -40,8 +40,10 @@ public class DungeonLoader {
                     String[] parts = fileName.split("_");
                     if (parts.length == 2) {
                       int levelNumber = Integer.parseInt(parts[0]);
-                        String levelFilePath = file.toString();
-                        levels.computeIfAbsent(levelNumber, k -> new ArrayList<>()).add(levelFilePath);
+                      String levelFilePath = file.toString();
+                      levels
+                          .computeIfAbsent(levelNumber, k -> new ArrayList<>())
+                          .add(levelFilePath);
                     } else {
                       LOGGER.warning("Invalid level file name: " + fileName);
                     }
@@ -61,8 +63,7 @@ public class DungeonLoader {
     }
 
     // Random Level Variant Path
-    IPath levelPath =
-        new SimpleIPath(levelVariants.get(RANDOM.nextInt(levelVariants.size())));
+    IPath levelPath = new SimpleIPath(levelVariants.get(RANDOM.nextInt(levelVariants.size())));
 
     return DevDungeonLevel.loadFromPath(levelPath);
   }
