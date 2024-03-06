@@ -103,14 +103,12 @@ public final class CollisionSystem extends System {
     CollisionKey key = new CollisionKey(cdata.ea.id(), cdata.eb.id());
 
     if (checkForCollision(cdata.ea, cdata.a, cdata.eb, cdata.b)) {
-      // a collision is currently happening
-      if (!collisions.containsKey(key)) {
-        // a new collision should call the onEnter on both entities
-        collisions.put(key, cdata);
-        Tile.Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
-        cdata.a.onEnter(cdata.ea, cdata.eb, d);
-        cdata.b.onEnter(cdata.eb, cdata.ea, inverse(d));
-      }
+      // a new collision should call the onEnter on both entities
+      collisions.put(key, cdata);
+      Tile.Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
+      cdata.a.onEnter(cdata.ea, cdata.eb, d);
+      cdata.b.onEnter(cdata.eb, cdata.ea, inverse(d));
+
     } else if (collisions.remove(key) != null) {
       // a collision was happening and the two entities are no longer colliding, on Leave
       // called once
