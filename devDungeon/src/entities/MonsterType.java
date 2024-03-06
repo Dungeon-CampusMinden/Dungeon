@@ -5,6 +5,7 @@ import contrib.components.AIComponent;
 import contrib.entities.MonsterFactory;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.idle.RadiusWalk;
+import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
 import core.Entity;
 import core.Game;
@@ -24,8 +25,8 @@ public enum MonsterType {
       MonsterDeathSound.LOWER_PITCH,
       new CollideAI(0.5f),
       new RadiusWalk(5f, 2),
-      new SelfDefendTransition(),
-      2,
+      new RangeTransition(5),
+      4,
       2 * Game.frameRate(),
       MonsterIdleSound.LOW_PITCH);
 
