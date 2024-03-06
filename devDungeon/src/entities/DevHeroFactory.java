@@ -4,6 +4,7 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.math.Vector2;
 import components.PathComponent;
 import contrib.components.InteractionComponent;
+import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroFactory;
@@ -36,6 +37,9 @@ public class DevHeroFactory extends HeroFactory {
             .orElseThrow(() -> MissingComponentException.build(hero, PlayerComponent.class));
 
     // hud inventory
+    InventoryComponent ic =
+        hero.fetch(InventoryComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, InventoryComponent.class));
     InventoryGUI invGUI = new InventoryGUI("", ic, 3, false);
     GUICombination guiComb = new GUICombination(invGUI);
     UIComponent uiComponent = new UIComponent(guiComb, false, false);
