@@ -101,6 +101,9 @@ public final class MonsterFactory {
   }
 
   private static Sound randomMonsterDeathSound() {
+    if (Gdx.files == null)
+      return null; // This is a workaround for the Gdx.files being null in tests
+
     return switch (RANDOM.nextInt(4)) {
       case 0 -> Gdx.audio.newSound(Gdx.files.internal("sounds/die_01.wav"));
       case 1 -> Gdx.audio.newSound(Gdx.files.internal("sounds/die_02.wav"));
