@@ -1,4 +1,4 @@
-package contrib.systems;
+package systems;
 
 import core.Entity;
 import core.Game;

@@ -1,6 +1,6 @@
-package contrib.systems;
+package systems;
 
-import contrib.components.PathComponent;
+import components.PathComponent;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.Game;

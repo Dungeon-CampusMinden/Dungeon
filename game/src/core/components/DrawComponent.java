@@ -60,7 +60,7 @@ public final class DrawComponent implements Component {
 
   private Map<String, Animation> animationMap = null;
   private Animation currentAnimation;
-  private boolean isVisable = true;
+  private boolean isVisible = true;
 
   /**
    * Create a new DrawComponent.
@@ -462,11 +462,11 @@ public final class DrawComponent implements Component {
   }
 
   public boolean isVisible() {
-    return isVisable;
+    return isVisible;
   }
 
   public void setVisible(boolean visible) {
-    isVisable = visible;
+    isVisible = visible;
   }
 
   /**

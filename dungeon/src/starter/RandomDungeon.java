@@ -94,7 +94,5 @@ public class RandomDungeon {
     Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     Game.add(new IdleSoundSystem());
-    Game.add(new FallingSystem());
-    Game.add(new PathSystem());
   }
 }

@@ -15,11 +15,15 @@ import core.level.Tile;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
+import entities.DevHeroFactory;
 import entities.MonsterType;
 import java.io.IOException;
 import level.DungeonSaver;
 import level.DungeonLoader;
-import utils.MonsterUtils;
+import entities.MonsterUtils;
+import systems.FallingSystem;
+import systems.FogOfWarSystem;
+import systems.PathSystem;
 
 public class DevDungeon {
 
@@ -68,7 +72,7 @@ public class DevDungeon {
   }
 
   private static void createHero() throws IOException {
-    Entity hero = EntityFactory.newHero();
+    Entity hero = DevHeroFactory.newHero();
     Game.add(hero);
   }
 

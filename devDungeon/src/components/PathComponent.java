@@ -1,6 +1,7 @@
-package contrib.components;
+package components;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
+import contrib.components.AIComponent;
 import core.Component;
 import core.level.Tile;
 

@@ -1,4 +1,4 @@
-package contrib.systems;
+package systems;
 
 import contrib.components.HealthComponent;
 import contrib.utils.components.health.Damage;

@@ -1,4 +1,4 @@
-package utils;
+package entities;
 
 import core.Entity;
 import core.Game;
@@ -7,7 +7,7 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.MonsterType;
+
 import java.io.IOException;
 import java.util.logging.Logger;
 
