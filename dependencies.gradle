@@ -1,13 +1,12 @@
 ext {
     // -- PLUGINS
     spotlessVersion = '6.25.0'
-    benmanesVersion = '0.51.0'
 
     // -- DEPENDENCIES
     gdxVersion = '1.12.1'
     aiVersion = '1.8.2'
     junitVersion = '4.13.2'
-    mockitoVersion = '5.11.0'
+    mockitoVersion = '5.10.0'
     antlrVersion = '4.13.1'
     gsonVersion = '2.10.1'
 
