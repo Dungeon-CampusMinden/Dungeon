@@ -10,7 +10,11 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.game.ECSManagment;
 import core.level.Tile;
+import core.level.generator.postGeneration.WallGenerator;
+import core.level.generator.randomwalk.RandomWalkGenerator;
+import core.systems.DrawSystem;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
@@ -26,6 +30,8 @@ import systems.HealthSystem;
 public class DevDungeon {
 
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
+
+  private static final boolean SKIP_TUTORIAL = false;
 
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger();
@@ -65,7 +71,11 @@ public class DevDungeon {
           }
           setupMusic();
           Crafting.loadRecipes();
-          DungeonLoader.loadNextLevel();
+          if (SKIP_TUTORIAL) {
+            DungeonLoader.loadNextLevel(); // First Level start at 1
+          } else {
+            DungeonLoader.loadLevel(0); // Tutorial at 0
+          }
         });
   }
 

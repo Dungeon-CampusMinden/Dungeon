@@ -72,4 +72,9 @@ public class DungeonLoader {
     CURRENT_LEVEL++;
     Game.currentLevel(getRandomVariant(CURRENT_LEVEL));
   }
+
+  public static void loadLevel(int levelNumber) {
+    CURRENT_LEVEL = levelNumber;
+    Game.currentLevel(getRandomVariant(levelNumber));
+  }
 }
