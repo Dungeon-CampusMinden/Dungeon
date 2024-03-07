@@ -17,9 +17,6 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
 
   @Override
   public void onTick(boolean isFirstTick) {
-      if (isFirstTick) {
-          Coordinate coords = this.randomTile(LevelElement.FLOOR).coordinate();
-          MonsterUtils.spawnMonster(MonsterType.IMP, coords);
-      }
+
   }
 }
