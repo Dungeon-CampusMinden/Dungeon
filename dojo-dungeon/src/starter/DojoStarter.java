@@ -228,7 +228,7 @@ public class DojoStarter {
 
   private static void createRoom_2(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
       throws IOException {
-    new Room_1_2_Generator().generateRoom(gen, room, nextRoom);
+    new Room_1_2_Generator(gen, room, nextRoom).generateRoom();
   }
 
   private static void createRoom_3(RoomGenerator gen, LevelNode room, LevelNode prevRoom)

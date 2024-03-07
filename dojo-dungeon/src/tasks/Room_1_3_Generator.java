@@ -4,10 +4,13 @@ import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import java.io.IOException;
 
-public class Room_1_3_Generator implements TaskRoomGenerator {
+public class Room_1_3_Generator extends TaskRoomGenerator {
+  public Room_1_3_Generator(RoomGenerator gen, LevelNode room, LevelNode nextNeighbour) {
+    super(gen, room, nextNeighbour);
+  }
+
   @Override
-  public void generateRoom(RoomGenerator gen, LevelNode room, LevelNode nextNeighbour)
-      throws IOException {
+  public void generateRoom() throws IOException {
     // todo
   }
 }

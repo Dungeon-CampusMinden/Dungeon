@@ -7,16 +7,34 @@ import core.Game;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-public interface TaskRoomGenerator {
-  List<Task> roomTasks = new ArrayList<>();
+public abstract class TaskRoomGenerator {
+  private RoomGenerator gen;
+  private LevelNode room;
+  private LevelNode nextNeighbour;
+  private List<Task> roomTasks = new ArrayList<>();
 
-  default void addTask(Task task) {
+  public TaskRoomGenerator(RoomGenerator gen, LevelNode room, LevelNode nextNeighbour) {
+    this.gen = gen;
+    this.room = room;
+    this.nextNeighbour = nextNeighbour;
+  }
+
+  public void addTask(Task task) {
     roomTasks.add(task);
   }
 
-  default void addRoomEntities(LevelNode room, Set<Entity> roomEntities) {
+  public Optional<Task> getNextUncompletedTask() {
+    return roomTasks.stream().filter(t -> !t.isCompleted()).findFirst();
+  }
+
+  public boolean areAllTasksCompleted() {
+    return roomTasks.stream().allMatch(Task::isCompleted);
+  }
+
+  public void addRoomEntities(Set<Entity> roomEntities) {
     // add the entities as payload to the LevelNode
     room.entities(roomEntities);
 
@@ -25,5 +43,17 @@ public interface TaskRoomGenerator {
     room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
   }
 
-  void generateRoom(RoomGenerator gen, LevelNode room, LevelNode nextNeighbour) throws IOException;
+  public RoomGenerator getGen() {
+    return gen;
+  }
+
+  public LevelNode getRoom() {
+    return room;
+  }
+
+  public LevelNode getNextNeighbour() {
+    return nextNeighbour;
+  }
+
+  public abstract void generateRoom() throws IOException;
 }

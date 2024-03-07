@@ -1,41 +1,49 @@
 package tasks;
 
-import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import java.util.function.Function;
 import starter.DojoStarter;
 
 public class Task {
   private final TaskRoomGenerator trGen;
-  private final LevelNode currentRoom;
-  private final LevelNode nextRoom;
-  private final Function<Task, Boolean> onActivated;
-  private final Function<Task, Boolean> onDeactivated;
+  private final Function<Task, Boolean> questionOnActivated;
+  private final Function<Task, Boolean> questionOnDeactivated;
+  private final Function<Task, Boolean> solveOnActivated;
+  private final Function<Task, Boolean> solveOnDeactivated;
   private boolean isActivated = false;
   private boolean completed = false;
 
   public Task(
       TaskRoomGenerator trGen,
-      LevelNode currentRoom,
-      LevelNode nextRoom,
-      Function<Task, Boolean> onActivated,
-      Function<Task, Boolean> onDeactivated) {
+      Function<Task, Boolean> questionOnActivated,
+      Function<Task, Boolean> questionOnDeactivated,
+      Function<Task, Boolean> solveOnActivated,
+      Function<Task, Boolean> solveOnDeactivated) {
     this.trGen = trGen;
-    this.currentRoom = currentRoom;
-    this.nextRoom = nextRoom;
-    this.onActivated = onActivated;
-    this.onDeactivated = onDeactivated;
+    this.questionOnActivated = questionOnActivated;
+    this.questionOnDeactivated = questionOnDeactivated;
+    this.solveOnActivated = solveOnActivated;
+    this.solveOnDeactivated = solveOnDeactivated;
   }
 
-  public void check() {
+  public void question() {
     if (isActivated()) {
-      if (onActivated.apply(this)) {
+      questionOnActivated.apply(this);
+    } else {
+      setActivated(true);
+      questionOnDeactivated.apply(this);
+    }
+  }
+
+  public void solve() {
+    if (isActivated()) {
+      if (solveOnActivated.apply(this)) {
         setCompleted(true);
-        if (trGen.roomTasks.stream().allMatch(Task::isCompleted)) {
-          DojoStarter.openDoors(currentRoom, nextRoom);
+        if (trGen.areAllTasksCompleted()) {
+          DojoStarter.openDoors(trGen.getRoom(), trGen.getNextNeighbour());
         }
       }
     } else {
-      onDeactivated.apply(this);
+      solveOnDeactivated.apply(this);
     }
   }
 
