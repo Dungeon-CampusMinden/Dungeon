@@ -103,6 +103,7 @@ public class DevDungeon {
     Game.add(new IdleSoundSystem());
     Game.add(new FallingSystem());
     Game.add(new PathSystem());
+    Game.add(new LevelEditor());
     // Game.add(new FogOfWarSystem());
     Game.add(
         new System() {
