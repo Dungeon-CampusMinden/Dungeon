@@ -1,9 +1,10 @@
 package systems;
 
 import components.ReviveComponent;
+import contrib.systems.HealthSystem;
 
-public class HealthSystem extends contrib.systems.HealthSystem {
-  public HealthSystem() {
+public class DevHealthSystem extends HealthSystem {
+  public DevHealthSystem() {
     super();
   }
 

@@ -22,7 +22,7 @@ import java.io.IOException;
 import level.DungeonLoader;
 import level.DungeonSaver;
 import systems.*;
-import systems.HealthSystem;
+import systems.DevHealthSystem;
 
 public class DevDungeon {
 
@@ -105,7 +105,7 @@ public class DevDungeon {
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new ReviveSystem());
-    Game.add(new HealthSystem());
+    Game.add(new DevHealthSystem());
     Game.add(new ProjectileSystem());
     Game.add(new HealthBarSystem());
     Game.add(new HudSystem());
@@ -113,7 +113,7 @@ public class DevDungeon {
     Game.add(new IdleSoundSystem());
     Game.add(new FallingSystem());
     Game.add(new PathSystem());
-    Game.add(new LevelEditor());
+    Game.add(new LevelEditorSystem());
     // Game.add(new FogOfWarSystem());
     Game.add(
         new System() {
