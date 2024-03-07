@@ -1,14 +1,11 @@
 package level;
 
-import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
+import core.level.Tile;
 import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.MissingHeroException;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.*;
 import java.util.ArrayList;
@@ -35,11 +32,6 @@ public class DevDungeonLevel extends TileLevel {
       // Parse Hero Position
       String heroPosLine = readLine(reader);
       Point heroPos = parseHeroPosition(heroPosLine);
-      Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-      PositionComponent heroPosComp =
-          hero.fetch(PositionComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-      heroPosComp.position(heroPos);
 
       // Parse LAYOUT
       List<String> layoutLines = new ArrayList<>();
@@ -49,7 +41,16 @@ public class DevDungeonLevel extends TileLevel {
       }
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
-      return new DevDungeonLevel(layout, designLabel);
+      DevDungeonLevel newLevel = new DevDungeonLevel(layout, designLabel);
+
+      // Set Hero Position
+      Tile heroTile = newLevel.tileAt(heroPos);
+      if (heroTile == null) {
+        throw new RuntimeException("Invalid Hero Position: " + heroPos);
+      }
+      newLevel.startTile(heroTile);
+
+      return newLevel;
     } catch (IOException e) {
       throw new RuntimeException("Error reading level file", e);
     }

@@ -2,15 +2,16 @@ package level;
 
 import core.Game;
 import core.components.PositionComponent;
+import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 /**
- * This class is responsible for saving the current state of the dungeon in the game.
- * The "saving" is done by printing the design label of the current level, the position of the hero,
- * and the layout of the current level to the console. This String can then be copied and pasted into
- * a .level file to be loaded later by the {@link DungeonLoader}.
+ * This class is responsible for saving the current state of the dungeon in the game. The "saving"
+ * is done by printing the design label of the current level, the position of the hero, and the
+ * layout of the current level to the console. This String can then be copied and pasted into a
+ * .level file to be loaded later by the {@link DungeonLoader}.
  *
  * @see DungeonLoader
  */
@@ -18,13 +19,18 @@ public class DungeonSaver {
 
   /**
    * The saveCurrentDungeon method is responsible for saving the current state of the dungeon. It
-   * does this by first getting the design label of the current level. Then it gets
-   * the position of the hero in the game. After that, it compresses the layout of the current level
-   * by removing all lines that only contain Empty Tiles. Finally, it concatenates all this information into
-   * a single string and prints it.
+   * does this by first getting the design label of the current level. Then it gets the position of
+   * the hero in the game. After that, it compresses the layout of the current level by removing all
+   * lines that only contain Empty Tiles. Finally, it concatenates all this information into a
+   * single string and prints it.
    */
   public static void saveCurrentDungeon() {
-    String designLabel = Game.currentLevel().endTile().designLabel().name();
+    String designLabel;
+    if (Game.currentLevel().endTile() == null) {
+      designLabel = Game.currentLevel().randomTile(LevelElement.FLOOR).designLabel().name();
+    } else {
+      designLabel = Game.currentLevel().endTile().designLabel().name();
+    }
 
     Point heroPos =
         Game.hero()
