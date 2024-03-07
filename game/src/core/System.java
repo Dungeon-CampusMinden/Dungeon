@@ -29,10 +29,9 @@ import java.util.stream.Stream;
  * inheriting System to implement the corresponding logic for these events.
  */
 public abstract class System {
-    /**
-     * WTF? .
-     */
+  /** WTF? . */
   public static final int DEFAULT_EVERY_FRAME_EXECUTE = 1;
+
   protected static final Logger LOGGER = Logger.getLogger(System.class.getSimpleName());
   private final Set<Class<? extends Component>> filterRules;
   private final int executeEveryXFrames;

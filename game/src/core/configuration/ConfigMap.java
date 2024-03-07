@@ -3,9 +3,7 @@ package core.configuration;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-/**
- * WTF? .
- */
+/** WTF? . */
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target({java.lang.annotation.ElementType.TYPE})
 public @interface ConfigMap {
