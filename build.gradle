@@ -5,7 +5,6 @@ buildscript {
 
 plugins {
     id 'com.diffplug.spotless' version "${spotlessVersion}"
-    id 'com.github.ben-manes.versions' version "${benmanesVersion}"
 }
 
 
