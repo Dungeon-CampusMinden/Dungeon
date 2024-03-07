@@ -67,6 +67,7 @@ public final class LevelSystem extends System {
   private final IVoidFunction onLevelLoad;
   private final Painter painter;
   private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getSimpleName());
+  private IVoidFunction onEndTile;
   private IGenerator generator;
 
   /**
@@ -85,6 +86,7 @@ public final class LevelSystem extends System {
     this.generator = generator;
     this.onLevelLoad = onLevelLoad;
     this.painter = painter;
+    this.onEndTile = () -> loadLevel(levelSize);
   }
 
   /**
@@ -230,7 +232,10 @@ public final class LevelSystem extends System {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     for (DoorTile door : currentLevel.doorTiles()) {
-      if (door.isOpen() && door.otherDoor() != null && door.otherDoor().isOpen() && door.equals(Game.tileAT(pc.position()))) {
+      if (door.isOpen()
+          && door.otherDoor() != null
+          && door.otherDoor().isOpen()
+          && door.equals(Game.tileAT(pc.position()))) {
         door.otherDoor().level().startTile(door.otherDoor().doorstep());
         nextLevel = door.otherDoor().level();
       }
@@ -255,7 +260,7 @@ public final class LevelSystem extends System {
   @Override
   public void execute() {
     if (currentLevel == null) loadLevel(levelSize);
-    else if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(levelSize);
+    else if (entityStream().anyMatch(this::isOnEndTile)) onEndTile.execute();
     else
       entityStream()
           .forEach(
@@ -267,6 +272,24 @@ public final class LevelSystem extends System {
                             playSound();
                           }));
     drawLevel();
+  }
+
+  /**
+   * Sets the function to be executed when an entity reaches the end tile.
+   *
+   * @param onEndTile The function to be executed when an entity reaches the end tile.
+   */
+  public void onEndTile(IVoidFunction onEndTile) {
+    this.onEndTile = onEndTile;
+  }
+
+  /**
+   * Gets the function that is executed when an entity reaches the end tile.
+   *
+   * @return The function that is executed when an entity reaches the end tile.
+   */
+  public IVoidFunction onEndTile() {
+    return onEndTile;
   }
 
   /** LevelSystem can't be paused. If it is paused, the level will not be shown anymore. */

@@ -12,9 +12,6 @@ import core.Game;
 import core.System;
 import core.game.ECSManagment;
 import core.level.Tile;
-import core.level.generator.postGeneration.WallGenerator;
-import core.level.generator.randomwalk.RandomWalkGenerator;
-import core.systems.DrawSystem;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
@@ -63,6 +60,9 @@ public class DevDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
+          levelSystem.onEndTile(DungeonLoader::loadNextLevel);
+
           createSystems();
           try {
             createHero();
