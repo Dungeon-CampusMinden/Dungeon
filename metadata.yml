@@ -7,7 +7,7 @@ description: >-
   Rogue-Like role-playing game. It provides its own description language (the
   Dungeon Description Language) with which tasks and game content can be defined
   and loaded into the game.
-license: https://opensource.org/license/mit
+license: https://opensource.org/licenses/MIT
 id: https://github.com/Dungeon-CampusMinden/Dungeon
 creator:
   - givenName: André
