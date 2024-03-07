@@ -1,23 +1,23 @@
 package tasks;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
-import starter.DojoStarter;
 
 public class Task {
   private final TaskRoomGenerator trGen;
-  private final Function<Task, Boolean> questionOnActivated;
-  private final Function<Task, Boolean> questionOnDeactivated;
+  private final Consumer<Task> questionOnActivated;
+  private final Consumer<Task> questionOnDeactivated;
   private final Function<Task, Boolean> solveOnActivated;
-  private final Function<Task, Boolean> solveOnDeactivated;
+  private final Consumer<Task> solveOnDeactivated;
   private boolean isActivated = false;
   private boolean completed = false;
 
   public Task(
       TaskRoomGenerator trGen,
-      Function<Task, Boolean> questionOnActivated,
-      Function<Task, Boolean> questionOnDeactivated,
+      Consumer<Task> questionOnActivated,
+      Consumer<Task> questionOnDeactivated,
       Function<Task, Boolean> solveOnActivated,
-      Function<Task, Boolean> solveOnDeactivated) {
+      Consumer<Task> solveOnDeactivated) {
     this.trGen = trGen;
     this.questionOnActivated = questionOnActivated;
     this.questionOnDeactivated = questionOnDeactivated;
@@ -27,10 +27,10 @@ public class Task {
 
   public void question() {
     if (isActivated()) {
-      questionOnActivated.apply(this);
+      questionOnActivated.accept(this);
     } else {
+      questionOnDeactivated.accept(this);
       setActivated(true);
-      questionOnDeactivated.apply(this);
     }
   }
 
@@ -39,11 +39,11 @@ public class Task {
       if (solveOnActivated.apply(this)) {
         setCompleted(true);
         if (trGen.areAllTasksCompleted()) {
-          DojoStarter.openDoors(trGen.getRoom(), trGen.getNextNeighbour());
+          trGen.openDoors();
         }
       }
     } else {
-      solveOnDeactivated.apply(this);
+      solveOnDeactivated.accept(this);
     }
   }
 

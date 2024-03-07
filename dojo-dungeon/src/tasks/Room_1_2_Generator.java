@@ -33,99 +33,64 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
 
     // Create tasks
     String fileName = "Task_1_2.java";
+    String text =
+        "Öffne die Datei "
+            + fileName
+            + ", verbessere die Fehler, speichere sie und öffne dann die Truhe, um weiterzugehen.";
+    String[][] taskText1 = {
+      {"Arr, Sie kenne ich.\nHier noch mal die Aufgabe.\n" + text, "Ok", "Aufgabe 1:"},
+      {text, "Ok", "Aufgabe 1:"},
+      {"Alles ok, Sie können mit Aufgabe 2 weitermachen.", "Ok", "Lösung 1:"},
+      {"Gehe zuerst zum Questioner für Aufgabe 1.", "Ok", "Lösung 1:"},
+      {"Alles ok, Sie können in den nächsten Raum gehen.", "Sie haben schon alle Aufgaben gelöst!"}
+    };
+    String[][] taskText2 = {
+      {"Arr, Sie kenne ich.\nHier noch mal die Aufgabe.\n" + text, "Ok", "Aufgabe 2:"},
+      {text, "Ok", "Aufgabe 2:"},
+      {"Alles ok, Sie können mit Aufgabe 3 weitermachen.", "Ok", "Lösung 2:"},
+      {"Gehe zuerst zum Questioner für Aufgabe 2.", "Ok", "Lösung 2:"},
+      {"Alles ok, Sie können in den nächsten Raum gehen.", "Sie haben schon alle Aufgaben gelöst!"}
+    };
+    String[][] taskText3 = {
+      {"Arr, Sie kenne ich.\nHier noch mal die Aufgabe.\n" + text, "Ok", "Aufgabe 3:"},
+      {text, "Ok", "Aufgabe 3:"},
+      {"Alles ok, Sie können in den nächsten Raum gehen.", "Ok", "Lösung 3:"},
+      {"Gehe zuerst zum Questioner für Aufgabe 3.", "Ok", "Lösung 3:"},
+      {"Alles ok, Sie können in den nächsten Raum gehen.", "Sie haben schon alle Aufgaben gelöst!"}
+    };
 
     addTask(
         new Task(
             this,
+            (t) -> TextDialog.textDialog(taskText1[0][0], taskText1[0][1], taskText1[0][2]),
+            (t) -> TextDialog.textDialog(taskText1[1][0], taskText1[1][1], taskText1[1][2]),
             (t) -> {
-              TextDialog.textDialog(
-                  "Arr, Sie kenne ich.\nHier noch mal die Aufgabe.\nÖffne die Datei "
-                      + fileName
-                      + ", verbessere die Fehler, speichere sie und öffne dann die Truhe, um weiterzugehen.",
-                  "Ok",
-                  "Aufgabe 1:");
+              TextDialog.textDialog(taskText1[2][0], taskText1[2][1], taskText1[2][2]);
               return true;
             },
-            (t) -> {
-              TextDialog.textDialog(
-                  "Öffne die Datei "
-                      + fileName
-                      + ", verbessere die Fehler, speichere sie und öffne dann die Truhe, um weiterzugehen.",
-                  "Ok",
-                  "Aufgabe 1:");
-              return true;
-            },
-            (t) -> {
-              TextDialog.textDialog(
-                  "Alles ok, Sie können mit Aufgabe 2 weitermachen.", "Ok", "Lösung 1:");
-              return true;
-            },
-            (t) -> {
-              TextDialog.textDialog("Gehe zuerst zum Questioner für Aufgabe 1.", "Ok", "Lösung 1:");
-              return false;
-            }));
+            (t) -> TextDialog.textDialog(taskText1[3][0], taskText1[3][1], taskText1[3][2])));
 
     addTask(
         new Task(
             this,
+            (t) -> TextDialog.textDialog(taskText2[0][0], taskText2[0][1], taskText2[0][2]),
+            (t) -> TextDialog.textDialog(taskText2[1][0], taskText2[1][1], taskText2[1][2]),
             (t) -> {
-              TextDialog.textDialog(
-                  "Arr, Sie kenne ich.\nHier noch mal die Aufgabe.\nÖffne die Datei "
-                      + fileName
-                      + ", verbessere die Fehler, speichere sie und öffne dann die Truhe, um weiterzugehen.",
-                  "Ok",
-                  "Aufgabe 2:");
+              TextDialog.textDialog(taskText2[2][0], taskText2[2][1], taskText2[2][2]);
               return true;
             },
-            (t) -> {
-              TextDialog.textDialog(
-                  "Öffne die Datei "
-                      + fileName
-                      + ", verbessere die Fehler, speichere sie und öffne dann die Truhe, um weiterzugehen.",
-                  "Ok",
-                  "Aufgabe 2:");
-              return true;
-            },
-            (t) -> {
-              TextDialog.textDialog(
-                  "Alles ok, Sie können mit Aufgabe 3 weitermachen.", "Ok", "Lösung 2:");
-              return true;
-            },
-            (t) -> {
-              TextDialog.textDialog("Gehe zuerst zum Questioner für Aufgabe 2.", "Ok", "Lösung 2:");
-              return false;
-            }));
+            (t) -> TextDialog.textDialog(taskText2[3][0], taskText2[3][1], taskText2[3][2])));
 
     addTask(
         new Task(
             this,
+            (t) -> TextDialog.textDialog(taskText3[0][0], taskText3[0][1], taskText3[0][2]),
+            (t) -> TextDialog.textDialog(taskText3[1][0], taskText3[1][1], taskText3[1][2]),
             (t) -> {
-              TextDialog.textDialog(
-                  "Arr, Sie kenne ich.\nHier noch mal die Aufgabe.\nÖffne die Datei "
-                      + fileName
-                      + ", verbessere die Fehler, speichere sie und öffne dann die Truhe, um weiterzugehen.",
-                  "Ok",
-                  "Aufgabe 3:");
+              TextDialog.textDialog(taskText3[2][0], taskText3[2][1], taskText3[2][2]);
               return true;
             },
-            (t) -> {
-              TextDialog.textDialog(
-                  "Öffne die Datei "
-                      + fileName
-                      + ", verbessere die Fehler, speichere sie und öffne dann die Truhe, um weiterzugehen.",
-                  "Ok",
-                  "Aufgabe 3:");
-              return true;
-            },
-            (t) -> {
-              TextDialog.textDialog(
-                  "Alles ok, Sie können in den nächsten Raum gehen.", "Ok", "Lösung 3:");
-              return true;
-            },
-            (t) -> {
-              TextDialog.textDialog("Gehe zuerst zum Questioner für Aufgabe 3.", "Ok", "Lösung 3:");
-              return false;
-            }));
+            (t) -> TextDialog.textDialog(taskText3[3][0], taskText3[3][1], taskText3[3][2])));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
@@ -142,9 +107,7 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
                 getNextUncompletedTask()
                     .ifPresentOrElse(
                         Task::question,
-                        () ->
-                            TextDialog.textDialog(
-                                "Du hast schon alle Aufgaben gelöst!", "Ok", "Ihre Lösung:"))));
+                        () -> TextDialog.textDialog(taskText1[4][1], "Ok", "Ihre Aufgabe:"))));
 
     // add a solver chest
     Entity solver = EntityFactory.newChest();
@@ -152,14 +115,11 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
         new InteractionComponent(
             1,
             true,
-            (interacted, interactor) -> {
-              getNextUncompletedTask()
-                  .ifPresentOrElse(
-                      Task::solve,
-                      () ->
-                          TextDialog.textDialog(
-                              "Du hast schon alle Aufgaben gelöst!", "Ok", "Ihre Lösung:"));
-            }));
+            (interacted, interactor) ->
+                getNextUncompletedTask()
+                    .ifPresentOrElse(
+                        Task::solve,
+                        () -> TextDialog.textDialog(taskText1[4][1], "Ok", "Ihre Lösung:"))));
 
     roomEntities.add(talkToMe);
     roomEntities.add(solver);

@@ -9,12 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import starter.DojoStarter;
 
 public abstract class TaskRoomGenerator {
-  private RoomGenerator gen;
-  private LevelNode room;
-  private LevelNode nextNeighbour;
-  private List<Task> roomTasks = new ArrayList<>();
+  private final RoomGenerator gen;
+  private final LevelNode room;
+  private final LevelNode nextNeighbour;
+  private final List<Task> roomTasks = new ArrayList<>();
 
   public TaskRoomGenerator(RoomGenerator gen, LevelNode room, LevelNode nextNeighbour) {
     this.gen = gen;
@@ -41,6 +42,10 @@ public abstract class TaskRoomGenerator {
     // this will add the entities (in the node payload) to the game, at the moment the level get
     // loaded for the first time
     room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
+  }
+
+  public void openDoors() {
+    DojoStarter.openDoors(getRoom(), getNextNeighbour());
   }
 
   public RoomGenerator getGen() {
