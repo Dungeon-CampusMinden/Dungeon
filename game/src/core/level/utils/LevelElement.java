@@ -15,17 +15,17 @@ public enum LevelElement {
 
   DOOR(true, true);
 
-  private final boolean value;
+  private final boolean accessible;
   private final boolean canSeeThrough;
 
   /**
    * Represents a level element with accessibility information.
    *
-   * @param value The accessibility value of the element.
+   * @param accessible The accessibility value of the element.
    * @param canSeeThrough The Entity can see through this element.
    */
-  LevelElement(boolean value, boolean canSeeThrough) {
-    this.value = value;
+  LevelElement(boolean accessible, boolean canSeeThrough) {
+    this.accessible = accessible;
     this.canSeeThrough = canSeeThrough;
   }
 
@@ -35,7 +35,7 @@ public enum LevelElement {
    * @return true if the element is accessible, code false if not.
    */
   public boolean value() {
-    return value;
+    return accessible;
   }
 
   /**
