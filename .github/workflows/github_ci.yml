@@ -93,3 +93,18 @@ jobs:
           distribution: 'temurin'
       - name: Spotless
         run: ./gradlew spotlessJavaCheck
+
+  checkstyle:
+    name: Checkstyle
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Spotless
+        run: ./gradlew checkstyleMain
