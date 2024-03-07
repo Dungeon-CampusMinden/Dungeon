@@ -2,10 +2,15 @@ package level.utils;
 
 import core.Game;
 import core.components.PositionComponent;
+import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import level.DevDungeonLevel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is responsible for saving the current state of the dungeon in the game. The "saving"
@@ -39,11 +44,19 @@ public class DungeonSaver {
             .orElseThrow(
                 () -> MissingComponentException.build(Game.hero().get(), PositionComponent.class))
             .position();
+    List<Coordinate> customPoints = new ArrayList<>();
+    if (Game.currentLevel() instanceof DevDungeonLevel) {
+      customPoints = ((DevDungeonLevel) Game.currentLevel()).customPoints();
+    }
+    StringBuilder customPointsString = new StringBuilder();
+    for (Coordinate customPoint : customPoints) {
+      customPointsString.append(customPoint.x).append(",").append(customPoint.y).append(";");
+    }
 
     // Compress the layout of the current level by removing all lines that only contain 'S'
     String dunLayout = compressDungeonLayout(Game.currentLevel().printLevel());
 
-    String result = designLabel + "\n" + heroPos.x + "," + heroPos.y + "\n" + dunLayout;
+    String result = designLabel + "\n" + heroPos.x + "," + heroPos.y + "\n" + customPointsString + "\n" + dunLayout;
 
     System.out.println(result);
   }

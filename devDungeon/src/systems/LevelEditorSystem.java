@@ -3,11 +3,13 @@ package systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import contrib.utils.components.skill.SkillTools;
+import core.Game;
 import core.System;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
+import level.DevDungeonLevel;
 
 public class LevelEditorSystem extends System {
   private static boolean active = true;
@@ -17,6 +19,7 @@ public class LevelEditorSystem extends System {
   private static int HOLE_BUTTON = Input.Keys.NUM_4;
   private static int EXIT_BUTTON = Input.Keys.NUM_5;
   private static int DOOR_BUTTON = Input.Keys.NUM_6;
+  private static int CUSTOM_POINT = Input.Keys.NUM_7;
 
   public static boolean active() {
     return active;
@@ -43,11 +46,14 @@ public class LevelEditorSystem extends System {
     if (Gdx.input.isKeyPressed(HOLE_BUTTON)) {
       setTile(LevelElement.HOLE);
     }
-    if (Gdx.input.isKeyPressed(EXIT_BUTTON)) {
+    if (Gdx.input.isKeyJustPressed(EXIT_BUTTON)) {
       setTile(LevelElement.EXIT);
     }
-    if (Gdx.input.isKeyPressed(DOOR_BUTTON)) {
+    if (Gdx.input.isKeyJustPressed(DOOR_BUTTON)) {
       setTile(LevelElement.DOOR);
+    }
+    if (Gdx.input.isKeyJustPressed(CUSTOM_POINT)) {
+      setCustomPoint();
     }
   }
 
@@ -59,5 +65,23 @@ public class LevelEditorSystem extends System {
       return;
     }
     LevelSystem.level().changeTileElementType(mouseTile, element);
+  }
+
+  private void setCustomPoint() {
+    Point mosPos = SkillTools.cursorPositionAsPoint();
+    mosPos = new Point(mosPos.x - 0.5f, mosPos.y - 0.25f);
+    Tile mouseTile = LevelSystem.level().tileAt(mosPos);
+    if (mouseTile == null) {
+      return;
+    }
+    if (Game.currentLevel() instanceof DevDungeonLevel devDungeonLevel) {
+      if (devDungeonLevel.customPoints().contains(mouseTile.coordinate())) {
+        java.lang.System.out.println("[-] Custom point: " + mouseTile.coordinate());
+        devDungeonLevel.removeCustomPoint(mouseTile.coordinate());
+      } else {
+        java.lang.System.out.println("[+] Custom point: " + mouseTile.coordinate());
+        devDungeonLevel.addCustomPoint(mouseTile.coordinate());
+      }
+    }
   }
 }

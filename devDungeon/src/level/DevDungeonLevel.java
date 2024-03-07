@@ -2,21 +2,25 @@ package level;
 
 import core.level.Tile;
 import core.level.TileLevel;
+import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.IPath;
-import level.utils.DungeonLoader;
-import level.utils.MissingLevelException;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import level.utils.DungeonLoader;
+import level.utils.MissingLevelException;
 
 public class DevDungeonLevel extends TileLevel {
 
-  public DevDungeonLevel(LevelElement[][] layout, DesignLabel designLabel) {
+  private final List<Coordinate> customPoints = new ArrayList<>();
+
+  public DevDungeonLevel(
+      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel);
+    this.customPoints.addAll(customPoints);
   }
 
   /**
@@ -41,6 +45,10 @@ public class DevDungeonLevel extends TileLevel {
       String heroPosLine = readLine(reader);
       Point heroPos = parseHeroPosition(heroPosLine);
 
+      // Custom Points
+      String customPointsLine = readLine(reader);
+      List<Coordinate> customPoints = parseCustomPoints(customPointsLine);
+
       // Parse LAYOUT
       List<String> layoutLines = new ArrayList<>();
       String line;
@@ -59,7 +67,8 @@ public class DevDungeonLevel extends TileLevel {
         throw new RuntimeException("Invalid DevDungeonLevel Class: " + clazz);
 
       DevDungeonLevel newLevel =
-          (DevDungeonLevel) clazz.getDeclaredConstructors()[0].newInstance(layout, designLabel);
+          (DevDungeonLevel)
+              clazz.getDeclaredConstructors()[0].newInstance(layout, designLabel, customPoints);
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos);
@@ -106,6 +115,25 @@ public class DevDungeonLevel extends TileLevel {
     }
   }
 
+  private static List<Coordinate> parseCustomPoints(String customPointsLine) {
+    List<Coordinate> customPoints = new ArrayList<>();
+    if (customPointsLine.isEmpty()) return customPoints;
+    String[] points = customPointsLine.split(";");
+    for (String point : points) {
+      if (point.isEmpty()) continue;
+      String[] parts = point.split(",");
+      if (parts.length != 2) throw new RuntimeException("Invalid Custom Point: " + point);
+      try {
+        int x = Integer.parseInt(parts[0]);
+        int y = Integer.parseInt(parts[1]);
+        customPoints.add(new Coordinate(x, y));
+      } catch (NumberFormatException e) {
+        throw new RuntimeException("Invalid Custom Point: " + point);
+      }
+    }
+    return customPoints;
+  }
+
   private static DesignLabel parseDesignLabel(String line) {
     if (line.isEmpty()) return DesignLabel.randomDesign();
     try {
@@ -147,5 +175,21 @@ public class DevDungeonLevel extends TileLevel {
     }
 
     return layout;
+  }
+
+  public List<Coordinate> customPoints() {
+    return customPoints;
+  }
+
+  public void addCustomPoint(Coordinate point) {
+    customPoints.add(point);
+  }
+
+  public void removeCustomPoint(Coordinate point) {
+    customPoints.remove(point);
+  }
+
+  public boolean hasCustomPoint(Coordinate point) {
+    return customPoints.contains(point);
   }
 }
