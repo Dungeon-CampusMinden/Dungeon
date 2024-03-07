@@ -73,11 +73,6 @@ This project is intended as supplementary teaching material for German-language 
 courses and is therefore aimed at German-speaking students. If you have any questions,
 problems or suggestions, please feel free to contact us in English or German.
 
-## Contributing
-
-Questions, bug reports, feature requests and pull requests are very welcome. Please be sure to
-read the [contributor guidelines] before opening a new issue.
-
 ## Credits
 
 This project was funded by [Stiftung für Innovation in der Hochschullehre] (["Freiraum
