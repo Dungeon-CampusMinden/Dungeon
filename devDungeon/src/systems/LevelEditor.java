@@ -37,22 +37,22 @@ public class LevelEditor extends System {
     if (!active) {
       return;
     }
-    if (Gdx.input.isKeyJustPressed(SKIP_BUTTON)) {
+    if (Gdx.input.isKeyPressed(SKIP_BUTTON)) {
       setTile(LevelElement.SKIP);
     }
-    if (Gdx.input.isKeyJustPressed(FLOOR_BUTTON)) {
+    if (Gdx.input.isKeyPressed(FLOOR_BUTTON)) {
       setTile(LevelElement.FLOOR);
     }
-    if (Gdx.input.isKeyJustPressed(WALL_BUTTON)) {
+    if (Gdx.input.isKeyPressed(WALL_BUTTON)) {
       setTile(LevelElement.WALL);
     }
-    if (Gdx.input.isKeyJustPressed(HOLE_BUTTON)) {
+    if (Gdx.input.isKeyPressed(HOLE_BUTTON)) {
       setTile(LevelElement.HOLE);
     }
-    if (Gdx.input.isKeyJustPressed(EXIT_BUTTON)) {
+    if (Gdx.input.isKeyPressed(EXIT_BUTTON)) {
       setTile(LevelElement.EXIT);
     }
-    if (Gdx.input.isKeyJustPressed(DOOR_BUTTON)) {
+    if (Gdx.input.isKeyPressed(DOOR_BUTTON)) {
       setTile(LevelElement.DOOR);
     }
   }
