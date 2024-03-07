@@ -72,7 +72,7 @@ multiple_choice_task my_task {
 Zuordnungsaufgaben werden wie folgt definiert (nicht alle Eigenschaften müssen zwingend definiert werden):
 
 ```
-multiple_choice_task my_task {
+assign_task my_task {
     description: "Dies ist der Aufgabentext",
     solution: <
         ["Term1", "Definition1"],
