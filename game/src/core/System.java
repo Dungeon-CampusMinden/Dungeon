@@ -29,6 +29,9 @@ import java.util.stream.Stream;
  * inheriting System to implement the corresponding logic for these events.
  */
 public abstract class System {
+    /**
+     * WTF? .
+     */
   public static final int DEFAULT_EVERY_FRAME_EXECUTE = 1;
   protected static final Logger LOGGER = Logger.getLogger(System.class.getSimpleName());
   private final Set<Class<? extends Component>> filterRules;
@@ -182,7 +185,7 @@ public abstract class System {
   }
 
   /**
-   * allows updating the time the system was last executed
+   * Allows updating the time the system was last executed.
    *
    * @param lastExecuteInFrames the Frames since the last execute
    */
