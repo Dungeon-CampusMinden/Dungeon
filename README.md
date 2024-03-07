@@ -44,7 +44,7 @@ Die [Dokumentation](./blockly/doc) sollte einen schnellen Einstieg ermöglichen.
 
 ## Requirements
 
--   Java SE Development Kit 17.0.x LTS
+[Java SE Development Kit 21 LTS](https://jdk.java.net/21/) installed.
 
 ## Contributing
 
