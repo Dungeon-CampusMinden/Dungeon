@@ -46,6 +46,10 @@ Die [Dokumentation](./blockly/doc) sollte einen schnellen Einstieg ermöglichen.
 
 [Java SE Development Kit 21 LTS](https://jdk.java.net/21/) installed.
 
+## Known Limitations
+
+Currently the path to the project file cannot contain any spaces, special characters or umlauts.
+
 ## Contributing
 
 Questions, bug reports, feature requests and pull requests are very welcome.
