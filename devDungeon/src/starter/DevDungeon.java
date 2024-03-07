@@ -19,8 +19,8 @@ import entities.DevHeroFactory;
 import entities.MonsterType;
 import entities.MonsterUtils;
 import java.io.IOException;
-import level.DungeonLoader;
-import level.DungeonSaver;
+import level.utils.DungeonLoader;
+import level.utils.DungeonSaver;
 import systems.*;
 import systems.DevHealthSystem;
 
@@ -114,6 +114,7 @@ public class DevDungeon {
     Game.add(new FallingSystem());
     Game.add(new PathSystem());
     Game.add(new LevelEditorSystem());
+    Game.add(new LevelTickSystem());
     // Game.add(new FogOfWarSystem());
     Game.add(
         new System() {

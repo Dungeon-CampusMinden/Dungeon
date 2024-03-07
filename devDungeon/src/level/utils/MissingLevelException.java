@@ -1,4 +1,4 @@
-package level;
+package level.utils;
 
 public class MissingLevelException extends RuntimeException {
   public MissingLevelException(int levelNumber) {

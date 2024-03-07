@@ -1,12 +1,14 @@
 package level;
 
-import core.Game;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.IPath;
+import level.utils.DungeonLoader;
+import level.utils.MissingLevelException;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,13 @@ public class DevDungeonLevel extends TileLevel {
     super(layout, designLabel);
   }
 
-  public static DevDungeonLevel loadFromPath(IPath path) {
+  /**
+   * Load a DevDungeonLevel from a file path
+   *
+   * @param path The path to the file to load
+   * @return The loaded DevDungeonLevel
+   */
+  public static DevDungeonLevel loadFromPath(IPath path) throws ReflectiveOperationException {
     // Load file from the path
     File file = new File(path.pathString());
     if (!file.exists()) {
@@ -41,7 +49,17 @@ public class DevDungeonLevel extends TileLevel {
       }
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
-      DevDungeonLevel newLevel = new DevDungeonLevel(layout, designLabel);
+      // Load reflectively the "level-handler" class (level.DevLevelXY) for the current level
+      // For custom logic
+      Class<?> clazz =
+          DevDungeonLevel.class
+              .getClassLoader()
+              .loadClass(String.format("level.DevLevel%02d", DungeonLoader.CURRENT_LEVEL));
+      if (!DevDungeonLevel.class.isAssignableFrom(clazz))
+        throw new RuntimeException("Invalid DevDungeonLevel Class: " + clazz);
+
+      DevDungeonLevel newLevel =
+          (DevDungeonLevel) clazz.getDeclaredConstructors()[0].newInstance(layout, designLabel);
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos);

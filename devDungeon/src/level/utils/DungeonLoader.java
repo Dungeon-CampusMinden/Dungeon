@@ -1,4 +1,4 @@
-package level;
+package level.utils;
 
 import core.Game;
 import core.level.elements.ILevel;
@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+import level.DevDungeonLevel;
 
 public class DungeonLoader {
 
@@ -65,13 +66,17 @@ public class DungeonLoader {
     // Random Level Variant Path
     IPath levelPath = new SimpleIPath(levelVariants.get(RANDOM.nextInt(levelVariants.size())));
 
-    return DevDungeonLevel.loadFromPath(levelPath);
+    try {
+      return DevDungeonLevel.loadFromPath(levelPath);
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException("Error loading level", e);
+    }
   }
 
   public static void loadNextLevel() {
     CURRENT_LEVEL++;
     try {
-    Game.currentLevel(getRandomVariant(CURRENT_LEVEL));
+      Game.currentLevel(getRandomVariant(CURRENT_LEVEL));
     } catch (MissingLevelException e) {
       System.out.println("Game Over!");
       System.out.println("You have passed all " + CURRENT_LEVEL + " levels!");

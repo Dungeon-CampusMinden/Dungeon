@@ -1,4 +1,4 @@
-package level;
+package level.utils;
 
 import core.Game;
 import core.components.PositionComponent;
