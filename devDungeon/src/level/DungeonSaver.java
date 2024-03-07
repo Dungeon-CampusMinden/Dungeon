@@ -8,6 +8,9 @@ import core.utils.components.MissingComponentException;
 
 /**
  * This class is responsible for saving the current state of the dungeon in the game.
+ * The "saving" is done by printing the design label of the current level, the position of the hero,
+ * and the layout of the current level to the console. This String can then be copied and pasted into
+ * a .level file to be loaded later by the {@link DungeonLoader}.
  *
  * @see DungeonLoader
  */
@@ -15,9 +18,9 @@ public class DungeonSaver {
 
   /**
    * The saveCurrentDungeon method is responsible for saving the current state of the dungeon. It
-   * does this by first getting the design label of the end tile of the current level. Then it gets
+   * does this by first getting the design label of the current level. Then it gets
    * the position of the hero in the game. After that, it compresses the layout of the current level
-   * by removing all lines that only contain 'S'. Finally, it concatenates all this information into
+   * by removing all lines that only contain Empty Tiles. Finally, it concatenates all this information into
    * a single string and prints it.
    */
   public static void saveCurrentDungeon() {
