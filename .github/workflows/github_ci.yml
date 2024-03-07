@@ -106,5 +106,5 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - name: Spotless
+      - name: Checkstyle
         run: ./gradlew checkstyleMain
