@@ -3,9 +3,14 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.components.HealthComponent;
+import contrib.components.InteractionComponent;
+import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.MonsterFactory;
+import contrib.hud.dialogs.TextDialog;
+import contrib.item.Item;
+import contrib.item.concreteItem.ItemResourceMushroomRed;
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.RoomGenerator;
@@ -15,6 +20,9 @@ import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import contrib.systems.*;
 import core.Entity;
 import core.Game;
+import core.System;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
@@ -189,6 +197,14 @@ public class DojoStarter {
     Game.add(new IdleSoundSystem());
   }
 
+  private static void pauseGame() {
+    Game.systems().values().forEach(System::stop);
+  }
+
+  private static void unpauseGame() {
+    Game.systems().values().forEach(System::run);
+  }
+
   private static void createRoom_1(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
       throws IOException {
     // generate the room
@@ -217,21 +233,64 @@ public class DojoStarter {
       throws IOException {
     // generate the room
     room.level(
-        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
+        new TileLevel(gen.layout(LevelSize.MEDIUM, room.neighbours()), DesignLabel.randomDesign()));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
 
-    // add a chest
-    roomEntities.add(EntityFactory.newChest());
+    String fileName = "Task_1_2.java";
+    Item redMushroom = new ItemResourceMushroomRed();
+
+    // add questioner
+    Entity talkToMe = new Entity();
+    talkToMe.add(new PositionComponent());
+    talkToMe.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
+    talkToMe.add(
+        new InteractionComponent(
+            1,
+            true,
+            (entity1, entity2) -> {
+              TextDialog.textDialog(
+                  "Öffne die Datei "
+                      + fileName
+                      + ", verbessere die Fehler, speichere sie und öffne dann die Truhe, um weiterzugehen.",
+                  "Ok",
+                  "Ihre Aufgabe:");
+              entity1.fetch(InventoryComponent.class).orElseThrow().remove(redMushroom);
+            }));
+    talkToMe.add(new InventoryComponent());
+    talkToMe.fetch(InventoryComponent.class).orElseThrow().add(redMushroom);
+
+    // add a solver chest
+    Entity solver = EntityFactory.newChest();
+    solver.add(
+        new InteractionComponent(
+            1,
+            true,
+            (interacted, interactor) -> {
+              if (!talkToMe.fetch(InventoryComponent.class).orElseThrow().hasItem(redMushroom)) {
+                pauseGame();
+                Entity dialog =
+                    TextDialog.textDialog(
+                        "Alles ok, Sie können weitergehen.", "Ok", "Ihre Lösung:");
+                // todo: resize the text dialog (to fit the text)
+                unpauseGame();
+                openDoors(room, nextRoom);
+              }
+            }));
+
+    roomEntities.add(talkToMe);
+    roomEntities.add(solver);
 
     // Door will open after killing the monster
-    Entity monster = MonsterFactory.randomMonster();
-    monster.fetch(HealthComponent.class).orElseThrow().onDeath(entity -> openDoors(room, nextRoom));
-    roomEntities.add(monster);
+    //    Entity monster = MonsterFactory.randomMonster();
+    //    monster.fetch(HealthComponent.class).orElseThrow().onDeath(entity -> openDoors(room,
+    // nextRoom));
+    //    roomEntities.add(monster);
 
     // add the entities as payload to the LevelNode
     room.entities(roomEntities);
+
     // this will add the entities (in the node payload) to the game, at the moment the level get
     // loaded for the first time
     room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
