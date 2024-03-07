@@ -133,6 +133,11 @@ public final class GameLoop extends ScreenAdapter {
     Gdx.input.setInputProcessor(stage);
   }
 
+  /** Exits the GDX application. */
+  public static void exit() {
+    Gdx.app.exit();
+  }
+
   /**
    * Main game loop.
    *

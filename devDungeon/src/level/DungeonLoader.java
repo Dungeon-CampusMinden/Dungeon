@@ -70,7 +70,13 @@ public class DungeonLoader {
 
   public static void loadNextLevel() {
     CURRENT_LEVEL++;
+    try {
     Game.currentLevel(getRandomVariant(CURRENT_LEVEL));
+    } catch (MissingLevelException e) {
+      System.out.println("Game Over!");
+      System.out.println("You have passed all " + CURRENT_LEVEL + " levels!");
+      Game.exit();
+    }
   }
 
   public static void loadLevel(int levelNumber) {
