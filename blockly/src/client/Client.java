@@ -18,7 +18,16 @@ import java.util.Set;
 import java.util.logging.Level;
 import server.Server;
 
+/**
+ * WTF? .
+ */
 public class Client {
+    /**
+     * WTF? .
+     *
+     * @param args
+     * @throws IOException
+     */
   public static void main(String[] args) throws IOException {
     // toggle this to off, if you want to use the default level generator
     boolean useRoomBasedLevel = false;

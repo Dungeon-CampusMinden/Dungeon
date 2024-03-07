@@ -21,15 +21,28 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+/**
+ * WTF? .
+ */
 public class Server {
   private static Entity hero;
   private static boolean if_flag = false;
   private static boolean else_flag = false;
 
+    /**
+     * WTF? .
+     *
+     * @param hero
+     */
   public Server(Entity hero) {
     Server.hero = hero;
   }
 
+    /**
+     * WTF? .
+     *
+     * @throws IOException
+     */
   public void start() throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 0);
     HttpContext startContext = server.createContext("/start");
@@ -166,6 +179,11 @@ public class Server {
     }
   }
 
+    /**
+     * WTF? .
+     *
+     * @return foo
+     */
   public static boolean isNearWall() {
     boolean isNearWall;
 
@@ -173,6 +191,11 @@ public class Server {
     return isNearWall;
   }
 
+    /**
+     * WTF? .
+     *
+     * @return foo
+     */
   public static boolean isNearWallUp() {
     boolean isNearWallUp;
 
@@ -183,6 +206,11 @@ public class Server {
     return isNearWallUp;
   }
 
+    /**
+     * WTF? .
+     *
+     * @return foo
+     */
   public static boolean isNearWallDown() {
     boolean isNearWallDown;
 
@@ -193,6 +221,11 @@ public class Server {
     return isNearWallDown;
   }
 
+    /**
+     * WTF? .
+     *
+     * @return foo
+     */
   public static boolean isNearWallLeft() {
     boolean isNearWallLeft;
 
@@ -203,6 +236,11 @@ public class Server {
     return isNearWallLeft;
   }
 
+    /**
+     * WTF? .
+     *
+     * @return foo
+     */
   public static boolean isNearWallRight() {
     boolean isNearWallRight;
 
@@ -213,11 +251,19 @@ public class Server {
     return isNearWallRight;
   }
 
+    /**
+     * WTF? .
+     *
+     * @return foo
+     */
   public static PositionComponent getHeroPosition() {
     return hero.fetch(PositionComponent.class)
         .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
   }
 
+    /**
+     * WTF? .
+     */
   public static void fireballUp() {
     Skill fireball =
         new Skill(
@@ -236,6 +282,9 @@ public class Server {
     waitDelta();
   }
 
+    /**
+     * WTF? .
+     */
   public static void fireballDown() {
     Skill fireball =
         new Skill(
@@ -254,6 +303,9 @@ public class Server {
     waitDelta();
   }
 
+    /**
+     * WTF? .
+     */
   public static void fireballLeft() {
     Skill fireball =
         new Skill(
@@ -272,6 +324,9 @@ public class Server {
     waitDelta();
   }
 
+    /**
+     * WTF? .
+     */
   public static void fireballRight() {
     Skill fireball =
         new Skill(
