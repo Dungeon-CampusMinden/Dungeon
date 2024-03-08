@@ -518,9 +518,7 @@ public final class Game {
     LevelSystem.levelSize(levelSize);
   }
 
-    /**
-     * Exit the game.
-     */
+  /** Exit the game. */
   public static void exit() {
     GameLoop.exit();
   }

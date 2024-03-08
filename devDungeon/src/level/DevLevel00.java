@@ -20,7 +20,6 @@ import core.utils.components.MissingComponentException;
 import entities.MonsterType;
 import entities.MonsterUtils;
 import java.util.List;
-import java.util.logging.Logger;
 import level.utils.ITickable;
 
 /** The tutorial level */
@@ -84,8 +83,8 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
   }
 
   /**
-   * Handles the opening of the doors. Except for the mob door, this is handle in the
-   * onDeath of the mob
+   * Handles the opening of the doors. Except for the mob door, this is handle in the onDeath of the
+   * mob
    */
   private void handleDoors() {
     DoorTile frontDoor = (DoorTile) tileAt(this.customPoints().get(4));

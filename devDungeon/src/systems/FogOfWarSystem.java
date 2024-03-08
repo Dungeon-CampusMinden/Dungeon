@@ -10,7 +10,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.level.utils.TileTextureFactory;
-import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;

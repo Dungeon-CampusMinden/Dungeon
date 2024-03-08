@@ -1,8 +1,6 @@
 package level.utils;
 
-/**
- * ITickable interface for objects that need to perform actions on each tick.
- */
+/** ITickable interface for objects that need to perform actions on each tick. */
 public interface ITickable {
 
   /**

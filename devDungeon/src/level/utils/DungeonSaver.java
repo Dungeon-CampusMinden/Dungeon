@@ -7,10 +7,9 @@ import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import level.DevDungeonLevel;
-
 import java.util.ArrayList;
 import java.util.List;
+import level.DevDungeonLevel;
 
 /**
  * This class is responsible for saving the current state of the dungeon in the game. The "saving"
@@ -56,7 +55,16 @@ public class DungeonSaver {
     // Compress the layout of the current level by removing all lines that only contain 'S'
     String dunLayout = compressDungeonLayout(Game.currentLevel().printLevel());
 
-    String result = designLabel + "\n" + heroPos.x + "," + heroPos.y + "\n" + customPointsString + "\n" + dunLayout;
+    String result =
+        designLabel
+            + "\n"
+            + heroPos.x
+            + ","
+            + heroPos.y
+            + "\n"
+            + customPointsString
+            + "\n"
+            + dunLayout;
 
     System.out.println(result);
   }
