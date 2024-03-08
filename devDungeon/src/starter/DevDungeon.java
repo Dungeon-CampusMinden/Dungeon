@@ -20,7 +20,6 @@ import entities.MonsterType;
 import entities.MonsterUtils;
 import java.io.IOException;
 import level.utils.DungeonLoader;
-import level.utils.DungeonSaver;
 import systems.*;
 import systems.DevHealthSystem;
 
@@ -122,18 +121,29 @@ public class DevDungeon {
           public void execute() {
             Point mosPos = SkillTools.cursorPositionAsPoint();
             mosPos = new Point(mosPos.x - 0.5f, mosPos.y - 0.25f);
-            if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-              Tile tile = Game.tileAT(mosPos);
-
-              LevelSystem.level().removeTile(tile);
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
-              DungeonSaver.saveCurrentDungeon();
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) {
               MonsterUtils.spawnMonster(MonsterType.CHORT, mosPos);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) {
               MonsterUtils.spawnMonster(MonsterType.IMP, mosPos);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
               MonsterUtils.spawnMonster(MonsterType.ZOMBIE, mosPos);
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
+              Tile tile = LevelSystem.level().tileAt(mosPos);
+              if (tile != null) {
+                java.lang.System.out.println(
+                    "Tile - Coords: "
+                        + tile.coordinate()
+                        + " Accessible: "
+                        + tile.isAccessible()
+                        + " CanSeeThrough: "
+                        + tile.canSeeThrough()
+                        + " Texture: "
+                        + tile.texturePath()
+                        + " LevelElement: "
+                        + tile.levelElement());
+              } else {
+                java.lang.System.out.println("Tile - null");
+              }
             }
           }
         });

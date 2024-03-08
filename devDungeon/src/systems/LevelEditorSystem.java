@@ -10,6 +10,7 @@ import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import level.DevDungeonLevel;
+import level.utils.DungeonSaver;
 
 public class LevelEditorSystem extends System {
   private static boolean active = true;
@@ -21,6 +22,7 @@ public class LevelEditorSystem extends System {
   private static int EXIT_BUTTON = Input.Keys.NUM_6;
   private static int DOOR_BUTTON = Input.Keys.NUM_7;
   private static int CUSTOM_POINT = Input.Keys.NUM_8;
+  private static int SAVE_BUTTON = Input.Keys.Y;
 
   public static boolean active() {
     return active;
@@ -58,6 +60,11 @@ public class LevelEditorSystem extends System {
     }
     if (Gdx.input.isKeyJustPressed(CUSTOM_POINT)) {
       setCustomPoint();
+    }
+    if (Gdx.input.isKeyJustPressed(SAVE_BUTTON)) {
+      if (Game.currentLevel() instanceof DevDungeonLevel) {
+          DungeonSaver.saveCurrentDungeon();
+      }
     }
   }
 
