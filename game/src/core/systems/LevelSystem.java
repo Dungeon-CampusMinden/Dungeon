@@ -181,7 +181,7 @@ public final class LevelSystem extends System {
     for (Tile[] tiles : layout) {
       for (int x = 0; x < layout[0].length; x++) {
         Tile t = tiles[x];
-        if (t.levelElement() != LevelElement.SKIP) {
+        if (t.levelElement() != LevelElement.SKIP && t.levelElement() != LevelElement.PIT) {
           IPath texturePath = t.texturePath();
           if (!mapping.containsKey(texturePath)) {
             mapping.put(texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET));
