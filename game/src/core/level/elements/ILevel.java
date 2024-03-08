@@ -127,6 +127,13 @@ public interface ILevel extends IndexedGraph<Tile> {
   void removeTile(final Tile tile);
 
   /**
+   * Adds a pit tile to the level.
+   *
+   * @param tile The new pit tile to be added.
+   */
+  void addPitTile(final PitTile tile);
+
+  /**
    * Returns a list of all floor tiles in the level.
    *
    * @return List of floor tiles.
@@ -169,6 +176,13 @@ public interface ILevel extends IndexedGraph<Tile> {
   List<SkipTile> skipTiles();
 
   /**
+   * Returns a list of all pit tiles in the level.
+   *
+   * @return List of pit tiles.
+   */
+  List<PitTile> pitTiles();
+
+  /**
    * Adds connections to neighboring tiles for a specified tile.
    *
    * @param checkTile The tile for which connections to neighbors are added.
@@ -202,6 +216,8 @@ public interface ILevel extends IndexedGraph<Tile> {
           output.append("H");
         } else if (layout()[y][x].levelElement() == LevelElement.DOOR) {
           output.append("D");
+        } else if (layout()[y][x].levelElement() == LevelElement.PIT) {
+          output.append("P");
         } else {
           throw new RuntimeException(
               "Invalid LevelElement in level layout: " + layout()[y][x].levelElement());
@@ -265,6 +281,7 @@ public interface ILevel extends IndexedGraph<Tile> {
           exitTiles().size() > 0 ? exitTiles().get(RANDOM.nextInt(exitTiles().size())) : null;
       case DOOR ->
           doorTiles().size() > 0 ? doorTiles().get(RANDOM.nextInt(doorTiles().size())) : null;
+      case PIT -> pitTiles().size() > 0 ? pitTiles().get(RANDOM.nextInt(pitTiles().size())) : null;
     };
   }
 

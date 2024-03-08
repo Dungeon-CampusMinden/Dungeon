@@ -162,6 +162,9 @@ public class DevDungeonLevel extends TileLevel {
           case 'S':
             layout[y][x] = LevelElement.SKIP;
             break;
+          case 'P':
+            layout[y][x] = LevelElement.PIT;
+            break;
           case 'H':
             layout[y][x] = LevelElement.HOLE;
             break;

@@ -14,12 +14,13 @@ import level.DevDungeonLevel;
 public class LevelEditorSystem extends System {
   private static boolean active = true;
   private static int SKIP_BUTTON = Input.Keys.NUM_1;
-  private static int FLOOR_BUTTON = Input.Keys.NUM_2;
-  private static int WALL_BUTTON = Input.Keys.NUM_3;
-  private static int HOLE_BUTTON = Input.Keys.NUM_4;
-  private static int EXIT_BUTTON = Input.Keys.NUM_5;
-  private static int DOOR_BUTTON = Input.Keys.NUM_6;
-  private static int CUSTOM_POINT = Input.Keys.NUM_7;
+  private static int PIT_BUTTON = Input.Keys.NUM_2;
+  private static int FLOOR_BUTTON = Input.Keys.NUM_3;
+  private static int WALL_BUTTON = Input.Keys.NUM_4;
+  private static int HOLE_BUTTON = Input.Keys.NUM_5;
+  private static int EXIT_BUTTON = Input.Keys.NUM_6;
+  private static int DOOR_BUTTON = Input.Keys.NUM_7;
+  private static int CUSTOM_POINT = Input.Keys.NUM_8;
 
   public static boolean active() {
     return active;
@@ -36,6 +37,9 @@ public class LevelEditorSystem extends System {
     }
     if (Gdx.input.isKeyPressed(SKIP_BUTTON)) {
       setTile(LevelElement.SKIP);
+    }
+    if (Gdx.input.isKeyPressed(PIT_BUTTON)) {
+      setTile(LevelElement.PIT);
     }
     if (Gdx.input.isKeyPressed(FLOOR_BUTTON)) {
       setTile(LevelElement.FLOOR);

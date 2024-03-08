@@ -3,7 +3,9 @@ package core.level.utils;
 /** Each type of field in a level can be represented by an integer value. */
 public enum LevelElement {
   /** This field is a blank */
-  SKIP(false, true),
+  SKIP(false, false),
+  /** This field is a pit */
+  PIT(false, true),
   /** This field is a floor-field */
   FLOOR(true, true),
   /** This field is a wall-field */

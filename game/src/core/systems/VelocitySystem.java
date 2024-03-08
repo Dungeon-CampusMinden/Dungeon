@@ -119,12 +119,12 @@ public final class VelocitySystem extends System {
    * enter empty tiles.
    *
    * @param tile The tile to check.
-   * @param canEnterEmptyTiles If the entity can enter empty tiles.
+   * @param canEnterPitTiles If the entity can enter PIT tiles.
    * @return true if the tile is accessible, false if not.
    */
-  private boolean isAccessible(Tile tile, boolean canEnterEmptyTiles) {
+  private boolean isAccessible(Tile tile, boolean canEnterPitTiles) {
     return tile.isAccessible()
-        || (canEnterEmptyTiles && tile.levelElement().equals(LevelElement.SKIP));
+        || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT));
   }
 
   private void movementAnimation(VSData vsd) {

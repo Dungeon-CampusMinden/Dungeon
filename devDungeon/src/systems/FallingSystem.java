@@ -30,7 +30,7 @@ public class FallingSystem extends System {
             .map(PositionComponent::position)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Tile currentTile = Game.tileAT(entityPosition);
-    return currentTile == null || currentTile.levelElement().equals(LevelElement.SKIP);
+    return currentTile == null || currentTile.levelElement().equals(LevelElement.PIT);
   }
 
   private void handleFalling(Entity entity) {

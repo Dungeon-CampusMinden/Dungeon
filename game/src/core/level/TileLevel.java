@@ -40,6 +40,7 @@ public class TileLevel implements ILevel {
   protected ArrayList<DoorTile> doorTiles = new ArrayList<>();
   protected ArrayList<ExitTile> exitTiles = new ArrayList<>();
   protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
+  protected ArrayList<PitTile> pitTiles = new ArrayList<>();
   private IVoidFunction onFirstLoad = () -> {};
 
   private boolean wasLoaded = false;
@@ -172,6 +173,11 @@ public class TileLevel implements ILevel {
   }
 
   @Override
+  public void addPitTile(PitTile tile) {
+    pitTiles.add(tile);
+  }
+
+  @Override
   public List<FloorTile> floorTiles() {
     return floorTiles;
   }
@@ -202,12 +208,18 @@ public class TileLevel implements ILevel {
   }
 
   @Override
+  public List<PitTile> pitTiles() {
+    return pitTiles;
+  }
+
+  @Override
   public void removeTile(Tile tile) {
     switch (tile.levelElement()) {
       case FLOOR -> floorTiles.remove((FloorTile) tile);
       case WALL -> wallTiles.remove((WallTile) tile);
       case HOLE -> holeTiles.remove((HoleTile) tile);
       case DOOR -> doorTiles.remove((DoorTile) tile);
+      case PIT -> pitTiles.remove((PitTile) tile);
       case EXIT -> exitTiles.remove((ExitTile) tile);
     }
 
@@ -241,6 +253,7 @@ public class TileLevel implements ILevel {
   public void addTile(Tile tile) {
     switch (tile.levelElement()) {
       case SKIP -> addSkipTile((SkipTile) tile);
+      case PIT -> addPitTile((PitTile) tile);
       case FLOOR -> addFloorTile((FloorTile) tile);
       case WALL -> addWallTile((WallTile) tile);
       case HOLE -> addHoleTile((HoleTile) tile);
