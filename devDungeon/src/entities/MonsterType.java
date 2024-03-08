@@ -67,7 +67,21 @@ public enum MonsterType {
       3,
       2 * Game.frameRate(),
       MonsterIdleSound.LOW_PITCH,
-      1);
+      1),
+  TUTORIAL(
+      "Tutorial",
+      "character/monster/goblin",
+      2,
+      7.5f,
+      0.0f,
+      MonsterDeathSound.NONE,
+      new CollideAI(1.0f),
+      (entity) -> {}, // Stand still if not fighting
+      new RangeTransition(5, true),
+      1,
+      2 * Game.frameRate(),
+      MonsterIdleSound.NONE,
+      0);
 
   private final String name;
   private final IPath texture;
