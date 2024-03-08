@@ -89,9 +89,13 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
   private void handleDoors() {
     DoorTile frontDoor = (DoorTile) tileAt(this.customPoints().get(4));
     DoorTile CraftingDoor = (DoorTile) tileAt(this.customPoints().get(6));
-
-    if (!frontDoor.isOpen()
-        && frontDoor.position().distance(SkillTools.heroPositionAsPoint()) < 5) {
+    Point heroPos;
+    try {
+      heroPos = SkillTools.heroPositionAsPoint();
+    } catch (MissingHeroException e) {
+      return;
+    }
+    if (!frontDoor.isOpen() && frontDoor.position().distance(heroPos) < 2) {
       frontDoor.open();
     }
 
