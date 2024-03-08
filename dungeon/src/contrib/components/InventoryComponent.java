@@ -122,6 +122,19 @@ public final class InventoryComponent implements Component {
   }
 
   /**
+   * Checks if the inventory contains an item of the specified class.
+   *
+   * <p>This method uses Java Streams to iterate over the inventory array and checks if any item is
+   * an instance of the specified class.
+   *
+   * @param klass The class of the item to check for in the inventory.
+   * @return True if the inventory contains an item of the specified class, false otherwise.
+   */
+  public boolean hasItem(final Class<? extends Item> klass) {
+    return Arrays.stream(this.inventory).anyMatch(klass::isInstance);
+  }
+
+  /**
    * Transfer the given item from this inventory to the given inventory.
    *
    * <p>If the given item is not present in this inventory or the other inventory is full, the
