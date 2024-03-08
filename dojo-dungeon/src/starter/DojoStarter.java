@@ -3,9 +3,15 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.components.HealthComponent;
+import contrib.components.InteractionComponent;
+import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.MonsterFactory;
+import contrib.hud.dialogs.TextDialog;
+import contrib.item.Item;
+import contrib.item.concreteItem.ItemDefault;
+import contrib.item.concreteItem.ItemResourceMushroomRed;
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.RoomGenerator;
@@ -13,6 +19,7 @@ import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import contrib.systems.*;
+import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -23,12 +30,14 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import tasks.Room_1_2_Generator;
 
 public class DojoStarter {
@@ -204,20 +213,47 @@ public class DojoStarter {
 
   private static void createRoom_1(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
       throws IOException {
+
+    final int numMonsters = 5;
     // generate the room
     room.level(
-        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
+        new TileLevel(gen.layout(LevelSize.LARGE, room.neighbours()), DesignLabel.randomDesign()));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
 
-    // add a chest
-    roomEntities.add(EntityFactory.newChest());
 
-    // Door will open after killing the monster
-    Entity monster = MonsterFactory.randomMonster();
-    monster.fetch(HealthComponent.class).orElseThrow().onDeath(entity -> openDoors(room, nextRoom));
-    roomEntities.add(monster);
+
+    for (int i = 0; i < numMonsters; i++) {
+      roomEntities.add(MonsterFactory.randomMonster());
+    }
+    // get random monster from roomEntities
+    Entity randomMonster = (Entity) roomEntities.toArray()[(int) (Math.random() * numMonsters)];
+
+    SimpleIPath sapphireTexture = new SimpleIPath("items/resource/saphire.png");
+    Animation sapphireAnimation = Animation.fromSingleImage(sapphireTexture);
+    ItemDefault sapphire =
+        new ItemDefault("Sapphire", "A blue gemstone", sapphireAnimation, sapphireAnimation);
+
+    if (randomMonster.fetch(InventoryComponent.class).isPresent()) {
+      randomMonster.remove(InventoryComponent.class);
+    }
+    randomMonster.add(new InventoryComponent());
+
+      randomMonster.fetch(InventoryComponent.class).orElseThrow().add(sapphire);
+      // monster drops a sapphire on death
+      BiConsumer<Entity, Entity> onDeath =
+        (e, who) -> {
+            new DropItemsInteraction().accept(e, who);
+        };
+
+//    int monsterHealth = randomMonster.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints();
+    randomMonster.remove(HealthComponent.class);
+    randomMonster.add(new HealthComponent(1, (e) -> onDeath.accept(e, null)));
+
+
+      // add a chest
+      roomEntities.add(EntityFactory.newChest());
 
     // add the entities as payload to the LevelNode
     room.entities(roomEntities);
