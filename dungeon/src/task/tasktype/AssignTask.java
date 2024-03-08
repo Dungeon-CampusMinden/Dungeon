@@ -20,7 +20,10 @@ public class AssignTask extends Task {
       GradingFunctions.assignGradingEasy();
   private Map<Element, Set<Element>> solution;
 
+  /** The empty element. */
   public static final Element<String> EMPTY_ELEMENT = new Element<>("");
+
+  /** The name of the empty element. */
   public static final String EMPTY_ELEMENT_NAME = "$EMPTY_ELEMENT$";
 
   /** Create an Assignment Task with the given solution map. */
