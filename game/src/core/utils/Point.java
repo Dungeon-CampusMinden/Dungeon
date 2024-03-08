@@ -109,10 +109,10 @@ public final class Point {
   /**
    * Calculates the Euclidean distance between this point and the given point.
    *
-   * @param heroPos The point to which the distance is calculated.
+   * @param otherPos The point to which the distance is calculated.
    * @return The Euclidean distance between this point and the given point.
    */
-  public double distance(Point heroPos) {
-    return Math.sqrt(Math.pow(heroPos.x - x, 2) + Math.pow(heroPos.y - y, 2));
+  public double distance(Point otherPos) {
+    return Math.sqrt(Math.pow(otherPos.x - x, 2) + Math.pow(otherPos.y - y, 2));
   }
 }
