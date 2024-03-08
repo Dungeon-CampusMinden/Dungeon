@@ -52,7 +52,7 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
   }
 
   /**
-   * Handles the spawning of the tutorial entities e.g monsters It also fill the chest with the
+   * Handles the spawning of the tutorial entities e.g. monsters It also fills the chest with the
    * necessary items for the tutorial
    *
    * @throws RuntimeException if any of the entities could not be created
