@@ -14,7 +14,7 @@ import core.utils.components.path.SimpleIPath;
  *
  * <p>Can be used for crafting.
  */
-public final class ItemPotionWater extends Item {
+public class ItemPotionWater extends Item {
 
   private static final int HEAL_AMOUNT = 5;
 
