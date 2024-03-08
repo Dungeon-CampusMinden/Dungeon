@@ -100,6 +100,7 @@ public final class Entity implements Comparable<Entity> {
    * Get the component.
    *
    * @param klass Class of the component.
+   * @param <T> The type of the (given and returned) component.
    * @return Optional that can contain the requested component, is empty if this entity does not
    *     store a component of the given class.
    * @see Optional
