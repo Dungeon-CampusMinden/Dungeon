@@ -8,6 +8,7 @@ import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -30,7 +31,10 @@ public class FallingSystem extends System {
             .map(PositionComponent::position)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Tile currentTile = Game.tileAT(entityPosition);
-    return currentTile == null || currentTile.levelElement().equals(LevelElement.PIT);
+    if (currentTile instanceof PitTile pitTile) {
+      return pitTile.isOpen();
+    }
+    return false;
   }
 
   private void handleFalling(Entity entity) {

@@ -10,6 +10,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.PitTile;
 import core.level.generator.IGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -181,7 +182,7 @@ public final class LevelSystem extends System {
     for (Tile[] tiles : layout) {
       for (int x = 0; x < layout[0].length; x++) {
         Tile t = tiles[x];
-        if (t.levelElement() != LevelElement.SKIP && t.levelElement() != LevelElement.PIT) {
+        if (t.levelElement() != LevelElement.SKIP && !isTilePitAndOpen(t)) {
           IPath texturePath = t.texturePath();
           if (!mapping.containsKey(texturePath)) {
             mapping.put(texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET));
@@ -189,6 +190,20 @@ public final class LevelSystem extends System {
           painter.draw(t.position(), texturePath, mapping.get(texturePath));
         }
       }
+    }
+  }
+
+  /**
+   * Checks if the provided tile is an instance of PitTile and if it's open.
+   *
+   * @param tile The tile to check.
+   * @return true if the tile is an instance of PitTile, and it's open, false otherwise.
+   */
+  private boolean isTilePitAndOpen(final Tile tile) {
+    if (tile instanceof PitTile) {
+      return ((PitTile) tile).isOpen();
+    } else {
+      return false;
     }
   }
 

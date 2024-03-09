@@ -114,6 +114,7 @@ public class DevDungeon {
     Game.add(new PathSystem());
     Game.add(new LevelEditorSystem());
     Game.add(new LevelTickSystem());
+    Game.add(new PitSystem());
     // Game.add(new FogOfWarSystem());
     Game.add(
         new System() {
