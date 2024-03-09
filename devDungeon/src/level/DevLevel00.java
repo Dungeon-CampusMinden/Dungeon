@@ -164,11 +164,9 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     Game.add(cauldron);
   }
 
-  /**
-   * Builds a bridge to a special chest
-   */
+  /** Builds a bridge to a special chest */
   private void buildBridge() {
-      // The bridge should extend from x = 39 to x = 52 and y = 11
-      // TODO: Implement bridge
+    // The bridge should extend from x = 39 to x = 52 and y = 11
+    // TODO: Implement bridge
   }
 }
