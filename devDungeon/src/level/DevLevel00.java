@@ -108,7 +108,7 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     }
   }
 
-  private void setupChest(Entity chest, Entity chest2) {
+  private void setupChest(Entity chest, Entity b) {
     PositionComponent pc =
         chest
             .fetch(PositionComponent.class)
@@ -119,22 +119,31 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
             .orElseThrow(() -> MissingComponentException.build(chest, InventoryComponent.class));
 
     pc.position(this.chestSpawn);
-    ic.add(new QuestWaterPotion());
-    ic.add(new QuestItemResourceMushroomRed());
+    ic.add(
+        new ItemPotionWater() {
+          @Override
+          public void use(final Entity e) {} // Disable usage of the potion to prevent soft locking
+        });
+    ic.add(
+        new ItemResourceMushroomRed() {
+          @Override
+          public void use(final Entity e) {} // Disable usage of the potion to prevent soft locking
+        });
+
     Game.add(chest);
 
     pc =
-        chest2
+        b
             .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(chest2, PositionComponent.class));
+            .orElseThrow(() -> MissingComponentException.build(b, PositionComponent.class));
     ic =
-        chest2
+        b
             .fetch(InventoryComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(chest2, InventoryComponent.class));
+            .orElseThrow(() -> MissingComponentException.build(b, InventoryComponent.class));
     pc.position(
         new Point(this.customPoints().get(3).x + 0.5f, this.customPoints().get(3).y + 0.5f));
     ic.add(new ItemPotionHealth());
-    Game.add(chest2);
+    Game.add(b);
   }
 
   private void setupCauldron(Entity cauldron) {
@@ -144,25 +153,5 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
             .orElseThrow(() -> MissingComponentException.build(cauldron, PositionComponent.class));
     pc.position(this.cauldronSpawn);
     Game.add(cauldron);
-  }
-
-  // Special items for the tutorial
-  // These items should not be used, as these are needed to complete the tutorial
-  private static class QuestWaterPotion extends ItemPotionWater {
-    public QuestWaterPotion() {
-      super();
-    }
-
-    @Override
-    public void use(final Entity e) {} // This disables the use of the item
-  }
-
-  private static class QuestItemResourceMushroomRed extends ItemResourceMushroomRed {
-    public QuestItemResourceMushroomRed() {
-      super();
-    }
-
-    @Override
-    public void use(final Entity e) {} // This disables the use of the item
   }
 }
