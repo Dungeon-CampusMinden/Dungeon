@@ -56,7 +56,7 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> DEBUG_TELEPORT_TO_END =
       new ConfigKey<>(new String[] {"debug", "teleport_end"}, new ConfigIntValue(Input.Keys.H));
 
-  /** Keys for the core-package for debug teleport to start. */
+  /** Keys for the core-package for debug teleport to on start. */
   public static final ConfigKey<Integer> DEBUG_TELEPORT_ON_END =
       new ConfigKey<>(new String[] {"debug", "teleport_onEnd"}, new ConfigIntValue(Input.Keys.G));
 
