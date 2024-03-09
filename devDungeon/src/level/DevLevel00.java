@@ -47,6 +47,7 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     if (isFirstTick) {
       this.handleFirstTick();
       this.doorTiles().forEach(DoorTile::close);
+      this.buildBridge();
     }
     this.handleDoors();
   }
@@ -108,6 +109,11 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     }
   }
 
+  /**
+   * Sets up the chest with the necessary items for the tutorial
+   *
+   * @param chest The chest to set up
+   */
   private void setupChest(Entity chest, Entity b) {
     PositionComponent pc =
         chest
@@ -133,12 +139,10 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     Game.add(chest);
 
     pc =
-        b
-            .fetch(PositionComponent.class)
+        b.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(b, PositionComponent.class));
     ic =
-        b
-            .fetch(InventoryComponent.class)
+        b.fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(b, InventoryComponent.class));
     pc.position(
         new Point(this.customPoints().get(3).x + 0.5f, this.customPoints().get(3).y + 0.5f));
@@ -146,6 +150,11 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     Game.add(b);
   }
 
+  /**
+   * Sets up the crafting cauldron
+   *
+   * @param cauldron The cauldron to set up
+   */
   private void setupCauldron(Entity cauldron) {
     PositionComponent pc =
         cauldron
@@ -153,5 +162,13 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
             .orElseThrow(() -> MissingComponentException.build(cauldron, PositionComponent.class));
     pc.position(this.cauldronSpawn);
     Game.add(cauldron);
+  }
+
+  /**
+   * Builds a bridge to a special chest
+   */
+  private void buildBridge() {
+      // The bridge should extend from x = 39 to x = 52 and y = 11
+      // TODO: Implement bridge
   }
 }
