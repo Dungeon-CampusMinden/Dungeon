@@ -110,7 +110,7 @@ public final class Entity implements Comparable<Entity> {
   }
 
   /**
-   * Check if the entity has a component of the given class
+   * Check if the entity has a component of the given class.
    *
    * @param klass class of the component to check for
    * @return true if the component is present in the entity, false if not
@@ -127,7 +127,7 @@ public final class Entity implements Comparable<Entity> {
   }
 
   /**
-   * Set the name of this entity
+   * Set the name of this entity.
    *
    * @param name the new name of this entity
    */
