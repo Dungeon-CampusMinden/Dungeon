@@ -66,7 +66,8 @@ public final class UIUtils {
   /**
    * Creates line breaks after a word once a certain character count is reached.
    *
-   * @param string String which should be reformatted.
+   * @param string String which should be reformatted
+   * @return WTF? .
    */
   public static String formatString(final String string) {
     StringBuilder formattedMsg = new StringBuilder();

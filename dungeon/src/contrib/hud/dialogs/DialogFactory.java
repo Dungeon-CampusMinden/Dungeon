@@ -5,8 +5,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import java.util.function.BiFunction;
 
 /**
- * Provides ease of use factory methods to create a {@link com.badlogic.gdx.scenes.scene2d.ui.Dialog)-based
- * dialog for questions and a simple text.
+ * Provides ease of use factory methods to create a {@link
+ * com.badlogic.gdx.scenes.scene2d.ui.Dialog}-based dialog for questions and a simple text.
  */
 public final class DialogFactory {
 

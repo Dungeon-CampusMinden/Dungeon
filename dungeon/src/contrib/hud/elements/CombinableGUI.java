@@ -43,7 +43,7 @@ public abstract class CombinableGUI {
   }
 
   /**
-   * Get the drag and drop object
+   * Get the drag and drop object.
    *
    * @return the drag and drop object
    */
@@ -52,14 +52,14 @@ public abstract class CombinableGUI {
   }
 
   /**
-   * Initialize the drag and drop object
+   * Initialize the drag and drop object.
    *
    * @param dragAndDrop the drag and drop object to initialize
    */
   protected abstract void initDragAndDrop(final DragAndDrop dragAndDrop);
 
   /**
-   * Draw the element
+   * Draw the element.
    *
    * <p>This method should be used for drawing the main part of the element.
    *
@@ -68,7 +68,7 @@ public abstract class CombinableGUI {
   protected abstract void draw(final Batch batch);
 
   /**
-   * Draw the top layer of the element
+   * Draw the top layer of the element.
    *
    * <p>This method should be used for things like hover information that need to be on top of
    * everything else.
@@ -78,7 +78,7 @@ public abstract class CombinableGUI {
   protected void drawTopLayer(final Batch batch) {}
 
   /**
-   * Draw debug information for the element
+   * Draw debug information for the element.
    *
    * <p>This method should be used for drawing debug information like borders. It will only be
    * called if the parent {@link GUICombination} is in debug mode.
@@ -102,7 +102,7 @@ public abstract class CombinableGUI {
   protected void boundsUpdate() {}
 
   /**
-   * Get the x coordinate of the left edge of the element
+   * Get the x coordinate of the left edge of the element.
    *
    * @return the x coordinate.
    */
@@ -111,7 +111,7 @@ public abstract class CombinableGUI {
   }
 
   /**
-   * Set the x coordinate of the left edge of the element
+   * Set the x coordinate of the left edge of the element.
    *
    * @param x the x coordinate.
    */
@@ -121,7 +121,7 @@ public abstract class CombinableGUI {
   }
 
   /**
-   * Get the y coordinate of the top edge of the element
+   * Get the y coordinate of the top edge of the element.
    *
    * @return the y coordinate.
    */
@@ -130,7 +130,7 @@ public abstract class CombinableGUI {
   }
 
   /**
-   * Set the y coordinate of the top edge of the element
+   * Set the y coordinate of the top edge of the element.
    *
    * @param y the y coordinate.
    */
@@ -140,7 +140,7 @@ public abstract class CombinableGUI {
   }
 
   /**
-   * Get the width of the element
+   * Get the width of the element.
    *
    * @return the width.
    */
@@ -149,7 +149,7 @@ public abstract class CombinableGUI {
   }
 
   /**
-   * Set the width of the element
+   * Set the width of the element.
    *
    * @param width the width.
    */
@@ -159,7 +159,7 @@ public abstract class CombinableGUI {
   }
 
   /**
-   * Get the height of the element
+   * Get the height of the element.
    *
    * @return the height.
    */
@@ -168,7 +168,7 @@ public abstract class CombinableGUI {
   }
 
   /**
-   * Set the height of the element
+   * Set the height of the element.
    *
    * @param height the height.
    */
