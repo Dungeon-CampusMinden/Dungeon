@@ -10,7 +10,6 @@ import contrib.entities.EntityFactory;
 import contrib.entities.MonsterFactory;
 import contrib.hud.dialogs.TextDialog;
 import contrib.item.Item;
-import contrib.item.concreteItem.ItemDefault;
 import contrib.item.concreteItem.ItemKey;
 import contrib.item.concreteItem.ItemResourceMushroomRed;
 import contrib.level.generator.GeneratorUtils;
@@ -232,23 +231,22 @@ public class DojoStarter {
     SimpleIPath sapphireTexture = new SimpleIPath("items/resource/saphire.png");
     Animation sapphireAnimation = Animation.fromSingleImage(sapphireTexture);
     ItemKey sapphire =
-        new ItemKey("Sapphire", "A blue gemstone", sapphireAnimation, sapphireAnimation,
-            room, nextRoom);
+        new ItemKey(
+            "Sapphire", "A blue gemstone", sapphireAnimation, sapphireAnimation, room, nextRoom);
 
     if (randomMonster.fetch(InventoryComponent.class).isPresent()) {
       randomMonster.remove(InventoryComponent.class);
     }
     randomMonster.add(new InventoryComponent());
-
     randomMonster.fetch(InventoryComponent.class).orElseThrow().add(sapphire);
+
     // monster drops a sapphire on death
     BiConsumer<Entity, Entity> onDeath =
         (e, who) -> {
           new DropItemsInteraction().accept(e, who);
         };
 
-    //    int monsterHealth =
-    // randomMonster.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints();
+    // TODO apply Monster Health dynamically, crashed trying to access HealthComponent
     randomMonster.remove(HealthComponent.class);
     randomMonster.add(new HealthComponent(1, (e) -> onDeath.accept(e, null)));
 
