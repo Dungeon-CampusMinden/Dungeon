@@ -11,6 +11,7 @@ import contrib.entities.MonsterFactory;
 import contrib.hud.dialogs.TextDialog;
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemDefault;
+import contrib.item.concreteItem.ItemKey;
 import contrib.item.concreteItem.ItemResourceMushroomRed;
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
@@ -214,15 +215,13 @@ public class DojoStarter {
   private static void createRoom_1(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
       throws IOException {
 
-    final int numMonsters = 5;
+    final int numMonsters = 1;
     // generate the room
     room.level(
         new TileLevel(gen.layout(LevelSize.LARGE, room.neighbours()), DesignLabel.randomDesign()));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
-
-
 
     for (int i = 0; i < numMonsters; i++) {
       roomEntities.add(MonsterFactory.randomMonster());
@@ -232,28 +231,31 @@ public class DojoStarter {
 
     SimpleIPath sapphireTexture = new SimpleIPath("items/resource/saphire.png");
     Animation sapphireAnimation = Animation.fromSingleImage(sapphireTexture);
-    ItemDefault sapphire =
-        new ItemDefault("Sapphire", "A blue gemstone", sapphireAnimation, sapphireAnimation);
+    ItemKey sapphire =
+        new ItemKey("Sapphire", "A blue gemstone", sapphireAnimation, sapphireAnimation);
+
+    sapphire.setThisRoom(room);
+    sapphire.setNextRoom(nextRoom);
 
     if (randomMonster.fetch(InventoryComponent.class).isPresent()) {
       randomMonster.remove(InventoryComponent.class);
     }
     randomMonster.add(new InventoryComponent());
 
-      randomMonster.fetch(InventoryComponent.class).orElseThrow().add(sapphire);
-      // monster drops a sapphire on death
-      BiConsumer<Entity, Entity> onDeath =
+    randomMonster.fetch(InventoryComponent.class).orElseThrow().add(sapphire);
+    // monster drops a sapphire on death
+    BiConsumer<Entity, Entity> onDeath =
         (e, who) -> {
-            new DropItemsInteraction().accept(e, who);
+          new DropItemsInteraction().accept(e, who);
         };
 
-//    int monsterHealth = randomMonster.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints();
+    //    int monsterHealth =
+    // randomMonster.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints();
     randomMonster.remove(HealthComponent.class);
     randomMonster.add(new HealthComponent(1, (e) -> onDeath.accept(e, null)));
 
-
-      // add a chest
-      roomEntities.add(EntityFactory.newChest());
+    // add a chest
+    roomEntities.add(EntityFactory.newChest());
 
     // add the entities as payload to the LevelNode
     room.entities(roomEntities);
