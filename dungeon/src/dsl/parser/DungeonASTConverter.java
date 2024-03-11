@@ -444,8 +444,15 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
   @Override
   public void exitStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {
     var stmtList = Node.NONE;
-    if (ctx.stmt_list() != null) {
-      stmtList = astStack.pop();
+    int listSize = ctx.stmt().size();
+    if (listSize > 0) {
+      var list = new ArrayList<>(Collections.nCopies(listSize, Node.NONE));
+      for (int i = 0; i < listSize; i++) {
+        // reverse order
+        var stmt = astStack.pop();
+        list.set(listSize - i - 1, stmt);
+      }
+      stmtList = new Node(Node.Type.StmtList, list);
     }
 
     var blockNode = new StmtBlockNode(stmtList);
@@ -498,37 +505,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
   @Override
   public void exitElse_stmt(DungeonDSLParser.Else_stmtContext ctx) {}
-
-  @Override
-  public void enterStmt_list(DungeonDSLParser.Stmt_listContext ctx) {}
-
-  @Override
-  public void exitStmt_list(DungeonDSLParser.Stmt_listContext ctx) {
-    // condense to actual list of stmt's
-    if (ctx.stmt_list() == null) {
-      // trivial stmt definition list (one stmt)
-      var innerStmt = astStack.pop();
-
-      var list = new ArrayList<Node>(1);
-      list.add(innerStmt);
-
-      var stmtList = new Node(Node.Type.StmtList, list);
-      astStack.push(stmtList);
-    } else {
-      // rhs stmt list is on stack
-      var rhsList = astStack.pop();
-      assert (rhsList.type == Node.Type.StmtList);
-
-      var leftStmt = astStack.pop();
-
-      var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
-      childList.add(leftStmt);
-      childList.addAll(rhsList.getChildren());
-
-      var stmtList = new Node(Node.Type.StmtList, childList);
-      astStack.push(stmtList);
-    }
-  }
 
   @Override
   public void enterRet_type_def(DungeonDSLParser.Ret_type_defContext ctx) {}

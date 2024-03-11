@@ -138,12 +138,7 @@ func_call
         ;
 
 stmt_block
-    : '{' stmt_list? '}'
-    ;
-
-stmt_list
-    : stmt stmt_list
-    | stmt
+    : '{' stmt* '}'
     ;
 
 return_stmt
