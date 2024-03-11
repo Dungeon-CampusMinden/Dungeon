@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import task.*;
 import task.game.components.TaskContentComponent;
@@ -52,7 +53,7 @@ import task.tasktype.Quiz;
 import task.tasktype.quizquestion.SingleChoice;
 
 public class TestDSLInterpreter {
-  private static final Path testLibPath = Path.of("dungeon/test_resources/testlib");
+  private static final Path testLibPath = Path.of("test_resources/testlib");
 
   /** Tests, if a native function call is evaluated by the DSLInterpreter */
   @Test

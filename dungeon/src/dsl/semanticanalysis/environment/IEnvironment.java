@@ -108,7 +108,7 @@ public interface IEnvironment {
 
   RuntimeObjectTranslator getRuntimeObjectTranslator();
 
-  Path defaultRelLibPath = Paths.get("dungeon/assets/scripts/lib");
+  Path defaultRelLibPath = Paths.get("assets/scripts/lib");
   String defaultScenarioSubDirName = "scenario";
 
   default Path relLibPath() {

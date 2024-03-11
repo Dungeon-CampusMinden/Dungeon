@@ -26,7 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestSemanticAnalyzer {
-  private static final Path testLibPath = Path.of("dungeon/test_resources/testlib");
+  private static final Path testLibPath = Path.of("test_resources/testlib");
 
   /** Test, if the name of symbols is set correctly */
   @Test
