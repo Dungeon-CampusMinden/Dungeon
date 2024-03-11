@@ -232,10 +232,8 @@ public class DojoStarter {
     SimpleIPath sapphireTexture = new SimpleIPath("items/resource/saphire.png");
     Animation sapphireAnimation = Animation.fromSingleImage(sapphireTexture);
     ItemKey sapphire =
-        new ItemKey("Sapphire", "A blue gemstone", sapphireAnimation, sapphireAnimation);
-
-    sapphire.setThisRoom(room);
-    sapphire.setNextRoom(nextRoom);
+        new ItemKey("Sapphire", "A blue gemstone", sapphireAnimation, sapphireAnimation,
+            room, nextRoom);
 
     if (randomMonster.fetch(InventoryComponent.class).isPresent()) {
       randomMonster.remove(InventoryComponent.class);

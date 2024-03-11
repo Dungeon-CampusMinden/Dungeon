@@ -19,8 +19,10 @@ public class ItemKey extends Item {
     private LevelNode nextRoom;
 
 
-    public ItemKey(String displayName, String description, Animation inventoryAnimation, Animation worldAnimation) {
+    public ItemKey(String displayName, String description, Animation inventoryAnimation, Animation worldAnimation, LevelNode thisRoom, LevelNode nextRoom) {
         super(displayName, description, inventoryAnimation, worldAnimation);
+        this.thisRoom = thisRoom;
+        this.nextRoom = nextRoom;
     }
 
 
