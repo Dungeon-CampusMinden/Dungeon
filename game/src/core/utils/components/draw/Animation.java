@@ -2,10 +2,7 @@ package core.utils.components.draw;
 
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An Animation is what you see when a {@link core.Entity} is drawn on the screen.
@@ -37,7 +34,7 @@ public final class Animation {
   private static final boolean DEFAULT_IS_LOOP = true;
   private static final int DEFAULT_PRIO = 200;
 
-  private final List<IPath> animationFrames;
+  private final SortedSet<IPath> animationFrames;
 
   private final int frames;
   private final int priority;
@@ -57,7 +54,9 @@ public final class Animation {
   private Animation(
       final Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {
     assert (animationFrames != null && !animationFrames.isEmpty());
-    this.animationFrames = new ArrayList<>(animationFrames);
+    this.animationFrames = new TreeSet<>(Comparator.comparing(IPath::pathString));
+    this.animationFrames.addAll(animationFrames);
+
     frames = animationFrames.size();
     if (frameTime == 0) {
       throw new IllegalArgumentException(
@@ -137,6 +136,17 @@ public final class Animation {
     return new Animation(Set.of(MISSING_TEXTURE), DEFAULT_FRAME_TIME, DEFAULT_IS_LOOP, 0);
   }
 
+  private static <T> T nthElement(Iterable<T> data, int n) {
+    int index = 0;
+    for (T element : data) {
+      if (index == n) {
+        return element;
+      }
+      index++;
+    }
+    throw new NoSuchElementException("nth element not found: " + n);
+  }
+
   /**
    * Get the texture to draw.
    *
@@ -146,9 +156,9 @@ public final class Animation {
    */
   public IPath nextAnimationTexturePath() {
     if (isFinished()) {
-      return animationFrames.get(currentFrameIndex);
+      return nthElement(animationFrames, currentFrameIndex);
     }
-    IPath pathToReturn = animationFrames.get(currentFrameIndex);
+    IPath pathToReturn = nthElement(animationFrames, currentFrameIndex);
     frameTimeCounter = (frameTimeCounter + 1) % timeBetweenFrames;
     if (frameTimeCounter == 0) {
       currentFrameIndex = (currentFrameIndex + 1) % frames;

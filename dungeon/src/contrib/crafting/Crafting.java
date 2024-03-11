@@ -85,9 +85,7 @@ public final class Crafting {
 
       // Walk through the 'recipes' directory and load all recipes.
       final Map<String, List<Path>> subdirectoryMap =
-          ResourceWalker.walk(
-              new SimpleIPath(dirName),
-              (p) -> Files.isRegularFile(p) && p.getFileName().endsWith(".recipe"));
+          ResourceWalker.walk(new SimpleIPath(dirName), (p) -> p.getFileName().endsWith(".recipe"));
 
       for (Map.Entry<String, List<Path>> entry : subdirectoryMap.entrySet()) {
         for (Path path : entry.getValue()) {
@@ -100,8 +98,7 @@ public final class Crafting {
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
+      throw new RuntimeException("Failed to load recipes: " + e.getMessage(), e);
     }
   }
 

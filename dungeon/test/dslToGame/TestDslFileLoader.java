@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import entrypoint.DSLFileLoader;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -84,29 +83,28 @@ public class TestDslFileLoader {
   }
 
   @Test
-  public void fileToString() throws IOException {
-    File f;
+  public void fileToString() {
     try {
-      f =
+      File f =
           new File(
               Objects.requireNonNull(
                       this.getClass().getClassLoader().getResource(PATH_TO_DNGFILE.toString()))
                   .toURI());
-    } catch (URISyntaxException e) {
-      throw new IOException(e);
+
+      String expectedContent =
+          "some test text."
+              + System.lineSeparator()
+              + "some test text, second line."
+              + System.lineSeparator()
+              + System.lineSeparator()
+              + "some test text, fourth line."
+              + System.lineSeparator();
+
+      String read = DSLFileLoader.fileToString(f);
+      assertEquals(expectedContent, read);
+    } catch (Exception e) {
+      fail(e.getMessage());
     }
-
-    String expectedContent =
-        "some test text."
-            + System.lineSeparator()
-            + "some test text, second line."
-            + System.lineSeparator()
-            + System.lineSeparator()
-            + "some test text, fourth line."
-            + System.lineSeparator();
-
-    String read = DSLFileLoader.fileToString(f);
-    assertEquals(expectedContent, read);
   }
 
   @Test

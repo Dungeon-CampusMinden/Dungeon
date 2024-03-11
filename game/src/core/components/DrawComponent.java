@@ -324,8 +324,7 @@ public final class DrawComponent implements Component {
   private void loadAnimationAssets(final IPath path) throws IOException {
     try {
       // Walk through the (sub)directories of path and fill the subdirectoryMap.
-      final Map<String, List<Path>> subdirectoryMap =
-          ResourceWalker.walk(path, Files::isRegularFile);
+      final Map<String, List<Path>> subdirectoryMap = ResourceWalker.walk(path, (p) -> true);
       final Map<String, List<IPath>> subdirectoryMap2 = new HashMap<>();
       for (Map.Entry<String, List<Path>> entry : subdirectoryMap.entrySet()) {
         subdirectoryMap2.put(
@@ -335,22 +334,12 @@ public final class DrawComponent implements Component {
                 .collect(Collectors.toList()));
       }
 
-      // A Map with sorted values (IPath lists) in natural string order (ascending)
       animationMap =
           subdirectoryMap2.entrySet().stream()
               .collect(
-                  Collectors.toMap(Map.Entry::getKey, DrawComponent::getAnimationFromMapEntry));
+                  Collectors.toMap(Map.Entry::getKey, e -> Animation.fromCollection(e.getValue())));
     } catch (Exception e) {
-      e.printStackTrace();
-      throw new IOException(e);
+      throw new IOException("Failed to load animations from: " + path, e);
     }
-  }
-
-  /**
-   * Returns an Animation with sorted paths from the given {@code Map.Entry<String, List<IPath>> x}.
-   */
-  private static Animation getAnimationFromMapEntry(Map.Entry<String, List<IPath>> x) {
-    return Animation.fromCollection(
-        x.getValue().stream().sorted(Comparator.comparing(IPath::pathString)).toList());
   }
 }
