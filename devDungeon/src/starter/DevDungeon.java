@@ -86,7 +86,7 @@ public class DevDungeon {
   private static void setupMusic() {
     Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
     backgroundMusic.setLooping(true);
-    backgroundMusic.play();
+    //backgroundMusic.play();
     backgroundMusic.setVolume(.1f);
   }
 
