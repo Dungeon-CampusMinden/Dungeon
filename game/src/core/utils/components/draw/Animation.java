@@ -33,6 +33,8 @@ public final class Animation {
   private static final int DEFAULT_FRAME_TIME = 5;
   private static final boolean DEFAULT_IS_LOOP = true;
   private static final int DEFAULT_PRIO = 200;
+  private static final Comparator<IPath> ANIMATION_FRAMES_COMPARATOR =
+      Comparator.comparing(IPath::pathString);
 
   private final SortedSet<IPath> animationFrames;
 
@@ -54,7 +56,7 @@ public final class Animation {
   private Animation(
       final Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {
     assert (animationFrames != null && !animationFrames.isEmpty());
-    this.animationFrames = new TreeSet<>(Comparator.comparing(IPath::pathString));
+    this.animationFrames = new TreeSet<>(ANIMATION_FRAMES_COMPARATOR);
     this.animationFrames.addAll(animationFrames);
 
     frames = animationFrames.size();

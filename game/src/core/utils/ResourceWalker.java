@@ -7,7 +7,18 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.function.Function;
 
+/** This utility class can be used to walk through a file system. */
 public class ResourceWalker {
+
+  /**
+   * This utility method can be used to walk through a file system.
+   *
+   * @param path The path to walk.
+   * @param acceptor The acceptor function that decides if the path should be processed and added to
+   *     the result map.
+   * @return The subdirectory map of the paths found.
+   * @throws Exception If an error occurs during the walk.
+   */
   public static Map<String, List<Path>> walk(IPath path, Function<Path, Boolean> acceptor)
       throws Exception {
     final Map<String, List<Path>> subdirectoryMap = new HashMap<>();
