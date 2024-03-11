@@ -3,13 +3,13 @@ package contrib.crafting;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
+import core.utils.ResourceWalker;
+import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -80,29 +80,27 @@ public final class Crafting {
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    final String dirName = "recipes/";
     try {
+      final String dirName = "recipes/";
+
       // Walk through the 'recipes' directory and load all recipes.
-      Files.walkFileTree(
-          Paths.get(
-              Objects.requireNonNull(
-                      Thread.currentThread().getContextClassLoader().getResource(dirName))
-                  .toURI()),
-          new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
-                throws IOException {
-              if (Files.isRegularFile(file) && file.toString().endsWith(".recipe")) {
-                final Recipe recipe =
-                    parseRecipe(file.toUri().toURL().openStream(), file.toString());
-                if (recipe != null) {
-                  RECIPES.add(recipe);
-                }
-              }
-              return FileVisitResult.CONTINUE;
-            }
-          });
-    } catch (IOException | URISyntaxException e) {
+      final Map<String, List<Path>> subdirectoryMap =
+          ResourceWalker.walk(
+              new SimpleIPath(dirName),
+              (p) -> Files.isRegularFile(p) && p.getFileName().endsWith(".recipe"));
+
+      for (Map.Entry<String, List<Path>> entry : subdirectoryMap.entrySet()) {
+        for (Path path : entry.getValue()) {
+          final Recipe recipe = parseRecipe(path.toUri().toURL().openStream(), path.toString());
+          if (recipe != null) {
+            RECIPES.add(recipe);
+          } else {
+            System.err.println("Failed to load recipe: " + path);
+          }
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
       throw new RuntimeException(e);
     }
   }

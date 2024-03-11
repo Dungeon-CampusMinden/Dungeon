@@ -2,14 +2,13 @@ package core.components;
 
 import core.Component;
 import core.systems.VelocitySystem;
+import core.utils.ResourceWalker;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.*;
-import java.net.URISyntaxException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -323,38 +322,28 @@ public final class DrawComponent implements Component {
   // Helper method that loads the animation assets from the given path. Called by the constructor,
   // the animation map will be constructed from the subdirectories of the given path.
   private void loadAnimationAssets(final IPath path) throws IOException {
-    Path path2;
     try {
-      path2 =
-          Paths.get(
-              Objects.requireNonNull(
-                      Thread.currentThread().getContextClassLoader().getResource(path.pathString()))
-                  .toURI());
-    } catch (URISyntaxException e) {
+      // Walk through the (sub)directories of path and fill the subdirectoryMap.
+      final Map<String, List<Path>> subdirectoryMap =
+          ResourceWalker.walk(path, Files::isRegularFile);
+      final Map<String, List<IPath>> subdirectoryMap2 = new HashMap<>();
+      for (Map.Entry<String, List<Path>> entry : subdirectoryMap.entrySet()) {
+        subdirectoryMap2.put(
+            entry.getKey(),
+            entry.getValue().stream()
+                .map(p -> new SimpleIPath(p.toString()))
+                .collect(Collectors.toList()));
+      }
+
+      // A Map with sorted values (IPath lists) in natural string order (ascending)
+      animationMap =
+          subdirectoryMap2.entrySet().stream()
+              .collect(
+                  Collectors.toMap(Map.Entry::getKey, DrawComponent::getAnimationFromMapEntry));
+    } catch (Exception e) {
+      e.printStackTrace();
       throw new IOException(e);
     }
-    final Map<String, List<IPath>> subdirectoryMap = new HashMap<>();
-
-    // Walk through the (sub)directories of path2 and fill the subdirectoryMap.
-    Files.walkFileTree(
-        path2,
-        new SimpleFileVisitor<>() {
-          @Override
-          public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) {
-            if (Files.isRegularFile(file)) {
-              subdirectoryMap
-                  .computeIfAbsent(
-                      file.getParent().getFileName().toString(), k -> new ArrayList<>())
-                  .add(new SimpleIPath(file.toString()));
-            }
-            return FileVisitResult.CONTINUE;
-          }
-        });
-
-    // A Map with sorted values (IPath lists) in natural string order (ascending)
-    animationMap =
-        subdirectoryMap.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, DrawComponent::getAnimationFromMapEntry));
   }
 
   /**
