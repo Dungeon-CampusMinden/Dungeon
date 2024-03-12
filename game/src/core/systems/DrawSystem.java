@@ -2,10 +2,12 @@ package core.systems;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import core.Entity;
+import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.level.Tile;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
@@ -97,11 +99,22 @@ public final class DrawSystem extends System {
    * @return true if the entity should be drawn, false otherwise
    */
   private boolean shouldDraw(Entity entity) {
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
+    if (Game.currentLevel().tileAt(pc.position()) == null) {
+      return false;
+    }
     DrawComponent dc =
         entity
             .fetch(DrawComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-    return dc.isVisible();
+    if (!dc.isVisible()) return false;
+
+    Tile tile = Game.currentLevel().tileAt(pc.position());
+    return tile.visible();
   }
 
   private void draw(final DSData dsd) {
