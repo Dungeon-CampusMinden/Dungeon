@@ -3,6 +3,7 @@ package level;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
+import contrib.hud.dialogs.TextDialog;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceMushroomRed;
@@ -10,6 +11,7 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
+import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -17,8 +19,8 @@ import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.MonsterType;
 import entities.EntityUtils;
+import entities.MonsterType;
 import java.util.List;
 import level.utils.ITickable;
 
@@ -29,6 +31,7 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
   private final Coordinate mobSpawn;
   private final Point chestSpawn;
   private final Point cauldronSpawn;
+  private Coordinate lastHeroCoords = new Coordinate(0, 0);
 
   public DevLevel00(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
@@ -49,7 +52,20 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
       this.doorTiles().forEach(DoorTile::close);
       this.buildBridge();
     }
+    if (lastHeroCoords != null && !lastHeroCoords.equals(getHeroCoords())) {
+      // Only handle text popups if the hero has moved
+      this.handleTextPopups();
+    }
     this.handleDoors();
+    this.lastHeroCoords = getHeroCoords();
+  }
+
+  private Coordinate getHeroCoords() {
+    try {
+      return SkillTools.heroPositionAsPoint().toCoordinate();
+    } catch (MissingHeroException e) {
+      return null;
+    }
   }
 
   /**
@@ -81,6 +97,35 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
       throw new RuntimeException("Failed to create tutorial cauldron");
     }
     this.setupCauldron(cauldron);
+
+    TextDialog.textDialog(
+        "Verwende WASD (oder RMB), um dich zu bewegen.", "OK", "Willkommen im DevDungeon!");
+  }
+
+  private void handleTextPopups() {
+    DoorTile frontDoor = (DoorTile) tileAt(this.customPoints().get(4));
+    DoorTile mobDoor = (DoorTile) tileAt(this.customPoints().get(5));
+    DoorTile CraftingDoor = (DoorTile) tileAt(this.customPoints().get(6));
+    if (getHeroCoords() == null) return;
+    Tile heroTile = tileAt(getHeroCoords());
+    if (heroTile == null) return;
+
+    if (frontDoor.coordinate().equals(heroTile.coordinate())) {
+      TextDialog.textDialog("Mit Q (oder LMB) kannst du angreifen.", "OK", "Kampf");
+    } else if (mobDoor.coordinate().equals(heroTile.coordinate())) {
+      TextDialog.textDialog(
+          "Kommen wir zum Craften. Du findest im Verlauf des Spiels verschiedene Ressourcen,"
+              + " die du in Tränke und andere nützliche Gegenstände verwandeln kannst. "
+              + "Du kannst die Truhe und den Kessel mit E (oder LMB) öffnen. ",
+          "OK",
+          "Looting & Crafting");
+    } else if (CraftingDoor.coordinate().equals(heroTile.coordinate())) {
+      TextDialog.textDialog(
+          "Im Dungeon findest immerwieder Hinternisse, Fallen und Rätsel. "
+              + "Versuche sie zu umgehen oder zu lösen.",
+          "OK",
+          "Rätsel");
+    }
   }
 
   /**
