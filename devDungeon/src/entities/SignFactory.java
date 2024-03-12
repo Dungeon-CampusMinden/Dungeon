@@ -1,5 +1,6 @@
 package entities;
 
+import com.badlogic.gdx.utils.Align;
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.TextDialog;
 import core.Entity;
@@ -17,6 +18,8 @@ public class SignFactory {
       Animation.fromSingleImage(
           new SimpleIPath("objects/mailbox/mailbox_2.png")); // TODO: Change to sign texture
   private static final String DEFAULT_TITLE = "Schild";
+  public static final int DEFAULT_WIDTH = 600;
+    public static final int DEFAULT_HEIGHT = 300;
 
   public static Entity createSign(String text, Point pos) throws IOException {
     return createSign(text, DEFAULT_TITLE, pos);
@@ -32,7 +35,7 @@ public class SignFactory {
             DEFAULT_INTERACTION_RADIUS,
             true,
             (entity, who) -> {
-              TextDialog.textDialog(text, "OK", title);
+              TextDialog.textDialog(text, "OK", title, DEFAULT_WIDTH, DEFAULT_HEIGHT, Align.topLeft);
             }));
 
     return sign;

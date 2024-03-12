@@ -73,7 +73,7 @@ public class DevDungeon {
           if (SKIP_TUTORIAL) {
             DungeonLoader.loadNextLevel(); // First Level start at 1
           } else {
-            DungeonLoader.loadLevel(1); // Tutorial at 0
+            DungeonLoader.loadLevel(0); // Tutorial at 0
           }
         });
   }
@@ -128,6 +128,8 @@ public class DevDungeon {
               EntityUtils.spawnMonster(MonsterType.IMP, mosPos);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
               EntityUtils.spawnMonster(MonsterType.ZOMBIE, mosPos);
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_3)) {
+              EntityUtils.spawnSign("Hello World", "Schild", mosPos);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
               Tile tile = LevelSystem.level().tileAt(mosPos);
               if (tile != null) {

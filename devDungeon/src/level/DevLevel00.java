@@ -1,5 +1,6 @@
 package level;
 
+import com.badlogic.gdx.utils.Align;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
@@ -21,6 +22,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.EntityUtils;
 import entities.MonsterType;
+import entities.SignFactory;
 import java.util.List;
 import level.utils.ITickable;
 
@@ -91,7 +93,12 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     this.setupCauldron(cauldron);
 
     TextDialog.textDialog(
-        "Verwende WASD (oder RMB), um dich zu bewegen.", "OK", "Willkommen im DevDungeon!");
+        "Verwende WASD (oder RMB), um dich zu bewegen.",
+        "OK",
+        "Willkommen im DevDungeon!",
+        SignFactory.DEFAULT_WIDTH,
+        SignFactory.DEFAULT_HEIGHT,
+        Align.top);
   }
 
   private void handleTextPopups() {
@@ -103,20 +110,32 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     if (heroTile == null) return;
 
     if (frontDoor.coordinate().equals(heroTile.coordinate())) {
-      TextDialog.textDialog("Mit Q (oder LMB) kannst du angreifen.", "OK", "Kampf");
+      TextDialog.textDialog(
+          "Mit Q (oder LMB) kannst du angreifen.",
+          "OK",
+          "Kampf",
+          SignFactory.DEFAULT_WIDTH,
+          SignFactory.DEFAULT_HEIGHT,
+          Align.top);
     } else if (mobDoor.coordinate().equals(heroTile.coordinate())) {
       TextDialog.textDialog(
-          "Kommen wir zum Craften. Du findest im Verlauf des Spiels verschiedene Ressourcen,"
-              + " die du in Tränke und andere nützliche Gegenstände verwandeln kannst. "
-              + "Du kannst die Truhe und den Kessel mit E (oder LMB) öffnen. ",
+          "Kommen wir zum Craften. Du findest im Verlauf des Spiels \nverschiedene Ressourcen,"
+              + " die du in \nTränke und andere nützliche Gegenstände\n verwandeln kannst. "
+              + "Du kannst die Truhe und \nden Kessel mit E (oder LMB) öffnen. ",
           "OK",
-          "Looting & Crafting");
+          "Looting & Crafting",
+          SignFactory.DEFAULT_WIDTH,
+          SignFactory.DEFAULT_HEIGHT,
+          Align.top);
     } else if (CraftingDoor.coordinate().equals(heroTile.coordinate())) {
       TextDialog.textDialog(
           "Im Dungeon findest immerwieder Hinternisse, Fallen und Rätsel. "
               + "Versuche sie zu umgehen oder zu lösen.",
           "OK",
-          "Rätsel");
+          "Rätsel",
+          SignFactory.DEFAULT_WIDTH,
+          SignFactory.DEFAULT_HEIGHT,
+          Align.top);
     }
   }
 

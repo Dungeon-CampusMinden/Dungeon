@@ -4,6 +4,7 @@ import static contrib.hud.UIUtils.DEFAULT_SKIN;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.Align;
 import contrib.components.UIComponent;
 import contrib.hud.UIUtils;
 import core.Entity;
@@ -64,11 +65,19 @@ public final class TextDialog extends Dialog {
    * @param content Text which should be shown in the body of the dialog.
    * @param buttonText Text which should be shown in the button for closing the TextDialog.
    * @param windowText Text which should be shown as the name for the TextDialog.
+   * @param width Width of the dialog.
+   * @param height Height of the dialog.
+   * @param align {@link com.badlogic.gdx.utils.Align Alignment} of the text.
    * @return Entity that contains the {@link UIComponent}. The entity will already be added to the
    *     game by this method.
    */
   public static Entity textDialog(
-      final String content, final String buttonText, final String windowText) {
+      final String content,
+      final String buttonText,
+      final String windowText,
+      int width,
+      int height,
+      int align) {
     Entity entity = new Entity();
     UIUtils.show(
         () -> {
@@ -78,13 +87,32 @@ public final class TextDialog extends Dialog {
                   content,
                   buttonText,
                   windowText,
-                  createResultHandler(entity, buttonText));
+                  createResultHandler(entity, buttonText),
+                  width,
+                  height,
+                  align);
           UIUtils.center(textDialog);
           return textDialog;
         },
         entity);
     Game.add(entity);
     return entity;
+  }
+
+  /**
+   * Creates a dialog for displaying the text message.
+   *
+   * <p>The entity will already be added to the game.
+   *
+   * @param content Text which should be shown in the body of the dialog.
+   * @param buttonText Text which should be shown in the button for closing the TextDialog.
+   * @param windowText Text which should be shown as the name for the TextDialog.
+   * @return Entity that contains the {@link UIComponent}. The entity will already be added to the *
+   *     game by this method.
+   */
+  public static Entity textDialog(
+      final String content, final String buttonText, final String windowText) {
+    return textDialog(content, buttonText, windowText, 150, 150, Align.center);
   }
 
   /**
