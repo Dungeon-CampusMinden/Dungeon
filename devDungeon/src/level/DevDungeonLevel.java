@@ -13,10 +13,22 @@ import java.util.List;
 import level.utils.DungeonLoader;
 import level.utils.MissingLevelException;
 
+/**
+ * Represents a level in the DevDungeon game. This class extends the {@link TileLevel} class and
+ * adds functionality for handling custom points. These points are used to add spawn points, door
+ * logic or any other custom logic to the level.
+ */
 public class DevDungeonLevel extends TileLevel {
 
   private final List<Coordinate> customPoints = new ArrayList<>();
 
+  /**
+   * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
+   *
+   * @param layout The layout of the level, represented as a 2D array of LevelElements.
+   * @param designLabel The design label of the level.
+   * @param customPoints A list of custom points to be added to the level.
+   */
   public DevDungeonLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel);
@@ -57,18 +69,8 @@ public class DevDungeonLevel extends TileLevel {
       }
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
-      // Load reflectively the "level-handler" class (level.DevLevelXY) for the current level
-      // For custom logic
-      Class<?> clazz =
-          DevDungeonLevel.class
-              .getClassLoader()
-              .loadClass(String.format("level.DevLevel%02d", DungeonLoader.CURRENT_LEVEL));
-      if (!DevDungeonLevel.class.isAssignableFrom(clazz))
-        throw new RuntimeException("Invalid DevDungeonLevel Class: " + clazz);
-
       DevDungeonLevel newLevel =
-          (DevDungeonLevel)
-              clazz.getDeclaredConstructors()[0].newInstance(layout, designLabel, customPoints);
+          getDevLevel(DungeonLoader.CURRENT_LEVEL, layout, designLabel, customPoints);
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos);
@@ -180,18 +182,50 @@ public class DevDungeonLevel extends TileLevel {
     return layout;
   }
 
+  private static DevDungeonLevel getDevLevel(
+      int levelNumber,
+      LevelElement[][] layout,
+      DesignLabel designLabel,
+      List<Coordinate> customPoints) {
+    return switch (levelNumber) {
+      case 0 -> new DevLevel00(layout, designLabel, customPoints);
+      default -> throw new IllegalArgumentException("Invalid level number: " + levelNumber);
+    };
+  }
+
+  /**
+   * Returns the list of custom points.
+   *
+   * @return A list of custom points.
+   */
   public List<Coordinate> customPoints() {
     return customPoints;
   }
 
+  /**
+   * Adds a new custom point to the list.
+   *
+   * @param point The custom point to be added.
+   */
   public void addCustomPoint(Coordinate point) {
     customPoints.add(point);
   }
 
+  /**
+   * Removes a custom point from the list.
+   *
+   * @param point The custom point to be removed.
+   */
   public void removeCustomPoint(Coordinate point) {
     customPoints.remove(point);
   }
 
+  /**
+   * Checks if a custom point is in the list.
+   *
+   * @param point The custom point to be checked.
+   * @return True if the custom point is in the list, false otherwise.
+   */
   public boolean hasCustomPoint(Coordinate point) {
     return customPoints.contains(point);
   }
