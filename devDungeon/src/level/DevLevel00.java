@@ -52,21 +52,15 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
       this.doorTiles().forEach(DoorTile::close);
       this.buildBridge();
     }
-    if (lastHeroCoords != null && !lastHeroCoords.equals(getHeroCoords())) {
+    if (lastHeroCoords != null && !lastHeroCoords.equals(EntityUtils.getHeroCoords())) {
       // Only handle text popups if the hero has moved
       this.handleTextPopups();
     }
     this.handleDoors();
-    this.lastHeroCoords = getHeroCoords();
+    this.lastHeroCoords = EntityUtils.getHeroCoords();
   }
 
-  private Coordinate getHeroCoords() {
-    try {
-      return SkillTools.heroPositionAsPoint().toCoordinate();
-    } catch (MissingHeroException e) {
-      return null;
-    }
-  }
+
 
   /**
    * Handles the spawning of the tutorial entities e.g. monsters It also fills the chest with the
@@ -106,8 +100,8 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     DoorTile frontDoor = (DoorTile) tileAt(this.customPoints().get(4));
     DoorTile mobDoor = (DoorTile) tileAt(this.customPoints().get(5));
     DoorTile CraftingDoor = (DoorTile) tileAt(this.customPoints().get(6));
-    if (getHeroCoords() == null) return;
-    Tile heroTile = tileAt(getHeroCoords());
+    if (EntityUtils.getHeroCoords() == null) return;
+    Tile heroTile = tileAt(EntityUtils.getHeroCoords());
     if (heroTile == null) return;
 
     if (frontDoor.coordinate().equals(heroTile.coordinate())) {
