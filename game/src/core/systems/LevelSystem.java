@@ -10,6 +10,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
 import core.level.generator.IGenerator;
 import core.level.utils.DesignLabel;
@@ -275,7 +276,10 @@ public final class LevelSystem extends System {
   @Override
   public void execute() {
     if (currentLevel == null) loadLevel(levelSize);
-    else if (entityStream().anyMatch(this::isOnEndTile)) onEndTile.execute();
+    else if (entityStream()
+        .anyMatch(
+            entity -> isOnEndTile(entity) && ((ExitTile) Game.currentLevel().endTile()).isOpen()))
+      onEndTile.execute();
     else
       entityStream()
           .forEach(

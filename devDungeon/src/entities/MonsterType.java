@@ -20,6 +20,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public enum MonsterType {
   CHORT(
@@ -29,9 +30,9 @@ public enum MonsterType {
       2.5f,
       0.5f,
       MonsterDeathSound.LOWER_PITCH,
-      new CollideAI(0.5f),
-      new RadiusWalk(5f, 2),
-      new RangeTransition(5),
+      () -> new CollideAI(0.5f),
+      () -> new StaticRadiusWalk(5f, 2),
+      () -> new RangeTransition(5),
       4,
       2 * Game.frameRate(),
       MonsterIdleSound.LOW_PITCH,
@@ -43,13 +44,15 @@ public enum MonsterType {
       5.0f,
       0.2f,
       MonsterDeathSound.HIGH_PITCH,
-      new RangeAI(
-          7f,
-          2f,
-          new Skill(
-              new FireballSkill(SkillTools::heroPositionAsPoint), AIFactory.FIREBALL_COOL_DOWN)),
-      new StaticRadiusWalk(5f, 2),
-      new RangeTransition(8),
+      () ->
+          new RangeAI(
+              7f,
+              2f,
+              new Skill(
+                  new FireballSkill(SkillTools::heroPositionAsPoint),
+                  AIFactory.FIREBALL_COOL_DOWN)),
+      () -> new StaticRadiusWalk(5f, 2),
+      () -> new RangeTransition(8),
       0,
       2 * Game.frameRate(), // While collideDamage is 0, this value is irrelevant
       MonsterIdleSound.HIGH_PITCH,
@@ -61,9 +64,9 @@ public enum MonsterType {
       3.5f,
       0.33f,
       MonsterDeathSound.LOW_PITCH,
-      new CollideAI(0.5f),
-      new RadiusWalk(5f, 5),
-      new RangeTransition(5),
+      () -> new CollideAI(0.5f),
+      () -> new RadiusWalk(5f, 5),
+      () -> new RangeTransition(5),
       3,
       2 * Game.frameRate(),
       MonsterIdleSound.LOW_PITCH,
@@ -75,9 +78,9 @@ public enum MonsterType {
       7.5f,
       0.0f,
       MonsterDeathSound.NONE,
-      new CollideAI(1.0f),
-      (entity) -> {}, // Stand still if not fighting
-      new RangeTransition(5, true),
+      () -> new CollideAI(1.0f),
+      () -> (entity) -> {}, // Stand still if not fighting
+      () -> new RangeTransition(5, true),
       1,
       2 * Game.frameRate(),
       MonsterIdleSound.NONE,
@@ -86,7 +89,9 @@ public enum MonsterType {
   private final String name;
   private final IPath texture;
   private final Sound deathSound;
-  private final AIComponent ai;
+  private final Supplier<Consumer<Entity>> fightAISupplier;
+  private final Supplier<Consumer<Entity>> idleAISupplier;
+  private final Supplier<Function<Entity, Boolean>> transitionAISupplier;
   private final int collideDamage;
   private final int collideCooldown;
   private final IPath idleSoundPath;
@@ -102,9 +107,9 @@ public enum MonsterType {
       float speed,
       float canHaveItems,
       MonsterDeathSound deathSound,
-      Consumer<Entity> fightAI,
-      Consumer<Entity> idleAI,
-      Function<Entity, Boolean> transitionAI,
+      Supplier<Consumer<Entity>> fightAISupplier,
+      Supplier<Consumer<Entity>> idleAISupplier,
+      Supplier<Function<Entity, Boolean>> transitionAISupplier,
       int collideDamage,
       int collideCooldown,
       MonsterIdleSound idleSound,
@@ -116,7 +121,9 @@ public enum MonsterType {
     this.itemChance = canHaveItems;
     this.deathSound = deathSound.getSound();
     this.reviveCount = reviveCount;
-    this.ai = new AIComponent(fightAI, idleAI, transitionAI);
+    this.fightAISupplier = fightAISupplier;
+    this.idleAISupplier = idleAISupplier;
+    this.transitionAISupplier = transitionAISupplier;
     this.collideDamage = collideDamage;
     this.collideCooldown = collideCooldown;
     this.idleSoundPath = idleSound.getPath();
@@ -131,7 +138,8 @@ public enum MonsterType {
             speed,
             itemChance,
             deathSound,
-            ai,
+            new AIComponent(
+                fightAISupplier.get(), idleAISupplier.get(), transitionAISupplier.get()),
             collideDamage,
             collideCooldown,
             idleSoundPath);

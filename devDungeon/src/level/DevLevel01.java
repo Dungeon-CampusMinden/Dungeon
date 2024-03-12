@@ -1,12 +1,13 @@
 package level;
 
 import components.TorchComponent;
+import contrib.components.HealthComponent;
 import contrib.entities.MiscFactory;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -22,10 +23,9 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   private final Coordinate[] torchPositions;
   private final Coordinate[] riddleRoomTorches;
   private final Coordinate[] riddleRoomBounds;
-  private Coordinate[] riddleRoomContent;
-  // Entity spawn points
-  private Coordinate[] mobSpawns;
-  private Coordinate[] doorPositions;
+  private final Coordinate[] riddleRoomContent;
+  private final Coordinate[] mobSpawns;
+  private final Coordinate[] doorPositions;
 
   public DevLevel01(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
@@ -40,7 +40,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     this.riddleRoomTorches = customPoints.subList(9, 15).toArray(new Coordinate[0]);
     this.riddleRoomContent = customPoints.subList(15, 17).toArray(new Coordinate[0]);
     // Last entries are mob spawns
-    // this.mobSpawns = customPoints.subList(17, customPoints.size()).toArray(new Coordinate[0]);
+    this.mobSpawns = customPoints.subList(17, customPoints.size()).toArray(new Coordinate[0]);
   }
 
   @Override
@@ -72,8 +72,10 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   }
 
   private void handleFirstTick() {
+    ((ExitTile) endTile()).close();
+    endTile().visible(false);
     this.spawnTorches();
-    // this.spawnMobs();
+    this.spawnMobs();
     this.spawnChestsAndCauldrons();
   }
 
@@ -88,12 +90,24 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   }
 
   private void spawnMobs() {
-    for (Coordinate mobPos : mobSpawns) {
+    for (int i = 0; i < mobSpawns.length - 1; i++) {
+      Coordinate mobPos = mobSpawns[i];
       try {
         EntityUtils.spawnMonster(MonsterType.TUTORIAL, mobPos);
       } catch (RuntimeException e) {
         throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
       }
+    }
+
+    // Last Mob is stronger
+    try {
+      Entity chort = EntityUtils.spawnMonster(MonsterType.CHORT, mobSpawns[mobSpawns.length - 1]);
+      chort.fetch(HealthComponent.class).ifPresent(hc -> hc.onDeath((e) -> {
+          ((ExitTile) endTile()).open();
+          endTile().visible(true);
+      }));
+    } catch (RuntimeException e) {
+      throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
     }
   }
 
