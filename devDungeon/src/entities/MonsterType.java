@@ -7,6 +7,7 @@ import contrib.entities.AIFactory;
 import contrib.entities.MonsterFactory;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.fight.RangeAI;
+import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.idle.StaticRadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
@@ -82,6 +83,26 @@ public enum MonsterType {
       () -> new StaticRadiusWalk(5f, 2),
       () -> new RangeTransition(5),
       5,
+      2 * Game.frameRate(),
+      MonsterIdleSound.LOW_PITCH,
+      0),
+  ORC_SHAMAN(
+      "Orc Shaman",
+      "character/monster/orc_shaman",
+      10,
+      3.0f,
+      0.5f,
+      MonsterDeathSound.LOWER_PITCH,
+      () ->
+          new RangeAI(
+              3f,
+              2f,
+              new Skill(
+                  new FireballSkill(SkillTools::heroPositionAsPoint),
+                  AIFactory.FIREBALL_COOL_DOWN)),
+      () -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH),
+      () -> new RangeTransition(5, true),
+      2,
       2 * Game.frameRate(),
       MonsterIdleSound.LOW_PITCH,
       0),

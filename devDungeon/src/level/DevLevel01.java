@@ -26,8 +26,11 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   private final Coordinate[] riddleRoomBounds;
   private final Coordinate[] riddleRoomContent;
   private final Coordinate[] mobSpawns;
+  private final Coordinate levelBossSpawn;
   private final Coordinate[] doorPositions;
-  private final int MOB_COUNT = 5;
+  private final int mobCount = 5;
+  private final MonsterType[] mobTypes =
+      new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
 
   public DevLevel01(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
@@ -42,7 +45,8 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     this.riddleRoomTorches = customPoints.subList(9, 15).toArray(new Coordinate[0]);
     this.riddleRoomContent = customPoints.subList(15, 17).toArray(new Coordinate[0]);
     // Last entries are mob spawns
-    this.mobSpawns = customPoints.subList(17, customPoints.size()).toArray(new Coordinate[0]);
+    this.mobSpawns = customPoints.subList(17, customPoints.size() - 1).toArray(new Coordinate[0]);
+    this.levelBossSpawn = customPoints.getLast();
   }
 
   @Override
@@ -56,7 +60,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   }
 
   private void handleDoors() {
-    DoorTile door = (DoorTile) tileAt(doorPositions[0]);
+    DoorTile door = (DoorTile) tileAt(this.doorPositions[0]);
 
     if (Game.entityStream()
             .filter(
@@ -77,15 +81,15 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     ((ExitTile) endTile()).close();
     endTile().visible(false);
     this.spawnTorches();
-    this.spawnMobs(MOB_COUNT);
+    this.spawnMobs(this.mobCount, this.mobTypes);
     this.spawnChestsAndCauldrons();
   }
 
   private void spawnTorches() {
-    for (int i = 0; i < torchPositions.length; i++) {
-      Point torchPos = new Point(torchPositions[i].x + 0.5f, torchPositions[i].y + 0.25f);
+    for (int i = 0; i < this.torchPositions.length; i++) {
+      Point torchPos = new Point(this.torchPositions[i].x + 0.5f, this.torchPositions[i].y + 0.25f);
       Point riddleTorchPos =
-          new Point(riddleRoomTorches[i].x + 0.5f, riddleRoomTorches[i].y + 0.25f);
+          new Point(this.riddleRoomTorches[i].x + 0.5f, this.riddleRoomTorches[i].y + 0.25f);
       EntityUtils.spawnTorch(riddleTorchPos, true, false);
       EntityUtils.spawnTorch(torchPos, false, true);
     }
@@ -93,21 +97,23 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
 
   /**
    * Spawns mobs in the game level. Selects mobCount - 1 random spawn points from mobSpawns array to
-   * spawn ORC_WARRIOR monsters. Spawns a CHORT monster at the last position in the mobSpawns array.
-   * If the CHORT monster dies, it opens the exit tile and makes it visible.
+   * spawn a RANDOM monsters. The last mob is always a CHORT. If the CHORT dies, it opens the exit
    *
    * @param mobCount the number of mobs to spawn
+   * @param monsterTypes all allowed monster types for this level
+   * @throws IllegalArgumentException if mobCount is greater than mobSpawns.length
    */
-  private void spawnMobs(int mobCount) {
-    if (mobCount > mobSpawns.length) {
+  private void spawnMobs(int mobCount, MonsterType[] monsterTypes) {
+    if (mobCount > this.mobSpawns.length) {
       throw new IllegalArgumentException("mobCount cannot be greater than mobSpawns.length");
     }
 
-    List<Coordinate> randomSpawns = ArrayUtils.getRandomElements(mobSpawns, mobCount - 1);
+    List<Coordinate> randomSpawns = ArrayUtils.getRandomElements(this.mobSpawns, mobCount - 1);
 
     for (Coordinate mobPos : randomSpawns) {
       try {
-        EntityUtils.spawnMonster(MonsterType.ORC_WARRIOR, mobPos);
+        MonsterType randomType = monsterTypes[(int) (Math.random() * monsterTypes.length)];
+        EntityUtils.spawnMonster(randomType, mobPos);
       } catch (RuntimeException e) {
         throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
       }
@@ -115,7 +121,8 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
 
     // Last Mob is stronger
     try {
-      Entity chort = EntityUtils.spawnMonster(MonsterType.CHORT, mobSpawns[mobSpawns.length - 1]);
+      System.out.println(this.mobSpawns.length);
+      Entity chort = EntityUtils.spawnMonster(MonsterType.CHORT, this.levelBossSpawn);
       chort
           .fetch(HealthComponent.class)
           .ifPresent(
@@ -175,8 +182,8 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   }
 
   private void changeVisForRiddle(boolean visible) {
-    for (int x = riddleRoomBounds[0].x; x <= riddleRoomBounds[1].x; x++) {
-      for (int y = riddleRoomBounds[1].y; y <= riddleRoomBounds[0].y; y++) {
+    for (int x = this.riddleRoomBounds[0].x; x <= this.riddleRoomBounds[1].x; x++) {
+      for (int y = this.riddleRoomBounds[1].y; y <= this.riddleRoomBounds[0].y; y++) {
         tileAt(new Coordinate(x, y)).visible(visible);
       }
     }
