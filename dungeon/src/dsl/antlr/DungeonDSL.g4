@@ -11,6 +11,10 @@ grammar DungeonDSL;
 DOUBLE_LINE : '--';
 ARROW       : '->';
 
+//TYPE_NAME
+//        : 'my_type' | 'other_type'
+//        ;
+
 TRUE : 'true';
 FALSE: 'false';
 ID  : [_a-zA-Z][a-zA-Z0-9_]*;
@@ -190,6 +194,27 @@ aggregate_value_def
         | type_id=ID '{' property_def_list? '}'
         ;
 
+// TODO: maybe the problem here is, that object_def starts with an ID
+//  - in single token deletion e.g. in the snippet
+//  ```
+//     my_type id {
+//       prop1:id,
+//       prop2:
+//     }
+//    ID is in the LL(2)-Set, which may lead the parser to believe, it found a new object definition!!
+//  - need to verify this!!!
+//    - this is in fact the problem!
+//  - maybe this needs a semantic predicate to check, if the ID is registered as a type name in the type environment!!
+//    - are there interdependencies between semantic analysis and the parsing of such a definition?
+//      - currenlty no, because the DungeonDSL does not allow for construction of completely new data types in dng files!
+//    - for which types is this construct actually used? is there any usefull application of this apport from dungeon_config?
+//      - tasks, config, etc.
+//      - it is useful in it's current state!
+//    - the GameEnvironment is constructed whenever the DSL-Interpreter is created, it would in theory be possible to
+//      add a semantic predicate for this...
+//    - how does one add one such semantic predicate to the Parser? Does not look, like it is possible to add such an
+//      external dependency in an easy way
+//    - a cheap and easy alternative would be to add all possible type names to be used in this context directly to the grammar...
 object_def
         : type_id=ID object_id=ID '{' property_def_list? '}'
         ;
