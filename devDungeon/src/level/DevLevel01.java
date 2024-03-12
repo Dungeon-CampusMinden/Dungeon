@@ -17,6 +17,7 @@ import entities.EntityUtils;
 import entities.MonsterType;
 import java.util.List;
 import level.utils.ITickable;
+import utils.ArrayUtils;
 
 public class DevLevel01 extends DevDungeonLevel implements ITickable {
 
@@ -26,6 +27,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   private final Coordinate[] riddleRoomContent;
   private final Coordinate[] mobSpawns;
   private final Coordinate[] doorPositions;
+  private final int MOB_COUNT = 5;
 
   public DevLevel01(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
@@ -75,7 +77,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     ((ExitTile) endTile()).close();
     endTile().visible(false);
     this.spawnTorches();
-    this.spawnMobs();
+    this.spawnMobs(MOB_COUNT);
     this.spawnChestsAndCauldrons();
   }
 
@@ -89,11 +91,23 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     }
   }
 
-  private void spawnMobs() {
-    for (int i = 0; i < mobSpawns.length - 1; i++) {
-      Coordinate mobPos = mobSpawns[i];
+  /**
+   * Spawns mobs in the game level. Selects mobCount - 1 random spawn points from mobSpawns array to
+   * spawn ORC_WARRIOR monsters. Spawns a CHORT monster at the last position in the mobSpawns array.
+   * If the CHORT monster dies, it opens the exit tile and makes it visible.
+   *
+   * @param mobCount the number of mobs to spawn
+   */
+  private void spawnMobs(int mobCount) {
+    if (mobCount > mobSpawns.length) {
+      throw new IllegalArgumentException("mobCount cannot be greater than mobSpawns.length");
+    }
+
+    List<Coordinate> randomSpawns = ArrayUtils.getRandomElements(mobSpawns, mobCount - 1);
+
+    for (Coordinate mobPos : randomSpawns) {
       try {
-        EntityUtils.spawnMonster(MonsterType.TUTORIAL, mobPos);
+        EntityUtils.spawnMonster(MonsterType.ORC_WARRIOR, mobPos);
       } catch (RuntimeException e) {
         throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
       }
@@ -102,10 +116,15 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     // Last Mob is stronger
     try {
       Entity chort = EntityUtils.spawnMonster(MonsterType.CHORT, mobSpawns[mobSpawns.length - 1]);
-      chort.fetch(HealthComponent.class).ifPresent(hc -> hc.onDeath((e) -> {
-          ((ExitTile) endTile()).open();
-          endTile().visible(true);
-      }));
+      chort
+          .fetch(HealthComponent.class)
+          .ifPresent(
+              hc ->
+                  hc.onDeath(
+                      (e) -> {
+                        ((ExitTile) endTile()).open();
+                        endTile().visible(true);
+                      }));
     } catch (RuntimeException e) {
       throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
     }
