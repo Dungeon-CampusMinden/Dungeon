@@ -163,18 +163,20 @@ ret_type_def
 
 param_def
     : type_id=type_decl param_id=ID
+    | type_decl                     {notifyErrorListeners("Missing identifier in parameter definition");}
+    //| ID                            {notifyErrorListeners("Missing type specification in parameter definition");}
     ;
 
 type_decl
-    : type_decl '<>'                        #set_param_type
-    | type_decl '[]'                        #list_param_type
-    | '[' type_decl ARROW  type_decl ']'    #map_param_type
+    : type_decl '<' '>'                     #set_param_type
+    | type_decl '[' ']'                     #list_param_type
+    | '[' type_decl ARROW type_decl ']'     #map_param_type
     | ID                                    #id_param_type
     ;
 
 param_def_list
-        : param_def ',' param_def_list
-        | param_def
+        : param_def (',' param_def)*
+        //| param_def
         ;
 
 entity_type_def
@@ -220,12 +222,14 @@ object_def
         ;
 
 property_def_list
+        //: property_def (',' property_def)*
         : property_def ',' property_def_list
         | property_def
         ;
 
 property_def
         : ID ':' expression
+        //| ID ':'                {notifyErrorListeners("Missing expression in property definition");}
         ;
 
 expression_list

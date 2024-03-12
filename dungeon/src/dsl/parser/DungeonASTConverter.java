@@ -44,6 +44,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     var tokenStream = new CommonTokenStream(lexer);
     var parser = new DungeonDSLParser(tokenStream);
+    new DungeonDSLParser()
     var programParseTree = parser.program();
 
     DungeonASTConverter astConverter = new DungeonASTConverter();
@@ -583,8 +584,18 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
   @Override
   public void exitParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {
+    int listSize = ctx.param_def().size();
+    var list = new ArrayList<>(Collections.nCopies(listSize, Node.NONE));
+    for (int i = 0; i < listSize; i++) {
+      // reverse order
+      var paramDef = astStack.pop();
+      list.set(listSize - i - 1, paramDef);
+    }
+    Node stmtList = new Node(Node.Type.ParamDefList, list);
+    astStack.push(stmtList);
+
     // condense down to list of param def nodes
-    if (ctx.param_def_list() == null) {
+    /*if (ctx.param_def_list() == null) {
       // trivial parameter definition list
       var innerParamDef = astStack.pop();
       assert (innerParamDef.type == Node.Type.ParamDef);
@@ -608,7 +619,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
       var paramDefList = new Node(Node.Type.ParamDefList, childList);
       astStack.push(paramDefList);
-    }
+    }*/
   }
 
   @Override
