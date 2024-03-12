@@ -45,6 +45,11 @@ public class DoorTile extends Tile {
     else return levelElement.value();
   }
 
+  @Override
+  public boolean canSeeThrough() {
+    return open;
+  }
+
   /**
    * Connects this door with its other side in another room.
    *
