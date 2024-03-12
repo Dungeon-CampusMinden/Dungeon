@@ -5,7 +5,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
 
 /**
  * Represents the exit in the dungeon.
@@ -58,5 +57,4 @@ public class ExitTile extends Tile {
   public boolean isOpen() {
     return open;
   }
-
 }

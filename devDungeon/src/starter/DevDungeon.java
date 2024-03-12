@@ -16,8 +16,8 @@ import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import entities.DevHeroFactory;
-import entities.MonsterType;
 import entities.EntityUtils;
+import entities.MonsterType;
 import java.io.IOException;
 import level.utils.DungeonLoader;
 import systems.*;
@@ -86,7 +86,7 @@ public class DevDungeon {
   private static void setupMusic() {
     Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
     backgroundMusic.setLooping(true);
-    //backgroundMusic.play();
+    // backgroundMusic.play();
     backgroundMusic.setVolume(.1f);
   }
 

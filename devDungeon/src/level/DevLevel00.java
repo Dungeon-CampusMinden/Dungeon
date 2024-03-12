@@ -60,8 +60,6 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     this.lastHeroCoords = EntityUtils.getHeroCoords();
   }
 
-
-
   /**
    * Handles the spawning of the tutorial entities e.g. monsters It also fills the chest with the
    * necessary items for the tutorial

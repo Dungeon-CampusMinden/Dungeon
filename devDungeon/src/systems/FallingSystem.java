@@ -9,7 +9,6 @@ import core.System;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
-import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
