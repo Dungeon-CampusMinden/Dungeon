@@ -10,6 +10,7 @@ import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
+import java.util.function.BiConsumer;
 import java.util.logging.Logger;
 
 public class EntityUtils {
@@ -89,9 +90,9 @@ public class EntityUtils {
    * @throws RuntimeException if an error occurs while spawning the sign.
    */
   public static Entity spawnSign(String text, String title, Point pos) {
-      Entity sign = SignFactory.createSign(text, title, pos);
-      Game.add(sign);
-      return sign;
+    Entity sign = SignFactory.createSign(text, title, pos);
+    Game.add(sign);
+    return sign;
   }
 
   /**
@@ -107,5 +108,34 @@ public class EntityUtils {
     } catch (MissingHeroException e) {
       return null;
     }
+  }
+
+  /**
+   * Spawns a torch at the given coordinate and adds it to the game. The torch is created using the
+   * TorchFactory class and is then added to the game.
+   *
+   * @param torchPos The pos where the torch should be spawned.
+   * @param lit The initial state of the torch. True if the torch should be lit, false otherwise.
+   * @param isInteractable True if the torch should be interactable, false otherwise.
+   * @return The spawned torch entity.
+   */
+  public static Entity spawnTorch(Point torchPos, boolean lit, boolean isInteractable) {
+    return spawnTorch(torchPos, lit, isInteractable, (e, e2) -> {});
+  }
+
+  /**
+   * Spawns a torch at the given coordinate and adds it to the game. The torch is created using the
+   * TorchFactory class and is then added to the game.
+   *
+   * @param torchPos The pos where the torch should be spawned.
+   * @param lit The initial state of the torch. True if the torch should be lit, false otherwise.
+   * @param onToggle The action to perform when the torch is toggled.
+   * @return The spawned torch entity.
+   */
+  public static Entity spawnTorch(
+      Point torchPos, boolean lit, boolean isInteractable, BiConsumer<Entity, Entity> onToggle) {
+    Entity torch = TorchFactory.createTorch(torchPos, lit, isInteractable, onToggle);
+    Game.add(torch);
+    return torch;
   }
 }

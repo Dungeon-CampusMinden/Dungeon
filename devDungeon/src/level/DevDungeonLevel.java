@@ -189,6 +189,7 @@ public class DevDungeonLevel extends TileLevel {
       List<Coordinate> customPoints) {
     return switch (levelNumber) {
       case 0 -> new DevLevel00(layout, designLabel, customPoints);
+      case 1 -> new DevLevel01(layout, designLabel, customPoints);
       default -> throw new IllegalArgumentException("Invalid level number: " + levelNumber);
     };
   }
