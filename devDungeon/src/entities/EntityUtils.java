@@ -10,9 +10,9 @@ import core.utils.components.MissingComponentException;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-public class MonsterUtils {
+public class EntityUtils {
 
-  private static final Logger LOGGER = Logger.getLogger(MonsterUtils.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(EntityUtils.class.getName());
 
   /**
    * Spawns a monster of the given type at the given position and adds it to the game. The Position
@@ -71,6 +71,16 @@ public class MonsterUtils {
       return newMob;
     } catch (IOException e) {
       throw new RuntimeException("Error spawning monster", e);
+    }
+  }
+
+  public static Entity spawnSign(String text, String title, Point pos) {
+    try {
+      Entity sign = SignFactory.createSign(text, title, pos);
+      Game.add(sign);
+      return sign;
+    } catch (IOException e) {
+      throw new RuntimeException("Error spawning sign", e);
     }
   }
 }

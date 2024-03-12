@@ -63,7 +63,7 @@ public class LevelEditorSystem extends System {
     }
     if (Gdx.input.isKeyJustPressed(SAVE_BUTTON)) {
       if (Game.currentLevel() instanceof DevDungeonLevel) {
-          DungeonSaver.saveCurrentDungeon();
+        DungeonSaver.saveCurrentDungeon();
       }
     }
   }

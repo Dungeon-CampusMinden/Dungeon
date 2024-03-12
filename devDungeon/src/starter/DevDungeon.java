@@ -17,7 +17,7 @@ import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import entities.DevHeroFactory;
 import entities.MonsterType;
-import entities.MonsterUtils;
+import entities.EntityUtils;
 import java.io.IOException;
 import level.utils.DungeonLoader;
 import systems.*;
@@ -123,11 +123,11 @@ public class DevDungeon {
             Point mosPos = SkillTools.cursorPositionAsPoint();
             mosPos = new Point(mosPos.x - 0.5f, mosPos.y - 0.25f);
             if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) {
-              MonsterUtils.spawnMonster(MonsterType.CHORT, mosPos);
+              EntityUtils.spawnMonster(MonsterType.CHORT, mosPos);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) {
-              MonsterUtils.spawnMonster(MonsterType.IMP, mosPos);
+              EntityUtils.spawnMonster(MonsterType.IMP, mosPos);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
-              MonsterUtils.spawnMonster(MonsterType.ZOMBIE, mosPos);
+              EntityUtils.spawnMonster(MonsterType.ZOMBIE, mosPos);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
               Tile tile = LevelSystem.level().tileAt(mosPos);
               if (tile != null) {

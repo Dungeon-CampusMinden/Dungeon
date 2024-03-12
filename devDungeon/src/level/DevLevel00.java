@@ -18,7 +18,7 @@ import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MonsterType;
-import entities.MonsterUtils;
+import entities.EntityUtils;
 import java.util.List;
 import level.utils.ITickable;
 
@@ -59,7 +59,7 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
    * @throws RuntimeException if any of the entities could not be created
    */
   private void handleFirstTick() {
-    Entity mob = MonsterUtils.spawnMonster(MonsterType.TUTORIAL, this.mobSpawn);
+    Entity mob = EntityUtils.spawnMonster(MonsterType.TUTORIAL, this.mobSpawn);
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
     }
