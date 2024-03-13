@@ -11,9 +11,18 @@ import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 
 public class Room_1_2_Generator extends TaskRoomGenerator {
 
@@ -31,11 +40,12 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
                 DesignLabel.randomDesign()));
 
     // Create tasks
-    String fileName = "Task_1_2.java";
+    String fileName = "../dungeon/assets/dojo/FehlerhafteKlasse.java";
+    String className = "FehlerhafteKlasse";
     String text =
-        "Öffne die Datei "
+        "Die Datei "
             + fileName
-            + " und verbessere die Fehler, speichere sie und öffne dann die Truhe, um zu überprüfen.";
+            + " enthält 4 Fehler (Syntax und Semantik). Öffne sie, korrigiere die Fehler, speichere die Datei und laufe dann zur Truhe. :)";
 
     addTask(
         new Task(
@@ -45,9 +55,10 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
                     "Arr, Sie kenne ich schon. Hier noch mal die Aufgabe. " + text, "Aufgabe 1:"),
             (t) -> OkDialogUtil.showOkDialog(text, "Aufgabe 1:"),
             (t) -> {
+              List<String> results = compileAndRun(fileName, className);
               OkDialogUtil.showOkDialog(
-                  "Alles ok, Sie können mit der nächsten Aufgabe weitermachen.", "Lösung 1:");
-              return true;
+                  "Ergebnisse:\n\n" + String.join("\n", results), "Lösung 1:");
+              return results.getFirst().equals("ok");
             },
             (t) ->
                 OkDialogUtil.showOkDialog(
@@ -92,5 +103,48 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
     roomEntities.add(solver);
 
     addRoomEntities(roomEntities);
+  }
+
+  private List<String> compileAndRun(String fileName, String className) {
+    try {
+      Method method = compile(fileName, className);
+      ByteArrayOutputStream buf = new ByteArrayOutputStream();
+      method.invoke(null, new String[] {}, new PrintWriter(buf));
+      String actualOutput = buf.toString(Charset.defaultCharset());
+      assert actualOutput.equals(
+          """
+            Die Summe ist: 7
+            Die dritte Zahl ist: 7
+            """);
+    } catch (Exception e) {
+      // e.printStackTrace();
+      return List.of(e.getMessage());
+    }
+    return List.of("ok");
+  }
+
+  private Method compile(String fileName, String className) throws Exception {
+    // Prepare source somehow.
+    String source = Files.readString(Paths.get(fileName));
+    //    try (InputStream is = this.getClass().getResourceAsStream(fileName)) {
+    //      assert is != null;
+    //      source = new String(is.readAllBytes(), Charset.defaultCharset());
+    //    }
+
+    // Regex replacement ...
+    // source = source.replace("\"7\"", "\"777777777777777777777\"");
+
+    // Save source in .java file.
+    File root = Files.createTempDirectory("java").toFile();
+    File sourceFile = new File(root, className + ".java");
+    assert sourceFile.getParentFile().mkdirs();
+    Files.writeString(sourceFile.toPath(), source);
+    // Compile source file.
+    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    compiler.run(null, null, null, sourceFile.getPath());
+    // Load and instantiate compiled class.
+    URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] {root.toURI().toURL()});
+    Class<?> cls = Class.forName(className, true, classLoader);
+    return cls.getDeclaredMethod("main", String[].class, PrintWriter.class);
   }
 }
