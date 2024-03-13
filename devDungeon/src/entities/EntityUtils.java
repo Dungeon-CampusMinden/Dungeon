@@ -117,10 +117,11 @@ public class EntityUtils {
    * @param torchPos The pos where the torch should be spawned.
    * @param lit The initial state of the torch. True if the torch should be lit, false otherwise.
    * @param isInteractable True if the torch should be interactable, false otherwise.
+   * @param value The value of the torch. (Used for {@link level.DevLevel01 Level 1}).
    * @return The spawned torch entity.
    */
-  public static Entity spawnTorch(Point torchPos, boolean lit, boolean isInteractable) {
-    return spawnTorch(torchPos, lit, isInteractable, (e, e2) -> {});
+  public static Entity spawnTorch(Point torchPos, boolean lit, boolean isInteractable, int value) {
+    return spawnTorch(torchPos, lit, isInteractable, (e, e2) -> {}, value);
   }
 
   /**
@@ -129,12 +130,17 @@ public class EntityUtils {
    *
    * @param torchPos The pos where the torch should be spawned.
    * @param lit The initial state of the torch. True if the torch should be lit, false otherwise.
-   * @param onToggle The action to perform when the torch is toggled.
+   * @param onToggle The action to perform when the torch is toggled. (torch, whoTriggered)
+   * @param value The value of the torch. (Used for {@link level.DevLevel01 Level 1}).
    * @return The spawned torch entity.
    */
   public static Entity spawnTorch(
-      Point torchPos, boolean lit, boolean isInteractable, BiConsumer<Entity, Entity> onToggle) {
-    Entity torch = TorchFactory.createTorch(torchPos, lit, isInteractable, onToggle);
+      Point torchPos,
+      boolean lit,
+      boolean isInteractable,
+      BiConsumer<Entity, Entity> onToggle,
+      int value) {
+    Entity torch = TorchFactory.createTorch(torchPos, lit, isInteractable, onToggle, value);
     Game.add(torch);
     return torch;
   }

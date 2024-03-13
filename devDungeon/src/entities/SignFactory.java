@@ -19,7 +19,7 @@ public class SignFactory {
           new SimpleIPath("objects/mailbox/mailbox_2.png")); // TODO: Change to sign texture
   private static final String DEFAULT_TITLE = "Schild";
   public static final int DEFAULT_WIDTH = 600;
-    public static final int DEFAULT_HEIGHT = 300;
+  public static final int DEFAULT_HEIGHT = 300;
 
   public static Entity createSign(String text, Point pos) throws IOException {
     return createSign(text, DEFAULT_TITLE, pos);
@@ -35,7 +35,7 @@ public class SignFactory {
             DEFAULT_INTERACTION_RADIUS,
             true,
             (entity, who) -> {
-              TextDialog.textDialog(text, "OK", title, DEFAULT_WIDTH, DEFAULT_HEIGHT, Align.topLeft);
+              TextDialog.textDialog(text, "OK", title, DEFAULT_WIDTH, DEFAULT_HEIGHT, Align.top);
             }));
 
     return sign;

@@ -75,7 +75,7 @@ public enum MonsterType {
   ORC_WARRIOR(
       "Orc Warrior",
       "character/monster/orc_warrior",
-      15,
+      12,
       3.0f,
       0.5f,
       MonsterDeathSound.LOWER_PITCH,
@@ -89,7 +89,7 @@ public enum MonsterType {
   ORC_SHAMAN(
       "Orc Shaman",
       "character/monster/orc_shaman",
-      10,
+      8,
       3.0f,
       0.5f,
       MonsterDeathSound.LOWER_PITCH,

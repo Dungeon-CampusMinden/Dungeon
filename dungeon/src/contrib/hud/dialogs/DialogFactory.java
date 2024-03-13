@@ -38,9 +38,7 @@ public final class DialogFactory {
     Dialog textDialog = new TextDialog(title, skin, resultHandler);
     textDialog.setWidth(width);
     textDialog.setHeight(height);
-    textDialog
-            .getContentTable()
-            .setWidth(width);
+    textDialog.getContentTable().setWidth(width);
     textDialog
         .getContentTable()
         .add(DialogDesign.createTextDialog(skin, outputMsg, align))

@@ -15,12 +15,14 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.EntityUtils;
 import entities.MonsterType;
-import java.util.List;
+import java.util.*;
 import level.utils.ITickable;
 import utils.ArrayUtils;
 
 public class DevLevel01 extends DevDungeonLevel implements ITickable {
 
+  private static final int UPPER_RIDDLE_BOUND = 15;
+  private static final int LOWER_RIDDLE_BOUND = 5;
   private final Coordinate[] torchPositions;
   private final Coordinate[] riddleRoomTorches;
   private final Coordinate[] riddleRoomBounds;
@@ -31,6 +33,8 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   private final int mobCount = 5;
   private final MonsterType[] mobTypes =
       new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
+  private int searchedSum;
+  private Entity riddleSign;
 
   public DevLevel01(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
@@ -56,43 +60,93 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
       this.doorTiles().forEach(DoorTile::close);
     }
 
-    this.handleDoors();
+    this.riddle();
   }
 
-  private void handleDoors() {
-    DoorTile door = (DoorTile) tileAt(this.doorPositions[0]);
+  private void riddle() {
+    int sum = getSumOfTorches();
 
-    if (Game.entityStream()
-            .filter(
-                entity ->
-                    entity.isPresent(TorchComponent.class)
-                        && entity.fetch(TorchComponent.class).get().lit())
-            .count()
-        == 12) {
-      revealRiddleRoom();
-      door.open();
-    } else {
-      hideRiddleRoom();
-      door.close();
+    if (sum == this.searchedSum) {
+      solveRiddle();
     }
+  }
+
+  private void solveRiddle() {
+    DoorTile door = (DoorTile) tileAt(this.doorPositions[0]);
+    door.open();
+    this.changeRiddleRoomVisibility(true);
+  }
+
+  private int getSumOfTorches() {
+    return Game.entityStream()
+        .filter(e -> e.isPresent(TorchComponent.class))
+        .map(
+            e ->
+                e.fetch(TorchComponent.class)
+                    .orElseThrow(() -> MissingComponentException.build(e, TorchComponent.class)))
+        .mapToInt(TorchComponent::value)
+        .sum();
   }
 
   private void handleFirstTick() {
     ((ExitTile) endTile()).close();
     endTile().visible(false);
+    this.changeRiddleRoomVisibility(false);
     this.spawnTorches();
     this.spawnMobs(this.mobCount, this.mobTypes);
     this.spawnChestsAndCauldrons();
   }
 
+  /**
+   * Returns a random sum of from an array of elements
+   *
+   * @param numbers the array of elements
+   * @return the sum of the random elements
+   */
+  private int getRandomSumOfNElements(List<Integer> numbers) {
+    int amount = RANDOM.nextInt(2, numbers.size());
+    List<Integer> randomNumbers =
+        ArrayUtils.getRandomElements(numbers.toArray(new Integer[0]), amount);
+    return randomNumbers.stream().mapToInt(Integer::intValue).sum();
+  }
+
   private void spawnTorches() {
-    for (int i = 0; i < this.torchPositions.length; i++) {
-      Point torchPos = new Point(this.torchPositions[i].x + 0.5f, this.torchPositions[i].y + 0.25f);
-      Point riddleTorchPos =
-          new Point(this.riddleRoomTorches[i].x + 0.5f, this.riddleRoomTorches[i].y + 0.25f);
-      EntityUtils.spawnTorch(riddleTorchPos, true, false);
-      EntityUtils.spawnTorch(torchPos, false, true);
+    this.spawnRiddleRoomTorches();
+    this.spawnOutsideTorches();
+
+    // Sign next to riddle door
+    this.riddleSign =
+        EntityUtils.spawnSign(
+            "\n\nAlle Fackeln zusammen sollen\n'" + this.searchedSum + "'ergeben!",
+            "Rätsel",
+            new Point(this.doorPositions[0].x, this.doorPositions[0].y - 1));
+  }
+
+  private void spawnRiddleRoomTorches() {
+    for (Coordinate riddleRoomTorch : this.riddleRoomTorches) {
+      Point torchPos = new Point(riddleRoomTorch.x + 0.5f, riddleRoomTorch.y + 0.25f);
+      EntityUtils.spawnTorch(torchPos, true, false, 0);
     }
+  }
+
+  private void spawnOutsideTorches() {
+    List<Integer> torchNumbers = new ArrayList<>();
+    for (Coordinate torchPosition : this.torchPositions) {
+      Point torchPos = new Point(torchPosition.x + 0.5f, torchPosition.y + 0.25f);
+      Entity torch =
+          EntityUtils.spawnTorch(
+              torchPos, false, true, RANDOM.nextInt(LOWER_RIDDLE_BOUND, UPPER_RIDDLE_BOUND));
+      int torchNumber =
+          torch
+              .fetch(TorchComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(torch, TorchComponent.class))
+              .value();
+      EntityUtils.spawnSign(
+          "\n\n\n" + torchNumber, "Fackel", new Point(torchPos.x + 1, torchPos.y));
+      torchNumbers.add(torchNumber);
+    }
+
+    this.searchedSum = getRandomSumOfNElements(torchNumbers);
   }
 
   /**
@@ -101,7 +155,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
    *
    * @param mobCount the number of mobs to spawn
    * @param monsterTypes all allowed monster types for this level
-   * @throws IllegalArgumentException if mobCount is greater than mobSpawns.length
+   * @throws IllegalArgumentException if mobCount is greater than the length of mobSpawns
    */
   private void spawnMobs(int mobCount, MonsterType[] monsterTypes) {
     if (mobCount > this.mobSpawns.length) {
@@ -121,8 +175,10 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
 
     // Last Mob is stronger
     try {
-      System.out.println(this.mobSpawns.length);
       Entity chort = EntityUtils.spawnMonster(MonsterType.CHORT, this.levelBossSpawn);
+      if (chort == null) {
+        throw new RuntimeException();
+      }
       chort
           .fetch(HealthComponent.class)
           .ifPresent(
@@ -138,6 +194,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   }
 
   private void spawnChestsAndCauldrons() {
+    // Chest
     Entity chest;
     try {
       chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
@@ -154,6 +211,10 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
             this.riddleRoomContent[0].toPoint().x + 0.5f,
             this.riddleRoomContent[0].toPoint().y + 0.5f));
 
+    // TODO: add items to chest
+    Game.add(chest);
+
+    // Cauldron
     Entity cauldron;
     try {
       cauldron = MiscFactory.newCraftingCauldron();
@@ -169,19 +230,9 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
             this.riddleRoomContent[1].toPoint().x + 0.5f,
             this.riddleRoomContent[1].toPoint().y + 0.5f));
     Game.add(cauldron);
-
-    Game.add(chest);
   }
 
-  private void revealRiddleRoom() {
-    changeVisForRiddle(true);
-  }
-
-  private void hideRiddleRoom() {
-    changeVisForRiddle(false);
-  }
-
-  private void changeVisForRiddle(boolean visible) {
+  private void changeRiddleRoomVisibility(boolean visible) {
     for (int x = this.riddleRoomBounds[0].x; x <= this.riddleRoomBounds[1].x; x++) {
       for (int y = this.riddleRoomBounds[1].y; y <= this.riddleRoomBounds[0].y; y++) {
         tileAt(new Coordinate(x, y)).visible(visible);

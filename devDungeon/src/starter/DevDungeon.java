@@ -73,7 +73,7 @@ public class DevDungeon {
           if (SKIP_TUTORIAL) {
             DungeonLoader.loadNextLevel(); // First Level start at 1
           } else {
-            DungeonLoader.loadLevel(0); // Tutorial at 0
+            DungeonLoader.loadLevel(1); // Tutorial at 0
           }
         });
   }

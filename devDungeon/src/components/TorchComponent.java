@@ -7,14 +7,26 @@ public class TorchComponent implements Component {
   /** The state of the torch. True if the torch is lit, false otherwise. */
   private boolean lit;
 
+  private int value; // This is used for level 1
+
   /**
-   * Constructor for the TorchComponent class. Initializes the state of the torch with the provided
-   * value.
+   * Constructor for the TorchComponent class.
    *
    * @param lit The initial state of the torch. True if the torch should be lit, false otherwise.
    */
   public TorchComponent(boolean lit) {
     this.lit = lit;
+  }
+
+  /**
+   * Constructor for the TorchComponent class.
+   *
+   * @param lit The initial state of the torch. True if the torch should be lit, false otherwise.
+   * @param value The value of the torch. (Used for {@link level.DevLevel01 Level 1}).
+   */
+  public TorchComponent(boolean lit, int value) {
+    this.lit = lit;
+    this.value = value;
   }
 
   /**
@@ -41,5 +53,23 @@ public class TorchComponent implements Component {
    */
   public void lit(boolean lit) {
     this.lit = lit;
+  }
+
+  /**
+   * Gets the value of the torch.
+   *
+   * @return The value of the torch.
+   */
+  public int value() {
+    return value;
+  }
+
+  /**
+   * Sets the value of the torch.
+   *
+   * @param value The value to set.
+   */
+  public void value(int value) {
+    this.value = value;
   }
 }

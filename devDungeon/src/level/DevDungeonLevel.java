@@ -10,6 +10,7 @@ import core.utils.components.path.IPath;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import level.utils.DungeonLoader;
 import level.utils.MissingLevelException;
 
@@ -20,6 +21,7 @@ import level.utils.MissingLevelException;
  */
 public class DevDungeonLevel extends TileLevel {
 
+  protected static final Random RANDOM = new Random();
   private final List<Coordinate> customPoints = new ArrayList<>();
 
   /**
