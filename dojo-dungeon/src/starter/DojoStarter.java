@@ -2,12 +2,8 @@ package starter;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-import contrib.components.HealthComponent;
-import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
-import contrib.entities.MonsterFactory;
-import contrib.item.concreteItem.ItemKey;
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.RoomGenerator;
@@ -15,25 +11,17 @@ import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import contrib.systems.*;
-import contrib.utils.components.interaction.DropItemsInteraction;
-import core.Entity;
 import core.Game;
 import core.System;
 import core.level.Tile;
-import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
-import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.level.utils.LevelSize;
-import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.function.BiConsumer;
+import tasks.Room_1_1_Generator;
 import tasks.Room_1_2_Generator;
 import tasks.Room_1_3_Generator;
 
@@ -163,51 +151,7 @@ public class DojoStarter {
 
   private static void createRoom_1(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
       throws IOException {
-
-    final int numMonsters = 1;
-    // generate the room
-    room.level(
-        new TileLevel(gen.layout(LevelSize.LARGE, room.neighbours()), DesignLabel.randomDesign()));
-
-    // add entities to room
-    Set<Entity> roomEntities = new HashSet<>();
-
-    for (int i = 0; i < numMonsters; i++) {
-      roomEntities.add(MonsterFactory.randomMonster());
-    }
-    // get random monster from roomEntities
-    Entity randomMonster = (Entity) roomEntities.toArray()[(int) (Math.random() * numMonsters)];
-
-    SimpleIPath sapphireTexture = new SimpleIPath("items/resource/saphire.png");
-    Animation sapphireAnimation = Animation.fromSingleImage(sapphireTexture);
-    ItemKey sapphire =
-        new ItemKey(
-            "Sapphire", "A blue gemstone", sapphireAnimation, sapphireAnimation, room, nextRoom);
-
-    if (randomMonster.fetch(InventoryComponent.class).isPresent()) {
-      randomMonster.remove(InventoryComponent.class);
-    }
-    randomMonster.add(new InventoryComponent());
-    randomMonster.fetch(InventoryComponent.class).orElseThrow().add(sapphire);
-
-    // monster drops a sapphire on death
-    BiConsumer<Entity, Entity> onDeath =
-        (e, who) -> {
-          new DropItemsInteraction().accept(e, who);
-        };
-
-    // TODO apply Monster Health dynamically, crashed trying to access HealthComponent
-    randomMonster.remove(HealthComponent.class);
-    randomMonster.add(new HealthComponent(1, (e) -> onDeath.accept(e, null)));
-
-    // add a chest
-    roomEntities.add(EntityFactory.newChest());
-
-    // add the entities as payload to the LevelNode
-    room.entities(roomEntities);
-    // this will add the entities (in the node payload) to the game, at the moment the level get
-    // loaded for the first time
-    room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
+    new Room_1_1_Generator(gen, room, nextRoom).generateRoom();
   }
 
   private static void createRoom_2(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
