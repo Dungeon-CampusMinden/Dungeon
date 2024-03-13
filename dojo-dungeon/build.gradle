@@ -4,6 +4,7 @@ plugins {
 
 
 dependencies {
+    api project(':game')
     api project(':dungeon')
 }
 
