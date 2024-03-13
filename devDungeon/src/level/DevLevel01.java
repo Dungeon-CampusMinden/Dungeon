@@ -111,11 +111,13 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
 
   private void spawnOutsideTorches() {
     List<Integer> torchNumbers = new ArrayList<>();
-    for (Coordinate torchPosition : this.torchPositions) {
+    Coordinate[] positions = this.torchPositions;
+    for (int i = 0; i < positions.length; i++) {
+      Coordinate torchPosition = positions[i];
       Point torchPos = new Point(torchPosition.x + 0.5f, torchPosition.y + 0.25f);
       Entity torch =
           EntityUtils.spawnTorch(
-              torchPos, false, true, RANDOM.nextInt(LOWER_RIDDLE_BOUND, UPPER_RIDDLE_BOUND));
+              torchPos, i == 0, true, RANDOM.nextInt(LOWER_RIDDLE_BOUND, UPPER_RIDDLE_BOUND));
       int torchNumber =
           torch
               .fetch(TorchComponent.class)

@@ -18,7 +18,7 @@ public class LevelUtils {
   public static void ChangeVisibilityForArea(
       Coordinate topLeft, Coordinate bottomRight, boolean visible) {
     for (int x = topLeft.x; x <= bottomRight.x; x++) {
-      for (int y = topLeft.y; y <= bottomRight.y; y++) {
+      for (int y = bottomRight.y; y <= topLeft.y; y++) {
         Tile tile = Game.tileAT(new Coordinate(x, y));
         if (tile != null) {
           tile.visible(visible);
