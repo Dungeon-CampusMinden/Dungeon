@@ -24,10 +24,13 @@ package dsl.semanticanalysis.symbol;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
-/** Represents a symbol in a program */
+/** Represents a symbol in a program. */
 public class Symbol {
+  /** WTF? . */
   public enum Type {
+    /** WTF? . */
     Base,
+    /** WTF? . */
     Scoped // for handling of datatypes for object definitions
   }
 
@@ -44,10 +47,11 @@ public class Symbol {
 
   private int idx;
 
+  /** WTF? . */
   public static Symbol NULL = new Symbol("NULL SYMBOL", null, null);
 
   /**
-   * Getter for the name of the symbol
+   * Getter for the name of the symbol.
    *
    * @return the name of the symbol
    */
@@ -57,7 +61,7 @@ public class Symbol {
 
   /**
    * Getter for the full name of the symbol, which is the name of the symbol prepended by the names
-   * of its parent symbols, if it has any
+   * of its parent symbols, if it has any.
    *
    * @return the full name of the symbol
    */
@@ -71,7 +75,7 @@ public class Symbol {
   }
 
   /**
-   * Getter for the datatype of the symbol
+   * Getter for the datatype of the symbol.
    *
    * @return the datatype of the symbol (as IType)
    */
@@ -80,7 +84,7 @@ public class Symbol {
   }
 
   /**
-   * Getter for the scope in which this symbol was created
+   * Getter for the scope in which this symbol was created.
    *
    * @return the scope in which this symbol was created
    */
@@ -89,7 +93,7 @@ public class Symbol {
   }
 
   /**
-   * Getter for the index of the symbol (the index is a unique identifier of the symbol)
+   * Getter for the index of the symbol (the index is a unique identifier of the symbol).
    *
    * @return the index of the symbol
    */
@@ -98,7 +102,7 @@ public class Symbol {
   }
 
   /**
-   * Getter for the {@link Type} of the symbol
+   * Getter for the {@link Type} of the symbol.
    *
    * @return the {@link Type} of the symbol
    */
@@ -107,7 +111,7 @@ public class Symbol {
   }
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param symbolName the name of the new symbol
    * @param parentScope the parent scope of the new symbol (in which it was created)
@@ -121,7 +125,7 @@ public class Symbol {
     this.symbolType = Type.Base;
   }
 
-  /** Constructor */
+  /** Constructor. */
   public Symbol() {
     this.scope = null;
     this.name = "no name";
