@@ -22,10 +22,14 @@ import level.utils.ITickable;
 import level.utils.LevelUtils;
 import utils.ArrayUtils;
 
+/** The First Level (Torch Riddle) */
 public class DevLevel01 extends DevDungeonLevel implements ITickable {
 
+  // Riddle constants
   private static final int UPPER_RIDDLE_BOUND = 15;
   private static final int LOWER_RIDDLE_BOUND = 5;
+
+  // Spawn Points / Locations
   private final Coordinate[] torchPositions;
   private final Coordinate[] riddleRoomTorches;
   private final Coordinate[] riddleRoomBounds;
@@ -33,15 +37,19 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   private final Coordinate[] mobSpawns;
   private final Coordinate levelBossSpawn;
   private final Coordinate[] doorPositions;
+  // Difficulty (Mob Count, Mob Types)
   private final int mobCount = 5;
   private final MonsterType[] mobTypes =
       new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
+
+  // Riddle fields
   private final Entity riddleSign;
-  private int searchedSum;
+  private int riddleSearchedSum;
 
   public DevLevel01(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints);
+    //// Spawns
     // First is riddle door
     this.doorPositions = new Coordinate[] {customPoints.getFirst()};
     // 2, 3 TOP_LEFT, BOTTOM_RIGHT of riddle room
@@ -54,12 +62,16 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     // Last entries are mob spawns
     this.mobSpawns = customPoints.subList(17, customPoints.size() - 1).toArray(new Coordinate[0]);
     this.levelBossSpawn = customPoints.getLast();
+
+    //// Sign next to Riddle Door
     this.riddleSign =
         SignFactory.createSign(
             "",
             "Rätsel",
             new Point(this.doorPositions[0].x - 1 + 0.5f, this.doorPositions[0].y - 1 + 0.5f),
-            (e1, e2) -> updateRiddleSign(getSumOfLitTorches()));
+            (e1, e2) ->
+                updateRiddleSign(
+                    getSumOfLitTorches())); // Updates content based on random riddle values
   }
 
   @Override
@@ -82,6 +94,8 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     this.spawnChestsAndCauldrons();
     updateRiddleSign(getSumOfLitTorches());
   }
+
+  // Torch Methods
 
   private void spawnTorches() {
     this.spawnRiddleRoomTorches();
@@ -112,8 +126,10 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
       torchNumbers.add(torchNumber);
     }
 
-    this.searchedSum = getRandomSumOfNElements(torchNumbers);
+    this.riddleSearchedSum = getRandomSumOfNElements(torchNumbers);
   }
+
+  // Other Entities
 
   /**
    * Spawns mobs in the game level. Selects mobCount - 1 random spawn points from mobSpawns array to
@@ -207,7 +223,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   private void riddle() {
     int sum = getSumOfLitTorches();
 
-    if (sum == this.searchedSum) {
+    if (sum == this.riddleSearchedSum) {
       solveRiddle();
     }
   }
@@ -251,7 +267,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
         .orElseThrow(() -> MissingComponentException.build(this.riddleSign, SignComponent.class))
         .text(
             "\n\nAlle Fackeln zusammen sollen\n'"
-                + this.searchedSum
+                + this.riddleSearchedSum
                 + "'ergeben! Du hast: '"
                 + currentSum
                 + "'");
