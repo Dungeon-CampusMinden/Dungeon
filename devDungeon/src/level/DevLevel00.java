@@ -1,10 +1,10 @@
 package level;
 
 import com.badlogic.gdx.utils.Align;
+import components.SignComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
-import contrib.hud.dialogs.TextDialog;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceMushroomRed;
@@ -92,13 +92,12 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     }
     this.setupCauldron(cauldron);
 
-    TextDialog.textDialog(
-        "Verwende WASD (oder RMB), um dich zu bewegen.",
-        "OK",
-        "Willkommen im DevDungeon!",
-        SignFactory.DEFAULT_WIDTH,
-        SignFactory.DEFAULT_HEIGHT,
-        Align.top);
+    showTextPopup("Verwende WASD (oder RMB), um dich zu bewegen.", "Willkommen im DevDungeon!");
+  }
+
+  private void showTextPopup(String text, String title) {
+    SignFactory.showTextPopup(
+        text, title, SignComponent.DEFAULT_WIDTH, SignComponent.DEFAULT_HEIGHT, Align.top);
   }
 
   private void handleTextPopups() {
@@ -110,32 +109,18 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     if (heroTile == null) return;
 
     if (frontDoor.coordinate().equals(heroTile.coordinate())) {
-      TextDialog.textDialog(
-          "Mit Q (oder LMB) kannst du angreifen.",
-          "OK",
-          "Kampf",
-          SignFactory.DEFAULT_WIDTH,
-          SignFactory.DEFAULT_HEIGHT,
-          Align.top);
+      showTextPopup("Mit Q (oder LMB) kannst du angreifen.", "Kampf");
     } else if (mobDoor.coordinate().equals(heroTile.coordinate())) {
-      TextDialog.textDialog(
+      showTextPopup(
           "Kommen wir zum Craften. Du findest im Verlauf des Spiels \nverschiedene Ressourcen,"
               + " die du in \nTränke und andere nützliche Gegenstände\n verwandeln kannst. "
               + "Du kannst die Truhe und \nden Kessel mit E (oder LMB) öffnen. ",
-          "OK",
-          "Looting & Crafting",
-          SignFactory.DEFAULT_WIDTH,
-          SignFactory.DEFAULT_HEIGHT,
-          Align.top);
+          "Looting & Crafting");
     } else if (CraftingDoor.coordinate().equals(heroTile.coordinate())) {
-      TextDialog.textDialog(
+      showTextPopup(
           "Im Dungeon findest immerwieder Hinternisse, Fallen und Rätsel. "
               + "Versuche sie zu umgehen oder zu lösen.",
-          "OK",
-          "Rätsel",
-          SignFactory.DEFAULT_WIDTH,
-          SignFactory.DEFAULT_HEIGHT,
-          Align.top);
+          "Rätsel");
     }
   }
 
