@@ -161,7 +161,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
 
     for (Coordinate mobPos : randomSpawns) {
       try {
-        MonsterType randomType = monsterTypes[(int) (Math.random() * monsterTypes.length)];
+        MonsterType randomType = monsterTypes[RANDOM.nextInt(monsterTypes.length)];
         EntityUtils.spawnMonster(randomType, mobPos);
       } catch (RuntimeException e) {
         throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
