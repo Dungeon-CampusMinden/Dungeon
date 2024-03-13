@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import tasks.Room_1_2_Generator;
+import tasks.Room_1_3_Generator;
 
 public class DojoStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
@@ -216,24 +217,6 @@ public class DojoStarter {
 
   private static void createRoom_3(RoomGenerator gen, LevelNode room, LevelNode prevRoom)
       throws IOException {
-    // generate the room
-    room.level(
-        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
-
-    // add entities to room
-    Set<Entity> roomEntities = new HashSet<>();
-
-    // add a chest (testing only)
-    roomEntities.add(EntityFactory.newChest());
-
-    // add a monster (testing only)
-    Entity monster = MonsterFactory.randomMonster();
-    roomEntities.add(monster);
-
-    // add the entities as payload to the LevelNode
-    room.entities(roomEntities);
-    // this will add the entities (in the node payload) to the game, at the moment the level get
-    // loaded for the first time
-    room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
+    new Room_1_3_Generator(gen, room, prevRoom).generateRoom();
   }
 }
