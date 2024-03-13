@@ -1,5 +1,6 @@
 package level;
 
+import components.SignComponent;
 import components.TorchComponent;
 import contrib.components.HealthComponent;
 import contrib.entities.MiscFactory;
@@ -15,6 +16,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.EntityUtils;
 import entities.MonsterType;
+import entities.SignFactory;
 import java.util.*;
 import level.utils.ITickable;
 import utils.ArrayUtils;
@@ -33,8 +35,8 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   private final int mobCount = 5;
   private final MonsterType[] mobTypes =
       new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
+  private final Entity riddleSign;
   private int searchedSum;
-  private Entity riddleSign;
 
   public DevLevel01(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
@@ -51,6 +53,12 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     // Last entries are mob spawns
     this.mobSpawns = customPoints.subList(17, customPoints.size() - 1).toArray(new Coordinate[0]);
     this.levelBossSpawn = customPoints.getLast();
+    this.riddleSign =
+        SignFactory.createSign(
+            "",
+            "Rätsel",
+            new Point(this.doorPositions[0].x - 1 + 0.5f, this.doorPositions[0].y - 1 + 0.5f),
+            (e1, e2) -> updateRiddleSign(getSumOfLitTorches()));
   }
 
   @Override
@@ -63,63 +71,20 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     this.riddle();
   }
 
-  private void riddle() {
-    int sum = getSumOfTorches();
-
-    if (sum == this.searchedSum) {
-      solveRiddle();
-    }
-  }
-
-  private void solveRiddle() {
-    DoorTile door = (DoorTile) tileAt(this.doorPositions[0]);
-    door.open();
-    this.changeRiddleRoomVisibility(true);
-  }
-
-  private int getSumOfTorches() {
-    return Game.entityStream()
-        .filter(e -> e.isPresent(TorchComponent.class))
-        .map(
-            e ->
-                e.fetch(TorchComponent.class)
-                    .orElseThrow(() -> MissingComponentException.build(e, TorchComponent.class)))
-        .mapToInt(TorchComponent::value)
-        .sum();
-  }
-
   private void handleFirstTick() {
     ((ExitTile) endTile()).close();
     endTile().visible(false);
+    Game.add(this.riddleSign);
     this.changeRiddleRoomVisibility(false);
     this.spawnTorches();
     this.spawnMobs(this.mobCount, this.mobTypes);
     this.spawnChestsAndCauldrons();
-  }
-
-  /**
-   * Returns a random sum of from an array of elements
-   *
-   * @param numbers the array of elements
-   * @return the sum of the random elements
-   */
-  private int getRandomSumOfNElements(List<Integer> numbers) {
-    int amount = RANDOM.nextInt(2, numbers.size());
-    List<Integer> randomNumbers =
-        ArrayUtils.getRandomElements(numbers.toArray(new Integer[0]), amount);
-    return randomNumbers.stream().mapToInt(Integer::intValue).sum();
+    updateRiddleSign(getSumOfLitTorches());
   }
 
   private void spawnTorches() {
     this.spawnRiddleRoomTorches();
     this.spawnOutsideTorches();
-
-    // Sign next to riddle door
-    this.riddleSign =
-        EntityUtils.spawnSign(
-            "\n\nAlle Fackeln zusammen sollen\n'" + this.searchedSum + "'ergeben!",
-            "Rätsel",
-            new Point(this.doorPositions[0].x, this.doorPositions[0].y - 1));
   }
 
   private void spawnRiddleRoomTorches() {
@@ -238,5 +203,57 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
         tileAt(new Coordinate(x, y)).visible(visible);
       }
     }
+  }
+
+  // Riddle relevant logic
+
+  private void riddle() {
+    int sum = getSumOfLitTorches();
+
+    if (sum == this.searchedSum) {
+      solveRiddle();
+    }
+  }
+
+  private void solveRiddle() {
+    DoorTile door = (DoorTile) tileAt(this.doorPositions[0]);
+    door.open();
+    this.changeRiddleRoomVisibility(true);
+  }
+
+  private int getSumOfLitTorches() {
+    return Game.entityStream()
+        .filter(e -> e.isPresent(TorchComponent.class) && e.fetch(TorchComponent.class).get().lit())
+        .map(
+            e ->
+                e.fetch(TorchComponent.class)
+                    .orElseThrow(() -> MissingComponentException.build(e, TorchComponent.class)))
+        .mapToInt(TorchComponent::value)
+        .sum();
+  }
+
+  public void updateRiddleSign(int currentSum) {
+    this.riddleSign
+        .fetch(SignComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(this.riddleSign, SignComponent.class))
+        .text(
+            "\n\nAlle Fackeln zusammen sollen\n'"
+                + this.searchedSum
+                + "'ergeben! Du hast: '"
+                + currentSum
+                + "'");
+  }
+
+  /**
+   * Returns a random sum of from an array of elements
+   *
+   * @param numbers the array of elements
+   * @return the sum of the random elements
+   */
+  private int getRandomSumOfNElements(List<Integer> numbers) {
+    int amount = RANDOM.nextInt(2, numbers.size());
+    List<Integer> randomNumbers =
+        ArrayUtils.getRandomElements(numbers.toArray(new Integer[0]), amount);
+    return randomNumbers.stream().mapToInt(Integer::intValue).sum();
   }
 }

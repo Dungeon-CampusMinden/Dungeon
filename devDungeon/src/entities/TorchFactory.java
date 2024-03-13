@@ -46,7 +46,7 @@ public class TorchFactory {
       boolean isInteractable,
       BiConsumer<Entity, Entity> onInteract,
       int value) {
-    Entity torch = new Entity();
+    Entity torch = new Entity("torch");
 
     torch.add(new PositionComponent(pos));
     DrawComponent dc = new DrawComponent(Animation.fromSingleImage(TORCH_TEXTURE_OFF));

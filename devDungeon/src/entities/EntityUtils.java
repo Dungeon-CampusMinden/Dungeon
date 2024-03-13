@@ -86,13 +86,31 @@ public class EntityUtils {
    * @param text The text to be displayed on the sign.
    * @param title The title of the sign.
    * @param pos The position where the sign should be spawned.
+   * @param onInteract The action to perform when the sign is interacted with. (sign, whoTriggered)
+   * @return The spawned sign entity.
+   * @throws RuntimeException if an error occurs while spawning the sign.
+   */
+  public static Entity spawnSign(
+      String text, String title, Point pos, BiConsumer<Entity, Entity> onInteract) {
+    Entity sign = SignFactory.createSign(text, title, pos, onInteract);
+    Game.add(sign);
+    return sign;
+  }
+
+  /**
+   * This method is used to spawn a sign entity in the game at a given position. It uses the
+   * SignFactory class to create a new sign with the provided text and title. The sign is then added
+   * to the game. If an IOException occurs during the creation of the sign, it is caught and a
+   * RuntimeException is thrown.
+   *
+   * @param text The text to be displayed on the sign.
+   * @param title The title of the sign.
+   * @param pos The position where the sign should be spawned.
    * @return The spawned sign entity.
    * @throws RuntimeException if an error occurs while spawning the sign.
    */
   public static Entity spawnSign(String text, String title, Point pos) {
-    Entity sign = SignFactory.createSign(text, title, pos);
-    Game.add(sign);
-    return sign;
+    return spawnSign(text, title, pos, (e, e2) -> {});
   }
 
   /**
