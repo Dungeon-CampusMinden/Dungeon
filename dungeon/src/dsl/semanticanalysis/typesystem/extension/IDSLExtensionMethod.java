@@ -27,6 +27,10 @@ public interface IDSLExtensionMethod<T, R> {
    */
   R call(T instance, List<Object> params);
 
-  /** Should return an in-order list of the classes, which will be used for the parameters. */
+  /**
+   * Should return an in-order list of the classes, which will be used for the parameters.
+   *
+   * @return foo
+   */
   List<Type> getParameterTypes();
 }
