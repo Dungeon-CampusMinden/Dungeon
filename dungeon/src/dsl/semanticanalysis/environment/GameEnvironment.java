@@ -55,6 +55,7 @@ import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
 
+/** WTF? . */
 public class GameEnvironment implements IEnvironment {
   // TODO: the TypeBuilder should be completely encapsulated, so that types can only
   //  be created via the environment, so that the global scope of the environment is
@@ -72,6 +73,11 @@ public class GameEnvironment implements IEnvironment {
   protected final Scope globalScope;
   protected final RuntimeObjectTranslator runtimeObjectTranslator = new RuntimeObjectTranslator();
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public Class<?>[] getBuiltInAggregateTypeClasses() {
     return (Class<?>[])
         new Class[] {
@@ -96,6 +102,11 @@ public class GameEnvironment implements IEnvironment {
         };
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public List<IDSLExtensionProperty<?, ?>> getBuiltInProperties() {
     ArrayList<IDSLExtensionProperty<?, ?>> properties = new ArrayList<>();
     properties.add(DSLSingleChoice.SingleChoiceDescriptionProperty.instance);
@@ -114,6 +125,11 @@ public class GameEnvironment implements IEnvironment {
     return properties;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public List<IDSLExtensionMethod<?, ?>> getBuiltInMethods() {
     ArrayList<IDSLExtensionMethod<?, ?>> methods = new ArrayList<>();
 
@@ -153,7 +169,7 @@ public class GameEnvironment implements IEnvironment {
 
   /**
    * Constructor. Creates fresh global scope and symbol table and binds built in types and native
-   * functions
+   * functions.
    */
   public GameEnvironment() {
     this.typeBuilder = new TypeBuilder();
@@ -400,10 +416,10 @@ public class GameEnvironment implements IEnvironment {
 
   // region native functions with dependency on specific types
 
-  /** Native function to place a quest item in a "room" (which is represented by an entity set) */
+  /** Native function to place a quest item in a "room" (which is represented by an entity set). */
   private static class NativePlaceQuestItem extends NativeFunction {
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
      * @param questItemType the {@link IType} representing quest items
@@ -450,7 +466,7 @@ public class GameEnvironment implements IEnvironment {
    */
   private class NativeBuildQuestItem extends NativeFunction {
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
      * @param questItemType {@link IType} representing quest items
@@ -500,8 +516,10 @@ public class GameEnvironment implements IEnvironment {
     }
   }
 
+  /** WTF? . */
   @DSLExtensionMethod(name = "is_empty", extendedType = Element.class)
   public static class IsElementEmptyMethod implements IDSLExtensionMethod<Element, Boolean> {
+    /** WTF? . */
     public static IsElementEmptyMethod instance = new IsElementEmptyMethod();
 
     @Override
@@ -521,9 +539,11 @@ public class GameEnvironment implements IEnvironment {
     }
   }
 
+  /** WTF? . */
   @DSLExtensionMethod(name = "text", extendedType = Quiz.Content.class)
   public static class QuizContentContentMethod
       implements IDSLExtensionMethod<Quiz.Content, String> {
+    /** WTF? . */
     public static QuizContentContentMethod instance = new QuizContentContentMethod();
 
     @Override
@@ -538,8 +558,10 @@ public class GameEnvironment implements IEnvironment {
     }
   }
 
+  /** WTF? . */
   @DSLExtensionMethod(name = "text", extendedType = Element.class)
   public static class ElementContentMethod implements IDSLExtensionMethod<Element, String> {
+    /** WTF? . */
     public static ElementContentMethod instance = new ElementContentMethod();
 
     @Override
@@ -554,8 +576,10 @@ public class GameEnvironment implements IEnvironment {
     }
   }
 
+  /** WTF? . */
   @DSLExtensionMethod(name = "text", extendedType = TaskContent.class)
   public static class TaskContentContentMethod implements IDSLExtensionMethod<TaskContent, String> {
+    /** WTF? . */
     public static TaskContentContentMethod instance = new TaskContentContentMethod();
 
     @Override
@@ -576,8 +600,10 @@ public class GameEnvironment implements IEnvironment {
     }
   }
 
+  /** WTF? . */
   @DSLExtensionMethod(name = "is_active", extendedType = Task.class)
   public static class IsTaskActiveMethod implements IDSLExtensionMethod<Task, Boolean> {
+    /** WTF? . */
     public static IsTaskActiveMethod instance = new IsTaskActiveMethod();
 
     @Override
@@ -595,9 +621,10 @@ public class GameEnvironment implements IEnvironment {
 
   private static class AskYesNoDialogFunction extends NativeFunction {
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param taskType foo
      */
     public AskYesNoDialogFunction(IScope parentScope, IType taskType) {
       super("ask_task_yes_no", parentScope, new FunctionType(BuiltInType.noType, taskType));
@@ -623,9 +650,10 @@ public class GameEnvironment implements IEnvironment {
 
   private static class ShowQuizOnUI extends NativeFunction {
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param taskType foo
      */
     public ShowQuizOnUI(IScope parentScope, IType taskType) {
       super("show_task_on_ui", parentScope, new FunctionType(BuiltInType.noType, taskType));
@@ -653,7 +681,7 @@ public class GameEnvironment implements IEnvironment {
     public static ShowInfoFunction func = new ShowInfoFunction(Scope.NULL);
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
      */
@@ -687,9 +715,11 @@ public class GameEnvironment implements IEnvironment {
     private BiFunction<Task, Set<TaskContent>, Float> func;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param taskType foo
+     * @param taskContentSetType foo
      */
     public SingleChoiceGrading(IScope parentScope, IType taskType, IType taskContentSetType) {
       super(
@@ -722,9 +752,11 @@ public class GameEnvironment implements IEnvironment {
     private BiFunction<Task, Set<TaskContent>, Float> func;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param taskType foo
+     * @param taskContentSetType foo
      */
     public MultipleChoiceGrading(IScope parentScope, IType taskType, IType taskContentSetType) {
       super(
@@ -757,9 +789,11 @@ public class GameEnvironment implements IEnvironment {
     private BiFunction<Task, Set<TaskContent>, Float> func;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param taskType foo
+     * @param taskContentSetType foo
      */
     public AssignmentGradingEasy(IScope parentScope, IType taskType, IType taskContentSetType) {
       super(
@@ -792,9 +826,11 @@ public class GameEnvironment implements IEnvironment {
     private BiFunction<Task, Set<TaskContent>, Float> func;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param taskType foo
+     * @param taskContentSetType foo
      */
     public AssignmentGradingHard(IScope parentScope, IType taskType, IType taskContentSetType) {
       super(
@@ -826,9 +862,10 @@ public class GameEnvironment implements IEnvironment {
   private static class GenerateRandomFillerContent extends NativeFunction {
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param entityType foo
      */
     public GenerateRandomFillerContent(IScope parentScope, IType entityType) {
       super("get_random_content", parentScope, new FunctionType(entityType, BuiltInType.noType));
@@ -867,9 +904,11 @@ public class GameEnvironment implements IEnvironment {
     private Function<Task, Set<TaskContent>> func;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param taskType foo
+     * @param taskContentSetType foo
      */
     public AnswerPickerSingleChest(IScope parentScope, IType taskType, IType taskContentSetType) {
       super(
@@ -901,9 +940,11 @@ public class GameEnvironment implements IEnvironment {
     private Function<Task, Set<TaskContent>> func;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param taskType foo
+     * @param taskContentSetType foo
      */
     public AnswerPickerMultiChest(IScope parentScope, IType taskType, IType taskContentSetType) {
       super(
@@ -933,9 +974,11 @@ public class GameEnvironment implements IEnvironment {
     private Function<Task, Set<TaskContent>> func;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param taskType foo
+     * @param taskContentSetType foo
      */
     public HeroInventoryPicker(IScope parentScope, IType taskType, IType taskContentSetType) {
       super(
@@ -969,9 +1012,11 @@ public class GameEnvironment implements IEnvironment {
   private static class SingleChoiceNativeScenarioBuilder extends NativeFunction {
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param singleChoiceType foo
+     * @param entitySetSetType foo
      */
     public SingleChoiceNativeScenarioBuilder(
         IScope parentScope, IType singleChoiceType, IType entitySetSetType) {
@@ -1002,9 +1047,11 @@ public class GameEnvironment implements IEnvironment {
   private static class MultipleChoiceNativeScenarioBuilder extends NativeFunction {
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param multipleChoiceType foo
+     * @param entitySetSetType foo
      */
     public MultipleChoiceNativeScenarioBuilder(
         IScope parentScope, IType multipleChoiceType, IType entitySetSetType) {
@@ -1035,9 +1082,11 @@ public class GameEnvironment implements IEnvironment {
   private static class AssignTaskNativeScenarioBuilder extends NativeFunction {
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param parentScope parent scope of this function
+     * @param assignTaskType foo
+     * @param entitySetSetType foo
      */
     public AssignTaskNativeScenarioBuilder(
         IScope parentScope, IType assignTaskType, IType entitySetSetType) {
