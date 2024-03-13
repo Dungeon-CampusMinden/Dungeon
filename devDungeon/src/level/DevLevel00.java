@@ -5,6 +5,7 @@ import components.SignComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
+import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceMushroomRed;
@@ -187,7 +188,7 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
             .orElseThrow(() -> MissingComponentException.build(b, InventoryComponent.class));
     pc.position(
         new Point(this.customPoints().get(3).x + 0.5f, this.customPoints().get(3).y + 0.5f));
-    ic.add(new ItemPotionHealth());
+    ic.add(new ItemPotionHealth(HealthPotionType.NORMAL));
     Game.add(b);
   }
 

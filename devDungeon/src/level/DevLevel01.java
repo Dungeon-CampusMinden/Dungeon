@@ -3,7 +3,12 @@ package level;
 import components.SignComponent;
 import components.TorchComponent;
 import contrib.components.HealthComponent;
+import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
+import contrib.item.concreteItem.ItemPotionWater;
+import contrib.item.concreteItem.ItemResourceBerry;
+import contrib.utils.components.health.Damage;
+import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -28,11 +33,13 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   // Riddle constants
   private static final int UPPER_RIDDLE_BOUND = 15;
   private static final int LOWER_RIDDLE_BOUND = 5;
+  private static final int RIDDLE_REWARD = 5;
 
   // Spawn Points / Locations
   private final Coordinate[] torchPositions;
   private final Coordinate[] riddleRoomTorches;
   private final Coordinate[] riddleRoomBounds;
+  private final Coordinate riddleCenter;
   private final Coordinate[] riddleRoomContent;
   private final Coordinate[] mobSpawns;
   private final Coordinate levelBossSpawn;
@@ -45,6 +52,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   // Riddle fields
   private final Entity riddleSign;
   private int riddleSearchedSum;
+  private boolean rewardGiven = false;
 
   public DevLevel01(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
@@ -59,8 +67,10 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     // Next 6+2 content of riddle room
     this.riddleRoomTorches = customPoints.subList(9, 15).toArray(new Coordinate[0]);
     this.riddleRoomContent = customPoints.subList(15, 17).toArray(new Coordinate[0]);
+    // Next one is the center of the torch circle
+    this.riddleCenter = customPoints.get(17);
     // Last entries are mob spawns
-    this.mobSpawns = customPoints.subList(17, customPoints.size() - 1).toArray(new Coordinate[0]);
+    this.mobSpawns = customPoints.subList(18, customPoints.size() - 1).toArray(new Coordinate[0]);
     this.levelBossSpawn = customPoints.getLast();
 
     //// Sign next to Riddle Door
@@ -195,7 +205,13 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
             this.riddleRoomContent[0].toPoint().x + 0.5f,
             this.riddleRoomContent[0].toPoint().y + 0.5f));
 
-    // TODO: add items to chest
+    InventoryComponent ic =
+        chest
+            .fetch(InventoryComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(chest, InventoryComponent.class));
+    ic.add(new ItemResourceBerry());
+    ic.add(new ItemResourceBerry());
+    ic.add(new ItemPotionWater());
     Game.add(chest);
 
     // Cauldron
@@ -227,7 +243,46 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
 
     if (sum == this.riddleSearchedSum) {
       solveRiddle();
+      if (!this.rewardGiven && checkIfHeroIsInCenter()) {
+        giveReward();
+      }
     }
+  }
+
+  /**
+   * Gives the reward to the hero if the riddle is solved. A popup message is displayed to inform
+   * the hero about the reward. The reward is only given once, controlled by the rewardGiven flag.
+   */
+  private void giveReward() {
+    SignFactory.showTextPopup(
+        "Als Belohnung erhälst du dauerhaft " + RIDDLE_REWARD + " Lebenpunkte mehr!",
+        "Rätsel gelöst!");
+    Game.hero()
+        .flatMap(hero -> hero.fetch(HealthComponent.class))
+        .ifPresent(
+            hc -> {
+              hc.maximalHealthpoints(hc.maximalHealthpoints() + RIDDLE_REWARD);
+              hc.receiveHit(new Damage(-RIDDLE_REWARD, DamageType.HEAL, null));
+              this.rewardGiven = true;
+            });
+
+    if (this.rewardGiven) {
+      // Once the reward is given, all torches are extinguished
+      Game.entityStream()
+          .filter(e -> e.isPresent(TorchComponent.class))
+          .forEach(e -> e.fetch(TorchComponent.class).ifPresent(tc -> tc.lit(false)));
+    }
+  }
+
+  /**
+   * Checks if the hero is in the center of the riddle room.
+   *
+   * @return true if the hero is in the center of the riddle room, false otherwise.
+   */
+  private boolean checkIfHeroIsInCenter() {
+    Optional<Entity> hero = Game.hero();
+    return hero.filter(entity -> tileAtEntity(entity).equals(tileAt(this.riddleCenter)))
+        .isPresent();
   }
 
   /**

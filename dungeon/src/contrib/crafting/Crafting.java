@@ -6,7 +6,9 @@ import contrib.item.Item;
 import core.Game;
 import core.utils.logging.CustomLogLevel;
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
@@ -185,8 +187,21 @@ public final class Crafting {
 
         String type = result.getString("type");
         if (type.equals("item")) {
-          CraftingResult cr = Item.getItem(id).getDeclaredConstructor().newInstance();
-          resultsArray[i] = cr;
+          @SuppressWarnings("unchecked")
+          Constructor<? extends Item>[] itemConstructor =
+              (Constructor<? extends Item>[]) Item.getItem(id).getDeclaredConstructors();
+          if (item.has("param")) {
+            Object[] params = parseParams(item.get("param"));
+            Constructor<?> fittingCons = findFittingConstructor(itemConstructor, params);
+            if (fittingCons == null) {
+              throw new RuntimeException("No fitting constructor found for item: " + id);
+            }
+            resultsArray[i] = (CraftingResult) fittingCons.newInstance(params);
+          } else {
+            CraftingResult cr = Item.getItem(id).getDeclaredConstructor().newInstance();
+            resultsArray[i] = cr;
+          }
+
         } else {
           throw new RuntimeException("Unknown result type: " + type);
         }
@@ -211,6 +226,82 @@ public final class Crafting {
           "Error parsing recipe (" + name + "): " + ex.getMessage()); // Warning
     }
 
+    return null;
+  }
+
+  private static Object[] parseParams(JsonValue param) {
+    Object[] params = new Object[param.size];
+    for (int i = 0; i < params.length; i++) {
+      JsonValue p = param.get(i);
+      String[] split = p.asString().split(":");
+      String type = split[0];
+      String value = split[1];
+
+      // check if type is native if not check is it a class
+      switch (type) {
+        case "int":
+          params[i] = Integer.parseInt(value);
+          break;
+        case "float":
+          params[i] = Float.parseFloat(value);
+          break;
+        case "double":
+          params[i] = Double.parseDouble(value);
+          break;
+        case "long":
+          params[i] = Long.parseLong(value);
+          break;
+        case "short":
+          params[i] = Short.parseShort(value);
+          break;
+        case "byte":
+          params[i] = Byte.parseByte(value);
+          break;
+        case "boolean":
+          params[i] = Boolean.parseBoolean(value);
+          break;
+        case "char":
+          params[i] = value.charAt(0);
+          break;
+        default:
+          try {
+            Class<?> clazz = Class.forName(type);
+            Object[] constants = clazz.getEnumConstants();
+            boolean found = false;
+            for (Object constant : constants) {
+              if (constant.toString().equalsIgnoreCase(value)) {
+                params[i] = constant;
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              throw new RuntimeException("No Enum constant found for: " + value);
+            }
+          } catch (ClassNotFoundException ex) {
+            throw new RuntimeException("Error parsing param: " + p.asString());
+          }
+      }
+    }
+    return params;
+  }
+
+  private static Constructor<? extends Item> findFittingConstructor(
+      Constructor<? extends Item>[] constructors, Object... params) {
+    for (Constructor<? extends Item> constructor : constructors) {
+      if (constructor.getParameterCount() == params.length) {
+        boolean valid = true;
+        for (int i = 0; i < params.length; i++) {
+          Parameter parameter = constructor.getParameters()[i];
+          if (!parameter.getType().isAssignableFrom(params[i].getClass())) {
+            valid = false;
+          }
+        }
+        if (valid) {
+          return constructor;
+        }
+      }
+    }
     return null;
   }
 }
