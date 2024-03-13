@@ -26,15 +26,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/** WTF? . */
 public class Scope implements IScope {
 
+  /** WTF? . */
   public static Scope NULL = new Scope();
 
   protected IScope parent;
   protected HashMap<String, Symbol> symbols;
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param parentScope the parent scope of the new scope
    */
@@ -43,14 +45,14 @@ public class Scope implements IScope {
     symbols = new HashMap<>();
   }
 
-  /** Constructor */
+  /** Constructor. */
   public Scope() {
     parent = NULL;
     symbols = new HashMap<>();
   }
 
   /**
-   * Bind a new symbol in this scope
+   * Bind a new symbol in this scope.
    *
    * @param symbol The symbol to bind
    * @return True, if no symbol with the same name exists in this scope, false otherwise
@@ -97,7 +99,7 @@ public class Scope implements IScope {
   }
 
   /**
-   * Getter for a List of all bound symbols
+   * Getter for a List of all bound symbols.
    *
    * @return a List of all bound symbols
    */
@@ -107,7 +109,7 @@ public class Scope implements IScope {
   }
 
   /**
-   * Getter for the parent scope of this scope
+   * Getter for the parent scope of this scope.
    *
    * @return the parent of this scope
    */
