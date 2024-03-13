@@ -10,6 +10,7 @@ import core.Game;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
+import org.apache.commons.text.WordUtils;
 
 /** UI utility functions, such as a formatter for the window or dialog. */
 public final class UIUtils {
@@ -55,25 +56,6 @@ public final class UIUtils {
    * @param string String which should be reformatted.
    */
   public static String formatString(final String string) {
-    StringBuilder formattedMsg = new StringBuilder();
-    String[] lines = string.split(System.lineSeparator());
-
-    for (String line : lines) {
-      String[] words = line.split(" ");
-      int sumLength = 0;
-
-      for (String word : words) {
-        sumLength += word.length();
-        formattedMsg.append(word);
-        formattedMsg.append(" ");
-
-        if (sumLength > MAX_ROW_LENGTH) {
-          formattedMsg.append(System.lineSeparator());
-          sumLength = 0;
-        }
-      }
-      formattedMsg.append(System.lineSeparator());
-    }
-    return formattedMsg.toString().trim();
+    return WordUtils.wrap(string, MAX_ROW_LENGTH, " \n", true);
   }
 }

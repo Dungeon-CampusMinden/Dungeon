@@ -2,7 +2,6 @@ package tasks;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
-import contrib.hud.dialogs.TextDialog;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
@@ -36,61 +35,23 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
     String text =
         "Öffne die Datei "
             + fileName
-            + ", verbessere die Fehler, speichere sie und öffne dann die Truhe, um weiterzugehen.";
-    String[][] taskText1 = {
-      {"Arr, Sie kenne ich.\nHier noch mal die Aufgabe.\n" + text, "Ok", "Aufgabe 1:"},
-      {text, "Ok", "Aufgabe 1:"},
-      {"Alles ok, Sie können mit Aufgabe 2 weitermachen.", "Ok", "Lösung 1:"},
-      {"Gehe zuerst zum Questioner für Aufgabe 1.", "Ok", "Lösung 1:"},
-      {"Alles ok, Sie können in den nächsten Raum gehen.", "Sie haben schon alle Aufgaben gelöst!"}
-    };
-    String[][] taskText2 = {
-      {"Arr, Sie kenne ich.\nHier noch mal die Aufgabe.\n" + text, "Ok", "Aufgabe 2:"},
-      {text, "Ok", "Aufgabe 2:"},
-      {"Alles ok, Sie können mit Aufgabe 3 weitermachen.", "Ok", "Lösung 2:"},
-      {"Gehe zuerst zum Questioner für Aufgabe 2.", "Ok", "Lösung 2:"},
-      {"Alles ok, Sie können in den nächsten Raum gehen.", "Sie haben schon alle Aufgaben gelöst!"}
-    };
-    String[][] taskText3 = {
-      {"Arr, Sie kenne ich.\nHier noch mal die Aufgabe.\n" + text, "Ok", "Aufgabe 3:"},
-      {text, "Ok", "Aufgabe 3:"},
-      {"Alles ok, Sie können in den nächsten Raum gehen.", "Ok", "Lösung 3:"},
-      {"Gehe zuerst zum Questioner für Aufgabe 3.", "Ok", "Lösung 3:"},
-      {"Alles ok, Sie können in den nächsten Raum gehen.", "Sie haben schon alle Aufgaben gelöst!"}
-    };
+            + " und verbessere die Fehler, speichere sie und öffne dann die Truhe, um zu überprüfen.";
 
     addTask(
         new Task(
             this,
-            (t) -> TextDialog.textDialog(taskText1[0][0], taskText1[0][1], taskText1[0][2]),
-            (t) -> TextDialog.textDialog(taskText1[1][0], taskText1[1][1], taskText1[1][2]),
+            (t) ->
+                OkDialogUtil.showOkDialog(
+                    "Arr, Sie kenne ich schon. Hier noch mal die Aufgabe. " + text, "Aufgabe 1:"),
+            (t) -> OkDialogUtil.showOkDialog(text, "Aufgabe 1:"),
             (t) -> {
-              TextDialog.textDialog(taskText1[2][0], taskText1[2][1], taskText1[2][2]);
+              OkDialogUtil.showOkDialog(
+                  "Alles ok, Sie können mit der nächsten Aufgabe weitermachen.", "Lösung 1:");
               return true;
             },
-            (t) -> TextDialog.textDialog(taskText1[3][0], taskText1[3][1], taskText1[3][2])));
-
-    addTask(
-        new Task(
-            this,
-            (t) -> TextDialog.textDialog(taskText2[0][0], taskText2[0][1], taskText2[0][2]),
-            (t) -> TextDialog.textDialog(taskText2[1][0], taskText2[1][1], taskText2[1][2]),
-            (t) -> {
-              TextDialog.textDialog(taskText2[2][0], taskText2[2][1], taskText2[2][2]);
-              return true;
-            },
-            (t) -> TextDialog.textDialog(taskText2[3][0], taskText2[3][1], taskText2[3][2])));
-
-    addTask(
-        new Task(
-            this,
-            (t) -> TextDialog.textDialog(taskText3[0][0], taskText3[0][1], taskText3[0][2]),
-            (t) -> TextDialog.textDialog(taskText3[1][0], taskText3[1][1], taskText3[1][2]),
-            (t) -> {
-              TextDialog.textDialog(taskText3[2][0], taskText3[2][1], taskText3[2][2]);
-              return true;
-            },
-            (t) -> TextDialog.textDialog(taskText3[3][0], taskText3[3][1], taskText3[3][2])));
+            (t) ->
+                OkDialogUtil.showOkDialog(
+                    "Gehe zuerst zum Questioner für Aufgabe 1.", "Lösung 1:")));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
@@ -107,7 +68,10 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
                 getNextUncompletedTask()
                     .ifPresentOrElse(
                         Task::question,
-                        () -> TextDialog.textDialog(taskText1[4][1], "Ok", "Ihre Aufgabe:"))));
+                        () ->
+                            OkDialogUtil.showOkDialog(
+                                "Sie haben schon alle Aufgaben gelöst, die Tür ist auf.",
+                                "Aufgabe(n):"))));
 
     // add a solver chest
     Entity solver = EntityFactory.newChest();
@@ -115,11 +79,14 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
         new InteractionComponent(
             1,
             true,
-            (interacted, interactor) ->
+            (entity1, entity2) ->
                 getNextUncompletedTask()
                     .ifPresentOrElse(
                         Task::solve,
-                        () -> TextDialog.textDialog(taskText1[4][1], "Ok", "Ihre Lösung:"))));
+                        () ->
+                            OkDialogUtil.showOkDialog(
+                                "Sie haben schon alle Aufgaben gelöst, die Tür ist auf.",
+                                "Lösung(en):"))));
 
     roomEntities.add(talkToMe);
     roomEntities.add(solver);

@@ -7,6 +7,9 @@ plugins {
 dependencies {
     api project(':game')
 
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-text
+    api 'org.apache.commons:commons-text:1.11.0'
+
     // ANTLR version 4 for DSL Grammar
     antlr supportDependencies.antlr
 }
