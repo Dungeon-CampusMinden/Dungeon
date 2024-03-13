@@ -2,6 +2,7 @@ package contrib.item.concreteItem;
 
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
+import contrib.crafting.CraftingIngredient;
 import contrib.item.HealthPotionType;
 import contrib.item.Item;
 import contrib.utils.components.health.Damage;
@@ -81,5 +82,14 @@ public final class ItemPotionHealth extends Item {
   private void healUser(int amount, Entity e) {
     e.fetch(HealthComponent.class)
         .ifPresent(hc -> hc.receiveHit(new Damage(-amount, DamageType.HEAL, null)));
+  }
+
+  @Override
+  public boolean match(final CraftingIngredient input) {
+    if (!(input instanceof ItemPotionHealth)) {
+      return super.match(input);
+    }
+    ItemPotionHealth other = (ItemPotionHealth) input;
+    return other.heal_amount == this.heal_amount;
   }
 }

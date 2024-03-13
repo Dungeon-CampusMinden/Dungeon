@@ -29,6 +29,7 @@ public class ExitTile extends Tile {
     String[] splitPath = texturePath.pathString().split("\\.");
 
     levelElement = LevelElement.EXIT;
+    open = true;
   }
 
   /**

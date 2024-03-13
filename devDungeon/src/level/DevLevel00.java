@@ -119,7 +119,7 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
           "Looting & Crafting");
     } else if (CraftingDoor.coordinate().equals(heroTile.coordinate())) {
       showTextPopup(
-          "Im Dungeon findest immerwieder Hinternisse, Fallen und Rätsel. "
+          "Im Dungeon findest immerwieder Hinternisse, Fallen und Rätsel.\n"
               + "Versuche sie zu umgehen oder zu lösen.",
           "Rätsel");
     }

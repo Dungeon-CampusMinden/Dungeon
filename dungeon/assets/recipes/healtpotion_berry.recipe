@@ -11,14 +11,10 @@
         {
             "type": "item",
             "item": {
-                "id": "ItemResourceBerry",
-                "count": 1
-            }
-        },
-        {
-            "type": "item",
-            "item": {
-                "id": "ItemPotionWater",
+                "id": "ItemPotionHealth",
+                "param": [
+                    "contrib.item.HealthPotionType:WEAK",
+                ],
                 "count": 1
             }
         }
@@ -28,6 +24,9 @@
             "type": "item",
             "item": {
                 "id": "ItemPotionHealth",
+                "param": [
+                    "contrib.item.HealthPotionType:NORMAL",
+                ],
                 "count": 1
             }
         }
