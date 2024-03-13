@@ -11,6 +11,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import level.level0.DevLevel00;
+import level.level1.DevLevel01;
 import level.utils.DungeonLoader;
 import level.utils.MissingLevelException;
 

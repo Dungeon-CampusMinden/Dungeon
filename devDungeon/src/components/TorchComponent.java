@@ -1,6 +1,7 @@
 package components;
 
 import core.Component;
+import level.level1.DevLevel01;
 
 /** This class represents a TorchComponent. It has a state of being lit or not. */
 public class TorchComponent implements Component {
@@ -22,7 +23,7 @@ public class TorchComponent implements Component {
    * Constructor for the TorchComponent class.
    *
    * @param lit The initial state of the torch. True if the torch should be lit, false otherwise.
-   * @param value The value of the torch. (Used for {@link level.DevLevel01 Level 1}).
+   * @param value The value of the torch. (Used for {@link DevLevel01 Level 1}).
    */
   public TorchComponent(boolean lit, int value) {
     this.lit = lit;

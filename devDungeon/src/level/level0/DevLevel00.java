@@ -1,4 +1,4 @@
-package level;
+package level.level0;
 
 import com.badlogic.gdx.utils.Align;
 import components.SignComponent;
@@ -25,6 +25,7 @@ import entities.EntityUtils;
 import entities.MonsterType;
 import entities.SignFactory;
 import java.util.List;
+import level.DevDungeonLevel;
 import level.utils.ITickable;
 
 /** The tutorial level */
