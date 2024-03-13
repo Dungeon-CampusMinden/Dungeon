@@ -2923,6 +2923,56 @@ quest_config c {
   }
 
   @Test
+  public void testObjectInstantiationOfArbitraryType() {
+    String program =
+        """
+                complex_type my_obj {
+                  member1: 42,
+                  member2: 3.14
+                }
+
+                entity_type my_type {
+                    test_component_with_complex_type_member {
+                        member_complex_type: my_obj
+                    }
+                }
+
+                quest_config c {
+                    entity: instantiate(my_type)
+                }
+                """;
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    TestEnvironment env = new TestEnvironment();
+    DSLInterpreter interpreter = new DSLInterpreter();
+    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), ComplexType.class);
+    env.getTypeBuilder()
+        .createDSLTypeForJavaTypeInScope(
+            env.getGlobalScope(), TestComponentWithComplexTypeMember.class);
+
+    var config =
+        (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
+
+    var entity = config.entity();
+
+    TestComponentWithComplexTypeMember testComponentWithComplexTypeMember =
+        (TestComponentWithComplexTypeMember)
+            entity.components.stream()
+                .filter(c -> c instanceof TestComponentWithComplexTypeMember)
+                .toList()
+                .get(0);
+
+    ComplexType complexTypeValue = testComponentWithComplexTypeMember.getMemberComplexType();
+    Assert.assertEquals(42, complexTypeValue.getMember1());
+    Assert.assertEquals(3.14f, complexTypeValue.getMember2(), 0.0f);
+  }
+
+  @Test
   public void testEnumVariantInstantiation() {
     String program =
         """
