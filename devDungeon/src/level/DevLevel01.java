@@ -5,7 +5,8 @@ import components.TorchComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
-import contrib.item.concreteItem.ItemPotionWater;
+import contrib.item.HealthPotionType;
+import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemResourceBerry;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
@@ -210,8 +211,8 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
             .fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, InventoryComponent.class));
     ic.add(new ItemResourceBerry());
-    ic.add(new ItemResourceBerry());
-    ic.add(new ItemPotionWater());
+    ic.add(new ItemPotionHealth(HealthPotionType.WEAK));
+
     Game.add(chest);
 
     // Cauldron
