@@ -34,7 +34,7 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 //  variable definitions are implemented
 
 // TODO: rename this to ObjectBinder (only handles global definitions)
-/** Creates symbols for definition nodes (graph, object) and binds these nodes to those symbols */
+/** Creates symbols for definition nodes (graph, object) and binds these nodes to those symbols. */
 public class VariableBinder implements AstVisitor<Void> {
   SymbolTable symbolTable;
   IScope parentScope;
