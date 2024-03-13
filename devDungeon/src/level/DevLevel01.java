@@ -19,6 +19,7 @@ import entities.MonsterType;
 import entities.SignFactory;
 import java.util.*;
 import level.utils.ITickable;
+import level.utils.LevelUtils;
 import utils.ArrayUtils;
 
 public class DevLevel01 extends DevDungeonLevel implements ITickable {
@@ -75,7 +76,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     ((ExitTile) endTile()).close();
     endTile().visible(false);
     Game.add(this.riddleSign);
-    this.changeRiddleRoomVisibility(false);
+    LevelUtils.ChangeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
     this.spawnTorches();
     this.spawnMobs(this.mobCount, this.mobTypes);
     this.spawnChestsAndCauldrons();
@@ -197,16 +198,12 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     Game.add(cauldron);
   }
 
-  private void changeRiddleRoomVisibility(boolean visible) {
-    for (int x = this.riddleRoomBounds[0].x; x <= this.riddleRoomBounds[1].x; x++) {
-      for (int y = this.riddleRoomBounds[1].y; y <= this.riddleRoomBounds[0].y; y++) {
-        tileAt(new Coordinate(x, y)).visible(visible);
-      }
-    }
-  }
-
   // Riddle relevant logic
 
+  /**
+   * Checks if the sum of the values of all lit torches equals the searched sum. If it does, the
+   * riddle is solved.
+   */
   private void riddle() {
     int sum = getSumOfLitTorches();
 
@@ -215,12 +212,22 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     }
   }
 
+  /**
+   * Solves the riddle by opening the door and making the riddle room visible.
+   *
+   * @see LevelUtils#ChangeVisibilityForArea(Coordinate, Coordinate, boolean)
+   */
   private void solveRiddle() {
     DoorTile door = (DoorTile) tileAt(this.doorPositions[0]);
     door.open();
-    this.changeRiddleRoomVisibility(true);
+    LevelUtils.ChangeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
   }
 
+  /**
+   * Calculates the sum of the values of all lit torches in the game.
+   *
+   * @return The sum of the values of all lit torches.
+   */
   private int getSumOfLitTorches() {
     return Game.entityStream()
         .filter(e -> e.isPresent(TorchComponent.class) && e.fetch(TorchComponent.class).get().lit())
@@ -232,6 +239,12 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
         .sum();
   }
 
+  /**
+   * Updates the text of the riddle sign to display the current sum of the values of all lit
+   * torches.
+   *
+   * @param currentSum The current sum of the values of all lit torches.
+   */
   public void updateRiddleSign(int currentSum) {
     this.riddleSign
         .fetch(SignComponent.class)
