@@ -25,7 +25,7 @@ import java.util.*;
 public final class LevelNode {
 
   static final int MAX_NEIGHBOURS = Direction.values().length;
-  private final Set<Entity> entities;
+  private Set<Entity> entities;
   private final LevelNode[] neighbours = new LevelNode[MAX_NEIGHBOURS];
   private final LevelGraph originGraph;
   private ILevel level;
@@ -174,7 +174,7 @@ public final class LevelNode {
    *     perspective (in the neighbor's context, this corresponds to the opposite direction).
    * @return true if the connection was successful, false if not.
    */
-  private boolean connect(final LevelNode node, final Direction direction) {
+  public boolean connect(final LevelNode node, final Direction direction) {
     if (this == node || neighbours[direction.value()] != null) return false;
     neighbours[direction.value()] = node;
     // if a node of another graph gets added, all nodes of the other graph a now part of
@@ -263,5 +263,14 @@ public final class LevelNode {
       }
     }
     return dirs;
+  }
+
+  /**
+   * Set the entities stored in this level.
+   *
+   * @param entities
+   */
+  public void entities(Set<Entity> entities) {
+    this.entities = entities;
   }
 }
