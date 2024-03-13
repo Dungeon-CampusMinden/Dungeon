@@ -35,7 +35,7 @@ public class TorchComponent implements Component {
    * will be turned on.
    */
   public void toggle() {
-    lit = !lit;
+    this.lit(!lit);
   }
 
   /**

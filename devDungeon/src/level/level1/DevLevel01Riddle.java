@@ -7,6 +7,7 @@ import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.level.TileLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
@@ -41,8 +42,6 @@ public class DevLevel01Riddle {
 
   public DevLevel01Riddle(List<Coordinate> customPoints, TileLevel level) {
     this.level = level;
-    this.riddleSearchedSum =
-        getRandomSumOfNElements(List.of(LOWER_RIDDLE_BOUND, UPPER_RIDDLE_BOUND));
     this.riddleRoomBounds =
         new Coordinate[] {customPoints.get(1), customPoints.get(2)}; // TopLeft, BottomRight
     // First point is the riddle door
@@ -93,9 +92,9 @@ public class DevLevel01Riddle {
    */
   private void giveReward() {
     SignFactory.showTextPopup(
-        "For completing this riddle you'll be rewarding by "
+        "You will receive "
             + RIDDLE_REWARD
-            + " extra Life Points!",
+            + " additional maximum health points \nas a reward for solving this puzzle!",
         "Riddle solved");
     Game.hero()
         .flatMap(hero -> hero.fetch(HealthComponent.class))
@@ -110,7 +109,11 @@ public class DevLevel01Riddle {
       // Once the reward is given, all torches are extinguished
       Game.entityStream()
           .filter(e -> e.isPresent(TorchComponent.class))
-          .forEach(e -> e.fetch(TorchComponent.class).ifPresent(tc -> tc.lit(false)));
+          .forEach(
+              e -> {
+                e.fetch(TorchComponent.class).ifPresent(tc -> tc.lit(false));
+                e.fetch(DrawComponent.class).ifPresent(dc -> dc.currentAnimation("off"));
+              });
     }
   }
 
