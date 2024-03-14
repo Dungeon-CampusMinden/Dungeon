@@ -1,7 +1,22 @@
 grammar DungeonDSL;
 
 @header{
-    package antlr.main;
+    package dsl.antlr;
+    import dsl.semanticanalysis.environment.IEnvironment;
+}
+
+options
+{
+  superClass = DungeonDSLParserWithEnvironment;
+}
+
+@parser::members
+{
+  public DungeonDSLParser(TokenStream input, IEnvironment environment)
+  {
+    this(input);
+    this.environment = environment;
+  }
 }
 
 /*
@@ -10,10 +25,12 @@ grammar DungeonDSL;
 
 DOUBLE_LINE : '--';
 ARROW       : '->';
+OPEN_BRACE  : '{';
+CLOSE_BRACE : '}';
 
-//TYPE_NAME
-//        : 'my_type' | 'other_type'
-//        ;
+/*TYPE_ID
+    : 'asdf_type'
+    ;*/
 
 TRUE : 'true';
 FALSE: 'false';
@@ -51,7 +68,7 @@ program : definition* EOF
 definition
         : dot_def
         | import_def
-        | object_def
+        | {isTypeName()}? object_def
         | entity_type_def
         | item_type_def
         | fn_def
@@ -142,7 +159,7 @@ func_call
         ;
 
 stmt_block
-    : '{' stmt* '}'
+    : OPEN_BRACE stmt* CLOSE_BRACE
     ;
 
 return_stmt
@@ -180,10 +197,10 @@ param_def_list
         ;
 
 entity_type_def
-        : 'entity_type' ID '{' component_def_list? '}' ;
+        : 'entity_type' ID OPEN_BRACE component_def_list? CLOSE_BRACE ;
 
 item_type_def
-        : 'item_type' ID '{' property_def_list? '}' ;
+        : 'item_type' ID OPEN_BRACE property_def_list? CLOSE_BRACE ;
 
 // used to specify, which components should be used in a game object
 component_def_list
@@ -192,8 +209,8 @@ component_def_list
         ;
 
 aggregate_value_def
-        : type_id=ID
-        | type_id=ID '{' property_def_list? '}'
+        : //type_id=ID
+        /*|*/ type_id=ID OPEN_BRACE property_def_list? CLOSE_BRACE
         ;
 
 // TODO: maybe the problem here is, that object_def starts with an ID
@@ -217,8 +234,10 @@ aggregate_value_def
 //    - how does one add one such semantic predicate to the Parser? Does not look, like it is possible to add such an
 //      external dependency in an easy way
 //    - a cheap and easy alternative would be to add all possible type names to be used in this context directly to the grammar...
+//    - could this be done with a semantic predicate purely based on syntactic information?
 object_def
-        : type_id=ID object_id=ID '{' property_def_list? '}'
+        : type_id=ID object_id=ID OPEN_BRACE property_def_list? CLOSE_BRACE
+        //| type_id=TYPE_ID object_id=ID OPEN_BRACE property_def_list? CLOSE_BRACE
         ;
 
 property_def_list
@@ -276,7 +295,7 @@ primary : ID member_access_rhs?
  * definition language for task dependency graphs
  */
 
-dot_def : 'graph' ID '{' dot_stmt_list? '}' ;
+dot_def : 'graph' ID OPEN_BRACE dot_stmt_list? CLOSE_BRACE ;
 
 dot_stmt_list
         : dot_stmt ';'? dot_stmt_list?

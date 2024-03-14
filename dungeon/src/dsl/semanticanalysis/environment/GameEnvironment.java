@@ -115,6 +115,11 @@ public class GameEnvironment implements IEnvironment {
   }
 
   @Override
+  public boolean isTypeName(String name) {
+    return this.typeBuilder.isTypeName(name);
+  }
+
+  @Override
   public Path relLibPath() {
     return this.relLibPath;
   }

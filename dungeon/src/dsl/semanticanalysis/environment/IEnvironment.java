@@ -111,6 +111,8 @@ public interface IEnvironment {
   Path defaultRelLibPath = Paths.get("assets/scripts/lib");
   String defaultScenarioSubDirName = "scenario";
 
+  boolean isTypeName(String name);
+
   default Path relLibPath() {
     return defaultRelLibPath;
   }

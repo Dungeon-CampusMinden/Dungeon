@@ -18,11 +18,14 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class TypeBuilder {
   private final HashMap<Class<?>, List<Method>> typeAdapters;
   private final HashMap<Type, IType> javaTypeToDSLType;
   private final HashSet<Type> currentLookedUpTypes;
+  private Set<String> typeNameSet;
+  private int typeNameSetSizeCache;
   private final HashMap<Class<?>, IFunctionTypeBuilder> functionTypeBuilders;
 
   /** Constructor */
@@ -30,6 +33,7 @@ public class TypeBuilder {
     this.typeAdapters = new HashMap<>();
     this.javaTypeToDSLType = new HashMap<>();
     this.currentLookedUpTypes = new HashSet<>();
+    this.typeNameSet = new HashSet<>();
     this.functionTypeBuilders = new HashMap<>();
 
     setupFunctionTypeBuilders();
@@ -46,6 +50,17 @@ public class TypeBuilder {
   public HashMap<Type, IType> getJavaTypeToDSLTypeMap() {
     // create copy of the hashmap
     return new HashMap<>(javaTypeToDSLType);
+  }
+
+  public boolean isTypeName(String name) {
+    int typeCount = this.javaTypeToDSLType.values().size();
+    if (this.typeNameSetSizeCache != typeCount) {
+      // recompute
+      this.typeNameSetSizeCache = typeCount;
+      this.typeNameSet =
+          this.javaTypeToDSLType.values().stream().map(IType::getName).collect(Collectors.toSet());
+    }
+    return this.typeNameSet.contains(name);
   }
 
   public IFunctionTypeBuilder getFunctionTypeBuilder(Class<?> callbackClass) {

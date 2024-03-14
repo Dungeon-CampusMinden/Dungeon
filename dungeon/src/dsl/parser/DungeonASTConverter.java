@@ -1,7 +1,7 @@
 package dsl.parser;
 
-import antlr.main.DungeonDSLLexer;
-import antlr.main.DungeonDSLParser;
+import dsl.antlr.DungeonDSLLexer;
+import dsl.antlr.DungeonDSLParser;
 import dsl.parser.ast.*;
 import graph.taskdependencygraph.TaskEdge;
 // CHECKSTYLE:ON: AvoidStarImport
@@ -29,7 +29,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 // abstraction coupling
 // will be high naturally
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
-public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
+public class DungeonASTConverter implements dsl.antlr.DungeonDSLListener {
 
   Stack<Node> astStack;
 
@@ -44,7 +44,6 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
     var tokenStream = new CommonTokenStream(lexer);
     var parser = new DungeonDSLParser(tokenStream);
-    new DungeonDSLParser()
     var programParseTree = parser.program();
 
     DungeonASTConverter astConverter = new DungeonASTConverter();

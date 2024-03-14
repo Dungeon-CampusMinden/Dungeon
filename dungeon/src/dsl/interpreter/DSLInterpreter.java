@@ -1,7 +1,7 @@
 package dsl.interpreter;
 
-import antlr.main.DungeonDSLLexer;
-import antlr.main.DungeonDSLParser;
+import dsl.antlr.DungeonDSLLexer;
+import dsl.antlr.DungeonDSLParser;
 import dsl.interpreter.taskgraph.Interpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.*;

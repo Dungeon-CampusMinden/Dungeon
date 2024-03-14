@@ -34,6 +34,11 @@ public class RuntimeEnvironment implements IEnvironment {
     return runtimeObjectTranslator;
   }
 
+  @Override
+  public boolean isTypeName(String name) {
+    return this.typeBuilder.isTypeName(name);
+  }
+
   /**
    * Constructor. Create new runtime environment from an existing environment and add all type
    * definitions to the stored types.
