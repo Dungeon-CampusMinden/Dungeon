@@ -24,10 +24,14 @@ public class TorchFactory {
   private static final IPath TORCH_TEXTURE_OFF = new SimpleIPath("objects/torch/off/torch_0.png");
   private static final List<IPath> TORCH_TEXTURE_ON =
       List.of(
-          new SimpleIPath("objects/torch/on/torch_0.png"),
           new SimpleIPath("objects/torch/on/torch_1.png"),
           new SimpleIPath("objects/torch/on/torch_2.png"),
-          new SimpleIPath("objects/torch/on/torch_3.png"));
+          new SimpleIPath("objects/torch/on/torch_3.png"),
+          new SimpleIPath("objects/torch/on/torch_4.png"),
+          new SimpleIPath("objects/torch/on/torch_5.png"),
+          new SimpleIPath("objects/torch/on/torch_6.png"),
+          new SimpleIPath("objects/torch/on/torch_7.png"),
+          new SimpleIPath("objects/torch/on/torch_8.png"));
 
   /**
    * Creates a torch entity at a given position, with a specified initial state (lit or not),
