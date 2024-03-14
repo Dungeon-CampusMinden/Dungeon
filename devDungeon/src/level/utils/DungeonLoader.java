@@ -88,4 +88,18 @@ public class DungeonLoader {
     CURRENT_LEVEL = levelNumber;
     Game.currentLevel(getRandomVariant(levelNumber));
   }
+
+  public static void loadLevel(int levelNumber, int variant) {
+    CURRENT_LEVEL = levelNumber;
+    List<String> levelVariants = levels.get(levelNumber);
+    if (levelVariants == null || levelVariants.isEmpty() || variant >= levelVariants.size()) {
+      throw new MissingLevelException(levelNumber);
+    }
+    IPath levelPath = new SimpleIPath(levelVariants.get(variant));
+    try {
+      Game.currentLevel(DevDungeonLevel.loadFromPath(levelPath));
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException("Error loading level", e);
+    }
+  }
 }

@@ -73,8 +73,12 @@ public class DevDungeonLevel extends TileLevel {
       }
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
-      DevDungeonLevel newLevel =
-          getDevLevel(DungeonLoader.CURRENT_LEVEL, layout, designLabel, customPoints);
+      DevDungeonLevel newLevel;
+      try {
+        newLevel = getDevLevel(DungeonLoader.CURRENT_LEVEL, layout, designLabel, customPoints);
+      } catch (IndexOutOfBoundsException e) {
+        newLevel = new DevDungeonLevel(layout, designLabel, customPoints);
+      }
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos);
