@@ -3,17 +3,27 @@ package dsl.error;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.logging.Logger;
 import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.atn.ATNState;
 import org.antlr.v4.runtime.atn.ParserATNSimulator;
+import org.antlr.v4.runtime.atn.RuleTransition;
 import org.antlr.v4.runtime.misc.IntervalSet;
 import org.antlr.v4.runtime.misc.Pair;
 
 public class ErrorStrategy extends DefaultErrorStrategy {
+  private final boolean singleTokenDeletion;
+  private final boolean singleTokenInsertion;
   private Vocabulary vocabulary;
+  private static final Logger LOGGER = Logger.getLogger(ErrorStrategy.class.getName());
 
   public String getDisplayName(int token) {
     return vocabulary.getDisplayName(token);
+  }
+
+  public String getCurrentRuleName(Parser recognizer) {
+    return recognizer.getRuleNames()[recognizer.getContext().getRuleIndex()];
   }
 
   public List<String> getDisplayNameOfIntervalSet(IntervalSet set) {
@@ -24,8 +34,13 @@ public class ErrorStrategy extends DefaultErrorStrategy {
     return list;
   }
 
-  public ErrorStrategy(Vocabulary vocabulary) {
+  public ErrorStrategy(
+      Vocabulary vocabulary,
+      boolean enableSingleTokenDeletion,
+      boolean enableSingleTokenInsertion) {
     this.vocabulary = vocabulary;
+    this.singleTokenDeletion = enableSingleTokenDeletion;
+    this.singleTokenInsertion = enableSingleTokenInsertion;
   }
 
   protected boolean errorRecoveryMode = false;
@@ -40,6 +55,7 @@ public class ErrorStrategy extends DefaultErrorStrategy {
 
   protected void beginErrorCondition(Parser recognizer) {
     this.errorRecoveryMode = true;
+    LOGGER.warning("BEGINNING ERROR CONDITION!");
   }
 
   public boolean inErrorRecoveryMode(Parser recognizer) {
@@ -47,6 +63,9 @@ public class ErrorStrategy extends DefaultErrorStrategy {
   }
 
   protected void endErrorCondition(Parser recognizer) {
+    if (this.errorRecoveryMode) {
+      LOGGER.warning("ENDING ERROR CONDITION!");
+    }
     this.errorRecoveryMode = false;
     this.lastErrorStates = null;
     this.lastErrorIndex = -1;
@@ -86,6 +105,9 @@ public class ErrorStrategy extends DefaultErrorStrategy {
 
     this.lastErrorStates.add(recognizer.getState());
     IntervalSet followSet = this.getErrorRecoverySet(recognizer);
+    if (recognizer.isTrace()) {
+      LOGGER.warning("Entering consume until from 'recover'");
+    }
     this.consumeUntil(recognizer, followSet);
   }
 
@@ -171,30 +193,73 @@ public class ErrorStrategy extends DefaultErrorStrategy {
   }
 
   protected boolean singleTokenInsertion(Parser recognizer) {
-    return super.singleTokenInsertion(recognizer);
-    /*int currentSymbolType = recognizer.getInputStream().LA(1);
-    ATNState currentState = (ATNState)((ParserATNSimulator)recognizer.getInterpreter()).atn.states.get(recognizer.getState());
+    // return super.singleTokenInsertion(recognizer);
+    int currentSymbolType = recognizer.getInputStream().LA(1);
+    ATNState currentState =
+        (ATNState)
+            ((ParserATNSimulator) recognizer.getInterpreter())
+                .atn.states.get(recognizer.getState());
     ATNState next = currentState.transition(0).target;
-    ATN atn = ((ParserATNSimulator)recognizer.getInterpreter()).atn;
-    IntervalSet expectingAtLL2 = atn.nextTokens(next, recognizer._ctx);
+    ATN atn = ((ParserATNSimulator) recognizer.getInterpreter()).atn;
+    var ctx = recognizer.getContext();
+    IntervalSet expectingAtLL2 = atn.nextTokens(next, ctx);
+    if (recognizer.isTrace()) {
+      String currentSymbolName = getDisplayName(currentSymbolType);
+      var expectingTokens = getDisplayNameOfIntervalSet(expectingAtLL2);
+      String rule = recognizer.getRuleNames()[recognizer.getContext().getRuleIndex()];
+      String msg =
+          String.format(
+              "Single token insertion, current symbol type '%s', expectingAtLL2 '%s', rule '%s'",
+              currentSymbolName, expectingTokens, rule);
+      LOGGER.warning(msg);
+    }
+    if (!this.singleTokenInsertion) {
+      LOGGER.warning("Single token insertion deactivated!");
+      return false;
+    }
     if (expectingAtLL2.contains(currentSymbolType)) {
-        this.reportMissingToken(recognizer);
-        return true;
+      LOGGER.warning("Single token insertion SUCCESSFUL!");
+      this.reportMissingToken(recognizer);
+      return true;
     } else {
-        return false;
-    }*/
+      LOGGER.warning("Single token insertion UNSUCCESSFUL!");
+      return false;
+    }
   }
 
   protected Token singleTokenDeletion(Parser recognizer) {
     int nextTokenType = recognizer.getInputStream().LA(2);
     IntervalSet expecting = this.getExpectedTokens(recognizer);
+    if (recognizer.isTrace()) {
+      String nextTokenName = getDisplayName(nextTokenType);
+      var expectingTokens = getDisplayNameOfIntervalSet(expecting);
+      String rule = recognizer.getRuleNames()[recognizer.getContext().getRuleIndex()];
+      String msg =
+          String.format(
+              "Single token deletion, next token type '%s', expecting '%s', rule '%s'",
+              nextTokenName, expectingTokens, rule);
+      LOGGER.warning(msg);
+    }
+    if (!this.singleTokenDeletion) {
+      LOGGER.warning("Single token deletion deactivated!");
+      return null;
+    }
     if (expecting.contains(nextTokenType)) {
+      if (recognizer.isTrace()) {
+        LOGGER.warning("Before reporting...");
+      }
       this.reportUnwantedToken(recognizer);
       recognizer.consume();
       Token matchedSymbol = recognizer.getCurrentToken();
+      if (recognizer.isTrace()) {
+        String msg =
+            String.format("Single token deletion SUCCESSFUL, matched symbol '%s'", matchedSymbol);
+        LOGGER.warning(msg);
+      }
       this.reportMatch(recognizer);
       return matchedSymbol;
     } else {
+      LOGGER.warning("Single token deletion UNSUCCESSFUL!");
       return null;
     }
   }
@@ -270,6 +335,7 @@ public class ErrorStrategy extends DefaultErrorStrategy {
   }
 
   protected IntervalSet getErrorRecoverySet(Parser recognizer) {
+    // TODO: my addition
     var rc = recognizer.getRuleContext();
     var parentRc = rc.parent;
     var currentToken = recognizer.getCurrentToken();
@@ -279,33 +345,65 @@ public class ErrorStrategy extends DefaultErrorStrategy {
       expectedNameSet.add(getDisplayName(entry));
     }
 
-    var set = super.getErrorRecoverySet(recognizer);
-    HashSet<String> nameSet = new HashSet<>();
-    for (int entry : set.toSet()) {
-      nameSet.add(getDisplayName(entry));
-    }
-    return set;
-    /*ATN atn = ((ParserATNSimulator)recognizer.getInterpreter()).atn;
-    RuleContext ctx = recognizer._ctx;
+    // var set = super.getErrorRecoverySet(recognizer);
+
+    ATN atn = ((ParserATNSimulator) recognizer.getInterpreter()).atn;
+    RuleContext ctx = recognizer.getContext();
 
     IntervalSet recoverSet;
-    for(recoverSet = new IntervalSet(new int[0]); ctx != null && ((RuleContext)ctx).invokingState >= 0; ctx = ((RuleContext)ctx).parent) {
-        ATNState invokingState = (ATNState)atn.states.get(((RuleContext)ctx).invokingState);
-        RuleTransition rt = (RuleTransition)invokingState.transition(0);
-        IntervalSet follow = atn.nextTokens(rt.followState);
-        recoverSet.addAll(follow);
+    for (recoverSet = new IntervalSet(new int[0]);
+        ctx != null && ((RuleContext) ctx).invokingState >= 0;
+        ctx = ((RuleContext) ctx).parent) {
+      ATNState invokingState = (ATNState) atn.states.get(((RuleContext) ctx).invokingState);
+      RuleTransition rt = (RuleTransition) invokingState.transition(0);
+      IntervalSet follow = atn.nextTokens(rt.followState);
+
+      recoverSet.addAll(follow);
     }
 
     recoverSet.remove(-2);
+
+    if (recognizer.isTrace()) {
+      String currentRule = getCurrentRuleName(recognizer);
+      var followNames = getDisplayNameOfIntervalSet(recoverSet);
+      String msg =
+          String.format(
+              "Computed recovery set for rule '%s' - set: '%s'", currentRule, followNames);
+      LOGGER.warning(msg);
+    }
+
     return recoverSet;
-     */
+
+    // TODO: my addition
+    /*HashSet<String> nameSet = new HashSet<>();
+    for (int entry : set.toSet()) {
+      nameSet.add(getDisplayName(entry));
+    }
+    return set;*/
+
   }
 
   protected void consumeUntil(Parser recognizer, IntervalSet set) {
+    if (recognizer.isTrace()) {
+      var setString = getDisplayNameOfIntervalSet(set);
+      String rule = recognizer.getRuleNames()[recognizer.getContext().getRuleIndex()];
+      String msg = String.format("Consume until, sync set '%s', rule '%s'", setString, rule);
+      LOGGER.warning(msg);
+    }
+    boolean consumedSomething = false;
     for (int ttype = recognizer.getInputStream().LA(1);
         ttype != -1 && !set.contains(ttype);
         ttype = recognizer.getInputStream().LA(1)) {
+      if (recognizer.isTrace()) {
+        Token consuming = recognizer.getInputStream().LT(1);
+        String msg = String.format("Consuming: '%s'", consuming);
+        LOGGER.warning(msg);
+      }
       recognizer.consume();
+      consumedSomething = true;
+    }
+    if (recognizer.isTrace() && !consumedSomething) {
+      LOGGER.warning("DID NOT CONSUME ANYTHING");
     }
   }
 
@@ -348,9 +446,16 @@ public class ErrorStrategy extends DefaultErrorStrategy {
           case 9: // STAR_LOOP_BACK
           case 11: // PLUS_LOOP_BACK
             this.reportUnwantedToken(recognizer);
+            if (recognizer.isTrace()) {
+              LOGGER.warning("Computing recovery set from 'sync'");
+            }
             IntervalSet expecting = recognizer.getExpectedTokens();
             IntervalSet whatFollowsLoopIterationOrRule =
                 expecting.or(this.getErrorRecoverySet(recognizer));
+
+            if (recognizer.isTrace()) {
+              LOGGER.warning("Entering consume until from 'sync'");
+            }
             this.consumeUntil(recognizer, whatFollowsLoopIterationOrRule);
           case 6: // TOKEN_START
           case 7: // RULE_STOP

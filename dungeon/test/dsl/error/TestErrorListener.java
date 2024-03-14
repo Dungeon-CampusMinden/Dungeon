@@ -1,5 +1,11 @@
 package dsl.error;
 
+import dsl.antlr.TreeUtils;
+import dsl.interpreter.TestEnvironment;
+import dsl.profile.ProfilingTimer;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Logger;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Test;
@@ -14,15 +20,15 @@ public class TestErrorListener {
 
     ErrorListener el = ErrorListener.INSTANCE;
     var stream = CharStreams.fromString(program);
-    var lexer = new antlr.main.DungeonDSLLexer(stream);
+    var lexer = new dsl.antlr.DungeonDSLLexer(stream);
     lexer.removeErrorListeners();
     lexer.addErrorListener(el);
 
     var tokenStream = new CommonTokenStream(lexer);
-    var parser = new antlr.main.DungeonDSLParser(tokenStream);
+    var parser = new dsl.antlr.DungeonDSLParser(tokenStream);
     parser.removeErrorListeners();
     parser.addErrorListener(el);
-    parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary()));
+    parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary(), true, true));
 
     // var eh = parser.getErrorHandler();
 
@@ -30,29 +36,189 @@ public class TestErrorListener {
   }
 
   @Test
+  // TODO: does not sync to my_type...
   public void testObjectDefinition() {
     String program =
         """
-                    my_type obj {
+                    //obj: my_type obj1 {
+                    //    val: id,
+                    //    val:
+                    //}
+
+                    //obj: my_type obj2 {
+                    //    val: id,
+                    //    val: id
+                    //}
+
+                    my_type obj1 {
                         val: id,
                         val:
+                    }
+
+                    my_type obj2 {
+                        val: id,
+                        val: id
                     }
                 """;
 
     ErrorListener el = ErrorListener.INSTANCE;
     var stream = CharStreams.fromString(program);
-    var lexer = new antlr.main.DungeonDSLLexer(stream);
+    TestEnvironment testEnvironment = new TestEnvironment();
+    testEnvironment.addMockTypeName("my_type");
+    var lexer = new dsl.antlr.DungeonDSLLexer(stream, testEnvironment);
     lexer.removeErrorListeners();
     lexer.addErrorListener(el);
 
     var tokenStream = new CommonTokenStream(lexer);
-    var parser = new antlr.main.DungeonDSLParser(tokenStream);
+    var parser = new dsl.antlr.DungeonDSLParser(tokenStream, testEnvironment);
     parser.removeErrorListeners();
     parser.addErrorListener(el);
-    parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary()));
+    parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary(), true, true));
+    parser.setTrace(true);
 
     // var eh = parser.getErrorHandler();
 
     var programParseTree = parser.program();
+
+    List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+    String prettyTree = TreeUtils.toPrettyTree(programParseTree, ruleNamesList);
+    System.out.println(prettyTree);
+
+    var logger = Logger.getLogger(ErrorListener.class.getName());
+  }
+
+  @Test
+  public void testObjectDefinitionExtraCurly() {
+    String program =
+        """
+                  my_type obj1 {
+                      val: id,
+                      val: id
+                  } }
+
+                  my_type obj2 {
+                      val: id,
+                      val: id
+                  }
+              """;
+
+    ErrorListener el = ErrorListener.INSTANCE;
+    var stream = CharStreams.fromString(program);
+    TestEnvironment testEnvironment = new TestEnvironment();
+    testEnvironment.addMockTypeName("my_type");
+    var lexer = new dsl.antlr.DungeonDSLLexer(stream, testEnvironment);
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(el);
+
+    var tokenStream = new CommonTokenStream(lexer);
+    var parser = new dsl.antlr.DungeonDSLParser(tokenStream, testEnvironment);
+    parser.removeErrorListeners();
+    parser.addErrorListener(el);
+    parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary(), true, true));
+    parser.setTrace(true);
+
+    // var eh = parser.getErrorHandler();
+
+    var programParseTree = parser.program();
+
+    List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+    String prettyTree = TreeUtils.toPrettyTree(programParseTree, ruleNamesList);
+    System.out.println(prettyTree);
+
+    var logger = Logger.getLogger(ErrorListener.class.getName());
+  }
+
+  @Test
+  public void testObjectDefinitionExtraComma() {
+    String program =
+        """
+                  my_type obj1 {
+                      val: id,,
+                      val: id
+                  }
+
+                  my_type obj2 {
+                      val: id,
+                      val: id
+                  }
+              """;
+
+    ErrorListener el = ErrorListener.INSTANCE;
+    var stream = CharStreams.fromString(program);
+    TestEnvironment testEnvironment = new TestEnvironment();
+    testEnvironment.addMockTypeName("my_type");
+    var lexer = new dsl.antlr.DungeonDSLLexer(stream, testEnvironment);
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(el);
+
+    var tokenStream = new CommonTokenStream(lexer);
+    var parser = new dsl.antlr.DungeonDSLParser(tokenStream, testEnvironment);
+    parser.removeErrorListeners();
+    parser.addErrorListener(el);
+    parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary(), true, true));
+    parser.setTrace(true);
+
+    // var eh = parser.getErrorHandler();
+
+    var programParseTree = parser.program();
+
+    List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+    String prettyTree = TreeUtils.toPrettyTree(programParseTree, ruleNamesList);
+    System.out.println(prettyTree);
+
+    var logger = Logger.getLogger(ErrorListener.class.getName());
+  }
+
+  @Test
+  public void testObjectDefinitionBonkers() {
+    String program =
+        """
+                asdf_type obj1 {
+                    val1: id,,,,,asdfasl
+                    val2: id
+                }
+
+                asdf_type obj2 {
+                    val3: id,
+                    val4: id
+                }
+
+                /*my_type obj2 {
+                    val: id,
+                    val: id
+                };*/
+
+                fn test() {
+                  print("Hello");
+                }
+            """;
+
+    ErrorListener el = ErrorListener.INSTANCE;
+    var stream = CharStreams.fromString(program);
+    TestEnvironment testEnvironment = new TestEnvironment();
+    testEnvironment.addMockTypeName("asdf_type");
+    var lexer = new dsl.antlr.DungeonDSLLexer(stream, testEnvironment);
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(el);
+
+    var tokenStream = new CommonTokenStream(lexer);
+    var parser = new dsl.antlr.DungeonDSLParser(tokenStream, testEnvironment);
+    parser.removeErrorListeners();
+    parser.addErrorListener(el);
+    parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary(), true, true));
+    parser.setTrace(false);
+
+    // var eh = parser.getErrorHandler();
+
+    ProfilingTimer pt = new ProfilingTimer();
+    pt.start();
+    var programParseTree = parser.program();
+    pt.stopAndPrint("After Parse");
+
+    List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+    String prettyTree = TreeUtils.toPrettyTree(programParseTree, ruleNamesList);
+    System.out.println(prettyTree);
+
+    var logger = Logger.getLogger(ErrorListener.class.getName());
   }
 }

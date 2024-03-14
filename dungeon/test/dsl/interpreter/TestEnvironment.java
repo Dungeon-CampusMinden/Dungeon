@@ -10,12 +10,14 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
 import dslinterop.dslnativefunction.NativeInstantiate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 // TODO: revise class-structure.. maybe the GameEnvironment should extend the
 //  'DefaultEnvironment`, which only bind the basic built in types and the
 //  'TestEnvironment' would be a parallel implementation, not a deriving implementation
 public class TestEnvironment extends GameEnvironment {
+  private final HashSet<String> mockTypeNames;
 
   @Override
   public TypeBuilder getTypeBuilder() {
@@ -33,6 +35,16 @@ public class TestEnvironment extends GameEnvironment {
     this.loadTypes(entitySetType);
     IType entitySetSetType = new SetType(entitySetType, this.getGlobalScope());
     this.loadTypes(entitySetSetType);
+    this.mockTypeNames = new HashSet<>();
+  }
+
+  @Override
+  public boolean isTypeName(String name) {
+    return super.isTypeName(name) || this.mockTypeNames.contains(name);
+  }
+
+  public void addMockTypeName(String name) {
+    this.mockTypeNames.add(name);
   }
 
   @Override

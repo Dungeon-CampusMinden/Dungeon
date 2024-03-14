@@ -29,7 +29,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 // abstraction coupling
 // will be high naturally
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
-public class DungeonASTConverter implements dsl.antlr.DungeonDSLListener {
+public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
   Stack<Node> astStack;
 
