@@ -70,20 +70,20 @@ program : definition* EOF
 definition
         : dot_def
         | import_def
-        //| {isTypeName(_input.LT(2))}? object_def
-        | object_def
+        | {isTypeName(_input.LT(2))}? object_def
+        //| object_def
         | entity_type_def
         | item_type_def
         | fn_def
         ;
 
 import_def
-    : IMPORT path=STRING_LITERAL COLON sym_id=ID                   #import_unnamed
-    | IMPORT path=STRING_LITERAL COLON sym_id=ID AS sym_name=ID  #import_named
+    : IMPORT path=STRING_LITERAL COLON sym_id=id                   #import_unnamed
+    | IMPORT path=STRING_LITERAL COLON sym_id=id AS sym_name=id  #import_named
     ;
 
 fn_def
-    : FN ID OPEN_PAR param_def_list? CLOSE_PAR ret_type_def? stmt_block
+    : FN id OPEN_PAR param_def_list? CLOSE_PAR ret_type_def? stmt_block
     ;
 
 stmt
@@ -96,14 +96,14 @@ stmt
     ;
 
 loop_stmt
-    : FOR type_id=type_decl var_id=ID IN iteratable_id=expression stmt                          #for_loop
-    | FOR type_id=type_decl var_id=ID IN iteratable_id=expression COUNT counter_id=ID stmt      #for_loop_counting
+    : FOR type_id=type_decl var_id=id IN iteratable_id=expression stmt                          #for_loop
+    | FOR type_id=type_decl var_id=id IN iteratable_id=expression COUNT counter_id=id stmt      #for_loop_counting
     | WHILE expression stmt                                                                     #while_loop
     ;
 
 var_decl
-    : VAR id=ID ASSIGN expression SEMICOLON   #var_decl_assignment
-    | VAR id=ID COLON type_decl SEMICOLON    #var_decl_type_decl
+    : VAR id ASSIGN expression SEMICOLON   #var_decl_assignment
+    | VAR id COLON type_decl SEMICOLON    #var_decl_type_decl
     ;
 
 expression
@@ -113,13 +113,13 @@ expression
 
 member_access_rhs
     : DOT func_call member_access_rhs?  #method_call_expression
-    | DOT ID member_access_rhs?         #member_access_expression
+    | DOT id member_access_rhs?         #member_access_expression
     ;
 
 assignee
     : func_call member_access_rhs   #assignee_func
-    | ID member_access_rhs          #assignee_member_access
-    | ID                            #assignee_identifier
+    | id member_access_rhs          #assignee_member_access
+    | id                            #assignee_identifier
     ;
 
 logic_or
@@ -158,7 +158,7 @@ unary
     ;
 
 func_call
-        : ID OPEN_PAR expression_list? CLOSE_PAR
+        : id OPEN_PAR expression_list? CLOSE_PAR
         ;
 
 stmt_block
@@ -182,7 +182,7 @@ ret_type_def
     ;
 
 param_def
-    : type_id=type_decl param_id=ID
+    : type_id=type_decl param_id=id
     | type_decl                     {notifyErrorListeners("Missing identifier in parameter definition");}
     //| ID                            {notifyErrorListeners("Missing type specification in parameter definition");}
     ;
@@ -191,7 +191,7 @@ type_decl
     : type_decl OPEN_ANGLE CLOSE_ANGLE                     #set_param_type
     | type_decl OPEN_BRACK CLOSE_BRACK                     #list_param_type
     | OPEN_BRACK type_decl ARROW type_decl CLOSE_BRACK     #map_param_type
-    | ID                                    #id_param_type
+    | id                                    #id_param_type
     ;
 
 param_def_list
@@ -200,10 +200,10 @@ param_def_list
         ;
 
 entity_type_def
-        : ENTITY_TYPE ID OPEN_BRACE component_def_list? CLOSE_BRACE ;
+        : ENTITY_TYPE id OPEN_BRACE component_def_list? CLOSE_BRACE ;
 
 item_type_def
-        : ITEM_TYPE ID OPEN_BRACE property_def_list? CLOSE_BRACE ;
+        : ITEM_TYPE id OPEN_BRACE property_def_list? CLOSE_BRACE ;
 
 // used to specify, which components should be used in a game object
 component_def_list
@@ -213,7 +213,7 @@ component_def_list
 
 aggregate_value_def
         : //type_id=ID
-        /*|*/ type_id=ID OPEN_BRACE property_def_list? CLOSE_BRACE
+        /*|*/ type_id=id OPEN_BRACE property_def_list? CLOSE_BRACE
         ;
 
 // TODO: maybe the problem here is, that object_def starts with an ID
@@ -250,7 +250,7 @@ property_def_list
         ;
 
 property_def
-        : ID COLON expression
+        : id COLON expression
         //| ID ':'                {notifyErrorListeners("Missing expression in property definition");}
         ;
 
@@ -277,7 +277,7 @@ set_definition
     | ID                        //#assignee_identifier
     ;*/
 
-primary : ID member_access_rhs?
+primary : id member_access_rhs?
         | STRING_LITERAL
         | TRUE
         | FALSE
@@ -290,6 +290,9 @@ primary : ID member_access_rhs?
         | list_definition
         ;
 
+// TODO: test this
+id : ID | TYPE_ID;
+
 /*
  * -------------------- dot related definitions --------------------
  * dot grammar: https://graphviz.org/doc/info/lang.html
@@ -298,7 +301,7 @@ primary : ID member_access_rhs?
  * definition language for task dependency graphs
  */
 
-dot_def : GRAPH ID OPEN_BRACE dot_stmt_list? CLOSE_BRACE ;
+dot_def : GRAPH id OPEN_BRACE dot_stmt_list? CLOSE_BRACE ;
 
 dot_stmt_list
         : dot_stmt SEMICOLON? dot_stmt_list?
@@ -314,8 +317,8 @@ dot_edge_stmt
         ;
 
 dot_node_list
-        : ID COMMA dot_node_list
-        | ID
+        : id COMMA dot_node_list
+        | id
         ;
 
 dot_edge_RHS
@@ -323,7 +326,7 @@ dot_edge_RHS
         ;
 
 dot_node_stmt
-        : ID dot_attr_list?
+        : id dot_attr_list?
         ;
 
 dot_attr_list
@@ -331,7 +334,7 @@ dot_attr_list
         ;
 
 dot_attr
-        : ID ASSIGN ID (SEMICOLON|COMMA)?                  #dot_attr_id
+        : id ASSIGN id (SEMICOLON|COMMA)?                  #dot_attr_id
         | TYPE ASSIGN dependency_type (SEMICOLON|COMMA)? #dot_attr_dependency_type
         ;
 
