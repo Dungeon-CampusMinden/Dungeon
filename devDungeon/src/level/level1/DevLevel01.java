@@ -1,7 +1,6 @@
 package level.level1;
 
 import components.TorchComponent;
-import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
@@ -23,7 +22,6 @@ import java.util.*;
 import level.DevDungeonLevel;
 import level.utils.ITickable;
 import level.utils.LevelUtils;
-import utils.ArrayUtils;
 
 /** The First Level (Torch Riddle) */
 public class DevLevel01 extends DevDungeonLevel implements ITickable {
@@ -73,7 +71,8 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
 
     // Spawn all entities and it's content
     this.spawnTorches();
-    this.spawnMobs(MOB_COUNT, MONSTER_TYPES);
+    EntityUtils.spawnMobs(
+        MOB_COUNT, MONSTER_TYPES, this.mobSpawns, MonsterType.CHORT, this.levelBossSpawn);
     this.spawnChestsAndCauldrons();
   }
 
@@ -123,52 +122,6 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     }
 
     this.riddleHandler.setRiddleSolution(torchNumbers);
-  }
-
-  // Other Entities
-
-  /**
-   * Spawns mobs in the game level. Selects mobCount - 1 random spawn points from mobSpawns array to
-   * spawn a RANDOM monsters. The last mob is always a CHORT. If the CHORT dies, it opens the exit
-   *
-   * @param mobCount the number of mobs to spawn
-   * @param monsterTypes all allowed monster types for this level
-   * @throws IllegalArgumentException if mobCount is greater than the length of mobSpawns
-   * @throws RuntimeException if any of the monsters could not be created
-   */
-  private void spawnMobs(int mobCount, MonsterType[] monsterTypes) {
-    if (mobCount > this.mobSpawns.length) {
-      throw new IllegalArgumentException("mobCount cannot be greater than mobSpawns.length");
-    }
-
-    List<Coordinate> randomSpawns = ArrayUtils.getRandomElements(this.mobSpawns, mobCount - 1);
-
-    for (Coordinate mobPos : randomSpawns) {
-      try {
-        MonsterType randomType = monsterTypes[RANDOM.nextInt(monsterTypes.length)];
-        EntityUtils.spawnMonster(randomType, mobPos);
-      } catch (RuntimeException e) {
-        throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
-      }
-    }
-
-    // Last Mob is stronger
-    try {
-      Entity chort = EntityUtils.spawnMonster(MonsterType.CHORT, this.levelBossSpawn);
-      if (chort == null) {
-        throw new RuntimeException();
-      }
-      chort
-          .fetch(HealthComponent.class)
-          .ifPresent(
-              hc ->
-                  hc.onDeath(
-                      (e) -> {
-                        ((ExitTile) endTile()).open(); // open exit when chort dies
-                      }));
-    } catch (RuntimeException e) {
-      throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
-    }
   }
 
   /**

@@ -1,18 +1,23 @@
 package entities;
 
+import contrib.components.HealthComponent;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.ILevel;
+import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.logging.Logger;
 import level.level1.DevLevel01;
+import utils.ArrayUtils;
 
 public class EntityUtils {
 
@@ -162,5 +167,67 @@ public class EntityUtils {
     Entity torch = TorchFactory.createTorch(torchPos, lit, isInteractable, onToggle, value);
     Game.add(torch);
     return torch;
+  }
+
+  /**
+   * This method is used to spawn a specified number of monsters in the game at random positions.
+   * The last monster to be spawned is always of type CHORT and is stronger than the others. When
+   * the CHORT monster dies, the exit of the current level is opened.
+   *
+   * @param mobCount The number of monsters to be spawned. This number cannot be greater than the
+   *     length of mobSpawns.
+   * @param monsterTypes An array of MonsterType that the monsters can be. A random type is chosen
+   *     for each monster.
+   * @param mobSpawns An array of Coordinates where the monsters can be spawned. Random coordinates
+   *     are chosen from this array.
+   * @param bossType The type of the level boss monster.
+   * @param levelBossSpawn The Coordinate where the CHORT monster (level boss) is to be spawned.
+   * @throws IllegalArgumentException if mobCount is greater than the length of mobSpawns.
+   * @throws RuntimeException if an error occurs while spawning a monster.
+   */
+  public static void spawnMobs(
+      int mobCount,
+      MonsterType[] monsterTypes,
+      Coordinate[] mobSpawns,
+      MonsterType bossType,
+      Coordinate levelBossSpawn) {
+    if (mobCount > mobSpawns.length) {
+      throw new IllegalArgumentException("mobCount cannot be greater than mobSpawns.length");
+    }
+
+    // Get a list of random spawn points from the mobSpawns array.
+    List<Coordinate> randomSpawns = ArrayUtils.getRandomElements(mobSpawns, mobCount - 1);
+
+    // Spawn the monsters at the random spawn points.
+    for (Coordinate mobPos : randomSpawns) {
+      try {
+        // Choose a random monster type from the monsterTypes array.
+        MonsterType randomType = monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
+        // Spawn the monster at the current spawn point.
+        EntityUtils.spawnMonster(randomType, mobPos);
+      } catch (RuntimeException e) {
+        throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
+      }
+    }
+
+    // Spawn the bossType monster (level boss) at the levelBossSpawn point.
+    try {
+      Entity chort = EntityUtils.spawnMonster(bossType, levelBossSpawn);
+      if (chort == null) {
+        throw new RuntimeException();
+      }
+      // When the CHORT monster dies, open the exit of the current level.
+      chort
+          .fetch(HealthComponent.class)
+          .ifPresent(
+              hc ->
+                  hc.onDeath(
+                      (e) -> {
+                        ((ExitTile) Game.currentLevel().endTile())
+                            .open(); // open exit when chort dies
+                      }));
+    } catch (RuntimeException e) {
+      throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
+    }
   }
 }
