@@ -36,6 +36,7 @@ public abstract class Tile {
   protected transient Array<Connection<Tile>> connections = new Array<>();
   protected int index;
   protected boolean visible = true;
+  protected int tintColor = -1;
 
   /**
    * Create a new Tile.
@@ -261,6 +262,25 @@ public abstract class Tile {
    */
   public boolean visible() {
     return visible;
+  }
+
+  /**
+   * Sets the tint color of the tile. This color is used to tint the tile's texture. Color can also
+   * be set to null to remove the tint.
+   *
+   * @param color The color to set. -1 for no tint.
+   */
+  public void tintColor(int color) {
+    tintColor = color;
+  }
+
+  /**
+   * Gets the tint color of the tile. This color is used to tint the tile's texture.
+   *
+   * @return The tint color of the tile. Null if no tint is set.
+   */
+  public int tintColor() {
+    return tintColor;
   }
 
   @DSLType(name = "tile_direction")

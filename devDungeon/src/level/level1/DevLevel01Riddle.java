@@ -81,6 +81,7 @@ public class DevLevel01Riddle {
 
   private void handleFirstTick() {
     Game.add(this.riddleSign);
+    level.tileAt(this.riddleCenter).tintColor(0x22FF22FF);
     try {
       updateRiddleSign(getSumOfLitTorches());
     } catch (UnsupportedOperationException e) {
@@ -147,6 +148,8 @@ public class DevLevel01Riddle {
                 e.fetch(TorchComponent.class).ifPresent(tc -> tc.lit(false));
                 e.fetch(DrawComponent.class).ifPresent(dc -> dc.currentAnimation("off"));
               });
+
+      level.tileAt(this.riddleCenter).tintColor(-1);
     }
   }
 

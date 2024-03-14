@@ -1,5 +1,6 @@
 package core.utils.components.draw;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import core.systems.CameraSystem;
@@ -58,6 +59,13 @@ public class Painter {
 
       // need to be called before drawing
       batch.begin();
+
+      // tint the sprite
+      if (config.tintColor() != -1) {
+        Color color = Color.CLEAR;
+        Color.rgba8888ToColor(Color.CLEAR, config.tintColor());
+        sprite.setColor(color);
+      }
       // draw sprite
       sprite.draw(batch);
       // need to be called after drawing

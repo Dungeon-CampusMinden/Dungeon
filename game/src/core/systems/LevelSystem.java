@@ -185,8 +185,10 @@ public final class LevelSystem extends System {
         Tile t = tiles[x];
         if (t.levelElement() != LevelElement.SKIP && !isTilePitAndOpen(t) && t.visible()) {
           IPath texturePath = t.texturePath();
-          if (!mapping.containsKey(texturePath)) {
-            mapping.put(texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET));
+          if (!mapping.containsKey(texturePath)
+              || (mapping.get(texturePath).tintColor() != t.tintColor())) {
+            mapping.put(
+                texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET, t.tintColor()));
           }
           painter.draw(t.position(), texturePath, mapping.get(texturePath));
         }
