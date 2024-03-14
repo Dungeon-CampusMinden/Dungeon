@@ -16,6 +16,7 @@ import core.utils.components.MissingComponentException;
 import entities.SignFactory;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import level.utils.LevelUtils;
 import utils.ArrayUtils;
 
@@ -39,6 +40,7 @@ public class DevLevel01Riddle {
   private final Coordinate riddleCenter;
   private int riddleSearchedSum;
   private boolean rewardGiven = false;
+  private boolean broken = false;
 
   public DevLevel01Riddle(List<Coordinate> customPoints, TileLevel level) {
     this.level = level;
@@ -54,21 +56,36 @@ public class DevLevel01Riddle {
             "",
             "Riddle",
             new Point(this.riddleDoor.x - 1 + 0.5f, this.riddleDoor.y - 1 + 0.5f),
-            (e1, e2) ->
-                updateRiddleSign(
-                    getSumOfLitTorches())); // Updates content based on random riddle values
+            (sign, hero) -> {
+              try {
+                // Updates content based on random riddle values
+                updateRiddleSign(getSumOfLitTorches());
+              } catch (UnsupportedOperationException e) {
+                sign.fetch(SignComponent.class)
+                    .ifPresent(
+                        sc -> {
+                          sc.text("The Riddle seems to be broken.");
+                        });
+              }
+            });
   }
 
   void onTick(boolean firstTick) {
     if (firstTick) {
       this.handleFirstTick();
     }
-    this.riddle();
+    if (!this.broken) {
+      this.riddle();
+    }
   }
 
   private void handleFirstTick() {
     Game.add(this.riddleSign);
-    updateRiddleSign(getSumOfLitTorches());
+    try {
+      updateRiddleSign(getSumOfLitTorches());
+    } catch (UnsupportedOperationException e) {
+      this.broken = true;
+    }
   }
 
   /**
@@ -78,11 +95,27 @@ public class DevLevel01Riddle {
   private void riddle() {
     int sum = getSumOfLitTorches();
 
+    this.testSum(sum);
+
     if (sum == this.riddleSearchedSum) {
       solveRiddle();
       if (!this.rewardGiven && checkIfHeroIsInCenter()) {
         giveReward();
       }
+    }
+  }
+
+  /**
+   * This method checks if the sum of the torches is within the expected range.
+   *
+   * @param sum The sum of the torches to be checked.
+   * @throws AssertionError if the sum is out of the expected range.
+   */
+  private void testSum(int sum) {
+    int lower = 0; // There are no negative torches
+    int upper = (UPPER_RIDDLE_BOUND * 6); // Maximum possible sum
+    if (sum < lower || sum > upper) {
+      throw new AssertionError("The sum of the torches is out of bounds: " + sum);
     }
   }
 
@@ -140,22 +173,6 @@ public class DevLevel01Riddle {
   }
 
   /**
-   * Calculates the sum of the values of all lit torches in the game.
-   *
-   * @return The sum of the values of all lit torches.
-   */
-  private int getSumOfLitTorches() {
-    return Game.entityStream()
-        .filter(e -> e.isPresent(TorchComponent.class) && e.fetch(TorchComponent.class).get().lit())
-        .map(
-            e ->
-                e.fetch(TorchComponent.class)
-                    .orElseThrow(() -> MissingComponentException.build(e, TorchComponent.class)))
-        .mapToInt(TorchComponent::value)
-        .sum();
-  }
-
-  /**
    * Updates the text of the riddle sign to display the current sum of the values of all lit
    * torches.
    *
@@ -194,5 +211,24 @@ public class DevLevel01Riddle {
    */
   void setRiddleSolution(List<Integer> torchNumbers) {
     this.riddleSearchedSum = getRandomSumOfNElements(torchNumbers);
+  }
+
+  /**
+   * Calculates the sum of the values of all lit torches in the game. This method is intended to be
+   * implemented using stream operations.
+   *
+   * <p>The implementation should follow these steps:<br>
+   * 1. Obtain a stream of all entities in the game. (See {@link Game})<br>
+   * 2. Filter the stream to include only entities that have a TorchComponent and whose torches are
+   * lit and maybe even a value greater than 0. (See {@link TorchComponent})<br>
+   * 3. Map the filtered entities to their values.<br>
+   * 4. Calculate the sum of these values. (E.g. via {@link IntStream})<br>
+   *
+   * <p>TODO: Implement the method using the described stream operations.
+   *
+   * @return The sum of the values of all lit torches in the game.
+   */
+  private int getSumOfLitTorches() {
+    throw new UnsupportedOperationException("Not implemented yet.");
   }
 }
