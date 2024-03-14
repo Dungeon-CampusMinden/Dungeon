@@ -6,28 +6,24 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.level.utils.DesignLabel;
-import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
-import core.level.utils.TileTextureFactory;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import core.utils.components.path.IPath;
 import java.util.*;
 
 public class FogOfWarSystem extends System {
-  public static final int VIEW_DISTANCE = 20;
+  public static final int VIEW_DISTANCE = 30;
   private static final int[][] mult = {
     {1, 0, 0, -1}, {0, 1, -1, 0}, {0, -1, -1, 0}, {-1, 0, 0, -1},
     {-1, 0, 0, 1}, {0, -1, 1, 0}, {0, 1, 1, 0}, {1, 0, 0, 1}
   };
-  private final Map<Tile, IPath> originalTextures = new HashMap<>();
+  private static final float TINT_COLOR_DISTANCE_SCALE = 1.5f;
+  private static final int BRIGHTEST_TINT_COLOR = 128;
   private final Set<Tile> darkenedTiles = new HashSet<>();
   private final List<Entity> hiddenEntities = new ArrayList<>();
   private Point lastHeroPos = new Point(0, 0);
 
   public void reset() {
-    originalTextures.clear();
     darkenedTiles.clear();
     hiddenEntities.clear();
     lastHeroPos = new Point(0, 0);
@@ -91,21 +87,30 @@ public class FogOfWarSystem extends System {
   }
 
   private void darkenTile(Tile tile) {
-    if (!originalTextures.containsKey(tile)) {
-      originalTextures.put(tile, tile.texturePath());
-    }
     if (!darkenedTiles.contains(tile)) {
-      IPath newTexture =
-          TileTextureFactory.findTexturePath(
-              new TileTextureFactory.LevelPart(
-                  LevelElement
-                      .SKIP, // TODO: Change Texture to a darkened version or add Variable at top
-                  DesignLabel.DARK,
-                  new LevelElement[][] {},
-                  tile.position().toCoordinate()));
-      tile.texturePath(newTexture);
+      int newTint = getTintColor(tile.coordinate().toPoint());
+      tile.tintColor(newTint);
       darkenedTiles.add(tile);
     }
+  }
+
+  /**
+   * Calculates the tint color for a tile based on its distance from the hero's position. The tint
+   * color is represented as an ARGB integer, where the alpha component is adjusted based on the
+   * distance. The closer the tile is to the hero, the more transparent (closer to white) it
+   * becomes. If the tile is beyond the view distance, it is fully opaque.
+   *
+   * @param tilePos The position of the tile for which to calculate the tint color.
+   * @return The calculated tint color as an ARGB integer.
+   */
+  private int getTintColor(Point tilePos) {
+    float distance = (float) lastHeroPos.distance(tilePos);
+    if (distance > VIEW_DISTANCE) {
+      return 0xffffff00;
+    }
+    float distanceFactor = distance * TINT_COLOR_DISTANCE_SCALE / VIEW_DISTANCE;
+    int alpha = (int) (BRIGHTEST_TINT_COLOR - (BRIGHTEST_TINT_COLOR * distanceFactor));
+    return 0xffffff00 | alpha;
   }
 
   private void revertTilesBackToLight(List<Tile> visibleTiles) {
@@ -114,8 +119,7 @@ public class FogOfWarSystem extends System {
       Tile darkenTile = iterator.next();
       // match non-current tile or tile that are far away
       if (visibleTiles.contains(darkenTile)) {
-        IPath originalTexture = originalTextures.get(darkenTile);
-        darkenTile.texturePath(originalTexture);
+        darkenTile.tintColor(-1);
         iterator.remove();
       }
     }
