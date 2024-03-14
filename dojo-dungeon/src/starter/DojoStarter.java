@@ -12,7 +12,6 @@ import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import contrib.systems.*;
 import core.Game;
-import core.System;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
@@ -25,17 +24,28 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/** The main class, which starts the dojo-dungeon game. */
 public class DojoStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
-  public static void main(String[] args) throws IOException {
-    Game.initBaseLogger();
-    configGame();
-    onSetup();
-    Game.run();
+  /**
+   * The main method, which starts the dojo-dungeon game.
+   *
+   * @param args the command line arguments, currently unused
+   */
+  public static void main(String[] args) {
+    try {
+      Game.initBaseLogger();
+      configGame();
+      onSetup();
+      Game.run();
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+      System.err.println("Exiting ...");
+    }
   }
 
-  private static void createLevel() {
+  private static void createLevel() throws IOException {
     // make the graph
     LevelGraph graph = new LevelGraph();
     // NOTE: The graph normally has a Set of all nodes in the graph. Normally
@@ -55,13 +65,9 @@ public class DojoStarter {
 
     RoomGenerator gen = new RoomGenerator();
 
-    try {
-      createRoom_1(gen, room1, room2);
-      createRoom_2(gen, room2, room3);
-      createRoom_3(gen, room3, room2);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    createRoom_1(gen, room1, room2);
+    createRoom_2(gen, room2, room3);
+    createRoom_3(gen, room3, room2);
 
     // remove trap doors, config doors
     configDoors(room1);
@@ -87,6 +93,12 @@ public class DojoStarter {
     RoomBasedLevelGenerator.configureDoors(node);
   }
 
+  /**
+   * Method to open doors between two levels.
+   *
+   * @param fromLevel players current level
+   * @param toLevel players next level
+   */
   public static void openDoors(LevelNode fromLevel, LevelNode toLevel) {
     if (fromLevel == null || toLevel == null) {
       return;
@@ -109,7 +121,11 @@ public class DojoStarter {
           setupMusic();
           Crafting.loadRecipes();
 
-          createLevel();
+          try {
+            createLevel();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
         });
   }
 
@@ -141,12 +157,14 @@ public class DojoStarter {
     Game.add(new IdleSoundSystem());
   }
 
+  /** Can be used to pause the game. */
   private static void pauseGame() {
-    Game.systems().values().forEach(System::stop);
+    Game.systems().values().forEach(core.System::stop);
   }
 
+  /** Can be used to unpause the game. */
   private static void unpauseGame() {
-    Game.systems().values().forEach(System::run);
+    Game.systems().values().forEach(core.System::run);
   }
 
   private static void createRoom_1(RoomGenerator gen, LevelNode room, LevelNode nextRoom)

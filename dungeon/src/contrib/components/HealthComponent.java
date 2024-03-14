@@ -66,10 +66,6 @@ public final class HealthComponent implements Component {
     this(1, onDeath -> {});
   }
 
-  public void onDeath(Consumer<Entity> onDeath) {
-    this.onDeath = onDeath;
-  }
-
   /**
    * Add damage, which is accounted for by the {@link HealthSystem}.
    *

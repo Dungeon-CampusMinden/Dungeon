@@ -69,6 +69,8 @@ public final class LevelNode {
    * @return true if the connection was successful, false if not.
    */
   public boolean connect(final LevelNode other) {
+    // This method should have public access modifier (like the other methods in this class) because
+    // it is used to connect own LevelNodes or graphs.
     List<Direction> freeDirections = possibleConnectDirections(other);
     if (!freeDirections.isEmpty()) {
       Collections.shuffle(freeDirections);
@@ -101,7 +103,8 @@ public final class LevelNode {
   }
 
   /**
-   * Retrieves the entity collection of this node.
+   * This method is useful (and necessary) for directly adding entities to the game when a level is
+   * loaded for the first time (lazy loading). Retrieves the entity collection of this node.
    *
    * @return The entity collection of this node.
    */
