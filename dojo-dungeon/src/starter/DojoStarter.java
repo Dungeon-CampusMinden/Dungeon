@@ -29,7 +29,7 @@ public class DojoStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
   /**
-   * The main method, which starts the dojo-dungeon game.
+   * Start a new dojo-dungeon game.
    *
    * @param args the command line arguments, currently unused
    */
@@ -46,12 +46,8 @@ public class DojoStarter {
   }
 
   private static void createLevel() throws IOException {
-    // make the graph
+    // create a customised level comprising three nodes (rooms)
     LevelGraph graph = new LevelGraph();
-    // NOTE: The graph normally has a Set of all nodes in the graph. Normally
-    // you would add a Node via LevelGraph.add(node), but this is for random
-    // graphs. tl;dr: The nodes list in the LevelGraph does not contain our
-    // Nodes
     LevelNode room1 = new LevelNode(graph);
     LevelNode room2 = new LevelNode(graph);
     LevelNode room3 = new LevelNode(graph);
@@ -59,12 +55,11 @@ public class DojoStarter {
     // connect the rooms
     room1.connect(room2, Direction.SOUTH);
     room2.connect(room1, Direction.NORTH);
-
     room2.connect(room3, Direction.SOUTH);
     room3.connect(room2, Direction.NORTH);
 
+    // create the rooms in custom level
     RoomGenerator gen = new RoomGenerator();
-
     createRoom_1(gen, room1, room2);
     createRoom_2(gen, room2, room3);
     createRoom_3(gen, room3, room2);
@@ -77,7 +72,6 @@ public class DojoStarter {
     // close the doors
     GeneratorUtils.doorAt(room1.level(), Direction.SOUTH).orElseThrow().close();
     GeneratorUtils.doorAt(room2.level(), Direction.NORTH).orElseThrow().close();
-
     GeneratorUtils.doorAt(room2.level(), Direction.SOUTH).orElseThrow().close();
     GeneratorUtils.doorAt(room3.level(), Direction.NORTH).orElseThrow().close();
 
@@ -173,7 +167,7 @@ public class DojoStarter {
     room.level(
         new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
 
-    // ...
+    // TODO
 
     // this will add the entities (in the node payload) to the game, at the moment the level get
     // loaded for the first time
@@ -186,7 +180,7 @@ public class DojoStarter {
     room.level(
         new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
 
-    // ...
+    // TODO
 
     // this will add the entities (in the node payload) to the game, at the moment the level get
     // loaded for the first time
@@ -199,7 +193,7 @@ public class DojoStarter {
     room.level(
         new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
 
-    // ...
+    // TODO
 
     // this will add the entities (in the node payload) to the game, at the moment the level get
     // loaded for the first time
