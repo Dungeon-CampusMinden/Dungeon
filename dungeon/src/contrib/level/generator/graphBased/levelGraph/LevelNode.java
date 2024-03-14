@@ -25,7 +25,7 @@ import java.util.*;
 public final class LevelNode {
 
   static final int MAX_NEIGHBOURS = Direction.values().length;
-  private Set<Entity> entities;
+  private final Set<Entity> entities;
   private final LevelNode[] neighbours = new LevelNode[MAX_NEIGHBOURS];
   private final LevelGraph originGraph;
   private ILevel level;
@@ -263,14 +263,5 @@ public final class LevelNode {
       }
     }
     return dirs;
-  }
-
-  /**
-   * Set the entities stored in this level.
-   *
-   * @param entities
-   */
-  public void entities(Set<Entity> entities) {
-    this.entities = entities;
   }
 }

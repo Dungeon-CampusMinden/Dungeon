@@ -48,9 +48,9 @@ public class DojoStarter {
   private static void createLevel() throws IOException {
     // create a customised level comprising three nodes (rooms)
     LevelGraph graph = new LevelGraph();
-    LevelNode room1 = new LevelNode(graph);
-    LevelNode room2 = new LevelNode(graph);
-    LevelNode room3 = new LevelNode(graph);
+    DojoRoom room1 = new DojoRoom(graph);
+    DojoRoom room2 = new DojoRoom(graph);
+    DojoRoom room3 = new DojoRoom(graph);
 
     // connect the rooms
     room1.connect(room2, Direction.SOUTH);
@@ -70,21 +70,21 @@ public class DojoStarter {
     configDoors(room3);
 
     // close the doors
-    GeneratorUtils.doorAt(room1.level(), Direction.SOUTH).orElseThrow().close();
-    GeneratorUtils.doorAt(room2.level(), Direction.NORTH).orElseThrow().close();
-    GeneratorUtils.doorAt(room2.level(), Direction.SOUTH).orElseThrow().close();
-    GeneratorUtils.doorAt(room3.level(), Direction.NORTH).orElseThrow().close();
+    GeneratorUtils.doorAt(room1.getLevelNode().level(), Direction.SOUTH).orElseThrow().close();
+    GeneratorUtils.doorAt(room2.getLevelNode().level(), Direction.NORTH).orElseThrow().close();
+    GeneratorUtils.doorAt(room2.getLevelNode().level(), Direction.SOUTH).orElseThrow().close();
+    GeneratorUtils.doorAt(room3.getLevelNode().level(), Direction.NORTH).orElseThrow().close();
 
     // set room1 as start level
-    Game.currentLevel(room1.level());
+    Game.currentLevel(room1.getLevelNode().level());
   }
 
-  private static void configDoors(LevelNode node) {
-    ILevel level = node.level();
+  private static void configDoors(DojoRoom node) {
+    ILevel level = node.getLevelNode().level();
     // remove trapdoor exit, in rooms we only use doors
     List<Tile> exits = new ArrayList<>(level.exitTiles());
     exits.forEach(exit -> level.changeTileElementType(exit, LevelElement.FLOOR));
-    RoomBasedLevelGenerator.configureDoors(node);
+    RoomBasedLevelGenerator.configureDoors(node.getLevelNode());
   }
 
   /**
@@ -161,42 +161,57 @@ public class DojoStarter {
     Game.systems().values().forEach(core.System::run);
   }
 
-  private static void createRoom_1(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
+  private static void createRoom_1(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
       throws IOException {
     // generate the room
-    room.level(
-        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
+    room.getLevelNode()
+        .level(
+            new TileLevel(
+                gen.layout(LevelSize.SMALL, room.getLevelNode().neighbours()),
+                DesignLabel.randomDesign()));
 
     // TODO
 
     // this will add the entities (in the node payload) to the game, at the moment the level get
     // loaded for the first time
-    room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
+    room.getLevelNode()
+        .level()
+        .onFirstLoad(() -> room.getLevelNode().entities().forEach(Game::add));
   }
 
-  private static void createRoom_2(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
+  private static void createRoom_2(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
       throws IOException {
     // generate the room
-    room.level(
-        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
+    room.getLevelNode()
+        .level(
+            new TileLevel(
+                gen.layout(LevelSize.SMALL, room.getLevelNode().neighbours()),
+                DesignLabel.randomDesign()));
 
     // TODO
 
     // this will add the entities (in the node payload) to the game, at the moment the level get
     // loaded for the first time
-    room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
+    room.getLevelNode()
+        .level()
+        .onFirstLoad(() -> room.getLevelNode().entities().forEach(Game::add));
   }
 
-  private static void createRoom_3(RoomGenerator gen, LevelNode room, LevelNode prevRoom)
+  private static void createRoom_3(RoomGenerator gen, DojoRoom room, DojoRoom prevRoom)
       throws IOException {
     // generate the room
-    room.level(
-        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
+    room.getLevelNode()
+        .level(
+            new TileLevel(
+                gen.layout(LevelSize.SMALL, room.getLevelNode().neighbours()),
+                DesignLabel.randomDesign()));
 
     // TODO
 
     // this will add the entities (in the node payload) to the game, at the moment the level get
     // loaded for the first time
-    room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
+    room.getLevelNode()
+        .level()
+        .onFirstLoad(() -> room.getLevelNode().entities().forEach(Game::add));
   }
 }
