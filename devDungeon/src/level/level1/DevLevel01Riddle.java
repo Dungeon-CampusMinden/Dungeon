@@ -44,10 +44,10 @@ public class DevLevel01Riddle {
 
   public DevLevel01Riddle(List<Coordinate> customPoints, TileLevel level) {
     this.level = level;
-    this.riddleRoomBounds =
-        new Coordinate[] {customPoints.get(1), customPoints.get(2)}; // TopLeft, BottomRight
     // First point is the riddle door
     this.riddleDoor = customPoints.getFirst();
+    this.riddleRoomBounds =
+        new Coordinate[] {customPoints.get(1), customPoints.get(2)}; // TopLeft, BottomRight
     // Next one is the center of the torch circle
     this.riddleCenter = customPoints.get(17);
 
