@@ -241,9 +241,9 @@ object_def
         ;
 
 property_def_list
-        //: property_def (',' property_def)*
-        : property_def ',' property_def_list
-        | property_def
+        : property_def (',' property_def)*
+        //: property_def ',' property_def_list
+        //| property_def
         ;
 
 property_def

@@ -742,8 +742,18 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLListener {
 
   @Override
   public void exitProperty_def_list(DungeonDSLParser.Property_def_listContext ctx) {
-    // TODO: add tests for this
-    if (ctx.property_def_list() == null) {
+    int listSize = ctx.property_def().size();
+    var list = new ArrayList<>(Collections.nCopies(listSize, Node.NONE));
+    for (int i = 0; i < listSize; i++) {
+      // reverse order
+      var propertyDef = astStack.pop();
+      list.set(listSize - i - 1, propertyDef);
+    }
+    var propertyDefList = new Node(Node.Type.PropertyDefinitionList, list);
+    astStack.push(propertyDefList);
+
+    // TODO: cleanup
+    /*if (ctx.property_def_list() == null) {
       // trivial property definition
       var innerPropertyDef = astStack.pop();
       assert (innerPropertyDef.type == Node.Type.PropertyDefinition);
@@ -767,7 +777,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLListener {
 
       var propertyDefList = new Node(Node.Type.PropertyDefinitionList, childList);
       astStack.push(propertyDefList);
-    }
+    }*/
   }
 
   @Override

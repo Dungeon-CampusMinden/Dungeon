@@ -1,8 +1,8 @@
 package dsl.helpers;
 
-import antlr.main.DungeonDSLLexer;
-import antlr.main.DungeonDSLParser;
 import core.Entity;
+import dsl.antlr.DungeonDSLLexer;
+import dsl.antlr.DungeonDSLParser;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.Node;

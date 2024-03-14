@@ -154,7 +154,7 @@ public class TestDungeonASTConverter {
     String program =
         """
             entity_type test_object {
-                this_is_a_component
+                this_is_a_component {}
                 }
             """;
     var ast = Helpers.getASTFromString(program);
