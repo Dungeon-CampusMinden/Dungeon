@@ -11,18 +11,11 @@ import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
-import java.io.*;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Room_1_2_Generator extends TaskRoomGenerator {
 
@@ -41,28 +34,44 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
 
     // Create tasks
     String fileName = "../dungeon/assets/dojo/FehlerhafteKlasse.java";
+    String fileName2 = "../dungeon/assets/dojo/FehlerhafteKlasse2.java";
     String className = "FehlerhafteKlasse";
     String text =
         "Die Datei "
             + fileName
             + " enthält 4 Fehler (Syntax und Semantik). Öffne sie, korrigiere die Fehler, speichere die Datei und laufe dann zur Truhe. :)";
+    String text2 =
+        "Öffne/Kopiere die Datei, korrigiere die Fehler und speichere die Datei unter: "
+            + fileName2;
+    String text3 = "Laufe dann zur Truhe und lasse die Datei überprüfen.";
+    Consumer<Task> openDialog1 =
+        (t) -> {
+          OkDialogUtil.showOkDialog(text, "Aufgabe 1:");
+          OkDialogUtil.showOkDialog(text2, "Aufgabe 1:");
+          OkDialogUtil.showOkDialog(text3, "Aufgabe 1:");
+        };
+    Consumer<Task> openDialog2 =
+        (t) -> {
+          OkDialogUtil.showOkDialog(
+              "Arrr, Sie kenne ich schon. Hier noch mal die Aufgabe.", "Aufgabe 1:");
+          openDialog1.accept(t);
+        };
+    Function<Task, Boolean> openDialog3 =
+        (t) -> {
+          DojoCompiler.TestResult results = new DojoCompiler(fileName2, className).test1();
+          if (results.passed()) {
+            OkDialogUtil.showOkDialog("Danke ... gelöst: " + results.messages(), "Lösung 1:");
+            return true;
+          }
+          OkDialogUtil.showOkDialog("Fehler: " + results.messages(), "Lösung 1:");
+          return false;
+        };
+    Consumer<Task> openDialog4 =
+        (t) -> {
+          OkDialogUtil.showOkDialog("Gehe zuerst zum Questioner für Aufgabe 1.", "Lösung 1:");
+        };
 
-    addTask(
-        new Task(
-            this,
-            (t) ->
-                OkDialogUtil.showOkDialog(
-                    "Arr, Sie kenne ich schon. Hier noch mal die Aufgabe. " + text, "Aufgabe 1:"),
-            (t) -> OkDialogUtil.showOkDialog(text, "Aufgabe 1:"),
-            (t) -> {
-              List<String> results = compileAndRun(fileName, className);
-              OkDialogUtil.showOkDialog(
-                  "Ergebnisse:\n\n" + String.join("\n", results), "Lösung 1:");
-              return results.getFirst().equals("ok");
-            },
-            (t) ->
-                OkDialogUtil.showOkDialog(
-                    "Gehe zuerst zum Questioner für Aufgabe 1.", "Lösung 1:")));
+    addTask(new Task(this, openDialog2, openDialog1, openDialog3, openDialog4));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
@@ -103,48 +112,5 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
     roomEntities.add(solver);
 
     addRoomEntities(roomEntities);
-  }
-
-  private List<String> compileAndRun(String fileName, String className) {
-    try {
-      Method method = compile(fileName, className);
-      ByteArrayOutputStream buf = new ByteArrayOutputStream();
-      method.invoke(null, new String[] {}, new PrintWriter(buf));
-      String actualOutput = buf.toString(Charset.defaultCharset());
-      assert actualOutput.equals(
-          """
-            Die Summe ist: 7
-            Die dritte Zahl ist: 7
-            """);
-    } catch (Exception e) {
-      // e.printStackTrace();
-      return List.of(e.getMessage());
-    }
-    return List.of("ok");
-  }
-
-  private Method compile(String fileName, String className) throws Exception {
-    // Prepare source somehow.
-    String source = Files.readString(Paths.get(fileName));
-    //    try (InputStream is = this.getClass().getResourceAsStream(fileName)) {
-    //      assert is != null;
-    //      source = new String(is.readAllBytes(), Charset.defaultCharset());
-    //    }
-
-    // Regex replacement ...
-    // source = source.replace("\"7\"", "\"777777777777777777777\"");
-
-    // Save source in .java file.
-    File root = Files.createTempDirectory("java").toFile();
-    File sourceFile = new File(root, className + ".java");
-    assert sourceFile.getParentFile().mkdirs();
-    Files.writeString(sourceFile.toPath(), source);
-    // Compile source file.
-    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    compiler.run(null, null, null, sourceFile.getPath());
-    // Load and instantiate compiled class.
-    URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] {root.toURI().toURL()});
-    Class<?> cls = Class.forName(className, true, classLoader);
-    return cls.getDeclaredMethod("main", String[].class, PrintWriter.class);
   }
 }
