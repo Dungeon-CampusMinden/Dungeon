@@ -72,8 +72,8 @@ public final class LevelNode {
     List<Direction> freeDirections = possibleConnectDirections(other);
     if (!freeDirections.isEmpty()) {
       Collections.shuffle(freeDirections);
-      if (other.connect(this, Direction.opposite(freeDirections.get(0))))
-        return connect(other, freeDirections.get(0));
+      if (other.connect(this, Direction.opposite(freeDirections.getFirst())))
+        return connect(other, freeDirections.getFirst());
     }
     return false;
   }
