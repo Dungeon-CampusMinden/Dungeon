@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** The main class, which starts the dojo-dungeon game. */
+/** Starter for the dojo-dungeon game. */
 public class DojoStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
@@ -151,12 +151,10 @@ public class DojoStarter {
     Game.add(new IdleSoundSystem());
   }
 
-  /** Can be used to pause the game. */
   private static void pauseGame() {
     Game.systems().values().forEach(core.System::stop);
   }
 
-  /** Can be used to unpause the game. */
   private static void unpauseGame() {
     Game.systems().values().forEach(core.System::run);
   }
