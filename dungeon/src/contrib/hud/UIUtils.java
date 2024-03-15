@@ -9,7 +9,6 @@ import core.Entity;
 import core.Game;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.Arrays;
 import java.util.function.Supplier;
 
 /** UI utility functions, such as a formatter for the window or dialog. */
@@ -70,80 +69,63 @@ public final class UIUtils {
    * @param string String which should be reformatted.
    */
   public static String formatString(final String string) {
-    return formatString(string, true);
+    return formatText(string, MAX_ROW_LENGTH, true);
   }
 
   public static String formatString(String string, boolean wrap) {
-    return formatString(string, wrap, 1.25);
+    return formatText(string, MAX_ROW_LENGTH, wrap);
   }
 
-  public static String formatString(String string, boolean wrap, double greyZoneFactor) {
+  public static String formatText(String text, final int maxLen, final boolean wordWrap) {
+    if (text == null || text.isEmpty()) {
+      throw new IllegalArgumentException("text is null or empty");
+    }
     final StringBuilder result = new StringBuilder();
     final char ls = '\n';
-    final int lsLen = 1;
-
-    if (wrap) {
-      int maxLen2 = (int) (MAX_ROW_LENGTH * greyZoneFactor);
-      int maxLen3 = MAX_ROW_LENGTH;
-
-      String text = string.replaceAll("\\s+", " ");
-      String[] words = text.split(" ");
-      System.out.println(Arrays.toString(words));
-      for (int wordsIndex = 0, lineLength = 0; wordsIndex < words.length; ) {
-        if (words[wordsIndex].length() > maxLen2) {
-          // This word would be significantly longer than allowed.
-          while (words[wordsIndex].length() > maxLen2) {
-            String newWord = words[wordsIndex].substring(0, maxLen2);
-            String newWord2 = words[wordsIndex].substring(maxLen2);
-            result.append(newWord).append(ls);
-            words[wordsIndex] = newWord2;
-          }
-          continue;
-        }
-        while (lineLength < maxLen2) {
-          if (lineLength + words[wordsIndex].length() <= maxLen2) {
-            lineLength += lineLength + words[wordsIndex].length();
-            if (lineLength + words[wordsIndex].length() + lsLen < maxLen2) {
-              result.append(words[wordsIndex]).append(" ");
-              lineLength += lsLen;
-            } else {
-              result.append(words[wordsIndex]);
-            }
-            wordsIndex++;
-            if (wordsIndex >= words.length) {
-              break;
-            }
-          } else {
-            // This line would be significantly longer than allowed.
-            break;
-          }
-        }
-        while (lineLength < maxLen2) {
-          result.append(" ");
-          lineLength++;
-        }
-        result.append(ls);
-        lineLength = 0;
-      }
-      result.delete(result.length() - lsLen, result.length());
-      return result.toString();
+    text = text.replaceAll("\\s+", " ");
+    String[] words = text.split(" ");
+    if (maxLen < 1) {
+      throw new IllegalArgumentException("max length < 1");
     }
 
-    int maxLen2 = (int) (MAX_ROW_LENGTH * greyZoneFactor);
-    for (int i = 0; i < string.length(); i++) {
-      int j = 0;
-      for (; j < maxLen2 && i + j < string.length(); j++) {
-        result.append(string.charAt(i + j));
+    int wordIndex = 0;
+    int lineIndex = 0;
+    while (wordIndex < words.length) {
+      String word = words[wordIndex++];
+      final int before = result.length();
+      if (lineIndex + word.length() <= maxLen) {
+        // word will fit
+        result.append(word);
+      } else if (!wordWrap && word.length() <= maxLen) {
+        // do not split word
+        --wordIndex;
+        int len = maxLen - lineIndex;
+        result.append(" ".repeat(len));
+      } else {
+        // split word (even if wordWrap == true)
+        int splitIndex = maxLen - lineIndex;
+        String newWord1 = word.substring(0, splitIndex);
+        String newWord2 = word.substring(splitIndex);
+        result.append(newWord1);
+        --wordIndex;
+        words[wordIndex] = newWord2;
       }
-      for (; j < maxLen2; j++) {
+      lineIndex += result.length() - before;
+      if (lineIndex < maxLen) {
         result.append(' ');
+        ++lineIndex;
       }
-      result.append(ls);
-      i += j - 1;
+      if (lineIndex >= maxLen) {
+        result.append(ls);
+        lineIndex = 0;
+      }
     }
-    if (!result.isEmpty()) {
-      result.delete(result.length() - lsLen, result.length());
+    if (result.isEmpty()) {
+      result.append(" ".repeat(maxLen - lineIndex));
+    } else {
+      result.deleteCharAt(result.length() - 1);
     }
+
     return result.toString();
   }
 }
