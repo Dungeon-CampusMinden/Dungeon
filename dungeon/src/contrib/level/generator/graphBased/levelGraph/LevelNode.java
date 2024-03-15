@@ -22,10 +22,16 @@ import java.util.*;
  * neighboring nodes, and the index in the array indicates the {@link Direction} through which the
  * nodes are connected.
  */
-public final class LevelNode {
+public class LevelNode {
 
   static final int MAX_NEIGHBOURS = Direction.values().length;
-  private final Set<Entity> entities;
+
+  /**
+   * A collection of entities stored in this node. Intended to be used to add new entities after
+   * initialization of the {@link LevelNode} class.
+   */
+  protected final Set<Entity> entities;
+
   private final LevelNode[] neighbours = new LevelNode[MAX_NEIGHBOURS];
   private final LevelGraph originGraph;
   private ILevel level;

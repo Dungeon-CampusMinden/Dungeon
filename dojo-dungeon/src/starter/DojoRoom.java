@@ -6,7 +6,6 @@ import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
 import core.level.elements.tile.DoorTile;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -14,9 +13,7 @@ import java.util.Set;
  *
  * <p>This class is useful to build a level graph and to add later entities to it.
  */
-public class DojoRoom {
-  private final Set<Entity> entities = new HashSet<>();
-  private final LevelNode root;
+public class DojoRoom extends LevelNode {
   private DojoRoom nextRoom;
 
   /**
@@ -26,7 +23,7 @@ public class DojoRoom {
    *     differentiate nodes in connected graphs.
    */
   public DojoRoom(final LevelGraph originGraph) {
-    root = new LevelNode(entities, originGraph);
+    super(originGraph);
   }
 
   /**
@@ -48,15 +45,6 @@ public class DojoRoom {
   }
 
   /**
-   * Get the containing level node.
-   *
-   * @return the containing level node
-   */
-  public LevelNode getLevelNode() {
-    return root;
-  }
-
-  /**
    * Adds a neighbor in the given direction.
    *
    * <p>If the origin graph of the given node is not the same graph as the origin graph of this
@@ -71,7 +59,7 @@ public class DojoRoom {
    *     perspective (in the neighbor's context, this corresponds to the opposite direction).
    */
   public void connect(final DojoRoom other, final Direction direction) {
-    root.connect(other.root, direction);
+    super.connect(other, direction);
   }
 
   /**
@@ -89,11 +77,9 @@ public class DojoRoom {
     if (nextRoom == null) {
       return;
     }
-    DoorTile door12 =
-        GeneratorUtils.doorAt(this.getLevelNode().level(), Direction.SOUTH).orElseThrow();
+    DoorTile door12 = GeneratorUtils.doorAt(this.level(), Direction.SOUTH).orElseThrow();
     door12.open();
-    DoorTile door21 =
-        GeneratorUtils.doorAt(nextRoom.getLevelNode().level(), Direction.NORTH).orElseThrow();
+    DoorTile door21 = GeneratorUtils.doorAt(nextRoom.level(), Direction.NORTH).orElseThrow();
     door21.open();
   }
 
@@ -102,7 +88,7 @@ public class DojoRoom {
     if (nextRoom == null) {
       return;
     }
-    GeneratorUtils.doorAt(this.getLevelNode().level(), Direction.SOUTH).orElseThrow().close();
-    GeneratorUtils.doorAt(nextRoom.getLevelNode().level(), Direction.NORTH).orElseThrow().close();
+    GeneratorUtils.doorAt(this.level(), Direction.SOUTH).orElseThrow().close();
+    GeneratorUtils.doorAt(nextRoom.level(), Direction.NORTH).orElseThrow().close();
   }
 }
