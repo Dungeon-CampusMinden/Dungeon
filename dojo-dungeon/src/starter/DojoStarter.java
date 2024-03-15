@@ -4,18 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
-import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
-import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import contrib.systems.*;
 import core.Game;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
-import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
@@ -58,11 +55,15 @@ public class DojoStarter {
     room2.connect(room3, Direction.SOUTH);
     room3.connect(room2, Direction.NORTH);
 
+    // link the rooms
+    room1.setNextRoom(room2);
+    room2.setNextRoom(room3);
+
     // create the rooms in custom level
     RoomGenerator gen = new RoomGenerator();
-    createRoom_1(gen, room1, room2);
-    createRoom_2(gen, room2, room3);
-    createRoom_3(gen, room3, room2);
+    createRoom_1(gen, room1);
+    createRoom_2(gen, room2);
+    createRoom_3(gen, room3);
 
     // remove trap doors, config doors
     configDoors(room1);
@@ -70,10 +71,8 @@ public class DojoStarter {
     configDoors(room3);
 
     // close the doors
-    GeneratorUtils.doorAt(room1.getLevelNode().level(), Direction.SOUTH).orElseThrow().close();
-    GeneratorUtils.doorAt(room2.getLevelNode().level(), Direction.NORTH).orElseThrow().close();
-    GeneratorUtils.doorAt(room2.getLevelNode().level(), Direction.SOUTH).orElseThrow().close();
-    GeneratorUtils.doorAt(room3.getLevelNode().level(), Direction.NORTH).orElseThrow().close();
+    room1.closeDoors();
+    room2.closeDoors();
 
     // set room1 as start level
     Game.currentLevel(room1.getLevelNode().level());
@@ -85,22 +84,6 @@ public class DojoStarter {
     List<Tile> exits = new ArrayList<>(level.exitTiles());
     exits.forEach(exit -> level.changeTileElementType(exit, LevelElement.FLOOR));
     RoomBasedLevelGenerator.configureDoors(node.getLevelNode());
-  }
-
-  /**
-   * Method to open doors between two levels.
-   *
-   * @param fromLevel players current level
-   * @param toLevel players next level
-   */
-  public static void openDoors(LevelNode fromLevel, LevelNode toLevel) {
-    if (fromLevel == null || toLevel == null) {
-      return;
-    }
-    DoorTile door12 = GeneratorUtils.doorAt(fromLevel.level(), Direction.SOUTH).orElseThrow();
-    door12.open();
-    DoorTile door21 = GeneratorUtils.doorAt(toLevel.level(), Direction.NORTH).orElseThrow();
-    door21.open();
   }
 
   private static void onSetup() {
@@ -151,16 +134,17 @@ public class DojoStarter {
     Game.add(new IdleSoundSystem());
   }
 
-  private static void pauseGame() {
+  /** Pause the game. Perhaps for use in dialogs later. */
+  public static void pauseGame() {
     Game.systems().values().forEach(core.System::stop);
   }
 
-  private static void unpauseGame() {
+  /** Continue the game. Perhaps for use in dialogs later. */
+  public static void unpauseGame() {
     Game.systems().values().forEach(core.System::run);
   }
 
-  private static void createRoom_1(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
-      throws IOException {
+  private static void createRoom_1(RoomGenerator gen, DojoRoom room) throws IOException {
     // generate the room
     room.getLevelNode()
         .level(
@@ -177,8 +161,7 @@ public class DojoStarter {
         .onFirstLoad(() -> room.getLevelNode().entities().forEach(Game::add));
   }
 
-  private static void createRoom_2(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
-      throws IOException {
+  private static void createRoom_2(RoomGenerator gen, DojoRoom room) throws IOException {
     // generate the room
     room.getLevelNode()
         .level(
@@ -195,8 +178,7 @@ public class DojoStarter {
         .onFirstLoad(() -> room.getLevelNode().entities().forEach(Game::add));
   }
 
-  private static void createRoom_3(RoomGenerator gen, DojoRoom room, DojoRoom prevRoom)
-      throws IOException {
+  private static void createRoom_3(RoomGenerator gen, DojoRoom room) throws IOException {
     // generate the room
     room.getLevelNode()
         .level(

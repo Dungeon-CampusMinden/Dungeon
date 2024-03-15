@@ -1,9 +1,11 @@
 package starter;
 
+import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
+import core.level.elements.tile.DoorTile;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,6 +17,7 @@ import java.util.Set;
 public class DojoRoom {
   private final Set<Entity> entities = new HashSet<>();
   private final LevelNode root;
+  private DojoRoom nextRoom;
 
   /**
    * Creates a new room and initializes its container with an empty collection as payload.
@@ -69,5 +72,37 @@ public class DojoRoom {
    */
   public void connect(final DojoRoom other, final Direction direction) {
     root.connect(other.root, direction);
+  }
+
+  /**
+   * Sets the next room. The next room can be {@code null} in case there is no next room. The next
+   * room is mainly used to close or open the doors within the rooms.
+   *
+   * @param nextRoom the next room to set
+   */
+  public void setNextRoom(DojoRoom nextRoom) {
+    this.nextRoom = nextRoom;
+  }
+
+  /** Method to open doors between this room and next room. */
+  public void openDoors() {
+    if (nextRoom == null) {
+      return;
+    }
+    DoorTile door12 =
+        GeneratorUtils.doorAt(this.getLevelNode().level(), Direction.SOUTH).orElseThrow();
+    door12.open();
+    DoorTile door21 =
+        GeneratorUtils.doorAt(nextRoom.getLevelNode().level(), Direction.NORTH).orElseThrow();
+    door21.open();
+  }
+
+  /** Method to close doors between this room and next room. */
+  public void closeDoors() {
+    if (nextRoom == null) {
+      return;
+    }
+    GeneratorUtils.doorAt(this.getLevelNode().level(), Direction.SOUTH).orElseThrow().close();
+    GeneratorUtils.doorAt(nextRoom.getLevelNode().level(), Direction.NORTH).orElseThrow().close();
   }
 }
