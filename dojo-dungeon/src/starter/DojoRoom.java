@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A room of the dojo-dungeon game. This class holds one level node and its entities.
+ * This class holds one level node and its entities.
  *
  * <p>This class is useful to build a level graph and to add later entities to it.
  */
