@@ -37,13 +37,11 @@ tasks.withType(JavaCompile).configureEach {
 // generate ANTLR visitor and listener classes from grammar
 generateGrammarSource {
     maxHeapSize = '64m'
+    arguments += ['-o', '$buildDir/generated-src/antlr/main/']
     arguments += ['-visitor', '-listener', '-Xlog']
     arguments += [ '-package', 'dsl.antlr']
     //arguments += ['-o', '$buildDir/generated-src/antlr/main/dsl/antlr']
     //arguments += ['-o', '$buildDir/generated-src/antlr/main']
-    //arguments += ['-o', '${layout.buildDirectory}/generated-src/antlr/main/dsl/antlr']
-
-    //outputDirectory = '${layout.buildDirectory}/generated-src/antlr/main/dsl/antlr'
 }
 
 
