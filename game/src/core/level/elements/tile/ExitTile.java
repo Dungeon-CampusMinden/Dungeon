@@ -14,6 +14,7 @@ import core.utils.components.path.IPath;
  */
 public class ExitTile extends Tile {
 
+  private static final int DEFAULT_CLOSE_TINT = 0xFF000066;
   private boolean open;
 
   /**
@@ -26,7 +27,6 @@ public class ExitTile extends Tile {
   public ExitTile(
       final IPath texturePath, final Coordinate globalPosition, final DesignLabel designLabel) {
     super(texturePath, globalPosition, designLabel);
-    String[] splitPath = texturePath.pathString().split("\\.");
 
     levelElement = LevelElement.EXIT;
     open = true;
@@ -38,6 +38,7 @@ public class ExitTile extends Tile {
    * <p>The player can now exit the level.
    */
   public void open() {
+    this.tintColor(-1); // reset tint
     open = true;
   }
 
@@ -47,6 +48,7 @@ public class ExitTile extends Tile {
    * <p>The player can no longer exit the level.
    */
   public void close() {
+    this.tintColor(DEFAULT_CLOSE_TINT);
     open = false;
   }
 
