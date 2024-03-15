@@ -3,6 +3,7 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
+import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
@@ -18,6 +19,8 @@ import core.utils.components.path.SimpleIPath;
 import entities.DevHeroFactory;
 import entities.EntityUtils;
 import entities.MonsterType;
+import item.EffectScheduler;
+import item.concreteItem.ItemPotionRegenerationPotion;
 import java.io.IOException;
 import level.utils.DungeonLoader;
 import systems.*;
@@ -27,11 +30,12 @@ public class DevDungeon {
 
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
-  private static final boolean SKIP_TUTORIAL = false;
+  private static final boolean SKIP_TUTORIAL = true;
 
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger();
     Debugger debugger = new Debugger();
+    EffectScheduler effectScheduler = EffectScheduler.getInstance();
     configGame();
     onSetup();
 
@@ -43,17 +47,22 @@ public class DevDungeon {
                 (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
             fogOfWarSystem.reset();
           }
+          effectScheduler.clear(); // Clear all scheduled actions
         });
 
-    onFrame(debugger);
+    onFrame(debugger, effectScheduler);
 
     // build and start game
     Game.run();
     Game.windowTitle("Dev Dungeon");
   }
 
-  private static void onFrame(Debugger debugger) {
-    Game.userOnFrame(debugger::execute);
+  private static void onFrame(Debugger debugger, EffectScheduler effectScheduler) {
+    Game.userOnFrame(
+        () -> {
+          debugger.execute();
+          effectScheduler.update();
+        });
   }
 
   private static void onSetup() {
@@ -71,7 +80,7 @@ public class DevDungeon {
           setupMusic();
           Crafting.loadRecipes();
           if (SKIP_TUTORIAL) {
-            DungeonLoader.loadNextLevel(); // First Level start at 1
+            DungeonLoader.loadLevel(2, 0); // First Level start at 1
           } else {
             DungeonLoader.loadLevel(0); // Tutorial at 0
           }
@@ -130,6 +139,12 @@ public class DevDungeon {
               EntityUtils.spawnMonster(MonsterType.ZOMBIE, mosPos);
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_3)) {
               EntityUtils.spawnSign("Hello World", "Schild", mosPos);
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_4)) {
+              Game.hero()
+                  .orElseThrow()
+                  .fetch(InventoryComponent.class)
+                  .orElseThrow()
+                  .add(new ItemPotionRegenerationPotion());
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
               Tile tile = LevelSystem.level().tileAt(mosPos);
               if (tile != null) {
