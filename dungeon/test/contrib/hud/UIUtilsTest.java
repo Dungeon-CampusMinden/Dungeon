@@ -68,7 +68,7 @@ public class UIUtilsTest {
     String emptyText = "";
     String emptyTextExpected = "";
     String longText = "hallo";
-    String longTextExpected = "hallo                                             ";
+    String longTextExpected = "hallo" + " ".repeat((int) (40 * 1.25) - "hallo".length());
 
     assertEquals(emptyTextExpected, UIUtils.formatString(emptyText, false));
     assertEquals(longTextExpected, UIUtils.formatString(longText, false));
@@ -78,10 +78,32 @@ public class UIUtilsTest {
   public void formatString_3() {
     assertEquals("", UIUtils.formatString("", false, 1.0));
 
-    for (int i = 1; i <= 40; i++) {
+    int max = 40;
+    for (int i = 1; i <= max; i++) {
       String text = "a".repeat(i);
-      String textExpected = "a".repeat(i) + " ".repeat(40 - i);
+      String textExpected = "a".repeat(i) + " ".repeat(max - i);
       assertEquals(textExpected, UIUtils.formatString(text, false, 1.0));
+    }
+
+    max = (int) (40 * 0.2);
+    for (int i = 1; i <= max; i++) {
+      String text = "a".repeat(i);
+      String textExpected = "a".repeat(i) + " ".repeat(max - i);
+      assertEquals(textExpected, UIUtils.formatString(text, false, 0.2));
+    }
+
+    max = 40;
+    for (int i = 1; i <= max; i++) {
+      String text = "a".repeat(i);
+      String textExpected = "a".repeat(i) + " ".repeat(max - i);
+      assertEquals(textExpected, UIUtils.formatString(text, true, 1.0));
+    }
+
+    max = (int) (40 * 0.2);
+    for (int i = 1; i <= max; i++) {
+      String text = "a".repeat(i);
+      String textExpected = "a".repeat(i) + " ".repeat(max - i);
+      assertEquals(textExpected, UIUtils.formatString(text, true, 0.2));
     }
 
     StringBuilder text = new StringBuilder();

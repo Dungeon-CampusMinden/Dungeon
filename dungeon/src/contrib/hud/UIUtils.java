@@ -9,6 +9,7 @@ import core.Entity;
 import core.Game;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 /** UI utility functions, such as a formatter for the window or dialog. */
@@ -80,11 +81,14 @@ public final class UIUtils {
     final StringBuilder result = new StringBuilder();
     final char ls = '\n';
     final int lsLen = 1;
-    final int maxLen2 = (int) (MAX_ROW_LENGTH * greyZoneFactor);
 
     if (wrap) {
+      int maxLen2 = (int) (MAX_ROW_LENGTH * greyZoneFactor);
+      int maxLen3 = MAX_ROW_LENGTH;
+
       String text = string.replaceAll("\\s+", " ");
       String[] words = text.split(" ");
+      System.out.println(Arrays.toString(words));
       for (int wordsIndex = 0, lineLength = 0; wordsIndex < words.length; ) {
         if (words[wordsIndex].length() > maxLen2) {
           // This word would be significantly longer than allowed.
@@ -96,16 +100,21 @@ public final class UIUtils {
           }
           continue;
         }
-        while (lineLength < MAX_ROW_LENGTH) {
-          int toAdd = words[wordsIndex].length() + lsLen;
-          if (lineLength + toAdd > maxLen2) {
+        while (lineLength < maxLen2) {
+          if (lineLength + words[wordsIndex].length() <= maxLen2) {
+            lineLength += lineLength + words[wordsIndex].length();
+            if (lineLength + words[wordsIndex].length() + lsLen < maxLen2) {
+              result.append(words[wordsIndex]).append(" ");
+              lineLength += lsLen;
+            } else {
+              result.append(words[wordsIndex]);
+            }
+            wordsIndex++;
+            if (wordsIndex >= words.length) {
+              break;
+            }
+          } else {
             // This line would be significantly longer than allowed.
-            break;
-          }
-          result.append(words[wordsIndex]).append(" ");
-          lineLength += toAdd;
-          wordsIndex++;
-          if (wordsIndex >= words.length) {
             break;
           }
         }
@@ -120,6 +129,7 @@ public final class UIUtils {
       return result.toString();
     }
 
+    int maxLen2 = (int) (MAX_ROW_LENGTH * greyZoneFactor);
     for (int i = 0; i < string.length(); i++) {
       int j = 0;
       for (; j < maxLen2 && i + j < string.length(); j++) {
