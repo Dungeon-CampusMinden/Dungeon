@@ -21,28 +21,29 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 public class Room_1_1_Generator extends TaskRoomGenerator {
-  public Room_1_1_Generator(RoomGenerator gen, LevelNode room, LevelNode nextNeighbour) {
+    private final int monsterCount;
+  public Room_1_1_Generator(RoomGenerator gen, LevelNode room, LevelNode nextNeighbour, int monsterCount) {
     super(gen, room, nextNeighbour);
+    this.monsterCount = monsterCount;
   }
 
   @Override
   public void generateRoom() throws IOException {
-    final int numMonsters = 1;
     // generate the room
     getRoom()
         .level(
             new TileLevel(
                 getGen().layout(LevelSize.LARGE, getRoom().neighbours()),
-                DesignLabel.randomDesign()));
+                DesignLabel.FOREST));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
 
-    for (int i = 0; i < numMonsters; i++) {
+    for (int i = 0; i < monsterCount; i++) {
       roomEntities.add(MonsterFactory.randomMonster());
     }
     // get random monster from roomEntities
-    Entity randomMonster = (Entity) roomEntities.toArray()[(int) (Math.random() * numMonsters)];
+    Entity randomMonster = (Entity) roomEntities.toArray()[(int) (Math.random() * monsterCount)];
 
     SimpleIPath sapphireTexture = new SimpleIPath("items/resource/saphire.png");
     Animation sapphireAnimation = Animation.fromSingleImage(sapphireTexture);

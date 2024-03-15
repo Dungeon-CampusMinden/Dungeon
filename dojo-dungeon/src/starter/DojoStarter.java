@@ -27,6 +27,7 @@ import tasks.Room_1_3_Generator;
 
 public class DojoStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
+  private static final int MONSTERCOUNT = 5;
 
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger();
@@ -151,7 +152,7 @@ public class DojoStarter {
 
   private static void createRoom_1(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
       throws IOException {
-    new Room_1_1_Generator(gen, room, nextRoom).generateRoom();
+    new Room_1_1_Generator(gen, room, nextRoom, MONSTERCOUNT).generateRoom();
   }
 
   private static void createRoom_2(RoomGenerator gen, LevelNode room, LevelNode nextRoom)
