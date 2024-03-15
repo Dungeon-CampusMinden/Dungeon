@@ -49,7 +49,7 @@ public class SignComponent implements Component {
    * @return The text of the sign.
    */
   public String text() {
-    return text;
+    return this.text;
   }
 
   /**
@@ -67,7 +67,7 @@ public class SignComponent implements Component {
    * @return The title of the sign.
    */
   public String title() {
-    return title;
+    return this.title;
   }
 
   /**
@@ -97,6 +97,6 @@ public class SignComponent implements Component {
 
   @Override
   public String toString() {
-    return "SignComponent{title='" + title + "', text='" + text + "'}";
+    return "SignComponent{title='" + this.title + "', text='" + this.text + "'}";
   }
 }

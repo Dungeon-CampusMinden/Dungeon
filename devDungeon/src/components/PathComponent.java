@@ -50,6 +50,6 @@ public class PathComponent implements Component {
 
   @Override
   public String toString() {
-    return "PathComponent{" + "path=" + path + '}';
+    return "PathComponent{" + "path=" + this.path + '}';
   }
 }

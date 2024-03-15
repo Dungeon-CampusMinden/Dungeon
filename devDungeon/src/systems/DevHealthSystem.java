@@ -10,7 +10,7 @@ public class DevHealthSystem extends HealthSystem {
 
   @Override
   public void execute() {
-    entityStream()
+    this.entityStream()
         // Consider only entities that have a HealthComponent
         // Form triples (e, hc, dc)
         .map(this::buildDataObject)

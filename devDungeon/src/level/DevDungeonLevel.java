@@ -212,7 +212,7 @@ public class DevDungeonLevel extends TileLevel {
    * @return A list of custom points.
    */
   public List<Coordinate> customPoints() {
-    return customPoints;
+    return this.customPoints;
   }
 
   /**
@@ -221,7 +221,7 @@ public class DevDungeonLevel extends TileLevel {
    * @param point The custom point to be added.
    */
   public void addCustomPoint(Coordinate point) {
-    customPoints.add(point);
+    this.customPoints.add(point);
   }
 
   /**
@@ -230,7 +230,7 @@ public class DevDungeonLevel extends TileLevel {
    * @param point The custom point to be removed.
    */
   public void removeCustomPoint(Coordinate point) {
-    customPoints.remove(point);
+    this.customPoints.remove(point);
   }
 
   /**
@@ -240,6 +240,6 @@ public class DevDungeonLevel extends TileLevel {
    * @return True if the custom point is in the list, false otherwise.
    */
   public boolean hasCustomPoint(Coordinate point) {
-    return customPoints.contains(point);
+    return this.customPoints.contains(point);
   }
 }

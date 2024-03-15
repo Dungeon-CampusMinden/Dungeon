@@ -30,7 +30,7 @@ public class PathSystem extends System {
    */
   @Override
   public void execute() {
-    entityStream().forEach(this::executePath);
+    this.entityStream().forEach(this::executePath);
   }
 
   /**

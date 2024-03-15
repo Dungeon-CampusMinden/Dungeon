@@ -167,19 +167,21 @@ public enum MonsterType {
   public Entity buildMonster() throws IOException {
     Entity newEntity =
         MonsterFactory.buildMonster(
-            name,
-            texture,
-            health,
-            speed,
-            itemChance,
-            deathSound,
+            this.name,
+            this.texture,
+            this.health,
+            this.speed,
+            this.itemChance,
+            this.deathSound,
             new AIComponent(
-                fightAISupplier.get(), idleAISupplier.get(), transitionAISupplier.get()),
-            collideDamage,
-            collideCooldown,
-            idleSoundPath);
-    if (reviveCount > 0) {
-      newEntity.add(new ReviveComponent(reviveCount));
+                this.fightAISupplier.get(),
+                this.idleAISupplier.get(),
+                this.transitionAISupplier.get()),
+            this.collideDamage,
+            this.collideCooldown,
+            this.idleSoundPath);
+    if (this.reviveCount > 0) {
+      newEntity.add(new ReviveComponent(this.reviveCount));
     }
     return newEntity;
   }

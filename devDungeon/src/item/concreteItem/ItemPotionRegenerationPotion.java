@@ -33,7 +33,7 @@ public class ItemPotionRegenerationPotion extends Item {
         .ifPresent(
             component -> {
               component.remove(this);
-              regenerationEffect.applyRegeneration(e);
+              this.regenerationEffect.applyRegeneration(e);
             });
   }
 }

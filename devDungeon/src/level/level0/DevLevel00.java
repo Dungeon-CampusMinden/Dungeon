@@ -56,7 +56,7 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
       this.doorTiles().forEach(DoorTile::close);
       this.buildBridge();
     }
-    if (lastHeroCoords != null && !lastHeroCoords.equals(EntityUtils.getHeroCoords())) {
+    if (this.lastHeroCoords != null && !this.lastHeroCoords.equals(EntityUtils.getHeroCoords())) {
       // Only handle text popups if the hero has moved
       this.handleTextPopups();
     }
@@ -75,7 +75,7 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
     }
-    DoorTile mobDoor = (DoorTile) tileAt(this.customPoints().get(5));
+    DoorTile mobDoor = (DoorTile) this.tileAt(this.customPoints().get(5));
     mob.fetch(HealthComponent.class).ifPresent(hc -> hc.onDeath((e) -> mobDoor.open()));
     Entity chest;
     Entity chest2;
@@ -94,7 +94,8 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     }
     this.setupCauldron(cauldron);
 
-    showTextPopup("Verwende WASD (oder RMB), um dich zu bewegen.", "Willkommen im DevDungeon!");
+    this.showTextPopup(
+        "Verwende WASD (oder RMB), um dich zu bewegen.", "Willkommen im DevDungeon!");
   }
 
   private void showTextPopup(String text, String title) {
@@ -103,23 +104,23 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
   }
 
   private void handleTextPopups() {
-    DoorTile frontDoor = (DoorTile) tileAt(this.customPoints().get(4));
-    DoorTile mobDoor = (DoorTile) tileAt(this.customPoints().get(5));
-    DoorTile CraftingDoor = (DoorTile) tileAt(this.customPoints().get(6));
+    DoorTile frontDoor = (DoorTile) this.tileAt(this.customPoints().get(4));
+    DoorTile mobDoor = (DoorTile) this.tileAt(this.customPoints().get(5));
+    DoorTile CraftingDoor = (DoorTile) this.tileAt(this.customPoints().get(6));
     if (EntityUtils.getHeroCoords() == null) return;
-    Tile heroTile = tileAt(EntityUtils.getHeroCoords());
+    Tile heroTile = this.tileAt(EntityUtils.getHeroCoords());
     if (heroTile == null) return;
 
     if (frontDoor.coordinate().equals(heroTile.coordinate())) {
-      showTextPopup("Mit Q (oder LMB) kannst du angreifen.", "Kampf");
+      this.showTextPopup("Mit Q (oder LMB) kannst du angreifen.", "Kampf");
     } else if (mobDoor.coordinate().equals(heroTile.coordinate())) {
-      showTextPopup(
+      this.showTextPopup(
           "Kommen wir zum Craften. Du findest im Verlauf des Spiels \nverschiedene Ressourcen,"
               + " die du in \nTränke und andere nützliche Gegenstände\n verwandeln kannst. "
               + "Du kannst die Truhe und \nden Kessel mit E (oder LMB) öffnen. ",
           "Looting & Crafting");
     } else if (CraftingDoor.coordinate().equals(heroTile.coordinate())) {
-      showTextPopup(
+      this.showTextPopup(
           "Im Dungeon findest immerwieder Hinternisse, Fallen und Rätsel.\n"
               + "Versuche sie zu umgehen oder zu lösen.",
           "Rätsel");
@@ -131,8 +132,8 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
    * mob
    */
   private void handleDoors() {
-    DoorTile frontDoor = (DoorTile) tileAt(this.customPoints().get(4));
-    DoorTile CraftingDoor = (DoorTile) tileAt(this.customPoints().get(6));
+    DoorTile frontDoor = (DoorTile) this.tileAt(this.customPoints().get(4));
+    DoorTile CraftingDoor = (DoorTile) this.tileAt(this.customPoints().get(6));
     Point heroPos;
     try {
       heroPos = SkillTools.heroPositionAsPoint();

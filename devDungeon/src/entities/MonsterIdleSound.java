@@ -17,6 +17,6 @@ public enum MonsterIdleSound {
   }
 
   public IPath getPath() {
-    return path;
+    return this.path;
   }
 }

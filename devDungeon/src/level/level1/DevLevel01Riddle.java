@@ -59,7 +59,7 @@ public class DevLevel01Riddle {
             (sign, hero) -> {
               try {
                 // Updates content based on random riddle values
-                updateRiddleSign(getSumOfLitTorches());
+                this.updateRiddleSign(this.getSumOfLitTorches());
               } catch (UnsupportedOperationException e) {
                 sign.fetch(SignComponent.class)
                     .ifPresent(
@@ -81,9 +81,9 @@ public class DevLevel01Riddle {
 
   private void handleFirstTick() {
     Game.add(this.riddleSign);
-    level.tileAt(this.riddleCenter).tintColor(0x22FF22FF);
+    this.level.tileAt(this.riddleCenter).tintColor(0x22FF22FF);
     try {
-      updateRiddleSign(getSumOfLitTorches());
+      this.updateRiddleSign(this.getSumOfLitTorches());
     } catch (UnsupportedOperationException e) {
       this.broken = true;
     }
@@ -94,14 +94,14 @@ public class DevLevel01Riddle {
    * riddle is solved.
    */
   private void riddle() {
-    int sum = getSumOfLitTorches();
+    int sum = this.getSumOfLitTorches();
 
     this.testSum(sum);
 
     if (sum == this.riddleSearchedSum) {
-      solveRiddle();
-      if (!this.rewardGiven && checkIfHeroIsInCenter()) {
-        giveReward();
+      this.solveRiddle();
+      if (!this.rewardGiven && this.checkIfHeroIsInCenter()) {
+        this.giveReward();
       }
     }
   }
@@ -149,7 +149,7 @@ public class DevLevel01Riddle {
                 e.fetch(DrawComponent.class).ifPresent(dc -> dc.currentAnimation("off"));
               });
 
-      level.tileAt(this.riddleCenter).tintColor(-1);
+      this.level.tileAt(this.riddleCenter).tintColor(-1);
     }
   }
 
@@ -160,7 +160,8 @@ public class DevLevel01Riddle {
    */
   private boolean checkIfHeroIsInCenter() {
     Optional<Entity> hero = Game.hero();
-    return hero.filter(entity -> level.tileAtEntity(entity).equals(level.tileAt(this.riddleCenter)))
+    return hero.filter(
+            entity -> this.level.tileAtEntity(entity).equals(this.level.tileAt(this.riddleCenter)))
         .isPresent();
   }
 
@@ -170,7 +171,7 @@ public class DevLevel01Riddle {
    * @see LevelUtils#changeVisibilityForArea(Coordinate, Coordinate, boolean)
    */
   private void solveRiddle() {
-    DoorTile door = (DoorTile) level.tileAt(this.riddleDoor);
+    DoorTile door = (DoorTile) this.level.tileAt(this.riddleDoor);
     door.open();
     LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
   }
@@ -213,7 +214,7 @@ public class DevLevel01Riddle {
    * @see #getRandomSumOfNElements(List)
    */
   void setRiddleSolution(List<Integer> torchNumbers) {
-    this.riddleSearchedSum = getRandomSumOfNElements(torchNumbers);
+    this.riddleSearchedSum = this.getRandomSumOfNElements(torchNumbers);
   }
 
   /**

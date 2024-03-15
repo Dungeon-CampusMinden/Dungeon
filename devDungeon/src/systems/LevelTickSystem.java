@@ -13,10 +13,10 @@ public class LevelTickSystem extends System {
   public void execute() {
 
     if (Game.currentLevel() instanceof ITickable tickable) {
-      tickable.onTick(currentLevel != Game.currentLevel());
+      tickable.onTick(this.currentLevel != Game.currentLevel());
     }
-    if (currentLevel != Game.currentLevel()) {
-      currentLevel = Game.currentLevel();
+    if (this.currentLevel != Game.currentLevel()) {
+      this.currentLevel = Game.currentLevel();
     }
   }
 }

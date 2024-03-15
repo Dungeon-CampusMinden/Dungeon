@@ -14,15 +14,15 @@ import level.utils.DungeonSaver;
 
 public class LevelEditorSystem extends System {
   private static boolean active = true;
-  private static int SKIP_BUTTON = Input.Keys.NUM_1;
-  private static int PIT_BUTTON = Input.Keys.NUM_2;
-  private static int FLOOR_BUTTON = Input.Keys.NUM_3;
-  private static int WALL_BUTTON = Input.Keys.NUM_4;
-  private static int HOLE_BUTTON = Input.Keys.NUM_5;
-  private static int EXIT_BUTTON = Input.Keys.NUM_6;
-  private static int DOOR_BUTTON = Input.Keys.NUM_7;
-  private static int CUSTOM_POINT = Input.Keys.NUM_8;
-  private static int SAVE_BUTTON = Input.Keys.Y;
+  private static final int SKIP_BUTTON = Input.Keys.NUM_1;
+  private static final int PIT_BUTTON = Input.Keys.NUM_2;
+  private static final int FLOOR_BUTTON = Input.Keys.NUM_3;
+  private static final int WALL_BUTTON = Input.Keys.NUM_4;
+  private static final int HOLE_BUTTON = Input.Keys.NUM_5;
+  private static final int EXIT_BUTTON = Input.Keys.NUM_6;
+  private static final int DOOR_BUTTON = Input.Keys.NUM_7;
+  private static final int CUSTOM_POINT = Input.Keys.NUM_8;
+  private static final int SAVE_BUTTON = Input.Keys.Y;
 
   public static boolean active() {
     return active;
@@ -38,28 +38,28 @@ public class LevelEditorSystem extends System {
       return;
     }
     if (Gdx.input.isKeyPressed(SKIP_BUTTON)) {
-      setTile(LevelElement.SKIP);
+      this.setTile(LevelElement.SKIP);
     }
     if (Gdx.input.isKeyPressed(PIT_BUTTON)) {
-      setTile(LevelElement.PIT);
+      this.setTile(LevelElement.PIT);
     }
     if (Gdx.input.isKeyPressed(FLOOR_BUTTON)) {
-      setTile(LevelElement.FLOOR);
+      this.setTile(LevelElement.FLOOR);
     }
     if (Gdx.input.isKeyPressed(WALL_BUTTON)) {
-      setTile(LevelElement.WALL);
+      this.setTile(LevelElement.WALL);
     }
     if (Gdx.input.isKeyPressed(HOLE_BUTTON)) {
-      setTile(LevelElement.HOLE);
+      this.setTile(LevelElement.HOLE);
     }
     if (Gdx.input.isKeyJustPressed(EXIT_BUTTON)) {
-      setTile(LevelElement.EXIT);
+      this.setTile(LevelElement.EXIT);
     }
     if (Gdx.input.isKeyJustPressed(DOOR_BUTTON)) {
-      setTile(LevelElement.DOOR);
+      this.setTile(LevelElement.DOOR);
     }
     if (Gdx.input.isKeyJustPressed(CUSTOM_POINT)) {
-      setCustomPoint();
+      this.setCustomPoint();
     }
     if (Gdx.input.isKeyJustPressed(SAVE_BUTTON)) {
       if (Game.currentLevel() instanceof DevDungeonLevel) {

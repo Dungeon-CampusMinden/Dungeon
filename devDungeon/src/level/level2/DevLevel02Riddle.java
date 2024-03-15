@@ -52,7 +52,7 @@ public class DevLevel02Riddle {
       this.handleFirstTick();
     }
 
-    if (isHeroInRiddleRoom()) {
+    if (this.isHeroInRiddleRoom()) {
       LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
       this.riddleExit.open();
     } else {

@@ -5,8 +5,8 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 public class EffectScheduler {
 
-  private final DelayedRemovalArray<ScheduledAction> scheduledActions = new DelayedRemovalArray<>();
   private static EffectScheduler INSTANCE;
+  private final DelayedRemovalArray<ScheduledAction> scheduledActions = new DelayedRemovalArray<>();
 
   private EffectScheduler() {}
 
@@ -19,24 +19,24 @@ public class EffectScheduler {
 
   public void update() {
     long currentTime = TimeUtils.millis();
-    scheduledActions.begin();
-    for (int i = 0; i < scheduledActions.size; i++) {
-      ScheduledAction scheduledAction = scheduledActions.get(i);
+    this.scheduledActions.begin();
+    for (int i = 0; i < this.scheduledActions.size; i++) {
+      ScheduledAction scheduledAction = this.scheduledActions.get(i);
       if (currentTime >= scheduledAction.executeAt) {
         scheduledAction.action.applyEffect();
-        scheduledActions.removeIndex(i);
+        this.scheduledActions.removeIndex(i);
       }
     }
-    scheduledActions.end();
+    this.scheduledActions.end();
   }
 
   public void scheduleAction(TimedEffect action, long delayMillis) {
     long executeAt = TimeUtils.millis() + delayMillis;
-    scheduledActions.add(new ScheduledAction(action, executeAt));
+    this.scheduledActions.add(new ScheduledAction(action, executeAt));
   }
 
   public void clear() {
-    scheduledActions.clear();
+    this.scheduledActions.clear();
   }
 
   private static class ScheduledAction {

@@ -21,7 +21,7 @@ public class ReviveSystem extends System {
 
   @Override
   public void execute() {
-    entityStream()
+    this.entityStream()
         .forEach(
             entity -> {
               ReviveComponent reviveComponent =
@@ -36,14 +36,14 @@ public class ReviveSystem extends System {
                           () -> MissingComponentException.build(entity, HealthComponent.class));
 
               if (healthComponent.isDead() && reviveComponent.reviveCount() > 0) {
-                if (deadEntities.containsKey(entity)) {
-                  if (java.lang.System.currentTimeMillis() - deadEntities.get(entity)
+                if (this.deadEntities.containsKey(entity)) {
+                  if (java.lang.System.currentTimeMillis() - this.deadEntities.get(entity)
                       >= REVIVE_DELAY) {
                     entity.fetch(AIComponent.class).ifPresent((ai) -> ai.active(true));
                     entity.fetch(SpikyComponent.class).ifPresent((spiky) -> spiky.active(true));
                     healthComponent.currentHealthpoints(healthComponent.maximalHealthpoints());
                     reviveComponent.reviveCount(reviveComponent.reviveCount() - 1);
-                    deadEntities.remove(entity);
+                    this.deadEntities.remove(entity);
                   }
                 } else {
                   // Entity just died, add to deadEntities and wait for REVIVE_DELAY
@@ -53,7 +53,7 @@ public class ReviveSystem extends System {
                   entity
                       .fetch(SpikyComponent.class)
                       .ifPresent((spiky) -> spiky.active(false)); // while dead, spiky is inactive
-                  deadEntities.put(entity, java.lang.System.currentTimeMillis());
+                  this.deadEntities.put(entity, java.lang.System.currentTimeMillis());
                 }
               }
             });

@@ -26,7 +26,7 @@ public class ReviveComponent implements Component {
    * @return The number of times the entity can be revived.
    */
   public int reviveCount() {
-    return reviveCount;
+    return this.reviveCount;
   }
 
   /**
@@ -45,6 +45,6 @@ public class ReviveComponent implements Component {
    */
   @Override
   public String toString() {
-    return "ReviveComponent{" + "reviveCount=" + reviveCount + '}';
+    return "ReviveComponent{" + "reviveCount=" + this.reviveCount + '}';
   }
 }

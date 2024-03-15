@@ -20,7 +20,7 @@ public class FallingSystem extends System {
 
   @Override
   public void execute() {
-    entityStream().filter(this::filterFalling).forEach(this::handleFalling);
+    this.entityStream().filter(this::filterFalling).forEach(this::handleFalling);
   }
 
   private boolean filterFalling(Entity entity) {

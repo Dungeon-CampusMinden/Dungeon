@@ -28,34 +28,34 @@ public class PitSystem extends System {
 
   @Override
   public void execute() {
-    processEntities();
-    openPits();
+    this.processEntities();
+    this.openPits();
   }
 
   /** Process each entity and add it to the pitTimes map if it's on a PitTile. */
   private void processEntities() {
-    entityStream()
+    this.entityStream()
         .forEach(
             entity -> {
-              PositionComponent positionComponent = getPositionComponent(entity);
+              PositionComponent positionComponent = this.getPositionComponent(entity);
               Tile currentTile = Game.tileAT(positionComponent.position());
 
               if (currentTile instanceof PitTile pitTile) {
-                pitTimes.putIfAbsent(pitTile, java.lang.System.currentTimeMillis());
+                this.pitTimes.putIfAbsent(pitTile, java.lang.System.currentTimeMillis());
               }
             });
   }
 
   /** Open pits that have been stepped on for more than their timeToOpen. */
   private void openPits() {
-    Iterator<Map.Entry<PitTile, Long>> pitIterator = pitTimes.entrySet().iterator();
+    Iterator<Map.Entry<PitTile, Long>> pitIterator = this.pitTimes.entrySet().iterator();
 
     while (pitIterator.hasNext()) {
       Map.Entry<PitTile, Long> pitEntry = pitIterator.next();
       PitTile pitTile = pitEntry.getKey();
       Long stepOnTime = pitEntry.getValue();
 
-      if (hasPitOpenTimeElapsed(stepOnTime, pitTile.timeToOpen())) {
+      if (this.hasPitOpenTimeElapsed(stepOnTime, pitTile.timeToOpen())) {
         pitTile.open();
         pitIterator.remove();
       }

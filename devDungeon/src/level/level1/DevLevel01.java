@@ -64,7 +64,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   }
 
   private void handleFirstTick() {
-    ((ExitTile) endTile()).close(); // close exit at start (to force defeating the chort)
+    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the chort)
 
     // Hide Riddle Room at start
     LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);

@@ -47,7 +47,7 @@ public class DevLevel02 extends DevDungeonLevel implements ITickable {
   }
 
   private void handleFirstTick() {
-    ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
+    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
 
     // Spawn all entities and it's content
     this.spawnChestsAndCauldrons();
