@@ -20,48 +20,6 @@ options
 }
 
 /*
- * Lexer rules
- */
-
-/*
-DOUBLE_LINE : '--';
-ARROW       : '->';
-OPEN_BRACE  : '{';
-CLOSE_BRACE : '}';
-COLON       : ':';
-
-
-TRUE : 'true';
-FALSE: 'false';
-TYPE_ID  : [_a-zA-Z][a-zA-Z0-9_]* {isStrTypeName(getText())}?;
-ID  : [_a-zA-Z][a-zA-Z0-9_]*;
-NUM : ([0-9]|[1-9][0-9]*);
-NUM_DEC: [0-9]+'.'[0-9]+;
-WS  : [ \t\r\n]+ -> skip;
-
-LINE_COMMENT
-        : '//' ~[\r\n]* -> channel(HIDDEN)
-        ;
-
-*/
-
-//BLOCK_COMMENT
-//        : '/*' .*? '*/' -> channel(HIDDEN)
-        //;
-
-
-//STRING_LITERAL  : '\'' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f'] )* '\''
-                //| '"' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f"] )* '"'
-                //;
-
-/*
- * fragments
- */
-//fragment STRING_ESCAPE_SEQ
-    //: '\\' .
-    //;
-
-/*
  * Parser rules
  */
 program : definition* EOF
@@ -70,8 +28,7 @@ program : definition* EOF
 definition
         : dot_def
         | import_def
-        | /*{isTypeName(_input.LT(2))}?*/ object_def
-        //| object_def
+        | object_def
         | entity_type_def
         | item_type_def
         | fn_def
@@ -196,7 +153,6 @@ type_decl
 
 param_def_list
         : param_def (COMMA param_def)*
-        //| param_def
         ;
 
 entity_type_def
@@ -212,8 +168,7 @@ component_def_list
         ;
 
 aggregate_value_def
-        : //type_id=ID
-        /*|*/ type_id=id OPEN_BRACE property_def_list? CLOSE_BRACE
+        : type_id=id OPEN_BRACE property_def_list? CLOSE_BRACE
         ;
 
 // TODO: maybe the problem here is, that object_def starts with an ID
@@ -239,8 +194,7 @@ aggregate_value_def
 //    - a cheap and easy alternative would be to add all possible type names to be used in this context directly to the grammar...
 //    - could this be done with a semantic predicate purely based on syntactic information?
 object_def
-        : /*OBJ*/ type_id=TYPE_ID object_id=ID OPEN_BRACE property_def_list? CLOSE_BRACE
-        //| type_id=TYPE_ID object_id=ID OPEN_BRACE property_def_list? CLOSE_BRACE
+        : type_id=TYPE_ID object_id=ID OPEN_BRACE property_def_list? CLOSE_BRACE
         ;
 
 property_def_list
@@ -271,13 +225,7 @@ set_definition
     : OPEN_ANGLE expression_list? CLOSE_ANGLE
     ;
 
-/*mem_acc_prim
-    : func_call '.' mem_acc_prim    //#assignee_func_call
-    | ID '.' mem_acc_prim           //#assignee_qualified_name
-    | ID                        //#assignee_identifier
-    ;*/
-
-primary : id member_access_rhs?
+primary : ID member_access_rhs?
         | STRING_LITERAL
         | TRUE
         | FALSE
@@ -290,12 +238,9 @@ primary : id member_access_rhs?
         | list_definition
         ;
 
-// TODO: test this
 id  : ID
     | TYPE_ID
-    ;
-// TODO: once predicated lexing works, integrate this into AST-Converter
-    /*| COUNT
+    | COUNT
     | GRAPH
     | TYPE
     | WHILE
@@ -306,7 +251,8 @@ id  : ID
     | C_F
     | SEQ_AND
     | SEQ_OR
-    ;*/
+    ;
+
 /*
  * -------------------- dot related definitions --------------------
  * dot grammar: https://graphviz.org/doc/info/lang.html
