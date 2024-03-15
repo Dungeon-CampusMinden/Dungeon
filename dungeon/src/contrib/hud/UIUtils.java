@@ -69,25 +69,31 @@ public final class UIUtils {
    * @param string String which should be reformatted.
    */
   public static String formatString(final String string) {
-    StringBuilder formattedMsg = new StringBuilder();
-    String[] lines = string.split(System.lineSeparator());
-
-    for (String line : lines) {
-      String[] words = line.split(" ");
-      int sumLength = 0;
-
-      for (String word : words) {
-        sumLength += word.length();
-        formattedMsg.append(word);
-        formattedMsg.append(" ");
-
-        if (sumLength > MAX_ROW_LENGTH) {
-          formattedMsg.append(System.lineSeparator());
-          sumLength = 0;
+    StringBuilder result = new StringBuilder();
+    String text = string.replaceAll("\\s+", " ");
+    String[] words = text.split(" ");
+    for (int wordsIndex = 0, lineLength = 0; wordsIndex < words.length; wordsIndex++) {
+      while (lineLength < MAX_ROW_LENGTH) {
+        int toAdd = words[wordsIndex].length() + 1;
+        if (lineLength + toAdd > MAX_ROW_LENGTH * 1.25) {
+          // This line would be significantly longer than allowed.
+          break;
+        }
+        result.append(words[wordsIndex]).append(" ");
+        lineLength += toAdd;
+        wordsIndex++;
+        if (wordsIndex >= words.length) {
+          break;
         }
       }
-      formattedMsg.append(System.lineSeparator());
+      while (lineLength < MAX_ROW_LENGTH * 1.25) {
+        result.append(" ");
+        lineLength++;
+      }
+      result.append(System.lineSeparator());
+      lineLength = 0;
     }
-    return formattedMsg.toString().trim();
+    result.deleteCharAt(result.length() - System.lineSeparator().length());
+    return result.toString();
   }
 }
