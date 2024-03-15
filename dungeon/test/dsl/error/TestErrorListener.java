@@ -1,5 +1,6 @@
 package dsl.error;
 
+import dsl.antlr.ParseTracerForTokenType;
 import dsl.antlr.TreeUtils;
 import dsl.interpreter.TestEnvironment;
 import dsl.profile.ProfilingTimer;
@@ -175,7 +176,7 @@ public class TestErrorListener {
         """
                 asdf_type obj1 {
                     val1: id,,,,,asdfasl
-                    val2: id
+                    val2:
                 }
 
                 asdf_type obj2 {
@@ -190,6 +191,8 @@ public class TestErrorListener {
 
                 fn test() {
                   print("Hello");
+                  var count = 42;
+                  var derp = 13;
                 }
             """;
 
@@ -206,7 +209,9 @@ public class TestErrorListener {
     parser.removeErrorListeners();
     parser.addErrorListener(el);
     parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary(), true, true));
-    parser.setTrace(false);
+    parser.setTrace(true);
+    ParseTracerForTokenType ptftt = new ParseTracerForTokenType(parser);
+    parser.addParseListener(ptftt);
 
     // var eh = parser.getErrorHandler();
 
