@@ -3,6 +3,7 @@ package contrib.utils.components.item;
 import contrib.item.HealthPotionType;
 import contrib.item.Item;
 import contrib.item.concreteItem.*;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -15,18 +16,27 @@ public final class ItemGenerator {
   private static final Random RANDOM = new Random();
 
   /**
-   * Generates a new random Item.
+   * Generates a new random Item. Randomly selects a registered Item from the Item.ITEMS map.
    *
    * @return A new random Item.
    */
   public static Item generateItemData() {
-    return switch (RANDOM.nextInt(9)) {
-      case 0, 1 -> new ItemPotionHealth(getWeightedRandomPotionType());
-      case 2, 3 -> new ItemPotionWater();
-      case 4, 5 -> new ItemResourceBerry();
-      case 6, 7 -> new ItemResourceEgg();
-      default -> new ItemResourceMushroomRed();
-    };
+    // Item.ITEMS
+    List<Class<? extends Item>> items = new java.util.ArrayList<>(Item.ITEMS.values());
+    items.remove(ItemDefault.class); // Remove the default item
+
+    int randomIndex = RANDOM.nextInt(items.size());
+    Class<? extends Item> item = items.get(randomIndex);
+
+    if (item.equals(ItemPotionHealth.class)) {
+      return new ItemPotionHealth(getWeightedRandomPotionType());
+    }
+
+    try {
+      return item.getDeclaredConstructor().newInstance();
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException("Failed to create new instance of " + item.getSimpleName(), e);
+    }
   }
 
   /**

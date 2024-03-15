@@ -43,7 +43,7 @@ public class Item implements CraftingIngredient, CraftingResult {
    * <p>The keys in the map are the simple names of the classes (e.g. "ItemBookRed"), and the values
    * are the corresponding class objects.
    */
-  private static final Map<String, Class<? extends Item>> ITEMS = new HashMap<>();
+  public static final Map<String, Class<? extends Item>> ITEMS = new HashMap<>();
 
   static {
     ITEMS.put(ItemDefault.class.getSimpleName(), ItemDefault.class);
