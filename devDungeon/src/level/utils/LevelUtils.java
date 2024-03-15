@@ -15,7 +15,7 @@ public class LevelUtils {
    * @param bottomRight The bottom right coordinate of the area.
    * @param visible The visibility status to be set for the area.
    */
-  public static void ChangeVisibilityForArea(
+  public static void changeVisibilityForArea(
       Coordinate topLeft, Coordinate bottomRight, boolean visible) {
     for (int x = topLeft.x; x <= bottomRight.x; x++) {
       for (int y = bottomRight.y; y <= topLeft.y; y++) {
@@ -25,5 +25,20 @@ public class LevelUtils {
         }
       }
     }
+  }
+
+  /**
+   * Checks if a given Tile is within a given area.
+   *
+   * @param tile The tile to check.
+   * @param topLeft The top left coordinate of the area.
+   * @param bottomRight The bottom right coordinate of the area. * @return true if the tile is
+   *     within the area, false if not.
+   */
+  public static boolean isTileWithinArea(Tile tile, Coordinate topLeft, Coordinate bottomRight) {
+    return tile.coordinate().x >= topLeft.x
+        && tile.coordinate().x <= bottomRight.x
+        && tile.coordinate().y >= bottomRight.y
+        && tile.coordinate().y <= topLeft.y;
   }
 }

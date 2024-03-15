@@ -54,7 +54,7 @@ public class DevLevel01Riddle {
     this.riddleSign =
         SignFactory.createSign(
             "",
-            "Riddle",
+            "Riddle: The Torch Riddle",
             new Point(this.riddleDoor.x - 1 + 0.5f, this.riddleDoor.y - 1 + 0.5f),
             (sign, hero) -> {
               try {
@@ -167,12 +167,12 @@ public class DevLevel01Riddle {
   /**
    * Solves the riddle by opening the door and making the riddle room visible.
    *
-   * @see LevelUtils#ChangeVisibilityForArea(Coordinate, Coordinate, boolean)
+   * @see LevelUtils#changeVisibilityForArea(Coordinate, Coordinate, boolean)
    */
   private void solveRiddle() {
     DoorTile door = (DoorTile) level.tileAt(this.riddleDoor);
     door.open();
-    LevelUtils.ChangeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
+    LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
   }
 
   /**

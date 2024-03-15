@@ -67,7 +67,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     ((ExitTile) endTile()).close(); // close exit at start (to force defeating the chort)
 
     // Hide Riddle Room at start
-    LevelUtils.ChangeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
+    LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
 
     // Spawn all entities and it's content
     this.spawnTorches();
