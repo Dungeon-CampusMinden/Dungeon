@@ -1278,6 +1278,7 @@ public class TestDSLInterpreter {
     DSLInterpreter interpreter = new DSLInterpreter();
     var config = (DungeonConfig) interpreter.getQuestConfig(program);
 
+    // TODO: fix test...
     boolean b = true;
     /*
     Quiz singleChoiceTask = (Quiz) config.dependencyGraph().nodeIterator().next().task();
