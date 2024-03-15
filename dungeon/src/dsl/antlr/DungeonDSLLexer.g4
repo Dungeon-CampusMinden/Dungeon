@@ -66,7 +66,6 @@ ITEM_TYPE   : 'item_type';
 GRAPH       : 'graph';
 TYPE        : 'type';
 WHILE       : 'while';
-IMPORT      : '#import';
 SEQ         : 'seq'|'sequence';
 ST_M        : 'st_m'|'subtask_mandatory';
 ST_O        : 'st_o'|'subtask_optional';
@@ -80,6 +79,8 @@ ID          : [_a-zA-Z][a-zA-Z0-9_]*;
 NUM         : ([0-9]|[1-9][0-9]*);
 NUM_DEC     : [0-9]+'.'[0-9]+;
 WS          : [ \t\r\n]+ -> skip;
+
+IMPORT      : '#import';
 
 LINE_COMMENT
         : '//' ~[\r\n]* -> channel(HIDDEN)
