@@ -16,11 +16,20 @@ public class UIUtilsTest {
     String emptyTextExpected = new String(temp);
     String longText =
         """
-            Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.  \s
+            Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum
+            dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
+            ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam
+            et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus
+            est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+            sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed
+            diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita
+            kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum
+            dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
+            labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et
+            justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est
+            Lorem ipsum dolor sit amet.   \s
 
-            Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.  \s
-
-            Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse
+            Duis autem vel eum iriure dolor in hendrerit in                                                 \s
             """;
     String longTextExpected =
         """
@@ -28,42 +37,30 @@ public class UIUtilsTest {
             iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
             iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
             ipsum dolor sit amet, consetetur sadipscing      \s
+            elitr, sed diam nonumy eirmod tempor invidunt    \s
+            ut labore et dolore magna aliquyam erat,         \s
+            sed diam voluptua. At vero eos et accusam        \s
+            et justo duo dolores et ea rebum. Stet clita     \s
+            kasd gubergren, no sea takimata sanctus          \s
+            est Lorem ipsum dolor sit amet. Lorem ipsum      \s
+            dolor sit amet, consetetur sadipscing elitr,     \s
             sed diam nonumy eirmod tempor invidunt ut        \s
-            et dolore magna aliquyam erat, sed diam          \s
-            At vero eos et accusam et justo duo dolores      \s
-            ea rebum. Stet clita kasd gubergren, no          \s
-            takimata sanctus est Lorem ipsum dolor sit       \s
-            Lorem ipsum dolor sit amet, consetetur sadipscing\s
+            labore et dolore magna aliquyam erat, sed        \s
+            diam voluptua. At vero eos et accusam et         \s
+            justo duo dolores et ea rebum. Stet clita        \s
+            kasd gubergren, no sea takimata sanctus          \s
+            est Lorem ipsum dolor sit amet. Lorem ipsum      \s
+            dolor sit amet, consetetur sadipscing elitr,     \s
             sed diam nonumy eirmod tempor invidunt ut        \s
-            et dolore magna aliquyam erat, sed diam          \s
-            At vero eos et accusam et justo duo dolores      \s
-            ea rebum. Stet clita kasd gubergren, no          \s
-            takimata sanctus est Lorem ipsum dolor sit       \s
-            Lorem ipsum dolor sit amet, consetetur sadipscing\s
-            sed diam nonumy eirmod tempor invidunt ut        \s
-            et dolore magna aliquyam erat, sed diam          \s
-            At vero eos et accusam et justo duo dolores      \s
-            ea rebum. Stet clita kasd gubergren, no          \s
-            takimata sanctus est Lorem ipsum dolor sit       \s
-            Duis autem vel eum iriure dolor in hendrerit     \s
-            vulputate velit esse molestie consequat,         \s
-            illum dolore eu feugiat nulla facilisis          \s
-            vero eros et accumsan et iusto odio dignissim    \s
-            blandit praesent luptatum zzril delenit          \s
-            duis dolore te feugait nulla facilisi. Lorem     \s
-            dolor sit amet, consectetuer adipiscing          \s
-            sed diam nonummy nibh euismod tincidunt          \s
-            laoreet dolore magna aliquam erat volutpat.      \s
-            wisi enim ad minim veniam, quis nostrud          \s
-            tation ullamcorper suscipit lobortis nisl        \s
-            aliquip ex ea commodo consequat. Duis autem      \s
-            eum iriure dolor in hendrerit in vulputate       \s
-            esse                                             \s""";
+            labore et dolore magna aliquyam erat, sed        \s
+            diam voluptua. At vero eos et accusam et         \s
+            justo duo dolores et ea rebum. Stet clita        \s
+            kasd gubergren, no sea takimata sanctus          \s
+            est Lorem ipsum dolor sit amet. Duis autem       \s
+            vel eum iriure dolor in hendrerit in             \s""";
 
     assertEquals(emptyTextExpected, UIUtils.formatString(emptyText));
     assertEquals(longTextExpected, UIUtils.formatString(longText));
-
-    System.out.println(UIUtils.formatString(longText));
   }
 
   @Test
@@ -71,21 +68,22 @@ public class UIUtilsTest {
     String emptyText = "";
     String emptyTextExpected = "";
     String longText = "hallo";
-    String longTextExpected = "hallo";
+    String longTextExpected = "hallo                                             ";
 
     assertEquals(emptyTextExpected, UIUtils.formatString(emptyText, false));
     assertEquals(longTextExpected, UIUtils.formatString(longText, false));
-
-    System.out.println(UIUtils.formatString(longText));
   }
 
   @Test
   public void formatString_3() {
-    for (int i = 0; i <= 40; i++) {
-      StringBuilder text = new StringBuilder();
-      text.append("a".repeat(i));
-      assertEquals(text.toString(), UIUtils.formatString(text.toString(), false, 1.0));
+    assertEquals("", UIUtils.formatString("", false, 1.0));
+
+    for (int i = 1; i <= 40; i++) {
+      String text = "a".repeat(i);
+      String textExpected = "a".repeat(i) + " ".repeat(40 - i);
+      assertEquals(textExpected, UIUtils.formatString(text, false, 1.0));
     }
+
     StringBuilder text = new StringBuilder();
     text.append("a".repeat(41));
     assertNotEquals(text.toString(), UIUtils.formatString(text.toString(), false, 1.0));

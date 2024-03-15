@@ -85,8 +85,8 @@ public final class UIUtils {
     if (wrap) {
       String text = string.replaceAll("\\s+", " ");
       String[] words = text.split(" ");
-      for (int wordsIndex = 0, lineLength = 0; wordsIndex < words.length; wordsIndex++) {
-        if (words[wordsIndex].length() + lsLen > maxLen2) {
+      for (int wordsIndex = 0, lineLength = 0; wordsIndex < words.length; ) {
+        if (words[wordsIndex].length() > maxLen2) {
           // This word would be significantly longer than allowed.
           while (words[wordsIndex].length() > maxLen2) {
             String newWord = words[wordsIndex].substring(0, maxLen2);
@@ -94,14 +94,12 @@ public final class UIUtils {
             result.append(newWord).append(ls);
             words[wordsIndex] = newWord2;
           }
-          wordsIndex--;
           continue;
         }
         while (lineLength < MAX_ROW_LENGTH) {
           int toAdd = words[wordsIndex].length() + lsLen;
           if (lineLength + toAdd > maxLen2) {
             // This line would be significantly longer than allowed.
-            wordsIndex--;
             break;
           }
           result.append(words[wordsIndex]).append(" ");
@@ -126,6 +124,9 @@ public final class UIUtils {
       int j = 0;
       for (; j < maxLen2 && i + j < string.length(); j++) {
         result.append(string.charAt(i + j));
+      }
+      for (; j < maxLen2; j++) {
+        result.append(' ');
       }
       result.append(ls);
       i += j - 1;
