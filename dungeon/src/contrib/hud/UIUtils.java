@@ -93,7 +93,7 @@ public final class UIUtils {
       result.append(System.lineSeparator());
       lineLength = 0;
     }
-    result.deleteCharAt(result.length() - System.lineSeparator().length());
+    result.delete(result.length() - System.lineSeparator().length(), result.length());
     return result.toString();
   }
 }
