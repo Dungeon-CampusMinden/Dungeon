@@ -35,6 +35,12 @@ public class DevLevel02 extends DevDungeonLevel implements ITickable {
     if (isFirstTick) {
       this.handleFirstTick();
       this.doorTiles().forEach(DoorTile::close);
+      this.pitTiles()
+          .forEach(
+              pit -> {
+                pit.timeToOpen(50);
+                pit.close();
+              });
     }
 
     this.riddleHandler.onTick(isFirstTick);

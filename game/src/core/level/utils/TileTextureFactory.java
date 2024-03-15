@@ -75,7 +75,7 @@ public class TileTextureFactory {
   }
 
   private static IPath findTexturePathFloor(LevelPart levelPart) {
-    if (levelPart.element() == LevelElement.SKIP || levelPart.element() == LevelElement.PIT) {
+    if (levelPart.element() == LevelElement.SKIP) {
       return new SimpleIPath("floor/empty");
     } else if (levelPart.element() == LevelElement.FLOOR) {
       return new SimpleIPath("floor/floor_1");
@@ -87,6 +87,8 @@ public class TileTextureFactory {
       } else {
         return new SimpleIPath("floor/floor_hole");
       }
+    } else if (levelPart.element() == LevelElement.PIT) {
+      return new SimpleIPath("floor/floor_damaged");
     }
     return null;
   }
