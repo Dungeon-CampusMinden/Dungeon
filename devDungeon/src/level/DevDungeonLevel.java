@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Random;
 import level.level0.DevLevel00;
 import level.level1.DevLevel01;
+import level.level2.DevLevel02;
 import level.utils.DungeonLoader;
 import level.utils.MissingLevelException;
 
@@ -198,7 +199,10 @@ public class DevDungeonLevel extends TileLevel {
     return switch (levelNumber) {
       case 0 -> new DevLevel00(layout, designLabel, customPoints);
       case 1 -> new DevLevel01(layout, designLabel, customPoints);
-      default -> throw new IllegalArgumentException("Invalid level number: " + levelNumber);
+      case 2 -> new DevLevel02(layout, designLabel, customPoints);
+      default ->
+          throw new IllegalArgumentException(
+              "Invalid level number for levelHandler: " + levelNumber);
     };
   }
 
