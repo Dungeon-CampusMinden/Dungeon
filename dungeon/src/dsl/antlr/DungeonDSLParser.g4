@@ -348,7 +348,7 @@ dot_attr_list
         ;
 
 dot_attr
-        : id ASSIGN id (SEMICOLON|COMMA)?                  #dot_attr_id
+        : ID ASSIGN ID (SEMICOLON|COMMA)?                  #dot_attr_id
         | TYPE ASSIGN dependency_type (SEMICOLON|COMMA)? #dot_attr_dependency_type
         ;
 
