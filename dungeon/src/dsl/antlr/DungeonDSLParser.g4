@@ -225,7 +225,7 @@ set_definition
     : OPEN_ANGLE expression_list? CLOSE_ANGLE
     ;
 
-primary : ID member_access_rhs?
+primary : id member_access_rhs?
         | STRING_LITERAL
         | TRUE
         | FALSE
