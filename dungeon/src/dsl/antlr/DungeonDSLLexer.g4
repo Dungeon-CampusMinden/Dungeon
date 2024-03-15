@@ -23,7 +23,6 @@ options
  * Lexer rules
  */
 
-//OBJ         : 'obj:';
 DOUBLE_LINE : '--';
 ARROW       : '->';
 OPEN_BRACE  : '{';
@@ -49,7 +48,6 @@ STAR        : '*';
 BANG        : '!';
 ASSIGN      : '=';
 
-// TODO: for this to work, we need to introduce lexer modes
 FOR         : 'for';
 OR          : 'or';
 IF          : 'if';
@@ -68,6 +66,7 @@ ITEM_TYPE   : 'item_type';
 GRAPH       : 'graph';
 TYPE        : 'type';
 WHILE       : 'while';
+IMPORT      : '#import';
 SEQ         : 'seq'|'sequence';
 ST_M        : 'st_m'|'subtask_mandatory';
 ST_O        : 'st_o'|'subtask_optional';
@@ -80,8 +79,6 @@ TYPE_ID     : [_a-zA-Z][a-zA-Z0-9_]* {isStrTypeName(getText())}?;
 ID          : [_a-zA-Z][a-zA-Z0-9_]*;
 NUM         : ([0-9]|[1-9][0-9]*);
 NUM_DEC     : [0-9]+'.'[0-9]+;
-IMPORT      : '#import';
-
 WS          : [ \t\r\n]+ -> skip;
 
 LINE_COMMENT
@@ -91,7 +88,6 @@ LINE_COMMENT
 BLOCK_COMMENT
         : '/*' .*? '*/' -> channel(HIDDEN)
         ;
-
 
 STRING_LITERAL  : '\'' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f'] )* '\''
                 | '"' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f"] )* '"'
