@@ -40,9 +40,8 @@ generateGrammarSource {
     arguments += ['-o', '$buildDir/generated-src/antlr/main/']
     arguments += ['-visitor', '-listener', '-Xlog']
     arguments += [ '-package', 'dsl.antlr']
-    //arguments += ['-o', '$buildDir/generated-src/antlr/main/dsl/antlr']
-    //arguments += ['-o', '$buildDir/generated-src/antlr/main']
 }
+
 
 
 // start the dungeon (different configurations)

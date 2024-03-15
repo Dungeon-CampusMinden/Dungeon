@@ -3,7 +3,6 @@ package dsl.parser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import dsl.antlr.TreeUtils;
 import dsl.helpers.Helpers;
 import dsl.interpreter.TestEnvironment;
 import dsl.parser.ast.*;
@@ -135,7 +134,7 @@ public class TestDungeonASTConverter {
   @Test
   public void testFuncCallAsParam() {
     String program =
-    """
+        """
     quest_config q
       {
         test: hello_world(other_func())

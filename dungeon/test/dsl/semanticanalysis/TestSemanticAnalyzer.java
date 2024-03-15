@@ -1,6 +1,5 @@
 package dsl.semanticanalysis;
 
-import core.Game;
 import dsl.annotation.DSLType;
 import dsl.annotation.DSLTypeMember;
 import dsl.helpers.Helpers;
