@@ -50,7 +50,7 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
       programAST = parsedFile.rootASTNode();
     } else {
       String content = DSLFileLoader.fileToString(filePath);
-      programAST = DungeonASTConverter.getProgramAST(content);
+      programAST = DungeonASTConverter.getProgramAST(content, this.environment);
       ParsedFile parsedFile = new ParsedFile(filePath, programAST);
       this.parsedFiles.put(filePath, parsedFile);
       this.parsedFile = parsedFile;

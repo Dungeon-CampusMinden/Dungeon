@@ -166,7 +166,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
         for (File scenarioFile : scenarioFiles) {
           var filePath = scenarioFile.toPath();
           String content = DSLFileLoader.fileToString(filePath);
-          var programAST = DungeonASTConverter.getProgramAST(content);
+          var programAST = DungeonASTConverter.getProgramAST(content, environment);
           ParsedFile parsedFile = new ParsedFile(filePath, programAST);
 
           environment.addFileScope(new FileScope(parsedFile, environment.getGlobalScope()));
@@ -634,10 +634,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
   public Object getQuestConfig(String configScript, IEnvironment environment) {
     // TODO: make relLibPath settable (or make the Environment settable)
     var stream = CharStreams.fromString(configScript);
-    var lexer = new DungeonDSLLexer(stream);
+    var lexer = new DungeonDSLLexer(stream, environment);
 
     var tokenStream = new CommonTokenStream(lexer);
-    var parser = new DungeonDSLParser(tokenStream);
+    var parser = new DungeonDSLParser(tokenStream, environment);
     var programParseTree = parser.program();
 
     DungeonASTConverter astConverter = new DungeonASTConverter();

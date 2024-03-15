@@ -1,5 +1,6 @@
 package dsl.semanticanalysis;
 
+import core.Game;
 import dsl.annotation.DSLType;
 import dsl.annotation.DSLTypeMember;
 import dsl.helpers.Helpers;
@@ -41,7 +42,8 @@ public class TestSemanticAnalyzer {
             }
             """;
 
-    var ast = Helpers.getASTFromString(program);
+    var env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
     var symtableResult = Helpers.getSymtableForAST(ast);
 
     // check the name of the symbol corresponding to the taksDependencyGraph definition
@@ -160,7 +162,8 @@ public class TestSemanticAnalyzer {
             }
             """;
 
-    var ast = Helpers.getASTFromString(program);
+    GameEnvironment env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
     var symtableResult = Helpers.getSymtableForAST(ast);
 
     // check the name of the symbol corresponding to the taksDependencyGraph definition
@@ -193,7 +196,8 @@ public class TestSemanticAnalyzer {
             }
                     """;
 
-    var ast = Helpers.getASTFromString(program);
+    GameEnvironment env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
     var symtableResult = Helpers.getSymtableForAST(ast);
 
     var printFuncDefSymbol = symtableResult.symbolTable.globalScope.resolve("print");
@@ -212,7 +216,8 @@ public class TestSemanticAnalyzer {
             }
                     """;
 
-    var ast = Helpers.getASTFromString(program);
+    GameEnvironment env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
     var symtableResult = Helpers.getSymtableForAST(ast);
 
     var printFuncDefSymbol = symtableResult.symbolTable.globalScope.resolve("print");
@@ -252,7 +257,8 @@ public class TestSemanticAnalyzer {
                 """;
 
     // generate symbol table
-    var ast = Helpers.getASTFromString(program);
+    GameEnvironment env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
     var symtableResult = Helpers.getSymtableForAST(ast);
 
     // get property definition list of the object definition
@@ -724,7 +730,7 @@ quest_config c {
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
 
-    var ast = Helpers.getASTFromString(program);
+    var ast = Helpers.getASTFromString(program, env);
     var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
     var symbolTable = result.symbolTable;
     var fileScope = env.getFileScope(null);
@@ -771,7 +777,7 @@ quest_config c {
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
-    var ast = Helpers.getASTFromString(program);
+    var ast = Helpers.getASTFromString(program, env);
     var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
     var symbolTable = result.symbolTable;
     var fileScope = env.getFileScope(null);
@@ -949,7 +955,6 @@ quest_config c {
         """;
 
     // setup
-    var ast = Helpers.getASTFromString(program);
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
     TypeBuilder tb = new TypeBuilder();
@@ -959,6 +964,8 @@ quest_config c {
     var env = new GameEnvironment();
     env.loadTypes(testComponentType);
     symbolTableParser.setup(env);
+
+    var ast = Helpers.getASTFromString(program, env);
     var symbolTable = symbolTableParser.walk(ast).symbolTable;
     var fileScope = env.getFileScope(null);
 
@@ -1003,7 +1010,6 @@ quest_config c {
         """;
 
     // setup
-    var ast = Helpers.getASTFromString(program);
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
     TypeBuilder tb = new TypeBuilder();
@@ -1013,6 +1019,8 @@ quest_config c {
     var env = new GameEnvironment();
     env.loadTypes(testComponentType);
     symbolTableParser.setup(env);
+
+    var ast = Helpers.getASTFromString(program, env);
     var symbolTable = symbolTableParser.walk(ast).symbolTable;
     var fileScope = env.getFileScope(null);
 

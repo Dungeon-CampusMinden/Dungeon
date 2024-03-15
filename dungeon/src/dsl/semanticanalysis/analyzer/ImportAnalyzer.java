@@ -88,7 +88,7 @@ public class ImportAnalyzer implements AstVisitor<Void> {
     if (fileScope.equals(environment.getNullFileScope())) {
       // need to parse it and add it to file scopes
       String content = DSLFileLoader.fileToString(filePath);
-      var programAST = DungeonASTConverter.getProgramAST(content);
+      var programAST = DungeonASTConverter.getProgramAST(content, environment);
       ParsedFile parsedFile = new ParsedFile(filePath, programAST);
       fileScope = new FileScope(parsedFile, environment.getGlobalScope());
       environment.addFileScope(fileScope);

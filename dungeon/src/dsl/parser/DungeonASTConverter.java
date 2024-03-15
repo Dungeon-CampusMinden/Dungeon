@@ -3,6 +3,7 @@ package dsl.parser;
 import dsl.antlr.DungeonDSLLexer;
 import dsl.antlr.DungeonDSLParser;
 import dsl.parser.ast.*;
+import dsl.semanticanalysis.environment.IEnvironment;
 import graph.taskdependencygraph.TaskEdge;
 // CHECKSTYLE:ON: AvoidStarImport
 import java.util.*;
@@ -38,12 +39,12 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     astStack = new Stack<>();
   }
 
-  public static Node getProgramAST(String program) {
+  public static Node getProgramAST(String program, IEnvironment environment) {
     var stream = CharStreams.fromString(program);
-    var lexer = new DungeonDSLLexer(stream);
+    var lexer = new DungeonDSLLexer(stream, environment);
 
     var tokenStream = new CommonTokenStream(lexer);
-    var parser = new DungeonDSLParser(tokenStream);
+    var parser = new DungeonDSLParser(tokenStream, environment);
     var programParseTree = parser.program();
 
     DungeonASTConverter astConverter = new DungeonASTConverter();
@@ -897,6 +898,12 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
+  public void enterId(DungeonDSLParser.IdContext ctx) {}
+
+  @Override
+  public void exitId(DungeonDSLParser.IdContext ctx) {}
+
+  @Override
   public void enterDot_def(DungeonDSLParser.Dot_defContext ctx) {}
 
   /**
@@ -1085,6 +1092,9 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void visitTerminal(TerminalNode node) {
     var nodeType = node.getSymbol().getType();
     if (nodeType == DungeonDSLLexer.ID) {
+      var idNode = new IdNode(node.getText(), getSourceFileReference(node));
+      astStack.push(idNode);
+    } else if (nodeType == DungeonDSLLexer.TYPE_ID) {
       var idNode = new IdNode(node.getText(), getSourceFileReference(node));
       astStack.push(idNode);
     } else if (nodeType == DungeonDSLLexer.ARROW) {

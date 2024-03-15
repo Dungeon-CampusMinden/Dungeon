@@ -70,7 +70,7 @@ program : definition* EOF
 definition
         : dot_def
         | import_def
-        | {isTypeName(_input.LT(2))}? object_def
+        | /*{isTypeName(_input.LT(2))}?*/ object_def
         //| object_def
         | entity_type_def
         | item_type_def
@@ -291,8 +291,22 @@ primary : id member_access_rhs?
         ;
 
 // TODO: test this
-id : ID | TYPE_ID;
-
+id  : ID
+    | TYPE_ID
+    ;
+// TODO: once predicated lexing works, integrate this into AST-Converter
+    /*| COUNT
+    | GRAPH
+    | TYPE
+    | WHILE
+    | SEQ
+    | ST_M
+    | ST_O
+    | C_C
+    | C_F
+    | SEQ_AND
+    | SEQ_OR
+    ;*/
 /*
  * -------------------- dot related definitions --------------------
  * dot grammar: https://graphviz.org/doc/info/lang.html

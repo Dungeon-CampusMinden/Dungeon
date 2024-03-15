@@ -3,7 +3,9 @@ package dsl.parser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import dsl.antlr.TreeUtils;
 import dsl.helpers.Helpers;
+import dsl.interpreter.TestEnvironment;
 import dsl.parser.ast.*;
 import graph.taskdependencygraph.TaskEdge;
 import java.util.List;
@@ -15,6 +17,7 @@ import org.junit.Test;
 // CHECKSTYLE:ON: AvoidStarImport
 
 public class TestDungeonASTConverter {
+  TestEnvironment env = new TestEnvironment();
 
   /** Test AST structure of a simple dot definition */
   @Test
@@ -110,7 +113,7 @@ public class TestDungeonASTConverter {
   @Test
   public void testFuncCall() {
     String program = "quest_config q { \n test: hello_world(x, \"wuppi\" ,42)\n }";
-    var ast = Helpers.getASTFromString(program);
+    var ast = Helpers.getASTFromString(program, env);
 
     var questDef = ast.getChild(0);
     var propertyDefList = questDef.getChild(2);
@@ -131,8 +134,14 @@ public class TestDungeonASTConverter {
   /** Test AST of function call as parameter ot another function call */
   @Test
   public void testFuncCallAsParam() {
-    String program = "quest_config q { \n test: hello_world(other_func())\n }";
-    var ast = Helpers.getASTFromString(program);
+    String program =
+    """
+    quest_config q
+      {
+        test: hello_world(other_func())
+      }
+      """;
+    var ast = Helpers.getASTFromString(program, env);
 
     var questDef = ast.getChild(0);
     var propertyDefList = questDef.getChild(2);
@@ -322,7 +331,8 @@ public class TestDungeonASTConverter {
         }
         """;
 
-    var ast = Helpers.getASTFromString(program);
+    TestEnvironment env = new TestEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
     var gameObjectDef = (PrototypeDefinitionNode) ast.getChild(0);
     var componentDef =
         (AggregateValueDefinitionNode) gameObjectDef.getComponentDefinitionNodes().get(0);
@@ -1091,7 +1101,9 @@ public class TestDungeonASTConverter {
         }
         """;
 
+    String tree = Helpers.printParseTreeForProgram(program);
     var ast = Helpers.getASTFromString(program);
+
     var dotDefNode = (DotDefNode) ast.getChild(0);
     var stmts = dotDefNode.getStmtNodes();
 

@@ -88,7 +88,7 @@ public class TestDSLInterpreter {
 
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
     symbolTableParser.setup(env);
-    var ast = Helpers.getASTFromString(program);
+    var ast = Helpers.getASTFromString(program, env);
     symbolTableParser.walk(ast);
     ParsedFile latestParsedFile = symbolTableParser.latestParsedFile;
 
@@ -123,7 +123,7 @@ public class TestDSLInterpreter {
     TestEnvironment env = new TestEnvironment();
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
     symbolTableParser.setup(env);
-    var ast = Helpers.getASTFromString(program);
+    var ast = Helpers.getASTFromString(program, env);
     symbolTableParser.walk(ast);
     ParsedFile pf = symbolTableParser.latestParsedFile;
 
@@ -159,7 +159,7 @@ public class TestDSLInterpreter {
     TestEnvironment env = new TestEnvironment();
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
     symbolTableParser.setup(env);
-    var ast = Helpers.getASTFromString(program);
+    var ast = Helpers.getASTFromString(program, env);
     symbolTableParser.walk(ast);
     ParsedFile pf = symbolTableParser.latestParsedFile;
 
@@ -311,7 +311,8 @@ public class TestDSLInterpreter {
   public void questConfigHighLevel() throws URISyntaxException, IOException {
     URL resource = getClass().getClassLoader().getResource("program.ds");
     assert resource != null;
-    var ast = Helpers.getASTFromResourceFile(resource);
+    TestEnvironment env = new TestEnvironment();
+    var ast = Helpers.getASTFromResourceFile(resource, env);
 
     var firstChild = ast.getChild(0);
     assertEquals(Node.Type.DotDefinition, firstChild.type);

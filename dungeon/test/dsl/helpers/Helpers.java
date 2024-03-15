@@ -3,6 +3,7 @@ package dsl.helpers;
 import core.Entity;
 import dsl.antlr.DungeonDSLLexer;
 import dsl.antlr.DungeonDSLParser;
+import dsl.antlr.TreeUtils;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.Node;
@@ -21,19 +22,25 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.tree.Tree;
 import task.tasktype.quizquestion.SingleChoice;
 
 public class Helpers {
 
-  private static DungeonDSLParser.ProgramContext getParseTreeFromCharStream(CharStream stream) {
-    var lexer = new DungeonDSLLexer(stream);
+  private static DungeonDSLParser.ProgramContext getParseTreeFromCharStream(
+      CharStream stream, IEnvironment env) {
+    var lexer = new DungeonDSLLexer(stream, env);
 
     var tokenStream = new CommonTokenStream(lexer);
-    var parser = new DungeonDSLParser(tokenStream);
+    var parser = new DungeonDSLParser(tokenStream, env);
 
     return parser.program();
   }
@@ -44,9 +51,9 @@ public class Helpers {
    * @param program the program to parse
    * @return the {@link DungeonDSLParser.ProgramContext} for the parsed program
    */
-  public static DungeonDSLParser.ProgramContext getParseTree(String program) {
+  public static DungeonDSLParser.ProgramContext getParseTree(String program, IEnvironment env) {
     var stream = CharStreams.fromString(program);
-    return getParseTreeFromCharStream(stream);
+    return getParseTreeFromCharStream(stream, env);
   }
 
   /**
@@ -66,8 +73,13 @@ public class Helpers {
    * @param program the program to generate an AST for
    * @return the AST
    */
+  public static Node getASTFromString(String program, IEnvironment env) {
+    var parseTree = getParseTree(program, env);
+    return convertToAST(parseTree);
+  }
+
   public static Node getASTFromString(String program) {
-    var parseTree = getParseTree(program);
+    var parseTree = getParseTree(program, null);
     return convertToAST(parseTree);
   }
 
@@ -79,12 +91,12 @@ public class Helpers {
    * @throws URISyntaxException on invalid URI syntax
    * @throws IOException if the file does not exist
    */
-  public static Node getASTFromResourceFile(URL fileResourceURL)
+  public static Node getASTFromResourceFile(URL fileResourceURL, IEnvironment env)
       throws URISyntaxException, IOException {
     var file = new File(fileResourceURL.toURI());
     var stream = CharStreams.fromFileName(file.getAbsolutePath());
 
-    var parseTree = getParseTreeFromCharStream(stream);
+    var parseTree = getParseTreeFromCharStream(stream, env);
     return convertToAST(parseTree);
   }
 
@@ -146,7 +158,7 @@ public class Helpers {
 
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
     symbolTableParser.setup(environment);
-    var ast = Helpers.getASTFromString(program);
+    var ast = Helpers.getASTFromString(program, environment);
     symbolTableParser.walk(ast);
     ParsedFile latestParsedFile = symbolTableParser.latestParsedFile;
 
@@ -172,7 +184,7 @@ public class Helpers {
 
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
     symbolTableParser.setup(environment);
-    var ast = Helpers.getASTFromString(program);
+    var ast = Helpers.getASTFromString(program, environment);
     symbolTableParser.walk(ast);
     ParsedFile latestParsedFile = symbolTableParser.latestParsedFile;
 
@@ -202,5 +214,15 @@ public class Helpers {
     // check the contents for the printed string
     System.setOut(new PrintStream(outputStream));
     return (HashSet<HashSet<Entity>>) interpreter.buildTask(task).get();
+  }
+
+  public static String printParseTreeForProgram(String program) {
+    DungeonDSLLexer lexer = new DungeonDSLLexer(CharStreams.fromString(program));
+    var tokenStream = new CommonTokenStream(lexer);
+    DungeonDSLParser parser = new DungeonDSLParser(tokenStream);
+    var parseTree = parser.program();
+
+    List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+    return TreeUtils.toPrettyTree(parseTree, ruleNamesList);
   }
 }
