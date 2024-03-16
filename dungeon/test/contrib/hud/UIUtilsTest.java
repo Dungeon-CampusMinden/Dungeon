@@ -7,6 +7,36 @@ import org.junit.Test;
 
 public class UIUtilsTest {
 
+  /**
+   * Creates line breaks after a word once a certain character count is reached.
+   *
+   * @param string String which should be reformatted.
+   */
+  public static String oldFormatStringMethodForComparison(final String string) {
+    final int MAX_ROW_LENGTH = 40;
+
+    StringBuilder formattedMsg = new StringBuilder();
+    String[] lines = string.split(System.lineSeparator());
+
+    for (String line : lines) {
+      String[] words = line.split(" ");
+      int sumLength = 0;
+
+      for (String word : words) {
+        sumLength += word.length();
+        formattedMsg.append(word);
+        formattedMsg.append(" ");
+
+        if (sumLength > MAX_ROW_LENGTH) {
+          formattedMsg.append(System.lineSeparator());
+          sumLength = 0;
+        }
+      }
+      formattedMsg.append(System.lineSeparator());
+    }
+    return formattedMsg.toString().trim();
+  }
+
   @Test
   public void formatTextWithLongText() {
     int max = 20;
@@ -99,5 +129,48 @@ public class UIUtilsTest {
 
     assertNotEquals(text, UIUtils.formatText(text, max, false));
     assertNotEquals("a".repeat(max) + " ", UIUtils.formatText(text, max, false));
+  }
+
+  @Test
+  public void compareOldAndNew() {
+    String longText =
+        """
+              Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum
+              dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
+              ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam
+              et justo duo dolores et ea
+
+              rebum.   \s
+              """;
+    String longTextExpected_wrap =
+        """
+              Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+              iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+              iiiiiiiiiiiiiiiiiiiiiiiiiiipsum dolor  \s
+              sit amet, consetetur sadipscing elitr, \s
+              sed diam nonumy eirmod tempor invidunt \s
+              ut labore et dolore magna aliquyam erat,
+              sed diam voluptua. At vero eos et      \s
+              accusam et justo duo dolores et ea     \s
+              rebum.""";
+
+    String longTextNotExpected =
+        """
+              Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum
+              dolor\s
+              sit amet, consetetur sadipscing elitr, sed diam\s
+              nonumy eirmod tempor invidunt
+              ut labore et dolore\s
+              magna aliquyam erat, sed diam voluptua. At vero eos\s
+              et accusam
+              et justo duo dolores et ea
+
+              rebum.""";
+
+    assertEquals(longTextExpected_wrap, UIUtils.formatText(longText, 40, true));
+
+    assertEquals(longTextNotExpected, oldFormatStringMethodForComparison(longText));
+
+    assertEquals(longTextExpected_wrap, oldFormatStringMethodForComparison(longText));
   }
 }
