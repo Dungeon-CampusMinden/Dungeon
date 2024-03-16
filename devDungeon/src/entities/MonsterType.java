@@ -119,6 +119,20 @@ public enum MonsterType {
       1,
       2 * Game.frameRate(),
       MonsterIdleSound.NONE,
+      0),
+  BRIDGE_MOB(
+      "Bridge Mob",
+      "character/monster/orc_warrior",
+      999, // immortal
+      3.5f,
+      0.33f,
+      MonsterDeathSound.NONE,
+      () -> new CollideAI(0.5f),
+      () -> entity -> {}, // no idle needed
+      () -> (entity) -> true, // Always fight
+      30, // one hit kill
+      2 * Game.frameRate(),
+      MonsterIdleSound.NONE,
       0);
 
   private final String name;
