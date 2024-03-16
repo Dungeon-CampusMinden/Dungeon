@@ -2,8 +2,6 @@ package level.level2;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
-import contrib.item.HealthPotionType;
-import contrib.item.concreteItem.ItemPotionHealth;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -14,7 +12,6 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.utils.components.MissingComponentException;
 import entities.EntityUtils;
-import entities.MonsterType;
 import item.concreteItem.ItemPotionRegenerationPotion;
 import item.concreteItem.ItemPotionSpeedPotion;
 import java.util.List;
@@ -30,9 +27,7 @@ public class DevLevel02Riddle {
   private final Coordinate[] riddlePitBounds;
   private final Coordinate riddleChestSpawn;
   private final DoorTile riddleExit;
-  private final Coordinate bridgeMobSpawn;
   private final Coordinate speedPotionChest;
-  private final Tile[] secretWay;
 
   public DevLevel02Riddle(List<Coordinate> customPoints, TileLevel level) {
     this.riddleRoomBounds = new Coordinate[] {customPoints.get(0), customPoints.get(1)};
@@ -41,18 +36,7 @@ public class DevLevel02Riddle {
     this.riddlePitBounds = new Coordinate[] {customPoints.get(4), customPoints.get(5)};
     this.riddleChestSpawn = customPoints.get(6);
     this.riddleExit = (DoorTile) level.tileAt(customPoints.get(7));
-    this.bridgeMobSpawn = customPoints.get(8);
     this.speedPotionChest = customPoints.get(9);
-    this.secretWay =
-        new Tile[] {
-          level.tileAt(customPoints.get(10)),
-          level.tileAt(customPoints.get(11)),
-          level.tileAt(customPoints.get(12)),
-          level.tileAt(customPoints.get(13)),
-          level.tileAt(customPoints.get(14)),
-          level.tileAt(customPoints.get(15)),
-          level.tileAt(customPoints.get(16)),
-        };
 
     this.level = level;
   }
@@ -71,6 +55,16 @@ public class DevLevel02Riddle {
     }
   }
 
+  /**
+   * Checks if the hero is in the riddle room.
+   *
+   * <p>This method is used to determine if the hero is currently located in the riddle room. The
+   * method checks if the hero is on the entrance or exit tile of the riddle room or if the hero's
+   * tile is within the bounds of the riddle room. If the hero is null (which can happen if the hero
+   * died in a pit), the method returns true so the hero can still see the riddle room.
+   *
+   * @return true if the hero is in the riddle room, false otherwise.
+   */
   private boolean isHeroInRiddleRoom() {
     Entity hero = Game.hero().orElse(null);
     if (hero == null) {
@@ -97,26 +91,16 @@ public class DevLevel02Riddle {
     this.spawnSigns();
     this.spawnChest();
     this.preparePits();
-    this.prepareBridge();
   }
 
-  private void prepareBridge() {
-    EntityUtils.spawnMonster(MonsterType.BRIDGE_MOB, this.bridgeMobSpawn);
-    List<PitTile> bridge =
-        this.level.pitTiles().stream()
-            .filter(pit -> pit.coordinate().y == this.bridgeMobSpawn.y)
-            .toList();
-    int timeToOpen = 500;
-    for (PitTile pitTile : bridge) {
-      pitTile.timeToOpen(timeToOpen);
-      if (timeToOpen >= 300) { // force after 3 pits to be 50
-        timeToOpen -= 100;
-      } else {
-        timeToOpen = 50;
-      }
-    }
-  }
-
+  /**
+   * To make pits more obvious, the pits are prepared in a way that the time to open is decreasing
+   * from the bottom right to the top left. This way the player can see the pits opening in a
+   * sequence.
+   *
+   * <p>Also, the time to open is decreasing from 500 to 50. After 5 pits, the time to open is
+   * forced to be 50. (After testing a hero can still cross at about (65ms))
+   */
   private void preparePits() {
     Coordinate topLeft = this.riddlePitBounds[0];
     Coordinate bottomRight = this.riddlePitBounds[1];
@@ -128,11 +112,6 @@ public class DevLevel02Riddle {
         pitTile.timeToOpen(timeToOpen);
       }
       timeToOpen = Math.max(50, timeToOpen - 100); // force after 5 pits to be 50
-    }
-
-    for (int i = 0; i < this.secretWay.length - 1; i++) {
-      PitTile pitTile = (PitTile) this.secretWay[i];
-      pitTile.timeToOpen(15 * 1000);
     }
   }
 
@@ -192,24 +171,5 @@ public class DevLevel02Riddle {
     ic.add(new ItemPotionSpeedPotion());
     ic.add(new ItemPotionRegenerationPotion());
     Game.add(riddleChest);
-
-    Entity chest;
-    try {
-      chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to create speed potion chest");
-    }
-    pc =
-        chest
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
-    pc.position(this.secretWay[this.secretWay.length - 1].coordinate().toCenteredPoint());
-    ic =
-        chest
-            .fetch(InventoryComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(chest, InventoryComponent.class));
-    ic.add(new ItemPotionHealth(HealthPotionType.GREATER));
-
-    Game.add(chest);
   }
 }
