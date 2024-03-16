@@ -77,8 +77,8 @@ public final class UIUtils {
   }
 
   public static String formatText(String text, final int maxLen, final boolean wordWrap) {
-    if (text == null || text.isEmpty()) {
-      throw new IllegalArgumentException("text is null or empty");
+    if (text == null) {
+      throw new IllegalArgumentException("text is null");
     }
     if (maxLen < 1) {
       throw new IllegalArgumentException("max length < 1");

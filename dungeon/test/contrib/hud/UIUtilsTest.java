@@ -60,14 +60,14 @@ public class UIUtilsTest {
   @Test
   public void formatString_3() {
     int max = 40;
-    for (int i = 1; i <= max; i++) {
+    for (int i = 0; i <= max; i++) {
       String text = "a".repeat(i);
       String textExpected = "a".repeat(i);
 
       assertEquals(textExpected, UIUtils.formatString(text, false));
     }
 
-    for (int i = 1; i <= max; i++) {
+    for (int i = 0; i <= max; i++) {
       String text = "a".repeat(i);
       String textExpected = "a".repeat(i);
 
