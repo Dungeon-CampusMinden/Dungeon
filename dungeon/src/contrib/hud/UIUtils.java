@@ -155,7 +155,7 @@ public final class UIUtils {
       if (lineIndex + word.length() <= maxLen) {
         // word will fit
         result.append(word);
-      } else if (!wordWrap && word.length() <= maxLen) {
+      } else if (wordWrap && word.length() <= maxLen) {
         // do not split word
         --wordIndex;
         int len = maxLen - lineIndex;

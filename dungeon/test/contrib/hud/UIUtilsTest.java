@@ -20,7 +20,7 @@ public class UIUtilsTest {
 
             rebum.   \s
             """;
-    String longTextExpected_wrap =
+    String longTextExpected_no_wrap =
         """
             Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
             iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
@@ -30,7 +30,7 @@ public class UIUtilsTest {
             bore et dolore magna aliquyam erat, sed\s
             diam voluptua. At vero eos et accusam et
             justo duo dolores et ea rebum.""";
-    String longTextExpected_no_wrap =
+    String longTextExpected_wrap =
         """
               Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
               iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
