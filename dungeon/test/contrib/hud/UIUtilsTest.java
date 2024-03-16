@@ -3,35 +3,24 @@ package contrib.hud;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import java.util.Arrays;
 import org.junit.Test;
 
 public class UIUtilsTest {
 
   @Test
   public void formatString_1() {
-    char[] temp = new char[40];
-    Arrays.fill(temp, ' ');
     String emptyText = " ";
-    String emptyTextExpected = new String(temp);
+    String emptyTextExpected = " ".repeat(40);
     String longText =
         """
             Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum
             dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
             ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam
-            et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus
-            est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-            sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed
-            diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita
-            kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum
-            dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
-            labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et
-            justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est
-            Lorem ipsum dolor sit amet.   \s
+            et justo duo dolores et ea
 
-            Duis autem vel eum iriure dolor in hendrerit in                                                 \s
+            rebum.   \s
             """;
-    String longTextExpected =
+    String longTextExpected_wrap =
         """
             Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
             iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
@@ -40,28 +29,22 @@ public class UIUtilsTest {
             diam nonumy eirmod tempor invidunt ut la
             bore et dolore magna aliquyam erat, sed\s
             diam voluptua. At vero eos et accusam et
-            justo duo dolores et ea rebum. Stet clit
-            a kasd gubergren, no sea takimata sanctu
-            s est Lorem ipsum dolor sit amet. Lorem\s
-            ipsum dolor sit amet, consetetur sadipsc
-            ing elitr, sed diam nonumy eirmod tempor
-            invidunt ut labore et dolore magna aliqu
-            yam erat, sed diam voluptua. At vero eos
-            et accusam et justo duo dolores et ea re
-            bum. Stet clita kasd gubergren, no sea t
-            akimata sanctus est Lorem ipsum dolor si
-            t amet. Lorem ipsum dolor sit amet, cons
-            etetur sadipscing elitr, sed diam nonumy
-            eirmod tempor invidunt ut labore et dolo
-            re magna aliquyam erat, sed diam voluptu
-            a. At vero eos et accusam et justo duo d
-            olores et ea rebum. Stet clita kasd gube
-            rgren, no sea takimata sanctus est Lorem
-            ipsum dolor sit amet. Duis autem vel eum
-            iriure dolor in hendrerit in""";
+            justo duo dolores et ea rebum.""";
+    String longTextExpected_no_wrap =
+        """
+              Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+              iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+              iiiiiiiiiiiiiiiiiiiiiiiiiiipsum dolor  \s
+              sit amet, consetetur sadipscing elitr, \s
+              sed diam nonumy eirmod tempor invidunt \s
+              ut labore et dolore magna aliquyam erat,
+              sed diam voluptua. At vero eos et      \s
+              accusam et justo duo dolores et ea     \s
+              rebum.""";
 
     assertEquals(emptyTextExpected, UIUtils.formatString(emptyText));
-    assertEquals(longTextExpected, UIUtils.formatString(longText));
+    assertEquals(longTextExpected_wrap, UIUtils.formatString(longText, true));
+    assertEquals(longTextExpected_no_wrap, UIUtils.formatString(longText, false));
   }
 
   @Test
