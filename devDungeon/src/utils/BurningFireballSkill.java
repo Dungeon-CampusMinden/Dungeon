@@ -47,7 +47,7 @@ public final class BurningFireballSkill extends DamageProjectile {
         HIT_BOX_SIZE,
         targetSelection,
         PROJECTILE_RANGE,
-        (entity -> {}),
+        DamageProjectile.DEFAULT_ON_WALL_HIT,
         (projectile, entity) -> {
           if (UNLOCKED) BURNING_EFFECT.applyBurning(entity);
         });

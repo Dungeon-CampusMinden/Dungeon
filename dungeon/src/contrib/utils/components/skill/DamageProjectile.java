@@ -29,8 +29,8 @@ import java.util.logging.Logger;
  */
 public abstract class DamageProjectile implements Consumer<Entity> {
 
-  private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
-  private static final BiConsumer<Entity, Entity> DEFAULT_ON_ENTITY_HIT = (a, b) -> {};
+  public static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
+  public static final BiConsumer<Entity, Entity> DEFAULT_ON_ENTITY_HIT = (a, b) -> {};
   private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getSimpleName());
   private final IPath pathToTexturesOfProjectile;
   private final float projectileSpeed;
@@ -184,7 +184,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
             b.fetch(HealthComponent.class)
                 .ifPresent(
                     hc -> {
-                      this.onEntityHit.accept(a, b);
+                      this.onEntityHit.accept(projectile, b);
                       // Apply the projectile damage to the collided entity
                       hc.receiveHit(new Damage(damageAmount, damageType, entity));
 
