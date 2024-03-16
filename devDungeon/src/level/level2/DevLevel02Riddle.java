@@ -148,7 +148,7 @@ public class DevLevel02Riddle {
                     You need to get faster to safely cross it.
                     Maybe theres a Speed Potion somewhere?""",
         "Riddle: The damaged Bridge",
-        this.riddleEntranceSign.toPoint());
+        this.riddleEntranceSign.toCenteredPoint());
   }
 
   private void spawnChest() {
@@ -164,7 +164,7 @@ public class DevLevel02Riddle {
             .orElseThrow(
                 () -> MissingComponentException.build(speedPotionChest, PositionComponent.class));
 
-    pc.position(this.speedPotionChest.toPoint());
+    pc.position(this.speedPotionChest.toCenteredPoint());
 
     InventoryComponent ic =
         speedPotionChest
@@ -186,7 +186,7 @@ public class DevLevel02Riddle {
             .orElseThrow(
                 () -> MissingComponentException.build(riddleChest, PositionComponent.class));
 
-    pc.position(this.riddleChestSpawn.toPoint());
+    pc.position(this.riddleChestSpawn.toCenteredPoint());
 
     ic =
         riddleChest
@@ -207,7 +207,7 @@ public class DevLevel02Riddle {
         chest
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
-    pc.position(this.secretWay[this.secretWay.length - 1].coordinate().toPoint());
+    pc.position(this.secretWay[this.secretWay.length - 1].coordinate().toCenteredPoint());
     ic =
         chest
             .fetch(InventoryComponent.class)

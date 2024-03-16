@@ -104,7 +104,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
     Coordinate[] positions = this.torchPositions;
     for (int i = 0; i < positions.length; i++) {
       Coordinate torchPosition = positions[i];
-      Point torchPos = new Point(torchPosition.x + 0.5f, torchPosition.y + 0.25f);
+      Point torchPos = torchPosition.toCenteredPoint();
       Entity torch =
           EntityUtils.spawnTorch(
               torchPos,
@@ -142,10 +142,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
 
-    pc.position(
-        new Point(
-            this.riddleRoomContent[0].toPoint().x + 0.5f,
-            this.riddleRoomContent[0].toPoint().y + 0.5f));
+    pc.position(this.riddleRoomContent[0].toCenteredPoint());
 
     InventoryComponent ic =
         chest
@@ -167,10 +164,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
         cauldron
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldron, PositionComponent.class));
-    pc.position(
-        new Point(
-            this.riddleRoomContent[1].toPoint().x + 0.5f,
-            this.riddleRoomContent[1].toPoint().y + 0.5f));
+    pc.position(this.riddleRoomContent[1].toCenteredPoint());
     Game.add(cauldron);
   }
 }

@@ -56,6 +56,15 @@ public class Coordinate {
   }
 
   /**
+   * Convert Coordinate to Point centered in the tile
+   *
+   * @return Coordinate converted to a point;
+   */
+  public Point toCenteredPoint() {
+    return new Point(x + 0.5f, y + 0.5f);
+  }
+
+  /**
    * Creates a new Coordinate which has the sum of the Coordinates
    *
    * @param other which Coordinate to add
