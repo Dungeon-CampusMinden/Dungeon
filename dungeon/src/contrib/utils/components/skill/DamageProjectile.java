@@ -16,6 +16,7 @@ import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -29,6 +30,7 @@ import java.util.logging.Logger;
 public abstract class DamageProjectile implements Consumer<Entity> {
 
   private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
+  private static final BiConsumer<Entity, Entity> DEFAULT_ON_ENTITY_HIT = (a, b) -> {};
   private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getSimpleName());
   private final IPath pathToTexturesOfProjectile;
   private final float projectileSpeed;
@@ -38,6 +40,12 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final Point projectileHitBoxSize;
   private final Supplier<Point> selectionFunction;
   private final Consumer<Entity> onWallHit;
+
+  /**
+   * The behavior when an entity is hit. (The first parameter is the projectile, the second the
+   * entity that was hit)
+   */
+  private final BiConsumer<Entity, Entity> onEntityHit;
 
   /**
    * The DamageProjectile constructor sets the path to the textures of the projectile, the speed of
@@ -64,7 +72,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       final Point projectileHitBoxSize,
       final Supplier<Point> selectionFunction,
       float projectileRange,
-      final Consumer<Entity> onWallHit) {
+      final Consumer<Entity> onWallHit,
+      final BiConsumer<Entity, Entity> onEntityHit) {
     this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
     this.damageAmount = damageAmount;
     this.damageType = damageType;
@@ -73,6 +82,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     this.projectileHitBoxSize = projectileHitBoxSize;
     this.selectionFunction = selectionFunction;
     this.onWallHit = onWallHit;
+    this.onEntityHit = onEntityHit;
   }
 
   /**
@@ -106,7 +116,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         projectileHitBoxSize,
         selectionFunction,
         projectileRange,
-        DEFAULT_ON_WALL_HIT);
+        DEFAULT_ON_WALL_HIT,
+        DEFAULT_ON_ENTITY_HIT);
   }
 
   /**
@@ -173,6 +184,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
             b.fetch(HealthComponent.class)
                 .ifPresent(
                     hc -> {
+                      this.onEntityHit.accept(a, b);
                       // Apply the projectile damage to the collided entity
                       hc.receiveHit(new Damage(damageAmount, damageType, entity));
 
