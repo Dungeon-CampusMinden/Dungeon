@@ -27,8 +27,8 @@ public class DevLevel02 extends DevDungeonLevel implements ITickable {
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints);
     this.riddleHandler = new DevLevel02Riddle(customPoints, this);
-    this.mobSpawns =
-        this.customPoints().subList(20, this.customPoints().size()).toArray(new Coordinate[0]);
+    this.mobSpawns = new Coordinate[0];
+    // this.customPoints().subList(20, this.customPoints().size()).toArray(new Coordinate[0]);
   }
 
   @Override

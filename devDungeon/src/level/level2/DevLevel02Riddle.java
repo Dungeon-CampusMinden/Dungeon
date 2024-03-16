@@ -2,6 +2,8 @@ package level.level2;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
+import contrib.item.HealthPotionType;
+import contrib.item.concreteItem.ItemPotionHealth;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -10,7 +12,6 @@ import core.level.TileLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
-import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import entities.EntityUtils;
 import entities.MonsterType;
@@ -31,7 +32,7 @@ public class DevLevel02Riddle {
   private final DoorTile riddleExit;
   private final Coordinate bridgeMobSpawn;
   private final Coordinate speedPotionChest;
-  private final PitTile[] secretWay;
+  private final Tile[] secretWay;
 
   public DevLevel02Riddle(List<Coordinate> customPoints, TileLevel level) {
     this.riddleRoomBounds = new Coordinate[] {customPoints.get(0), customPoints.get(1)};
@@ -42,7 +43,16 @@ public class DevLevel02Riddle {
     this.riddleExit = (DoorTile) level.tileAt(customPoints.get(7));
     this.bridgeMobSpawn = customPoints.get(8);
     this.speedPotionChest = customPoints.get(9);
-    this.secretWay = new PitTile[] {(PitTile) level.tileAt(customPoints.get(10))};
+    this.secretWay =
+        new Tile[] {
+          level.tileAt(customPoints.get(10)),
+          level.tileAt(customPoints.get(11)),
+          level.tileAt(customPoints.get(12)),
+          level.tileAt(customPoints.get(13)),
+          level.tileAt(customPoints.get(14)),
+          level.tileAt(customPoints.get(15)),
+          level.tileAt(customPoints.get(16)),
+        };
 
     this.level = level;
   }
@@ -62,7 +72,10 @@ public class DevLevel02Riddle {
   }
 
   private boolean isHeroInRiddleRoom() {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    Entity hero = Game.hero().orElse(null);
+    if (hero == null) {
+      return false;
+    }
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
@@ -121,8 +134,9 @@ public class DevLevel02Riddle {
       }
     }
 
-    for (PitTile pitTile : this.secretWay) {
-      pitTile.timeToOpen(1000);
+    for (int i = 0; i < this.secretWay.length - 1; i++) {
+      PitTile pitTile = (PitTile) this.secretWay[i];
+      pitTile.timeToOpen(15 * 1000);
     }
   }
 
@@ -182,5 +196,24 @@ public class DevLevel02Riddle {
     ic.add(new ItemPotionSpeedPotion());
     ic.add(new ItemPotionRegenerationPotion());
     Game.add(riddleChest);
+
+    Entity chest;
+    try {
+      chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to create speed potion chest");
+    }
+    pc =
+        chest
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
+    pc.position(this.secretWay[this.secretWay.length - 1].coordinate().toPoint());
+    ic =
+        chest
+            .fetch(InventoryComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(chest, InventoryComponent.class));
+    ic.add(new ItemPotionHealth(HealthPotionType.GREATER));
+
+    Game.add(chest);
   }
 }
