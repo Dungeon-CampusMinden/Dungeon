@@ -9,8 +9,8 @@ public class UIUtilsTest {
 
   @Test
   public void formatString_1() {
-    String emptyText = " ";
-    String emptyTextExpected = " ".repeat(40);
+    String nearlyEmptyText = " ";
+    String nearlyEmptyTextExpected = "";
     String longText =
         """
             Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum
@@ -42,7 +42,8 @@ public class UIUtilsTest {
               accusam et justo duo dolores et ea     \s
               rebum.""";
 
-    assertEquals(emptyTextExpected, UIUtils.formatString(emptyText));
+    assertEquals(nearlyEmptyTextExpected, UIUtils.formatString(nearlyEmptyText, true));
+    assertEquals(nearlyEmptyTextExpected, UIUtils.formatString(nearlyEmptyText, false));
     assertEquals(longTextExpected_wrap, UIUtils.formatString(longText, true));
     assertEquals(longTextExpected_no_wrap, UIUtils.formatString(longText, false));
   }
@@ -63,10 +64,6 @@ public class UIUtilsTest {
       String text = "a".repeat(i);
       String textExpected = "a".repeat(i);
 
-      if (i == 39) {
-        textExpected += " ";
-      }
-
       assertEquals(textExpected, UIUtils.formatString(text, false));
     }
 
@@ -74,15 +71,12 @@ public class UIUtilsTest {
       String text = "a".repeat(i);
       String textExpected = "a".repeat(i);
 
-      if (i == 39) {
-        textExpected += " ";
-      }
-
       assertEquals(textExpected, UIUtils.formatString(text, true));
     }
 
-    StringBuilder text = new StringBuilder();
-    text.append("a".repeat(41));
-    assertNotEquals(text.toString(), UIUtils.formatString(text.toString(), false));
+    String text = "a".repeat(max + 1);
+
+    assertNotEquals(text, UIUtils.formatString(text, false));
+    assertNotEquals("a".repeat(max) + " ", UIUtils.formatString(text, false));
   }
 }

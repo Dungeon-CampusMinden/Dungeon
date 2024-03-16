@@ -80,18 +80,18 @@ public final class UIUtils {
     if (text == null || text.isEmpty()) {
       throw new IllegalArgumentException("text is null or empty");
     }
+    if (maxLen < 1) {
+      throw new IllegalArgumentException("max length < 1");
+    }
     final StringBuilder result = new StringBuilder();
     final char ls = '\n';
     text = text.replaceAll("\\s+", " ");
     String[] words = text.split(" ");
-    if (maxLen < 1) {
-      throw new IllegalArgumentException("max length < 1");
-    }
 
     int wordIndex = 0;
     int lineIndex = 0;
     while (wordIndex < words.length) {
-      String word = words[wordIndex++];
+      final String word = words[wordIndex++];
       final int before = result.length();
       if (lineIndex + word.length() <= maxLen) {
         // word will fit
@@ -110,6 +110,11 @@ public final class UIUtils {
         --wordIndex;
         words[wordIndex] = newWord2;
       }
+
+      if (wordIndex >= words.length) {
+        break;
+      }
+
       lineIndex += result.length() - before;
       if (lineIndex < maxLen) {
         result.append(' ');
@@ -119,11 +124,6 @@ public final class UIUtils {
         result.append(ls);
         lineIndex = 0;
       }
-    }
-    if (result.isEmpty()) {
-      result.append(" ".repeat(maxLen - lineIndex));
-    } else {
-      result.deleteCharAt(result.length() - 1);
     }
 
     return result.toString();
