@@ -20,11 +20,17 @@ public class RegenerationEffect {
   public void applyRegeneration(Entity target) {
     for (int i = 1; i < this.duration + 1; i++) { // apply Regeneration every second for durationSec
       effectScheduler.scheduleAction(
-          () ->
-              target
-                  .fetch(HealthComponent.class)
-                  .orElseThrow(() -> MissingComponentException.build(target, HealthComponent.class))
-                  .receiveHit(new Damage(-this.amountPerSecond, DamageType.HEAL, null)),
+          () -> {
+            HealthComponent healthComponent =
+                target
+                    .fetch(HealthComponent.class)
+                    .orElseThrow(
+                        () -> MissingComponentException.build(target, HealthComponent.class));
+            if (healthComponent.isDead()) {
+              return;
+            }
+            healthComponent.receiveHit(new Damage(-this.amountPerSecond, DamageType.HEAL, null));
+          },
           1000L * i);
     }
   }
