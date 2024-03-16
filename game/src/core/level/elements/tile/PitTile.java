@@ -1,6 +1,9 @@
 package core.level.elements.tile;
 
+import core.Game;
 import core.level.Tile;
+import core.level.TileLevel;
+import core.level.elements.astar.TileConnection;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -25,24 +28,38 @@ public class PitTile extends Tile {
   public PitTile(
       final IPath texturePath, final Coordinate globalPosition, final DesignLabel designLabel) {
     super(texturePath, globalPosition, designLabel);
-    levelElement = LevelElement.PIT;
+    this.levelElement = LevelElement.PIT;
     this.open = true;
     this.timeToOpen = 0;
   }
 
   @Override
   public boolean isAccessible() {
-    return !open; // Prevent NPCs from walking over open pits
+    return !this.open;
   }
 
   /** Open the pit. */
   public void open() {
-    open = true;
+    this.connections()
+        .forEach(
+            x ->
+                x.getToNode()
+                    .connections()
+                    .removeValue(new TileConnection(x.getToNode(), this), false));
+    this.open = true;
   }
 
   /** Close the pit. */
   public void close() {
-    open = false;
+    Game.currentLevel().addConnectionsToNeighbours(this);
+    this.connections.forEach(
+        x -> {
+          if (!x.getToNode().connections().contains(new TileConnection(x.getToNode(), this), false))
+            x.getToNode().addConnection(this);
+        });
+    this.index(((TileLevel) Game.currentLevel()).nodeCount++);
+
+    this.open = false;
   }
 
   /**
@@ -51,7 +68,7 @@ public class PitTile extends Tile {
    * @return true if the pit is open, false if it is closed.
    */
   public boolean isOpen() {
-    return open;
+    return this.open;
   }
 
   /**
@@ -64,7 +81,7 @@ public class PitTile extends Tile {
     if (time < 0) {
       throw new IllegalArgumentException("Time to open must be positive.");
     }
-    timeToOpen = time;
+    this.timeToOpen = time;
   }
 
   /**
@@ -73,6 +90,6 @@ public class PitTile extends Tile {
    * @return The time in milliseconds it takes for the pit to open.
    */
   public long timeToOpen() {
-    return timeToOpen;
+    return this.timeToOpen;
   }
 }

@@ -32,7 +32,7 @@ public class TileLevel implements ILevel {
   };
   protected final TileHeuristic tileHeuristic = new TileHeuristic();
   protected Tile startTile;
-  protected int nodeCount = 0;
+  public int nodeCount = 0;
   protected Tile[][] layout;
   protected ArrayList<FloorTile> floorTiles = new ArrayList<>();
   protected ArrayList<WallTile> wallTiles = new ArrayList<>();
