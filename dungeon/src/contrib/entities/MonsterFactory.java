@@ -12,6 +12,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -45,6 +46,7 @@ public final class MonsterFactory {
   private static final DamageType MONSTER_COLLIDE_DAMAGE_TYPE = DamageType.PHYSICAL;
   private static final int MONSTER_COLLIDE_DAMAGE = 2;
   private static final int MONSTER_COLLIDE_COOL_DOWN = 2 * Game.frameRate();
+  private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
 
   /**
    * Get an Entity that can be used as a monster.
@@ -178,11 +180,14 @@ public final class MonsterFactory {
       ic.add(item);
       onDeath =
           (e, who) -> {
-            playMonsterDieSound(deathSound);
+            playDeathSoundIfNearby(deathSound, e);
             new DropItemsInteraction().accept(e, who);
           };
     } else {
-      onDeath = (e, who) -> playMonsterDieSound(deathSound);
+      onDeath =
+          (e, who) -> {
+            playDeathSoundIfNearby(deathSound, e);
+          };
     }
     monster.add(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
     monster.add(new PositionComponent());
@@ -198,5 +203,19 @@ public final class MonsterFactory {
     }
     if (!idleSoundPath.pathString().isEmpty()) monster.add(new IdleSoundComponent(idleSoundPath));
     return monster;
+  }
+
+  private static void playDeathSoundIfNearby(Sound deathSound, Entity e) {
+    if (Game.hero().isEmpty()) return;
+    Entity hero = Game.hero().get();
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    PositionComponent monsterPc =
+        e.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+    if (pc.position().distance(monsterPc.position()) < MAX_DISTANCE_FOR_DEATH_SOUND) {
+      playMonsterDieSound(deathSound);
+    }
   }
 }
