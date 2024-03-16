@@ -6,7 +6,6 @@ import components.PathComponent;
 import contrib.components.InteractionComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroFactory;
-import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -21,6 +20,7 @@ import core.utils.components.MissingComponentException;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
+import utils.BurningFireballSkill;
 
 public class DevHeroFactory extends HeroFactory {
   public static final boolean ENABLE_MOUSE_MOVEMENT = true;
@@ -50,7 +50,7 @@ public class DevHeroFactory extends HeroFactory {
         pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT_SECOND.value(), new Vector2(-1, 0));
 
     Skill fireball =
-        new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
+        new Skill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
     pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
     // Mouse movement
