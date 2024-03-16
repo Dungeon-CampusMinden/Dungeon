@@ -76,18 +76,6 @@ public final class UIUtils {
   }
 
   /**
-   * Delegates to {@link #formatText(String, int, boolean)} with {@link #MAX_ROW_LENGTH} as the max
-   * length.
-   *
-   * @param string The text to be reformatted.
-   * @param wrap Whether words should be wrapped.
-   * @return The reformatted text.
-   */
-  public static String formatString(String string, boolean wrap) {
-    return formatText(string, MAX_ROW_LENGTH, wrap);
-  }
-
-  /**
    * This is a simple implementation of formatting a text with word wrap.
    *
    * <p>The method should do the following:

@@ -9,6 +9,7 @@ public class UIUtilsTest {
 
   @Test
   public void formatString_1() {
+    int max = 20;
     String nearlyEmptyText = " ";
     String nearlyEmptyTextExpected = "";
     String longText =
@@ -22,61 +23,81 @@ public class UIUtilsTest {
             """;
     String longTextExpected_no_wrap =
         """
-            Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-            iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-            iiiiiiiiiiiiiiiiiiiiiiiiiiipsum dolor si
-            t amet, consetetur sadipscing elitr, sed
-            diam nonumy eirmod tempor invidunt ut la
-            bore et dolore magna aliquyam erat, sed\s
-            diam voluptua. At vero eos et accusam et
-            justo duo dolores et ea rebum.""";
+            Lorem iiiiiiiiiiiiii
+            iiiiiiiiiiiiiiiiiiii
+            iiiiiiiiiiiiiiiiiiii
+            iiiiiiiiiiiiiiiiiiii
+            iiiiiiiiiiiiiiiiiiii
+            iiiiiiipsum dolor si
+            t amet, consetetur s
+            adipscing elitr, sed
+            diam nonumy eirmod t
+            empor invidunt ut la
+            bore et dolore magna
+            aliquyam erat, sed d
+            iam voluptua. At ver
+            o eos et accusam et\s
+            justo duo dolores et
+            ea rebum.""";
     String longTextExpected_wrap =
         """
-              Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-              iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-              iiiiiiiiiiiiiiiiiiiiiiiiiiipsum dolor  \s
-              sit amet, consetetur sadipscing elitr, \s
-              sed diam nonumy eirmod tempor invidunt \s
-              ut labore et dolore magna aliquyam erat,
-              sed diam voluptua. At vero eos et      \s
-              accusam et justo duo dolores et ea     \s
-              rebum.""";
+            Lorem iiiiiiiiiiiiii
+            iiiiiiiiiiiiiiiiiiii
+            iiiiiiiiiiiiiiiiiiii
+            iiiiiiiiiiiiiiiiiiii
+            iiiiiiiiiiiiiiiiiiii
+            iiiiiiipsum dolor  \s
+            sit amet, consetetur
+            sadipscing elitr,  \s
+            sed diam nonumy    \s
+            eirmod tempor      \s
+            invidunt ut labore \s
+            et dolore magna    \s
+            aliquyam erat, sed \s
+            diam voluptua. At  \s
+            vero eos et accusam\s
+            et justo duo dolores
+            et ea rebum.""";
 
-    assertEquals(nearlyEmptyTextExpected, UIUtils.formatString(nearlyEmptyText, true));
-    assertEquals(nearlyEmptyTextExpected, UIUtils.formatString(nearlyEmptyText, false));
-    assertEquals(longTextExpected_wrap, UIUtils.formatString(longText, true));
-    assertEquals(longTextExpected_no_wrap, UIUtils.formatString(longText, false));
+    assertEquals(nearlyEmptyTextExpected, UIUtils.formatText(nearlyEmptyText, max, true));
+    assertEquals(nearlyEmptyTextExpected, UIUtils.formatText(nearlyEmptyText, max, false));
+    assertEquals(longTextExpected_wrap, UIUtils.formatText(longText, max, true));
+    assertEquals(longTextExpected_no_wrap, UIUtils.formatText(longText, max, false));
   }
 
   @Test
   public void formatString_2() {
+    int max1 = 5;
+    int max2 = 6;
     String mediumText = "hallo";
     String mediumTextExpected = "hallo";
 
-    assertEquals(mediumTextExpected, UIUtils.formatString(mediumText, true));
-    assertEquals(mediumTextExpected, UIUtils.formatString(mediumText, false));
+    assertEquals(mediumTextExpected, UIUtils.formatText(mediumText, max1, true));
+    assertEquals(mediumTextExpected, UIUtils.formatText(mediumText, max1, false));
+    assertEquals(mediumTextExpected, UIUtils.formatText(mediumText, max2, true));
+    assertEquals(mediumTextExpected, UIUtils.formatText(mediumText, max2, false));
   }
 
   @Test
   public void formatString_3() {
-    int max = 40;
+    int max = 5;
     for (int i = 0; i <= max; i++) {
       String text = "a".repeat(i);
       String textExpected = "a".repeat(i);
 
-      assertEquals(textExpected, UIUtils.formatString(text, false));
+      assertEquals(textExpected, UIUtils.formatText(text, max, false));
     }
 
     for (int i = 0; i <= max; i++) {
       String text = "a".repeat(i);
       String textExpected = "a".repeat(i);
 
-      assertEquals(textExpected, UIUtils.formatString(text, true));
+      assertEquals(textExpected, UIUtils.formatText(text, max, true));
     }
 
     String text = "a".repeat(max + 1);
 
-    assertNotEquals(text, UIUtils.formatString(text, false));
-    assertNotEquals("a".repeat(max) + " ", UIUtils.formatString(text, false));
+    assertNotEquals(text, UIUtils.formatText(text, max, false));
+    assertNotEquals("a".repeat(max) + " ", UIUtils.formatText(text, max, false));
   }
 }
