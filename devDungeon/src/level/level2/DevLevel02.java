@@ -25,7 +25,7 @@ import level.utils.ITickable;
 public class DevLevel02 extends DevDungeonLevel implements ITickable {
 
   // Difficulty (Mob Count, Mob Types)
-  private static final int MOB_COUNT = 5;
+  private static final int MOB_COUNT = 12;
   private static final MonsterType[] MONSTER_TYPES =
       new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
 
@@ -33,6 +33,7 @@ public class DevLevel02 extends DevDungeonLevel implements ITickable {
   private final Coordinate bridgeMobSpawn;
   private final Tile[] secretWay;
   private final Coordinate[] mobSpawns;
+  private final Coordinate levelBossSpawn;
 
   private final DevLevel02Riddle riddleHandler;
 
@@ -51,8 +52,9 @@ public class DevLevel02 extends DevDungeonLevel implements ITickable {
           this.tileAt(customPoints.get(15)),
           this.tileAt(customPoints.get(16)),
         };
-    this.mobSpawns = new Coordinate[0];
-    // this.customPoints().subList(20, this.customPoints().size()).toArray(new Coordinate[0]);
+    this.mobSpawns =
+        this.customPoints().subList(17, this.customPoints().size() - 1).toArray(new Coordinate[0]);
+    this.levelBossSpawn = this.customPoints().getLast();
   }
 
   @Override
@@ -84,6 +86,9 @@ public class DevLevel02 extends DevDungeonLevel implements ITickable {
 
     // Spawn all entities and it's content
     this.spawnChestsAndCauldrons();
+
+    EntityUtils.spawnMobs(
+        MOB_COUNT, MONSTER_TYPES, this.mobSpawns, MonsterType.ZOMBIE, this.levelBossSpawn);
   }
 
   private void prepareBridge() {
