@@ -8,7 +8,7 @@ import org.junit.Test;
 public class UIUtilsTest {
 
   @Test
-  public void formatString_1() {
+  public void formatTextWithLongText() {
     int max = 20;
     String nearlyEmptyText = " ";
     String nearlyEmptyTextExpected = "";
@@ -66,7 +66,7 @@ public class UIUtilsTest {
   }
 
   @Test
-  public void formatString_2() {
+  public void formatTextWithMediumText() {
     int max1 = 5;
     int max2 = 6;
     String mediumText = "hallo";
@@ -79,7 +79,7 @@ public class UIUtilsTest {
   }
 
   @Test
-  public void formatString_3() {
+  public void formatTextWithShortGenericText() {
     int max = 5;
     for (int i = 0; i <= max; i++) {
       String text = "a".repeat(i);
