@@ -126,7 +126,7 @@ public enum MonsterType {
       999, // immortal
       3.5f,
       0.33f,
-      MonsterDeathSound.NONE,
+      MonsterDeathSound.LOWER_PITCH,
       () -> new CollideAI(0.5f),
       () -> entity -> {}, // no idle needed
       () -> (entity) -> true, // Always fight

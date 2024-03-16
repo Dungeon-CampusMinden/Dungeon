@@ -12,10 +12,12 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.utils.components.MissingComponentException;
 import entities.EntityUtils;
+import entities.SignFactory;
 import item.concreteItem.ItemPotionRegenerationPotion;
 import item.concreteItem.ItemPotionSpeedPotion;
 import java.util.List;
 import level.utils.LevelUtils;
+import utils.BurningFireballSkill;
 
 /** The Second Level (Damaged Bridge Riddle) */
 public class DevLevel02Riddle {
@@ -26,8 +28,10 @@ public class DevLevel02Riddle {
   private final Coordinate riddleEntranceSign;
   private final Coordinate[] riddlePitBounds;
   private final Coordinate riddleChestSpawn;
+  private final Coordinate riddleRewardSpawn;
   private final DoorTile riddleExit;
   private final Coordinate speedPotionChest;
+  private boolean rewardGiven = false;
 
   public DevLevel02Riddle(List<Coordinate> customPoints, TileLevel level) {
     this.riddleRoomBounds = new Coordinate[] {customPoints.get(0), customPoints.get(1)};
@@ -35,6 +39,7 @@ public class DevLevel02Riddle {
     this.riddleEntranceSign = customPoints.get(3);
     this.riddlePitBounds = new Coordinate[] {customPoints.get(4), customPoints.get(5)};
     this.riddleChestSpawn = customPoints.get(6);
+    this.riddleRewardSpawn = new Coordinate(customPoints.get(6).x, customPoints.get(6).y - 1);
     this.riddleExit = (DoorTile) level.tileAt(customPoints.get(7));
     this.speedPotionChest = customPoints.get(9);
 
@@ -49,10 +54,28 @@ public class DevLevel02Riddle {
     if (this.isHeroInRiddleRoom()) {
       LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
       this.riddleExit.open();
+
+      Entity hero = Game.hero().orElse(null);
+      if (hero == null) return;
+      PositionComponent pc =
+          hero.fetch(PositionComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+
+      if (!this.rewardGiven && this.riddleRewardSpawn.equals(pc.position().toCoordinate())) {
+        this.giveReward();
+      }
     } else {
       LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
       this.riddleExit.close();
     }
+  }
+
+  private void giveReward() {
+    SignFactory.showTextPopup(
+        "You will receive the new burning fireball skill\nas a reward for solving this puzzle!",
+        "Riddle solved");
+    BurningFireballSkill.UNLOCKED = true;
+    this.rewardGiven = true;
   }
 
   /**
@@ -91,6 +114,7 @@ public class DevLevel02Riddle {
     this.spawnSigns();
     this.spawnChest();
     this.preparePits();
+    this.level.tileAt(this.riddleRewardSpawn).tintColor(0x22FF22FF);
   }
 
   /**
