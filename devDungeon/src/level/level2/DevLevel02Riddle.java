@@ -74,7 +74,7 @@ public class DevLevel02Riddle {
   private boolean isHeroInRiddleRoom() {
     Entity hero = Game.hero().orElse(null);
     if (hero == null) {
-      return false;
+      return true; // Only if hero died in a pit, he still should be able to see the riddle room
     }
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
@@ -101,7 +101,7 @@ public class DevLevel02Riddle {
   }
 
   private void prepareBridge() {
-    EntityUtils.spawnMonster(MonsterType.ORC_WARRIOR, this.bridgeMobSpawn);
+    EntityUtils.spawnMonster(MonsterType.BRIDGE_MOB, this.bridgeMobSpawn);
     List<PitTile> bridge =
         this.level.pitTiles().stream()
             .filter(pit -> pit.coordinate().y == this.bridgeMobSpawn.y)
@@ -118,20 +118,16 @@ public class DevLevel02Riddle {
   }
 
   private void preparePits() {
+    Coordinate topLeft = this.riddlePitBounds[0];
+    Coordinate bottomRight = this.riddlePitBounds[1];
     int timeToOpen = 500;
-    for (int x = this.riddlePitBounds[1].x; x >= this.riddlePitBounds[0].x; x--) {
-      for (int y = this.riddlePitBounds[0].y; y <= this.riddlePitBounds[1].y; y++) {
-        Tile pitTile = this.level.tileAt(new Coordinate(x, y));
-        if (!(pitTile instanceof PitTile)) {
-          throw new RuntimeException("Tile at " + x + ", " + y + " is not a pit tile");
-        }
-        ((PitTile) pitTile).timeToOpen(timeToOpen);
+
+    for (int x = bottomRight.x; x >= topLeft.x; x--) {
+      for (int y = bottomRight.y; y <= topLeft.y; y++) {
+        PitTile pitTile = (PitTile) this.level.tileAt(new Coordinate(x, y));
+        pitTile.timeToOpen(timeToOpen);
       }
-      if (timeToOpen > 50) {
-        timeToOpen -= 100;
-      } else {
-        timeToOpen = 50;
-      }
+      timeToOpen = Math.max(50, timeToOpen - 100); // force after 5 pits to be 50
     }
 
     for (int i = 0; i < this.secretWay.length - 1; i++) {
