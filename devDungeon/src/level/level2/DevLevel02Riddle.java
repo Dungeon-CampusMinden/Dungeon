@@ -34,15 +34,15 @@ public class DevLevel02Riddle {
   private final PitTile[] secretWay;
 
   public DevLevel02Riddle(List<Coordinate> customPoints, TileLevel level) {
-    this.riddleRoomBounds = new Coordinate[0];
-    this.riddleEntrance = null;
-    this.riddleEntranceSign = null;
-    this.riddlePitBounds = new Coordinate[0];
-    this.riddleChestSpawn = null;
-    this.riddleExit = null;
-    this.bridgeMobSpawn = null;
-    this.speedPotionChest = null;
-    this.secretWay = new PitTile[0];
+    this.riddleRoomBounds = new Coordinate[] {customPoints.get(0), customPoints.get(1)};
+    this.riddleEntrance = (DoorTile) level.tileAt(customPoints.get(2));
+    this.riddleEntranceSign = customPoints.get(3);
+    this.riddlePitBounds = new Coordinate[] {customPoints.get(4), customPoints.get(5)};
+    this.riddleChestSpawn = customPoints.get(6);
+    this.riddleExit = (DoorTile) level.tileAt(customPoints.get(7));
+    this.bridgeMobSpawn = customPoints.get(8);
+    this.speedPotionChest = customPoints.get(9);
+    this.secretWay = new PitTile[] {(PitTile) level.tileAt(customPoints.get(10))};
 
     this.level = level;
   }
