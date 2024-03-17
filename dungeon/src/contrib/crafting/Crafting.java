@@ -3,14 +3,14 @@ package contrib.crafting;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
-import core.Game;
+import core.utils.ResourceWalker;
+import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
 /**
@@ -21,8 +21,8 @@ import java.util.logging.Logger;
  * the provided ingredients.
  *
  * <p>It will load the recipes from the files via {@link #loadRecipes()}. Recipes have to be in the
- * 'assets/recipes' directory. This will autmaticly happen an program start. Call this in your
- * {@link core.game.PreRunConfiguration#userOnSetup onSetup callback}.
+ * 'assets/recipes' directory. This will automatically happen at program start. Call this in your
+ * callback method to load recipes.
  */
 public final class Crafting {
   private static final HashSet<Recipe> RECIPES = new HashSet<>();
@@ -80,57 +80,25 @@ public final class Crafting {
    * <p>If the program is compiled to a jar file, recipes will be loaded from within the jar file.
    */
   public static void loadRecipes() {
-    if (Objects.requireNonNull(Crafting.class.getResource("/recipes"))
-        .toString()
-        .startsWith("jar:")) {
-      loadFromJar();
-    } else {
-      loadFromFile();
-    }
-  }
-
-  /** Load recipes if the program was started from a jar file. */
-  private static void loadFromJar() {
     try {
-      String path =
-          new File(Objects.requireNonNull(Game.class.getResource("")).getPath())
-              .getParent()
-              // for windows
-              .replaceAll("(!|file:\\\\)", "")
-              // for unix/macos
-              .replaceAll("(!|file:)", "");
-      JarFile jar = new JarFile(path);
-      Enumeration<JarEntry> entries = jar.entries();
-      while (entries.hasMoreElements()) {
-        JarEntry entry = entries.nextElement();
-        if (entry.getName().startsWith("recipes") && entry.getName().endsWith(".recipe")) {
-          LOGGER.info("Load recipe: " + entry.getName());
-          Recipe r =
-              parseRecipe(Game.class.getResourceAsStream("/" + entry.getName()), entry.getName());
-          if (r != null) Crafting.RECIPES.add(r);
+      final String dirName = "recipes/";
+
+      // Walk through the 'recipes' directory and load all recipes.
+      final Map<String, List<Path>> subdirectoryMap =
+          ResourceWalker.walk(new SimpleIPath(dirName), (p) -> p.getFileName().endsWith(".recipe"));
+
+      for (Map.Entry<String, List<Path>> entry : subdirectoryMap.entrySet()) {
+        for (Path path : entry.getValue()) {
+          final Recipe recipe = parseRecipe(path.toUri().toURL().openStream(), path.toString());
+          if (recipe != null) {
+            RECIPES.add(recipe);
+          } else {
+            System.err.println("Failed to load recipe: " + path);
+          }
         }
       }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /** Load recipes if the program was started from a folder. */
-  private static void loadFromFile() {
-    File folder =
-        new File(Objects.requireNonNull(Crafting.class.getResource("/recipes")).getPath());
-    File[] files = folder.listFiles();
-    if (files == null) {
-      return;
-    }
-    for (File file : files) {
-      if (file.getName().endsWith(".recipe")) {
-        LOGGER.info("Load recipe: " + file.getName());
-        Recipe r =
-            parseRecipe(
-                Crafting.class.getResourceAsStream("/recipes/" + file.getName()), file.getName());
-        if (r != null) Crafting.RECIPES.add(r);
-      }
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to load recipes: " + e.getMessage(), e);
     }
   }
 
