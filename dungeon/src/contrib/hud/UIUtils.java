@@ -85,10 +85,6 @@ public final class UIUtils {
    * </ul>
    *
    * <ul>
-   *   If necessary, the text lines should be padded with spaces to maxLen characters.
-   * </ul>
-   *
-   * <ul>
    *   Long words at the end of a line should not be wrapped when {@code wordWrap == true}, but
    *   should instead be inserted into the next line, with one exception: if the word is longer than
    *   {@code maxLen} characters, then it should also be wrapped when {@code wordWrap == true}.
