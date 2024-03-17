@@ -82,7 +82,7 @@ public class DevDungeon {
           setupMusic();
           Crafting.loadRecipes();
           if (SKIP_TUTORIAL) {
-            DungeonLoader.loadLevel(2, 1); // First Level start at 1
+            DungeonLoader.loadLevel(1); // First Level start at 1
           } else {
             DungeonLoader.loadLevel(0); // Tutorial at 0
           }
