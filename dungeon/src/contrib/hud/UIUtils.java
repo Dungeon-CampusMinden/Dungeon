@@ -17,10 +17,14 @@ public final class UIUtils {
   /** The default UI-Skin. */
   private static final IPath SKIN_FOR_DIALOG = new SimpleIPath("skin/uiskin.json");
 
-  private static Skin DEFAULT_SKIN = null;
+  private static Skin DEFAULT_SKIN;
 
-  /** Returns the default UI-Skin with lazy loading. */
-  public static Skin getDefaultSkin() {
+  /**
+   * Retrieves the default skin (pattern used: singleton with lazy initialization).
+   *
+   * @return the default skin.
+   */
+  public static Skin defaultSkin() {
     if (DEFAULT_SKIN == null) {
       DEFAULT_SKIN = new Skin(Gdx.files.internal(SKIN_FOR_DIALOG.pathString()));
     }

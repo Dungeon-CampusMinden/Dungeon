@@ -1,6 +1,6 @@
 package contrib.systems;
 
-import static contrib.hud.UIUtils.getDefaultSkin;
+import static contrib.hud.UIUtils.defaultSkin;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -94,7 +94,7 @@ public final class HealthBarSystem extends System {
 
   private ProgressBar createNewHealthBar(PositionComponent pc) {
     ProgressBar progressBar =
-        new ProgressBar(MIN, MAX, STEP_SIZE, false, getDefaultSkin(), "healthbar");
+        new ProgressBar(MIN, MAX, STEP_SIZE, false, defaultSkin(), "healthbar");
     progressBar.setAnimateDuration(HEALTH_BAR_UPDATE_DURATION);
     progressBar.setSize(HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
     progressBar.setVisible(true);

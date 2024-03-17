@@ -1,6 +1,6 @@
 package task.game.hud;
 
-import static contrib.hud.UIUtils.getDefaultSkin;
+import static contrib.hud.UIUtils.defaultSkin;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -138,7 +138,7 @@ public class QuizUI {
         () -> {
           Dialog quizDialog =
               createQuizDialog(
-                  getDefaultSkin(),
+                  defaultSkin(),
                   question,
                   questionMsg,
                   buttonMsg,

@@ -1,6 +1,6 @@
 package contrib.hud.dialogs;
 
-import static contrib.hud.UIUtils.getDefaultSkin;
+import static contrib.hud.UIUtils.defaultSkin;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -35,7 +35,7 @@ public final class YesNoDialog {
   public static Entity showYesNoDialog(
       final String text, final String title, final IVoidFunction onYes, final IVoidFunction onNo) {
 
-    Entity entity = showYesNoDialog(getDefaultSkin(), text, title, onYes, onNo);
+    Entity entity = showYesNoDialog(defaultSkin(), text, title, onYes, onNo);
     Game.add(entity);
     return entity;
   }

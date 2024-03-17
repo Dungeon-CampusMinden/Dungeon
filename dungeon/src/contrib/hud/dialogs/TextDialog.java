@@ -1,6 +1,6 @@
 package contrib.hud.dialogs;
 
-import static contrib.hud.UIUtils.getDefaultSkin;
+import static contrib.hud.UIUtils.defaultSkin;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -74,7 +74,7 @@ public final class TextDialog extends Dialog {
         () -> {
           Dialog textDialog =
               DialogFactory.createTextDialog(
-                  getDefaultSkin(),
+                  defaultSkin(),
                   content,
                   buttonText,
                   windowText,
