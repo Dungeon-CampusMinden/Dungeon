@@ -17,8 +17,15 @@ public final class UIUtils {
   /** The default UI-Skin. */
   private static final IPath SKIN_FOR_DIALOG = new SimpleIPath("skin/uiskin.json");
 
-  public static final Skin DEFAULT_SKIN =
-      new Skin(Gdx.files.internal(SKIN_FOR_DIALOG.pathString()));
+  private static Skin DEFAULT_SKIN = null;
+
+  /** Returns the default UI-Skin with lazy loading. */
+  public static Skin getDefaultSkin() {
+    if (DEFAULT_SKIN == null) {
+      DEFAULT_SKIN = new Skin(Gdx.files.internal(SKIN_FOR_DIALOG.pathString()));
+    }
+    return DEFAULT_SKIN;
+  }
 
   /**
    * Limits the length of the string to 40 characters, after which a line break occurs
