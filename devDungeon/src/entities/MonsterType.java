@@ -29,7 +29,7 @@ public enum MonsterType {
       "character/monster/chort",
       16,
       2.5f,
-      0.5f,
+      0.33f,
       MonsterDeathSound.LOWER_PITCH,
       () -> new CollideAI(0.5f),
       () -> new RadiusWalk(2f, 2),
@@ -43,7 +43,7 @@ public enum MonsterType {
       "character/monster/imp",
       4,
       5.0f,
-      0.2f,
+      0.1f,
       MonsterDeathSound.HIGH_PITCH,
       () ->
           new RangeAI(
@@ -65,11 +65,11 @@ public enum MonsterType {
       3.5f,
       0.33f,
       MonsterDeathSound.LOW_PITCH,
-      () -> new CollideAI(0.5f),
-      () -> new RadiusWalk(5f, 5),
-      () -> new RangeTransition(5),
-      3,
-      2 * Game.frameRate(),
+      () -> new CollideAI(1.0f),
+      () -> new RadiusWalk(2f, 4),
+      () -> new RangeTransition(6),
+      10,
+      5 * Game.frameRate(),
       MonsterIdleSound.LOW_PITCH,
       1),
   ORC_WARRIOR(
@@ -125,13 +125,13 @@ public enum MonsterType {
       "character/monster/orc_warrior",
       999, // immortal
       3.5f,
-      0.33f,
+      0.0f,
       MonsterDeathSound.LOWER_PITCH,
       () -> new CollideAI(0.5f),
       () -> entity -> {}, // no idle needed
       () -> (entity) -> true, // Always fight
       30, // one hit kill
-      2 * Game.frameRate(),
+      Game.frameRate(),
       MonsterIdleSound.NONE,
       0);
 
