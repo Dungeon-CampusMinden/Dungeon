@@ -22,7 +22,7 @@ public final class UIUtils {
   /**
    * Retrieve the default skin.
    *
-   * <p>Load the skin on demand (singleton with lazy initialization). This allows to write JUnit
+   * <p>Load the skin on demand (singleton with lazy initialisation). This allows to write JUnit
    * tests for this class w/o mocking libGDX.
    *
    * @return the default skin.
