@@ -165,7 +165,7 @@ public final class UIUtils {
       lineIndex += result.length() - before;
       if (lineIndex < maxLen) {
         result.append(' ');
-        lineIndex++;
+        ++lineIndex;
       }
 
       if (lineIndex >= maxLen) {
