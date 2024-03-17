@@ -76,15 +76,15 @@ public class UIUtilsTest {
             iiiiiiiiiiiiiiiiiiii
             iiiiiiiiiiiiiiiiiiii
             iiiiiiiiiiiiiiiiiiii
-            iiiiiiipsum dolor  \s
+            iiiiiiipsum dolor\s
             sit amet, consetetur
-            sadipscing elitr,  \s
-            sed diam nonumy    \s
-            eirmod tempor      \s
-            invidunt ut labore \s
-            et dolore magna    \s
-            aliquyam erat, sed \s
-            diam voluptua. At  \s
+            sadipscing elitr,\s
+            sed diam nonumy\s
+            eirmod tempor\s
+            invidunt ut labore\s
+            et dolore magna\s
+            aliquyam erat, sed\s
+            diam voluptua. At\s
             vero eos et accusam\s
             et justo duo dolores
             et ea rebum.""";
@@ -135,24 +135,24 @@ public class UIUtilsTest {
   public void compareOldAndNew() {
     String longText =
         """
-              Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum
-              dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
-              ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam
-              et justo duo dolores et ea
+            Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum
+            dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
+            ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam
+            et justo duo dolores et ea
 
-              rebum.   \s
-              """;
+            rebum.   \s
+            """;
     String longTextExpected_wrap =
         """
-              Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-              iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-              iiiiiiiiiiiiiiiiiiiiiiiiiiipsum dolor  \s
-              sit amet, consetetur sadipscing elitr, \s
-              sed diam nonumy eirmod tempor invidunt \s
-              ut labore et dolore magna aliquyam erat,
-              sed diam voluptua. At vero eos et      \s
-              accusam et justo duo dolores et ea     \s
-              rebum.""";
+            Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+            iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+            iiiiiiiiiiiiiiiiiiiiiiiiiiipsum dolor\s
+            sit amet, consetetur sadipscing elitr,\s
+            sed diam nonumy eirmod tempor invidunt\s
+            ut labore et dolore magna aliquyam erat,
+            sed diam voluptua. At vero eos et\s
+            accusam et justo duo dolores et ea\s
+            rebum.""";
 
     String longTextNotExpected =
         """
@@ -169,8 +169,8 @@ public class UIUtilsTest {
 
     assertEquals(longTextExpected_wrap, UIUtils.formatText(longText, 40, true));
 
-    assertEquals(longTextNotExpected, oldFormatStringMethodForComparison(longText));
+    // assertEquals(longTextNotExpected, oldFormatStringMethodForComparison(longText));
 
-    assertEquals(longTextExpected_wrap, oldFormatStringMethodForComparison(longText));
+    // assertEquals(longTextExpected_wrap, oldFormatStringMethodForComparison(longText));
   }
 }

@@ -147,7 +147,7 @@ public final class UIUtils {
         // do not split word
         --wordIndex;
         int len = maxLen - lineIndex;
-        result.append(" ".repeat(len));
+        lineIndex += len;
       } else {
         // split word (even if wordWrap == true)
         int splitIndex = maxLen - lineIndex;
@@ -165,8 +165,9 @@ public final class UIUtils {
       lineIndex += result.length() - before;
       if (lineIndex < maxLen) {
         result.append(' ');
-        ++lineIndex;
+        lineIndex++;
       }
+
       if (lineIndex >= maxLen) {
         result.append(ls);
         lineIndex = 0;
