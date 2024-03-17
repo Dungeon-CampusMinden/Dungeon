@@ -133,21 +133,29 @@ public class DevLevel02Riddle {
     int timeToOpen = 500;
 
     for (int x = bottomRight.x; x >= topLeft.x; x--) {
-      for (int y = bottomRight.y; y <= topLeft.y; y++) {
+      for (int y = bottomRight.y + 1; y <= topLeft.y - 1; y++) {
         PitTile pitTile = (PitTile) this.level.tileAt(new Coordinate(x, y));
         pitTile.timeToOpen(timeToOpen);
       }
       timeToOpen = Math.max(50, timeToOpen - 100); // force after 5 pits to be 50
+    }
+
+    int[] bordersYs = new int[] {topLeft.y, bottomRight.y};
+    for (int y : bordersYs) {
+      for (int x = topLeft.x; x <= bottomRight.x; x++) {
+        PitTile pitTile = (PitTile) this.level.tileAt(new Coordinate(x, y));
+        pitTile.open();
+      }
     }
   }
 
   private void spawnSigns() {
     EntityUtils.spawnSign(
         """
-                    The bridge looks damaged.
+                    The bridge seems to be damaged.
                     You could try to run across it, but it looks too dangerous.
-                    You need to get faster to safely cross it.
-                    Maybe theres a Speed Potion somewhere?""",
+                    If you were faster, you could cross it.
+                    Maybe theres a Speed Potion somewhere nearby?""",
         "Riddle: The damaged Bridge",
         this.riddleEntranceSign.toCenteredPoint());
     EntityUtils.spawnSign(
@@ -200,7 +208,6 @@ public class DevLevel02Riddle {
             .fetch(InventoryComponent.class)
             .orElseThrow(
                 () -> MissingComponentException.build(riddleChest, InventoryComponent.class));
-    ic.add(new ItemPotionSpeedPotion());
     ic.add(new ItemPotionRegenerationPotion());
     Game.add(riddleChest);
   }
