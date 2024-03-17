@@ -41,7 +41,7 @@ allprojects {
         // Default version vs. current version? The default version is quite old (9.3 from
         // Jan 30, 2022), so let's go with the current version (10.14).
         // However, this needs to be updated manually as Dependabot won't deal with this!
-        toolVersion = '10.14.0'
+        toolVersion = '10.14.2'
         ignoreFailures = false
         maxWarnings = 0
     }
