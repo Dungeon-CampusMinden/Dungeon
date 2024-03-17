@@ -44,16 +44,16 @@ public class DevLevel02 extends DevDungeonLevel implements ITickable {
     this.bridgeMobSpawn = customPoints.get(8);
     this.secretWay =
         new Tile[] {
-          this.tileAt(customPoints.get(10)),
           this.tileAt(customPoints.get(11)),
           this.tileAt(customPoints.get(12)),
           this.tileAt(customPoints.get(13)),
           this.tileAt(customPoints.get(14)),
           this.tileAt(customPoints.get(15)),
           this.tileAt(customPoints.get(16)),
+          this.tileAt(customPoints.get(17)),
         };
     this.mobSpawns =
-        this.customPoints().subList(17, this.customPoints().size() - 1).toArray(new Coordinate[0]);
+        this.customPoints().subList(18, this.customPoints().size() - 1).toArray(new Coordinate[0]);
     this.levelBossSpawn = this.customPoints().getLast();
   }
 

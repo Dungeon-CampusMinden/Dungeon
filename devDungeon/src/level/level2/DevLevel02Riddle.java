@@ -31,6 +31,7 @@ public class DevLevel02Riddle {
   private final Coordinate riddleRewardSpawn;
   private final DoorTile riddleExit;
   private final Coordinate speedPotionChest;
+  private final Coordinate speedPotionChestHint;
   private boolean rewardGiven = false;
 
   public DevLevel02Riddle(List<Coordinate> customPoints, TileLevel level) {
@@ -42,6 +43,7 @@ public class DevLevel02Riddle {
     this.riddleRewardSpawn = new Coordinate(customPoints.get(6).x, customPoints.get(6).y - 1);
     this.riddleExit = (DoorTile) level.tileAt(customPoints.get(7));
     this.speedPotionChest = customPoints.get(9);
+    this.speedPotionChestHint = customPoints.get(10);
 
     this.level = level;
   }
@@ -148,6 +150,12 @@ public class DevLevel02Riddle {
                     Maybe theres a Speed Potion somewhere?""",
         "Riddle: The damaged Bridge",
         this.riddleEntranceSign.toCenteredPoint());
+    EntityUtils.spawnSign(
+        """
+                    This looks interesting. Maybe there is
+                    something hidden behind those rock sculptures?""",
+        "Riddle: The damaged Bridge",
+        this.speedPotionChestHint.toCenteredPoint());
   }
 
   private void spawnChest() {
