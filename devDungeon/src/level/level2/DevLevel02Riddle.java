@@ -161,7 +161,7 @@ public class DevLevel02Riddle {
     EntityUtils.spawnSign(
         """
                     This looks interesting. Maybe there is
-                    something hidden behind those rock sculptures?""",
+                    something hidden behind those sculptures?""",
         "Riddle: The damaged Bridge",
         this.speedPotionChestHint.toCenteredPoint());
   }
