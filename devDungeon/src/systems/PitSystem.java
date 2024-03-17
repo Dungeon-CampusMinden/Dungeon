@@ -1,5 +1,6 @@
 package systems;
 
+import contrib.components.ProjectileComponent;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -35,6 +36,7 @@ public class PitSystem extends System {
   /** Process each entity and add it to the pitTimes map if it's on a PitTile. */
   private void processEntities() {
     this.entityStream()
+        .filter(entity -> !entity.isPresent(ProjectileComponent.class))
         .forEach(
             entity -> {
               PositionComponent positionComponent = this.getPositionComponent(entity);
