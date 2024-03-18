@@ -1,5 +1,7 @@
 package contrib.hud.dialogs;
 
+import static contrib.hud.UIUtils.defaultSkin;
+
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.hud.UIUtils;
@@ -31,7 +33,7 @@ public final class OkDialog {
   public static Entity showOkDialog(
       final String text, final String title, final IVoidFunction onOk) {
 
-    Entity entity = showOkDialog(UIUtils.DEFAULT_SKIN, text, title, onOk);
+    Entity entity = showOkDialog(defaultSkin(), text, title, onOk);
     Game.add(entity);
     return entity;
   }

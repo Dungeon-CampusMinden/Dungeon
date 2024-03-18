@@ -6,7 +6,7 @@ Diese Anleitung beschreibt Schritt für Schritt, wie Dungeon: Learning by Questi
 
 ## Schritt 1: Herunterladen der Ressourcen
 
-- [ ] Überprüfen Sie die Java-Version: `java -version` sollte 'java version "17.0.9" 2023-10-17 LTS' oder ähnlich liefern.
+- [ ] Überprüfen Sie die Java-Version: `java -version` sollte 'java version  "21.0.2" 2024-01-16 LTS' oder ähnlich liefern.
 
 ### Option 1: Arbeiten mit dem Starter-Kit
 

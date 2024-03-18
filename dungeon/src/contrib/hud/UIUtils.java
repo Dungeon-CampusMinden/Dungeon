@@ -17,8 +17,22 @@ public final class UIUtils {
   /** The default UI-Skin. */
   private static final IPath SKIN_FOR_DIALOG = new SimpleIPath("skin/uiskin.json");
 
-  public static final Skin DEFAULT_SKIN =
-      new Skin(Gdx.files.internal(SKIN_FOR_DIALOG.pathString()));
+  private static Skin DEFAULT_SKIN;
+
+  /**
+   * Retrieve the default skin.
+   *
+   * <p>Load the skin on demand (singleton with lazy initialisation). This allows to write JUnit
+   * tests for this class w/o mocking libGDX.
+   *
+   * @return the default skin.
+   */
+  public static Skin defaultSkin() {
+    if (DEFAULT_SKIN == null) {
+      DEFAULT_SKIN = new Skin(Gdx.files.internal(SKIN_FOR_DIALOG.pathString()));
+    }
+    return DEFAULT_SKIN;
+  }
 
   /**
    * Limits the length of the string to 40 characters, after which a line break occurs
