@@ -163,8 +163,7 @@ item_type_def
 
 // used to specify, which components should be used in a game object
 component_def_list
-        : aggregate_value_def COMMA component_def_list
-        | aggregate_value_def
+        : {_input.LA(-1) == OPEN_BRACE}? aggregate_value_def (COMMA aggregate_value_def)*
         ;
 
 aggregate_value_def
@@ -199,8 +198,6 @@ object_def
 
 property_def_list
         : {_input.LA(-1) == OPEN_BRACE}? property_def (COMMA property_def)*
-        //: property_def ',' property_def_list
-        //| property_def
         ;
 
 property_def
@@ -209,8 +206,7 @@ property_def
         ;
 
 expression_list
-        : expression COMMA expression_list
-        | expression
+        : expression (COMMA expression)*
         ;
 
 grouped_expression
@@ -271,8 +267,9 @@ dot_edge_stmt
         ;
 
 dot_node_list
-        : id COMMA dot_node_list
-        | id
+        : id (COMMA id)*
+        //: id COMMA dot_node_list
+        //| id
         ;
 
 dot_edge_RHS

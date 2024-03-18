@@ -254,7 +254,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
         break;
       case PropertyDefinitionList:
-      case ParamList:
+      case ExpressionList:
       case GroupedExpression:
         visitChildren(node);
       default:

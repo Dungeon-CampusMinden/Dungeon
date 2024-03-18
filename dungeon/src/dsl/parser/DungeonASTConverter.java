@@ -593,33 +593,6 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     }
     Node stmtList = new Node(Node.Type.ParamDefList, list);
     astStack.push(stmtList);
-
-    // condense down to list of param def nodes
-    /*if (ctx.param_def_list() == null) {
-      // trivial parameter definition list
-      var innerParamDef = astStack.pop();
-      assert (innerParamDef.type == Node.Type.ParamDef);
-
-      var list = new ArrayList<Node>(1);
-      list.add(innerParamDef);
-
-      var paramDefList = new Node(Node.Type.ParamDefList, list);
-      astStack.push(paramDefList);
-    } else {
-      // rhs paramDefList is on stack
-      var rhsList = astStack.pop();
-      assert (rhsList.type == Node.Type.ParamDefList);
-
-      var leftParamDef = astStack.pop();
-      assert (leftParamDef.type == Node.Type.ParamDef);
-
-      var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
-      childList.add(leftParamDef);
-      childList.addAll(rhsList.getChildren());
-
-      var paramDefList = new Node(Node.Type.ParamDefList, childList);
-      astStack.push(paramDefList);
-    }*/
   }
 
   @Override
@@ -667,32 +640,15 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
   @Override
   public void exitComponent_def_list(DungeonDSLParser.Component_def_listContext ctx) {
-    // TODO: add tests for this
-    if (ctx.component_def_list() == null) {
-      // trivial component definition list
-      var innerComponentList = astStack.pop();
-      assert (innerComponentList.type == Node.Type.AggregateValueDefinition);
-
-      var list = new ArrayList<Node>(1);
-      list.add(innerComponentList);
-
-      var componentDefList = new Node(Node.Type.ComponentDefinitionList, list);
-      astStack.push(componentDefList);
-    } else {
-      // rhs componentDefList is on stack
-      var rhsList = astStack.pop();
-      assert (rhsList.type == Node.Type.ComponentDefinitionList);
-
-      var leftComponentDef = astStack.pop();
-      assert (leftComponentDef.type == Node.Type.AggregateValueDefinition);
-
-      var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
-      childList.add(leftComponentDef);
-      childList.addAll(rhsList.getChildren());
-
-      var componentDefList = new Node(Node.Type.ComponentDefinitionList, childList);
-      astStack.push(componentDefList);
+    int listSize = ctx.aggregate_value_def().size();
+    var list = new ArrayList<>(Collections.nCopies(listSize, Node.NONE));
+    for (int i = 0; i < listSize; i++) {
+      // reverse order
+      var aggregateValueDef = astStack.pop();
+      list.set(listSize - i - 1, aggregateValueDef);
     }
+    var aggregateValueDefList = new Node(Node.Type.ComponentDefinitionList, list);
+    astStack.push(aggregateValueDefList);
   }
 
   @Override
@@ -752,33 +708,6 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     }
     var propertyDefList = new Node(Node.Type.PropertyDefinitionList, list);
     astStack.push(propertyDefList);
-
-    // TODO: cleanup
-    /*if (ctx.property_def_list() == null) {
-      // trivial property definition
-      var innerPropertyDef = astStack.pop();
-      assert (innerPropertyDef.type == Node.Type.PropertyDefinition);
-
-      var list = new ArrayList<Node>(1);
-      list.add(innerPropertyDef);
-
-      var propertyDefList = new Node(Node.Type.PropertyDefinitionList, list);
-      astStack.push(propertyDefList);
-    } else {
-      // rhs propertyDefList is on stack
-      var rhsList = astStack.pop();
-      assert (rhsList.type == Node.Type.PropertyDefinitionList);
-
-      var leftPropertyDef = astStack.pop();
-      assert (leftPropertyDef.type == Node.Type.PropertyDefinition);
-
-      var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
-      childList.add(leftPropertyDef);
-      childList.addAll(rhsList.getChildren());
-
-      var propertyDefList = new Node(Node.Type.PropertyDefinitionList, childList);
-      astStack.push(propertyDefList);
-    }*/
   }
 
   @Override
@@ -807,7 +736,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var paramList = Node.NONE;
     if (ctx.expression_list() != null) {
       paramList = astStack.pop();
-      assert paramList.type == Node.Type.ParamList;
+      assert paramList.type == Node.Type.ExpressionList;
     }
 
     // function id will be on stack
@@ -823,27 +752,15 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
   @Override
   public void exitExpression_list(DungeonDSLParser.Expression_listContext ctx) {
-    if (ctx.expression_list() == null) {
-      // trivial param
-      var innerParam = astStack.pop();
-      var list = new ArrayList<Node>(1);
-      list.add(innerParam);
-
-      var paramList = new Node(Node.Type.ParamList, list);
-      astStack.push(paramList);
-    } else {
-      // rhs paramlist is on stack
-      var rhsList = astStack.pop();
-      assert (rhsList.type == Node.Type.ParamList);
-
-      var leftParam = astStack.pop();
-      var childList = new ArrayList<Node>(rhsList.getChildren().size() + 1);
-      childList.add(leftParam);
-      childList.addAll(rhsList.getChildren());
-
-      var paramList = new Node(Node.Type.ParamList, childList);
-      astStack.push(paramList);
+    int listSize = ctx.expression().size();
+    var list = new ArrayList<>(Collections.nCopies(listSize, Node.NONE));
+    for (int i = 0; i < listSize; i++) {
+      // reverse order
+      var expression = astStack.pop();
+      list.set(listSize - i - 1, expression);
     }
+    var expressionList = new Node(Node.Type.ExpressionList, list);
+    astStack.push(expressionList);
   }
 
   @Override
@@ -865,7 +782,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void exitList_definition(DungeonDSLParser.List_definitionContext ctx) {
     // pop expression list
     Node expressionList = astStack.pop();
-    assert expressionList.type == Node.Type.ParamList;
+    assert expressionList.type == Node.Type.ExpressionList;
 
     Node listDefinitionNode = new ListDefinitionNode(expressionList);
     astStack.push(listDefinitionNode);
@@ -878,7 +795,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void exitSet_definition(DungeonDSLParser.Set_definitionContext ctx) {
     // pop expression list
     Node expressionList = astStack.pop();
-    assert expressionList.type == Node.Type.ParamList;
+    assert expressionList.type == Node.Type.ExpressionList;
 
     Node setDefinitionNode = new SetDefinitionNode(expressionList);
     astStack.push(setDefinitionNode);
@@ -1022,24 +939,15 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
   @Override
   public void exitDot_node_list(DungeonDSLParser.Dot_node_listContext ctx) {
-    Node nodeToPush;
-    if (ctx.dot_node_list() != null) {
-      Node rhsNodeList = astStack.pop();
-      assert rhsNodeList.type.equals(Node.Type.DotIdList);
-      List<Node> rhsChildren = rhsNodeList.getChildren();
-
-      Node lhsIdNode = astStack.pop();
-      assert lhsIdNode.type.equals(Node.Type.Identifier);
-
-      ArrayList<Node> idNodes = new ArrayList<>(rhsChildren.size() + 1);
-      idNodes.add(lhsIdNode);
-      idNodes.addAll(rhsChildren);
-      nodeToPush = new DotIdList(idNodes);
-    } else {
-      Node id = astStack.pop();
-      nodeToPush = new DotIdList(List.of(id));
+    int listSize = ctx.id().size();
+    var list = new ArrayList<>(Collections.nCopies(listSize, Node.NONE));
+    for (int i = 0; i < listSize; i++) {
+      // reverse order
+      var id = astStack.pop();
+      list.set(listSize - i - 1, id);
     }
-    astStack.push(nodeToPush);
+    var dotNodeList = new DotIdList(list);
+    astStack.push(dotNodeList);
   }
 
   @Override
