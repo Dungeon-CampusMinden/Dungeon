@@ -268,8 +268,6 @@ dot_edge_stmt
 
 dot_node_list
         : id (COMMA id)*
-        //: id COMMA dot_node_list
-        //| id
         ;
 
 dot_edge_RHS
