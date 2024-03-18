@@ -16,6 +16,7 @@ import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -33,6 +34,10 @@ public class Room_1_3_Generator extends TaskRoomGenerator {
 
   // to toggle between question types
   private static int toggle = 0;
+
+  private static final String[] regexes = {"Wort", "AnderesWort"};
+
+  private static int chosenRegex;
 
   public Room_1_3_Generator(RoomGenerator gen, LevelNode room, LevelNode nextNeighbour) {
     super(gen, room, nextNeighbour);
@@ -60,6 +65,9 @@ public class Room_1_3_Generator extends TaskRoomGenerator {
   }
 
   private static Entity questBoss() throws IOException {
+    // choose random regex for question
+    chosenRegex = new Random().nextInt(regexes.length);
+
     Entity bossOgrex = new Entity("OgreX");
     bossOgrex.add(new PositionComponent());
     bossOgrex.add(new DrawComponent(new SimpleIPath("character/monster/ogre")));
@@ -82,7 +90,13 @@ public class Room_1_3_Generator extends TaskRoomGenerator {
       taskContents.stream()
           .map(t -> (Quiz.Content) t)
           .forEach(t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
-      TextDialog.textDialog(answers.get(), "Ok", "Ihre Antwort");
+
+      if (answers.get().trim().matches(regexes[chosenRegex])) {
+        TextDialog.textDialog("Ihre Antwort ist korrekt!", "Ok", "Ihre Antwort ist korrekt!");
+      } else {
+        TextDialog.textDialog(
+            "Ihre Antwort ist nicht korrekt!", "Ok", "Ihre Antwort ist nicht korrekt!");
+      }
     };
   }
 
@@ -138,6 +152,11 @@ public class Room_1_3_Generator extends TaskRoomGenerator {
   }
 
   public static Quiz freeText() {
-    return new FreeText("Was ist ein regulärer Ausdruck?");
+    String questionText =
+        "Gib einen String ein, der durch das RegEx pattern '"
+            + regexes[chosenRegex]
+            + "' gematcht wird.";
+
+    return new FreeText(questionText);
   }
 }
