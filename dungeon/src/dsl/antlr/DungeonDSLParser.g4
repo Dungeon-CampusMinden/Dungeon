@@ -205,7 +205,7 @@ property_def_list
 
 property_def
         : id COLON expression
-        //| ID ':'                {notifyErrorListeners("Missing expression in property definition");}
+        | ID COLON                {notifyErrorListeners("Missing expression in property definition");}
         ;
 
 expression_list
