@@ -45,6 +45,10 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
     "Noch einmal die aktuelle Aufgabe:",
     // 8
     "Du hast Aufgabe 1 gelöst. Gehe zuerst zum Questioner für Aufgabe 2.",
+    // 9
+    "Gehe zur Truhe 2.",
+    // 10
+    "Gehe zu Truhe 1.",
   };
 
   public Room_1_2_Generator(RoomGenerator gen, LevelNode room, LevelNode nextNeighbour) {
@@ -101,8 +105,8 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
     IVoidFunction openDialog8 = () -> OkDialog.showOkDialog(TEXT[8], "Lösung 2:", empty);
 
     // add tasks
-    addTask(new Task(this, openDialog1, openDialog2, openDialog3, openDialog4));
-    addTask(new Task(this, openDialog5, openDialog6, openDialog7, openDialog8));
+    addTask(new Task(this, "task_1_easy", openDialog1, openDialog2, openDialog3, openDialog4));
+    addTask(new Task(this, "task_2_difficult", openDialog5, openDialog6, openDialog7, openDialog8));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
@@ -130,7 +134,12 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
             (entity1, entity2) ->
                 getNextUncompletedTask()
                     .ifPresentOrElse(
-                        Task::solve, () -> OkDialog.showOkDialog(TEXT[5], "Lösung(en):", empty))));
+                        (t1) ->
+                            getNextUncompletedTaskWithName("task_1_easy")
+                                .ifPresentOrElse(
+                                    Task::solve,
+                                    () -> OkDialog.showOkDialog(TEXT[9], "Lösung(en):", empty)),
+                        () -> OkDialog.showOkDialog(TEXT[5], "Lösung(en):", empty))));
 
     solver1.fetch(DrawComponent.class).orElseThrow().queueAnimation(ChestAnimations.OPEN_FULL);
 
@@ -143,7 +152,18 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
             (entity1, entity2) ->
                 getNextUncompletedTask()
                     .ifPresentOrElse(
-                        Task::solve, () -> OkDialog.showOkDialog(TEXT[5], "Lösung(en):", empty))));
+                        (t1) ->
+                            getNextUncompletedTaskWithName("task_2_difficult")
+                                .ifPresentOrElse(
+                                    (t2) -> {
+                                      if (t1 == t2) {
+                                        t1.solve();
+                                      } else {
+                                        OkDialog.showOkDialog(TEXT[10], "Lösung(en):", empty);
+                                      }
+                                    },
+                                    () -> OkDialog.showOkDialog(TEXT[5], "Lösung(en):", empty)),
+                        () -> OkDialog.showOkDialog(TEXT[5], "Lösung(en):", empty))));
 
     roomEntities.add(talkToMe);
     roomEntities.add(solver1);

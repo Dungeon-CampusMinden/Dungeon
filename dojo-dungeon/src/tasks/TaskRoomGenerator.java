@@ -31,6 +31,13 @@ public abstract class TaskRoomGenerator {
     return roomTasks.stream().filter(t -> !t.isCompleted()).findFirst();
   }
 
+  public Optional<Task> getNextUncompletedTaskWithName(String taskName) {
+    return roomTasks.stream()
+        .filter(t -> !t.isCompleted())
+        .filter(t -> t.getTaskName().equals(taskName))
+        .findFirst();
+  }
+
   public boolean areAllTasksCompleted() {
     return roomTasks.stream().allMatch(Task::isCompleted);
   }

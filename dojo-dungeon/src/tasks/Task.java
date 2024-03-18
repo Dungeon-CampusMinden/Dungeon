@@ -5,20 +5,23 @@ import java.util.function.Function;
 
 public class Task {
   private final TaskRoomGenerator trGen;
+  private final String taskName;
   private final IVoidFunction questionOnActivated;
   private final IVoidFunction questionOnDeactivated;
   private final Function<Task, Boolean> solveOnActivated;
   private final IVoidFunction solveOnDeactivated;
   private boolean isActivated = false;
-  private boolean completed = false;
+  private boolean isCompleted = false;
 
   public Task(
       TaskRoomGenerator trGen,
+      String taskName,
       IVoidFunction questionOnActivated,
       IVoidFunction questionOnDeactivated,
       Function<Task, Boolean> solveOnActivated,
       IVoidFunction solveOnDeactivated) {
     this.trGen = trGen;
+    this.taskName = taskName;
     this.questionOnActivated = questionOnActivated;
     this.questionOnDeactivated = questionOnDeactivated;
     this.solveOnActivated = solveOnActivated;
@@ -47,12 +50,16 @@ public class Task {
     }
   }
 
-  public boolean isCompleted() {
-    return completed;
+  public String getTaskName() {
+    return taskName;
   }
 
-  public void setCompleted(boolean completed) {
-    this.completed = completed;
+  public boolean isCompleted() {
+    return isCompleted;
+  }
+
+  public void setCompleted(boolean isComplete) {
+    this.isCompleted = isComplete;
   }
 
   public boolean isActivated() {
