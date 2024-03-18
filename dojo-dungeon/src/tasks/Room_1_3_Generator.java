@@ -1,10 +1,7 @@
 package tasks;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
-import contrib.hud.dialogs.TextDialog;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
@@ -22,25 +19,19 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
-
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
 import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.FreeText;
-import task.tasktype.quizquestion.MultipleChoice;
-import task.tasktype.quizquestion.SingleChoice;
 
 public class Room_1_3_Generator extends TaskRoomGenerator {
-    private static final String[] regexes = {
-        "Wort",
-        "\\d+",
-        "((public|private|protected) )?class \\w+Class \\{(.*\\n*)*\\}"
-    };
-    private static final int chosenRegex = new Random().nextInt(regexes.length);
-    private static Quiz question = freeText();
-
+  private static final String[] regexes = {
+    "Wort", "\\d+", "((public|private|protected) )?class \\w+Class \\{(.*\\n*)*\\}"
+  };
+  private static final int chosenRegex = new Random().nextInt(regexes.length);
+  private static Quiz question = freeText();
 
   public Room_1_3_Generator(RoomGenerator gen, LevelNode room, LevelNode nextNeighbour) {
     super(gen, room, nextNeighbour);
@@ -52,8 +43,7 @@ public class Room_1_3_Generator extends TaskRoomGenerator {
     getRoom()
         .level(
             new TileLevel(
-                getGen().layout(LevelSize.SMALL, getRoom().neighbours()),
-                DesignLabel.FOREST));
+                getGen().layout(LevelSize.SMALL, getRoom().neighbours()), DesignLabel.FOREST));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
@@ -69,7 +59,6 @@ public class Room_1_3_Generator extends TaskRoomGenerator {
 
   private static Entity questBoss() throws IOException {
     // choose random regex for question
-
 
     Entity bossOgrex = new Entity("OgreX");
     bossOgrex.add(new PositionComponent());
@@ -101,8 +90,7 @@ public class Room_1_3_Generator extends TaskRoomGenerator {
       if (cleanedAnswer.matches(regexes[chosenRegex])) {
         OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
       } else {
-        OkDialog.showOkDialog(
-            "Ihre Antwort ist nicht korrekt!", "Ok", () -> {});
+        OkDialog.showOkDialog("Ihre Antwort ist nicht korrekt!", "Ok", () -> {});
       }
     };
   }
