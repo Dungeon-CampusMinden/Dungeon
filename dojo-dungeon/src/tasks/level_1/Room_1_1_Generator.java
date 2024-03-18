@@ -1,4 +1,4 @@
-package tasks;
+package tasks.level_1;
 
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import tasks.TaskRoomGenerator;
 
 public class Room_1_1_Generator extends TaskRoomGenerator {
   private final int monsterCount;

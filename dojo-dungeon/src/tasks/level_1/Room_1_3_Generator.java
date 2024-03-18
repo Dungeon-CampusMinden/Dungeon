@@ -1,4 +1,4 @@
-package tasks;
+package tasks.level_1;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -25,6 +25,7 @@ import task.game.components.TaskComponent;
 import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.FreeText;
+import tasks.TaskRoomGenerator;
 
 public class Room_1_3_Generator extends TaskRoomGenerator {
   private static final String[] regexes = {

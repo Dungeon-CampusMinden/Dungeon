@@ -1,4 +1,4 @@
-package tasks;
+package tasks.level_1;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
@@ -17,6 +17,10 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
+import tasks.DojoCompiler;
+import tasks.OkDialogUtil;
+import tasks.Task;
+import tasks.TaskRoomGenerator;
 
 public class Room_1_2_Generator extends TaskRoomGenerator {
   private static final String FILENAME1 = "../dungeon/assets/dojo/FehlerhafteKlasse.java";

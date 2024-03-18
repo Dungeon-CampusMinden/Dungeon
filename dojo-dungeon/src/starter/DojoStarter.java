@@ -21,9 +21,9 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import tasks.Room_1_1_Generator;
-import tasks.Room_1_2_Generator;
-import tasks.Room_1_3_Generator;
+import tasks.level_1.Room_1_1_Generator;
+import tasks.level_1.Room_1_2_Generator;
+import tasks.level_1.Room_1_3_Generator;
 
 public class DojoStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
