@@ -53,7 +53,7 @@ public class Room_1_3_Generator extends TaskRoomGenerator {
         .level(
             new TileLevel(
                 getGen().layout(LevelSize.SMALL, getRoom().neighbours()),
-                DesignLabel.randomDesign()));
+                DesignLabel.FOREST));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
