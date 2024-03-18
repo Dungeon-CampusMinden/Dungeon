@@ -38,7 +38,7 @@ public class DojoCompiler {
   public TestResult test2() {
     String testName = "test2";
     try {
-      return test0(testName, getSource().replace("\"7\"", "\"" + Integer.MAX_VALUE + "999\""));
+      return test0(testName, getSource().replace("7", "9876543210"));
     } catch (IOException e) {
       return new TestResult(testName, false, List.of(e.getMessage()));
     }
@@ -63,7 +63,7 @@ public class DojoCompiler {
 
       if (actualOutput != null
           && actualOutput.contains("Die Summe ist: 7")
-          && actualOutput.contains("Die dritte Zahl ist: 7")) {
+          && actualOutput.contains("Die dritte Zahl ist: 8")) {
         messages.add("output ok");
         return new TestResult(testName, true, messages);
       } else {

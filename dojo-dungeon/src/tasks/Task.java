@@ -1,23 +1,23 @@
 package tasks;
 
-import java.util.function.Consumer;
+import core.utils.IVoidFunction;
 import java.util.function.Function;
 
 public class Task {
   private final TaskRoomGenerator trGen;
-  private final Consumer<Task> questionOnActivated;
-  private final Consumer<Task> questionOnDeactivated;
+  private final IVoidFunction questionOnActivated;
+  private final IVoidFunction questionOnDeactivated;
   private final Function<Task, Boolean> solveOnActivated;
-  private final Consumer<Task> solveOnDeactivated;
+  private final IVoidFunction solveOnDeactivated;
   private boolean isActivated = false;
   private boolean completed = false;
 
   public Task(
       TaskRoomGenerator trGen,
-      Consumer<Task> questionOnActivated,
-      Consumer<Task> questionOnDeactivated,
+      IVoidFunction questionOnActivated,
+      IVoidFunction questionOnDeactivated,
       Function<Task, Boolean> solveOnActivated,
-      Consumer<Task> solveOnDeactivated) {
+      IVoidFunction solveOnDeactivated) {
     this.trGen = trGen;
     this.questionOnActivated = questionOnActivated;
     this.questionOnDeactivated = questionOnDeactivated;
@@ -27,9 +27,9 @@ public class Task {
 
   public void question() {
     if (isActivated()) {
-      questionOnActivated.accept(this);
+      questionOnActivated.execute();
     } else {
-      questionOnDeactivated.accept(this);
+      questionOnDeactivated.execute();
       setActivated(true);
     }
   }
@@ -43,7 +43,7 @@ public class Task {
         }
       }
     } else {
-      solveOnDeactivated.accept(this);
+      solveOnDeactivated.execute();
     }
   }
 

@@ -77,7 +77,7 @@ public class DojoStarter {
     GeneratorUtils.doorAt(room3.level(), Direction.NORTH).orElseThrow().close();
 
     // set room1 as start level
-    Game.currentLevel(room1.level());
+    Game.currentLevel(room2.level());
   }
 
   private static void configDoors(LevelNode node) {

@@ -21,8 +21,10 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 public class Room_1_1_Generator extends TaskRoomGenerator {
-    private final int monsterCount;
-  public Room_1_1_Generator(RoomGenerator gen, LevelNode room, LevelNode nextNeighbour, int monsterCount) {
+  private final int monsterCount;
+
+  public Room_1_1_Generator(
+      RoomGenerator gen, LevelNode room, LevelNode nextNeighbour, int monsterCount) {
     super(gen, room, nextNeighbour);
     this.monsterCount = monsterCount;
   }
@@ -33,8 +35,7 @@ public class Room_1_1_Generator extends TaskRoomGenerator {
     getRoom()
         .level(
             new TileLevel(
-                getGen().layout(LevelSize.LARGE, getRoom().neighbours()),
-                DesignLabel.FOREST));
+                getGen().layout(LevelSize.LARGE, getRoom().neighbours()), DesignLabel.FOREST));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
