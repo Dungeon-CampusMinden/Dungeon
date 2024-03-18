@@ -18,7 +18,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-import java.util.regex.Pattern;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -82,11 +81,16 @@ public class Room_1_3_Generator extends TaskRoomGenerator {
           .map(t -> (Quiz.Content) t)
           .forEach(t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
 
-      Pattern pattern = Pattern.compile(regexes[chosenRegex]);
-
       // remove the automatically added \n from the answer string
       String answer = answers.get();
+
       String cleanedAnswer = answer.substring(0, answer.length() - 1);
+
+      System.out.println(System.getProperty("os.name"));
+      if (System.getProperty("os.name").startsWith("Windows")) {
+
+        cleanedAnswer = cleanedAnswer.substring(0, cleanedAnswer.length() - 1);
+      }
 
       if (cleanedAnswer.matches(regexes[chosenRegex])) {
         OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
