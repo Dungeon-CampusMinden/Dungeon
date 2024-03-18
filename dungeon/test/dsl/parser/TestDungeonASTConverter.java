@@ -1125,6 +1125,31 @@ public class TestDungeonASTConverter {
   }
 
   @Test
+  public void testCountAsIdNode() {
+    String program = """
+        fn test() {
+          var count = "Hello";
+        }
+        """;
+
+    String tree = Helpers.printParseTreeForProgram(program);
+    var ast = Helpers.getASTFromString(program);
+
+    var fnDefNode = (FuncDefNode) ast.getChild(0);
+    var stmts = fnDefNode.getStmts();
+
+    var stmt = stmts.get(0);
+    Assert.assertEquals(Node.Type.VarDeclNode, stmt.type);
+
+    var varDeclNode = (VarDeclNode) stmt;
+    var id = varDeclNode.getIdentifier();
+    Assert.assertEquals(Node.Type.Identifier, id.type);
+
+    var idNode = (IdNode) id;
+    Assert.assertEquals("count", idNode.getName());
+  }
+
+  @Test
   public void testImportStmtUnnamed() {
 
     String program = """

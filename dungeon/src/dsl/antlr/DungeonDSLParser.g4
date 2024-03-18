@@ -244,13 +244,7 @@ id  : ID
     | GRAPH
     | TYPE
     | WHILE
-    | SEQ
-    | ST_M
-    | ST_O
-    | C_C
-    | C_F
-    | SEQ_AND
-    | SEQ_OR
+    | dependency_type
     ;
 
 /*
@@ -294,8 +288,7 @@ dot_attr_list
         ;
 
 dot_attr
-        : ID ASSIGN ID (SEMICOLON|COMMA)?                  #dot_attr_id
-        | TYPE ASSIGN dependency_type (SEMICOLON|COMMA)? #dot_attr_dependency_type
+        : id ASSIGN id (SEMICOLON|COMMA)?                  #dot_attr_id
         ;
 
 dependency_type

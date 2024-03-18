@@ -901,7 +901,31 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void enterId(DungeonDSLParser.IdContext ctx) {}
 
   @Override
-  public void exitId(DungeonDSLParser.IdContext ctx) {}
+  public void exitId(DungeonDSLParser.IdContext ctx) {
+    Node node = Node.NONE;
+    // as we enter this rule, the Token was matched as an `id`, so we should
+    // convert from the concrete Token Type (which represents a keyword in the
+    // language) to the identifier representation of the keyword
+    if (ctx.COUNT() != null
+        || ctx.GRAPH() != null
+        || ctx.TYPE() != null
+        || ctx.WHILE() != null
+        || ctx.dependency_type() != null) {
+      var symbol = ctx.getStart();
+      var text = ctx.getText();
+      SourceFileReference sfr =
+          new SourceFileReference(symbol.getLine(), symbol.getCharPositionInLine());
+      node = new IdNode(text, sfr);
+    }
+    if (ctx.dependency_type() != null) {
+      // we keep the kind of dependency_type in this case and add it as a child of
+      // the idNode
+      var inner = astStack.pop();
+      node.addChild(inner);
+    }
+    // push the new node onto the stack
+    if (!node.equals(Node.NONE)) astStack.push(node);
+  }
 
   @Override
   public void enterDot_def(DungeonDSLParser.Dot_defContext ctx) {}
@@ -1069,10 +1093,15 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
   @Override
   public void exitDot_attr_id(DungeonDSLParser.Dot_attr_idContext ctx) {
-    Node rhsId = astStack.pop();
-    Node lhsId = astStack.pop();
-    var attrNode = new DotAttrNode(lhsId, rhsId);
-    astStack.push(attrNode);
+    IdNode rhsId = (IdNode) astStack.pop();
+    IdNode lhsId = (IdNode) astStack.pop();
+    if (lhsId.getName().equals("type") && rhsId.getChild(0).type == Node.Type.DotDependencyType) {
+      var attributeNode = new DotDependencyTypeAttrNode((DotDependencyTypeNode) rhsId.getChild(0));
+      astStack.push(attributeNode);
+    } else {
+      var attrNode = new DotAttrNode(lhsId, rhsId);
+      astStack.push(attrNode);
+    }
   }
 
   private SourceFileReference getSourceFileReference(TerminalNode node) {
@@ -1144,17 +1173,6 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void exitEveryRule(ParserRuleContext ctx) {}
 
   // region dependency_type
-  @Override
-  public void enterDot_attr_dependency_type(DungeonDSLParser.Dot_attr_dependency_typeContext ctx) {}
-
-  @Override
-  public void exitDot_attr_dependency_type(DungeonDSLParser.Dot_attr_dependency_typeContext ctx) {
-    var typeNode = astStack.pop();
-    assert typeNode.type.equals(Node.Type.DotDependencyType);
-    var attributeNode = new DotDependencyTypeAttrNode((DotDependencyTypeNode) typeNode);
-    astStack.push(attributeNode);
-  }
-
   @Override
   public void enterDt_sequence(DungeonDSLParser.Dt_sequenceContext ctx) {}
 
