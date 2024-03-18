@@ -64,71 +64,33 @@ public final class UIUtils {
   }
 
   /**
-   * Creates line breaks after a word once a certain character count is reached.
+   * This is a simple implementation of formatting a text with soft word wrap.
    *
-   * <p>Delegates to {@link #formatText(String, int, boolean)} with {@link #MAX_ROW_LENGTH} as the
-   * max length and with word wrap.
+   * <p>Characteristics:
+   *
+   * <ul>
+   *   <li>Every space character (i.e. {@code " "} or {@code "\n"}, etc.) that occurs at least once
+   *       should be replaced by exactly one space character.
+   *   <li>A line of text should not be longer than {@code MAX_ROW_LENGTH} (currently 40)
+   *       characters.
+   *   <li>Long words at the end of a line should be inserted into the next line (soft word wrap).
+   *   <li>The {@code '\n'} character should be used as the line separator.
+   *   <li>Lines should not be filled up entirely with spaces.
+   * </ul>
    *
    * @param string String which should be reformatted.
    */
   public static String formatString(final String string) {
-    return formatText(string, MAX_ROW_LENGTH, true);
-  }
+    if (string == null) {
+      throw new IllegalArgumentException("string is null");
+    }
 
-  /**
-   * This is a simple implementation of formatting a text with word wrap.
-   *
-   * <p>The method should do the following:
-   *
-   * <ul>
-   *   A line of text should not be longer than {@code maxLen} characters.
-   * </ul>
-   *
-   * <ul>
-   *   Long words at the end of a line should not be wrapped when {@code wordWrap == true}, but
-   *   should instead be inserted into the next line, with one exception: if the word is longer than
-   *   {@code maxLen} characters, then it should also be wrapped when {@code wordWrap == true}.
-   * </ul>
-   *
-   * <ul>
-   *   If {@code wordWrap == false}, long words should always be wrapped at the end of the line. To
-   *   do this, the word should be split and the rest inserted into the next line.
-   * </ul>
-   *
-   * <ul>
-   *   Every space character (i.e. " " or "\n", etc.) that occurs at least once should be replaced
-   *   by exactly one space character. So "Hello \n world" should become "Hello world".
-   * </ul>
-   *
-   * <ul>
-   *   Each system has different line separators... For simplification and so that there are no
-   *   problems in the JUnits, only the "\n" character should ever be used by the algorithm as the
-   *   line separator.
-   * </ul>
-   *
-   * <ul>
-   *   The last line should not be filled with spaces.
-   * </ul>
-   *
-   * <ul>
-   *   {@code null} and a maximum length of {@code < 1} should not be allowed as arguments.
-   * </ul>
-   *
-   * @param text The text to be reformatted.
-   * @param maxLen The maximum line length.
-   * @param wordWrap Whether words should be wrapped.
-   * @return The reformatted text.
-   */
-  public static String formatText(String text, final int maxLen, final boolean wordWrap) {
-    if (text == null) {
-      throw new IllegalArgumentException("text is null");
-    }
-    if (maxLen < 1) {
-      throw new IllegalArgumentException("max length < 1");
-    }
+    final int maxLen = MAX_ROW_LENGTH;
+    final boolean softWordWrap = true;
+
     final StringBuilder result = new StringBuilder();
     final char ls = '\n';
-    text = text.replaceAll("\\s+", " ");
+    final String text = string.replaceAll("\\s+", " ");
     String[] words = text.split(" ");
 
     int wordIndex = 0;
@@ -139,7 +101,7 @@ public final class UIUtils {
       if (lineIndex + word.length() <= maxLen) {
         // word will fit
         result.append(word);
-      } else if (wordWrap && word.length() <= maxLen) {
+      } else if (softWordWrap && word.length() <= maxLen) {
         // do not split word
         --wordIndex;
         int len = maxLen - lineIndex;
