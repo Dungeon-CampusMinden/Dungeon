@@ -19,6 +19,7 @@ sourceSets.test.java.srcDirs = ['test/']
 sourceSets.test.resources.srcDirs = ['test_resources/']
 
 sourceSets.main.antlr.srcDirs = ['src/dsl/antlr']
+sourceSets.test.antlr.srcDirs = ['test/dsl/antlr']
 
 processResources {
     from new File(project(':game').projectDir, '/assets')
