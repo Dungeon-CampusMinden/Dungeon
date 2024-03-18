@@ -2,6 +2,7 @@ package tasks.level_1;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
+import contrib.hud.dialogs.OkDialog;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import contrib.utils.components.draw.ChestAnimations;
@@ -18,7 +19,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 import tasks.DojoCompiler;
-import tasks.OkDialogUtil;
 import tasks.Task;
 import tasks.TaskRoomGenerator;
 
@@ -61,43 +61,44 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
                 DesignLabel.randomDesign()));
 
     // Create tasks 1
+    IVoidFunction empty = () -> {};
     IVoidFunction openDialog2 =
         () ->
-            OkDialogUtil.showOkDialog(
+            OkDialog.showOkDialog(
                 TEXT[0],
                 "Aufgabe 1:",
                 () ->
-                    OkDialogUtil.showOkDialog(
+                    OkDialog.showOkDialog(
                         TEXT[1],
                         "Aufgabe 1:",
-                        () -> OkDialogUtil.showOkDialog(TEXT[2], "Aufgabe 1:")));
-    IVoidFunction openDialog1 = () -> OkDialogUtil.showOkDialog(TEXT[3], "Aufgabe 1:", openDialog2);
+                        () -> OkDialog.showOkDialog(TEXT[2], "Aufgabe 1:", empty)));
+    IVoidFunction openDialog1 = () -> OkDialog.showOkDialog(TEXT[3], "Aufgabe 1:", openDialog2);
     Function<Task, Boolean> openDialog3 =
         (t) -> {
           DojoCompiler.TestResult results = new DojoCompiler(FILENAME2, CLASS_NAME).test1();
           if (results.passed()) {
-            OkDialogUtil.showOkDialog("Danke ... gelöst: " + results.messages(), "Lösung 1:");
+            OkDialog.showOkDialog("Danke ... gelöst: " + results.messages(), "Lösung 1:", empty);
             return true;
           }
-          OkDialogUtil.showOkDialog("Fehler: " + results.messages(), "Lösung 1:");
+          OkDialog.showOkDialog("Fehler: " + results.messages(), "Lösung 1:", empty);
           return false;
         };
-    IVoidFunction openDialog4 = () -> OkDialogUtil.showOkDialog(TEXT[4], "Lösung 1:");
+    IVoidFunction openDialog4 = () -> OkDialog.showOkDialog(TEXT[4], "Lösung 1:", empty);
 
     // Create tasks 2
-    IVoidFunction openDialog6 = () -> OkDialogUtil.showOkDialog(TEXT[6], "Aufgabe 2:");
-    IVoidFunction openDialog5 = () -> OkDialogUtil.showOkDialog(TEXT[7], "Aufgabe 2:", openDialog6);
+    IVoidFunction openDialog6 = () -> OkDialog.showOkDialog(TEXT[6], "Aufgabe 2:", empty);
+    IVoidFunction openDialog5 = () -> OkDialog.showOkDialog(TEXT[7], "Aufgabe 2:", openDialog6);
     Function<Task, Boolean> openDialog7 =
         (t) -> {
           DojoCompiler.TestResult results = new DojoCompiler(FILENAME2, CLASS_NAME).test2();
           if (results.passed()) {
-            OkDialogUtil.showOkDialog("Danke ... gelöst: " + results.messages(), "Lösung 2:");
+            OkDialog.showOkDialog("Danke ... gelöst: " + results.messages(), "Lösung 2:", empty);
             return true;
           }
-          OkDialogUtil.showOkDialog("Fehler: " + results.messages(), "Lösung 2:");
+          OkDialog.showOkDialog("Fehler: " + results.messages(), "Lösung 2:", empty);
           return false;
         };
-    IVoidFunction openDialog8 = () -> OkDialogUtil.showOkDialog(TEXT[8], "Lösung 2:");
+    IVoidFunction openDialog8 = () -> OkDialog.showOkDialog(TEXT[8], "Lösung 2:", empty);
 
     // add tasks
     addTask(new Task(this, openDialog1, openDialog2, openDialog3, openDialog4));
@@ -117,7 +118,8 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
             (entity1, entity2) ->
                 getNextUncompletedTask()
                     .ifPresentOrElse(
-                        Task::question, () -> OkDialogUtil.showOkDialog(TEXT[5], "Aufgabe(n):"))));
+                        Task::question,
+                        () -> OkDialog.showOkDialog(TEXT[5], "Aufgabe(n):", empty))));
 
     // add solver chest 1
     Entity solver1 = EntityFactory.newChest();
@@ -128,7 +130,7 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
             (entity1, entity2) ->
                 getNextUncompletedTask()
                     .ifPresentOrElse(
-                        Task::solve, () -> OkDialogUtil.showOkDialog(TEXT[5], "Lösung(en):"))));
+                        Task::solve, () -> OkDialog.showOkDialog(TEXT[5], "Lösung(en):", empty))));
 
     solver1.fetch(DrawComponent.class).orElseThrow().queueAnimation(ChestAnimations.OPEN_FULL);
 
@@ -141,7 +143,7 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
             (entity1, entity2) ->
                 getNextUncompletedTask()
                     .ifPresentOrElse(
-                        Task::solve, () -> OkDialogUtil.showOkDialog(TEXT[5], "Lösung(en):"))));
+                        Task::solve, () -> OkDialog.showOkDialog(TEXT[5], "Lösung(en):", empty))));
 
     roomEntities.add(talkToMe);
     roomEntities.add(solver1);
