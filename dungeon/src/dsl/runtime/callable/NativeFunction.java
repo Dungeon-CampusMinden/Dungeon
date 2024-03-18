@@ -6,6 +6,7 @@ import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
+/** WTF. ? */
 public abstract class NativeFunction extends ScopedSymbol implements ICallable {
   protected NativeFunction(String name, IScope parentScope, FunctionType type) {
     super(name, parentScope, type);
@@ -19,6 +20,11 @@ public abstract class NativeFunction extends ScopedSymbol implements ICallable {
     }
   }
 
+  /**
+   * WTF. ?
+   *
+   * @param type foo
+   */
   public void overwriteFunctionType(FunctionType type) {
     this.dataType = type;
   }
