@@ -57,8 +57,8 @@ public class Room_1_1_Generator extends TaskRoomGenerator {
     Animation sapphireAnimation = Animation.fromSingleImage(KeyTexture);
     ItemKey key =
         new ItemKey(
-            "Sapphire",
-            "A blue gemstone",
+            "Golden Key",
+            "A golden key that opens the door to the next room.",
             sapphireAnimation,
             sapphireAnimation,
             getRoom(),
