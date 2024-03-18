@@ -33,7 +33,11 @@ import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
 
 public class Room_1_3_Generator extends TaskRoomGenerator {
-    private static final String[] regexes = {"Wort", "AnderesWort"};
+    private static final String[] regexes = {
+        "Wort",
+        "\\d+",
+        "((public|private|protected) )?class \\w+Class \\{(.*\\n*)*\\}"
+    };
     private static final int chosenRegex = new Random().nextInt(regexes.length);
     private static Quiz question = freeText();
 
