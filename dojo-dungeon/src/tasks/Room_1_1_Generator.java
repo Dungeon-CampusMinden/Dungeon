@@ -14,9 +14,11 @@ import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.draw.Animation;
+import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -40,15 +42,20 @@ public class Room_1_1_Generator extends TaskRoomGenerator {
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
 
+    IPath[] monsterPaths = {
+      new SimpleIPath("character/monster/imp"), new SimpleIPath("character/monster/goblin")
+    };
+
     for (int i = 0; i < monsterCount; i++) {
-      roomEntities.add(MonsterFactory.randomMonster());
+      roomEntities.add(
+          MonsterFactory.randomMonster(monsterPaths[new Random().nextInt(monsterPaths.length)]));
     }
     // get random monster from roomEntities
     Entity randomMonster = (Entity) roomEntities.toArray()[(int) (Math.random() * monsterCount)];
 
-    SimpleIPath sapphireTexture = new SimpleIPath("items/resource/saphire.png");
-    Animation sapphireAnimation = Animation.fromSingleImage(sapphireTexture);
-    ItemKey sapphire =
+    SimpleIPath KeyTexture = new SimpleIPath("items/key/gold_key.png");
+    Animation sapphireAnimation = Animation.fromSingleImage(KeyTexture);
+    ItemKey key =
         new ItemKey(
             "Sapphire",
             "A blue gemstone",
@@ -61,7 +68,7 @@ public class Room_1_1_Generator extends TaskRoomGenerator {
       randomMonster.remove(InventoryComponent.class);
     }
     randomMonster.add(new InventoryComponent());
-    randomMonster.fetch(InventoryComponent.class).orElseThrow().add(sapphire);
+    randomMonster.fetch(InventoryComponent.class).orElseThrow().add(key);
 
     // monster drops a sapphire on death
     BiConsumer<Entity, Entity> onDeath =
