@@ -77,7 +77,7 @@ public class DojoStarter {
     GeneratorUtils.doorAt(room3.level(), Direction.NORTH).orElseThrow().close();
 
     // set room1 as start level
-    Game.currentLevel(room2.level());
+    Game.currentLevel(room1.level());
   }
 
   private static void configDoors(LevelNode node) {
@@ -121,7 +121,7 @@ public class DojoStarter {
         core.configuration.KeyboardConfig.class);
     Game.frameRate(30);
     Game.disableAudio(false);
-    Game.windowTitle("Andres Freezer");
+    Game.windowTitle("Dojo Dungeon");
   }
 
   private static void setupMusic() {
