@@ -91,7 +91,7 @@ public final class UIUtils {
     final StringBuilder result = new StringBuilder();
     final char ls = '\n';
     final String text = string.replaceAll("\\s+", " ");
-    String[] words = text.split(" ");
+    final String[] words = text.split(" ");
 
     int wordIndex = 0;
     int lineIndex = 0;
