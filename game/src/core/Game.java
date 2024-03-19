@@ -419,16 +419,17 @@ public final class Game {
    */
   public static Stream<Entity> entityAtTile(final Tile check) {
     Tile tile = Game.tileAT(check.position());
+    if (tile == null) return Stream.empty();
 
     return ECSManagment.entityStream(Set.of(PositionComponent.class))
         .filter(
             e ->
-                tileAT(
+                tile.equals(
+                    tileAT(
                         e.fetch(PositionComponent.class)
                             .orElseThrow(
                                 () -> MissingComponentException.build(e, PositionComponent.class))
-                            .position())
-                    .equals(tile));
+                            .position())));
   }
 
   /**
