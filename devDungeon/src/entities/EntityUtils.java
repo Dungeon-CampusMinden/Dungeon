@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.logging.Logger;
-import level.level1.DevLevel01;
+import level.devlevel.TorchRiddleLevel;
 import utils.ArrayUtils;
 
 public class EntityUtils {
@@ -141,7 +141,7 @@ public class EntityUtils {
    * @param torchPos The pos where the torch should be spawned.
    * @param lit The initial state of the torch. True if the torch should be lit, false otherwise.
    * @param isInteractable True if the torch should be interactable, false otherwise.
-   * @param value The value of the torch. (Used for {@link DevLevel01 Level 1}).
+   * @param value The value of the torch. (Used for {@link TorchRiddleLevel Level 1}).
    * @return The spawned torch entity.
    */
   public static Entity spawnTorch(Point torchPos, boolean lit, boolean isInteractable, int value) {
@@ -155,7 +155,7 @@ public class EntityUtils {
    * @param torchPos The pos where the torch should be spawned.
    * @param lit The initial state of the torch. True if the torch should be lit, false otherwise.
    * @param onToggle The action to perform when the torch is toggled. (torch, whoTriggered)
-   * @param value The value of the torch. (Used for {@link DevLevel01 Level 1}).
+   * @param value The value of the torch. (Used for {@link TorchRiddleLevel Level 1}).
    * @return The spawned torch entity.
    */
   public static Entity spawnTorch(

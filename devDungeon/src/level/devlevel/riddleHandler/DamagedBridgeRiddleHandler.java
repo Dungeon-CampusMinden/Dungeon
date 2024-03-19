@@ -1,4 +1,4 @@
-package level.level2;
+package level.devlevel.riddleHandler;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
@@ -16,11 +16,11 @@ import entities.SignFactory;
 import item.concreteItem.ItemPotionRegenerationPotion;
 import item.concreteItem.ItemPotionSpeedPotion;
 import java.util.List;
+import level.utils.ITickable;
 import level.utils.LevelUtils;
 import utils.BurningFireballSkill;
 
-/** The Second Level (Damaged Bridge Riddle) */
-public class DevLevel02Riddle {
+public class DamagedBridgeRiddleHandler implements ITickable {
 
   private final TileLevel level;
   private final Coordinate[] riddleRoomBounds;
@@ -34,7 +34,7 @@ public class DevLevel02Riddle {
   private final Coordinate speedPotionChestHint;
   private boolean rewardGiven = false;
 
-  public DevLevel02Riddle(List<Coordinate> customPoints, TileLevel level) {
+  public DamagedBridgeRiddleHandler(List<Coordinate> customPoints, TileLevel level) {
     this.riddleRoomBounds = new Coordinate[] {customPoints.get(0), customPoints.get(1)};
     this.riddleEntrance = (DoorTile) level.tileAt(customPoints.get(2));
     this.riddleEntranceSign = customPoints.get(3);
@@ -48,6 +48,7 @@ public class DevLevel02Riddle {
     this.level = level;
   }
 
+  @Override
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       this.handleFirstTick();

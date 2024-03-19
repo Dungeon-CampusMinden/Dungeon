@@ -1,4 +1,4 @@
-package level.level0;
+package level.devlevel;
 
 import com.badlogic.gdx.utils.Align;
 import components.SignComponent;
@@ -29,7 +29,7 @@ import level.DevDungeonLevel;
 import level.utils.ITickable;
 
 /** The tutorial level */
-public class DevLevel00 extends DevDungeonLevel implements ITickable {
+public class TutorialLevel extends DevDungeonLevel implements ITickable {
 
   // Entity spawn points
   private final Coordinate mobSpawn;
@@ -37,16 +37,13 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
   private final Point cauldronSpawn;
   private Coordinate lastHeroCoords = new Coordinate(0, 0);
 
-  public DevLevel00(
+  public TutorialLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints);
     this.mobSpawn = customPoints.get(0);
 
-    // Static Entity should spawn in the center of the tile (so I have to offset by 0.5)
-    this.chestSpawn =
-        new Point(customPoints.get(1).toPoint().x + 0.5f, customPoints.get(1).toPoint().y + 0.5f);
-    this.cauldronSpawn =
-        new Point(customPoints.get(2).toPoint().x + 0.5f, customPoints.get(2).toPoint().y + 0.5f);
+    this.chestSpawn = customPoints.get(1).toCenteredPoint();
+    this.cauldronSpawn = customPoints.get(2).toCenteredPoint();
   }
 
   @Override
@@ -188,8 +185,7 @@ public class DevLevel00 extends DevDungeonLevel implements ITickable {
     ic =
         b.fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(b, InventoryComponent.class));
-    pc.position(
-        new Point(this.customPoints().get(3).x + 0.5f, this.customPoints().get(3).y + 0.5f));
+    pc.position(this.customPoints().get(3).toCenteredPoint());
     ic.add(new ItemPotionHealth(HealthPotionType.NORMAL));
     Game.add(b);
   }

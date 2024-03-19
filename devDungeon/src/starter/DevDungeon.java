@@ -30,8 +30,9 @@ import systems.DevHealthSystem;
 
 public class DevDungeon {
 
+  public static final DungeonLoader DUNGEON_LOADER =
+      new DungeonLoader(new String[] {"tutorial", "damagedBridge", "torchRiddle"});
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
-
   private static final boolean SKIP_TUTORIAL = true;
 
   public static void main(String[] args) throws IOException {
@@ -71,7 +72,7 @@ public class DevDungeon {
     Game.userOnSetup(
         () -> {
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          levelSystem.onEndTile(DungeonLoader::loadNextLevel);
+          levelSystem.onEndTile(DUNGEON_LOADER::loadNextLevel);
 
           createSystems();
           try {
@@ -82,9 +83,9 @@ public class DevDungeon {
           setupMusic();
           Crafting.loadRecipes();
           if (SKIP_TUTORIAL) {
-            DungeonLoader.loadLevel(1); // First Level start at 1
+            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[1]); // First Level
           } else {
-            DungeonLoader.loadLevel(0); // Tutorial at 0
+            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[0]); // Tutorial
           }
         });
   }

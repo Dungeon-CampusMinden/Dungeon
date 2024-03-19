@@ -19,17 +19,36 @@ public class DungeonLoader {
 
   private static final Logger LOGGER = Logger.getLogger(DungeonLoader.class.getSimpleName());
   private static final Random RANDOM = new Random();
-  private static final String LEVEL_PATH_PREFIX = "levels/";
-  private static final Map<Integer, List<String>> levels = new HashMap<>();
-  public static int CURRENT_LEVEL = 0;
+  private static final String LEVEL_PATH_PREFIX = "/levels";
+  private static final Map<String, List<String>> LEVELS = new HashMap<>();
 
   static {
     getAllLevelFilePaths();
   }
 
+  private final String[] levelOrder;
+  private int currentLevel = 0;
+
+  /**
+   * Constructs a new DungeonLoader with the specified level order.
+   *
+   * <p>This constructor takes an array of level names and converts them to lowercase. This is done
+   * because all level names in the game are expected to be in lowercase. The level order array is
+   * used to determine the order in which levels are loaded in the game.
+   *
+   * @param levelOrder An array of level names in the order they should be loaded.
+   */
+  public DungeonLoader(String[] levelOrder) {
+    for (int i = 0; i < levelOrder.length; i++) {
+      levelOrder[i] = levelOrder[i].toLowerCase(); // all level names should be lowercase
+    }
+
+    this.levelOrder = levelOrder;
+  }
+
   private static void getAllLevelFilePaths() { // TODO: only works with local file-system
     try {
-      URI uri = Objects.requireNonNull(DungeonLoader.class.getResource("/levels")).toURI();
+      URI uri = Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
       Path path = Paths.get(uri);
       try (Stream<Path> paths = Files.walk(path)) {
         paths
@@ -40,11 +59,9 @@ public class DungeonLoader {
                   if (fileName.endsWith(".level")) {
                     String[] parts = fileName.split("_");
                     if (parts.length == 2) {
-                      int levelNumber = Integer.parseInt(parts[0]);
+                      String levelName = parts[0];
                       String levelFilePath = file.toString();
-                      levels
-                          .computeIfAbsent(levelNumber, k -> new ArrayList<>())
-                          .add(levelFilePath);
+                      LEVELS.computeIfAbsent(levelName, k -> new ArrayList<>()).add(levelFilePath);
                     } else {
                       LOGGER.warning("Invalid level file name: " + fileName);
                     }
@@ -56,50 +73,64 @@ public class DungeonLoader {
     }
   }
 
-  private static ILevel getRandomVariant(int levelNumber) {
-    List<String> levelVariants = levels.get(levelNumber);
+  public String[] levelOrder() {
+    return this.levelOrder;
+  }
+
+  public String currentLevel() {
+    return this.levelOrder()[this.currentLevel];
+  }
+
+  private ILevel getRandomVariant(String levelName) {
+    List<String> levelVariants = LEVELS.get(levelName);
 
     if (levelVariants == null || levelVariants.isEmpty()) {
-      throw new MissingLevelException(levelNumber);
+      throw new MissingLevelException(levelName);
     }
 
     // Random Level Variant Path
     IPath levelPath = new SimpleIPath(levelVariants.get(RANDOM.nextInt(levelVariants.size())));
 
-    try {
-      return DevDungeonLevel.loadFromPath(levelPath);
-    } catch (ReflectiveOperationException e) {
-      throw new RuntimeException("Error loading level", e);
-    }
+    return DevDungeonLevel.loadFromPath(levelPath);
   }
 
-  public static void loadNextLevel() {
-    CURRENT_LEVEL++;
+  public void loadNextLevel() {
+    this.currentLevel++;
     try {
-      Game.currentLevel(getRandomVariant(CURRENT_LEVEL));
+      Game.currentLevel(this.getRandomVariant(this.levelOrder[this.currentLevel]));
     } catch (MissingLevelException e) {
       System.out.println("Game Over!");
-      System.out.println("You have passed all " + CURRENT_LEVEL + " levels!");
+      System.out.println("You have passed all " + this.currentLevel + " levels!");
       Game.exit();
     }
   }
 
-  public static void loadLevel(int levelNumber) {
-    CURRENT_LEVEL = levelNumber;
-    Game.currentLevel(getRandomVariant(levelNumber));
+  public void loadLevel(String levelName) {
+    this.setCurrentLevelByLevelName(levelName);
+    Game.currentLevel(this.getRandomVariant(levelName));
   }
 
-  public static void loadLevel(int levelNumber, int variant) {
-    CURRENT_LEVEL = levelNumber;
-    List<String> levelVariants = levels.get(levelNumber);
+  public void loadLevel(String levelName, int variant) {
+    this.setCurrentLevelByLevelName(levelName);
+    List<String> levelVariants = LEVELS.get(levelName);
     if (levelVariants == null || levelVariants.isEmpty() || variant >= levelVariants.size()) {
-      throw new MissingLevelException(levelNumber);
+      throw new MissingLevelException(levelName);
     }
     IPath levelPath = new SimpleIPath(levelVariants.get(variant));
-    try {
-      Game.currentLevel(DevDungeonLevel.loadFromPath(levelPath));
-    } catch (ReflectiveOperationException e) {
-      throw new RuntimeException("Error loading level", e);
+    Game.currentLevel(DevDungeonLevel.loadFromPath(levelPath));
+  }
+
+  private void setCurrentLevelByLevelName(String levelName) {
+    this.currentLevel = -1;
+    for (int i = 0; i < this.levelOrder.length; i++) {
+      if (this.levelOrder[i].equals(levelName)) {
+        this.currentLevel = i;
+        break;
+      }
+    }
+
+    if (this.currentLevel == -1) {
+      throw new MissingLevelException(levelName);
     }
   }
 }

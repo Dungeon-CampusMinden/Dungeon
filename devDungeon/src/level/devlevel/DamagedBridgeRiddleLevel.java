@@ -1,4 +1,4 @@
-package level.level2;
+package level.devlevel;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
@@ -19,15 +19,17 @@ import entities.EntityUtils;
 import entities.MonsterType;
 import java.util.*;
 import level.DevDungeonLevel;
+import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
 import level.utils.ITickable;
 
-/** The First Level (Torch Riddle) */
-public class DevLevel02 extends DevDungeonLevel implements ITickable {
+/** The Damaged Bridge Riddle Level */
+public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickable {
 
   // Difficulty (Mob Count, Mob Types)
-  private static final int MOB_COUNT = 12;
+  private static final int MOB_COUNT = 7;
   private static final MonsterType[] MONSTER_TYPES =
       new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
+  private static final MonsterType BOSS_TYPE = MonsterType.CHORT;
 
   // Spawn Points / Locations
   private final Coordinate bridgeMobSpawn;
@@ -35,12 +37,12 @@ public class DevLevel02 extends DevDungeonLevel implements ITickable {
   private final Coordinate[] mobSpawns;
   private final Coordinate levelBossSpawn;
 
-  private final DevLevel02Riddle riddleHandler;
+  private final DamagedBridgeRiddleHandler riddleHandler;
 
-  public DevLevel02(
+  public DamagedBridgeRiddleLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints);
-    this.riddleHandler = new DevLevel02Riddle(customPoints, this);
+    this.riddleHandler = new DamagedBridgeRiddleHandler(customPoints, this);
     this.bridgeMobSpawn = customPoints.get(8);
     this.secretWay =
         new Tile[] {
@@ -87,8 +89,7 @@ public class DevLevel02 extends DevDungeonLevel implements ITickable {
     // Spawn all entities and it's content
     this.spawnChestsAndCauldrons();
 
-    EntityUtils.spawnMobs(
-        MOB_COUNT, MONSTER_TYPES, this.mobSpawns, MonsterType.ZOMBIE, this.levelBossSpawn);
+    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns, BOSS_TYPE, this.levelBossSpawn);
   }
 
   private void prepareBridge() {

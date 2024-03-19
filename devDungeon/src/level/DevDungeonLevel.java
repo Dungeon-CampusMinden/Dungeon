@@ -11,11 +11,11 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import level.level0.DevLevel00;
-import level.level1.DevLevel01;
-import level.level2.DevLevel02;
-import level.utils.DungeonLoader;
+import level.devlevel.DamagedBridgeRiddleLevel;
+import level.devlevel.TorchRiddleLevel;
+import level.devlevel.TutorialLevel;
 import level.utils.MissingLevelException;
+import starter.DevDungeon;
 
 /**
  * Represents a level in the DevDungeon game. This class extends the {@link TileLevel} class and
@@ -46,7 +46,7 @@ public class DevDungeonLevel extends TileLevel {
    * @param path The path to the file to load
    * @return The loaded DevDungeonLevel
    */
-  public static DevDungeonLevel loadFromPath(IPath path) throws ReflectiveOperationException {
+  public static DevDungeonLevel loadFromPath(IPath path) {
     // Load file from the path
     File file = new File(path.pathString());
     if (!file.exists()) {
@@ -76,7 +76,9 @@ public class DevDungeonLevel extends TileLevel {
 
       DevDungeonLevel newLevel;
       try {
-        newLevel = getDevLevel(DungeonLoader.CURRENT_LEVEL, layout, designLabel, customPoints);
+        newLevel =
+            getDevLevel(
+                DevDungeon.DUNGEON_LOADER.currentLevel(), layout, designLabel, customPoints);
       } catch (IndexOutOfBoundsException e) {
         newLevel = new DevDungeonLevel(layout, designLabel, customPoints);
         e.printStackTrace();
@@ -193,17 +195,16 @@ public class DevDungeonLevel extends TileLevel {
   }
 
   private static DevDungeonLevel getDevLevel(
-      int levelNumber,
+      String levelName,
       LevelElement[][] layout,
       DesignLabel designLabel,
       List<Coordinate> customPoints) {
-    return switch (levelNumber) {
-      case 0 -> new DevLevel00(layout, designLabel, customPoints);
-      case 1 -> new DevLevel01(layout, designLabel, customPoints);
-      case 2 -> new DevLevel02(layout, designLabel, customPoints);
+    return switch (levelName) {
+      case "tutorial" -> new TutorialLevel(layout, designLabel, customPoints);
+      case "torchriddle" -> new TorchRiddleLevel(layout, designLabel, customPoints);
+      case "damagedbridge" -> new DamagedBridgeRiddleLevel(layout, designLabel, customPoints);
       default ->
-          throw new IllegalArgumentException(
-              "Invalid level number for levelHandler: " + levelNumber);
+          throw new IllegalArgumentException("Invalid level name for levelHandler: " + levelName);
     };
   }
 

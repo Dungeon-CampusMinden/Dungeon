@@ -1,4 +1,4 @@
-package level.level1;
+package level.devlevel.riddleHandler;
 
 import components.SignComponent;
 import components.TorchComponent;
@@ -17,16 +17,17 @@ import entities.SignFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
+import level.utils.ITickable;
 import level.utils.LevelUtils;
 import utils.ArrayUtils;
 
-public class DevLevel01Riddle {
+public class TorchRiddleRiddleHandler implements ITickable {
 
   /** Maximum value a riddle torch can have */
-  static final int UPPER_RIDDLE_BOUND = 15;
+  public static final int UPPER_RIDDLE_BOUND = 15;
 
   /** Minimum value a riddle torch can have */
-  static final int LOWER_RIDDLE_BOUND = 5;
+  public static final int LOWER_RIDDLE_BOUND = 5;
 
   /** The reward for solving the riddle (max health points) */
   private static final int RIDDLE_REWARD = 5;
@@ -42,7 +43,7 @@ public class DevLevel01Riddle {
   private boolean rewardGiven = false;
   private boolean broken = false;
 
-  public DevLevel01Riddle(List<Coordinate> customPoints, TileLevel level) {
+  public TorchRiddleRiddleHandler(List<Coordinate> customPoints, TileLevel level) {
     this.level = level;
     // First point is the riddle door
     this.riddleDoor = customPoints.getFirst();
@@ -70,7 +71,8 @@ public class DevLevel01Riddle {
             });
   }
 
-  void onTick(boolean firstTick) {
+  @Override
+  public void onTick(boolean firstTick) {
     if (firstTick) {
       this.handleFirstTick();
     }
@@ -213,7 +215,7 @@ public class DevLevel01Riddle {
    * @param torchNumbers The values of all riddle related torches.
    * @see #getRandomSumOfNElements(List)
    */
-  void setRiddleSolution(List<Integer> torchNumbers) {
+  public void setRiddleSolution(List<Integer> torchNumbers) {
     this.riddleSearchedSum = this.getRandomSumOfNElements(torchNumbers);
   }
 

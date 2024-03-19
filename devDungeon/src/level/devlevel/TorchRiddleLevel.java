@@ -1,4 +1,4 @@
-package level.level1;
+package level.devlevel;
 
 import components.TorchComponent;
 import contrib.components.InventoryComponent;
@@ -20,16 +20,18 @@ import entities.EntityUtils;
 import entities.MonsterType;
 import java.util.*;
 import level.DevDungeonLevel;
+import level.devlevel.riddleHandler.TorchRiddleRiddleHandler;
 import level.utils.ITickable;
 import level.utils.LevelUtils;
 
-/** The First Level (Torch Riddle) */
-public class DevLevel01 extends DevDungeonLevel implements ITickable {
+/** The Torch Riddle Level */
+public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {
 
   // Difficulty (Mob Count, Mob Types)
-  private static final int MOB_COUNT = 5;
+  private static final int MOB_COUNT = 12;
   private static final MonsterType[] MONSTER_TYPES =
       new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
+  private static final MonsterType BOSS_TYPE = MonsterType.ZOMBIE;
 
   // Spawn Points / Locations
   private final Coordinate[] torchPositions;
@@ -38,12 +40,12 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   private final Coordinate[] riddleRoomContent;
   private final Coordinate[] mobSpawns;
   private final Coordinate levelBossSpawn;
-  private final DevLevel01Riddle riddleHandler;
+  private final TorchRiddleRiddleHandler riddleHandler;
 
-  public DevLevel01(
+  public TorchRiddleLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints);
-    this.riddleHandler = new DevLevel01Riddle(customPoints, this);
+    this.riddleHandler = new TorchRiddleRiddleHandler(customPoints, this);
 
     this.riddleRoomBounds = new Coordinate[] {customPoints.get(1), customPoints.get(2)};
     this.torchPositions = customPoints.subList(3, 9).toArray(new Coordinate[0]);
@@ -64,15 +66,14 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
   }
 
   private void handleFirstTick() {
-    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the chort)
+    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the LEVEL_BOSS)
 
     // Hide Riddle Room at start
     LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
 
     // Spawn all entities and it's content
     this.spawnTorches();
-    EntityUtils.spawnMobs(
-        MOB_COUNT, MONSTER_TYPES, this.mobSpawns, MonsterType.CHORT, this.levelBossSpawn);
+    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns, BOSS_TYPE, this.levelBossSpawn);
     this.spawnChestsAndCauldrons();
   }
 
@@ -97,7 +98,7 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
    * riddle. Each torch has a sign next to it, displaying its value. It also updates the search
    * value on the sign next to the door.
    *
-   * @see DevLevel01Riddle#setRiddleSolution(List)
+   * @see TorchRiddleRiddleHandler#setRiddleSolution(List)
    */
   private void spawnOutsideTorches() {
     List<Integer> torchNumbers = new ArrayList<>();
@@ -111,7 +112,8 @@ public class DevLevel01 extends DevDungeonLevel implements ITickable {
               i == 0,
               true,
               RANDOM.nextInt(
-                  DevLevel01Riddle.LOWER_RIDDLE_BOUND, DevLevel01Riddle.UPPER_RIDDLE_BOUND));
+                  TorchRiddleRiddleHandler.LOWER_RIDDLE_BOUND,
+                  TorchRiddleRiddleHandler.UPPER_RIDDLE_BOUND));
       int torchNumber =
           torch
               .fetch(TorchComponent.class)
