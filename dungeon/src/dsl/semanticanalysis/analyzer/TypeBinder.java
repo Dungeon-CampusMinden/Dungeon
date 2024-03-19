@@ -336,11 +336,6 @@ public class TypeBinder implements AstVisitor<Object> {
   }
 
   @Override
-  public Object visit(EdgeRhsNode node) {
-    return null;
-  }
-
-  @Override
   public Object visit(DotEdgeStmtNode node) {
     return null;
   }

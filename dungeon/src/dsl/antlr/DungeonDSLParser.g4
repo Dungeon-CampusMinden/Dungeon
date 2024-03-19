@@ -254,24 +254,20 @@ id  : ID
 dot_def : GRAPH id OPEN_BRACE dot_stmt_list? CLOSE_BRACE ;
 
 dot_stmt_list
-        : dot_stmt SEMICOLON? dot_stmt_list?
+        : dot_stmt+ //SEMICOLON dot_stmt_list?
         ;
 
 dot_stmt
-        : dot_node_stmt
-        | dot_edge_stmt
+        : dot_node_stmt SEMICOLON?
+        | dot_edge_stmt SEMICOLON?
         ;
 
 dot_edge_stmt
-        : dot_node_list dot_edge_RHS+ dot_attr_list?
+        : dot_node_list (ARROW dot_node_list)+ dot_attr_list?
         ;
 
 dot_node_list
         : id (COMMA id)*
-        ;
-
-dot_edge_RHS
-        : ARROW dot_node_list
         ;
 
 dot_node_stmt

@@ -191,11 +191,6 @@ public class VariableBinder implements AstVisitor<Void> {
   }
 
   @Override
-  public Void visit(EdgeRhsNode node) {
-    return null;
-  }
-
-  @Override
   public Void visit(DotEdgeStmtNode node) {
     return null;
   }

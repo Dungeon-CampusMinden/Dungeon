@@ -859,11 +859,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   }
 
   @Override
-  public Void visit(EdgeRhsNode node) {
-    return null;
-  }
-
-  @Override
   public Void visit(DotEdgeStmtNode node) {
     for (Node id : node.getIdLists()) {
       id.accept(this);
