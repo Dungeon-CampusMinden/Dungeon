@@ -1,9 +1,11 @@
-package item;
+package systems;
 
 import com.badlogic.gdx.utils.DelayedRemovalArray;
 import com.badlogic.gdx.utils.TimeUtils;
+import core.System;
+import utils.TimedEffect;
 
-public class EffectScheduler {
+public class EffectScheduler extends System {
 
   private static EffectScheduler INSTANCE;
   private final DelayedRemovalArray<ScheduledAction> scheduledActions = new DelayedRemovalArray<>();
@@ -37,6 +39,11 @@ public class EffectScheduler {
 
   public void clear() {
     this.scheduledActions.clear();
+  }
+
+  @Override
+  public void execute() {
+    this.update();
   }
 
   private static class ScheduledAction {

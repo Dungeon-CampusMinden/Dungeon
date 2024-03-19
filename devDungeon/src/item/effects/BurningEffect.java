@@ -5,7 +5,7 @@ import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.utils.components.MissingComponentException;
-import item.EffectScheduler;
+import systems.EffectScheduler;
 
 /**
  * The BurningEffect class represents a burning effect in the game. This effect applies damage to a

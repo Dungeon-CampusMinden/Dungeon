@@ -1,7 +1,7 @@
 package item.effects;
 
 import core.Entity;
-import item.EffectScheduler;
+import systems.EffectScheduler;
 
 /**
  * Provides a mechanism to apply a temporary speed increase effect to an entity within the game.

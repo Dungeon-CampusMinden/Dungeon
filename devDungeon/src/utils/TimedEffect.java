@@ -1,4 +1,4 @@
-package item;
+package utils;
 
 @FunctionalInterface
 public interface TimedEffect {

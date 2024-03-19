@@ -21,12 +21,12 @@ import core.utils.components.path.SimpleIPath;
 import entities.DevHeroFactory;
 import entities.EntityUtils;
 import entities.MonsterType;
-import item.EffectScheduler;
 import item.concreteItem.ItemPotionSpeedPotion;
 import java.io.IOException;
 import level.utils.DungeonLoader;
 import systems.*;
 import systems.DevHealthSystem;
+import systems.EffectScheduler;
 
 public class DevDungeon {
 
@@ -38,34 +38,26 @@ public class DevDungeon {
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger();
     Debugger debugger = new Debugger();
-    EffectScheduler effectScheduler = EffectScheduler.getInstance();
     configGame();
     onSetup();
 
     Game.userOnLevelLoad(
         (firstTime) -> {
-          // Check if FogOfWar exists, if so reset it
-          if (Game.systems().containsKey(FogOfWarSystem.class)) {
-            FogOfWarSystem fogOfWarSystem =
-                (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
-            fogOfWarSystem.reset();
-          }
-          effectScheduler.clear(); // Clear all scheduled actions
+          // Resets FogOfWar on level change (prevent artifacts)
+          FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
+          fogOfWarSystem.reset();
+          EffectScheduler.getInstance().clear(); // Clear all scheduled actions
         });
 
-    onFrame(debugger, effectScheduler);
+    onFrame(debugger);
 
     // build and start game
     Game.run();
     Game.windowTitle("Dev Dungeon");
   }
 
-  private static void onFrame(Debugger debugger, EffectScheduler effectScheduler) {
-    Game.userOnFrame(
-        () -> {
-          debugger.execute();
-          effectScheduler.update();
-        });
+  private static void onFrame(Debugger debugger) {
+    Game.userOnFrame(debugger::execute);
   }
 
   private static void onSetup() {
@@ -75,6 +67,8 @@ public class DevDungeon {
           levelSystem.onEndTile(DUNGEON_LOADER::loadNextLevel);
 
           createSystems();
+          FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
+          fogOfWarSystem.active(false); // Default: Fog of War is disabled
           try {
             createHero();
           } catch (IOException e) {
@@ -127,7 +121,8 @@ public class DevDungeon {
     Game.add(new LevelEditorSystem());
     Game.add(new LevelTickSystem());
     Game.add(new PitSystem());
-    // Game.add(new FogOfWarSystem());
+    Game.add(EffectScheduler.getInstance());
+    Game.add(new FogOfWarSystem());
     Game.add(
         new System() {
           @Override
