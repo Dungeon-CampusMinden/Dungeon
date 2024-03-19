@@ -260,4 +260,24 @@ public class EntityUtils {
       Coordinate levelBossSpawn) {
     spawnMobs(mobCount, monsterTypes, mobSpawns, bossType, levelBossSpawn, e -> {});
   }
+
+  /**
+   * Teleports the hero to a specified point in the game.
+   *
+   * <p>This method retrieves the hero entity from the game. If the hero entity is null (which can
+   * happen if the hero has fallen into a pit), the method returns without doing anything.
+   *
+   * @param point The point to which the hero should be teleported.
+   */
+  public static void teleportHeroTo(Point point) {
+    Entity hero = Game.hero().orElse(null);
+    if (hero == null) {
+      return;
+    }
+    PositionComponent heroPc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+
+    heroPc.position(point);
+  }
 }
