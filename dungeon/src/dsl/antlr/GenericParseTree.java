@@ -1,25 +1,25 @@
 package dsl.antlr;
 
-import dsl.parser.ast.Node;
+import java.util.ArrayList;
+import java.util.List;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class GenericParseTree implements ParseTree {
   public static GenericParseTree NONE = new GenericParseTree("NONE", "NONE");
+
   public GenericParseTree(String text, String nodename) {
     this.text = text;
     this.nodeName = nodename;
   }
-  public GenericParseTree() {
-  }
 
-  public GenericParseTree(String text, String nodeName, ParseTree parent, List<ParseTree> children) {
+  public GenericParseTree() {}
+
+  public GenericParseTree(
+      String text, String nodeName, ParseTree parent, List<ParseTree> children) {
     this.text = text;
     this.nodeName = nodeName;
     this.parent = parent;
@@ -30,6 +30,7 @@ public class GenericParseTree implements ParseTree {
   private String nodeName = "";
   private String text = "";
   private List<ParseTree> children = new ArrayList<>();
+
   @Override
   public ParseTree getParent() {
     return parent;
@@ -45,7 +46,7 @@ public class GenericParseTree implements ParseTree {
     if (i > this.children.size()) {
       return NONE;
     }
-    return this.getChild(i);
+    return this.children.get(i);
   }
 
   public void addChild(GenericParseTree child) {
@@ -74,8 +75,12 @@ public class GenericParseTree implements ParseTree {
     if (this.children.size() > 0) {
       str.append("c: ");
     }
-    for (var child : this.children) {
+    for (int i = 0; i < this.children.size(); i++) {
+      var child = this.children.get(i);
       str.append(child.toStringTree());
+      if (i < this.children.size() - 1) {
+        str.append(", ");
+      }
     }
     str.append(")");
     return str.toString();
@@ -120,5 +125,14 @@ public class GenericParseTree implements ParseTree {
   @Override
   public Interval getSourceInterval() {
     return null;
+  }
+
+  @Override
+  public String toString() {
+    String str = this.getNodeName();
+    if (!this.getText().isEmpty()) {
+      str = str + " " + this.getText();
+    }
+    return str;
   }
 }
