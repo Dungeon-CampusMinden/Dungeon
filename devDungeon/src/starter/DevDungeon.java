@@ -31,7 +31,8 @@ import utils.EntityUtils;
 public class DevDungeon {
 
   public static final DungeonLoader DUNGEON_LOADER =
-      new DungeonLoader(new String[] {"tutorial", "damagedBridge", "torchRiddle"});
+      new DungeonLoader(
+          new String[] {"tutorial", "damagedBridge", "torchRiddle", "illusionRiddle"});
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final boolean SKIP_TUTORIAL = true;
 
@@ -77,7 +78,7 @@ public class DevDungeon {
           setupMusic();
           Crafting.loadRecipes();
           if (SKIP_TUTORIAL) {
-            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[1]); // First Level
+            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[3]); // First Level
           } else {
             DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[0]); // Tutorial
           }
