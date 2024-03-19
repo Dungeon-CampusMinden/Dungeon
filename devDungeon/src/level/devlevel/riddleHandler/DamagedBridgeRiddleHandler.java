@@ -1,7 +1,10 @@
 package level.devlevel.riddleHandler;
 
+import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
+import contrib.utils.components.health.Damage;
+import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -18,20 +21,24 @@ import item.concreteItem.ItemPotionSpeedPotion;
 import java.util.List;
 import level.utils.ITickable;
 import level.utils.LevelUtils;
-import utils.BurningFireballSkill;
 
 public class DamagedBridgeRiddleHandler implements ITickable {
 
+  // The reward for solving the riddle (max health points)
+  private static final int RIDDLE_REWARD = 5;
   private final TileLevel level;
-  private final Coordinate[] riddleRoomBounds;
-  private final DoorTile riddleEntrance;
-  private final Coordinate riddleEntranceSign;
-  private final Coordinate[] riddlePitBounds;
-  private final Coordinate riddleChestSpawn;
-  private final Coordinate riddleRewardSpawn;
-  private final DoorTile riddleExit;
-  private final Coordinate speedPotionChest;
-  private final Coordinate speedPotionChestHint;
+  private final Coordinate[] riddleRoomBounds; // TopLeft, BottomRight
+  private final DoorTile riddleEntrance; // The entrance to the riddle room
+  private final Coordinate riddleEntranceSign; // The sign next to the riddle entrance
+  private final Coordinate[] riddlePitBounds; // TopLeft, BottomRight
+  private final Coordinate
+      riddleChestSpawn; // The spawn point of the reward chest for solving the riddle
+  private final Coordinate
+      riddleRewardSpawn; // The spawn point of the reward for solving the riddle
+  private final DoorTile riddleExit; // The exit of the riddle room
+  private final Coordinate speedPotionChest; // The spawn point of the speed potion chest
+  private final Coordinate
+      speedPotionChestHint; // The sign that hints towards the speed potion chest
   private boolean rewardGiven = false;
 
   public DamagedBridgeRiddleHandler(List<Coordinate> customPoints, TileLevel level) {
@@ -75,10 +82,18 @@ public class DamagedBridgeRiddleHandler implements ITickable {
 
   private void giveReward() {
     SignFactory.showTextPopup(
-        "You will receive the new burning fireball skill\nas a reward for solving this puzzle!",
+        "You will receive "
+            + RIDDLE_REWARD
+            + " additional maximum health points \nas a reward for solving this puzzle!",
         "Riddle solved");
-    BurningFireballSkill.UNLOCKED = true;
-    this.rewardGiven = true;
+    Game.hero()
+        .flatMap(hero -> hero.fetch(HealthComponent.class))
+        .ifPresent(
+            hc -> {
+              hc.maximalHealthpoints(hc.maximalHealthpoints() + RIDDLE_REWARD);
+              hc.receiveHit(new Damage(-RIDDLE_REWARD, DamageType.HEAL, null));
+              this.rewardGiven = true;
+            });
   }
 
   /**

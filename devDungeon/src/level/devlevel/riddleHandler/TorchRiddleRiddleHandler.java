@@ -2,9 +2,6 @@ package level.devlevel.riddleHandler;
 
 import components.SignComponent;
 import components.TorchComponent;
-import contrib.components.HealthComponent;
-import contrib.utils.components.health.Damage;
-import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -20,6 +17,7 @@ import java.util.stream.IntStream;
 import level.utils.ITickable;
 import level.utils.LevelUtils;
 import utils.ArrayUtils;
+import utils.BurningFireballSkill;
 
 public class TorchRiddleRiddleHandler implements ITickable {
 
@@ -28,9 +26,6 @@ public class TorchRiddleRiddleHandler implements ITickable {
 
   /** Minimum value a riddle torch can have */
   public static final int LOWER_RIDDLE_BOUND = 5;
-
-  /** The reward for solving the riddle (max health points) */
-  private static final int RIDDLE_REWARD = 5;
 
   /** The sign next to the riddle door */
   private final Entity riddleSign;
@@ -128,31 +123,21 @@ public class TorchRiddleRiddleHandler implements ITickable {
    */
   private void giveReward() {
     SignFactory.showTextPopup(
-        "You will receive "
-            + RIDDLE_REWARD
-            + " additional maximum health points \nas a reward for solving this puzzle!",
+        "You will receive the new burning fireball skill\nas a reward for solving this puzzle!",
         "Riddle solved");
-    Game.hero()
-        .flatMap(hero -> hero.fetch(HealthComponent.class))
-        .ifPresent(
-            hc -> {
-              hc.maximalHealthpoints(hc.maximalHealthpoints() + RIDDLE_REWARD);
-              hc.receiveHit(new Damage(-RIDDLE_REWARD, DamageType.HEAL, null));
-              this.rewardGiven = true;
+    BurningFireballSkill.UNLOCKED = true;
+    this.rewardGiven = true;
+
+    // Once the reward is given, all torches are extinguished
+    Game.entityStream()
+        .filter(e -> e.isPresent(TorchComponent.class))
+        .forEach(
+            e -> {
+              e.fetch(TorchComponent.class).ifPresent(tc -> tc.lit(false));
+              e.fetch(DrawComponent.class).ifPresent(dc -> dc.currentAnimation("off"));
             });
 
-    if (this.rewardGiven) {
-      // Once the reward is given, all torches are extinguished
-      Game.entityStream()
-          .filter(e -> e.isPresent(TorchComponent.class))
-          .forEach(
-              e -> {
-                e.fetch(TorchComponent.class).ifPresent(tc -> tc.lit(false));
-                e.fetch(DrawComponent.class).ifPresent(dc -> dc.currentAnimation("off"));
-              });
-
-      this.level.tileAt(this.riddleCenter).tintColor(-1);
-    }
+    this.level.tileAt(this.riddleCenter).tintColor(-1);
   }
 
   /**
