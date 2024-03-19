@@ -11,6 +11,18 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.*;
 
+/**
+ * The FogOfWarSystem class is responsible for controlling the fog of war in the game.
+ *
+ * <p>The fog of war is a game mechanic where areas of the game world that are not in the player's
+ * line of sight are obscured. This class maintains a set of tiles that are currently darkened (not
+ * visible to the player) and a list of entities that are hidden. It also keeps track of the last
+ * known position of the hero (player character) and whether the fog of war system is currently
+ * active.
+ *
+ * <p>The class provides methods to reset the fog of war system, check if it's active, set its
+ * active state, and execute the system's logic each game tick.
+ */
 public class FogOfWarSystem extends System {
   public static final int VIEW_DISTANCE = 30;
   private static final int[][] mult = {
@@ -18,15 +30,55 @@ public class FogOfWarSystem extends System {
     {-1, 0, 0, 1}, {0, -1, 1, 0}, {0, 1, 1, 0}, {1, 0, 0, 1}
   };
   private static final float TINT_COLOR_DISTANCE_SCALE = 1.5f;
-  private static final int BRIGHTEST_TINT_COLOR = 128;
+  private static final int BRIGHTEST_TINT_COLOR = 128; // Starts with 50% alpha
   private final Set<Tile> darkenedTiles = new HashSet<>();
   private final List<Entity> hiddenEntities = new ArrayList<>();
   private Point lastHeroPos = new Point(0, 0);
+  private boolean active = true;
 
+  /**
+   * Resets the FogOfWarSystem to its initial state.
+   *
+   * <p>This method clears the sets of darkened tiles and hidden entities, and resets the last known
+   * hero position. The last known hero position is set to the current hero's position if a hero
+   * exists, otherwise it is set to (0,0).
+   */
   public void reset() {
     this.darkenedTiles.clear();
     this.hiddenEntities.clear();
-    this.lastHeroPos = new Point(0, 0);
+    this.lastHeroPos =
+        Game.hero()
+            .map(
+                e ->
+                    e.fetch(PositionComponent.class)
+                        .map(PositionComponent::position)
+                        .orElse(new Point(0, 0)))
+            .orElse(new Point(0, 0));
+  }
+
+  /**
+   * Checks if the FogOfWarSystem is active.
+   *
+   * @return true if the FogOfWarSystem is active, false otherwise.
+   */
+  public boolean active() {
+    return this.active;
+  }
+
+  /**
+   * Sets the active state of the FogOfWarSystem.
+   *
+   * <p>If the FogOfWarSystem is set to inactive, it also resets the FogOfWarSystem to its initial
+   * state.
+   *
+   * @param active The new active state of the FogOfWarSystem.
+   */
+  public void active(boolean active) {
+    this.active = active;
+
+    if (!active) {
+      this.reset();
+    }
   }
 
   private List<Tile> castLight(
@@ -160,6 +212,8 @@ public class FogOfWarSystem extends System {
 
   @Override
   public void execute() {
+    if (!this.active) return;
+
     // Only update the fog of war if the hero has moved
     Entity hero = Game.hero().orElse(null);
     if (hero == null) return; // If hero dies, the system will not be updated
