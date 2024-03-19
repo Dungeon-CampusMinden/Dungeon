@@ -26,8 +26,11 @@ public class TreeUtils {
 
   private static String process(final Tree t, final List<String> ruleNames) {
     if (t.getChildCount() == 0) {
+      // TODO: figure out correct indentation of error nodes
       if (t instanceof ErrorNodeImpl) {
-        boolean b = true;
+        String s = Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
+        s = s + "[ERROR_NODE]";
+        return s;
       }
       if (t instanceof ParserRuleContext ctx) {
         if (ctx.exception != null) {
