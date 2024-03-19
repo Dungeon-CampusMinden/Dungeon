@@ -31,7 +31,7 @@ public class FogOfWarSystem extends System {
   };
   private static final float TINT_COLOR_DISTANCE_SCALE = 1.5f;
   private static final int BRIGHTEST_TINT_COLOR = 128; // Starts with 50% alpha
-  private final Set<Tile> darkenedTiles = new HashSet<>();
+  private final Map<Tile, Integer> darkenedTiles = new HashMap<>();
   private final List<Entity> hiddenEntities = new ArrayList<>();
   private Point lastHeroPos = new Point(0, 0);
   private boolean active = true;
@@ -140,10 +140,11 @@ public class FogOfWarSystem extends System {
   }
 
   private void darkenTile(Tile tile) {
-    if (!this.darkenedTiles.contains(tile)) {
+    if (!this.darkenedTiles.containsKey(tile)) {
       int newTint = this.getTintColor(tile.coordinate().toPoint());
+      int orgTint = tile.tintColor();
       tile.tintColor(newTint);
-      this.darkenedTiles.add(tile);
+      this.darkenedTiles.put(tile, orgTint);
     }
   }
 
@@ -167,19 +168,20 @@ public class FogOfWarSystem extends System {
   }
 
   private void revertTilesBackToLight(List<Tile> visibleTiles) {
-    Iterator<Tile> iterator = this.darkenedTiles.iterator();
+    Iterator<Tile> iterator = this.darkenedTiles.keySet().iterator();
     while (iterator.hasNext()) {
       Tile darkenTile = iterator.next();
+      Integer originalTint = this.darkenedTiles.get(darkenTile);
       // match non-current tile or tile that are far away
       if (visibleTiles.contains(darkenTile)) {
-        darkenTile.tintColor(-1);
+        darkenTile.tintColor(originalTint);
         iterator.remove();
       }
     }
   }
 
   private void hideAllHiddenEntities() {
-    for (Tile darkenTile : this.darkenedTiles) {
+    for (Tile darkenTile : this.darkenedTiles.keySet()) {
       for (Entity entity : Game.entityAtTile(darkenTile).toList()) {
         if (entity.isPresent(DrawComponent.class)) {
           DrawComponent dc =
@@ -200,7 +202,7 @@ public class FogOfWarSystem extends System {
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
       Tile tile = Game.tileAT(pc.position());
-      if (!this.darkenedTiles.contains(tile)) {
+      if (!this.darkenedTiles.containsKey(tile)) {
         DrawComponent dc =
             entity
                 .fetch(DrawComponent.class)
