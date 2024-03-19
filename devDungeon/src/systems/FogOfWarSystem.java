@@ -24,13 +24,13 @@ import java.util.*;
  * active state, and execute the system's logic each game tick.
  */
 public class FogOfWarSystem extends System {
-  public static final int VIEW_DISTANCE = 30;
+  public static final int MAX_VIEW_DISTANCE = 25;
+  public static final int VIEW_DISTANCE = 7;
   private static final int[][] mult = {
     {1, 0, 0, -1}, {0, 1, -1, 0}, {0, -1, -1, 0}, {-1, 0, 0, -1},
     {-1, 0, 0, 1}, {0, -1, 1, 0}, {0, 1, 1, 0}, {1, 0, 0, 1}
   };
   private static final float TINT_COLOR_DISTANCE_SCALE = 1.5f;
-  private static final int BRIGHTEST_TINT_COLOR = 128; // Starts with 50% alpha
   private final Map<Tile, Integer> darkenedTiles = new HashMap<>();
   private final List<Entity> hiddenEntities = new ArrayList<>();
   private Point lastHeroPos = new Point(0, 0);
@@ -140,11 +140,13 @@ public class FogOfWarSystem extends System {
   }
 
   private void darkenTile(Tile tile) {
+    int newTint = this.getTintColor(tile.coordinate().toPoint());
     if (!this.darkenedTiles.containsKey(tile)) {
-      int newTint = this.getTintColor(tile.coordinate().toPoint());
       int orgTint = tile.tintColor();
       tile.tintColor(newTint);
       this.darkenedTiles.put(tile, orgTint);
+    } else {
+      tile.tintColor(newTint);
     }
   }
 
@@ -158,13 +160,19 @@ public class FogOfWarSystem extends System {
    * @return The calculated tint color as an ARGB integer.
    */
   private int getTintColor(Point tilePos) {
-    float distance = (float) this.lastHeroPos.distance(tilePos);
+    float distance =
+        (float)
+            this.lastHeroPos
+                .toCoordinate()
+                .toPoint()
+                .distance(tilePos); // point -> coordinate -> point to floor the value
     if (distance > VIEW_DISTANCE) {
-      return 0xffffff00;
+      return 0xFFFFFF00;
     }
-    float distanceFactor = distance * TINT_COLOR_DISTANCE_SCALE / VIEW_DISTANCE;
-    int alpha = (int) (BRIGHTEST_TINT_COLOR - (BRIGHTEST_TINT_COLOR * distanceFactor));
-    return 0xffffff00 | alpha;
+    float distanceFactor = Math.min(1, distance * TINT_COLOR_DISTANCE_SCALE / VIEW_DISTANCE);
+    int alpha = (int) (255 * (1 - distanceFactor));
+
+    return 0xFFFFFF00 | alpha;
   }
 
   private void revertTilesBackToLight(List<Tile> visibleTiles) {
@@ -225,10 +233,10 @@ public class FogOfWarSystem extends System {
             .position();
 
     // max diff
-    if (this.lastHeroPos.distance(heroPos) > 0.5) {
+    if (!this.lastHeroPos.toCoordinate().equals(heroPos.toCoordinate())) {
       this.lastHeroPos = heroPos;
 
-      List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, VIEW_DISTANCE);
+      List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, MAX_VIEW_DISTANCE);
 
       List<Tile> visibleTiles = new ArrayList<>();
       visibleTiles.add(Game.tileAT(heroPos));
@@ -239,7 +247,7 @@ public class FogOfWarSystem extends System {
                 1,
                 1.0f,
                 0.0f,
-                VIEW_DISTANCE,
+                MAX_VIEW_DISTANCE,
                 mult[octant][0],
                 mult[octant][1],
                 mult[octant][2],
