@@ -58,6 +58,7 @@ public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {
   @Override
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
+      ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
       this.handleFirstTick();
       this.doorTiles().forEach(DoorTile::close);
     }
@@ -66,8 +67,6 @@ public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {
   }
 
   private void handleFirstTick() {
-    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the LEVEL_BOSS)
-
     // Hide Riddle Room at start
     LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
 

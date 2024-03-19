@@ -62,6 +62,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickab
   @Override
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
+      ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
       this.doorTiles().forEach(DoorTile::close);
       this.pitTiles()
           .forEach(
@@ -76,7 +77,6 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickab
   }
 
   private void handleFirstTick() {
-    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
 
     this.prepareBridge();
 
