@@ -1,6 +1,5 @@
 package dsl.error;
 
-import dsl.antlr.DungeonDSLParser;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.logging.Logger;
@@ -10,7 +9,7 @@ import org.antlr.v4.runtime.dfa.DFA;
 
 public class ErrorListener extends BaseErrorListener {
   private static final Logger LOGGER = Logger.getLogger(ErrorListener.class.getName());
-  static ErrorListener INSTANCE = new ErrorListener();
+  public static ErrorListener INSTANCE = new ErrorListener();
 
   @Override
   public void syntaxError(
@@ -20,9 +19,11 @@ public class ErrorListener extends BaseErrorListener {
       int charPositionInLine,
       String msg,
       RecognitionException e) {
-    DungeonDSLParser parser = (DungeonDSLParser) recognizer;
-    Token currentToken = parser.getCurrentToken();
-    String currentTokenText = currentToken.getText();
+    // DungeonDSLParser parser = (DungeonDSLParser) recognizer;
+    // Token currentToken = parser.getCurrentToken();
+    // String currentTokenText = currentToken.getText();
+    // var la1 = recognizer.getInputStream().LA(0);
+
     String warning =
         String.format(
             "Syntax error, recognizer: '%s', offendingSymbol: '%s', line: %x, charPosition: %x, msg: '%s', exception: '%s'",
