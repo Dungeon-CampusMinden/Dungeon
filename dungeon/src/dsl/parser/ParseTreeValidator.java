@@ -1,31 +1,81 @@
 package dsl.parser;
 
-import dsl.antlr.GenericParseTree;
+import dsl.antlr.*;
 import dsl.antlr.ParseTreeValidationLexer;
 import dsl.antlr.ParseTreeValidationListener;
 import dsl.antlr.ParseTreeValidationParser;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.antlr.v4.runtime.tree.TerminalNode;
-import org.antlr.v4.runtime.tree.Tree;
-
-import java.util.Stack;
+import org.antlr.v4.runtime.tree.*;
 
 public class ParseTreeValidator implements ParseTreeValidationListener {
-  GenericParseTree reconstructedTree;
+  private static String DONT_CARE = "$DC$";
+  private GenericParseTree reconstructedTree;
 
-  Stack<Integer> indentStack = new Stack<>();
-  Stack<GenericParseTree> nodeStack = new Stack<>();
+  private Stack<Integer> indentStack = new Stack<>();
+  private Stack<GenericParseTree> nodeStack = new Stack<>();
+  private List<String> errorList = new ArrayList<>();
+  private List<String> ruleNames;
 
-  public boolean validate(String prettyPrintedParseTree, Tree t) {
-    var reconstructedTree = reconstructTree(prettyPrintedParseTree);
+  public List<String> validate(String prettyPrintedParseTree, Tree t, List<String> ruleNames) {
+    this.ruleNames = ruleNames;
+    var reconstructedTreeExpected = reconstructTree(prettyPrintedParseTree);
+    var treeToCheck = TreeUtils.toPrettyTree(t, ruleNames);
+    var reconstructedTreeToCheck = reconstructTree(treeToCheck);
+
     // TODO: match trees
+    var firstRealNodeExpected = reconstructedTreeExpected.getChild(0);
+    var firstRealNodeToCheck = reconstructedTreeToCheck.getChild(0);
+    var errorList = matchNode(firstRealNodeExpected, firstRealNodeToCheck);
 
-    return false;
+    return errorList;
+  }
+
+  private List<String> matchNode(ParseTree expectedTree, ParseTree treeToCheck) {
+    List<String> mismatches = new ArrayList<>();
+    // do the names/types of the nodes match
+    // does the text of the nodes match
+    String expectedTreeStr = expectedTree.toString();
+    // String treeToCheckStr = Trees.getNodeText(treeToCheck, ruleNames);
+    String treeToCheckStr = expectedTree.toString();
+
+    boolean match = expectedTreeStr.equals(treeToCheckStr);
+    if (!match) {
+      String msg =
+          "Nodes do not match, expected: '" + expectedTreeStr + "' tree: '" + treeToCheckStr + "'";
+      mismatches.add(msg);
+    }
+
+    // TODO: do the children of the nodes match
+    boolean careAboutChildren =
+        expectedTree.getChildCount() != 1 || !expectedTree.getChild(0).toString().equals(DONT_CARE);
+
+    if (careAboutChildren && expectedTree.getChildCount() != treeToCheck.getChildCount()) {
+      // check for don't care node
+      String msg =
+          String.format(
+              "Childcount of expected node '%s'(%x) and given node '%s'(%x) is different!",
+              expectedTreeStr,
+              expectedTree.getChildCount(),
+              treeToCheckStr,
+              treeToCheck.getChildCount());
+      mismatches.add(msg);
+    }
+
+    if (careAboutChildren) {
+      for (int i = 0; i < expectedTree.getChildCount() && i < treeToCheck.getChildCount(); i++) {
+        var expectedChild = expectedTree.getChild(i);
+        var childToCheck = treeToCheck.getChild(i);
+        List<String> msgs = matchNode(expectedChild, childToCheck);
+        mismatches.addAll(msgs);
+      }
+    }
+
+    return mismatches;
   }
 
   public GenericParseTree reconstructTree(String prettyPrintedTree) {
@@ -69,14 +119,17 @@ public class ParseTreeValidator implements ParseTreeValidationListener {
       indentStack.push(indents);
     }
 
-    // if the top of indentStack is bigger or equal to the current indent, pop the top (of both indentStack and
+    // if the top of indentStack is bigger or equal to the current indent, pop the top (of both
+    // indentStack and
     // nodeStack) until top is equal to current indent
     // then create new node for current branch, add it to child of top of nodeStack
     else if (indentStack.peek() >= indents) {
-      do {
+      boolean x = true;
+      while (indentStack.peek() >= indents) {
         indentStack.pop();
         nodeStack.pop();
-      } while(!indentStack.empty() && indentStack.peek() > indents);
+      }
+
       var node = new GenericParseTree();
       this.indentStack.push(indents);
       this.nodeStack.peek().addChild(node);
@@ -88,8 +141,16 @@ public class ParseTreeValidator implements ParseTreeValidationListener {
   public void exitBranch(ParseTreeValidationParser.BranchContext ctx) {}
 
   @Override
-  public void enterSingle_symbol_branch(
-      ParseTreeValidationParser.Single_symbol_branchContext ctx) {
+  public void enterDont_care_branch(ParseTreeValidationParser.Dont_care_branchContext ctx) {
+    // set node name and text to "$DC$"
+    this.nodeStack.peek().setNodeName(DONT_CARE);
+  }
+
+  @Override
+  public void exitDont_care_branch(ParseTreeValidationParser.Dont_care_branchContext ctx) {}
+
+  @Override
+  public void enterSingle_symbol_branch(ParseTreeValidationParser.Single_symbol_branchContext ctx) {
     // set rule name of node on top of nodeStack to matched text
     String nodeName = ctx.SYMBOL().getText();
     this.nodeStack.peek().setNodeName(nodeName);
@@ -103,7 +164,7 @@ public class ParseTreeValidator implements ParseTreeValidationListener {
     // set rule name of node on top of nodeStack to matched text of symbol with space
     // add matched text to text of node on top of nodeStack
     String nodeName = ctx.rule_.getText();
-    StringBuilder matchedText= new StringBuilder();
+    StringBuilder matchedText = new StringBuilder();
     for (int i = 0; i < ctx.matched_text().SYMBOL().size(); i++) {
       var symbol = ctx.matched_text().SYMBOL(i);
       var space = ctx.matched_text().SPACE(i);
