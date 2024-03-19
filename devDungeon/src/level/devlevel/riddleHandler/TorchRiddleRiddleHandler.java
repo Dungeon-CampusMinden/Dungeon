@@ -10,6 +10,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import entities.BurningFireballSkill;
 import entities.SignFactory;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,6 @@ import java.util.stream.IntStream;
 import level.utils.ITickable;
 import level.utils.LevelUtils;
 import utils.ArrayUtils;
-import utils.BurningFireballSkill;
 
 public class TorchRiddleRiddleHandler implements ITickable {
 

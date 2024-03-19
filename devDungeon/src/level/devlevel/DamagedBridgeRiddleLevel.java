@@ -15,12 +15,12 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
-import entities.EntityUtils;
 import entities.MonsterType;
 import java.util.*;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
 import level.utils.ITickable;
+import utils.EntityUtils;
 
 /** The Damaged Bridge Riddle Level */
 public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickable {

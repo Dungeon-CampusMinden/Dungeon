@@ -1,4 +1,4 @@
-package entities;
+package utils;
 
 import contrib.components.HealthComponent;
 import contrib.utils.components.skill.SkillTools;
@@ -12,13 +12,15 @@ import core.level.utils.Coordinate;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import entities.MonsterType;
+import entities.SignFactory;
+import entities.TorchFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import level.devlevel.TorchRiddleLevel;
-import utils.ArrayUtils;
 
 public class EntityUtils {
 

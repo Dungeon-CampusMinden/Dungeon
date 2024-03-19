@@ -19,7 +19,6 @@ import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import entities.DevHeroFactory;
-import entities.EntityUtils;
 import entities.MonsterType;
 import item.concreteItem.ItemPotionSpeedPotion;
 import java.io.IOException;
@@ -27,6 +26,7 @@ import level.utils.DungeonLoader;
 import systems.*;
 import systems.DevHealthSystem;
 import systems.EffectScheduler;
+import utils.EntityUtils;
 
 public class DevDungeon {
 

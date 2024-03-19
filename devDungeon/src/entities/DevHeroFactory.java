@@ -20,7 +20,6 @@ import core.utils.components.MissingComponentException;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
-import utils.BurningFireballSkill;
 
 public class DevHeroFactory extends HeroFactory {
   public static final boolean ENABLE_MOUSE_MOVEMENT = true;

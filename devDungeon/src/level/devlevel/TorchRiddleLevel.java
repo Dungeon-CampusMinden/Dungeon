@@ -16,13 +16,13 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.EntityUtils;
 import entities.MonsterType;
 import java.util.*;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.TorchRiddleRiddleHandler;
 import level.utils.ITickable;
 import level.utils.LevelUtils;
+import utils.EntityUtils;
 
 /** The Torch Riddle Level */
 public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {

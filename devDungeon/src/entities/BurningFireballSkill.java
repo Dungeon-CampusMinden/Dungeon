@@ -1,4 +1,4 @@
-package utils;
+package entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;

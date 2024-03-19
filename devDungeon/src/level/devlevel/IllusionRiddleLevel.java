@@ -13,12 +13,13 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
-import entities.EntityUtils;
 import entities.MonsterType;
 import java.util.*;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
 import level.utils.ITickable;
+import systems.FogOfWarSystem;
+import utils.EntityUtils;
 
 /** The Damaged Bridge Riddle Level */
 public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
@@ -38,6 +39,8 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
   public IllusionRiddleLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints);
+    ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).active(true);
+
     this.riddleHandler = new DamagedBridgeRiddleHandler(customPoints, this);
     this.mobSpawns = new Coordinate[0];
     this.levelBossSpawn = new Coordinate(0, 0);
@@ -65,7 +68,15 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
     // Spawn all entities and it's content
     this.spawnChestsAndCauldrons();
 
-    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns, BOSS_TYPE, this.levelBossSpawn);
+    EntityUtils.spawnMobs(
+        MOB_COUNT,
+        MONSTER_TYPES,
+        this.mobSpawns,
+        BOSS_TYPE,
+        this.levelBossSpawn,
+        (boss) -> {
+          ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).active(false);
+        });
   }
 
   /**

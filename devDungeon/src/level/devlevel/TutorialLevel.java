@@ -21,12 +21,12 @@ import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.EntityUtils;
 import entities.MonsterType;
 import entities.SignFactory;
 import java.util.List;
 import level.DevDungeonLevel;
 import level.utils.ITickable;
+import utils.EntityUtils;
 
 /** The tutorial level */
 public class TutorialLevel extends DevDungeonLevel implements ITickable {

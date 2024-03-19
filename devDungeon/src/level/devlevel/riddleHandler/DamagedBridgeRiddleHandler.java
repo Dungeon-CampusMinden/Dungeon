@@ -14,13 +14,13 @@ import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.utils.components.MissingComponentException;
-import entities.EntityUtils;
 import entities.SignFactory;
 import item.concreteItem.ItemPotionRegenerationPotion;
 import item.concreteItem.ItemPotionSpeedPotion;
 import java.util.List;
 import level.utils.ITickable;
 import level.utils.LevelUtils;
+import utils.EntityUtils;
 
 public class DamagedBridgeRiddleHandler implements ITickable {
 
