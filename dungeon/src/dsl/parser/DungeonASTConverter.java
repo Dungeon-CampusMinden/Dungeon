@@ -876,6 +876,17 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
   @Override
   public void exitDot_stmt_list(DungeonDSLParser.Dot_stmt_listContext ctx) {
+    int listSize = ctx.dot_stmt().size();
+    var list = new ArrayList<>(Collections.nCopies(listSize, Node.NONE));
+    for (int i = 0; i < listSize; i++) {
+      // reverse order
+      var dotStmt = astStack.pop();
+      list.set(listSize - i - 1, dotStmt);
+    }
+    var dotStmtList = new Node(Node.Type.DotStmtList, list);
+    astStack.push(dotStmtList);
+
+    /*
     // if there is a rhs dot_stmt_list, it will be on top of stack
     Node rhsStmtList = Node.NONE;
     if (ctx.dot_stmt_list() != null) {
@@ -892,6 +903,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
     Node stmtListNode = new Node(Node.Type.DotStmtList, stmtListChildren);
     astStack.push(stmtListNode);
+     */
   }
 
   @Override
