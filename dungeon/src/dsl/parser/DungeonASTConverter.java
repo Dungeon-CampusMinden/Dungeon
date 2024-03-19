@@ -876,17 +876,6 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
   @Override
   public void exitDot_stmt_list(DungeonDSLParser.Dot_stmt_listContext ctx) {
-    int listSize = ctx.dot_stmt().size();
-    var list = new ArrayList<>(Collections.nCopies(listSize, Node.NONE));
-    for (int i = 0; i < listSize; i++) {
-      // reverse order
-      var dotStmt = astStack.pop();
-      list.set(listSize - i - 1, dotStmt);
-    }
-    var dotStmtList = new Node(Node.Type.DotStmtList, list);
-    astStack.push(dotStmtList);
-
-    /*
     // if there is a rhs dot_stmt_list, it will be on top of stack
     Node rhsStmtList = Node.NONE;
     if (ctx.dot_stmt_list() != null) {
@@ -903,7 +892,6 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
     Node stmtListNode = new Node(Node.Type.DotStmtList, stmtListChildren);
     astStack.push(stmtListNode);
-     */
   }
 
   @Override
@@ -930,16 +918,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     LinkedList<Node> ids = new LinkedList<>();
 
     // pop all DotEdgeRHS Nodes from the stack and add them to one list
-    // for (int i = 0; i < ctx.dot_edge_RHS().size(); i++) {
-    for (int i = 1; i < ctx.dot_node_list().size(); i++) {
-      // pop rhs id list
+    for (int i = 0; i < ctx.dot_edge_RHS().size(); i++) {
       var rhs = astStack.pop();
-      assert (rhs.type == Node.Type.DotIdList);
-      ids.addFirst(rhs);
-
-      // pop the arrow
-      var arrow = astStack.pop();
-      assert (arrow.type == Node.Type.Arrow);
+      assert (rhs.type == Node.Type.DotEdgeRHS);
+      Node idNodeList = ((EdgeRhsNode) rhs).getIdNodeList();
+      ids.addFirst(idNodeList);
     }
 
     // get the first identifier of the statement (left-hand-side)
@@ -965,6 +948,21 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     }
     var dotNodeList = new DotIdList(list);
     astStack.push(dotNodeList);
+  }
+
+  @Override
+  public void enterDot_edge_RHS(DungeonDSLParser.Dot_edge_RHSContext ctx) {}
+
+  @Override
+  public void exitDot_edge_RHS(DungeonDSLParser.Dot_edge_RHSContext ctx) {
+    // ID will be identifier on stack
+    var idNode = astStack.pop();
+
+    // edge_op will be on stack
+    var edgeOp = astStack.pop();
+
+    var edgeRhs = new EdgeRhsNode(edgeOp, idNode);
+    astStack.push(edgeRhs);
   }
 
   @Override

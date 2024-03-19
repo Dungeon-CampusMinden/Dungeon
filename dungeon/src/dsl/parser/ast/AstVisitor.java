@@ -76,6 +76,16 @@ public interface AstVisitor<T> {
   }
 
   /**
+   * Visitor method for EdgeRhsNodes
+   *
+   * @param node Node to visit
+   * @return T
+   */
+  default T visit(EdgeRhsNode node) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Visitor method for DotEdgeStmtNodes
    *
    * @param node Node to visit
