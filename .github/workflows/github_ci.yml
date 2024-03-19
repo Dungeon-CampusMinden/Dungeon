@@ -107,4 +107,4 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Checkstyle
-        run: ./gradlew checkstyleMain
+        run: ./gradlew checkstyleMain checkstyleTest
