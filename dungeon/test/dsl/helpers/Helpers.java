@@ -3,9 +3,13 @@ package dsl.helpers;
 import core.Entity;
 import dsl.antlr.DungeonDSLLexer;
 import dsl.antlr.DungeonDSLParser;
+import dsl.antlr.ParseTracerForTokenType;
 import dsl.antlr.TreeUtils;
+import dsl.error.ErrorListener;
+import dsl.error.ErrorStrategy;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.DungeonASTConverter;
+import dsl.parser.ParseTreeValidator;
 import dsl.parser.ast.Node;
 import dsl.runtime.memoryspace.MemorySpace;
 import dsl.runtime.value.Value;
@@ -221,5 +225,58 @@ public class Helpers {
 
     List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
     return TreeUtils.toPrettyTree(parseTree, ruleNamesList);
+  }
+
+  public static String getPrettyPrintedParseTree(
+      String program, IEnvironment environment, boolean trace) {
+    ErrorListener el = ErrorListener.INSTANCE;
+    var stream = CharStreams.fromString(program);
+    var lexer = new dsl.antlr.DungeonDSLLexer(stream, environment);
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(el);
+    var tokenStream = new CommonTokenStream(lexer);
+    var parser = new dsl.antlr.DungeonDSLParser(tokenStream, environment);
+    parser.removeErrorListeners();
+    parser.addErrorListener(el);
+    parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary(), true, true));
+    if (trace) {
+      ParseTracerForTokenType ptftt = new ParseTracerForTokenType(parser);
+      parser.addParseListener(ptftt);
+    }
+    parser.setTrace(trace);
+    var programParseTree = parser.program();
+    return TreeUtils.toPrettyTree(programParseTree, Arrays.stream(parser.getRuleNames()).toList());
+  }
+
+  public static String getPrettyPrintedParseTree(String program, IEnvironment environment) {
+    return getPrettyPrintedParseTree(program, environment, false);
+  }
+
+  public static List<String> validateParseTree(
+      String program, IEnvironment environment, String expectedTree, boolean trace) {
+    ErrorListener el = ErrorListener.INSTANCE;
+    var stream = CharStreams.fromString(program);
+    var lexer = new dsl.antlr.DungeonDSLLexer(stream, environment);
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(el);
+    var tokenStream = new CommonTokenStream(lexer);
+    var parser = new dsl.antlr.DungeonDSLParser(tokenStream, environment);
+    parser.removeErrorListeners();
+    parser.addErrorListener(el);
+    parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary(), true, true));
+    if (trace) {
+      ParseTracerForTokenType ptftt = new ParseTracerForTokenType(parser);
+      parser.addParseListener(ptftt);
+    }
+    parser.setTrace(trace);
+    var programParseTree = parser.program();
+    ParseTreeValidator ptv = new ParseTreeValidator();
+    List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+    return ptv.validate(expectedTree, programParseTree, ruleNamesList);
+  }
+
+  public static List<String> validateParseTree(
+      String program, IEnvironment environment, String expectedTree) {
+    return validateParseTree(program, environment, expectedTree, false);
   }
 }
