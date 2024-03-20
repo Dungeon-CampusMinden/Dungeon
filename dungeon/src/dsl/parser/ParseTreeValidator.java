@@ -50,10 +50,7 @@ public class ParseTreeValidator implements ParseTreeValidationListener {
       mismatches.add(msg);
     }
 
-    // TODO: do the children of the nodes match
-    boolean careAboutChildren =
-        expectedTree.getChildCount() != 1 || !expectedTree.getChild(0).toString().equals(DONT_CARE);
-
+    boolean careAboutChildren = careAboutChildren(expectedTree);
     if (careAboutChildren && expectedTree.getChildCount() != treeToCheck.getChildCount()) {
       // check for don't care node
       String msg =
@@ -66,16 +63,31 @@ public class ParseTreeValidator implements ParseTreeValidationListener {
       mismatches.add(msg);
     }
 
-    if (careAboutChildren) {
-      for (int i = 0; i < expectedTree.getChildCount() && i < treeToCheck.getChildCount(); i++) {
-        var expectedChild = expectedTree.getChild(i);
-        var childToCheck = treeToCheck.getChild(i);
-        List<String> msgs = matchNode(expectedChild, childToCheck);
-        mismatches.addAll(msgs);
+    for (int i = 0; i < expectedTree.getChildCount() && i < treeToCheck.getChildCount(); i++) {
+      var expectedChild = expectedTree.getChild(i);
+      if (isDontCareNode(expectedChild)) {
+        break;
       }
+      var childToCheck = treeToCheck.getChild(i);
+      List<String> msgs = matchNode(expectedChild, childToCheck);
+      mismatches.addAll(msgs);
     }
 
     return mismatches;
+  }
+
+  private boolean careAboutChildren(ParseTree t) {
+    for (int i = 0; i < t.getChildCount(); i++) {
+      var child = t.getChild(i);
+      if (isDontCareNode(child)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean isDontCareNode(ParseTree t) {
+    return t.toString().equals(DONT_CARE);
   }
 
   public GenericParseTree reconstructTree(String prettyPrintedTree) {

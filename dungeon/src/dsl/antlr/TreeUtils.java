@@ -28,14 +28,16 @@ public class TreeUtils {
     if (t.getChildCount() == 0) {
       // TODO: figure out correct indentation of error nodes
       if (t instanceof ErrorNodeImpl) {
-        String s = Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
+        String s = lead(level);
+        s = s + Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
         s = s + "[ERROR_NODE]";
         return s;
       }
       if (t instanceof ParserRuleContext ctx) {
         if (ctx.exception != null) {
-          String s = Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
-          s = s + "[ERROR]";
+          String s = lead(level);
+          s = s + Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
+          s = s + "[EXCEPTION IN NODE]";
           return s;
         }
       }
