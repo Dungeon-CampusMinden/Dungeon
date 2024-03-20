@@ -482,4 +482,14 @@ public interface ILevel extends IndexedGraph<Tile> {
   default Point randomTilePoint(final LevelElement elementType) {
     return randomTile(elementType).position();
   }
+
+  default List<Tile> tilesInArea(Coordinate topLeft, Coordinate bottomRight) {
+    List<Tile> tiles = new java.util.ArrayList<>();
+    for (int x = topLeft.x; x <= bottomRight.x; x++) {
+      for (int y = bottomRight.y; y <= topLeft.y; y++) {
+        tiles.add(this.layout()[y][x]);
+      }
+    }
+    return tiles;
+  }
 }
