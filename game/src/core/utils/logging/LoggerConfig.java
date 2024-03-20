@@ -58,8 +58,8 @@ public final class LoggerConfig {
     baseLogger.setLevel(level);
 
     baseLogger.removeHandler(baseLogger.getHandlers()[0]);
-    createCustomFileHandler();
 
+    createCustomFileHandler();
     baseLogger.addHandler(customFileHandler);
   }
 }
