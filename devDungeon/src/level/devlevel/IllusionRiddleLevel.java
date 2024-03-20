@@ -34,14 +34,14 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
   private static final MonsterType BOSS_TYPE = MonsterType.CHORT;
 
   // Spawn Points / Locations
-  private final List<IllusionRiddleRoom> rooms;
+  private final List<DevDungeonRoom> rooms;
   private final Coordinate[][] secretPassages;
   private final Coordinate levelBossSpawn;
   private final Coordinate[] mobSpawns;
 
   private final IllusionRiddleHandler riddleHandler;
   private final int originalFogOfWarDistance = FogOfWarSystem.VIEW_DISTANCE;
-  private IllusionRiddleRoom lastRoom = null;
+  private DevDungeonRoom lastRoom = null;
   private boolean lastTorchState = false;
 
   public IllusionRiddleLevel(
@@ -52,38 +52,38 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
     this.rooms =
         List.of(
-            new IllusionRiddleRoom(
+            new DevDungeonRoom(
                 this.customPoints().get(0), // TopLeft
                 this.customPoints().get(1), // BottomRight
                 new Coordinate[] {}, // Torch Spawns
                 new Coordinate[] {} // Mob Spawns
                 ),
-            new IllusionRiddleRoom(
+            new DevDungeonRoom(
                 this.customPoints().get(2),
                 this.customPoints().get(3),
                 new Coordinate[] {this.customPoints().get(4)},
                 new Coordinate[] {this.customPoints().get(5), this.customPoints().get(6)}),
-            new IllusionRiddleRoom(
+            new DevDungeonRoom(
                 this.customPoints().get(7),
                 this.customPoints().get(8),
                 new Coordinate[] {},
                 new Coordinate[] {this.customPoints().get(9)}),
-            new IllusionRiddleRoom(
+            new DevDungeonRoom(
                 this.customPoints().get(10),
                 this.customPoints().get(11),
                 new Coordinate[] {},
                 new Coordinate[] {this.customPoints().get(12), this.customPoints().get(13)}),
-            new IllusionRiddleRoom(
+            new DevDungeonRoom(
                 this.customPoints().get(14),
                 this.customPoints().get(15),
                 new Coordinate[] {this.customPoints().get(16)},
                 new Coordinate[] {}),
-            new IllusionRiddleRoom(
+            new DevDungeonRoom(
                 this.customPoints().get(17),
                 this.customPoints().get(18),
                 new Coordinate[] {this.customPoints().get(19)},
                 new Coordinate[] {}),
-            new IllusionRiddleRoom(
+            new DevDungeonRoom(
                 this.customPoints().get(20),
                 this.customPoints().get(21),
                 new Coordinate[] {this.customPoints().get(22), this.customPoints().get(23)},
@@ -109,7 +109,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                 pit.timeToOpen(50);
                 pit.close();
               });
-      this.rooms.forEach(IllusionRiddleRoom::spawnEntities);
+      this.rooms.forEach(DevDungeonRoom::spawnEntities);
 
       // Draw teleporter connections
       TeleporterSystem.getInstance().teleporter().stream()
@@ -164,7 +164,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
    *
    * @return The current room if the hero is present and in a room, null otherwise.
    */
-  private IllusionRiddleRoom getCurrentRoom() {
+  private DevDungeonRoom getCurrentRoom() {
     return Game.hero()
         .flatMap(hero -> hero.fetch(PositionComponent.class))
         .flatMap(

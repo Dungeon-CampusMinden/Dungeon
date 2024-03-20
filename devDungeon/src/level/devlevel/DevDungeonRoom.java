@@ -10,11 +10,13 @@ import java.util.List;
 import utils.EntityUtils;
 
 /**
- * The IllusionRiddleRoom class represents a room in the Illusion Riddle Level. It contains
- * information about the room's boundaries, torch and mob spawn points, and the entities (torches
- * and mobs) within the room.
+ * The DevDungeonRoom class represents a room inside a DevDungeon. It contains information about the
+ * room's boundaries, torch and mob spawn points, and the entities (torches and mobs) within the
+ * room.
+ *
+ * @see IllusionRiddleLevel
  */
-public class IllusionRiddleRoom {
+public class DevDungeonRoom {
   // The top left and bottom right coordinates define the boundaries of the room.
   private final Coordinate topLeft;
   private final Coordinate bottomRight;
@@ -26,12 +28,12 @@ public class IllusionRiddleRoom {
   private Entity[] mobs;
 
   /**
-   * Constructs a new IllusionRiddleRoom with the given boundaries and spawn points. Checks if the
-   * spawn points are within the room boundaries.
+   * Constructs a new DevDungeonRoom with the given boundaries and spawn points. Checks if the spawn
+   * points are within the room boundaries.
    *
    * @throws IllegalArgumentException if a spawn point is outside the room boundaries.
    */
-  public IllusionRiddleRoom(
+  public DevDungeonRoom(
       Coordinate topLeft,
       Coordinate bottomRight,
       Coordinate[] torchSpawns,
@@ -157,7 +159,7 @@ public class IllusionRiddleRoom {
   public boolean equals(Object other) {
     if (this == other) return true;
     if (other == null || this.getClass() != other.getClass()) return false;
-    IllusionRiddleRoom that = (IllusionRiddleRoom) other;
+    DevDungeonRoom that = (DevDungeonRoom) other;
     return this.topLeft.equals(that.topLeft) && this.bottomRight.equals(that.bottomRight);
   }
 
