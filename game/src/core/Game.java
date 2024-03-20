@@ -193,7 +193,7 @@ public final class Game {
    * log messages into the log files. This is a concenience method.
    */
   public static void initBaseLogger() {
-    PreRunConfiguration.initBaseLogger(Level.ALL);
+    Game.initBaseLogger(Level.ALL);
   }
 
   /**
