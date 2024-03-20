@@ -8,6 +8,8 @@ import level.utils.ITickable;
 public class IllusionRiddleHandler implements ITickable {
 
   private final TileLevel level;
+  private final int laps = 1;
+  private Coordinate[][] lapCheckpoints; // [location][3 tiles wide]
   private final Coordinate[] riddleRoomBounds; // TopLeft, BottomRight
   private final Coordinate
       riddleRewardSpawn; // The spawn point of the reward for solving the riddle

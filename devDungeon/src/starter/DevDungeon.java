@@ -169,6 +169,10 @@ public class DevDungeon {
               } else {
                 java.lang.System.out.println("Tile - null");
               }
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_6)) {
+              FogOfWarSystem foWSystem =
+                  ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class));
+              foWSystem.active(!foWSystem.active());
             }
           }
         });
