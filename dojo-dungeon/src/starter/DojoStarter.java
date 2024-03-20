@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
+import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.Direction;
@@ -11,19 +12,21 @@ import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.systems.*;
 import core.Game;
 import core.level.Tile;
-import core.level.TileLevel;
 import core.level.elements.ILevel;
-import core.level.utils.DesignLabel;
+import core.level.elements.tile.DoorTile;
 import core.level.utils.LevelElement;
-import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import tasks.level_1.Room_1_1_Generator;
+import tasks.level_1.Room_1_2_Generator;
+import tasks.level_1.Room_1_3_Generator;
 
 /** Starter for the dojo-dungeon game. */
 public class DojoStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
+  private static final int MONSTERCOUNT = 5;
 
   /**
    * Start a new dojo-dungeon game.
@@ -61,9 +64,9 @@ public class DojoStarter {
 
     // create the rooms in custom level
     RoomGenerator gen = new RoomGenerator();
-    createRoom_1(gen, room1);
-    createRoom_2(gen, room2);
-    createRoom_3(gen, room3);
+    createRoom_1(gen, room1, room2);
+    createRoom_2(gen, room2, room3);
+    createRoom_3(gen, room3, null);
 
     // remove trap doors, config doors
     configDoors(room1);
@@ -106,6 +109,26 @@ public class DojoStarter {
         });
   }
 
+  /** Pause the game. Perhaps for use in dialogs later. */
+  public static void pauseGame() {
+    Game.systems().values().forEach(core.System::stop);
+  }
+
+  /** Continue the game. Perhaps for use in dialogs later. */
+  public static void unpauseGame() {
+    Game.systems().values().forEach(core.System::run);
+  }
+
+  public static void openDoors(DojoRoom fromLevel, DojoRoom toLevel) {
+    if (fromLevel == null || toLevel == null) {
+      return;
+    }
+    DoorTile door12 = GeneratorUtils.doorAt(fromLevel.level(), Direction.SOUTH).orElseThrow();
+    door12.open();
+    DoorTile door21 = GeneratorUtils.doorAt(toLevel.level(), Direction.NORTH).orElseThrow();
+    door21.open();
+  }
+
   private static void configGame() throws IOException {
     Game.loadConfig(
         new SimpleIPath("dungeon_config.json"),
@@ -113,7 +136,7 @@ public class DojoStarter {
         core.configuration.KeyboardConfig.class);
     Game.frameRate(30);
     Game.disableAudio(false);
-    Game.windowTitle("Andres Freezer");
+    Game.windowTitle("Dojo Dungeon");
   }
 
   private static void setupMusic() {
@@ -134,49 +157,18 @@ public class DojoStarter {
     Game.add(new IdleSoundSystem());
   }
 
-  /** Pause the game. Perhaps for use in dialogs later. */
-  public static void pauseGame() {
-    Game.systems().values().forEach(core.System::stop);
+  private static void createRoom_1(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
+      throws IOException {
+    new Room_1_1_Generator(gen, room, nextRoom, MONSTERCOUNT).generateRoom();
   }
 
-  /** Continue the game. Perhaps for use in dialogs later. */
-  public static void unpauseGame() {
-    Game.systems().values().forEach(core.System::run);
+  private static void createRoom_2(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
+      throws IOException {
+    new Room_1_2_Generator(gen, room, nextRoom).generateRoom();
   }
 
-  private static void createRoom_1(RoomGenerator gen, DojoRoom room) throws IOException {
-    // generate the room
-    room.level(
-        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
-
-    // TODO
-
-    // this will add the entities (in the node payload) to the game, at the moment the level get
-    // loaded for the first time
-    room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
-  }
-
-  private static void createRoom_2(RoomGenerator gen, DojoRoom room) throws IOException {
-    // generate the room
-    room.level(
-        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
-
-    // TODO
-
-    // this will add the entities (in the node payload) to the game, at the moment the level get
-    // loaded for the first time
-    room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
-  }
-
-  private static void createRoom_3(RoomGenerator gen, DojoRoom room) throws IOException {
-    // generate the room
-    room.level(
-        new TileLevel(gen.layout(LevelSize.SMALL, room.neighbours()), DesignLabel.randomDesign()));
-
-    // TODO
-
-    // this will add the entities (in the node payload) to the game, at the moment the level get
-    // loaded for the first time
-    room.level().onFirstLoad(() -> room.entities().forEach(Game::add));
+  private static void createRoom_3(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
+      throws IOException {
+    new Room_1_3_Generator(gen, room, nextRoom).generateRoom();
   }
 }
