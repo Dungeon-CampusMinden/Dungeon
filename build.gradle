@@ -29,6 +29,10 @@ allprojects {
         standardInput = System.in
         ignoreExitValue true
     }
+
+    clean {
+        delete 'logs/'
+    }
 }
 
 
