@@ -24,13 +24,13 @@ import java.util.*;
  * active state, and execute the system's logic each game tick.
  */
 public class FogOfWarSystem extends System {
-  public static int MAX_VIEW_DISTANCE = 25;
   public static final int VIEW_DISTANCE = 7;
   private static final int[][] mult = {
     {1, 0, 0, -1}, {0, 1, -1, 0}, {0, -1, -1, 0}, {-1, 0, 0, -1},
     {-1, 0, 0, 1}, {0, -1, 1, 0}, {0, 1, 1, 0}, {1, 0, 0, 1}
   };
   private static final float TINT_COLOR_DISTANCE_SCALE = 1.5f;
+  public static int MAX_VIEW_DISTANCE = 25;
   private final Map<Tile, Integer> darkenedTiles = new HashMap<>();
   private final List<Entity> hiddenEntities = new ArrayList<>();
   private Point lastHeroPos = new Point(0, 0);
@@ -78,6 +78,7 @@ public class FogOfWarSystem extends System {
 
     if (!active) {
       this.revertTilesBackToLight(this.darkenedTiles.keySet().stream().toList());
+      this.revealHiddenEntities();
       this.reset();
     }
   }
