@@ -1,6 +1,7 @@
 package level.devlevel;
 
 import components.TorchComponent;
+import contrib.components.AIComponent;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
@@ -8,14 +9,28 @@ import core.level.utils.Coordinate;
 import java.util.List;
 import utils.EntityUtils;
 
+/**
+ * The IllusionRiddleRoom class represents a room in the Illusion Riddle Level. It contains
+ * information about the room's boundaries, torch and mob spawn points, and the entities (torches
+ * and mobs) within the room.
+ */
 public class IllusionRiddleRoom {
+  // The top left and bottom right coordinates define the boundaries of the room.
   private final Coordinate topLeft;
   private final Coordinate bottomRight;
+  // The spawn points for torches and mobs within the room.
   private final Coordinate[] torchSpawns;
   private final Coordinate[] mobSpawns;
+  // The torch and mob entities within the room.
   private Entity[] torches;
   private Entity[] mobs;
 
+  /**
+   * Constructs a new IllusionRiddleRoom with the given boundaries and spawn points. Checks if the
+   * spawn points are within the room boundaries.
+   *
+   * @throws IllegalArgumentException if a spawn point is outside the room boundaries.
+   */
   public IllusionRiddleRoom(
       Coordinate topLeft,
       Coordinate bottomRight,
@@ -37,6 +52,11 @@ public class IllusionRiddleRoom {
     this.mobSpawns = mobSpawns;
   }
 
+  /**
+   * Checks if any torch in the room is active.
+   *
+   * @return true if any torch is active, false otherwise.
+   */
   public boolean isAnyTorchActive() {
     for (Entity torch : this.torches) {
       if (torch.fetch(TorchComponent.class).map(TorchComponent::lit).orElse(false)) {
@@ -46,6 +66,7 @@ public class IllusionRiddleRoom {
     return false;
   }
 
+  /** Spawns the torches and mobs in the room at their respective spawn points. */
   public void spawnEntities() {
     this.torches = this.spawnTorches(this.torchSpawns);
     this.mobs = this.spawnMobs(this.mobSpawns);
