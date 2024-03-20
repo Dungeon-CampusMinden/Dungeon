@@ -1,10 +1,10 @@
 package level.utils;
 
+import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
-import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.ArrayList;
@@ -36,13 +36,17 @@ public class DungeonSaver {
       designLabel = Game.currentLevel().endTile().designLabel().name();
     }
 
-    Point heroPos =
-        Game.hero()
-            .orElseThrow(MissingHeroException::new)
-            .fetch(PositionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(Game.hero().get(), PositionComponent.class))
-            .position();
+    Entity hero = Game.hero().orElse(null);
+    Point heroPos;
+    if (hero != null) {
+      heroPos =
+          hero.fetch(PositionComponent.class)
+              .orElseThrow(
+                  () -> MissingComponentException.build(Game.hero().get(), PositionComponent.class))
+              .position();
+    } else {
+      heroPos = new Point(0, 0);
+    }
     List<Coordinate> customPoints = new ArrayList<>();
     if (Game.currentLevel() instanceof DevDungeonLevel) {
       customPoints = ((DevDungeonLevel) Game.currentLevel()).customPoints();
