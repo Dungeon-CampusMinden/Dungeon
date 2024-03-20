@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -247,7 +248,7 @@ public class Starter {
   }
 
   private static void configGame() throws IOException {
-    Game.initBaseLogger();
+    Game.initBaseLogger(Level.WARNING);
     Game.windowTitle("DSL Dungeon");
     Game.frameRate(30);
     Game.disableAudio(false);
