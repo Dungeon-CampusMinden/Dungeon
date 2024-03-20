@@ -26,7 +26,7 @@ public final class LoggerConfig {
   private static void createCustomFileHandler() {
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy'T'HH-mm-ss");
     String timestamp = dateFormat.format(new Date());
-    String directoryPath = "./logs/systemlogs/";
+    String directoryPath = System.getProperty("BASELOGDIR", "logs/") + "systemlogs/";
     String filepath = directoryPath + timestamp + ".log";
     File newLogFile = new File(filepath);
     try {

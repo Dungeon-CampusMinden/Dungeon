@@ -79,7 +79,7 @@ public abstract class Task {
     try {
       SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy'T'HH-mm-ss");
       String timestamp = dateFormat.format(new Date());
-      String directoryPath = "./logs/solutions/";
+      String directoryPath = System.getProperty("BASELOGDIR", "logs/") + "solutions/";
       String filepath = directoryPath + timestamp + ".log";
       Files.createDirectories(Paths.get(directoryPath));
       FileHandler fileHandler = new FileHandler(filepath);
