@@ -28,10 +28,11 @@ allprojects {
         dependsOn classes
         standardInput = System.in
         ignoreExitValue true
+        systemProperties System.properties
     }
 
     clean {
-        delete 'logs/'
+        delete System.getProperty('BASELOGDIR')
     }
 }
 
