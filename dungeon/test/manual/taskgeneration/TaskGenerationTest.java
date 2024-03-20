@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -37,7 +38,7 @@ public class TaskGenerationTest {
   static DSLInterpreter interpreter = new DSLInterpreter();
 
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger();
+    Game.initBaseLogger(Level.ALL);
     LevelSystem.levelSize(LevelSize.MEDIUM);
     Game.loadConfig(
         new SimpleIPath("dungeon_config.json"),
