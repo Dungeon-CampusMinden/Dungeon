@@ -10,6 +10,7 @@ import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.*;
+import utils.EntityUtils;
 
 /**
  * The FogOfWarSystem class is responsible for controlling the fog of war in the game.
@@ -19,21 +20,23 @@ import java.util.*;
  * visible to the player) and a list of entities that are hidden. It also keeps track of the last
  * known position of the hero (player character) and whether the fog of war system is currently
  * active.
- *
- * <p>The class provides methods to reset the fog of war system, check if it's active, set its
- * active state, and execute the system's logic each game tick.
  */
 public class FogOfWarSystem extends System {
-  public static final int VIEW_DISTANCE = 7;
-  private static final int[][] mult = {
+  static final int DISTANCE_TRANSITION_SIZE = 2; // size of distance transition (in tiles)
+  static final int HIDE_ENTITY_THRESHOLD = 0xFFFFFF99; // tint color threshold for hiding entities
+  private static final int[][] mult = { // needed for casting light
     {1, 0, 0, -1}, {0, 1, -1, 0}, {0, -1, -1, 0}, {-1, 0, 0, -1},
     {-1, 0, 0, 1}, {0, -1, 1, 0}, {0, 1, 1, 0}, {1, 0, 0, 1}
   };
-  private static final float TINT_COLOR_DISTANCE_SCALE = 1.5f;
-  public static int MAX_VIEW_DISTANCE = 25;
+  private static final float TINT_COLOR_WALL_DISTANCE_SCALE =
+      1.5f; // scale factor for behind wall distance fog
+  private static final float TINT_COLOR_DISTANCE_SCALE = .5f; // scale factor for distance fog
+  public static int VIEW_DISTANCE = 7; // view distance (range for tile that are fully visible)
+  public static int MAX_VIEW_DISTANCE =
+      25; // max view distance (all tiles to consider for calculation)
   private final Map<Tile, Integer> darkenedTiles = new HashMap<>();
   private final List<Entity> hiddenEntities = new ArrayList<>();
-  private Point lastHeroPos = new Point(0, 0);
+  private Point lastHeroPos = null;
   private boolean active = true;
 
   /**
@@ -42,8 +45,10 @@ public class FogOfWarSystem extends System {
    * <p>This method clears the sets of darkened tiles and hidden entities, and resets the last known
    * hero position. The last known hero position is set to the current hero's position if a hero
    * exists, otherwise it is set to (0,0).
+   *
+   * @param revert If true, the FogOfWarSystem will also revert to its initial state.
    */
-  public void reset() {
+  public void reset(boolean revert) {
     this.darkenedTiles.clear();
     this.hiddenEntities.clear();
     this.lastHeroPos =
@@ -54,6 +59,28 @@ public class FogOfWarSystem extends System {
                         .map(PositionComponent::position)
                         .orElse(new Point(0, 0)))
             .orElse(new Point(0, 0));
+    if (revert) {
+      this.revert();
+    }
+  }
+
+  /**
+   * Resets the FogOfWarSystem to its initial state.
+   *
+   * <p>This method clears the sets of darkened tiles and hidden entities, and resets the last known
+   * hero position. The last known hero position is set to the current hero's position if a hero
+   * exists, otherwise it is set to (0,0). This method also reverts the FogOfWarSystem to its
+   *
+   * @see #revert()
+   */
+  public void reset() {
+    this.reset(true);
+  }
+
+  /** Reverts the FogOfWarSystem. This reveals all darkened tiles and hidden entities. */
+  public void revert() {
+    this.revertTilesBackToLight(this.darkenedTiles.keySet().stream().toList());
+    this.revealHiddenEntities();
   }
 
   /**
@@ -77,8 +104,7 @@ public class FogOfWarSystem extends System {
     this.active = active;
 
     if (!active) {
-      this.revertTilesBackToLight(this.darkenedTiles.keySet().stream().toList());
-      this.revealHiddenEntities();
+      this.revert();
       this.reset();
     }
   }
@@ -141,8 +167,8 @@ public class FogOfWarSystem extends System {
     return visibleTiles;
   }
 
-  private void darkenTile(Tile tile) {
-    int newTint = this.getTintColor(tile.coordinate().toPoint());
+  private void darkenTile(Tile tile, int maxDistance, float scale) {
+    int newTint = this.getTintColor(tile.coordinate().toPoint(), maxDistance, scale);
     if (!this.darkenedTiles.containsKey(tile)) {
       int orgTint = tile.tintColor();
       tile.tintColor(newTint);
@@ -159,19 +185,23 @@ public class FogOfWarSystem extends System {
    * becomes. If the tile is beyond the view distance, it is fully opaque.
    *
    * @param tilePos The position of the tile for which to calculate the tint color.
+   * @param maxDistance The maximum distance from the hero's position at which the tile is fully
+   *     opaque.
+   * @param scale The scale factor for the distance. The larger the scale, the more transparent the
+   *     tiles will be.
    * @return The calculated tint color as an ARGB integer.
    */
-  private int getTintColor(Point tilePos) {
+  private int getTintColor(Point tilePos, int maxDistance, float scale) {
     float distance =
         (float)
             this.lastHeroPos
                 .toCoordinate()
                 .toPoint()
                 .distance(tilePos); // point -> coordinate -> point to floor the value
-    if (distance > VIEW_DISTANCE) {
+    if (distance > maxDistance) {
       return 0xFFFFFF00;
     }
-    float distanceFactor = Math.min(1, distance * TINT_COLOR_DISTANCE_SCALE / VIEW_DISTANCE);
+    float distanceFactor = Math.min(1, distance * scale / (maxDistance));
     int alpha = (int) (255 * (1 - distanceFactor));
 
     return 0xFFFFFF00 | alpha;
@@ -191,18 +221,20 @@ public class FogOfWarSystem extends System {
   }
 
   private void hideAllHiddenEntities() {
-    for (Tile darkenTile : this.darkenedTiles.keySet()) {
-      for (Entity entity : Game.entityAtTile(darkenTile).toList()) {
-        if (entity.isPresent(DrawComponent.class)) {
-          DrawComponent dc =
-              entity
-                  .fetch(DrawComponent.class)
-                  .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-          dc.setVisible(false);
-          this.hiddenEntities.add(entity);
-        }
-      }
-    }
+    this.darkenedTiles.keySet().stream()
+        .filter(tile -> tile.tintColor() < HIDE_ENTITY_THRESHOLD)
+        .flatMap(Game::entityAtTile)
+        .filter(entity -> entity.isPresent(DrawComponent.class))
+        .forEach(
+            entity -> {
+              DrawComponent dc =
+                  entity
+                      .fetch(DrawComponent.class)
+                      .orElseThrow(
+                          () -> MissingComponentException.build(entity, DrawComponent.class));
+              dc.setVisible(false);
+              this.hiddenEntities.add(entity);
+            });
   }
 
   private void revealHiddenEntities() {
@@ -212,7 +244,7 @@ public class FogOfWarSystem extends System {
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
       Tile tile = Game.tileAT(pc.position());
-      if (!this.darkenedTiles.containsKey(tile)) {
+      if (!this.darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD) {
         DrawComponent dc =
             entity
                 .fetch(DrawComponent.class)
@@ -226,16 +258,12 @@ public class FogOfWarSystem extends System {
   public void execute() {
     if (!this.active) return;
 
-    // Only update the fog of war if the hero has moved
-    Entity hero = Game.hero().orElse(null);
-    if (hero == null) return; // If hero dies, the system will not be updated
-    Point heroPos =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class))
-            .position();
-
+    Point heroPos = EntityUtils.getHeroPosition();
+    if (heroPos == null) return; // if hero is not present, don't update fog of war
     // max diff
-    if (!this.lastHeroPos.toCoordinate().equals(heroPos.toCoordinate())) {
+    if (heroPos.toCoordinate().equals(Game.currentLevel().startTile().coordinate())
+        || this.lastHeroPos == null
+        || !this.lastHeroPos.toCoordinate().equals(heroPos.toCoordinate())) {
       this.lastHeroPos = heroPos;
 
       List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, MAX_VIEW_DISTANCE);
@@ -256,11 +284,24 @@ public class FogOfWarSystem extends System {
                 mult[octant][3],
                 heroPos));
       }
+      List<Tile> distancedTiles = new ArrayList<>(visibleTiles.stream().toList()); // copy
 
-      // Invert
-      allTilesInView.removeAll(visibleTiles);
-      allTilesInView.forEach(this::darkenTile);
-      // Revert tiles back to light
+      // Handle tiles that are beyond the view distance
+      distancedTiles.removeAll(LevelUtils.tilesInRange(heroPos, VIEW_DISTANCE));
+      distancedTiles.forEach(
+          (tile) ->
+              this.darkenTile(
+                  tile, VIEW_DISTANCE + DISTANCE_TRANSITION_SIZE, TINT_COLOR_DISTANCE_SCALE));
+      visibleTiles.removeAll(distancedTiles); // remove distanced tiles from visible tiles
+      allTilesInView.removeAll(distancedTiles); // and from tile behind walls
+
+      allTilesInView.removeAll(visibleTiles); // remove visible tiles from tiles behind walls
+
+      // Darken tiles that are behind walls
+      allTilesInView.forEach(
+          (tile) -> this.darkenTile(tile, VIEW_DISTANCE, TINT_COLOR_WALL_DISTANCE_SCALE));
+
+      // Revert all visible tiles back to light
       this.revertTilesBackToLight(visibleTiles);
 
       // Hide entities in the fog of war
