@@ -24,17 +24,15 @@ allprojects {
         mavenCentral()
     }
 
-    ext.baseLogDir = 'logs/'
-
     tasks.withType(JavaExec).configureEach {
         dependsOn classes
         standardInput = System.in
         ignoreExitValue true
-        systemProperty 'BASELOGDIR', "$baseLogDir"
+        systemProperties System.properties
     }
 
     clean {
-        delete "$baseLogDir"
+        delete System.getProperty('BASELOGDIR')
     }
 }
 
