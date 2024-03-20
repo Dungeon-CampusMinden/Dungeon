@@ -24,7 +24,7 @@ import java.util.*;
  * active state, and execute the system's logic each game tick.
  */
 public class FogOfWarSystem extends System {
-  public static final int MAX_VIEW_DISTANCE = 25;
+  public static int MAX_VIEW_DISTANCE = 25;
   public static final int VIEW_DISTANCE = 7;
   private static final int[][] mult = {
     {1, 0, 0, -1}, {0, 1, -1, 0}, {0, -1, -1, 0}, {-1, 0, 0, -1},
@@ -77,6 +77,7 @@ public class FogOfWarSystem extends System {
     this.active = active;
 
     if (!active) {
+      this.revertTilesBackToLight(this.darkenedTiles.keySet().stream().toList());
       this.reset();
     }
   }
