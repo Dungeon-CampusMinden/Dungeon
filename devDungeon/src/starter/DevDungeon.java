@@ -122,6 +122,7 @@ public class DevDungeon {
     Game.add(new LevelEditorSystem());
     Game.add(new LevelTickSystem());
     Game.add(new PitSystem());
+    Game.add(TeleporterSystem.getInstance());
     Game.add(EffectScheduler.getInstance());
     Game.add(new FogOfWarSystem());
     Game.add(
