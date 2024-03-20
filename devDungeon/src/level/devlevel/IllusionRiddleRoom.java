@@ -5,7 +5,6 @@ import core.Entity;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
-import entities.TorchFactory;
 import java.util.List;
 import utils.EntityUtils;
 
@@ -55,7 +54,8 @@ public class IllusionRiddleRoom {
   private Entity[] spawnTorches(Coordinate[] torchSpawns) {
     Entity[] torches = new Entity[torchSpawns.length];
     for (int i = 0; i < torchSpawns.length; i++) {
-      torches[i] = TorchFactory.createTorch(torchSpawns[i].toPoint(), true, true, (x, y) -> {}, 0);
+      torches[i] =
+          EntityUtils.spawnTorch(torchSpawns[i].toCenteredPoint(), true, true, (x, y) -> {}, 0);
     }
     return torches;
   }
