@@ -21,7 +21,7 @@ public class RoomBasedDungeon {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.ALL);
+    Game.initBaseLogger(Level.WARNING);
     Debugger debugger = new Debugger();
     // start the game
     configGame();
