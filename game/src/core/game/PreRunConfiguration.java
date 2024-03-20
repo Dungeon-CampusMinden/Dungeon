@@ -7,6 +7,7 @@ import core.utils.components.path.SimpleIPath;
 import core.utils.logging.LoggerConfig;
 import java.io.IOException;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 /**
  * Offers API functions for the configuration of the game.
@@ -214,11 +215,15 @@ public final class PreRunConfiguration {
   }
 
   /**
-   * Initializes the base logger. Removes the console handler and puts all log messages in the log
+   * Initialize the base logger.
+   *
+   * <p>Set a logging level, and remove the console handler, and write all log messages into the log
    * files.
+   *
+   * @param level Set logging level to {@code level}
    */
-  public static void initBaseLogger() {
-    LoggerConfig.initBaseLogger();
+  public static void initBaseLogger(Level level) {
+    LoggerConfig.initBaseLogger(level);
   }
 
   /**
