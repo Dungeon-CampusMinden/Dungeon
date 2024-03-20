@@ -41,7 +41,6 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
   private final IllusionRiddleHandler riddleHandler;
   private final int originalFogOfWarDistance = FogOfWarSystem.VIEW_DISTANCE;
-  private final int originalFogOfWarMaxDistance = FogOfWarSystem.MAX_VIEW_DISTANCE;
   private IllusionRiddleRoom lastRoom = null;
   private boolean lastTorchState = false;
 
@@ -125,8 +124,17 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
     if (this.lastRoom != this.getCurrentRoom()) {
       System.out.println("Room changed!");
-      this.lastRoom = this.getCurrentRoom();
 
+      // Handle Mob AI (disable AI for mobs in other rooms, enable for mobs in current room)
+      if (this.lastRoom != null) {
+        this.lastRoom.mobAI(false);
+      }
+      this.lastRoom = this.getCurrentRoom();
+      if (this.lastRoom != null) {
+        this.lastRoom.mobAI(true);
+      }
+
+      // Open Pits for last room (boss room)
       if (this.rooms.getLast().equals(this.lastRoom)) {
         this.lastRoom.tiles().stream()
             .filter(tile -> tile.levelElement() == LevelElement.PIT)
@@ -135,6 +143,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
       }
     }
 
+    // Anti Torch Logic
     if (this.lastRoom != null && this.lastTorchState != this.lastRoom.isAnyTorchActive()) {
       this.lastTorchState = this.lastRoom.isAnyTorchActive();
       if (this.lastRoom.isAnyTorchActive()) {
@@ -146,6 +155,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
         // revert is only needed if the fog of war decreases in distance
       }
     }
+
     this.riddleHandler.onTick(isFirstTick);
   }
 

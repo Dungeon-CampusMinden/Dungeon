@@ -67,26 +67,55 @@ public class IllusionRiddleRoom {
           EntityUtils.spawnMonster(
               IllusionRiddleLevel.MONSTER_TYPES[i % IllusionRiddleLevel.MONSTER_TYPES.length],
               mobSpawns[i]);
+      if (mobs[i] != null)
+        mobs[i]
+            .fetch(AIComponent.class)
+            .ifPresent(ai -> ai.active(false)); // Disable AI while not in same room
     }
     return mobs;
   }
 
+  /**
+   * Returns the top left coordinate of the room.
+   *
+   * @return the top left coordinate of the room.
+   */
   public Coordinate topLeft() {
     return this.topLeft;
   }
 
+  /**
+   * Returns the bottom right coordinate of the room.
+   *
+   * @return the bottom right coordinate of the room.
+   */
   public Coordinate bottomRight() {
     return this.bottomRight;
   }
 
+  /**
+   * Returns the array of torch entities in the room.
+   *
+   * @return the array of torch entities in the room.
+   */
   public Entity[] torches() {
     return this.torches;
   }
 
+  /**
+   * Returns the array of mob entities in the room.
+   *
+   * @return the array of mob entities in the room.
+   */
   public Entity[] mobs() {
     return this.mobs;
   }
 
+  /**
+   * Checks if a given coordinate is within the room's boundaries.
+   *
+   * @return true if the coordinate is within the room, false otherwise.
+   */
   public boolean contains(Coordinate coordinate) {
     return coordinate.x >= this.topLeft.x
         && coordinate.x <= this.bottomRight.x
@@ -94,6 +123,11 @@ public class IllusionRiddleRoom {
         && coordinate.y >= this.bottomRight.y;
   }
 
+  /**
+   * Gets the tiles within the room's boundaries.
+   *
+   * @return a list of tiles within the room.
+   */
   public List<Tile> tiles() {
     return Game.currentLevel().tilesInArea(this.topLeft, this.bottomRight);
   }
@@ -104,5 +138,16 @@ public class IllusionRiddleRoom {
     if (other == null || this.getClass() != other.getClass()) return false;
     IllusionRiddleRoom that = (IllusionRiddleRoom) other;
     return this.topLeft.equals(that.topLeft) && this.bottomRight.equals(that.bottomRight);
+  }
+
+  /**
+   * Toggles the AI of the mobs in the room.
+   *
+   * @param active if true, activates the mobs' AI; if false, deactivates the mobs' AI.
+   */
+  public void mobAI(boolean active) {
+    for (Entity mob : this.mobs) {
+      mob.fetch(AIComponent.class).ifPresent(ai -> ai.active(active));
+    }
   }
 }
