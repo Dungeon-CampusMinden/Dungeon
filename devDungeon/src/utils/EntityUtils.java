@@ -280,4 +280,36 @@ public class EntityUtils {
 
     heroPc.position(point);
   }
+
+  /**
+   * Retrieves the current position of the hero in the game.
+   *
+   * <p>This method retrieves the hero entity from the game. If the hero entity is not present
+   * (which can happen if the hero has fallen into a pit), the method returns null.
+   *
+   * @return The current position of the hero, or a default position of (0,0) if the hero is not
+   *     present.
+   */
+  public static Point getHeroPosition() {
+    return Game.hero()
+        .map(
+            e ->
+                e.fetch(PositionComponent.class)
+                    .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class))
+                    .position())
+        .orElse(null);
+  }
+
+  /**
+   * Retrieves the current coordinates of the hero in the game.
+   *
+   * <p>This method retrieves the hero entity from the game. If the hero entity is not present
+   * (which can happen if the hero has fallen into a pit), the method returns null.
+   *
+   * @return The current coordinates of the hero, or null if the hero is not present.
+   */
+  public static Coordinate getHeroCoordinate() {
+    Point heroPos = getHeroPosition();
+    return heroPos == null ? null : heroPos.toCoordinate();
+  }
 }
