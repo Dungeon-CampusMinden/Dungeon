@@ -98,7 +98,7 @@ public class DungeonLoader {
     this.currentLevel++;
     try {
       Game.currentLevel(this.getRandomVariant(this.levelOrder[this.currentLevel]));
-    } catch (MissingLevelException e) {
+    } catch (MissingLevelException | ArrayIndexOutOfBoundsException e) {
       System.out.println("Game Over!");
       System.out.println("You have passed all " + this.currentLevel + " levels!");
       Game.exit();
