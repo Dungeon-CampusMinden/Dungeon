@@ -15,7 +15,7 @@ options
   public DungeonDSLLexer(CharStream input, IEnvironment environment)
   {
     this(input);
-    this.environment = environment;
+    this.setEnvironment(environment);
   }
 }
 
