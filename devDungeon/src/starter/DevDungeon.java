@@ -22,6 +22,7 @@ import entities.DevHeroFactory;
 import entities.MonsterType;
 import item.concreteItem.ItemPotionSpeedPotion;
 import java.io.IOException;
+import java.util.logging.Level;
 import level.utils.DungeonLoader;
 import systems.*;
 import systems.DevHealthSystem;
@@ -37,7 +38,7 @@ public class DevDungeon {
   private static final boolean SKIP_TUTORIAL = true;
 
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger();
+    Game.initBaseLogger(Level.WARNING);
     Debugger debugger = new Debugger();
     configGame();
     onSetup();
