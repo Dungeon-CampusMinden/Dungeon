@@ -16,6 +16,7 @@ import entities.MonsterType;
 import entities.SignFactory;
 import entities.TorchFactory;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -185,11 +186,12 @@ public class EntityUtils {
    * @param bossType The type of the level boss monster.
    * @param levelBossSpawn The Coordinate where the bossType monster (level boss) is to be spawned.
    * @param onBossDeath The action to perform when the level boss monster dies.
+   * @return A list of the spawned entities. The last entity in the list is the level boss monster.
    * @throws IllegalArgumentException if mobCount is greater than the length of mobSpawns.
    * @throws RuntimeException if an error occurs while spawning a monster.
    * @see #spawnBoss(MonsterType, Coordinate, Consumer) spawnBoss
    */
-  public static void spawnMobs(
+  public static List<Entity> spawnMobs(
       int mobCount,
       MonsterType[] monsterTypes,
       Coordinate[] mobSpawns,
@@ -202,21 +204,23 @@ public class EntityUtils {
 
     // Gets a list of random spawn points from the mobSpawns array.
     List<Coordinate> randomSpawns = ArrayUtils.getRandomElements(mobSpawns, mobCount - 1);
-
+    List<Entity> spawnedMobs = new ArrayList<>();
     // Spawns the monsters at the random spawn points.
     for (Coordinate mobPos : randomSpawns) {
       try {
         // Choose a random monster type from the monsterTypes array.
         MonsterType randomType = monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
         // Spawn the monster at the current spawn point.
-        EntityUtils.spawnMonster(randomType, mobPos);
+        spawnedMobs.add(EntityUtils.spawnMonster(randomType, mobPos));
       } catch (RuntimeException e) {
         throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
       }
     }
 
     // Spawn the level boss monster.
-    spawnBoss(bossType, levelBossSpawn, onBossDeath);
+    spawnedMobs.add(spawnBoss(bossType, levelBossSpawn, onBossDeath));
+
+    return spawnedMobs;
   }
 
   /**
@@ -231,17 +235,18 @@ public class EntityUtils {
    *     are chosen from this array.
    * @param bossType The type of the level boss monster.
    * @param levelBossSpawn The Coordinate where the bossType monster (level boss) is to be spawned.
+   * @return A list of the spawned entities. The last entity in the list is the level boss monster.
    * @throws IllegalArgumentException if mobCount is greater than the length of mobSpawns.
    * @throws RuntimeException if an error occurs while spawning a monster.
    * @see #spawnMobs(int, MonsterType[], Coordinate[], MonsterType, Coordinate, Consumer) spawnMobs
    */
-  public static void spawnMobs(
+  public static List<Entity> spawnMobs(
       int mobCount,
       MonsterType[] monsterTypes,
       Coordinate[] mobSpawns,
       MonsterType bossType,
       Coordinate levelBossSpawn) {
-    spawnMobs(mobCount, monsterTypes, mobSpawns, bossType, levelBossSpawn, e -> {});
+    return spawnMobs(mobCount, monsterTypes, mobSpawns, bossType, levelBossSpawn, e -> {});
   }
 
   /**
@@ -251,10 +256,11 @@ public class EntityUtils {
    * @param bossType The type of the level boss monster.
    * @param levelBossSpawn The Coordinate where the bossType monster (level boss) is to be spawned.
    * @param onBossDeath The action to perform when the level boss monster dies.
+   * @return The spawned boss monster entity.
    * @throws RuntimeException if an error occurs while spawning a monster.
    * @see #spawnMobs(int, MonsterType[], Coordinate[], MonsterType, Coordinate, Consumer) spawnMobs
    */
-  public static void spawnBoss(
+  public static Entity spawnBoss(
       MonsterType bossType, Coordinate levelBossSpawn, Consumer<Entity> onBossDeath) {
     try {
       Entity bossMob = EntityUtils.spawnMonster(bossType, levelBossSpawn);
@@ -272,6 +278,7 @@ public class EntityUtils {
                             .open(); // open exit when chort dies
                         onBossDeath.accept(e);
                       }));
+      return bossMob;
     } catch (RuntimeException e) {
       throw new RuntimeException("Failed to spawn level boss monster: " + e.getMessage());
     }
