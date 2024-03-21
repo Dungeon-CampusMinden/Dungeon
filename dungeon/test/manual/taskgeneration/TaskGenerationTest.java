@@ -32,11 +32,18 @@ import task.tasktype.Quiz;
  * <a
  * href="file:../../../../doc/tasks/anleitung_task_test.md">../../../../doc/tasks/anleitung_task_test.md</a>
  *
- * <p>Use taskGenerationTest --args "dungeon/test_resources/task_test.dng" to run thus
+ * <p>Use taskGenerationTest --args "dungeon/test_resources/task_test.dng" to run thus.
  */
 public class TaskGenerationTest {
   static DSLInterpreter interpreter = new DSLInterpreter();
 
+  /**
+   * Generate the main game setup including initializing systems, loading configurations, adding
+   * entities, and running the game.
+   *
+   * @param args the command-line arguments passed to the game
+   * @throws IOException if an IO error occurs during the setup
+   */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.ALL);
     LevelSystem.levelSize(LevelSize.MEDIUM);
