@@ -1,5 +1,7 @@
 package level.devlevel;
 
+import components.TorchComponent;
+import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
@@ -30,14 +32,13 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
   // Difficulty (Mob Types)
   public static final MonsterType[] MONSTER_TYPES =
-      new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
-  private static final MonsterType BOSS_TYPE = MonsterType.CHORT;
+      new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN}; // TODO: Mob Types
+  private static final MonsterType BOSS_TYPE = MonsterType.CHORT; // TODO: Boss Type
 
   // Spawn Points / Locations
   private final List<DevDungeonRoom> rooms;
   private final Coordinate[][] secretPassages;
   private final Coordinate levelBossSpawn;
-  private final Coordinate[] mobSpawns;
 
   private final IllusionRiddleHandler riddleHandler;
   private final int originalFogOfWarDistance = FogOfWarSystem.VIEW_DISTANCE;
@@ -139,20 +140,24 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                 this.customPoints().get(60),
                 this.customPoints().get(61),
                 new Coordinate[] {this.customPoints().get(62), this.customPoints().get(63)},
-                new Coordinate[] {this.customPoints().get(64)}));
+                new Coordinate[] {}));
+    this.levelBossSpawn = this.customPoints().get(64);
+
+    // Teleporters
     for (int i = 65; i < 127; i += 2) {
       TeleporterSystem.getInstance()
           .registerTeleporter(
               new Teleporter(this.customPoints().get(i), this.customPoints().get(i + 1)));
     }
 
+    // TODO: Secret passages / Texture Bug for Walls
     this.secretPassages =
         new Coordinate[][] {
           new Coordinate[] {new Coordinate(0, 0), new Coordinate(0, 0)},
           new Coordinate[] {new Coordinate(0, 0), new Coordinate(0, 0)}
         };
-    this.levelBossSpawn = new Coordinate(0, 0);
-    this.mobSpawns = new Coordinate[0];
+
+    // TODO: Chests and Cauldrons
   }
 
   @Override
@@ -176,6 +181,39 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
           .map(Teleporter::to)
           .forEach((teleporter) -> this.tileAt(teleporter).tintColor(0xFF0000FF));
 
+      Entity boss =
+          EntityUtils.spawnBoss(
+              MonsterType.ILLUSION_BOSS,
+              this.levelBossSpawn,
+              (e) -> {
+                ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).active(false);
+                // turn of all torches on death
+                DevDungeonRoom room = this.getCurrentRoom();
+                if (room == null || room != this.rooms.getLast()) {
+                  return; // should not happen, just if boss dies while not in boss room
+                }
+                this.lightTorch(room, 0);
+                this.lightTorch(room, 1);
+              });
+      HealthComponent bossHc =
+          boss.fetch(HealthComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(boss, HealthComponent.class));
+      bossHc.onHit(
+          (cause, damage) -> {
+            int currentHealth = bossHc.currentHealthpoints() - damage.damageAmount();
+            int maxHealth = bossHc.maximalHealthpoints();
+
+            DevDungeonRoom room = this.getCurrentRoom();
+            if (room == null || room != this.rooms.getLast()) {
+              return;
+            }
+
+            double healthPercentage = (double) currentHealth / maxHealth;
+            if (healthPercentage <= 0.5) {
+              this.lightTorch(room, 0);
+              this.lightTorch(room, 1);
+            }
+          });
       this.spawnChestsAndCauldrons();
     }
 
@@ -214,6 +252,14 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
     }
 
     this.riddleHandler.onTick(isFirstTick);
+  }
+
+  private void lightTorch(DevDungeonRoom room, int torchIndex) {
+    room.torches()[torchIndex]
+        .fetch(TorchComponent.class)
+        .orElseThrow(
+            () -> MissingComponentException.build(room.torches()[torchIndex], TorchComponent.class))
+        .lit(true);
   }
 
   /**
