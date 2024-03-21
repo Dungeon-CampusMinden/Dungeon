@@ -1,4 +1,4 @@
-package tasks;
+package level;
 
 import contrib.level.generator.graphBased.RoomGenerator;
 import core.Entity;
@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import starter.DojoRoom;
+import level.room.DojoRoom;
+import level.room.task.Task;
 import starter.DojoStarter;
 
 public abstract class TaskRoomGenerator {

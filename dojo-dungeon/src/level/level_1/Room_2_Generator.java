@@ -1,4 +1,4 @@
-package tasks.level_1;
+package level.level_1;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
@@ -18,12 +18,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
-import starter.DojoRoom;
-import tasks.DojoCompiler;
-import tasks.Task;
-import tasks.TaskRoomGenerator;
+import level.TaskRoomGenerator;
+import level.compiler.DojoCompiler;
+import level.room.DojoRoom;
+import level.room.task.Task;
 
-public class Room_1_2_Generator extends TaskRoomGenerator {
+public class Room_2_Generator extends TaskRoomGenerator {
   private final String FILENAME1 = "../dungeon/assets/dojo/FehlerhafteKlasse.java";
   private final String FILENAME2 = "../dungeon/assets/dojo/FehlerhafteKlasse2.java";
   private final String CLASS_NAME = "FehlerhafteKlasse2";
@@ -58,7 +58,7 @@ public class Room_1_2_Generator extends TaskRoomGenerator {
   private final String[] TASK_NAMES = {"task_1_easy", "task_2_medium", "task_3_hard"};
   private final Entity[] CHESTS = new Entity[3];
 
-  public Room_1_2_Generator(RoomGenerator gen, DojoRoom room, DojoRoom nextNeighbour) {
+  public Room_2_Generator(RoomGenerator gen, DojoRoom room, DojoRoom nextNeighbour) {
     super(gen, room, nextNeighbour);
   }
 

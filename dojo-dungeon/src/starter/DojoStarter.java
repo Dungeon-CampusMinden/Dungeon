@@ -19,14 +19,11 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import tasks.level_1.Room_1_1_Generator;
-import tasks.level_1.Room_1_2_Generator;
-import tasks.level_1.Room_1_3_Generator;
+import level.room.DojoRoom;
 
 /** Starter for the dojo-dungeon game. */
 public class DojoStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
-  private static final int MONSTERCOUNT = 5;
 
   /**
    * Start a new dojo-dungeon game.
@@ -48,37 +45,64 @@ public class DojoStarter {
   private static void createLevel() throws IOException {
     // create a customised level comprising three nodes (rooms)
     LevelGraph graph = new LevelGraph();
+
+    // level 1 has 3 rooms: room1, room2, room3
     DojoRoom room1 = new DojoRoom(graph);
     DojoRoom room2 = new DojoRoom(graph);
     DojoRoom room3 = new DojoRoom(graph);
+
+    // level 2 has 3 rooms: room4, room5, room6
+    DojoRoom room4 = new DojoRoom(graph);
+    DojoRoom room5 = new DojoRoom(graph);
+    DojoRoom room6 = new DojoRoom(graph);
 
     // connect the rooms
     room1.connect(room2, Direction.SOUTH);
     room2.connect(room1, Direction.NORTH);
     room2.connect(room3, Direction.SOUTH);
     room3.connect(room2, Direction.NORTH);
+    room3.connect(room4, Direction.SOUTH);
+    room4.connect(room3, Direction.NORTH);
+    room4.connect(room5, Direction.SOUTH);
+    room5.connect(room4, Direction.NORTH);
+    room5.connect(room6, Direction.SOUTH);
+    room6.connect(room5, Direction.NORTH);
 
     // link the rooms
     room1.setNextRoom(room2);
     room2.setNextRoom(room3);
+    room3.setNextRoom(room4);
+    room4.setNextRoom(room5);
+    room5.setNextRoom(room6);
 
     // create the rooms in custom level
     RoomGenerator gen = new RoomGenerator();
-    createRoom_1(gen, room1, room2);
-    createRoom_2(gen, room2, room3);
-    createRoom_3(gen, room3, null);
+    createRoom_1_1(gen, room1, room2);
+    createRoom_1_2(gen, room2, room3);
+    createRoom_1_3(gen, room3, room4);
+
+    createRoom_2_1(gen, room4, room5);
+    createRoom_2_2(gen, room5, room6);
+    createRoom_2_3(gen, room6, null);
 
     // remove trap doors, config doors
     configDoors(room1);
     configDoors(room2);
     configDoors(room3);
+    configDoors(room4);
+    configDoors(room5);
+    configDoors(room6);
 
     // close the doors
     room1.closeDoors();
     room2.closeDoors();
+    room3.closeDoors();
+    //    room4.closeDoors();
+    //    room5.closeDoors();
+    //    room6.closeDoors();
 
     // set room1 as start level
-    Game.currentLevel(room1.level());
+    Game.currentLevel(room4.level());
   }
 
   private static void configDoors(DojoRoom node) {
@@ -157,18 +181,34 @@ public class DojoStarter {
     Game.add(new IdleSoundSystem());
   }
 
-  private static void createRoom_1(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
+  private static void createRoom_1_1(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
       throws IOException {
-    new Room_1_1_Generator(gen, room, nextRoom, MONSTERCOUNT).generateRoom();
+    final int monsterCount = 5;
+    new level.level_1.Room_1_Generator(gen, room, nextRoom, monsterCount).generateRoom();
   }
 
-  private static void createRoom_2(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
+  private static void createRoom_1_2(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
       throws IOException {
-    new Room_1_2_Generator(gen, room, nextRoom).generateRoom();
+    new level.level_1.Room_2_Generator(gen, room, nextRoom).generateRoom();
   }
 
-  private static void createRoom_3(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
+  private static void createRoom_1_3(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
       throws IOException {
-    new Room_1_3_Generator(gen, room, nextRoom).generateRoom();
+    new level.level_1.Room_3_Generator(gen, room, nextRoom).generateRoom();
+  }
+
+  private static void createRoom_2_1(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
+      throws IOException {
+    new level.level_2.Room_1_Generator(gen, room, nextRoom).generateRoom();
+  }
+
+  private static void createRoom_2_2(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
+      throws IOException {
+    new level.level_2.Room_2_Generator(gen, room, nextRoom).generateRoom();
+  }
+
+  private static void createRoom_2_3(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
+      throws IOException {
+    new level.level_2.Room_3_Generator(gen, room, nextRoom).generateRoom();
   }
 }
