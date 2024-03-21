@@ -11,14 +11,14 @@ import core.Game;
 import core.level.utils.*;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import java.util.*;
+import java.util.logging.Level;
 
 public class RandomDungeon {
 
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger();
+    Game.initBaseLogger(Level.WARNING);
     Debugger debugger = new Debugger();
     configGame();
     onSetup();
