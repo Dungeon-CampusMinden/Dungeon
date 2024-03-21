@@ -16,7 +16,6 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MonsterType;
 import java.util.*;
@@ -308,20 +307,6 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                     .filter(room -> room.contains(heroPc.position().toCoordinate()))
                     .findFirst())
         .orElse(null);
-  }
-
-  private void offsetHero(Coordinate offset) {
-    Entity hero = Game.hero().orElse(null);
-    if (hero == null) {
-      return;
-    }
-    PositionComponent heroPc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-
-    Point newPoint = new Point(heroPc.position().x + offset.x, heroPc.position().y + offset.y);
-
-    EntityUtils.teleportHeroTo(newPoint);
   }
 
   /**
