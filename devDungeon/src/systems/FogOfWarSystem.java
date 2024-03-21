@@ -36,29 +36,18 @@ public class FogOfWarSystem extends System {
       25; // max view distance (all tiles to consider for calculation)
   private final Map<Tile, Integer> darkenedTiles = new HashMap<>();
   private final List<Entity> hiddenEntities = new ArrayList<>();
-  private Point lastHeroPos = null;
   private boolean active = true;
 
   /**
    * Resets the FogOfWarSystem to its initial state.
    *
-   * <p>This method clears the sets of darkened tiles and hidden entities, and resets the last known
-   * hero position. The last known hero position is set to the current hero's position if a hero
-   * exists, otherwise it is set to (0,0).
+   * <p>This method clears the sets of darkened tiles and hidden entities.
    *
    * @param revert If true, the FogOfWarSystem will also revert to its initial state.
    */
   public void reset(boolean revert) {
     this.darkenedTiles.clear();
     this.hiddenEntities.clear();
-    this.lastHeroPos =
-        Game.hero()
-            .map(
-                e ->
-                    e.fetch(PositionComponent.class)
-                        .map(PositionComponent::position)
-                        .orElse(new Point(0, 0)))
-            .orElse(new Point(0, 0));
     if (revert) {
       this.revert();
     }
@@ -167,8 +156,8 @@ public class FogOfWarSystem extends System {
     return visibleTiles;
   }
 
-  private void darkenTile(Tile tile, int maxDistance, float scale) {
-    int newTint = this.getTintColor(tile.coordinate().toPoint(), maxDistance, scale);
+  private void darkenTile(Tile tile, int maxDistance, float scale, Point heroPos) {
+    int newTint = this.getTintColor(tile.coordinate().toPoint(), maxDistance, scale, heroPos);
     if (!this.darkenedTiles.containsKey(tile)) {
       int orgTint = tile.tintColor();
       tile.tintColor(newTint);
@@ -189,12 +178,13 @@ public class FogOfWarSystem extends System {
    *     opaque.
    * @param scale The scale factor for the distance. The larger the scale, the more transparent the
    *     tiles will be.
+   * @param heroPos The position of the hero.
    * @return The calculated tint color as an ARGB integer.
    */
-  private int getTintColor(Point tilePos, int maxDistance, float scale) {
+  private int getTintColor(Point tilePos, int maxDistance, float scale, Point heroPos) {
     float distance =
         (float)
-            this.lastHeroPos
+            heroPos
                 .toCoordinate()
                 .toPoint()
                 .distance(tilePos); // point -> coordinate -> point to floor the value
@@ -260,53 +250,50 @@ public class FogOfWarSystem extends System {
 
     Point heroPos = EntityUtils.getHeroPosition();
     if (heroPos == null) return; // if hero is not present, don't update fog of war
-    // max diff
-    if (heroPos.toCoordinate().equals(Game.currentLevel().startTile().coordinate())
-        || this.lastHeroPos == null
-        || !this.lastHeroPos.toCoordinate().equals(heroPos.toCoordinate())) {
-      this.lastHeroPos = heroPos;
 
-      List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, MAX_VIEW_DISTANCE);
+    List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, MAX_VIEW_DISTANCE);
 
-      List<Tile> visibleTiles = new ArrayList<>();
-      visibleTiles.add(Game.tileAT(heroPos));
-      // Cast light into the surrounding tiles
-      for (int octant = 0; octant < 8; octant++) {
-        visibleTiles.addAll(
-            this.castLight(
-                1,
-                1.0f,
-                0.0f,
-                MAX_VIEW_DISTANCE,
-                mult[octant][0],
-                mult[octant][1],
-                mult[octant][2],
-                mult[octant][3],
-                heroPos));
-      }
-      List<Tile> distancedTiles = new ArrayList<>(visibleTiles.stream().toList()); // copy
-
-      // Handle tiles that are beyond the view distance
-      distancedTiles.removeAll(LevelUtils.tilesInRange(heroPos, VIEW_DISTANCE));
-      distancedTiles.forEach(
-          (tile) ->
-              this.darkenTile(
-                  tile, VIEW_DISTANCE + DISTANCE_TRANSITION_SIZE, TINT_COLOR_DISTANCE_SCALE));
-      visibleTiles.removeAll(distancedTiles); // remove distanced tiles from visible tiles
-      allTilesInView.removeAll(distancedTiles); // and from tile behind walls
-
-      allTilesInView.removeAll(visibleTiles); // remove visible tiles from tiles behind walls
-
-      // Darken tiles that are behind walls
-      allTilesInView.forEach(
-          (tile) -> this.darkenTile(tile, VIEW_DISTANCE, TINT_COLOR_WALL_DISTANCE_SCALE));
-
-      // Revert all visible tiles back to light
-      this.revertTilesBackToLight(visibleTiles);
-
-      // Hide entities in the fog of war
-      this.hideAllHiddenEntities();
+    List<Tile> visibleTiles = new ArrayList<>();
+    visibleTiles.add(Game.tileAT(heroPos));
+    // Cast light into the surrounding tiles
+    for (int octant = 0; octant < 8; octant++) {
+      visibleTiles.addAll(
+          this.castLight(
+              1,
+              1.0f,
+              0.0f,
+              MAX_VIEW_DISTANCE,
+              mult[octant][0],
+              mult[octant][1],
+              mult[octant][2],
+              mult[octant][3],
+              heroPos));
     }
+    List<Tile> distancedTiles = new ArrayList<>(visibleTiles.stream().toList()); // copy
+
+    // Handle tiles that are beyond the view distance
+    distancedTiles.removeAll(LevelUtils.tilesInRange(heroPos, VIEW_DISTANCE));
+    distancedTiles.forEach(
+        (tile) ->
+            this.darkenTile(
+                tile,
+                VIEW_DISTANCE + DISTANCE_TRANSITION_SIZE,
+                TINT_COLOR_DISTANCE_SCALE,
+                heroPos));
+    visibleTiles.removeAll(distancedTiles); // remove distanced tiles from visible tiles
+    allTilesInView.removeAll(distancedTiles); // and from tile behind walls
+
+    allTilesInView.removeAll(visibleTiles); // remove visible tiles from tiles behind walls
+
+    // Darken tiles that are behind walls
+    allTilesInView.forEach(
+        (tile) -> this.darkenTile(tile, VIEW_DISTANCE, TINT_COLOR_WALL_DISTANCE_SCALE, heroPos));
+
+    // Revert all visible tiles back to light
+    this.revertTilesBackToLight(visibleTiles);
+
+    // Hide entities in the fog of war
+    this.hideAllHiddenEntities();
 
     // Reveal entities in the visible area
     this.revealHiddenEntities();
