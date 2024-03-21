@@ -59,7 +59,7 @@ public class TeleporterSystem extends System {
   }
 
   private boolean heroMoved() {
-    return !this.lastHeroPos.equals(getHeroCoordinate());
+    return this.lastHeroPos != null && !this.lastHeroPos.equals(getHeroCoordinate());
   }
 
   private void teleportHero(Coordinate destination) {
