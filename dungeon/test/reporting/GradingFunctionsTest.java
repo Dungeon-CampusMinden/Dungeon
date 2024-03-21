@@ -21,8 +21,10 @@ import task.tasktype.ReplacementTask;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
 
+/** WTF? . */
 public class GradingFunctionsTest {
 
+  /** setup method for initializing the game with a new hero entity. */
   @Before
   public void setup() {
     try {
@@ -32,6 +34,16 @@ public class GradingFunctionsTest {
     }
   }
 
+  /** WTF? . */
+  @Test
+  public void singleChoice_correct() {
+    SingleChoice sc = setupSingleChoiceTask();
+    float points = 5f;
+    sc.points(points, points);
+    assertEquals(points, sc.gradeTask(Set.of(sc.contentByIndex(0))), 0.00001f);
+  }
+
+  /** cleanup method to clean up after each test. */
   @After
   public void cleanup() {
     Task.cleanupAllTask();
@@ -58,6 +70,7 @@ public class GradingFunctionsTest {
     return mc;
   }
 
+  /** Test case for singlechoice_wrongAnswer. */
   @Test
   public void singlechoice_correctAnswer() {
     SingleChoice sc = setupSingleChoiceTask();
@@ -66,6 +79,7 @@ public class GradingFunctionsTest {
     assertEquals(points, sc.gradeTask(Set.of(sc.contentByIndex(1))), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void singlechoice_wrongAnswer() {
     SingleChoice sc = setupSingleChoiceTask();
@@ -74,6 +88,7 @@ public class GradingFunctionsTest {
     assertEquals(0, sc.gradeTask(Set.of(sc.contentByIndex(0))), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void singlechoice_multipleAnswers() {
     SingleChoice sc = setupSingleChoiceTask();
@@ -82,6 +97,7 @@ public class GradingFunctionsTest {
     assertEquals(0, sc.gradeTask(Set.of(sc.contentByIndex(0), sc.contentByIndex(1))), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void multipechoice_correctAnswer() {
     MultipleChoice mc = setupMultipleChoiceTask();
@@ -91,6 +107,7 @@ public class GradingFunctionsTest {
         points, mc.gradeTask(Set.of(mc.contentByIndex(0), mc.contentByIndex(1))), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void multipechoice_wrongAnswer() {
     MultipleChoice mc = setupMultipleChoiceTask();
@@ -99,6 +116,7 @@ public class GradingFunctionsTest {
     assertEquals(0, mc.gradeTask(Set.of(mc.contentByIndex(2), mc.contentByIndex(3))), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void multipechoice_someRightSomeWrongAnswer() {
     MultipleChoice mc = setupMultipleChoiceTask();
@@ -110,6 +128,7 @@ public class GradingFunctionsTest {
         0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void multiplechoice_oneRightAnswer() {
     MultipleChoice mc = setupMultipleChoiceTask();
@@ -118,6 +137,7 @@ public class GradingFunctionsTest {
     assertEquals(2, mc.gradeTask(Set.of(mc.contentByIndex(0))), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void replacement_correctAnswer() {
     ReplacementTask rt = new ReplacementTask(new ArrayList<>());
@@ -131,6 +151,7 @@ public class GradingFunctionsTest {
     assertEquals(points, rt.gradeTask(Set.of(a, b)), 0.00001f);
   }
 
+  /** Test case for the replacement_oneRightAnswer() method. */
   @Test
   public void replacement_oneRightAnswer() {
     ReplacementTask rt = new ReplacementTask(new ArrayList<>());
@@ -144,6 +165,7 @@ public class GradingFunctionsTest {
     assertEquals(2, rt.gradeTask(Set.of(a)), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void assign_correct_easy() {
     AssignTask task = new AssignTask();
@@ -168,6 +190,7 @@ public class GradingFunctionsTest {
     assertEquals(points, task.gradeTask(Set.of(givenSol)), 0.00001f);
   }
 
+  /** Test case for the assign_wrong_easy() method. */
   @Test
   public void assign_wrong_easy() {
     AssignTask task = new AssignTask();
@@ -193,6 +216,7 @@ public class GradingFunctionsTest {
     assertEquals(0, task.gradeTask(Set.of(givenSol)), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void assign_wrong_easy_assignNotToAssing() {
     AssignTask task = new AssignTask();
@@ -219,6 +243,7 @@ public class GradingFunctionsTest {
     assertEquals(4f, task.gradeTask(Set.of(givenSol)), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void assign_oneCorrectOneWrong_easy() {
     AssignTask task = new AssignTask();
@@ -244,6 +269,7 @@ public class GradingFunctionsTest {
     assertEquals(2, task.gradeTask(Set.of(givenSol)), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void assign_oneCorrectOneWrongPerContainer_easy() {
     AssignTask task = new AssignTask();
@@ -269,6 +295,7 @@ public class GradingFunctionsTest {
     assertEquals(2, task.gradeTask(Set.of(givenSol)), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void assign_correct_hard() {
     AssignTask task = new AssignTask();
@@ -291,6 +318,7 @@ public class GradingFunctionsTest {
     assertEquals(points, task.gradeTask(Set.of(givenSol)), 0.00001f);
   }
 
+  /** A test for assigning a wrong and hard task. */
   @Test
   public void assign_wrong_hard() {
     AssignTask task = new AssignTask();
@@ -316,6 +344,7 @@ public class GradingFunctionsTest {
     assertEquals(0, task.gradeTask(Set.of(givenSol)), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void assign_oneCorrectOneWrong_hard() {
     AssignTask task = new AssignTask();
@@ -341,6 +370,7 @@ public class GradingFunctionsTest {
     assertEquals(0, task.gradeTask(Set.of(givenSol)), 0.00001f);
   }
 
+  /** Test case for the assign_wrong_hard_assignNotToAssing method. */
   @Test
   public void assign_wrong_hard_assignNotToAssing() {
     AssignTask task = new AssignTask();
@@ -368,6 +398,7 @@ public class GradingFunctionsTest {
     assertEquals(3f, task.gradeTask(Set.of(givenSol)), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void assign_oneCorrectOneWrongPerContainer_hard() {
     AssignTask task = new AssignTask();
@@ -393,6 +424,7 @@ public class GradingFunctionsTest {
     assertEquals(0, task.gradeTask(Set.of(givenSol)), 0.00001f);
   }
 
+  /** WTF? . */
   @Test
   public void changeState_correct() {
     SingleChoice sc = setupSingleChoiceTask();
@@ -402,6 +434,7 @@ public class GradingFunctionsTest {
     assertEquals(Task.TaskState.FINISHED_CORRECT, sc.state());
   }
 
+  /** WTF? . */
   @Test
   public void changeState_wrong() {
     SingleChoice sc = setupSingleChoiceTask();
@@ -411,6 +444,7 @@ public class GradingFunctionsTest {
     assertEquals(Task.TaskState.FINISHED_WRONG, sc.state());
   }
 
+  /** WTF? . */
   @Test
   public void changeState_notEnoughCorrect() {
     MultipleChoice mc = setupMultipleChoiceTask();
