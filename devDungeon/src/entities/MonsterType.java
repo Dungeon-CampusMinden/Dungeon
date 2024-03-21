@@ -133,6 +133,20 @@ public enum MonsterType {
       30, // one hit kill
       Game.frameRate(),
       MonsterIdleSound.NONE,
+      0),
+  ILLUSION_BOSS(
+      "Illusion Boss",
+      "character/monster/big_zombie", // TODO: Only a Placeholder
+      30,
+      0.1f,
+      0.0f,
+      MonsterDeathSound.LOWER_PITCH,
+      () -> new RangeAI(7f, 2f, new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), 250)),
+      () -> entity -> {}, // no idle needed
+      () -> (entity) -> true, // Always fight
+      10,
+      2 * Game.frameRate(),
+      MonsterIdleSound.BURP,
       0);
 
   private final String name;
