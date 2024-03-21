@@ -1,7 +1,8 @@
-package tasks;
+package level.room.task;
 
 import core.utils.IVoidFunction;
 import java.util.function.Function;
+import level.TaskRoomGenerator;
 
 public class Task {
   private final TaskRoomGenerator trGen;

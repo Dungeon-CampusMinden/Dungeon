@@ -1,4 +1,4 @@
-package tasks.level_1;
+package level.level_1;
 
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
@@ -19,13 +19,13 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import starter.DojoRoom;
-import tasks.TaskRoomGenerator;
+import level.TaskRoomGenerator;
+import level.room.DojoRoom;
 
-public class Room_1_1_Generator extends TaskRoomGenerator {
+public class Room_1_Generator extends TaskRoomGenerator {
   private final int monsterCount;
 
-  public Room_1_1_Generator(
+  public Room_1_Generator(
       RoomGenerator gen, DojoRoom room, DojoRoom nextNeighbour, int monsterCount) {
     super(gen, room, nextNeighbour);
     this.monsterCount = monsterCount;

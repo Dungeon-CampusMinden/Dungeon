@@ -1,4 +1,4 @@
-package tasks.level_1;
+package level.level_1;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -16,23 +16,23 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-import starter.DojoRoom;
+import level.TaskRoomGenerator;
+import level.room.DojoRoom;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
 import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.FreeText;
-import tasks.TaskRoomGenerator;
 
-public class Room_1_3_Generator extends TaskRoomGenerator {
+public class Room_3_Generator extends TaskRoomGenerator {
   private static final String[] regexes = {
     "Wort", "\\d+", "((public|private|protected) )?class \\w+Class \\{(.*\\n*)*\\}"
   };
   private static final int chosenRegex = new Random().nextInt(regexes.length);
   private static Quiz question = freeText();
 
-  public Room_1_3_Generator(RoomGenerator gen, DojoRoom room, DojoRoom nextNeighbour) {
+  public Room_3_Generator(RoomGenerator gen, DojoRoom room, DojoRoom nextNeighbour) {
     super(gen, room, nextNeighbour);
   }
 

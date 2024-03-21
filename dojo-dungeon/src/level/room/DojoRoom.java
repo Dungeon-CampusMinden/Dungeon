@@ -1,4 +1,4 @@
-package starter;
+package level.room;
 
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.levelGraph.Direction;
