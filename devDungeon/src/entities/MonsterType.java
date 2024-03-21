@@ -1,6 +1,7 @@
 package entities;
 
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.Vector2;
 import components.ReviveComponent;
 import contrib.components.AIComponent;
 import contrib.entities.AIFactory;
@@ -16,6 +17,9 @@ import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
+import core.components.PositionComponent;
+import core.utils.Point;
+import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -141,7 +145,34 @@ public enum MonsterType {
       0.1f,
       0.0f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new RangeAI(7f, 2f, new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), 250)),
+      () ->
+          new RangeAI(
+              9f,
+              2f,
+              new Skill(
+                  (skillUser) -> { // TODO: FIX ME
+                    // shoots 3 fireballs one 45° to the left, one straight and one 45° to the right
+                    // to the hero
+                    Point heroPos = SkillTools.heroPositionAsPoint();
+                    Point myPos =
+                        skillUser
+                            .fetch(PositionComponent.class)
+                            .orElseThrow(
+                                () ->
+                                    MissingComponentException.build(
+                                        skillUser, PositionComponent.class))
+                            .position();
+                    Vector2 direction = new Vector2(heroPos.x - myPos.x, heroPos.y - myPos.y).nor();
+                    Vector2 left = new Vector2(direction).rotate(45);
+                    Vector2 right = new Vector2(direction).rotate(-45);
+
+                    new FireballSkill(() -> new Point(myPos.x + left.x, myPos.y + left.y))
+                        .accept(skillUser);
+                    new FireballSkill(() -> new Point(myPos.x + right.x, myPos.y + right.y))
+                        .accept(skillUser);
+                    new FireballSkill(() -> new Point(heroPos.x, heroPos.y)).accept(skillUser);
+                  },
+                  AIFactory.FIREBALL_COOL_DOWN)),
       () -> entity -> {}, // no idle needed
       () -> (entity) -> true, // Always fight
       10,
