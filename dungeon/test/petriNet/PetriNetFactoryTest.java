@@ -7,8 +7,10 @@ import graph.petrinet.PetriNetFactory;
 import org.junit.Test;
 import task.Task;
 
+/** A test class for the PetriNetFactory class. */
 public class PetriNetFactoryTest {
 
+  /** WTF? . */
   @Test
   public void defaultNet_correct() {
     Task task = new DummyTask();
@@ -26,6 +28,10 @@ public class PetriNetFactoryTest {
     // assertEquals(Task.TaskState.INACTIVE, task.state());
   }
 
+  /**
+   * A test for the defaultNet method with false parameter, checking the behavior of the task and
+   * petri net.
+   */
   @Test
   public void defaultNet_false() {
     Task task = new DummyTask();
@@ -43,6 +49,7 @@ public class PetriNetFactoryTest {
     // assertEquals(Task.TaskState.INACTIVE, task.state());
   }
 
+  /** WTF? . */
   @Test
   public void connectSubtaskMandatory() {
     Task mainTask = new DummyTask();
@@ -83,6 +90,7 @@ public class PetriNetFactoryTest {
     // assertEquals(Task.TaskState.INACTIVE, sub2.state());
   }
 
+  /** WTF? . */
   @Test
   public void connectSubtaskOptional_finished() {
     Task mainTask = new DummyTask();
@@ -110,6 +118,7 @@ public class PetriNetFactoryTest {
     assertEquals(1, mainNet.processingActivated().tokenCount());
   }
 
+  /** WTF? . */
   @Test
   public void connectSubtaskOptional_notfinished() {
     Task mainTask = new DummyTask();
@@ -140,6 +149,7 @@ public class PetriNetFactoryTest {
     assertEquals(0, sub1Net.end().tokenCount());
   }
 
+  /** A test method to connect sequences and verify task activation based on pre-task completion. */
   @Test
   public void connectSequenceAnd() {
     Task mainTask = new DummyTask();
@@ -172,6 +182,7 @@ public class PetriNetFactoryTest {
     assertEquals(Task.TaskState.PROCESSING_ACTIVE, mainTask.state());
   }
 
+  /** WTF? . */
   @Test
   public void connectSequenceOr() {
     Task mainTask = new DummyTask();
@@ -203,6 +214,7 @@ public class PetriNetFactoryTest {
     assertEquals(Task.TaskState.PROCESSING_ACTIVE, pre1.state());
   }
 
+  /** WTF? . */
   @Test
   public void connectConditionalFalse_successful() {
     Task mainTask = new DummyTask();
@@ -226,6 +238,7 @@ public class PetriNetFactoryTest {
     // assertEquals(Task.TaskState.INACTIVE, pre1.state());
   }
 
+  /** WTF? . */
   @Test
   public void connectConditionalFalse_unsuccessful() {
     Task mainTask = new DummyTask();
@@ -249,6 +262,7 @@ public class PetriNetFactoryTest {
     // assertEquals(Task.TaskState.INACTIVE, pre1.state());
   }
 
+  /** Tests the successful connection of a conditional task to the main task. */
   @Test
   public void connectConditionalCorrect_successful() {
     Task mainTask = new DummyTask();
@@ -272,6 +286,7 @@ public class PetriNetFactoryTest {
     // assertEquals(Task.TaskState.INACTIVE, pre1.state());
   }
 
+  /** WTF? . */
   @Test
   public void connectConditionalCorrect_unsuccessful() {
     Task mainTask = new DummyTask();
