@@ -20,8 +20,7 @@ public class SignFactory {
 
   private static final float DEFAULT_INTERACTION_RADIUS = 2.5f;
   private static final Animation SIGN_TEXTURE =
-      Animation.fromSingleImage(
-          new SimpleIPath("objects/mailbox/mailbox_2.png")); // TODO: Change to sign texture
+      Animation.fromSingleImage(new SimpleIPath("objects/mailbox/mailbox_2.png"));
 
   /**
    * Creates a sign entity with a default title at a given position.
