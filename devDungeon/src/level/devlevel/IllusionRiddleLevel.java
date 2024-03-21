@@ -87,7 +87,64 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                 this.customPoints().get(20),
                 this.customPoints().get(21),
                 new Coordinate[] {this.customPoints().get(22), this.customPoints().get(23)},
-                new Coordinate[] {this.customPoints().get(24)}));
+                new Coordinate[] {this.customPoints().get(24)}),
+            new DevDungeonRoom(
+                this.customPoints().get(25),
+                this.customPoints().get(26),
+                new Coordinate[] {this.customPoints().get(27)},
+                new Coordinate[] {
+                  this.customPoints().get(28),
+                  this.customPoints().get(29),
+                  this.customPoints().get(30),
+                  this.customPoints().get(31),
+                  this.customPoints().get(32)
+                }),
+            new DevDungeonRoom(
+                this.customPoints().get(33),
+                this.customPoints().get(34),
+                new Coordinate[] {},
+                new Coordinate[] {this.customPoints().get(35), this.customPoints().get(36)}),
+            new DevDungeonRoom(
+                this.customPoints().get(37),
+                this.customPoints().get(38),
+                new Coordinate[] {this.customPoints().get(39), this.customPoints().get(40)},
+                new Coordinate[] {
+                  this.customPoints().get(41),
+                  this.customPoints().get(42),
+                  this.customPoints().get(43),
+                  this.customPoints().get(44),
+                  this.customPoints().get(45),
+                  this.customPoints().get(46)
+                }),
+            new DevDungeonRoom(
+                this.customPoints().get(47),
+                this.customPoints().get(48),
+                new Coordinate[] {},
+                new Coordinate[] {this.customPoints().get(49)}),
+            new DevDungeonRoom(
+                this.customPoints().get(50),
+                this.customPoints().get(51),
+                new Coordinate[] {},
+                new Coordinate[] {this.customPoints().get(52), this.customPoints().get(53)}),
+            new DevDungeonRoom(
+                this.customPoints().get(54),
+                this.customPoints().get(55),
+                new Coordinate[] {this.customPoints().get(56)},
+                new Coordinate[] {
+                  this.customPoints().get(57),
+                  this.customPoints().get(58),
+                  this.customPoints().get(59)
+                }),
+            new DevDungeonRoom(
+                this.customPoints().get(60),
+                this.customPoints().get(61),
+                new Coordinate[] {this.customPoints().get(62), this.customPoints().get(63)},
+                new Coordinate[] {this.customPoints().get(64)}));
+    for (int i = 65; i < 127; i += 2) {
+      TeleporterSystem.getInstance()
+          .registerTeleporter(
+              new Teleporter(this.customPoints().get(i), this.customPoints().get(i + 1)));
+    }
 
     this.secretPassages =
         new Coordinate[][] {
