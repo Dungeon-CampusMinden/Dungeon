@@ -11,6 +11,7 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.utils.MissingHeroException;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import entities.MonsterType;
 import entities.SignFactory;
@@ -99,6 +100,7 @@ public class EntityUtils {
    * @param onInteract The action to perform when the sign is interacted with. (sign, whoTriggered)
    * @return The spawned sign entity.
    * @throws RuntimeException if an error occurs while spawning the sign.
+   * @see entities.SignFactory#createSign(String, String, Point, BiConsumer) createSign
    */
   public static Entity spawnSign(
       String text, String title, Point pos, BiConsumer<Entity, Entity> onInteract) {
@@ -118,9 +120,29 @@ public class EntityUtils {
    * @param pos The position where the sign should be spawned.
    * @return The spawned sign entity.
    * @throws RuntimeException if an error occurs while spawning the sign.
+   * @see #spawnSign(String, String, Point, BiConsumer) spawnSign
    */
   public static Entity spawnSign(String text, String title, Point pos) {
     return spawnSign(text, title, pos, (e, e2) -> {});
+  }
+
+  /**
+   * This method is used to spawn a Lever entity in the game at a given position. It uses the
+   * LeverFactory class to create a new Lever with the provided onInteract action. The Lever is then
+   * added to the game. If an IOException occurs during the creation of the Lever, it is caught and
+   * a RuntimeException is thrown.
+   *
+   * @param pos The position where the Lever should be spawned.
+   * @param onInteract The action to perform when the Lever is interacted with. (isOn, lever,
+   *     whoTriggered)
+   * @return The spawned Lever entity.
+   * @throws RuntimeException if an error occurs while spawning the Lever.
+   * @see entities.LeverFactory#createLever(Point, TriConsumer) createLever
+   */
+  public static Entity spawnLever(Point pos, TriConsumer<Boolean, Entity, Entity> onInteract) {
+    Entity lever = entities.LeverFactory.createLever(pos, onInteract);
+    Game.add(lever);
+    return lever;
   }
 
   /**

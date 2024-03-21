@@ -9,6 +9,7 @@ import contrib.item.concreteItem.ItemPotionHealth;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
+import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
@@ -33,12 +34,13 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
   // Difficulty (Mob Types)
   public static final MonsterType[] MONSTER_TYPES =
       new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN}; // TODO: Mob Types
-  private static final MonsterType BOSS_TYPE = MonsterType.CHORT; // TODO: Boss Type
+  private static final MonsterType BOSS_TYPE = MonsterType.ILLUSION_BOSS;
 
   // Spawn Points / Locations
   private final List<DevDungeonRoom> rooms;
-  private final Coordinate[][] secretPassages;
   private final Coordinate levelBossSpawn;
+  private final Coordinate[][] secretPassages;
+  private final Coordinate[] leverSpawns;
 
   private final IllusionRiddleHandler riddleHandler;
   private final int originalFogOfWarDistance = FogOfWarSystem.VIEW_DISTANCE;
@@ -150,11 +152,15 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
               new Teleporter(this.customPoints().get(i), this.customPoints().get(i + 1)));
     }
 
-    // TODO: Secret passages / Texture Bug for Walls
     this.secretPassages =
         new Coordinate[][] {
-          new Coordinate[] {new Coordinate(0, 0), new Coordinate(0, 0)},
-          new Coordinate[] {new Coordinate(0, 0), new Coordinate(0, 0)}
+          new Coordinate[] {this.customPoints().get(127), this.customPoints().get(128)},
+          new Coordinate[] {this.customPoints().get(129), this.customPoints().get(130)},
+          new Coordinate[] {this.customPoints().get(131), this.customPoints().get(132)}
+        };
+    this.leverSpawns =
+        new Coordinate[] {
+          this.customPoints().get(133), this.customPoints().get(134), this.customPoints().get(135),
         };
 
     // TODO: Chests and Cauldrons
@@ -183,7 +189,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
       Entity boss =
           EntityUtils.spawnBoss(
-              MonsterType.ILLUSION_BOSS,
+              BOSS_TYPE,
               this.levelBossSpawn,
               (e) -> {
                 ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).active(false);
@@ -212,6 +218,32 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
             if (healthPercentage <= 0.5) {
               this.lightTorch(room, 0);
               this.lightTorch(room, 1);
+            }
+          });
+
+      // Secret Passages
+      EntityUtils.spawnLever(
+          this.leverSpawns[0].toCenteredPoint(),
+          (isOn, lever, who) -> {
+            for (Tile tile :
+                this.tilesInArea(this.secretPassages[0][0], this.secretPassages[0][1])) {
+              this.changeTileElementType(tile, LevelElement.FLOOR);
+            }
+          });
+      EntityUtils.spawnLever(
+          this.leverSpawns[1].toCenteredPoint(),
+          (isOn, lever, who) -> {
+            for (Tile tile :
+                this.tilesInArea(this.secretPassages[1][0], this.secretPassages[1][1])) {
+              this.changeTileElementType(tile, LevelElement.FLOOR);
+            }
+          });
+      EntityUtils.spawnLever(
+          this.leverSpawns[2].toCenteredPoint(),
+          (isOn, lever, who) -> {
+            for (Tile tile :
+                this.tilesInArea(this.secretPassages[2][0], this.secretPassages[2][1])) {
+              this.changeTileElementType(tile, LevelElement.FLOOR);
             }
           });
       this.spawnChestsAndCauldrons();
