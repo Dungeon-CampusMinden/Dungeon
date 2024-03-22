@@ -28,7 +28,7 @@ public final class ItemGenerator {
     int randomIndex = RANDOM.nextInt(items.size());
     Class<? extends Item> item = items.get(randomIndex);
 
-    if (item.equals(ItemPotionHealth.class)) {
+    if (item.getSimpleName().contains("Potion")) { // Prevent other potions from being generated
       return new ItemPotionHealth(getWeightedRandomHealthPotionType());
     }
 
