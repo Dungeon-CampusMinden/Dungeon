@@ -178,6 +178,16 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
               });
       this.rooms.forEach(DevDungeonRoom::spawnEntities);
 
+      // Setup TP Targets for TPBallSkill
+      int[] roomIndices = {0, 1, 2, 3, 7};
+      for (int index : roomIndices) {
+        this.addTPTarget(
+            this.rooms.get(index).tiles().stream()
+                .filter(tile -> tile.levelElement() == LevelElement.FLOOR)
+                .map(Tile::coordinate)
+                .toArray(Coordinate[]::new));
+      }
+
       // Draw teleporter connections
       TeleporterSystem.getInstance().teleporter().stream()
           .map(Teleporter::from)

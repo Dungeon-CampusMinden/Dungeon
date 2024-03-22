@@ -254,11 +254,11 @@ public class DevDungeonLevel extends TileLevel {
    * <p>The teleport target is a point where the {@link entities.TPBallSkill TPBallSkill} will
    * teleport the entity to if it hits an entity.
    *
-   * @param point The teleport target to be added.
+   * @param points The teleport target to be added. Multiple points can be added at once.
    * @see entities.TPBallSkill TPBallSkill
    */
-  public void addTPTarget(Coordinate point) {
-    this.tpTargets.add(point);
+  public void addTPTarget(Coordinate... points) {
+    this.tpTargets.addAll(List.of(points));
   }
 
   /**
@@ -267,11 +267,11 @@ public class DevDungeonLevel extends TileLevel {
    * <p>The teleport target is a point where the {@link entities.TPBallSkill TPBallSkill} will
    * teleport the entity to if it hits an entity.
    *
-   * @param point The teleport target to be removed.
+   * @param point The teleport target to be removed. Multiple points can be removed at once.
    * @see entities.TPBallSkill TPBallSkill
    */
-  public void removeTPTarget(Coordinate point) {
-    this.tpTargets.remove(point);
+  public void removeTPTarget(Coordinate... point) {
+    this.tpTargets.removeAll(List.of(point));
   }
 
   /**
