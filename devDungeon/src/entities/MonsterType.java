@@ -184,7 +184,7 @@ public enum MonsterType {
                       LevelUtils.getRandomTPTargetForCurrentLevel()),
                   AIFactory.FIREBALL_COOL_DOWN * 4)),
       () -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH),
-      () -> new RangeTransition(5, true),
+      () -> new RangeTransition(4, false),
       5,
       2 * Game.frameRate(),
       MonsterIdleSound.LOW_PITCH,

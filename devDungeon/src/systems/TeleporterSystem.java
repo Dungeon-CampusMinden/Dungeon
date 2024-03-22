@@ -21,7 +21,7 @@ public class TeleporterSystem extends System {
 
   private final Set<Teleporter> teleporters = new HashSet<>();
   private Coordinate lastHeroPos = new Coordinate(0, 0);
-  private Coordinate justTeleportedFrom = new Coordinate(0, 0);
+  private boolean justTeleported = false;
 
   private TeleporterSystem() {}
 
@@ -50,11 +50,13 @@ public class TeleporterSystem extends System {
         break;
       }
     }
-    if (destination != null
-        && !destination.equals(this.justTeleportedFrom)) { // Prevent teleporting back and forth
+    if (destination == null) {
+      this.justTeleported = false;
+      return;
+    }
+
+    if (!this.justTeleported) { // Prevent teleporting back and forth
       this.teleportHero(destination);
-    } else {
-      this.justTeleportedFrom = new Coordinate(0, 0);
     }
   }
 
@@ -71,7 +73,7 @@ public class TeleporterSystem extends System {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     heroPosition.position(destination.toPoint());
-    this.justTeleportedFrom = this.lastHeroPos;
+    this.justTeleported = true;
   }
 
   public void registerTeleporter(Teleporter... teleporter) {

@@ -83,7 +83,7 @@ public class IllusionRiddleHandler implements ITickable {
 
   private void giveReward() {
     SignFactory.showTextPopup(
-        "You will receive a enhanced perception \nas a reward for running " + LAP_REWARD + " laps!",
+        "You will receive enhanced perception \nas a reward for running " + LAP_REWARD + " laps!",
         "Run " + LAP_REWARD + " Laps");
     CameraSystem.camera().zoom += 0.1f;
     this.rewardGiven = true;
@@ -176,7 +176,6 @@ public class IllusionRiddleHandler implements ITickable {
         this.lapProgress = 3;
       }
     }
-    System.out.println("Lap Progress: " + this.lapProgress + " Lap Counter: " + this.lapCounter);
   }
 
   /**

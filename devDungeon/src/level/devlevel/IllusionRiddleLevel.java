@@ -33,7 +33,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
   // Difficulty (Mob Types)
   public static final MonsterType[] MONSTER_TYPES =
-      new MonsterType[] {MonsterType.DARK_GOO, MonsterType.DOC};
+      new MonsterType[] {MonsterType.DARK_GOO, MonsterType.SMALL_DARK_GOO, MonsterType.DOC};
   private static final MonsterType BOSS_TYPE = MonsterType.ILLUSION_BOSS;
 
   // Spawn Points / Locations
@@ -51,7 +51,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
   public IllusionRiddleLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints);
-    // ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).active(true);
+    ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).active(true);
     this.riddleHandler = new IllusionRiddleHandler(customPoints, this);
 
     this.rooms =
@@ -188,15 +188,27 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                 .filter(tile -> tile.levelElement() == LevelElement.FLOOR)
                 .map(Tile::coordinate)
                 .toArray(Coordinate[]::new));
+
+        // Open Pits for last room (boss room) and extinguish torches
+        this.rooms.getLast().tiles().stream()
+            .filter(tile -> tile.levelElement() == LevelElement.PIT)
+            .map(tile -> (PitTile) tile)
+            .forEach(PitTile::open);
+        for (Entity torch : this.rooms.getLast().torches()) {
+          torch
+              .fetch(TorchComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(torch, TorchComponent.class))
+              .lit(false);
+        }
       }
 
       // Draw teleporter connections
       TeleporterSystem.getInstance().teleporter().stream()
           .map(Teleporter::from)
-          .forEach((teleporter) -> this.tileAt(teleporter).tintColor(0x00FF00FF));
+          .forEach((teleporter) -> this.tileAt(teleporter).tintColor(0x444444FF));
       TeleporterSystem.getInstance().teleporter().stream()
           .map(Teleporter::to)
-          .forEach((teleporter) -> this.tileAt(teleporter).tintColor(0xFF0000FF));
+          .forEach((teleporter) -> this.tileAt(teleporter).tintColor(0x444444FF));
 
       Entity boss =
           EntityUtils.spawnBoss(
@@ -261,8 +273,6 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
     }
 
     if (this.lastRoom != this.getCurrentRoom()) {
-      System.out.println("Room changed!");
-
       // Handle Mob AI (disable AI for mobs in other rooms, enable for mobs in current room)
       if (this.lastRoom != null) {
         this.lastRoom.mobAI(false);
@@ -270,14 +280,6 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
       this.lastRoom = this.getCurrentRoom();
       if (this.lastRoom != null) {
         this.lastRoom.mobAI(true);
-      }
-
-      // Open Pits for last room (boss room)
-      if (this.rooms.getLast().equals(this.lastRoom)) {
-        this.lastRoom.tiles().stream()
-            .filter(tile -> tile.levelElement() == LevelElement.PIT)
-            .map(tile -> (PitTile) tile)
-            .forEach(PitTile::open);
       }
     }
 
