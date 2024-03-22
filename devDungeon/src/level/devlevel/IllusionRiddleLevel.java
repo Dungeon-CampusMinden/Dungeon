@@ -43,6 +43,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
   private final IllusionRiddleHandler riddleHandler;
   private final int originalFogOfWarDistance = FogOfWarSystem.VIEW_DISTANCE;
+  private final Coordinate[] chestSpawns;
   private DevDungeonRoom lastRoom = null;
   private boolean lastTorchState = false;
 
@@ -162,7 +163,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
           this.customPoints().get(133), this.customPoints().get(134), this.customPoints().get(135),
         };
 
-    // TODO: Chests and Cauldrons
+    this.chestSpawns = new Coordinate[] {this.customPoints().get(160)};
   }
 
   @Override
@@ -295,6 +296,16 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
     this.riddleHandler.onTick(isFirstTick);
   }
 
+  /**
+   * Lights a specified torch in a given room.
+   *
+   * <p>This method retrieves the torch at the given index from the room's array of torches. It then
+   * fetches the TorchComponent of the torch and sets its lit property to true.
+   *
+   * @param room The room in which the torch to be lit is located.
+   * @param torchIndex The index of the torch to be lit in the room's array of torches.
+   * @throws IndexOutOfBoundsException if the torch index is out of bounds
+   */
   private void lightTorch(DevDungeonRoom room, int torchIndex) {
     room.torches()[torchIndex]
         .fetch(TorchComponent.class)
@@ -325,23 +336,25 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
    * @throws RuntimeException if any of the entities could not be created
    */
   private void spawnChestsAndCauldrons() {
-    Entity chest;
-    try {
-      chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to create speed potion chest");
-    }
-    PositionComponent pc =
-        chest
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
-    // pc.position();
-    InventoryComponent ic =
-        chest
-            .fetch(InventoryComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(chest, InventoryComponent.class));
-    ic.add(new ItemPotionHealth(HealthPotionType.GREATER));
+    for (Coordinate chestSpawn : this.chestSpawns) {
+      Entity chest;
+      try {
+        chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
+      } catch (Exception e) {
+        throw new RuntimeException("Failed to create chest entity at " + chestSpawn, e);
+      }
+      PositionComponent pc =
+          chest
+              .fetch(PositionComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
+      pc.position(chestSpawn.toCenteredPoint());
+      InventoryComponent ic =
+          chest
+              .fetch(InventoryComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(chest, InventoryComponent.class));
+      ic.add(new ItemPotionHealth(HealthPotionType.GREATER));
 
-    Game.add(chest);
+      Game.add(chest);
+    }
   }
 }
