@@ -29,7 +29,7 @@ public final class ItemGenerator {
     Class<? extends Item> item = items.get(randomIndex);
 
     if (item.equals(ItemPotionHealth.class)) {
-      return new ItemPotionHealth(getWeightedRandomPotionType());
+      return new ItemPotionHealth(getWeightedRandomHealthPotionType());
     }
 
     try {
@@ -40,32 +40,26 @@ public final class ItemGenerator {
   }
 
   /**
-   * This method is used to generate a random potion type based on a weighted system. The types at
-   * the beginning of the array have a higher chance of being selected.
+   * This method returns a randomly selected potion type based on a weighted system. The weights are
+   * as follows: - 70% WEAK - 25% MEDIUM - 5% GREATER
+   *
+   * <p>These weights are based on the likelihood of the player finding a potion of a certain type.
    *
    * @return A randomly selected potion type based on the weighted system.
    */
-  private static HealthPotionType getWeightedRandomPotionType() {
+  private static HealthPotionType getWeightedRandomHealthPotionType() {
     HealthPotionType[] types = HealthPotionType.values();
 
-    int[] weights = new int[types.length];
+    float[] chances = {0.7f, 0.25f, 0.05f}; /* 70%, 25%, 5% */
+    float random = RANDOM.nextFloat();
 
-    // Calculate the cumulative weights
-    int totalWeight = 0;
-    for (int i = 0; i < types.length; i++) {
-      weights[i] = totalWeight += (types.length - i);
-    }
-
-    int randomWeight = RANDOM.nextInt(totalWeight);
-
-    // Find the index of the first weight that is greater than the random number
-    for (int i = 0; i < weights.length; i++) {
-      if (randomWeight < weights[i]) {
+    for (int i = 0; i < chances.length; i++) {
+      if (random < chances[i]) {
         return types[i];
       }
+      random -= chances[i];
     }
 
-    // If no match is found, fallback to the weakest potion
-    return types[0];
+    return types[types.length - 1];
   }
 }
