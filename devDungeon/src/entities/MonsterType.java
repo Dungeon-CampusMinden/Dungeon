@@ -138,9 +138,37 @@ public enum MonsterType {
       Game.frameRate(),
       MonsterIdleSound.NONE,
       0),
+  DARK_GOO(
+      "Dark Goo",
+      "character/monster/elemental_goo",
+      12,
+      3.25f,
+      0.1f,
+      MonsterDeathSound.BASIC,
+      () -> new CollideAI(0.5f),
+      () -> new RadiusWalk(2f, 2),
+      () -> new RangeTransition(7),
+      2,
+      Game.frameRate() / 2,
+      MonsterIdleSound.BURP,
+      0),
+  DOC(
+      "Doc",
+      "character/monster/doc",
+      6,
+      5.5f,
+      0.1f,
+      MonsterDeathSound.LOW_PITCH,
+      () -> new CollideAI(0.5f),
+      () -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH),
+      () -> new RangeTransition(5, true),
+      5,
+      2 * Game.frameRate(),
+      MonsterIdleSound.LOW_PITCH,
+      0),
   ILLUSION_BOSS(
       "Illusion Boss",
-      "character/monster/big_zombie", // TODO: Only a Placeholder
+      "character/monster/necromancer",
       30,
       0.1f,
       0.0f,
@@ -148,7 +176,7 @@ public enum MonsterType {
       () ->
           new RangeAI(
               9f,
-              2f,
+              0f,
               new Skill(
                   (skillUser) -> { // TODO: FIX ME
                     // shoots 3 fireballs one 45° to the left, one straight and one 45° to the right

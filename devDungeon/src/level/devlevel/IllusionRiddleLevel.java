@@ -32,7 +32,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
   // Difficulty (Mob Types)
   public static final MonsterType[] MONSTER_TYPES =
-      new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN}; // TODO: Mob Types
+      new MonsterType[] {MonsterType.DARK_GOO, MonsterType.DOC};
   private static final MonsterType BOSS_TYPE = MonsterType.ILLUSION_BOSS;
 
   // Spawn Points / Locations
