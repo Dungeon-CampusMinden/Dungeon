@@ -27,6 +27,7 @@ public class DevDungeonLevel extends TileLevel {
 
   protected static final Random RANDOM = new Random();
   private final List<Coordinate> customPoints = new ArrayList<>();
+  private final List<Coordinate> tpTargets = new ArrayList<>();
 
   /**
    * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
@@ -245,5 +246,44 @@ public class DevDungeonLevel extends TileLevel {
    */
   public boolean hasCustomPoint(Coordinate point) {
     return this.customPoints.contains(point);
+  }
+
+  /**
+   * Adds a new teleport target to the list.
+   *
+   * <p>The teleport target is a point where the {@link entities.TPBallSkill TPBallSkill} will
+   * teleport the entity to if it hits an entity.
+   *
+   * @param point The teleport target to be added.
+   * @see entities.TPBallSkill TPBallSkill
+   */
+  public void addTPTarget(Coordinate point) {
+    this.tpTargets.add(point);
+  }
+
+  /**
+   * Removes a teleport target from the list.
+   *
+   * <p>The teleport target is a point where the {@link entities.TPBallSkill TPBallSkill} will
+   * teleport the entity to if it hits an entity.
+   *
+   * @param point The teleport target to be removed.
+   * @see entities.TPBallSkill TPBallSkill
+   */
+  public void removeTPTarget(Coordinate point) {
+    this.tpTargets.remove(point);
+  }
+
+  /**
+   * Gets a random teleport target from the list.
+   *
+   * <p>The teleport target is a point where the {@link entities.TPBallSkill TPBallSkill} will
+   * teleport the entity to if it hits an entity.
+   *
+   * @return A random teleport target from the list. If the list is empty, null is returned.
+   */
+  public Coordinate randomTPTarget() {
+    if (this.tpTargets.isEmpty()) return null;
+    return this.tpTargets.get(RANDOM.nextInt(this.tpTargets.size()));
   }
 }

@@ -63,7 +63,7 @@ public class Painter {
       // tint the sprite
       if (config.tintColor() != -1) {
         Color color = Color.CLEAR;
-        Color.rgba8888ToColor(Color.CLEAR, config.tintColor());
+        Color.rgba8888ToColor(color, config.tintColor());
         sprite.setColor(color);
       }
       // draw sprite

@@ -309,8 +309,9 @@ public class EntityUtils {
   /**
    * Teleports the hero to a specified point in the game.
    *
-   * <p>This method retrieves the hero entity from the game. If the hero entity is null (which can
-   * happen if the hero has fallen into a pit), the method returns without doing anything.
+   * <p>This method retrieves the hero entity from the game and calls the teleportEntityTo method to
+   * change the hero's position. If the hero entity is not present (which can happen if the hero has
+   * fallen into a pit), the method does nothing.
    *
    * @param point The point to which the hero should be teleported.
    */
@@ -319,11 +320,26 @@ public class EntityUtils {
     if (hero == null) {
       return;
     }
-    PositionComponent heroPc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    teleportEntityTo(hero, point);
+  }
 
-    heroPc.position(point);
+  /**
+   * Teleports an entity to a specified point in the game.
+   *
+   * <p>This method changes the position of the given entity to the specified point. It does this by
+   * fetching the PositionComponent of the entity and setting its position to the given point. If
+   * the entity does not have a PositionComponent, a MissingComponentException is thrown.
+   *
+   * @param entity The entity to be teleported.
+   * @param point The point to which the entity should be teleported.
+   * @throws MissingComponentException if the entity does not have a PositionComponent.
+   */
+  public static void teleportEntityTo(Entity entity, Point point) {
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    pc.position(point);
   }
 
   /**

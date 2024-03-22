@@ -47,6 +47,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
    */
   private final BiConsumer<Entity, Entity> onEntityHit;
 
+  private int tintColor = -1; // -1 means no tint
+
   /**
    * The DamageProjectile constructor sets the path to the textures of the projectile, the speed of
    * the projectile, the damage amount and type to be dealt, the size of the projectile's hit box,
@@ -144,7 +146,9 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     projectile.add(new PositionComponent(epc.position()));
 
     try {
-      projectile.add(new DrawComponent(pathToTexturesOfProjectile));
+      DrawComponent dc = new DrawComponent(pathToTexturesOfProjectile);
+      dc.tintColor(this.tintColor);
+      projectile.add(dc);
     } catch (IOException e) {
       LOGGER.warning(
           String.format("The DrawComponent for the projectile %s cant be created. ", entity)
@@ -204,4 +208,22 @@ public abstract class DamageProjectile implements Consumer<Entity> {
 
   /** Override this method to play a Sound-effect on spawning the projectile if you want. */
   protected void playSound() {}
+
+  /**
+   * Sets the tint color of the projectile. Set to -1 to remove the tint.
+   *
+   * @param tintColor The tint color of the projectile.
+   */
+  public void tintColor(int tintColor) {
+    this.tintColor = tintColor;
+  }
+
+  /**
+   * Returns the tint color of the projectile.
+   *
+   * @return The tint color of the projectile. -1 means no tint.
+   */
+  public int tintColor() {
+    return this.tintColor;
+  }
 }

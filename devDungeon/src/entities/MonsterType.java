@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import level.utils.LevelUtils;
 
 public enum MonsterType {
   CHORT(
@@ -52,7 +53,7 @@ public enum MonsterType {
       () ->
           new RangeAI(
               7f,
-              2f,
+              0f,
               new Skill(
                   new FireballSkill(SkillTools::heroPositionAsPoint),
                   AIFactory.FIREBALL_COOL_DOWN)),
@@ -100,7 +101,7 @@ public enum MonsterType {
       () ->
           new RangeAI(
               3f,
-              2f,
+              0f,
               new Skill(
                   new FireballSkill(SkillTools::heroPositionAsPoint),
                   AIFactory.FIREBALL_COOL_DOWN)),
@@ -146,9 +147,23 @@ public enum MonsterType {
       0.1f,
       MonsterDeathSound.BASIC,
       () -> new CollideAI(0.5f),
-      () -> new RadiusWalk(2f, 2),
+      () -> new RadiusWalk(3f, 2),
       () -> new RangeTransition(7),
-      2,
+      3,
+      Game.frameRate() / 2,
+      MonsterIdleSound.BURP,
+      0),
+  SMALL_DARK_GOO(
+      "Small Dark Goo",
+      "character/monster/elemental_goo_small",
+      6,
+      4.0f,
+      0.05f,
+      MonsterDeathSound.HIGH_PITCH,
+      () -> new CollideAI(1f),
+      () -> new RadiusWalk(2f, 1),
+      () -> new RangeTransition(4),
+      1,
       Game.frameRate() / 2,
       MonsterIdleSound.BURP,
       0),
@@ -159,7 +174,15 @@ public enum MonsterType {
       5.5f,
       0.1f,
       MonsterDeathSound.LOW_PITCH,
-      () -> new CollideAI(0.5f),
+      () ->
+          new RangeAI(
+              9f,
+              0f,
+              new Skill(
+                  new TPBallSkill(
+                      SkillTools::heroPositionAsPoint,
+                      LevelUtils.getRandomTPTargetForCurrentLevel()),
+                  AIFactory.FIREBALL_COOL_DOWN * 4)),
       () -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH),
       () -> new RangeTransition(5, true),
       5,
