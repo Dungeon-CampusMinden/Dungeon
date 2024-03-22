@@ -5,12 +5,12 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.DamageProjectile;
-import core.Game;
-import core.level.utils.LevelElement;
+import core.components.PlayerComponent;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
+import level.utils.LevelUtils;
 import utils.EntityUtils;
 
 /**
@@ -31,7 +31,6 @@ public final class TPBallSkill extends DamageProjectile {
   private static final DamageType DAMAGE_TYPE = DamageType.MAGIC;
   private static final Point HIT_BOX_SIZE = new Point(1, 1);
   private static final float PROJECTILE_RANGE = 7f;
-  private Point tpTarget = null;
 
   /**
    * Create a {@link DamageProjectile} that looks like a magic ball and will cause magic damage and
@@ -53,13 +52,16 @@ public final class TPBallSkill extends DamageProjectile {
         PROJECTILE_RANGE,
         DamageProjectile.DEFAULT_ON_WALL_HIT,
         (projectile, entity) -> {
+          // only tp hero (for now)
+          if (entity.fetch(PlayerComponent.class).isEmpty()) {
+            return;
+          }
           Point targetPos = tpTarget;
           if (targetPos == null) {
-            targetPos = Game.currentLevel().randomTilePoint(LevelElement.FLOOR);
+            targetPos = LevelUtils.getRandomTPTargetForCurrentLevel();
           }
           EntityUtils.teleportEntityTo(entity, targetPos);
         });
-    this.tpTarget = tpTarget;
     this.tintColor(0xFF00FFFF);
   }
 
