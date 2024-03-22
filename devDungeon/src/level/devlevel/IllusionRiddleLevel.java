@@ -28,7 +28,7 @@ import systems.FogOfWarSystem;
 import systems.TeleporterSystem;
 import utils.EntityUtils;
 
-/** The Illusion Riddle Level. */
+/** The Illusion Riddle Level. TODO: Refactor this class */
 public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
   // Difficulty (Mob Types)
