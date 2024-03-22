@@ -32,7 +32,6 @@ public class DojoStarter {
    */
   public static void main(String[] args) {
     try {
-      Game.initBaseLogger();
       configGame();
       onSetup();
       Game.run();
