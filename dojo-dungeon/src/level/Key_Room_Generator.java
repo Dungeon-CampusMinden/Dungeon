@@ -1,4 +1,4 @@
-package level.level_1;
+package level;
 
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
@@ -12,23 +12,39 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
 import item.ItemKey;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import level.TaskRoomGenerator;
 import level.room.DojoRoom;
 
-public class Room_1_Generator extends TaskRoomGenerator {
+public class Key_Room_Generator extends TaskRoomGenerator {
   private final int monsterCount;
+  private IPath keyTexture;
+  private IPath[] monsterPaths;
+  private String keyType;
+  private String keyDescription;
+  private DesignLabel designLabel;
 
-  public Room_1_Generator(
-      RoomGenerator gen, DojoRoom room, DojoRoom nextNeighbour, int monsterCount) {
+  public Key_Room_Generator(
+      RoomGenerator gen,
+      DojoRoom room,
+      DojoRoom nextNeighbour,
+      int monsterCount,
+      IPath keyTexture,
+      IPath[] monsterPaths,
+      String keyType,
+      String keyDescription,
+      DesignLabel designLabel) {
     super(gen, room, nextNeighbour);
     this.monsterCount = monsterCount;
+    this.keyTexture = keyTexture;
+    this.monsterPaths = monsterPaths;
+    this.keyType = keyType;
+    this.keyDescription = keyDescription;
+    this.designLabel = designLabel;
   }
 
   @Override
@@ -36,15 +52,10 @@ public class Room_1_Generator extends TaskRoomGenerator {
     // generate the room
     getRoom()
         .level(
-            new TileLevel(
-                getGen().layout(LevelSize.LARGE, getRoom().neighbours()), DesignLabel.FOREST));
+            new TileLevel(getGen().layout(LevelSize.LARGE, getRoom().neighbours()), designLabel));
 
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
-
-    IPath[] monsterPaths = {
-      new SimpleIPath("character/monster/imp"), new SimpleIPath("character/monster/goblin")
-    };
 
     for (int i = 0; i < monsterCount; i++) {
       roomEntities.add(
@@ -53,16 +64,10 @@ public class Room_1_Generator extends TaskRoomGenerator {
     // get random monster from roomEntities
     Entity randomMonster = (Entity) roomEntities.toArray()[(int) (Math.random() * monsterCount)];
 
-    SimpleIPath KeyTexture = new SimpleIPath("items/key/gold_key.png");
-    Animation sapphireAnimation = Animation.fromSingleImage(KeyTexture);
+    Animation keyAnimation = Animation.fromSingleImage(keyTexture);
     ItemKey key =
         new ItemKey(
-            "Golden Key",
-            "A golden key that opens the door to the next room.",
-            sapphireAnimation,
-            sapphireAnimation,
-            getRoom(),
-            getNextNeighbour());
+            keyType, keyDescription, keyAnimation, keyAnimation, getRoom(), getNextNeighbour());
 
     if (randomMonster.fetch(InventoryComponent.class).isPresent()) {
       randomMonster.remove(InventoryComponent.class);

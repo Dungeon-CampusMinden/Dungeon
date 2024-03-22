@@ -14,12 +14,16 @@ import core.Game;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
+import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import level.room.DojoRoom;
+import level.room.KeyRoomBuilder;
 
 /** Starter for the dojo-dungeon game. */
 public class DojoStarter {
@@ -32,6 +36,7 @@ public class DojoStarter {
    */
   public static void main(String[] args) {
     try {
+      Game.initBaseLogger(Level.WARNING);
       configGame();
       onSetup();
       Game.run();
@@ -101,7 +106,7 @@ public class DojoStarter {
     //    room6.closeDoors();
 
     // set room1 as start level
-    Game.currentLevel(room4.level());
+    Game.currentLevel(room1.level());
   }
 
   private static void configDoors(DojoRoom node) {
@@ -183,7 +188,21 @@ public class DojoStarter {
   private static void createRoom_1_1(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
       throws IOException {
     final int monsterCount = 5;
-    new level.level_1.Room_1_Generator(gen, room, nextRoom, monsterCount).generateRoom();
+
+    final IPath[] monsterPaths = {
+      new SimpleIPath("character/monster/imp"), new SimpleIPath("character/monster/goblin")
+    };
+
+    KeyRoomBuilder keyRoomBuilder = new KeyRoomBuilder();
+    keyRoomBuilder
+        .setRoomEssentials(gen, room, nextRoom, monsterCount)
+        .designLabel(DesignLabel.FOREST)
+        .keyInfo(
+            new SimpleIPath("items/key/gold_key.png"),
+            "Golden Key",
+            "A key to unlock the next room.")
+        .monsterPaths(monsterPaths)
+        .build();
   }
 
   private static void createRoom_1_2(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
