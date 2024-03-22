@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -55,7 +56,7 @@ public class CallbackTest {
   }
 
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger();
+    Game.initBaseLogger(Level.ALL);
     // start the game
 
     LevelSystem.levelSize(LevelSize.SMALL);

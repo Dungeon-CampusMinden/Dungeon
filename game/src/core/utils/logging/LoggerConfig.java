@@ -14,7 +14,7 @@ import java.util.logging.SimpleFormatter;
 /**
  * Configuration for the Logger in the Dungeon.
  *
- * <p>Call {@link #initBaseLogger()} at the start of the program.
+ * <p>Call {@link #initBaseLogger} at the start of the program.
  *
  * <p>Will create a new Logfile and write the log messages into it. Disables the output of log
  * messages on the shell.
@@ -26,7 +26,7 @@ public final class LoggerConfig {
   private static void createCustomFileHandler() {
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy'T'HH-mm-ss");
     String timestamp = dateFormat.format(new Date());
-    String directoryPath = "./logs/systemlogs/";
+    String directoryPath = System.getProperty("BASELOGDIR", "logs/") + "systemlogs/";
     String filepath = directoryPath + timestamp + ".log";
     File newLogFile = new File(filepath);
     try {
@@ -45,12 +45,20 @@ public final class LoggerConfig {
     }
   }
 
-  /** Creates a new base logger that records all occurring logs to a file. */
-  public static void initBaseLogger() {
+  /**
+   * Initialize the base logger.
+   *
+   * <p>Set a logging level, and remove the console handler, and write all log messages into the log
+   * files.
+   *
+   * @param level Set logging level to {@code level}
+   */
+  public static void initBaseLogger(Level level) {
     baseLogger = Logger.getLogger("");
-    baseLogger.setLevel(Level.ALL);
-    // remove console handler
+    baseLogger.setLevel(level);
+
     baseLogger.removeHandler(baseLogger.getHandlers()[0]);
+
     createCustomFileHandler();
     baseLogger.addHandler(customFileHandler);
   }

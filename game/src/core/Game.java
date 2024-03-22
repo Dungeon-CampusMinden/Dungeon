@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -174,11 +175,25 @@ public final class Game {
   }
 
   /**
-   * Initializes the base logger. Removes the console handler and puts all log messages in the log
+   * Initialize the base logger.
+   *
+   * <p>Set a logging level, and remove the console handler, and write all log messages into the log
    * files.
+   *
+   * @param level Set logging level to {@code level}
+   */
+  public static void initBaseLogger(Level level) {
+    PreRunConfiguration.initBaseLogger(level);
+  }
+
+  /**
+   * Initialize the base logger.
+   *
+   * <p>Set the logging level to {@code Level.ALL}, and remove the console handler, and write all
+   * log messages into the log files. This is a concenience method.
    */
   public static void initBaseLogger() {
-    PreRunConfiguration.initBaseLogger();
+    Game.initBaseLogger(Level.ALL);
   }
 
   /**
