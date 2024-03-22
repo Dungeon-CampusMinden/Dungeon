@@ -193,7 +193,7 @@ public enum MonsterType {
   ILLUSION_BOSS(
       "Illusion Boss",
       "character/monster/necromancer",
-      30,
+      40,
       0.0f,
       1.0f,
       MonsterDeathSound.LOWER_PITCH,

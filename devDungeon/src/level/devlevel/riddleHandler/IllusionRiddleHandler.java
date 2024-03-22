@@ -114,7 +114,7 @@ public class IllusionRiddleHandler implements ITickable {
   private void handleLapRoomLogic() {
     Coordinate heroPos = EntityUtils.getHeroCoordinate();
     // Check if the hero has moved
-    if (this.lastHeroPos.equals(heroPos)) return;
+    if (this.lastHeroPos == null || heroPos == null || this.lastHeroPos.equals(heroPos)) return;
     this.lastHeroPos = heroPos;
 
     this.handleLapProgressLogic(heroPos);
