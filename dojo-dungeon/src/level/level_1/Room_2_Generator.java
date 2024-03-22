@@ -24,8 +24,8 @@ import level.room.DojoRoom;
 import level.room.task.Task;
 
 public class Room_2_Generator extends TaskRoomGenerator {
-  private final String FILENAME1 = "../dungeon/assets/dojo/FehlerhafteKlasse.java";
-  private final String FILENAME2 = "../dungeon/assets/dojo/FehlerhafteKlasse2.java";
+  private final String FILENAME1 = "./dojo-dungeon/todo-assets/r2/FehlerhafteKlasse.java";
+  private final String FILENAME2 = "./dojo-dungeon/todo-assets/r2/FehlerhafteKlasse2.java";
   private final String CLASS_NAME = "FehlerhafteKlasse2";
   private final String[] TEXT = {
     // 0
