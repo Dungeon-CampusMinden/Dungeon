@@ -60,6 +60,7 @@ public final class DrawComponent implements Component {
 
   private Map<String, Animation> animationMap = null;
   private Animation currentAnimation;
+  private int tintColor = -1; // -1 means no tinting
   private boolean isVisible = true;
 
   /**
@@ -513,5 +514,23 @@ public final class DrawComponent implements Component {
         LOGGER.log(CustomLogLevel.ERROR, "Could not load animations from directory", e);
       }
     }
+  }
+
+  /**
+   * Returns the tint color of the DrawComponent.
+   *
+   * @return The tint color of the DrawComponent. If the tint color is -1, no tint is applied.
+   */
+  public int tintColor() {
+    return this.tintColor;
+  }
+
+  /**
+   * Sets the tint color of the DrawComponent. Set it to -1 to remove the tint.
+   *
+   * @param tintColor The new tint color to set.
+   */
+  public void tintColor(int tintColor) {
+    this.tintColor = tintColor;
   }
 }

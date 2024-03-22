@@ -123,7 +123,9 @@ public final class DrawSystem extends System {
     final Animation animation = dsd.dc.currentAnimation();
     IPath currentAnimationTexture = animation.nextAnimationTexturePath();
     if (!configs.containsKey(currentAnimationTexture)) {
-      configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
+      configs.put(
+          currentAnimationTexture,
+          new PainterConfig(currentAnimationTexture, 0, 0, dsd.dc.tintColor()));
     }
     PAINTER.draw(dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
   }
