@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import level.utils.LevelUtils;
+import systems.EffectScheduler;
 
 public enum MonsterType {
   CHORT(
@@ -193,19 +194,18 @@ public enum MonsterType {
       "Illusion Boss",
       "character/monster/necromancer",
       30,
-      0.1f,
       0.0f,
+      1.0f,
       MonsterDeathSound.LOWER_PITCH,
       () ->
           new RangeAI(
-              9f,
+              15f,
               0f,
               new Skill(
-                  (skillUser) -> { // TODO: FIX ME
-                    // shoots 3 fireballs one 45° to the left, one straight and one 45° to the right
-                    // to the hero
+                  (skillUser) -> {
+                    int degree = 40;
                     Point heroPos = SkillTools.heroPositionAsPoint();
-                    Point myPos =
+                    Point bossPos =
                         skillUser
                             .fetch(PositionComponent.class)
                             .orElseThrow(
@@ -213,19 +213,49 @@ public enum MonsterType {
                                     MissingComponentException.build(
                                         skillUser, PositionComponent.class))
                             .position();
-                    Vector2 direction = new Vector2(heroPos.x - myPos.x, heroPos.y - myPos.y).nor();
-                    Vector2 left = new Vector2(direction).rotate(45);
-                    Vector2 right = new Vector2(direction).rotate(-45);
+                    Vector2 direction =
+                        new Vector2(heroPos.x - bossPos.x, heroPos.y - bossPos.y).nor();
 
-                    new FireballSkill(() -> new Point(myPos.x + left.x, myPos.y + left.y))
-                        .accept(skillUser);
-                    new FireballSkill(() -> new Point(myPos.x + right.x, myPos.y + right.y))
-                        .accept(skillUser);
-                    new FireballSkill(() -> new Point(heroPos.x, heroPos.y)).accept(skillUser);
+                    // Function to calculate the fireball target position
+                    Function<Integer, Point> calculateFireballTarget =
+                        (angle) -> {
+                          Vector2 offset =
+                              new Vector2(direction)
+                                  .rotateDeg(angle)
+                                  .scl(
+                                      new Vector2(heroPos.x - bossPos.x, heroPos.y - bossPos.y)
+                                          .len());
+                          return new Point(bossPos.x + offset.x, bossPos.y + offset.y);
+                        };
+
+                    // Function to create and launch a fireball
+                    Consumer<Point> launchFireball =
+                        (target) ->
+                            new FireballSkill(
+                                    () -> target,
+                                    15f,
+                                    FireballSkill.PROJECTILE_SPEED,
+                                    FireballSkill.DAMAGE_AMOUNT + 1)
+                                .accept(skillUser);
+
+                    // Launch fireballs
+                    launchFireball.accept(calculateFireballTarget.apply(degree));
+                    launchFireball.accept(calculateFireballTarget.apply(0));
+                    launchFireball.accept(calculateFireballTarget.apply(-degree));
+
+                    // Schedule another round of fireballs
+                    EffectScheduler.getInstance()
+                        .scheduleAction(
+                            () -> {
+                              launchFireball.accept(calculateFireballTarget.apply(degree - 5));
+                              launchFireball.accept(calculateFireballTarget.apply(0));
+                              launchFireball.accept(calculateFireballTarget.apply(-(degree - 5)));
+                            },
+                            125);
                   },
-                  AIFactory.FIREBALL_COOL_DOWN)),
+                  AIFactory.FIREBALL_COOL_DOWN * 2)),
       () -> entity -> {}, // no idle needed
-      () -> (entity) -> true, // Always fight
+      () -> new RangeTransition(7, true),
       10,
       2 * Game.frameRate(),
       MonsterIdleSound.BURP,

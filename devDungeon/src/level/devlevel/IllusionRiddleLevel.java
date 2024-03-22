@@ -2,6 +2,7 @@ package level.devlevel;
 
 import components.TorchComponent;
 import contrib.components.HealthComponent;
+import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
@@ -188,18 +189,18 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                 .filter(tile -> tile.levelElement() == LevelElement.FLOOR)
                 .map(Tile::coordinate)
                 .toArray(Coordinate[]::new));
+      }
 
-        // Open Pits for last room (boss room) and extinguish torches
-        this.rooms.getLast().tiles().stream()
-            .filter(tile -> tile.levelElement() == LevelElement.PIT)
-            .map(tile -> (PitTile) tile)
-            .forEach(PitTile::open);
-        for (Entity torch : this.rooms.getLast().torches()) {
-          torch
-              .fetch(TorchComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(torch, TorchComponent.class))
-              .lit(false);
-        }
+      // Open Pits for last room (boss room) and extinguish torches
+      this.rooms.getLast().tiles().stream()
+          .filter(tile -> tile.levelElement() == LevelElement.PIT)
+          .map(tile -> (PitTile) tile)
+          .forEach(PitTile::open);
+      for (Entity torch : this.rooms.getLast().torches()) {
+        torch
+            .fetch(InteractionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(torch, InteractionComponent.class))
+            .triggerInteraction(torch, Game.hero().orElse(null));
       }
 
       // Draw teleporter connections
@@ -221,8 +222,8 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                 if (room == null || room != this.rooms.getLast()) {
                   return; // should not happen, just if boss dies while not in boss room
                 }
-                this.lightTorch(room, 0);
-                this.lightTorch(room, 1);
+                this.lightTorch(room, 0, false);
+                this.lightTorch(room, 1, false);
               });
       HealthComponent bossHc =
           boss.fetch(HealthComponent.class)
@@ -239,8 +240,8 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
             double healthPercentage = (double) currentHealth / maxHealth;
             if (healthPercentage <= 0.5) {
-              this.lightTorch(room, 0);
-              this.lightTorch(room, 1);
+              this.lightTorch(room, 0, true);
+              this.lightTorch(room, 1, true);
             }
           });
 
@@ -307,14 +308,25 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
    *
    * @param room The room in which the torch to be lit is located.
    * @param torchIndex The index of the torch to be lit in the room's array of torches.
+   * @param lit The new state of the torch.
    * @throws IndexOutOfBoundsException if the torch index is out of bounds
    */
-  private void lightTorch(DevDungeonRoom room, int torchIndex) {
+  private void lightTorch(DevDungeonRoom room, int torchIndex, boolean lit) {
+    if (room.torches()[torchIndex]
+            .fetch(TorchComponent.class)
+            .orElseThrow(
+                () ->
+                    MissingComponentException.build(
+                        room.torches()[torchIndex], TorchComponent.class))
+            .lit()
+        == lit) return;
     room.torches()[torchIndex]
-        .fetch(TorchComponent.class)
+        .fetch(InteractionComponent.class)
         .orElseThrow(
-            () -> MissingComponentException.build(room.torches()[torchIndex], TorchComponent.class))
-        .lit(true);
+            () ->
+                MissingComponentException.build(
+                    room.torches()[torchIndex], InteractionComponent.class))
+        .triggerInteraction(room.torches()[torchIndex], Game.hero().orElse(null));
   }
 
   /**
