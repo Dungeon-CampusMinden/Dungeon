@@ -163,7 +163,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
           this.customPoints().get(133), this.customPoints().get(134), this.customPoints().get(135),
         };
 
-    this.chestSpawns = new Coordinate[] {this.customPoints().get(160)};
+    this.chestSpawns = new Coordinate[] {this.customPoints().get(161)};
   }
 
   @Override
