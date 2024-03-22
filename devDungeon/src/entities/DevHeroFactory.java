@@ -23,7 +23,12 @@ import java.util.Optional;
 
 public class DevHeroFactory extends HeroFactory {
   public static final boolean ENABLE_MOUSE_MOVEMENT = true;
-  private static final int FIREBALL_COOL_DOWN = 500;
+  private static final Skill SKILL =
+      new Skill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint), 500L);
+
+  public static Skill getSkill() {
+    return SKILL;
+  }
 
   public static Entity newHero() throws IOException {
     Entity hero = HeroFactory.newHero();
@@ -48,14 +53,12 @@ public class DevHeroFactory extends HeroFactory {
     registerMovement(
         pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT_SECOND.value(), new Vector2(-1, 0));
 
-    Skill fireball =
-        new Skill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
-    pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
+    pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), SKILL::execute);
 
     // Mouse movement
     if (ENABLE_MOUSE_MOVEMENT) {
       // Mouse Left Click
-      registerMouseLeftClick(pc, fireball);
+      registerMouseLeftClick(pc, SKILL);
 
       // Mouse Movement (Right Click)
       pc.registerCallback(

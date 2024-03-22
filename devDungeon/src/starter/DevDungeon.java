@@ -20,7 +20,7 @@ import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import entities.DevHeroFactory;
 import entities.MonsterType;
-import item.concreteItem.ItemPotionSpeedPotion;
+import item.concreteItem.ItemPotionAttackSpeedPotion;
 import java.io.IOException;
 import java.util.logging.Level;
 import level.utils.DungeonLoader;
@@ -145,7 +145,7 @@ public class DevDungeon {
                   .orElseThrow()
                   .fetch(InventoryComponent.class)
                   .orElseThrow()
-                  .add(new ItemPotionSpeedPotion());
+                  .add(new ItemPotionAttackSpeedPotion());
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
               Tile tile = LevelSystem.level().tileAt(mosPos);
               if (tile != null) {
