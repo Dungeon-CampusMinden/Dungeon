@@ -483,6 +483,17 @@ public interface ILevel extends IndexedGraph<Tile> {
     return randomTile(elementType).position();
   }
 
+  /**
+   * Returns a list of tiles within a specified rectangular area in the level.
+   *
+   * <p>The method iterates over the tiles in the level layout within the bounds specified by the
+   * top-left and bottom-right coordinates. It adds each tile within these bounds to a list, which
+   * is then returned.
+   *
+   * @param topLeft The top-left coordinate of the rectangular area.
+   * @param bottomRight The bottom-right coordinate of the rectangular area.
+   * @return A list of tiles within the specified rectangular area in the level.
+   */
   default List<Tile> tilesInArea(Coordinate topLeft, Coordinate bottomRight) {
     List<Tile> tiles = new java.util.ArrayList<>();
     for (int x = topLeft.x; x <= bottomRight.x; x++) {
