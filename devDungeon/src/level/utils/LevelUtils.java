@@ -5,7 +5,9 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 import java.util.Optional;
+import java.util.function.Consumer;
 import level.DevDungeonLevel;
+import systems.EventScheduler;
 
 /** Utility class for level-related operations. */
 public class LevelUtils {
@@ -67,5 +69,40 @@ public class LevelUtils {
     return Optional.ofNullable(level.randomTPTarget())
         .map(Coordinate::toCenteredPoint)
         .orElse(null);
+  }
+
+  /**
+   * Creates an explosion at the given center coordinate with the given range and delay spread. The
+   * actionPerTile consumer is called for each tile within the explosion range.
+   *
+   * <p>The explosion happens in a circular area around the center coordinate. By using BFS, the
+   * explosion is spread out from the center to the outer edges of the range. The delay spread
+   * parameter determines the delay between each tile being processed (Using {@link
+   * systems.EventScheduler}).
+   *
+   * @param center The center coordinate of the explosion.
+   * @param range The range of the explosion.
+   * @param delaySpread The delay between each tile being processed.
+   * @param actionPerTile The action to be performed for each tile within the explosion range.
+   */
+  public static void explosionAt(
+      Coordinate center, int range, long delaySpread, Consumer<Tile> actionPerTile) {
+    // using a indexed for to increase the delay between each depth level
+    for (int i = 0; i < range; i++) {
+      final int depth = i;
+      EventScheduler.getInstance()
+          .scheduleAction(
+              () -> {
+                for (int x = center.x - depth; x <= center.x + depth; x++) {
+                  for (int y = center.y - depth; y <= center.y + depth; y++) {
+                    Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y));
+                    if (tile != null && tile.coordinate().distance(center) <= depth) {
+                      actionPerTile.accept(tile);
+                    }
+                  }
+                }
+              },
+              delaySpread * i);
+    }
   }
 }
