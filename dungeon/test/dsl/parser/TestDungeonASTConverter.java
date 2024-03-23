@@ -1205,11 +1205,11 @@ public class TestDungeonASTConverter {
   @Test
   public void testEqualityWithMemberAccess() {
     String program =
-        """
-            fn test() {
-                x.y.z == u.v.w;
-            }
-            """;
+      """
+          fn test() {
+              x.y.z == u.v.w;
+          }
+          """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -1240,5 +1240,64 @@ public class TestDungeonASTConverter {
     Assert.assertEquals("v", vNode.getName());
     var wNode = (IdNode) vwNode.getRhs();
     Assert.assertEquals("w", wNode.getName());
+  }
+
+  @Test
+  public void testErrorNode() {
+    String program =
+        """
+        graph name {
+          // statement bound
+            task1_a -> ; // missing rhs
+
+            -> task2_2_a [type=c_f]; // missing lhs; sync auf nächste übergeordnete Struktur
+            task3 -> task4 [type=c_f];
+        }
+
+        asdf_type obj1 {
+          val1: id
+        }
+        """;
+
+    // FYI, this is the parsetree
+    String expectedTree =
+      """
+        program
+          definition
+            dot_def graph
+              id name
+              {
+              dot_stmt_list
+                dot_stmt
+                  dot_edge_stmt
+                    dot_node_list
+                      id task1_a
+                    dot_edge_RHS ->
+                      dot_node_list
+                        id[EXCEPTION IN NODE]
+                  ;
+              ->[ERROR_NODE]
+              task2_2_a[ERROR_NODE]
+              [[ERROR_NODE]
+              type[ERROR_NODE]
+              $DC$ // don't care about all nodes
+          definition
+            object_def asdf_typeobj1{
+              property_def_list
+                property_def
+                  id val1
+                  :
+                  expression
+                    $DC$ // don't care about all following child nodes
+              }
+          <EOF>
+    """;
+    var env = new TestEnvironment();
+    env.addMockTypeName("asdf_type");
+
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, false);
+    System.out.println(parseTree);
+
+    var ast = Helpers.getASTFromString(program, env);
   }
 }

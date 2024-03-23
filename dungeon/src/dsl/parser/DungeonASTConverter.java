@@ -7,6 +7,8 @@ import dsl.semanticanalysis.environment.IEnvironment;
 import graph.taskdependencygraph.TaskEdge;
 // CHECKSTYLE:ON: AvoidStarImport
 import java.util.*;
+import java.util.logging.Logger;
+
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -32,11 +34,23 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
+  private static Logger LOGGER = Logger.getLogger(DungeonASTConverter.class.getName());
+  private List<String> ruleNames;
+  private boolean errorMode = false;
+  private Stack<ParserRuleContext> errorRuleStack;
+
   Stack<Node> astStack;
 
   /** Constructor */
+  public DungeonASTConverter(List<String> parserRuleNames) {
+    this.astStack = new Stack<>();
+    this.ruleNames = parserRuleNames;
+  }
+
+  /** Constructor */
   public DungeonASTConverter() {
-    astStack = new Stack<>();
+    this.astStack = new Stack<>();
+    this.ruleNames = new ArrayList<>();
   }
 
   public static Node getProgramAST(String program, IEnvironment environment) {
@@ -47,7 +61,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var parser = new DungeonDSLParser(tokenStream, environment);
     var programParseTree = parser.program();
 
-    DungeonASTConverter astConverter = new DungeonASTConverter();
+    DungeonASTConverter astConverter = new DungeonASTConverter(Arrays.stream(parser.getRuleNames()).toList());
     return astConverter.walk(programParseTree);
   }
 
@@ -58,7 +72,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
    * @return Root Node of the AST.
    */
   public Node walk(ParseTree parseTree) {
-    astStack = new Stack<>();
+    this.astStack = new Stack<>();
+    this.errorRuleStack = new Stack<>();
     ParseTreeWalker.DEFAULT.walk(this, parseTree);
     return astStack.peek();
   }
@@ -170,7 +185,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node iterableNode = astStack.pop();
 
     Node varIdNode = astStack.pop();
-    assert varIdNode.type.equals(Node.Type.Identifier);
+    assert errorMode() || varIdNode.type.equals(Node.Type.Identifier);
 
     Node varTypeIdNode = astStack.pop();
 
@@ -187,12 +202,12 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node stmtNode = astStack.pop();
 
     Node counterIdNode = astStack.pop();
-    assert counterIdNode.type.equals(Node.Type.Identifier);
+    assert errorMode() || counterIdNode.type.equals(Node.Type.Identifier);
 
     Node iterableNode = astStack.pop();
 
     Node varIdNode = astStack.pop();
-    assert varIdNode.type.equals(Node.Type.Identifier);
+    assert errorMode() || varIdNode.type.equals(Node.Type.Identifier);
 
     Node varTypeIdNode = astStack.pop();
 
@@ -220,7 +235,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void exitVar_decl_assignment(DungeonDSLParser.Var_decl_assignmentContext ctx) {
     Node expression = astStack.pop();
     Node identifier = astStack.pop();
-    assert identifier.type == Node.Type.Identifier;
+    assert errorMode() || identifier.type == Node.Type.Identifier;
 
     Node varDeclNode =
         new VarDeclNode(VarDeclNode.DeclType.assignmentDecl, (IdNode) identifier, expression);
@@ -234,7 +249,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void exitVar_decl_type_decl(DungeonDSLParser.Var_decl_type_declContext ctx) {
     Node typeDecl = astStack.pop();
     Node identifier = astStack.pop();
-    assert identifier.type == Node.Type.Identifier;
+    assert errorMode() || identifier.type == Node.Type.Identifier;
 
     Node varDeclNode =
         new VarDeclNode(VarDeclNode.DeclType.typeDecl, (IdNode) identifier, typeDecl);
@@ -466,7 +481,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   @Override
   public void exitReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {
     // pop the inner statement
-    assert astStack.size() > 0;
+    assert errorMode() || astStack.size() > 0;
     var innerStmt = Node.NONE;
     if (ctx.expression() != null) {
       innerStmt = astStack.pop();
@@ -526,11 +541,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void exitParam_def(DungeonDSLParser.Param_defContext ctx) {
     // topmost id on stack: id of parameter
     var id = astStack.pop();
-    assert id.type == Node.Type.Identifier;
+    assert errorMode() || id.type == Node.Type.Identifier;
 
     // after that: type id
     var typeId = astStack.pop();
-    assert typeId instanceof IdNode;
+    assert errorMode() || typeId instanceof IdNode;
 
     var paramNode = new ParamDefNode(typeId, id);
     astStack.push(paramNode);
@@ -604,12 +619,12 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var componentDefList = Node.NONE;
     if (ctx.component_def_list() != null) {
       componentDefList = astStack.pop();
-      assert componentDefList.type == Node.Type.ComponentDefinitionList;
+      assert errorMode() || componentDefList.type == Node.Type.ComponentDefinitionList;
     }
 
     // id will be on the stack
     var idNode = astStack.pop();
-    assert idNode.type == Node.Type.Identifier;
+    assert errorMode() || idNode.type == Node.Type.Identifier;
 
     var prototypeDefinitionNode = new PrototypeDefinitionNode(idNode, componentDefList);
     astStack.push(prototypeDefinitionNode);
@@ -624,12 +639,12 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var propertyDefList = Node.NONE;
     if (ctx.property_def_list() != null) {
       propertyDefList = astStack.pop();
-      assert propertyDefList.type == Node.Type.PropertyDefinitionList;
+      assert errorMode() || propertyDefList.type == Node.Type.PropertyDefinitionList;
     }
 
     // id will be on the stack
     var idNode = astStack.pop();
-    assert idNode.type == Node.Type.Identifier;
+    assert errorMode() || idNode.type == Node.Type.Identifier;
 
     var itemPrototypeDefinitionNode = new ItemPrototypeDefinitionNode(idNode, propertyDefList);
     astStack.push(itemPrototypeDefinitionNode);
@@ -660,12 +675,12 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var propertyDefListNode = Node.NONE;
     if (ctx.property_def_list() != null) {
       propertyDefListNode = astStack.pop();
-      assert propertyDefListNode.type == Node.Type.PropertyDefinitionList;
+      assert errorMode() || propertyDefListNode.type == Node.Type.PropertyDefinitionList;
     }
 
     // id of the component will be on the stack
     var idNode = astStack.pop();
-    assert idNode.type == Node.Type.Identifier;
+    assert errorMode() || idNode.type == Node.Type.Identifier;
 
     var componentDefinitionNode = new AggregateValueDefinitionNode(idNode, propertyDefListNode);
     astStack.push(componentDefinitionNode);
@@ -679,16 +694,16 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var propertyDefList = Node.NONE;
     if (ctx.property_def_list() != null) {
       propertyDefList = astStack.pop();
-      assert (propertyDefList.type == Node.Type.PropertyDefinitionList);
+      assert errorMode() || (propertyDefList.type == Node.Type.PropertyDefinitionList);
     }
 
     // id on stack
     var id = astStack.pop();
-    assert (id.type == Node.Type.Identifier);
+    assert errorMode() || (id.type == Node.Type.Identifier);
 
     // type specifier (ID) on stack
     var typeSpecifier = astStack.pop();
-    assert (typeSpecifier.type == Node.Type.Identifier);
+    assert errorMode() || (typeSpecifier.type == Node.Type.Identifier);
 
     var objectDef = new ObjectDefNode(typeSpecifier, id, propertyDefList);
     astStack.push(objectDef);
@@ -720,7 +735,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
     // ID (lhs) is on stack
     var id = astStack.pop();
-    assert (id.type == Node.Type.Identifier);
+    assert errorMode() || (id.type == Node.Type.Identifier);
 
     var propertyDefNode = new PropertyDefNode(id, stmtNode);
     astStack.push(propertyDefNode);
@@ -736,12 +751,12 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var paramList = Node.NONE;
     if (ctx.expression_list() != null) {
       paramList = astStack.pop();
-      assert paramList.type == Node.Type.ExpressionList;
+      assert errorMode() || paramList.type == Node.Type.ExpressionList;
     }
 
     // function id will be on stack
     var funcId = astStack.pop();
-    assert funcId.type == Node.Type.Identifier;
+    assert errorMode() || funcId.type == Node.Type.Identifier;
 
     var funcCallNode = new FuncCallNode(funcId, paramList);
     astStack.push(funcCallNode);
@@ -782,7 +797,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void exitList_definition(DungeonDSLParser.List_definitionContext ctx) {
     // pop expression list
     Node expressionList = astStack.pop();
-    assert expressionList.type == Node.Type.ExpressionList;
+    assert errorMode() || expressionList.type == Node.Type.ExpressionList;
 
     Node listDefinitionNode = new ListDefinitionNode(expressionList);
     astStack.push(listDefinitionNode);
@@ -795,7 +810,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void exitSet_definition(DungeonDSLParser.Set_definitionContext ctx) {
     // pop expression list
     Node expressionList = astStack.pop();
-    assert expressionList.type == Node.Type.ExpressionList;
+    assert errorMode() || expressionList.type == Node.Type.ExpressionList;
 
     Node setDefinitionNode = new SetDefinitionNode(expressionList);
     astStack.push(setDefinitionNode);
@@ -815,10 +830,14 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterId(DungeonDSLParser.IdContext ctx) {}
+  public void enterId(DungeonDSLParser.IdContext ctx) {
+    LOGGER.info("Entering id");
+  }
 
   @Override
   public void exitId(DungeonDSLParser.IdContext ctx) {
+    LOGGER.info("Exiting id");
+
     Node node = Node.NONE;
     // as we enter this rule, the Token was matched as an `id`, so we should
     // convert from the concrete Token Type (which represents a keyword in the
@@ -856,11 +875,12 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
    */
   @Override
   public void exitDot_def(DungeonDSLParser.Dot_defContext ctx) {
+    boolean error = handleErrorMode(ctx);
     // if dot_stmt_list is not empty, it will be on stack
     Node stmtList = Node.NONE;
     if (ctx.dot_stmt_list() != null) {
       stmtList = astStack.pop();
-      assert (stmtList.type == Node.Type.DotStmtList);
+      assert errorMode() || (stmtList.type == Node.Type.DotStmtList);
     }
 
     // graph ID will be on stack
@@ -924,7 +944,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var attr_list = Node.NONE;
     if (ctx.dot_attr_list() != null) {
       attr_list = astStack.pop();
-      assert (attr_list.type == Node.Type.DotAttrList);
+      assert errorMode() || (attr_list.type == Node.Type.DotAttrList);
     }
 
     LinkedList<Node> ids = new LinkedList<>();
@@ -932,14 +952,14 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     // pop all DotEdgeRHS Nodes from the stack and add them to one list
     for (int i = 0; i < ctx.dot_edge_RHS().size(); i++) {
       var rhs = astStack.pop();
-      assert (rhs.type == Node.Type.DotEdgeRHS);
+      assert errorMode() || (rhs.type == Node.Type.DotEdgeRHS);
       Node idNodeList = ((EdgeRhsNode) rhs).getIdNodeList();
       ids.addFirst(idNodeList);
     }
 
     // get the first identifier of the statement (left-hand-side)
     var lhsIdNodeList = astStack.pop();
-    assert (lhsIdNodeList.type == Node.Type.DotIdList);
+    assert errorMode() || (lhsIdNodeList.type == Node.Type.DotIdList);
     ids.addFirst(lhsIdNodeList);
 
     var edgeStmtNode = new DotEdgeStmtNode(ids, attr_list);
@@ -1084,13 +1104,51 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void visitErrorNode(ErrorNode node) {}
+  public void visitErrorNode(ErrorNode node) {
+    // TODO: what to do here?
+    var parent = node.getParent();
+    var text = node.getText();
+    var symbol = node.getSymbol();
+    String msg = String.format("Visitting Error node, parent: '%s', text: '%s', symbol: '%s'", parent, text, symbol);
+    LOGGER.warning(msg);
+
+    var errorNode = new ASTErrorNode(node);
+    astStack.push(errorNode);
+  }
 
   @Override
-  public void enterEveryRule(ParserRuleContext ctx) {}
+  public void enterEveryRule(ParserRuleContext ctx) {
+    // TODO: use for error handling? start error mode, which changes creation of AST and relaxes asserts on
+    //  stack contents?
+
+
+    // Note: this is executed before specific enter
+    String rulename = getRuleName(ctx);
+    String msg = String.format("Entering rule '%s'", rulename);
+    LOGGER.info(msg);
+
+    if (ctx.exception != null) {
+      LOGGER.warning("Rule context contains exception: " + ctx.exception + "; pushing error ctx!");
+      //errorMode = true;
+      this.errorRuleStack.push(ctx);
+    }
+  }
 
   @Override
-  public void exitEveryRule(ParserRuleContext ctx) {}
+  public void exitEveryRule(ParserRuleContext ctx) {
+    // TODO: use for error handling in order to add error information?
+
+    // Note: this is executed after specific exit
+    String rulename = getRuleName(ctx);
+    String msg = String.format("Exiting rule '%s'", rulename);
+    LOGGER.info(msg);
+
+    if (ctx.exception != null) {
+      LOGGER.warning("Rule context contains exception: " + ctx.exception + "; popping error ctx!");
+      assert this.errorRuleStack.peek().equals(ctx);
+      this.errorRuleStack.pop();
+    }
+  }
 
   // region dependency_type
   @Override
@@ -1156,4 +1214,41 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     astStack.push(new DotDependencyTypeNode(TaskEdge.Type.sequence_or, text));
   }
   // endregion
+
+  private String getRuleName(ParserRuleContext ctx) {
+    int index = ctx.getRuleIndex();
+    if (index >= this.ruleNames.size()) {
+      return "[RULE INDEX OUT OF BOUNDS OF RULE NAME LIST]";
+    } else {
+      return this.ruleNames.get(index);
+    }
+  }
+
+  private boolean errorMode() {
+    return !this.errorRuleStack.empty();
+  }
+
+  private boolean handleErrorMode(ParserRuleContext ctx) {
+    if (ctx.exception != null) {
+      // in the parsing of this rule happened an error
+      int childCount = ctx.getChildCount();
+      int errorChildCount = 0;
+      for (int i = 0; i < childCount; i++) {
+        var child = ctx.getChild(i);
+        if (child instanceof ErrorNode) {
+          errorChildCount++;
+        }
+      }
+
+      List<Node> errorNodes = new ArrayList<>(errorChildCount);
+      for (int i = 0; i < errorChildCount; i++) {
+        var node = astStack.pop();
+        errorNodes.add(node);
+      }
+
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

@@ -1,5 +1,7 @@
 package dsl.parser.ast;
 
+import org.antlr.v4.runtime.tree.ErrorNode;
+
 import java.util.ArrayList;
 
 public class Node {
@@ -74,7 +76,8 @@ public class Node {
     LoopBottomMark,
     ItemPrototypeDefinition,
     VarDeclNode,
-    ImportNode
+    ImportNode,
+    ErrorNode
   }
 
   public static Node NONE = new Node(Type.NONE, new ArrayList<>());
@@ -201,3 +204,4 @@ public class Node {
     return visitor.visit(this);
   }
 }
+

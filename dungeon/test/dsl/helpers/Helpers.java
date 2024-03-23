@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -63,8 +64,8 @@ public class Helpers {
    * @param parseTree the parser tree to convert
    * @return the AST for the parse tree
    */
-  public static Node convertToAST(DungeonDSLParser.ProgramContext parseTree) {
-    DungeonASTConverter converter = new DungeonASTConverter();
+  public static Node convertToAST(DungeonDSLParser.ProgramContext parseTree, List<String> parserRuleNames) {
+    DungeonASTConverter converter = new DungeonASTConverter(parserRuleNames);
     return converter.walk(parseTree);
   }
 
@@ -76,12 +77,20 @@ public class Helpers {
    */
   public static Node getASTFromString(String program, IEnvironment env) {
     var parseTree = getParseTree(program, env);
-    return convertToAST(parseTree);
+    return convertToAST(parseTree, getParserRuleNames());
+  }
+
+  public static List<String> getParserRuleNames() {
+    CharStream stream = CharStreams.fromString("");
+    DungeonDSLLexer lexer = new DungeonDSLLexer(stream);
+    CommonTokenStream cts = new CommonTokenStream(lexer);
+    DungeonDSLParser parser = new DungeonDSLParser(cts);
+    return Arrays.stream(parser.getRuleNames()).toList();
   }
 
   public static Node getASTFromString(String program) {
     var parseTree = getParseTree(program, null);
-    return convertToAST(parseTree);
+    return convertToAST(parseTree, getParserRuleNames());
   }
 
   /**
@@ -98,7 +107,7 @@ public class Helpers {
     var stream = CharStreams.fromFileName(file.getAbsolutePath());
 
     var parseTree = getParseTreeFromCharStream(stream, env);
-    return convertToAST(parseTree);
+    return convertToAST(parseTree, getParserRuleNames());
   }
 
   /**
