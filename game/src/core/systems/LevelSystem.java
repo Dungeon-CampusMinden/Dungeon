@@ -13,17 +13,13 @@ import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
 import core.level.generator.IGenerator;
-import core.level.utils.DesignLabel;
-import core.level.utils.LevelElement;
-import core.level.utils.LevelSize;
+import core.level.utils.*;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.path.IPath;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -51,6 +47,7 @@ import java.util.logging.Logger;
  * onLevelLoad callback.
  */
 public final class LevelSystem extends System {
+
   /** offset the coordinate by half a tile, it makes every Entity not walk on the sidewalls */
   private static final float X_OFFSET = 0.5f;
 
@@ -66,11 +63,13 @@ public final class LevelSystem extends System {
   private static LevelSize levelSize = LevelSize.MEDIUM;
 
   private static ILevel currentLevel;
+  private final List<ILevelObserver> observers = new ArrayList<>();
   private final IVoidFunction onLevelLoad;
   private final Painter painter;
   private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getSimpleName());
   private IVoidFunction onEndTile;
   private IGenerator generator;
+  private Coordinate lastHeroPosition;
 
   /**
    * Create a new {@link LevelSystem}.
@@ -280,21 +279,40 @@ public final class LevelSystem extends System {
    */
   @Override
   public void execute() {
-    if (currentLevel == null) loadLevel(levelSize);
-    else if (entityStream()
+    if (currentLevel == null) {
+      loadLevel(levelSize);
+    } else if (entityStream()
         .anyMatch(
             entity -> isOnEndTile(entity) && ((ExitTile) Game.currentLevel().endTile()).isOpen()))
       onEndTile.execute();
     else
       entityStream()
           .forEach(
-              e ->
-                  isOnDoor(e)
-                      .ifPresent(
-                          iLevel -> {
-                            loadLevel(iLevel);
-                            playSound();
-                          }));
+              e -> {
+                if (this.lastHeroPosition == null) {
+                  this.lastHeroPosition =
+                      new Coordinate(
+                          e.fetch(PositionComponent.class).get().position().toCoordinate());
+                } else {
+                  Coordinate currentHeroPosition =
+                      new Coordinate(
+                          e.fetch(PositionComponent.class).get().position().toCoordinate());
+                  if (!this.lastHeroPosition.equals(currentHeroPosition)) {
+                    this.lastHeroPosition = currentHeroPosition;
+                    this.observers.forEach(
+                        o ->
+                            o.onLevelEvent(
+                                Game.tileAT(currentHeroPosition),
+                                ILevelObserver.LevelEvent.HERO_TILE_CHANGED));
+                  }
+                }
+                isOnDoor(e)
+                    .ifPresent(
+                        iLevel -> {
+                          loadLevel(iLevel);
+                          playSound();
+                        });
+              });
     drawLevel();
   }
 
@@ -314,6 +332,32 @@ public final class LevelSystem extends System {
    */
   public IVoidFunction onEndTile() {
     return onEndTile;
+  }
+
+  /**
+   * Registers an observer to the LevelSystem.
+   *
+   * <p>This method adds an observer to the list of observers that are notified of level events. The
+   * observer must implement the ILevelObserver interface.
+   *
+   * @param observer The observer to be registered.
+   * @see ILevelObserver
+   */
+  public void registerObserver(ILevelObserver observer) {
+    this.observers.add(observer);
+  }
+
+  /**
+   * Removes an observer from the LevelSystem.
+   *
+   * <p>This method removes an observer from the list of observers that are notified of level
+   * events. If the observer is not in the list, the method has no effect.
+   *
+   * @param observer The observer to be removed.
+   * @see ILevelObserver
+   */
+  public void removeObserver(ILevelObserver observer) {
+    this.observers.remove(observer);
   }
 
   /** LevelSystem can't be paused. If it is paused, the level will not be shown anymore. */

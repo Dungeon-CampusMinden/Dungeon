@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import contrib.components.HealthComponent;
+import contrib.entities.IHealthObserver;
 import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
@@ -9,6 +10,8 @@ import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -21,6 +24,7 @@ import java.util.stream.Stream;
  * system.
  */
 public class HealthSystem extends System {
+  private final List<IHealthObserver> observers = new ArrayList<>();
 
   /** Create a new HealthSystem. */
   public HealthSystem() {
@@ -93,7 +97,6 @@ public class HealthSystem extends System {
   }
 
   protected HSData applyDamage(final HSData hsd) {
-
     doDamageAndAnimation(
         hsd, Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum());
     return hsd;
@@ -109,12 +112,42 @@ public class HealthSystem extends System {
     // reset all damage objects in health component and apply damage
     hsd.hc.clearDamage();
     hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
+    this.observers.forEach(
+        observer -> observer.onHeathEvent(hsd.e, hsd.hc, IHealthObserver.HealthEvent.DAMAGE));
   }
 
   protected void removeDeadEntities(final HSData hsd) {
     // Entity appears to be dead, so let's clean up the mess
     hsd.hc.triggerOnDeath(hsd.e);
+    this.observers.forEach(
+        observer -> observer.onHeathEvent(hsd.e, hsd.hc, IHealthObserver.HealthEvent.DEATH));
     Game.remove(hsd.e);
+  }
+
+  /**
+   * Registers an observer to the HealthSystem.
+   *
+   * <p>This method adds an observer to the list of observers that are notified of health events.
+   * The observer must implement the IHealthObserver interface.
+   *
+   * @param observer The observer to be registered.
+   * @see IHealthObserver
+   */
+  public void registerObserver(IHealthObserver observer) {
+    this.observers.add(observer);
+  }
+
+  /**
+   * Removes an observer from the HealthSystem.
+   *
+   * <p>This method removes an observer from the list of observers that are notified of health
+   * events. If the observer is not in the list, the method has no effect.
+   *
+   * @param observer The observer to be removed.
+   * @see IHealthObserver
+   */
+  public void removeObserver(IHealthObserver observer) {
+    this.observers.remove(observer);
   }
 
   // private record to hold all data during streaming
