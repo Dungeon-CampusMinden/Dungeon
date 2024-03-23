@@ -11,7 +11,6 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.utils.MissingHeroException;
 import core.utils.Point;
-import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import entities.MonsterType;
 import entities.SignFactory;
@@ -137,9 +136,9 @@ public class EntityUtils {
    *     whoTriggered)
    * @return The spawned Lever entity.
    * @throws RuntimeException if an error occurs while spawning the Lever.
-   * @see entities.LeverFactory#createLever(Point, TriConsumer) createLever
+   * @see entities.LeverFactory#createLever(Point, ICommand) createLever
    */
-  public static Entity spawnLever(Point pos, TriConsumer<Boolean, Entity, Entity> onInteract) {
+  public static Entity spawnLever(Point pos, ICommand onInteract) {
     Entity lever = entities.LeverFactory.createLever(pos, onInteract);
     Game.add(lever);
     return lever;

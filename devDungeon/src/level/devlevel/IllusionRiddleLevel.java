@@ -19,6 +19,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
 import entities.MonsterType;
+import entities.levercommands.OpenPassageCommand;
 import item.concreteItem.ItemPotionSpeedPotion;
 import java.util.*;
 import level.DevDungeonLevel;
@@ -248,28 +249,13 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
       // Secret Passages
       EntityUtils.spawnLever(
           this.leverSpawns[0].toCenteredPoint(),
-          (isOn, lever, who) -> {
-            for (Tile tile :
-                this.tilesInArea(this.secretPassages[0][0], this.secretPassages[0][1])) {
-              this.changeTileElementType(tile, LevelElement.FLOOR);
-            }
-          });
+          new OpenPassageCommand(this.secretPassages[0][0], this.secretPassages[0][1]));
       EntityUtils.spawnLever(
           this.leverSpawns[1].toCenteredPoint(),
-          (isOn, lever, who) -> {
-            for (Tile tile :
-                this.tilesInArea(this.secretPassages[1][0], this.secretPassages[1][1])) {
-              this.changeTileElementType(tile, LevelElement.FLOOR);
-            }
-          });
+          new OpenPassageCommand(this.secretPassages[1][0], this.secretPassages[1][1]));
       EntityUtils.spawnLever(
           this.leverSpawns[2].toCenteredPoint(),
-          (isOn, lever, who) -> {
-            for (Tile tile :
-                this.tilesInArea(this.secretPassages[2][0], this.secretPassages[2][1])) {
-              this.changeTileElementType(tile, LevelElement.FLOOR);
-            }
-          });
+          new OpenPassageCommand(this.secretPassages[2][0], this.secretPassages[2][1]));
       this.spawnChestsAndCauldrons();
     }
 

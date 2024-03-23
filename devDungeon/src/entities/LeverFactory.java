@@ -6,12 +6,12 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
-import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Map;
+import utils.ICommand;
 
 /** The LeverFactory class is responsible for creating lever entities. */
 public class LeverFactory {
@@ -27,8 +27,10 @@ public class LeverFactory {
    * @param pos The position where the lever will be created.
    * @param onInteract The behavior when the lever is interacted with. (isOn, lever, who)
    * @return The created lever entity.
+   * @see components.LeverComponent LeverComponent
+   * @see systems.LeverSystem LeverSystem
    */
-  public static Entity createLever(Point pos, TriConsumer<Boolean, Entity, Entity> onInteract) {
+  public static Entity createLever(Point pos, ICommand onInteract) {
     Entity lever = new Entity("lever");
 
     lever.add(new PositionComponent(pos));
@@ -38,7 +40,7 @@ public class LeverFactory {
     dc.animationMap(animationMap);
     dc.currentAnimation("off");
     lever.add(dc);
-    lever.add(new LeverComponent(false));
+    lever.add(new LeverComponent(false, onInteract));
     lever.add(
         new InteractionComponent(
             DEFAULT_INTERACTION_RADIUS,
@@ -56,7 +58,6 @@ public class LeverFactory {
                       drawComponent -> {
                         drawComponent.currentAnimation(lc.isOn() ? "on" : "off");
                       });
-              onInteract.accept(lc.isOn(), lever, who);
             }));
     return lever;
   }

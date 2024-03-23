@@ -49,6 +49,9 @@ public class DevDungeon {
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
           fogOfWarSystem.reset();
           EventScheduler.getInstance().clear(); // Clear all scheduled actions
+          // Reset all levers
+          LeverSystem leverSystem = (LeverSystem) Game.systems().get(LeverSystem.class);
+          leverSystem.clear();
         });
 
     onFrame(debugger);
@@ -126,6 +129,7 @@ public class DevDungeon {
     Game.add(TeleporterSystem.getInstance());
     Game.add(EventScheduler.getInstance());
     Game.add(new FogOfWarSystem());
+    Game.add(new LeverSystem());
     Game.add(
         new System() {
           @Override

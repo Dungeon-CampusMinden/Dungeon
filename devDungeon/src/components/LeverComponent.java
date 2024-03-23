@@ -1,21 +1,48 @@
 package components;
 
 import core.Component;
+import utils.ICommand;
 
 /**
  * The LeverComponent class implements the Component interface. It represents a lever that can be
  * either on or off.
  */
 public class LeverComponent implements Component {
+  /** The command that will be executed when the lever is toggled. */
+  private final ICommand command;
+
+  /** The current state of the lever. True if the lever is on, false otherwise. */
   private boolean isOn;
 
   /**
-   * Constructor for the LeverComponent class.
+   * Constructs a new LeverComponent with the specified initial state and command.
    *
-   * @param isOn A boolean that sets the initial state of the lever.
+   * @param isOn The initial state of the lever. True if the lever should start in the on position,
+   *     false otherwise.
+   * @param command The command that will be executed when the lever is toggled.
    */
-  public LeverComponent(boolean isOn) {
+  public LeverComponent(boolean isOn, ICommand command) {
     this.isOn = isOn;
+    this.command = command;
+  }
+
+  /**
+   * Constructs a new LeverComponent with the specified command. The lever will start in the off
+   * position.
+   *
+   * @param command The command that will be executed when the lever is toggled.
+   */
+  public LeverComponent(ICommand command) {
+    this(false, command);
+  }
+
+  /**
+   * Returns the command that will be executed when the lever is toggled.
+   *
+   * @return The command that will be executed when the lever is toggled.
+   */
+  public ICommand command() {
+    return this.command;
   }
 
   /**
@@ -34,10 +61,20 @@ public class LeverComponent implements Component {
    */
   public void toggle() {
     this.isOn = !this.isOn;
+    if (this.isOn) {
+      this.command.execute();
+    } else {
+      this.command.undo();
+    }
   }
 
   @Override
   public String toString() {
-    return "LeverComponent{" + "isOn=" + this.isOn + '}';
+    return "LeverComponent{"
+        + "isOn="
+        + this.isOn
+        + ", Command="
+        + this.command.getClass().getSimpleName()
+        + '}';
   }
 }
