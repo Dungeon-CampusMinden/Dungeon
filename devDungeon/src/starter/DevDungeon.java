@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import level.utils.DungeonLoader;
 import systems.*;
 import systems.DevHealthSystem;
-import systems.EffectScheduler;
+import systems.EventScheduler;
 import utils.EntityUtils;
 
 public class DevDungeon {
@@ -48,7 +48,7 @@ public class DevDungeon {
           // Resets FogOfWar on level change (prevent artifacts)
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
           fogOfWarSystem.reset();
-          EffectScheduler.getInstance().clear(); // Clear all scheduled actions
+          EventScheduler.getInstance().clear(); // Clear all scheduled actions
         });
 
     onFrame(debugger);
@@ -124,7 +124,7 @@ public class DevDungeon {
     Game.add(new LevelTickSystem());
     Game.add(new PitSystem());
     Game.add(TeleporterSystem.getInstance());
-    Game.add(EffectScheduler.getInstance());
+    Game.add(EventScheduler.getInstance());
     Game.add(new FogOfWarSystem());
     Game.add(
         new System() {

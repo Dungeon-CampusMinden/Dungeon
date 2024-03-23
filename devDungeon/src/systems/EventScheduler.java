@@ -5,16 +5,16 @@ import com.badlogic.gdx.utils.TimeUtils;
 import core.System;
 import utils.TimedEffect;
 
-public class EffectScheduler extends System {
+public class EventScheduler extends System {
 
-  private static EffectScheduler INSTANCE;
+  private static EventScheduler INSTANCE;
   private final DelayedRemovalArray<ScheduledAction> scheduledActions = new DelayedRemovalArray<>();
 
-  private EffectScheduler() {}
+  private EventScheduler() {}
 
-  public static EffectScheduler getInstance() {
+  public static EventScheduler getInstance() {
     if (INSTANCE == null) {
-      INSTANCE = new EffectScheduler();
+      INSTANCE = new EventScheduler();
     }
     return INSTANCE;
   }

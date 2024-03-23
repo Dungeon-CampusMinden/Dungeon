@@ -3,7 +3,7 @@ package item.effects;
 import core.Entity;
 import core.components.PlayerComponent;
 import entities.DevHeroFactory;
-import systems.EffectScheduler;
+import systems.EventScheduler;
 
 /**
  * This class represents an effect that modifies the attack speed of an entity. The effect is
@@ -11,7 +11,7 @@ import systems.EffectScheduler;
  * faster the entity will attack.
  */
 public class AttackSpeedEffect {
-  private static final EffectScheduler effectScheduler = EffectScheduler.getInstance();
+  private static final EventScheduler EVENT_SCHEDULER = EventScheduler.getInstance();
 
   // The multiplier that determines how much faster the entity will attack. (1.5 = 50% faster)
   private final float speedMultiplier;
@@ -52,7 +52,7 @@ public class AttackSpeedEffect {
     DevHeroFactory.getSkill()
         .cooldown((long) (this.originalFireballCoolDown / this.speedMultiplier));
 
-    effectScheduler.scheduleAction(
+    EVENT_SCHEDULER.scheduleAction(
         () -> DevHeroFactory.getSkill().cooldown(this.originalFireballCoolDown),
         this.duration * 1000L);
   }

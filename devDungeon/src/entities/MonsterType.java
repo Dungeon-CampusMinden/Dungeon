@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import level.utils.LevelUtils;
-import systems.EffectScheduler;
+import systems.EventScheduler;
 
 public enum MonsterType {
   CHORT(
@@ -244,7 +244,7 @@ public enum MonsterType {
                     launchFireball.accept(calculateFireballTarget.apply(-degree));
 
                     // Schedule another round of fireballs
-                    EffectScheduler.getInstance()
+                    EventScheduler.getInstance()
                         .scheduleAction(
                             () -> {
                               launchFireball.accept(calculateFireballTarget.apply(degree - 5));

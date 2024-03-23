@@ -5,10 +5,10 @@ import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.utils.components.MissingComponentException;
-import systems.EffectScheduler;
+import systems.EventScheduler;
 
 public class RegenerationEffect {
-  private static final EffectScheduler effectScheduler = EffectScheduler.getInstance();
+  private static final EventScheduler EVENT_SCHEDULER = EventScheduler.getInstance();
   private final int amountPerSecond;
   private final int duration;
 
@@ -19,7 +19,7 @@ public class RegenerationEffect {
 
   public void applyRegeneration(Entity target) {
     for (int i = 1; i < this.duration + 1; i++) { // apply Regeneration every second for durationSec
-      effectScheduler.scheduleAction(
+      EVENT_SCHEDULER.scheduleAction(
           () -> {
             HealthComponent healthComponent =
                 target

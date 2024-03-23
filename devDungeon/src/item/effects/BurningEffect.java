@@ -5,14 +5,14 @@ import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.utils.components.MissingComponentException;
-import systems.EffectScheduler;
+import systems.EventScheduler;
 
 /**
  * The BurningEffect class represents a burning effect in the game. This effect applies damage to a
  * target entity over a specified duration.
  */
 public class BurningEffect {
-  private static final EffectScheduler effectScheduler = EffectScheduler.getInstance();
+  private static final EventScheduler EVENT_SCHEDULER = EventScheduler.getInstance();
 
   private final float amountPerSecond;
 
@@ -44,7 +44,7 @@ public class BurningEffect {
     int totalDamageEvents = (int) (this.duration * this.amountPerSecond);
 
     for (int i = 1; i <= totalDamageEvents; i++) {
-      effectScheduler.scheduleAction(
+      EVENT_SCHEDULER.scheduleAction(
           () -> {
             HealthComponent healthComponent =
                 target
