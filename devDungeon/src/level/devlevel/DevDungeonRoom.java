@@ -78,7 +78,8 @@ public class DevDungeonRoom {
     Entity[] torches = new Entity[torchSpawns.length];
     for (int i = 0; i < torchSpawns.length; i++) {
       torches[i] =
-          EntityUtils.spawnTorch(torchSpawns[i].toCenteredPoint(), true, true, (x, y) -> {}, 0);
+          EntityUtils.spawnAntiLightTorch(
+              torchSpawns[i].toCenteredPoint(), true, true, (x, y) -> {});
     }
     return torches;
   }

@@ -196,6 +196,23 @@ public class EntityUtils {
   }
 
   /**
+   * Spawns a anit light torch at the given coordinate and adds it to the game. The torch is created
+   * using the TorchFactory class and is then added to the game.
+   *
+   * @param torchPos The pos where the torch should be spawned.
+   * @param lit The initial state of the torch. True if the torch should be lit, false otherwise.
+   * @param isInteractable True if the torch should be interactable, false otherwise.
+   * @param onToggle The action to perform when the torch is toggled. (torch, whoTriggered)
+   * @return The spawned torch entity.
+   */
+  public static Entity spawnAntiLightTorch(
+      Point torchPos, boolean lit, boolean isInteractable, BiConsumer<Entity, Entity> onToggle) {
+    Entity torch = TorchFactory.createAntiTorch(torchPos, lit, isInteractable, onToggle, 0);
+    Game.add(torch);
+    return torch;
+  }
+
+  /**
    * This method is used to spawn a specified number of monsters in the game at random positions.
    * Plus a boss monster.
    *

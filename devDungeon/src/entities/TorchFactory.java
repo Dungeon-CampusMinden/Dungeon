@@ -88,4 +88,19 @@ public class TorchFactory {
 
     return torch;
   }
+
+  public static Entity createAntiTorch(
+      Point pos,
+      boolean lit,
+      boolean isInteractable,
+      BiConsumer<Entity, Entity> onInteract,
+      int value) {
+    Entity torch = createTorch(pos, lit, isInteractable, onInteract, value);
+    torch.name(torch.name().replace("torch", "anti_torch"));
+    torch
+        .fetch(DrawComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(torch, DrawComponent.class))
+        .tintColor(0x00FFFFFF);
+    return torch;
+  }
 }

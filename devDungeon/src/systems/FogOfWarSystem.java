@@ -1,5 +1,6 @@
 package systems;
 
+import components.TorchComponent;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -215,6 +216,7 @@ public class FogOfWarSystem extends System {
         .filter(tile -> tile.tintColor() < HIDE_ENTITY_THRESHOLD)
         .flatMap(Game::entityAtTile)
         .filter(entity -> entity.isPresent(DrawComponent.class))
+        .filter(entity -> !this.isAntiTorchAndLit(entity)) // Ignore anti-torches
         .forEach(
             entity -> {
               DrawComponent dc =
@@ -225,6 +227,14 @@ public class FogOfWarSystem extends System {
               dc.setVisible(false);
               this.hiddenEntities.add(entity);
             });
+  }
+
+  private boolean isAntiTorchAndLit(Entity entity) {
+    return entity.name().contains("anti_torch")
+        && entity
+            .fetch(TorchComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, TorchComponent.class))
+            .lit();
   }
 
   private void revealHiddenEntities() {
