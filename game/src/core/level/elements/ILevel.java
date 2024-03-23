@@ -254,6 +254,8 @@ public interface ILevel extends IndexedGraph<Tile> {
             tile.designLabel());
     level.layout()[tile.coordinate().y][tile.coordinate().x] = newTile;
     newTile.index(tile.index());
+    newTile.tintColor(tile.tintColor());
+    newTile.visible(tile.visible());
     level.addTile(newTile);
   }
 
