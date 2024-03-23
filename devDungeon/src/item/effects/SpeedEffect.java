@@ -11,7 +11,7 @@ import systems.EventScheduler;
  */
 public class SpeedEffect {
   private static final EventScheduler EVENT_SCHEDULER = EventScheduler.getInstance();
-  private final int speedIncrease;
+  private final float speedIncrease;
   private final int duration;
 
   /**
@@ -20,7 +20,7 @@ public class SpeedEffect {
    * @param speedIncrease The amount to increase the entity's speed by.
    * @param duration The duration, in seconds, for which the speed increase is applied.
    */
-  public SpeedEffect(int speedIncrease, int duration) {
+  public SpeedEffect(float speedIncrease, int duration) {
     this.speedIncrease = speedIncrease;
     this.duration = duration;
   }
