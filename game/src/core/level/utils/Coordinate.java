@@ -78,4 +78,14 @@ public class Coordinate {
   public String toString() {
     return "Coordinate{" + "x=" + x + ", y=" + y + '}';
   }
+
+  /**
+   * Calculates the distance between this Coordinate and another Coordinate.
+   *
+   * @param other The other Coordinate to calculate the distance to.
+   * @return The distance between this Coordinate and the other Coordinate.
+   */
+  public int distance(Coordinate other) {
+    return Math.abs(x - other.x) + Math.abs(y - other.y);
+  }
 }
