@@ -162,10 +162,20 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
     ic.add(
         new ItemPotionWater() {
           @Override
+          public String description() {
+            return super.description() + " (For Tutorial purposes usage is disabled)";
+          }
+
+          @Override
           public void use(final Entity e) {} // Disable usage of the potion to prevent soft locking
         });
     ic.add(
         new ItemResourceMushroomRed() {
+          @Override
+          public String description() {
+            return super.description() + " (For Tutorial purposes usage is disabled)";
+          }
+
           @Override
           public void use(final Entity e) {} // Disable usage of the potion to prevent soft locking
         });
