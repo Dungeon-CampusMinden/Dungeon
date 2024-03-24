@@ -1,12 +1,11 @@
 package dsl.parser.ast;
 
-import org.antlr.v4.runtime.tree.ErrorNode;
-
 import java.util.ArrayList;
 
 public class Node {
   // used for running index to give every Node a unique identifier
   private static int _idx;
+  private boolean hasErrorChild;
 
   /**
    * @return The unique index of this node
@@ -154,6 +153,10 @@ public class Node {
   public void addChild(Node node) {
     this.children.add(node);
     node.parent = this;
+
+    if (node.type.equals(Type.ErrorNode)) {
+      this.hasErrorChild = true;
+    }
   }
 
   public Node getParent() {
@@ -191,6 +194,10 @@ public class Node {
       }
     }
     return SourceFileReference.NULL;
+  }
+
+  public boolean hasErrorChild() {
+    return this.hasErrorChild;
   }
 
   /**

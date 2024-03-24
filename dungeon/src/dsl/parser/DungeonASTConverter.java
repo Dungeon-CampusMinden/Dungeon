@@ -39,17 +39,22 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   private boolean errorMode = false;
   private Stack<ParserRuleContext> errorRuleStack;
 
-  Stack<Node> astStack;
+  CountingStack<Node> astStack;
+  Integer previousAstStackFrameCount = 0;
 
-  /** Constructor */
+  /**
+   * Constructor
+   */
   public DungeonASTConverter(List<String> parserRuleNames) {
-    this.astStack = new Stack<>();
+    this.astStack = new CountingStack<>();
     this.ruleNames = parserRuleNames;
   }
 
-  /** Constructor */
+  /**
+   * Constructor
+   */
   public DungeonASTConverter() {
-    this.astStack = new Stack<>();
+    this.astStack = new CountingStack<>();
     this.ruleNames = new ArrayList<>();
   }
 
@@ -72,14 +77,16 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
    * @return Root Node of the AST.
    */
   public Node walk(ParseTree parseTree) {
-    this.astStack = new Stack<>();
+    this.astStack = new CountingStack<>();
     this.errorRuleStack = new Stack<>();
-    ParseTreeWalker.DEFAULT.walk(this, parseTree);
+    //ParseTreeWalker.DEFAULT.walk(this, parseTree);
+    DungeonParseTreeWalker.DEFAULT.walk(this, parseTree);
     return astStack.peek();
   }
 
   @Override
-  public void enterProgram(DungeonDSLParser.ProgramContext ctx) {}
+  public void enterProgram(DungeonDSLParser.ProgramContext ctx) {
+  }
 
   /**
    * Pops all remaining AST-Nodes from the stack (they will be in reverse order) and adds all as
@@ -101,13 +108,16 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterDefinition(DungeonDSLParser.DefinitionContext ctx) {}
+  public void enterDefinition(DungeonDSLParser.DefinitionContext ctx) {
+  }
 
   @Override
-  public void exitDefinition(DungeonDSLParser.DefinitionContext ctx) {}
+  public void exitDefinition(DungeonDSLParser.DefinitionContext ctx) {
+  }
 
   @Override
-  public void enterImport_unnamed(DungeonDSLParser.Import_unnamedContext ctx) {}
+  public void enterImport_unnamed(DungeonDSLParser.Import_unnamedContext ctx) {
+  }
 
   @Override
   public void exitImport_unnamed(DungeonDSLParser.Import_unnamedContext ctx) {
@@ -122,7 +132,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterImport_named(DungeonDSLParser.Import_namedContext ctx) {}
+  public void enterImport_named(DungeonDSLParser.Import_namedContext ctx) {
+  }
 
   @Override
   public void exitImport_named(DungeonDSLParser.Import_namedContext ctx) {
@@ -140,7 +151,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterFn_def(DungeonDSLParser.Fn_defContext ctx) {}
+  public void enterFn_def(DungeonDSLParser.Fn_defContext ctx) {
+  }
 
   @Override
   public void exitFn_def(DungeonDSLParser.Fn_defContext ctx) {
@@ -168,7 +180,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterStmt(DungeonDSLParser.StmtContext ctx) {}
+  public void enterStmt(DungeonDSLParser.StmtContext ctx) {
+  }
 
   @Override
   public void exitStmt(DungeonDSLParser.StmtContext ctx) {
@@ -176,7 +189,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterFor_loop(DungeonDSLParser.For_loopContext ctx) {}
+  public void enterFor_loop(DungeonDSLParser.For_loopContext ctx) {
+  }
 
   @Override
   public void exitFor_loop(DungeonDSLParser.For_loopContext ctx) {
@@ -190,12 +204,13 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node varTypeIdNode = astStack.pop();
 
     ForLoopStmtNode loopStmtNode =
-        new ForLoopStmtNode(varTypeIdNode, varIdNode, iterableNode, stmtNode);
+      new ForLoopStmtNode(varTypeIdNode, varIdNode, iterableNode, stmtNode);
     astStack.push(loopStmtNode);
   }
 
   @Override
-  public void enterFor_loop_counting(DungeonDSLParser.For_loop_countingContext ctx) {}
+  public void enterFor_loop_counting(DungeonDSLParser.For_loop_countingContext ctx) {
+  }
 
   @Override
   public void exitFor_loop_counting(DungeonDSLParser.For_loop_countingContext ctx) {
@@ -212,12 +227,13 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node varTypeIdNode = astStack.pop();
 
     CountingLoopStmtNode loopStmtNode =
-        new CountingLoopStmtNode(varTypeIdNode, varIdNode, iterableNode, counterIdNode, stmtNode);
+      new CountingLoopStmtNode(varTypeIdNode, varIdNode, iterableNode, counterIdNode, stmtNode);
     astStack.push(loopStmtNode);
   }
 
   @Override
-  public void enterWhile_loop(DungeonDSLParser.While_loopContext ctx) {}
+  public void enterWhile_loop(DungeonDSLParser.While_loopContext ctx) {
+  }
 
   @Override
   public void exitWhile_loop(DungeonDSLParser.While_loopContext ctx) {
@@ -229,7 +245,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterVar_decl_assignment(DungeonDSLParser.Var_decl_assignmentContext ctx) {}
+  public void enterVar_decl_assignment(DungeonDSLParser.Var_decl_assignmentContext ctx) {
+  }
 
   @Override
   public void exitVar_decl_assignment(DungeonDSLParser.Var_decl_assignmentContext ctx) {
@@ -238,12 +255,13 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || identifier.type == Node.Type.Identifier;
 
     Node varDeclNode =
-        new VarDeclNode(VarDeclNode.DeclType.assignmentDecl, (IdNode) identifier, expression);
+      new VarDeclNode(VarDeclNode.DeclType.assignmentDecl, (IdNode) identifier, expression);
     astStack.push(varDeclNode);
   }
 
   @Override
-  public void enterVar_decl_type_decl(DungeonDSLParser.Var_decl_type_declContext ctx) {}
+  public void enterVar_decl_type_decl(DungeonDSLParser.Var_decl_type_declContext ctx) {
+  }
 
   @Override
   public void exitVar_decl_type_decl(DungeonDSLParser.Var_decl_type_declContext ctx) {
@@ -252,12 +270,13 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || identifier.type == Node.Type.Identifier;
 
     Node varDeclNode =
-        new VarDeclNode(VarDeclNode.DeclType.typeDecl, (IdNode) identifier, typeDecl);
+      new VarDeclNode(VarDeclNode.DeclType.typeDecl, (IdNode) identifier, typeDecl);
     astStack.push(varDeclNode);
   }
 
   @Override
-  public void enterExpr_assignment(DungeonDSLParser.Expr_assignmentContext ctx) {}
+  public void enterExpr_assignment(DungeonDSLParser.Expr_assignmentContext ctx) {
+  }
 
   @Override
   public void exitExpr_assignment(DungeonDSLParser.Expr_assignmentContext ctx) {
@@ -270,13 +289,16 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterExpr_trivial(DungeonDSLParser.Expr_trivialContext ctx) {}
+  public void enterExpr_trivial(DungeonDSLParser.Expr_trivialContext ctx) {
+  }
 
   @Override
-  public void exitExpr_trivial(DungeonDSLParser.Expr_trivialContext ctx) {}
+  public void exitExpr_trivial(DungeonDSLParser.Expr_trivialContext ctx) {
+  }
 
   @Override
-  public void enterMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {}
+  public void enterMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {
+  }
 
   @Override
   public void exitMethod_call_expression(DungeonDSLParser.Method_call_expressionContext ctx) {
@@ -289,7 +311,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterMember_access_expression(DungeonDSLParser.Member_access_expressionContext ctx) {}
+  public void enterMember_access_expression(DungeonDSLParser.Member_access_expressionContext ctx) {
+  }
 
   @Override
   public void exitMember_access_expression(DungeonDSLParser.Member_access_expressionContext ctx) {
@@ -302,7 +325,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterAssignee_func(DungeonDSLParser.Assignee_funcContext ctx) {}
+  public void enterAssignee_func(DungeonDSLParser.Assignee_funcContext ctx) {
+  }
 
   @Override
   public void exitAssignee_func(DungeonDSLParser.Assignee_funcContext ctx) {
@@ -313,7 +337,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterAssignee_member_access(DungeonDSLParser.Assignee_member_accessContext ctx) {}
+  public void enterAssignee_member_access(DungeonDSLParser.Assignee_member_accessContext ctx) {
+  }
 
   @Override
   public void exitAssignee_member_access(DungeonDSLParser.Assignee_member_accessContext ctx) {
@@ -324,7 +349,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterAssignee_identifier(DungeonDSLParser.Assignee_identifierContext ctx) {}
+  public void enterAssignee_identifier(DungeonDSLParser.Assignee_identifierContext ctx) {
+  }
 
   @Override
   public void exitAssignee_identifier(DungeonDSLParser.Assignee_identifierContext ctx) {
@@ -332,7 +358,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterLogic_or(DungeonDSLParser.Logic_orContext ctx) {}
+  public void enterLogic_or(DungeonDSLParser.Logic_orContext ctx) {
+  }
 
   @Override
   public void exitLogic_or(DungeonDSLParser.Logic_orContext ctx) {
@@ -347,7 +374,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterLogic_and(DungeonDSLParser.Logic_andContext ctx) {}
+  public void enterLogic_and(DungeonDSLParser.Logic_andContext ctx) {
+  }
 
   @Override
   public void exitLogic_and(DungeonDSLParser.Logic_andContext ctx) {
@@ -362,7 +390,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterEquality(DungeonDSLParser.EqualityContext ctx) {}
+  public void enterEquality(DungeonDSLParser.EqualityContext ctx) {
+  }
 
   @Override
   public void exitEquality(DungeonDSLParser.EqualityContext ctx) {
@@ -380,7 +409,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterComparison(DungeonDSLParser.ComparisonContext ctx) {}
+  public void enterComparison(DungeonDSLParser.ComparisonContext ctx) {
+  }
 
   @Override
   public void exitComparison(DungeonDSLParser.ComparisonContext ctx) {
@@ -404,7 +434,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterTerm(DungeonDSLParser.TermContext ctx) {}
+  public void enterTerm(DungeonDSLParser.TermContext ctx) {
+  }
 
   @Override
   public void exitTerm(DungeonDSLParser.TermContext ctx) {
@@ -422,7 +453,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterFactor(DungeonDSLParser.FactorContext ctx) {}
+  public void enterFactor(DungeonDSLParser.FactorContext ctx) {
+  }
 
   @Override
   public void exitFactor(DungeonDSLParser.FactorContext ctx) {
@@ -440,7 +472,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterUnary(DungeonDSLParser.UnaryContext ctx) {}
+  public void enterUnary(DungeonDSLParser.UnaryContext ctx) {
+  }
 
   @Override
   public void exitUnary(DungeonDSLParser.UnaryContext ctx) {
@@ -455,7 +488,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {}
+  public void enterStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {
+  }
 
   @Override
   public void exitStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {
@@ -476,7 +510,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {}
+  public void enterReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {
+  }
 
   @Override
   public void exitReturn_stmt(DungeonDSLParser.Return_stmtContext ctx) {
@@ -492,7 +527,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterConditional_stmt(DungeonDSLParser.Conditional_stmtContext ctx) {}
+  public void enterConditional_stmt(DungeonDSLParser.Conditional_stmtContext ctx) {
+  }
 
   @Override
   public void exitConditional_stmt(DungeonDSLParser.Conditional_stmtContext ctx) {
@@ -517,13 +553,16 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterElse_stmt(DungeonDSLParser.Else_stmtContext ctx) {}
+  public void enterElse_stmt(DungeonDSLParser.Else_stmtContext ctx) {
+  }
 
   @Override
-  public void exitElse_stmt(DungeonDSLParser.Else_stmtContext ctx) {}
+  public void exitElse_stmt(DungeonDSLParser.Else_stmtContext ctx) {
+  }
 
   @Override
-  public void enterRet_type_def(DungeonDSLParser.Ret_type_defContext ctx) {}
+  public void enterRet_type_def(DungeonDSLParser.Ret_type_defContext ctx) {
+  }
 
   @Override
   public void exitRet_type_def(DungeonDSLParser.Ret_type_defContext ctx) {
@@ -535,7 +574,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterParam_def(DungeonDSLParser.Param_defContext ctx) {}
+  public void enterParam_def(DungeonDSLParser.Param_defContext ctx) {
+  }
 
   @Override
   public void exitParam_def(DungeonDSLParser.Param_defContext ctx) {
@@ -552,7 +592,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterMap_param_type(DungeonDSLParser.Map_param_typeContext ctx) {}
+  public void enterMap_param_type(DungeonDSLParser.Map_param_typeContext ctx) {
+  }
 
   @Override
   public void exitMap_param_type(DungeonDSLParser.Map_param_typeContext ctx) {
@@ -561,12 +602,13 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     astStack.pop();
     Node lhsTypeNode = astStack.pop();
     MapTypeIdentifierNode mapTypeIdentifierNode =
-        new MapTypeIdentifierNode((IdNode) lhsTypeNode, (IdNode) rhsTypeNode);
+      new MapTypeIdentifierNode((IdNode) lhsTypeNode, (IdNode) rhsTypeNode);
     astStack.push(mapTypeIdentifierNode);
   }
 
   @Override
-  public void enterId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {}
+  public void enterId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {
+  }
 
   @Override
   public void exitId_param_type(DungeonDSLParser.Id_param_typeContext ctx) {
@@ -574,18 +616,20 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterList_param_type(DungeonDSLParser.List_param_typeContext ctx) {}
+  public void enterList_param_type(DungeonDSLParser.List_param_typeContext ctx) {
+  }
 
   @Override
   public void exitList_param_type(DungeonDSLParser.List_param_typeContext ctx) {
     Node innerTypeNode = astStack.pop();
     ListTypeIdentifierNode listTypeIdentifierNode =
-        new ListTypeIdentifierNode((IdNode) innerTypeNode);
+      new ListTypeIdentifierNode((IdNode) innerTypeNode);
     astStack.push(listTypeIdentifierNode);
   }
 
   @Override
-  public void enterSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {}
+  public void enterSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {
+  }
 
   @Override
   public void exitSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {
@@ -595,7 +639,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {}
+  public void enterParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {
+  }
 
   @Override
   public void exitParam_def_list(DungeonDSLParser.Param_def_listContext ctx) {
@@ -611,7 +656,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterEntity_type_def(DungeonDSLParser.Entity_type_defContext ctx) {}
+  public void enterEntity_type_def(DungeonDSLParser.Entity_type_defContext ctx) {
+  }
 
   @Override
   public void exitEntity_type_def(DungeonDSLParser.Entity_type_defContext ctx) {
@@ -631,7 +677,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterItem_type_def(DungeonDSLParser.Item_type_defContext ctx) {}
+  public void enterItem_type_def(DungeonDSLParser.Item_type_defContext ctx) {
+  }
 
   @Override
   public void exitItem_type_def(DungeonDSLParser.Item_type_defContext ctx) {
@@ -651,7 +698,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterComponent_def_list(DungeonDSLParser.Component_def_listContext ctx) {}
+  public void enterComponent_def_list(DungeonDSLParser.Component_def_listContext ctx) {
+  }
 
   @Override
   public void exitComponent_def_list(DungeonDSLParser.Component_def_listContext ctx) {
@@ -667,7 +715,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterAggregate_value_def(DungeonDSLParser.Aggregate_value_defContext ctx) {}
+  public void enterAggregate_value_def(DungeonDSLParser.Aggregate_value_defContext ctx) {
+  }
 
   @Override
   public void exitAggregate_value_def(DungeonDSLParser.Aggregate_value_defContext ctx) {
@@ -687,7 +736,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterObject_def(DungeonDSLParser.Object_defContext ctx) {}
+  public void enterObject_def(DungeonDSLParser.Object_defContext ctx) {
+  }
 
   @Override
   public void exitObject_def(DungeonDSLParser.Object_defContext ctx) {
@@ -710,7 +760,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterProperty_def_list(DungeonDSLParser.Property_def_listContext ctx) {}
+  public void enterProperty_def_list(DungeonDSLParser.Property_def_listContext ctx) {
+  }
 
   @Override
   public void exitProperty_def_list(DungeonDSLParser.Property_def_listContext ctx) {
@@ -726,7 +777,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterProperty_def(DungeonDSLParser.Property_defContext ctx) {}
+  public void enterProperty_def(DungeonDSLParser.Property_defContext ctx) {
+  }
 
   @Override
   public void exitProperty_def(DungeonDSLParser.Property_defContext ctx) {
@@ -742,7 +794,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterFunc_call(DungeonDSLParser.Func_callContext ctx) {}
+  public void enterFunc_call(DungeonDSLParser.Func_callContext ctx) {
+  }
 
   @Override
   public void exitFunc_call(DungeonDSLParser.Func_callContext ctx) {
@@ -763,7 +816,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterExpression_list(DungeonDSLParser.Expression_listContext ctx) {}
+  public void enterExpression_list(DungeonDSLParser.Expression_listContext ctx) {
+  }
 
   @Override
   public void exitExpression_list(DungeonDSLParser.Expression_listContext ctx) {
@@ -779,7 +833,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {}
+  public void enterGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {
+  }
 
   @Override
   public void exitGrouped_expression(DungeonDSLParser.Grouped_expressionContext ctx) {
@@ -791,7 +846,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterList_definition(DungeonDSLParser.List_definitionContext ctx) {}
+  public void enterList_definition(DungeonDSLParser.List_definitionContext ctx) {
+  }
 
   @Override
   public void exitList_definition(DungeonDSLParser.List_definitionContext ctx) {
@@ -804,7 +860,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterSet_definition(DungeonDSLParser.Set_definitionContext ctx) {}
+  public void enterSet_definition(DungeonDSLParser.Set_definitionContext ctx) {
+  }
 
   @Override
   public void exitSet_definition(DungeonDSLParser.Set_definitionContext ctx) {
@@ -817,7 +874,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterPrimary(DungeonDSLParser.PrimaryContext ctx) {}
+  public void enterPrimary(DungeonDSLParser.PrimaryContext ctx) {
+  }
 
   @Override
   public void exitPrimary(DungeonDSLParser.PrimaryContext ctx) {
@@ -843,14 +901,14 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     // convert from the concrete Token Type (which represents a keyword in the
     // language) to the identifier representation of the keyword
     if (ctx.COUNT() != null
-        || ctx.GRAPH() != null
-        || ctx.TYPE() != null
-        || ctx.WHILE() != null
-        || ctx.dependency_type() != null) {
+      || ctx.GRAPH() != null
+      || ctx.TYPE() != null
+      || ctx.WHILE() != null
+      || ctx.dependency_type() != null) {
       var symbol = ctx.getStart();
       var text = ctx.getText();
       SourceFileReference sfr =
-          new SourceFileReference(symbol.getLine(), symbol.getCharPositionInLine());
+        new SourceFileReference(symbol.getLine(), symbol.getCharPositionInLine());
       node = new IdNode(text, sfr);
     }
     if (ctx.dependency_type() != null) {
@@ -864,7 +922,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterDot_def(DungeonDSLParser.Dot_defContext ctx) {}
+  public void enterDot_def(DungeonDSLParser.Dot_defContext ctx) {
+  }
 
   /**
    * Adds the Node, representing the dot_stmt_list of the dot definition, as child to a {@link
@@ -875,7 +934,6 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
    */
   @Override
   public void exitDot_def(DungeonDSLParser.Dot_defContext ctx) {
-    boolean error = handleErrorMode(ctx);
     // if dot_stmt_list is not empty, it will be on stack
     Node stmtList = Node.NONE;
     if (ctx.dot_stmt_list() != null) {
@@ -892,7 +950,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterDot_stmt_list(DungeonDSLParser.Dot_stmt_listContext ctx) {}
+  public void enterDot_stmt_list(DungeonDSLParser.Dot_stmt_listContext ctx) {
+  }
 
   @Override
   public void exitDot_stmt_list(DungeonDSLParser.Dot_stmt_listContext ctx) {
@@ -927,7 +986,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterDot_stmt(DungeonDSLParser.Dot_stmtContext ctx) {}
+  public void enterDot_stmt(DungeonDSLParser.Dot_stmtContext ctx) {
+  }
 
   @Override
   public void exitDot_stmt(DungeonDSLParser.Dot_stmtContext ctx) {
@@ -935,7 +995,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterDot_edge_stmt(DungeonDSLParser.Dot_edge_stmtContext ctx) {}
+  public void enterDot_edge_stmt(DungeonDSLParser.Dot_edge_stmtContext ctx) {
+  }
 
   @Override
   public void exitDot_edge_stmt(DungeonDSLParser.Dot_edge_stmtContext ctx) {
@@ -967,7 +1028,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterDot_node_list(DungeonDSLParser.Dot_node_listContext ctx) {}
+  public void enterDot_node_list(DungeonDSLParser.Dot_node_listContext ctx) {
+  }
 
   @Override
   public void exitDot_node_list(DungeonDSLParser.Dot_node_listContext ctx) {
@@ -983,7 +1045,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterDot_edge_RHS(DungeonDSLParser.Dot_edge_RHSContext ctx) {}
+  public void enterDot_edge_RHS(DungeonDSLParser.Dot_edge_RHSContext ctx) {
+  }
 
   @Override
   public void exitDot_edge_RHS(DungeonDSLParser.Dot_edge_RHSContext ctx) {
@@ -998,7 +1061,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterDot_node_stmt(DungeonDSLParser.Dot_node_stmtContext ctx) {}
+  public void enterDot_node_stmt(DungeonDSLParser.Dot_node_stmtContext ctx) {
+  }
 
   @Override
   public void exitDot_node_stmt(DungeonDSLParser.Dot_node_stmtContext ctx) {
@@ -1014,7 +1078,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterDot_attr_list(DungeonDSLParser.Dot_attr_listContext ctx) {}
+  public void enterDot_attr_list(DungeonDSLParser.Dot_attr_listContext ctx) {
+  }
 
   @Override
   public void exitDot_attr_list(DungeonDSLParser.Dot_attr_listContext ctx) {
@@ -1029,7 +1094,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterDot_attr_id(DungeonDSLParser.Dot_attr_idContext ctx) {}
+  public void enterDot_attr_id(DungeonDSLParser.Dot_attr_idContext ctx) {
+  }
 
   @Override
   public void exitDot_attr_id(DungeonDSLParser.Dot_attr_idContext ctx) {
@@ -1112,6 +1178,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     String msg = String.format("Visitting Error node, parent: '%s', text: '%s', symbol: '%s'", parent, text, symbol);
     LOGGER.warning(msg);
 
+    // the parent of this node is responsible for clearing up the astStack!
+    if (this.errorRuleStack.empty() || this.errorRuleStack.peek() != parent) {
+      this.errorRuleStack.push((ParserRuleContext) parent);
+    }
+
     var errorNode = new ASTErrorNode(node);
     astStack.push(errorNode);
   }
@@ -1120,12 +1191,13 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void enterEveryRule(ParserRuleContext ctx) {
     // TODO: use for error handling? start error mode, which changes creation of AST and relaxes asserts on
     //  stack contents?
-
-
     // Note: this is executed before specific enter
-    String rulename = getRuleName(ctx);
-    String msg = String.format("Entering rule '%s'", rulename);
+    String ruleName = getRuleName(ctx);
+    String msg = String.format("Entering rule '%s'", ruleName);
     LOGGER.info(msg);
+
+    this.astStack.pushCounter(ruleName);
+
 
     if (ctx.exception != null) {
       LOGGER.warning("Rule context contains exception: " + ctx.exception + "; pushing error ctx!");
@@ -1134,20 +1206,38 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     }
   }
 
+  public boolean preExitEveryRule(ParserRuleContext ctx) {
+    String rulename = getRuleName(ctx);
+    String msg = String.format("Pre exit rule '%s'", rulename);
+    LOGGER.info(msg);
+
+    if (ctx.exception != null) {
+      LOGGER.warning("Rule context contains exception: " + ctx.exception);
+    }
+
+    var errorNode = handleErrorMode(ctx);
+    if (!errorNode.equals(Node.NONE)) {
+      astStack.push(errorNode);
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   @Override
   public void exitEveryRule(ParserRuleContext ctx) {
     // TODO: use for error handling in order to add error information?
+
+    this.previousAstStackFrameCount = this.astStack.popCounter();
+    this.astStack.getCurrentCounter().add(previousAstStackFrameCount);
+
+    int currentCount = this.astStack.getCurrentCount();
 
     // Note: this is executed after specific exit
     String rulename = getRuleName(ctx);
     String msg = String.format("Exiting rule '%s'", rulename);
     LOGGER.info(msg);
 
-    if (ctx.exception != null) {
-      LOGGER.warning("Rule context contains exception: " + ctx.exception + "; popping error ctx!");
-      assert this.errorRuleStack.peek().equals(ctx);
-      this.errorRuleStack.pop();
-    }
   }
 
   // region dependency_type
@@ -1228,27 +1318,27 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     return !this.errorRuleStack.empty();
   }
 
-  private boolean handleErrorMode(ParserRuleContext ctx) {
-    if (ctx.exception != null) {
-      // in the parsing of this rule happened an error
-      int childCount = ctx.getChildCount();
-      int errorChildCount = 0;
-      for (int i = 0; i < childCount; i++) {
-        var child = ctx.getChild(i);
-        if (child instanceof ErrorNode) {
-          errorChildCount++;
-        }
-      }
-
-      List<Node> errorNodes = new ArrayList<>(errorChildCount);
-      for (int i = 0; i < errorChildCount; i++) {
+  private Node handleErrorMode(ParserRuleContext ctx) {
+    if (!this.errorRuleStack.empty() && this.errorRuleStack.peek().equals(ctx)) {
+      LOGGER.info("Handling error mode");
+      int currentASTStackCount = this.astStack.getCurrentCount();
+      var list = new ArrayList<>(Collections.nCopies(currentASTStackCount, Node.NONE));
+      for (int i = 0; i < currentASTStackCount; i++) {
+        // reverse order
         var node = astStack.pop();
-        errorNodes.add(node);
+        list.set(currentASTStackCount - i - 1, node);
       }
 
-      return true;
+      // add all nodes under node
+      // TODO: add exception to node, if the current ctx contains one
+      Node errorNode = new Node(Node.Type.ErrorNode, list);
+
+      // pop current ctx from error rule stack
+      this.errorRuleStack.pop();
+
+      return errorNode;
     } else {
-      return false;
+      return Node.NONE;
     }
   }
 }
