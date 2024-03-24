@@ -78,6 +78,9 @@ public class SignFactory {
    * @see OkDialog#showOkDialog(String, String, IVoidFunction) showOkDialog
    */
   public static Entity showTextPopup(String text, String title) {
+    // removes newlines and empty spaces and multiple spaces from the title and text
+    title = title.replaceAll("\\s+", " ").trim();
+    text = text.replaceAll("\\s+", " ").trim();
     return OkDialog.showOkDialog(text, title, () -> {});
   }
 }

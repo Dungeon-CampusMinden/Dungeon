@@ -24,6 +24,9 @@ public class SignComponent implements Component {
    * @param title The title of the sign.
    */
   public SignComponent(String text, String title) {
+    // removes newlines and empty spaces and multiple spaces from the title and text
+    title = title.replaceAll("\\s+", " ").trim();
+    text = text.replaceAll("\\s+", " ").trim();
     this.text = text;
     this.title = title;
   }
@@ -79,7 +82,7 @@ public class SignComponent implements Component {
    * @return The dialog entity.
    */
   public Entity showDialog() {
-    return OkDialog.showOkDialog(this.text.replace("\n", " "), this.title, () -> {});
+    return OkDialog.showOkDialog(this.text, this.title, () -> {});
   }
 
   @Override
