@@ -1,7 +1,5 @@
 package level.devlevel;
 
-import com.badlogic.gdx.utils.Align;
-import components.SignComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
@@ -91,13 +89,8 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
     }
     this.setupCauldron(cauldron);
 
-    this.showTextPopup(
-        "Verwende WASD (oder RMB), um dich zu bewegen.", "Willkommen im DevDungeon!");
-  }
-
-  private void showTextPopup(String text, String title) {
     SignFactory.showTextPopup(
-        text, title, SignComponent.DEFAULT_WIDTH, SignComponent.DEFAULT_HEIGHT, Align.top);
+        "Verwende WASD (oder RMB), um dich zu bewegen.", "Willkommen im DevDungeon!");
   }
 
   private void handleTextPopups() {
@@ -109,15 +102,15 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
     if (heroTile == null) return;
 
     if (frontDoor.coordinate().equals(heroTile.coordinate())) {
-      this.showTextPopup("Mit Q (oder LMB) kannst du angreifen.", "Kampf");
+      SignFactory.showTextPopup("Mit Q (oder LMB) kannst du angreifen.", "Kampf");
     } else if (mobDoor.coordinate().equals(heroTile.coordinate())) {
-      this.showTextPopup(
+      SignFactory.showTextPopup(
           "Kommen wir zum Craften. Du findest im Verlauf des Spiels \nverschiedene Ressourcen,"
               + " die du in \nTränke und andere nützliche Gegenstände\n verwandeln kannst. "
               + "Du kannst die Truhe und \nden Kessel mit E (oder LMB) öffnen. ",
           "Looting & Crafting");
     } else if (CraftingDoor.coordinate().equals(heroTile.coordinate())) {
-      this.showTextPopup(
+      SignFactory.showTextPopup(
           "Im Dungeon findest immerwieder Hinternisse, Fallen und Rätsel.\n"
               + "Versuche sie zu umgehen oder zu lösen.",
           "Rätsel");

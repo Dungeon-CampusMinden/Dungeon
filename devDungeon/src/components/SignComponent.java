@@ -1,25 +1,19 @@
 package components;
 
-import com.badlogic.gdx.utils.Align;
-import contrib.hud.dialogs.TextDialog;
+import contrib.hud.dialogs.OkDialog;
 import core.Component;
 import core.Entity;
 import core.utils.Point;
+import java.util.function.BiConsumer;
 
 /**
  * The SignComponent class implements the Component interface. It represents a sign in the game with
  * a title and text.
  *
- * @see entities.SignFactory#createSign(String, String, Point) SignFactory#createSign
+ * @see entities.SignFactory#createSign(String, String, Point, BiConsumer) createSign
  */
 public class SignComponent implements Component {
-
-  public static final int DEFAULT_WIDTH = 600;
-  public static final int DEFAULT_HEIGHT = 300;
   public static final String DEFAULT_TITLE = "Schild";
-  public static final int DEFAULT_ALIGNMENT = Align.top;
-  public static final String DEFAULT_BUTTON_TEXT = "OK";
-
   private String text;
   private String title;
 
@@ -80,19 +74,12 @@ public class SignComponent implements Component {
   }
 
   /**
-   * Displays a dialog with the sign's text and title. The dialog has a default button text, width,
-   * height, and alignment. (see {@link SignComponent})
+   * Displays a dialog with the sign's text and title.
    *
    * @return The dialog entity.
    */
   public Entity showDialog() {
-    return TextDialog.textDialog(
-        this.text,
-        DEFAULT_BUTTON_TEXT,
-        this.title,
-        DEFAULT_WIDTH,
-        DEFAULT_HEIGHT,
-        DEFAULT_ALIGNMENT);
+    return OkDialog.showOkDialog(this.text.replace("\n", " "), this.title, () -> {});
   }
 
   @Override

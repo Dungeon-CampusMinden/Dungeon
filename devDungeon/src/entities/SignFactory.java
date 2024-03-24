@@ -2,10 +2,11 @@ package entities;
 
 import components.SignComponent;
 import contrib.components.InteractionComponent;
-import contrib.hud.dialogs.TextDialog;
+import contrib.hud.dialogs.OkDialog;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
@@ -69,39 +70,14 @@ public class SignFactory {
   }
 
   /**
-   * Displays a text popup with a default width, height, and alignment.
+   * Displays a text popup.
    *
    * @param text The text of the popup.
    * @param title The title of the popup.
    * @return The popup entity.
-   * @see #showTextPopup(String, String, int, int, int) showTextPopup
-   * @see SignComponent#DEFAULT_WIDTH
-   * @see SignComponent#DEFAULT_HEIGHT
-   * @see SignComponent#DEFAULT_ALIGNMENT
+   * @see OkDialog#showOkDialog(String, String, IVoidFunction) showOkDialog
    */
   public static Entity showTextPopup(String text, String title) {
-    return showTextPopup(
-        text,
-        title,
-        SignComponent.DEFAULT_WIDTH,
-        SignComponent.DEFAULT_HEIGHT,
-        SignComponent.DEFAULT_ALIGNMENT);
-  }
-
-  /**
-   * Displays a text popup with a specified width, height, and alignment.
-   *
-   * @param text The text of the popup.
-   * @param title The title of the popup.
-   * @param width The width of the popup.
-   * @param height The height of the popup.
-   * @param alignment The alignment of the popup.
-   * @return The popup entity.
-   * @see TextDialog#textDialog(String, String, String, int, int, int) TextDialog#textDialog
-   */
-  public static Entity showTextPopup(
-      String text, String title, int width, int height, int alignment) {
-    return TextDialog.textDialog(
-        text, SignComponent.DEFAULT_BUTTON_TEXT, title, width, height, alignment);
+    return OkDialog.showOkDialog(text, title, () -> {});
   }
 }
