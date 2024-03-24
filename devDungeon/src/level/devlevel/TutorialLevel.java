@@ -105,13 +105,13 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
       SignFactory.showTextPopup("Mit Q (oder LMB) kannst du angreifen.", "Kampf");
     } else if (mobDoor.coordinate().equals(heroTile.coordinate())) {
       SignFactory.showTextPopup(
-          "Kommen wir zum Craften. Du findest im Verlauf des Spiels \nverschiedene Ressourcen,"
-              + " die du in \nTränke und andere nützliche Gegenstände\n verwandeln kannst. "
-              + "Du kannst die Truhe und \nden Kessel mit E (oder LMB) öffnen. ",
+          "Kommen wir zum Craften. Du findest im Verlauf des Spiels verschiedene Ressourcen,"
+              + " die du in Tränke und andere nützliche Gegenstände verwandeln kannst. "
+              + "Du kannst die Truhe und den Kessel mit E (oder LMB) öffnen. ",
           "Looting & Crafting");
     } else if (CraftingDoor.coordinate().equals(heroTile.coordinate())) {
       SignFactory.showTextPopup(
-          "Im Dungeon findest immerwieder Hinternisse, Fallen und Rätsel.\n"
+          "Im Dungeon findest immerwieder Hinternisse, Fallen und Rätsel."
               + "Versuche sie zu umgehen oder zu lösen.",
           "Rätsel");
     }
