@@ -11,6 +11,7 @@ public class TreeUtils {
 
   /** Platform dependent end-of-line marker */
   public static final String Eol = System.lineSeparator();
+  private static final String terminalPrefix = "$";
 
   /** The literal indent char(s) used for pretty-printing */
   public static final String Indents = "  ";
@@ -26,28 +27,31 @@ public class TreeUtils {
 
   private static String process(final Tree t, final List<String> ruleNames) {
     if (t.getChildCount() == 0) {
-      // TODO: figure out correct indentation of error nodes
+      StringBuilder sb = new StringBuilder(lead(level) + terminalPrefix);
+      String nodeText = Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
       if (t instanceof ErrorNodeImpl) {
-        String s = lead(level);
-        s = s + Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
-        s = s + "[ERROR_NODE]";
-        return s;
+        sb.append(String.format("'%s'[ERROR_NODE]", nodeText));
+        return sb.toString();
       }
       if (t instanceof ParserRuleContext ctx) {
         if (ctx.exception != null) {
-          String s = lead(level);
-          s = s + Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
-          s = s + "[EXCEPTION IN NODE]";
-          return s;
+          sb.append(String.format("'%s'[EXCEPTION IN NODE]", nodeText));
+          return sb.toString();
         }
       }
-      return Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
+      sb.append(String.format("'%s'", nodeText));
+      return sb.toString();
     }
     StringBuilder sb = new StringBuilder();
     sb.append(lead(level));
     level++;
     String s = Utils.escapeWhitespace(Trees.getNodeText(t, ruleNames), false);
     sb.append(s + ' ');
+    if (t instanceof ParserRuleContext ctx) {
+      if (ctx.exception != null) {
+        sb.append("[EXCEPTION IN NODE] ");
+      }
+    }
     for (int i = 0; i < t.getChildCount(); i++) {
       sb.append(process(t.getChild(i), ruleNames));
     }
