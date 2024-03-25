@@ -207,10 +207,14 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
       // Draw teleporter connections
       TeleporterSystem.getInstance().teleporter().stream()
           .map(Teleporter::from)
-          .forEach((teleporter) -> this.tileAt(teleporter).tintColor(0x444444FF));
+          .forEach(
+              (teleporter) ->
+                  this.tileAt(teleporter).tintColor(0x444444FF)); // dark tint for teleporter
       TeleporterSystem.getInstance().teleporter().stream()
           .map(Teleporter::to)
-          .forEach((teleporter) -> this.tileAt(teleporter).tintColor(0x444444FF));
+          .forEach(
+              (teleporter) ->
+                  this.tileAt(teleporter).tintColor(0x444444FF)); // dark tint for teleporter
 
       Entity boss =
           EntityUtils.spawnBoss(
