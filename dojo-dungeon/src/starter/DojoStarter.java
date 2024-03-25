@@ -4,26 +4,20 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
-import contrib.level.generator.GeneratorUtils;
-import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.systems.*;
 import core.Game;
-import core.level.Tile;
-import core.level.elements.ILevel;
-import core.level.elements.tile.DoorTile;
 import core.level.utils.DesignLabel;
-import core.level.utils.LevelElement;
+import core.level.utils.LevelSize;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
-import level.room.DojoRoom;
-import level.room.KeyRoomBuilder;
+import level.rooms.LevelRoom;
+import level.rooms.Room;
+import level.rooms.RoomBuilder;
 
 /** Starter for the dojo-dungeon game. */
 public class DojoStarter {
@@ -47,74 +41,58 @@ public class DojoStarter {
   }
 
   private static void createLevel() throws IOException {
-    // create a customised level comprising three nodes (rooms)
+    // create a customised level comprising rooms
     LevelGraph graph = new LevelGraph();
 
     // level 1 has 3 rooms: room1, room2, room3
-    DojoRoom room1 = new DojoRoom(graph);
-    DojoRoom room2 = new DojoRoom(graph);
-    DojoRoom room3 = new DojoRoom(graph);
+    LevelRoom levelRoom1 = new LevelRoom(graph);
+    LevelRoom levelRoom2 = new LevelRoom(graph);
+    LevelRoom levelRoom3 = new LevelRoom(graph);
 
     // level 2 has 3 rooms: room4, room5, room6
-    DojoRoom room4 = new DojoRoom(graph);
-    DojoRoom room5 = new DojoRoom(graph);
-    DojoRoom room6 = new DojoRoom(graph);
+    LevelRoom levelRoom4 = new LevelRoom(graph);
+    LevelRoom levelRoom5 = new LevelRoom(graph);
+    LevelRoom levelRoom6 = new LevelRoom(graph);
 
-    // connect the rooms
-    room1.connect(room2, Direction.SOUTH);
-    room2.connect(room1, Direction.NORTH);
-    room2.connect(room3, Direction.SOUTH);
-    room3.connect(room2, Direction.NORTH);
-    room3.connect(room4, Direction.SOUTH);
-    room4.connect(room3, Direction.NORTH);
-    room4.connect(room5, Direction.SOUTH);
-    room5.connect(room4, Direction.NORTH);
-    room5.connect(room6, Direction.SOUTH);
-    room6.connect(room5, Direction.NORTH);
+    // connect the rooms, this is needed to build the rooms in next steps
+    connectBidirectional(levelRoom1, levelRoom2);
+    connectBidirectional(levelRoom2, levelRoom3);
+    connectBidirectional(levelRoom3, levelRoom4);
+    connectBidirectional(levelRoom4, levelRoom5);
+    connectBidirectional(levelRoom5, levelRoom6);
 
-    // link the rooms
-    room1.setNextRoom(room2);
-    room2.setNextRoom(room3);
-    room3.setNextRoom(room4);
-    room4.setNextRoom(room5);
-    room5.setNextRoom(room6);
-
-    // create the rooms in custom level
+    // build the rooms
     RoomGenerator gen = new RoomGenerator();
-    createRoom_1_1(gen, room1, room2);
-    createRoom_1_2(gen, room2, room3);
-    createRoom_1_3(gen, room3, room4);
+    Room room6 = buildRoom6(levelRoom6, gen, null);
+    Room room5 = buildRoom5(levelRoom5, gen, room6);
+    Room room4 = buildRoom4(levelRoom4, gen, room5);
+    Room room3 = buildRoom3(levelRoom3, gen, room4);
+    Room room2 = buildRoom2(levelRoom2, gen, room3);
+    Room room1 = buildRoom1(levelRoom1, gen, room2);
 
-    createRoom_2_1(gen, room4, room5);
-    createRoom_2_2(gen, room5, room6);
-    createRoom_2_3(gen, room6, null);
+    room1.configDoors();
+    room2.configDoors();
+    room3.configDoors();
+    room4.configDoors();
+    room5.configDoors();
+    room6.configDoors();
 
-    // remove trap doors, config doors
-    configDoors(room1);
-    configDoors(room2);
-    configDoors(room3);
-    configDoors(room4);
-    configDoors(room5);
-    configDoors(room6);
-
-    // close the doors
+    // Now after the doors are properly configured, we can close or open them:
     room1.closeDoors();
     room2.closeDoors();
     room3.closeDoors();
-    //    room4.closeDoors();
-    //    room5.closeDoors();
-    //    room6.closeDoors();
+    room4.closeDoors();
+    room5.closeDoors();
+    room6.closeDoors();
 
     // set room1 as start level
-    Game.currentLevel(room1.level());
+    Game.currentLevel(levelRoom1.level());
   }
 
-  private static void configDoors(DojoRoom node) {
-    ILevel level = node.level();
-    // remove trapdoor exit, in rooms we only use doors
-    List<Tile> exits = new ArrayList<>(level.exitTiles());
-    exits.forEach(exit -> level.changeTileElementType(exit, LevelElement.FLOOR));
-    RoomBasedLevelGenerator.configureDoors(node);
+  private static void connectBidirectional(LevelRoom levelRoom, LevelRoom nextRoom) {
+    // connect the rooms
+    levelRoom.connect(nextRoom, Direction.SOUTH);
+    nextRoom.connect(levelRoom, Direction.NORTH);
   }
 
   private static void onSetup() {
@@ -147,16 +125,6 @@ public class DojoStarter {
     Game.systems().values().forEach(core.System::run);
   }
 
-  public static void openDoors(DojoRoom fromLevel, DojoRoom toLevel) {
-    if (fromLevel == null || toLevel == null) {
-      return;
-    }
-    DoorTile door12 = GeneratorUtils.doorAt(fromLevel.level(), Direction.SOUTH).orElseThrow();
-    door12.open();
-    DoorTile door21 = GeneratorUtils.doorAt(toLevel.level(), Direction.NORTH).orElseThrow();
-    door21.open();
-  }
-
   private static void configGame() throws IOException {
     Game.loadConfig(
         new SimpleIPath("dungeon_config.json"),
@@ -185,48 +153,94 @@ public class DojoStarter {
     Game.add(new IdleSoundSystem());
   }
 
-  private static void createRoom_1_1(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
-      throws IOException {
+  private static Room buildRoom1(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     final int monsterCount = 5;
-
     final IPath[] monsterPaths = {
       new SimpleIPath("character/monster/imp"), new SimpleIPath("character/monster/goblin")
     };
 
-    KeyRoomBuilder keyRoomBuilder = new KeyRoomBuilder();
-    keyRoomBuilder
-        .setRoomEssentials(gen, room, nextRoom, monsterCount)
+    final String keyType = "Golden Key";
+    final String keyDescription = "A key to unlock the next room.";
+    final IPath keyTexture = new SimpleIPath("items/key/gold_key.png");
+
+    return new RoomBuilder()
+        .levelRoom(levelRoom)
+        .roomGenerator(gen)
+        .nextRoom(nextRoom)
+        .levelSize(LevelSize.LARGE)
         .designLabel(DesignLabel.FOREST)
-        .keyInfo(
-            new SimpleIPath("items/key/gold_key.png"),
-            "Golden Key",
-            "A key to unlock the next room.")
+        .monsterCount(monsterCount)
         .monsterPaths(monsterPaths)
-        .build();
+        .keyType(keyType)
+        .keyDescription(keyDescription)
+        .keyTexture(keyTexture)
+        .buildKeyRoom();
   }
 
-  private static void createRoom_1_2(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
-      throws IOException {
-    new level.level_1.Room_2_Generator(gen, room, nextRoom).generateRoom();
+  private static Room buildRoom2(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+    return new RoomBuilder()
+        .levelRoom(levelRoom)
+        .roomGenerator(gen)
+        .nextRoom(nextRoom)
+        .levelSize(LevelSize.MEDIUM)
+        .designLabel(DesignLabel.FOREST)
+        .buildRoom2();
   }
 
-  private static void createRoom_1_3(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
-      throws IOException {
-    new level.level_1.Room_3_Generator(gen, room, nextRoom).generateRoom();
+  private static Room buildRoom3(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+    return new RoomBuilder()
+        .levelRoom(levelRoom)
+        .roomGenerator(gen)
+        .nextRoom(nextRoom)
+        .levelSize(LevelSize.SMALL)
+        .designLabel(DesignLabel.FOREST)
+        .buildRoom3();
   }
 
-  private static void createRoom_2_1(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
-      throws IOException {
-    new level.level_2.Room_1_Generator(gen, room, nextRoom).generateRoom();
+  private static Room buildRoom4(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+    final int monsterCount = 5;
+    final IPath[] monsterPaths = {
+      new SimpleIPath("character/monster/orc_shaman"),
+      new SimpleIPath("character/monster/orc_warrior")
+    };
+
+    final String keyType = "A blue gemstone";
+    final String keyDescription = "This gem opens the door to the next room.";
+    final IPath keyTexture = new SimpleIPath("items/resource/saphire.png");
+
+    return new RoomBuilder()
+        .levelRoom(levelRoom)
+        .roomGenerator(gen)
+        .nextRoom(nextRoom)
+        .levelSize(LevelSize.LARGE)
+        .designLabel(DesignLabel.TEMPLE)
+        .monsterCount(monsterCount)
+        .monsterPaths(monsterPaths)
+        .keyType(keyType)
+        .keyDescription(keyDescription)
+        .keyTexture(keyTexture)
+        .buildKeyRoom();
   }
 
-  private static void createRoom_2_2(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
-      throws IOException {
-    new level.level_2.Room_2_Generator(gen, room, nextRoom).generateRoom();
+  private static Room buildRoom5(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+    // TODO: build level 2, room 2 (room 5)
+    return new RoomBuilder()
+        .levelRoom(levelRoom)
+        .roomGenerator(gen)
+        .nextRoom(nextRoom)
+        .levelSize(LevelSize.LARGE)
+        .designLabel(DesignLabel.TEMPLE)
+        .buildRoom();
   }
 
-  private static void createRoom_2_3(RoomGenerator gen, DojoRoom room, DojoRoom nextRoom)
-      throws IOException {
-    new level.level_2.Room_3_Generator(gen, room, nextRoom).generateRoom();
+  private static Room buildRoom6(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+    // TODO: build level 2, room 3 (room 6)
+    return new RoomBuilder()
+        .levelRoom(levelRoom)
+        .roomGenerator(gen)
+        .nextRoom(nextRoom)
+        .levelSize(LevelSize.LARGE)
+        .designLabel(DesignLabel.TEMPLE)
+        .buildRoom();
   }
 }

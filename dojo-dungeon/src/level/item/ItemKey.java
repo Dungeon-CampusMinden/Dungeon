@@ -1,22 +1,20 @@
-package item;
+package level.item;
 
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.WorldItemBuilder;
 import contrib.item.Item;
-import contrib.level.generator.GeneratorUtils;
-import contrib.level.generator.graphBased.levelGraph.Direction;
-import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
+import level.rooms.Room;
 
 /** An implementation for an item that acts as a key and opens specific doors on pickup. */
 public class ItemKey extends Item {
-  private LevelNode thisRoom;
-  private LevelNode nextRoom;
+  private Room thisRoom;
+  private Room nextRoom;
 
   /**
    * Create a new Key.
@@ -33,8 +31,8 @@ public class ItemKey extends Item {
       String description,
       Animation inventoryAnimation,
       Animation worldAnimation,
-      LevelNode thisRoom,
-      LevelNode nextRoom) {
+      Room thisRoom,
+      Room nextRoom) {
     super(displayName, description, inventoryAnimation, worldAnimation);
     this.thisRoom = thisRoom;
     this.nextRoom = nextRoom;
@@ -61,10 +59,7 @@ public class ItemKey extends Item {
               false,
               (interacted, interactor) -> {
                 if (!interactor.fetch(InventoryComponent.class).orElseThrow().hasItem(this)) {
-                  // TODO! currently hardcoded to open south of current and north of next room for
-                  // Dojo implementation
-                  GeneratorUtils.doorAt(thisRoom.level(), Direction.SOUTH).orElseThrow().open();
-                  GeneratorUtils.doorAt(nextRoom.level(), Direction.NORTH).orElseThrow().open();
+                  thisRoom.openDoors();
                 }
 
                 interactor.fetch(InventoryComponent.class).orElseThrow().add(this);
