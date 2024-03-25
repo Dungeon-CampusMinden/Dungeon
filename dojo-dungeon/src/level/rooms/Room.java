@@ -111,4 +111,8 @@ public class Room {
     GeneratorUtils.doorAt(levelRoom.level(), Direction.SOUTH).orElseThrow().close();
     GeneratorUtils.doorAt(nextRoom.levelRoom.level(), Direction.NORTH).orElseThrow().close();
   }
+
+  public Tile getStartTile() {
+    return levelRoom.level().startTile();
+  }
 }

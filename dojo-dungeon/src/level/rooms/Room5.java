@@ -1,0 +1,95 @@
+package level.rooms;
+
+import contrib.components.InteractionComponent;
+import contrib.hud.dialogs.OkDialog;
+import contrib.level.generator.graphBased.RoomGenerator;
+import core.Entity;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
+import core.level.utils.DesignLabel;
+import core.level.utils.LevelSize;
+import core.utils.IVoidFunction;
+import core.utils.components.path.SimpleIPath;
+import java.io.IOException;
+import java.util.Set;
+import level.compiler.DojoCompiler;
+import level.tasks.Task;
+
+public class Room5 extends TaskRoom {
+  private final String FILENAME1 = "../dojo-dungeon/todo-assets/r5/Monster.java";
+  private final String FILENAME2 = "../dojo-dungeon/todo-assets/r5/MyMonster.java";
+  private final String CLASS_NAME = "MyMonster";
+  private final String title = "Monster besiegen";
+
+  Room5(
+      LevelRoom levelRoom,
+      RoomGenerator gen,
+      Room nextRoom,
+      LevelSize levelSize,
+      DesignLabel designLabel) {
+    super(levelRoom, gen, nextRoom, levelSize, designLabel);
+
+    try {
+      generate();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to generate room 5: " + e.getMessage(), e);
+    }
+  }
+
+  private void generate() throws IOException {
+    // Create task 1
+    IVoidFunction empty = () -> {};
+    addTask(
+        new Task(
+                this,
+                "task1",
+                empty,
+                () ->
+                    OkDialog.showOkDialog(
+                        String.format(
+                            "Implementiere die Datei %s, nach der Vorgabe in %s. Wenn das Monster besiegt ist, soll sich die Tür zum nächsten Raum öffnen.",
+                            FILENAME2, FILENAME1),
+                        title,
+                        empty),
+                (t1) -> {
+                  try {
+                    boolean result =
+                        new DojoCompiler(FILENAME2, CLASS_NAME).spawnMonsterToOpenTheDoor(this);
+                    if (result) {
+                      OkDialog.showOkDialog("Das Monster ist gespawnt!", title, empty);
+                      return true;
+                    }
+                  } catch (Exception e) {
+                    OkDialog.showOkDialog(e.getMessage(), title, empty);
+                  }
+                  return false;
+                },
+                empty)
+            .setShouldOpenDoors(false));
+
+    // Create questioner
+    Entity questioner = new Entity();
+    questioner.add(new PositionComponent());
+    questioner.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
+    questioner.add(
+        new InteractionComponent(
+            1,
+            true,
+            (entity1, entity2) ->
+                getNextUncompletedTask()
+                    .ifPresentOrElse(
+                        (t) -> {
+                          if (!t.isActivated()) {
+                            t.question();
+                          } else {
+                            t.solve();
+                          }
+                        },
+                        () ->
+                            OkDialog.showOkDialog(
+                                "Das Monster ist bereits gespawnt!", title, empty))));
+
+    // Add questioner to room
+    addRoomEntities(Set.of(questioner));
+  }
+}

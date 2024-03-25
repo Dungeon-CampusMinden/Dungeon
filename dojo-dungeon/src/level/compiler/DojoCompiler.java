@@ -1,5 +1,8 @@
 package level.compiler;
 
+import core.Entity;
+import core.components.DrawComponent;
+import core.utils.components.path.SimpleIPath;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+import level.rooms.Room;
 
 public class DojoCompiler {
   public record TestResult(String testName, boolean passed, List<String> messages) {}
@@ -26,6 +30,29 @@ public class DojoCompiler {
   public DojoCompiler(String fileName, String className) {
     this.fileName = fileName;
     this.className = className;
+  }
+
+  public boolean spawnMonsterToOpenTheDoor(Room currentRoom) throws Exception {
+    String source = getSource();
+
+    Class<?> cls = compile(source);
+    System.out.println("cls = " + cls);
+
+    Method method = cls.getMethod("spawnMonster", DrawComponent.class, int.class, float.class);
+    System.out.println("method = " + method);
+
+    Object instance = cls.getConstructor(Room.class).newInstance(currentRoom);
+    System.out.println("instance = " + instance);
+
+    Entity entity =
+        (Entity)
+            method.invoke(
+                instance, new DrawComponent(new SimpleIPath("character/blue_knight")), 10, 10.0f);
+    System.out.println("entity = " + entity);
+
+    currentRoom.addEntityImmediately(entity);
+
+    return true;
   }
 
   public TestResult test1() {

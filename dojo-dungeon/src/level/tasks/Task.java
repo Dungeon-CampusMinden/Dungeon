@@ -13,6 +13,7 @@ public class Task {
   private final IVoidFunction solveOnDeactivated;
   private boolean isActivated = false;
   private boolean isCompleted = false;
+  private boolean shouldOpenDoors = true;
 
   public Task(
       TaskRoom taskRoom,
@@ -42,7 +43,7 @@ public class Task {
     if (isActivated()) {
       if (solveOnActivated.apply(this)) {
         setCompleted(true);
-        if (taskRoom.areAllTasksCompleted()) {
+        if (shouldOpenDoors && taskRoom.areAllTasksCompleted()) {
           taskRoom.openDoors();
         }
       }
@@ -69,5 +70,10 @@ public class Task {
 
   public void setActivated(boolean isActivated) {
     this.isActivated = isActivated;
+  }
+
+  public Task setShouldOpenDoors(boolean shouldOpenDoors) {
+    this.shouldOpenDoors = shouldOpenDoors;
+    return this;
   }
 }

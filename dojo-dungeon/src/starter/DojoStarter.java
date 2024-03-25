@@ -230,7 +230,7 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.LARGE)
         .designLabel(DesignLabel.TEMPLE)
-        .buildRoom();
+        .buildRoom5();
   }
 
   private static Room buildRoom6(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
