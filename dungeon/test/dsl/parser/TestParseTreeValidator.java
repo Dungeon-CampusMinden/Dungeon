@@ -1,6 +1,7 @@
 package dsl.parser;
 
 import dsl.error.ErrorStrategy;
+import dsl.helpers.Helpers;
 import dsl.interpreter.TestEnvironment;
 import java.util.Arrays;
 import org.antlr.v4.runtime.CharStreams;
@@ -43,32 +44,37 @@ public class TestParseTreeValidator {
     // dot_edge_RHS: is not correctly put as child node to dot_edge_stmt
     String tree =
         """
-      program
-        definition
-          entity_type_def entity_type
-            id type1
-            {
-            component_def_list
-              aggregate_value_def
-                id comp1
-                {
-                property_def_list
-                  property_def
-                    id val1
-                    :
-                    expression
-                      logic_or
-                        logic_and
-                          equality
-                            comparison
-                              term
-                                factor
-                                  unary
-                                    primary
-                                      id id
-                }
-            }
-        <EOF>
+          program
+            definition
+              entity_type_def
+                $'entity_type'
+                id
+                  $'type1'
+                $'{'
+                component_def_list
+                  aggregate_value_def
+                    id
+                      $'comp1'
+                    $'{'
+                    property_def_list
+                      property_def
+                        id
+                          $'val1'
+                        $':'
+                        expression
+                          logic_or
+                            logic_and
+                              equality
+                                comparison
+                                  term
+                                    factor
+                                      unary
+                                        primary
+                                          id
+                                            $'id'
+                    $'}'
+                $'}'
+            $'<EOF>'
       """;
 
     String program =
@@ -89,6 +95,7 @@ public class TestParseTreeValidator {
     parser.setTrace(false);
     var parseTree = parser.program();
 
+    System.out.println(Helpers.getPrettyPrintedParseTree(program, testEnvironment));
     ParseTreeValidator ptv = new ParseTreeValidator();
     var mismatches = ptv.validate(tree, parseTree, Arrays.stream(parser.getRuleNames()).toList());
     System.out.println(mismatches);

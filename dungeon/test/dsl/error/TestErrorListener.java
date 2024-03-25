@@ -297,64 +297,81 @@ public class TestErrorListener {
 
     String expectedTree =
         """
-        program
-          definition
-            dot_def graph
-              id afternoon_graph
-              {
-              dot_stmt_list
-                dot_stmt
-                  dot_edge_stmt
-                    dot_node_list
-                      id task1_a
-                    dot_edge_RHS ->
+          program
+            definition
+              dot_def
+                $'graph'
+                id
+                  $'afternoon_graph'
+                $'{'
+                dot_stmt_list
+                  dot_stmt
+                    dot_edge_stmt
                       dot_node_list
                         id
-                          ;[ERROR_NODE]task2_1_a // this is the id, which we are interested in!
-                    dot_edge_RHS ->
-                      dot_node_list
-                        id task2_2_a
-                    dot_attr_list [
-                      dot_attr
-                        id type
-                        =
-                        id
-                          dependency_type c_f
-                      ]
-                  ;
-              }
-          definition
-            object_def asdf_typeobj1{
-              property_def_list
-                property_def
-                  id val1
-                  :
-                  expression
-                    logic_or
-                      logic_and
-                        equality
-                          comparison
-                            term
-                              factor
-                                unary
-                                  primary
-                                    id id1
-                ,
-                property_def
-                  id val2
-                  :
-                  expression
-                    logic_or
-                      logic_and
-                        equality
-                          comparison
-                            term
-                              factor
-                                unary
-                                  primary
-                                    id id2
-              }
-          <EOF>
+                          $'task1_a'
+                      dot_edge_RHS
+                        $'->'
+                        dot_node_list
+                          id
+                            $';'[ERROR_NODE]
+                            $'task2_1_a'
+                      dot_edge_RHS
+                        $'->'
+                        dot_node_list
+                          id
+                            $'task2_2_a'
+                      dot_attr_list
+                        $'['
+                        dot_attr
+                          id
+                            $'type'
+                          $'='
+                          id
+                            dependency_type
+                              $'c_f'
+                        $']'
+                    $';'
+                $'}'
+            definition
+              object_def
+                $'asdf_type'
+                $'obj1'
+                $'{'
+                property_def_list
+                  property_def
+                    id
+                      $'val1'
+                    $':'
+                    expression
+                      logic_or
+                        logic_and
+                          equality
+                            comparison
+                              term
+                                factor
+                                  unary
+                                    primary
+                                      id
+                                        $'id1'
+                  $','
+                  property_def
+                    id
+                      $'val2'
+                    $':'
+                    expression
+                      logic_or
+                        logic_and
+                          equality
+                            comparison
+                              term
+                                factor
+                                  unary
+                                    primary
+                                      id
+                                        $'id2'
+                $'}'
+            $'<EOF>'
         """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -388,48 +405,66 @@ public class TestErrorListener {
         """
           program
             definition
-              dot_def graph
-                id name
-                {
+              dot_def
+                $'graph'
+                id
+                  $'name'
+                $'{'
                 dot_stmt_list
                   dot_stmt
                     dot_edge_stmt
                       dot_node_list
-                        id task1_a
-                      dot_edge_RHS ->
+                        id
+                          $'task1_a'
+                      dot_edge_RHS
+                        $'->'
                         dot_node_list
                           id
-                            ->[ERROR_NODE]task2_2_a
-                      dot_attr_list [
+                            $'->'[ERROR_NODE]
+                            $'task2_2_a'
+                      dot_attr_list
+                        $'['
                         dot_attr
-                          id type
-                          =
                           id
-                            dependency_type c_f
-                        ]
-                    ;
+                            $'type'
+                          $'='
+                          id
+                            dependency_type
+                              $'c_f'
+                        $']'
+                    $';'
                   dot_stmt
                     dot_edge_stmt
                       dot_node_list
-                        id task3
-                      dot_edge_RHS ->
+                        id
+                          $'task3'
+                      dot_edge_RHS
+                        $'->'
                         dot_node_list
-                          id task4
-                      dot_attr_list [
-                        dot_attr
-                          id type
-                          =
                           id
-                            dependency_type c_f
-                        ]
-                    ;
-                }
+                            $'task4'
+                      dot_attr_list
+                        $'['
+                        dot_attr
+                          id
+                            $'type'
+                          $'='
+                          id
+                            dependency_type
+                              $'c_f'
+                        $']'
+                    $';'
+                $'}'
             definition
-              object_def asdf_typeobj1{
+              object_def
+                $'asdf_type'
+                $'obj1'
+                $'{'
                 property_def_list
                   property_def
-                    id val1
-                    :
+                    id
+                      $'val1'
+                    $':'
                     expression
                       logic_or
                         logic_and
@@ -439,9 +474,10 @@ public class TestErrorListener {
                                 factor
                                   unary
                                     primary
-                                      id id
-                }
-            <EOF>
+                                      id
+                                        $'id'
+                $'}'
+            $'<EOF>'
         """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -476,33 +512,54 @@ public class TestErrorListener {
         """
           program
             definition
-              dot_def graph
-                id name
-                {
+              dot_def [EXCEPTION IN NODE]
+                $'graph'
+                id
+                  $'name'
+                $'{'
                 dot_stmt_list
                   dot_stmt
                     dot_edge_stmt
                       dot_node_list
-                        id task1_a
-                      dot_edge_RHS ->
+                        id
+                          $'task1_a'
+                      dot_edge_RHS
+                        $'->'
                         dot_node_list
-                          id[EXCEPTION IN NODE]
-                    ;
-                ->[ERROR_NODE]
-                task2_2_a[ERROR_NODE]
-                [[ERROR_NODE]
-                type[ERROR_NODE]
-                $DC$ // don't care about all nodes
+                          $'id'[EXCEPTION IN NODE]
+                    $';'
+                $'->'[ERROR_NODE]
+                $'task2_2_a'[ERROR_NODE]
+                $'['[ERROR_NODE]
+                $'type'[ERROR_NODE]
+                $'='[ERROR_NODE]
+                $'c_f'[ERROR_NODE]
+                $']'[ERROR_NODE]
+                $';'[ERROR_NODE]
+                $'task3'[ERROR_NODE]
+                $'->'[ERROR_NODE]
+                $'task4'[ERROR_NODE]
+                $'['[ERROR_NODE]
+                $'type'[ERROR_NODE]
+                $'='[ERROR_NODE]
+                $'c_f'[ERROR_NODE]
+                $']'[ERROR_NODE]
+                $';'[ERROR_NODE]
+                $'}'[ERROR_NODE]
             definition
-              object_def asdf_typeobj1{
+              object_def
+                $'asdf_type'
+                $'obj1'
+                $'{'
                 property_def_list
                   property_def
-                    id val1
-                    :
+                    id
+                      $'val1'
+                    $':'
                     expression
-                      $DC$ // don't care about all following child nodes
-                }
-            <EOF>
+                      $DC$
+                $'}'
+            $'<EOF>'
       """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -530,17 +587,23 @@ public class TestErrorListener {
         """
         program
           definition
-            import_def[EXCEPTION IN NODE]
-          definition // TODO: have to find out, why this second definition node exists
-            import_def
-              #import[ERROR_NODE]
+            $'import_def'[EXCEPTION IN NODE]
           definition
-            fn_def fn // this is the important part, that we correctly sync to the function definition
-              id test
-              ()
-              stmt_block {
-                $DC$ // dont care about children
-          <EOF>
+            import_def [EXCEPTION IN NODE]
+              $'#import'[ERROR_NODE]
+          definition
+            fn_def
+              $'fn'
+              id
+                $'test'
+              $'('
+              $')'
+              stmt_block
+                $'{'
+                stmt
+                  $DC$
+                $'}'
+          $'<EOF>'
       """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -570,36 +633,54 @@ public class TestErrorListener {
     String expectedTree =
       """
       program
-            definition
-              object_def asdf_typeobj1{
-                property_def_list
-                  property_def
-                    id val1
-                    :
-                    expression
-                      logic_or
-                        logic_and
-                          equality
-                            comparison
-                              term
-                                factor
-                                  unary
-                                    primary
-                                      id id
-                  ,
-                  property_def
-                    val2[ERROR_NODE] // we have a dedicated error alternative for this case
-                }
-            definition
-              object_def asdf_typeobj2{
-                property_def_list
-                  property_def
-                    id val3
-                    :
-                    expression
-                      $DC$
-                }
-            <EOF>
+        definition
+          object_def
+            $'asdf_type'
+            $'obj1'
+            $'{'
+            property_def_list
+              property_def
+                id
+                  $'val1'
+                $':'
+                expression
+                  logic_or
+                    logic_and
+                      equality
+                        comparison
+                          term
+                            factor
+                              unary
+                                primary
+                                  id
+                                    $'id'
+              $','
+              property_def [EXCEPTION IN NODE]
+                $'val2'[ERROR_NODE]
+            $'}'
+        definition
+          object_def
+            $'asdf_type'
+            $'obj2'
+            $'{'
+            property_def_list
+              property_def
+                id
+                  $'val3'
+                $':'
+                expression
+                  logic_or
+                    logic_and
+                      equality
+                        comparison
+                          term
+                            factor
+                              unary
+                                primary
+                                  id
+                                    $'id'
+            $'}'
+        $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -628,21 +709,40 @@ public class TestErrorListener {
 
     String expectedTree =
       """
-    program
-      definition
-        object_def asdf_type
-          {[ERROR_NODE]val1
-          $DC$ // don't care from here on
-      definition
-        object_def asdf_typeobj2{
-          property_def_list
-            property_def
-              id val3
-              :
-              expression
-                $DC$
-          }
-      <EOF>
+        program
+          definition
+            object_def [EXCEPTION IN NODE]
+              $'asdf_type'
+              $'{'[ERROR_NODE]
+              $'val1'
+              $':'[ERROR_NODE]
+              $'id'[ERROR_NODE]
+              $','[ERROR_NODE]
+              $'val2'[ERROR_NODE]
+              $'}'[ERROR_NODE]
+          definition
+            object_def
+              $'asdf_type'
+              $'obj2'
+              $'{'
+              property_def_list
+                property_def
+                  id
+                    $'val3'
+                  $':'
+                  expression
+                    logic_or
+                      logic_and
+                        equality
+                          comparison
+                            term
+                              factor
+                                unary
+                                  primary
+                                    id
+                                      $'id'
+              $'}'
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -673,17 +773,31 @@ public class TestErrorListener {
       """
         program
           definition
-            object_def asdf_typeobj1{
+            object_def
+              $'asdf_type'
+              $'obj1'
+              $'{'
               property_def_list
                 property_def
-                  id val1
-                  :
+                  id
+                    $'val1'
+                  $':'
                   expression
-                    $DC$ // don't care about children
-                ,
+                    logic_or
+                      logic_and
+                        equality
+                          comparison
+                            term
+                              factor
+                                unary
+                                  primary
+                                    id
+                                      $'id'
+                $','
                 property_def
-                  id val2
-                  :
+                  id
+                    $'val2'
+                  $':'
                   expression
                     logic_or
                       logic_and
@@ -694,12 +808,14 @@ public class TestErrorListener {
                                 unary
                                   primary
                                     aggregate_value_def
-                                      id aggregate_val
-                                      {
+                                      id
+                                        $'aggregate_val'
+                                      $'{'
                                       property_def_list
                                         property_def
-                                          id val01
-                                          :
+                                          id
+                                            $'val01'
+                                          $':'
                                           expression
                                             logic_or
                                               logic_and
@@ -709,15 +825,17 @@ public class TestErrorListener {
                                                       factor
                                                         unary
                                                           primary
-                                                            id id
-                                        ,
-                                        property_def
-                                          val02[ERROR_NODE]
-                                      }
-                ,
+                                                            id
+                                                              $'id'
+                                        $','
+                                        property_def [EXCEPTION IN NODE]
+                                          $'val02'[ERROR_NODE]
+                                      $'}'
+                $','
                 property_def
-                  id val3
-                  :
+                  id
+                    $'val3'
+                  $':'
                   expression
                     logic_or
                       logic_and
@@ -727,9 +845,10 @@ public class TestErrorListener {
                               factor
                                 unary
                                   primary
-                                    id id
-              }
-          <EOF>
+                                    id
+                                      $'id'
+              $'}'
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -761,50 +880,78 @@ public class TestErrorListener {
     String expectedTree =
       """
         program
-              definition
-                entity_type_def entity_type
-                  id type
-                  {
-                  component_def_list
-                    aggregate_value_def
-                      id comp1
-                      {
-                      property_def_list
-                        property_def
-                          id val1
-                          :
-                          expression
-                            logic_or
-                              logic_and
-                                equality
-                                  comparison
-                                    term
-                                      factor
-                                        unary
-                                          primary
-                                            id id
-                        ,
-                        property_def val2:
-                      }
-                    ,
-                    aggregate_value_def
-                      id comp2
-                      {
-                      property_def_list
-                        property_def
-                          id val3
-                          :
-                          expression
-                            $DC$
-                        ,
-                        property_def
-                          id val4
-                          :
-                          expression
-                            $DC$
-                      }
-                  }
-              <EOF>
+          definition
+            entity_type_def
+              $'entity_type'
+              id
+                $'type'
+              $'{'
+              component_def_list
+                aggregate_value_def
+                  id
+                    $'comp1'
+                  $'{'
+                  property_def_list
+                    property_def
+                      id
+                        $'val1'
+                      $':'
+                      expression
+                        logic_or
+                          logic_and
+                            equality
+                              comparison
+                                term
+                                  factor
+                                    unary
+                                      primary
+                                        id
+                                          $'id'
+                    $','
+                    property_def
+                      $'val2'
+                      $':'
+                  $'}'
+                $','
+                aggregate_value_def
+                  id
+                    $'comp2'
+                  $'{'
+                  property_def_list
+                    property_def
+                      id
+                        $'val3'
+                      $':'
+                      expression
+                        logic_or
+                          logic_and
+                            equality
+                              comparison
+                                term
+                                  factor
+                                    unary
+                                      primary
+                                        id
+                                          $'id'
+                    $','
+                    property_def
+                      id
+                        $'val4'
+                      $':'
+                      expression
+                        logic_or
+                          logic_and
+                            equality
+                              comparison
+                                term
+                                  factor
+                                    unary
+                                      primary
+                                        id
+                                          $'jo'
+                  $'}'
+              $'}'
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -839,43 +986,22 @@ public class TestErrorListener {
     String expectedTree =
       """
         program
-              definition
-                entity_type_def entity_type
-                  id type
-                  {
-                  component_def_list
-                    aggregate_value_def
-                      id comp1
-                      {
-                      property_def_list
-                        property_def
-                          id val1
-                          :
-                          expression
-                            $DC$
-                        ,
-                        property_def
-                          id val2
-                          :
-                          expression
-                            $DC$
-                      }
-                  {[ERROR_NODE]
-                  val3[ERROR_NODE]
-                  :[ERROR_NODE]
-                  id[ERROR_NODE]
-                  ,[ERROR_NODE]
-                  val4[ERROR_NODE]
-                  :[ERROR_NODE]
-                  jo[ERROR_NODE]
-                  }[ERROR_NODE]
-                  }[ERROR_NODE]
-              definition
-                fn_def fn
-                  id test
-                  ()
-                  stmt_block {
-                    stmt
+          definition
+            entity_type_def [EXCEPTION IN NODE]
+              $'entity_type'
+              id
+                $'type'
+              $'{'
+              component_def_list
+                aggregate_value_def
+                  id
+                    $'comp1'
+                  $'{'
+                  property_def_list
+                    property_def
+                      id
+                        $'val1'
+                      $':'
                       expression
                         logic_or
                           logic_and
@@ -885,11 +1011,59 @@ public class TestErrorListener {
                                   factor
                                     unary
                                       primary
-                                        func_call
-                                          $DC$
-                      ;
-                    }
-              <EOF>
+                                        id
+                                          $'id'
+                    $','
+                    property_def
+                      id
+                        $'val2'
+                      $':'
+                      expression
+                        logic_or
+                          logic_and
+                            equality
+                              comparison
+                                term
+                                  factor
+                                    unary
+                                      primary
+                                        id
+                                          $'id'
+                  $'}'
+              $'{'[ERROR_NODE]
+              $'val3'[ERROR_NODE]
+              $':'[ERROR_NODE]
+              $'id'[ERROR_NODE]
+              $','[ERROR_NODE]
+              $'val4'[ERROR_NODE]
+              $':'[ERROR_NODE]
+              $'jo'[ERROR_NODE]
+              $'}'[ERROR_NODE]
+              $'}'[ERROR_NODE]
+          definition
+            fn_def
+              $'fn'
+              id
+                $'test'
+              $'('
+              $')'
+              stmt_block
+                $'{'
+                stmt
+                  expression
+                    logic_or
+                      logic_and
+                        equality
+                          comparison
+                            term
+                              factor
+                                unary
+                                  primary
+                                    func_call
+                                      $DC$
+                  $';'
+                $'}'
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -922,32 +1096,40 @@ public class TestErrorListener {
       """
         program
           definition
-            entity_type_def entity_type
-              id type
-              {
+            entity_type_def
+              $'entity_type'
+              id
+                $'type'
+              $'{'
               component_def_list
-                aggregate_value_def
-                  id comp1
-                  <missing '{'>[ERROR_NODE]
-                  val1[ERROR_NODE]
-                  :[ERROR_NODE]
-                  id[ERROR_NODE]
-                ,
-                aggregate_value_def
-                  id val2
-                  :[ERROR_NODE]
-                  id[ERROR_NODE]
-                  ;[ERROR_NODE]
-                  ;[ERROR_NODE]
-                  ;[ERROR_NODE]
-              }
-          comp2[ERROR_NODE]
-          }[ERROR_NODE]
+                aggregate_value_def [EXCEPTION IN NODE]
+                  id
+                    $'comp1'
+                  $'<missing '{'>'[ERROR_NODE]
+                  $'val1'[ERROR_NODE]
+                  $':'[ERROR_NODE]
+                  $'id'[ERROR_NODE]
+                $','
+                aggregate_value_def [EXCEPTION IN NODE]
+                  id
+                    $'val2'
+                  $':'[ERROR_NODE]
+                  $'id'[ERROR_NODE]
+                  $';'[ERROR_NODE]
+                  $';'[ERROR_NODE]
+                  $';'[ERROR_NODE]
+              $'}'
+          $'comp2'[ERROR_NODE]
+          $'}'[ERROR_NODE]
           definition
-            fn_def fn
-              id test
-              ()
-              stmt_block {
+            fn_def
+              $'fn'
+              id
+                $'test'
+              $'('
+              $')'
+              stmt_block
+                $'{'
                 stmt
                   expression
                     logic_or
@@ -959,14 +1141,10 @@ public class TestErrorListener {
                                 unary
                                   primary
                                     func_call
-                                      id println
-                                      (
-                                      expression_list
-                                        $DC$
-                                      )
-                  ;
-                }
-          <EOF>
+                                      $DC$
+                  $';'
+                $'}'
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -996,44 +1174,70 @@ public class TestErrorListener {
     String expectedTree =
       """
         program
-              definition
-                item_type_def item_type
-                  id type1
-                  {
-                  property_def_list
-                    property_def
-                      id display_name
-                      :
-                      expression
-                        $DC$
-                    ,
-                    property_def
-                      id description
-                      :
-                      expression
-                        $DC$
-                    ,
-                    property_def texture_path:
-                  }
-              definition
-                item_type_def item_type
-                  id type2
-                  {
-                  property_def_list
-                    property_def
-                      id display_name
-                      :
-                      expression
-                        logic_or
-                          logic_and
-                            equality
-                              comparison
-                                term
-                                  factor
-                                    unary
-                                      primary "Typ"
-                  }
-              <EOF>
+          definition
+            item_type_def
+              $'item_type'
+              id
+                $'type1'
+              $'{'
+              property_def_list
+                property_def
+                  id
+                    $'display_name'
+                  $':'
+                  expression
+                    logic_or
+                      logic_and
+                        equality
+                          comparison
+                            term
+                              factor
+                                unary
+                                  primary
+                                    $'"Ein Itemtyp"'
+                $','
+                property_def
+                  id
+                    $'description'
+                  $':'
+                  expression
+                    logic_or
+                      logic_and
+                        equality
+                          comparison
+                            term
+                              factor
+                                unary
+                                  primary
+                                    $'"Ja!"'
+                $','
+                property_def
+                  $'texture_path'
+                  $':'
+              $'}'
+          definition
+            item_type_def
+              $'item_type'
+              id
+                $'type2'
+              $'{'
+              property_def_list
+                property_def
+                  id
+                    $'display_name'
+                  $':'
+                  expression
+                    logic_or
+                      logic_and
+                        equality
+                          comparison
+                            term
+                              factor
+                                unary
+                                  primary
+                                    $'"Typ"'
+              $'}'
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -1059,70 +1263,79 @@ public class TestErrorListener {
     String expectedTree =
       """
         program
-              definition
-                item_type_def item_type
-                  id type
-                  {
-                  property_def_list
-                    property_def
-                      id display_name
-                      :
-                      expression
-                        logic_or
-                          logic_and
-                            equality
-                              comparison
-                                term
-                                  factor
-                                    unary
-                                      primary "Ein Itemtyp"
-                    ,
-                    property_def
-                      id description
-                      :
-                      expression
-                        logic_or
-                          logic_and
-                            equality
-                              comparison
-                                term
-                                  factor
-                                    unary
-                                      primary
-                                        grouped_expression (
-                                          expression
-                                            ;[ERROR_NODE]
-                                            logic_or
-                                              logic_and
-                                                equality
-                                                  comparison
-                                                    term
-                                                      factor
-                                                        unary
-                                                          primary
-                                                            id lkj
-                                          ;[ERROR_NODE]
-                                          a[ERROR_NODE]
-                    ,
-                    property_def
-                      ,[ERROR_NODE]
-                      sdf[ERROR_NODE]
-                      )[ERROR_NODE]
-                    ,
-                    property_def
-                      id texture_path
-                      :
-                      expression
-                        logic_or
-                          logic_and
-                            equality
-                              comparison
-                                term
-                                  factor
-                                    unary
-                                      primary "Nein"
-                  }
-              <EOF>
+          definition
+            item_type_def
+              $'item_type'
+              id
+                $'type'
+              $'{'
+              property_def_list
+                property_def
+                  id
+                    $'display_name'
+                  $':'
+                  expression
+                    logic_or
+                      logic_and
+                        equality
+                          comparison
+                            term
+                              factor
+                                unary
+                                  primary
+                                    $'"Ein Itemtyp"'
+                $','
+                property_def
+                  id
+                    $'description'
+                  $':'
+                  expression
+                    logic_or
+                      logic_and
+                        equality
+                          comparison
+                            term
+                              factor
+                                unary
+                                  primary
+                                    grouped_expression [EXCEPTION IN NODE]
+                                      $'('
+                                      expression
+                                        $';'[ERROR_NODE]
+                                        logic_or
+                                          logic_and
+                                            equality
+                                              comparison
+                                                term
+                                                  factor
+                                                    unary
+                                                      primary
+                                                        id
+                                                          $'lkj'
+                                      $';'[ERROR_NODE]
+                                      $'a'[ERROR_NODE]
+                $','
+                property_def [EXCEPTION IN NODE]
+                  $','[ERROR_NODE]
+                  $'sdf'[ERROR_NODE]
+                  $')'[ERROR_NODE]
+                $','
+                property_def
+                  id
+                    $'texture_path'
+                  $':'
+                  expression
+                    logic_or
+                      logic_and
+                        equality
+                          comparison
+                            term
+                              factor
+                                unary
+                                  primary
+                                    $'"Nein"'
+              $'}'
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -1151,21 +1364,36 @@ public class TestErrorListener {
       """
         program
           definition
-            fn_def fn
-              id test
-              (
-              {[ERROR_NODE]
-              }[ERROR_NODE]
+            fn_def [EXCEPTION IN NODE]
+              $'fn'
+              id
+                $'test'
+              $'('
+              $'{'[ERROR_NODE]
+              $'}'[ERROR_NODE]
           definition
-            object_def asdf_typeobj1{
+            object_def
+              $'asdf_type'
+              $'obj1'
+              $'{'
               property_def_list
                 property_def
-                  id val1
-                  :
+                  id
+                    $'val1'
+                  $':'
                   expression
-                    $DC$
-              }
-          <EOF>
+                    logic_or
+                      logic_and
+                        equality
+                          comparison
+                            term
+                              factor
+                                unary
+                                  primary
+                                    id
+                                      $'id'
+              $'}'
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -1195,20 +1423,29 @@ public class TestErrorListener {
       """
         program
           definition
-            fn_def fn
-              id test
-              (
+            fn_def
+              $'fn'
+              id
+                $'test'
+              $'('
               param_def_list
                 param_def
-                  type_decl int
-              )
-              stmt_block {}
+                  type_decl
+                    $'int'
+              $')'
+              stmt_block
+                $'{'
+                $'}'
           definition
-            object_def asdf_typeobj1{
+            object_def
+              $'asdf_type'
+              $'obj1'
+              $'{'
               property_def_list
                 property_def
-                  id val1
-                  :
+                  id
+                    $'val1'
+                  $':'
                   expression
                     logic_or
                       logic_and
@@ -1218,9 +1455,10 @@ public class TestErrorListener {
                               factor
                                 unary
                                   primary
-                                    id id
-              }
-          <EOF>
+                                    id
+                                      $'id'
+              $'}'
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -1250,27 +1488,39 @@ public class TestErrorListener {
       """
         program
           definition
-            fn_def fn
-              id test
-              (
+            fn_def
+              $'fn'
+              id
+                $'test'
+              $'('
               param_def_list
                 param_def
-                  type_decl int
-                  id x
-                ,
+                  type_decl
+                    $'int'
+                  id
+                    $'x'
+                $','
                 param_def
-                  type_decl int
-                ,
+                  type_decl
+                    $'int'
+                $','
                 param_def
-                  type_decl int
-              )
-              stmt_block {}
+                  type_decl
+                    $'int'
+              $')'
+              stmt_block
+                $'{'
+                $'}'
           definition
-            object_def asdf_typeobj1{
+            object_def
+              $'asdf_type'
+              $'obj1'
+              $'{'
               property_def_list
                 property_def
-                  id val1
-                  :
+                  id
+                    $'val1'
+                  $':'
                   expression
                     logic_or
                       logic_and
@@ -1280,9 +1530,10 @@ public class TestErrorListener {
                               factor
                                 unary
                                   primary
-                                    id id
-              }
-          <EOF>
+                                    id
+                                      $'id'
+              $'}'
+          $'<EOF>
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -1309,13 +1560,16 @@ public class TestErrorListener {
       """
         program
           definition
-            fn_def fn
-              id test
-              (
+            fn_def
+              $'fn'
+              id
+                $'test'
+              $'('
               param_def_list
                 $DC$
-              )
-              stmt_block {
+              $')'
+              stmt_block
+                $'{'
                 stmt
                   expression
                     logic_or
@@ -1326,8 +1580,9 @@ public class TestErrorListener {
                               factor
                                 unary
                                   primary
-                                    id println
-                  <missing ';'>[ERROR_NODE]
+                                    id
+                                      $'println'
+                  $'<missing ';'>'[ERROR_NODE]
                 stmt
                   expression
                     logic_or
@@ -1338,7 +1593,8 @@ public class TestErrorListener {
                               factor
                                 unary
                                   primary
-                                    grouped_expression (
+                                    grouped_expression
+                                      $'('
                                       expression
                                         logic_or
                                           logic_and
@@ -1349,12 +1605,13 @@ public class TestErrorListener {
                                                     factor
                                                       unary
                                                         primary
-                                                          id x
-                                                  +
+                                                          id
+                                                            $'x'
+                                                  $'+'
                                                   factor
-                                                    unary[EXCEPTION IN NODE]
-                                      )
-                  ;
+                                                    $'unary'[EXCEPTION IN NODE]
+                                      $')'
+                  $';'
                 stmt
                   expression
                     logic_or
@@ -1366,11 +1623,13 @@ public class TestErrorListener {
                                 unary
                                   primary
                                     func_call
-                                      id println
-                                      ()
-                  ;
-                }
-          <EOF>
+                                      id
+                                        $'println'
+                                      $'('
+                                      $')'
+                  $';'
+                $'}'
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -1397,21 +1656,43 @@ public class TestErrorListener {
       """
         program
           definition
-            fn_def fn
-              id test
-              (
+            fn_def
+              $'fn'
+              id
+                $'test'
+              $'('
               param_def_list
-                $DC$
-              )
-              stmt_block {
+                param_def
+                  type_decl
+                    $'int'
+                  id
+                    $'x'
+                $','
+                param_def
+                  type_decl
+                    $'int'
+                  id
+                    $'y'
+                $','
+                param_def
+                  type_decl
+                    $'int'
+                  id
+                    $'z'
+              $')'
+              stmt_block
+                $'{'
                 stmt
-                  var_decl var
-                    id x
-                    =
+                  var_decl
+                    $'var'
+                    id
+                      $'x'
+                    $'='
                     expression
                       $DC$
-                    )[ERROR_NODE];
-                stmt // we mostly care about syncing to next statement
+                    $')'[ERROR_NODE]
+                    $';'
+                stmt
                   expression
                     logic_or
                       logic_and
@@ -1422,11 +1703,13 @@ public class TestErrorListener {
                                 unary
                                   primary
                                     func_call
-                                      id println
-                                      ()
-                  ;
-                }
-          <EOF>
+                                      id
+                                        $'println'
+                                      $'('
+                                      $')'
+                  $';'
+                $'}'
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
@@ -1457,17 +1740,22 @@ public class TestErrorListener {
       """
         program
           definition
-            fn_def fn
-              id test
-              (
+            fn_def
+              $'fn'
+              id
+                $'test'
+              $'('
               param_def_list
                 $DC$
-              )
-              stmt_block {
+              $')'
+              stmt_block
+                $'{'
                 stmt
-                  var_decl var
-                    id x
-                    =
+                  var_decl
+                    $'var'
+                    id
+                      $'x'
+                    $'='
                     expression
                       logic_or
                         logic_and
@@ -1477,8 +1765,9 @@ public class TestErrorListener {
                                 factor
                                   unary
                                     primary
-                                      id y
-                    ;
+                                      id
+                                        $'y'
+                    $';'
                 stmt
                   expression
                     logic_or
@@ -1490,9 +1779,11 @@ public class TestErrorListener {
                                 unary
                                   primary
                                     func_call
-                                      id println
-                                      ()
-                  ;
+                                      id
+                                        $'println'
+                                      $'('
+                                      $')'
+                  $';'
                 stmt
                   expression
                     logic_or
@@ -1503,9 +1794,10 @@ public class TestErrorListener {
                               factor
                                 unary
                                   primary
-                                    id asdf_type
-                  <missing ';'>[ERROR_NODE]
-                stmt
+                                    id
+                                      $'asdf_type'
+                  $'<missing ';'>'[ERROR_NODE]
+                stmt [EXCEPTION IN NODE]
                   expression
                     logic_or
                       logic_and
@@ -1516,12 +1808,14 @@ public class TestErrorListener {
                                 unary
                                   primary
                                     aggregate_value_def
-                                      id obj1
-                                      {
+                                      id
+                                        $'obj1'
+                                      $'{'
                                       property_def_list
                                         property_def
-                                          id val1
-                                          :
+                                          id
+                                            $'val1'
+                                          $':'
                                           expression
                                             logic_or
                                               logic_and
@@ -1531,10 +1825,11 @@ public class TestErrorListener {
                                                       factor
                                                         unary
                                                           primary
-                                                            id id
-                                      }
-                <missing '}'>[ERROR_NODE]
-          <EOF>
+                                                            id
+                                                              $'id'
+                                      $'}'
+                $'<missing '}'>'[ERROR_NODE]
+          $'<EOF>'
     """;
 
     TestEnvironment testEnvironment = new TestEnvironment();
