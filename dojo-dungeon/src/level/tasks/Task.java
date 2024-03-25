@@ -1,11 +1,11 @@
-package level.room.task;
+package level.tasks;
 
 import core.utils.IVoidFunction;
 import java.util.function.Function;
-import level.TaskRoomGenerator;
+import level.rooms.TaskRoom;
 
 public class Task {
-  private final TaskRoomGenerator trGen;
+  private final TaskRoom taskRoom;
   private final String taskName;
   private final IVoidFunction questionOnActivated;
   private final IVoidFunction questionOnDeactivated;
@@ -15,13 +15,13 @@ public class Task {
   private boolean isCompleted = false;
 
   public Task(
-      TaskRoomGenerator trGen,
+      TaskRoom taskRoom,
       String taskName,
       IVoidFunction questionOnActivated,
       IVoidFunction questionOnDeactivated,
       Function<Task, Boolean> solveOnActivated,
       IVoidFunction solveOnDeactivated) {
-    this.trGen = trGen;
+    this.taskRoom = taskRoom;
     this.taskName = taskName;
     this.questionOnActivated = questionOnActivated;
     this.questionOnDeactivated = questionOnDeactivated;
@@ -42,8 +42,8 @@ public class Task {
     if (isActivated()) {
       if (solveOnActivated.apply(this)) {
         setCompleted(true);
-        if (trGen.areAllTasksCompleted()) {
-          trGen.openDoors();
+        if (taskRoom.areAllTasksCompleted()) {
+          taskRoom.openDoors();
         }
       }
     } else {

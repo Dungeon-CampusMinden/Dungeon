@@ -1,4 +1,4 @@
-package level.level_1;
+package level.rooms;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -6,7 +6,6 @@ import contrib.level.generator.graphBased.RoomGenerator;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
@@ -16,8 +15,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-import level.TaskRoomGenerator;
-import level.room.DojoRoom;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -25,25 +22,32 @@ import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.FreeText;
 
-public class Room_3_Generator extends TaskRoomGenerator {
-  private static final String[] regexes = {
-    "Wort", "\\d+", "((public|private|protected) )?class \\w+Class \\{(.*\\n*)*\\}"
-  };
-  private static final int chosenRegex = new Random().nextInt(regexes.length);
-  private static Quiz question = freeText();
+public class Room3 extends Room {
+  // TODO: add more complex regexes
+  private final String[] regexes = {"Wort", "\\d+", "((public|private|protected) )?class"};
 
-  public Room_3_Generator(RoomGenerator gen, DojoRoom room, DojoRoom nextNeighbour) {
-    super(gen, room, nextNeighbour);
+  private Entity bossOgrex;
+
+  private String currentRegex;
+
+  private int correctAnswerCount = 0;
+
+  Room3(
+      LevelRoom levelRoom,
+      RoomGenerator gen,
+      Room nextRoom,
+      LevelSize levelSize,
+      DesignLabel designLabel) {
+    super(levelRoom, gen, nextRoom, levelSize, designLabel);
+
+    try {
+      generate();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to generate room 3: " + e.getMessage(), e);
+    }
   }
 
-  @Override
-  public void generateRoom() throws IOException {
-    // generate the room
-    getRoom()
-        .level(
-            new TileLevel(
-                getGen().layout(LevelSize.SMALL, getRoom().neighbours()), DesignLabel.FOREST));
-
+  public void generate() throws IOException {
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
 
@@ -53,12 +57,22 @@ public class Room_3_Generator extends TaskRoomGenerator {
     addRoomEntities(roomEntities);
   }
 
-  private static Entity questBoss() throws IOException {
-    // choose random regex for question
-
-    Entity bossOgrex = new Entity("OgreX");
+  private Entity questBoss() throws IOException {
+    // add boss
+    bossOgrex = new Entity("OgreX");
     bossOgrex.add(new PositionComponent());
     bossOgrex.add(new DrawComponent(new SimpleIPath("character/monster/ogre")));
+
+    setNextTask();
+
+    return bossOgrex;
+  }
+
+  private void setNextTask() {
+    // choose random regex for question
+    nextRegex();
+    final Quiz question = newFreeText();
+
     bossOgrex.add(new TaskComponent(question, bossOgrex));
     bossOgrex.add(
         new InteractionComponent(
@@ -67,10 +81,9 @@ public class Room_3_Generator extends TaskRoomGenerator {
             (e, who) -> {
               UIAnswerCallback.askOnInteraction(question, showAnswersOnHud()).accept(e, who);
             }));
-    return bossOgrex;
   }
 
-  private static BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
+  private BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
     return (task, taskContents) -> {
       AtomicReference<String> answers = new AtomicReference<>("");
       taskContents.stream()
@@ -88,20 +101,36 @@ public class Room_3_Generator extends TaskRoomGenerator {
         cleanedAnswer = cleanedAnswer.substring(0, cleanedAnswer.length() - 1);
       }
 
-      if (cleanedAnswer.matches(regexes[chosenRegex])) {
+      if (cleanedAnswer.matches(getCurrentRegex())) {
         OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
+        correctAnswerCount++;
+        if (correctAnswerCount >= 3) {
+          openDoors();
+        }
+        setNextTask();
       } else {
         OkDialog.showOkDialog("Ihre Antwort ist nicht korrekt!", "Ok", () -> {});
       }
     };
   }
 
-  public static Quiz freeText() {
+  private Quiz newFreeText() {
     String questionText =
         "Gib einen String ein, der durch das RegEx pattern '"
-            + regexes[chosenRegex]
+            + getCurrentRegex()
             + "' gematcht wird.";
 
     return new FreeText(questionText);
+  }
+
+  private void nextRegex() {
+    currentRegex = regexes[new Random().nextInt(regexes.length)];
+  }
+
+  private String getCurrentRegex() {
+    if (currentRegex == null) {
+      nextRegex();
+    }
+    return currentRegex;
   }
 }

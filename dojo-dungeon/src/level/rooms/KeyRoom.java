@@ -1,4 +1,4 @@
-package level;
+package level.rooms;
 
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
@@ -7,67 +7,61 @@ import contrib.entities.MonsterFactory;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
-import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
-import item.ItemKey;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import level.room.DojoRoom;
+import level.item.ItemKey;
 
-public class Key_Room_Generator extends TaskRoomGenerator {
-  private final int monsterCount;
-  private IPath keyTexture;
-  private IPath[] monsterPaths;
-  private String keyType;
-  private String keyDescription;
-  private DesignLabel designLabel;
+public class KeyRoom extends MonsterRoom {
+  private final String keyType;
+  private final String keyDescription;
+  private final IPath keyTexture;
 
-  public Key_Room_Generator(
+  KeyRoom(
+      LevelRoom levelRoom,
       RoomGenerator gen,
-      DojoRoom room,
-      DojoRoom nextNeighbour,
+      Room nextRoom,
+      LevelSize levelSize,
+      DesignLabel designLabel,
       int monsterCount,
-      IPath keyTexture,
       IPath[] monsterPaths,
       String keyType,
       String keyDescription,
-      DesignLabel designLabel) {
-    super(gen, room, nextNeighbour);
-    this.monsterCount = monsterCount;
-    this.keyTexture = keyTexture;
-    this.monsterPaths = monsterPaths;
+      IPath keyTexture) {
+    super(levelRoom, gen, nextRoom, levelSize, designLabel, monsterCount, monsterPaths);
     this.keyType = keyType;
     this.keyDescription = keyDescription;
-    this.designLabel = designLabel;
+    this.keyTexture = keyTexture;
+
+    try {
+      generate();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to generate key room: " + e.getMessage(), e);
+    }
   }
 
-  @Override
-  public void generateRoom() throws IOException {
-    // generate the room
-    getRoom()
-        .level(
-            new TileLevel(getGen().layout(LevelSize.LARGE, getRoom().neighbours()), designLabel));
-
+  private void generate() throws IOException {
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
 
-    for (int i = 0; i < monsterCount; i++) {
+    for (int i = 0; i < getMonsterCount(); i++) {
       roomEntities.add(
-          MonsterFactory.randomMonster(monsterPaths[new Random().nextInt(monsterPaths.length)]));
+          MonsterFactory.randomMonster(
+              getMonsterPaths()[new Random().nextInt(getMonsterPaths().length)]));
     }
     // get random monster from roomEntities
-    Entity randomMonster = (Entity) roomEntities.toArray()[(int) (Math.random() * monsterCount)];
+    Entity randomMonster =
+        (Entity) roomEntities.toArray()[(int) (Math.random() * getMonsterCount())];
 
     Animation keyAnimation = Animation.fromSingleImage(keyTexture);
     ItemKey key =
-        new ItemKey(
-            keyType, keyDescription, keyAnimation, keyAnimation, getRoom(), getNextNeighbour());
+        new ItemKey(keyType, keyDescription, keyAnimation, keyAnimation, this, getNextRoom());
 
     if (randomMonster.fetch(InventoryComponent.class).isPresent()) {
       randomMonster.remove(InventoryComponent.class);

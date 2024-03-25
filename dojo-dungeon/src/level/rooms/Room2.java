@@ -1,4 +1,4 @@
-package level.level_1;
+package level.rooms;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
@@ -8,7 +8,6 @@ import contrib.utils.components.draw.ChestAnimations;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.IVoidFunction;
@@ -18,12 +17,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
-import level.TaskRoomGenerator;
 import level.compiler.DojoCompiler;
-import level.room.DojoRoom;
-import level.room.task.Task;
+import level.tasks.Task;
 
-public class Room_2_Generator extends TaskRoomGenerator {
+public class Room2 extends TaskRoom {
   private final String FILENAME1 = "../dojo-dungeon/todo-assets/r2/FehlerhafteKlasse.java";
   private final String FILENAME2 = "../dojo-dungeon/todo-assets/r2/FehlerhafteKlasse2.java";
   private final String CLASS_NAME = "FehlerhafteKlasse2";
@@ -58,18 +55,22 @@ public class Room_2_Generator extends TaskRoomGenerator {
   private final String[] TASK_NAMES = {"task_1_easy", "task_2_medium", "task_3_hard"};
   private final Entity[] CHESTS = new Entity[3];
 
-  public Room_2_Generator(RoomGenerator gen, DojoRoom room, DojoRoom nextNeighbour) {
-    super(gen, room, nextNeighbour);
+  Room2(
+      LevelRoom levelRoom,
+      RoomGenerator gen,
+      Room nextRoom,
+      LevelSize levelSize,
+      DesignLabel designLabel) {
+    super(levelRoom, gen, nextRoom, levelSize, designLabel);
+
+    try {
+      generate();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to generate room 2: " + e.getMessage(), e);
+    }
   }
 
-  @Override
-  public void generateRoom() throws IOException {
-    // generate the room
-    getRoom()
-        .level(
-            new TileLevel(
-                getGen().layout(LevelSize.MEDIUM, getRoom().neighbours()), DesignLabel.FOREST));
-
+  private void generate() throws IOException {
     // Create tasks 1
     IVoidFunction empty = () -> {};
     IVoidFunction openDialog2 =
@@ -160,7 +161,7 @@ public class Room_2_Generator extends TaskRoomGenerator {
                 getNextUncompletedTask()
                     .ifPresentOrElse(
                         (t1) ->
-                            getNextUncompletedTaskIfName(TASK_NAMES[0])
+                            getNextUncompletedTaskByName(TASK_NAMES[0])
                                 .ifPresentOrElse(
                                     Task::solve,
                                     () -> OkDialog.showOkDialog(TEXT[9], "Lösung(en):", empty)),
@@ -176,7 +177,7 @@ public class Room_2_Generator extends TaskRoomGenerator {
                 getNextUncompletedTask()
                     .ifPresentOrElse(
                         (t1) ->
-                            getNextUncompletedTaskIfName(TASK_NAMES[1])
+                            getNextUncompletedTaskByName(TASK_NAMES[1])
                                 .ifPresentOrElse(
                                     Task::solve,
                                     () -> OkDialog.showOkDialog(TEXT[9], "Lösung(en):", empty)),
@@ -192,7 +193,7 @@ public class Room_2_Generator extends TaskRoomGenerator {
                 getNextUncompletedTask()
                     .ifPresentOrElse(
                         (t1) ->
-                            getNextUncompletedTaskIfName(TASK_NAMES[2])
+                            getNextUncompletedTaskByName(TASK_NAMES[2])
                                 .ifPresentOrElse(
                                     Task::solve,
                                     () -> OkDialog.showOkDialog(TEXT[9], "Lösung(en):", empty)),
@@ -211,7 +212,7 @@ public class Room_2_Generator extends TaskRoomGenerator {
     // open or close all chests, depending on the next uncompleted task with name...
     for (int i = 0; i < TASK_NAMES.length; i++) {
       final Entity chest = CHESTS[i];
-      getNextUncompletedTaskIfName(TASK_NAMES[i])
+      getNextUncompletedTaskByName(TASK_NAMES[i])
           .ifPresentOrElse(
               (t) ->
                   chest
