@@ -1,11 +1,13 @@
 package dsl.parser.ast;
 
+import dsl.error.ErrorListener;
 import java.util.ArrayList;
 
 public class Node {
   // used for running index to give every Node a unique identifier
   private static int _idx;
   private boolean hasErrorChild;
+  private ErrorListener.ErrorRecord errorRecord;
 
   /**
    * @return The unique index of this node
@@ -200,6 +202,14 @@ public class Node {
     return this.hasErrorChild;
   }
 
+  public ErrorListener.ErrorRecord getErrorRecord() {
+    return this.errorRecord;
+  }
+
+  public void setErrorRecord(ErrorListener.ErrorRecord errorRecord) {
+    this.errorRecord = errorRecord;
+  }
+
   /**
    * Implementation of visitor pattern with {@link AstVisitor}.
    *
@@ -211,4 +221,3 @@ public class Node {
     return visitor.visit(this);
   }
 }
-

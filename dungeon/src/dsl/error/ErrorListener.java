@@ -2,6 +2,7 @@ package dsl.error;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 import java.util.logging.Logger;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
@@ -10,6 +11,18 @@ import org.antlr.v4.runtime.dfa.DFA;
 public class ErrorListener extends BaseErrorListener {
   private static final Logger LOGGER = Logger.getLogger(ErrorListener.class.getName());
   public static ErrorListener INSTANCE = new ErrorListener();
+  private List<ErrorRecord> errors = new ArrayList<>();
+
+  public record ErrorRecord(
+      String msg,
+      Object offendingSymbol,
+      int line,
+      int charPositionInLine,
+      RecognitionException exception) {}
+
+  public List<ErrorRecord> getErrors() {
+    return errors;
+  }
 
   @Override
   public void syntaxError(
@@ -19,10 +32,17 @@ public class ErrorListener extends BaseErrorListener {
       int charPositionInLine,
       String msg,
       RecognitionException e) {
-    // DungeonDSLParser parser = (DungeonDSLParser) recognizer;
-    // Token currentToken = parser.getCurrentToken();
-    // String currentTokenText = currentToken.getText();
-    // var la1 = recognizer.getInputStream().LA(0);
+
+    if (e != null) {
+      var ctx = e.getCtx();
+      if (ctx != null) {
+        var ruleIdx = ctx.getRuleIndex();
+        String ruleName = recognizer.getRuleNames()[ruleIdx];
+      }
+    }
+
+    // get parent of offending symbol?
+    this.errors.add(new ErrorRecord(msg, offendingSymbol, line, charPositionInLine, e));
 
     String warning =
         String.format(
