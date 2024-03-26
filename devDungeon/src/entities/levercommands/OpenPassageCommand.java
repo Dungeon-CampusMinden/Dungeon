@@ -4,6 +4,7 @@ import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
+import systems.FogOfWarSystem;
 import utils.ICommand;
 
 public class OpenPassageCommand implements ICommand {
@@ -30,6 +31,8 @@ public class OpenPassageCommand implements ICommand {
           if (tile == null) return;
           this.originalTiles[x - this.topLeft.x][this.topLeft.y - y] = tile.levelElement();
           Game.currentLevel().changeTileElementType(tile, LevelElement.FLOOR);
+          Tile newTile = Game.currentLevel().tileAt(new Coordinate(x, y));
+          ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).updateTile(tile, newTile);
         }
       }
       this.isOpen = true;
@@ -45,6 +48,8 @@ public class OpenPassageCommand implements ICommand {
           if (tile == null) return;
           LevelElement oldElement = this.originalTiles[x - this.topLeft.x][this.topLeft.y - y];
           Game.currentLevel().changeTileElementType(tile, oldElement);
+          Tile newTile = Game.currentLevel().tileAt(new Coordinate(x, y));
+          ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).updateTile(tile, newTile);
         }
       }
       // Workaround to fix wall textures

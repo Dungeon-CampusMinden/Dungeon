@@ -7,6 +7,7 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -159,13 +160,12 @@ public class FogOfWarSystem extends System {
 
   private void darkenTile(Tile tile, int maxDistance, float scale, Point heroPos) {
     int newTint = this.getTintColor(tile.coordinate().toPoint(), maxDistance, scale, heroPos);
+    int orgTint = tile.tintColor();
+    int mixedTint = orgTint == -1 ? newTint : (orgTint & 0xFFFFFF00) | (newTint & 0x000000FF);
     if (!this.darkenedTiles.containsKey(tile)) {
-      int orgTint = tile.tintColor();
-      tile.tintColor(newTint);
       this.darkenedTiles.put(tile, orgTint);
-    } else {
-      tile.tintColor(newTint);
     }
+    tile.tintColor(mixedTint);
   }
 
   /**
@@ -262,6 +262,10 @@ public class FogOfWarSystem extends System {
     if (heroPos == null) return; // if hero is not present, don't update fog of war
 
     List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, MAX_VIEW_DISTANCE);
+    // Revert all darkened tiles back to light that are not in view
+    List<Tile> tilesOutsideView = new ArrayList<>(this.darkenedTiles.keySet());
+    tilesOutsideView.removeAll(allTilesInView);
+    this.revertTilesBackToLight(tilesOutsideView);
 
     List<Tile> visibleTiles = new ArrayList<>();
     visibleTiles.add(Game.tileAT(heroPos));
@@ -307,5 +311,23 @@ public class FogOfWarSystem extends System {
 
     // Reveal entities in the visible area
     this.revealHiddenEntities();
+  }
+
+  /**
+   * Updates the tile in the fog of war system.
+   *
+   * <p>This method updates the tile in the fog of war system. If the old tile is darkened, the tint
+   * color is transferred to the new tile. This happens after {@link
+   * core.level.elements.ILevel#changeTileElementType(Tile, LevelElement) changing the tile element
+   * type}.
+   *
+   * @param oldTile The old tile.
+   * @param newTile The new tile.
+   */
+  public void updateTile(Tile oldTile, Tile newTile) {
+    if (this.darkenedTiles.containsKey(oldTile)) {
+      int tint = this.darkenedTiles.remove(oldTile);
+      this.darkenedTiles.put(newTile, tint);
+    }
   }
 }
