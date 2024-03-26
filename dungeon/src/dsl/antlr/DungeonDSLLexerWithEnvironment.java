@@ -1,12 +1,10 @@
 package dsl.antlr;
 
 import dsl.semanticanalysis.environment.IEnvironment;
-import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import java.util.HashSet;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Lexer;
-
-import java.util.HashSet;
 
 public abstract class DungeonDSLLexerWithEnvironment extends Lexer {
   private IEnvironment environment;
@@ -21,9 +19,11 @@ public abstract class DungeonDSLLexerWithEnvironment extends Lexer {
     if (environment != null) {
       this.environment = environment;
 
-      // the built-in types are not registered in the typebuilder of the environment explicitly, because
+      // the built-in types are not registered in the typebuilder of the environment explicitly,
+      // because
       // they are not built.
-      // we need to put them in a separate HashSet; the globalScope of the environment will contain all built-in
+      // we need to put them in a separate HashSet; the globalScope of the environment will contain
+      // all built-in
       // types at this point
       this.globalTypeNames.clear();
       for (var symbol : environment.getGlobalScope().getSymbols()) {

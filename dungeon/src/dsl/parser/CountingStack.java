@@ -13,8 +13,10 @@ public class CountingStack<E> extends Stack<E> {
     public Counter(String name) {
       this.name = name;
     }
+
     private String name;
     private Integer count = 0;
+
     public void inc() {
       this.count++;
     }

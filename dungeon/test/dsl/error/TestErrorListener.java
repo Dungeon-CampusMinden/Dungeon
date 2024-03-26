@@ -619,7 +619,7 @@ public class TestErrorListener {
   @Test
   public void syncObj1() {
     String program =
-      """
+        """
       asdf_type obj1 {
       	val1: id,
       	val2
@@ -631,7 +631,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
       program
         definition
           object_def
@@ -696,7 +696,7 @@ public class TestErrorListener {
   @Test
   public void syncObj2() {
     String program =
-      """
+        """
       asdf_type { // broken, will sync to next object definition
       	val1: id,
       	val2
@@ -708,7 +708,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             object_def [EXCEPTION IN NODE]
@@ -758,7 +758,7 @@ public class TestErrorListener {
   @Test
   public void syncObj3() {
     String program =
-      """
+        """
       asdf_type obj1 {
       	val1: id,
       	val2: aggregate_val {
@@ -770,7 +770,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             object_def
@@ -864,7 +864,7 @@ public class TestErrorListener {
   @Test
   public void syncEnt1() {
     String program =
-      """
+        """
         entity_type type {
           comp1 {
         	  val1: id,
@@ -878,7 +878,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             entity_type_def
@@ -966,7 +966,7 @@ public class TestErrorListener {
   @Test
   public void syncEnt2() {
     String program =
-      """
+        """
         entity_type type {
           comp1 {
         	  val1: id,
@@ -984,7 +984,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             entity_type_def [EXCEPTION IN NODE]
@@ -1078,7 +1078,7 @@ public class TestErrorListener {
   @Test
   public void syncEnt3() {
     String program =
-      """
+        """
       entity_type type {
         comp1 // missing '{'
       	  val1: id,
@@ -1093,7 +1093,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             entity_type_def
@@ -1159,7 +1159,7 @@ public class TestErrorListener {
   @Test
   public void syncItem1() {
     String program =
-      """
+        """
         item_type type1 {
           display_name: "Ein Itemtyp",
           description: "Ja!",
@@ -1172,7 +1172,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             item_type_def
@@ -1252,7 +1252,7 @@ public class TestErrorListener {
   @Test
   public void syncItem2() {
     String program =
-      """
+        """
         item_type type {
           display_name: "Ein Itemtyp",
           description: (;lkj;a,,sdf), // sollte auf texture_path synchronisieren
@@ -1261,7 +1261,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             item_type_def
@@ -1350,7 +1350,7 @@ public class TestErrorListener {
   @Test
   public void syncFn1() {
     String program =
-      """
+        """
       fn test ( { // missing ')', sync to next definition
 
       }
@@ -1361,7 +1361,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             fn_def [EXCEPTION IN NODE]
@@ -1409,7 +1409,7 @@ public class TestErrorListener {
   @Test
   public void syncFn2() {
     String program =
-      """
+        """
       fn test (int) { // wrong parameter definition, sync to next definition
 
       }
@@ -1420,7 +1420,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             fn_def
@@ -1474,7 +1474,7 @@ public class TestErrorListener {
   @Test
   public void syncFn3() {
     String program =
-      """
+        """
       fn test (int x, int, int) { // wrong parameter declaration, sync to next definition
 
       }
@@ -1485,7 +1485,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             fn_def
@@ -1549,7 +1549,7 @@ public class TestErrorListener {
   @Test
   public void syncFn4() {
     String program =
-      """
+        """
       fn test (int x, int y, int z) {
       	println(x+); // sync to next statement
       	println();
@@ -1557,7 +1557,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             fn_def
@@ -1645,7 +1645,7 @@ public class TestErrorListener {
   @Test
   public void syncFn5() {
     String program =
-      """
+        """
         fn test (int x, int y, int z) {
         	var x = ((x+y)*z)); // extraneous ')', sync to next statement
         	println();
@@ -1653,7 +1653,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             fn_def
@@ -1725,7 +1725,7 @@ public class TestErrorListener {
   @Test
   public void syncFn6() {
     String program =
-      """
+        """
         fn test (int x, int y, int z) {
         	var x = y;
         	println();
@@ -1737,7 +1737,7 @@ public class TestErrorListener {
       """;
 
     String expectedTree =
-      """
+        """
         program
           definition
             fn_def

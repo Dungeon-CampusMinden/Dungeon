@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -64,7 +63,8 @@ public class Helpers {
    * @param parseTree the parser tree to convert
    * @return the AST for the parse tree
    */
-  public static Node convertToAST(DungeonDSLParser.ProgramContext parseTree, List<String> parserRuleNames) {
+  public static Node convertToAST(
+      DungeonDSLParser.ProgramContext parseTree, List<String> parserRuleNames) {
     DungeonASTConverter converter = new DungeonASTConverter(parserRuleNames);
     return converter.walk(parseTree);
   }

@@ -11,6 +11,7 @@ public class TreeUtils {
 
   /** Platform dependent end-of-line marker */
   public static final String Eol = System.lineSeparator();
+
   private static final String terminalPrefix = "$";
 
   /** The literal indent char(s) used for pretty-printing */

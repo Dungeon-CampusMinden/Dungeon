@@ -640,7 +640,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     var parser = new DungeonDSLParser(tokenStream, environment);
     var programParseTree = parser.program();
 
-    DungeonASTConverter astConverter = new DungeonASTConverter(Arrays.stream(parser.getRuleNames()).toList());
+    DungeonASTConverter astConverter =
+        new DungeonASTConverter(Arrays.stream(parser.getRuleNames()).toList());
     var programAST = astConverter.walk(programParseTree);
 
     SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();

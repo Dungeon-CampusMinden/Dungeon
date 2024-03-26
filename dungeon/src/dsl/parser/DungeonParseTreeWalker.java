@@ -10,7 +10,7 @@ public class DungeonParseTreeWalker extends ParseTreeWalker {
 
   @Override
   protected void exitRule(ParseTreeListener listener, RuleNode r) {
-    ParserRuleContext ctx = (ParserRuleContext)r.getRuleContext();
+    ParserRuleContext ctx = (ParserRuleContext) r.getRuleContext();
     boolean specificExit = true;
     if (listener instanceof DungeonASTConverter astConverter) {
       specificExit = astConverter.preExitEveryRule(ctx);
