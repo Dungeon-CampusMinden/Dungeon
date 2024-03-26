@@ -11,10 +11,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import level.devlevel.DamagedBridgeRiddleLevel;
-import level.devlevel.IllusionRiddleLevel;
-import level.devlevel.TorchRiddleLevel;
-import level.devlevel.TutorialLevel;
+import level.devlevel.*;
 import level.utils.MissingLevelException;
 import starter.DevDungeon;
 
@@ -206,6 +203,7 @@ public class DevDungeonLevel extends TileLevel {
       case "torchriddle" -> new TorchRiddleLevel(layout, designLabel, customPoints);
       case "damagedbridge" -> new DamagedBridgeRiddleLevel(layout, designLabel, customPoints);
       case "illusionriddle" -> new IllusionRiddleLevel(layout, designLabel, customPoints);
+      case "bridgegoblin" -> new BridgeGoblinRiddleLevel(layout, designLabel, customPoints);
       default ->
           throw new IllegalArgumentException("Invalid level name for levelHandler: " + levelName);
     };
