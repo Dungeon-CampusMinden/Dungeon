@@ -212,6 +212,18 @@ public class EntityUtils {
   }
 
   /**
+   * Spawns a mob spawner at the given position and adds it to the game. The mob spawner is created
+   * using the {@link entities.MobSpawnerFactory MobSpawnerFactory} class and is then added to the
+   * game.
+   */
+  public static Entity spawnMobSpawner(
+      Coordinate pos, MonsterType[] monsterTypes, int maxMobCount) {
+    Entity mobSpawner = entities.MobSpawnerFactory.createMobSpawner(pos, monsterTypes, maxMobCount);
+    Game.add(mobSpawner);
+    return mobSpawner;
+  }
+
+  /**
    * This method is used to spawn a specified number of monsters in the game at random positions.
    * Plus a boss monster.
    *

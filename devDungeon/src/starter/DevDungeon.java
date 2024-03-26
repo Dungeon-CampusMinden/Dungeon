@@ -128,6 +128,7 @@ public class DevDungeon {
     Game.add(EventScheduler.getInstance());
     Game.add(new FogOfWarSystem());
     Game.add(new LeverSystem());
+    Game.add(new MobSpawnerSystem());
     Game.add(
         new System() {
           @Override
