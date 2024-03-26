@@ -24,8 +24,8 @@ import core.utils.components.path.SimpleIPath;
  */
 public class MobSpawnerFactory {
 
-  private static final int MIN_SPAWN_DELAY = 1000;
-  private static final int MAX_SPAWN_DELAY = 15000;
+  private static final int MIN_SPAWN_DELAY = 5000;
+  private static final int MAX_SPAWN_DELAY = 20000;
   private static final int MIN_SPAWN_RADIUS = 0;
   private static final int MAX_SPAWN_RADIUS = 5;
 
