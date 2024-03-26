@@ -139,8 +139,8 @@ ret_type_def
     ;
 
 param_def
-    : type_id=type_decl param_id=id
-    | type_decl                     {notifyErrorListeners("Missing identifier in parameter definition");}
+    : type_id=type_decl param_id=id                                                                         #param_def_correct
+    | type_decl                       {notifyErrorListeners("Missing identifier in parameter definition");} #param_def_error
     //| ID                            {notifyErrorListeners("Missing type specification in parameter definition");}
     ;
 
@@ -201,8 +201,8 @@ property_def_list
         ;
 
 property_def
-        : id COLON expression
-        | ID COLON                {notifyErrorListeners("Missing expression in property definition");}
+        : id COLON expression                                                                           #property_def_correct
+        | ID COLON                {notifyErrorListeners("Missing expression in property definition");}  #property_def_error
         ;
 
 expression_list

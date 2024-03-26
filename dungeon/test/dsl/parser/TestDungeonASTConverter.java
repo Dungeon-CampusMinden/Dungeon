@@ -8,6 +8,8 @@ import dsl.interpreter.TestEnvironment;
 import dsl.parser.ast.*;
 import graph.taskdependencygraph.TaskEdge;
 import java.util.List;
+
+import org.antlr.v4.runtime.CommonToken;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,7 +25,11 @@ public class TestDungeonASTConverter {
   public void testSimpleDotDef() {
     String program = "graph g { a -> b }";
 
-    var ast = Helpers.getASTFromString(program);
+    TestEnvironment env = new TestEnvironment();
+    String tree = Helpers.getPrettyPrintedParseTree(program, env);
+    System.out.println(tree);
+
+    var ast = Helpers.getASTFromString(program, env);
 
     var dot_def = ast.getChild(0);
     assertEquals(dot_def.type, Node.Type.DotDefinition);
@@ -1205,13 +1211,13 @@ public class TestDungeonASTConverter {
   @Test
   public void testEqualityWithMemberAccess() {
     String program =
-      """
+        """
           fn test() {
               x.y.z == u.v.w;
           }
           """;
 
-    var ast = Helpers.getASTFromString(program);
+    var ast = DungeonASTConverter.getProgramAST(program, env);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
@@ -1243,14 +1249,14 @@ public class TestDungeonASTConverter {
   }
 
   @Test
-  public void testErrorNode() {
+  public void testErrorNodeComplex() {
     String program =
         """
         graph name {
           // statement bound
-            task1_a -> ; // missing rhs
+            task1_a -> ;// missing rhs and missing semicolon
 
-            -> task2_2_a [type=c_f]; // missing lhs; sync auf nächste übergeordnete Struktur
+            -> task2_2_a [type=c_f]; // missing lhs; sync auf nächstes statement
             task3 -> task4 [type=c_f];
         }
 
@@ -1261,7 +1267,7 @@ public class TestDungeonASTConverter {
 
     // FYI, this is the parsetree
     String expectedTree =
-      """
+        """
         program
           definition
             dot_def graph
@@ -1298,6 +1304,179 @@ public class TestDungeonASTConverter {
     String parseTree = Helpers.getPrettyPrintedParseTree(program, env, false);
     System.out.println(parseTree);
 
-    var ast = Helpers.getASTFromString(program, env);
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+  }
+
+  @Test
+  public void testErrorNodeSimpleNoExceptionInRuleNode() {
+    String program =
+        """
+      graph name {
+        // statement bound
+          task1_a -> // missing rhs and missing semicolon
+
+          -> task2_2_a [type=c_f]; // missing lhs; sync auf nächstes statement
+          task3 -> task4 [type=c_f];
+      }
+      """;
+
+    // FYI, this is the parsetree
+    String expectedTree =
+        """
+        program
+          definition
+            dot_def graph
+              id name
+              {
+              dot_stmt_list
+                dot_stmt
+                  dot_edge_stmt
+                    dot_node_list
+                      id task1_a
+                    dot_edge_RHS ->
+                      dot_node_list
+                        id
+                          ->[ERROR_NODE]task2_2_a
+                    dot_attr_list [
+                      dot_attr
+                        id type
+                        =
+                        id
+                          dependency_type c_f
+                      ]
+                  ;
+                dot_stmt
+                  dot_edge_stmt
+                    dot_node_list
+                      id task3
+                    dot_edge_RHS ->
+                      dot_node_list
+                        id task4
+                    dot_attr_list [
+                      dot_attr
+                        id type
+                        =
+                        id
+                          dependency_type c_f
+                      ]
+                  ;
+              }
+          <EOF>
+    """;
+    var env = new TestEnvironment();
+    env.addMockTypeName("asdf_type");
+
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, false);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+  }
+
+  @Test
+  public void testErrorNodeSimple() {
+    String program =
+        """
+      graph name {
+          task1_a -> (; // missing rhs
+      }
+      """;
+
+    // FYI, this is the parsetree
+    String expectedTree =
+        """
+        program
+          definition
+            dot_def graph
+              id name
+              {
+              dot_stmt_list
+                dot_stmt
+                  dot_edge_stmt
+                    dot_node_list
+                      id task1_a
+                    dot_edge_RHS ->
+                      dot_node_list
+                        id[EXCEPTION IN NODE]
+                  ;
+              }
+          <EOF>
+    """;
+    var env = new TestEnvironment();
+    env.addMockTypeName("asdf_type");
+
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, false);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+  }
+
+  @Test
+  public void testErrorAlternativeParamDef() {
+    String program = """
+      fn test (int x, int, int) {
+      }
+      """;
+
+    var env = new TestEnvironment();
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, false);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+    var parameterDefNodes = ((FuncDefNode)ast.getChild(0)).getParameters();
+
+    var secondParamDef = parameterDefNodes.get(1);
+    Assert.assertTrue(secondParamDef.hasErrorChild());
+    var typeId = secondParamDef.getChild(0);
+    assertEquals(Node.Type.Identifier, typeId.type);
+    var typeIdNode = (IdNode)typeId;
+    assertEquals("int", typeIdNode.getName());
+    var offendingSymbol = secondParamDef.getChild(1);
+    assertEquals(Node.Type.ErrorNode, offendingSymbol.type);
+    var errorRecord = offendingSymbol.getErrorRecord();
+    assertEquals(1, errorRecord.line());
+    assertEquals(19, errorRecord.charPositionInLine());
+    assertEquals(",", ((CommonToken)errorRecord.offendingSymbol()).getText());
+
+    var thirdParamDef = parameterDefNodes.get(2);
+    Assert.assertTrue(thirdParamDef.hasErrorChild());
+    typeId = thirdParamDef.getChild(0);
+    assertEquals(Node.Type.Identifier, typeId.type);
+    typeIdNode = (IdNode)typeId;
+    assertEquals("int", typeIdNode.getName());
+    offendingSymbol = thirdParamDef.getChild(1);
+    assertEquals(Node.Type.ErrorNode, offendingSymbol.type);
+    errorRecord = offendingSymbol.getErrorRecord();
+    assertEquals(1, errorRecord.line());
+    assertEquals(24, errorRecord.charPositionInLine());
+    assertEquals(")", ((CommonToken)errorRecord.offendingSymbol()).getText());
+  }
+
+  @Test
+  public void testErrorAlternativePropertyDef() {
+    String program = """
+      asdf_type obj1 {
+        val1: ,
+        val2: id
+      }
+      """;
+
+    var env = new TestEnvironment();
+    env.addMockTypeName("asdf_type");
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, false);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+    var propertyDefinitionNodes = ((ObjectDefNode)ast.getChild(0)).getPropertyDefinitions();
+    var firstPropertyDefinition = propertyDefinitionNodes.get(0);
+    Assert.assertTrue(firstPropertyDefinition.hasErrorChild());
+    var id = firstPropertyDefinition.getChild(0);
+    Assert.assertEquals(Node.Type.Identifier, id.type);
+    var idNode = (IdNode)id;
+    Assert.assertEquals("val1", idNode.getName());
+    var offendingSymbol = firstPropertyDefinition.getChild(1);
+    Assert.assertEquals(Node.Type.ErrorNode, offendingSymbol.type);
+    var errorRecord = offendingSymbol.getErrorRecord();
+    Assert.assertEquals(2, errorRecord.line());
+    Assert.assertEquals(8, errorRecord.charPositionInLine());
   }
 }
