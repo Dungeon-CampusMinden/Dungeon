@@ -89,7 +89,8 @@ public class DevDungeonRoom {
     for (int i = 0; i < mobSpawns.length; i++) {
       mobs[i] =
           EntityUtils.spawnMonster(
-              IllusionRiddleLevel.MONSTER_TYPES[i % IllusionRiddleLevel.MONSTER_TYPES.length],
+              IllusionRiddleLevel.MONSTER_TYPES[
+                  (int) (Math.random() * IllusionRiddleLevel.MONSTER_TYPES.length)],
               mobSpawns[i]);
       if (mobs[i] != null)
         mobs[i]
@@ -160,8 +161,8 @@ public class DevDungeonRoom {
   public boolean equals(Object other) {
     if (this == other) return true;
     if (other == null || this.getClass() != other.getClass()) return false;
-    DevDungeonRoom that = (DevDungeonRoom) other;
-    return this.topLeft.equals(that.topLeft) && this.bottomRight.equals(that.bottomRight);
+    DevDungeonRoom otherRoom = (DevDungeonRoom) other;
+    return this.topLeft.equals(otherRoom.topLeft) && this.bottomRight.equals(otherRoom.bottomRight);
   }
 
   /**
