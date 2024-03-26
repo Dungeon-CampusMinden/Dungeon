@@ -13,8 +13,6 @@ import core.Game;
 import core.System;
 import core.game.ECSManagment;
 import core.level.Tile;
-import core.level.elements.tile.PitTile;
-import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
@@ -153,24 +151,7 @@ public class DevDungeon {
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
               Tile tile = LevelSystem.level().tileAt(mosPos);
               if (tile != null) {
-                java.lang.System.out.println(
-                    "Tile - Coords: "
-                        + tile.coordinate()
-                        + " Accessible: "
-                        + tile.isAccessible()
-                        + " CanSeeThrough: "
-                        + tile.canSeeThrough()
-                        + " Texture: "
-                        + tile.texturePath()
-                        + " LevelElement: "
-                        + tile.levelElement());
-                if (tile.levelElement() == LevelElement.PIT) {
-                  java.lang.System.out.println(
-                      "Pit - "
-                          + ((PitTile) tile).timeToOpen()
-                          + " isOpen: "
-                          + ((PitTile) tile).isOpen());
-                }
+                java.lang.System.out.println(tile);
               } else {
                 java.lang.System.out.println("Tile - null");
               }

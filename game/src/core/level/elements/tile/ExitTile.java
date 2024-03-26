@@ -60,4 +60,11 @@ public class ExitTile extends Tile {
   public boolean isOpen() {
     return open;
   }
+
+  @Override
+  public String toString() {
+    String tileStr = super.toString();
+    tileStr = tileStr.replace("Tile", "ExitTile").replace("}", "");
+    return tileStr + ", open=" + this.open + "}";
+  }
 }

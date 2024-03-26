@@ -238,11 +238,6 @@ public abstract class Tile {
     return levelElement.value();
   }
 
-  @Override
-  public String toString() {
-    return "Tile{" + "globalPosition=" + globalPosition + ", friction=" + friction + '}';
-  }
-
   /**
    * Checks if the player can see through this tile. This depends on the level element of the tile.
    * Some level elements may be transparent or just a pit. Others may be walls or closed doors.
@@ -290,6 +285,26 @@ public abstract class Tile {
    */
   public int tintColor() {
     return tintColor;
+  }
+
+  @Override
+  public String toString() {
+    return "Tile{"
+        + "globalPosition="
+        + this.globalPosition
+        + ", friction="
+        + this.friction
+        + ", designLabel="
+        + this.designLabel
+        + ", texturePath="
+        + this.texturePath.pathString()
+        + ", levelElement="
+        + this.levelElement
+        + ", visible="
+        + this.visible
+        + ", tintColor="
+        + this.tintColor
+        + '}';
   }
 
   @DSLType(name = "tile_direction")

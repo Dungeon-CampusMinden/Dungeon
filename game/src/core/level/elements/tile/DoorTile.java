@@ -116,4 +116,22 @@ public class DoorTile extends Tile {
     if (open && (otherDoor == null || otherDoor.isOpen())) return texturePath;
     else return closedTexturePath;
   }
+
+  @Override
+  public String toString() {
+    String tileStr = super.toString();
+    tileStr = tileStr.replace("Tile", "DoorTile").replace("}", "");
+    String doorStepStr = this.doorstep == null ? "null" : this.doorstep.coordinate().toString();
+    String otherDoorStr = this.otherDoor == null ? "null" : this.otherDoor.coordinate().toString();
+    return tileStr
+        + ", closedTexturePath="
+        + this.closedTexturePath.pathString()
+        + ", open="
+        + this.open
+        + ", Doorstep="
+        + doorStepStr
+        + ", OtherDoor="
+        + otherDoorStr
+        + "}";
+  }
 }

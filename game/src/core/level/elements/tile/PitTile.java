@@ -92,4 +92,11 @@ public class PitTile extends Tile {
   public long timeToOpen() {
     return this.timeToOpen;
   }
+
+  @Override
+  public String toString() {
+    String tileStr = super.toString();
+    tileStr = tileStr.replace("Tile", "PitTile").replace("}", "");
+    return tileStr + ", open: " + this.open + ", timeToOpen: " + this.timeToOpen + "}";
+  }
 }
