@@ -8,7 +8,7 @@ import core.level.utils.Coordinate;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.SignFactory;
+import entities.DialogFactory;
 import java.util.List;
 import level.utils.ITickable;
 import utils.EntityUtils;
@@ -82,7 +82,7 @@ public class IllusionRiddleHandler implements ITickable {
   }
 
   private void giveReward() {
-    SignFactory.showTextPopup(
+    DialogFactory.showTextPopup(
         "You will receive enhanced perception \nas a reward for running " + LAP_REWARD + " laps!",
         "Run " + LAP_REWARD + " Laps");
     CameraSystem.camera().zoom += 0.1f;

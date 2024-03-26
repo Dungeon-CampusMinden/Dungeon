@@ -11,13 +11,17 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.BiConsumer;
+import task.Task;
+import task.game.hud.QuizUI;
+import task.game.hud.UIAnswerCallback;
+import task.tasktype.Quiz;
 
-/**
- * The SignFactory class is responsible for creating sign entities in the game. It defines the
- * default interaction radius and the texture for the sign.
- */
-public class SignFactory {
+/** The DialogFactory class is responsible for creating sign, popup and dialog entities. */
+public class DialogFactory {
 
   private static final float DEFAULT_INTERACTION_RADIUS = 2.5f;
   private static final Animation SIGN_TEXTURE =
@@ -82,5 +86,71 @@ public class SignFactory {
     title = title.replaceAll("\\s+", " ").trim();
     text = text.replaceAll("\\s+", " ").trim();
     return OkDialog.showOkDialog(text, title, () -> {});
+  }
+
+  /**
+   * Creates a bridge goblin entity with a list of quizzes.
+   *
+   * @param quizzes The list of quizzes.
+   * @param onFinished The function to execute when all quizzes have been solved.
+   * @return The created bridge goblin entity.
+   * @see level.devlevel.riddleHandler.BridgeGoblinRiddleHandler BridgeGoblinRiddleHandler
+   */
+  public static Entity createBridgeGoblin(List<Quiz> quizzes, IVoidFunction onFinished) {
+    Entity bridgeGoblin;
+    try {
+      bridgeGoblin = MonsterType.BRIDGE_GOBLIN.buildMonster();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to create bridge goblin");
+    }
+
+    bridgeGoblin.add(
+        new InteractionComponent(
+            DEFAULT_INTERACTION_RADIUS,
+            true,
+            (me, who) -> {
+              Iterator<Quiz> quizIterator = quizzes.iterator();
+              presentQuiz(quizIterator, who, onFinished);
+            }));
+
+    return bridgeGoblin;
+  }
+
+  private static void presentQuiz(
+      Iterator<Quiz> quizIterator, Entity who, IVoidFunction onFinished) {
+    if (!quizIterator.hasNext()) {
+      // All quizzes have been correctly solved
+      onFinished.execute();
+      return;
+    }
+
+    Quiz quiz = quizIterator.next();
+    QuizUI.showQuizDialog(
+        quiz,
+        (Entity hudEntity) ->
+            UIAnswerCallback.uiCallback(
+                quiz,
+                hudEntity,
+                (task, taskContents) -> {
+                  task.gradeTask(taskContents);
+                  boolean correctAnswered = task.state() == Task.TaskState.FINISHED_CORRECT;
+                  String output = "You have ";
+                  if (correctAnswered) {
+                    output += "correctly ";
+                  } else {
+                    output += "incorrectly ";
+                  }
+                  output += "solved the task";
+
+                  OkDialog.showOkDialog(
+                      output,
+                      "Result",
+                      () -> {
+                        if (correctAnswered) {
+                          // If the answer is correct, present the next quiz
+                          presentQuiz(quizIterator, who, onFinished);
+                        }
+                      });
+                }));
   }
 }

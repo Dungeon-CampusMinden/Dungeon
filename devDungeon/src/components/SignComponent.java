@@ -4,13 +4,14 @@ import contrib.hud.dialogs.OkDialog;
 import core.Component;
 import core.Entity;
 import core.utils.Point;
+import entities.DialogFactory;
 import java.util.function.BiConsumer;
 
 /**
  * The SignComponent class implements the Component interface. It represents a sign in the game with
  * a title and text.
  *
- * @see entities.SignFactory#createSign(String, String, Point, BiConsumer) createSign
+ * @see DialogFactory#createSign(String, String, Point, BiConsumer) createSign
  */
 public class SignComponent implements Component {
   public static final String DEFAULT_TITLE = "Schild";

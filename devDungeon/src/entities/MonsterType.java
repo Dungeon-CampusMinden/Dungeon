@@ -190,6 +190,20 @@ public enum MonsterType {
       2 * Game.frameRate(),
       MonsterIdleSound.LOW_PITCH,
       0),
+  BRIDGE_GOBLIN(
+      "Bridge Goblin",
+      "character/monster/orc_warrior",
+      9999999, // immortal
+      0.0f,
+      0.0f,
+      MonsterDeathSound.LOWER_PITCH,
+      () -> entity -> {}, // no fight needed
+      () -> entity -> {}, // no idle needed
+      () -> entity -> false, // never transition
+      0,
+      500, // irrelevant
+      MonsterIdleSound.NONE,
+      0),
   ILLUSION_BOSS(
       "Illusion Boss",
       "character/monster/necromancer",

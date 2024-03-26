@@ -11,7 +11,7 @@ import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.BurningFireballSkill;
-import entities.SignFactory;
+import entities.DialogFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -48,7 +48,7 @@ public class TorchRiddleRiddleHandler implements ITickable {
     this.riddleCenter = customPoints.get(17);
 
     this.riddleSign =
-        SignFactory.createSign(
+        DialogFactory.createSign(
             "",
             "Riddle: The Torch Riddle",
             new Point(this.riddleDoor.x - 1 + 0.5f, this.riddleDoor.y - 1 + 0.5f),
@@ -122,7 +122,7 @@ public class TorchRiddleRiddleHandler implements ITickable {
    * the hero about the reward. The reward is only given once, controlled by the rewardGiven flag.
    */
   private void giveReward() {
-    SignFactory.showTextPopup(
+    DialogFactory.showTextPopup(
         "You will receive the new burning fireball skill\nas a reward for solving this puzzle!",
         "Riddle solved");
     BurningFireballSkill.UNLOCKED = true;

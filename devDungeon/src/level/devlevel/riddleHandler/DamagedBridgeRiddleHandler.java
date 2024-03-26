@@ -14,7 +14,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.utils.components.MissingComponentException;
-import entities.SignFactory;
+import entities.DialogFactory;
 import item.concreteItem.ItemPotionRegenerationPotion;
 import item.concreteItem.ItemPotionSpeedPotion;
 import java.util.List;
@@ -81,7 +81,7 @@ public class DamagedBridgeRiddleHandler implements ITickable {
   }
 
   private void giveReward() {
-    SignFactory.showTextPopup(
+    DialogFactory.showTextPopup(
         "You will receive "
             + RIDDLE_REWARD
             + " additional maximum health points \nas a reward for solving this puzzle!",

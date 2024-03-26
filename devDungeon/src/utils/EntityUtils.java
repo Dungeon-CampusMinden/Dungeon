@@ -12,8 +12,8 @@ import core.level.utils.Coordinate;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import entities.DialogFactory;
 import entities.MonsterType;
-import entities.SignFactory;
 import entities.TorchFactory;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -99,11 +99,11 @@ public class EntityUtils {
    * @param onInteract The action to perform when the sign is interacted with. (sign, whoTriggered)
    * @return The spawned sign entity.
    * @throws RuntimeException if an error occurs while spawning the sign.
-   * @see entities.SignFactory#createSign(String, String, Point, BiConsumer) createSign
+   * @see DialogFactory#createSign(String, String, Point, BiConsumer) createSign
    */
   public static Entity spawnSign(
       String text, String title, Point pos, BiConsumer<Entity, Entity> onInteract) {
-    Entity sign = SignFactory.createSign(text, title, pos, onInteract);
+    Entity sign = DialogFactory.createSign(text, title, pos, onInteract);
     Game.add(sign);
     return sign;
   }

@@ -19,8 +19,8 @@ import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import entities.DialogFactory;
 import entities.MonsterType;
-import entities.SignFactory;
 import java.util.List;
 import level.DevDungeonLevel;
 import level.utils.ITickable;
@@ -89,7 +89,7 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
     }
     this.setupCauldron(cauldron);
 
-    SignFactory.showTextPopup(
+    DialogFactory.showTextPopup(
         "Verwende WASD (oder RMB), um dich zu bewegen.", "Willkommen im DevDungeon!");
   }
 
@@ -102,15 +102,15 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
     if (heroTile == null) return;
 
     if (frontDoor.coordinate().equals(heroTile.coordinate())) {
-      SignFactory.showTextPopup("Mit Q (oder LMB) kannst du angreifen.", "Kampf");
+      DialogFactory.showTextPopup("Mit Q (oder LMB) kannst du angreifen.", "Kampf");
     } else if (mobDoor.coordinate().equals(heroTile.coordinate())) {
-      SignFactory.showTextPopup(
+      DialogFactory.showTextPopup(
           "Kommen wir zum Craften. Du findest im Verlauf des Spiels verschiedene Ressourcen,"
               + " die du in Tränke und andere nützliche Gegenstände verwandeln kannst. "
               + "Du kannst die Truhe und den Kessel mit E (oder LMB) öffnen. ",
           "Looting & Crafting");
     } else if (CraftingDoor.coordinate().equals(heroTile.coordinate())) {
-      SignFactory.showTextPopup(
+      DialogFactory.showTextPopup(
           "Im Dungeon findest immerwieder Hinternisse, Fallen und Rätsel."
               + "Versuche sie zu umgehen oder zu lösen.",
           "Rätsel");
