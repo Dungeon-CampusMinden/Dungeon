@@ -44,36 +44,17 @@ import task.game.content.QuestItem;
 @DSLType
 public abstract class Task {
 
+  public static final String DEFAULT_EXPLANATION = "No explanation provided";
   private static final Logger LOGGER = Logger.getLogger(Task.class.getName());
   private static final Logger SOL_LOGGER = Logger.getLogger("TaskSolutionLogger");
   private static final Set<Task> ALL_TASKS = new HashSet<>();
   private static final List<Task> SOLVED_TASK_IN_ORDER = new ArrayList<>();
   private static final String DEFAULT_TASK_TEXT = "No task description provided";
   private static final String DEFAULT_TASK_NAME = "No task name provided";
-  public static final String DEFAULT_EXPLANATION = "No explanation provided";
   private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
   private static final float DEFAULT_POINTS = 1f;
   private static final float DEFAULT_POINTS_TO_SOLVE = DEFAULT_POINTS;
   private static int _id = 0;
-  private final int id;
-  private final Set<Place> observer = new HashSet<>();
-  protected List<TaskContent> content;
-  protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
-  protected Function<Task, Set<TaskContent>> answerPickingFunction;
-  protected Function<? extends Task, Set<Set<Entity>>> scenarioBuilderFunction;
-  protected float points;
-  protected Set<TaskContent> container;
-  private TaskState state;
-  private String taskText;
-  private String scenarioText;
-  private String taskName;
-  private Entity managementEntity;
-  private Set<Set<Entity>> entitySets = new HashSet<>();
-  private float pointsToSolve;
-
-  private String explanation = DEFAULT_EXPLANATION;
-
-  private float achievedPoints;
 
   static {
     try {
@@ -90,6 +71,24 @@ public abstract class Task {
       e.printStackTrace();
     }
   }
+
+  private final int id;
+  private final Set<Place> observer = new HashSet<>();
+  protected List<TaskContent> content;
+  protected BiFunction<Task, Set<TaskContent>, Float> scoringFunction;
+  protected Function<Task, Set<TaskContent>> answerPickingFunction;
+  protected Function<? extends Task, Set<Set<Entity>>> scenarioBuilderFunction;
+  protected float points;
+  protected Set<TaskContent> container;
+  private TaskState state;
+  private String taskText;
+  private String scenarioText;
+  private String taskName;
+  private Entity managementEntity;
+  private Set<Set<Entity>> entitySets = new HashSet<>();
+  private float pointsToSolve;
+  private String explanation = DEFAULT_EXPLANATION;
+  private float achievedPoints;
 
   /**
    * Create a new Task with the {@link #DEFAULT_TASK_TEXT} in the {@link #DEFAULT_TASK_STATE}, with
@@ -319,13 +318,15 @@ public abstract class Task {
   }
 
   /**
-   * Add given element to the internal {@link #content} collection.
+   * Add given elements to the internal {@link #content} collection.
    *
-   * @param content element to add to the internal collection
+   * @param content elements to add to the internal collection
    */
-  public void addContent(final TaskContent content) {
-    content.task(this);
-    this.content.add(content);
+  public void addContent(final TaskContent... content) {
+    for (TaskContent c : content) {
+      c.task(this);
+      this.content.add(c);
+    }
   }
 
   /**

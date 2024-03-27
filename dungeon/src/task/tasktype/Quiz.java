@@ -52,6 +52,20 @@ public abstract class Quiz extends Task {
   }
 
   /**
+   * Create a new {@link Quiz} with the given configuration.
+   *
+   * <p>This will create a new {@link Content} instance as the question reference.
+   *
+   * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(Quiz.Content)} to add
+   * possible answers to the question.
+   *
+   * @param questionText The question itself (can contain a path to images).
+   */
+  public Quiz(String questionText) {
+    this(questionText, null);
+  }
+
+  /**
    * Mark an answer in the stored content as correct.
    *
    * @param index the index of the stored content
@@ -80,35 +94,25 @@ public abstract class Quiz extends Task {
   }
 
   /**
-   * Create a new {@link Quiz} with the given configuration.
-   *
-   * <p>This will create a new {@link Content} instance as the question reference.
-   *
-   * <p>The {@link Quiz} will not have any answers, use {@link #addAnswer(Quiz.Content)} to add
-   * possible answers to the question.
-   *
-   * @param questionText The question itself (can contain a path to images).
-   */
-  public Quiz(String questionText) {
-    this(questionText, null);
-  }
-
-  /**
-   * Add a {@link Content} answer instance as a possible answer for this question.
+   * Add a {@link Content} answers instance as a possible answer for this question.
    *
    * <p>If the answer has no task reference yet, the reference will be set to this task and the
    * answer will be added to this task's content. If the answer already has a task reference, the
    * answer will not be added to this task's content.
    *
-   * @param answer The answer (can contain a path to images).
+   * @param answers The answers (can contain a path to images).
    * @return true if the answer was added to this task's content, false if not.
    */
-  public boolean addAnswer(Quiz.Content answer) {
-    if (answer.task(this)) {
-      addContent(answer);
-      return true;
+  public boolean addAnswer(Quiz.Content... answers) {
+    boolean added = false;
+    for (Quiz.Content answer : answers) {
+      if (answer.task(this)) {
+        this.addContent(answer);
+      } else {
+        added = true;
+      }
     }
-    return false;
+    return added;
   }
 
   /**

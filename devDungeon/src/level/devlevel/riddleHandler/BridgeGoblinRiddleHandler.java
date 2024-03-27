@@ -37,18 +37,25 @@ public class BridgeGoblinRiddleHandler implements ITickable {
 
     this.riddles.add(new SingleChoice("What is the answer to life, the universe and everything?"));
     this.riddles.get(0).taskName("Bridge Goblin Riddle");
-    this.riddles.get(0).addAnswer(new Quiz.Content("42", null));
-    this.riddles.get(0).addAnswer(new Quiz.Content("43", null));
-    this.riddles.get(0).addAnswer(new Quiz.Content("44", null));
-    this.riddles.get(0).addAnswer(new Quiz.Content("45", null));
+    this.riddles
+        .get(0)
+        .addAnswer(
+            new Quiz.Content("42"),
+            new Quiz.Content("43"),
+            new Quiz.Content("44"),
+            new Quiz.Content("45"));
     this.riddles.get(0).addCorrectAnswerIndex(0);
 
     this.riddles.add(new SingleChoice("What is better than 42?"));
     this.riddles.get(1).taskName("Bridge Goblin Riddle");
-    this.riddles.get(1).addAnswer(new Quiz.Content("42", null));
-    this.riddles.get(1).addAnswer(new Quiz.Content("43", null));
-    this.riddles.get(1).addAnswer(new Quiz.Content("44", null));
-    this.riddles.get(1).addAnswer(new Quiz.Content("45", null));
+    this.riddles
+        .get(1)
+        .addAnswer(
+            new Quiz.Content("42"),
+            new Quiz.Content("43"),
+            new Quiz.Content("44"),
+            new Quiz.Content("45"));
+
     this.riddles.get(1).addCorrectAnswerIndex(1);
   }
 
