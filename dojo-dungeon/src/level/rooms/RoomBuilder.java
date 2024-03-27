@@ -109,4 +109,8 @@ public class RoomBuilder {
   public Room buildRoom5() {
     return new Room5(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
+
+  public Room buildRoom6() {
+    return new Room6(levelRoom, gen, nextRoom, levelSize, designLabel);
+  }
 }
