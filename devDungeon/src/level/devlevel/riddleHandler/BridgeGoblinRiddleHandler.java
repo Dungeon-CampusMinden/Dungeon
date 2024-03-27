@@ -15,6 +15,8 @@ import core.level.TileLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
+import core.level.utils.LevelElement;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.DialogFactory;
 import item.concreteItem.ItemPotionAttackSpeedPotion;
@@ -70,7 +72,10 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
       this.handleFirstTick();
     }
 
-    if (LevelUtils.isHeroInArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1])) {
+    Point heroPos = EntityUtils.getHeroPosition();
+    if (LevelUtils.isHeroInArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1])
+        || this.level.tileAt(heroPos).equals(this.level.tileAt(this.riddleRoomEntrance))
+        || this.level.tileAt(heroPos).equals(this.level.tileAt(this.riddleRoomExit))) {
       LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
       ((DoorTile) this.level.tileAt(this.riddleRoomExit)).open();
 
@@ -97,7 +102,11 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
 
   private void prepareBridge() {
     this.level.tilesInArea(this.bridgePitsBounds[0], this.bridgePitsBounds[1]).stream()
-        .map(tile -> (PitTile) tile)
+        .map(
+            tile -> {
+              this.level.changeTileElementType(tile, LevelElement.PIT);
+              return (PitTile) this.level.tileAt(tile.coordinate());
+            })
         .forEach(PitTile::open);
 
     this.level.tilesInArea(this.bridgeBounds[0], this.bridgeBounds[1]).stream()

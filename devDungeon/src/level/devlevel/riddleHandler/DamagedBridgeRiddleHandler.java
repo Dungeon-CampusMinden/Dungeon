@@ -12,6 +12,7 @@ import core.level.TileLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.DialogFactory;
 import item.concreteItem.ItemPotionRegenerationPotion;
@@ -110,7 +111,10 @@ public class DamagedBridgeRiddleHandler implements ITickable {
     if (hero == null) {
       return true; // Only if hero died in a pit, he still should be able to see the riddle room
     }
-    return LevelUtils.isHeroInArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1]);
+    Point heroPos = EntityUtils.getHeroPosition();
+    return LevelUtils.isHeroInArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1])
+        || this.level.tileAt(heroPos).equals(this.riddleEntrance)
+        || this.level.tileAt(heroPos).equals(this.riddleExit);
   }
 
   private void handleFirstTick() {

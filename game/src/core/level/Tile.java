@@ -290,20 +290,20 @@ public abstract class Tile {
   @Override
   public String toString() {
     return "Tile{"
-        + "globalPosition="
-        + this.globalPosition
+        + "position="
+        + this.position()
         + ", friction="
-        + this.friction
+        + this.friction()
         + ", designLabel="
-        + this.designLabel
+        + this.designLabel()
         + ", texturePath="
-        + this.texturePath.pathString()
+        + this.texturePath().pathString()
         + ", levelElement="
-        + this.levelElement
+        + this.levelElement()
         + ", visible="
-        + this.visible
+        + this.visible()
         + ", tintColor="
-        + this.tintColor
+        + this.tintColor()
         + '}';
   }
 

@@ -74,6 +74,38 @@ public class TileTextureFactory {
         new LevelPart(elementType, element.designLabel(), elementLayout, element.coordinate()));
   }
 
+  /**
+   * Finds the texture path for a given level element and design label.
+   *
+   * @param levelElement The element to find the texture for
+   * @param designLabel The design label of the element
+   * @return The path to the texture
+   */
+  public static IPath findTexturePath(LevelElement levelElement, DesignLabel designLabel) {
+    String prefixPath = "dungeon/" + designLabel.name().toLowerCase() + "/";
+
+    String elementPath;
+    if (levelElement == LevelElement.SKIP) {
+      elementPath = "floor/empty";
+    } else if (levelElement == LevelElement.FLOOR) {
+      elementPath = "floor/floor_1";
+    } else if (levelElement == LevelElement.EXIT) {
+      elementPath = "floor/floor_ladder";
+    } else if (levelElement == LevelElement.HOLE) {
+      elementPath = "floor/floor_hole";
+    } else if (levelElement == LevelElement.PIT) {
+      elementPath = "floor/floor_damaged";
+    } else if (levelElement == LevelElement.DOOR) {
+      elementPath = "door/top";
+    } else if (levelElement == LevelElement.WALL) {
+      elementPath = "wall/wall_right";
+    } else {
+      elementPath = "floor/empty";
+    }
+
+    return new SimpleIPath(prefixPath + elementPath + ".png");
+  }
+
   private static IPath findTexturePathFloor(LevelPart levelPart) {
     if (levelPart.element() == LevelElement.SKIP) {
       return new SimpleIPath("floor/empty");

@@ -7,6 +7,7 @@ import core.level.elements.astar.TileConnection;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.level.utils.TileTextureFactory;
 import core.utils.components.path.IPath;
 
 /**
@@ -14,7 +15,7 @@ import core.utils.components.path.IPath;
  * closed. If it is open, the player can fall into it. If it is closed, the player can walk over it.
  */
 public class PitTile extends Tile {
-
+  private final IPath stillStableTexturePath;
   private boolean open;
   private long timeToOpen;
 
@@ -31,6 +32,8 @@ public class PitTile extends Tile {
     this.levelElement = LevelElement.PIT;
     this.open = true;
     this.timeToOpen = 0;
+    this.stillStableTexturePath =
+        TileTextureFactory.findTexturePath(LevelElement.FLOOR, this.designLabel());
   }
 
   @Override
@@ -91,6 +94,12 @@ public class PitTile extends Tile {
    */
   public long timeToOpen() {
     return this.timeToOpen;
+  }
+
+  @Override
+  public IPath texturePath() {
+    if (!this.isOpen() && this.timeToOpen > 60 * 1000) return this.stillStableTexturePath;
+    return super.texturePath();
   }
 
   @Override
