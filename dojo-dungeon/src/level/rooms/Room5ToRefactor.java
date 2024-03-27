@@ -15,63 +15,59 @@ import java.util.Set;
 import level.compiler.DojoCompiler;
 import level.tasks.Task;
 
-public class Room5 extends TaskRoom {
-  private final String FILENAME1 = "../dojo-dungeon/todo-assets/r5/Monster.java";
+public class Room5ToRefactor extends TaskRoom {
+  private final String title = "Title";
   private final String FILENAME2 = "../dojo-dungeon/todo-assets/r5/MyMonster.java";
-  private final String CLASS_NAME = "MyMonster";
-  private final String title = "Monster besiegen";
 
-  Room5(
-      LevelRoom levelRoom,
-      RoomGenerator gen,
-      Room nextRoom,
-      LevelSize levelSize,
-      DesignLabel designLabel) {
-    super(levelRoom, gen, nextRoom, levelSize, designLabel);
+  Room5ToRefactor(
+      LevelRoom a, RoomGenerator b, Room c, LevelSize d, DesignLabel e, IVoidFunction empty) {
+    super(a, b, c, d, e);
 
     try {
-      generate();
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to generate room 5: " + e.getMessage(), e);
+      ge();
+    } catch (IOException exc) {
+      throw new RuntimeException("Failed to generate something: " + exc.getMessage(), exc);
     }
   }
 
-  private void generate() throws IOException {
-    // Create task 1
-    IVoidFunction empty = () -> {};
+  private void ge() throws IOException {
+    // Create?
+    IVoidFunction f = () -> {};
     addTask(
         new Task(
                 this,
                 "task1",
-                empty,
+                f,
                 () ->
                     OkDialog.showOkDialog(
                         String.format(
                             "Implementiere die Datei %s, nach der Vorgabe in %s. Wenn das Monster besiegt ist, soll sich die Tür zum nächsten Raum öffnen.",
-                            FILENAME2, FILENAME1),
+                            "../dojo-dungeon/todo-assets/r5/MyMonster.java",
+                            "../dojo-dungeon/todo-assets/r5/Monster.java"),
                         title,
-                        empty),
+                        f),
                 (t1) -> {
                   DojoCompiler.TestResult results =
-                      new DojoCompiler(FILENAME2, CLASS_NAME).spawnMonsterToOpenTheDoor(this);
+                      new DojoCompiler("../dojo-dungeon/todo-assets/r5/MyMonster.java", "MyMonster")
+                          .spawnMonsterToOpenTheDoor(this);
                   if (results.passed()) {
                     OkDialog.showOkDialog(
                         "Ok! " + results.messages(),
                         title,
-                        () -> OkDialog.showOkDialog("Das Monster ist gespawnt!", title, empty));
+                        () -> OkDialog.showOkDialog("Das Monster ist gespawnt!", title, f));
                     return true;
                   }
-                  OkDialog.showOkDialog("Fehler: " + results.messages(), title, empty);
+                  OkDialog.showOkDialog("Fehler: " + results.messages(), title, f);
                   return false;
                 },
-                empty)
+                f)
             .setShouldOpenDoors(false));
 
-    // Create questioner
-    Entity questioner = new Entity();
-    questioner.add(new PositionComponent());
-    questioner.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
-    questioner.add(
+    // Create q?
+    Entity q = new Entity();
+    q.add(new PositionComponent());
+    q.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
+    q.add(
         new InteractionComponent(
             1,
             true,
@@ -86,10 +82,9 @@ public class Room5 extends TaskRoom {
                           }
                         },
                         () ->
-                            OkDialog.showOkDialog(
-                                "Das Monster ist bereits gespawnt!", title, empty))));
+                            OkDialog.showOkDialog("Das Monster ist bereits gespawnt!", title, f))));
 
-    // Add questioner to room
-    addRoomEntities(Set.of(questioner));
+    // Add q to r
+    addRoomEntities(Set.of(q));
   }
 }

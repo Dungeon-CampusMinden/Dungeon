@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -26,160 +27,219 @@ public class DojoCompiler {
 
   private final String fileName;
   private final String className;
+  private final List<String> messages = new ArrayList<>();
+  private String source;
+  private Class<?> cls;
+  private Method method1;
+  private Method method2;
 
   public DojoCompiler(String fileName, String className) {
     this.fileName = fileName;
     this.className = className;
   }
 
-  public boolean spawnMonsterToOpenTheDoor(Room currentRoom) throws Exception {
-    String source = getSource();
+  public TestResult spawnMonsterToOpenTheDoor(Room currentRoom) {
+    String testName = "spawnMonster";
 
-    Class<?> cls = compile(source);
-    System.out.println("cls = " + cls);
+    if (!testInternal1() || !testInternal2()) {
+      return new TestResult(testName, false, messages);
+    }
 
-    Method method = cls.getMethod("spawnMonster", DrawComponent.class, int.class, float.class);
-    System.out.println("method = " + method);
+    Method method;
+    try {
+      method = cls.getMethod("spawnMonster", DrawComponent.class, int.class, float.class);
+    } catch (NoSuchMethodException e) {
+      messages.add("method not found");
+      return new TestResult(testName, false, messages);
+    }
+    messages.add("method ok");
 
-    Object instance = cls.getConstructor(Room.class).newInstance(currentRoom);
-    System.out.println("instance = " + instance);
+    Object instance;
+    try {
+      instance = cls.getConstructor(Room.class).newInstance(currentRoom);
+    } catch (InstantiationException
+        | NoSuchMethodException
+        | InvocationTargetException
+        | IllegalAccessException e) {
+      messages.add("instance not found");
+      return new TestResult(testName, false, messages);
+    }
+    messages.add("instance ok");
 
-    Entity entity =
-        (Entity)
-            method.invoke(
-                instance, new DrawComponent(new SimpleIPath("character/blue_knight")), 10, 10.0f);
-    System.out.println("entity = " + entity);
+    Entity entity;
+    try {
+      entity =
+          (Entity)
+              method.invoke(
+                  instance,
+                  new DrawComponent(new SimpleIPath("character/monster/pumpkin_dude")),
+                  10,
+                  10.0f);
+    } catch (IllegalAccessException | IOException | InvocationTargetException e) {
+      messages.add("entity not found");
+      return new TestResult(testName, false, messages);
+    }
+    messages.add("entity ok");
 
     currentRoom.addEntityImmediately(entity);
 
-    return true;
+    // All ok.
+    return new TestResult(testName, true, messages);
   }
 
   public TestResult test1() {
     String testName = "test1";
-    try {
-      return test0(testName, getSource());
-    } catch (IOException e) {
-      return new TestResult(testName, false, List.of(e.getMessage()));
+    if (testInternal1()
+        && testInternal2()
+        && testInternal3()
+        && testInternal4()
+        && testInternal5()
+        && testInternal6()) {
+      return new TestResult(testName, true, messages);
     }
+    return new TestResult(testName, false, messages);
   }
 
   public TestResult test2() {
     String testName = "test2";
-    try {
-      return test0(testName, getSource().replace("10", "haha"));
-    } catch (IOException e) {
-      return new TestResult(testName, false, List.of(e.getMessage()));
+    if (testInternal1()
+        && testInternal1_2()
+        && testInternal2()
+        && testInternal3()
+        && testInternal4()
+        && testInternal5()
+        && testInternal6()) {
+      return new TestResult(testName, true, messages);
     }
+    return new TestResult(testName, false, messages);
   }
 
   public TestResult test3() {
     String testName = "test3";
-    try {
-      return test0_2(testName, getSource().replace("10", "haha"));
-    } catch (IOException e) {
-      return new TestResult(testName, false, List.of(e.getMessage()));
+    if (testInternal1()
+        && testInternal1_2()
+        && testInternal2()
+        && testInternal3()
+        && testInternal4()
+        && testInternal5()
+        && testInternal6()
+        && testInternal6_2()) {
+      return new TestResult(testName, true, messages);
     }
-  }
-
-  private TestResult test0(String testName, String source) {
-    List<String> messages = new ArrayList<>();
-    try {
-      Class<?> cls = compile(source);
-      messages.add("compile ok");
-
-      // --- Test 1 ---
-      boolean b1 = testMethod1(cls, messages);
-
-      // --- Test 2 ---
-      boolean b2 = testMethod2(cls, messages);
-
-      if (b1 && b2) {
-        // All tests passed! You're all set.
-        return new TestResult(testName, true, messages);
-      }
-
-    } catch (Exception e) {
-      messages.add(e.getMessage());
-    }
-
     return new TestResult(testName, false, messages);
   }
 
-  private TestResult test0_2(String testName, String source) {
-    List<String> messages = new ArrayList<>();
+  private boolean testInternal1() {
     try {
-      Class<?> cls = compile(source);
-      messages.add("compile ok");
-
-      // --- Test 1 ---
-      boolean b1 = testMethod1(cls, messages);
-
-      // --- Test 2 ---
-      boolean b2 = testMethod2(cls, messages);
-
-      // --- Test 3 ---
-      Pattern pattern = Pattern.compile("try.+catch", Pattern.DOTALL);
-      Matcher matcher = pattern.matcher(source);
-      boolean b3 = matcher.find();
-      if (b3) {
-        messages.add("try-catch ok");
-      } else {
-        messages.add("try-catch wrong");
-      }
-
-      if (b1 && b2 && b3) {
-        // All tests passed! You're all set.
-        return new TestResult(testName, true, messages);
-      }
-
-    } catch (Exception e) {
-      messages.add(e.getMessage());
+      source = getSource();
+    } catch (IOException ex) {
+      messages.add("source not ok");
+      return false;
     }
-
-    return new TestResult(testName, false, messages);
+    if (source == null || source.isEmpty()) {
+      messages.add("empty source");
+      return false;
+    }
+    messages.add("source ok");
+    return true;
   }
 
-  public static boolean testMethod1(Class<?> clsToTest, List<String> messages) throws Exception {
-    Method method1 = clsToTest.getDeclaredMethod("testExpectedOutput7", PrintWriter.class);
+  private boolean testInternal1_2() {
+    // --- Replace 10 with yuppie ---
+    source = source.replace("10", "yuppie");
+    messages.add("replace ok");
+    return true;
+  }
+
+  private boolean testInternal2() {
+    try {
+      cls = compile(source);
+    } catch (Exception ex) {
+      messages.add("compile not ok");
+      return false;
+    }
+    messages.add("compile ok");
+    return true;
+  }
+
+  private boolean testInternal3() {
+    try {
+      method1 = cls.getDeclaredMethod("testExpectedOutput7", PrintWriter.class);
+    } catch (NoSuchMethodException ex) {
+      messages.add("method1 not ok");
+      return false;
+    }
     messages.add("method1 ok");
+    return true;
+  }
 
+  private boolean testInternal4() {
     ByteArrayOutputStream buf1 = new ByteArrayOutputStream();
     try (PrintWriter writer = new PrintWriter(buf1, true)) {
-      method1.invoke(null, writer);
+      try {
+        method1.invoke(null, writer);
+      } catch (IllegalAccessException | InvocationTargetException ex) {
+        messages.add("invocation1 not ok");
+        return false;
+      }
       messages.add("invocation1 ok");
     }
 
     String actualOutput1 = buf1.toString(Charset.defaultCharset());
-    if (actualOutput1 != null && actualOutput1.contains("Die Summe ist: 7")) {
-      messages.add("output1 ok");
-      return true;
-    } else {
+    if (actualOutput1 == null || !actualOutput1.contains("Die Summe ist: 7")) {
       messages.add("output1 wrong: " + actualOutput1);
+      return false;
     }
+    messages.add("output1 ok");
 
-    return false;
+    return true;
   }
 
-  public static boolean testMethod2(Class<?> clsToTest, List<String> messages) throws Exception {
-    Method method2 = clsToTest.getDeclaredMethod("testExpectedOutput8", PrintWriter.class);
+  private boolean testInternal5() {
+    try {
+      method2 = cls.getDeclaredMethod("testExpectedOutput8", PrintWriter.class);
+    } catch (NoSuchMethodException ex) {
+      messages.add("method2 not ok");
+      return false;
+    }
     messages.add("method2 ok");
+    return true;
+  }
 
+  private boolean testInternal6() {
     ByteArrayOutputStream buf2 = new ByteArrayOutputStream();
     try (PrintWriter writer = new PrintWriter(buf2, true)) {
-      method2.invoke(null, writer);
+      try {
+        method2.invoke(null, writer);
+      } catch (IllegalAccessException | InvocationTargetException ex) {
+        messages.add("invocation2 not ok");
+        return false;
+      }
       messages.add("invocation2 ok");
     }
 
     String actualOutput2 = buf2.toString(Charset.defaultCharset());
-    if (actualOutput2 != null && actualOutput2.contains("Die dritte Zahl ist: 8")) {
-      messages.add("output2 ok");
-      return true;
-    } else {
+    if (actualOutput2 == null || !actualOutput2.contains("Die dritte Zahl ist: 8")) {
       messages.add("output2 wrong: " + actualOutput2);
+      return false;
+    }
+    messages.add("output2 ok");
+
+    return true;
+  }
+
+  private boolean testInternal6_2() {
+    Pattern pattern = Pattern.compile("try.+catch", Pattern.DOTALL);
+    Matcher matcher = pattern.matcher(source);
+    boolean b3 = matcher.find();
+    if (b3) {
+      messages.add("try-catch ok");
+    } else {
+      messages.add("try-catch not ok");
+      return false;
     }
 
-    return false;
+    return true;
   }
 
   private String getSource() throws IOException {
