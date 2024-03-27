@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import task.Task;
 import task.game.hud.QuizUI;
 import task.game.hud.UIAnswerCallback;
@@ -91,18 +92,23 @@ public class DialogFactory {
   /**
    * Creates a bridge goblin entity with a list of quizzes.
    *
+   * @param pos The position where the bridge goblin will be created.
    * @param quizzes The list of quizzes.
    * @param onFinished The function to execute when all quizzes have been solved.
    * @return The created bridge goblin entity.
    * @see level.devlevel.riddleHandler.BridgeGoblinRiddleHandler BridgeGoblinRiddleHandler
    */
-  public static Entity createBridgeGoblin(List<Quiz> quizzes, IVoidFunction onFinished) {
+  public static Entity createBridgeGoblin(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
     Entity bridgeGoblin;
     try {
       bridgeGoblin = MonsterType.BRIDGE_GOBLIN.buildMonster();
     } catch (IOException e) {
       throw new RuntimeException("Failed to create bridge goblin");
     }
+    bridgeGoblin
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(bridgeGoblin, PositionComponent.class))
+        .position(pos);
 
     bridgeGoblin.add(
         new InteractionComponent(
@@ -110,14 +116,22 @@ public class DialogFactory {
             true,
             (me, who) -> {
               Iterator<Quiz> quizIterator = quizzes.iterator();
-              presentQuiz(quizIterator, who, onFinished);
+              presentQuiz(quizIterator, onFinished);
             }));
 
     return bridgeGoblin;
   }
 
-  private static void presentQuiz(
-      Iterator<Quiz> quizIterator, Entity who, IVoidFunction onFinished) {
+  /**
+   * Presents a quiz to the player. If the player answers correctly, the next quiz is presented.
+   * Otherwise, the player is shown the correct answer. When all quizzes have been solved, the
+   * onFinished function is executed.
+   *
+   * @param quizIterator The iterator of quizzes to present.
+   * @param onFinished The function to execute when all quizzes have been solved.
+   * @see QuizUI#showQuizDialog(Quiz, Function) showQuizDialog
+   */
+  private static void presentQuiz(Iterator<Quiz> quizIterator, IVoidFunction onFinished) {
     if (!quizIterator.hasNext()) {
       // All quizzes have been correctly solved
       onFinished.execute();
@@ -148,7 +162,7 @@ public class DialogFactory {
                       () -> {
                         if (correctAnswered) {
                           // If the answer is correct, present the next quiz
-                          presentQuiz(quizIterator, who, onFinished);
+                          presentQuiz(quizIterator, onFinished);
                         }
                       });
                 }));

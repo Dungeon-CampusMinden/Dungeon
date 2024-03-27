@@ -22,6 +22,7 @@ import task.game.hud.QuizUI;
 import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.SingleChoice;
+import utils.EntityUtils;
 
 public class BridgeGoblinRiddleHandler implements ITickable {
 
@@ -55,7 +56,8 @@ public class BridgeGoblinRiddleHandler implements ITickable {
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       Entity t =
-          DialogFactory.createBridgeGoblin(
+          EntityUtils.spawnBridgeGoblin(
+              new Point(24, 58),
               this.riddles.subList(0, this.riddles.size() - 1),
               () -> {
                 QuizUI.showQuizDialog(
@@ -71,8 +73,6 @@ public class BridgeGoblinRiddleHandler implements ITickable {
                               OkDialog.showOkDialog(output, "Result", () -> {});
                             }));
               });
-      t.add(new PositionComponent(new Point(24, 58)));
-      Game.add(t);
       this.handleFirstTick();
     }
   }

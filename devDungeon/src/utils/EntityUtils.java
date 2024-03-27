@@ -9,6 +9,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
+import core.utils.IVoidFunction;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -22,6 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import level.devlevel.TorchRiddleLevel;
+import task.tasktype.Quiz;
 
 public class EntityUtils {
 
@@ -123,6 +125,23 @@ public class EntityUtils {
    */
   public static Entity spawnSign(String text, String title, Point pos) {
     return spawnSign(text, title, pos, (e, e2) -> {});
+  }
+
+  /**
+   * Spawns a bridge goblin at the given position and adds it to the game. The bridge goblin neutral
+   * NPC that gives the player a series of {@link task.tasktype.Quiz quizzes} to solve. The bridge
+   * goblin is created using the {@link entities.MonsterType#BRIDGE_GOBLIN BRIDGE_GOBLIN} monster
+   * type. The bridge goblin is then added to the game.
+   *
+   * @param pos The position where the bridge goblin should be spawned.
+   * @param quizzes The list of quizzes to give the player.
+   * @param onFinished The action to perform when all quizzes have been solved.
+   * @see DialogFactory#createBridgeGoblin(Point, List, IVoidFunction) createBridgeGoblin
+   */
+  public static Entity spawnBridgeGoblin(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
+    Entity bridgeGoblin = DialogFactory.createBridgeGoblin(pos, quizzes, onFinished);
+    Game.add(bridgeGoblin);
+    return bridgeGoblin;
   }
 
   /**
