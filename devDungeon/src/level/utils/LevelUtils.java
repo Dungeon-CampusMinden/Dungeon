@@ -1,9 +1,12 @@
 package level.utils;
 
+import core.Entity;
 import core.Game;
+import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Point;
+import core.utils.components.MissingComponentException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import level.DevDungeonLevel;
@@ -45,6 +48,30 @@ public class LevelUtils {
         && tile.coordinate().x <= bottomRight.x
         && tile.coordinate().y >= bottomRight.y
         && tile.coordinate().y <= topLeft.y;
+  }
+
+  /**
+   * Checks if the hero is in a given area.
+   *
+   * @param topLeft The top left coordinate of the area.
+   * @param bottomRight The bottom right coordinate of the area.
+   * @return true if the hero is in the area, false if not.
+   * @see #isTileWithinArea(Tile, Coordinate, Coordinate)
+   */
+  public static boolean isHeroInArea(Coordinate topLeft, Coordinate bottomRight) {
+    Entity hero = Game.hero().orElse(null);
+    if (hero == null) {
+      return false;
+    }
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    Tile heroTile = Game.currentLevel().tileAt(pc.position().toCoordinate());
+    if (heroTile == null) {
+      return false;
+    }
+
+    return LevelUtils.isTileWithinArea(heroTile, topLeft, bottomRight);
   }
 
   /**

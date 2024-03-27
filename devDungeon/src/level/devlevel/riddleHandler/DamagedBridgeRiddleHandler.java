@@ -8,7 +8,6 @@ import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
@@ -111,20 +110,7 @@ public class DamagedBridgeRiddleHandler implements ITickable {
     if (hero == null) {
       return true; // Only if hero died in a pit, he still should be able to see the riddle room
     }
-    PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Tile heroTile = this.level.tileAt(pc.position().toCoordinate());
-    if (heroTile == null) {
-      return false;
-    }
-
-    if (this.riddleEntrance.equals(heroTile) || this.riddleExit.equals(heroTile)) {
-      return true;
-    }
-
-    return LevelUtils.isTileWithinArea(
-        heroTile, this.riddleRoomBounds[0], this.riddleRoomBounds[1]);
+    return LevelUtils.isHeroInArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1]);
   }
 
   private void handleFirstTick() {
