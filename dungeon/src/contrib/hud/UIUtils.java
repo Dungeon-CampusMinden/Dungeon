@@ -64,30 +64,74 @@ public final class UIUtils {
   }
 
   /**
-   * Creates line breaks after a word once a certain character count is reached.
+   * This is a simple implementation of formatting a text with soft word wrap.
+   *
+   * <p>Characteristics:
+   *
+   * <ul>
+   *   <li>Every space character (i.e. {@code " "} or {@code "\n"}, etc.) that occurs at least once
+   *       should be replaced by exactly one space character.
+   *   <li>A line of text should not be longer than {@code MAX_ROW_LENGTH} (currently 40)
+   *       characters.
+   *   <li>Long words at the end of a line should be inserted into the next line (soft word wrap).
+   *   <li>The {@code '\n'} character should be used as the line separator.
+   *   <li>Lines should not be filled up entirely with spaces.
+   * </ul>
    *
    * @param string String which should be reformatted.
    */
   public static String formatString(final String string) {
-    StringBuilder formattedMsg = new StringBuilder();
-    String[] lines = string.split(System.lineSeparator());
-
-    for (String line : lines) {
-      String[] words = line.split(" ");
-      int sumLength = 0;
-
-      for (String word : words) {
-        sumLength += word.length();
-        formattedMsg.append(word);
-        formattedMsg.append(" ");
-
-        if (sumLength > MAX_ROW_LENGTH) {
-          formattedMsg.append(System.lineSeparator());
-          sumLength = 0;
-        }
-      }
-      formattedMsg.append(System.lineSeparator());
+    if (string == null) {
+      throw new IllegalArgumentException("string is null");
     }
-    return formattedMsg.toString().trim();
+
+    final int maxLen = MAX_ROW_LENGTH;
+    final boolean softWordWrap = true;
+
+    final StringBuilder result = new StringBuilder();
+    final char ls = '\n';
+    final String text = string.replaceAll("\\s+", " ");
+    final String[] words = text.split(" ");
+
+    int wordIndex = 0;
+    int lineIndex = 0;
+    while (wordIndex < words.length) {
+      final String word = words[wordIndex++];
+      final int before = result.length();
+      if (lineIndex + word.length() <= maxLen) {
+        // word will fit
+        result.append(word);
+      } else if (softWordWrap && word.length() <= maxLen) {
+        // do not split word
+        --wordIndex;
+        int len = maxLen - lineIndex;
+        lineIndex += len;
+      } else {
+        // split word (even if wordWrap == true)
+        int splitIndex = maxLen - lineIndex;
+        String newWord1 = word.substring(0, splitIndex);
+        String newWord2 = word.substring(splitIndex);
+        result.append(newWord1);
+        --wordIndex;
+        words[wordIndex] = newWord2;
+      }
+
+      if (wordIndex >= words.length) {
+        break;
+      }
+
+      lineIndex += result.length() - before;
+      if (lineIndex < maxLen) {
+        result.append(' ');
+        ++lineIndex;
+      }
+
+      if (lineIndex >= maxLen) {
+        result.append(ls);
+        lineIndex = 0;
+      }
+    }
+
+    return result.toString();
   }
 }
