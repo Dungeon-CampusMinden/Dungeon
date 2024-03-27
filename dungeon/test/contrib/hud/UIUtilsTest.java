@@ -5,12 +5,33 @@ import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
+/** This class tests the {@link UIUtils} class for expected behaviour. */
 public class UIUtilsTest {
+
+  /**
+   * Tests that {@link UIUtils#formatString(String)} returns an empty string for an empty string.
+   */
   @Test
-  public void formatTextWithLongText() {
-    String nearlyEmptyText = " ";
-    String nearlyEmptyTextExpected = "";
-    String longText =
+  public void formatTextWithEmptyText() {
+    String emptyText = "";
+    String emptyTextExpected = "";
+    assertEquals(emptyTextExpected, UIUtils.formatString(emptyText));
+  }
+
+  /** Tests that {@link UIUtils#formatString(String)} returns an empty string for a single space. */
+  @Test
+  public void formatTextWithOneSpace() {
+    String oneSpace = " ";
+    String oneSpaceExpected = "";
+    assertEquals(oneSpaceExpected, UIUtils.formatString(oneSpace));
+  }
+
+  /**
+   * Tests that {@link UIUtils#formatString(String)} returns the expected string for a regular text.
+   */
+  @Test
+  public void formatTextWithRegularText() {
+    String regularText =
         """
             Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum
             dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
@@ -19,7 +40,7 @@ public class UIUtilsTest {
 
             rebum.   \s
             """;
-    String longTextExpected_wrap =
+    String regularTextExpected =
         """
             Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
             iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
@@ -30,19 +51,23 @@ public class UIUtilsTest {
             sed diam voluptua. At vero eos et\s
             accusam et justo duo dolores et ea\s
             rebum.""";
-
-    assertEquals(nearlyEmptyTextExpected, UIUtils.formatString(nearlyEmptyText));
-    assertEquals(longTextExpected_wrap, UIUtils.formatString(longText));
+    assertEquals(regularTextExpected, UIUtils.formatString(regularText));
   }
 
+  /**
+   * Tests that {@link UIUtils#formatString(String)} returns the expected string for a short text.
+   */
   @Test
-  public void formatTextWithMediumText() {
-    String mediumText = "hallo";
-    String mediumTextExpected = "hallo";
+  public void formatTextWithShortText() {
+    String shortText = "hallo";
+    String shortTextExpected = "hallo";
 
-    assertEquals(mediumTextExpected, UIUtils.formatString(mediumText));
+    assertEquals(shortTextExpected, UIUtils.formatString(shortText));
   }
 
+  /**
+   * Tests that {@link UIUtils#formatString(String)} returns the expected string for a generic text.
+   */
   @Test
   public void formatTextWithShortGenericText() {
     int max = 40;
