@@ -11,11 +11,12 @@ import core.utils.components.MissingComponentException;
 import org.junit.Test;
 import testingUtils.SimpleCounter;
 
+/** Tests the CollisionComponent. */
 public class CollisionComponentTest {
 
   private static final double DELTA = 0.0001;
 
-  /** on enter no method given */
+  /** On enter no method given. */
   @Test
   public void onEnterNoMethod() {
     Entity e1 = new Entity();
@@ -27,7 +28,7 @@ public class CollisionComponentTest {
     hb1.onEnter(e1, e2, Tile.Direction.N);
   }
 
-  /** on enter method given */
+  /** On enter method given. */
   @Test
   public void onEnterCheckCall() {
     Entity e1 = new Entity();
@@ -51,7 +52,7 @@ public class CollisionComponentTest {
     assertEquals("Der Counter von Entität 2 Leave soll ", 0, counterE2Leave.getCount());
   }
 
-  /** on leave no method given */
+  /** On leave no method given. */
   @Test
   public void onLeaveNoMethod() {
     Entity e1 = new Entity();
@@ -64,7 +65,7 @@ public class CollisionComponentTest {
     hb1.onLeave(e1, e2, Tile.Direction.N);
   }
 
-  /** on leave method given */
+  /** On leave method given. */
   @Test
   public void onLeaveCheckCall() {
     Entity e1 = new Entity();
@@ -87,6 +88,7 @@ public class CollisionComponentTest {
     assertEquals("Der Counter von Entität 2 Leave soll ", 0, counterE2Leave.getCount());
   }
 
+  /** WTF? . */
   @Test
   public void setiCollideEnterNull() {
     Entity e1 = new Entity();
@@ -102,6 +104,7 @@ public class CollisionComponentTest {
         "Die alte Collide darf nicht mehr aufgerufen werden ", 0, counterE1Enter.getCount());
   }
 
+  /** WTF? . */
   @Test
   public void setiCollideEnterValidCollider() {
     Entity e1 = new Entity();
@@ -119,6 +122,7 @@ public class CollisionComponentTest {
     assertEquals("Die neue Collide muss aufgerufen werden ", 1, newCounterE1Enter.getCount());
   }
 
+  /** WTF? . */
   @Test
   public void setiCollideLeaveNull() {
     Entity e1 = new Entity();
@@ -134,6 +138,7 @@ public class CollisionComponentTest {
         "Die alte Collide darf nicht mehr aufgerufen werden ", 0, counterE1Enter.getCount());
   }
 
+  /** WTF? . */
   @Test
   public void setiCollideLeaveValidCollider() {
     Entity e1 = new Entity();
@@ -151,7 +156,7 @@ public class CollisionComponentTest {
     assertEquals("Die neue Collide muss aufgerufen werden ", 1, newCounterE1Leave.getCount());
   }
 
-  /** missing PositionComponent */
+  /** Missing PositionComponent. */
   @Test
   public void getCenterMissingPositionComponent() {
     Entity e = new Entity();
@@ -173,7 +178,7 @@ public class CollisionComponentTest {
      position(-.5, .5), offset(0, 0), size(2,2), result(.5, 1.5)
   */
 
-  /** check Center for position(0, 0), offset(0, 0), size( 1, 1), result(.5f, .5f) */
+  /** Check Center for position(0, 0), offset(0, 0), size( 1, 1), result(.5f, .5f). */
   @Test
   public void getCenterFirst() {
     Entity e = new Entity();
@@ -190,7 +195,7 @@ public class CollisionComponentTest {
     assertEquals(0.5f, center.y, DELTA);
   }
 
-  /** check Center for position(1, 1), offset(0, 0), size(1, 1), result(1.5f, 1.5f) */
+  /** Check Center for position(1, 1), offset(0, 0), size(1, 1), result(1.5f, 1.5f). */
   @Test
   public void getCenterSecond() {
     Entity e = new Entity();
@@ -207,7 +212,7 @@ public class CollisionComponentTest {
     assertEquals(1.5f, center.y, DELTA);
   }
 
-  /** check Center for position(-1, -1), offset(0, 0), size(1, 1), result(-.5f, -.5f) */
+  /** Check Center for position(-1, -1), offset(0, 0), size(1, 1), result(-.5f, -.5f). */
   @Test
   public void getCenterThird() {
     Entity e = new Entity();
@@ -224,7 +229,7 @@ public class CollisionComponentTest {
     assertEquals(-.5f, center.y, DELTA);
   }
 
-  /** check Center for position(.5f, .5f), offset(0, 0), size(1, 1), result(1, 1) */
+  /** Check Center for position(.5f, .5f), offset(0, 0), size(1, 1), result(1, 1). */
   @Test
   public void getCenterFourth() {
     Entity e = new Entity();
@@ -241,7 +246,7 @@ public class CollisionComponentTest {
     assertEquals(1, center.y, DELTA);
   }
 
-  /** check Center for position(.5f, .5f), offset(-1, -1), size(1, 1), result(0, 0) */
+  /** Check Center for position(.5f, .5f), offset(-1, -1), size(1, 1), result(0, 0). */
   @Test
   public void getCenterFifth() {
     Entity e = new Entity();
@@ -258,7 +263,7 @@ public class CollisionComponentTest {
     assertEquals(0, center.y, DELTA);
   }
 
-  /** check Center for position(-.5, .5), offset(0, 0), size(2,2), result(.5, 1.5) */
+  /** Check Center for position(-.5, .5), offset(0, 0), size(2,2), result(.5, 1.5). */
   @Test
   public void getCenterSixth() {
     Entity e = new Entity();
@@ -275,7 +280,7 @@ public class CollisionComponentTest {
     assertEquals(1.5, center.y, DELTA);
   }
 
-  /** Missing Position Component when calling getBottomLeft should throw an exception */
+  /** Missing Position Component when calling getBottomLeft should throw an exception. */
   @Test
   public void getTopRightMissingPosition() {
     Entity e = new Entity();
@@ -286,7 +291,7 @@ public class CollisionComponentTest {
     assertTrue(missingComponentException.getMessage().contains(PositionComponent.class.getName()));
   }
 
-  /** Position and offset stay in origin (0,0) */
+  /** Position and offset stay in origin (0,0). */
   @Test
   public void getTopRightOrigin() {
     Entity e = new Entity();
@@ -303,7 +308,7 @@ public class CollisionComponentTest {
     assertEquals(1, center.y, DELTA);
   }
 
-  /** Position and offset stay in origin (0,0) size changed to(2,2) */
+  /** Position and offset stay in origin (0,0) size changed to(2,2). */
   @Test
   public void getTopRightOriginSizeChange() {
     Entity e = new Entity();
@@ -320,7 +325,7 @@ public class CollisionComponentTest {
     assertEquals(2, center.y, DELTA);
   }
 
-  /** Position moved to (2,1) offset is still (0,0) */
+  /** Position moved to (2,1) offset is still (0,0). */
   @Test
   public void getTopRightPositionMoved() {
     Entity e = new Entity();
@@ -337,7 +342,7 @@ public class CollisionComponentTest {
     assertEquals(2, center.y, DELTA);
   }
 
-  /** Position in origin (0,0) and offset moved to (1,2) */
+  /** Position in origin (0,0) and offset moved to (1,2). */
   @Test
   public void getTopRightOriginOffsetMoved() {
     Entity e = new Entity();
@@ -354,7 +359,7 @@ public class CollisionComponentTest {
     assertEquals(3, center.y, DELTA);
   }
 
-  /** Position moved to (3,1) and offset moved to(2,4) */
+  /** Position moved to (3,1) and offset moved to(2,4). */
   @Test
   public void getTopRightPositionMovedOffsetMoved() {
     Entity e = new Entity();
@@ -371,7 +376,7 @@ public class CollisionComponentTest {
     assertEquals(6, center.y, DELTA);
   }
 
-  /** Position moved to (3,1) and offset moved to(2,4) size changed to (3,3) */
+  /** Position moved to (3,1) and offset moved to(2,4) size changed to (3,3). */
   @Test
   public void getTopRightPositionMovedOffsetMovedSizeIncrease() {
     Entity e = new Entity();
@@ -388,7 +393,7 @@ public class CollisionComponentTest {
     assertEquals(8, center.y, DELTA);
   }
 
-  /** Missing Position Component when calling getBottomLeft should throw an exception */
+  /** Missing Position Component when calling getBottomLeft should throw an exception. */
   @Test
   public void getBottomLeftMissingPosition() {
     Entity e = new Entity();
@@ -399,7 +404,7 @@ public class CollisionComponentTest {
     assertTrue(missingComponentException.getMessage().contains(PositionComponent.class.getName()));
   }
 
-  /** Position and offset stay in origin (0,0) */
+  /** Position and offset stay in origin (0,0). */
   @Test
   public void getBottomLeftOrigin() {
     Entity e = new Entity();
@@ -416,7 +421,7 @@ public class CollisionComponentTest {
     assertEquals(0, center.y, DELTA);
   }
 
-  /** Position moved to (2,1) offset is still (0,0) */
+  /** Position moved to (2,1) offset is still (0,0). */
   @Test
   public void getBottomLeftPositionMoved() {
     Entity e = new Entity();
@@ -433,7 +438,7 @@ public class CollisionComponentTest {
     assertEquals(1, center.y, DELTA);
   }
 
-  /** Position in origin (0,0) and offset moved to (1,2) */
+  /** Position in origin (0,0) and offset moved to (1,2). */
   @Test
   public void getBottomLeftOriginOffsetMoved() {
     Entity e = new Entity();
@@ -450,7 +455,7 @@ public class CollisionComponentTest {
     assertEquals(2, center.y, DELTA);
   }
 
-  /** Position moved to (3,1) and offset moved to(2,4) */
+  /** Position moved to (3,1) and offset moved to(2,4). */
   @Test
   public void getBottomLeftPositionMovedOffsetMoved() {
     Entity e = new Entity();
