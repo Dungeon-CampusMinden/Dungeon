@@ -11,7 +11,7 @@ import core.utils.components.MissingComponentException;
 import org.junit.Test;
 import testingUtils.SimpleCounter;
 
-/** Tests the CollisionComponent. */
+/** Collision component tests. */
 public class CollisionComponentTest {
 
   private static final double DELTA = 0.0001;

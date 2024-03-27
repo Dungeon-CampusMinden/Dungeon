@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-/** Tests for {@link HealthComponent}. */
+/** Tests for the {@link HealthComponent}. */
 public class HealthComponentTest {
 
   /** WTF? . */
