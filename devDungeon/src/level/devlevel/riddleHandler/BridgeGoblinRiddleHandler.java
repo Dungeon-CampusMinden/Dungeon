@@ -12,6 +12,7 @@ import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.TileLevel;
 import core.level.elements.tile.DoorTile;
@@ -137,13 +138,29 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
     this.bridgeGoblin =
         EntityUtils.spawnBridgeGoblin(
             this.bridgeGoblinSpawn.toCenteredPoint(), this.riddles, this.lastTask());
+    this.bridgeGoblin
+        .fetch(HealthComponent.class)
+        .ifPresent(
+            hc ->
+                hc.onHit(
+                    ((entity, damage) -> {
+                      if (damage.damageType() == DamageType.HEAL) return;
+                      hc.receiveHit(
+                          new Damage(-damage.damageAmount(), DamageType.HEAL, this.bridgeGoblin));
+                      if (entity.isPresent(PlayerComponent.class)) {
+                        OkDialog.showOkDialog(
+                            "Haha, you cannot harm me! I am invincible!",
+                            "Bridge Goblin Riddle",
+                            () -> {});
+                      }
+                    })));
     ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
   }
 
   private IVoidFunction lastTask() {
     Quiz lastRiddle = new SingleChoice("What is my favorite number?");
     lastRiddle.taskName("Bridge Goblin Riddle");
-    // Random numbers between 1 and MAX INT
+
     lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
     lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
     lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
