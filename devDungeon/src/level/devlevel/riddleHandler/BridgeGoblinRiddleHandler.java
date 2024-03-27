@@ -1,9 +1,11 @@
 package level.devlevel.riddleHandler;
 
 import contrib.components.HealthComponent;
+import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.IHealthObserver;
 import contrib.entities.MiscFactory;
+import contrib.hud.dialogs.OkDialog;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.utils.components.health.Damage;
@@ -16,15 +18,19 @@ import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
+import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.DialogFactory;
+import entities.levercommands.BridgeControlCommand;
 import item.concreteItem.ItemPotionAttackSpeedPotion;
 import java.util.ArrayList;
 import java.util.List;
 import level.utils.ITickable;
 import level.utils.LevelUtils;
 import systems.DevHealthSystem;
+import task.game.hud.QuizUI;
+import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.SingleChoice;
 import utils.EntityUtils;
@@ -121,15 +127,62 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
   }
 
   private void prepareBridgeEntities() {
-    EntityUtils.spawnLever(this.bridgeLever.toCenteredPoint(), null);
+    EntityUtils.spawnLever(
+        this.bridgeLever.toCenteredPoint(),
+        new BridgeControlCommand(this.bridgeBounds[0], this.bridgeBounds[1]));
     EntityUtils.spawnSign(
         "Bridge Control",
         "Pull the lever to raise and lower the bridge",
         this.bridgeLeverSign.toCenteredPoint());
     this.bridgeGoblin =
         EntityUtils.spawnBridgeGoblin(
-            this.bridgeGoblinSpawn.toCenteredPoint(), this.riddles, () -> {});
+            this.bridgeGoblinSpawn.toCenteredPoint(), this.riddles, this.lastTask());
     ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
+  }
+
+  private IVoidFunction lastTask() {
+    Quiz lastRiddle = new SingleChoice("What is my favorite number?");
+    lastRiddle.taskName("Bridge Goblin Riddle");
+    // Random numbers between 1 and MAX INT
+    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
+    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
+    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
+    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
+    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
+    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
+    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
+    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
+    lastRiddle.addCorrectAnswerIndex(0);
+
+    return () -> {
+      QuizUI.showQuizDialog(
+          lastRiddle,
+          (Entity hudEntity) ->
+              UIAnswerCallback.uiCallback(
+                  lastRiddle,
+                  hudEntity,
+                  (task, taskContents) -> {
+                    task.gradeTask(taskContents);
+                    String output = "You have incorrectly solved the task";
+
+                    OkDialog.showOkDialog(
+                        output,
+                        "Result",
+                        () -> {
+                          this.bridgeGoblin.remove(InteractionComponent.class);
+                          this.bridgeGoblin.add(
+                              new InteractionComponent(
+                                  2.5f,
+                                  true,
+                                  (me, who) -> {
+                                    OkDialog.showOkDialog(
+                                        "Haha, you failed the riddle! You shall not pass!",
+                                        "Bridge Goblin Riddle",
+                                        () -> {});
+                                  }));
+                        });
+                  }));
+    };
   }
 
   public void onHeathEvent(
