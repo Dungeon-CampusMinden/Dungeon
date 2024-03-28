@@ -57,13 +57,17 @@ public class MagicShieldComponent implements Component {
   /**
    * Method to hit the shield with a certain amount of damage. If the shield is not depleted, the
    * damage is subtracted from the shield strength. If the shield is depleted, the depletion time is
-   * set to the current time.
+   * set to the current time. If the damage is negative, an IllegalArgumentException is thrown.
    *
    * @param damage The amount of damage to hit the shield with.
+   * @throws IllegalArgumentException If the damage is negative.
    */
   public void hit(int damage) {
     if (this.isDepleted()) {
       return;
+    }
+    if (damage < 0) {
+      throw new IllegalArgumentException("Damage cannot be negative.");
     }
 
     this.currentStrength -= damage;

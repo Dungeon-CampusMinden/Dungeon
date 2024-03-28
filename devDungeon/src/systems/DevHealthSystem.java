@@ -38,7 +38,15 @@ public class DevHealthSystem extends HealthSystem {
     if (msc == null || msc.isDepleted()) {
       return super.applyDamage(hsd);
     }
-    msc.hit(Stream.of(DamageType.values()).mapToInt(hsd.hc()::calculateDamageOf).sum());
+    int damage =
+        Stream.of(DamageType.values())
+            .filter(dt -> dt != DamageType.HEAL)
+            .mapToInt(hsd.hc()::calculateDamageOf)
+            .sum();
+    int heal = hsd.hc().calculateDamageOf(DamageType.HEAL);
+
+    msc.hit(damage);
+    this.doDamageAndAnimation(hsd, heal);
     hsd.hc().clearDamage();
     this.observers.forEach(
         observer -> observer.onHeathEvent(hsd.e(), hsd.hc(), IHealthObserver.HealthEvent.DAMAGE));
