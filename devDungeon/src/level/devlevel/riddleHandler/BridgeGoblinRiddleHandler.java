@@ -16,7 +16,9 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.TileLevel;
 import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.FloorTile;
 import core.level.elements.tile.PitTile;
+import core.level.elements.tile.WallTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.IVoidFunction;
@@ -97,12 +99,20 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
 
   private void prepareBridge() {
     this.level.tilesInArea(this.bridgePitsBounds[0], this.bridgePitsBounds[1]).stream()
+        .filter(tile -> tile instanceof PitTile || tile instanceof FloorTile)
         .map(
             tile -> {
               this.level.changeTileElementType(tile, LevelElement.PIT);
               return (PitTile) this.level.tileAt(tile.coordinate());
             })
         .forEach(PitTile::open);
+    this.level.tilesInArea(this.bridgePitsBounds[0], this.bridgePitsBounds[1]).stream()
+        .filter(tile -> tile instanceof WallTile)
+        .peek(wallTile -> this.level.changeTileElementType(wallTile, LevelElement.FLOOR))
+        .forEach(
+            tile -> {
+              EntityUtils.spawnTorch(tile.coordinate().toCenteredPoint(), true, false, 0);
+            });
 
     this.level.tilesInArea(this.bridgeBounds[0], this.bridgeBounds[1]).stream()
         .map(tile -> (PitTile) tile)

@@ -16,7 +16,7 @@ import utils.EntityUtils;
 public class BridgeGoblinRiddleLevel extends DevDungeonLevel implements ITickable {
 
   // Difficulty (Mob Count, Mob Types)
-  private static final int MOB_COUNT = 0;
+  private static final int MOB_COUNT = 15;
   private static final MonsterType[] MONSTER_TYPES =
       new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
   private static final MonsterType BOSS_TYPE = MonsterType.CHORT;
@@ -61,8 +61,7 @@ public class BridgeGoblinRiddleLevel extends DevDungeonLevel implements ITickabl
     this.spawnCamps();
     this.spawnChestsAndCauldrons();
 
-    // EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns, BOSS_TYPE,
-    // this.levelBossSpawn);
+    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns, BOSS_TYPE, this.levelBossSpawn);
   }
 
   private void spawnCamps() {
