@@ -1,9 +1,10 @@
 package dsl.parser.ast;
 
+/** WTF? . */
 public class ListTypeIdentifierNode extends IdNode {
 
   /**
-   * Constructor
+   * Constructor. WTF? .
    *
    * @param innerTypeNode the inner type of the list type
    */
@@ -15,6 +16,11 @@ public class ListTypeIdentifierNode extends IdNode {
     this.addChild(innerTypeNode);
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public IdNode getInnerTypeNode() {
     return (IdNode) this.getChild(0);
   }

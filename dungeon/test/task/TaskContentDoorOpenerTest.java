@@ -15,12 +15,14 @@ import org.junit.Test;
 import task.game.components.DoorComponent;
 import task.game.components.TaskComponent;
 
+/** WTF? . */
 public class TaskContentDoorOpenerTest {
 
   private Task task;
   private Entity manager;
   private TaskComponent taskComponent;
 
+  /** Setup method to initialize task, manager, and taskComponent. */
   @Before
   public void setup() {
     task = new DummyTask();
@@ -28,6 +30,7 @@ public class TaskContentDoorOpenerTest {
     taskComponent = new TaskComponent(task, manager);
   }
 
+  /** WTF? . */
   @Test
   @Ignore
   public void openDoor() {

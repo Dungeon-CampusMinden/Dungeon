@@ -13,12 +13,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** WTF? . */
 public class AISystemTest {
 
   private int updateCounter;
   private AISystem system;
   private Entity entity;
 
+  /** WTF? . */
   @Before
   public void setup() {
     Game.removeAllEntities();
@@ -37,6 +39,7 @@ public class AISystemTest {
     updateCounter = 0;
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllEntities();
@@ -44,12 +47,14 @@ public class AISystemTest {
     Game.removeAllSystems();
   }
 
+  /** WTF? . */
   @Test
   public void update() {
     system.execute();
     assertEquals(1, updateCounter);
   }
 
+  /** WTF? . */
   @Test
   public void update_executeFight() {
     Function<Entity, Boolean> transition = Mockito.mock(Function.class);
@@ -64,6 +69,7 @@ public class AISystemTest {
     verify(idle, never()).accept(entity);
   }
 
+  /** WTF? . */
   @Test
   public void update_executeIdle() {
     Function<Entity, Boolean> transition = Mockito.mock(Function.class);

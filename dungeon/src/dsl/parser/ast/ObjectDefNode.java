@@ -3,13 +3,19 @@ package dsl.parser.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+/** WTF? . */
 public class ObjectDefNode extends Node {
+  /** WTF? . */
   public final int typeSpecifierIdx = 0;
+
+  /** WTF? . */
   public final int idIdx = 1;
+
+  /** WTF? . */
   public final int propertyDefListIdx = 2;
 
   /**
-   * Getter for the definition type
+   * Getter for the definition type.
    *
    * @return the definition type of this definition
    */
@@ -18,7 +24,7 @@ public class ObjectDefNode extends Node {
   }
 
   /**
-   * Getter for the AstNode corresponding to the type specifier
+   * Getter for the AstNode corresponding to the type specifier.
    *
    * @return the AstNode corresponding to the type specifier
    */
@@ -27,7 +33,7 @@ public class ObjectDefNode extends Node {
   }
 
   /**
-   * Getter for the name of the type specifier
+   * Getter for the name of the type specifier.
    *
    * @return name of the type specifier as String
    */
@@ -37,7 +43,7 @@ public class ObjectDefNode extends Node {
   }
 
   /**
-   * Getter for the AstNode corresponding to the name of the object definition
+   * Getter for the AstNode corresponding to the name of the object definition.
    *
    * @return AstNode corresponding to the name of the object definition
    */
@@ -46,7 +52,7 @@ public class ObjectDefNode extends Node {
   }
 
   /**
-   * Getter for the name of the object definition as String
+   * Getter for the name of the object definition as String.
    *
    * @return the name of the object definition
    */
@@ -56,7 +62,7 @@ public class ObjectDefNode extends Node {
 
   /**
    * Getter for a List of AstNodes corresponding to property definitions inside the object
-   * definition
+   * definition.
    *
    * @return A List of AstNodes corresponding to property definitions
    */
@@ -65,12 +71,11 @@ public class ObjectDefNode extends Node {
   }
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param typeSpecifier The AstNode corresponding to the type specifier
    * @param id The AstNode corresponding to the identifier
    * @param propertyDefList The AstNode corresponding to the property definition list
-   * @param type The {@link Type} of object definition
    */
   public ObjectDefNode(Node typeSpecifier, Node id, Node propertyDefList) {
     super(Node.Type.ObjectDefinition, new ArrayList<>(propertyDefList.getChildren().size() + 2));

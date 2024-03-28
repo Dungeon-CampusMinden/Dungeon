@@ -5,11 +5,13 @@ import core.utils.components.path.IPath;
 
 /** A collection of Animations which are special for a chest and not used by any other Entities. */
 public enum ChestAnimations implements IPath {
+  /** WTF? . */
   CLOSED("idle_closed", CoreAnimationPriorities.IDLE.priority()),
-  // once the chest is open, there are two states: with items or without
+  /** once the chest is open, there are two states: with items or without. */
   OPEN_EMPTY("open_empty", CoreAnimationPriorities.IDLE.priority() + 100),
+  /** WTF? . */
   OPEN_FULL("open_full", CoreAnimationPriorities.IDLE.priority() + 100),
-  // animation
+  /** animation?! WTF? . */
   OPENING("opening", CoreAnimationPriorities.IDLE.priority() + 200);
 
   private final String value;

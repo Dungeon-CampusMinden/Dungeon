@@ -2,12 +2,16 @@ package dsl.parser.ast;
 
 import java.util.ArrayList;
 
+/** WTF? . */
 public class PropertyDefNode extends Node {
+  /** WTF? . */
   public final int idIdx = 0;
+
+  /** WTF? . */
   public final int stmtIdx = 1;
 
   /**
-   * Getter for the AstNode corresponding to the identifier of the property definition
+   * Getter for the AstNode corresponding to the identifier of the property definition.
    *
    * @return the AstNode corresponding to the identifier (lhs) of the property definition
    */
@@ -16,16 +20,16 @@ public class PropertyDefNode extends Node {
   }
 
   /**
-   * Getter for the AstNode corresponding to the statement (rhs) of the property definition
+   * Getter for the AstNode corresponding to the statement (rhs) of the property definition.
    *
-   * @return
+   * @return foo
    */
   public Node getStmtNode() {
     return this.getChild(stmtIdx);
   }
 
   /**
-   * Getter for the identifier of the property definition (lhs)
+   * Getter for the identifier of the property definition (lhs).
    *
    * @return identifier of the property definition (lhs) as String
    */
@@ -34,7 +38,7 @@ public class PropertyDefNode extends Node {
   }
 
   /**
-   * Constructor
+   * Constructor. WTF? .
    *
    * @param id AstNode corresponding to the identifier (lhs)
    * @param stmt AstNode corresponding to the statement (rhs)

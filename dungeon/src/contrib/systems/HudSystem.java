@@ -110,7 +110,7 @@ public final class HudSystem extends System {
     Game.systems().values().forEach(System::run);
   }
 
-  /** HudSystem can´t be paused */
+  /** HudSystem can´t be paused. */
   @Override
   public void stop() {}
 }

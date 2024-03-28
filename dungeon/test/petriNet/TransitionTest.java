@@ -7,8 +7,10 @@ import graph.petrinet.Transition;
 import java.util.Set;
 import org.junit.Test;
 
+/** WTF? . */
 public class TransitionTest {
 
+  /** Test case for firing a transition with one dependent place. */
   @Test
   public void fire_oneDepPlace() {
     Place dependency = new Place();
@@ -19,6 +21,7 @@ public class TransitionTest {
     assertEquals(0, dependency.tokenCount());
   }
 
+  /** A test to verify firing a transition with multiple dependencies in a Petri net. */
   @Test
   public void fire_mulDepPlace() {
     Place dependencyA = new Place();
@@ -36,6 +39,7 @@ public class TransitionTest {
     assertEquals(0, dependencyB.tokenCount());
   }
 
+  /** WTF? . */
   @Test
   public void fire_mulTimes() {
     Place dependency = new Place();
@@ -48,6 +52,7 @@ public class TransitionTest {
     assertEquals(0, dependency.tokenCount());
   }
 
+  /** WTF? . */
   @Test
   public void fire_mulToAdd() {
     Place dependency = new Place();

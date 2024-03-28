@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  * <p>This class stores a collection of systems and entities and indicates that the entities meet
  * the criteria to be processed by the systems.
  *
- * <p>The filter criteria are stored as a collection of {@link Class<>}. If an entity implements all
+ * <p>The filter criteria are stored as a collection of {@link Class}. If an entity implements all
  * components of this collection, it will be added to the internal list of entities.
  *
  * <p>Entities must be added using {@link #add(Entity)}. This function internally checks whether the

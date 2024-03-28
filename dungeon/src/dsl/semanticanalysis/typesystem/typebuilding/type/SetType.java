@@ -5,15 +5,33 @@ import dsl.runtime.value.SetValue;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 
+/** SetType. */
 public class SetType extends ScopedSymbol implements IType {
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public IType getElementType() {
     return this.dataType;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param elementType foo
+   * @return foo
+   */
   public static String getSetTypeName(IType elementType) {
     return elementType.getName() + "<>";
   }
 
+  /**
+   * Constructor.
+   *
+   * @param elementType foo
+   * @param parentScope foo
+   */
   public SetType(IType elementType, IScope parentScope) {
     super(getSetTypeName(elementType), parentScope, elementType);
 

@@ -2,11 +2,17 @@ package dsl.parser.ast;
 
 import java.util.ArrayList;
 
+/** WTF? . */
 public abstract class BinaryNode extends Node {
+  /** WTF? . */
   public final int lhsIdx = 0;
+
+  /** WTF? . */
   public final int rhsIdx = 1;
 
   /**
+   * WTF? .
+   *
    * @return the right-hand-side of the binary node
    */
   public Node getRhs() {
@@ -14,6 +20,8 @@ public abstract class BinaryNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return the left-hand-side of the binary node
    */
   public Node getLhs() {

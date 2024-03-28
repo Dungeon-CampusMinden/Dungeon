@@ -12,18 +12,41 @@ public class PropertySymbol extends Symbol {
   private final boolean settable;
   private final boolean gettable;
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public boolean isSettable() {
     return settable;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public boolean isGettable() {
     return gettable;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public IDSLExtensionProperty<?, ?> getProperty() {
     return property;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param symbolName foo
+   * @param parentScope foo
+   * @param dataType foo
+   * @param property foo
+   */
   public PropertySymbol(
       String symbolName, IScope parentScope, IType dataType, IDSLExtensionProperty<?, ?> property) {
     super(symbolName, parentScope, dataType);

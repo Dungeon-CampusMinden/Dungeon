@@ -25,7 +25,10 @@ import java.util.function.BiConsumer;
  */
 @DSLType
 public final class InteractionComponent implements Component {
+  /** The default interaction radius. */
   public static final int DEFAULT_INTERACTION_RADIUS = 5;
+
+  /** If it is repeatable by default. */
   public static final boolean DEFAULT_REPEATABLE = true;
 
   private static final BiConsumer<Entity, Entity> DEFAULT_INTERACTION = (entity, who) -> {};

@@ -28,7 +28,9 @@ import dsl.annotation.DSLType;
 @DSLType(name = "position_component")
 public final class PositionComponent implements Component {
 
+  /** The position of the entity in the level. */
   public static final Point ILLEGAL_POSITION = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
+
   private Point position;
 
   /**
@@ -84,7 +86,7 @@ public final class PositionComponent implements Component {
   }
 
   /**
-   * Set the position
+   * Set the position.
    *
    * @param tile The tile where the new position is located.
    * @see Tile

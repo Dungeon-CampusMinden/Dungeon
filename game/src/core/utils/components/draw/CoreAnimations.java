@@ -12,15 +12,25 @@ import core.utils.components.path.IPath;
  * <p>You can use this values for {@link core.components.DrawComponent#queueAnimation(IPath...)}.
  */
 public enum CoreAnimations implements IPath {
+  /** WTF? . */
   IDLE("idle", CoreAnimationPriorities.IDLE.priority()),
+  /** WTF? . */
   IDLE_LEFT("idle_left", CoreAnimationPriorities.IDLE.priority()),
+  /** WTF? . */
   IDLE_RIGHT("idle_right", CoreAnimationPriorities.IDLE.priority()),
+  /** WTF? . */
   IDLE_UP("idle_up", CoreAnimationPriorities.IDLE.priority()),
+  /** WTF? . */
   IDLE_DOWN("idle_down", CoreAnimationPriorities.IDLE.priority()),
+  /** WTF? . */
   RUN("run", CoreAnimationPriorities.RUN.priority()),
+  /** WTF? . */
   RUN_LEFT("run_left", CoreAnimationPriorities.RUN.priority()),
+  /** WTF? . */
   RUN_RIGHT("run_right", CoreAnimationPriorities.RUN.priority()),
+  /** WTF? . */
   RUN_UP("run_up", CoreAnimationPriorities.RUN.priority()),
+  /** WTF? . */
   RUN_DOWN("run_down", CoreAnimationPriorities.RUN.priority());
 
   private final String value;

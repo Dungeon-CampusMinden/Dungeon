@@ -16,5 +16,10 @@ public interface IPath {
    */
   String pathString();
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   int priority();
 }

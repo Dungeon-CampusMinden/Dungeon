@@ -292,6 +292,7 @@ public final class Game {
    * Use this stream if you want to iterate over all entities that contain the necessary Components
    * to be processed by the given system.
    *
+   * @param system the system to check.
    * @return a stream of all entities currently in the game that should be processed by the given
    *     system.
    */
@@ -302,6 +303,7 @@ public final class Game {
   /**
    * Use this stream if you want to iterate over all entities that contain the given components.
    *
+   * @param filter the components to check.
    * @return a stream of all entities currently in the game that contains the given components.
    */
   public static Stream<Entity> entityStream(final Set<Class<? extends Component>> filter) {
@@ -368,7 +370,7 @@ public final class Game {
   }
 
   /**
-   * Get the tile at the given point in the level
+   * Get the tile at the given point in the level.
    *
    * <p>{@link Point#toCoordinate} will be used, to convert the point into a coordinate.
    *
@@ -380,7 +382,7 @@ public final class Game {
   }
 
   /**
-   * Get the tile at the given coordinate in the level
+   * Get the tile at the given coordinate in the level.
    *
    * @param coordinate Coordinate from where to get the tile
    * @return the tile at the given coordinate.

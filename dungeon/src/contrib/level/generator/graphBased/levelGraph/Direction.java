@@ -4,9 +4,13 @@ import java.util.Random;
 
 /** The different directions in which nodes can be connected to each other. */
 public enum Direction {
+  /** WTF? . */
   NORTH(0),
+  /** WTF? . */
   EAST(1),
+  /** WTF? . */
   SOUTH(2),
+  /** WTF? . */
   WEST(3);
 
   private static final Random RANDOM = new Random();
@@ -41,6 +45,11 @@ public enum Direction {
     return Direction.values()[randomValue];
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public int value() {
     return value;
   }

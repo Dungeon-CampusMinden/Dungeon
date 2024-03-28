@@ -5,10 +5,10 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import java.lang.reflect.ParameterizedType;
 
-/** Builder interface for a {@link FunctionType} for a callback method */
+/** Builder interface for a {@link FunctionType} for a callback method. */
 public interface IFunctionTypeBuilder {
   /**
-   * Build a {@link FunctionType} representing the signature of a callback
+   * Build a {@link FunctionType} representing the signature of a callback.
    *
    * @param parameterizedFunctionType the parameterized type (with generic type information) of the
    *     function type to build

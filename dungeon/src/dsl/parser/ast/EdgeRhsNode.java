@@ -2,11 +2,14 @@ package dsl.parser.ast;
 
 import java.util.ArrayList;
 
+/** WTF? . */
 public class EdgeRhsNode extends Node {
   private final int edgeOpIdx = 0;
   private final int idNodeIdx = 1;
 
   /**
+   * WTF? .
+   *
    * @return The EdgeOpNode corresponding to the EdgeOperator
    */
   public Node getEdgeOpNode() {
@@ -14,6 +17,8 @@ public class EdgeRhsNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return The IdNodeList corresponding to the referenced identifiers on the right-hand-side
    */
   public Node getIdNodeList() {
@@ -21,6 +26,8 @@ public class EdgeRhsNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return The {@link EdgeOpNode.Type} of the EdgeOperator
    */
   public EdgeOpNode.Type getEdgeOpType() {
@@ -28,10 +35,10 @@ public class EdgeRhsNode extends Node {
   }
 
   /**
-   * Constructor
+   * Constructor. WTF? .
    *
    * @param edgeOpNode The EdgeOpNode corresponding to the EdgeOperator
-   * @param idNode The IdNode corresponding to teh identifier on the right-hand-side
+   * @param idNodeList The IdNode corresponding to teh identifier on the right-hand-side
    */
   public EdgeRhsNode(Node edgeOpNode, Node idNodeList) {
     super(Type.DotEdgeRHS, new ArrayList<>(2));

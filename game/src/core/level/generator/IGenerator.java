@@ -5,6 +5,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 
+/** Generates levels. */
 public interface IGenerator {
   /**
    * Get a level with the given configuration.

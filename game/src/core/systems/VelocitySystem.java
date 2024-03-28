@@ -41,12 +41,12 @@ public final class VelocitySystem extends System {
   // default time an Animation should be enqueued
   private static final int DEFAULT_FRAME_TIME = 1;
 
-  /** Create a new VelocitySystem */
+  /** Create a new VelocitySystem. */
   public VelocitySystem() {
     super(VelocityComponent.class, PositionComponent.class, DrawComponent.class);
   }
 
-  /** Updates the position of all entities based on their velocity */
+  /** Updates the position of all entities based on their velocity. */
   @Override
   public void execute() {
     entityStream().map(this::buildDataObject).forEach(this::updatePosition);

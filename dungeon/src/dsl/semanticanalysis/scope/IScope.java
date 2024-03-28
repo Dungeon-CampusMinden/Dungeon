@@ -28,7 +28,7 @@ import java.util.List;
 /** Represents the capabilities of a scope. */
 public interface IScope {
   /**
-   * Binds the symbol to this scope
+   * Binds the symbol to this scope.
    *
    * @param symbol The symbol to bind
    * @return True on success (the symbols was not previously bound to this scope) and false
@@ -48,12 +48,13 @@ public interface IScope {
    * Try to resolve a name in this scope or the parent scopes.
    *
    * @param name The name to resolve
+   * @param resolveInParent foo
    * @return The symbol with the name or Symbol.NULL, if the symbol could not be resolved
    */
   Symbol resolve(String name, boolean resolveInParent);
 
   /**
-   * Get all symbols of this scope in a List
+   * Get all symbols of this scope in a List.
    *
    * @return List containing all symbols in this scope.
    */
@@ -66,6 +67,12 @@ public interface IScope {
    */
   IScope getParent();
 
+  /**
+   * WTF? .
+   *
+   * @param name foo
+   * @return foo
+   */
   default IType resolveType(String name) {
     var resolvedType = resolve(name, true);
     if (resolvedType == Symbol.NULL) {

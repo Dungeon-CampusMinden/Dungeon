@@ -28,10 +28,10 @@ import java.util.stream.Stream;
 /**
  * A class solely dedicated to randomly generating all types of AIs.
  *
- * <p>Use {@link #randomAI(Entity)} to get a complete, ready-to-use {@link AIComponent}.
+ * <p>Use {@link #randomAI} to get a complete, ready-to-use {@link AIComponent}.
  *
- * <p>Use {@link #randomFightAI()}, {@link #randomIdleAI()}, {@link #randomTransition(Entity)} to
- * generate the behavior logics separately.
+ * <p>Use {@link #randomFightAI()}, {@link #randomIdleAI()}, {@link #randomTransition} to generate
+ * the behavior logics separately.
  */
 public final class AIFactory {
 
@@ -149,6 +149,7 @@ public final class AIFactory {
    * Constructs a random TransitionAI with random parameters. Needs to be Updated whenever a new
    * TransitionAI is added.
    *
+   * @param entity Entity that will contain the component, used for some AI behaviors.
    * @return the generated TransitionAI
    */
   public static Function<Entity, Boolean> randomTransition(final Entity entity) {

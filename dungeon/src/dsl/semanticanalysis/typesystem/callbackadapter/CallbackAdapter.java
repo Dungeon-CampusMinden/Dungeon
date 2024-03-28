@@ -11,7 +11,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * Encapsulates the {@link RuntimeEnvironment} and {@link DSLInterpreter} needed to execute a
+ * WTF? erster Satz ist ein kurzer Satz! .
+ *
+ * <p>Encapsulates the {@link RuntimeEnvironment} and {@link DSLInterpreter} needed to execute a
  * callback-function defined in the DSL. Implements the functional interfaces needed for assigning
  * an instance of this class to the callback-fields in the components of the Dungeons ECS.
  */
@@ -22,6 +24,13 @@ public class CallbackAdapter implements Consumer, TriConsumer, BiConsumer {
   private final ICallable callable;
   private final DSLInterpreter interpreter;
 
+  /**
+   * WTF? .
+   *
+   * @param rtEnv foo
+   * @param callable foo
+   * @param interpreter foo
+   */
   CallbackAdapter(RuntimeEnvironment rtEnv, ICallable callable, DSLInterpreter interpreter) {
     this.rtEnv = rtEnv;
     this.functionType = callable.getFunctionType();
@@ -29,6 +38,12 @@ public class CallbackAdapter implements Consumer, TriConsumer, BiConsumer {
     this.interpreter = interpreter;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param params foo
+   * @return foo
+   */
   public Object call(Object... params) {
     Value returnValue =
         (Value)
@@ -37,6 +52,11 @@ public class CallbackAdapter implements Consumer, TriConsumer, BiConsumer {
     return convertValueToObject(returnValue);
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public ICallable callable() {
     return this.callable;
   }

@@ -33,6 +33,10 @@ public final class InventoryComponent implements Component {
   private final Item[] inventory;
   private final Logger LOGGER = Logger.getLogger(InventoryComponent.class.getSimpleName());
 
+  /**
+   * The default {@link InventoryComponent} constructor. Creates an empty inventory with {@link
+   * #DEFAULT_MAX_SIZE} slots.
+   */
   public InventoryComponent() {
     inventory = new Item[DEFAULT_MAX_SIZE];
   }

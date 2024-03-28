@@ -1,8 +1,14 @@
 package dsl.parser.ast;
 
+/** WTF? . */
 public class MapTypeIdentifierNode extends IdNode {
 
-  /** Constructor */
+  /**
+   * Constructor. WTF? .
+   *
+   * @param keyTypeNode foo
+   * @param elementTypeNode foo
+   */
   public MapTypeIdentifierNode(IdNode keyTypeNode, IdNode elementTypeNode) {
     super(
         Type.MapTypeIdentifierNode,
@@ -12,10 +18,20 @@ public class MapTypeIdentifierNode extends IdNode {
     this.addChild(elementTypeNode);
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public IdNode getKeyTypeNode() {
     return (IdNode) this.getChild(0);
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public IdNode getElementTypeNode() {
     return (IdNode) this.getChild(1);
   }

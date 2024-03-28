@@ -5,8 +5,16 @@ import dsl.runtime.callable.ICallable;
 import dsl.runtime.environment.RuntimeEnvironment;
 import java.util.function.Function;
 
+/** WTF? . */
 public class FunctionCallbackAdapter extends CallbackAdapter implements Function {
 
+  /**
+   * WTF? .
+   *
+   * @param rtEnv foo
+   * @param callable foo
+   * @param interpreter foo
+   */
   FunctionCallbackAdapter(
       RuntimeEnvironment rtEnv, ICallable callable, DSLInterpreter interpreter) {
     super(rtEnv, callable, interpreter);

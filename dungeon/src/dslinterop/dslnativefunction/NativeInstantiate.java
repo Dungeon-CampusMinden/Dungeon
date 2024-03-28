@@ -21,11 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/** WTF? . */
 public class NativeInstantiate extends NativeFunction {
+  /** Instance of this class. */
   public static NativeInstantiate func = new NativeInstantiate(Scope.NULL);
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param parentScope parent scope of this function
    */

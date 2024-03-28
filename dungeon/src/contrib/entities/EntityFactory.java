@@ -4,6 +4,7 @@ import contrib.components.*;
 import contrib.item.Item;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
+import core.components.CameraComponent;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -26,9 +27,9 @@ public final class EntityFactory {
    *
    * <p>The Entity is not added to the game yet.
    *
-   * <p>It will have a {@link * CameraComponent}, {@link core.components.PlayerComponent}. {@link
-   * PositionComponent}, {@link * VelocityComponent} {@link core.components.DrawComponent}, {@link
-   * contrib.components.CollideComponent} and {@link * HealthComponent}.
+   * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
+   * PositionComponent}, {@link VelocityComponent} {@link core.components.DrawComponent}, {@link
+   * contrib.components.CollideComponent} and {@link HealthComponent}.
    *
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
@@ -60,10 +61,10 @@ public final class EntityFactory {
    *
    * <p>The Entity is not added to the game yet. *
    *
-   * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent} *
-   * with random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set *
-   * Animation, {@link VelocityComponent}, {@link CollideComponent} and a 10% chance for an {@link *
-   * InventoryComponent}. If it has an Inventory it will use the {@link DropItemsInteraction} on *
+   * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent} with
+   * random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set
+   * Animation, {@link VelocityComponent}, {@link CollideComponent} and a 10% chance for an {@link
+   * InventoryComponent}. If it has an Inventory it will use the {@link DropItemsInteraction} on
    * death.
    *
    * @param pathToTexture Textures to use for the monster.

@@ -17,9 +17,16 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 
+/** WTF? . */
 public class RoomBasedDungeon {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
+  /**
+   * WTF? .
+   *
+   * @param args the array of command-line arguments
+   * @throws IOException if an I/O error occurs
+   */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
     Debugger debugger = new Debugger();

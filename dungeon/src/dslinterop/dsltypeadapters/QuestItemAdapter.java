@@ -7,7 +7,7 @@ import dsl.annotation.DSLTypeMember;
 import task.game.components.TaskContentComponent;
 import task.game.content.QuestItem;
 
-/** Typeadatper for creation of {@link QuestItem}s */
+/** Typeadatper for creation of {@link QuestItem}. */
 public class QuestItemAdapter {
   /**
    * Buildermethod for creating a {@link QuestItem}. Will create a new {@link TaskContentComponent}

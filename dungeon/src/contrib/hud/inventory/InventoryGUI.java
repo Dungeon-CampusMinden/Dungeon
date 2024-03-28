@@ -26,6 +26,7 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
+/** WTF? . */
 public class InventoryGUI extends CombinableGUI {
 
   private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
@@ -71,7 +72,7 @@ public class InventoryGUI extends CombinableGUI {
   private int slotsPerRow = 0;
 
   /**
-   * Create a new inventory GUI
+   * Create a new inventory GUI.
    *
    * @param title the title of the inventory
    * @param inventoryComponent the inventory component on which the GUI is based.
@@ -85,7 +86,7 @@ public class InventoryGUI extends CombinableGUI {
   }
 
   /**
-   * Create a new inventory GUI
+   * Create a new inventory GUI.
    *
    * @param inventoryComponent the inventory component on which the GUI is based.
    */
@@ -371,7 +372,7 @@ public class InventoryGUI extends CombinableGUI {
   }
 
   /**
-   * Get the displayed title of this InventoryGUI
+   * Get the displayed title of this InventoryGUI.
    *
    * @return title of the inventory
    */
@@ -380,7 +381,7 @@ public class InventoryGUI extends CombinableGUI {
   }
 
   /**
-   * Set the displayed title of this InventoryGUI
+   * Set the displayed title of this InventoryGUI.
    *
    * @param title title of the inventory
    */

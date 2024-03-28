@@ -27,31 +27,31 @@ import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/** The results of semantic analysis done by SymbolTableParser */
+/** The results of semantic analysis done by SymbolTableParser. */
 public class SymbolTable {
-  /** The global scope of the program */
+  /** The global scope of the program. */
   IScope globalScope;
 
-  /** Store all symbols in a key-value store for easy referencing by their index */
+  /** Store all symbols in a key-value store for easy referencing by their index. */
   private final HashMap<Integer, Symbol> symbolIdxToSymbol;
 
-  /** Store all referenced astNodes in a key-value store for easy referencing by their index */
+  /** Store all referenced astNodes in a key-value store for easy referencing by their index. */
   private final HashMap<Integer, Node> astNodeIdxToAstNode;
 
   /**
    * Creates an association between a specific AST node (by index) and a symbol (by index) -> e.g.
-   * "which symbol is referenced by the identifier in a specific AST node?"
+   * "which symbol is referenced by the identifier in a specific AST node?".
    */
   private final HashMap<Integer, ArrayList<Integer>> astNodeSymbolRelation;
 
   /**
    * Creates an association between a specific symbol (by Idx) and an ast node (by index) -> e.g.
-   * "by which ast node was this symbol created?"
+   * "by which ast node was this symbol created?".
    */
   private final HashMap<Integer, Integer> symbolToAstNodeRelation;
 
   /**
-   * Getter for the global {@link IScope}, which is the topmost scope in the scope stack
+   * Getter for the global {@link IScope}, which is the topmost scope in the scope stack.
    *
    * @return the global {@link IScope}
    */
@@ -61,10 +61,11 @@ public class SymbolTable {
 
   /**
    * Add an association between symbol and AST node. The nodeOfSymbol passed to this method with a
-   * symbol, which was not previously passed, will be treated as the node, which created the symbol
+   * symbol, which was not previously passed, will be treated as the node, which created the symbol.
    *
    * @param symbol The symbol
    * @param nodeOfSymbol The AST Node, which references the symbol
+   * @param isNodeCreationNode foo
    */
   public void addSymbolNodeRelation(Symbol symbol, Node nodeOfSymbol, boolean isNodeCreationNode) {
     if (!astNodeSymbolRelation.containsKey(nodeOfSymbol.getIdx())) {
@@ -91,7 +92,7 @@ public class SymbolTable {
   }
 
   /**
-   * Try to get the Symbol referenced by a specific AST node
+   * Try to get the Symbol referenced by a specific AST node.
    *
    * @param node The AST node
    * @return The Symbol referenced by node, or Symbol.NULL, if no Symbol could be found
@@ -124,7 +125,9 @@ public class SymbolTable {
   }
 
   /**
-   * Gets the AST Node, which was passed to {@link #addSymbolNodeRelation(Symbol, Node, boolean)}
+   * WTF? erster Satz ist KURZ .
+   *
+   * <p>Gets the AST Node, which was passed to {@link #addSymbolNodeRelation(Symbol, Node, boolean)}
    * the first time the symbol was passed to that method, which will be treated as the AST Node,
    * which creates the Symbol
    *
@@ -145,7 +148,7 @@ public class SymbolTable {
   }
 
   /**
-   * Get the {@link Symbol} with passed index
+   * Get the {@link Symbol} with passed index.
    *
    * @param idx the index of the {@link Symbol} to get
    * @return the {@link Symbol} with passed index or Symbol.NULL, if no symbol with given index
@@ -156,7 +159,7 @@ public class SymbolTable {
   }
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param globalScope the global scope to use for this symbol Table
    */

@@ -5,10 +5,15 @@ import java.util.List;
 
 /** Represents an `item_type`-definition. */
 public class ItemPrototypeDefinitionNode extends Node {
+  /** WTF? . */
   public final int idIdx = 0;
+
+  /** WTF? . */
   public final int valueDefinitionListIdx = 1;
 
   /**
+   * WTF? .
+   *
    * @return literal String of the identifier of the item type definition node
    */
   public String getIdName() {
@@ -16,6 +21,8 @@ public class ItemPrototypeDefinitionNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return the node representing the identifier of this item type definition node
    */
   public Node getIdNode() {
@@ -23,6 +30,8 @@ public class ItemPrototypeDefinitionNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return the node representing the component definitions of this item type definition node
    */
   public Node getPropertyDefinitionListNode() {
@@ -30,6 +39,8 @@ public class ItemPrototypeDefinitionNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return a List of nodes representing individual property definitions of this item type
    *     definition node
    */
@@ -38,7 +49,7 @@ public class ItemPrototypeDefinitionNode extends Node {
   }
 
   /**
-   * Constructor
+   * Constructor. WTF? .
    *
    * @param idNode node representing the identifier of the item type definition
    * @param propertyDefinitionListNode node representing the property definition list of the game

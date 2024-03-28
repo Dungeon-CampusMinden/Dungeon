@@ -19,13 +19,14 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/** TypeBuilder. */
 public class TypeBuilder {
   private final HashMap<Class<?>, List<Method>> typeAdapters;
   private final HashMap<Type, IType> javaTypeToDSLType;
   private final HashSet<Type> currentLookedUpTypes;
   private final HashMap<Class<?>, IFunctionTypeBuilder> functionTypeBuilders;
 
-  /** Constructor */
+  /** Constructor. */
   public TypeBuilder() {
     this.typeAdapters = new HashMap<>();
     this.javaTypeToDSLType = new HashMap<>();
@@ -43,18 +44,29 @@ public class TypeBuilder {
     functionTypeBuilders.put(BiFunction.class, BiFunctionFunctionTypeBuilder.instance);
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public HashMap<Type, IType> getJavaTypeToDSLTypeMap() {
     // create copy of the hashmap
     return new HashMap<>(javaTypeToDSLType);
   }
 
+  /**
+   * WTF? .
+   *
+   * @param callbackClass foo
+   * @return foo
+   */
   public IFunctionTypeBuilder getFunctionTypeBuilder(Class<?> callbackClass) {
     // create copy of the hashmap
     return this.functionTypeBuilders.get(callbackClass);
   }
 
   /**
-   * Replaces all small letters followed by a capital letter in small letters spaced by '_'
+   * Replaces all small letters followed by a capital letter in small letters spaced by '_'.
    *
    * @param name the name to convert
    * @return converted name
@@ -108,7 +120,7 @@ public class TypeBuilder {
 
   /**
    * Generate a map, which maps the member names of an DSL {@link AggregateType} to the Fields of
-   * it's origin java class
+   * it's origin java class.
    *
    * @param type the type
    * @return the map, containing mapping between member names and java field names
@@ -187,6 +199,13 @@ public class TypeBuilder {
         : parameterAnnotation.name();
   }
 
+  /**
+   * A method to check if the parameter types of two given methods match.
+   *
+   * @param m1 foo
+   * @param m2 foo
+   * @return foo
+   */
   public static boolean doParameterTypesMatch(Method m1, Method m2) {
     // check, if registered adapter matches signature of new adapter
     if (m1.getParameterCount() != m2.getParameterCount()) {
@@ -203,9 +222,10 @@ public class TypeBuilder {
 
   /**
    * Register a new type adapter (which will be used to instantiate a class, which is not converted
-   * to a DSLType)
+   * to a DSLType).
    *
    * @param adapterClass the adapter to register
+   * @param parentScope the scope in which the adapter should be registered
    */
   public void registerTypeAdapter(Class<?> adapterClass, IScope parentScope) {
     for (var method : adapterClass.getDeclaredMethods()) {
@@ -242,6 +262,15 @@ public class TypeBuilder {
     }
   }
 
+  /**
+   * WTF? .
+   *
+   * @param forType foo
+   * @param dslTypeName foo
+   * @param adapterMethod foo
+   * @param parentScope foo
+   * @return foo
+   */
   public IType createAdapterType(
       Class<?> forType, String dslTypeName, Method adapterMethod, IScope parentScope) {
     if (adapterMethod.getParameterCount() == 0) {
@@ -307,10 +336,21 @@ public class TypeBuilder {
     return typeAdapter;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public Set<Map.Entry<Class<?>, List<Method>>> getRegisteredTypeAdapters() {
     return this.typeAdapters.entrySet();
   }
 
+  /**
+   * WTF? .
+   *
+   * @param clazz foo
+   * @return foo
+   */
   public List<Method> getRegisteredTypeAdaptersForType(Class<?> clazz) {
     return this.typeAdapters.getOrDefault(clazz, new ArrayList<>());
   }
@@ -366,6 +406,7 @@ public class TypeBuilder {
    * Create a new {@link SetType} from the passed {@link ParameterizedType}.
    *
    * @param setType the {@link ParameterizedType} to convert into a {@link SetType}
+   * @param globalScope foo
    * @return the created type
    */
   public IType createSetType(ParameterizedType setType, IScope globalScope) {
@@ -380,6 +421,13 @@ public class TypeBuilder {
     return javaTypeToDSLType.get(setType);
   }
 
+  /**
+   * WTF? .
+   *
+   * @param mapType foo
+   * @param globalScope foo
+   * @return foo
+   */
   public IType createMapType(ParameterizedType mapType, IScope globalScope) {
     var keyType = mapType.getActualTypeArguments()[0];
     IType keyDSLType = this.createDSLTypeForJavaTypeInScope(globalScope, keyType);
@@ -399,6 +447,7 @@ public class TypeBuilder {
    * Create a new {@link ListType} from the passed {@link ParameterizedType}.
    *
    * @param listType the {@link ParameterizedType} to convert into a {@link ListType}
+   * @param globalScope foo
    * @return the created type
    */
   public IType createListType(ParameterizedType listType, IScope globalScope) {
@@ -501,6 +550,7 @@ public class TypeBuilder {
    *
    * @param globalScope the global scope to use for resolving any DSL datatype
    * @param type the java {@link Type} to create a DSL {@link IType} from
+   * @return foo
    */
   public IType createDSLTypeForJavaTypeInScope(IScope globalScope, Type type) {
     IType returnType;

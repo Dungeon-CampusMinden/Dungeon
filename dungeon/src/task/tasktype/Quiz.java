@@ -75,6 +75,11 @@ public abstract class Quiz extends Task {
     return this.correctAnswerIndices.remove(index);
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public List<Integer> correctAnswerIndices() {
     return new ArrayList<>(this.correctAnswerIndices);
   }
@@ -206,8 +211,13 @@ public abstract class Quiz extends Task {
      * image.
      */
     public enum Type {
+      /** The Text type represents a question or answer choice as text. */
       TEXT,
+      /** The Image type represents a question or answer choice as an image. */
       IMAGE,
+      /**
+       * The TEXT_AND_IMAGE type represents a question or answer choice as both text and an image.
+       */
       TEXT_AND_IMAGE
     }
   }

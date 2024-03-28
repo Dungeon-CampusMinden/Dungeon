@@ -6,8 +6,13 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+/**
+ * Builder for a {@link FunctionType} for a callback defined by the {@link
+ * java.util.function.BiFunction} interface.
+ */
 public class BiFunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
 
+  /** Singleton instance. */
   public static BiFunctionFunctionTypeBuilder instance = new BiFunctionFunctionTypeBuilder();
 
   private BiFunctionFunctionTypeBuilder() {}

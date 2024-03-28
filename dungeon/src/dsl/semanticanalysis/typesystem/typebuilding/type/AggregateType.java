@@ -6,14 +6,16 @@ import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
+/** AggregateType. */
 public class AggregateType extends ScopedSymbol implements IType {
+  /** The name symbol name. */
   public static String NAME_SYMBOL_NAME = "$NAME$";
 
   protected Class<?> originType;
   private HashMap<String, Field> typeMemberToField;
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param name Name of this type
    * @param parentScope parent scope of this type
@@ -25,7 +27,7 @@ public class AggregateType extends ScopedSymbol implements IType {
   }
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param name Name of this type
    * @param parentScope parent scope of this type
@@ -38,10 +40,20 @@ public class AggregateType extends ScopedSymbol implements IType {
     typeMemberToField = new HashMap<>();
   }
 
+  /**
+   * Sets the type member to field mapping.
+   *
+   * @param typeMemberToField the type member to field mapping
+   */
   public void setTypeMemberToField(HashMap<String, Field> typeMemberToField) {
     this.typeMemberToField = typeMemberToField;
   }
 
+  /**
+   * Gets the type member to field mapping.
+   *
+   * @return the type member to field mapping
+   */
   public HashMap<String, Field> getTypeMemberToField() {
     return this.typeMemberToField;
   }

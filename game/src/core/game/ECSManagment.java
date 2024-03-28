@@ -173,6 +173,7 @@ public final class ECSManagment {
    * Use this stream if you want to iterate over all entities that contain the necessary Components
    * to be processed by the given system.
    *
+   * @param system the system that processes the entities.
    * @return a stream of all entities currently in the game that should be processed by the given
    *     system.
    */
@@ -183,6 +184,7 @@ public final class ECSManagment {
   /**
    * Use this stream if you want to iterate over all entities that contain the given components.
    *
+   * @param filter Set of Component classes that define the filter rules.
    * @return a stream of all entities currently in the game that contains the given components.
    */
   public static Stream<Entity> entityStream(Set<Class<? extends Component>> filter) {

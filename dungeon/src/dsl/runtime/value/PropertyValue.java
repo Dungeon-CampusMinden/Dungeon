@@ -13,6 +13,13 @@ public class PropertyValue extends Value {
   private final boolean isSettable;
   private final boolean isGettable;
 
+  /**
+   * WTF? .
+   *
+   * @param type foo
+   * @param property foo
+   * @param instance foo
+   */
   public PropertyValue(
       IType type, IDSLExtensionProperty<Object, Object> property, Object instance) {
     super(type, instance);

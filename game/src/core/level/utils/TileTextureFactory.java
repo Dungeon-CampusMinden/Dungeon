@@ -4,6 +4,7 @@ import core.level.Tile;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
+/** WTF? . */
 public class TileTextureFactory {
   /**
    * Checks which texture must be used for the passed field based on the surrounding fields.

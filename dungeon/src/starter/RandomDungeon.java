@@ -13,10 +13,17 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.logging.Level;
 
+/** WTF? . */
 public class RandomDungeon {
 
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
+  /**
+   * WTF? .
+   *
+   * @param args
+   * @throws IOException
+   */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
     Debugger debugger = new Debugger();

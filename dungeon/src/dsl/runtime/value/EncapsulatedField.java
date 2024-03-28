@@ -3,9 +3,17 @@ package dsl.runtime.value;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import java.lang.reflect.Field;
 
+/** WTF? . */
 public class EncapsulatedField extends Value {
   private final Field field;
 
+  /**
+   * WTF? .
+   *
+   * @param type foo
+   * @param field foo
+   * @param object foo
+   */
   public EncapsulatedField(IType type, Field field, Object object) {
     super(type, object, true);
     this.field = field;

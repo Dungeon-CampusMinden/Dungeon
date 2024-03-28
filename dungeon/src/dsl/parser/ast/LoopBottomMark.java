@@ -6,7 +6,9 @@ import dsl.semanticanalysis.symbol.Symbol;
 import java.util.Iterator;
 
 /**
- * This AST Node is used in the {@link DSLInterpreter} to mark the end of the execution of one
+ * WTF? (erster Satz KURZ).
+ *
+ * <p>This AST Node is used in the {@link DSLInterpreter} to mark the end of the execution of one
  * iteration of an {@link LoopStmtNode}. The {@link DSLInterpreter} checks, if another iteration of
  * the loop statement should be executed. This class stores the state of the loop (the iterator and
  * the symbols corresponding to the loop and counter variable).
@@ -36,7 +38,7 @@ public class LoopBottomMark extends Node {
    * and/or counter variables.
    *
    * @param loopStmtNode The {@link LoopStmtNode} of which the new instance will be the bottom mark.
-   * @param internalIterator The {@link Iterator<Value>} for the iterable expression of the {@link
+   * @param internalIterator The {@link Iterator} for the iterable expression of the {@link
    *     LoopStmtNode}
    * @param loopVariableSymbol The {@link Symbol} for the loop variable, which is used to iterate
    *     over the iterable expression
@@ -55,18 +57,38 @@ public class LoopBottomMark extends Node {
     this.counterVariableSymbol = counterVariableSymbol;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public LoopStmtNode getLoopStmtNode() {
     return loopStmtNode;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public Iterator<Value> getInternalIterator() {
     return internalIterator;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public Symbol getLoopVariableSymbol() {
     return loopVariableSymbol;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public Symbol getCounterVariableSymbol() {
     return counterVariableSymbol;
   }

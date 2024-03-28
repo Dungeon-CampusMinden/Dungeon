@@ -35,14 +35,17 @@ public final class PatrolWalk implements Consumer<Entity> {
   private int currentCheckpoint = 0;
 
   /**
-   * Walks a random pattern in a radius around the entity. The checkpoints will be chosen randomly
-   * at first idle. After being initialized, the checkpoints won't change anymore, only the order
-   * may be.
+   * WTF? (erster Satz kurze Beschreibung) .
+   *
+   * <p>Walks a random pattern in a radius around the entity. The checkpoints will be chosen
+   * randomly at first idle. After being initialized, the checkpoints won't change anymore, only the
+   * order may be.
    *
    * @param radius Max distance from the entity to walk.
    * @param numberCheckpoints Number of checkpoints to walk to.
    * @param pauseTime Max time in milliseconds to wait on a checkpoint. The actual time is a random
    *     number between 0 and this value.
+   * @param mode WTF? .
    */
   public PatrolWalk(float radius, int numberCheckpoints, int pauseTime, final MODE mode) {
     this.radius = radius;
@@ -153,14 +156,15 @@ public final class PatrolWalk implements Consumer<Entity> {
     }
   }
 
+  /** WTF? . */
   public enum MODE {
-    // Walks to a random checkpoint.
+    /** Walks to a random checkpoint. */
     RANDOM,
 
-    // Looping the same path over and over again.
+    /** Looping the same path over and over again. */
     LOOP,
 
-    // Walks the path forward and then backward.
+    /** Walks the path forward and then backward. */
     BACK_AND_FORTH
   }
 }

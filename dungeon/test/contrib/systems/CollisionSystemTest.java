@@ -13,34 +13,36 @@ import org.junit.After;
 import org.junit.Test;
 import testingUtils.SimpleCounter;
 
+/** WTF? . */
 public class CollisionSystemTest {
 
   private static final String DIRECTION_MESSAGE = "The Direction of the Collision should be.";
   private static final String NO_COLLISION_DETECTION_MESSAGE =
-      "No Collision between the two hitboxes should be detected.";
+      "No Collision between the two hit boxes should be detected.";
   private static final String COLLISION_DETECTED_MESSSAGE =
-      "Collision between the two hitboxes should be detected.";
+      "Collision between the two hit boxes should be detected.";
   private static final String MISSING_POSITION_COMPONENT =
       "PositionComponent did get removed Test no longer valid";
 
   /**
-   * Helper to clean up used Class Attributes to avoid interfering with other tests
+   * Helper to clean up used Class Attributes to avoid interfering with other tests.
    *
-   * <p>all Systems add themselves to the Class Attribute SystemController of the Game. to Check the
-   * correct processing of the CollisionSystemController the entities are added to the entities list
+   * <p>all Systems add themselves to the Class Attribute SystemController of the Game. To Check the
+   * correct processing of the CollisionSystemController the entities are added to the entities
+   * list.
    */
   private static void cleanUpEnvironment() {
     Game.removeAllEntities();
     Game.removeAllSystems();
   }
 
-  /** Creating a clean Systemcontroller to avoid interferences */
+  /** Creating a clean Systemcontroller to avoid interferences. */
   private static void prepareEnvironment() {
     cleanUpEnvironment();
   }
 
   /**
-   * Helper to create an Entity and keep Testcode a bit more clean
+   * Helper to create an Entity and keep Testcode a bit more clean.
    *
    * @param point1 Position of the newly created Entity
    * @return thr configured Entity
@@ -52,6 +54,7 @@ public class CollisionSystemTest {
     return e1;
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllEntities();
@@ -60,9 +63,9 @@ public class CollisionSystemTest {
   }
 
   /**
-   * Check if the Collision is detected when the hitbox A is on the left of hitbox B
+   * Check if the Collision is detected when the hit box A is on the left of hit box B.
    *
-   * <p>Left means the Position of B is higher on the x-axis
+   * <p>Left means the Position of B is higher on the x-axis.
    */
   @Test
   public void checkForCollisionRight() {
@@ -92,11 +95,11 @@ public class CollisionSystemTest {
   }
 
   /**
-   * Check if the Collision is detected when the hitbox A is on the left of hitbox B and not
-   * colliding
+   * Check if the Collision is detected when the hit box A is on the left of hit box B and not
+   * colliding.
    *
    * <p>Left means the Position of B is higher on the x-axis not colliding means there is no
-   * possible intersection between A and B and there is A gap between to avoid float inaccuracy
+   * possible intersection between A and B and there is A gap between to avoid float inaccuracy.
    */
   @Test
   public void checkForCollisionRightNoIntersection() {
@@ -127,10 +130,10 @@ public class CollisionSystemTest {
   }
 
   /**
-   * Check if the Collision is detected when the hitbox A is on the right of hitbox B
+   * Check if the Collision is detected when the hit box A is on the right of hit box B.
    *
    * <p>Right means the Position of B is lower on the x-axis not colliding means there is no
-   * possible intersection between A and B and there is A gap between to avoid float inaccuracy
+   * possible intersection between A and B and there is A gap between to avoid float inaccuracy.
    */
   @Test
   public void checkForCollisionLeft() {
@@ -158,11 +161,11 @@ public class CollisionSystemTest {
   }
 
   /**
-   * Check if the Collision is detected when the hitbox A is on the right of hitbox B and not
-   * colliding
+   * Check if the Collision is detected when the hit box A is on the right of hit box B and not
+   * colliding.
    *
    * <p>Right means the Position of B is lower on the x-axis not colliding means there is no
-   * possible intersection between A and B and there is A gap between to avoid float inaccuracy
+   * possible intersection between A and B and there is A gap between to avoid float inaccuracy.
    */
   @Test
   public void checkForCollisionLeftNoIntersection() {
@@ -192,9 +195,9 @@ public class CollisionSystemTest {
   }
 
   /**
-   * Check if the Collision is detected when the hitbox A is above hitbox B
+   * Check if the Collision is detected when the hit box A is above hit box B.
    *
-   * <p>above means the Position of B is higher on the y-axis
+   * <p>above means the Position of B is higher on the y-axis.
    */
   @Test
   public void checkForCollisionBottomWithIntersection() {
@@ -222,10 +225,10 @@ public class CollisionSystemTest {
   }
 
   /**
-   * Check if no Collision is detected when the hitbox A is above hitbox B and not colliding
+   * Check if no Collision is detected when the hit box A is above hit box B and not colliding.
    *
-   * <p>above means the Position of B is higher on the y-axis not colliding means there is no
-   * possible intersection between A and B and there is A gap between to avoid float inaccuracy
+   * <p>Above means the Position of B is higher on the y-axis not colliding means there is no
+   * possible intersection between A and B and there is A gap between to avoid float inaccuracy.
    */
   @Test
   public void checkForCollisionBottomWithNoIntersection() {
@@ -253,9 +256,9 @@ public class CollisionSystemTest {
   }
 
   /**
-   * Check if the Collision is detected when the hitbox A is below hitbox B
+   * Check if the Collision is detected when the hit box A is below hit box B.
    *
-   * <p>below means the Position of B is lower on the y-axis
+   * <p>Below means the Position of B is lower on the y-axis.
    */
   @Test
   public void checkForCollisionTopWithIntersection() {
@@ -283,10 +286,10 @@ public class CollisionSystemTest {
   }
 
   /**
-   * Check if no Collision is detected when the hitbox A is below hitbox B and not colliding *
+   * Check if no Collision is detected when the hit box A is below hit box B and not colliding.
    *
-   * <p>below means the Position of B is lower on the y-axis not colliding means there is no
-   * possible intersection between A and B and there is A gap between to avoid float inaccuracy
+   * <p>Below means the Position of B is lower on the y-axis not colliding means there is no
+   * possible intersection between A and B and there is A gap between to avoid float inaccuracy.
    */
   @Test
   public void checkForCollisionTopNoIntersection() {
@@ -314,8 +317,8 @@ public class CollisionSystemTest {
   }
 
   /**
-   * Check if the Collision is detected when the hitbox A is bigger and every Corner is around
-   * hitbox B
+   * Check if the Collision is detected when the hit box A is bigger and every Corner is around hit
+   * box B.
    */
   @Test
   public void checkForCollisionBoxAAroundB() {
@@ -342,8 +345,8 @@ public class CollisionSystemTest {
   }
 
   /**
-   * Check if the Collision is detected when the hitbox B is bigger and every Corner is around
-   * hitbox A
+   * Check if the Collision is detected when the hit box B is bigger and every Corner is around hit
+   * box A.
    */
   @Test
   public void checkForCollisionBoxBAroundA() {
@@ -369,7 +372,7 @@ public class CollisionSystemTest {
     cleanUpEnvironment();
   }
 
-  /** Checks the inverse Direction of the Tile.Direction N -> S */
+  /** Checks the inverse Direction of the Tile.Direction N -> S. */
   @Test
   public void checkInverseN() {
     prepareEnvironment();
@@ -379,7 +382,7 @@ public class CollisionSystemTest {
     cleanUpEnvironment();
   }
 
-  /** Checks the inverse Direction of the Tile.Direction E -> W */
+  /** Checks the inverse Direction of the Tile.Direction E -> W. */
   @Test
   public void checkInverseE() {
     prepareEnvironment();
@@ -389,7 +392,7 @@ public class CollisionSystemTest {
     cleanUpEnvironment();
   }
 
-  /** Checks the inverse Direction of the Tile.Direction S -> N */
+  /** Checks the inverse Direction of the Tile.Direction S -> N. */
   @Test
   public void checkInverseS() {
     prepareEnvironment();
@@ -399,7 +402,7 @@ public class CollisionSystemTest {
     cleanUpEnvironment();
   }
 
-  /** Checks the inverse Direction of the Tile.Direction W -> E */
+  /** Checks the inverse Direction of the Tile.Direction W -> E. */
   @Test
   public void checkInverseW() {
     prepareEnvironment();
@@ -409,7 +412,7 @@ public class CollisionSystemTest {
     cleanUpEnvironment();
   }
 
-  /** Checks if the System is still Working even if there is no Entity */
+  /** Checks if the System is still Working even if there is no Entity. */
   @Test
   public void checkUpdateNoEntities() {
     prepareEnvironment();
@@ -419,7 +422,7 @@ public class CollisionSystemTest {
     cleanUpEnvironment();
   }
 
-  /** Checks that the System is still working when there is no Entity with A hitboxComponent */
+  /** Checks that the System is still working when there is no Entity with A hit box component. */
   @Test
   public void checkUpdateNoEntitiesWithHitboxComponent() {
     prepareEnvironment();
@@ -430,7 +433,9 @@ public class CollisionSystemTest {
     cleanUpEnvironment();
   }
 
-  /** Checks that there is no call off the collider Methods when there is only one hitbox entity */
+  /**
+   * Checks that there is no call off the collider Methods when there is only one hit box entity.
+   */
   @Test
   public void checkUpdateOneEntityWithHitboxComponent() {
     prepareEnvironment();
@@ -451,7 +456,7 @@ public class CollisionSystemTest {
     cleanUpEnvironment();
   }
 
-  /** Checks that there is no call off the collider Methods when there is no Collision */
+  /** Checks that there is no call off the collider Methods when there is no Collision. */
   @Test
   public void checkUpdateTwoEntitiesWithHitboxComponentNonColliding() {
     prepareEnvironment();
@@ -484,12 +489,12 @@ public class CollisionSystemTest {
     cleanUpEnvironment();
   }
 
-  /**
-   * Checks the call of the onEnterCollider when the Collision started happening
+  /*
+   * Checks the call of the onEnterCollider when the Collision started happening.
    *
-   * <p>the collision between A and B was happening in between CollisionSystem#update calls //
+   * <p>The collision between A and B was happening in between CollisionSystem#update calls.
    *
-   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
+   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
    * cant be tested.
    */
   /* @Test
@@ -538,13 +543,13 @@ public class CollisionSystemTest {
       cleanUpEnvironment();
   }*/
 
-  /**
+  /*
    * Checks the call of the onEnterCollider when the Collision started happening only being called
-   * once
+   * once.
    *
-   * <p>the collision between A and B was happening in between CollisionSystem#update calls //
+   * <p>The collision between A and B was happening in between CollisionSystem#update calls.
    *
-   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
+   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
    * cant be tested.
    */
 
@@ -592,10 +597,10 @@ public class CollisionSystemTest {
       cleanUpEnvironment();
   }*/
 
-  /**
-   * Checks the call of the onLeaveCollider when the Collision is no longer happening
+  /*
+   * Checks the call of the onLeaveCollider when the Collision is no longer happening.
    *
-   * <p>the collision between A and B was brocken up in between CollisionSystem#update calls //
+   * <p>The collision between A and B was brocken up in between CollisionSystem#update calls.
    *
    * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
    * cant be tested.
@@ -650,12 +655,12 @@ public class CollisionSystemTest {
       cleanUpEnvironment();
   }*/
 
-  /**
-   * Checks the call of the onLeaveCollider when the Collision is no longer happening only once
+  /*
+   * Checks the call of the onLeaveCollider when the Collision is no longer happening only .
    *
-   * <p>the collision between A and B was brocken up in between CollisionSystem#update calls //
+   * <p>The collision between A and B was brocken up in between CollisionSystem#update calls.
    *
-   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
+   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
    * cant be tested.
    */
   /*@Test
@@ -710,12 +715,12 @@ public class CollisionSystemTest {
       cleanUpEnvironment();
   }*/
 
-  /**
-   * Checks if an Entity can collide Multiple Times
+  /*
+   * Checks if an Entity can collide Multiple Times.
    *
-   * <p>E1 collides with e1 and e3 while e2 and e3 do not //
+   * <p>E1 collides with e1 and e3 while e2 and e3 do not.
    *
-   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
+   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
    * cant be tested.
    */
   /*@Test
@@ -764,13 +769,13 @@ public class CollisionSystemTest {
       cleanUpEnvironment();
   }
 
-  /**
-   * Checks if an Entity can stop colliding with one Entity
+  /*
+   * Checks if an Entity can stop colliding with one Entity.
    *
-   * <p>on first update e1 collides with e1 and e3 while e2 and e3 do not on the second update e1
-   * stops colliding with e3
+   * <p>On first update e1 collides with e1 and e3 while e2 and e3 do not on the second update e1
+   * stops colliding with e3.
 
-       // <p> Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase cant be tested.</p>
+       // <p> Since we cant update the {@link Game#entities} from outside the game loop, this is testcase cant be tested.</p>
 
    */
 
@@ -824,11 +829,11 @@ public class CollisionSystemTest {
       cleanUpEnvironment();
   }*/
 
-  /**
-   * Checks if all Entity can stop colliding with each other //
+  /*
+   * Checks if all Entity can stop colliding with each other.
    *
-   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
-   * cant be tested.*
+   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
+   * cant be tested.
    */
   /*@Test
   public void checkUpdateCollisionCallingEveryOnLeaveCollider() {

@@ -11,6 +11,7 @@ import graph.taskdependencygraph.TaskNode;
 import java.util.*;
 import task.Task;
 
+/** WTF? . */
 public class Interpreter implements AstVisitor<TaskNode> {
   private final DSLInterpreter dslInterpreter;
 
@@ -24,12 +25,17 @@ public class Interpreter implements AstVisitor<TaskNode> {
 
   ArrayList<TaskDependencyGraph> graphs = new ArrayList<>();
 
+  /**
+   * WTF? .
+   *
+   * @param dslInterpreter foo
+   */
   public Interpreter(DSLInterpreter dslInterpreter) {
     this.dslInterpreter = dslInterpreter;
   }
 
   /**
-   * Parses a dot definition and creates a {@link TaskDependencyGraph} from it
+   * Parses a dot definition and creates a {@link TaskDependencyGraph} from it.
    *
    * @param dotDefinition The DotDefNode to parse as a graph
    * @return The {@link TaskDependencyGraph} object created from the dotDefinition

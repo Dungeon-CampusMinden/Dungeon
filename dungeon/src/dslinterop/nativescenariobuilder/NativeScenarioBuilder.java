@@ -31,7 +31,14 @@ import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
 
+/** WTF? . */
 public class NativeScenarioBuilder {
+  /**
+   * WTF? .
+   *
+   * @param quiz foo
+   * @return foo
+   */
   public static Set<Set<Entity>> quizOnHud(Quiz quiz) {
     Entity questowner = new Entity("Questgeber");
     questowner.add(new PositionComponent());
@@ -54,6 +61,12 @@ public class NativeScenarioBuilder {
     return returnSet;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param task foo
+   * @return foo
+   */
   public static Set<Set<Entity>> assignTaskA(AssignTask task) {
     Set<Set<Entity>> returnSet = new HashSet<>();
     Set<Entity> roomSet = new HashSet<>();

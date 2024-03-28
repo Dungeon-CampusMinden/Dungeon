@@ -24,7 +24,7 @@ import core.utils.components.MissingComponentException;
  */
 public final class PositionSystem extends System {
 
-  /** Create a new PositionSystem */
+  /** Create a new PositionSystem. */
   public PositionSystem() {
     super(PositionComponent.class);
   }

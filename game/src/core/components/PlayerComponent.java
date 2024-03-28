@@ -38,7 +38,7 @@ public final class PlayerComponent implements Component {
    * @param key The integer value of the key on which the callback should be executed.
    * @param callback The {@link Consumer} that contains the callback to execute if the key is
    *     pressed.
-   * @return Optional<Consumer < Entity>> The old callback, if one was existing. Can be null.
+   * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
    * @see com.badlogic.gdx.Gdx#input
    */
   public Optional<Consumer<Entity>> registerCallback(int key, final Consumer<Entity> callback) {
@@ -60,7 +60,7 @@ public final class PlayerComponent implements Component {
    *     pressed.
    * @param repeat If the callback should be executed repeatedly while the key is pressed.
    * @param pauseable If the callback should be executed while the game is paused.
-   * @return Optional<Consumer < Entity>> The old callback, if one was existing. Can be null.
+   * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
    */
   public Optional<Consumer<Entity>> registerCallback(
       int key, final Consumer<Entity> callback, boolean repeat, boolean pauseable) {
@@ -84,7 +84,7 @@ public final class PlayerComponent implements Component {
    * @param callback The {@link Consumer} that contains the callback to execute if the key is
    *     pressed.
    * @param repeat If the callback should be executed repeatedly while the key is pressed.
-   * @return Optional<Consumer < Entity>> The old callback, if one was existing. Can be null.
+   * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
    */
   public Optional<Consumer<Entity>> registerCallback(
       int key, final Consumer<Entity> callback, boolean repeat) {
@@ -119,6 +119,12 @@ public final class PlayerComponent implements Component {
    * @param pauseable If the callback should be executed while the game is paused.
    */
   public record InputData(boolean repeat, Consumer<Entity> callback, boolean pauseable) {
+    /**
+     * WTF? .
+     *
+     * @param repeat foo
+     * @param callback foo
+     */
     public InputData(boolean repeat, Consumer<Entity> callback) {
       this(repeat, callback, true);
     }

@@ -8,12 +8,12 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 
-/** Class which creates all needed Components for a basic WorldItem */
+/** Class which creates all needed Components for a basic WorldItem. */
 public final class WorldItemBuilder {
   private static final float DEFAULT_ITEM_PICKUP_RADIUS = 2.0f;
 
   /**
-   * Creates an Entity which then can be added to the game
+   * Creates an Entity which then can be added to the game.
    *
    * @param item the Item that is stored in the entity
    * @return the newly created Entity
@@ -30,7 +30,7 @@ public final class WorldItemBuilder {
   }
 
   /**
-   * Creates an Entity which then can be added to the game
+   * Creates an Entity which then can be added to the game.
    *
    * @param item the Data which should be given to the world Item
    * @param position the position where the item should be placed
