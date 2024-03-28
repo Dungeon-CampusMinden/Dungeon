@@ -20,7 +20,6 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.IVoidFunction;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.DialogFactory;
 import entities.levercommands.BridgeControlCommand;
@@ -81,34 +80,19 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
       this.handleFirstTick();
     }
 
-    Point heroPos = EntityUtils.getHeroPosition();
+    Coordinate heroPos = EntityUtils.getHeroCoordinate();
     if (heroPos == null) return;
 
-    if (LevelUtils.isHeroInArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1])
-        || this.level.tileAt(heroPos).equals(this.level.tileAt(this.riddleRoomEntrance))
-        || this.level.tileAt(heroPos).equals(this.level.tileAt(this.riddleRoomExit))) {
-      LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
-      ((DoorTile) this.level.tileAt(this.riddleRoomExit)).open();
-
-      Entity hero = Game.hero().orElse(null);
-      if (hero == null) return;
-      PositionComponent pc =
-          hero.fetch(PositionComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-
-      if (!this.rewardGiven && this.riddleRewardSpawn.equals(pc.position().toCoordinate())) {
-        this.giveReward();
-      }
-    } else {
-      LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
-      ((DoorTile) this.level.tileAt(this.riddleRoomExit)).close();
+    if (!this.rewardGiven && this.riddleRewardSpawn.equals(heroPos)) {
+      this.giveReward();
     }
   }
 
   private void handleFirstTick() {
+    LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
     this.prepareBridge();
     this.spawnChestAndCauldron();
-    this.level.tileAt(this.riddleRewardSpawn).tintColor(0x22FF22FF);
+    this.level.tileAt(this.riddleRewardSpawn).tintColor(0x22AAFFFF);
   }
 
   private void prepareBridge() {
@@ -136,8 +120,8 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
         this.bridgeLever.toCenteredPoint(),
         new BridgeControlCommand(this.bridgeBounds[0], this.bridgeBounds[1]));
     EntityUtils.spawnSign(
-        "Bridge Control",
         "Pull the lever to raise and lower the bridge",
+        "Bridge Control",
         this.bridgeLeverSign.toCenteredPoint());
     this.bridgeGoblin =
         EntityUtils.spawnBridgeGoblin(
@@ -148,7 +132,8 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
             hc ->
                 hc.onHit(
                     ((entity, damage) -> {
-                      if (damage.damageType() == DamageType.HEAL) return;
+                      if (damage.damageType() == DamageType.HEAL
+                          || damage.damageType() == DamageType.FALL) return;
                       hc.receiveHit(
                           new Damage(-damage.damageAmount(), DamageType.HEAL, this.bridgeGoblin));
                       if (entity.isPresent(PlayerComponent.class)) {
@@ -209,7 +194,9 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
   public void onHeathEvent(
       Entity entity, HealthComponent healthComponent, HealthEvent healthEvent) {
     if (healthEvent == HealthEvent.DEATH && entity.equals(this.bridgeGoblin)) {
+      LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
       ((DoorTile) this.level.tileAt(this.riddleRoomEntrance)).open();
+      ((DoorTile) this.level.tileAt(this.riddleRoomExit)).open();
     }
   }
 
@@ -226,6 +213,7 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
               hc.maximalHealthpoints(hc.maximalHealthpoints() + RIDDLE_REWARD);
               hc.receiveHit(new Damage(-RIDDLE_REWARD, DamageType.HEAL, null));
               this.rewardGiven = true;
+              this.level.tileAt(this.riddleRewardSpawn).tintColor(-1);
             });
   }
 

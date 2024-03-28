@@ -55,7 +55,6 @@ public class LeverSystem extends System {
                           () -> MissingComponentException.build(entity, LeverComponent.class));
               if (this.leverStates.containsKey(entity)) {
                 if (this.leverStates.get(entity) != lever.isOn()) {
-                  java.lang.System.out.println("Lever toggled!");
                   if (lever.isOn()) {
                     lever.command().execute();
                   } else {

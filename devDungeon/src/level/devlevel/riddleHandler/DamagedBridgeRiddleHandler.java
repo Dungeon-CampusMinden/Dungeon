@@ -93,6 +93,7 @@ public class DamagedBridgeRiddleHandler implements ITickable {
               hc.maximalHealthpoints(hc.maximalHealthpoints() + RIDDLE_REWARD);
               hc.receiveHit(new Damage(-RIDDLE_REWARD, DamageType.HEAL, null));
               this.rewardGiven = true;
+              this.level.tileAt(this.riddleRewardSpawn).tintColor(-1);
             });
   }
 
