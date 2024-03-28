@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import level.devlevel.riddleHandler.BridgeGuardRiddleHandler;
 import task.Task;
 import task.game.hud.QuizUI;
 import task.game.hud.UIAnswerCallback;
@@ -90,27 +91,27 @@ public class DialogFactory {
   }
 
   /**
-   * Creates a bridge goblin entity with a list of quizzes.
+   * Creates a bridge guard entity with a list of quizzes.
    *
-   * @param pos The position where the bridge goblin will be created.
+   * @param pos The position where the bridge guard will be created.
    * @param quizzes The list of quizzes.
    * @param onFinished The function to execute when all quizzes have been solved.
-   * @return The created bridge goblin entity.
-   * @see level.devlevel.riddleHandler.BridgeGoblinRiddleHandler BridgeGoblinRiddleHandler
+   * @return The created bridge guard entity.
+   * @see BridgeGuardRiddleHandler BridgeGuardRiddleHandler
    */
-  public static Entity createBridgeGoblin(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
-    Entity bridgeGoblin;
+  public static Entity createBridgeGuard(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
+    Entity bridgeGuard;
     try {
-      bridgeGoblin = MonsterType.BRIDGE_GOBLIN.buildMonster();
+      bridgeGuard = MonsterType.BRIDGE_GUARD.buildMonster();
     } catch (IOException e) {
-      throw new RuntimeException("Failed to create bridge goblin");
+      throw new RuntimeException("Failed to create bridge guard");
     }
-    bridgeGoblin
+    bridgeGuard
         .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(bridgeGoblin, PositionComponent.class))
+        .orElseThrow(() -> MissingComponentException.build(bridgeGuard, PositionComponent.class))
         .position(pos);
 
-    bridgeGoblin.add(
+    bridgeGuard.add(
         new InteractionComponent(
             DEFAULT_INTERACTION_RADIUS,
             true,
@@ -119,7 +120,7 @@ public class DialogFactory {
               presentQuiz(quizIterator, onFinished);
             }));
 
-    return bridgeGoblin;
+    return bridgeGuard;
   }
 
   /**

@@ -189,9 +189,9 @@ public enum MonsterType {
       2 * Game.frameRate(),
       MonsterIdleSound.LOW_PITCH,
       0),
-  BRIDGE_GOBLIN(
-      "Bridge Goblin",
-      "character/monster/orc_warrior",
+  BRIDGE_GUARD(
+      "Bridge Guard",
+      "character/monster/big_zombie",
       9999999, // immortal
       0.0f,
       0.0f,

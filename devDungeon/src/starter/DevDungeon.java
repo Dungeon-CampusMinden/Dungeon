@@ -32,7 +32,7 @@ public class DevDungeon {
   public static final DungeonLoader DUNGEON_LOADER =
       new DungeonLoader(
           new String[] {
-            "tutorial", "damagedBridge", "torchRiddle", "illusionRiddle", "bridgeGoblin"
+            "tutorial", "damagedBridge", "torchRiddle", "illusionRiddle", "bridgeGuard"
           });
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final boolean SKIP_TUTORIAL = true;

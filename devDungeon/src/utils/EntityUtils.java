@@ -128,20 +128,21 @@ public class EntityUtils {
   }
 
   /**
-   * Spawns a bridge goblin at the given position and adds it to the game. The bridge goblin neutral
+   * Spawns a bridge guard at the given position and adds it to the game. The bridge guard neutral
    * NPC that gives the player a series of {@link task.tasktype.Quiz quizzes} to solve. The bridge
-   * goblin is created using the {@link entities.MonsterType#BRIDGE_GOBLIN BRIDGE_GOBLIN} monster
-   * type. The bridge goblin is then added to the game.
+   * guard is created using the {@link entities.MonsterType#BRIDGE_GUARD BRIDGE_GUARD} monster type.
+   * The bridge guard is then added to the game.
    *
-   * @param pos The position where the bridge goblin should be spawned.
+   * @param pos The position where the bridge guard should be spawned.
    * @param quizzes The list of quizzes to give the player.
    * @param onFinished The action to perform when all quizzes have been solved.
-   * @see DialogFactory#createBridgeGoblin(Point, List, IVoidFunction) createBridgeGoblin
+   * @return The spawned bridge guard entity.
+   * @see DialogFactory#createBridgeGuard(Point, List, IVoidFunction) createBridgeGuard
    */
-  public static Entity spawnBridgeGoblin(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
-    Entity bridgeGoblin = DialogFactory.createBridgeGoblin(pos, quizzes, onFinished);
-    Game.add(bridgeGoblin);
-    return bridgeGoblin;
+  public static Entity spawnBridgeGuard(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
+    Entity bridgeGuard = DialogFactory.createBridgeGuard(pos, quizzes, onFinished);
+    Game.add(bridgeGuard);
+    return bridgeGuard;
   }
 
   /**

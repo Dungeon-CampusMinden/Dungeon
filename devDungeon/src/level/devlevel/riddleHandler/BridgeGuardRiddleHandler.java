@@ -40,7 +40,7 @@ import utils.DevRiddle;
 import utils.EntityUtils;
 import utils.RegexRiddle;
 
-public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
+public class BridgeGuardRiddleHandler implements ITickable, IHealthObserver {
   private final TileLevel level;
 
   // Spawn Points / Locations
@@ -48,7 +48,7 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
   private final Coordinate[] bridgePitsBounds;
   private final Coordinate bridgeLever;
   private final Coordinate bridgeLeverSign;
-  private final Coordinate bridgeGoblinSpawn;
+  private final Coordinate bridgeGuardSpawn;
   private final Coordinate riddleRoomEntrance;
   private final Coordinate[] riddleRoomBounds;
   private final Coordinate riddleRoomChest;
@@ -56,16 +56,16 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
   private final Coordinate riddleRoomExit;
   // Riddles
   private final List<Quiz> riddles = new ArrayList<>();
-  private Entity bridgeGoblin;
+  private Entity bridgeGuard;
   private boolean rewardGiven = false;
 
-  public BridgeGoblinRiddleHandler(List<Coordinate> customPoints, TileLevel level) {
+  public BridgeGuardRiddleHandler(List<Coordinate> customPoints, TileLevel level) {
     this.level = level;
     this.bridgeBounds = new Coordinate[] {customPoints.get(0), customPoints.get(1)};
     this.bridgePitsBounds = new Coordinate[] {customPoints.get(2), customPoints.get(3)};
     this.bridgeLever = customPoints.get(4);
     this.bridgeLeverSign = customPoints.get(5);
-    this.bridgeGoblinSpawn = customPoints.get(6);
+    this.bridgeGuardSpawn = customPoints.get(6);
     this.riddleRoomEntrance = customPoints.get(7);
     this.riddleRoomBounds = new Coordinate[] {customPoints.get(8), customPoints.get(9)};
     this.riddleRoomChest = customPoints.get(10);
@@ -132,10 +132,10 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
         "Pull the lever to raise and lower the bridge",
         "Bridge Control",
         this.bridgeLeverSign.toCenteredPoint());
-    this.bridgeGoblin =
-        EntityUtils.spawnBridgeGoblin(
-            this.bridgeGoblinSpawn.toCenteredPoint(), this.riddles, this.lastTask());
-    this.bridgeGoblin
+    this.bridgeGuard =
+        EntityUtils.spawnBridgeGuard(
+            this.bridgeGuardSpawn.toCenteredPoint(), this.riddles, this.lastTask());
+    this.bridgeGuard
         .fetch(HealthComponent.class)
         .ifPresent(
             hc ->
@@ -144,11 +144,11 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
                       if (damage.damageType() == DamageType.HEAL
                           || damage.damageType() == DamageType.FALL) return;
                       hc.receiveHit(
-                          new Damage(-damage.damageAmount(), DamageType.HEAL, this.bridgeGoblin));
+                          new Damage(-damage.damageAmount(), DamageType.HEAL, this.bridgeGuard));
                       if (entity.isPresent(PlayerComponent.class)) {
                         OkDialog.showOkDialog(
                             "Haha, you cannot harm me! I am invincible!",
-                            "Bridge Goblin Riddle",
+                            "Riddle: Bridge Guard",
                             () -> {});
                       }
                     })));
@@ -157,16 +157,11 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
 
   private IVoidFunction lastTask() {
     Quiz lastRiddle = new SingleChoice("What is my favorite number?");
-    lastRiddle.taskName("Bridge Goblin Riddle");
+    lastRiddle.taskName("Riddle: Bridge Guard");
 
-    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
-    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
-    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
-    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
-    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
-    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
-    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
-    lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
+    for (int i = 0; i < 6; i++) {
+      lastRiddle.addAnswer(new Quiz.Content("" + (int) (Math.random() * Integer.MAX_VALUE)));
+    }
     lastRiddle.addCorrectAnswerIndex(0);
 
     return () -> {
@@ -184,15 +179,15 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
                         output,
                         "Result",
                         () -> {
-                          this.bridgeGoblin.remove(InteractionComponent.class);
-                          this.bridgeGoblin.add(
+                          this.bridgeGuard.remove(InteractionComponent.class);
+                          this.bridgeGuard.add(
                               new InteractionComponent(
                                   2.5f,
                                   true,
                                   (me, who) -> {
                                     OkDialog.showOkDialog(
                                         "Haha, you failed the riddle! You shall not pass!",
-                                        "Bridge Goblin Riddle",
+                                        "Riddle: Bridge Guard",
                                         () -> {});
                                   }));
                         });
@@ -202,7 +197,7 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
 
   public void onHeathEvent(
       Entity entity, HealthComponent healthComponent, HealthEvent healthEvent) {
-    if (healthEvent == HealthEvent.DEATH && entity.equals(this.bridgeGoblin)) {
+    if (healthEvent == HealthEvent.DEATH && entity.equals(this.bridgeGuard)) {
       LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
       ((DoorTile) this.level.tileAt(this.riddleRoomEntrance)).open();
       ((DoorTile) this.level.tileAt(this.riddleRoomExit)).open();
@@ -222,7 +217,7 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
   // Riddle Methods
   private void addRiddle(String question, String[] answers, int correctAnswerIndex) {
     Quiz riddle = new SingleChoice(question);
-    riddle.taskName("Bridge Goblin Riddle");
+    riddle.taskName("Riddle: Bridge Guard");
     for (String answer : answers) {
       riddle.addAnswer(new Quiz.Content(answer));
     }

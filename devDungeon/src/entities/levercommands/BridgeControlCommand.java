@@ -4,7 +4,7 @@ import core.level.utils.Coordinate;
 import utils.ICommand;
 
 /**
- * The BridgeControlCommand class is responsible for controlling the bridge in the Bridge Goblin
+ * The BridgeControlCommand class is responsible for controlling the bridge in the Bridge Guard
  * Riddle Level.
  *
  * <p>The bridge can be lowered and raised by executing and undoing this command.

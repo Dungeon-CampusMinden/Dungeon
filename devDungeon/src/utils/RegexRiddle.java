@@ -7,7 +7,7 @@ import java.util.List;
 
 public enum RegexRiddle {
   READY_0(
-      "Hello there! I'm the bridge goblin. Behind this bridge is a hidden and powerful artifact."
+      "Hello there! I'm the bridge guard. Behind this bridge is a hidden and powerful artifact."
           + " To pass, you must answer my Regex riddles. Let's start with an easy one: "
           + "Which regex pattern matches 'abc' exactly?",
       Arrays.asList("abc", "a.b", "a*c", "[abc]"),

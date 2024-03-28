@@ -8,12 +8,12 @@ import core.level.utils.LevelElement;
 import entities.MonsterType;
 import java.util.List;
 import level.DevDungeonLevel;
-import level.devlevel.riddleHandler.BridgeGoblinRiddleHandler;
+import level.devlevel.riddleHandler.BridgeGuardRiddleHandler;
 import level.utils.ITickable;
 import utils.EntityUtils;
 
-/** The Bridge Goblin Riddle Level */
-public class BridgeGoblinRiddleLevel extends DevDungeonLevel implements ITickable {
+/** The Bridge Guard Riddle Level */
+public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 15;
@@ -27,12 +27,12 @@ public class BridgeGoblinRiddleLevel extends DevDungeonLevel implements ITickabl
   private final Coordinate[] mobSpawns;
   private final Coordinate levelBossSpawn;
 
-  private final BridgeGoblinRiddleHandler riddleHandler;
+  private final BridgeGuardRiddleHandler riddleHandler;
 
-  public BridgeGoblinRiddleLevel(
+  public BridgeGuardRiddleLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints);
-    this.riddleHandler = new BridgeGoblinRiddleHandler(customPoints, this);
+    this.riddleHandler = new BridgeGuardRiddleHandler(customPoints, this);
 
     this.campSpawns = this.getCoordinates(13, 24);
     this.mobSpawns = this.getCoordinates(25, 53);
