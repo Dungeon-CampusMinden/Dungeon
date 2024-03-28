@@ -127,7 +127,9 @@ public final class DrawSystem extends System {
           currentAnimationTexture,
           new PainterConfig(currentAnimationTexture, 0, 0, dsd.dc.tintColor()));
     }
-    PAINTER.draw(dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
+    PainterConfig conf = this.configs.get(currentAnimationTexture);
+    conf.tintColor(dsd.dc.tintColor());
+    PAINTER.draw(dsd.pc.position(), currentAnimationTexture, conf);
   }
 
   /**

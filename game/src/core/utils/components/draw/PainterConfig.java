@@ -12,11 +12,11 @@ import core.utils.components.path.IPath;
  */
 public final class PainterConfig {
 
-  private final int tintColor;
   private final float xOffset;
   private final float yOffset;
   private final float xScaling;
   private final float yScaling;
+  private int tintColor;
 
   /**
    * Create a new PainterConfig with the given offset.
@@ -110,5 +110,14 @@ public final class PainterConfig {
    */
   public int tintColor() {
     return tintColor;
+  }
+
+  /**
+   * Set the tint color in this configuration.
+   *
+   * @param tintcolor The color to tint the texture with.
+   */
+  public void tintColor(int tintcolor) {
+    this.tintColor = tintcolor;
   }
 }
