@@ -1,5 +1,6 @@
 package level.devlevel.riddleHandler;
 
+import components.MagicShieldComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
@@ -40,8 +41,6 @@ import utils.EntityUtils;
 import utils.RegexRiddle;
 
 public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
-
-  private static final int RIDDLE_REWARD = 5;
   private final TileLevel level;
 
   // Spawn Points / Locations
@@ -212,19 +211,12 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
 
   private void giveReward() {
     DialogFactory.showTextPopup(
-        "You will receive "
-            + RIDDLE_REWARD
-            + " additional maximum health points \nas a reward for solving this puzzle!",
+        "You will receive a magic shield that can absorb damage as a reward for solving this puzzle!",
         "Riddle solved");
-    Game.hero()
-        .flatMap(hero -> hero.fetch(HealthComponent.class))
-        .ifPresent(
-            hc -> {
-              hc.maximalHealthpoints(hc.maximalHealthpoints() + RIDDLE_REWARD);
-              hc.receiveHit(new Damage(-RIDDLE_REWARD, DamageType.HEAL, null));
-              this.rewardGiven = true;
-              this.level.tileAt(this.riddleRewardSpawn).tintColor(-1);
-            });
+    Entity hero = Game.hero().orElse(null);
+    if (hero == null) return;
+    hero.add(new MagicShieldComponent());
+    this.rewardGiven = true;
   }
 
   // Riddle Methods

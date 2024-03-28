@@ -24,7 +24,7 @@ import java.util.stream.Stream;
  * system.
  */
 public class HealthSystem extends System {
-  private final List<IHealthObserver> observers = new ArrayList<>();
+  protected final List<IHealthObserver> observers = new ArrayList<>();
 
   /** Create a new HealthSystem. */
   public HealthSystem() {
@@ -102,7 +102,7 @@ public class HealthSystem extends System {
     return hsd;
   }
 
-  private void doDamageAndAnimation(final HSData hsd, final int dmgAmount) {
+  protected void doDamageAndAnimation(final HSData hsd, final int dmgAmount) {
     if (dmgAmount > 0) {
       Optional<Animation> hitAnimation = hsd.dc.animation(AdditionalAnimations.HIT);
       // we have some damage - let's show a little dance

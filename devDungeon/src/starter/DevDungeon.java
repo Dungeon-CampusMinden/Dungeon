@@ -131,6 +131,7 @@ public class DevDungeon {
     Game.add(new FogOfWarSystem());
     Game.add(new LeverSystem());
     Game.add(new MobSpawnerSystem());
+    Game.add(new MagicShieldSystem());
     Game.add(
         new System() {
           @Override
