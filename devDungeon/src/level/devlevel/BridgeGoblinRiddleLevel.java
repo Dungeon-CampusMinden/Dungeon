@@ -10,6 +10,7 @@ import java.util.List;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.BridgeGoblinRiddleHandler;
 import level.utils.ITickable;
+import utils.EntityUtils;
 
 /** The Bridge Goblin Riddle Level */
 public class BridgeGoblinRiddleLevel extends DevDungeonLevel implements ITickable {
@@ -19,8 +20,10 @@ public class BridgeGoblinRiddleLevel extends DevDungeonLevel implements ITickabl
   private static final MonsterType[] MONSTER_TYPES =
       new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
   private static final MonsterType BOSS_TYPE = MonsterType.CHORT;
+  private static final int MOB_COUNT_PER_CAMP = 3;
 
   // Spawn Points / Locations
+  private final Coordinate[] campSpawns;
   private final Coordinate[] mobSpawns;
   private final Coordinate levelBossSpawn;
 
@@ -30,8 +33,28 @@ public class BridgeGoblinRiddleLevel extends DevDungeonLevel implements ITickabl
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints);
     this.riddleHandler = new BridgeGoblinRiddleHandler(customPoints, this);
-    this.mobSpawns = new Coordinate[] {new Coordinate(0, 0), new Coordinate(0, 0)};
-    this.levelBossSpawn = new Coordinate(0, 0);
+    this.campSpawns =
+        new Coordinate[] {
+          this.customPoints().get(13),
+          this.customPoints().get(14),
+          this.customPoints().get(15),
+          this.customPoints().get(16),
+          this.customPoints().get(17),
+          this.customPoints().get(18),
+          this.customPoints().get(19),
+          this.customPoints().get(20),
+          this.customPoints().get(21),
+          this.customPoints().get(22),
+          this.customPoints().get(23),
+          this.customPoints().get(24),
+        };
+
+    Coordinate[] mobSpawns = new Coordinate[29];
+    for (int i = 25; i < 54; i++) {
+      mobSpawns[i - 25] = this.customPoints().get(i);
+    }
+    this.mobSpawns = mobSpawns;
+    this.levelBossSpawn = this.customPoints().get(54);
   }
 
   @Override
@@ -52,19 +75,18 @@ public class BridgeGoblinRiddleLevel extends DevDungeonLevel implements ITickabl
   }
 
   private void handleFirstTick() {
-
-    this.prepareBridge();
-
     // Spawn all entities and it's content
+    this.spawnCamps();
     this.spawnChestsAndCauldrons();
 
     // EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns, BOSS_TYPE,
     // this.levelBossSpawn);
   }
 
-  private void prepareBridge() {
-    // EntityUtils.spawnMonster(MonsterType.BRIDGE_GOBLIN, this.bridgeMobSpawn);
-
+  private void spawnCamps() {
+    for (Coordinate campSpawn : this.campSpawns) {
+      EntityUtils.spawnMobSpawner(campSpawn, MONSTER_TYPES, MOB_COUNT_PER_CAMP);
+    }
   }
 
   /**
