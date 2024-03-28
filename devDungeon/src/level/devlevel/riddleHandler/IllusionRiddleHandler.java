@@ -20,7 +20,6 @@ public class IllusionRiddleHandler implements ITickable {
   private final Coordinate[][] initTeleporterSpawns;
   private final Coordinate[][] lastTeleporterSpawns;
   private final Coordinate[][] lapCheckpoints; // [location][3 tiles wide]
-  private final Coordinate[] riddleRoomBounds; // TopLeft, BottomRight
   private final Coordinate
       riddleRewardSpawn; // The spawn point of the reward for solving the riddle
   private Coordinate lastHeroPos = new Coordinate(0, 0);
@@ -42,7 +41,6 @@ public class IllusionRiddleHandler implements ITickable {
           {customPoints.get(142), customPoints.get(143), customPoints.get(144)},
           {customPoints.get(145), customPoints.get(146), customPoints.get(147)}
         };
-    this.riddleRoomBounds = new Coordinate[] {new Coordinate(0, 0), new Coordinate(0, 0)};
     this.lapCheckpoints =
         new Coordinate[][] {
           {customPoints.get(148), customPoints.get(149), customPoints.get(150)}, // Right

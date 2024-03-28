@@ -44,18 +44,10 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickab
     super(layout, designLabel, customPoints);
     this.riddleHandler = new DamagedBridgeRiddleHandler(customPoints, this);
     this.bridgeMobSpawn = customPoints.get(8);
+
     this.secretWay =
-        new Tile[] {
-          this.tileAt(customPoints.get(11)),
-          this.tileAt(customPoints.get(12)),
-          this.tileAt(customPoints.get(13)),
-          this.tileAt(customPoints.get(14)),
-          this.tileAt(customPoints.get(15)),
-          this.tileAt(customPoints.get(16)),
-          this.tileAt(customPoints.get(17)),
-        };
-    this.mobSpawns =
-        this.customPoints().subList(18, this.customPoints().size() - 1).toArray(new Coordinate[0]);
+        Arrays.stream(this.getCoordinates(11, 17)).map(this::tileAt).toArray(Tile[]::new);
+    this.mobSpawns = this.getCoordinates(18, this.customPoints().size() - 2);
     this.levelBossSpawn = this.customPoints().getLast();
   }
 

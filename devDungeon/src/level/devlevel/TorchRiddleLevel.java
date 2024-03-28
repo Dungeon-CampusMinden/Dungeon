@@ -48,10 +48,10 @@ public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {
     this.riddleHandler = new TorchRiddleRiddleHandler(customPoints, this);
 
     this.riddleRoomBounds = new Coordinate[] {customPoints.get(1), customPoints.get(2)};
-    this.torchPositions = customPoints.subList(3, 9).toArray(new Coordinate[0]);
-    this.riddleRoomTorches = customPoints.subList(9, 15).toArray(new Coordinate[0]);
-    this.riddleRoomContent = customPoints.subList(15, 17).toArray(new Coordinate[0]);
-    this.mobSpawns = customPoints.subList(18, customPoints.size() - 1).toArray(new Coordinate[0]);
+    this.torchPositions = this.getCoordinates(3, 8);
+    this.riddleRoomTorches = this.getCoordinates(9, 14);
+    this.riddleRoomContent = this.getCoordinates(15, 16);
+    this.mobSpawns = this.getCoordinates(18, customPoints.size() - 2);
     this.levelBossSpawn = customPoints.getLast();
   }
 

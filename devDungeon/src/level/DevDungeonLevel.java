@@ -11,6 +11,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 import level.devlevel.*;
 import level.utils.MissingLevelException;
 import starter.DevDungeon;
@@ -207,6 +208,19 @@ public class DevDungeonLevel extends TileLevel {
       default ->
           throw new IllegalArgumentException("Invalid level name for levelHandler: " + levelName);
     };
+  }
+
+  /**
+   * Gets the custom points that are within the given bounds.
+   *
+   * @param start The start index of the custom points list.
+   * @param end The end index of the custom points list. The end index is inclusive.
+   * @return An array of custom points within the given bounds.
+   */
+  protected Coordinate[] getCoordinates(int start, int end) {
+    return IntStream.rangeClosed(start, end)
+        .mapToObj(this.customPoints()::get)
+        .toArray(Coordinate[]::new);
   }
 
   /**

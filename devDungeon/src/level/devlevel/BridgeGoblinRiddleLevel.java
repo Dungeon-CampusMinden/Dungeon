@@ -33,27 +33,9 @@ public class BridgeGoblinRiddleLevel extends DevDungeonLevel implements ITickabl
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints);
     this.riddleHandler = new BridgeGoblinRiddleHandler(customPoints, this);
-    this.campSpawns =
-        new Coordinate[] {
-          this.customPoints().get(13),
-          this.customPoints().get(14),
-          this.customPoints().get(15),
-          this.customPoints().get(16),
-          this.customPoints().get(17),
-          this.customPoints().get(18),
-          this.customPoints().get(19),
-          this.customPoints().get(20),
-          this.customPoints().get(21),
-          this.customPoints().get(22),
-          this.customPoints().get(23),
-          this.customPoints().get(24),
-        };
 
-    Coordinate[] mobSpawns = new Coordinate[29];
-    for (int i = 25; i < 54; i++) {
-      mobSpawns[i - 25] = this.customPoints().get(i);
-    }
-    this.mobSpawns = mobSpawns;
+    this.campSpawns = this.getCoordinates(13, 24);
+    this.mobSpawns = this.getCoordinates(25, 53);
     this.levelBossSpawn = this.customPoints().get(54);
   }
 

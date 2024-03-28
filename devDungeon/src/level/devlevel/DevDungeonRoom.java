@@ -29,8 +29,12 @@ public class DevDungeonRoom {
 
   /**
    * Constructs a new DevDungeonRoom with the given boundaries and spawn points. Checks if the spawn
-   * points are within the room boundaries.
+   * points are within the room boundaries. The room can contain torches and mobs.
    *
+   * @param topLeft The top left coordinate of the room.
+   * @param bottomRight The bottom right coordinate of the room.
+   * @param torchSpawns The spawn points for torches within the room. (Can be empty)
+   * @param mobSpawns The spawn points for mobs within the room. (Can be empty)
    * @throws IllegalArgumentException if a spawn point is outside the room boundaries.
    */
   public DevDungeonRoom(
@@ -52,6 +56,18 @@ public class DevDungeonRoom {
       }
     }
     this.mobSpawns = mobSpawns;
+  }
+
+  /**
+   * Constructs a new DevDungeonRoom with the given boundaries and torch spawn points. Checks if the
+   * spawn points are within the room boundaries. The room will not contain any torches.
+   *
+   * @param topLeft The top left coordinate of the room.
+   * @param bottomRight The bottom right coordinate of the room.
+   * @param mobSpawns The spawn points for mobs within the room.
+   */
+  public DevDungeonRoom(Coordinate topLeft, Coordinate bottomRight, Coordinate[] mobSpawns) {
+    this(topLeft, bottomRight, new Coordinate[0], mobSpawns);
   }
 
   /**

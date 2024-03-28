@@ -72,12 +72,10 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
             new DevDungeonRoom(
                 this.customPoints().get(7),
                 this.customPoints().get(8),
-                new Coordinate[] {},
                 new Coordinate[] {this.customPoints().get(9)}),
             new DevDungeonRoom(
                 this.customPoints().get(10),
                 this.customPoints().get(11),
-                new Coordinate[] {},
                 new Coordinate[] {this.customPoints().get(12), this.customPoints().get(13)}),
             new DevDungeonRoom(
                 this.customPoints().get(14),
@@ -98,49 +96,29 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                 this.customPoints().get(25),
                 this.customPoints().get(26),
                 new Coordinate[] {this.customPoints().get(27)},
-                new Coordinate[] {
-                  this.customPoints().get(28),
-                  this.customPoints().get(29),
-                  this.customPoints().get(30),
-                  this.customPoints().get(31),
-                  this.customPoints().get(32)
-                }),
+                this.getCoordinates(28, 32)),
             new DevDungeonRoom(
                 this.customPoints().get(33),
                 this.customPoints().get(34),
-                new Coordinate[] {},
                 new Coordinate[] {this.customPoints().get(35), this.customPoints().get(36)}),
             new DevDungeonRoom(
                 this.customPoints().get(37),
                 this.customPoints().get(38),
                 new Coordinate[] {this.customPoints().get(39), this.customPoints().get(40)},
-                new Coordinate[] {
-                  this.customPoints().get(41),
-                  this.customPoints().get(42),
-                  this.customPoints().get(43),
-                  this.customPoints().get(44),
-                  this.customPoints().get(45),
-                  this.customPoints().get(46)
-                }),
+                this.getCoordinates(41, 46)),
             new DevDungeonRoom(
                 this.customPoints().get(47),
                 this.customPoints().get(48),
-                new Coordinate[] {},
                 new Coordinate[] {this.customPoints().get(49)}),
             new DevDungeonRoom(
                 this.customPoints().get(50),
                 this.customPoints().get(51),
-                new Coordinate[] {},
                 new Coordinate[] {this.customPoints().get(52), this.customPoints().get(53)}),
             new DevDungeonRoom(
                 this.customPoints().get(54),
                 this.customPoints().get(55),
                 new Coordinate[] {this.customPoints().get(56)},
-                new Coordinate[] {
-                  this.customPoints().get(57),
-                  this.customPoints().get(58),
-                  this.customPoints().get(59)
-                }),
+                this.getCoordinates(57, 59)),
             new DevDungeonRoom(
                 this.customPoints().get(60),
                 this.customPoints().get(61),
@@ -161,10 +139,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
           new Coordinate[] {this.customPoints().get(129), this.customPoints().get(130)},
           new Coordinate[] {this.customPoints().get(131), this.customPoints().get(132)}
         };
-    this.leverSpawns =
-        new Coordinate[] {
-          this.customPoints().get(133), this.customPoints().get(134), this.customPoints().get(135),
-        };
+    this.leverSpawns = this.getCoordinates(133, 135);
 
     this.chestSpawns = new Coordinate[] {this.customPoints().get(161)};
   }
