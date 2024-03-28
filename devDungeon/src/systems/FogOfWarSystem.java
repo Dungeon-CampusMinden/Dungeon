@@ -259,7 +259,7 @@ public class FogOfWarSystem extends System {
     if (!this.active) return;
 
     Point heroPos = EntityUtils.getHeroPosition();
-    if (heroPos == null) return; // if hero is not present, don't update fog of war
+    if (heroPos == null) return; // no hero, no fog of war
 
     List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, MAX_VIEW_DISTANCE);
     // Revert all darkened tiles back to light that are not in view

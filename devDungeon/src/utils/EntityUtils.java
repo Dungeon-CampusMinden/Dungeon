@@ -395,8 +395,7 @@ public class EntityUtils {
    * <p>This method retrieves the hero entity from the game. If the hero entity is not present
    * (which can happen if the hero has fallen into a pit), the method returns null.
    *
-   * @return The current position of the hero, or a default position of (0,0) if the hero is not
-   *     present.
+   * @return The current position of the hero, or a null value if the hero is not present.
    */
   public static Point getHeroPosition() {
     return Game.hero()

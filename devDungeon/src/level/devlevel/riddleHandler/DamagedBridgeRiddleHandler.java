@@ -107,11 +107,10 @@ public class DamagedBridgeRiddleHandler implements ITickable {
    * @return true if the hero is in the riddle room, false otherwise.
    */
   private boolean isHeroInRiddleRoom() {
-    Entity hero = Game.hero().orElse(null);
-    if (hero == null) {
-      return true; // Only if hero died in a pit, he still should be able to see the riddle room
-    }
     Point heroPos = EntityUtils.getHeroPosition();
+    if (heroPos == null) {
+      return true; // if hero dies due to pit, still show riddle room
+    }
     return LevelUtils.isHeroInArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1])
         || this.level.tileAt(heroPos).equals(this.riddleEntrance)
         || this.level.tileAt(heroPos).equals(this.riddleExit);
