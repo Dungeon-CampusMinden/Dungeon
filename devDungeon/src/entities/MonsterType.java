@@ -10,7 +10,6 @@ import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.fight.RangeAI;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
-import contrib.utils.components.ai.idle.StaticRadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
@@ -58,7 +57,7 @@ public enum MonsterType {
               new Skill(
                   new FireballSkill(SkillTools::heroPositionAsPoint),
                   AIFactory.FIREBALL_COOL_DOWN)),
-      () -> new StaticRadiusWalk(5f, 2),
+      () -> new RadiusWalk(5f, 2),
       () -> new RangeTransition(8),
       0,
       2 * Game.frameRate(), // While collideDamage is 0, this value is irrelevant
@@ -72,7 +71,7 @@ public enum MonsterType {
       0.33f,
       MonsterDeathSound.LOW_PITCH,
       () -> new CollideAI(1.0f),
-      () -> new RadiusWalk(2f, 4),
+      () -> new RadiusWalk(3f, 4),
       () -> new RangeTransition(6),
       10,
       5 * Game.frameRate(),
@@ -86,7 +85,7 @@ public enum MonsterType {
       0.1f,
       MonsterDeathSound.LOWER_PITCH,
       () -> new CollideAI(0.5f),
-      () -> new StaticRadiusWalk(5f, 2),
+      () -> new RadiusWalk(3f, 2),
       () -> new RangeTransition(5),
       5,
       2 * Game.frameRate(),
@@ -173,7 +172,7 @@ public enum MonsterType {
       "character/monster/doc",
       6,
       5.5f,
-      0.1f,
+      0.15f,
       MonsterDeathSound.LOW_PITCH,
       () ->
           new RangeAI(
