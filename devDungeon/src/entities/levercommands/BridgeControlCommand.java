@@ -25,24 +25,24 @@ public class BridgeControlCommand implements ICommand {
   }
 
   /**
-   * Lowers the bridge. By closing the pits, the bridge is lowered.
-   *
-   * @see core.level.elements.tile.PitTile#close() PitTile.close
-   * @see core.level.elements.ILevel#tilesInArea(Coordinate, Coordinate) tilesInArea
-   */
-  @Override
-  public void execute() {
-    // TODO: Implement bridge lowering
-  }
-
-  /**
    * Raises the bridge. By opening the pits, the bridge is raised.
    *
    * @see core.level.elements.tile.PitTile#open() PitTile.open
    * @see core.level.elements.ILevel#tilesInArea(Coordinate, Coordinate) tilesInArea
    */
   @Override
-  public void undo() {
+  public void execute() {
     // TODO: Implement bridge raising
+  }
+
+  /**
+   * Lowers the bridge. By closing the pits, the bridge is lowered.
+   *
+   * @see core.level.elements.tile.PitTile#close() PitTile.close
+   * @see core.level.elements.ILevel#tilesInArea(Coordinate, Coordinate) tilesInArea
+   */
+  @Override
+  public void undo() {
+    // TODO: Implement bridge lowering
   }
 }
