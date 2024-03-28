@@ -159,9 +159,9 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
       // Setup TP Targets for TPBallSkill
       int[] roomIndices = {0, 1, 2, 3, 7};
-      for (int index : roomIndices) {
+      for (int ri : roomIndices) {
         this.addTPTarget(
-            this.rooms.get(index).tiles().stream()
+            this.rooms.get(ri).tiles().stream()
                 .filter(tile -> tile.levelElement() == LevelElement.FLOOR)
                 .map(Tile::coordinate)
                 .toArray(Coordinate[]::new));
@@ -169,8 +169,8 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
       // Open Pits for last room (boss room) and extinguish torches
       this.rooms.getLast().tiles().stream()
-          .filter(tile -> tile.levelElement() == LevelElement.PIT)
-          .map(tile -> (PitTile) tile)
+          .filter(t -> t.levelElement() == LevelElement.PIT)
+          .map(t -> (PitTile) t)
           .forEach(PitTile::open);
       for (Entity torch : this.rooms.getLast().torches()) {
         torch
@@ -182,46 +182,42 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
       // Draw teleporter connections
       TeleporterSystem.getInstance().teleporter().stream()
           .map(Teleporter::from)
-          .forEach(
-              (teleporter) ->
-                  this.tileAt(teleporter).tintColor(0x444444FF)); // dark tint for teleporter
+          .forEach((tp) -> this.tileAt(tp).tintColor(0x444444FF)); // dark tint for teleporter
       TeleporterSystem.getInstance().teleporter().stream()
           .map(Teleporter::to)
-          .forEach(
-              (teleporter) ->
-                  this.tileAt(teleporter).tintColor(0x444444FF)); // dark tint for teleporter
+          .forEach((tp) -> this.tileAt(tp).tintColor(0x444444FF)); // dark tint for teleporter
 
-      Entity boss =
+      Entity b =
           EntityUtils.spawnBoss(
               BOSS_TYPE,
               this.levelBossSpawn,
               (e) -> {
                 ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).active(false);
                 // turn of all torches on death
-                DevDungeonRoom room = this.getCurrentRoom();
-                if (room == null || room != this.rooms.getLast()) {
+                DevDungeonRoom devDungeonRoom = this.getCurrentRoom();
+                if (devDungeonRoom == null || devDungeonRoom != this.rooms.getLast()) {
                   return; // should not happen, just if boss dies while not in boss room
                 }
-                this.lightTorch(room, 0, false);
-                this.lightTorch(room, 1, false);
+                this.lightTorch(devDungeonRoom, 0, false);
+                this.lightTorch(devDungeonRoom, 1, false);
               });
-      HealthComponent bossHc =
-          boss.fetch(HealthComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(boss, HealthComponent.class));
-      bossHc.onHit(
-          (cause, damage) -> {
-            int currentHealth = bossHc.currentHealthpoints() - damage.damageAmount();
-            int maxHealth = bossHc.maximalHealthpoints();
+      HealthComponent bhc =
+          b.fetch(HealthComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(b, HealthComponent.class));
+      bhc.onHit(
+          (cause, dmg) -> {
+            int currentHealth = bhc.currentHealthpoints() - dmg.damageAmount();
+            int maxHealth = bhc.maximalHealthpoints();
 
-            DevDungeonRoom room = this.getCurrentRoom();
-            if (room == null || room != this.rooms.getLast()) {
+            DevDungeonRoom devDungeonRoom = this.getCurrentRoom();
+            if (devDungeonRoom == null || devDungeonRoom != this.rooms.getLast()) {
               return;
             }
 
             double healthPercentage = (double) currentHealth / maxHealth;
             if (healthPercentage <= 0.5) {
-              this.lightTorch(room, 0, true);
-              this.lightTorch(room, 1, true);
+              this.lightTorch(devDungeonRoom, 0, true);
+              this.lightTorch(devDungeonRoom, 1, true);
             }
           });
 
@@ -265,33 +261,19 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
     this.riddleHandler.onTick(isFirstTick);
   }
 
-  /**
-   * Lights a specified torch in a given room.
-   *
-   * <p>This method retrieves the torch at the given index from the room's array of torches. It then
-   * fetches the TorchComponent of the torch and sets its lit property to true.
-   *
-   * @param room The room in which the torch to be lit is located.
-   * @param torchIndex The index of the torch to be lit in the room's array of torches.
-   * @param lit The new state of the torch.
-   * @throws IndexOutOfBoundsException if the torch index is out of bounds
-   */
-  private void lightTorch(DevDungeonRoom room, int torchIndex, boolean lit) {
-    if (room.torches()[torchIndex]
+  /** TODO: Refactor this method, and add JavaDoc */
+  public void lightTorch(DevDungeonRoom r, int i, boolean lit) {
+    if (r.torches()[i]
             .fetch(TorchComponent.class)
             .orElseThrow(
-                () ->
-                    MissingComponentException.build(
-                        room.torches()[torchIndex], TorchComponent.class))
+                () -> MissingComponentException.build(r.torches()[i], TorchComponent.class))
             .lit()
         == lit) return;
-    room.torches()[torchIndex]
+    r.torches()[i]
         .fetch(InteractionComponent.class)
         .orElseThrow(
-            () ->
-                MissingComponentException.build(
-                    room.torches()[torchIndex], InteractionComponent.class))
-        .triggerInteraction(room.torches()[torchIndex], Game.hero().orElse(null));
+            () -> MissingComponentException.build(r.torches()[i], InteractionComponent.class))
+        .triggerInteraction(r.torches()[i], Game.hero().orElse(null));
   }
 
   /**
@@ -316,26 +298,33 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
    * @throws RuntimeException if any of the entities could not be created
    */
   private void spawnChestsAndCauldrons() {
-    for (Coordinate chestSpawn : this.chestSpawns) {
-      Entity chest;
+    for (Coordinate chestSpawnTileCoordinate : this.chestSpawns) {
+      Entity newIllusionRiddleLevelChestEntity;
       try {
-        chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
+        newIllusionRiddleLevelChestEntity = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
       } catch (Exception e) {
-        throw new RuntimeException("Failed to create chest entity at " + chestSpawn, e);
+        throw new RuntimeException(
+            "Failed to create chest entity at " + chestSpawnTileCoordinate, e);
       }
       PositionComponent pc =
-          chest
+          newIllusionRiddleLevelChestEntity
               .fetch(PositionComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
-      pc.position(chestSpawn.toCenteredPoint());
+              .orElseThrow(
+                  () ->
+                      MissingComponentException.build(
+                          newIllusionRiddleLevelChestEntity, PositionComponent.class));
+      pc.position(chestSpawnTileCoordinate.toCenteredPoint());
       InventoryComponent ic =
-          chest
+          newIllusionRiddleLevelChestEntity
               .fetch(InventoryComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(chest, InventoryComponent.class));
+              .orElseThrow(
+                  () ->
+                      MissingComponentException.build(
+                          newIllusionRiddleLevelChestEntity, InventoryComponent.class));
       ic.add(new ItemPotionHealth(HealthPotionType.WEAK));
       ic.add(new ItemPotionSpeedPotion());
 
-      Game.add(chest);
+      Game.add(newIllusionRiddleLevelChestEntity);
     }
   }
 }
