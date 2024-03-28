@@ -34,7 +34,9 @@ import task.game.hud.QuizUI;
 import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.SingleChoice;
+import utils.DevRiddle;
 import utils.EntityUtils;
+import utils.RegexRiddle;
 
 public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
 
@@ -80,6 +82,8 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
     }
 
     Point heroPos = EntityUtils.getHeroPosition();
+    if (heroPos == null) return;
+
     if (LevelUtils.isHeroInArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1])
         || this.level.tileAt(heroPos).equals(this.level.tileAt(this.riddleRoomEntrance))
         || this.level.tileAt(heroPos).equals(this.level.tileAt(this.riddleRoomExit))) {
@@ -237,11 +241,11 @@ public class BridgeGoblinRiddleHandler implements ITickable, IHealthObserver {
   }
 
   private void setupRiddles() {
-    this.addRiddle(
-        "What is the answer to life, the universe and everything?",
-        new String[] {"42", "43", "44", "45"},
-        0);
-    this.addRiddle("What is better than 42?", new String[] {"42", "43", "44", "45"}, 1);
+    List<DevRiddle> riddles = RegexRiddle.getRandRiddles(5);
+    for (DevRiddle riddle : riddles) {
+      this.addRiddle(
+          riddle.question(), riddle.answers().toArray(new String[0]), riddle.correctAnswerIndex());
+    }
   }
 
   // Spawn Methods
