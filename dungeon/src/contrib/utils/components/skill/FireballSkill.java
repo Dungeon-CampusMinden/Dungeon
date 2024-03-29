@@ -71,7 +71,7 @@ public final class FireballSkill extends DamageProjectile {
   }
 
   @Override
-  protected void playSound() {
+  protected Sound playSound() {
     Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(PROJECTILE_SOUND.pathString()));
 
     // Generate a random pitch between 1.5f and 2.0f
@@ -85,5 +85,6 @@ public final class FireballSkill extends DamageProjectile {
 
     // Set the volume
     soundEffect.setVolume(soundId, 0.05f);
+    return soundEffect;
   }
 }

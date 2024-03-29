@@ -1,5 +1,6 @@
 package contrib.utils.components.skill;
 
+import com.badlogic.gdx.audio.Sound;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
@@ -16,6 +17,8 @@ import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -40,6 +43,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final Point projectileHitBoxSize;
   private final Supplier<Point> selectionFunction;
   private final Consumer<Entity> onWallHit;
+  private final List<Entity> ignoreEntities = new ArrayList<>();
 
   /**
    * The behavior when an entity is hit. (The first parameter is the projectile, the second the
@@ -48,6 +52,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final BiConsumer<Entity, Entity> onEntityHit;
 
   private int tintColor = -1; // -1 means no tint
+  private Sound currentSound = null;
 
   /**
    * The DamageProjectile constructor sets the path to the textures of the projectile, the speed of
@@ -184,7 +189,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     // Create a collision handler for the projectile
     TriConsumer<Entity, Entity, Tile.Direction> collide =
         (a, b, from) -> {
-          if (b != entity) {
+          if (b != entity && !ignoreEntities.contains(b)) {
             b.fetch(HealthComponent.class)
                 .ifPresent(
                     hc -> {
@@ -203,11 +208,33 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     projectile.add(
         new CollideComponent(CollideComponent.DEFAULT_OFFSET, projectileHitBoxSize, collide, null));
     Game.add(projectile);
-    playSound();
+    this.currentSound = this.playSound();
+  }
+
+  /**
+   * Adds an entity to the list of entities to be ignored by the projectile. Entities in this list
+   * will not be affected by the projectile's collision handler.
+   *
+   * @param entity The entity to be ignored by the projectile.
+   */
+  public void ignoreEntity(Entity entity) {
+    this.ignoreEntities.add(entity);
+  }
+
+  /**
+   * Removes an entity from the list of entities to be ignored by the projectile. Entities not in
+   * this list will be affected by the projectile's collision handler.
+   *
+   * @param entity The entity to be removed from the ignore list.
+   */
+  public void removeIgnoredEntity(Entity entity) {
+    this.ignoreEntities.remove(entity);
   }
 
   /** Override this method to play a Sound-effect on spawning the projectile if you want. */
-  protected void playSound() {}
+  protected Sound playSound() {
+    return null;
+  }
 
   /**
    * Sets the tint color of the projectile. Set to -1 to remove the tint.
@@ -225,5 +252,11 @@ public abstract class DamageProjectile implements Consumer<Entity> {
    */
   public int tintColor() {
     return this.tintColor;
+  }
+
+  public void disposeSounds() {
+    if (this.currentSound != null) {
+      this.currentSound.dispose();
+    }
   }
 }
