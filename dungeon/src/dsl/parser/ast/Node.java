@@ -3,12 +3,19 @@ package dsl.parser.ast;
 import dsl.error.ErrorListener;
 import java.util.ArrayList;
 import org.antlr.v4.runtime.RecognitionException;
+import org.neo4j.ogm.annotation.*;
 
+@NodeEntity
 public class Node {
   // used for running index to give every Node a unique identifier
   private static int _idx;
+  @Property
   private boolean hasErrorChild;
+
+  @Property @Transient
   private ErrorListener.ErrorRecord errorRecord;
+
+  @Property @Transient
   private RecognitionException exception;
 
   /**
@@ -85,11 +92,21 @@ public class Node {
 
   public static Node NONE = new Node(Type.NONE, new ArrayList<>());
 
+  @Relationship(type="PARENT_OF", direction = Relationship.Direction.OUTGOING)
   private ArrayList<Node> children;
+
+  @Property
   public final Type type;
+  @Relationship(type="CHILD_OF", direction = Relationship.Direction.OUTGOING)
   private Node parent;
+  @Property @Transient
   private SourceFileReference sourceFileReference = SourceFileReference.NULL;
+  @Id
   private final int idx;
+
+  public Node() {
+    this(Type.NONE, new ArrayList<>());
+  }
 
   /**
    * Constructor for AST-Node with children
