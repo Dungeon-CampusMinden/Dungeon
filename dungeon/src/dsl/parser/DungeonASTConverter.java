@@ -1210,8 +1210,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   @Override
   public void enterEveryRule(ParserRuleContext ctx) {
     // TODO: use for error handling? start error mode, which changes creation of AST and relaxes
-    // asserts on
-    //  stack contents?
+    //  asserts on //  stack contents?
 
     // Note: this is executed before specific enter
     String ruleName = getRuleName(ctx);
@@ -1223,8 +1222,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     List<TerminalNode> offendingChildren = new ArrayList<>();
     var childCount = ctx.getChildCount();
     // TODO: this could be optimized, so that the converter stores offending symbols indexed on
-    // their lines
-    //  / sourcefile ranges and checks, whether the current rule contains these ranges
+    //  their lines / sourcefile ranges and checks, whether
+    //  the current rule contains these ranges
     for (int i = 0; i < childCount; i++) {
       var child = ctx.getChild(i);
       if (child instanceof TerminalNodeImpl terminalNode) {
@@ -1235,16 +1234,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       }
     }
 
-    /*if (!offendingChildren.isEmpty()) {
-      // TODO: need to handle that -> push current ctx on error rule stack and store offending
-      // tokens alongside
-      //  ctx in new HashMap, so they can be added as ErrorNodes in handle errorMode; idea: putting
-      // them directly on
-      //  aststack here would likely in ill-formed AST.. but could try it nonetheless
-      this.errorRuleStack.push(ctx);
-      this.rulesWithOffendingTerminalNodes.put(ctx, offendingChildren);
-      LOGGER.warning("Rule contains offending children: " + ctx.exception + "; pushing error ctx!");
-    } else*/ if (ctx.exception != null) {
+    if (ctx.exception != null) {
       LOGGER.warning("Rule context contains exception: " + ctx.exception + "; pushing error ctx!");
       this.errorRuleStack.push(ctx);
     }
@@ -1375,10 +1365,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
       // add all nodes under node
       // TODO: just creating a generic node with type ErrorNode will restrict the information we
-      // could
-      //  get from partial parsing results, we should probably use the corresponding AST node type
-      // of
-      //  the ctx
+      //  could get from partial parsing results, we should
+      //  probably use the corresponding AST node type of the ctx
       Node errorNode = new Node(Node.Type.ErrorNode, list);
 
       if (ctx.exception != null) {
