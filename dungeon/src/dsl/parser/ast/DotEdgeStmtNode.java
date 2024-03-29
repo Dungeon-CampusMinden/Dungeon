@@ -46,6 +46,10 @@ public class DotEdgeStmtNode extends Node {
     return this.getChild(attrListIdx).getChildren();
   }
 
+  public boolean hasAttrList() {
+    return this.getAttrListNode() != null && !this.getAttrListNode().equals(Node.NONE);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

@@ -2,12 +2,14 @@ package dsl.parser.ast;
 
 import dsl.error.ErrorListener;
 import java.util.ArrayList;
+import org.antlr.v4.runtime.RecognitionException;
 
 public class Node {
   // used for running index to give every Node a unique identifier
   private static int _idx;
   private boolean hasErrorChild;
   private ErrorListener.ErrorRecord errorRecord;
+  private RecognitionException exception;
 
   /**
    * @return The unique index of this node
@@ -105,6 +107,10 @@ public class Node {
 
     for (var child : nodeChildren) {
       child.parent = this;
+
+      if (child.type == Type.ErrorNode) {
+        this.hasErrorChild = true;
+      }
     }
   }
 

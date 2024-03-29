@@ -8,8 +8,8 @@ import dsl.interpreter.TestEnvironment;
 import dsl.parser.ast.*;
 import graph.taskdependencygraph.TaskEdge;
 import java.util.List;
-
 import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.InputMismatchException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -1305,6 +1305,27 @@ public class TestDungeonASTConverter {
     System.out.println(parseTree);
 
     var ast = DungeonASTConverter.getProgramAST(program, env);
+    var dotDef = ast.getChild(0);
+    var idNode = dotDef.getChild(0);
+    Assert.assertEquals(Node.Type.Identifier, idNode.type);
+    var stmtList = dotDef.getChild(1);
+    Assert.assertEquals(Node.Type.DotStmtList, stmtList.type);
+
+    var children = dotDef.getChildren();
+    Assert.assertEquals(20, children.size());
+    for (int i = 2; i < children.size(); i++) {
+      System.out.println("Checking child of dot def with idx " + i);
+      var child = children.get(i);
+      Assert.assertEquals(Node.Type.ErrorNode, child.type);
+    }
+
+    var objDef = (ObjectDefNode) ast.getChild(1);
+    Assert.assertEquals("obj1", objDef.getIdName());
+    Assert.assertEquals("asdf_type", objDef.getTypeSpecifierName());
+    var propDef = (PropertyDefNode) objDef.getPropertyDefinitions().get(0);
+    Assert.assertEquals("val1", propDef.getIdName());
+    var expr = (IdNode) propDef.getStmtNode();
+    Assert.assertEquals("id", expr.getName());
   }
 
   @Test
@@ -1336,7 +1357,8 @@ public class TestDungeonASTConverter {
                     dot_edge_RHS ->
                       dot_node_list
                         id
-                          ->[ERROR_NODE]task2_2_a
+                          ->[ERROR_NODE]
+                          task2_2_a
                     dot_attr_list [
                       dot_attr
                         id type
@@ -1370,44 +1392,100 @@ public class TestDungeonASTConverter {
     System.out.println(parseTree);
 
     var ast = DungeonASTConverter.getProgramAST(program, env);
+    var dotDef = (DotDefNode) ast.getChild(0);
+
+    var firstStmtNode = (DotEdgeStmtNode) dotDef.getStmtNodes().get(0);
+    var idListLhs = (DotIdList) firstStmtNode.getIdLists().get(0);
+    var idLhs = (IdNode) idListLhs.getIdNodes().get(0);
+    Assert.assertEquals("task1_a", idLhs.getName());
+
+    var idListRhs = (DotIdList) firstStmtNode.getIdLists().get(1);
+    Assert.assertTrue(idListRhs.hasErrorChild());
+    var idListEntry = idListRhs.getChild(0);
+    Assert.assertEquals(Node.Type.ErrorNode, idListEntry.type);
+
+    var firstIdListEntryChild = idListEntry.getChild(0);
+    Assert.assertEquals(Node.Type.ErrorNode, firstIdListEntryChild.type);
+    Assert.assertEquals("->", firstIdListEntryChild.getErrorRecord().offendingSymbol().getText());
+
+    var secondIdListEntryChild = idListEntry.getChild(1);
+    Assert.assertEquals(Node.Type.Identifier, secondIdListEntryChild.type);
+    Assert.assertEquals("task2_2_a", ((IdNode) secondIdListEntryChild).getName());
+
+    var secondStmtNode = (DotEdgeStmtNode) dotDef.getStmtNodes().get(1);
+    Assert.assertFalse(secondStmtNode.hasErrorChild());
+    idListLhs = secondStmtNode.getIdLists().get(0);
+    idLhs = idListLhs.getIdNodes().get(0);
+    Assert.assertEquals("task3", idLhs.getName());
+
+    idListRhs = secondStmtNode.getIdLists().get(1);
+    var idRhs = idListRhs.getIdNodes().get(0);
+    Assert.assertEquals("task4", idRhs.getName());
   }
 
   @Test
   public void testErrorNodeSimple() {
-    String program =
-        """
-      graph name {
-          task1_a -> (; // missing rhs
-      }
-      """;
-
     // FYI, this is the parsetree
     String expectedTree =
         """
         program
           definition
-            dot_def graph
-              id name
-              {
+            dot_def
+              $'graph'
+              id
+                $'name'
+              $'{'
               dot_stmt_list
                 dot_stmt
                   dot_edge_stmt
                     dot_node_list
-                      id task1_a
-                    dot_edge_RHS ->
+                      id
+                        $'task1_a'
+                    dot_edge_RHS
+                      $'->'
                       dot_node_list
-                        id[EXCEPTION IN NODE]
-                  ;
-              }
-          <EOF>
+                        id [EXCEPTION IN NODE]
+                          $'('[ERROR_NODE]
+                  $';'
+              $'}'
+          $'<EOF>'
     """;
+
+    String program = """
+    graph name {
+        task1_a -> (; // missing rhs
+    }
+    """;
+
     var env = new TestEnvironment();
     env.addMockTypeName("asdf_type");
 
-    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, false);
-    System.out.println(parseTree);
-
     var ast = DungeonASTConverter.getProgramAST(program, env);
+    var dotDef = (DotDefNode) ast.getChild(0);
+    var stmtNode = (DotEdgeStmtNode) dotDef.getStmtNodes().get(0);
+    Assert.assertFalse(stmtNode.hasAttrList());
+    var idListLhs = (DotIdList) stmtNode.getIdLists().get(0);
+    var idLhs = (IdNode) idListLhs.getIdNodes().get(0);
+    Assert.assertEquals("task1_a", idLhs.getName());
+
+    var idListRhs = (DotIdList) stmtNode.getIdLists().get(1);
+    Assert.assertTrue(idListRhs.hasErrorChild());
+    var firstChildRhs = idListRhs.getChild(0);
+    Assert.assertEquals(Node.Type.ErrorNode, firstChildRhs.type);
+
+    // the whole id-list should also contain the error record corresponding to the exception
+    var idListErrorRecord = firstChildRhs.getErrorRecord();
+    Assert.assertEquals(2, idListErrorRecord.line());
+    Assert.assertEquals(15, idListErrorRecord.charPositionInLine());
+    Assert.assertEquals("(", ((CommonToken) idListErrorRecord.offendingSymbol()).getText());
+    Assert.assertTrue(idListErrorRecord.exception() instanceof InputMismatchException);
+
+    // this errorNode should correspond to the extraneous ')'
+    var errorNode = (ASTErrorNode) firstChildRhs.getChild(0);
+    var errorNodeErrorRecord = errorNode.getErrorRecord();
+    Assert.assertEquals(2, errorNodeErrorRecord.line());
+    Assert.assertEquals(15, errorNodeErrorRecord.charPositionInLine());
+    Assert.assertTrue(errorNodeErrorRecord.exception() instanceof InputMismatchException);
   }
 
   @Test
@@ -1422,33 +1500,33 @@ public class TestDungeonASTConverter {
     System.out.println(parseTree);
 
     var ast = DungeonASTConverter.getProgramAST(program, env);
-    var parameterDefNodes = ((FuncDefNode)ast.getChild(0)).getParameters();
+    var parameterDefNodes = ((FuncDefNode) ast.getChild(0)).getParameters();
 
     var secondParamDef = parameterDefNodes.get(1);
     Assert.assertTrue(secondParamDef.hasErrorChild());
     var typeId = secondParamDef.getChild(0);
     assertEquals(Node.Type.Identifier, typeId.type);
-    var typeIdNode = (IdNode)typeId;
+    var typeIdNode = (IdNode) typeId;
     assertEquals("int", typeIdNode.getName());
     var offendingSymbol = secondParamDef.getChild(1);
     assertEquals(Node.Type.ErrorNode, offendingSymbol.type);
     var errorRecord = offendingSymbol.getErrorRecord();
     assertEquals(1, errorRecord.line());
     assertEquals(19, errorRecord.charPositionInLine());
-    assertEquals(",", ((CommonToken)errorRecord.offendingSymbol()).getText());
+    assertEquals(",", ((CommonToken) errorRecord.offendingSymbol()).getText());
 
     var thirdParamDef = parameterDefNodes.get(2);
     Assert.assertTrue(thirdParamDef.hasErrorChild());
     typeId = thirdParamDef.getChild(0);
     assertEquals(Node.Type.Identifier, typeId.type);
-    typeIdNode = (IdNode)typeId;
+    typeIdNode = (IdNode) typeId;
     assertEquals("int", typeIdNode.getName());
     offendingSymbol = thirdParamDef.getChild(1);
     assertEquals(Node.Type.ErrorNode, offendingSymbol.type);
     errorRecord = offendingSymbol.getErrorRecord();
     assertEquals(1, errorRecord.line());
     assertEquals(24, errorRecord.charPositionInLine());
-    assertEquals(")", ((CommonToken)errorRecord.offendingSymbol()).getText());
+    assertEquals(")", ((CommonToken) errorRecord.offendingSymbol()).getText());
   }
 
   @Test
@@ -1466,17 +1544,76 @@ public class TestDungeonASTConverter {
     System.out.println(parseTree);
 
     var ast = DungeonASTConverter.getProgramAST(program, env);
-    var propertyDefinitionNodes = ((ObjectDefNode)ast.getChild(0)).getPropertyDefinitions();
+    var propertyDefinitionNodes = ((ObjectDefNode) ast.getChild(0)).getPropertyDefinitions();
     var firstPropertyDefinition = propertyDefinitionNodes.get(0);
     Assert.assertTrue(firstPropertyDefinition.hasErrorChild());
     var id = firstPropertyDefinition.getChild(0);
     Assert.assertEquals(Node.Type.Identifier, id.type);
-    var idNode = (IdNode)id;
+    var idNode = (IdNode) id;
     Assert.assertEquals("val1", idNode.getName());
     var offendingSymbol = firstPropertyDefinition.getChild(1);
     Assert.assertEquals(Node.Type.ErrorNode, offendingSymbol.type);
     var errorRecord = offendingSymbol.getErrorRecord();
     Assert.assertEquals(2, errorRecord.line());
     Assert.assertEquals(8, errorRecord.charPositionInLine());
+  }
+
+  @Test
+  public void testErrorCompletelyBroken() {
+    String program =
+        """
+      graph name {
+        // statement bound
+          task1_a -> ;// missing rhs and missing semicolon
+
+          -> task2_2_a [type=c_f]; // missing lhs; sync auf nächstes statement
+          task3 -> task4 [type=c_f]
+
+      asdf_type obj1 {
+        val1: id
+      }
+      """;
+
+    // FYI, this is the parsetree
+    String expectedTree =
+        """
+      program
+        definition
+          dot_def graph
+            id name
+            {
+            dot_stmt_list
+              dot_stmt
+                dot_edge_stmt
+                  dot_node_list
+                    id task1_a
+                  dot_edge_RHS ->
+                    dot_node_list
+                      id[EXCEPTION IN NODE]
+                ;
+            ->[ERROR_NODE]
+            task2_2_a[ERROR_NODE]
+            [[ERROR_NODE]
+            type[ERROR_NODE]
+            $DC$ // don't care about all nodes
+        definition
+          object_def asdf_typeobj1{
+            property_def_list
+              property_def
+                id val1
+                :
+                expression
+                  $DC$ // don't care about all following child nodes
+            }
+        <EOF>
+  """;
+    var env = new TestEnvironment();
+    env.addMockTypeName("asdf_type");
+
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, false);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+    boolean b = true;
   }
 }

@@ -15,10 +15,20 @@ public class ErrorListener extends BaseErrorListener {
 
   public record ErrorRecord(
       String msg,
-      Object offendingSymbol,
+      CommonToken offendingSymbol,
       int line,
       int charPositionInLine,
-      RecognitionException exception) {}
+      RecognitionException exception) {
+    public static ErrorRecord fromRecognitionException(RecognitionException exception) {
+      var offendingToken = (CommonToken) exception.getOffendingToken();
+      return new ErrorListener.ErrorRecord(
+          exception.getMessage(),
+          offendingToken,
+          offendingToken.getLine(),
+          offendingToken.getCharPositionInLine(),
+          exception);
+    }
+  }
 
   public List<ErrorRecord> getErrors() {
     return errors;
@@ -42,7 +52,8 @@ public class ErrorListener extends BaseErrorListener {
     }
 
     // get parent of offending symbol?
-    this.errors.add(new ErrorRecord(msg, offendingSymbol, line, charPositionInLine, e));
+    this.errors.add(
+        new ErrorRecord(msg, (CommonToken) offendingSymbol, line, charPositionInLine, e));
 
     String warning =
         String.format(

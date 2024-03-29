@@ -1197,7 +1197,13 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       this.errorRuleStack.push((ParserRuleContext) parent);
     }
 
-    var errorNode = new ASTErrorNode(node);
+    var offendingSymbol = node.getSymbol();
+    ErrorListener.ErrorRecord errorRecord = null;
+    if (this.offendingTokens.contains(offendingSymbol)) {
+      errorRecord = this.tokensErrorRecords.get(offendingSymbol);
+    }
+
+    var errorNode = new ASTErrorNode(node, errorRecord);
     astStack.push(errorNode);
   }
 
@@ -1367,14 +1373,18 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
         list.set(currentASTStackCount - i - 1, node);
       }
 
-      /*if (this.rulesWithOffendingTerminalNodes.containsKey(ctx)) {
-        var offendingTerminalNodes = this.rulesWithOffendingTerminalNodes.get(ctx);
-        list.addAll(offendingTerminalNodes.stream().map(ASTOffendingSymbol::new).toList());
-      }*/
-
       // add all nodes under node
-      // TODO: add exception to node, if the current ctx contains one
+      // TODO: just creating a generic node with type ErrorNode will restrict the information we
+      // could
+      //  get from partial parsing results, we should probably use the corresponding AST node type
+      // of
+      //  the ctx
       Node errorNode = new Node(Node.Type.ErrorNode, list);
+
+      if (ctx.exception != null) {
+        var record = ErrorListener.ErrorRecord.fromRecognitionException(ctx.exception);
+        errorNode.setErrorRecord(record);
+      }
 
       // pop current ctx from error rule stack
       this.errorRuleStack.pop();

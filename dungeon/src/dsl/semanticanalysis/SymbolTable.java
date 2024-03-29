@@ -67,16 +67,17 @@ public class SymbolTable {
    * @param nodeOfSymbol The AST Node, which references the symbol
    */
   public void addSymbolNodeRelation(Symbol symbol, Node nodeOfSymbol, boolean isNodeCreationNode) {
+    // TODO: are there situations, in which multiple symbols are associated with the same
+    //  AST-Node? if not, this could be simplified
     if (!astNodeSymbolRelation.containsKey(nodeOfSymbol.getIdx())) {
       astNodeSymbolRelation.put(nodeOfSymbol.getIdx(), new ArrayList<>());
     }
 
-    // TODO: are there situations, in which multiple symbols are associated with the same
-    // AST-Node?
-    //  if not, this could be simplified
+    // TODO: model this as :REFERENCES in neo4j
     astNodeSymbolRelation.get(nodeOfSymbol.getIdx()).add(symbol.getIdx());
 
     if (isNodeCreationNode) {
+      // TODO: model this as :CREATES in neo4j
       setCreationAstNode(symbol, nodeOfSymbol);
     }
 
@@ -86,6 +87,7 @@ public class SymbolTable {
         symbolToAstNodeRelation.put(symbol.getIdx(), nodeOfSymbol.getIdx());
     }*/
 
+    // this is just for housekeeping and keeping track of the objects
     symbolIdxToSymbol.put(symbol.getIdx(), symbol);
     astNodeIdxToAstNode.put(nodeOfSymbol.getIdx(), nodeOfSymbol);
   }
@@ -111,8 +113,8 @@ public class SymbolTable {
         var symbol = symbolIdxToSymbol.get(idx);
         // TODO: why is this a list? if every AST-Node is ever associated with at most one
         //  symbol, this could be simplified -> not to be confused with the likely reference
-        // of one symbol by
-        //  multiple AST-Nodes
+        //  of one symbol by multiple AST-Nodes;
+        //  test: this never contains more than one symbol!
         returnList.add(symbol);
       }
     }
