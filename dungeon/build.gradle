@@ -7,8 +7,14 @@ plugins {
 dependencies {
     api project(':game')
 
+    api supportDependencies.neo4j
+    api supportDependencies.ogm
+    api supportDependencies.ogm_core
+    api supportDependencies.ogm_bolt_driver
+
     // ANTLR version 4 for DSL Grammar
     antlr supportDependencies.antlr
+
 }
 
 

@@ -9,6 +9,8 @@ ext {
     mockitoVersion = '5.11.0'
     antlrVersion = '4.13.1'
     gsonVersion = '2.10.1'
+    neo4jVersion = '5.18.0'
+    ogmVersion = '4.0.10'
 
     supportDependencies = [
         // LibGDX
@@ -29,5 +31,13 @@ ext {
 
         // ANTLR version 4 for DSL Grammar
         antlr                     : "org.antlr:antlr4:$antlrVersion",
+
+        // https://mvnrepository.com/artifact/org.neo4j.driver/neo4j-java-driver
+        neo4j                     : "org.neo4j.driver:neo4j-java-driver:$neo4jVersion",
+
+        // ogm
+        ogm                       : "org.neo4j:neo4j-ogm:$ogmVersion",
+        ogm_core                  : "org.neo4j:neo4j-ogm-core:$ogmVersion",
+        ogm_bolt_driver           : "org.neo4j:neo4j-ogm-bolt-driver:$ogmVersion"
     ]
 }
