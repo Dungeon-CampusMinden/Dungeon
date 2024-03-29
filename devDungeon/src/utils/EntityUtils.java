@@ -81,7 +81,7 @@ public class EntityUtils {
           newMob
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(newMob, PositionComponent.class));
-      positionComponent.position(tile.position());
+      positionComponent.position(tile.coordinate().toCenteredPoint());
       Game.add(newMob);
       return newMob;
     } catch (IOException e) {
@@ -335,7 +335,7 @@ public class EntityUtils {
     try {
       Entity bossMob = EntityUtils.spawnMonster(bossType, levelBossSpawn);
       if (bossMob == null) {
-        throw new RuntimeException();
+        throw new RuntimeException("Failed to spawn level boss monster");
       }
       // When the level boss monster dies, open the exit of the current level.
       bossMob
