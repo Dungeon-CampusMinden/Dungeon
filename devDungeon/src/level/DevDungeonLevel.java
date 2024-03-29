@@ -205,6 +205,7 @@ public class DevDungeonLevel extends TileLevel {
       case "damagedbridge" -> new DamagedBridgeRiddleLevel(layout, designLabel, customPoints);
       case "illusionriddle" -> new IllusionRiddleLevel(layout, designLabel, customPoints);
       case "bridgeguard" -> new BridgeGuardRiddleLevel(layout, designLabel, customPoints);
+      case "finalboss" -> new BossLevel(layout, designLabel, customPoints);
       default ->
           throw new IllegalArgumentException("Invalid level name for levelHandler: " + levelName);
     };
