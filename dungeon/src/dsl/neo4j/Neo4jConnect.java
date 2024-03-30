@@ -116,7 +116,7 @@ public class Neo4jConnect {
       driver.verifyConnectivity();
       Driver ogmDriver = new BoltDriver(driver);
       try {
-        var sessionFactory = new SessionFactory(ogmDriver, "dsl.parser.ast");
+        var sessionFactory = new SessionFactory(ogmDriver, "dsl.parser.ast", "dsl.semanticanalysis.symbol", "dsl.semanticanalysis.typesystem.typebuilding.type", "dsl.runtime.callable", "dslinterop.dslnativefunction", "dsl.semanticanalysis.environment");
         var session = sessionFactory.openSession();
 
         // clean up db
@@ -124,6 +124,9 @@ public class Neo4jConnect {
 
         // save ast in db
         session.save(ast);
+
+        session.save(symTable.getSymbolCreations());
+        session.save(symTable.getSymbolReferences());
 
         // get ast root node back from db
         var root =

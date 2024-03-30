@@ -24,6 +24,9 @@ package dsl.semanticanalysis;
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
+import dsl.semanticanalysis.symbol.SymbolCreation;
+import dsl.semanticanalysis.symbol.SymbolReference;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +63,18 @@ public class SymbolTable {
     return globalScope;
   }
 
+  private final List<SymbolCreation> symbolCreations;
+
+  public List<SymbolCreation> getSymbolCreations() {
+    return symbolCreations;
+  }
+
+  private final List<SymbolReference> symbolReferences;
+
+  public List<SymbolReference> getSymbolReferences() {
+    return symbolReferences;
+  }
+
   /**
    * Add an association between symbol and AST node. The nodeOfSymbol passed to this method with a
    * symbol, which was not previously passed, will be treated as the node, which created the symbol
@@ -77,6 +92,7 @@ public class SymbolTable {
     // TODO: model this as :REFERENCES in neo4j
     //astNodeSymbolRelation.get(nodeOfSymbol).add(symbol);
     astNodeSymbolRelation.put(nodeOfSymbol, symbol);
+    this.symbolReferences.add(new SymbolReference(nodeOfSymbol, symbol));
 
     if (isNodeCreationNode) {
       // TODO: model this as :CREATES in neo4j
@@ -109,6 +125,7 @@ public class SymbolTable {
 
   private void setCreationAstNode(Symbol symbol, Node creationNode) {
     creationASTNodeRelation.put(symbol, creationNode);
+    this.symbolCreations.add(new SymbolCreation(creationNode, symbol));
   }
 
   /**
@@ -145,6 +162,8 @@ public class SymbolTable {
    */
   public SymbolTable(IScope globalScope) {
     this.globalScope = globalScope;
+    this.symbolCreations = new ArrayList<>();
+    this.symbolReferences = new ArrayList<>();
     astNodeSymbolRelation = new HashMap<>();
     symbolIdxToSymbol = new HashMap<>();
     astNodeIdxToAstNode = new HashMap<>();

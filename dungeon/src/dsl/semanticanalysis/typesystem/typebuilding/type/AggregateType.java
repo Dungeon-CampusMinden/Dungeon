@@ -3,13 +3,18 @@ package dsl.semanticanalysis.typesystem.typebuilding.type;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Transient;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
 public class AggregateType extends ScopedSymbol implements IType {
   public static String NAME_SYMBOL_NAME = "$NAME$";
 
+  @Transient
   protected Class<?> originType;
+  @Transient
   private HashMap<String, Field> typeMemberToField;
 
   /**

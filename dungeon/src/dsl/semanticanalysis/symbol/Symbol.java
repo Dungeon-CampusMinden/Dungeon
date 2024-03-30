@@ -21,10 +21,16 @@
 
 package dsl.semanticanalysis.symbol;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Transient;
 
 /** Represents a symbol in a program */
+@NodeEntity
 public class Symbol {
   public enum Type {
     Base,
@@ -34,14 +40,19 @@ public class Symbol {
   // running index, used as unique identifier
   protected static int s_idx;
 
+  @Property
   protected String name;
 
+  @Property @Transient
   protected IType dataType;
 
   // the parent scope of the symbol
+  @Property @Transient
   protected IScope scope;
+  @Property
   protected Type symbolType;
 
+  @Id
   private int idx;
 
   public static Symbol NULL = new Symbol("NULL SYMBOL", null, null);

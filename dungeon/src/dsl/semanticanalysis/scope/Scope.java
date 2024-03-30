@@ -22,16 +22,27 @@
 package dsl.semanticanalysis.scope;
 
 import dsl.semanticanalysis.symbol.Symbol;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Transient;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@NodeEntity
 public class Scope implements IScope {
 
   public static Scope NULL = new Scope();
 
+  @Relationship(type = "CONTAINED_IN", direction = Relationship.Direction.OUTGOING)
   protected IScope parent;
+
+  @Transient
   protected HashMap<String, Symbol> symbols;
+
+  @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)
+  protected List<Symbol> symbolList;
 
   /**
    * Constructor
@@ -40,13 +51,15 @@ public class Scope implements IScope {
    */
   public Scope(IScope parentScope) {
     parent = parentScope;
-    symbols = new HashMap<>();
+    this.symbols = new HashMap<>();
+    this.symbolList = new ArrayList<>();
   }
 
   /** Constructor */
   public Scope() {
     parent = NULL;
     symbols = new HashMap<>();
+    this.symbolList = new ArrayList<>();
   }
 
   /**
@@ -64,6 +77,7 @@ public class Scope implements IScope {
       return false;
     } else {
       symbols.put(name, symbol);
+      symbolList.add(symbol);
       return true;
     }
   }

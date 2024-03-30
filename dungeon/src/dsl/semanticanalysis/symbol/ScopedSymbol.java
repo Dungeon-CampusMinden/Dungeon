@@ -24,15 +24,24 @@ package dsl.semanticanalysis.symbol;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Transient;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@NodeEntity
 public class ScopedSymbol extends Symbol implements IScope {
 
   public static Scope NULL = new Scope();
 
+  @Transient
   protected HashMap<String, Symbol> symbols;
+
+  @Relationship(type="CONTAINS", direction = Relationship.Direction.OUTGOING)
+  protected List<Symbol> symbolList;
 
   /**
    * Constructor
@@ -44,7 +53,12 @@ public class ScopedSymbol extends Symbol implements IScope {
   public ScopedSymbol(String name, IScope parentScope, IType type) {
     super(name, parentScope, type);
     symbolType = Type.Scoped;
-    symbols = new HashMap<>();
+    this.symbols = new HashMap<>();
+    this.symbolList = new ArrayList<>();
+  }
+
+  public ScopedSymbol() {
+    this("", Scope.NULL, null);
   }
 
   /**
@@ -59,6 +73,7 @@ public class ScopedSymbol extends Symbol implements IScope {
       return false;
     } else {
       symbols.put(name, symbol);
+      this.symbolList.add(symbol);
       return true;
     }
   }
