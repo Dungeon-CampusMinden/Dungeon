@@ -8,16 +8,19 @@ import java.util.function.Consumer;
 import org.junit.Before;
 import org.junit.Test;
 
+/** Tests for the {@link PlayerComponent} class. */
 public class PlayerComponentTest {
 
   private static final int counter = 0;
   private PlayerComponent playableComponent;
 
+  /** WTF? . */
   @Before
   public void setup() {
     playableComponent = new PlayerComponent();
   }
 
+  /** WTF? . */
   @Test
   public void addFunction() {
     Consumer<Entity> function =
@@ -28,6 +31,7 @@ public class PlayerComponentTest {
     assertTrue(playableComponent.registerCallback(1, function).isEmpty());
   }
 
+  /** WTF? . */
   public void addFunction_exisitng() {
     Consumer<Entity> function =
         new Consumer<Entity>() {
