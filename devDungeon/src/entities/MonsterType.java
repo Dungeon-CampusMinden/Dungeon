@@ -202,11 +202,11 @@ public enum MonsterType {
   ILLUSION_BOSS(
       "Illusion Boss",
       "character/monster/necromancer",
-      40,
+      50,
       0.0f,
       1.0f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new RangeAI(15f, 0f, BossAttackSkills.fireCone(40, 125, 12.0f, 3)),
+      () -> new RangeAI(15f, 0f, BossAttackSkills.fireCone(35, 125, 12.0f, 3)),
       () -> entity -> {}, // no idle needed
       () -> new RangeTransition(7, true),
       10,
@@ -220,7 +220,7 @@ public enum MonsterType {
       0.0f,
       1.0f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new RangeAI(15f, 0f, null),
+      () -> new RangeAI(17f, 0f, null),
       () -> entity -> {}, // no idle needed
       () -> new RangeTransition(7, true),
       10,

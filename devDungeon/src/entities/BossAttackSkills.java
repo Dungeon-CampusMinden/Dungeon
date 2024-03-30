@@ -31,10 +31,10 @@ import systems.EventScheduler;
 
 public class BossAttackSkills {
 
-  public static final int FIRE_SHOCKWAVE_DAMAGE = 2;
+  public static final int FIRE_SHOCKWAVE_DAMAGE = 1;
   public static final int FIREBALL_DAMAGE = 2;
   public static final float FIREBALL_SPEED = 5.00f;
-  public static final float FIREBALL_MAX_RANGE = 30f;
+  public static final float FIREBALL_MAX_RANGE = 25f;
 
   /**
    * Shoots a fire wall (made of fireballs) towards the hero.
@@ -126,7 +126,7 @@ public class BossAttackSkills {
                 }
                 entity.add(
                     new SpikyComponent(
-                        FIRE_SHOCKWAVE_DAMAGE, DamageType.FIRE, Game.frameRate() / 2));
+                        FIRE_SHOCKWAVE_DAMAGE, DamageType.FIRE, Game.frameRate() / 4));
                 Game.add(entity);
 
                 EventScheduler.getInstance().scheduleAction(() -> Game.remove(entity), 2000);
@@ -209,10 +209,9 @@ public class BossAttackSkills {
    *
    * @return The skill that shoots the fireballs.
    */
-  public static Skill fireStorm() {
+  public static Skill fireStorm(int totalFireBalls) {
     return new Skill(
         (skillUser) -> {
-          int totalFireballs = 16;
           long delayBetweenFireballs = 100;
           // Fire Storm
           Point bossPos =
@@ -222,8 +221,8 @@ public class BossAttackSkills {
                       () -> MissingComponentException.build(skillUser, PositionComponent.class))
                   .position();
 
-          for (int i = 0; i < totalFireballs; i++) {
-            final int degree = i * 360 / totalFireballs;
+          for (int i = 0; i < totalFireBalls; i++) {
+            final int degree = i * 360 / totalFireBalls;
             EventScheduler.getInstance()
                 .scheduleAction(
                     () -> {
@@ -318,27 +317,23 @@ public class BossAttackSkills {
     // Example logic for selecting an attack based on the boss's state
     if (healthPercentage > 75) {
       return (getBossAttackChance())
-          ? fireCone(40, 125, BossAttackSkills.FIREBALL_SPEED, FIREBALL_DAMAGE)
-          : normalAttack();
+          ? fireCone(40, 125, BossAttackSkills.FIREBALL_SPEED + 1, FIREBALL_DAMAGE + 1)
+          : fireWall(3);
     } else if (healthPercentage > 50) {
       return (getBossAttackChance())
-          ? fireWall(5)
-          : getBossAttackChance()
-              ? fireStorm()
-              : fireCone(40, 125, BossAttackSkills.FIREBALL_SPEED, FIREBALL_DAMAGE);
+          ? fireCone(35, 125, BossAttackSkills.FIREBALL_SPEED + 3, FIREBALL_DAMAGE + 2)
+          : getBossAttackChance() ? fireStorm(16) : fireWall(5);
     } else {
       // Low health - more defensive or desperate attacks
       return (getBossAttackChance())
-          ? fireWall(10)
-          : getBossAttackChance() ? fireStorm() : fireShockWave(6);
+          ? fireWall(8)
+          : getBossAttackChance() ? fireStorm(32) : fireShockWave(7);
     }
   }
 
   /**
    * This method returns random boolean. Based on the current Boss health percentage, and the
    * current Stage of the Boss fight
-   *
-   * <p>E.g. 100% - 75% stage -> current 75% HP -> 90% chance to return true
    *
    * @return random boolean
    */
@@ -351,14 +346,19 @@ public class BossAttackSkills {
     double healthPercentage = calculateBossHealthPercentage(boss);
     Random random = Game.currentLevel().RANDOM;
 
-    // Example logic for selecting an attack based on the boss's state
     if (healthPercentage > 75) {
-      return random.nextDouble() < 0.9;
-    } else if (healthPercentage > 50) {
+      return random.nextDouble() < 0.5;
+    } else if (healthPercentage > 60) {
       return random.nextDouble() < 0.8;
+    } else if (healthPercentage > 50) {
+      return random.nextDouble() < 0.5;
+    } else if (healthPercentage > 40) {
+      return random.nextDouble() < 0.7;
+    } else if (healthPercentage > 25) {
+      return random.nextDouble() < 0.5;
     } else {
       // Low health - more defensive or desperate attacks
-      return random.nextDouble() < 0.7;
+      return random.nextDouble() < 0.3;
     }
   }
 
