@@ -136,4 +136,9 @@ public class TeleporterSystem extends System {
   public Collection<Teleporter> teleporter() {
     return this.teleporters;
   }
+
+  /** Removes all teleporters from the system. */
+  public void clearTeleporters() {
+    this.teleporters.clear();
+  }
 }

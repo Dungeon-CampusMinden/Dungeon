@@ -126,13 +126,6 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                 new Coordinate[] {}));
     this.levelBossSpawn = this.customPoints().get(64);
 
-    // Teleporters
-    for (int i = 65; i < 127; i += 2) {
-      TeleporterSystem.getInstance()
-          .registerTeleporter(
-              new Teleporter(this.customPoints().get(i), this.customPoints().get(i + 1)));
-    }
-
     this.secretPassages =
         new Coordinate[][] {
           new Coordinate[] {this.customPoints().get(127), this.customPoints().get(128)},
@@ -156,6 +149,13 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                 pit.close();
               });
       this.rooms.forEach(DevDungeonRoom::spawnEntities);
+
+      // Create teleporters
+      for (int i = 65; i < 127; i += 2) {
+        TeleporterSystem.getInstance()
+            .registerTeleporter(
+                new Teleporter(this.customPoints().get(i), this.customPoints().get(i + 1)));
+      }
 
       // Setup TP Targets for TPBallSkill
       int[] roomIndices = {0, 1, 2, 3, 7};

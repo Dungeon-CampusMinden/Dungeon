@@ -52,6 +52,8 @@ public class DevDungeon {
           // Reset all levers
           LeverSystem leverSystem = (LeverSystem) Game.systems().get(LeverSystem.class);
           leverSystem.clear();
+          // Remove all teleporters
+          TeleporterSystem.getInstance().clearTeleporters();
         });
 
     onFrame(debugger);
