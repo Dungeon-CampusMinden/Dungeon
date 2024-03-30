@@ -30,6 +30,11 @@ import systems.EventScheduler;
 
 public class BossAttackSkills {
 
+  public static final int FIRE_SHOCKWAVE_DAMAGE = 2;
+  public static final int FIREBALL_DAMAGE = 2;
+  public static final float FIREBALL_SPEED = 5.00f;
+  public static final float FIREBALL_MAX_RANGE = 30f;
+
   /**
    * Shoots a fire wall (made of fireballs) towards the hero.
    *
@@ -72,6 +77,13 @@ public class BossAttackSkills {
         AIFactory.FIREBALL_COOL_DOWN * 2);
   }
 
+  /**
+   * Starts a shock wave from the boss. The shock wave is a circular explosion of fireballs.
+   *
+   * @param radius The radius of the shock wave.
+   * @return The skill that starts the shock wave.
+   * @see LevelUtils#explosionAt(Coordinate, int, long, java.util.function.Consumer) explosionAt
+   */
   public static Skill fireShockWave(int radius) {
     return new Skill(
         (skillUser) -> {
@@ -111,7 +123,9 @@ public class BossAttackSkills {
                 } catch (IOException e) {
                   throw new RuntimeException("Could not load fireball texture" + e);
                 }
-                entity.add(new SpikyComponent(1, DamageType.FIRE, Game.frameRate() / 2));
+                entity.add(
+                    new SpikyComponent(
+                        FIRE_SHOCKWAVE_DAMAGE, DamageType.FIRE, Game.frameRate() / 2));
                 Game.add(entity);
 
                 EventScheduler.getInstance()
@@ -125,6 +139,20 @@ public class BossAttackSkills {
         10 * 1000);
   }
 
+  /**
+   * Shoots a fire cone towards the hero. The fire cone consists of six fireballs.
+   *
+   * <p>
+   *
+   * <ul>
+   *   <li>One fireball directly at the hero.
+   *   <li>Two fireballs to the left and right of the hero. (40 degrees)
+   *   <li>One delayed fireball directly at the hero. With updated hero position.
+   *   <li>Two delayed fireballs left and right offset to that previous fireball. (35 degrees)
+   * </ul>
+   *
+   * @return The skill that shoots the fire cone.
+   */
   public static Skill fireCone() {
     return new Skill(
         (skillUser) -> {
@@ -168,6 +196,11 @@ public class BossAttackSkills {
         AIFactory.FIREBALL_COOL_DOWN * 2);
   }
 
+  /**
+   * Launches a fireball in every direction around the boss. Sort of like a fire spin attack.
+   *
+   * @return The skill that shoots the fireballs.
+   */
   public static Skill fireStorm() {
     return new Skill(
         (skillUser) -> {
@@ -198,9 +231,20 @@ public class BossAttackSkills {
         AIFactory.FIREBALL_COOL_DOWN * 2);
   }
 
+  /**
+   * Launches a fireball from the start position to the target position. If the start position is
+   * the same as the boss position, the fire ball will be launched from the boss. Otherwise, a
+   * temporary entity will be created to launch the fireball.
+   *
+   * @param start The start position of the fireball.
+   * @param target The target position of the fireball.
+   * @param bossPos The position of the boss.
+   * @param skillUser The entity that uses the skill.
+   */
   public static void launchFireBall(Point start, Point target, Point bossPos, Entity skillUser) {
     Entity shooter;
-    DamageProjectile skill = new FireballSkill(() -> target, 30f, 5.00f, 1);
+    DamageProjectile skill =
+        new FireballSkill(() -> target, FIREBALL_MAX_RANGE, FIREBALL_SPEED, FIREBALL_DAMAGE);
     skill.ignoreEntity(skillUser);
     if (start.equals(bossPos)) {
       shooter = skillUser;
@@ -214,6 +258,23 @@ public class BossAttackSkills {
     EventScheduler.getInstance().scheduleAction(skill::disposeSounds, 1000);
   }
 
+  /**
+   * This method returns the skill that the final boss should use based on the current state of the
+   * boss fight. The boss will use different attacks based on its current health percentage.
+   *
+   * <p>The boss will use different attacks based on its current health percentage.
+   *
+   * <ul>
+   *   <li>75% - 100% health: 90% chance to use normal attack, 10% chance to use fire cone
+   *   <li>50% - 75% health: 80% chance to use fire wall, 10% chance to use fire storm, 10% chance
+   *       to use fire cone
+   *   <li>0% - 50% health: 70% chance to use fire wall, 10% chance to use fire storm, 20% chance to
+   *       use fire shock wave
+   * </ul>
+   *
+   * @return The skill that the final boss should use.
+   * @see level.devlevel.BossLevel BossLevel
+   */
   public static Skill getFinalBossSkill() {
     Entity boss =
         Game.entityStream().filter(e -> e.name().contains("Final Boss")).findFirst().orElse(null);
@@ -243,6 +304,8 @@ public class BossAttackSkills {
    * current Stage of the Boss fight
    *
    * <p>E.g. 100% - 75% stage -> current 75% HP -> 90% chance to return true
+   *
+   * @return random boolean
    */
   public static boolean getBossAttackChance() {
     Entity boss =
@@ -264,6 +327,12 @@ public class BossAttackSkills {
     }
   }
 
+  /**
+   * Calculates the current health percentage of the boss.
+   *
+   * @param bossEntity The boss entity.
+   * @return The current health percentage of the boss.
+   */
   public static double calculateBossHealthPercentage(Entity bossEntity) {
     HealthComponent healthComponent =
         bossEntity
