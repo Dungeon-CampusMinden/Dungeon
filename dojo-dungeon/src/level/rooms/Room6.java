@@ -15,7 +15,7 @@ import java.util.Set;
 import level.tasks.Task;
 
 public class Room6 extends TaskRoom {
-  private final String FILENAME1 = "level/rooms/Room5ToRefactor.java";
+  private final String FILENAME1 = "Room5ToRefactor.java";
   private final String title = "Refactoring";
 
   Room6(
