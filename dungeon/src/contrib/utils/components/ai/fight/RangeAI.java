@@ -4,6 +4,7 @@ import static core.level.utils.LevelUtils.accessibleTilesInRange;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
+import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
@@ -18,11 +19,11 @@ import java.util.function.Consumer;
  * range. When the entity is not in range but in fight mode, the entity will be moving to within
  * this range.
  */
-public final class RangeAI implements Consumer<Entity> {
+public final class RangeAI implements Consumer<Entity>, ISkillUser {
 
   private final float attackRange;
   private final float distance;
-  private final Skill skill;
+  private Skill skill;
   private GraphPath<Tile> path;
 
   /**
@@ -67,11 +68,29 @@ public final class RangeAI implements Consumer<Entity> {
         }
         AIUtils.move(entity, path);
       } else {
-        skill.execute(entity);
+        this.useSkill(this.skill, entity);
       }
     } else {
       path = LevelUtils.calculatePathToHero(entity);
       AIUtils.move(entity, path);
     }
+  }
+
+  @Override
+  public void useSkill(Skill skill, Entity skillUser) {
+    if (skill == null) {
+      return;
+    }
+    skill.execute(skillUser);
+  }
+
+  @Override
+  public Skill getSkill() {
+    return this.skill;
+  }
+
+  @Override
+  public void setSkill(Skill skill) {
+    this.skill = skill;
   }
 }
