@@ -206,7 +206,7 @@ public enum MonsterType {
       0.0f,
       1.0f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new RangeAI(15f, 0f, BossAttackSkills.fireCone()),
+      () -> new RangeAI(15f, 0f, BossAttackSkills.fireCone(40, 125, 12.0f, 3)),
       () -> entity -> {}, // no idle needed
       () -> new RangeTransition(7, true),
       10,

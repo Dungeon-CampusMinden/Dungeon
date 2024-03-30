@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import level.utils.LevelUtils;
 import systems.EventScheduler;
@@ -128,12 +129,7 @@ public class BossAttackSkills {
                         FIRE_SHOCKWAVE_DAMAGE, DamageType.FIRE, Game.frameRate() / 2));
                 Game.add(entity);
 
-                EventScheduler.getInstance()
-                    .scheduleAction(
-                        () -> {
-                          Game.remove(entity);
-                        },
-                        2000);
+                EventScheduler.getInstance().scheduleAction(() -> Game.remove(entity), 2000);
               }));
         },
         10 * 1000);
@@ -142,21 +138,23 @@ public class BossAttackSkills {
   /**
    * Shoots a fire cone towards the hero. The fire cone consists of six fireballs.
    *
-   * <p>
-   *
    * <ul>
    *   <li>One fireball directly at the hero.
-   *   <li>Two fireballs to the left and right of the hero. (40 degrees)
+   *   <li>Two fireballs to the left and right of the hero. (X degrees)
    *   <li>One delayed fireball directly at the hero. With updated hero position.
-   *   <li>Two delayed fireballs left and right offset to that previous fireball. (35 degrees)
+   *   <li>Two delayed fireballs left and right offset to that previous fireball. (X-5 degrees)
    * </ul>
    *
+   * @param degree The degree of the fire cone.
+   * @param delayMillis The delay between the first and second round of fireballs.
+   * @param fireballSpeed The speed of the fireballs.
+   * @param fireballDamage The damage of the fireballs.
    * @return The skill that shoots the fire cone.
    */
-  public static Skill fireCone() {
+  public static Skill fireCone(
+      int degree, int delayMillis, float fireballSpeed, int fireballDamage) {
     return new Skill(
         (skillUser) -> {
-          int degree = 40;
           Point heroPos = SkillTools.heroPositionAsPoint();
           Point bossPos =
               skillUser
@@ -176,22 +174,32 @@ public class BossAttackSkills {
                 return new Point(bossPos.x + offset.x, bossPos.y + offset.y);
               };
 
+          Consumer<Integer> launchFireBallWithDegree =
+              (degreeValue) -> {
+                launchFireBall(
+                    bossPos,
+                    calculateFireballTarget.apply(degreeValue),
+                    bossPos,
+                    skillUser,
+                    FIREBALL_MAX_RANGE,
+                    fireballSpeed,
+                    fireballDamage);
+              };
+
           // Launch fireballs
-          launchFireBall(bossPos, calculateFireballTarget.apply(degree), bossPos, skillUser);
-          launchFireBall(bossPos, calculateFireballTarget.apply(0), bossPos, skillUser);
-          launchFireBall(bossPos, calculateFireballTarget.apply(-degree), bossPos, skillUser);
+          launchFireBallWithDegree.accept(degree);
+          launchFireBallWithDegree.accept(-degree);
+          launchFireBallWithDegree.accept(0);
 
           // Schedule another round of fireballs
           EventScheduler.getInstance()
               .scheduleAction(
                   () -> {
-                    launchFireBall(
-                        bossPos, calculateFireballTarget.apply(degree - 5), bossPos, skillUser);
-                    launchFireBall(bossPos, calculateFireballTarget.apply(0), bossPos, skillUser);
-                    launchFireBall(
-                        bossPos, calculateFireballTarget.apply(-(degree - 5)), bossPos, skillUser);
+                    launchFireBallWithDegree.accept(degree - 5);
+                    launchFireBallWithDegree.accept(-(degree - 5));
+                    launchFireBallWithDegree.accept(0);
                   },
-                  125);
+                  delayMillis);
         },
         AIFactory.FIREBALL_COOL_DOWN * 2);
   }
@@ -233,7 +241,7 @@ public class BossAttackSkills {
 
   /**
    * Launches a fireball from the start position to the target position. If the start position is
-   * the same as the boss position, the fire ball will be launched from the boss. Otherwise, a
+   * the same as the boss position, the fireball will be launched from the boss. Otherwise, a
    * temporary entity will be created to launch the fireball.
    *
    * @param start The start position of the fireball.
@@ -242,9 +250,33 @@ public class BossAttackSkills {
    * @param skillUser The entity that uses the skill.
    */
   public static void launchFireBall(Point start, Point target, Point bossPos, Entity skillUser) {
+    BossAttackSkills.launchFireBall(
+        start, target, bossPos, skillUser, FIREBALL_MAX_RANGE, FIREBALL_SPEED, FIREBALL_DAMAGE);
+  }
+
+  /**
+   * Launches a fireball from the start position to the target position. If the start position is
+   * the same as the boss position, the fireball will be launched from the boss. Otherwise, a
+   * temporary entity will be created to launch the fireball.
+   *
+   * @param start The start position of the fireball.
+   * @param target The target position of the fireball.
+   * @param bossPos The position of the boss.
+   * @param skillUser The entity that uses the skill.
+   * @param maxRange The maximum range of the fireball.
+   * @param speed The speed of the fireball.
+   * @param damage The damage of the fireball.
+   */
+  public static void launchFireBall(
+      Point start,
+      Point target,
+      Point bossPos,
+      Entity skillUser,
+      float maxRange,
+      float speed,
+      int damage) {
     Entity shooter;
-    DamageProjectile skill =
-        new FireballSkill(() -> target, FIREBALL_MAX_RANGE, FIREBALL_SPEED, FIREBALL_DAMAGE);
+    DamageProjectile skill = new FireballSkill(() -> target, maxRange, speed, damage);
     skill.ignoreEntity(skillUser);
     if (start.equals(bossPos)) {
       shooter = skillUser;
@@ -282,15 +314,18 @@ public class BossAttackSkills {
       return null;
     }
     double healthPercentage = calculateBossHealthPercentage(boss);
-    Random random = Game.currentLevel().RANDOM;
 
     // Example logic for selecting an attack based on the boss's state
     if (healthPercentage > 75) {
-      return (getBossAttackChance()) ? fireCone() : normalAttack();
+      return (getBossAttackChance())
+          ? fireCone(40, 125, BossAttackSkills.FIREBALL_SPEED, FIREBALL_DAMAGE)
+          : normalAttack();
     } else if (healthPercentage > 50) {
       return (getBossAttackChance())
           ? fireWall(5)
-          : getBossAttackChance() ? fireStorm() : fireCone();
+          : getBossAttackChance()
+              ? fireStorm()
+              : fireCone(40, 125, BossAttackSkills.FIREBALL_SPEED, FIREBALL_DAMAGE);
     } else {
       // Low health - more defensive or desperate attacks
       return (getBossAttackChance())
