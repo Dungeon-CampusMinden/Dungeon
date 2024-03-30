@@ -1,13 +1,11 @@
 package dsl.neo4j;
 
-import core.Entity;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +15,6 @@ import org.neo4j.driver.GraphDatabase;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.SessionFactory;
-import task.tasktype.AssignTask;
 
 public class Neo4jConnect {
   public static void main(String[] args) {
@@ -121,26 +118,124 @@ public class Neo4jConnect {
       try {
         var sessionFactory = new SessionFactory(ogmDriver, "dsl.parser.ast");
         var session = sessionFactory.openSession();
-        session.clear();
+
+        // clean up db
         session.query("MATCH (n) DETACH DELETE n", Map.of());
+
+        // save ast in db
         session.save(ast);
 
+        // get ast root node back from db
         var root =
             session.queryForObject(
                 Node.class, "MATCH (n:Node {type:$type}) RETURN n", Map.of("type", "Program"));
-        System.out.println("Gottem");
+
+        var mismatches = matchAST(ast, root);
+        assert mismatches.isEmpty();
+
         sessionFactory.close();
       } catch (Exception ex) {
         boolean b = true;
       }
     }
+  }
 
-    // TODO: setup neo4j connection
+  private static List<String> matchAST(Node expectedNode, Node givenNode) {
+    List<String> mismatches = new ArrayList<>();
 
-    // TODO: put stuff like node classes into neo4j
+    boolean match = expectedNode.type.equals(givenNode.type);
+    match &= expectedNode.hasErrorChild() == givenNode.hasErrorChild();
+    boolean errorRecordMatch;
+    try {
+      errorRecordMatch =
+        expectedNode.getErrorRecord() == null && givenNode.getErrorRecord() == null
+          || expectedNode.getErrorRecord().equals(givenNode.getErrorRecord());
+    } catch (NullPointerException ex) {
+      errorRecordMatch = false;
+    }
+    match &= errorRecordMatch;
 
-    // TODO: get back node classes from neo4j
+    if (!match) {
+      String msg =
+        "Nodes do not match, expected type: '" + expectedNode.type + "' given type: '" + givenNode.type + "'";
+      mismatches.add(msg);
+    }
 
-    // TODO: cleanup neo4j instance
+    //  specific content match
+    boolean specificMatch;
+    switch (expectedNode.type) {
+      case Identifier: {
+        IdNode expected = (IdNode) expectedNode;
+        IdNode given = (IdNode) givenNode;
+        specificMatch = expected.getName().equals(given.getName());
+        specificMatch &= expected.getSourceFileReference().equals(given.getSourceFileReference());
+        if (!specificMatch) {
+          String msg =
+            "Node values do not match, expected value: '" + expected.getName() + "' given value: '" + given.getName() + "'";
+          mismatches.add(msg);
+        }
+        break;
+      }
+      case Bool: {
+        BoolNode expected = (BoolNode) expectedNode;
+        BoolNode given = (BoolNode) givenNode;
+        specificMatch = expected.getValue() == given.getValue();
+        specificMatch &= expected.getSourceFileReference().equals(given.getSourceFileReference());
+        if (!specificMatch) {
+          String msg =
+            "Node values do not match, expected value: '" + expected.getValue() + "' given value: '" + given.getValue()
+              + "'";
+          mismatches.add(msg);
+        }
+        break;
+      }
+      case Number: {
+        NumNode expected = (NumNode) expectedNode;
+        NumNode given = (NumNode) givenNode;
+        specificMatch = expected.getValue() == given.getValue();
+        specificMatch &= expected.getSourceFileReference().equals(given.getSourceFileReference());
+        if (!specificMatch) {
+          String msg =
+            "Node values do not match, expected value: '" + expected.getValue() + "' given value: '" + given.getValue() + "'";
+          mismatches.add(msg);
+        }
+        break;
+      }
+      case DecimalNumber: {
+        DecNumNode expected = (DecNumNode) expectedNode;
+        DecNumNode given = (DecNumNode) givenNode;
+        specificMatch = expected.getValue() == given.getValue();
+        specificMatch &= expected.getSourceFileReference().equals(given.getSourceFileReference());
+        if (!specificMatch) {
+          String msg =
+            "Node values do not match, expected value: '" + expected.getValue() + "' given value: '" + given.getValue() + "'";
+          mismatches.add(msg);
+        }
+        break;
+      }
+      default:
+        break;
+    }
+
+    if (expectedNode.getChildren().size() != givenNode.getChildren().size()) {
+      // check for don't care node
+      String msg =
+        String.format(
+          "Childcount of expected node '%s'(%x) and given node '%s'(%x) is different!",
+          expectedNode,
+          expectedNode.getChildren().size(),
+          givenNode,
+          givenNode.getChildren().size());
+      mismatches.add(msg);
+    }
+
+    for (int i = 0; i < expectedNode.getChildren().size() && i < givenNode.getChildren().size(); i++) {
+      var expectedChild = expectedNode.getChild(i);
+      var childToCheck = givenNode.getChild(i);
+      List<String> msgs = matchAST(expectedChild, childToCheck);
+      mismatches.addAll(msgs);
+    }
+
+    return mismatches;
   }
 }
