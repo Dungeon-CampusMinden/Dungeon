@@ -16,8 +16,8 @@ import level.compiler.DojoCompiler;
 import level.tasks.Task;
 
 public class Room5ToRefactor extends TaskRoom {
-  private final String title = "Title";
-  private final String FILENAME2 = "../dojo-dungeon/todo-assets/r5/MyMonster.java";
+  public final String title = "Title";
+  public String FILENAME2 = "../dojo-dungeon/todo-assets/r5/MyMonster.java";
 
   Room5ToRefactor(
       LevelRoom a, RoomGenerator b, Room c, LevelSize d, DesignLabel e, IVoidFunction empty) {
