@@ -26,6 +26,7 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /** The results of semantic analysis done by SymbolTableParser */
 public class SymbolTable {
@@ -39,16 +40,16 @@ public class SymbolTable {
   private final HashMap<Integer, Node> astNodeIdxToAstNode;
 
   /**
-   * Creates an association between a specific AST node (by index) and a symbol (by index) -> e.g.
+   * Creates an association between a specific AST node and a symbol -> e.g.
    * "which symbol is referenced by the identifier in a specific AST node?"
    */
-  private final HashMap<Integer, ArrayList<Integer>> astNodeSymbolRelation;
+  private final HashMap<Node, Symbol> astNodeSymbolRelation;
 
   /**
-   * Creates an association between a specific symbol (by Idx) and an ast node (by index) -> e.g.
+   * Creates an association between a specific symbol and an ast node -> e.g.
    * "by which ast node was this symbol created?"
    */
-  private final HashMap<Integer, Integer> symbolToAstNodeRelation;
+  private final HashMap<Symbol, Node> creationASTNodeRelation;
 
   /**
    * Getter for the global {@link IScope}, which is the topmost scope in the scope stack
@@ -69,23 +70,18 @@ public class SymbolTable {
   public void addSymbolNodeRelation(Symbol symbol, Node nodeOfSymbol, boolean isNodeCreationNode) {
     // TODO: are there situations, in which multiple symbols are associated with the same
     //  AST-Node? if not, this could be simplified
-    if (!astNodeSymbolRelation.containsKey(nodeOfSymbol.getIdx())) {
-      astNodeSymbolRelation.put(nodeOfSymbol.getIdx(), new ArrayList<>());
-    }
+    /*if (!astNodeSymbolRelation.containsKey(nodeOfSymbol)) {
+      astNodeSymbolRelation.put(nodeOfSymbol, new ArrayList<>());
+    }*/
 
     // TODO: model this as :REFERENCES in neo4j
-    astNodeSymbolRelation.get(nodeOfSymbol.getIdx()).add(symbol.getIdx());
+    //astNodeSymbolRelation.get(nodeOfSymbol).add(symbol);
+    astNodeSymbolRelation.put(nodeOfSymbol, symbol);
 
     if (isNodeCreationNode) {
       // TODO: model this as :CREATES in neo4j
       setCreationAstNode(symbol, nodeOfSymbol);
     }
-
-    /*
-    // treat the first astNodeToSymbol relation as the creationASTNode
-    if (!symbolIdxToSymbol.containsKey(symbol.getIdx())) {
-        symbolToAstNodeRelation.put(symbol.getIdx(), nodeOfSymbol.getIdx());
-    }*/
 
     // this is just for housekeeping and keeping track of the objects
     symbolIdxToSymbol.put(symbol.getIdx(), symbol);
@@ -99,30 +95,20 @@ public class SymbolTable {
    * @return The Symbol referenced by node, or Symbol.NULL, if no Symbol could be found
    */
   public ArrayList<Symbol> getSymbolsForAstNode(Node node) {
-    if (!astNodeSymbolRelation.containsKey(node.getIdx())) {
+    if (!astNodeSymbolRelation.containsKey(node)) {
       // TODO: just empty list?
       var list = new ArrayList<Symbol>();
       list.add(Symbol.NULL);
       return list;
     }
 
-    var symbolIdxs = astNodeSymbolRelation.get(node.getIdx());
-    var returnList = new ArrayList<Symbol>();
-    for (int idx : symbolIdxs) {
-      if (symbolIdxToSymbol.containsKey(idx)) {
-        var symbol = symbolIdxToSymbol.get(idx);
-        // TODO: why is this a list? if every AST-Node is ever associated with at most one
-        //  symbol, this could be simplified -> not to be confused with the likely reference
-        //  of one symbol by multiple AST-Nodes;
-        //  test: this never contains more than one symbol!
-        returnList.add(symbol);
-      }
-    }
-    return returnList;
+    //var symbolIdxs = astNodeSymbolRelation.get(node.getIdx());
+    var symbols = astNodeSymbolRelation.get(node);
+    return new ArrayList<>(List.of(symbols));
   }
 
   private void setCreationAstNode(Symbol symbol, Node creationNode) {
-    symbolToAstNodeRelation.put(symbol.getIdx(), creationNode.getIdx());
+    creationASTNodeRelation.put(symbol, creationNode);
   }
 
   /**
@@ -134,16 +120,11 @@ public class SymbolTable {
    * @return The creation AST node or Node.NONE, if none could be found for the passed symbol
    */
   public Node getCreationAstNode(Symbol symbol) {
-    if (!symbolToAstNodeRelation.containsKey(symbol.getIdx())) {
+    if (!creationASTNodeRelation.containsKey(symbol)) {
       return Node.NONE;
     }
 
-    var astNodeIdx = symbolToAstNodeRelation.get(symbol.getIdx());
-    if (!astNodeIdxToAstNode.containsKey(astNodeIdx)) {
-      return Node.NONE;
-    }
-
-    return astNodeIdxToAstNode.get(astNodeIdx);
+    return creationASTNodeRelation.get(symbol);
   }
 
   /**
@@ -167,6 +148,6 @@ public class SymbolTable {
     astNodeSymbolRelation = new HashMap<>();
     symbolIdxToSymbol = new HashMap<>();
     astNodeIdxToAstNode = new HashMap<>();
-    symbolToAstNodeRelation = new HashMap<>();
+    creationASTNodeRelation = new HashMap<>();
   }
 }
