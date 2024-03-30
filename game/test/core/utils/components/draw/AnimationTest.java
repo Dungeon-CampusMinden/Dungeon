@@ -9,20 +9,22 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Test;
 
+/** Tests for the {@link Animation} class. */
 public class AnimationTest {
 
-  /** Creating an Animation without a Collection of frames should not be allowed */
+  /** Creating an Animation without a Collection of frames should not be allowed. */
   @Test(expected = AssertionError.class)
   public void test_constructor_1() {
     Animation.fromCollection(null);
   }
 
-  /** Creating an Animation without any frames in the Collection should not be allowed */
+  /** Creating an Animation without any frames in the Collection should not be allowed. */
   @Test(expected = AssertionError.class)
   public void test_constructor_2() {
     Animation.fromCollection(List.of());
   }
 
+  /** WTF? . */
   @Test
   public void test_getNextAnimationTexture() {
     // Idea: An animation with 3 textures and a frame time of 10 should return 10 (or 11) times
@@ -38,6 +40,7 @@ public class AnimationTest {
     }
   }
 
+  /** WTF? . */
   @Test
   public void CheckAnimation_isFinished_OneMoreFrameAndNotLooping() {
     List<IPath> testStrings =
@@ -46,6 +49,7 @@ public class AnimationTest {
     assertFalse("has still one Frame for the Animation to go", ta.isFinished());
   }
 
+  /** WTF? . */
   @Test
   public void CheckAnimation_isFinished_NoMoreFrameAndNotLooping() {
     List<IPath> testStrings =
@@ -55,6 +59,7 @@ public class AnimationTest {
     assertTrue("last Frame reached and should not loop", ta.isFinished());
   }
 
+  /** WTF? . */
   @Test
   public void CheckAnimation_isFinished_OneMoreFrameAndLooping() {
     List<IPath> testStrings =
@@ -63,6 +68,7 @@ public class AnimationTest {
     assertFalse("has still one Frame for the Animation to go", ta.isFinished());
   }
 
+  /** WTF? . */
   @Test
   public void CheckAnimation_isFinished_NoMoreFrameAndLooping() {
     List<IPath> testStrings =
@@ -72,6 +78,7 @@ public class AnimationTest {
     assertFalse("last Frame reached and should loop", ta.isFinished());
   }
 
+  /** WTF? . */
   @Test
   public void CheckAnimation_getNextAnimationTexturePath_NonLoopingFrameTime1() {
     List<IPath> testStrings =
@@ -82,6 +89,7 @@ public class AnimationTest {
     assertEquals(testStrings.get(1), ta.nextAnimationTexturePath());
   }
 
+  /** WTF? . */
   @Test
   public void CheckAnimation_getNextAnimationTexturePath_NonLoopingFrameTime2() {
     List<IPath> testStrings =
