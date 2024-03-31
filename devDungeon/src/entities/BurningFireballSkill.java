@@ -30,7 +30,7 @@ public final class BurningFireballSkill extends DamageProjectile {
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final Point HIT_BOX_SIZE = new Point(1, 1);
   private static final float PROJECTILE_RANGE = 7f;
-  private static final BurningEffect BURNING_EFFECT = new BurningEffect(0.5f, 4);
+  private static final BurningEffect BURNING_EFFECT = new BurningEffect(0.25f, 4);
 
   /**
    * Create a {@link DamageProjectile} that looks like a fireball and will cause fire damage.
