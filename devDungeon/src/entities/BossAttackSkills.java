@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import level.utils.LevelUtils;
 import systems.EventScheduler;
+import utils.EntityUtils;
 
 public class BossAttackSkills {
 
@@ -155,7 +156,10 @@ public class BossAttackSkills {
       int degree, int delayMillis, float fireballSpeed, int fireballDamage) {
     return new Skill(
         (skillUser) -> {
-          Point heroPos = SkillTools.heroPositionAsPoint();
+          Point heroPos = EntityUtils.getHeroPosition();
+          if (heroPos == null) {
+            return;
+          }
           Point bossPos =
               skillUser
                   .fetch(PositionComponent.class)
@@ -207,12 +211,13 @@ public class BossAttackSkills {
   /**
    * Launches a fireball in every direction around the boss. Sort of like a fire spin attack.
    *
+   * @param totalFireBalls The total number of fireballs to shoot.
+   * @param delayBetweenFireballs The delay between each fireball.
    * @return The skill that shoots the fireballs.
    */
-  public static Skill fireStorm(int totalFireBalls) {
+  public static Skill fireStorm(int totalFireBalls, int delayBetweenFireballs) {
     return new Skill(
         (skillUser) -> {
-          long delayBetweenFireballs = 100;
           // Fire Storm
           Point bossPos =
               skillUser
@@ -232,7 +237,7 @@ public class BossAttackSkills {
                               (float) (bossPos.y + Math.sin(Math.toRadians(degree)) * 10));
                       launchFireBall(bossPos, target, bossPos, skillUser);
                     },
-                    i * delayBetweenFireballs);
+                    (long) i * delayBetweenFireballs);
           }
         },
         AIFactory.FIREBALL_COOL_DOWN * 2);
@@ -322,12 +327,12 @@ public class BossAttackSkills {
     } else if (healthPercentage > 50) {
       return (getBossAttackChance())
           ? fireCone(35, 125, BossAttackSkills.FIREBALL_SPEED + 3, FIREBALL_DAMAGE + 2)
-          : getBossAttackChance() ? fireStorm(16) : fireWall(5);
+          : getBossAttackChance() ? fireWall(5) : fireStorm(16, 100);
     } else {
       // Low health - more defensive or desperate attacks
       return (getBossAttackChance())
-          ? fireWall(8)
-          : getBossAttackChance() ? fireStorm(32) : fireShockWave(7);
+          ? fireStorm(32, 75)
+          : getBossAttackChance() ? fireShockWave(6) : fireWall(8);
     }
   }
 
@@ -347,7 +352,7 @@ public class BossAttackSkills {
     Random random = Game.currentLevel().RANDOM;
 
     if (healthPercentage > 75) {
-      return random.nextDouble() < 0.5;
+      return random.nextDouble() < 0.4;
     } else if (healthPercentage > 60) {
       return random.nextDouble() < 0.8;
     } else if (healthPercentage > 50) {
@@ -387,7 +392,10 @@ public class BossAttackSkills {
   public static Skill normalAttack() {
     return new Skill(
         (skillUser) -> {
-          Point heroPos = SkillTools.heroPositionAsPoint();
+          Point heroPos = EntityUtils.getHeroPosition();
+          if (heroPos == null) {
+            return;
+          }
           Point bossPos =
               skillUser
                   .fetch(PositionComponent.class)
@@ -398,7 +406,10 @@ public class BossAttackSkills {
           EventScheduler.getInstance()
               .scheduleAction(
                   () -> {
-                    Point heroPos2 = SkillTools.heroPositionAsPoint();
+                    Point heroPos2 = EntityUtils.getHeroPosition();
+                    if (heroPos2 == null) {
+                      return;
+                    }
                     Vector2 heroDirection =
                         new Vector2(heroPos2.x - heroPos.x, heroPos2.y - heroPos.y).nor();
                     heroDirection.scl((float) (bossPos.distance(heroPos)) * 2);
