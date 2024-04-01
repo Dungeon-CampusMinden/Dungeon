@@ -69,9 +69,9 @@ public final class UIUtils {
    * <p>Characteristics:
    *
    * <ul>
-   *   <li>Every space character (i.e. {@code " "} or {@code "\n"}, etc.) that occurs at least once
+   *   <li>Every whitespace character (i.e. {@code " "} or {@code "\n"}, etc.) that occurs at least once
    *       should be replaced by exactly one space character.
-   *   <li>A line of text should not be longer than {@code MAX_ROW_LENGTH} (currently 40)
+   *   <li>A line of text should not be longer than {@code MAX_ROW_LENGTH}
    *       characters.
    *   <li>Long words at the end of a line should be inserted into the next line (soft word wrap).
    *   <li>The {@code '\n'} character should be used as the line separator.
