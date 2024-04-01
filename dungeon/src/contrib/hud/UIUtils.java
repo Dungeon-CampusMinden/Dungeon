@@ -95,7 +95,7 @@ public final class UIUtils {
     final boolean softWordWrap = true;
 
     final StringBuilder sb = new StringBuilder();
-    final String text = string.replaceAll("\\s+", " ");
+    final String text = string.trim().replaceAll("\\s+", " ");
     final String[] words = text.split(" ");
 
     int wordIndex = 0;
