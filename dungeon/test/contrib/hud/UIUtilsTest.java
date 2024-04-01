@@ -1,12 +1,17 @@
 package contrib.hud;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
 /** This class tests the {@link UIUtils} class for expected behaviour. */
 public class UIUtilsTest {
+
+  /** Null argument should throw an {@link IllegalArgumentException}. */
+  @Test(expected = IllegalArgumentException.class)
+  public void formatTextWithNullTextArgument() {
+    UIUtils.formatString(null);
+  }
 
   /**
    * Tests that {@link UIUtils#formatString(String)} returns an empty string for an empty string.
@@ -31,6 +36,8 @@ public class UIUtilsTest {
    */
   @Test
   public void formatTextWithRegularText() {
+    // Note: \s is used to indicate space characters at the end of a line in a multiline string
+    // constant.
     String regularText =
         """
             Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum
@@ -66,21 +73,21 @@ public class UIUtilsTest {
   }
 
   /**
-   * Tests that {@link UIUtils#formatString(String)} returns the expected string for a generic text.
+   * Tests that {@link UIUtils#formatString(String)} returns the expected string for a generic
+   * systemtest.
    */
   @Test
-  public void formatTextWithShortGenericText() {
+  public void formatTextWithShortTextWithSystemtests() {
     int max = 40;
 
     for (int i = 0; i <= max; i++) {
       String text = "a".repeat(i);
       String textExpected = "a".repeat(i);
-
       assertEquals(textExpected, UIUtils.formatString(text));
     }
 
-    assertNotEquals("a".repeat(max + 1), UIUtils.formatString("a".repeat(max + 1)));
-
-    assertNotEquals("a".repeat(max) + " ", UIUtils.formatString("a".repeat(max + 1)));
+    String text = "a".repeat(max + 1);
+    String textExpected = "a".repeat(max) + "\na";
+    assertEquals(textExpected, UIUtils.formatString(text));
   }
 }
