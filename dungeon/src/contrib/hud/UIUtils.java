@@ -43,6 +43,9 @@ public final class UIUtils {
    */
   private static final int MAX_ROW_LENGTH = 40;
 
+  /** Line break character to use in the {@link UIUtils#formatString} method. */
+  private static final char LS = '\n';
+
   /**
    * Show the given dialog on the screen.
    *
@@ -69,15 +72,19 @@ public final class UIUtils {
    * <p>Characteristics:
    *
    * <ul>
-   *   <li>Every whitespace character (i.e. {@code " "} or {@code "\n"}, etc.) that occurs at least
-   *       once should be replaced by exactly one space character.
-   *   <li>A line of text should not be longer than {@code MAX_ROW_LENGTH} characters.
-   *   <li>Long words at the end of a line should be inserted into the next line (soft word wrap).
-   *   <li>The {@code '\n'} character should be used as the line separator.
-   *   <li>Lines should not be filled up entirely with spaces.
+   *   <li>Every whitespace character ({@code "[ \t\n\x0B\f\r]"}) that occurs at least once should
+   *       be replaced by exactly one space character.
+   *   <li>A line of text should not be longer than {@link UIUtils#MAX_ROW_LENGTH} characters.
+   *   <li>Long words at the end of a line should be inserted into the next line if it fits there
+   *       (soft word wrap). Otherwise, the word should be broken immediately and inserted into this
+   *       line and into the next line(s) (hard word wrap).
+   *   <li>The {@link UIUtils#LS} character should always be used as the line separator (for
+   *       compatibility with libGDX).
    * </ul>
    *
    * @param string String which should be reformatted.
+   * @return The reformatted string.
+   * @throws IllegalArgumentException if {@code string} is {@code null}.
    */
   public static String formatString(final String string) {
     if (string == null) {
@@ -87,19 +94,20 @@ public final class UIUtils {
     final int maxLen = MAX_ROW_LENGTH;
     final boolean softWordWrap = true;
 
-    final StringBuilder result = new StringBuilder();
-    final char ls = '\n';
+    final StringBuilder sb = new StringBuilder();
     final String text = string.replaceAll("\\s+", " ");
     final String[] words = text.split(" ");
 
     int wordIndex = 0;
     int lineIndex = 0;
+
     while (wordIndex < words.length) {
       final String word = words[wordIndex++];
-      final int before = result.length();
+      final int before = sb.length();
+
       if (lineIndex + word.length() <= maxLen) {
         // word will fit
-        result.append(word);
+        sb.append(word);
       } else if (softWordWrap && word.length() <= maxLen) {
         // do not split word
         --wordIndex;
@@ -110,7 +118,7 @@ public final class UIUtils {
         int splitIndex = maxLen - lineIndex;
         String newWord1 = word.substring(0, splitIndex);
         String newWord2 = word.substring(splitIndex);
-        result.append(newWord1);
+        sb.append(newWord1);
         --wordIndex;
         words[wordIndex] = newWord2;
       }
@@ -119,18 +127,18 @@ public final class UIUtils {
         break;
       }
 
-      lineIndex += result.length() - before;
+      lineIndex += sb.length() - before;
       if (lineIndex < maxLen) {
-        result.append(' ');
+        sb.append(' ');
         ++lineIndex;
       }
 
       if (lineIndex >= maxLen) {
-        result.append(ls);
+        sb.append(LS);
         lineIndex = 0;
       }
     }
 
-    return result.toString();
+    return sb.toString();
   }
 }
