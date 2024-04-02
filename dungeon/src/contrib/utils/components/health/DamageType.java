@@ -7,6 +7,5 @@ public enum DamageType {
   FIRE,
   HEAL,
   POISON,
-  BURNING,
   FALL
 }

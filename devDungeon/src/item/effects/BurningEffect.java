@@ -54,7 +54,7 @@ public class BurningEffect {
             if (healthComponent.isDead()) {
               return;
             }
-            healthComponent.receiveHit(new Damage(1, DamageType.BURNING, null));
+            healthComponent.receiveHit(new Damage(1, DamageType.FIRE, null));
           },
           1000L * i * damageInterval);
     }
