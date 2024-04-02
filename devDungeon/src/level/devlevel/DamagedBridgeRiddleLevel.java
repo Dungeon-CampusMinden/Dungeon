@@ -81,7 +81,8 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickab
     // Spawn all entities and it's content
     this.spawnChestsAndCauldrons();
 
-    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns, BOSS_TYPE, this.levelBossSpawn);
+    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns);
+    EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn);
   }
 
   private void prepareBridge() {

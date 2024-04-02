@@ -72,7 +72,8 @@ public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {
 
     // Spawn all entities and it's content
     this.spawnTorches();
-    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns, BOSS_TYPE, this.levelBossSpawn);
+    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns);
+    EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn);
     this.spawnChestsAndCauldrons();
   }
 

@@ -61,7 +61,8 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable
     this.spawnCamps();
     this.spawnChestsAndCauldrons();
 
-    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns, BOSS_TYPE, this.levelBossSpawn);
+    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns);
+    EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn);
   }
 
   private void spawnCamps() {

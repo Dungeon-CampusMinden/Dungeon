@@ -245,7 +245,7 @@ public class EntityUtils {
 
   /**
    * This method is used to spawn a specified number of monsters in the game at random positions.
-   * Plus a boss monster.
+   * The monsters are spawned at random positions from the mobSpawns array.
    *
    * @param mobCount The number of monsters to be spawned. This number cannot be greater than the
    *     length of mobSpawns.
@@ -253,21 +253,13 @@ public class EntityUtils {
    *     for each monster.
    * @param mobSpawns An array of Coordinates where the monsters can be spawned. Random coordinates
    *     are chosen from this array.
-   * @param bossType The type of the level boss monster.
-   * @param levelBossSpawn The Coordinate where the bossType monster (level boss) is to be spawned.
-   * @param onBossDeath The action to perform when the level boss monster dies.
    * @return A list of the spawned entities. The last entity in the list is the level boss monster.
    * @throws IllegalArgumentException if mobCount is greater than the length of mobSpawns.
    * @throws RuntimeException if an error occurs while spawning a monster.
    * @see #spawnBoss(MonsterType, Coordinate, Consumer) spawnBoss
    */
   public static List<Entity> spawnMobs(
-      int mobCount,
-      MonsterType[] monsterTypes,
-      Coordinate[] mobSpawns,
-      MonsterType bossType,
-      Coordinate levelBossSpawn,
-      Consumer<Entity> onBossDeath) {
+      int mobCount, MonsterType[] monsterTypes, Coordinate[] mobSpawns) {
     if (mobCount > mobSpawns.length) {
       throw new IllegalArgumentException("mobCount cannot be greater than mobSpawns.length");
     }
@@ -287,36 +279,7 @@ public class EntityUtils {
       }
     }
 
-    // Spawn the level boss monster.
-    spawnedMobs.add(spawnBoss(bossType, levelBossSpawn, onBossDeath));
-
     return spawnedMobs;
-  }
-
-  /**
-   * This method is used to spawn a specified number of monsters in the game at random positions.
-   * Plus a boss monster.
-   *
-   * @param mobCount The number of monsters to be spawned. This number cannot be greater than the
-   *     length of mobSpawns.
-   * @param monsterTypes An array of MonsterType that the monsters can be. A random type is chosen
-   *     for each monster.
-   * @param mobSpawns An array of Coordinates where the monsters can be spawned. Random coordinates
-   *     are chosen from this array.
-   * @param bossType The type of the level boss monster.
-   * @param levelBossSpawn The Coordinate where the bossType monster (level boss) is to be spawned.
-   * @return A list of the spawned entities. The last entity in the list is the level boss monster.
-   * @throws IllegalArgumentException if mobCount is greater than the length of mobSpawns.
-   * @throws RuntimeException if an error occurs while spawning a monster.
-   * @see #spawnMobs(int, MonsterType[], Coordinate[], MonsterType, Coordinate, Consumer) spawnMobs
-   */
-  public static List<Entity> spawnMobs(
-      int mobCount,
-      MonsterType[] monsterTypes,
-      Coordinate[] mobSpawns,
-      MonsterType bossType,
-      Coordinate levelBossSpawn) {
-    return spawnMobs(mobCount, monsterTypes, mobSpawns, bossType, levelBossSpawn, e -> {});
   }
 
   /**
@@ -328,7 +291,6 @@ public class EntityUtils {
    * @param onBossDeath The action to perform when the level boss monster dies.
    * @return The spawned boss monster entity.
    * @throws RuntimeException if an error occurs while spawning a monster.
-   * @see #spawnMobs(int, MonsterType[], Coordinate[], MonsterType, Coordinate, Consumer) spawnMobs
    */
   public static Entity spawnBoss(
       MonsterType bossType, Coordinate levelBossSpawn, Consumer<Entity> onBossDeath) {
@@ -352,6 +314,19 @@ public class EntityUtils {
     } catch (RuntimeException e) {
       throw new RuntimeException("Failed to spawn level boss monster: " + e.getMessage());
     }
+  }
+
+  /**
+   * This method is used to spawn a boss monster in the game at a specified position. When the boss
+   * monster dies, the exit of the current level is opened.
+   *
+   * @param bossType The type of the level boss monster.
+   * @param levelBossSpawn The Coordinate where the bossType monster (level boss) is to be spawned.
+   * @return The spawned boss monster entity.
+   * @throws RuntimeException if an error occurs while spawning a monster.
+   */
+  public static Entity spawnBoss(MonsterType bossType, Coordinate levelBossSpawn) {
+    return spawnBoss(bossType, levelBossSpawn, (e) -> {});
   }
 
   /**
