@@ -108,8 +108,6 @@ public final class UIUtils {
       return null;
     }
 
-    final boolean softWordWrap = true;
-
     final StringBuilder sb = new StringBuilder();
     final String[] words = text.trim().replaceAll("\\s+", " ").split(" ");
 
@@ -123,7 +121,7 @@ public final class UIUtils {
       if (lineIndex + word.length() <= maxLen) {
         // word will fit
         sb.append(word);
-      } else if (softWordWrap && word.length() <= maxLen) {
+      } else if (word.length() <= maxLen) {
         // do not split word
         --wordIndex;
         int len = maxLen - lineIndex;
