@@ -43,7 +43,11 @@ public final class UIUtils {
    */
   private static final int MAX_ROW_LENGTH = 40;
 
-  /** Line break character to use in the {@link UIUtils#formatString} method. */
+  /**
+   * Line break character to use in the {@link UIUtils#formatString} method.
+   *
+   * <p>No need for {@code System.lineSeparator()} as libGDX wants {@code '\n'}
+   */
   private static final char LS = '\n';
 
   /**
@@ -67,36 +71,47 @@ public final class UIUtils {
   }
 
   /**
-   * This is a simple implementation of formatting a text with soft word wrap.
+   * Wrap texts to a maximum line length.
    *
-   * <p>Characteristics:
+   * <p>This function can be used to soft-wrap texts to a maximum of {@link UIUtils#MAX_ROW_LENGTH}
+   * characters per line. The text is sanitised before wrapping by replacing multiple consecutive
+   * whitespace characters (including line breaks) with single spaces. The text is then wrapped
+   * according to the following algorithm: The last space before the maximum line length of {@link
+   * UIUtils#MAX_ROW_LENGTH} characters is replaced by a line break. Any words exceeding the maximum
+   * line length are cut off and wrapped at the position of the maximum line length.
    *
-   * <ul>
-   *   <li>Every whitespace character ({@code "[ \t\n\x0B\f\r]"}) that occurs at least once should
-   *       be replaced by exactly one space character.
-   *   <li>A line of text should not be longer than {@link UIUtils#MAX_ROW_LENGTH} characters.
-   *   <li>Long words at the end of a line should be inserted into the next line if it fits there
-   *       (soft word wrap). Otherwise, the word should be broken immediately and inserted into this
-   *       line and into the next line(s) (hard word wrap).
-   *   <li>The {@link UIUtils#LS} character should always be used as the line separator (for
-   *       compatibility with libGDX).
-   * </ul>
-   *
-   * @param string String which should be reformatted.
-   * @return The reformatted string.
-   * @throws IllegalArgumentException if {@code string} is {@code null}.
+   * @param text text to be soft-wrapped at {@link UIUtils#MAX_ROW_LENGTH} characters per line
+   * @return the reformatted text where all lines have been soft-wrapped to at maximum {@link
+   *     UIUtils#MAX_ROW_LENGTH} characters per line
    */
-  public static String formatString(final String string) {
-    if (string == null) {
-      throw new IllegalArgumentException("string is null");
+  public static String formatString(final String text) {
+    return formatString(text, MAX_ROW_LENGTH);
+  }
+
+  /**
+   * Wrap texts to a maximum line length of {@code maxLen} characters.
+   *
+   * <p>This function can be used to soft-wrap texts to a maximum of {@code maxLen} characters per
+   * line. The text is sanitised before wrapping by replacing multiple consecutive whitespace
+   * characters (including line breaks) with single spaces. The text is then wrapped according to
+   * the following algorithm: The last space before the maximum line length of {@code maxLen}
+   * characters is replaced by a line break. Any words exceeding the maximum line length are cut off
+   * and wrapped at the position of the maximum line length.
+   *
+   * @param text text to be soft-wrapped at {@code maxLen} characters per line
+   * @param maxLen maximum number of characters per line
+   * @return the reformatted text where all lines have been soft-wrapped to at maximum {@code
+   *     maxLen} characters per line
+   */
+  public static String formatString(final String text, int maxLen) {
+    if (text == null) {
+      return null;
     }
 
-    final int maxLen = MAX_ROW_LENGTH;
     final boolean softWordWrap = true;
 
     final StringBuilder sb = new StringBuilder();
-    final String text = string.trim().replaceAll("\\s+", " ");
-    final String[] words = text.split(" ");
+    final String[] words = text.trim().replaceAll("\\s+", " ").split(" ");
 
     int wordIndex = 0;
     int lineIndex = 0;
