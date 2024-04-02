@@ -215,7 +215,7 @@ public class DevDungeonLevel extends TileLevel {
    * Gets the custom points that are within the given bounds.
    *
    * @param start The start index of the custom points list.
-   * @param end The end index of the custom points list. The end index is inclusive.
+   * @param end The end index of the custom points list. (inclusive)
    * @return An array of custom points within the given bounds.
    */
   protected Coordinate[] getCoordinates(int start, int end) {
