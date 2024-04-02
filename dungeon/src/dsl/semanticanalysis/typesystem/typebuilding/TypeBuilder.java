@@ -6,8 +6,10 @@ import dsl.runtime.callable.ExtensionMethod;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
-import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
+// import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
+// import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
+import dsl.semanticanalysis.typesystem.extension.DSLExtensionMethodImpl;
+import dsl.semanticanalysis.typesystem.extension.DSLExtensionPropertyImpl;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import graph.taskdependencygraph.TaskDependencyGraph;
 import java.lang.reflect.*;
@@ -26,10 +28,12 @@ public class TypeBuilder {
   private final HashSet<Type> currentLookedUpTypes;
   private Set<String> typeNameSet;
   private int typeNameSetSizeCache;
+  private final TypeFactory typeFactory;
   private final HashMap<Class<?>, IFunctionTypeBuilder> functionTypeBuilders;
 
   /** Constructor */
-  public TypeBuilder() {
+  public TypeBuilder(TypeFactory tf) {
+    this.typeFactory = tf;
     this.typeAdapters = new HashMap<>();
     this.javaTypeToDSLType = new HashMap<>();
     this.currentLookedUpTypes = new HashSet<>();
@@ -264,7 +268,7 @@ public class TypeBuilder {
       throw new RuntimeException("Builder methods with zero arguments are currently not supported");
     }
 
-    var typeAdapter = new AggregateTypeAdapter(dslTypeName, parentScope, forType, adapterMethod);
+    var typeAdapter = this.typeFactory.aggregateTypeAdapter(dslTypeName, parentScope, forType, adapterMethod);
     this.javaTypeToDSLType.put(forType, typeAdapter);
     parentScope.bind(typeAdapter);
 
@@ -388,7 +392,7 @@ public class TypeBuilder {
     IType elementDSLType = this.createDSLTypeForJavaTypeInScope(globalScope, elementType);
 
     if (javaTypeToDSLType.get(setType) == null) {
-      IType dslSetType = new SetType(elementDSLType, globalScope);
+      IType dslSetType = typeFactory.setType(elementDSLType, globalScope);
       dslSetType = bindOrResolveTypeInScope(dslSetType, globalScope);
       javaTypeToDSLType.put(setType, dslSetType);
     }
@@ -403,7 +407,7 @@ public class TypeBuilder {
     IType elementDSLType = this.createDSLTypeForJavaTypeInScope(globalScope, elementType);
 
     if (javaTypeToDSLType.get(mapType) == null) {
-      IType dslMapType = new MapType(keyDSLType, elementDSLType, globalScope);
+      IType dslMapType = this.typeFactory.mapType(keyDSLType, elementDSLType, globalScope);
       dslMapType = bindOrResolveTypeInScope(dslMapType, globalScope);
       javaTypeToDSLType.put(mapType, dslMapType);
     }
@@ -421,7 +425,7 @@ public class TypeBuilder {
     IType elementDSLType = this.createDSLTypeForJavaTypeInScope(globalScope, elementType);
 
     if (javaTypeToDSLType.get(listType) == null) {
-      IType dslListType = new ListType(elementDSLType, globalScope);
+      IType dslListType = this.typeFactory.listType(elementDSLType, globalScope);
       dslListType = bindOrResolveTypeInScope(dslListType, globalScope);
       javaTypeToDSLType.put(listType, dslListType);
     }
@@ -593,7 +597,7 @@ public class TypeBuilder {
       @SuppressWarnings("unchecked")
       Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) clazz;
 
-      var enumType = new EnumType(typeName, globalScope, enumClass);
+      var enumType = this.typeFactory.enumType(typeName, globalScope, enumClass);
       var variants = clazz.getDeclaredFields();
       for (var variant : variants) {
         var variantsType = variant.getType();
@@ -608,7 +612,9 @@ public class TypeBuilder {
       returnType = enumType;
     } else {
       // create new AggregateType for clazz
-      var aggregateType = new AggregateType(typeName, globalScope, clazz);
+      var aggregateType =
+          this.typeFactory.aggregateType(
+              typeName, globalScope, clazz);
 
       this.currentLookedUpTypes.add(clazz);
       for (Field field : clazz.getDeclaredFields()) {
@@ -650,13 +656,13 @@ public class TypeBuilder {
   }
 
   /**
-   * Bind a {@link IDSLExtensionProperty} as an {@link PropertySymbol} in the DSL datatype
+   * Bind a {@link DSLExtensionPropertyImpl} as an {@link PropertySymbol} in the DSL datatype
    * corresponding to the {@link DSLTypeProperty#extendedType()} field.
    *
    * @param globalScope the global scope to use for resolving data types
-   * @param property the {@link IDSLExtensionProperty} to bind
+   * @param property the {@link DSLExtensionPropertyImpl} to bind
    */
-  public void bindProperty(IScope globalScope, IDSLExtensionProperty<?, ?> property) {
+  public void bindProperty(IScope globalScope, DSLExtensionPropertyImpl<?, ?> property) {
     // get extended type
     Class<?> propertyClass = property.getClass();
     if (propertyClass.isAnnotationPresent(DSLTypeProperty.class)) {
@@ -664,25 +670,30 @@ public class TypeBuilder {
       var extendedClass = annotation.extendedType();
       IType extendedType = createDSLTypeForJavaTypeInScope(globalScope, extendedClass);
       if (extendedType instanceof AggregateType aggregateExtendedType) {
-        var genericInterfaces = propertyClass.getGenericInterfaces();
-        var type = genericInterfaces[0];
-        ParameterizedType parameterizedType = (ParameterizedType) type;
+        // var genericInterfaces = propertyClass.getGenericInterfaces();
+        // var type = genericInterfaces[0];
+        AnnotatedParameterizedType parameterizedType =
+            (AnnotatedParameterizedType) propertyClass.getAnnotatedSuperclass();
+        // ParameterizedType parameterizedType = (ParameterizedType) type;
 
         // get properties datatype
-        var valueType = parameterizedType.getActualTypeArguments()[1];
+        var valueType = parameterizedType.getAnnotatedActualTypeArguments()[1];
         IType valueDSLType = null;
-        if (valueType instanceof ParameterizedType parameterizedParameterType) {
+        // if (valueType instanceof ParameterizedType parameterizedParameterType) {
+        if (valueType instanceof AnnotatedType parameterizedParameterType) {
           try {
-            Class<?> rawType = (Class<?>) parameterizedParameterType.getRawType();
+            Class<?> rawType = (Class<?>) parameterizedParameterType.getType();
             if (rawType.isAnnotationPresent(FunctionalInterface.class)) {
-              valueDSLType = this.createFunctionType(parameterizedParameterType, globalScope);
+              valueDSLType =
+                  this.createFunctionType(
+                      (ParameterizedType) parameterizedParameterType, globalScope);
             }
           } catch (ClassCastException ex) {
             //
           }
         }
         if (valueDSLType == null) {
-          valueDSLType = createDSLTypeForJavaTypeInScope(globalScope, valueType);
+          valueDSLType = createDSLTypeForJavaTypeInScope(globalScope, valueType.getType());
         }
 
         // create and bind property symbol
@@ -694,13 +705,13 @@ public class TypeBuilder {
   }
 
   /**
-   * Bind a {@link IDSLExtensionMethod} as an {@link ExtensionMethod} symbol in the DSL datatype
+   * Bind a {@link DSLExtensionMethodImpl} as an {@link ExtensionMethod} symbol in the DSL datatype
    * corresponding to the {@link DSLExtensionMethod#extendedType()} field.
    *
    * @param globalScope the global scope to use for resolving data types
-   * @param method the {@link IDSLExtensionMethod} to bind
+   * @param method the {@link DSLExtensionMethodImpl} to bind
    */
-  public void bindMethod(IScope globalScope, IDSLExtensionMethod<?, ?> method) {
+  public void bindMethod(IScope globalScope, DSLExtensionMethodImpl<?, ?> method) {
     // get extended type
     Class<?> methodClass = method.getClass();
     if (methodClass.isAnnotationPresent(DSLExtensionMethod.class)) {
@@ -708,12 +719,15 @@ public class TypeBuilder {
       var extendedClass = annotation.extendedType();
       IType extendedType = createDSLTypeForJavaTypeInScope(globalScope, extendedClass);
       if (extendedType instanceof AggregateType aggregateExtendedType) {
-        var genericInterfaces = methodClass.getGenericInterfaces();
-        var type = genericInterfaces[0];
-        ParameterizedType parameterizedType = (ParameterizedType) type;
+        // var genericInterfaces = methodClass.getGenericInterfaces();
+        // var type = genericInterfaces[0];
+        // ParameterizedType parameterizedType = (ParameterizedType) type;
+        AnnotatedParameterizedType parameterizedType =
+            (AnnotatedParameterizedType) methodClass.getAnnotatedSuperclass();
 
         // create FunctionType
-        Type returnType = parameterizedType.getActualTypeArguments()[1];
+        // Type returnType = parameterizedType.getActualTypeArguments()[1];
+        var returnType = parameterizedType.getAnnotatedActualTypeArguments()[1].getType();
         IType returnDSLType = createDSLTypeForJavaTypeInScope(globalScope, returnType);
 
         List<Type> parameterTypes = method.getParameterTypes();
@@ -744,7 +758,7 @@ public class TypeBuilder {
                 annotation.name(),
                 aggregateExtendedType,
                 functionType,
-                (IDSLExtensionMethod<Object, Object>) method);
+                (DSLExtensionMethodImpl<Object, Object>) method);
         aggregateExtendedType.bind(nativeMethodSymbol);
       }
     }

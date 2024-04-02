@@ -145,7 +145,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
       }
     }
 
-    this.typeInferrer = new TypeInferrer(this.symbolTable);
+    this.typeInferrer = new TypeInferrer(this.symbolTable, this.environment.typeFactory());
 
     this.setup = true;
   }

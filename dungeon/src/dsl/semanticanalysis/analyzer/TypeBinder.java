@@ -14,6 +14,7 @@ public class TypeBinder implements AstVisitor<Object> {
   // private IEnvironment environment;
   private IScope scope;
   private SymbolTable symbolTable;
+  private TypeFactory typeFactory;
 
   private SymbolTable symbolTable() {
     return this.symbolTable;
@@ -31,6 +32,7 @@ public class TypeBinder implements AstVisitor<Object> {
       IEnvironment environment, IScope scope, Node rootNode, StringBuilder errorStringBuilder) {
     // this.environment = environment;
     this.symbolTable = environment.getSymbolTable();
+    this.typeFactory = environment.typeFactory();
     this.scope = scope;
     this.errorStringBuilder = errorStringBuilder;
     visitChildren(rootNode);
@@ -50,7 +52,9 @@ public class TypeBinder implements AstVisitor<Object> {
       // TODO: return explicit null-Type?
       return null;
     }
-    var newType = new AggregateType(newTypeName, this.scope);
+    var newType =
+        this.typeFactory.aggregateType(
+            newTypeName, this.scope); // new AggregateType(newTypeName, this.scope);
     symbolTable().addSymbolNodeRelation(newType, node, true);
 
     // visit all component definitions and get type and create new symbol in gameObject type
@@ -82,7 +86,9 @@ public class TypeBinder implements AstVisitor<Object> {
       return null;
     }
 
-    var itemType = new AggregateType(newTypeName, this.scope);
+    var itemType =
+        this.typeFactory.aggregateType(
+            newTypeName, this.scope);
     symbolTable().addSymbolNodeRelation(itemType, node, true);
 
     Symbol questItemTypeSymbol = this.scope.resolve("quest_item");
@@ -159,8 +165,7 @@ public class TypeBinder implements AstVisitor<Object> {
       Symbol listTypeSymbol = scopeToResolveTypeIn.resolve(ListType.getListTypeName(innerType));
       if (listTypeSymbol.equals(Symbol.NULL)) {
         IScope globalScope = this.symbolTable.globalScope();
-        ListType listType = new ListType(innerType, globalScope);
-        globalScope.bind(listType);
+        ListType listType = this.typeFactory.listType(innerType, globalScope);
       }
     }
     return null;
@@ -183,8 +188,7 @@ public class TypeBinder implements AstVisitor<Object> {
       Symbol setTypeSymbol = scopeToResolveTypeIn.resolve(SetType.getSetTypeName(innerType));
       if (setTypeSymbol.equals(Symbol.NULL)) {
         IScope globalScope = symbolTable.globalScope();
-        SetType setType = new SetType(innerType, globalScope);
-        globalScope.bind(setType);
+        SetType setType = typeFactory.setType(innerType, globalScope);
       }
     }
     return null;
@@ -213,7 +217,7 @@ public class TypeBinder implements AstVisitor<Object> {
       var keyType = scopeToResolveTypeIn.resolveType(keyTypeNode.getName());
       var elementType = scopeToResolveTypeIn.resolveType(elementTypeNode.getName());
       IScope globalScope = this.symbolTable.globalScope();
-      MapType setType = new MapType(keyType, elementType, globalScope);
+      MapType setType = this.typeFactory.mapType(keyType, elementType, globalScope);
       globalScope.bind(setType);
     }
     return null;

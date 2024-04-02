@@ -5,16 +5,15 @@ import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 
 public class TypeInferrer implements AstVisitor<IType> {
   SymbolTable symbolTable;
+  private final TypeFactory typeFactory;
 
-  public TypeInferrer(SymbolTable symbolTable) {
+  public TypeInferrer(SymbolTable symbolTable, TypeFactory typeFactory) {
     this.symbolTable = symbolTable;
+    this.typeFactory = typeFactory;
   }
 
   IType inferType(Node node) {
@@ -142,8 +141,7 @@ public class TypeInferrer implements AstVisitor<IType> {
     ListType listType;
     if (resolvedSymbol.equals(Symbol.NULL)) {
       IScope globalScope = symbolTable.globalScope();
-      listType = new ListType(innerType, globalScope);
-      globalScope.bind(listType);
+      listType = this.typeFactory.listType(innerType, globalScope);
     } else {
       listType = (ListType) resolvedSymbol;
     }
@@ -162,8 +160,7 @@ public class TypeInferrer implements AstVisitor<IType> {
     SetType setType;
     if (resolvedSymbol.equals(Symbol.NULL)) {
       IScope globalScope = symbolTable.globalScope();
-      setType = new SetType(innerType, globalScope);
-      globalScope.bind(setType);
+      setType = typeFactory.setType(innerType, globalScope);
     } else {
       setType = (SetType) resolvedSymbol;
     }

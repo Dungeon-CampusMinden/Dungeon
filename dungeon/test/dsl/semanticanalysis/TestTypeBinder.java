@@ -14,6 +14,7 @@ import dsl.semanticanalysis.typesystem.*;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class TestTypeBinder {
 
   @Test
   public void testAggregateTypeBinding() {
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     var testCompType = tb.createDSLTypeForJavaTypeInScope(new Scope(), TestComponent.class);
 
     String program =
@@ -68,7 +69,7 @@ public class TestTypeBinder {
 
   @Test
   public void testAggregateTypeBindingAstNodeRelation() {
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     var testCompType = tb.createDSLTypeForJavaTypeInScope(new Scope(), TestComponent.class);
 
     String program =
@@ -122,9 +123,8 @@ public class TestTypeBinder {
 
     var env = new GameEnvironment();
 
-    env.getTypeBuilder().registerTypeAdapter(RecordBuilder.class, env.getGlobalScope());
-    var type =
-        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(new Scope(), TestRecordUser.class);
+    env.typeBuilder().registerTypeAdapter(RecordBuilder.class, env.getGlobalScope());
+    var type = env.typeBuilder().createDSLTypeForJavaTypeInScope(new Scope(), TestRecordUser.class);
 
     env.loadTypes(type);
     symTableParser.setup(env);
@@ -145,7 +145,7 @@ public class TestTypeBinder {
 
   @Test
   public void testSetTypeBinding() {
-    TypeBuilder typeBuilder = new TypeBuilder();
+    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
     var testCompType =
         typeBuilder.createDSLTypeForJavaTypeInScope(new Scope(), TestComponent.class);
 

@@ -12,6 +12,7 @@ import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 // which are basically evaluated type definitions (of game objects)
 public class RuntimeEnvironment implements IEnvironment {
   private final SymbolTable symbolTable;
+  private final TypeFactory typeFactory;
   private final HashMap<String, Symbol> functions;
   private final HashMap<String, PrototypeValue> prototypes;
   protected HashMap<Path, FileScope> fileScopes = new HashMap<>();
@@ -48,7 +50,8 @@ public class RuntimeEnvironment implements IEnvironment {
   public RuntimeEnvironment(
       IEnvironment other, DSLInterpreter interpreter, FileScope entryPointFileScope) {
     this.symbolTable = other.getSymbolTable();
-    this.typeBuilder = other.getTypeBuilder();
+    this.typeFactory = other.typeFactory();
+    this.typeBuilder = other.typeBuilder();
 
     var functions = other.getFunctions();
     this.functions = new HashMap<>();
@@ -97,8 +100,13 @@ public class RuntimeEnvironment implements IEnvironment {
   }
 
   @Override
-  public TypeBuilder getTypeBuilder() {
+  public TypeBuilder typeBuilder() {
     return this.typeBuilder;
+  }
+
+  @Override
+  public TypeFactory typeFactory() {
+    return this.typeFactory;
   }
 
   @Override

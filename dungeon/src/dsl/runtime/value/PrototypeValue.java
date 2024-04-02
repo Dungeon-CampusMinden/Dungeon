@@ -17,8 +17,7 @@ public class PrototypeValue extends Value implements IType {
   public static BuiltInType PROTOTYPE = new BuiltInType("prototype", Scope.NULL, (v) -> false);
   public static BuiltInType ITEM_PROTOTYPE =
       new BuiltInType("item_prototype", Scope.NULL, (v) -> false);
-  public static PrototypeValue NONE =
-      new PrototypeValue(PROTOTYPE, new AggregateType("NO_TYPE_NAME", Scope.NULL));
+  public static PrototypeValue NONE = new PrototypeValue(PROTOTYPE, AggregateType.NULL);
   private AggregateType internalType;
 
   private HashMap<String, Value> defaultValues;

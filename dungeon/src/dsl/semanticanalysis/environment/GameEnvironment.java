@@ -25,8 +25,10 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
-import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
+import dsl.semanticanalysis.typesystem.extension.DSLExtensionMethodImpl;
+// import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
+// import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
+import dsl.semanticanalysis.typesystem.extension.DSLExtensionPropertyImpl;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import dslinterop.dslnativefunction.NativeInstantiate;
@@ -65,6 +67,7 @@ public class GameEnvironment implements IEnvironment {
   //  RuntimeEnvironment and GameEnvironment and depends on the implementation of
   //  typechecking, which is not yet implemented
   protected final TypeBuilder typeBuilder;
+  protected final TypeFactory typeFactory;
 
   // TODO: also make HashMaps
   protected final ArrayList<Symbol> NATIVE_FUNCTIONS;
@@ -87,8 +90,9 @@ public class GameEnvironment implements IEnvironment {
   public GameEnvironment(Path relLibPath) {
     this.relLibPath = relLibPath;
 
-    this.typeBuilder = new TypeBuilder();
-    this.globalScope = new Scope();
+    this.typeFactory = new TypeFactory();
+    this.typeBuilder = new TypeBuilder(this.typeFactory);
+    this.globalScope = new Scope("GLOBAL SCOPE");
     this.nullFileScope = new FileScope(new ParsedFile(null, Node.NONE), this.globalScope);
     this.symbolTable = new SymbolTable(this.globalScope);
 
@@ -148,8 +152,8 @@ public class GameEnvironment implements IEnvironment {
         };
   }
 
-  public List<IDSLExtensionProperty<?, ?>> getBuiltInProperties() {
-    ArrayList<IDSLExtensionProperty<?, ?>> properties = new ArrayList<>();
+  public List<DSLExtensionPropertyImpl<?, ?>> getBuiltInProperties() {
+    ArrayList<DSLExtensionPropertyImpl<?, ?>> properties = new ArrayList<>();
     properties.add(DSLSingleChoice.SingleChoiceDescriptionProperty.instance);
 
     properties.add(EntityExtension.VelocityComponentProperty.instance);
@@ -166,8 +170,8 @@ public class GameEnvironment implements IEnvironment {
     return properties;
   }
 
-  public List<IDSLExtensionMethod<?, ?>> getBuiltInMethods() {
-    ArrayList<IDSLExtensionMethod<?, ?>> methods = new ArrayList<>();
+  public List<DSLExtensionMethodImpl<?, ?>> getBuiltInMethods() {
+    ArrayList<DSLExtensionMethodImpl<?, ?>> methods = new ArrayList<>();
 
     methods.add(DSLSingleChoice.GetContentMethod.instance);
     methods.add(DSLSingleChoice.SetScenarioText.instance);
@@ -199,8 +203,13 @@ public class GameEnvironment implements IEnvironment {
   }
 
   @Override
-  public TypeBuilder getTypeBuilder() {
+  public TypeBuilder typeBuilder() {
     return typeBuilder;
+  }
+
+  @Override
+  public TypeFactory typeFactory() {
+    return this.typeFactory;
   }
 
   protected void registerDefaultTypeAdapters() {
@@ -320,13 +329,13 @@ public class GameEnvironment implements IEnvironment {
   }
 
   protected void bindBuiltInProperties() {
-    for (IDSLExtensionProperty<?, ?> property : getBuiltInProperties()) {
+    for (DSLExtensionPropertyImpl<?, ?> property : getBuiltInProperties()) {
       this.typeBuilder.bindProperty(this.globalScope, property);
     }
   }
 
   protected void bindBuiltInMethods() {
-    for (IDSLExtensionMethod<?, ?> method : getBuiltInMethods()) {
+    for (DSLExtensionMethodImpl<?, ?> method : getBuiltInMethods()) {
       this.typeBuilder.bindMethod(this.globalScope, method);
     }
   }
@@ -353,8 +362,8 @@ public class GameEnvironment implements IEnvironment {
 
     // build functions with dependency on specific non-builtin types
     IType questItemType = (IType) this.globalScope.resolve("quest_item");
-    SetType entitySetType = new SetType(entityType, this.globalScope);
-    this.globalScope.bind(entitySetType);
+
+    SetType entitySetType = typeFactory.setType(entityType, this.globalScope);
 
     NativeFunction placeQuestItem =
         new NativePlaceQuestItem(Scope.NULL, questItemType, entitySetType);
@@ -375,7 +384,7 @@ public class GameEnvironment implements IEnvironment {
     var taskSymbol = this.globalScope.resolve("task");
     if (!taskSymbol.equals(Symbol.NULL)) {
       IType taskType = (IType) taskSymbol;
-      IType taskContentSetType = new SetType(taskContentType, this.globalScope);
+      IType taskContentSetType = typeFactory.setType(taskContentType, this.globalScope);
 
       NativeFunction showYesNoTask = new AskYesNoDialogFunction(this.globalScope, taskType);
       nativeFunctions.add(showYesNoTask);
@@ -411,14 +420,7 @@ public class GameEnvironment implements IEnvironment {
     }
 
     // native scenario builder functions
-    var entitySetSetSymbol = this.globalScope.resolve("entity<><>");
-    SetType entitySetSetType;
-    if (entitySetSetSymbol.equals(Symbol.NULL)) {
-      entitySetSetType = new SetType(entitySetType, this.globalScope);
-      this.globalScope.bind(entitySetSetType);
-    } else {
-      entitySetSetType = (SetType) entitySetSetSymbol;
-    }
+    SetType entitySetSetType = typeFactory.setType(entitySetType, this.globalScope);
     var singleChoiceSymbol = this.globalScope.resolve("single_choice_task");
     if (!singleChoiceSymbol.equals(Symbol.NULL)) {
       IType singleChoiceTaskType = (IType) singleChoiceSymbol;
@@ -593,7 +595,9 @@ public class GameEnvironment implements IEnvironment {
   }
 
   @DSLExtensionMethod(name = "is_empty", extendedType = Element.class)
-  public static class IsElementEmptyMethod implements IDSLExtensionMethod<Element, Boolean> {
+  public static class IsElementEmptyMethod
+      // implements IDSLExtensionMethod<Element, Boolean> {
+      extends DSLExtensionMethodImpl<Element, Boolean> {
     public static IsElementEmptyMethod instance = new IsElementEmptyMethod();
 
     @Override
@@ -615,7 +619,8 @@ public class GameEnvironment implements IEnvironment {
 
   @DSLExtensionMethod(name = "text", extendedType = Quiz.Content.class)
   public static class QuizContentContentMethod
-      implements IDSLExtensionMethod<Quiz.Content, String> {
+      // implements IDSLExtensionMethod<Quiz.Content, String> {
+      extends DSLExtensionMethodImpl<Quiz.Content, String> {
     public static QuizContentContentMethod instance = new QuizContentContentMethod();
 
     @Override
@@ -631,7 +636,9 @@ public class GameEnvironment implements IEnvironment {
   }
 
   @DSLExtensionMethod(name = "text", extendedType = Element.class)
-  public static class ElementContentMethod implements IDSLExtensionMethod<Element, String> {
+  public static class ElementContentMethod
+      // implements IDSLExtensionMethod<Element, String> {
+      extends DSLExtensionMethodImpl<Element, String> {
     public static ElementContentMethod instance = new ElementContentMethod();
 
     @Override
@@ -647,7 +654,9 @@ public class GameEnvironment implements IEnvironment {
   }
 
   @DSLExtensionMethod(name = "text", extendedType = TaskContent.class)
-  public static class TaskContentContentMethod implements IDSLExtensionMethod<TaskContent, String> {
+  public static class TaskContentContentMethod
+      // implements IDSLExtensionMethod<TaskContent, String> {
+      extends DSLExtensionMethodImpl<TaskContent, String> {
     public static TaskContentContentMethod instance = new TaskContentContentMethod();
 
     @Override
@@ -669,7 +678,9 @@ public class GameEnvironment implements IEnvironment {
   }
 
   @DSLExtensionMethod(name = "is_active", extendedType = Task.class)
-  public static class IsTaskActiveMethod implements IDSLExtensionMethod<Task, Boolean> {
+  public static class IsTaskActiveMethod
+      // implements IDSLExtensionMethod<Task, Boolean> {
+      extends DSLExtensionMethodImpl<Task, Boolean> {
     public static IsTaskActiveMethod instance = new IsTaskActiveMethod();
 
     @Override

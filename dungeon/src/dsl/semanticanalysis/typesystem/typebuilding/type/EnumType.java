@@ -18,7 +18,7 @@ public class EnumType extends ScopedSymbol implements IType {
    * @param parentScope The scope in which this type is declared.
    * @param originType The corresponding Java {@link Enum}-type of this {@link EnumType}
    */
-  public EnumType(String name, IScope parentScope, Class<? extends Enum<?>> originType) {
+  EnumType(String name, IScope parentScope, Class<? extends Enum<?>> originType) {
     super(name, parentScope, null);
     this.originType = originType;
   }

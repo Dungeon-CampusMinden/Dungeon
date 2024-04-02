@@ -83,7 +83,7 @@ public class TestSemanticAnalyzer {
     var ast = Helpers.getASTFromString(program);
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     var testComponentType = tb.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
 
@@ -201,7 +201,7 @@ public class TestSemanticAnalyzer {
 
     var printFuncDefSymbol = symtableResult.symbolTable.globalScope.resolve("print");
     Assert.assertNotNull(printFuncDefSymbol);
-    Assert.assertEquals(Symbol.Type.Scoped, printFuncDefSymbol.getSymbolType());
+    Assert.assertEquals(Symbol.Type.Callable, printFuncDefSymbol.getSymbolType());
     Assert.assertTrue(printFuncDefSymbol instanceof NativePrint);
   }
 
@@ -525,8 +525,7 @@ public class TestSemanticAnalyzer {
         """;
 
     TestEnvironment env = new TestEnvironment();
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
 
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
@@ -587,8 +586,7 @@ public class TestSemanticAnalyzer {
         """;
 
     TestEnvironment env = new TestEnvironment();
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
 
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
@@ -645,9 +643,8 @@ public class TestSemanticAnalyzer {
     """;
 
     TestEnvironment env = new TestEnvironment();
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder().bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder().bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
 
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
@@ -724,8 +721,8 @@ quest_config c {
     System.setOut(new PrintStream(outputStream));
 
     TestEnvironment env = new TestEnvironment();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
 
@@ -771,8 +768,8 @@ quest_config c {
     System.setOut(new PrintStream(outputStream));
 
     TestEnvironment env = new TestEnvironment();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
@@ -824,12 +821,12 @@ quest_config c {
     System.setOut(new PrintStream(outputStream));
 
     TestEnvironment env = new TestEnvironment();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
 
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
@@ -880,12 +877,12 @@ quest_config c {
     System.setOut(new PrintStream(outputStream));
 
     TestEnvironment env = new TestEnvironment();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
 
     var ast = Helpers.getASTFromString(program);
     try {
@@ -914,12 +911,12 @@ quest_config c {
     System.setOut(new PrintStream(outputStream));
 
     TestEnvironment env = new TestEnvironment();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
 
     var ast = Helpers.getASTFromString(program);
     try {
@@ -956,7 +953,7 @@ quest_config c {
     // setup
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     var testComponentType = tb.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
 
@@ -1011,7 +1008,7 @@ quest_config c {
     // setup
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     var testComponentType = tb.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
 

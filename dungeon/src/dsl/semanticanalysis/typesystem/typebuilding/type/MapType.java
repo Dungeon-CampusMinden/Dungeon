@@ -21,7 +21,7 @@ public class MapType extends ScopedSymbol implements IType {
     return "[" + keyType.getName() + "->" + elementType.getName() + "]";
   }
 
-  public MapType(IType keyType, IType elementType, IScope parentScope) {
+  MapType(IType keyType, IType elementType, IScope parentScope, TypeFactory typeFactory) {
     super(getMapTypeName(keyType, elementType), parentScope, elementType);
     this.keyType = keyType;
     this.elementType = elementType;
@@ -34,13 +34,15 @@ public class MapType extends ScopedSymbol implements IType {
             MapValue.AddMethod.instance);
     this.bind(addMethod);
 
-    var keyListType = new ListType(keyType, parentScope);
+    // var keyListType = new ListType(keyType, parentScope);
+    var keyListType = typeFactory.listType(keyType, parentScope);
     NativeMethod getKeysMethod =
         new NativeMethod(
             "get_keys", this, new FunctionType(keyListType), MapValue.GetKeysMethod.instance);
     this.bind(getKeysMethod);
 
-    var elementListType = new ListType(elementType, parentScope);
+    // var elementListType = new ListType(elementType, parentScope);
+    var elementListType = typeFactory.listType(elementType, parentScope);
     NativeMethod getElementsMethod =
         new NativeMethod(
             "get_elements",

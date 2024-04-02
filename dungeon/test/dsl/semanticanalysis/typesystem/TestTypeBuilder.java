@@ -47,7 +47,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testSimpleClass() {
-    TypeBuilder typeBuilder = new TypeBuilder();
+    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     var dslType =
         (AggregateType) typeBuilder.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
@@ -67,7 +67,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testChainedClass() {
-    TypeBuilder typeBuilder = new TypeBuilder();
+    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     var dslType =
         (AggregateType) typeBuilder.createDSLTypeForJavaTypeInScope(scope, ChainClass.class);
@@ -84,7 +84,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testRecord() {
-    TypeBuilder typeBuilder = new TypeBuilder();
+    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     var dslType =
         (AggregateType) typeBuilder.createDSLTypeForJavaTypeInScope(scope, TestRecord.class);
@@ -104,7 +104,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testTypeAdapterRegister() {
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     tb.registerTypeAdapter(RecordBuilder.class, scope);
 
@@ -123,7 +123,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testAggregateTypeAdapterRegister() {
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, scope);
 
@@ -142,7 +142,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testAggregateTypeAdapterCreation() {
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, scope);
     var adapterType = tb.createDSLTypeForJavaTypeInScope(Scope.NULL, ExternalType.class);
@@ -167,7 +167,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testAdapterUsage() {
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     tb.registerTypeAdapter(RecordBuilder.class, scope);
     var type = tb.createDSLTypeForJavaTypeInScope(scope, TestRecordUser.class);
@@ -179,7 +179,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testExternalTypeMember() {
-    TypeBuilder typeBuilder = new TypeBuilder();
+    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     var dslType =
         (AggregateType)
@@ -192,7 +192,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testInterfaceMember() {
-    TypeBuilder typeBuilder = new TypeBuilder();
+    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     var dslType =
         (AggregateType)
@@ -204,7 +204,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testCallbackConsumer() {
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     // register Entity type (setup)
     var entityType = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, Entity.class);
@@ -226,12 +226,11 @@ public class TestTypeBuilder {
     // register Entity type (setup)
     var entityType =
         (AggregateType)
-            env.getTypeBuilder()
-                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+            env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
 
     var dslType =
         (AggregateType)
-            env.getTypeBuilder()
+            env.typeBuilder()
                 .createDSLTypeForJavaTypeInScope(
                     env.getGlobalScope(), TestComponentWithTriConsumerCallback.class);
     var callbackSymbol = dslType.resolve("on_interaction");
@@ -253,12 +252,11 @@ public class TestTypeBuilder {
     // register Entity type (setup)
     var entityType =
         (AggregateType)
-            env.getTypeBuilder()
-                .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+            env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
 
     var dslType =
         (AggregateType)
-            env.getTypeBuilder()
+            env.typeBuilder()
                 .createDSLTypeForJavaTypeInScope(
                     env.getGlobalScope(), TestComponentWithFunctionCallback.class);
     var callbackSymbol = dslType.resolve("on_interaction");
@@ -286,7 +284,7 @@ public class TestTypeBuilder {
     TestEnvironment env = new TestEnvironment();
     var questConfigType =
         (AggregateType)
-            env.getTypeBuilder()
+            env.typeBuilder()
                 .createDSLTypeForJavaTypeInScope(
                     env.getGlobalScope(), TestComponentWithListMember.class);
 
@@ -306,7 +304,7 @@ public class TestTypeBuilder {
     TestEnvironment env = new TestEnvironment();
     var questConfigType =
         (AggregateType)
-            env.getTypeBuilder()
+            env.typeBuilder()
                 .createDSLTypeForJavaTypeInScope(
                     env.getGlobalScope(), TestComponentWithSetMember.class);
     Symbol intSetSymbol = questConfigType.resolve("int_set");
@@ -323,7 +321,7 @@ public class TestTypeBuilder {
   @Test
   public void testTypeForNull() {
     TestEnvironment env = new TestEnvironment();
-    var type = env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), null);
+    var type = env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), null);
     Assert.assertEquals(BuiltInType.noType, type);
   }
 }

@@ -94,7 +94,7 @@ public class TestRuntimeObjectTranslator {
             """;
 
     var env = new TestEnvironment();
-    env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, env.getGlobalScope());
+    env.typeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, env.getGlobalScope());
     var interpreter = new DSLInterpreter();
     Helpers.generateQuestConfigWithCustomTypes(
         program,
@@ -127,7 +127,7 @@ public class TestRuntimeObjectTranslator {
             """;
 
     var env = new TestEnvironment();
-    env.getTypeBuilder()
+    env.typeBuilder()
         .registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
     var interpreter = new DSLInterpreter();
     Helpers.generateQuestConfigWithCustomTypes(

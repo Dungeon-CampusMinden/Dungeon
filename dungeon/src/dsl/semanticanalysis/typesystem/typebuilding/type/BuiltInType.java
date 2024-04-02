@@ -4,9 +4,11 @@ import dsl.runtime.value.Value;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 // TODO: "entity_type" type definition should be fixed part of the
 //  built in type system
+@NodeEntity
 public class BuiltInType extends Symbol implements IType {
   public interface AsBooleanFunction {
     boolean run(Value param);

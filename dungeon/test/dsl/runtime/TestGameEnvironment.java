@@ -14,16 +14,16 @@ public class TestGameEnvironment {
     // name for type reference in the DSL typesystem (the name-attribute is used to force
     // OtherExternalType to be references as 'external_type`) -> this should trigger an
     // exception
-    env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
+    env.typeBuilder().registerTypeAdapter(ExternalTypeBuilderMultiParam.class, Scope.NULL);
     var adapterType =
-        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(Scope.NULL, ExternalType.class);
+        env.typeBuilder().createDSLTypeForJavaTypeInScope(Scope.NULL, ExternalType.class);
 
-    env.getTypeBuilder().registerTypeAdapter(OtherExternalTypeBuilderMultiParam.class, Scope.NULL);
+    env.typeBuilder().registerTypeAdapter(OtherExternalTypeBuilderMultiParam.class, Scope.NULL);
     var otherAdapterType =
-        env.getTypeBuilder().createDSLTypeForJavaTypeInScope(Scope.NULL, OtherExternalType.class);
+        env.typeBuilder().createDSLTypeForJavaTypeInScope(Scope.NULL, OtherExternalType.class);
 
     var externalComponentType =
-        env.getTypeBuilder()
+        env.typeBuilder()
             .createDSLTypeForJavaTypeInScope(Scope.NULL, TestComponentWithExternalType.class);
     env.loadTypes(externalComponentType, adapterType, otherAdapterType);
   }

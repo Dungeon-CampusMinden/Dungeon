@@ -9,6 +9,7 @@ import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import entrypoint.DungeonConfig;
 import graph.taskdependencygraph.TaskDependencyGraph;
 import java.lang.reflect.Field;
@@ -28,7 +29,7 @@ public class TestTypeInstantiator {
     MemorySpace ms = new MemorySpace();
     HashMap<String, Object> setValues = new HashMap<>();
 
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     DSLInterpreter interpreter = new DSLInterpreter();
     var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, DungeonConfig.class);
@@ -89,7 +90,7 @@ public class TestTypeInstantiator {
     HashMap<String, Object> setValues = new HashMap<>();
 
     DSLInterpreter interpreter = new DSLInterpreter();
-    TypeBuilder tb = new TypeBuilder();
+    TypeBuilder tb = new TypeBuilder(new TypeFactory());
     Scope scope = new Scope();
     var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, TestClassOuter.class);
 

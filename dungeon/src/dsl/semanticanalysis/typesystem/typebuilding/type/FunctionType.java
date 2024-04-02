@@ -4,8 +4,10 @@ import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.List;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 // TODO: extend this for named parameters
+@NodeEntity
 public class FunctionType extends Symbol implements IType {
   private final IType returnType;
   private final ArrayList<IType> parameterTypes;

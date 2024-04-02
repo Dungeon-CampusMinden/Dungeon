@@ -394,8 +394,8 @@ public class TestDSLInterpreter {
             """;
 
     var env = new TestEnvironment();
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
 
     var interpreter = new DSLInterpreter();
     var questConfig =
@@ -469,8 +469,8 @@ public class TestDSLInterpreter {
             """;
 
     var env = new TestEnvironment();
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
 
     var interpreter = new DSLInterpreter();
     var questConfig =
@@ -516,10 +516,10 @@ public class TestDSLInterpreter {
             """;
 
     var env = new TestEnvironment();
-    env.getTypeBuilder()
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), ComponentWithExternalTypeMember.class);
-    env.getTypeBuilder()
+    env.typeBuilder()
         .bindProperty(
             env.getGlobalScope(), Entity.ComponentWithExternalTypeMemberProperty.instance);
 
@@ -567,11 +567,11 @@ public class TestDSLInterpreter {
 
     // setup test type system
     var env = new TestEnvironment();
-    env.getTypeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, env.getGlobalScope());
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), ExternalType.class);
-    env.getTypeBuilder()
+    env.typeBuilder().registerTypeAdapter(ExternalTypeBuilder.class, env.getGlobalScope());
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), ExternalType.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponentWithExternalType.class);
-    env.getTypeBuilder()
+    env.typeBuilder()
         .bindProperty(env.getGlobalScope(), Entity.TestComponentWithExternalTypeProperty.instance);
 
     DSLInterpreter interpreter = new DSLInterpreter();
@@ -615,11 +615,11 @@ public class TestDSLInterpreter {
 
     // setup test type system
     var env = new TestEnvironment();
-    env.getTypeBuilder()
+    env.typeBuilder()
         .registerTypeAdapter(ExternalTypeBuilderMultiParam.class, env.getGlobalScope());
-    env.getTypeBuilder()
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponentWithExternalType.class);
-    env.getTypeBuilder()
+    env.typeBuilder()
         .bindProperty(env.getGlobalScope(), Entity.TestComponentWithExternalTypeProperty.instance);
     DSLInterpreter interpreter = new DSLInterpreter();
     Helpers.generateQuestConfigWithCustomTypes(
@@ -1432,13 +1432,12 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentTestComponent2ConsumerCallback.class);
-    env.getTypeBuilder()
+    env.typeBuilder()
         .bindProperty(env.getGlobalScope(), TestComponent2.TestComponentPseudoProperty.instance);
 
     var config =
@@ -1485,13 +1484,12 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentTestComponent2ConsumerCallback.class);
-    env.getTypeBuilder()
+    env.typeBuilder()
         .bindProperty(
             env.getGlobalScope(), TestComponent2.TestComponentPseudoPropertyComplexType.instance);
 
@@ -1538,14 +1536,13 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -1587,14 +1584,13 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -1658,14 +1654,13 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -1718,14 +1713,13 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -1774,8 +1768,8 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
@@ -1825,8 +1819,8 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
@@ -1879,8 +1873,8 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentWithStringConsumerCallback.class);
 
@@ -1936,13 +1930,12 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -1997,13 +1990,12 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -2057,8 +2049,8 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
 
@@ -2112,8 +2104,8 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
 
@@ -2177,8 +2169,8 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
 
@@ -2237,8 +2229,8 @@ public class TestDSLInterpreter {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
 
@@ -2304,8 +2296,8 @@ quest_config c {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
 
@@ -2368,17 +2360,15 @@ quest_config c {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
-    env.getTypeBuilder().bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+    env.typeBuilder().bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -2432,17 +2422,15 @@ quest_config c {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
-    env.getTypeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
-    env.getTypeBuilder().bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent1Property.instance);
+    env.typeBuilder().bindProperty(env.getGlobalScope(), Entity.TestComponent2Property.instance);
+    env.typeBuilder().bindMethod(env.getGlobalScope(), TestComponent2.MyMethod.instance);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -2951,9 +2939,9 @@ quest_config c {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), ComplexType.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), ComplexType.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentWithComplexTypeMember.class);
 
@@ -3000,11 +2988,11 @@ quest_config c {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentWithFunctionCallback.class);
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -3052,11 +3040,11 @@ quest_config c {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentWithFunctionCallback.class);
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), MyEnum.class);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -3178,12 +3166,11 @@ quest_config c {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -3241,8 +3228,8 @@ quest_config c {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
 
@@ -3300,12 +3287,11 @@ quest_config c {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);
@@ -3382,12 +3368,11 @@ quest_config c {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), Entity.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentEntityConsumerCallback.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent1.class);
 
     var config =
         (CustomQuestConfig) Helpers.generateQuestConfigWithCustomTypes(program, env, interpreter);

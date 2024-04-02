@@ -1,5 +1,8 @@
 package dsl.semanticanalysis.typesystem.typebuilding.type;
 
+import org.neo4j.ogm.annotation.NodeEntity;
+
+@NodeEntity
 public interface IType {
   enum Kind {
     Basic,

@@ -4,10 +4,9 @@ import dsl.runtime.callable.NativeFunction;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
+import dsl.semanticanalysis.typesystem.extension.DSLExtensionPropertyImpl;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
 import dslinterop.dslnativefunction.NativeInstantiate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,8 +19,8 @@ public class TestEnvironment extends GameEnvironment {
   private final HashSet<String> mockTypeNames;
 
   @Override
-  public TypeBuilder getTypeBuilder() {
-    return super.getTypeBuilder();
+  public TypeBuilder typeBuilder() {
+    return super.typeBuilder();
   }
 
   public TestEnvironment() {
@@ -31,9 +30,14 @@ public class TestEnvironment extends GameEnvironment {
     Symbol entityTypeSymbol = this.getGlobalScope().resolve("entity");
     // if (entityTypeSymbol != Symbol.NULL) {
     IType entityType = (IType) entityTypeSymbol;
-    IType entitySetType = new SetType(entityType, this.getGlobalScope());
+    IType entitySetType =
+        this.typeFactory()
+            .setType(
+                entityType,
+                this.getGlobalScope()); // new SetType(entityType, this.getGlobalScope());
     this.loadTypes(entitySetType);
-    IType entitySetSetType = new SetType(entitySetType, this.getGlobalScope());
+    IType entitySetSetType = this.typeFactory().setType(entitySetType, this.getGlobalScope());
+    // new SetType(entitySetType, this.getGlobalScope());
     this.loadTypes(entitySetSetType);
     this.mockTypeNames = new HashSet<>();
   }
@@ -53,7 +57,7 @@ public class TestEnvironment extends GameEnvironment {
   }
 
   @Override
-  public List<IDSLExtensionProperty<?, ?>> getBuiltInProperties() {
+  public List<DSLExtensionPropertyImpl<?, ?>> getBuiltInProperties() {
     return new ArrayList<>();
   }
 

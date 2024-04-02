@@ -13,6 +13,7 @@ import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import entrypoint.DungeonConfig;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -1092,17 +1093,16 @@ public class TestDSLInterpreterValueSemantics {
 
     TestEnvironment env = new TestEnvironment();
     DSLInterpreter interpreter = new DSLInterpreter();
-    env.getTypeBuilder()
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), dsl.interpreter.mockecs.Entity.class);
-    env.getTypeBuilder()
-        .createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
-    env.getTypeBuilder()
+    env.typeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), TestComponent2.class);
+    env.typeBuilder()
         .createDSLTypeForJavaTypeInScope(
             env.getGlobalScope(), TestComponentTestComponent2ConsumerCallback.class);
-    env.getTypeBuilder()
+    env.typeBuilder()
         .bindProperty(env.getGlobalScope(), TestComponent2.TestComponentPseudoProperty.instance);
-    env.getTypeBuilder()
+    env.typeBuilder()
         .bindProperty(env.getGlobalScope(), TestComponent2.TestComponent2EntityProperty.instance);
 
     var config =
@@ -1469,7 +1469,9 @@ public class TestDSLInterpreterValueSemantics {
 
   @Test
   public void testValueEqualityListInternalValues() {
-    ListType type = new ListType(BuiltInType.intType, Scope.NULL);
+    TypeFactory tf = new TypeFactory();
+    Scope scope = new Scope();
+    ListType type = tf.listType(BuiltInType.intType, scope);
     ListValue val1 = new ListValue(type);
     ListValue val2 = new ListValue(type);
 
@@ -1485,7 +1487,9 @@ public class TestDSLInterpreterValueSemantics {
 
   @Test
   public void testValueEqualityListReference() {
-    ListType type = new ListType(BuiltInType.intType, Scope.NULL);
+    TypeFactory tf = new TypeFactory();
+    Scope scope = new Scope();
+    ListType type = tf.listType(BuiltInType.intType, scope);
     ListValue val1 = new ListValue(type);
     ListValue val2 = new ListValue(type);
 

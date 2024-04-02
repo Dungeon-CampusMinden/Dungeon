@@ -9,6 +9,7 @@ import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,7 +19,9 @@ import java.util.List;
 
 public interface IEnvironment {
 
-  TypeBuilder getTypeBuilder();
+  TypeBuilder typeBuilder();
+
+  TypeFactory typeFactory();
 
   /**
    * @return all available types of the environment
