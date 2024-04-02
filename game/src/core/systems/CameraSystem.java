@@ -9,6 +9,7 @@ import core.Game;
 import core.System;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
+import core.game.PreRunConfiguration;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
@@ -42,11 +43,11 @@ public final class CameraSystem extends System {
   }
 
   private static float viewportWidth() {
-    return Game.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    return PreRunConfiguration.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
   }
 
   private static float viewportHeight() {
-    return Game.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    return PreRunConfiguration.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
   }
 
   /**
