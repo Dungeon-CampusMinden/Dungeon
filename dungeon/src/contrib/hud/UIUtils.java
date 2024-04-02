@@ -127,7 +127,7 @@ public final class UIUtils {
         int len = maxLen - lineIndex;
         lineIndex += len;
       } else {
-        // split word (even if wordWrap == true)
+        // split word
         int splitIndex = maxLen - lineIndex;
         String newWord1 = word.substring(0, splitIndex);
         String newWord2 = word.substring(splitIndex);
