@@ -16,7 +16,7 @@ import core.utils.components.path.SimpleIPath;
  */
 public class ItemPotionWater extends Item {
 
-  private static final int HEAL_AMOUNT = 5;
+  private static final int HEAL_AMOUNT = 4;
 
   /** Create a new Water-Potion. */
   public ItemPotionWater() {

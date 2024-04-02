@@ -16,8 +16,6 @@ import core.utils.components.path.SimpleIPath;
  */
 public class ItemResourceMushroomRed extends Item {
 
-  private static final int DAMAGE_AMOUNT = 20;
-
   /** Create a new Mushroom. */
   public ItemResourceMushroomRed() {
     super(
@@ -34,7 +32,9 @@ public class ItemResourceMushroomRed extends Item {
               component.remove(this);
               e.fetch(HealthComponent.class)
                   .ifPresent(
-                      hc -> hc.receiveHit(new Damage(DAMAGE_AMOUNT, DamageType.POISON, null)));
+                      hc ->
+                          hc.receiveHit(
+                              new Damage(hc.currentHealthpoints() - 1, DamageType.POISON, null)));
             });
   }
 }

@@ -14,6 +14,7 @@ import core.utils.components.draw.Animation;
 import core.utils.logging.CustomLogLevel;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 
 /**
@@ -33,6 +34,7 @@ import java.util.logging.Logger;
  */
 public class Item implements CraftingIngredient, CraftingResult {
   private static final Logger LOGGER = Logger.getLogger(Item.class.getSimpleName());
+  protected static final Random RANDOM = new Random();
 
   /**
    * Maps identifiers in crafting recipes (e.g. {@link ItemResourceBerry}) to their corresponding

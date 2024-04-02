@@ -24,7 +24,7 @@ public enum HealthPotionType {
    * @return The healing amount of this potion type.
    */
   public int getHealAmount() {
-    return healAmount;
+    return this.healAmount;
   }
 
   /**
@@ -34,7 +34,7 @@ public enum HealthPotionType {
    * @return The formatted name of the health potion type.
    */
   public String getName() {
-    String name = name();
+    String name = this.name();
     return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
   }
 }

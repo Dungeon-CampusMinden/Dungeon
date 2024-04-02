@@ -68,7 +68,7 @@ public final class ItemPotionHealth extends Item {
         .ifPresent(
             component -> {
               component.remove(this);
-              healUser(heal_amount, e);
+              this.healUser(this.heal_amount, e);
             });
   }
 
@@ -86,10 +86,9 @@ public final class ItemPotionHealth extends Item {
 
   @Override
   public boolean match(final CraftingIngredient input) {
-    if (!(input instanceof ItemPotionHealth)) {
+    if (!(input instanceof ItemPotionHealth other)) {
       return super.match(input);
     }
-    ItemPotionHealth other = (ItemPotionHealth) input;
     return other.heal_amount == this.heal_amount;
   }
 }

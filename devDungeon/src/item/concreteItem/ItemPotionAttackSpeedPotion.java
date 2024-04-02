@@ -24,7 +24,7 @@ public class ItemPotionAttackSpeedPotion extends Item {
         "Attack Speed Potion",
         "A potion that increases the attack speed of the user.",
         Animation.fromSingleImage(DEFAULT_TEXTURE));
-    this.attackSpeedEffect = new AttackSpeedEffect(1.5f, 20);
+    this.attackSpeedEffect = new AttackSpeedEffect(1.5f, 15);
   }
 
   @Override

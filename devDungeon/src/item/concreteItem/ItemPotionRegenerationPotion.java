@@ -11,6 +11,8 @@ import item.effects.RegenerationEffect;
 public class ItemPotionRegenerationPotion extends Item {
   public static final IPath DEFAULT_TEXTURE =
       new SimpleIPath("items/potion/regeneration_potion.png");
+  private static final int DURATION = 20;
+  private static final int HEAL_PER_SECOND = 1;
 
   static {
     Item.ITEMS.put(
@@ -24,7 +26,7 @@ public class ItemPotionRegenerationPotion extends Item {
         "Regeneration Potion",
         "A potion that heals you over time",
         Animation.fromSingleImage(DEFAULT_TEXTURE));
-    this.regenerationEffect = new RegenerationEffect(1, 15);
+    this.regenerationEffect = new RegenerationEffect(HEAL_PER_SECOND, DURATION);
   }
 
   @Override
