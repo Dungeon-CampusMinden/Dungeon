@@ -21,11 +21,13 @@ import entities.BossAttackSkills;
 import entities.MonsterType;
 import item.concreteItem.ItemReward;
 import java.util.List;
+import java.util.function.Consumer;
 import level.DevDungeonLevel;
 import level.utils.ITickable;
 import systems.DevHealthSystem;
 import utils.EntityUtils;
 
+/** The Final Boss Level */
 public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObserver {
 
   // Difficulty
@@ -79,6 +81,7 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
    * normal attack skill and a special attack skill.
    *
    * @see BossAttackSkills
+   * @see #getBossAttackChangeDelay()
    */
   private void handleBossAttacks() {
     AIComponent aiComp =
@@ -109,6 +112,13 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
     }
   }
 
+  /**
+   * Gets called when the boss dies.
+   *
+   * @param boss The boss entity.
+   * @see #handleFirstTick()
+   * @see EntityUtils#spawnBoss(MonsterType, Coordinate, Consumer)
+   */
   private void handleBossDeath(Entity boss) {
     InventoryComponent invComp = new InventoryComponent();
     boss.add(invComp);
@@ -117,6 +127,15 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
     // TODO: Drop item on death.
   }
 
+  /**
+   * Gets called when the boss reaches 50% health.
+   *
+   * <p>Triggers the 2nd phase of the boss fight. The boss gets a magic shield and spawns mobs
+   * around him. While these mobs are alive, the boss will not attack and is invulnerable.
+   *
+   * @see #handleBossAttacks()
+   * @see #onHeathEvent(Entity, HealthComponent, HealthEvent)
+   */
   private void triggerBoss2ndPhase() {
     this.isBoss2ndPhase = true;
 
