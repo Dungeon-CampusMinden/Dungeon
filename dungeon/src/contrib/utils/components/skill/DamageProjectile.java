@@ -254,6 +254,13 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     return this.tintColor;
   }
 
+  /**
+   * Disposes the current sound of the projectile. This method should be called when sound is
+   * finished playing. This is a workaround for the sound not being disposed when the * projectile
+   * is removed.
+   *
+   * @see Sound#dispose()
+   */
   public void disposeSounds() {
     if (this.currentSound != null) {
       this.currentSound.dispose();
