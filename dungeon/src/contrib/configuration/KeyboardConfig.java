@@ -16,14 +16,15 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> INTERACT_WORLD =
       new ConfigKey<>(new String[] {"interact", "world"}, new ConfigIntValue(Input.Keys.E));
   public static final ConfigKey<Integer> MOUSE_INTERACT_WORLD =
-      new ConfigKey<>(new String[] {"interact", "mouse"}, new ConfigIntValue(Input.Buttons.LEFT));
+      new ConfigKey<>(
+          new String[] {"interact", "mouse_world"}, new ConfigIntValue(Input.Buttons.LEFT));
   public static final ConfigKey<Integer> USE_ITEM =
       new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Input.Keys.E));
   public static final ConfigKey<Integer> FIRST_SKILL =
-      new ConfigKey<>(new String[] {"skill", "first"}, new ConfigIntValue(Input.Keys.Q));
+      new ConfigKey<>(new String[] {"skill", "fireball"}, new ConfigIntValue(Input.Keys.Q));
   public static final ConfigKey<Integer> MOUSE_FIRST_SKILL =
       new ConfigKey<>(
-          new String[] {"skill", "mouse_first"}, new ConfigIntValue(Input.Buttons.LEFT));
+          new String[] {"skill", "mouse_fireball"}, new ConfigIntValue(Input.Buttons.LEFT));
   public static final ConfigKey<Integer> DEBUG_ZOOM_IN =
       new ConfigKey<>(new String[] {"debug", "zoom_in"}, new ConfigIntValue(Input.Keys.K));
 

@@ -28,7 +28,8 @@ public class KeyboardConfig {
       new ConfigKey<>(
           new String[] {"movement", "right_second"}, new ConfigIntValue(Input.Keys.RIGHT));
   public static final ConfigKey<Integer> MOUSE_MOVE =
-      new ConfigKey<>(new String[] {"movement", "mouse"}, new ConfigIntValue(Input.Buttons.RIGHT));
+      new ConfigKey<>(
+          new String[] {"movement", "mouse_move"}, new ConfigIntValue(Input.Buttons.RIGHT));
   public static final ConfigKey<Integer> PAUSE =
       new ConfigKey<>(new String[] {"pause", "pause_game"}, new ConfigIntValue(Input.Keys.P));
 }
