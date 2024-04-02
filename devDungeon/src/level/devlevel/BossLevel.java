@@ -65,6 +65,13 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
     this.handleBossAttacks();
   }
 
+  private void handleFirstTick() {
+    this.boss = EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn, this::handleBossDeath);
+    ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
+  }
+
+  // Boss Methods
+
   /**
    * Handles the boss attacks.
    *
@@ -102,19 +109,31 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
     }
   }
 
-  /**
-   * Checks if any other mobs are alive.
-   *
-   * <p>It checks how many mobs are alive by filtering all entities that have an AIComponent. There
-   * should be at least 1 mob alive, the boss. But if any other mob is alive, this method returns
-   * true.
-   *
-   * @return true if any other mobs are alive, false otherwise.
-   */
-  private boolean anyOtherMobsAlive() {
-    return Game.entityStream().filter(e -> e.isPresent(AIComponent.class)).toList().size()
-        > 1; // 1 is the boss
+  private void handleBossDeath(Entity boss) {
+    InventoryComponent invComp = new InventoryComponent();
+    boss.add(invComp);
+    invComp.add(new ItemReward());
+
+    // TODO: Drop item on death.
   }
+
+  private void triggerBoss2ndPhase() {
+    this.isBoss2ndPhase = true;
+
+    this.boss.add(new MagicShieldComponent(Integer.MAX_VALUE, 0));
+
+    Coordinate[] tilesAroundBoss =
+        LevelUtils.accessibleTilesInRange(this.levelBossSpawn.toPoint(), 6).stream()
+            .map(Tile::coordinate)
+            .filter(c -> c.distance(this.levelBossSpawn) > 3)
+            .toArray(Coordinate[]::new);
+    EntityUtils.spawnMobs(
+        Game.currentLevel().RANDOM.nextInt(MIN_MOB_COUNT, MAX_MOB_COUNT),
+        MOB_TYPES,
+        tilesAroundBoss);
+  }
+
+  // Util methods for Boss Logic
 
   /**
    * Gets the delay for changing the boss attack.
@@ -138,17 +157,18 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
     return (int) delay;
   }
 
-  private void handleFirstTick() {
-    this.boss = EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn, this::handleBossDeath);
-    ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
-  }
-
-  private void handleBossDeath(Entity boss) {
-    InventoryComponent invComp = new InventoryComponent();
-    boss.add(invComp);
-    invComp.add(new ItemReward());
-
-    // TODO: Drop item on death.
+  /**
+   * Checks if any other mobs are alive.
+   *
+   * <p>It checks how many mobs are alive by filtering all entities that have an AIComponent. There
+   * should be at least 1 mob alive, the boss. But if any other mob is alive, this method returns
+   * true.
+   *
+   * @return true if any other mobs are alive, false otherwise.
+   */
+  private boolean anyOtherMobsAlive() {
+    return Game.entityStream().filter(e -> e.isPresent(AIComponent.class)).toList().size()
+        > 1; // 1 is the boss
   }
 
   @Override
@@ -161,21 +181,5 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
         && healthComponent.currentHealthpoints() <= healthComponent.maximalHealthpoints() / 2) {
       this.triggerBoss2ndPhase();
     }
-  }
-
-  private void triggerBoss2ndPhase() {
-    this.isBoss2ndPhase = true;
-
-    this.boss.add(new MagicShieldComponent(Integer.MAX_VALUE, 0));
-
-    Coordinate[] tilesAroundBoss =
-        LevelUtils.accessibleTilesInRange(this.levelBossSpawn.toPoint(), 6).stream()
-            .map(Tile::coordinate)
-            .filter(c -> c.distance(this.levelBossSpawn) > 3)
-            .toArray(Coordinate[]::new);
-    EntityUtils.spawnMobs(
-        Game.currentLevel().RANDOM.nextInt(MIN_MOB_COUNT, MAX_MOB_COUNT),
-        MOB_TYPES,
-        tilesAroundBoss);
   }
 }
