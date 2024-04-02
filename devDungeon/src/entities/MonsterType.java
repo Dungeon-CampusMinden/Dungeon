@@ -218,7 +218,7 @@ public enum MonsterType {
       "character/monster/big_deamon",
       BossLevel.BOSS_HP,
       0.0f,
-      1.0f,
+      0.0f, // Custom Logic
       MonsterDeathSound.LOWER_PITCH,
       () -> new RangeAI(17f, 0f, null),
       () -> entity -> {}, // no idle needed

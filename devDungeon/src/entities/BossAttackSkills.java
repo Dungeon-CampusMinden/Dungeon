@@ -37,6 +37,11 @@ public class BossAttackSkills {
   public static final float FIREBALL_SPEED = 5.00f;
   public static final float FIREBALL_MAX_RANGE = 25f;
 
+  /** A skill that does nothing. */
+  public static Skill SKILL_NONE() {
+    return new Skill((skillUser) -> {}, 1000);
+  }
+
   /**
    * Shoots a fire wall (made of fireballs) towards the hero.
    *
