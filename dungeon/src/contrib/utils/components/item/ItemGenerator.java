@@ -4,7 +4,6 @@ import contrib.item.HealthPotionType;
 import contrib.item.Item;
 import contrib.item.concreteItem.*;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Generator which creates a random Item based on the Templates provided.
@@ -13,22 +12,23 @@ import java.util.Random;
  */
 public final class ItemGenerator {
 
-  private static final Random RANDOM = new Random();
-
   /**
    * Generates a new random Item. Randomly selects a registered Item from the Item.ITEMS map.
    *
    * @return A new random Item.
    */
   public static Item generateItemData() {
-    // Item.ITEMS
+    // All registered items except the default item
     List<Class<? extends Item>> items = new java.util.ArrayList<>(Item.ITEMS.values());
     items.remove(ItemDefault.class); // Remove the default item
 
-    int randomIndex = RANDOM.nextInt(items.size());
+    int randomIndex = Item.RANDOM.nextInt(items.size());
     Class<? extends Item> item = items.get(randomIndex);
 
     if (item.getSimpleName().contains("Potion")) { // Prevent other potions from being generated
+      if (Item.RANDOM.nextBoolean()) {
+        return new ItemResourceBerry();
+      }
       return new ItemPotionHealth(getWeightedRandomHealthPotionType());
     }
 
@@ -51,7 +51,7 @@ public final class ItemGenerator {
     HealthPotionType[] types = HealthPotionType.values();
 
     float[] chances = {0.7f, 0.25f, 0.05f}; /* 70%, 25%, 5% */
-    float random = RANDOM.nextFloat();
+    float random = Item.RANDOM.nextFloat();
 
     for (int i = 0; i < chances.length; i++) {
       if (random < chances[i]) {

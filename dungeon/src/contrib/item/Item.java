@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  */
 public class Item implements CraftingIngredient, CraftingResult {
   private static final Logger LOGGER = Logger.getLogger(Item.class.getSimpleName());
-  protected static final Random RANDOM = new Random();
+  public static final Random RANDOM = new Random();
 
   /**
    * Maps identifiers in crafting recipes (e.g. {@link ItemResourceBerry}) to their corresponding
