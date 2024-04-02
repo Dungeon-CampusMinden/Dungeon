@@ -33,12 +33,13 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
   // Difficulty
   public static final int BOSS_HP = 100;
   private static final MonsterType BOSS_TYPE = MonsterType.FINAL_BOSS;
-  private static final int MIN_MOB_COUNT = 4;
+  private static final int MIN_MOB_COUNT = 5;
   private static final int MAX_MOB_COUNT = 7;
   private static final MonsterType[] MOB_TYPES = new MonsterType[] {MonsterType.IMP};
 
   // Spawn Points / Locations
   private final Coordinate levelBossSpawn;
+  private final Coordinate[] pillars;
   private Entity boss;
   private long lastAttackChange = 0;
   private boolean isBossNormalAttacking = false;
@@ -49,6 +50,7 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
     super(layout, designLabel, customPoints);
 
     this.levelBossSpawn = this.customPoints().getFirst();
+    this.pillars = this.getCoordinates(1, 4); // Top left corner (each 2x2)
   }
 
   @Override
@@ -150,6 +152,20 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
         Game.currentLevel().RANDOM.nextInt(MIN_MOB_COUNT, MAX_MOB_COUNT),
         MOB_TYPES,
         tilesAroundBoss);
+
+    // Destroy pillars
+    for (Coordinate pillarTopLeftCoord : this.pillars) {
+      this.changeTileElementType(this.tileAt(pillarTopLeftCoord), LevelElement.FLOOR);
+      this.changeTileElementType(
+          this.tileAt(new Coordinate(pillarTopLeftCoord.x + 1, pillarTopLeftCoord.y)),
+          LevelElement.FLOOR);
+      this.changeTileElementType(
+          this.tileAt(new Coordinate(pillarTopLeftCoord.x, pillarTopLeftCoord.y - 1)),
+          LevelElement.FLOOR);
+      this.changeTileElementType(
+          this.tileAt(new Coordinate(pillarTopLeftCoord.x + 1, pillarTopLeftCoord.y - 1)),
+          LevelElement.FLOOR);
+    }
   }
 
   // Util methods for Boss Logic
