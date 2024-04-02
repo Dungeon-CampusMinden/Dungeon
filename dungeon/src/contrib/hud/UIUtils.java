@@ -147,6 +147,9 @@ public final class UIUtils {
       }
 
       if (lineIndex >= maxLen) {
+        while (!sb.isEmpty() && sb.charAt(sb.length() - 1) == ' ') {
+          sb.deleteCharAt(sb.length() - 1);
+        }
         sb.append(LS);
         lineIndex = 0;
       }
