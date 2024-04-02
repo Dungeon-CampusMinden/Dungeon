@@ -1,5 +1,6 @@
 package core;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import core.components.PositionComponent;
@@ -58,12 +59,12 @@ public final class Game {
   }
 
   /**
-   * Retrieves the window width from the pre-run configuration.
+   * Retrieves the window width from Gdx.
    *
    * @return The window width.
    */
   public static int windowWidth() {
-    return PreRunConfiguration.windowWidth();
+    return Gdx.graphics.getWidth();
   }
 
   /**
@@ -76,12 +77,12 @@ public final class Game {
   }
 
   /**
-   * Retrieves the window height from the pre-run configuration.
+   * Retrieves the window height from Gdx.
    *
    * @return The window height.
    */
   public static int windowHeight() {
-    return PreRunConfiguration.windowHeight();
+    return Gdx.graphics.getHeight();
   }
 
   /**
