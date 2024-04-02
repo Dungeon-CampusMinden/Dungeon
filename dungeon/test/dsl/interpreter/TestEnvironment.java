@@ -4,7 +4,7 @@ import dsl.runtime.callable.NativeFunction;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.extension.DSLExtensionPropertyImpl;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import dslinterop.dslnativefunction.NativeInstantiate;
@@ -57,7 +57,7 @@ public class TestEnvironment extends GameEnvironment {
   }
 
   @Override
-  public List<DSLExtensionPropertyImpl<?, ?>> getBuiltInProperties() {
+  public List<IDSLExtensionProperty<?, ?>> getBuiltInProperties() {
     return new ArrayList<>();
   }
 

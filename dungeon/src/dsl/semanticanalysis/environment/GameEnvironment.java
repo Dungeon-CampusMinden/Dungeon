@@ -25,10 +25,8 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.extension.DSLExtensionMethodImpl;
-// import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
-// import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.extension.DSLExtensionPropertyImpl;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import dslinterop.dslnativefunction.NativeInstantiate;
@@ -152,8 +150,8 @@ public class GameEnvironment implements IEnvironment {
         };
   }
 
-  public List<DSLExtensionPropertyImpl<?, ?>> getBuiltInProperties() {
-    ArrayList<DSLExtensionPropertyImpl<?, ?>> properties = new ArrayList<>();
+  public List<IDSLExtensionProperty<?, ?>> getBuiltInProperties() {
+    ArrayList<IDSLExtensionProperty<?, ?>> properties = new ArrayList<>();
     properties.add(DSLSingleChoice.SingleChoiceDescriptionProperty.instance);
 
     properties.add(EntityExtension.VelocityComponentProperty.instance);
@@ -170,8 +168,8 @@ public class GameEnvironment implements IEnvironment {
     return properties;
   }
 
-  public List<DSLExtensionMethodImpl<?, ?>> getBuiltInMethods() {
-    ArrayList<DSLExtensionMethodImpl<?, ?>> methods = new ArrayList<>();
+  public List<IDSLExtensionMethod<?, ?>> getBuiltInMethods() {
+    ArrayList<IDSLExtensionMethod<?, ?>> methods = new ArrayList<>();
 
     methods.add(DSLSingleChoice.GetContentMethod.instance);
     methods.add(DSLSingleChoice.SetScenarioText.instance);
@@ -329,13 +327,13 @@ public class GameEnvironment implements IEnvironment {
   }
 
   protected void bindBuiltInProperties() {
-    for (DSLExtensionPropertyImpl<?, ?> property : getBuiltInProperties()) {
+    for (IDSLExtensionProperty<?, ?> property : getBuiltInProperties()) {
       this.typeBuilder.bindProperty(this.globalScope, property);
     }
   }
 
   protected void bindBuiltInMethods() {
-    for (DSLExtensionMethodImpl<?, ?> method : getBuiltInMethods()) {
+    for (IDSLExtensionMethod<?, ?> method : getBuiltInMethods()) {
       this.typeBuilder.bindMethod(this.globalScope, method);
     }
   }
@@ -595,9 +593,7 @@ public class GameEnvironment implements IEnvironment {
   }
 
   @DSLExtensionMethod(name = "is_empty", extendedType = Element.class)
-  public static class IsElementEmptyMethod
-      // implements IDSLExtensionMethod<Element, Boolean> {
-      extends DSLExtensionMethodImpl<Element, Boolean> {
+  public static class IsElementEmptyMethod implements IDSLExtensionMethod<Element, Boolean> {
     public static IsElementEmptyMethod instance = new IsElementEmptyMethod();
 
     @Override
@@ -619,8 +615,7 @@ public class GameEnvironment implements IEnvironment {
 
   @DSLExtensionMethod(name = "text", extendedType = Quiz.Content.class)
   public static class QuizContentContentMethod
-      // implements IDSLExtensionMethod<Quiz.Content, String> {
-      extends DSLExtensionMethodImpl<Quiz.Content, String> {
+      implements IDSLExtensionMethod<Quiz.Content, String> {
     public static QuizContentContentMethod instance = new QuizContentContentMethod();
 
     @Override
@@ -636,9 +631,7 @@ public class GameEnvironment implements IEnvironment {
   }
 
   @DSLExtensionMethod(name = "text", extendedType = Element.class)
-  public static class ElementContentMethod
-      // implements IDSLExtensionMethod<Element, String> {
-      extends DSLExtensionMethodImpl<Element, String> {
+  public static class ElementContentMethod implements IDSLExtensionMethod<Element, String> {
     public static ElementContentMethod instance = new ElementContentMethod();
 
     @Override
@@ -654,9 +647,7 @@ public class GameEnvironment implements IEnvironment {
   }
 
   @DSLExtensionMethod(name = "text", extendedType = TaskContent.class)
-  public static class TaskContentContentMethod
-      // implements IDSLExtensionMethod<TaskContent, String> {
-      extends DSLExtensionMethodImpl<TaskContent, String> {
+  public static class TaskContentContentMethod implements IDSLExtensionMethod<TaskContent, String> {
     public static TaskContentContentMethod instance = new TaskContentContentMethod();
 
     @Override
@@ -678,9 +669,7 @@ public class GameEnvironment implements IEnvironment {
   }
 
   @DSLExtensionMethod(name = "is_active", extendedType = Task.class)
-  public static class IsTaskActiveMethod
-      // implements IDSLExtensionMethod<Task, Boolean> {
-      extends DSLExtensionMethodImpl<Task, Boolean> {
+  public static class IsTaskActiveMethod implements IDSLExtensionMethod<Task, Boolean> {
     public static IsTaskActiveMethod instance = new IsTaskActiveMethod();
 
     @Override

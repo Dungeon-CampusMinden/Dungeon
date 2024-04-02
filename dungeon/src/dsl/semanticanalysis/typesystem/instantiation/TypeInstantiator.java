@@ -13,8 +13,7 @@ import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.typesystem.callbackadapter.CallbackAdapter;
 import dsl.semanticanalysis.typesystem.callbackadapter.CallbackAdapterBuilder;
-// import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.extension.DSLExtensionPropertyImpl;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.*;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
@@ -94,7 +93,7 @@ public class TypeInstantiator {
             .toList();
 
     for (PropertySymbol propertySymbol : properties) {
-      DSLExtensionPropertyImpl property = propertySymbol.getProperty();
+      IDSLExtensionProperty property = propertySymbol.getProperty();
       if (propertySymbol.isSettable()) {
         // get corresponding value from memorySpace
         Value value = ms.resolve(propertySymbol.getName());

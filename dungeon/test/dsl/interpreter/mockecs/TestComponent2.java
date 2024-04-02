@@ -1,9 +1,8 @@
 package dsl.interpreter.mockecs;
 
 import dsl.annotation.*;
-import dsl.semanticanalysis.typesystem.extension.DSLExtensionMethodImpl;
-// import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
-import dsl.semanticanalysis.typesystem.extension.DSLExtensionPropertyImpl;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
@@ -13,8 +12,7 @@ public class TestComponent2 extends Component {
 
   @DSLTypeProperty(name = "this_is_a_float", extendedType = TestComponent2.class)
   public static class TestComponentPseudoProperty
-      // implements IDSLExtensionProperty<TestComponent2, Float> {
-      extends DSLExtensionPropertyImpl<TestComponent2, Float> {
+      implements IDSLExtensionProperty<TestComponent2, Float> {
     public static TestComponentPseudoProperty instance = new TestComponentPseudoProperty();
 
     private TestComponentPseudoProperty() {}
@@ -32,8 +30,7 @@ public class TestComponent2 extends Component {
 
   @DSLTypeProperty(name = "test_component2", extendedType = Entity.class)
   public static class TestComponent2EntityProperty
-      // implements IDSLExtensionProperty<Entity, TestComponent2> {
-      extends DSLExtensionPropertyImpl<Entity, TestComponent2> {
+      implements IDSLExtensionProperty<Entity, TestComponent2> {
     public static TestComponent2EntityProperty instance = new TestComponent2EntityProperty();
 
     private TestComponent2EntityProperty() {}
@@ -52,8 +49,7 @@ public class TestComponent2 extends Component {
 
   @DSLTypeProperty(name = "this_is_complex", extendedType = TestComponent2.class)
   public static class TestComponentPseudoPropertyComplexType
-      // implements IDSLExtensionProperty<TestComponent2, ComplexType> {
-      extends DSLExtensionPropertyImpl<TestComponent2, ComplexType> {
+      implements IDSLExtensionProperty<TestComponent2, ComplexType> {
     public static TestComponentPseudoPropertyComplexType instance =
         new TestComponentPseudoPropertyComplexType();
 
@@ -71,9 +67,7 @@ public class TestComponent2 extends Component {
   }
 
   @DSLExtensionMethod(name = "my_method", extendedType = TestComponent2.class)
-  public static class MyMethod
-      // implements IDSLExtensionMethod<TestComponent2, TestComponent2> {
-      extends DSLExtensionMethodImpl<TestComponent2, TestComponent2> {
+  public static class MyMethod implements IDSLExtensionMethod<TestComponent2, TestComponent2> {
     public static MyMethod instance = new MyMethod();
 
     @Override

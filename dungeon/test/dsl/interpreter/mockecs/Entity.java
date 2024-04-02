@@ -5,7 +5,7 @@ import dsl.annotation.DSLType;
 import dsl.annotation.DSLTypeMember;
 import dsl.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.typesystem.*;
-import dsl.semanticanalysis.typesystem.extension.DSLExtensionPropertyImpl;
+import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
 public class Entity {
   @DSLTypeProperty(name = "test_component2", extendedType = Entity.class, isSettable = false)
   public static class TestComponent2Property
-      extends DSLExtensionPropertyImpl<Entity, TestComponent2> {
+      implements IDSLExtensionProperty<Entity, TestComponent2> {
     public static Entity.TestComponent2Property instance = new Entity.TestComponent2Property();
 
     private TestComponent2Property() {}
@@ -35,8 +35,7 @@ public class Entity {
 
   @DSLTypeProperty(name = "test_component1", extendedType = Entity.class, isSettable = false)
   public static class TestComponent1Property
-      // implements IDSLExtensionProperty<Entity, TestComponent1> {
-      extends DSLExtensionPropertyImpl<Entity, TestComponent1> {
+      implements IDSLExtensionProperty<Entity, TestComponent1> {
     public static Entity.TestComponent1Property instance = new Entity.TestComponent1Property();
 
     private TestComponent1Property() {}
@@ -60,8 +59,7 @@ public class Entity {
       extendedType = Entity.class,
       isSettable = false)
   public static class TestComponentWithExternalTypeProperty
-      // implements IDSLExtensionProperty<Entity, TestComponentWithExternalType> {
-      extends DSLExtensionPropertyImpl<Entity, TestComponentWithExternalType> {
+      implements IDSLExtensionProperty<Entity, TestComponentWithExternalType> {
     public static Entity.TestComponentWithExternalTypeProperty instance =
         new Entity.TestComponentWithExternalTypeProperty();
 
@@ -89,8 +87,7 @@ public class Entity {
       extendedType = Entity.class,
       isSettable = false)
   public static class ComponentWithExternalTypeMemberProperty
-      // implements IDSLExtensionProperty<Entity, ComponentWithExternalTypeMember> {
-      extends DSLExtensionPropertyImpl<Entity, ComponentWithExternalTypeMember> {
+      implements IDSLExtensionProperty<Entity, ComponentWithExternalTypeMember> {
     public static Entity.ComponentWithExternalTypeMemberProperty instance =
         new Entity.ComponentWithExternalTypeMemberProperty();
 
