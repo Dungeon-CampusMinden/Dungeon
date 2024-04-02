@@ -10,6 +10,7 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import item.effects.BurningEffect;
 import java.util.function.Supplier;
+import systems.EventScheduler;
 
 /**
  * Subclass of {@link DamageProjectile}.
@@ -68,6 +69,8 @@ public final class BurningFireballSkill extends DamageProjectile {
 
     // Set the volume
     soundEffect.setVolume(soundId, 0.05f);
+
+    EventScheduler.getInstance().scheduleAction(soundEffect::dispose, 1000L);
     return soundEffect;
   }
 }
