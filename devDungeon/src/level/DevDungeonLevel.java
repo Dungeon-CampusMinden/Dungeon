@@ -40,20 +40,20 @@ public class DevDungeonLevel extends TileLevel {
     this.customPoints.addAll(customPoints);
   }
 
-  /**
-   * Load a DevDungeonLevel from a file path
-   *
-   * @param path The path to the file to load
-   * @return The loaded DevDungeonLevel
-   */
   public static DevDungeonLevel loadFromPath(IPath path) {
-    // Load file from the path
-    File file = new File(path.pathString());
-    if (!file.exists()) {
-      throw new MissingLevelException(path.toString());
-    }
+    try {
+      BufferedReader reader;
+      if (path.pathString().startsWith("jar:")) {
+        InputStream is = DevDungeonLevel.class.getResourceAsStream(path.pathString().substring(4));
+        reader = new BufferedReader(new InputStreamReader(is));
+      } else {
+        File file = new File(path.pathString());
+        if (!file.exists()) {
+          throw new MissingLevelException(path.toString());
+        }
+        reader = new BufferedReader(new FileReader(file));
+      }
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
       // Parse DesignLabel
       String designLabelLine = readLine(reader);
       DesignLabel designLabel = parseDesignLabel(designLabelLine);
@@ -80,6 +80,7 @@ public class DevDungeonLevel extends TileLevel {
             getDevLevel(
                 DevDungeon.DUNGEON_LOADER.currentLevel(), layout, designLabel, customPoints);
       } catch (IndexOutOfBoundsException e) {
+        // only a workaround for creating new levels
         newLevel = new DevDungeonLevel(layout, designLabel, customPoints);
         e.printStackTrace();
       }

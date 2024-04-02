@@ -7,9 +7,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -46,30 +44,62 @@ public class DungeonLoader {
     this.levelOrder = levelOrder;
   }
 
-  private static void getAllLevelFilePaths() { // TODO: only works with local file-system
-    try {
-      URI uri = Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
-      Path path = Paths.get(uri);
-      try (Stream<Path> paths = Files.walk(path)) {
-        paths
-            .filter(Files::isRegularFile)
-            .forEach(
-                file -> {
-                  String fileName = file.getFileName().toString();
-                  if (fileName.endsWith(".level")) {
-                    String[] parts = fileName.split("_");
-                    if (parts.length == 2) {
-                      String levelName = parts[0];
-                      String levelFilePath = file.toString();
-                      LEVELS.computeIfAbsent(levelName, k -> new ArrayList<>()).add(levelFilePath);
-                    } else {
-                      LOGGER.warning("Invalid level file name: " + fileName);
-                    }
-                  }
-                });
+  private static void getAllLevelFilePaths() {
+    if (isRunningFromJar()) {
+      try {
+        getAllLevelFilePathsFromJar();
+      } catch (IOException | URISyntaxException e) {
+        LOGGER.warning("Failed to load level files from jar: " + e.getMessage());
       }
-    } catch (IOException | URISyntaxException e) {
-      throw new RuntimeException("Error loading level files", e);
+    } else {
+      try {
+        getAllLevelFilePathsFromFileSystem();
+      } catch (IOException | URISyntaxException e) {
+        LOGGER.warning("Failed to load level files from file system: " + e.getMessage());
+      }
+    }
+  }
+
+  private static boolean isRunningFromJar() {
+    return Objects.requireNonNull(
+            DungeonLoader.class.getResource(DungeonLoader.class.getSimpleName() + ".class"))
+        .toString()
+        .startsWith("jar:");
+  }
+
+  private static void getAllLevelFilePathsFromFileSystem() throws IOException, URISyntaxException {
+    URI uri = Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
+    Path path = Paths.get(uri);
+    parseLevelFiles(path, false);
+  }
+
+  private static void getAllLevelFilePathsFromJar() throws IOException, URISyntaxException {
+    URI uri = Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
+    FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+    Path path = fileSystem.getPath(LEVEL_PATH_PREFIX);
+    parseLevelFiles(path, true);
+  }
+
+  private static void parseLevelFiles(Path path, boolean isJar) throws IOException {
+    try (Stream<Path> paths = Files.walk(path)) {
+      paths
+          .filter(Files::isRegularFile)
+          .forEach(
+              file -> {
+                String fileName = file.getFileName().toString();
+                if (fileName.endsWith(".level")) {
+                  String[] parts = fileName.split("_");
+                  if (parts.length == 2) {
+                    String levelName = parts[0];
+                    String levelFilePath = file.toString();
+                    LEVELS
+                        .computeIfAbsent(levelName, k -> new ArrayList<>())
+                        .add(isJar ? "jar:" + levelFilePath : levelFilePath);
+                  } else {
+                    LOGGER.warning("Invalid level file name: " + fileName);
+                  }
+                }
+              });
     }
   }
 
