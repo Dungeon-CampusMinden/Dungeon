@@ -268,7 +268,8 @@ public class TypeBuilder {
       throw new RuntimeException("Builder methods with zero arguments are currently not supported");
     }
 
-    var typeAdapter = this.typeFactory.aggregateTypeAdapter(dslTypeName, parentScope, forType, adapterMethod);
+    var typeAdapter =
+        this.typeFactory.aggregateTypeAdapter(dslTypeName, parentScope, forType, adapterMethod);
     this.javaTypeToDSLType.put(forType, typeAdapter);
     parentScope.bind(typeAdapter);
 
@@ -612,9 +613,7 @@ public class TypeBuilder {
       returnType = enumType;
     } else {
       // create new AggregateType for clazz
-      var aggregateType =
-          this.typeFactory.aggregateType(
-              typeName, globalScope, clazz);
+      var aggregateType = this.typeFactory.aggregateType(typeName, globalScope, clazz);
 
       this.currentLookedUpTypes.add(clazz);
       for (Field field : clazz.getDeclaredFields()) {

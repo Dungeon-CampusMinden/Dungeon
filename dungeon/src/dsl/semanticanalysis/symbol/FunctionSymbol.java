@@ -18,6 +18,7 @@ public class FunctionSymbol extends ScopedSymbol implements ICallable {
   public FunctionSymbol(
       String name, IScope parentScope, FuncDefNode astRootNode, FunctionType functionType) {
     super(name, parentScope, functionType);
+    this.symbolType = Symbol.Type.Callable;
 
     this.astRootNode = astRootNode;
   }

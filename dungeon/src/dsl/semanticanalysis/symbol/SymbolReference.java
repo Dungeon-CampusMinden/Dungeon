@@ -3,15 +3,11 @@ package dsl.semanticanalysis.symbol;
 import dsl.parser.ast.Node;
 import org.neo4j.ogm.annotation.*;
 
-@RelationshipEntity(type="REFERENCES")
+@RelationshipEntity(type = "REFERENCES")
 public class SymbolReference {
-  @Id
-  @GeneratedValue
-  private Long id;
-  @StartNode
-  private Node astNode;
-  @EndNode
-  private Symbol symbol;
+  @Id @GeneratedValue private Long id;
+  @StartNode private Node astNode;
+  @EndNode private Symbol symbol;
 
   public SymbolReference() {
     this.astNode = Node.NONE;

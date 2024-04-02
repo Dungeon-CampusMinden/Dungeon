@@ -39,6 +39,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
   CountingStack<Node> astStack;
   Integer previousAstStackFrameCount = 0;
+  private boolean trace;
 
   /** Constructor */
   public DungeonASTConverter(List<String> parserRuleNames) {
@@ -52,6 +53,10 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     this.astStack = new CountingStack<>();
     this.ruleNames = new ArrayList<>();
     this.rulesWithOffendingTerminalNodes = new HashMap<>();
+  }
+
+  public void setTrace(boolean trace) {
+    this.trace = trace;
   }
 
   public static Node getProgramAST(String program, IEnvironment environment) {
@@ -1209,13 +1214,12 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
   @Override
   public void enterEveryRule(ParserRuleContext ctx) {
-    // TODO: use for error handling? start error mode, which changes creation of AST and relaxes
-    //  asserts on //  stack contents?
-
     // Note: this is executed before specific enter
     String ruleName = getRuleName(ctx);
-    String msg = String.format("Entering rule '%s'", ruleName);
-    LOGGER.info(msg);
+    if (trace) {
+      String msg = String.format("Entering rule '%s'", ruleName);
+      LOGGER.info(msg);
+    }
 
     this.astStack.pushCounter(ruleName);
 
@@ -1241,9 +1245,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   public boolean preExitEveryRule(ParserRuleContext ctx) {
-    String rulename = getRuleName(ctx);
-    String msg = String.format("Pre exit rule '%s'", rulename);
-    LOGGER.info(msg);
+    if (trace) {
+      String rulename = getRuleName(ctx);
+      String msg = String.format("Pre exit rule '%s'", rulename);
+      LOGGER.info(msg);
+    }
 
     if (ctx.exception != null) {
       LOGGER.warning("Rule context contains exception: " + ctx.exception);
@@ -1268,9 +1274,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     int currentCount = this.astStack.getCurrentCount();
 
     // Note: this is executed after specific exit
-    String rulename = getRuleName(ctx);
-    String msg = String.format("Exiting rule '%s'", rulename);
-    LOGGER.info(msg);
+    if (trace) {
+      String rulename = getRuleName(ctx);
+      String msg = String.format("Exiting rule '%s'", rulename);
+      LOGGER.info(msg);
+    }
   }
 
   // region dependency_type

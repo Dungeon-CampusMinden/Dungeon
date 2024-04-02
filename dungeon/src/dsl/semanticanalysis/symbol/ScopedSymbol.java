@@ -24,23 +24,21 @@ package dsl.semanticanalysis.symbol;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.Transient;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Transient;
 
 @NodeEntity
 public class ScopedSymbol extends Symbol implements IScope {
 
   public static Scope NULL = new Scope();
 
-  @Transient
-  protected HashMap<String, Symbol> symbols;
+  @Transient protected HashMap<String, Symbol> symbols;
 
-  @Relationship(type="CONTAINS", direction = Relationship.Direction.OUTGOING)
+  @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)
   protected List<Symbol> symbolList;
 
   /**

@@ -53,6 +53,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
   private final ArrayDeque<IMemorySpace> fileMemoryStack;
   private final ArrayDeque<IMemorySpace> instanceMemoryStack;
   private final HashMap<FileScope, IMemorySpace> fileScopeToMemorySpace;
+  private boolean trace = false;
   private IMemorySpace globalSpace;
 
   private SymbolTable symbolTable() {
@@ -83,6 +84,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
     scenarioBuilderStorage = new ScenarioBuilderStorage();
     fileScopeToMemorySpace = new HashMap<>();
     memoryStack.push(globalSpace);
+  }
+
+  public void setTrace(boolean trace) {
+    this.trace = trace;
   }
 
   /**
@@ -443,7 +448,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     IType type =
         this.environment
-            .getTypeBuilder()
+            .typeBuilder()
             .createDSLTypeForJavaTypeInScope(this.environment.getGlobalScope(), taskClass);
     String typeName = type.getName();
 
@@ -642,6 +647,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     DungeonASTConverter astConverter =
         new DungeonASTConverter(Arrays.stream(parser.getRuleNames()).toList());
+    astConverter.setTrace(this.trace);
     var programAST = astConverter.walk(programParseTree);
 
     SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
@@ -1436,8 +1442,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     //  environment<->typebuilder interaction
     Symbol listType = this.environment.resolveInGlobalScope(listTypeName);
     if (listType == Symbol.NULL) {
-      listType = new ListType(entryType, this.environment.getGlobalScope());
-      this.environment.getGlobalScope().bind(listType);
+      listType =
+          this.environment.typeFactory().listType(entryType, this.environment.getGlobalScope());
     }
     ListValue listValue = new ListValue((ListType) listType);
     for (Value listEntry : entries) {
@@ -1468,8 +1474,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     //  environment<->typebuilder interaction
     Symbol setType = this.environment.resolveInGlobalScope(setTypeName);
     if (setType == Symbol.NULL) {
-      setType = new SetType(entryType, this.environment.getGlobalScope());
-      this.environment.getGlobalScope().bind(setType);
+      setType = environment.typeFactory().setType(entryType, this.environment.getGlobalScope());
     }
     SetValue setValue = new SetValue((SetType) setType);
     for (Value setEntry : entries) {

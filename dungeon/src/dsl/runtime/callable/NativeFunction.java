@@ -5,10 +5,13 @@ import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import org.neo4j.ogm.annotation.NodeEntity;
 
+@NodeEntity
 public abstract class NativeFunction extends ScopedSymbol implements ICallable {
   protected NativeFunction(String name, IScope parentScope, FunctionType type) {
     super(name, parentScope, type);
+    this.symbolType = Symbol.Type.Callable;
 
     // create generically named parameter symbols
     for (int i = 0; i < type.getParameterTypes().size(); i++) {

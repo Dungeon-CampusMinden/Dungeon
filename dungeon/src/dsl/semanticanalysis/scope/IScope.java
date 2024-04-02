@@ -24,8 +24,10 @@ package dsl.semanticanalysis.scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import java.util.List;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /** Represents the capabilities of a scope. */
+@NodeEntity
 public interface IScope {
   /**
    * Binds the symbol to this scope
@@ -76,4 +78,6 @@ public interface IScope {
       return (IType) resolvedType;
     }
   }
+
+  String getName();
 }

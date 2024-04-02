@@ -2,11 +2,10 @@ package dsl.parser.ast;
 
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
 // TODO: substitute this for more sophisticated method of source reference...
-//@NodeEntity
+// @NodeEntity
 public class SourceFileReference {
   @Id @GeneratedValue private Long id;
   @Property int line;

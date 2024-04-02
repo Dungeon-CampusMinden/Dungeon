@@ -9,14 +9,11 @@ import org.neo4j.ogm.annotation.*;
 public class Node {
   // used for running index to give every Node a unique identifier
   private static int _idx;
-  @Property
-  private boolean hasErrorChild;
+  @Property private boolean hasErrorChild;
 
-  @Property @Transient
-  private ErrorListener.ErrorRecord errorRecord;
+  @Property @Transient private ErrorListener.ErrorRecord errorRecord;
 
-  @Property @Transient
-  private RecognitionException exception;
+  @Property @Transient private RecognitionException exception;
 
   /**
    * @return The unique index of this node
@@ -92,17 +89,16 @@ public class Node {
 
   public static Node NONE = new Node(Type.NONE, new ArrayList<>());
 
-  @Relationship(type="PARENT_OF", direction = Relationship.Direction.OUTGOING)
+  @Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
   private ArrayList<Node> children;
 
-  @Property
-  public final Type type;
-  @Relationship(type="CHILD_OF", direction = Relationship.Direction.OUTGOING)
+  @Property public final Type type;
+
+  @Relationship(type = "CHILD_OF", direction = Relationship.Direction.OUTGOING)
   private Node parent;
-  @Property @Transient
-  private SourceFileReference sourceFileReference = SourceFileReference.NULL;
-  @Id
-  private final int idx;
+
+  @Property @Transient private SourceFileReference sourceFileReference = SourceFileReference.NULL;
+  @Id private final int idx;
 
   public Node() {
     this(Type.NONE, new ArrayList<>());

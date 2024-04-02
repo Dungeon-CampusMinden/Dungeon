@@ -86,9 +86,7 @@ public class TypeBinder implements AstVisitor<Object> {
       return null;
     }
 
-    var itemType =
-        this.typeFactory.aggregateType(
-            newTypeName, this.scope);
+    var itemType = this.typeFactory.aggregateType(newTypeName, this.scope);
     symbolTable().addSymbolNodeRelation(itemType, node, true);
 
     Symbol questItemTypeSymbol = this.scope.resolve("quest_item");

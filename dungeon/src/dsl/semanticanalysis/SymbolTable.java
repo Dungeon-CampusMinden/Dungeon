@@ -26,7 +26,6 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.symbol.SymbolCreation;
 import dsl.semanticanalysis.symbol.SymbolReference;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,14 +42,14 @@ public class SymbolTable {
   private final HashMap<Integer, Node> astNodeIdxToAstNode;
 
   /**
-   * Creates an association between a specific AST node and a symbol -> e.g.
-   * "which symbol is referenced by the identifier in a specific AST node?"
+   * Creates an association between a specific AST node and a symbol -> e.g. "which symbol is
+   * referenced by the identifier in a specific AST node?"
    */
   private final HashMap<Node, Symbol> astNodeSymbolRelation;
 
   /**
-   * Creates an association between a specific symbol and an ast node -> e.g.
-   * "by which ast node was this symbol created?"
+   * Creates an association between a specific symbol and an ast node -> e.g. "by which ast node was
+   * this symbol created?"
    */
   private final HashMap<Symbol, Node> creationASTNodeRelation;
 
@@ -90,7 +89,7 @@ public class SymbolTable {
     }*/
 
     // TODO: model this as :REFERENCES in neo4j
-    //astNodeSymbolRelation.get(nodeOfSymbol).add(symbol);
+    // astNodeSymbolRelation.get(nodeOfSymbol).add(symbol);
     astNodeSymbolRelation.put(nodeOfSymbol, symbol);
     this.symbolReferences.add(new SymbolReference(nodeOfSymbol, symbol));
 
@@ -118,7 +117,7 @@ public class SymbolTable {
       return list;
     }
 
-    //var symbolIdxs = astNodeSymbolRelation.get(node.getIdx());
+    // var symbolIdxs = astNodeSymbolRelation.get(node.getIdx());
     var symbols = astNodeSymbolRelation.get(node);
     return new ArrayList<>(List.of(symbols));
   }

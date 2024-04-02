@@ -22,24 +22,27 @@
 package dsl.semanticanalysis.scope;
 
 import dsl.semanticanalysis.symbol.Symbol;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.Transient;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
 public class Scope implements IScope {
+  @Id @GeneratedValue private Long id;
+  @Property private final String name;
 
-  public static Scope NULL = new Scope();
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  public static Scope NULL = new Scope("NULL_SCOPE");
 
   @Relationship(type = "CONTAINED_IN", direction = Relationship.Direction.OUTGOING)
   protected IScope parent;
 
-  @Transient
-  protected HashMap<String, Symbol> symbols;
+  @Transient protected HashMap<String, Symbol> symbols;
 
   @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)
   protected List<Symbol> symbolList;
@@ -51,6 +54,14 @@ public class Scope implements IScope {
    */
   public Scope(IScope parentScope) {
     parent = parentScope;
+    this.name = "p: " + parentScope.getName();
+    this.symbols = new HashMap<>();
+    this.symbolList = new ArrayList<>();
+  }
+
+  public Scope(IScope parentScope, String name) {
+    parent = parentScope;
+    this.name = name + " p: " + parentScope.getName();
     this.symbols = new HashMap<>();
     this.symbolList = new ArrayList<>();
   }
@@ -58,7 +69,15 @@ public class Scope implements IScope {
   /** Constructor */
   public Scope() {
     parent = NULL;
-    symbols = new HashMap<>();
+    this.name = "";
+    this.symbols = new HashMap<>();
+    this.symbolList = new ArrayList<>();
+  }
+
+  public Scope(String name) {
+    parent = NULL;
+    this.name = name;
+    this.symbols = new HashMap<>();
     this.symbolList = new ArrayList<>();
   }
 
