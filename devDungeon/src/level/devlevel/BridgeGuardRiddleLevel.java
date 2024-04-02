@@ -19,7 +19,7 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable
   private static final int MOB_COUNT = 15;
   private static final MonsterType[] MONSTER_TYPES =
       new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
-  private static final MonsterType BOSS_TYPE = MonsterType.CHORT;
+  private static final MonsterType BOSS_TYPE = MonsterType.PUMPKIN_BOI;
   private static final int MOB_COUNT_PER_CAMP = 3;
 
   // Spawn Points / Locations

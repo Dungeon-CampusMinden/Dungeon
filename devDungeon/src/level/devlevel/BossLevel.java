@@ -4,6 +4,7 @@ import components.MagicShieldComponent;
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
+import contrib.entities.AIFactory;
 import contrib.entities.IHealthObserver;
 import contrib.utils.components.ai.fight.RangeAI;
 import core.Entity;
@@ -109,7 +110,7 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
       rangeAI.setSkill(BossAttackSkills.getFinalBossSkill());
       this.isBossNormalAttacking = false;
     } else if (!this.isBossNormalAttacking) {
-      rangeAI.setSkill(BossAttackSkills.normalAttack());
+      rangeAI.setSkill(BossAttackSkills.normalAttack(AIFactory.FIREBALL_COOL_DOWN));
       this.isBossNormalAttacking = true;
     }
   }

@@ -199,6 +199,22 @@ public enum MonsterType {
       500, // irrelevant
       MonsterIdleSound.NONE,
       0),
+  PUMPKIN_BOI(
+      "Pumpkin Boi",
+      "character/monster/pumpkin_dude",
+      16,
+      7f,
+      0.5f,
+      MonsterDeathSound.LOW_PITCH,
+      () ->
+          new RangeAI(
+              7, 6, BossAttackSkills.normalAttack((int) (AIFactory.FIREBALL_COOL_DOWN * 1.5f))),
+      () -> new RadiusWalk(3f, 4),
+      () -> new RangeTransition(6, true),
+      10,
+      Game.frameRate(),
+      MonsterIdleSound.LOW_PITCH,
+      1),
   ILLUSION_BOSS(
       "Illusion Boss",
       "character/monster/necromancer",

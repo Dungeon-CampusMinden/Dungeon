@@ -394,7 +394,7 @@ public class BossAttackSkills {
    *
    * @return The skill that shoots the fireballs.
    */
-  public static Skill normalAttack() {
+  public static Skill normalAttack(int coolDown) {
     return new Skill(
         (skillUser) -> {
           Point heroPos = EntityUtils.getHeroPosition();
@@ -424,6 +424,6 @@ public class BossAttackSkills {
                   },
                   50L);
         },
-        AIFactory.FIREBALL_COOL_DOWN);
+        coolDown);
   }
 }
