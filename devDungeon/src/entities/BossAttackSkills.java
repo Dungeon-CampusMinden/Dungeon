@@ -331,7 +331,7 @@ public class BossAttackSkills {
           : fireWall(3);
     } else if (healthPercentage > 50) {
       return (getBossAttackChance())
-          ? fireCone(35, 125, BossAttackSkills.FIREBALL_SPEED + 3, FIREBALL_DAMAGE + 2)
+          ? fireCone(35, 125, BossAttackSkills.FIREBALL_SPEED + 2, FIREBALL_DAMAGE + 1)
           : getBossAttackChance() ? fireWall(5) : fireStorm(16, 100);
     } else {
       // Low health - more defensive or desperate attacks
