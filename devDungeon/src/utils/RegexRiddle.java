@@ -35,7 +35,7 @@ public enum RegexRiddle {
       countChar("lvvI23l1l4l1ll41ll124l124lll", 'I')),
   GREEDY_LAZY_0(
       "Which regex performs a lazy match for '<tag>content</tag>'?",
-      Arrays.asList("<.*>", "<.+?>", "<.*?>", "<.+>"),
+      Arrays.asList("<.*>", "<.+!>", "<.*?>", "<.+>"),
       countChar("p23l1l4l11II4lvv14l124lbp", '2')),
   LOOKAHEAD_BEHIND_0(
       "Which regex uses a positive lookahead to ensure 'q' is followed by 'u'?",
