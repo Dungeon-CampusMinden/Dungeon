@@ -76,8 +76,7 @@ public class Helpers {
    * @return the AST
    */
   public static Node getASTFromString(String program, IEnvironment env) {
-    var parseTree = getParseTree(program, env);
-    return convertToAST(parseTree, getParserRuleNames());
+    return DungeonASTConverter.getProgramAST(program, env);
   }
 
   public static List<String> getParserRuleNames() {
@@ -89,8 +88,7 @@ public class Helpers {
   }
 
   public static Node getASTFromString(String program) {
-    var parseTree = getParseTree(program, null);
-    return convertToAST(parseTree, getParserRuleNames());
+    return DungeonASTConverter.getProgramAST(program, null);
   }
 
   /**

@@ -1616,4 +1616,36 @@ public class TestDungeonASTConverter {
     var ast = DungeonASTConverter.getProgramAST(program, env);
     boolean b = true;
   }
+
+  @Test
+  public void testEvenMoreBroken() {
+    String program =
+      """
+        #impot "test.dng;kjl;ajsdf
+
+        single_choice_task t1 {
+          description:"hello",
+          correct_answer_index: 1,
+          answers: [1,2,3]
+        }
+
+        graph g {
+          t1
+        }
+
+        dungeon_config c {
+          dependency_graph: g
+        }
+        """;
+
+    var env = new TestEnvironment();
+    env.addMockTypeName("single_choice_task");
+    env.addMockTypeName("dungeon_config");
+
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, false);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+  }
 }
+

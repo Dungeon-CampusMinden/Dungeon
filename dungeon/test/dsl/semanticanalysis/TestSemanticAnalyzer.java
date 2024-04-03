@@ -1209,6 +1209,37 @@ quest_config c {
   }
 
   @Test
+  public void testImportFuncBroken() {
+    String program = """
+        #impot "test.dng;kjl;ajsdf
+
+        single_choice_task t1 {
+          description:"hello",
+          correct_answer_index: 1,
+          answers: [1,2,3]
+        }
+
+        graph g {
+          t1
+        }
+
+        dungeon_config c {
+          dependency_graph: g
+        }
+        """;
+
+    // setup
+    var env = new GameEnvironment(testLibPath);
+    var ast = Helpers.getASTFromString(program, env);
+    SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
+
+    symbolTableParser.setup(env);
+    var symbolTable = symbolTableParser.walk(ast).symbolTable;
+    var fileScope = env.getFileScope(null);
+    Symbol myFuncSymbol = fileScope.resolve("my_func");
+  }
+
+  @Test
   public void testImportType() {
     String program = """
             #import "test.dng":my_ent_type as my_type

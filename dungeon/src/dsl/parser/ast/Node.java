@@ -10,8 +10,10 @@ public class Node {
   // used for running index to give every Node a unique identifier
   private static int _idx;
   @Property private boolean hasErrorChild;
+  @Property private boolean subTreeHasError;
 
   @Property @Transient private ErrorListener.ErrorRecord errorRecord;
+  @Property private boolean hasErrorRecord;
 
   @Property @Transient private RecognitionException exception;
 
@@ -124,6 +126,9 @@ public class Node {
       if (child.type == Type.ErrorNode) {
         this.hasErrorChild = true;
       }
+      if (child.hasErrorChild || child.subTreeHasError) {
+        this.subTreeHasError = true;
+      }
     }
   }
 
@@ -178,6 +183,9 @@ public class Node {
     if (node.type.equals(Type.ErrorNode)) {
       this.hasErrorChild = true;
     }
+    if (node.hasErrorChild || node.subTreeHasError) {
+      this.subTreeHasError = true;
+    }
   }
 
   public Node getParent() {
@@ -221,12 +229,23 @@ public class Node {
     return this.hasErrorChild;
   }
 
+  public boolean subTreeHasError() {
+    return this.subTreeHasError;
+  }
+
   public ErrorListener.ErrorRecord getErrorRecord() {
     return this.errorRecord;
   }
 
   public void setErrorRecord(ErrorListener.ErrorRecord errorRecord) {
-    this.errorRecord = errorRecord;
+    if (errorRecord != null) {
+      this.errorRecord = errorRecord;
+      this.hasErrorRecord = true;
+    }
+  }
+
+  public boolean hasErrorRecord() {
+    return this.hasErrorRecord;
   }
 
   /**

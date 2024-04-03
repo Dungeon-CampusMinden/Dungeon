@@ -231,6 +231,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(Node node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     switch (node.type) {
       case Program:
         IScope topMostScope = this.scopeStack.peek();
@@ -269,6 +273,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   // definitions
   @Override
   public Void visit(IdNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     var idName = node.getName();
     var symbol = resolve(idName);
     if (symbol.equals(Symbol.NULL)) {
@@ -286,6 +294,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(BinaryNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     for (var child : node.getChildren()) {
       child.accept(this);
     }
@@ -294,6 +306,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(ItemPrototypeDefinitionNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     // resolve datatype of definition
     var typeName = node.getIdName();
     var typeSymbol = currentScope().resolve(typeName);
@@ -311,6 +327,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(PrototypeDefinitionNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     // resolve datatype of definition
     var typeName = node.getIdName();
     var typeSymbol = this.currentScope().resolve(typeName);
@@ -329,6 +349,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   // TODO: Symbols for members?
   @Override
   public Void visit(AggregateValueDefinitionNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     // push datatype of component
     // resolve in current scope, which will be datatype of game object definition
     IType membersType;
@@ -366,6 +390,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(PropertyDefNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     var propertyIdName = node.getIdName();
 
     // the current scope will be the type of the object definition
@@ -388,6 +416,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(ObjectDefNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     // resolve the type of the object definition and push it on the stack
     var typeName = node.getTypeSpecifierName();
     // TODO: this should be revised to be the current scope
@@ -417,6 +449,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(FuncCallNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     Node parentNode = node.getParent();
     if (parentNode.type.equals(Node.Type.MemberAccess)) {
       // symbol will be resolved in the visit-implementation of MemberAccessNode, as it
@@ -447,6 +483,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(FuncDefNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     var funcName = node.getIdName();
     // TODO: current scope
     Symbol resolved = resolve(funcName);
@@ -471,12 +511,20 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(ReturnStmtNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     node.getInnerStmtNode().accept(this);
     return null;
   }
 
   @Override
   public Void visit(StmtBlockNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     var blockScope = new Scope(scopeStack.peek());
     scopeStack.push(blockScope);
     for (var stmt : node.getStmts()) {
@@ -488,6 +536,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(ConditionalStmtNodeIf node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     node.getCondition().accept(this);
 
     // if the statement is not a block (i.e. there is only one statement in the if-statements
@@ -507,6 +559,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(ConditionalStmtNodeIfElse node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     node.getCondition().accept(this);
 
     // if the statements are not blocks (i.e. there is only one statement in the if-statements
@@ -535,6 +591,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(MemberAccessNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     Node currentNode = node;
     Node lhs = Node.NONE;
     Node rhs = Node.NONE;
@@ -617,42 +677,70 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(LogicOrNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     visitChildren(node);
     return null;
   }
 
   @Override
   public Void visit(LogicAndNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     visitChildren(node);
     return null;
   }
 
   @Override
   public Void visit(EqualityNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     visitChildren(node);
     return null;
   }
 
   @Override
   public Void visit(ComparisonNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     visitChildren(node);
     return null;
   }
 
   @Override
   public Void visit(TermNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     visitChildren(node);
     return null;
   }
 
   @Override
   public Void visit(FactorNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     visitChildren(node);
     return null;
   }
 
   @Override
   public Void visit(UnaryNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     visitChildren(node);
     return null;
   }
@@ -660,6 +748,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   @Override
   public Void visit(AssignmentNode node) {
     // TODO: typechcking
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
 
     visitChildren(node);
     return null;
@@ -682,12 +774,20 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(ListDefinitionNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     visitChildren(node);
     return null;
   }
 
   @Override
   public Void visit(SetDefinitionNode node) {
+    if (node.hasErrorChild()) {
+      return null;
+    }
+
     visitChildren(node);
     return null;
   }
@@ -853,6 +953,9 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(DotIdList node) {
+    if (node.hasErrorChild()) {
+      boolean b = true;
+    }
     // visit all stored IdNodes
     visitChildren(node);
     return null;
