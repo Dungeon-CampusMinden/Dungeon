@@ -43,7 +43,8 @@ public class Room3 extends Room {
     try {
       generate();
     } catch (IOException e) {
-      throw new RuntimeException("Failed to generate room 3: " + e.getMessage(), e);
+      throw new RuntimeException(
+          "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
   }
 

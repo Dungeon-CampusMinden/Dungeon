@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -16,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
@@ -32,6 +34,10 @@ public class DojoCompiler {
   private Class<?> cls;
   private Method method1;
   private Method method2;
+
+  public DojoCompiler() {
+    this("test", "Test");
+  }
 
   public DojoCompiler(String fileName, String className) {
     this.fileName = fileName;
@@ -129,6 +135,32 @@ public class DojoCompiler {
     return new TestResult(testName, false, messages);
   }
 
+  public TestResult testRoom8() {
+    try {
+      // Class<?> cls1 =
+      // compileInterface(getSource("../dojo-dungeon/todo-assets/r8/GeometricalFigure.java"),
+      // "GeometricalFigure");
+      Class<?> cls2 = compile(getSource("../dojo-dungeon/todo-assets/r8/Cuboid.java"), "Cuboid");
+      Constructor<?> tor2 = cls2.getConstructor(float.class, float.class, float.class);
+      Object inst2 = tor2.newInstance(10.0f, 30.0f, 20.0f);
+      Method m1 = cls2.getMethod("calculateArea");
+      Method m2 = cls2.getMethod("calculatePerimeter");
+      Method m3 = cls2.getMethod("calculateVolume");
+      float f1 = (float) m1.invoke(inst2);
+      float f2 = (float) m2.invoke(inst2);
+      float f3 = (float) m3.invoke(inst2);
+      if (Math.round(f1) != 2200 || Math.round(f2) != 240 || Math.round(f3) != 6000) {
+        throw new NoSuchElementException("wrong values ...");
+      }
+      messages.add("testRoom8 ok");
+      return new TestResult("testRoom8", true, messages);
+    } catch (Exception ex) {
+      messages.add("testRoom8 not ok");
+      messages.add(ex.getMessage());
+    }
+    return new TestResult("testRoom8", false, messages);
+  }
+
   private boolean testInternal1() {
     try {
       source = getSource();
@@ -153,7 +185,7 @@ public class DojoCompiler {
 
   private boolean testInternal2() {
     try {
-      cls = compile(source);
+      cls = compile(source, className);
     } catch (Exception ex) {
       messages.add("compile not ok");
       return false;
@@ -246,7 +278,11 @@ public class DojoCompiler {
     return Files.readString(Paths.get(fileName));
   }
 
-  private Class<?> compile(String source) throws Exception {
+  private String getSource(String fn) throws IOException {
+    return Files.readString(Paths.get(fn));
+  }
+
+  private Class<?> compile(String source, String className) throws Exception {
     // Save source in .java file.
     File root = Files.createTempDirectory("java").toFile();
     File sourceFile = new File(root, className + ".java");

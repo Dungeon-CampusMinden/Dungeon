@@ -66,7 +66,8 @@ public class Room2 extends TaskRoom {
     try {
       generate();
     } catch (IOException e) {
-      throw new RuntimeException("Failed to generate room 2: " + e.getMessage(), e);
+      throw new RuntimeException(
+          "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
   }
 
