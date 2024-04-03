@@ -283,8 +283,10 @@ public final class LevelSystem extends System {
       loadLevel(levelSize);
     } else if (entityStream()
         .anyMatch(
-            entity -> isOnEndTile(entity) && ((ExitTile) Game.currentLevel().endTile()).isOpen()))
-      onEndTile.execute();
+            entity ->
+                isOnEndTile(entity)
+                    && Game.currentLevel().endTile() instanceof ExitTile
+                    && ((ExitTile) Game.currentLevel().endTile()).isOpen())) onEndTile.execute();
     else
       entityStream()
           .forEach(
