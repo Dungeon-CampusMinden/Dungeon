@@ -7,9 +7,8 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
-import org.neo4j.ogm.annotation.Transient;
-
 import java.util.List;
+import org.neo4j.ogm.annotation.Transient;
 
 /**
  * {@link ICallable} implementation for an {@link IDSLExtensionMethod}. It is used for binding
@@ -17,8 +16,7 @@ import java.util.List;
  * a java class.
  */
 public class ExtensionMethod extends Symbol implements ICallable {
-  @Transient
-  private final IDSLExtensionMethod<Object, Object> extensionMethod;
+  @Transient private final IDSLExtensionMethod<Object, Object> extensionMethod;
 
   /**
    * Constructor.

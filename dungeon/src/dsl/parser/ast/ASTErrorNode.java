@@ -21,3 +21,4 @@ public class ASTErrorNode extends Node {
     return visitor.visit(this);
   }
 }
+

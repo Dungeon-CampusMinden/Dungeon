@@ -9,8 +9,7 @@ import org.neo4j.ogm.annotation.Transient;
 
 /** This Symbol enables the usage {@link IDSLExtensionProperty} in {@link AggregateType}s. */
 public class PropertySymbol extends Symbol {
-  @Transient
-  private IDSLExtensionProperty<?, ?> property;
+  @Transient private IDSLExtensionProperty<?, ?> property;
   private final boolean settable;
   private final boolean gettable;
 
