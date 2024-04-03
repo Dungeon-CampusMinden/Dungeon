@@ -34,6 +34,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.nio.file.Path;
 import java.util.*;
+
+import graph.taskdependencygraph.TaskDependencyGraph;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import task.Task;
@@ -154,6 +156,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
     semanticAnalyzer.setup(environment);
 
+    // ---------------------------------------------------- ANALYSIS --------------------------------------------------
     // TODO: scan lib path (hacky)..
     File libraryPath = new File(environment.libPath().toString());
 
@@ -188,6 +191,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
     // scan the entrypoint file (the main .dng file) for scenario builder functions
     scanFileForScenarioBuilders(entryPoint.file().filePath());
 
+    // -------------------------------------------------- END ANALYSIS ------------------------------------------------
+
+    // INTERPRETATION:
     return generateQuestConfig(entryPoint.configDefinitionNode(), entryPoint.file());
   }
 
@@ -637,6 +643,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
    * @return The first questConfig object found in the configScript
    */
   public Object getQuestConfig(String configScript, IEnvironment environment) {
+    // ---------------------------------------------------- ANALYSIS --------------------------------------------------
+
     // TODO: make relLibPath settable (or make the Environment settable)
     var stream = CharStreams.fromString(configScript);
     var lexer = new DungeonDSLLexer(stream, environment);
@@ -658,6 +666,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     initializeRuntime(environment, pf.filePath());
     scanFileForScenarioBuilders(pf.filePath());
 
+    // -------------------------------------------------- END ANALYSIS ------------------------------------------------
+
     Value questConfigValue = (Value) generateQuestConfig(programAST, pf);
     return questConfigValue.getInternalValue();
   }
@@ -670,6 +680,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
    * @return The first questConfig object found in the configScript
    */
   public Object getQuestConfig(String configScript) {
+    // TODO: make Environment persistent!
     return this.getQuestConfig(configScript, new GameEnvironment());
   }
 
@@ -682,11 +693,15 @@ public class DSLInterpreter implements AstVisitor<Object> {
   public Object generateQuestConfig(Node programAST, ParsedFile parsedFile) {
     IScope fs = this.environment.getFileScope(parsedFile.filePath());
 
+    if (programAST.subTreeHasError()) {
+      throw new RuntimeException("Program contains errors, cannot create config!");
+    }
+
+    Object questConfigObject = Value.NONE;
     var filesMemorySpace = initializeFileMemorySpace((FileScope) fs);
     this.memoryStack.push(filesMemorySpace);
     this.fileMemoryStack.push(filesMemorySpace);
 
-    Object questConfigObject = Value.NONE;
     // find quest_config definition
     for (var node : programAST.getChildren()) {
       if (node.type == Node.Type.ObjectDefinition) {
@@ -732,6 +747,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
     IScope scope = this.environment.getFileScope(pf.filePath());
     if (scope.equals(Scope.NULL)) {
       throw new RuntimeException("Scope for file '" + pf.filePath() + "' is null");
+    }
+
+    if (configDefinitionNode.getParent().subTreeHasError()) {
+      throw new RuntimeException("Program contains errors, cannot create config!");
     }
 
     FileScope fs = (FileScope) scope;
