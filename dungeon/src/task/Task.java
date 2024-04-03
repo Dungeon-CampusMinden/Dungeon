@@ -90,6 +90,22 @@ public abstract class Task {
   private String explanation = DEFAULT_EXPLANATION;
   private float achievedPoints;
 
+  static {
+    try {
+      SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy'T'HH-mm-ss");
+      String timestamp = dateFormat.format(new Date());
+      String directoryPath = System.getProperty("BASELOGDIR", "logs/") + "solutions/";
+      String filepath = directoryPath + timestamp + ".log";
+      Files.createDirectories(Paths.get(directoryPath));
+      FileHandler fileHandler = new FileHandler(filepath);
+      fileHandler.setFormatter(new SimpleFormatter());
+
+      SOL_LOGGER.addHandler(fileHandler);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   /**
    * Create a new Task with the {@link #DEFAULT_TASK_TEXT} in the {@link #DEFAULT_TASK_STATE}, with
    * an empty content-collection and without an {@link TaskComponent}.
