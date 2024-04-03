@@ -14,6 +14,8 @@ import core.level.utils.LevelSize;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import level.rooms.LevelRoom;
 import level.rooms.Room;
@@ -62,6 +64,8 @@ public class DojoStarter {
     LevelRoom levelRoom8 = new LevelRoom(graph);
     LevelRoom levelRoom9 = new LevelRoom(graph);
 
+    LevelRoom levelRoom10 = new LevelRoom(graph);
+
     // connect the rooms, this is needed to build the rooms in next steps
     connectBidirectional(levelRoom1, levelRoom2);
     connectBidirectional(levelRoom2, levelRoom3);
@@ -71,10 +75,12 @@ public class DojoStarter {
     connectBidirectional(levelRoom6, levelRoom7);
     connectBidirectional(levelRoom7, levelRoom8);
     connectBidirectional(levelRoom8, levelRoom9);
+    connectBidirectional(levelRoom9, levelRoom10);
 
     // build the rooms
     RoomGenerator gen = new RoomGenerator();
-    Room room9 = buildRoom9(levelRoom9, gen, null);
+    Room room10 = buildRoom10(levelRoom10, gen, null);
+    Room room9 = buildRoom9(levelRoom9, gen, room10);
     Room room8 = buildRoom8(levelRoom8, gen, room9);
     Room room7 = buildRoom7(levelRoom7, gen, room8);
     Room room6 = buildRoom6(levelRoom6, gen, room7);
@@ -93,6 +99,7 @@ public class DojoStarter {
     room7.configDoors();
     room8.configDoors();
     room9.configDoors();
+    room10.configDoors();
 
     // Now after the doors are properly configured, we can close or open them:
     room1.closeDoors();
@@ -101,14 +108,15 @@ public class DojoStarter {
     room4.closeDoors();
     room5.closeDoors();
     room6.closeDoors();
-    room7.closeDoors();
+    // room7.closeDoors();
     room8.closeDoors();
+    room9.closeDoors();
 
     // room6 should not be closed:
     room6.openDoors();
 
     // set room1 as start level
-    Game.currentLevel(levelRoom1.level());
+    Game.currentLevel(levelRoom7.level());
   }
 
   private static void connectBidirectional(LevelRoom levelRoom, LevelRoom nextRoom) {
@@ -176,27 +184,13 @@ public class DojoStarter {
   }
 
   private static Room buildRoom1(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
-    final int monsterCount = 5;
-    final IPath[] monsterPaths = {
-      new SimpleIPath("character/monster/imp"), new SimpleIPath("character/monster/goblin")
-    };
-
-    final String keyType = "Golden Key";
-    final String keyDescription = "A key to unlock the next room.";
-    final IPath keyTexture = new SimpleIPath("items/key/gold_key.png");
-
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.LARGE)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_1)
-        .monsterCount(monsterCount)
-        .monsterPaths(monsterPaths)
-        .keyType(keyType)
-        .keyDescription(keyDescription)
-        .keyTexture(keyTexture)
-        .buildKeyRoom();
+        .buildRoom1();
   }
 
   private static Room buildRoom2(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
@@ -220,28 +214,13 @@ public class DojoStarter {
   }
 
   private static Room buildRoom4(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
-    final int monsterCount = 5;
-    final IPath[] monsterPaths = {
-      new SimpleIPath("character/monster/orc_shaman"),
-      new SimpleIPath("character/monster/orc_warrior")
-    };
-
-    final String keyType = "A blue gemstone";
-    final String keyDescription = "This gem opens the door to the next room.";
-    final IPath keyTexture = new SimpleIPath("items/resource/saphire.png");
-
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.LARGE)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_2)
-        .monsterCount(monsterCount)
-        .monsterPaths(monsterPaths)
-        .keyType(keyType)
-        .keyDescription(keyDescription)
-        .keyTexture(keyTexture)
-        .buildKeyRoom();
+        .buildRoom4();
   }
 
   private static Room buildRoom5(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
@@ -265,13 +244,35 @@ public class DojoStarter {
   }
 
   private static Room buildRoom7(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+    ArrayList<String> list1 = new ArrayList<>();
+    list1.add("Builder");
+    list1.add("Factory");
+    list1.add("Observer");
+    list1.add("Singleton");
+
+    ArrayList<String> list2 = new ArrayList<>();
+    list2.add("DRY");
+    list2.add("KISS");
+    list2.add("YAGNI");
+
+    HashMap<String, ArrayList<String>> sortables = new HashMap<>();
+    sortables.put("Programming Patterns", list1);
+    sortables.put("Software Development Principles", list2);
+
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_3)
-        .buildRoom();
+        .monsterCount(1)
+        .monsterPaths(
+            new IPath[] {
+              new SimpleIPath("character/monster/pumpkin_dude"),
+              new SimpleIPath("character/monster/zombie")
+            })
+        .sortables(sortables)
+        .buildRoom7();
   }
 
   private static Room buildRoom8(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
@@ -281,7 +282,7 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_3)
-        .buildRoom();
+        .buildRoom8();
   }
 
   private static Room buildRoom9(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
@@ -291,6 +292,16 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_3)
-        .buildRoom();
+        .buildRoom9();
+  }
+
+  private static Room buildRoom10(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+    return new RoomBuilder()
+        .levelRoom(levelRoom)
+        .roomGenerator(gen)
+        .nextRoom(nextRoom)
+        .levelSize(LevelSize.MEDIUM)
+        .designLabel(DESIGN_LABEL_FOR_LEVEL_3)
+        .buildRoom10();
   }
 }

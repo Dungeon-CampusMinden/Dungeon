@@ -3,7 +3,6 @@ package level.rooms;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.EntityFactory;
-import contrib.entities.MonsterFactory;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
@@ -12,18 +11,16 @@ import core.level.utils.LevelSize;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import level.item.ItemKey;
 
-public class KeyRoom extends MonsterRoom {
+public class SearchRoom extends MonsterRoom {
   private final String keyType;
   private final String keyDescription;
   private final IPath keyTexture;
 
-  KeyRoom(
+  SearchRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
@@ -48,13 +45,7 @@ public class KeyRoom extends MonsterRoom {
 
   private void generate() throws IOException {
     // add entities to room
-    Set<Entity> roomEntities = new HashSet<>();
-
-    for (int i = 0; i < getMonsterCount(); i++) {
-      roomEntities.add(
-          MonsterFactory.randomMonster(
-              getMonsterPaths()[new Random().nextInt(getMonsterPaths().length)]));
-    }
+    Set<Entity> roomEntities = populateMonsters(getMonsterCount(), getMonsterPaths());
     // get random monster from roomEntities
     Entity randomMonster =
         (Entity) roomEntities.toArray()[(int) (Math.random() * getMonsterCount())];
