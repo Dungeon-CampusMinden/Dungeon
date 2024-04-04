@@ -2,6 +2,7 @@ package level.devlevel;
 
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
+import contrib.entities.DialogFactory;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
@@ -19,7 +20,6 @@ import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.DialogFactory;
 import entities.MonsterType;
 import java.util.List;
 import level.DevDungeonLevel;

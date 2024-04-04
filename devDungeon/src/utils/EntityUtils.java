@@ -1,6 +1,7 @@
 package utils;
 
 import contrib.components.HealthComponent;
+import contrib.entities.DialogFactory;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
@@ -13,7 +14,6 @@ import core.utils.IVoidFunction;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.DialogFactory;
 import entities.MonsterType;
 import entities.TorchFactory;
 import java.io.IOException;
@@ -137,10 +137,10 @@ public class EntityUtils {
    * @param quizzes The list of quizzes to give the player.
    * @param onFinished The action to perform when all quizzes have been solved.
    * @return The spawned bridge guard entity.
-   * @see DialogFactory#createBridgeGuard(Point, List, IVoidFunction) createBridgeGuard
+   * @see MonsterType#createBridgeGuard(Point, List, IVoidFunction) createBridgeGuard
    */
   public static Entity spawnBridgeGuard(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
-    Entity bridgeGuard = DialogFactory.createBridgeGuard(pos, quizzes, onFinished);
+    Entity bridgeGuard = MonsterType.createBridgeGuard(pos, quizzes, onFinished);
     Game.add(bridgeGuard);
     return bridgeGuard;
   }

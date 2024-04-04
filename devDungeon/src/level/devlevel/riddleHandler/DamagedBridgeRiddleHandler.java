@@ -2,6 +2,7 @@ package level.devlevel.riddleHandler;
 
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
+import contrib.entities.DialogFactory;
 import contrib.entities.MiscFactory;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
@@ -14,7 +15,6 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.DialogFactory;
 import item.concreteItem.ItemPotionRegenerationPotion;
 import item.concreteItem.ItemPotionSpeedPotion;
 import java.util.List;

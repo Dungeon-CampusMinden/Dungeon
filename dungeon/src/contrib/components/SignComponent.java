@@ -1,10 +1,10 @@
-package components;
+package contrib.components;
 
+import contrib.entities.DialogFactory;
 import contrib.hud.dialogs.OkDialog;
 import core.Component;
 import core.Entity;
 import core.utils.Point;
-import entities.DialogFactory;
 import java.util.function.BiConsumer;
 
 /**

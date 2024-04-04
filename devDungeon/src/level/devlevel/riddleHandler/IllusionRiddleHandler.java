@@ -1,5 +1,6 @@
 package level.devlevel.riddleHandler;
 
+import contrib.entities.DialogFactory;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -8,7 +9,6 @@ import core.level.utils.Coordinate;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.DialogFactory;
 import java.util.List;
 import level.utils.ITickable;
 import utils.EntityUtils;

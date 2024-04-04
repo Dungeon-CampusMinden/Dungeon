@@ -1,12 +1,12 @@
 package item.concreteItem;
 
 import contrib.components.InventoryComponent;
+import contrib.entities.DialogFactory;
 import contrib.item.Item;
 import core.Entity;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import entities.DialogFactory;
 
 public class ItemReward extends Item {
   public static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/resource/stone.png");

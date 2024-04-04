@@ -3,7 +3,9 @@ package entities;
 import com.badlogic.gdx.audio.Sound;
 import components.ReviveComponent;
 import contrib.components.AIComponent;
+import contrib.components.InteractionComponent;
 import contrib.entities.AIFactory;
+import contrib.entities.DialogFactory;
 import contrib.entities.MonsterFactory;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.fight.RangeAI;
@@ -15,14 +17,21 @@ import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
+import core.components.PositionComponent;
+import core.utils.IVoidFunction;
+import core.utils.Point;
+import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import level.devlevel.BossLevel;
 import level.utils.LevelUtils;
+import task.tasktype.Quiz;
 
 public enum MonsterType {
   CHORT(
@@ -285,6 +294,39 @@ public enum MonsterType {
     this.collideDamage = collideDamage;
     this.collideCooldown = collideCooldown;
     this.idleSoundPath = idleSound.getPath();
+  }
+
+  /**
+   * Creates a bridge guard entity with a list of quizzes.
+   *
+   * @param pos The position where the bridge guard will be created.
+   * @param quizzes The list of quizzes.
+   * @param onFinished The function to execute when all quizzes have been solved.
+   * @return The created bridge guard entity.
+   * @see level.devlevel.riddleHandler.BridgeGuardRiddleHandler BridgeGuardRiddleHandler
+   */
+  public static Entity createBridgeGuard(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
+    Entity bridgeGuard;
+    try {
+      bridgeGuard = MonsterType.BRIDGE_GUARD.buildMonster();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to create bridge guard");
+    }
+    bridgeGuard
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(bridgeGuard, PositionComponent.class))
+        .position(pos);
+
+    bridgeGuard.add(
+        new InteractionComponent(
+            InteractionComponent.DEFAULT_INTERACTION_RADIUS,
+            true,
+            (me, who) -> {
+              Iterator<Quiz> quizIterator = quizzes.iterator();
+              DialogFactory.presentQuiz(quizIterator, onFinished);
+            }));
+
+    return bridgeGuard;
   }
 
   public Entity buildMonster() throws IOException {

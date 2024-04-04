@@ -69,6 +69,8 @@ public class HeroFactory {
               cameraDummy.add(cc);
               cameraDummy.add(poc);
               Game.add(cameraDummy);
+
+              DialogFactory.showTextPopup("You died!", "Game Over", Game::exit);
             });
     hero.add(hc);
     hero.add(

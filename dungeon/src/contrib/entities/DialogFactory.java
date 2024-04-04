@@ -1,7 +1,7 @@
-package entities;
+package contrib.entities;
 
-import components.SignComponent;
 import contrib.components.InteractionComponent;
+import contrib.components.SignComponent;
 import contrib.hud.dialogs.OkDialog;
 import core.Entity;
 import core.components.DrawComponent;
@@ -11,12 +11,9 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import level.devlevel.riddleHandler.BridgeGuardRiddleHandler;
 import task.Task;
 import task.game.hud.QuizUI;
 import task.game.hud.UIAnswerCallback;
@@ -84,43 +81,23 @@ public class DialogFactory {
    * @see OkDialog#showOkDialog(String, String, IVoidFunction) showOkDialog
    */
   public static Entity showTextPopup(String text, String title) {
-    // removes newlines and empty spaces and multiple spaces from the title and text
-    title = title.replaceAll("\\s+", " ").trim();
-    text = text.replaceAll("\\s+", " ").trim();
-    return OkDialog.showOkDialog(text, title, () -> {});
+    return showTextPopup(text, title, () -> {});
   }
 
   /**
-   * Creates a bridge guard entity with a list of quizzes.
+   * Displays a text popup. Upon closing the popup, the onFinished function is executed.
    *
-   * @param pos The position where the bridge guard will be created.
-   * @param quizzes The list of quizzes.
-   * @param onFinished The function to execute when all quizzes have been solved.
-   * @return The created bridge guard entity.
-   * @see BridgeGuardRiddleHandler BridgeGuardRiddleHandler
+   * @param text The text of the popup.
+   * @param title The title of the popup.
+   * @param onFinished The function to execute when the popup is closed.
+   * @return The popup entity.
+   * @see OkDialog#showOkDialog(String, String, IVoidFunction) showOkDialog
    */
-  public static Entity createBridgeGuard(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
-    Entity bridgeGuard;
-    try {
-      bridgeGuard = MonsterType.BRIDGE_GUARD.buildMonster();
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to create bridge guard");
-    }
-    bridgeGuard
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(bridgeGuard, PositionComponent.class))
-        .position(pos);
-
-    bridgeGuard.add(
-        new InteractionComponent(
-            DEFAULT_INTERACTION_RADIUS,
-            true,
-            (me, who) -> {
-              Iterator<Quiz> quizIterator = quizzes.iterator();
-              presentQuiz(quizIterator, onFinished);
-            }));
-
-    return bridgeGuard;
+  public static Entity showTextPopup(String text, String title, IVoidFunction onFinished) {
+    // removes newlines and empty spaces and multiple spaces from the title and text
+    title = title.replaceAll("\\s+", " ").trim();
+    text = text.replaceAll("\\s+", " ").trim();
+    return OkDialog.showOkDialog(text, title, onFinished);
   }
 
   /**
@@ -132,7 +109,7 @@ public class DialogFactory {
    * @param onFinished The function to execute when all quizzes have been solved.
    * @see QuizUI#showQuizDialog(Quiz, Function) showQuizDialog
    */
-  private static void presentQuiz(Iterator<Quiz> quizIterator, IVoidFunction onFinished) {
+  public static void presentQuiz(Iterator<Quiz> quizIterator, IVoidFunction onFinished) {
     if (!quizIterator.hasNext()) {
       // All quizzes have been correctly solved
       onFinished.execute();

@@ -1,7 +1,8 @@
 package level.devlevel.riddleHandler;
 
-import components.SignComponent;
 import components.TorchComponent;
+import contrib.components.SignComponent;
+import contrib.entities.DialogFactory;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -11,7 +12,6 @@ import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.BurningFireballSkill;
-import entities.DialogFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
