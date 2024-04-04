@@ -233,9 +233,9 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
   /**
    * Gets the delay for changing the boss attack.
    *
-   * <p>Starts at 5 seconds and decreases to 500ms as the boss health decreases.
+   * <p>Starts at 5 seconds and decreases to 750ms as the boss health decreases.
    *
-   * <p>E.g. 100% health = 5 seconds, 50% health = 2.5 seconds, 0% health = 500ms.
+   * <p>E.g. 100% health = 5 seconds, 50% health = 2.875 seconds, 0% health = 750ms
    *
    * @return The delay for changing the boss attack in milliseconds.
    */
@@ -243,7 +243,7 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
     double currentPercentage = BossAttackSkills.calculateBossHealthPercentage(this.boss);
 
     double delayAtFullHealth = 5000;
-    double delayAtZeroHealth = 500;
+    double delayAtZeroHealth = 750;
 
     double delay =
         delayAtFullHealth

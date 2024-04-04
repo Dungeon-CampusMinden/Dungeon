@@ -29,7 +29,7 @@ public class HeroFactory {
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
   private static final Vector2 SPEED_HERO = new Vector2(7.5f, 7.5f);
   private static final int FIREBALL_COOL_DOWN = 500;
-  private static final int HERO_HP = 20;
+  private static final int HERO_HP = 25;
 
   /**
    * Get an Entity that can be used as a playable character.

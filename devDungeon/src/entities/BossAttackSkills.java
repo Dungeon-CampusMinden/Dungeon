@@ -81,7 +81,7 @@ public class BossAttackSkills {
             }
           }
         },
-        AIFactory.FIREBALL_COOL_DOWN * 2);
+        AIFactory.FIREBALL_COOL_DOWN * 3);
   }
 
   /**
@@ -245,7 +245,7 @@ public class BossAttackSkills {
                     (long) i * delayBetweenFireballs);
           }
         },
-        AIFactory.FIREBALL_COOL_DOWN * 2);
+        AIFactory.FIREBALL_COOL_DOWN * 4);
   }
 
   /**
@@ -332,11 +332,11 @@ public class BossAttackSkills {
     } else if (healthPercentage > 50) {
       return (getBossAttackChance())
           ? fireCone(35, 125, BossAttackSkills.FIREBALL_SPEED + 2, FIREBALL_DAMAGE + 1)
-          : getBossAttackChance() ? fireWall(5) : fireStorm(16, 100);
+          : getBossAttackChance() ? fireWall(5) : fireStorm(12, 120);
     } else {
       // Low health - more defensive or desperate attacks
       return (getBossAttackChance())
-          ? fireStorm(32, 75)
+          ? fireStorm(24, 95)
           : getBossAttackChance() ? fireShockWave(6) : fireWall(8);
     }
   }
@@ -363,12 +363,12 @@ public class BossAttackSkills {
     } else if (healthPercentage > 50) {
       return random.nextDouble() < 0.5;
     } else if (healthPercentage > 40) {
-      return random.nextDouble() < 0.7;
+      return random.nextDouble() < 0.6;
     } else if (healthPercentage > 25) {
-      return random.nextDouble() < 0.5;
+      return random.nextDouble() < 0.4;
     } else {
       // Low health - more defensive or desperate attacks
-      return random.nextDouble() < 0.3;
+      return random.nextDouble() < 0.2;
     }
   }
 
