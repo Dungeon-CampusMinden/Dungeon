@@ -6,10 +6,14 @@ import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.AIFactory;
 import contrib.entities.IHealthObserver;
+import contrib.entities.MiscFactory;
+import contrib.item.HealthPotionType;
+import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.utils.components.ai.fight.RangeAI;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
@@ -20,6 +24,7 @@ import core.level.utils.LevelUtils;
 import core.utils.components.MissingComponentException;
 import entities.BossAttackSkills;
 import entities.MonsterType;
+import item.concreteItem.ItemPotionRegenerationPotion;
 import item.concreteItem.ItemReward;
 import java.util.List;
 import java.util.function.Consumer;
@@ -41,6 +46,9 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
   // Spawn Points / Locations
   private final Coordinate levelBossSpawn;
   private final Coordinate[] pillars;
+  private final Coordinate entrance;
+  private final Coordinate chestSpawn;
+  private final Coordinate cauldronSpawn;
   private Entity boss;
   private long lastAttackChange = 0;
   private boolean isBossNormalAttacking = false;
@@ -52,6 +60,9 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
 
     this.levelBossSpawn = this.customPoints().getFirst();
     this.pillars = this.getCoordinates(1, 4); // Top left corner (each 2x2)
+    this.entrance = this.customPoints().get(5); // Entrance into the arena
+    this.chestSpawn = this.customPoints().get(6);
+    this.cauldronSpawn = this.customPoints().get(7);
   }
 
   @Override
@@ -67,12 +78,60 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
               });
       this.handleFirstTick();
     }
+    Coordinate heroCoord = EntityUtils.getHeroCoordinate();
+    if (heroCoord == null) return;
+    if (heroCoord.y > this.entrance.y) {
+      this.changeTileElementType(this.tileAt(this.entrance), LevelElement.WALL);
+    } else {
+      this.changeTileElementType(this.tileAt(this.entrance), LevelElement.FLOOR);
+    }
     this.handleBossAttacks();
   }
 
   private void handleFirstTick() {
     this.boss = EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn, this::handleBossDeath);
     ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
+    this.spawnChestsAndCauldrons();
+  }
+
+  /**
+   * Spawns the chests and cauldrons in the riddle room.
+   *
+   * @throws RuntimeException if any of the entities could not be created
+   */
+  private void spawnChestsAndCauldrons() {
+    Entity chest;
+    try {
+      chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to create chest entity at " + this.chestSpawn, e);
+    }
+    PositionComponent pc =
+        chest
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
+    pc.position(this.chestSpawn.toCenteredPoint());
+    InventoryComponent ic =
+        chest
+            .fetch(InventoryComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(chest, InventoryComponent.class));
+    ic.add(new ItemPotionHealth(HealthPotionType.GREATER));
+    ic.add(new ItemPotionRegenerationPotion());
+
+    Game.add(chest);
+
+    Entity cauldon;
+    try {
+      cauldon = MiscFactory.newCraftingCauldron();
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to create cauldron entity at " + this.cauldronSpawn, e);
+    }
+    pc =
+        cauldon
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(cauldon, PositionComponent.class));
+    pc.position(this.cauldronSpawn.toCenteredPoint());
+    Game.add(cauldon);
   }
 
   // Boss Methods

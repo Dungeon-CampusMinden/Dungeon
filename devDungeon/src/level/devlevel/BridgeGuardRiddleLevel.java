@@ -59,7 +59,6 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable
   private void handleFirstTick() {
     // Spawn all entities and it's content
     this.spawnCamps();
-    this.spawnChestsAndCauldrons();
 
     EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns);
     EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn);
@@ -70,11 +69,4 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable
       EntityUtils.spawnMobSpawner(campSpawn, MONSTER_TYPES, MOB_COUNT_PER_CAMP);
     }
   }
-
-  /**
-   * Spawns the chests and cauldrons in the riddle room.
-   *
-   * @throws RuntimeException if any of the entities could not be created
-   */
-  private void spawnChestsAndCauldrons() {}
 }
