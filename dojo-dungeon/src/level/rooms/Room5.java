@@ -54,7 +54,7 @@ public class Room5 extends TaskRoom {
                         empty),
                 (t1) -> {
                   DojoCompiler.TestResult results =
-                      new DojoCompiler(FILENAME2, CLASS_NAME).spawnMonsterToOpenTheDoor(this);
+                      new DojoCompiler().spawnMonsterToOpenTheDoor(FILENAME2, CLASS_NAME, this);
                   if (results.passed()) {
                     OkDialog.showOkDialog(
                         "Ok! " + results.messages(),
