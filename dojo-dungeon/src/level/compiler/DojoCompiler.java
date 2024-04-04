@@ -27,27 +27,16 @@ import level.rooms.Room;
 public class DojoCompiler {
   public record TestResult(String testName, boolean passed, List<String> messages) {}
 
-  private final String fileName;
-  private final String className;
   private final List<String> messages = new ArrayList<>();
   private String source;
   private Class<?> cls;
   private Method method1;
   private Method method2;
 
-  public DojoCompiler() {
-    this("test", "Test");
-  }
-
-  public DojoCompiler(String fileName, String className) {
-    this.fileName = fileName;
-    this.className = className;
-  }
-
-  public TestResult spawnMonsterToOpenTheDoor(Room currentRoom) {
+  public TestResult spawnMonsterToOpenTheDoor(String fileName, String className, Room currentRoom) {
     String testName = "spawnMonster";
 
-    if (!testInternal1() || !testInternal2()) {
+    if (!testInternal1(fileName) || !testInternal2(className)) {
       return new TestResult(testName, false, messages);
     }
 
@@ -93,10 +82,10 @@ public class DojoCompiler {
     return new TestResult(testName, true, messages);
   }
 
-  public TestResult test1() {
+  public TestResult test1(String fileName, String className) {
     String testName = "test1";
-    if (testInternal1()
-        && testInternal2()
+    if (testInternal1(fileName)
+        && testInternal2(className)
         && testInternal3()
         && testInternal4()
         && testInternal5()
@@ -106,11 +95,11 @@ public class DojoCompiler {
     return new TestResult(testName, false, messages);
   }
 
-  public TestResult test2() {
+  public TestResult test2(String fileName, String className) {
     String testName = "test2";
-    if (testInternal1()
+    if (testInternal1(fileName)
         && testInternal1_2()
-        && testInternal2()
+        && testInternal2(className)
         && testInternal3()
         && testInternal4()
         && testInternal5()
@@ -120,11 +109,11 @@ public class DojoCompiler {
     return new TestResult(testName, false, messages);
   }
 
-  public TestResult test3() {
+  public TestResult test3(String fileName, String className) {
     String testName = "test3";
-    if (testInternal1()
+    if (testInternal1(fileName)
         && testInternal1_2()
-        && testInternal2()
+        && testInternal2(className)
         && testInternal3()
         && testInternal4()
         && testInternal5()
@@ -137,9 +126,6 @@ public class DojoCompiler {
 
   public TestResult testRoom8() {
     try {
-      // Class<?> cls1 =
-      // compileInterface(getSource("../dojo-dungeon/todo-assets/r8/GeometricalFigure.java"),
-      // "GeometricalFigure");
       Class<?> cls2 = compile(getSource("../dojo-dungeon/todo-assets/r8/Cuboid.java"), "Cuboid");
       Constructor<?> tor2 = cls2.getConstructor(float.class, float.class, float.class);
       Object inst2 = tor2.newInstance(10.0f, 30.0f, 20.0f);
@@ -161,9 +147,9 @@ public class DojoCompiler {
     return new TestResult("testRoom8", false, messages);
   }
 
-  private boolean testInternal1() {
+  private boolean testInternal1(String fileName) {
     try {
-      source = getSource();
+      source = getSource(fileName);
     } catch (IOException ex) {
       messages.add("source not ok");
       return false;
@@ -183,7 +169,7 @@ public class DojoCompiler {
     return true;
   }
 
-  private boolean testInternal2() {
+  private boolean testInternal2(String className) {
     try {
       cls = compile(source, className);
     } catch (Exception ex) {
@@ -272,10 +258,6 @@ public class DojoCompiler {
     }
 
     return true;
-  }
-
-  private String getSource() throws IOException {
-    return Files.readString(Paths.get(fileName));
   }
 
   private String getSource(String fn) throws IOException {

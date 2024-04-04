@@ -54,7 +54,7 @@ public class Room8 extends TaskRoom {
             true,
             (entity1, entity2) ->
                 OkDialog.showOkDialog(
-                    "Bitte spreche mit dem Imp, aber besiege ihn noch nicht.",
+                    "Bitte sprich mit dem Imp, aber besiege ihn noch nicht.",
                     "Mit Imp sprechen",
                     () -> addEntityImmediately(generateImp()))));
     chest.fetch(DrawComponent.class).orElseThrow().currentAnimation(ChestAnimations.OPEN_FULL);
@@ -82,6 +82,7 @@ public class Room8 extends TaskRoom {
         new HealthComponent(
             impHealth,
             (e) -> {
+              // Test players solution
               DojoCompiler.TestResult testResult = new DojoCompiler().testRoom8();
               if (testResult.passed()) {
                 OkDialog.showOkDialog(
@@ -93,15 +94,18 @@ public class Room8 extends TaskRoom {
                     "Leider nicht gelöst. 25 HP verloren. Versuch's noch einmal. ... "
                         + testResult.messages(),
                     "Aufgabe in diesem Raum:",
-                    () ->
-                        Game.entityStream(Set.of(PlayerComponent.class, HealthComponent.class))
-                            .findFirst()
-                            .orElseThrow()
-                            .fetch(HealthComponent.class)
-                            .orElseThrow()
-                            .receiveHit(new Damage(25, DamageType.MAGIC, null)));
+                    () -> {});
               }
 
+              // Decrease player health
+              Game.entityStream(Set.of(PlayerComponent.class, HealthComponent.class))
+                  .findFirst()
+                  .orElseThrow()
+                  .fetch(HealthComponent.class)
+                  .orElseThrow()
+                  .receiveHit(new Damage(25, DamageType.MAGIC, null));
+
+              // Increase new imp health
               new DropItemsInteraction().accept(e, null);
               impHealth += 10;
               addEntityImmediately(generateImp());

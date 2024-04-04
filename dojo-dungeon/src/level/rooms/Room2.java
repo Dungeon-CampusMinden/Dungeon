@@ -87,7 +87,7 @@ public class Room2 extends TaskRoom {
     IVoidFunction openDialog1 = () -> OkDialog.showOkDialog(TEXT[3], "Aufgabe 1:", openDialog2);
     Function<Task, Boolean> openDialog3 =
         (t) -> {
-          DojoCompiler.TestResult results = new DojoCompiler(FILENAME2, CLASS_NAME).test1();
+          DojoCompiler.TestResult results = new DojoCompiler().test1(FILENAME2, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 1:", this::openOrCloseChests);
@@ -103,7 +103,7 @@ public class Room2 extends TaskRoom {
     IVoidFunction openDialog5 = () -> OkDialog.showOkDialog(TEXT[7], "Aufgabe 2:", openDialog6);
     Function<Task, Boolean> openDialog7 =
         (t) -> {
-          DojoCompiler.TestResult results = new DojoCompiler(FILENAME2, CLASS_NAME).test2();
+          DojoCompiler.TestResult results = new DojoCompiler().test2(FILENAME2, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 2:", this::openOrCloseChests);
@@ -119,7 +119,7 @@ public class Room2 extends TaskRoom {
     IVoidFunction openDialog9 = () -> OkDialog.showOkDialog(TEXT[11], "Aufgabe 3:", openDialog10);
     Function<Task, Boolean> openDialog11 =
         (t) -> {
-          DojoCompiler.TestResult results = new DojoCompiler(FILENAME2, CLASS_NAME).test3();
+          DojoCompiler.TestResult results = new DojoCompiler().test3(FILENAME2, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 3:", this::openOrCloseChests);
