@@ -106,7 +106,6 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
         }
       }
 
-      // TODO: do this completely via visitChildren
       // get types of parameters
       ArrayList<IType> parameterTypes = new ArrayList<>(node.getParameters().size());
       for (Node paramDefNode : node.getParameters()) {
