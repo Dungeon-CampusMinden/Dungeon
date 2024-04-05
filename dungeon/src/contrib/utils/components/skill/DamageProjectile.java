@@ -1,5 +1,8 @@
 package contrib.utils.components.skill;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.MathUtils;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
@@ -38,6 +41,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final Point projectileHitBoxSize;
   private final Supplier<Point> selectionFunction;
   private final Consumer<Entity> onWallHit;
+  private Sound soundEffect;
 
   /**
    * The DamageProjectile constructor sets the path to the textures of the projectile, the speed of
@@ -190,6 +194,29 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     playSound();
   }
 
+  private void playSound() {
+    if (getSoundPath() == null) {
+      return;
+    }
+    if (soundEffect == null) {
+      soundEffect = Gdx.audio.newSound(Gdx.files.internal(getSoundPath().pathString()));
+    }
+
+    // Generate a random pitch between 2f and 3f
+    float minPitch = 2f;
+    float maxPitch = 3f;
+    float randomPitch = MathUtils.random(minPitch, maxPitch);
+
+    // Play the sound with the adjusted pitch
+    long soundId = soundEffect.play();
+    soundEffect.setPitch(soundId, randomPitch);
+
+    // Set the volume
+    soundEffect.setVolume(soundId, 0.15f);
+  }
+
   /** Override this method to play a Sound-effect on spawning the projectile if you want. */
-  protected void playSound() {}
+  protected IPath getSoundPath() {
+    return null;
+  }
 }
