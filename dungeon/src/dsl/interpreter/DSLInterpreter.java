@@ -34,8 +34,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.nio.file.Path;
 import java.util.*;
-
-import graph.taskdependencygraph.TaskDependencyGraph;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import task.Task;
@@ -156,7 +154,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
     semanticAnalyzer.setup(environment);
 
-    // ---------------------------------------------------- ANALYSIS --------------------------------------------------
+    // ---------------------------------------------------- ANALYSIS
+    // --------------------------------------------------
     // TODO: scan lib path (hacky)..
     File libraryPath = new File(environment.libPath().toString());
 
@@ -191,7 +190,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     // scan the entrypoint file (the main .dng file) for scenario builder functions
     scanFileForScenarioBuilders(entryPoint.file().filePath());
 
-    // -------------------------------------------------- END ANALYSIS ------------------------------------------------
+    // -------------------------------------------------- END ANALYSIS
+    // ------------------------------------------------
 
     // INTERPRETATION:
     return generateQuestConfig(entryPoint.configDefinitionNode(), entryPoint.file());
@@ -643,7 +643,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
    * @return The first questConfig object found in the configScript
    */
   public Object getQuestConfig(String configScript, IEnvironment environment) {
-    // ---------------------------------------------------- ANALYSIS --------------------------------------------------
+    // ---------------------------------------------------- ANALYSIS
+    // --------------------------------------------------
 
     // TODO: make relLibPath settable (or make the Environment settable)
     var stream = CharStreams.fromString(configScript);
@@ -666,7 +667,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
     initializeRuntime(environment, pf.filePath());
     scanFileForScenarioBuilders(pf.filePath());
 
-    // -------------------------------------------------- END ANALYSIS ------------------------------------------------
+    // -------------------------------------------------- END ANALYSIS
+    // ------------------------------------------------
 
     Value questConfigValue = (Value) generateQuestConfig(programAST, pf);
     return questConfigValue.getInternalValue();
