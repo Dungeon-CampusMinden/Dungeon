@@ -35,8 +35,8 @@ definition
         ;
 
 import_def
-    : IMPORT path=STRING_LITERAL COLON sym_id=id                   #import_unnamed
-    | IMPORT path=STRING_LITERAL COLON sym_id=id AS sym_name=id  #import_named
+    : IMPORT path=STRING_LITERAL COLON sym_id=id_no_type                          #import_unnamed
+    | IMPORT path=STRING_LITERAL COLON sym_id=id_no_type AS sym_name=id_no_type   #import_named
     ;
 
 fn_def
@@ -236,6 +236,15 @@ primary : id member_access_rhs?
 
 id  : ID
     | TYPE_ID
+    | COUNT
+    | GRAPH
+    | TYPE
+    | WHILE
+    | dependency_type
+    ;
+
+id_no_type
+    : ID
     | COUNT
     | GRAPH
     | TYPE

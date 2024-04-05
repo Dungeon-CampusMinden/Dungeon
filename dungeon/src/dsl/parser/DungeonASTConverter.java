@@ -37,6 +37,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   private HashSet<Token> offendingTokens;
   private HashMap<ParserRuleContext, List<ErrorListener.ErrorRecord>> lexerErrors;
   private HashMap<ParserRuleContext, List<TerminalNode>> rulesWithOffendingTerminalNodes;
+  private DungeonErrorNodeConverter errorNodeConverter;
 
   CountingStack<Node> astStack;
   Integer previousAstStackFrameCount = 0;
@@ -55,6 +56,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     this.ruleNames = new ArrayList<>();
     this.lexerErrors = new HashMap<>();
     this.rulesWithOffendingTerminalNodes = new HashMap<>();
+    this.errorNodeConverter = new DungeonErrorNodeConverter();
   }
 
   public void setTrace(boolean trace) {
@@ -102,7 +104,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
         // TODO: getting the parent of t would be a nice optimization!
         this.offendingTokens.add(t);
         this.tokensErrorRecords.put(t, error);
-      } else if (error.exception() instanceof LexerNoViableAltException ){ // lexer error!
+      } else if (error.exception() instanceof LexerNoViableAltException) { // lexer error!
         var ctx = (ParserRuleContext) parseTree;
         if (!this.lexerErrors.containsKey(ctx)) {
           this.lexerErrors.put(ctx, new ArrayList<>());
@@ -503,17 +505,14 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void exitStmt_block(DungeonDSLParser.Stmt_blockContext ctx) {
     var stmtList = Node.NONE;
     int listSize = ctx.stmt().size();
-    if (listSize > 0) {
-      var list = new ArrayList<>(Collections.nCopies(listSize, Node.NONE));
-      for (int i = 0; i < listSize; i++) {
-        // reverse order
-        var stmt = astStack.pop();
-        list.set(listSize - i - 1, stmt);
-      }
-      stmtList = new Node(Node.Type.StmtList, list);
+    var list = new ArrayList<>(Collections.nCopies(listSize, Node.NONE));
+    for (int i = 0; i < listSize; i++) {
+      // reverse order
+      var stmt = astStack.pop();
+      list.set(listSize - i - 1, stmt);
     }
 
-    var blockNode = new StmtBlockNode(stmtList);
+    var blockNode = new StmtBlockNode(list);
     astStack.push(blockNode);
   }
 
@@ -929,12 +928,41 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
-  public void enterId(DungeonDSLParser.IdContext ctx) {
-  }
+  public void enterId(DungeonDSLParser.IdContext ctx) {}
 
   @Override
   public void exitId(DungeonDSLParser.IdContext ctx) {
 
+    Node node = Node.NONE;
+    // as we enter this rule, the Token was matched as an `id`, so we should
+    // convert from the concrete Token Type (which represents a keyword in the
+    // language) to the identifier representation of the keyword
+    if (ctx.COUNT() != null
+        || ctx.GRAPH() != null
+        || ctx.TYPE() != null
+        || ctx.WHILE() != null
+        || ctx.dependency_type() != null) {
+      var symbol = ctx.getStart();
+      var text = ctx.getText();
+      SourceFileReference sfr =
+          new SourceFileReference(symbol.getLine(), symbol.getCharPositionInLine());
+      node = new IdNode(text, sfr);
+    }
+    if (ctx.dependency_type() != null) {
+      // we keep the kind of dependency_type in this case and add it as a child of
+      // the idNode
+      var inner = astStack.pop();
+      node.addChild(inner);
+    }
+    // push the new node onto the stack
+    if (!node.equals(Node.NONE)) astStack.push(node);
+  }
+
+  @Override
+  public void enterId_no_type(DungeonDSLParser.Id_no_typeContext ctx) {}
+
+  @Override
+  public void exitId_no_type(DungeonDSLParser.Id_no_typeContext ctx) {
     Node node = Node.NONE;
     // as we enter this rule, the Token was matched as an `id`, so we should
     // convert from the concrete Token Type (which represents a keyword in the
@@ -1383,7 +1411,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
           ASTLexerErrorNode errorNode = new ASTLexerErrorNode(error);
           parentNode.addChild(errorNode);
         }
-      } catch(Exception ex) {
+      } catch (Exception ex) {
         ;
       }
       astStack.push(parentNode);
@@ -1403,10 +1431,18 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       }
 
       // add all nodes under node
-      // TODO: just creating a generic node with type ErrorNode will restrict the information we
-      //  could get from partial parsing results, we should
-      //  probably use the corresponding AST node type of the ctx
-      Node errorNode = new Node(Node.Type.ErrorNode, list);
+      // TODO: just getting the corresponding type is not enough, after all, the visitor pattern
+      // uses the concrete
+      //  subclass for method calls..should pass the list to CtxToNodeTypeConverter and build node
+      // of the correct
+      //  class with it!
+      var ruleCtx = ctx.getRuleContext();
+      // Node.Type type = ruleCtx.accept(CtxToNodeTypeConverter.instance);
+      // if (type.equals(Node.Type.NONE)) {
+      //  type = Node.Type.ErrorNode;
+      // }
+      // Node errorNode = new Node(type, list);
+      var errorNode = this.errorNodeConverter.createErrorNode(ctx, list);
 
       if (ctx.exception != null) {
         var record = ErrorListener.ErrorRecord.fromRecognitionException(ctx.exception);
