@@ -95,7 +95,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
           returnTypeIdNode.accept(this);
         }
 
-        if (returnTypeIdNode.type != Node.Type.ErrorNode) {
+        if (!returnTypeIdNode.hasError()) {
           String returnTypeName = node.getRetTypeName();
           returnType = this.rootScope.resolveType(returnTypeName);
           if (returnType == null) {

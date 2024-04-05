@@ -354,8 +354,7 @@ public class TestSemanticAnalyzer {
 
     var funcDefNode = ast.getChild(0);
     var stmtBlock = funcDefNode.getChild(3);
-    var stmtList = stmtBlock.getChild(0);
-    var funcCallStmt = stmtList.getChild(0);
+    var funcCallStmt = stmtBlock.getChild(0);
     var paramList = funcCallStmt.getChild(1);
     var firstParam = paramList.getChild(0);
 
@@ -485,10 +484,8 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(1, stmtList.size());
 
     Node outerStmtBlock = funcDefNode.getStmtBlock();
-    Node outerBlocksStmtList = outerStmtBlock.getChild(0);
-    Node middleStmtBlock = outerBlocksStmtList.getChild(0);
-    Node middleBlocksStmtList = middleStmtBlock.getChild(0);
-    Node innerStmtBlock = middleBlocksStmtList.getChild(0);
+    Node middleStmtBlock = outerStmtBlock.getChild(0);
+    Node innerStmtBlock = middleStmtBlock.getChild(0);
     Node funcCallStmt = ((StmtBlockNode) innerStmtBlock).getStmts().get(0);
     var funcCallNode = (FuncCallNode) funcCallStmt;
 
@@ -765,7 +762,7 @@ quest_config c {
 
     FunctionSymbol funcSymbol = (FunctionSymbol) fileScope.resolve("get_property");
     FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
-    VarDeclNode declNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
+    VarDeclNode declNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0);
     Symbol testVariableSymbol = symbolTable.getSymbolsForAstNode(declNode).get(0);
 
     Assert.assertNotEquals(Symbol.NULL, testVariableSymbol);
@@ -814,7 +811,7 @@ quest_config c {
 
     FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
     ConditionalStmtNodeIfElse conditional =
-        (ConditionalStmtNodeIfElse) funcDefNode.getStmtBlock().getChild(0).getChild(0);
+        (ConditionalStmtNodeIfElse) funcDefNode.getStmtBlock().getChild(0);
     VarDeclNode ifStmtDeclNode = (VarDeclNode) conditional.getIfStmt();
     VarDeclNode elseStmtDeclNode = (VarDeclNode) conditional.getElseStmt();
 
@@ -1095,11 +1092,11 @@ quest_config c {
     // get variable declaration
     FunctionSymbol funcSymbol = (FunctionSymbol) fileScope.resolve("test");
     FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
-    VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
+    VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0);
     Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
 
     // get iterableIdNode and check, that it references the variable symbol
-    ForLoopStmtNode loopNode = (ForLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
+    ForLoopStmtNode loopNode = (ForLoopStmtNode) funcDefNode.getStmtBlock().getChild(1);
     Node iterableIdNode = loopNode.getIterableIdNode();
     Symbol iterableIdNodeRefSymbol = symbolTable.getSymbolsForAstNode(iterableIdNode).get(0);
     Assert.assertEquals(myListSymbol, iterableIdNodeRefSymbol);
@@ -1110,7 +1107,7 @@ quest_config c {
     Assert.assertNotEquals(Symbol.NULL, loopVariableSymbol);
 
     // get the print call and check, that the parameter references the loop variable symbol
-    FuncCallNode printCallNode = (FuncCallNode) loopNode.getStmtNode().getChild(0).getChild(0);
+    FuncCallNode printCallNode = (FuncCallNode) loopNode.getStmtNode().getChild(0);
     IdNode parameterIdNode = (IdNode) printCallNode.getParameters().get(0);
     Symbol parameterSymbol = symbolTable.getSymbolsForAstNode(parameterIdNode).get(0);
     Assert.assertEquals(loopVariableSymbol, parameterSymbol);
@@ -1142,12 +1139,12 @@ quest_config c {
     // get variable declaration
     FunctionSymbol funcSymbol = (FunctionSymbol) fileScope.resolve("test");
     FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
-    VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
+    VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0);
     Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
 
     // get iterableIdNode and check, that it references the variable symbol
     CountingLoopStmtNode loopNode =
-        (CountingLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
+        (CountingLoopStmtNode) funcDefNode.getStmtBlock().getChild(1);
     Node iterableIdNode = loopNode.getIterableIdNode();
     Symbol iterableIdNodeRefSymbol = symbolTable.getSymbolsForAstNode(iterableIdNode).get(0);
     Assert.assertEquals(myListSymbol, iterableIdNodeRefSymbol);
@@ -1158,7 +1155,7 @@ quest_config c {
     Assert.assertNotEquals(Symbol.NULL, loopVariableSymbol);
 
     // get the print call and check, that the parameter references the loop variable symbol
-    FuncCallNode printCallNode = (FuncCallNode) loopNode.getStmtNode().getChild(0).getChild(0);
+    FuncCallNode printCallNode = (FuncCallNode) loopNode.getStmtNode().getChild(0);
     IdNode parameterIdNode = (IdNode) printCallNode.getParameters().get(0);
     Symbol parameterSymbol = symbolTable.getSymbolsForAstNode(parameterIdNode).get(0);
     Assert.assertEquals(loopVariableSymbol, parameterSymbol);
@@ -1170,7 +1167,7 @@ quest_config c {
 
     // get the second print call and check, that the parameter references the counter variable
     // symbol
-    FuncCallNode secondPrintCall = (FuncCallNode) loopNode.getStmtNode().getChild(0).getChild(1);
+    FuncCallNode secondPrintCall = (FuncCallNode) loopNode.getStmtNode().getChild(1);
     IdNode secondPrintParameterIdNode = (IdNode) secondPrintCall.getParameters().get(0);
     Symbol secondPrintParameterSymbol =
         symbolTable.getSymbolsForAstNode(secondPrintParameterIdNode).get(0);
