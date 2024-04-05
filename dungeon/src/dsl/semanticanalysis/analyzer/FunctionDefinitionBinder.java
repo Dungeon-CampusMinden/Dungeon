@@ -73,9 +73,15 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
   @Override
   public Void visit(FuncDefNode node) {
     // check, if symbol with the name was already bound
-    var funcName = node.getIdName();
+    String funcName = node.getIdName();
+    if (funcName.isEmpty()) {
+      // cannot create function without a name
+      return null;
+    }
+
     var resolved = this.rootScope.resolve(funcName);
     if (resolved != Symbol.NULL) {
+      // TODO: real error handling
       throw new RuntimeException(
           "Identifier with name " + funcName + " is already bound in global scope!");
     } else {
@@ -89,18 +95,24 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
           returnTypeIdNode.accept(this);
         }
 
-        String returnTypeName = node.getRetTypeName();
-        returnType = this.rootScope.resolveType(returnTypeName);
-        if (returnType == null) {
-          throw new RuntimeException(
-              "Could not resolve return type " + returnTypeName + " of function " + funcName);
+        if (returnTypeIdNode.type != Node.Type.ErrorNode) {
+          String returnTypeName = node.getRetTypeName();
+          returnType = this.rootScope.resolveType(returnTypeName);
+          if (returnType == null) {
+            throw new RuntimeException(
+                "Could not resolve return type " + returnTypeName + " of function " + funcName);
+          }
+          symbolTable.addSymbolNodeRelation((Symbol) returnType, returnTypeIdNode, false);
         }
-        symbolTable.addSymbolNodeRelation((Symbol) returnType, returnTypeIdNode, false);
       }
 
+      // TODO: do this completely via visitChildren
       // get types of parameters
       ArrayList<IType> parameterTypes = new ArrayList<>(node.getParameters().size());
       for (Node paramDefNode : node.getParameters()) {
+        if (paramDefNode.hasErrorChild() || paramDefNode.hasErrorRecord()) {
+          continue;
+        }
         // if the parameters type is a list or set type, the datatype must be created
         IdNode paramIdNode = (IdNode) ((ParamDefNode) paramDefNode).getTypeIdNode();
         paramIdNode.accept(this);
@@ -145,6 +157,9 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
 
   @Override
   public Void visit(ParamDefNode node) {
+    if (node.hasErrorChild() || node.hasErrorRecord()) {
+      return null;
+    }
     // current scope should be a function definition
     IScope currentScope = scopeStack.peek();
     String parameterName = node.getIdName();

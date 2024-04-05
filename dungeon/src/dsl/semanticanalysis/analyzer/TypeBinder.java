@@ -7,6 +7,7 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
+import java.util.Stack;
 
 public class TypeBinder implements AstVisitor<Object> {
 
@@ -15,6 +16,9 @@ public class TypeBinder implements AstVisitor<Object> {
   private IScope scope;
   private SymbolTable symbolTable;
   private TypeFactory typeFactory;
+  private ScopedSymbol questItemTypeSymbol;
+
+  private Stack<ScopedSymbol> createdTypeStack = new Stack<>();
 
   private SymbolTable symbolTable() {
     return this.symbolTable;
@@ -34,6 +38,7 @@ public class TypeBinder implements AstVisitor<Object> {
     this.symbolTable = environment.getSymbolTable();
     this.typeFactory = environment.typeFactory();
     this.scope = scope;
+    this.questItemTypeSymbol = null;
     this.errorStringBuilder = errorStringBuilder;
     visitChildren(rootNode);
   }
@@ -44,6 +49,10 @@ public class TypeBinder implements AstVisitor<Object> {
 
   @Override
   public Object visit(PrototypeDefinitionNode node) {
+    if (node.hasErrorRecord() || node.hasErrorChild()) {
+      return null;
+    }
+
     // create new type with name of definition node
     var newTypeName = node.getIdName();
     if (this.scope.resolve(newTypeName) != Symbol.NULL) {
@@ -52,24 +61,16 @@ public class TypeBinder implements AstVisitor<Object> {
       // TODO: return explicit null-Type?
       return null;
     }
-    var newType =
-        this.typeFactory.aggregateType(
-            newTypeName, this.scope); // new AggregateType(newTypeName, this.scope);
+
+    var newType = this.typeFactory.aggregateType(newTypeName, this.scope);
     symbolTable().addSymbolNodeRelation(newType, node, true);
 
+    this.createdTypeStack.push(newType);
     // visit all component definitions and get type and create new symbol in gameObject type
     for (var componentDef : node.getComponentDefinitionNodes()) {
-      assert componentDef.type == Node.Type.AggregateValueDefinition;
-      var compDefNode = (AggregateValueDefinitionNode) componentDef;
-
-      var componentType = componentDef.accept(this);
-      if (componentType != null) {
-        String componentName = compDefNode.getIdName();
-        var memberSymbol = new Symbol(componentName, newType, (IType) componentType);
-        newType.bind(memberSymbol);
-        symbolTable().addSymbolNodeRelation(memberSymbol, compDefNode, true);
-      }
+      componentDef.accept(this);
     }
+    this.createdTypeStack.pop();
 
     this.scope.bind(newType);
     return newType;
@@ -88,44 +89,75 @@ public class TypeBinder implements AstVisitor<Object> {
 
     var itemType = this.typeFactory.aggregateType(newTypeName, this.scope);
     symbolTable().addSymbolNodeRelation(itemType, node, true);
+    this.createdTypeStack.push(itemType);
 
-    Symbol questItemTypeSymbol = this.scope.resolve("quest_item");
-    if (Symbol.NULL == questItemTypeSymbol) {
-      throw new RuntimeException("'quest_item' cannot be resolved in global scope!");
+    for (var propertyDefinition : node.getPropertyDefinitionNodes()) {
+      propertyDefinition.accept(this);
     }
 
-    if (!(questItemTypeSymbol instanceof IType questItemType)) {
-      throw new RuntimeException("Symbol with name 'quest_item' is no type!");
-    }
-
-    if (!(questItemType instanceof ScopedSymbol scopedQuestItemType)) {
-      throw new RuntimeException("Symbol with name 'quest_item' is no scoped symbol!");
-    }
-
-    for (Node propertyDefinition : node.getPropertyDefinitionNodes()) {
-      var propertyDefinitionNode = (PropertyDefNode) propertyDefinition;
-      String propertyName = ((PropertyDefNode) propertyDefinition).getIdName();
-      Symbol propertySymbol = scopedQuestItemType.resolve(propertyName, false);
-      if (propertySymbol == Symbol.NULL) {
-        throw new RuntimeException(
-            "Cannot resolve property of name '"
-                + propertyName
-                + "' in type '"
-                + questItemType
-                + "'");
-      }
-
-      // the itemType will be its own independent datatype, so create a new symbol for the
-      // property definition
-      // in the new itemType
-      var memberSymbol = new Symbol(propertyName, itemType, propertySymbol.getDataType());
-      itemType.bind(memberSymbol);
-      symbolTable().addSymbolNodeRelation(memberSymbol, propertyDefinitionNode, true);
-    }
-
-    // this.environment.loadTypes(itemType);
+    this.createdTypeStack.pop();
     this.scope.bind(itemType);
     return itemType;
+  }
+
+  @Override
+  public Object visit(PropertyDefNode node) {
+    if (node.hasErrorRecord() || node.hasErrorChild()) {
+      return null;
+    }
+
+    var listNode = node.getParent();
+    if (listNode != null && listNode.type != Node.Type.PropertyDefinitionList) {
+      return null;
+    }
+    var parentOfList = listNode.getParent();
+
+    // we expect to enter propertyDefNodes in the context of the TypeBinder only in
+    // ItemTypeDefinition nodes,
+    // so we need to check, if the node is from such a node
+    if (parentOfList != null && parentOfList.type != Node.Type.ItemPrototypeDefinition) {
+      return null;
+    }
+
+    ScopedSymbol questItemTypeSymbol = this.getQuestItemTypeSymbol();
+    ScopedSymbol currentType = (ScopedSymbol) this.createdTypeStack.peek();
+    String propertyName = node.getIdName();
+    Symbol propertySymbol = questItemTypeSymbol.resolve(propertyName, false);
+    if (propertySymbol == Symbol.NULL) {
+      throw new RuntimeException(
+          "Cannot resolve property of name '"
+              + propertyName
+              + "' in type '"
+              + questItemTypeSymbol
+              + "'");
+    }
+
+    // the itemType will be its own independent datatype, so create a new symbol for the
+    // property definition
+    // in the new itemType
+    var memberSymbol = new Symbol(propertyName, currentType, propertySymbol.getDataType());
+    currentType.bind(memberSymbol);
+    symbolTable().addSymbolNodeRelation(memberSymbol, node, true);
+    return null;
+  }
+
+  private ScopedSymbol getQuestItemTypeSymbol() {
+    if (this.questItemTypeSymbol == null) {
+      Symbol symbol = this.scope.resolve("quest_item");
+      if (Symbol.NULL == symbol) {
+        throw new RuntimeException("'quest_item' cannot be resolved in global scope!");
+      }
+
+      if (!(symbol instanceof IType questItemType)) {
+        throw new RuntimeException("Symbol with name 'quest_item' is no type!");
+      }
+
+      if (!(questItemType instanceof ScopedSymbol scopedQuestItemType)) {
+        throw new RuntimeException("Symbol with name 'quest_item' is no scoped symbol!");
+      }
+      this.questItemTypeSymbol = scopedQuestItemType;
+    }
+    return this.questItemTypeSymbol;
   }
 
   @Override
@@ -143,7 +175,12 @@ public class TypeBinder implements AstVisitor<Object> {
       // TODO: return explicit null-Type?
       return null;
     }
-    return typeSymbol;
+
+    var currentlyCreatedType = this.createdTypeStack.peek();
+    var memberSymbol = new Symbol(componentName, currentlyCreatedType, (IType) typeSymbol);
+    currentlyCreatedType.bind(memberSymbol);
+    symbolTable().addSymbolNodeRelation(memberSymbol, node, true);
+    return memberSymbol;
   }
 
   @Override
@@ -353,11 +390,6 @@ public class TypeBinder implements AstVisitor<Object> {
   }
 
   @Override
-  public Object visit(PropertyDefNode node) {
-    return null;
-  }
-
-  @Override
   public Object visit(ObjectDefNode node) {
     return null;
   }
@@ -423,4 +455,16 @@ public class TypeBinder implements AstVisitor<Object> {
   }
 
   // endregion
+
+  @Override
+  public void visitChildren(Node node) {
+    if (!node.hasErrorChild() && !node.hasErrorRecord()) {
+      for (var child : node.getChildren()) {
+        if (child.hasErrorRecord() || child.hasErrorChild()) {
+          continue;
+        }
+        child.accept(this);
+      }
+    }
+  }
 }

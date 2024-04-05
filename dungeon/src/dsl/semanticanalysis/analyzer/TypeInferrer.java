@@ -100,6 +100,23 @@ public class TypeInferrer implements AstVisitor<IType> {
 
   @Override
   public IType visit(TermNode node) {
+    IType typeToReturn = BuiltInType.noType;
+
+    // catch error cases
+    if (node.hasError()) {
+      return typeToReturn;
+    }
+    if (node.getRhs().hasError() && node.getLhs().hasError()) {
+      return typeToReturn;
+    }
+    if (node.getLhs().hasError()) {
+      return node.getRhs().accept(this);
+    }
+    if (node.getRhs().hasError()) {
+      return node.getLhs().accept(this);
+    }
+
+    // this is the normal case
     // get lhs and rhs type
     IType lhsType = node.getLhs().accept(this);
     IType rhsType = node.getRhs().accept(this);
@@ -119,6 +136,7 @@ public class TypeInferrer implements AstVisitor<IType> {
   @Override
   public IType visit(UnaryNode node) {
     return switch (node.getUnaryType()) {
+      case none -> null;
       case not -> BuiltInType.boolType;
       case minus -> node.getInnerNode().accept(this);
     };

@@ -98,6 +98,7 @@ public class TaskEdge implements Comparable<TaskEdge> {
 
   /** Enumeration representing the types of edges that can exist in the graph. */
   public enum Type {
+    none,
     subtask_mandatory,
     subtask_optional,
     sequence,

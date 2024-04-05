@@ -483,12 +483,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(FuncDefNode node) {
-    if (node.hasErrorChild()) {
+    var funcName = node.getIdName();
+    if (funcName.isEmpty()) {
       return null;
     }
 
-    var funcName = node.getIdName();
-    // TODO: current scope
     Symbol resolved = resolve(funcName);
     if (resolved == Symbol.NULL) {
       errorStringBuilder.append(
@@ -521,10 +520,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(StmtBlockNode node) {
-    if (node.hasErrorChild()) {
-      return null;
-    }
-
     var blockScope = new Scope(scopeStack.peek());
     scopeStack.push(blockScope);
     for (var stmt : node.getStmts()) {
@@ -751,7 +746,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     if (node.hasErrorChild()) {
       return null;
     }
-
 
     visitChildren(node);
     return null;
