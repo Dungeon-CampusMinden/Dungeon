@@ -212,7 +212,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     soundEffect.setPitch(soundId, randomPitch);
 
     // Set the volume
-    soundEffect.setVolume(soundId, 0.15f);
+    soundEffect.setVolume(soundId, 0.05f);
   }
 
   /** Override this method to play a Sound-effect on spawning the projectile if you want. */
