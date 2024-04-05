@@ -245,6 +245,9 @@ public class Node {
   }
 
   public void setErrorRecord(ErrorListener.ErrorRecord errorRecord) {
+    if (this.equals(Node.NONE)) {
+      throw new RuntimeException("TRIED TO SET ERROR RECORD IN Node.NONE!!");
+    }
     if (errorRecord != null) {
       this.errorRecord = errorRecord;
       this.hasErrorRecord = true;
