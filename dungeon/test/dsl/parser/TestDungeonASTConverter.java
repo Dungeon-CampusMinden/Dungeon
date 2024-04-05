@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotEquals;
 import dsl.helpers.Helpers;
 import dsl.interpreter.TestEnvironment;
 import dsl.parser.ast.*;
+import dsl.semanticanalysis.environment.GameEnvironment;
 import graph.taskdependencygraph.TaskEdge;
 import java.util.List;
 import org.antlr.v4.runtime.CommonToken;
@@ -441,13 +442,9 @@ public class TestDungeonASTConverter {
 
     Node outerStmtBlock = funcDefNode.getStmtBlock();
     Assert.assertEquals(Node.Type.Block, outerStmtBlock.type);
-    Node outerBlocksStmtList = outerStmtBlock.getChild(0);
-    Assert.assertEquals(Node.Type.StmtList, outerBlocksStmtList.type);
-    Node middleStmtBlock = outerBlocksStmtList.getChild(0);
+    Node middleStmtBlock = outerStmtBlock.getChild(0);
     Assert.assertEquals(Node.Type.Block, middleStmtBlock.type);
-    Node middleBlocksStmtList = middleStmtBlock.getChild(0);
-    Assert.assertEquals(Node.Type.StmtList, middleBlocksStmtList.type);
-    Node innerStmtBlock = middleBlocksStmtList.getChild(0);
+    Node innerStmtBlock = middleStmtBlock.getChild(0);
     Assert.assertEquals(Node.Type.Block, innerStmtBlock.type);
     Node funcCallStmt = ((StmtBlockNode) innerStmtBlock).getStmts().get(0);
   }
@@ -1157,12 +1154,13 @@ public class TestDungeonASTConverter {
 
   @Test
   public void testImportStmtUnnamed() {
-
     String program = """
             #import "hello.dng":moin
             """;
 
-    var ast = Helpers.getASTFromString(program);
+    // Helpers.getPrettyPrintedParseTree(program, )
+
+    var ast = Helpers.getASTFromString(program, new GameEnvironment());
     var unnamedImportStmt = ast.getChild(0);
     Assert.assertEquals(Node.Type.ImportNode, unnamedImportStmt.type);
     ImportNode unnamedImportNode = (ImportNode) unnamedImportStmt;
@@ -1186,7 +1184,7 @@ public class TestDungeonASTConverter {
             #import "hello.dng":kuckuck as no
             """;
 
-    var ast = Helpers.getASTFromString(program);
+    var ast = Helpers.getASTFromString(program, new GameEnvironment());
     var namedImportStmt = ast.getChild(0);
     Assert.assertEquals(Node.Type.ImportNode, namedImportStmt.type);
     ImportNode namedImportNode = (ImportNode) namedImportStmt;
@@ -1400,9 +1398,9 @@ public class TestDungeonASTConverter {
     Assert.assertEquals("task1_a", idLhs.getName());
 
     var idListRhs = (DotIdList) firstStmtNode.getIdLists().get(1);
-    Assert.assertTrue(idListRhs.hasErrorChild());
+    Assert.assertTrue(idListRhs.subTreeHasError());
     var idListEntry = idListRhs.getChild(0);
-    Assert.assertEquals(Node.Type.ErrorNode, idListEntry.type);
+    Assert.assertEquals(Node.Type.Identifier, idListEntry.type);
 
     var firstIdListEntryChild = idListEntry.getChild(0);
     Assert.assertEquals(Node.Type.ErrorNode, firstIdListEntryChild.type);
@@ -1469,9 +1467,9 @@ public class TestDungeonASTConverter {
     Assert.assertEquals("task1_a", idLhs.getName());
 
     var idListRhs = (DotIdList) stmtNode.getIdLists().get(1);
-    Assert.assertTrue(idListRhs.hasErrorChild());
+    Assert.assertTrue(idListRhs.subTreeHasError());
     var firstChildRhs = idListRhs.getChild(0);
-    Assert.assertEquals(Node.Type.ErrorNode, firstChildRhs.type);
+    Assert.assertEquals(Node.Type.Identifier, firstChildRhs.type);
 
     // the whole id-list should also contain the error record corresponding to the exception
     var idListErrorRecord = firstChildRhs.getErrorRecord();
@@ -1620,7 +1618,7 @@ public class TestDungeonASTConverter {
   @Test
   public void testEvenMoreBroken() {
     String program =
-      """
+        """
         #impot "test.dng;kjl;ajsdf
 
         single_choice_task t1 {
@@ -1646,6 +1644,18 @@ public class TestDungeonASTConverter {
     System.out.println(parseTree);
 
     var ast = DungeonASTConverter.getProgramAST(program, env);
+    Assert.assertEquals(5, ast.getChildren().size());
+    var child1 = ast.getChild(0);
+    Assert.assertEquals(Node.Type.ObjectDefinition, child1.type);
+    var child2 = ast.getChild(1);
+    Assert.assertEquals(Node.Type.DotDefinition, child2.type);
+    var child3 = ast.getChild(2);
+    Assert.assertEquals(Node.Type.ObjectDefinition, child3.type);
+    var child4 = ast.getChild(3);
+    Assert.assertEquals(Node.Type.ErrorNode, child4.type);
+    Assert.assertTrue(child4 instanceof ASTLexerErrorNode);
+    var child5 = ast.getChild(4);
+    Assert.assertEquals(Node.Type.ErrorNode, child5.type);
+    Assert.assertTrue(child5 instanceof ASTLexerErrorNode);
   }
 }
-

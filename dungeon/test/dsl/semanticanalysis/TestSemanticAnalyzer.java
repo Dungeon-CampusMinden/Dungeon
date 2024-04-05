@@ -145,6 +145,38 @@ public class TestSemanticAnalyzer {
     Assert.assertNotEquals(Symbol.NULL, texturePathSymbol);
   }
 
+  @Test
+  public void testItemTypeDeclarationBroken() {
+    String program =
+        """
+      item_type item_type1 {
+          display_name: "MyName",
+          description: "Hello, this is a description",
+          : "hello"
+      }
+      """;
+
+    // setup
+    var ast = Helpers.getASTFromString(program);
+    SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+
+    var env = new GameEnvironment();
+    semanticAnalyzer.setup(env);
+    var result = semanticAnalyzer.walk(ast);
+    SymbolTable symbolTable = result.symbolTable;
+    var fileScope = env.getFileScope(null);
+    Symbol itemTypeSymbol = fileScope.resolve("item_type1");
+    Assert.assertNotEquals(Symbol.NULL, itemTypeSymbol);
+    Assert.assertTrue(itemTypeSymbol instanceof ScopedSymbol);
+
+    ScopedSymbol scopedItemTypeSymbol = (ScopedSymbol) itemTypeSymbol;
+    Symbol displayNameSymbol = scopedItemTypeSymbol.resolve("display_name");
+    Assert.assertNotEquals(Symbol.NULL, displayNameSymbol);
+    Symbol descriptionSymbol = scopedItemTypeSymbol.resolve("description");
+    Assert.assertNotEquals(Symbol.NULL, descriptionSymbol);
+    Assert.assertEquals(2, ((ScopedSymbol) itemTypeSymbol).getSymbols().size());
+  }
+
   /**
    * Test, if the reference to a symbol is correctly resolved and that the symbol is linked to the
    * identifier
@@ -1170,12 +1202,11 @@ quest_config c {
     // get variable declaration
     FunctionSymbol funcSymbol = (FunctionSymbol) fileScope.resolve("test");
     FuncDefNode funcDefNode = (FuncDefNode) symbolTable.getCreationAstNode(funcSymbol);
-    VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0).getChild(0);
+    VarDeclNode varDeclNode = (VarDeclNode) funcDefNode.getStmtBlock().getChild(0);
     Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
 
     // get iterableIdNode and check, that it references the variable symbol
-    WhileLoopStmtNode loopNode =
-        (WhileLoopStmtNode) funcDefNode.getStmtBlock().getChild(0).getChild(1);
+    WhileLoopStmtNode loopNode = (WhileLoopStmtNode) funcDefNode.getStmtBlock().getChild(1);
     Node expressionIdNode = loopNode.getExpressionNode();
     Symbol expressionRefNode = symbolTable.getSymbolsForAstNode(expressionIdNode).get(0);
     Assert.assertEquals(myListSymbol, expressionRefNode);
@@ -1188,10 +1219,10 @@ quest_config c {
         """;
 
     // setup
-    var ast = Helpers.getASTFromString(program);
+    var env = new GameEnvironment(testLibPath);
+    var ast = Helpers.getASTFromString(program, env);
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
-    var env = new GameEnvironment(testLibPath);
     symbolTableParser.setup(env);
     var symbolTable = symbolTableParser.walk(ast).symbolTable;
     var fileScope = env.getFileScope(null);
@@ -1210,8 +1241,9 @@ quest_config c {
 
   @Test
   public void testImportFuncBroken() {
-    String program = """
-        #impot "test.dng;kjl;ajsdf
+    String program =
+        """
+        #import "test.dng"; id as my_func // ';' instead of ':'
 
         single_choice_task t1 {
           description:"hello",
@@ -1230,6 +1262,8 @@ quest_config c {
 
     // setup
     var env = new GameEnvironment(testLibPath);
+    System.out.println(Helpers.getPrettyPrintedParseTree(program, env));
+
     var ast = Helpers.getASTFromString(program, env);
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
@@ -1246,10 +1280,10 @@ quest_config c {
             """;
 
     // setup
-    var ast = Helpers.getASTFromString(program);
+    var env = new GameEnvironment(testLibPath);
+    var ast = Helpers.getASTFromString(program, env);
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
-    var env = new GameEnvironment(testLibPath);
     symbolTableParser.setup(env);
     var symbolTable = symbolTableParser.walk(ast).symbolTable;
     var fileScope = env.getFileScope(null);
@@ -1273,10 +1307,10 @@ quest_config c {
         """;
 
     // setup
-    var ast = Helpers.getASTFromString(program);
+    var env = new GameEnvironment(testLibPath);
+    var ast = Helpers.getASTFromString(program, env);
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
-    var env = new GameEnvironment(testLibPath);
     symbolTableParser.setup(env);
     try {
       var symbolTable = symbolTableParser.walk(ast).symbolTable;
@@ -1284,5 +1318,83 @@ quest_config c {
     } catch (RuntimeException ex) {
       Assert.assertEquals("Importing an imported symbol is not allowed!", ex.getMessage());
     }
+  }
+
+  @Test
+  public void funcDefBrokenCompletely() {
+    String program =
+        """
+          fn test_func_1(int param1, ,) ->  {
+              print(param1);
+          }
+
+          fn test_func_2(int param4) -> int {
+              print(param4);
+          }
+          """;
+
+    var env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var fileScope = env.getFileScope(null);
+
+    var funcSymbol1 = fileScope.resolve("test_func_1");
+    Assert.assertNotEquals(Symbol.NULL, funcSymbol1);
+    var funcSymbol2 = (FunctionSymbol) fileScope.resolve("test_func_2");
+    Assert.assertEquals("$fn(int) -> int$", funcSymbol2.getDataType().getName());
+
+    // print call should be linked to print function
+
+    FuncCallNode funcCall = (FuncCallNode) ((FuncDefNode) ast.getChild(0)).getStmts().get(0);
+    var printFuncSymbol = symtableResult.symbolTable.getSymbolsForAstNode(funcCall).get(0);
+    Assert.assertEquals(NativePrint.func, printFuncSymbol);
+  }
+
+  @Test
+  public void funcDefPartlyBrokenStmtBlock() {
+    String program =
+        """
+          fn test_func_1(int param1) -> int {
+            var x = 1+;;;;
+            print(param1);
+          }
+          """;
+
+    var env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var fileScope = env.getFileScope(null);
+
+    // print call should be linked to print function
+    var funcCallNode = (FuncCallNode) ((FuncDefNode) ast.getChild(0)).getStmts().get(4);
+
+    var printFuncSymbol = symtableResult.symbolTable.getSymbolsForAstNode(funcCallNode).get(0);
+    Assert.assertEquals(NativePrint.func, printFuncSymbol);
+  }
+
+  @Test
+  public void funcDefBrokenParamDef() {
+    String program =
+        """
+          fn test_func_1(int ) -> int {
+              print(param1);
+          }
+
+          fn test_func_2(int param4) -> int {
+              print(param4);
+          }
+          """;
+
+    var env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var fileScope = env.getFileScope(null);
+
+    var funcSymbol1 = (FunctionSymbol) fileScope.resolve("test_func_1");
+    var funcSymbol2 = (FunctionSymbol) fileScope.resolve("test_func_2");
+
+    // just ignore the erroneous parameter definition
+    Assert.assertEquals("$fn() -> int$", funcSymbol1.getDataType().getName());
+    Assert.assertEquals("$fn(int) -> int$", funcSymbol2.getDataType().getName());
   }
 }
