@@ -203,8 +203,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     }
 
     // Generate a random pitch between 2f and 3f
-    float minPitch = 2f;
-    float maxPitch = 3f;
+    float minPitch = getSoundMinPitch();
+    float maxPitch = getSoundMaxPitch();
     float randomPitch = MathUtils.random(minPitch, maxPitch);
 
     // Play the sound with the adjusted pitch
@@ -212,11 +212,44 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     soundEffect.setPitch(soundId, randomPitch);
 
     // Set the volume
-    soundEffect.setVolume(soundId, 0.05f);
+    soundEffect.setVolume(soundId, getSoundVolume());
   }
 
-  /** Override this method to play a Sound-effect on spawning the projectile if you want. */
+  /**
+   * Override this method to play a Sound-effect on spawning the projectile if you want.
+   *
+   * @return the path to the sound-file that should be played on spawning the projectile.
+   */
   protected IPath getSoundPath() {
     return null;
+  }
+
+  /**
+   * You can override this method if you want, to adjust the default value.
+   *
+   * @return the sound volume this projectile should have (0.05f to 1.0f are reasonable values).
+   */
+  protected float getSoundVolume() {
+    return 0.05f;
+  }
+
+  /**
+   * You can override this method if you want, to adjust the default value.
+   *
+   * @return the sound minimum pitch value this projectile should have (1f to 10f are reasonable
+   *     values).
+   */
+  protected float getSoundMinPitch() {
+    return 2f;
+  }
+
+  /**
+   * You can override this method if you want, to adjust the default value.
+   *
+   * @return the sound maximum pitch value this projectile should have (1f to 10f are reasonable
+   *     values).
+   */
+  protected float getSoundMaxPitch() {
+    return 3f;
   }
 }
