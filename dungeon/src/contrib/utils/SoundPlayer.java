@@ -7,6 +7,7 @@ import core.utils.components.path.IPath;
 import java.util.HashMap;
 import java.util.Map;
 
+/** Class for managing sounds in the game. */
 public class SoundPlayer {
   private static final Map<String, Sound> SOUNDS_BUFFER = new HashMap<>();
 
