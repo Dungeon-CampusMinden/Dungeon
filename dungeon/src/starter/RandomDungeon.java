@@ -1,10 +1,9 @@
 package starter;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.systems.*;
+import contrib.utils.SoundPlayer;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -69,10 +68,7 @@ public class RandomDungeon {
   }
 
   private static void setupMusic() {
-    Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
-    backgroundMusic.setLooping(true);
-    backgroundMusic.play();
-    backgroundMusic.setVolume(.1f);
+    SoundPlayer.playSound(new SimpleIPath(BACKGROUND_MUSIC), true, .1f);
   }
 
   private static void configGame() throws IOException {

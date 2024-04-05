@@ -1,12 +1,11 @@
 package starter;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
 import contrib.components.HealthComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.hud.dialogs.OkDialog;
 import contrib.systems.*;
+import contrib.utils.SoundPlayer;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -271,9 +270,6 @@ public class Starter {
   }
 
   private static void setupMusic() {
-    Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
-    backgroundMusic.setLooping(true);
-    backgroundMusic.play();
-    backgroundMusic.setVolume(.1f);
+    SoundPlayer.playSound(new SimpleIPath(BACKGROUND_MUSIC), true, .1f);
   }
 }
