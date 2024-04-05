@@ -9,14 +9,13 @@ import java.util.Map;
 
 /** Class for managing sounds in the game. */
 public class SoundPlayer {
-  private static final Map<String, Sound> SOUNDS_BUFFER = new HashMap<>();
+  private static final Map<String, Sound> SOUND_CACHE = new HashMap<>();
 
   private static Sound getSound(final IPath path) {
-    if (!SOUNDS_BUFFER.containsKey(path.pathString())) {
-      SOUNDS_BUFFER.put(
-          path.pathString(), Gdx.audio.newSound(Gdx.files.internal(path.pathString())));
+    if (!SOUND_CACHE.containsKey(path.pathString())) {
+      SOUND_CACHE.put(path.pathString(), Gdx.audio.newSound(Gdx.files.internal(path.pathString())));
     }
-    return SOUNDS_BUFFER.get(path.pathString());
+    return SOUND_CACHE.get(path.pathString());
   }
 
   /**
@@ -67,17 +66,5 @@ public class SoundPlayer {
     sound.setVolume(id, volume);
     float randomPitch = MathUtils.random(pitchMin, pitchMax);
     sound.setPitch(id, randomPitch);
-  }
-
-  /**
-   * Stops and disposes the sound.
-   *
-   * @param path the path to the sound.
-   */
-  public static void stopSoundAndDispose(final IPath path) {
-    Sound sound = getSound(path);
-    sound.stop();
-    sound.dispose();
-    SOUNDS_BUFFER.remove(path.pathString());
   }
 }

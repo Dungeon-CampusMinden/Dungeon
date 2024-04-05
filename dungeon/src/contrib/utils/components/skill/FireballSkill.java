@@ -46,10 +46,7 @@ public final class FireballSkill extends DamageProjectile {
 
   @Override
   protected void playSound() {
-    // Generate a random pitch between 2f and 3f
-    float minPitch = 2f;
-    float maxPitch = 3f;
-
-    SoundPlayer.playSound(PROJECTILE_SOUND, false, 0.05f, minPitch, maxPitch);
+    // Generate a projectile sound with .05f volume and a random pitch between 2f and 3f
+    SoundPlayer.playSound(PROJECTILE_SOUND, false, 0.05f, 2f, 3f);
   }
 }
