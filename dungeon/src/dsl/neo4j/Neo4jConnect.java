@@ -13,11 +13,8 @@ import entrypoint.DungeonConfig;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.*;
-
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.async.AsyncSession;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.SessionFactory;
@@ -115,8 +112,7 @@ public class Neo4jConnect {
 
     try (var driver = openConnection()) {
       try {
-        var sessionFactory =
-          getSessionFactory(driver);
+        var sessionFactory = getSessionFactory(driver);
         var session = sessionFactory.openSession();
 
         // clean up db
@@ -141,7 +137,7 @@ public class Neo4jConnect {
         var filScopes = env.getFileScopes().entrySet();
         for (var entry : filScopes) {
           var scope = entry.getValue();
-          try (ProfilingTimer timer = new ProfilingTimer("SCOPE "+scope.getName(), times, unit)) {
+          try (ProfilingTimer timer = new ProfilingTimer("SCOPE " + scope.getName(), times, unit)) {
             session.save(scope);
           }
         }
@@ -205,7 +201,8 @@ public class Neo4jConnect {
     final String dbUri = "neo4j://localhost";
     final String dbUser = "neo4j";
     final String dbPassword = "asdf1234";
-    org.neo4j.driver.Driver driver = GraphDatabase.driver(dbUri, AuthTokens.basic(dbUser, dbPassword));
+    org.neo4j.driver.Driver driver =
+        GraphDatabase.driver(dbUri, AuthTokens.basic(dbUser, dbPassword));
     driver.verifyConnectivity();
     return driver;
   }

@@ -5,7 +5,6 @@ import dsl.parser.ast.*;
 import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.MapType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
@@ -16,18 +15,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.ogm.response.model.QueryResultModel;
 
 public class Neo4J {
   @Test
   @Ignore
   public void testDBCallableConsistency() {
     String program =
-      """
+        """
         assign_task t1 {
             description: "Task1",
             solution: <["a", "b"], ["c", "d"], ["y", "x"], ["c", "hallo"], [_, "world"], ["!", _]>
@@ -113,7 +110,7 @@ public class Neo4J {
     var symTable = env.getSymbolTable();
 
     // URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
-    try(var driver = Neo4jConnect.openConnection()) {
+    try (var driver = Neo4jConnect.openConnection()) {
       var sessionFactory = Neo4jConnect.getSessionFactory(driver);
       var session = sessionFactory.openSession();
 
@@ -134,8 +131,8 @@ public class Neo4J {
 
       // get ast root node back from db
       var root =
-        session.queryForObject(
-          Node.class, "MATCH (n:Node {type:$type}) RETURN n", Map.of("type", "Program"));
+          session.queryForObject(
+              Node.class, "MATCH (n:Node {type:$type}) RETURN n", Map.of("type", "Program"));
 
       var mismatches = matchAST(ast, root);
       Assert.assertTrue(mismatches.isEmpty());
@@ -144,8 +141,7 @@ public class Neo4J {
       getCallableWithType(env.getGlobalScope(), callableList);
       getCallableWithType(env.getFileScope(null), callableList);
 
-      var symbols =
-        session.query("MATCH (n:Symbol {symbolType:\"Callable\"}) return n", Map.of());
+      var symbols = session.query("MATCH (n:Symbol {symbolType:\"Callable\"}) return n", Map.of());
 
       var results = symbols.queryResults();
       ArrayList<Symbol> list = new ArrayList<>();
@@ -168,7 +164,8 @@ public class Neo4J {
 
   @Test
   public void testDBGetErrorNode() {
-    String program = """
+    String program =
+        """
     assign_task t1 {
         description: "Task1",
         solution: <["a", "b"]>
@@ -202,7 +199,7 @@ public class Neo4J {
     var symTable = env.getSymbolTable();
 
     // URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
-    try(var driver = Neo4jConnect.openConnection()) {
+    try (var driver = Neo4jConnect.openConnection()) {
       var sessionFactory = Neo4jConnect.getSessionFactory(driver);
       var session = sessionFactory.openSession();
 
@@ -223,51 +220,58 @@ public class Neo4J {
 
       // get ast root node back from db
       var graphNodeReferenceAssignDef =
-        session.queryForObject(
-          Node.class, """
+          session.queryForObject(
+              Node.class,
+              """
             match
             (n:Node {type:"Identifier", name:"t1"})-[:REFERENCES]->(s:Symbol {name:"t1"}),
             (o:Node {type:"ObjectDefinition"})-[:CREATES]->(s),
             (t:IType {name:"assign_task"})<-[:OF_TYPE]-(s)
             return n
-            """, Map.of());
+            """,
+              Map.of());
       Assert.assertNotEquals(null, graphNodeReferenceAssignDef);
 
       var dungeonConfigRefGraph =
-        session.query("""
+          session.query(
+              """
             match
             (n:Node {type:"Identifier", name:"g"})-[:REFERENCES]->(s:Symbol {name:"g"}),
             (o:Node {type:"DotDefinition"})-[:CREATES]->(s)
             return n
-            """, Map.of());
+            """,
+              Map.of());
       Assert.assertNotEquals(null, dungeonConfigRefGraph);
 
       var topLevelNodesWithErrorChildren =
-          session.query("""
+          session.query(
+              """
             match (n:Node {hasErrorChild:TRUE}) return n
-            """, Map.of());
+            """,
+              Map.of());
 
       ArrayList<Node> list = new ArrayList<>();
-      topLevelNodesWithErrorChildren.queryResults().forEach(r -> list.add((Node)r.get("n")));
+      topLevelNodesWithErrorChildren.queryResults().forEach(r -> list.add((Node) r.get("n")));
 
       Assert.assertEquals(2, list.size());
 
       var nodesWithErrorRecord =
-        session.query("""
+          session.query(
+              """
             match (n:Node {hasErrorRecord:TRUE}) return n
-            """, Map.of());
+            """,
+              Map.of());
 
       ArrayList<Node> nodes = new ArrayList<>();
-      nodesWithErrorRecord.queryResults().forEach(r -> nodes.add((Node)r.get("n")));
+      nodesWithErrorRecord.queryResults().forEach(r -> nodes.add((Node) r.get("n")));
       Assert.assertEquals(1, nodes.size());
 
-
       /*(var specificErrorChildren =
-        session.query("""
-            match (n:Node {hasErrorChild:TRUE}) return n
-            """, Map.of());
+       session.query("""
+           match (n:Node {hasErrorChild:TRUE}) return n
+           """, Map.of());
 
-       */
+      */
 
       sessionFactory.close();
     }

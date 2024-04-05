@@ -1,7 +1,6 @@
 package dsl.helper;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class ProfilingTimer implements AutoCloseable {
   public enum Unit {
@@ -32,11 +31,12 @@ public class ProfilingTimer implements AutoCloseable {
   @Override
   public void close() {
     long elapsedTime = System.nanoTime() - startTime;
-    long divided = switch(this.unit) {
-      case nano -> elapsedTime;
-      case micro -> elapsedTime / 1000;
-      case milli -> elapsedTime / 1000000;
-    };
+    long divided =
+        switch (this.unit) {
+          case nano -> elapsedTime;
+          case micro -> elapsedTime / 1000;
+          case milli -> elapsedTime / 1000000;
+        };
 
     this.times.put(message, divided);
   }
