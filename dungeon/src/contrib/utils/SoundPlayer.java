@@ -60,8 +60,8 @@ public class SoundPlayer {
   public static void playSound(
       final IPath path, boolean loop, float volume, float pitchMin, float pitchMax) {
     Sound sound = getSound(path);
-    sound.stop();
     long id = sound.play();
+
     sound.setLooping(id, loop);
     sound.setVolume(id, volume);
     float randomPitch = MathUtils.random(pitchMin, pitchMax);
