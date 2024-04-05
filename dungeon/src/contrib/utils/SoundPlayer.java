@@ -28,11 +28,7 @@ public class SoundPlayer {
    * @param loop if the sound should be looped.
    */
   public static void playSound(final IPath path, boolean loop) {
-    Sound sound = getSound(path);
-    sound.stop();
-    long id = sound.play();
-    sound.setLooping(id, loop);
-    sound.setVolume(id, .1f);
+    playSound(path, loop, .1f);
   }
 
   /**
@@ -46,11 +42,7 @@ public class SoundPlayer {
    * @param volume the volume of the sound.
    */
   public static void playSound(final IPath path, boolean loop, float volume) {
-    Sound sound = getSound(path);
-    sound.stop();
-    long id = sound.play();
-    sound.setLooping(id, loop);
-    sound.setVolume(id, volume);
+    playSound(path, loop, volume, 1f, 1f);
   }
 
   /**
