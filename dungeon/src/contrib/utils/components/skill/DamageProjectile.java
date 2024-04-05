@@ -3,7 +3,6 @@ package contrib.utils.components.skill;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
-import contrib.utils.SoundPlayer;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
@@ -191,46 +190,6 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     playSound();
   }
 
-  private void playSound() {
-    SoundPlayer.playSound(
-        getSoundPath(), false, getSoundVolume(), getSoundMinPitch(), getSoundMaxPitch());
-  }
-
-  /**
-   * Override this method to play a Sound-effect on spawning the projectile if you want.
-   *
-   * @return the path to the sound-file that should be played on spawning the projectile.
-   */
-  protected IPath getSoundPath() {
-    return null;
-  }
-
-  /**
-   * You can override this method if you want, to adjust the default value.
-   *
-   * @return the sound volume this projectile should have (0.05f to 1.0f are reasonable values).
-   */
-  protected float getSoundVolume() {
-    return 0.05f;
-  }
-
-  /**
-   * You can override this method if you want, to adjust the default value.
-   *
-   * @return the sound minimum pitch value this projectile should have (1f to 10f are reasonable
-   *     values).
-   */
-  protected float getSoundMinPitch() {
-    return 2f;
-  }
-
-  /**
-   * You can override this method if you want, to adjust the default value.
-   *
-   * @return the sound maximum pitch value this projectile should have (1f to 10f are reasonable
-   *     values).
-   */
-  protected float getSoundMaxPitch() {
-    return 3f;
-  }
+  /** Override this method to play a Sound-effect on spawning the projectile if you want. */
+  protected void playSound() {}
 }
