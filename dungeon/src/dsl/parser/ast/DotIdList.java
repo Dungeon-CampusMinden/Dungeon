@@ -19,6 +19,10 @@ public class DotIdList extends Node {
     idNodes.forEach(this::addChild);
   }
 
+  public DotIdList() {
+    super(Type.DotIdList);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

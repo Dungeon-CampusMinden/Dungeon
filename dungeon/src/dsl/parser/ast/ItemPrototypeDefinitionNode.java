@@ -50,6 +50,10 @@ public class ItemPrototypeDefinitionNode extends Node {
     this.addChild(propertyDefinitionListNode);
   }
 
+  public ItemPrototypeDefinitionNode() {
+    super(Type.ItemPrototypeDefinition);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

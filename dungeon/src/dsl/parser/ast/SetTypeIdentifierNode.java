@@ -15,6 +15,10 @@ public class SetTypeIdentifierNode extends IdNode {
     this.addChild(innerTypeNode);
   }
 
+  public SetTypeIdentifierNode() {
+    super(Type.SetTypeIdentifierNode, "", SourceFileReference.NULL);
+  }
+
   public IdNode getInnerTypeNode() {
     return (IdNode) this.getChild(0);
   }

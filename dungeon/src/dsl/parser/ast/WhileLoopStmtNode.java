@@ -12,6 +12,10 @@ public class WhileLoopStmtNode extends LoopStmtNode {
     this.addChild(expressionNode);
   }
 
+  public WhileLoopStmtNode() {
+    super(LoopType.whileLoop);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

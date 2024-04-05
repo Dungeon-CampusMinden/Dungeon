@@ -47,6 +47,10 @@ public class FuncCallNode extends Node {
     this.addChild(paramList);
   }
 
+  public FuncCallNode() {
+    super(Type.FuncCall);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

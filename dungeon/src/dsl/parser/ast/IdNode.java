@@ -26,6 +26,11 @@ public class IdNode extends Node {
     this.name = name;
   }
 
+  public IdNode() {
+    super(Type.Identifier);
+    this.name = "";
+  }
+
   /**
    * @return The name of the identifier
    */

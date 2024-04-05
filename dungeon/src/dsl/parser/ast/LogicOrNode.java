@@ -5,6 +5,10 @@ public class LogicOrNode extends BinaryNode {
     super(Type.LogicOr, lhs, rhs);
   }
 
+  public LogicOrNode() {
+    super(Type.LogicOr);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

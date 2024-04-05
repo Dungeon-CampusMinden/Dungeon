@@ -39,6 +39,10 @@ public class EdgeRhsNode extends Node {
     this.addChild(idNodeList);
   }
 
+  public EdgeRhsNode() {
+    super(Type.DotEdgeRHS);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

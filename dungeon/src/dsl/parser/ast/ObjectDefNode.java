@@ -80,6 +80,10 @@ public class ObjectDefNode extends Node {
     this.addChild(propertyDefList);
   }
 
+  public ObjectDefNode() {
+    super(Node.Type.ObjectDefinition);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

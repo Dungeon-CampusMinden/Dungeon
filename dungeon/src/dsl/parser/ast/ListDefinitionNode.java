@@ -13,6 +13,10 @@ public class ListDefinitionNode extends Node {
     this.addChild(entryList);
   }
 
+  public ListDefinitionNode() {
+    super(Type.ListDefinitionNode);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

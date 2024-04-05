@@ -24,7 +24,7 @@ public class FuncDefNode extends Node {
    * @return Name of the defined function as String
    */
   public String getIdName() {
-    return ((IdNode) this.getChild(idIdx)).getName();
+    return this.getChild(idIdx) instanceof IdNode ? ((IdNode) this.getChild(idIdx)).getName() : "";
   }
 
   /**
@@ -61,7 +61,7 @@ public class FuncDefNode extends Node {
    */
   public List<Node> getStmts() {
     var block = this.getStmtBlock();
-    return block.getChild(0).getChildren();
+    return block.getChildren();
   }
 
   /**
@@ -86,6 +86,10 @@ public class FuncDefNode extends Node {
     this.addChild(paramList);
     this.addChild(retType);
     this.addChild(stmtBlock);
+  }
+
+  public FuncDefNode() {
+    super(Type.FuncDef);
   }
 
   @Override

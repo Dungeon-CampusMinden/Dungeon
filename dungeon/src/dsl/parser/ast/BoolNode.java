@@ -14,6 +14,11 @@ public class BoolNode extends Node {
     this.value = value;
   }
 
+  public BoolNode() {
+    super(Type.Bool);
+    this.value = false;
+  }
+
   /**
    * @return The value of the number
    */

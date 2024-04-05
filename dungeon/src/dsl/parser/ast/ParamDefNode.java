@@ -28,6 +28,10 @@ public class ParamDefNode extends Node {
     this.addChild(idNode);
   }
 
+  public ParamDefNode() {
+    super(Type.ParamDef);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

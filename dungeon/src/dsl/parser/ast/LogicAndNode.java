@@ -6,6 +6,10 @@ public class LogicAndNode extends BinaryNode {
     super(Type.LogicAnd, lhs, rhs);
   }
 
+  public LogicAndNode() {
+    super(Type.LogicAnd);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

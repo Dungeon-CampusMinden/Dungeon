@@ -10,6 +10,14 @@ public class DotAttrNode extends BinaryNode {
     super(type, lhs, rhs);
   }
 
+  protected DotAttrNode(Type type) {
+    super(type);
+  }
+
+  public DotAttrNode() {
+    super(Type.DotAttr);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

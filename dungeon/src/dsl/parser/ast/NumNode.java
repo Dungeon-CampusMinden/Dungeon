@@ -14,6 +14,11 @@ public class NumNode extends Node {
     this.value = value;
   }
 
+  public NumNode() {
+    super(Type.Number);
+    this.value = 0;
+  }
+
   /**
    * @return The value of the number
    */

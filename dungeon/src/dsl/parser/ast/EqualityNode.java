@@ -2,6 +2,7 @@ package dsl.parser.ast;
 
 public class EqualityNode extends BinaryNode {
   public enum EqualityType {
+    none,
     equals,
     notEquals
   }
@@ -15,6 +16,11 @@ public class EqualityNode extends BinaryNode {
   public EqualityNode(EqualityType type, Node lhs, Node rhs) {
     super(Type.Equality, lhs, rhs);
     this.equalityType = type;
+  }
+
+  public EqualityNode() {
+    super(Type.Equality);
+    this.equalityType = EqualityType.none;
   }
 
   @Override

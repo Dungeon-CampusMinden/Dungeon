@@ -10,6 +10,10 @@ public class DotDependencyTypeAttrNode extends DotAttrNode {
         dependencyTypeNode);
   }
 
+  public DotDependencyTypeAttrNode() {
+    super(Type.DotDependencyTypeAttr);
+  }
+
   public TaskEdge.Type getDependencyType() {
     return ((DotDependencyTypeNode) this.getRhs()).getTaskEdgeType();
   }

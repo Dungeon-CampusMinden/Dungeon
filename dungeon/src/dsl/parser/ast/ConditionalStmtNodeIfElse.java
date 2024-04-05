@@ -49,6 +49,10 @@ public class ConditionalStmtNodeIfElse extends Node {
     this.addChild(stmtElse);
   }
 
+  public ConditionalStmtNodeIfElse() {
+    super(Type.ConditionalStmtIfElse);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

@@ -27,6 +27,10 @@ public abstract class BinaryNode extends Node {
     addChild(rhs);
   }
 
+  public BinaryNode(Type type) {
+    super(type);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

@@ -12,6 +12,10 @@ public class SetDefinitionNode extends Node {
     this.addChild(entryList);
   }
 
+  public SetDefinitionNode() {
+    super(Type.SetDefinitionNode);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

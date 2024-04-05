@@ -14,6 +14,11 @@ public class DecNumNode extends Node {
     this.value = value;
   }
 
+  public DecNumNode() {
+    super(Type.DecimalNumber);
+    this.value = 0.0f;
+  }
+
   /**
    * @return The value of the number
    */

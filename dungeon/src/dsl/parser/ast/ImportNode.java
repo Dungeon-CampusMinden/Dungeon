@@ -7,6 +7,7 @@ public class ImportNode extends Node {
   public static final int asIdIdx = 2;
 
   public enum Type {
+    none,
     unnamed,
     named
   }
@@ -44,6 +45,11 @@ public class ImportNode extends Node {
     this.addChild(idNode);
     this.addChild(asIdNode);
     this.type = Type.named;
+  }
+
+  public ImportNode() {
+    super(Node.Type.ImportNode);
+    this.type = Type.none;
   }
 
   @Override

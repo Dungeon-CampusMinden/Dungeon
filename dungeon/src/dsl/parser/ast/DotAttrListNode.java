@@ -8,6 +8,10 @@ public class DotAttrListNode extends Node {
     attributes.forEach(this::addChild);
   }
 
+  public DotAttrListNode() {
+    super(Type.DotAttrList);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

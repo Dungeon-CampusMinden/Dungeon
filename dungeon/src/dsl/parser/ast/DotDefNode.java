@@ -40,6 +40,10 @@ public class DotDefNode extends Node {
     dotStmts.forEach(this::addChild);
   }
 
+  public DotDefNode() {
+    super(Type.DotDefinition);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

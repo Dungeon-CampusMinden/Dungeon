@@ -15,6 +15,10 @@ public class ListTypeIdentifierNode extends IdNode {
     this.addChild(innerTypeNode);
   }
 
+  public ListTypeIdentifierNode() {
+    super(Type.ListTypeIdentifierNode, "", SourceFileReference.NULL);
+  }
+
   public IdNode getInnerTypeNode() {
     return (IdNode) this.getChild(0);
   }

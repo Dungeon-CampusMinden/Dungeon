@@ -10,6 +10,10 @@ public class ReturnStmtNode extends Node {
     this.addChild(innerStmt);
   }
 
+  public ReturnStmtNode() {
+    super(Type.ReturnStmt);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

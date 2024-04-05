@@ -45,6 +45,10 @@ public class PropertyDefNode extends Node {
     this.addChild(stmt);
   }
 
+  public PropertyDefNode() {
+    super(Type.PropertyDefinition);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

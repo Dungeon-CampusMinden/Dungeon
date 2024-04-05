@@ -2,6 +2,7 @@ package dsl.parser.ast;
 
 import dsl.error.ErrorListener;
 import java.util.ArrayList;
+import java.util.List;
 import org.antlr.v4.runtime.RecognitionException;
 import org.neo4j.ogm.annotation.*;
 
@@ -126,7 +127,7 @@ public class Node {
       if (child.type == Type.ErrorNode) {
         this.hasErrorChild = true;
       }
-      if (child.hasErrorChild || child.subTreeHasError) {
+      if (child.hasErrorChild || child.subTreeHasError || child.hasErrorRecord) {
         this.subTreeHasError = true;
       }
     }
@@ -176,6 +177,12 @@ public class Node {
     return children.get(idx);
   }
 
+  public void addChildren(List<Node> children) {
+    for (var child : children) {
+      this.addChild(child);
+    }
+  }
+
   public void addChild(Node node) {
     this.children.add(node);
     node.parent = this;
@@ -183,7 +190,7 @@ public class Node {
     if (node.type.equals(Type.ErrorNode)) {
       this.hasErrorChild = true;
     }
-    if (node.hasErrorChild || node.subTreeHasError) {
+    if (node.hasErrorChild || node.subTreeHasError || node.hasErrorRecord) {
       this.subTreeHasError = true;
     }
   }
@@ -246,6 +253,10 @@ public class Node {
 
   public boolean hasErrorRecord() {
     return this.hasErrorRecord;
+  }
+
+  public boolean hasError() {
+    return this.hasErrorRecord || this.hasErrorChild;
   }
 
   /**

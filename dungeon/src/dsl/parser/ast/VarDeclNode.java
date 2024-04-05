@@ -2,6 +2,7 @@ package dsl.parser.ast;
 
 public class VarDeclNode extends BinaryNode {
   public enum DeclType {
+    none,
     assignmentDecl,
     typeDecl
   }
@@ -19,6 +20,11 @@ public class VarDeclNode extends BinaryNode {
   public VarDeclNode(VarDeclNode.DeclType type, IdNode identifier, Node rhs) {
     super(Type.VarDeclNode, identifier, rhs);
     this.declType = type;
+  }
+
+  public VarDeclNode() {
+    super(Type.VarDeclNode);
+    this.declType = DeclType.none;
   }
 
   public String getVariableName() {

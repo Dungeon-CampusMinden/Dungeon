@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class UnaryNode extends Node {
   public enum UnaryType {
+    none,
     not,
     minus
   }
@@ -22,6 +23,11 @@ public class UnaryNode extends Node {
     super(Type.Unary, new ArrayList<>(1));
     this.unaryType = type;
     this.addChild(inner);
+  }
+
+  public UnaryNode() {
+    super(Type.Unary);
+    this.unaryType = UnaryType.none;
   }
 
   @Override

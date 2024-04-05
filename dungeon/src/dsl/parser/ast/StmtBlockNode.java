@@ -1,15 +1,20 @@
 package dsl.parser.ast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class StmtBlockNode extends Node {
   public ArrayList<Node> getStmts() {
-    return this.getChild(0).getChildren();
+    return this.getChildren();
   }
 
-  public StmtBlockNode(Node stmtList) {
+  public StmtBlockNode(List<Node> stmts) {
     super(Type.Block);
-    this.addChild(stmtList);
+    this.addChildren(stmts);
+  }
+
+  public StmtBlockNode() {
+    super(Type.Block);
   }
 
   @Override

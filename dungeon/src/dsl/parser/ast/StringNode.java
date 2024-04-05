@@ -14,6 +14,11 @@ public class StringNode extends Node {
     this.value = value;
   }
 
+  public StringNode() {
+    super(Type.StringLiteral);
+    this.value = "";
+  }
+
   /**
    * @return The value of the string
    */

@@ -2,6 +2,7 @@ package dsl.parser.ast;
 
 public class FactorNode extends BinaryNode {
   public enum FactorType {
+    none,
     divide,
     multiply
   }
@@ -15,6 +16,11 @@ public class FactorNode extends BinaryNode {
   public FactorNode(FactorType type, Node lhs, Node rhs) {
     super(Type.Factor, lhs, rhs);
     this.factorType = type;
+  }
+
+  public FactorNode() {
+    super(Type.Factor);
+    this.factorType = FactorType.none;
   }
 
   @Override

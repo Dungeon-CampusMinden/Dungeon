@@ -7,6 +7,10 @@ public class DotNodeStmtNode extends Node {
     addChild(attrList);
   }
 
+  public DotNodeStmtNode() {
+    super(Type.DotNodeStmt);
+  }
+
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);
   }

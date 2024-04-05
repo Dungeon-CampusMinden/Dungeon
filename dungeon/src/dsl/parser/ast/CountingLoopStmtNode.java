@@ -17,6 +17,10 @@ public class CountingLoopStmtNode extends ForLoopStmtNode {
     this.addChild(counterIdNode);
   }
 
+  public CountingLoopStmtNode() {
+    super(LoopType.countingForLoop);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

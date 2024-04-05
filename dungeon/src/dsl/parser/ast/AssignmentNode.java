@@ -5,6 +5,10 @@ public class AssignmentNode extends BinaryNode {
     super(Type.Assignment, lhs, rhs);
   }
 
+  public AssignmentNode() {
+    super(Type.Assignment);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

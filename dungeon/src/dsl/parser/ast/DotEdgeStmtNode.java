@@ -23,6 +23,10 @@ public class DotEdgeStmtNode extends Node {
     this.addChild(attrList);
   }
 
+  public DotEdgeStmtNode() {
+    super(Type.DotEdgeStmt);
+  }
+
   /**
    * Returns a list of the stored DotIdList-Nodes, in order of definition
    *

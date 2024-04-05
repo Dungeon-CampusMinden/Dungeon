@@ -26,6 +26,11 @@ public abstract class LoopStmtNode extends Node {
     addChild(stmtNode);
   }
 
+  public LoopStmtNode(LoopType loopType) {
+    super(Type.LoopStmtNode);
+    this.loopType = loopType;
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

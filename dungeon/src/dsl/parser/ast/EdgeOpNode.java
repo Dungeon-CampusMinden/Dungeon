@@ -28,6 +28,11 @@ public class EdgeOpNode extends Node {
     this.edgeOpType = edgeOpType;
   }
 
+  public EdgeOpNode() {
+    super(Node.Type.DotEdgeOp);
+    this.edgeOpType = Type.NONE;
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

@@ -50,6 +50,10 @@ public class AggregateValueDefinitionNode extends Node {
     this.addChild(propertyDefinitionList);
   }
 
+  public AggregateValueDefinitionNode() {
+    super(Type.AggregateValueDefinition);
+  }
+
   @Override
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);

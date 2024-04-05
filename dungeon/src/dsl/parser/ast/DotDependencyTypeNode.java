@@ -10,6 +10,11 @@ public class DotDependencyTypeNode extends IdNode {
     this.taskEdgeType = taskEdgeType;
   }
 
+  public DotDependencyTypeNode() {
+    super(Type.DotDependencyType, "", SourceFileReference.NULL);
+    this.taskEdgeType = TaskEdge.Type.none;
+  }
+
   public TaskEdge.Type getTaskEdgeType() {
     return taskEdgeType;
   }

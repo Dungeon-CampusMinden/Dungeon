@@ -33,7 +33,9 @@ public class PrototypeDefinitionNode extends Node {
    *     definition node
    */
   public List<Node> getComponentDefinitionNodes() {
-    return getComponentDefinitionListNode().getChildren();
+    return getComponentDefinitionListNode().getChildren().stream()
+        .filter(n -> n.type.equals(Type.AggregateValueDefinition))
+        .toList();
   }
 
   /**
@@ -47,6 +49,10 @@ public class PrototypeDefinitionNode extends Node {
     super(Type.PrototypeDefinition, new ArrayList<Node>(2));
     this.addChild(idNode);
     this.addChild(componentDefinitionList);
+  }
+
+  public PrototypeDefinitionNode() {
+    super(Type.PrototypeDefinition);
   }
 
   @Override

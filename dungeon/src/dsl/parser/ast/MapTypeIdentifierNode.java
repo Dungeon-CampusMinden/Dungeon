@@ -12,6 +12,10 @@ public class MapTypeIdentifierNode extends IdNode {
     this.addChild(elementTypeNode);
   }
 
+  public MapTypeIdentifierNode() {
+    super(Type.MapTypeIdentifierNode, "", SourceFileReference.NULL);
+  }
+
   public IdNode getKeyTypeNode() {
     return (IdNode) this.getChild(0);
   }
