@@ -1431,17 +1431,6 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       }
 
       // add all nodes under node
-      // TODO: just getting the corresponding type is not enough, after all, the visitor pattern
-      // uses the concrete
-      //  subclass for method calls..should pass the list to CtxToNodeTypeConverter and build node
-      // of the correct
-      //  class with it!
-      var ruleCtx = ctx.getRuleContext();
-      // Node.Type type = ruleCtx.accept(CtxToNodeTypeConverter.instance);
-      // if (type.equals(Node.Type.NONE)) {
-      //  type = Node.Type.ErrorNode;
-      // }
-      // Node errorNode = new Node(type, list);
       var errorNode = this.errorNodeConverter.createErrorNode(ctx, list);
 
       if (ctx.exception != null) {
