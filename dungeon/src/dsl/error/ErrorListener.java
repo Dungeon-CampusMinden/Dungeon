@@ -10,7 +10,6 @@ import org.antlr.v4.runtime.dfa.DFA;
 
 public class ErrorListener extends BaseErrorListener {
   private static final Logger LOGGER = Logger.getLogger(ErrorListener.class.getName());
-  public static ErrorListener INSTANCE = new ErrorListener();
   private List<ErrorRecord> errors = new ArrayList<>();
 
   public record ErrorRecord(
@@ -112,7 +111,7 @@ public class ErrorListener extends BaseErrorListener {
             "Ambiguity full context, currentToken: '%s', LA2: '%s', startIndex: %x, stopIndex: %x\nconf alts: '%s', conflicting alts resolved: '%s'\nDFA: '%s'\nrule: '%s'",
             currentToken, LA2, startIndex, stopIndex, conflictingAlts, list, dfaString, rule);
 
-    LOGGER.warning(warning);
+    LOGGER.fine(warning);
   }
 
   @Override
@@ -128,6 +127,6 @@ public class ErrorListener extends BaseErrorListener {
         String.format(
             "Context sensitivity, recognizer: '%s', dfa: '%s', startIndex: %x, stopIndex: %x\nrule '%s'",
             recognizer, dfa, startIndex, stopIndex, rule);
-    LOGGER.warning(warning);
+    LOGGER.fine(warning);
   }
 }

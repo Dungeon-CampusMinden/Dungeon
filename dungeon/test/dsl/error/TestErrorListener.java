@@ -21,7 +21,7 @@ public class TestErrorListener {
                 fn test(int x, int, int) { }
                 """;
 
-    ErrorListener el = ErrorListener.INSTANCE;
+    ErrorListener el = new ErrorListener();
     var stream = CharStreams.fromString(program);
     var lexer = new dsl.antlr.DungeonDSLLexer(stream);
     lexer.removeErrorListeners();
@@ -64,7 +64,7 @@ public class TestErrorListener {
                     }
                 """;
 
-    ErrorListener el = ErrorListener.INSTANCE;
+    ErrorListener el = new ErrorListener();
     var stream = CharStreams.fromString(program);
     TestEnvironment testEnvironment = new TestEnvironment();
     testEnvironment.addMockTypeName("my_type");
@@ -105,7 +105,7 @@ public class TestErrorListener {
                   }
               """;
 
-    ErrorListener el = ErrorListener.INSTANCE;
+    ErrorListener el = new ErrorListener();
     var stream = CharStreams.fromString(program);
     TestEnvironment testEnvironment = new TestEnvironment();
     testEnvironment.addMockTypeName("my_type");
@@ -146,7 +146,7 @@ public class TestErrorListener {
                   }
               """;
 
-    ErrorListener el = ErrorListener.INSTANCE;
+    ErrorListener el = new ErrorListener();
     var stream = CharStreams.fromString(program);
     TestEnvironment testEnvironment = new TestEnvironment();
     testEnvironment.addMockTypeName("my_type");
@@ -198,7 +198,7 @@ public class TestErrorListener {
                 }
             """;
 
-    ErrorListener el = ErrorListener.INSTANCE;
+    ErrorListener el = new ErrorListener();
     var stream = CharStreams.fromString(program);
     TestEnvironment testEnvironment = new TestEnvironment();
     testEnvironment.addMockTypeName("asdf_type");
@@ -250,7 +250,7 @@ public class TestErrorListener {
               }
           """;
 
-    ErrorListener el = ErrorListener.INSTANCE;
+    ErrorListener el = new ErrorListener();
     var stream = CharStreams.fromString(program);
     TestEnvironment testEnvironment = new TestEnvironment();
     testEnvironment.addMockTypeName("asdf_type");

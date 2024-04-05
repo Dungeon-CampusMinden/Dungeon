@@ -236,7 +236,7 @@ public class Helpers {
 
   public static String getPrettyPrintedParseTree(
       String program, IEnvironment environment, boolean trace) {
-    ErrorListener el = ErrorListener.INSTANCE;
+    ErrorListener el = new ErrorListener();
     var stream = CharStreams.fromString(program);
     var lexer = new dsl.antlr.DungeonDSLLexer(stream, environment);
     lexer.removeErrorListeners();
@@ -261,7 +261,7 @@ public class Helpers {
 
   public static List<String> validateParseTree(
       String program, IEnvironment environment, String expectedTree, boolean trace) {
-    ErrorListener el = ErrorListener.INSTANCE;
+    ErrorListener el = new ErrorListener();
     var stream = CharStreams.fromString(program);
     var lexer = new dsl.antlr.DungeonDSLLexer(stream, environment);
     lexer.removeErrorListeners();
