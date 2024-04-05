@@ -1143,8 +1143,7 @@ quest_config c {
     Symbol myListSymbol = symbolTable.getSymbolsForAstNode(varDeclNode).get(0);
 
     // get iterableIdNode and check, that it references the variable symbol
-    CountingLoopStmtNode loopNode =
-        (CountingLoopStmtNode) funcDefNode.getStmtBlock().getChild(1);
+    CountingLoopStmtNode loopNode = (CountingLoopStmtNode) funcDefNode.getStmtBlock().getChild(1);
     Node iterableIdNode = loopNode.getIterableIdNode();
     Symbol iterableIdNodeRefSymbol = symbolTable.getSymbolsForAstNode(iterableIdNode).get(0);
     Assert.assertEquals(myListSymbol, iterableIdNodeRefSymbol);

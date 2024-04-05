@@ -2,6 +2,7 @@ package dsl.interpreter;
 
 import dsl.antlr.DungeonDSLLexer;
 import dsl.antlr.DungeonDSLParser;
+import dsl.error.ErrorListener;
 import dsl.interpreter.taskgraph.Interpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.*;
@@ -648,16 +649,21 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
     // TODO: make relLibPath settable (or make the Environment settable)
     var stream = CharStreams.fromString(configScript);
+    ErrorListener el = new ErrorListener();
     var lexer = new DungeonDSLLexer(stream, environment);
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(el);
 
     var tokenStream = new CommonTokenStream(lexer);
     var parser = new DungeonDSLParser(tokenStream, environment);
+    parser.removeErrorListeners();
+    parser.addErrorListener(el);
     var programParseTree = parser.program();
 
     DungeonASTConverter astConverter =
         new DungeonASTConverter(Arrays.stream(parser.getRuleNames()).toList());
     astConverter.setTrace(this.trace);
-    var programAST = astConverter.walk(programParseTree);
+    var programAST = astConverter.walk(programParseTree, el.getErrors());
 
     SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
     semanticAnalyzer.setup(environment);
