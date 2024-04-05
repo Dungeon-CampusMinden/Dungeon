@@ -148,7 +148,7 @@ type_decl
     : type_decl OPEN_ANGLE CLOSE_ANGLE                     #set_param_type
     | type_decl OPEN_BRACK CLOSE_BRACK                     #list_param_type
     | OPEN_BRACK type_decl ARROW type_decl CLOSE_BRACK     #map_param_type
-    | TYPE_ID                                    #id_param_type
+    | TYPE_ID                                              #id_param_type
     ;
 
 param_def_list
