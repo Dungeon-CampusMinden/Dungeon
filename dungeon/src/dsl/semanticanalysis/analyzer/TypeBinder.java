@@ -49,7 +49,7 @@ public class TypeBinder implements AstVisitor<Object> {
 
   @Override
   public Object visit(PrototypeDefinitionNode node) {
-    if (node.hasErrorRecord() || node.hasErrorChild()) {
+    if (node.hasError()) {
       return null;
     }
 
@@ -102,7 +102,7 @@ public class TypeBinder implements AstVisitor<Object> {
 
   @Override
   public Object visit(PropertyDefNode node) {
-    if (node.hasErrorRecord() || node.hasErrorChild()) {
+    if (node.hasError()) {
       return null;
     }
 
@@ -458,9 +458,9 @@ public class TypeBinder implements AstVisitor<Object> {
 
   @Override
   public void visitChildren(Node node) {
-    if (!node.hasErrorChild() && !node.hasErrorRecord()) {
+    if (!node.hasError()) {
       for (var child : node.getChildren()) {
-        if (child.hasErrorRecord() || child.hasErrorChild()) {
+        if (child.hasError()) {
           continue;
         }
         child.accept(this);

@@ -48,7 +48,7 @@ public class ImportAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(ImportNode node) {
-    if (node.hasErrorChild() || node.hasErrorRecord() || node.subTreeHasError()) {
+    if (node.hasError() || node.subTreeHasError()) {
       return null;
     }
 

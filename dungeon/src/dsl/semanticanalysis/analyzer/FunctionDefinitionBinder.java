@@ -110,7 +110,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
       // get types of parameters
       ArrayList<IType> parameterTypes = new ArrayList<>(node.getParameters().size());
       for (Node paramDefNode : node.getParameters()) {
-        if (paramDefNode.hasErrorChild() || paramDefNode.hasErrorRecord()) {
+        if (paramDefNode.hasError()) {
           continue;
         }
         // if the parameters type is a list or set type, the datatype must be created
@@ -157,7 +157,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
 
   @Override
   public Void visit(ParamDefNode node) {
-    if (node.hasErrorChild() || node.hasErrorRecord()) {
+    if (node.hasError()) {
       return null;
     }
     // current scope should be a function definition
