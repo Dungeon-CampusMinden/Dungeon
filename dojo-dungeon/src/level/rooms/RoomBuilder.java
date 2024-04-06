@@ -17,10 +17,6 @@ public class RoomBuilder {
   private int monsterCount;
   private IPath[] monsterPaths;
 
-  private String keyType;
-  private String keyDescription;
-  private IPath keyTexture;
-
   private HashMap<String, ArrayList<String>> sortables;
 
   public RoomBuilder() {}
@@ -50,14 +46,6 @@ public class RoomBuilder {
     return this;
   }
 
-  public Room buildRoom() {
-    return new Room(levelRoom, gen, nextRoom, levelSize, designLabel);
-  }
-
-  public Room buildTaskRoom() {
-    return new TaskRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
-  }
-
   public RoomBuilder monsterCount(int monsterCount) {
     this.monsterCount = monsterCount;
     return this;
@@ -65,26 +53,6 @@ public class RoomBuilder {
 
   public RoomBuilder monsterPaths(IPath[] monsterPaths) {
     this.monsterPaths = monsterPaths;
-    return this;
-  }
-
-  public Room buildMonsterRoom() {
-    return new MonsterRoom(
-        levelRoom, gen, nextRoom, levelSize, designLabel, monsterCount, monsterPaths);
-  }
-
-  public RoomBuilder keyType(String keyType) {
-    this.keyType = keyType;
-    return this;
-  }
-
-  public RoomBuilder keyDescription(String keyDescription) {
-    this.keyDescription = keyDescription;
-    return this;
-  }
-
-  public RoomBuilder keyTexture(IPath keyTexture) {
-    this.keyTexture = keyTexture;
     return this;
   }
 
@@ -132,5 +100,13 @@ public class RoomBuilder {
 
   public Room buildRoom10() {
     return new Room10(levelRoom, gen, nextRoom, levelSize, designLabel);
+  }
+
+  public Room buildRoom11() {
+    return new Room11(levelRoom, gen, nextRoom, levelSize, designLabel);
+  }
+
+  public Room buildRoom12() {
+    return new Room12(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 }
