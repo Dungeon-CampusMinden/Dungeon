@@ -58,8 +58,6 @@ public final class LevelSystem extends System {
    */
   private static final float Y_OFFSET = 0.25f;
 
-  private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
-
   /** Currently used level-size configuration for generating new level. */
   private static LevelSize levelSize = LevelSize.MEDIUM;
 
@@ -68,6 +66,9 @@ public final class LevelSystem extends System {
   private final Painter painter;
   private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getSimpleName());
   private IGenerator generator;
+
+  // Singleton pattern to make junit tests work:
+  private Sound DOOR_SOUND;
 
   /**
    * Create a new {@link LevelSystem}.
@@ -239,10 +240,12 @@ public final class LevelSystem extends System {
   }
 
   private void playSound() {
-    Sound doorSound = Gdx.audio.newSound(Gdx.files.internal(SOUND_EFFECT));
-    long soundId = doorSound.play();
-    doorSound.setLooping(soundId, false);
-    doorSound.setVolume(soundId, 0.3f);
+    if (DOOR_SOUND == null) {
+      DOOR_SOUND = Gdx.audio.newSound(Gdx.files.internal("sounds/enterDoor.wav"));
+    }
+    long soundId = DOOR_SOUND.play();
+    DOOR_SOUND.setLooping(soundId, false);
+    DOOR_SOUND.setVolume(soundId, 0.3f);
   }
 
   /**
