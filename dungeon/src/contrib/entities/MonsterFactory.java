@@ -2,7 +2,6 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.item.Item;
-import contrib.utils.SoundPlayer;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import contrib.utils.components.item.ItemGenerator;
@@ -13,6 +12,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.sound.SoundPlayer;
 import java.io.IOException;
 import java.util.Random;
 import java.util.function.BiConsumer;

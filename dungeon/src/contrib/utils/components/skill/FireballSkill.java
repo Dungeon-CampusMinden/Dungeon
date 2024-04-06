@@ -1,10 +1,10 @@
 package contrib.utils.components.skill;
 
-import contrib.utils.SoundPlayer;
 import contrib.utils.components.health.DamageType;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.sound.SoundPlayer;
 import java.util.function.Supplier;
 
 /**

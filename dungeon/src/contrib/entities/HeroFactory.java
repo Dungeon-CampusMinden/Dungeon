@@ -4,7 +4,6 @@ import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
-import contrib.utils.SoundPlayer;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.FireballSkill;
@@ -19,6 +18,7 @@ import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.sound.SoundPlayer;
 import java.io.IOException;
 import java.util.Comparator;
 

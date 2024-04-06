@@ -1,4 +1,4 @@
-package contrib.utils;
+package core.utils.sound;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;

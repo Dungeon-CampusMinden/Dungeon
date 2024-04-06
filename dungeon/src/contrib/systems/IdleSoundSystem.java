@@ -1,10 +1,10 @@
 package contrib.systems;
 
 import contrib.components.IdleSoundComponent;
-import contrib.utils.SoundPlayer;
 import core.System;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
+import core.utils.sound.SoundPlayer;
 import java.util.Random;
 
 /**
