@@ -116,7 +116,6 @@ public class DevDungeon {
     Game.add(new IdleSoundSystem());
     Game.add(new FallingSystem());
     Game.add(new PathSystem());
-    Game.add(new LevelEditorSystem());
     Game.add(new LevelTickSystem());
     Game.add(new PitSystem());
     Game.add(TeleporterSystem.getInstance());
