@@ -78,16 +78,22 @@ problems or suggestions, please feel free to contact us in English or German.
 This project was funded by [Stiftung für Innovation in der Hochschullehre] (["Freiraum
 2022"]).
 
-The [`game/assets/`] and [`dungeon/assets/`] are a mix from free resources:
+The assets in [`game/assets/`](game/assets/), [`dungeon/assets/`](dungeon/assets/) and [`devDungeon/assets/`](devDungeon/assets/) are a mix from free and self created resources:
 
 -   Textures and animations:
     -   https://0x72.itch.io/16x16-dungeon-tileset (CC0 1.0)
     -   https://0x72.itch.io/dungeontileset-ii (CC0 1.0)
--   Music and soundeffects:
+-   Music and sound effects:
     -   https://alkakrab.itch.io/free-12-tracks-pixel-rpg-game-music-pack (CC0 1.0)
     -   https://opengameart.org/content/50-rpg-sound-effects (CC0 1.0)
     -   https://opengameart.org/content/hurt-death-sound-effect-for-character (CC0 1.0)
     -   https://opengameart.org/content/80-cc0-creture-sfx-2 (CC0 1.0)
+-   Adapted and modified by @Flamtky:
+    -   Files (except Health Potion) in [`dungeon/assets/items/potion/`](dungeon/assets/items/potion/) (originating from original Health Potion)
+    -   Files in [`game/assets/dungeon/*/floor`](game/assets/dungeon/) each `floor_damaged.png`. (originating from original Floor Tiles)
+    -   `floor_1.png` in [`game/assets/dungeon/fire/floor/`](`game/assets/dungeon/fire/floor/floor_1.png`) (originating from original Floor Tile)
+-    Self created by @Flamtky:  
+    -   Files in [`devDungeon/assets/objects/spawner/`](devDungeon/assets/objects/spawner/)
 
 ## Licenses
 
@@ -95,7 +101,7 @@ This [work] by [André Matutat], [Malte Reinsch], and [contributors] is licensed
 
 All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
 
-All files in [`game/assets/`] and [`dungeon/assets/`] are licensed under [CC0 1.0].
+All files in [`game/assets/`](game/assets/), [`dungeon/assets/`](dungeon/assets/) and [`devDungeon/assets/`](devDungeon/assets/) are licensed under [CC0 1.0].
 
 <p align="right"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/logo/cat_logo_64x64.png?raw=true" alt="Banner"></p>
 
