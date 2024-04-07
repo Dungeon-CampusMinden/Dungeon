@@ -68,7 +68,7 @@ public class RandomDungeon {
   }
 
   private static void setupMusic() {
-    SoundPlayer.playSound(new SimpleIPath(BACKGROUND_MUSIC), true, .1f);
+    SoundPlayer.playSound(new SimpleIPath(BACKGROUND_MUSIC), true);
   }
 
   private static void configGame() throws IOException {
