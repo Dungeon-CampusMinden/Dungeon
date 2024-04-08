@@ -1,5 +1,6 @@
 package contrib.utils.components.skill;
 
+import com.badlogic.gdx.audio.Sound;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
@@ -16,6 +17,9 @@ import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -28,7 +32,8 @@ import java.util.logging.Logger;
  */
 public abstract class DamageProjectile implements Consumer<Entity> {
 
-  private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
+  public static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
+  public static final BiConsumer<Entity, Entity> DEFAULT_ON_ENTITY_HIT = (a, b) -> {};
   private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getSimpleName());
   private final IPath pathToTexturesOfProjectile;
   private final float projectileSpeed;
@@ -38,6 +43,16 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final Point projectileHitBoxSize;
   private final Supplier<Point> selectionFunction;
   private final Consumer<Entity> onWallHit;
+  private final List<Entity> ignoreEntities = new ArrayList<>();
+
+  /**
+   * The behavior when an entity is hit. (The first parameter is the projectile, the second the
+   * entity that was hit)
+   */
+  private final BiConsumer<Entity, Entity> onEntityHit;
+
+  private int tintColor = -1; // -1 means no tint
+  private Sound currentSound = null;
 
   /**
    * The DamageProjectile constructor sets the path to the textures of the projectile, the speed of
@@ -64,7 +79,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       final Point projectileHitBoxSize,
       final Supplier<Point> selectionFunction,
       float projectileRange,
-      final Consumer<Entity> onWallHit) {
+      final Consumer<Entity> onWallHit,
+      final BiConsumer<Entity, Entity> onEntityHit) {
     this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
     this.damageAmount = damageAmount;
     this.damageType = damageType;
@@ -73,6 +89,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     this.projectileHitBoxSize = projectileHitBoxSize;
     this.selectionFunction = selectionFunction;
     this.onWallHit = onWallHit;
+    this.onEntityHit = onEntityHit;
   }
 
   /**
@@ -106,7 +123,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         projectileHitBoxSize,
         selectionFunction,
         projectileRange,
-        DEFAULT_ON_WALL_HIT);
+        DEFAULT_ON_WALL_HIT,
+        DEFAULT_ON_ENTITY_HIT);
   }
 
   /**
@@ -133,7 +151,9 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     projectile.add(new PositionComponent(epc.position()));
 
     try {
-      projectile.add(new DrawComponent(pathToTexturesOfProjectile));
+      DrawComponent dc = new DrawComponent(pathToTexturesOfProjectile);
+      dc.tintColor(this.tintColor);
+      projectile.add(dc);
     } catch (IOException e) {
       LOGGER.warning(
           String.format("The DrawComponent for the projectile %s cant be created. ", entity)
@@ -160,7 +180,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     Point velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
 
     // Add the VelocityComponent to the projectile
-    VelocityComponent vc = new VelocityComponent(velocity.x, velocity.y, onWallHit);
+    VelocityComponent vc = new VelocityComponent(velocity.x, velocity.y, onWallHit, true);
     projectile.add(vc);
 
     // Add the ProjectileComponent with the initial and target positions to the projectile
@@ -169,10 +189,11 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     // Create a collision handler for the projectile
     TriConsumer<Entity, Entity, Tile.Direction> collide =
         (a, b, from) -> {
-          if (b != entity) {
+          if (b != entity && !ignoreEntities.contains(b)) {
             b.fetch(HealthComponent.class)
                 .ifPresent(
                     hc -> {
+                      this.onEntityHit.accept(projectile, b);
                       // Apply the projectile damage to the collided entity
                       hc.receiveHit(new Damage(damageAmount, damageType, entity));
 
@@ -187,9 +208,62 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     projectile.add(
         new CollideComponent(CollideComponent.DEFAULT_OFFSET, projectileHitBoxSize, collide, null));
     Game.add(projectile);
-    playSound();
+    this.currentSound = this.playSound();
+  }
+
+  /**
+   * Adds an entity to the list of entities to be ignored by the projectile. Entities in this list
+   * will not be affected by the projectile's collision handler.
+   *
+   * @param entity The entity to be ignored by the projectile.
+   */
+  public void ignoreEntity(Entity entity) {
+    this.ignoreEntities.add(entity);
+  }
+
+  /**
+   * Removes an entity from the list of entities to be ignored by the projectile. Entities not in
+   * this list will be affected by the projectile's collision handler.
+   *
+   * @param entity The entity to be removed from the ignore list.
+   */
+  public void removeIgnoredEntity(Entity entity) {
+    this.ignoreEntities.remove(entity);
   }
 
   /** Override this method to play a Sound-effect on spawning the projectile if you want. */
-  protected void playSound() {}
+  protected Sound playSound() {
+    return null;
+  }
+
+  /**
+   * Sets the tint color of the projectile. Set to -1 to remove the tint.
+   *
+   * @param tintColor The tint color of the projectile.
+   */
+  public void tintColor(int tintColor) {
+    this.tintColor = tintColor;
+  }
+
+  /**
+   * Returns the tint color of the projectile.
+   *
+   * @return The tint color of the projectile. -1 means no tint.
+   */
+  public int tintColor() {
+    return this.tintColor;
+  }
+
+  /**
+   * Disposes the current sound of the projectile. This method should be called when sound is
+   * finished playing. This is a workaround for the sound not being disposed when the * projectile
+   * is removed.
+   *
+   * @see Sound#dispose()
+   */
+  public void disposeSounds() {
+    if (this.currentSound != null) {
+      this.currentSound.dispose();
+    }
+  }
 }

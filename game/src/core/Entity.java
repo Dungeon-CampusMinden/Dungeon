@@ -134,6 +134,15 @@ public final class Entity implements Comparable<Entity> {
     this.name = name;
   }
 
+  /**
+   * Get the name of this entity
+   *
+   * @return the name of this entity
+   */
+  public String name() {
+    return name;
+  }
+
   @Override
   public String toString() {
     if (name.contains("_" + id)) return name;

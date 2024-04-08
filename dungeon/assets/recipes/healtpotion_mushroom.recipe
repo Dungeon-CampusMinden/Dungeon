@@ -21,6 +21,9 @@
             "type": "item",
             "item": {
                 "id": "ItemPotionHealth",
+                "param": [
+                    "contrib.item.HealthPotionType:WEAK",
+                ],
                 "count": 1
             }
         }

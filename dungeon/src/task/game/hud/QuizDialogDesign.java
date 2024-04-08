@@ -15,8 +15,8 @@ import task.tasktype.quizquestion.SingleChoice;
 public class QuizDialogDesign {
 
   public static final String ANSWERS_GROUP_NAME = "Answers";
-  private static final String QUIZ_MESSAGE_TASK = "Aufgabestellung";
-  private static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
+  private static final String QUIZ_MESSAGE_TASK = "Aufgabenstellung";
+  private static final String QUIZ_MESSAGE_SOLUTION = "Answers:";
 
   /**
    * Creates a vertical Button Group based on the answers provided by the QuizQuestion
@@ -68,12 +68,12 @@ public class QuizDialogDesign {
    * @param outputMsg Content displayed in the scrollable label
    */
   public static Group createQuizQuestion(Quiz quizQuestion, Skin skin, String outputMsg) {
-    Label labelExercise = new Label(QUIZ_MESSAGE_TASK, skin);
-    labelExercise.setColor(Color.YELLOW);
+    // Label labelExercise = new Label(QUIZ_MESSAGE_TASK, skin);
+    // labelExercise.setColor(Color.YELLOW);
     Label labelSolution = new Label(QUIZ_MESSAGE_SOLUTION, skin);
     labelSolution.setColor(Color.GREEN);
     VerticalGroup vg = new VerticalGroup();
-    vg.addActor(labelExercise);
+    // vg.addActor(labelExercise);
     vg.addActor(visualizeQuestionSection(quizQuestion.question(), skin));
     vg.addActor(labelSolution);
     vg.addActor(visualizeAnswerSection(quizQuestion, skin));

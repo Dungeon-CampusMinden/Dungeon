@@ -1,5 +1,6 @@
 package contrib.item.concreteItem;
 
+import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.EntityFactory;
 import contrib.item.Item;
@@ -37,6 +38,13 @@ public final class ItemResourceEgg extends Item {
                     .fetch(PositionComponent.class)
                     .orElseThrow()
                     .position(e.fetch(PositionComponent.class).orElseThrow().position());
+                monster
+                    .fetch(HealthComponent.class)
+                    .ifPresent(
+                        hc -> {
+                          hc.currentHealthpoints(1);
+                          hc.maximalHealthpoints(1);
+                        });
                 Game.add(monster);
               } catch (IOException ex) {
                 throw new RuntimeException(ex);

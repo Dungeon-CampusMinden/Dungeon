@@ -1,5 +1,6 @@
 package core.level.utils;
 
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import core.Entity;
 import core.Game;
@@ -38,6 +39,10 @@ public final class LevelUtils {
    * @return Path from the start coordinate to the end coordinate.
    */
   public static GraphPath<Tile> calculatePath(final Coordinate from, final Coordinate to) {
+    Tile fromTile = Game.tileAT(from);
+    Tile toTile = Game.tileAT(to);
+    if (fromTile == null || !fromTile.isAccessible()) return new DefaultGraphPath<>();
+    if (toTile == null || !toTile.isAccessible()) return new DefaultGraphPath<>();
     return Game.findPath(Game.tileAT(from), Game.tileAT(to));
   }
 
@@ -167,6 +172,7 @@ public final class LevelUtils {
       if (added) {
         // Tile is a new Tile so add the neighbours to be checked
         for (Coordinate offset : offsets) {
+          if (current.level() == null) continue;
           Tile tile = current.level().tileAt(current.coordinate().add(offset));
           if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
         }
@@ -205,10 +211,20 @@ public final class LevelUtils {
 
   private static boolean isAnyCornerOfTileInRadius(
       final Point center, float radius, final Tile tile) {
-    return Point.inRange(center, tile.coordinate().toPoint(), radius)
-        || Point.inRange(center, tile.coordinate().toPoint(), radius)
-        || Point.inRange(center, tile.coordinate().toPoint(), radius)
-        || Point.inRange(center, tile.coordinate().toPoint(), radius);
+    return Point.inRange(
+            center, new Point(tile.coordinate().toPoint().x, tile.coordinate().toPoint().y), radius)
+        || Point.inRange(
+            center,
+            new Point(tile.coordinate().toPoint().x + 1, tile.coordinate().toPoint().y),
+            radius)
+        || Point.inRange(
+            center,
+            new Point(tile.coordinate().toPoint().x, tile.coordinate().toPoint().y + 1),
+            radius)
+        || Point.inRange(
+            center,
+            new Point(tile.coordinate().toPoint().x + 1, tile.coordinate().toPoint().y + 1),
+            radius);
   }
 
   /**
@@ -257,7 +273,6 @@ public final class LevelUtils {
    * @return True if the position of the two entities is within the given range, else false.
    */
   public static boolean entityInRange(final Entity entity1, final Entity entity2, float range) {
-
     Point entity1Position =
         entity1
             .fetch(PositionComponent.class)
@@ -280,8 +295,51 @@ public final class LevelUtils {
    *     given entity. If there is no hero, return false.
    */
   public static boolean playerInRange(final Entity entity, float range) {
-
     Optional<Entity> hero = Game.hero();
     return hero.filter(value -> entityInRange(entity, value, range)).isPresent();
+  }
+
+  /**
+   * Get the tiles in the line of sight between two points.
+   *
+   * @param startPoint The start point.
+   * @param endPoint The end point.
+   * @param sampleSize The number of tiles to skip before adding the next tile to the list. A higher
+   *     sample size will result in a faster calculation, but may miss some tiles.
+   * @param maxIterations The maximum number of iterations before the calculation is stopped.
+   *     (Distance in Tiles)
+   * @return List of tiles in the line of sight between the two points.
+   */
+  public static List<Tile> ray(
+      Point startPoint, Point endPoint, int sampleSize, int maxIterations) {
+    List<Tile> tilesInRay = new ArrayList<>();
+    float startX = startPoint.x;
+    float startY = startPoint.y;
+    float endX = endPoint.x;
+    float endY = endPoint.y;
+    int deltaX = Math.round(Math.abs(endX - startX));
+    int deltaY = Math.round(Math.abs(endY - startY));
+    int stepX = startX < endX ? 1 : -1;
+    int stepY = startY < endY ? 1 : -1;
+    int error = deltaX - deltaY;
+    int iterationCount = 0;
+    while (iterationCount < maxIterations) {
+      if (iterationCount % sampleSize == 0) {
+        Tile tile = Game.tileAT(new Point(startX, startY));
+        if (tile != null) tilesInRay.add(tile);
+      }
+      if (startX == endX && startY == endY) break;
+      int error2 = 2 * error;
+      if (error2 > -deltaY) {
+        error -= deltaY;
+        startX += stepX;
+      }
+      if (error2 < deltaX) {
+        error += deltaX;
+        startY += stepY;
+      }
+      iterationCount++;
+    }
+    return tilesInRay;
   }
 }

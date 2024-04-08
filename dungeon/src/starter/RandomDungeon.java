@@ -8,7 +8,7 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.level.utils.LevelSize;
+import core.level.utils.*;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.logging.Level;

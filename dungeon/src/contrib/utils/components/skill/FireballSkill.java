@@ -21,13 +21,13 @@ import java.util.function.Supplier;
  */
 public final class FireballSkill extends DamageProjectile {
 
+  public static final float PROJECTILE_SPEED = 15.0f;
+  public static final int DAMAGE_AMOUNT = 2;
+  public static final float PROJECTILE_RANGE = 7f;
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");
   private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
-  private static final float PROJECTILE_SPEED = 15.0f;
-  private static final int DAMAGE_AMOUNT = 5;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final Point HIT_BOX_SIZE = new Point(1, 1);
-  private static final float PROJECTILE_RANGE = 7f;
 
   /**
    * Create a {@link DamageProjectile} that looks like a fireball and will cause fire damage.
@@ -46,8 +46,32 @@ public final class FireballSkill extends DamageProjectile {
         PROJECTILE_RANGE);
   }
 
+  /**
+   * Creates a new FireballSkill with the specified target selection, range, speed, and damage
+   * amount. The target selection is a function used to select the point where the projectile should
+   * fly to. The range is the maximum distance the projectile can travel. The speed is the speed at
+   * which the projectile travels. The damage amount is the amount of damage the projectile will
+   * deal upon impact.
+   *
+   * @param targetSelection A function used to select the point where the projectile should fly to.
+   * @param range The maximum distance the projectile can travel.
+   * @param speed The speed at which the projectile travels.
+   * @param damageAmount The amount of damage the projectile will deal upon impact.
+   */
+  public FireballSkill(
+      final Supplier<Point> targetSelection, float range, float speed, int damageAmount) {
+    super(
+        PROJECTILE_TEXTURES,
+        speed,
+        damageAmount,
+        DAMAGE_TYPE,
+        HIT_BOX_SIZE,
+        targetSelection,
+        range);
+  }
+
   @Override
-  protected void playSound() {
+  protected Sound playSound() {
     Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(PROJECTILE_SOUND.pathString()));
 
     // Generate a random pitch between 1.5f and 2.0f
@@ -61,5 +85,6 @@ public final class FireballSkill extends DamageProjectile {
 
     // Set the volume
     soundEffect.setVolume(soundId, 0.05f);
+    return soundEffect;
   }
 }

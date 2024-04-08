@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import contrib.components.HealthComponent;
+import contrib.entities.IHealthObserver;
 import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
@@ -9,6 +10,8 @@ import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -20,7 +23,8 @@ import java.util.stream.Stream;
  * <p>Entities with the {@link HealthComponent} and {@link DrawComponent} will be processed by this
  * system.
  */
-public final class HealthSystem extends System {
+public class HealthSystem extends System {
+  protected final List<IHealthObserver> observers = new ArrayList<>();
 
   /** Create a new HealthSystem. */
   public HealthSystem() {
@@ -56,7 +60,7 @@ public final class HealthSystem extends System {
    * @param hsd HSData to check Animations in.
    * @return true if Entity can be removed from the game.
    */
-  private boolean testDeathAnimationStatus(final HSData hsd) {
+  protected boolean testDeathAnimationStatus(final HSData hsd) {
     DrawComponent dc = hsd.dc;
     // test if hsd has a DeathAnimation
     Predicate<DrawComponent> hasDeathAnimation =
@@ -71,7 +75,7 @@ public final class HealthSystem extends System {
         || isAnimationFinished.test(dc);
   }
 
-  private HSData activateDeathAnimation(final HSData hsd) {
+  protected HSData activateDeathAnimation(final HSData hsd) {
     // set DeathAnimation as active animation
     Optional<Animation> deathAnimation = hsd.dc.animation(AdditionalAnimations.DIE);
     deathAnimation.ifPresent(
@@ -79,7 +83,7 @@ public final class HealthSystem extends System {
     return hsd;
   }
 
-  private HSData buildDataObject(final Entity entity) {
+  protected HSData buildDataObject(final Entity entity) {
 
     HealthComponent hc =
         entity
@@ -92,14 +96,13 @@ public final class HealthSystem extends System {
     return new HSData(entity, hc, ac);
   }
 
-  private HSData applyDamage(final HSData hsd) {
-
+  protected HSData applyDamage(final HSData hsd) {
     doDamageAndAnimation(
         hsd, Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum());
     return hsd;
   }
 
-  private void doDamageAndAnimation(final HSData hsd, final int dmgAmount) {
+  protected void doDamageAndAnimation(final HSData hsd, final int dmgAmount) {
     if (dmgAmount > 0) {
       Optional<Animation> hitAnimation = hsd.dc.animation(AdditionalAnimations.HIT);
       // we have some damage - let's show a little dance
@@ -109,14 +112,44 @@ public final class HealthSystem extends System {
     // reset all damage objects in health component and apply damage
     hsd.hc.clearDamage();
     hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
+    this.observers.forEach(
+        observer -> observer.onHeathEvent(hsd.e, hsd.hc, IHealthObserver.HealthEvent.DAMAGE));
   }
 
-  private void removeDeadEntities(final HSData hsd) {
+  protected void removeDeadEntities(final HSData hsd) {
     // Entity appears to be dead, so let's clean up the mess
     hsd.hc.triggerOnDeath(hsd.e);
+    this.observers.forEach(
+        observer -> observer.onHeathEvent(hsd.e, hsd.hc, IHealthObserver.HealthEvent.DEATH));
     Game.remove(hsd.e);
   }
 
+  /**
+   * Registers an observer to the HealthSystem.
+   *
+   * <p>This method adds an observer to the list of observers that are notified of health events.
+   * The observer must implement the IHealthObserver interface.
+   *
+   * @param observer The observer to be registered.
+   * @see IHealthObserver
+   */
+  public void registerObserver(IHealthObserver observer) {
+    this.observers.add(observer);
+  }
+
+  /**
+   * Removes an observer from the HealthSystem.
+   *
+   * <p>This method removes an observer from the list of observers that are notified of health
+   * events. If the observer is not in the list, the method has no effect.
+   *
+   * @param observer The observer to be removed.
+   * @see IHealthObserver
+   */
+  public void removeObserver(IHealthObserver observer) {
+    this.observers.remove(observer);
+  }
+
   // private record to hold all data during streaming
-  private record HSData(Entity e, HealthComponent hc, DrawComponent dc) {}
+  protected record HSData(Entity e, HealthComponent hc, DrawComponent dc) {}
 }

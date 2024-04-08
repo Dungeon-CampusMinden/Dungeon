@@ -39,6 +39,7 @@ public final class VelocityComponent implements Component {
   private float previousXVelocity;
   private float previousYVelocity;
   private Consumer<Entity> onWallHit;
+  private boolean canEnterEmptyTiles;
 
   /**
    * Create a new VelocityComponent with the given configuration.
@@ -46,12 +47,14 @@ public final class VelocityComponent implements Component {
    * @param xVelocity Speed with which the entity can move on the x-axis.
    * @param yVelocity Speed with which the entity can move on the y-axis.
    */
-  public VelocityComponent(float xVelocity, float yVelocity, Consumer<Entity> onWallHit) {
+  public VelocityComponent(
+      float xVelocity, float yVelocity, Consumer<Entity> onWallHit, boolean canEnterEmptyTiles) {
     this.currentXVelocity = 0;
     this.currentYVelocity = 0;
     this.xVelocity = xVelocity;
     this.yVelocity = yVelocity;
     this.onWallHit = onWallHit;
+    this.canEnterEmptyTiles = canEnterEmptyTiles;
   }
 
   /**
@@ -61,7 +64,7 @@ public final class VelocityComponent implements Component {
    * @param yVelocity Speed with which the entity can move on the y-axis.
    */
   public VelocityComponent(float xVelocity, float yVelocity) {
-    this(xVelocity, yVelocity, DEFAULT_ON_WALL_HIT);
+    this(xVelocity, yVelocity, DEFAULT_ON_WALL_HIT, false);
   }
 
   /**
@@ -70,7 +73,7 @@ public final class VelocityComponent implements Component {
    * <p>In the default configuration, the movement speed is set to 0, so the entity will not move.
    */
   public VelocityComponent() {
-    this(0, 0, DEFAULT_ON_WALL_HIT);
+    this(0, 0, DEFAULT_ON_WALL_HIT, false);
   }
 
   /**
@@ -229,5 +232,23 @@ public final class VelocityComponent implements Component {
    */
   public Consumer<Entity> onWallHit() {
     return onWallHit;
+  }
+
+  /**
+   * Set if the entity can enter empty tiles.
+   *
+   * @param canEnterEmptyTiles True if the entity can enter empty tiles, false if not.
+   */
+  public void canEnterEmptyTiles(boolean canEnterEmptyTiles) {
+    this.canEnterEmptyTiles = canEnterEmptyTiles;
+  }
+
+  /**
+   * Get if the entity can enter empty tiles.
+   *
+   * @return True if the entity can enter empty tiles, false if not.
+   */
+  public boolean canEnterEmptyTiles() {
+    return canEnterEmptyTiles;
   }
 }

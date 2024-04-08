@@ -19,8 +19,8 @@ import task.tasktype.Quiz;
 
 public class QuizUI {
 
-  public static final String DEFAULT_DIALOG_CONFIRM = "Bestätigen";
-  public static final String DEFAULT_DIALOG_ABORT = "Abbrechen";
+  public static final String DEFAULT_DIALOG_CONFIRM = "Confirm";
+  public static final String DEFAULT_DIALOG_ABORT = "Abort";
 
   /**
    * Ask a Quizquestion on the HUD and trigger the grading function, after the player confirmed the

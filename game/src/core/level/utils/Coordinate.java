@@ -56,6 +56,15 @@ public class Coordinate {
   }
 
   /**
+   * Convert Coordinate to Point centered in the tile
+   *
+   * @return Coordinate converted to a point;
+   */
+  public Point toCenteredPoint() {
+    return new Point(x + 0.5f, y + 0.5f);
+  }
+
+  /**
    * Creates a new Coordinate which has the sum of the Coordinates
    *
    * @param other which Coordinate to add
@@ -63,5 +72,20 @@ public class Coordinate {
    */
   public Coordinate add(final Coordinate other) {
     return new Coordinate(this.x + other.x, this.y + other.y);
+  }
+
+  @Override
+  public String toString() {
+    return "Coordinate{" + "x=" + x + ", y=" + y + '}';
+  }
+
+  /**
+   * Calculates the distance between this Coordinate and another Coordinate.
+   *
+   * @param other The other Coordinate to calculate the distance to.
+   * @return The distance between this Coordinate and the other Coordinate.
+   */
+  public int distance(Coordinate other) {
+    return Math.abs(x - other.x) + Math.abs(y - other.y);
   }
 }

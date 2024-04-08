@@ -44,17 +44,34 @@ import task.game.content.QuestItem;
 @DSLType
 public abstract class Task {
 
+  public static final String DEFAULT_EXPLANATION = "No explanation provided";
   private static final Logger LOGGER = Logger.getLogger(Task.class.getName());
   private static final Logger SOL_LOGGER = Logger.getLogger("TaskSolutionLogger");
   private static final Set<Task> ALL_TASKS = new HashSet<>();
   private static final List<Task> SOLVED_TASK_IN_ORDER = new ArrayList<>();
   private static final String DEFAULT_TASK_TEXT = "No task description provided";
   private static final String DEFAULT_TASK_NAME = "No task name provided";
-  public static final String DEFAULT_EXPLANATION = "No explanation provided";
   private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
   private static final float DEFAULT_POINTS = 1f;
   private static final float DEFAULT_POINTS_TO_SOLVE = DEFAULT_POINTS;
   private static int _id = 0;
+
+  static {
+    try {
+      SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy'T'HH-mm-ss");
+      String timestamp = dateFormat.format(new Date());
+      String directoryPath = System.getProperty("BASELOGDIR", "logs/") + "solutions/";
+      String filepath = directoryPath + timestamp + ".log";
+      Files.createDirectories(Paths.get(directoryPath));
+      FileHandler fileHandler = new FileHandler(filepath);
+      fileHandler.setFormatter(new SimpleFormatter());
+
+      SOL_LOGGER.addHandler(fileHandler);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   private final int id;
   private final Set<Place> observer = new HashSet<>();
   protected List<TaskContent> content;
@@ -70,9 +87,7 @@ public abstract class Task {
   private Entity managementEntity;
   private Set<Set<Entity>> entitySets = new HashSet<>();
   private float pointsToSolve;
-
   private String explanation = DEFAULT_EXPLANATION;
-
   private float achievedPoints;
 
   static {
@@ -319,13 +334,15 @@ public abstract class Task {
   }
 
   /**
-   * Add given element to the internal {@link #content} collection.
+   * Add given elements to the internal {@link #content} collection.
    *
-   * @param content element to add to the internal collection
+   * @param content elements to add to the internal collection
    */
-  public void addContent(final TaskContent content) {
-    content.task(this);
-    this.content.add(content);
+  public void addContent(final TaskContent... content) {
+    for (TaskContent c : content) {
+      c.task(this);
+      this.content.add(c);
+    }
   }
 
   /**

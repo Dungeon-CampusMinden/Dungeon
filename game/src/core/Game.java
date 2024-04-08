@@ -1,5 +1,6 @@
 package core;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import core.components.PositionComponent;
@@ -58,12 +59,12 @@ public final class Game {
   }
 
   /**
-   * Retrieves the window width from the pre-run configuration.
+   * Retrieves the window width from Gdx.
    *
    * @return The window width.
    */
   public static int windowWidth() {
-    return PreRunConfiguration.windowWidth();
+    return Gdx.graphics.getWidth();
   }
 
   /**
@@ -76,12 +77,12 @@ public final class Game {
   }
 
   /**
-   * Retrieves the window height from the pre-run configuration.
+   * Retrieves the window height from Gdx.
    *
    * @return The window height.
    */
   public static int windowHeight() {
-    return PreRunConfiguration.windowHeight();
+    return Gdx.graphics.getHeight();
   }
 
   /**
@@ -434,16 +435,17 @@ public final class Game {
    */
   public static Stream<Entity> entityAtTile(final Tile check) {
     Tile tile = Game.tileAT(check.position());
+    if (tile == null) return Stream.empty();
 
     return ECSManagment.entityStream(Set.of(PositionComponent.class))
         .filter(
             e ->
-                tileAT(
+                tile.equals(
+                    tileAT(
                         e.fetch(PositionComponent.class)
                             .orElseThrow(
                                 () -> MissingComponentException.build(e, PositionComponent.class))
-                            .position())
-                    .equals(tile));
+                            .position())));
   }
 
   /**
@@ -531,5 +533,10 @@ public final class Game {
    */
   public static void levelSize(final LevelSize levelSize) {
     LevelSystem.levelSize(levelSize);
+  }
+
+  /** Exit the game. */
+  public static void exit() {
+    GameLoop.exit();
   }
 }

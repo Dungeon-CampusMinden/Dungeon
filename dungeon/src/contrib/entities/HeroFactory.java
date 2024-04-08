@@ -2,6 +2,7 @@ package contrib.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.Vector2;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.elements.GUICombination;
@@ -14,8 +15,6 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.*;
-import core.level.Tile;
-import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
@@ -24,23 +23,22 @@ import java.io.IOException;
 import java.util.Comparator;
 
 /** A utility class for building the hero entity in the game world. */
-public final class HeroFactory {
+public class HeroFactory {
 
-  public static final int DEFAULT_INVENTORY_SIZE = 10;
+  private static final int DEFAULT_INVENTORY_SIZE = 6;
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final float X_SPEED_HERO = 7.5f;
-  private static final float Y_SPEED_HERO = 7.5f;
+  private static final Vector2 SPEED_HERO = new Vector2(7.5f, 7.5f);
   private static final int FIREBALL_COOL_DOWN = 500;
-  private static final int HERO_HP = 100;
+  private static final int HERO_HP = 25;
 
   /**
    * Get an Entity that can be used as a playable character.
    *
    * <p>The Entity is not added to the game yet.
    *
-   * <p>It will have a {@link * CameraComponent}, {@link core.components.PlayerComponent}. {@link
-   * PositionComponent}, {@link * VelocityComponent} {@link core.components.DrawComponent}, {@link
-   * contrib.components.CollideComponent} and {@link * HealthComponent}.
+   * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
+   * PositionComponent}, {@link VelocityComponent} {@link core.components.DrawComponent}, {@link
+   * contrib.components.CollideComponent} and {@link HealthComponent}.
    *
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
@@ -51,7 +49,7 @@ public final class HeroFactory {
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
-    hero.add(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO));
+    hero.add(new VelocityComponent(SPEED_HERO.x, SPEED_HERO.y, entity -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
     HealthComponent hc =
         new HealthComponent(
@@ -71,6 +69,8 @@ public final class HeroFactory {
               cameraDummy.add(cc);
               cameraDummy.add(poc);
               Game.add(cameraDummy);
+
+              DialogFactory.showTextPopup("You died!", "Game Over", Game::exit);
             });
     hero.add(hc);
     hero.add(
@@ -99,53 +99,25 @@ public final class HeroFactory {
         new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
     // hero movement
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-          vc.currentYVelocity(1 * vc.yVelocity());
-        });
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-
-          vc.currentYVelocity(-1 * vc.yVelocity());
-        });
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-
-          vc.currentXVelocity(1 * vc.xVelocity());
-        });
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-
-          vc.currentXVelocity(-1 * vc.xVelocity());
-        });
+    registerMovement(pc, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), new Vector2(0, 1));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_UP_SECOND.value(), new Vector2(0, 1));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), new Vector2(0, -1));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_DOWN_SECOND.value(), new Vector2(0, -1));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), new Vector2(1, 0));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_RIGHT_SECOND.value(), new Vector2(1, 0));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), new Vector2(-1, 0));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT_SECOND.value(), new Vector2(-1, 0));
 
     pc.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(),
-        (e) -> {
+        (e) -> { // TODO: Change this
           UIComponent uiComponent = e.fetch(UIComponent.class).orElse(null);
           if (uiComponent != null) {
             if (uiComponent.dialog() instanceof GUICombination) {
@@ -157,7 +129,6 @@ public final class HeroFactory {
             e.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
           }
         },
-        false,
         false);
 
     pc.registerCallback(
@@ -194,56 +165,34 @@ public final class HeroFactory {
           }
         },
         false,
-        false);
+        true);
 
     pc.registerCallback(
         KeyboardConfig.INTERACT_WORLD.value(),
         InteractionTool::interactWithClosestInteractable,
         false);
 
-    pc.registerCallback(
-        KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
-        hero1 -> {
-          // only interact with entities the cursor points at
-          Point mousePosition = SkillTools.cursorPositionAsPoint();
-          Tile mouseTile = Game.tileAT(mousePosition);
-          if (mouseTile == null) return; // mouse out of bound
-
-          Game.entityAtTile(mouseTile)
-              .filter(e -> e.isPresent(InteractionComponent.class))
-              .findFirst()
-              .ifPresent(
-                  interactable -> {
-                    InteractionComponent ic1 =
-                        interactable
-                            .fetch(InteractionComponent.class)
-                            .orElseThrow(
-                                () ->
-                                    MissingComponentException.build(
-                                        interactable, InteractionComponent.class));
-                    PositionComponent pc1 =
-                        interactable
-                            .fetch(PositionComponent.class)
-                            .orElseThrow(
-                                () ->
-                                    MissingComponentException.build(
-                                        interactable, PositionComponent.class));
-                    PositionComponent heroPC =
-                        hero1
-                            .fetch(PositionComponent.class)
-                            .orElseThrow(
-                                () ->
-                                    MissingComponentException.build(
-                                        hero1, PositionComponent.class));
-                    if (Point.calculateDistance(pc1.position(), heroPC.position()) < ic1.radius())
-                      ic1.triggerInteraction(interactable, hero1);
-                  });
-        },
-        false);
-
     // skills
     pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
     return hero;
+  }
+
+  private static void registerMovement(PlayerComponent pc, int key, Vector2 direction) {
+    pc.registerCallback(
+        key,
+        entity -> {
+          VelocityComponent vc =
+              entity
+                  .fetch(VelocityComponent.class)
+                  .orElseThrow(
+                      () -> MissingComponentException.build(entity, VelocityComponent.class));
+          if (direction.x != 0) {
+            vc.currentXVelocity(direction.x * vc.xVelocity());
+          }
+          if (direction.y != 0) {
+            vc.currentYVelocity(direction.y * vc.yVelocity());
+          }
+        });
   }
 }

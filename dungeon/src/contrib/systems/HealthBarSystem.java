@@ -76,7 +76,6 @@ public final class HealthBarSystem extends System {
   }
 
   private void update(final EnemyData ed) {
-    if (ed.hc.currentHealthpoints() <= 0) ed.pb.remove();
     // set visible only if entity lost health
     ed.pb.setVisible(ed.hc.currentHealthpoints() != ed.hc.maximalHealthpoints());
     updatePosition(ed.pb, ed.pc);

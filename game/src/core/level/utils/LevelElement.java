@@ -3,27 +3,32 @@ package core.level.utils;
 /** Each type of field in a level can be represented by an integer value. */
 public enum LevelElement {
   /** This field is a blank */
-  SKIP(false),
+  SKIP(false, false),
+  /** This field is a pit */
+  PIT(false, true),
   /** This field is a floor-field */
-  FLOOR(true),
+  FLOOR(true, true),
   /** This field is a wall-field */
-  WALL(false),
+  WALL(false, false),
   /** This field is a hole-field */
-  HOLE(false),
+  HOLE(false, false),
   /** This field is the exit-field to the next level */
-  EXIT(true),
+  EXIT(true, true),
 
-  DOOR(true);
+  DOOR(true, true);
 
-  private final boolean value;
+  private final boolean accessible;
+  private final boolean canSeeThrough;
 
   /**
    * Represents a level element with accessibility information.
    *
-   * @param value The accessibility value of the element.
+   * @param accessible The accessibility value of the element.
+   * @param canSeeThrough The Entity can see through this element.
    */
-  LevelElement(boolean value) {
-    this.value = value;
+  LevelElement(boolean accessible, boolean canSeeThrough) {
+    this.accessible = accessible;
+    this.canSeeThrough = canSeeThrough;
   }
 
   /**
@@ -32,6 +37,15 @@ public enum LevelElement {
    * @return true if the element is accessible, code false if not.
    */
   public boolean value() {
-    return value;
+    return accessible;
+  }
+
+  /**
+   * Checks if the element can be seen through.
+   *
+   * @return true if the element can be seen through, code false if not.
+   */
+  public boolean canSeeThrough() {
+    return canSeeThrough;
   }
 }

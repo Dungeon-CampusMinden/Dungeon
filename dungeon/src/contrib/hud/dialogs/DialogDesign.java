@@ -44,8 +44,20 @@ public class DialogDesign extends VerticalGroup {
    *
    * @param skin Skin for the dialogue (resources that can be used by UI widgets)
    * @param outputMsg Content displayed in the scrollable label
+   * @param align Alignment of the text
+   */
+  public static Group createTextDialog(final Skin skin, final String outputMsg, int align) {
+    return createScrollPane(skin, new Container<>(new Label(outputMsg, skin)).align(align));
+  }
+
+  /**
+   * Creates a simple Dialog which only has static Text shown.
+   *
+   * @param skin Skin for the dialogue (resources that can be used by UI widgets)
+   * @param outputMsg Content displayed in the scrollable label
+   * @return the Group which then can be added to any UI Element
    */
   public static Group createTextDialog(final Skin skin, final String outputMsg) {
-    return createScrollPane(skin, new Container<>(new Label(outputMsg, skin)).align(Align.center));
+    return createTextDialog(skin, outputMsg, Align.center);
   }
 }

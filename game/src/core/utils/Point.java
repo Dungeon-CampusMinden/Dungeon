@@ -100,4 +100,19 @@ public final class Point {
   public boolean equals(final Point other) {
     return Math.abs(x - other.x) < EPSILON && Math.abs(y - other.y) < EPSILON;
   }
+
+  @Override
+  public String toString() {
+    return "Point{" + "x=" + x + ", y=" + y + '}';
+  }
+
+  /**
+   * Calculates the Euclidean distance between this point and the given point.
+   *
+   * @param otherPos The point to which the distance is calculated.
+   * @return The Euclidean distance between this point and the given point.
+   */
+  public double distance(Point otherPos) {
+    return Math.sqrt(Math.pow(otherPos.x - x, 2) + Math.pow(otherPos.y - y, 2));
+  }
 }

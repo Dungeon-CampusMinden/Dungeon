@@ -34,8 +34,12 @@ public final class LoggerConfig {
       if (newLogFile.exists()) {
         baseLogger.info("Logfile already exists;");
       } else {
-        newLogFile.createNewFile();
-        baseLogger.info("Logfile '" + filepath + "' was created.");
+        boolean result = newLogFile.createNewFile();
+        if (result) {
+          baseLogger.info("Logfile '" + filepath + "' was created.");
+        } else {
+          baseLogger.warning("Logfile '" + filepath + "' could not be created.");
+        }
       }
       customFileHandler = new FileHandler(filepath);
       customFileHandler.setFormatter(new SimpleFormatter());

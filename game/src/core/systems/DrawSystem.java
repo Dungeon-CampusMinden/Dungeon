@@ -2,10 +2,12 @@ package core.systems;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import core.Entity;
+import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.level.Tile;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
@@ -86,8 +88,33 @@ public final class DrawSystem extends System {
     List<Entity> players = partitionedEntities.get(true);
     List<Entity> npcs = partitionedEntities.get(false);
 
-    npcs.forEach(entity -> draw(buildDataObject(entity)));
+    npcs.stream().filter(this::shouldDraw).forEach(entity -> draw(buildDataObject(entity)));
     players.forEach(entity -> draw(buildDataObject(entity)));
+  }
+
+  /**
+   * Checks if an entity should be drawn. By checking if its visible or no
+   *
+   * @param entity the entity to check
+   * @return true if the entity should be drawn, false otherwise
+   */
+  private boolean shouldDraw(Entity entity) {
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
+    if (Game.currentLevel().tileAt(pc.position()) == null) {
+      return false;
+    }
+    DrawComponent dc =
+        entity
+            .fetch(DrawComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+    if (!dc.isVisible()) return false;
+
+    Tile tile = Game.currentLevel().tileAt(pc.position());
+    return tile.visible();
   }
 
   private void draw(final DSData dsd) {
@@ -96,9 +123,13 @@ public final class DrawSystem extends System {
     final Animation animation = dsd.dc.currentAnimation();
     IPath currentAnimationTexture = animation.nextAnimationTexturePath();
     if (!configs.containsKey(currentAnimationTexture)) {
-      configs.put(currentAnimationTexture, new PainterConfig(currentAnimationTexture));
+      configs.put(
+          currentAnimationTexture,
+          new PainterConfig(currentAnimationTexture, 0, 0, dsd.dc.tintColor()));
     }
-    PAINTER.draw(dsd.pc.position(), currentAnimationTexture, configs.get(currentAnimationTexture));
+    PainterConfig conf = this.configs.get(currentAnimationTexture);
+    conf.tintColor(dsd.dc.tintColor());
+    PAINTER.draw(dsd.pc.position(), currentAnimationTexture, conf);
   }
 
   /**

@@ -10,18 +10,16 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.ExitTile;
+import core.level.elements.tile.PitTile;
 import core.level.generator.IGenerator;
-import core.level.utils.DesignLabel;
-import core.level.utils.LevelElement;
-import core.level.utils.LevelSize;
+import core.level.utils.*;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.path.IPath;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -49,6 +47,7 @@ import java.util.logging.Logger;
  * onLevelLoad callback.
  */
 public final class LevelSystem extends System {
+
   /** offset the coordinate by half a tile, it makes every Entity not walk on the sidewalls */
   private static final float X_OFFSET = 0.5f;
 
@@ -64,10 +63,13 @@ public final class LevelSystem extends System {
   private static LevelSize levelSize = LevelSize.MEDIUM;
 
   private static ILevel currentLevel;
+  private final List<ILevelObserver> observers = new ArrayList<>();
   private final IVoidFunction onLevelLoad;
   private final Painter painter;
   private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getSimpleName());
+  private IVoidFunction onEndTile;
   private IGenerator generator;
+  private Coordinate lastHeroPosition;
 
   /**
    * Create a new {@link LevelSystem}.
@@ -85,6 +87,7 @@ public final class LevelSystem extends System {
     this.generator = generator;
     this.onLevelLoad = onLevelLoad;
     this.painter = painter;
+    this.onEndTile = () -> loadLevel(levelSize);
   }
 
   /**
@@ -179,14 +182,30 @@ public final class LevelSystem extends System {
     for (Tile[] tiles : layout) {
       for (int x = 0; x < layout[0].length; x++) {
         Tile t = tiles[x];
-        if (t.levelElement() != LevelElement.SKIP) {
+        if (t.levelElement() != LevelElement.SKIP && !isTilePitAndOpen(t) && t.visible()) {
           IPath texturePath = t.texturePath();
-          if (!mapping.containsKey(texturePath)) {
-            mapping.put(texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET));
+          if (!mapping.containsKey(texturePath)
+              || (mapping.get(texturePath).tintColor() != t.tintColor())) {
+            mapping.put(
+                texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET, t.tintColor()));
           }
           painter.draw(t.position(), texturePath, mapping.get(texturePath));
         }
       }
+    }
+  }
+
+  /**
+   * Checks if the provided tile is an instance of PitTile and if it's open.
+   *
+   * @param tile The tile to check.
+   * @return true if the tile is an instance of PitTile, and it's open, false otherwise.
+   */
+  private boolean isTilePitAndOpen(final Tile tile) {
+    if (tile instanceof PitTile) {
+      return ((PitTile) tile).isOpen();
+    } else {
+      return false;
     }
   }
 
@@ -220,6 +239,9 @@ public final class LevelSystem extends System {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Tile currentTile = Game.tileAT(pc.position());
+    if (currentTile == null) {
+      return false;
+    }
     return currentTile.equals(Game.endTile());
   }
 
@@ -230,7 +252,10 @@ public final class LevelSystem extends System {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     for (DoorTile door : currentLevel.doorTiles()) {
-      if (door.isOpen() && door.otherDoor().isOpen() && door.equals(Game.tileAT(pc.position()))) {
+      if (door.isOpen()
+          && door.otherDoor() != null
+          && door.otherDoor().isOpen()
+          && door.equals(Game.tileAT(pc.position()))) {
         door.otherDoor().level().startTile(door.otherDoor().doorstep());
         nextLevel = door.otherDoor().level();
       }
@@ -254,19 +279,87 @@ public final class LevelSystem extends System {
    */
   @Override
   public void execute() {
-    if (currentLevel == null) loadLevel(levelSize);
-    else if (entityStream().anyMatch(this::isOnEndTile)) loadLevel(levelSize);
+    if (currentLevel == null) {
+      loadLevel(levelSize);
+    } else if (entityStream()
+        .anyMatch(
+            entity ->
+                isOnEndTile(entity)
+                    && Game.currentLevel().endTile() instanceof ExitTile
+                    && ((ExitTile) Game.currentLevel().endTile()).isOpen())) onEndTile.execute();
     else
       entityStream()
           .forEach(
-              e ->
-                  isOnDoor(e)
-                      .ifPresent(
-                          iLevel -> {
-                            loadLevel(iLevel);
-                            playSound();
-                          }));
+              e -> {
+                if (this.lastHeroPosition == null) {
+                  this.lastHeroPosition =
+                      new Coordinate(
+                          e.fetch(PositionComponent.class).get().position().toCoordinate());
+                } else {
+                  Coordinate currentHeroPosition =
+                      new Coordinate(
+                          e.fetch(PositionComponent.class).get().position().toCoordinate());
+                  if (!this.lastHeroPosition.equals(currentHeroPosition)) {
+                    this.lastHeroPosition = currentHeroPosition;
+                    this.observers.forEach(
+                        o ->
+                            o.onLevelEvent(
+                                Game.tileAT(currentHeroPosition),
+                                ILevelObserver.LevelEvent.HERO_TILE_CHANGED));
+                  }
+                }
+                isOnDoor(e)
+                    .ifPresent(
+                        iLevel -> {
+                          loadLevel(iLevel);
+                          playSound();
+                        });
+              });
     drawLevel();
+  }
+
+  /**
+   * Sets the function to be executed when an entity reaches the end tile.
+   *
+   * @param onEndTile The function to be executed when an entity reaches the end tile.
+   */
+  public void onEndTile(IVoidFunction onEndTile) {
+    this.onEndTile = onEndTile;
+  }
+
+  /**
+   * Gets the function that is executed when an entity reaches the end tile.
+   *
+   * @return The function that is executed when an entity reaches the end tile.
+   */
+  public IVoidFunction onEndTile() {
+    return onEndTile;
+  }
+
+  /**
+   * Registers an observer to the LevelSystem.
+   *
+   * <p>This method adds an observer to the list of observers that are notified of level events. The
+   * observer must implement the ILevelObserver interface.
+   *
+   * @param observer The observer to be registered.
+   * @see ILevelObserver
+   */
+  public void registerObserver(ILevelObserver observer) {
+    this.observers.add(observer);
+  }
+
+  /**
+   * Removes an observer from the LevelSystem.
+   *
+   * <p>This method removes an observer from the list of observers that are notified of level
+   * events. If the observer is not in the list, the method has no effect.
+   *
+   * @param observer The observer to be removed.
+   * @see ILevelObserver
+   */
+  public void removeObserver(ILevelObserver observer) {
+    this.observers.remove(observer);
   }
 
   /** LevelSystem can't be paused. If it is paused, the level will not be shown anymore. */

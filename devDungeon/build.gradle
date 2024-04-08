@@ -1,0 +1,50 @@
+plugins {
+    id 'java-library'
+}
+
+
+dependencies {
+    api project(':dungeon')
+}
+
+
+sourceSets.main.java.srcDirs = ['src/', "$projectDir/build/generated-src/antlr/main/"]
+sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
+sourceSets.test.resources.srcDirs = ['test_resources/']
+
+tasks.register('runDevDungeon', JavaExec) {
+    mainClass = 'starter.DevDungeon'
+    classpath = sourceSets.main.runtimeClasspath
+}
+tasks.register('buildDevDungeonJar', Jar) {
+    dependsOn ':game:jar', ':dungeon:jar'
+    archiveBaseName = 'DevDungeon'
+    from sourceSets.main.output
+    from project(':game').sourceSets.main.output
+    from project(':dungeon').sourceSets.main.output
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes 'Main-Class': 'starter.DevDungeon'
+    }
+
+    archiveFileName = 'DevDungeon.jar'
+
+    into('assets') {
+        from new File(project(':game').projectDir, '/assets')
+        from new File(project(':dungeon').projectDir, '/assets')
+    }
+
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}
+
+processResources {
+    from new File(project(':game').projectDir,    '/assets')
+    from new File(project(':dungeon').projectDir, '/assets')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

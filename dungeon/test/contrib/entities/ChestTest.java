@@ -43,7 +43,9 @@ public class ChestTest {
     Optional<InventoryComponent> inventoryComponent = c.fetch(InventoryComponent.class);
     assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
     assertEquals(
-        "Chest should have the given Items", new Item[] {}, inventoryComponent.get().items());
+        "Chest should have the given Items",
+        new Item[] {null, null, null, null, null, null, null, null, null, null, null, null},
+        inventoryComponent.get().items());
     Optional<PositionComponent> positionComponent = c.fetch(PositionComponent.class);
     assertTrue(
         "Needs the PositionComponent to be somewhere in the Level", positionComponent.isPresent());

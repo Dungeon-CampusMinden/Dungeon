@@ -14,9 +14,7 @@ import core.utils.components.path.SimpleIPath;
  *
  * <p>Can be used for crafting.
  */
-public final class ItemResourceMushroomRed extends Item {
-
-  private static final int DAMAGE_AMOUNT = 20;
+public class ItemResourceMushroomRed extends Item {
 
   /** Create a new Mushroom. */
   public ItemResourceMushroomRed() {
@@ -34,7 +32,9 @@ public final class ItemResourceMushroomRed extends Item {
               component.remove(this);
               e.fetch(HealthComponent.class)
                   .ifPresent(
-                      hc -> hc.receiveHit(new Damage(DAMAGE_AMOUNT, DamageType.POISON, null)));
+                      hc ->
+                          hc.receiveHit(
+                              new Damage(hc.currentHealthpoints() - 1, DamageType.POISON, null)));
             });
   }
 }

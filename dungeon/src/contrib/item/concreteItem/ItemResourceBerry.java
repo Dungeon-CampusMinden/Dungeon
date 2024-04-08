@@ -16,13 +16,13 @@ import core.utils.components.path.SimpleIPath;
  */
 public final class ItemResourceBerry extends Item {
 
-  private static final int HEAL_AMOUNT = 5;
+  private static final int DamageAmount = 2;
 
   /** Create a new Berry. */
   public ItemResourceBerry() {
     super(
         "Berry",
-        "A berry.",
+        "A berry. It looks delicious.",
         Animation.fromSingleImage(new SimpleIPath("items/resource/berry.png")));
   }
 
@@ -33,7 +33,14 @@ public final class ItemResourceBerry extends Item {
             component -> {
               component.remove(this);
               e.fetch(HealthComponent.class)
-                  .ifPresent(hc -> hc.receiveHit(new Damage(-HEAL_AMOUNT, DamageType.HEAL, null)));
+                  .ifPresent(
+                      hc -> {
+                        if (Item.RANDOM.nextBoolean()) {
+                          hc.receiveHit(new Damage(-DamageAmount, DamageType.HEAL, null));
+                        } else {
+                          hc.receiveHit(new Damage(DamageAmount, DamageType.POISON, null));
+                        }
+                      });
             });
   }
 }
