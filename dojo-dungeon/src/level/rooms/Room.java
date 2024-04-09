@@ -12,6 +12,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -57,6 +58,9 @@ public class Room {
     // generate the room
     // the levelRooms must be connected first!
     levelRoom.level(new TileLevel(gen.layout(levelSize, levelRoom.neighbours()), designLabel));
+
+    // initialize room entities
+    addRoomEntities(Collections.emptySet());
   }
 
   public void configDoors() {
