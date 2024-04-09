@@ -233,7 +233,7 @@ public class TestSemanticAnalyzer {
 
     var printFuncDefSymbol = symtableResult.symbolTable.globalScope.resolve("print");
     Assert.assertNotNull(printFuncDefSymbol);
-    Assert.assertEquals(Symbol.Type.Callable, printFuncDefSymbol.getSymbolType());
+    Assert.assertEquals(Symbol.SymbolType.Callable, printFuncDefSymbol.getSymbolType());
     Assert.assertTrue(printFuncDefSymbol instanceof NativePrint);
   }
 

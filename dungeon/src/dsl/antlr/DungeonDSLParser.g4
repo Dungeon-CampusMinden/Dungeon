@@ -22,7 +22,49 @@ options
 /*
  * Parser rules
  */
-program : definition* EOF
+program : (definition|error_recovery)* EOF
+        ;
+
+error_recovery
+        : NUM         {notifyErrorListeners(_input.LT(-1), "Number not allowed here", (RecognitionException)null);}
+        | id_no_type  {notifyErrorListeners(_input.LT(-1), "Not a type name", (RecognitionException)null);}
+        | NUM_DEC     {notifyErrorListeners(_input.LT(-1), "Decimal number not allowed here", (RecognitionException)null);}
+
+
+        /*| DOUBLE_LINE {notifyErrorListeners("Not a type name");}
+        | ARROW       {notifyErrorListeners("Not a type name");}
+        | OPEN_BRACE  {notifyErrorListeners("Not a type name");}
+        | CLOSE_BRACE {notifyErrorListeners("Not a type name");}
+        | OPEN_PAR    {notifyErrorListeners("Not a type name");}
+        | CLOSE_PAR   {notifyErrorListeners("Not a type name");}
+        | COLON       {notifyErrorListeners("Not a type name");}
+        | SEMICOLON   {notifyErrorListeners("Not a type name");}
+        | DOT         {notifyErrorListeners("Not a type name");}
+        | COMMA       {notifyErrorListeners("Not a type name");}
+        | NEQ         {notifyErrorListeners("Not a type name");}
+        | EQ          {notifyErrorListeners("Not a type name");}
+        | GEQ         {notifyErrorListeners("Not a type name");}
+        | LEQ         {notifyErrorListeners("Not a type name");}
+        | OPEN_BRACK  {notifyErrorListeners("Not a type name");}
+        | CLOSE_BRACK {notifyErrorListeners("Not a type name");}
+        | CLOSE_ANGLE {notifyErrorListeners("Not a type name");}
+        | OPEN_ANGLE  {notifyErrorListeners("Not a type name");}
+        | MINUS       {notifyErrorListeners("Not a type name");}
+        | PLUS        {notifyErrorListeners("Not a type name");}
+        | DIV         {notifyErrorListeners("Not a type name");}
+        | STAR        {notifyErrorListeners("Not a type name");}
+        | BANG        {notifyErrorListeners("Not a type name");}
+        | ASSIGN      {notifyErrorListeners("Not a type name");}
+        | FOR         {notifyErrorListeners("Not a type name");}
+        | OR          {notifyErrorListeners("Not a type name");}
+        | IF          {notifyErrorListeners("Not a type name");}
+        | ELSE        {notifyErrorListeners("Not a type name");}
+        | AND         {notifyErrorListeners("Not a type name");}
+        | TRUE        {notifyErrorListeners("Not a type name");}
+        | FALSE       {notifyErrorListeners("Not a type name");}
+        | IN          {notifyErrorListeners("Not a type name");}
+        | RETURN      {notifyErrorListeners("Not a type name");}
+        | VAR         {notifyErrorListeners("Not a type name");}*/
         ;
 
 definition

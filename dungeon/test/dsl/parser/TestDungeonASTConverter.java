@@ -1658,4 +1658,32 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.ErrorNode, child5.type);
     Assert.assertTrue(child5 instanceof ASTLexerErrorNode);
   }
+
+  @Test
+  public void testWeird() {
+    String program =
+        """
+      ;asa(asa 2asa<<<derp;return;while
+
+      // Aufgabendefinition
+      single_choice_task meine_aufgabe {
+          description: "Das ist der Aufgabentext",
+          grading_function: grade_single_choice_task
+      }
+      """;
+
+    var env = new TestEnvironment();
+    env.addMockTypeName("single_choice_task");
+    env.addMockTypeName("assign_task");
+    env.addMockTypeName("dungeon_config");
+
+
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, true);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+    boolean b = true;
+
+    // TODO: it works, no test it
+  }
 }

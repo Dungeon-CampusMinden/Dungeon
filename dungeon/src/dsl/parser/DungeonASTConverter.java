@@ -145,6 +145,18 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
+  public void enterError_recovery(DungeonDSLParser.Error_recoveryContext ctx) {
+    this.errorRuleStack.push(ctx);
+  }
+
+  @Override
+  public void exitError_recovery(DungeonDSLParser.Error_recoveryContext ctx) {
+    var offendingSymbolNode = getOffendingSymbolNode(ctx);
+    astStack.push(offendingSymbolNode);
+    boolean b = true;
+  }
+
+  @Override
   public void enterDefinition(DungeonDSLParser.DefinitionContext ctx) {}
 
   @Override
@@ -613,11 +625,22 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node offendingSymbolNode = Node.NONE;
     var ctxStart = ctx.getStart().getStartIndex();
     ParserRuleContext ctxToSearch = ctx;
-    while (offendingSymbolNode.equals(Node.NONE) && ctx != null) {
-      int count = ctx.getChildCount();
+    HashSet<ParseTree> ctxsToSkip = new HashSet<>();
+    ctxsToSkip.add(ctx);
+    while (offendingSymbolNode.equals(Node.NONE) && ctxToSearch != null) {
+      int count = ctxToSearch.getChildCount();
       for (int i = 0; i < count && offendingSymbolNode.equals(Node.NONE); i++) {
-        var child = ctx.getChild(i);
-        if (child instanceof TerminalNode tn) {
+        var child = ctxToSearch.getChild(i);
+
+        if (ctxsToSkip.contains(child)) {
+          // skip the originally passed ctx on a pass, where we iterate over it's parent
+          // this will be a problem, if we widen the search successively!
+          // should somehow store the ctx's to skip
+          ctxsToSkip.add(ctxToSearch);
+          continue;
+        }
+
+        if (child instanceof TerminalNode tn) { // TODO: what happens, if ctx does not contain a terminal node straight away?
           var symbol = tn.getSymbol();
           if (this.offendingTokens.contains(symbol)) {
             if (symbol.getStartIndex() >= ctxStart) {
@@ -625,9 +648,42 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
               offendingSymbolNode = new ASTOffendingSymbol(tn, errorRecord);
             }
           }
+        } else {
+          Stack<ParseTree> s = new Stack<>();
+          ParseTree curr = child;
+
+          // algorithmus:
+          // - wenn node ein terminal node ist, check, ob es einen hinter dem Startindex liegt und ob es einen
+          //   ErrorRecord dafür gibt
+          // - wenn kein terminal node, dann von links nach rechts alle knoten durchgehen
+
+          // Traverse the tree
+          while (curr != null || !s.isEmpty())
+          {
+            if (curr instanceof TerminalNode tn) {
+              var symbol = tn.getSymbol();
+              if (this.offendingTokens.contains(symbol)) {
+                if (symbol.getStartIndex() >= ctxStart) {
+                  var errorRecord = this.tokensErrorRecords.get(symbol);
+                  offendingSymbolNode = new ASTOffendingSymbol(tn, errorRecord);
+                  break;
+                }
+              }
+            } else {
+              for (int j = 0; j < curr.getChildCount(); j++) {
+                var c = curr.getChild(curr.getChildCount()- 1 - j);
+                s.push(c);
+              }
+            }
+            if (!s.empty()) {
+              curr = s.pop();
+            } else {
+              curr = null;
+            }
+          }
         }
       }
-      ctx = ctx.getParent();
+      ctxToSearch = ctxToSearch.getParent();
     }
     return offendingSymbolNode;
   }
@@ -1436,6 +1492,18 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       if (ctx.exception != null) {
         var record = ErrorListener.ErrorRecord.fromRecognitionException(ctx.exception);
         errorNode.setErrorRecord(record);
+      }
+
+      if (!errorNode.hasErrorRecord()) {
+        // try to get it
+        var offendingSymbolNode = getOffendingSymbolNode(ctx);
+        if (offendingSymbolNode.equals(Node.NONE)) {
+          // TODO: handle
+        } else {
+          var offendingSymbol = ((ASTOffendingSymbol)offendingSymbolNode).getOffendingTerminal();
+          var record = this.tokensErrorRecords.get(offendingSymbol.getSymbol());
+          errorNode.setErrorRecord(record);
+        }
       }
 
       // pop current ctx from error rule stack
