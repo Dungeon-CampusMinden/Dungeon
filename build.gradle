@@ -5,6 +5,7 @@ buildscript {
 
 plugins {
     id 'com.diffplug.spotless' version "${spotlessVersion}"
+    id 'com.github.jk1.dependency-license-report' version "${licenseReportVersion}"
 }
 
 
@@ -44,4 +45,11 @@ spotless {
 
         target '**/*.java'
     }
+}
+
+
+import com.github.jk1.license.render.*
+
+licenseReport {
+    renderers = [new InventoryMarkdownReportRenderer()]
 }

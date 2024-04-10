@@ -1,6 +1,7 @@
 ext {
     // -- PLUGINS
     spotlessVersion = '6.25.0'
+    licenseReportVersion = '2.6'
 
     // -- DEPENDENCIES
     gdxVersion = '1.12.1'
