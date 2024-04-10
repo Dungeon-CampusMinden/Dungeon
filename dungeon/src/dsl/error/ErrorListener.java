@@ -81,7 +81,7 @@ public class ErrorListener extends BaseErrorListener {
             "Ambiguity, currentToken: '%s', LA2: '%s', startIndex: %x, stopIndex: %x\nconflicting alts: '%s'\nDFA: '%s'\nrule '%s'",
             currentToken, LA2, startIndex, stopIndex, ambigAlts, dfaString, rule);
 
-    LOGGER.warning(warning);
+    LOGGER.fine(warning);
   }
 
   @Override

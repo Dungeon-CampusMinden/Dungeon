@@ -1,5 +1,6 @@
 package dsl.error;
 
+import dsl.antlr.DungeonDSLParser;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -55,7 +56,9 @@ public class ErrorStrategy extends DefaultErrorStrategy {
 
   protected void beginErrorCondition(Parser recognizer) {
     this.errorRecoveryMode = true;
-    LOGGER.warning("BEGINNING ERROR CONDITION!");
+    if (recognizer.isTrace()) {
+      LOGGER.warning("BEGINNING ERROR CONDITION!");
+    }
   }
 
   public boolean inErrorRecoveryMode(Parser recognizer) {
@@ -64,7 +67,9 @@ public class ErrorStrategy extends DefaultErrorStrategy {
 
   protected void endErrorCondition(Parser recognizer) {
     if (this.errorRecoveryMode) {
-      LOGGER.warning("ENDING ERROR CONDITION!");
+      if (recognizer.isTrace()) {
+        LOGGER.warning("ENDING ERROR CONDITION!");
+      }
     }
     this.errorRecoveryMode = false;
     this.lastErrorStates = null;
@@ -105,6 +110,7 @@ public class ErrorStrategy extends DefaultErrorStrategy {
 
     this.lastErrorStates.add(recognizer.getState());
     IntervalSet followSet = this.getErrorRecoverySet(recognizer);
+
     if (recognizer.isTrace()) {
       LOGGER.warning("Entering consume until from 'recover'");
     }
@@ -214,15 +220,15 @@ public class ErrorStrategy extends DefaultErrorStrategy {
       LOGGER.warning(msg);
     }
     if (!this.singleTokenInsertion) {
-      LOGGER.warning("Single token insertion deactivated!");
+      if (recognizer.isTrace()) LOGGER.warning("Single token insertion deactivated!");
       return false;
     }
     if (expectingAtLL2.contains(currentSymbolType)) {
-      LOGGER.warning("Single token insertion SUCCESSFUL!");
+      if (recognizer.isTrace()) LOGGER.warning("Single token insertion SUCCESSFUL!");
       this.reportMissingToken(recognizer);
       return true;
     } else {
-      LOGGER.warning("Single token insertion UNSUCCESSFUL!");
+      if (recognizer.isTrace()) LOGGER.warning("Single token insertion UNSUCCESSFUL!");
       return false;
     }
   }
@@ -241,7 +247,7 @@ public class ErrorStrategy extends DefaultErrorStrategy {
       LOGGER.warning(msg);
     }
     if (!this.singleTokenDeletion) {
-      LOGGER.warning("Single token deletion deactivated!");
+      if (recognizer.isTrace()) LOGGER.warning("Single token deletion deactivated!");
       return null;
     }
     if (expecting.contains(nextTokenType)) {
@@ -259,7 +265,7 @@ public class ErrorStrategy extends DefaultErrorStrategy {
       this.reportMatch(recognizer);
       return matchedSymbol;
     } else {
-      LOGGER.warning("Single token deletion UNSUCCESSFUL!");
+      if (recognizer.isTrace()) LOGGER.warning("Single token deletion UNSUCCESSFUL!");
       return null;
     }
   }
@@ -353,7 +359,7 @@ public class ErrorStrategy extends DefaultErrorStrategy {
     IntervalSet recoverSet;
     for (recoverSet = new IntervalSet(new int[0]);
         ctx != null && ((RuleContext) ctx).invokingState >= 0;
-        ctx = ((RuleContext) ctx).parent) {
+        ctx = ((RuleContext) ctx).parent) { // TODO: program ctx has no parent, just a note
       ATNState invokingState = (ATNState) atn.states.get(((RuleContext) ctx).invokingState);
       RuleTransition rt = (RuleTransition) invokingState.transition(0);
       IntervalSet follow = atn.nextTokens(rt.followState);
@@ -373,14 +379,6 @@ public class ErrorStrategy extends DefaultErrorStrategy {
     }
 
     return recoverSet;
-
-    // TODO: my addition
-    /*HashSet<String> nameSet = new HashSet<>();
-    for (int entry : set.toSet()) {
-      nameSet.add(getDisplayName(entry));
-    }
-    return set;*/
-
   }
 
   protected void consumeUntil(Parser recognizer, IntervalSet set) {
@@ -412,7 +410,7 @@ public class ErrorStrategy extends DefaultErrorStrategy {
     // super.sync(recognizer);
 
     var currentToken = recognizer.getCurrentToken();
-    var context = recognizer.getContext();
+    var ctx = recognizer.getContext();
     var ruleContext = recognizer.getRuleContext();
 
     // THIS IS THE DEFAULT IMPLEMENTATION COPIED HERE FOR BETTER DEBUGGABILITY
