@@ -48,10 +48,6 @@ public class ListType extends ScopedSymbol implements IType {
             new FunctionType(BuiltInType.noType, BuiltInType.noType),
             ListValue.ClearMethod.instance);
     this.bind(clearMethod);
-
-    if (this.getIdx() == 211) {
-      boolean b = true;
-    }
   }
 
   @Override
