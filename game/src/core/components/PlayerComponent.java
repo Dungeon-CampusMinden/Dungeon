@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 public final class PlayerComponent implements Component {
 
   private final Map<Integer, InputData> callbacks;
+  private int openDialogs = 0;
 
   /** Create a new PlayerComponent. */
   public PlayerComponent() {
@@ -122,5 +123,24 @@ public final class PlayerComponent implements Component {
     public InputData(boolean repeat, Consumer<Entity> callback) {
       this(repeat, callback, true);
     }
+  }
+
+  /** Increases the dialogue counter by 1. */
+  public void incrementOpenDialogs() {
+    openDialogs++;
+  }
+
+  /** Decreases the dialogue counter by 1. */
+  public void decrementOpenDialogs() {
+    openDialogs--;
+  }
+
+  /**
+   * Indicates whether dialogs are currently open.
+   *
+   * @return true if dialogs are currently open, otherwise false
+   */
+  public boolean openDialogs() {
+    return openDialogs > 0;
   }
 }
