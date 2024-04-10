@@ -630,7 +630,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
           continue;
         }
 
-        if (child instanceof TerminalNode tn) { // TODO: what happens, if ctx does not contain a terminal node straight away?
+        if (child
+            instanceof
+            TerminalNode
+                    tn) { // TODO: what happens, if ctx does not contain a terminal node straight
+          // away?
           var symbol = tn.getSymbol();
           if (this.offendingTokens.contains(symbol)) {
             if (symbol.getStartIndex() >= ctxStart) {
@@ -643,13 +647,13 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
           ParseTree curr = child;
 
           // algorithmus:
-          // - wenn node ein terminal node ist, check, ob es einen hinter dem Startindex liegt und ob es einen
+          // - wenn node ein terminal node ist, check, ob es einen hinter dem Startindex liegt und
+          // ob es einen
           //   ErrorRecord dafür gibt
           // - wenn kein terminal node, dann von links nach rechts alle knoten durchgehen
 
           // Traverse the tree
-          while (curr != null || !s.isEmpty())
-          {
+          while (curr != null || !s.isEmpty()) {
             if (curr instanceof TerminalNode tn) {
               var symbol = tn.getSymbol();
               if (this.offendingTokens.contains(symbol)) {
@@ -661,7 +665,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
               }
             } else {
               for (int j = 0; j < curr.getChildCount(); j++) {
-                var c = curr.getChild(curr.getChildCount()- 1 - j);
+                var c = curr.getChild(curr.getChildCount() - 1 - j);
                 s.push(c);
               }
             }
@@ -1490,7 +1494,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
         if (offendingSymbolNode.equals(Node.NONE)) {
           // TODO: handle
         } else {
-          var offendingSymbol = ((ASTOffendingSymbol)offendingSymbolNode).getOffendingTerminal();
+          var offendingSymbol = ((ASTOffendingSymbol) offendingSymbolNode).getOffendingTerminal();
           var record = this.tokensErrorRecords.get(offendingSymbol.getSymbol());
           errorNode.setErrorRecord(record);
         }

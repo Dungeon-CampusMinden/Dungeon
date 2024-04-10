@@ -1616,7 +1616,7 @@ public class TestDungeonASTConverter {
   }
 
   @Test
-  public void testEvenMoreBroken() {
+  public void testLexingError() {
     String program =
         """
         #impot "test.dng;kjl;ajsdf
@@ -1676,7 +1676,6 @@ public class TestDungeonASTConverter {
     env.addMockTypeName("single_choice_task");
     env.addMockTypeName("assign_task");
     env.addMockTypeName("dungeon_config");
-
 
     String parseTree = Helpers.getPrettyPrintedParseTree(program, env, true);
     System.out.println(parseTree);
