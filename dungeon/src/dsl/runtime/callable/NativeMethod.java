@@ -28,7 +28,7 @@ public class NativeMethod extends Symbol implements ICallable {
   public NativeMethod(
       String name, IScope parentScope, FunctionType functionType, IInstanceCallable callable) {
     super(name, parentScope, functionType);
-    this.symbolType = Symbol.Type.Callable;
+    this.symbolType = SymbolType.Callable;
     this.instanceCallable = callable;
   }
 

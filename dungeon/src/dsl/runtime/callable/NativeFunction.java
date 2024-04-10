@@ -11,7 +11,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 public abstract class NativeFunction extends ScopedSymbol implements ICallable {
   protected NativeFunction(String name, IScope parentScope, FunctionType type) {
     super(name, parentScope, type);
-    this.symbolType = Symbol.Type.Callable;
+    this.symbolType = SymbolType.Callable;
 
     // create generically named parameter symbols
     for (int i = 0; i < type.getParameterTypes().size(); i++) {

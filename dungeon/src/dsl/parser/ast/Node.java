@@ -18,13 +18,6 @@ public class Node {
 
   @Property @Transient private RecognitionException exception;
 
-  /**
-   * @return The unique index of this node
-   */
-  public int getIdx() {
-    return idx;
-  }
-
   public enum Type {
     NONE,
     Program,
@@ -101,7 +94,9 @@ public class Node {
   private Node parent;
 
   @Property @Transient private SourceFileReference sourceFileReference = SourceFileReference.NULL;
-  @Id private final int idx;
+  @Id @GeneratedValue private long ogmIdx;
+
+  private final int internalIdx;
 
   public Node() {
     this(Type.NONE, new ArrayList<>());
@@ -115,7 +110,7 @@ public class Node {
    */
   public Node(Type nodeType, ArrayList<Node> nodeChildren) {
     _idx++;
-    idx = _idx;
+    internalIdx = _idx;
 
     type = nodeType;
     children = nodeChildren;
@@ -140,7 +135,7 @@ public class Node {
    */
   public Node(Type nodeType) {
     _idx++;
-    idx = _idx;
+    internalIdx = _idx;
 
     type = nodeType;
     children = new ArrayList<>();
@@ -155,7 +150,7 @@ public class Node {
    */
   public Node(Type nodeType, SourceFileReference sourceReference) {
     _idx++;
-    idx = _idx;
+    internalIdx = _idx;
 
     type = nodeType;
     children = new ArrayList<>();
@@ -195,6 +190,10 @@ public class Node {
     }
   }
 
+  public int getInternalIdx() {
+    return internalIdx;
+  }
+
   public Node getParent() {
     return parent;
   }
@@ -216,6 +215,7 @@ public class Node {
    * @return The {@link SourceFileReference} for this node (or the first one found in pre-order dps
    *     in children).
    */
+  // TODO: would be nice, if this could represent a range
   public SourceFileReference getSourceFileReference() {
     if (sourceFileReference != SourceFileReference.NULL) {
       return sourceFileReference;

@@ -28,7 +28,7 @@ import org.neo4j.ogm.annotation.*;
 /** Represents a symbol in a program */
 @NodeEntity
 public class Symbol {
-  public enum Type {
+  public enum SymbolType {
     Base,
     Scoped, // for handling of datatypes for object definitions
     Callable
@@ -46,9 +46,11 @@ public class Symbol {
   @Relationship(type = "IN_SCOPE", direction = Relationship.Direction.OUTGOING)
   protected IScope scope;
 
-  @Property protected Type symbolType;
+  @Property protected SymbolType symbolType;
 
-  @Id private int idx;
+  @Id @GeneratedValue private long ogmIdx;
+
+  private int internalIdx;
 
   public static Symbol NULL = new Symbol("NULL SYMBOL", null, null);
 
@@ -99,16 +101,16 @@ public class Symbol {
    *
    * @return the index of the symbol
    */
-  public int getIdx() {
-    return idx;
+  public int getInternalIdx() {
+    return internalIdx;
   }
 
   /**
-   * Getter for the {@link Type} of the symbol
+   * Getter for the {@link SymbolType} of the symbol
    *
-   * @return the {@link Type} of the symbol
+   * @return the {@link SymbolType} of the symbol
    */
-  public Type getSymbolType() {
+  public SymbolType getSymbolType() {
     return symbolType;
   }
 
@@ -120,11 +122,11 @@ public class Symbol {
    * @param dataType the datatype of the symbol
    */
   public Symbol(String symbolName, IScope parentScope, IType dataType) {
-    this.idx = s_idx++;
+    this.internalIdx = s_idx++;
     this.scope = parentScope;
     this.name = symbolName;
     this.dataType = dataType;
-    this.symbolType = Type.Base;
+    this.symbolType = SymbolType.Base;
   }
 
   /** Constructor */
@@ -132,7 +134,7 @@ public class Symbol {
     this.scope = null;
     this.name = "no name";
     this.dataType = null;
-    this.symbolType = Type.Base;
+    this.symbolType = SymbolType.Base;
   }
 
   @Override

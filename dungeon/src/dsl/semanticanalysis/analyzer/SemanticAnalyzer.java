@@ -428,7 +428,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     // TODO: errorhandling
     if (typeSymbol == Symbol.NULL) {
       errorStringBuilder.append("Could not resolve type " + typeName);
-    } else if (typeSymbol.getSymbolType() != Symbol.Type.Scoped) {
+    } else if (typeSymbol.getSymbolType() != Symbol.SymbolType.Scoped) {
       errorStringBuilder.append("Type " + typeName + " is not scoped!");
     } else {
       scopeStack.push((AggregateType) typeSymbol);

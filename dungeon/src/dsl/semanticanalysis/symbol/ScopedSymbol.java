@@ -50,7 +50,7 @@ public class ScopedSymbol extends Symbol implements IScope {
    */
   public ScopedSymbol(String name, IScope parentScope, IType type) {
     super(name, parentScope, type);
-    symbolType = Type.Scoped;
+    symbolType = SymbolType.Scoped;
     this.symbols = new HashMap<>();
     this.symbolList = new ArrayList<>();
   }

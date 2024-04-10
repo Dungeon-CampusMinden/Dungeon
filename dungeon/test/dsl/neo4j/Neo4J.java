@@ -417,7 +417,7 @@ public class Neo4J {
   static int countSymbolsWithCallableType(IScope scope, int count) {
     var symbols = scope.getSymbols();
     for (var symbol : symbols) {
-      if (symbol.getSymbolType().equals(Symbol.Type.Callable)) {
+      if (symbol.getSymbolType().equals(Symbol.SymbolType.Callable)) {
         count++;
       }
       if (symbol instanceof IScope childScope) {
@@ -430,7 +430,7 @@ public class Neo4J {
   static ArrayList<Symbol> getCallableWithType(IScope scope, ArrayList<Symbol> callables) {
     var symbols = scope.getSymbols();
     for (var symbol : symbols) {
-      if (symbol.getSymbolType().equals(Symbol.Type.Callable)) {
+      if (symbol.getSymbolType().equals(Symbol.SymbolType.Callable)) {
         callables.add(symbol);
       }
       if (symbol instanceof ListType listType

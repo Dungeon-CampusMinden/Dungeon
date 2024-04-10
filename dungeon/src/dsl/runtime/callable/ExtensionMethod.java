@@ -33,7 +33,7 @@ public class ExtensionMethod extends Symbol implements ICallable {
       FunctionType functionType,
       IDSLExtensionMethod<Object, Object> callable) {
     super(name, parentScope, functionType);
-    this.symbolType = Symbol.Type.Callable;
+    this.symbolType = SymbolType.Callable;
     this.extensionMethod = callable;
   }
 

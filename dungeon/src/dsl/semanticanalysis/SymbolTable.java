@@ -99,8 +99,8 @@ public class SymbolTable {
     }
 
     // this is just for housekeeping and keeping track of the objects
-    symbolIdxToSymbol.put(symbol.getIdx(), symbol);
-    astNodeIdxToAstNode.put(nodeOfSymbol.getIdx(), nodeOfSymbol);
+    // symbolIdxToSymbol.put(symbol.getIdx(), symbol);
+    // astNodeIdxToAstNode.put(nodeOfSymbol.getIdx(), nodeOfSymbol);
   }
 
   /**
