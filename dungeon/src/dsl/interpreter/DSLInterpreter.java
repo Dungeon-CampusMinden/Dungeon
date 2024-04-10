@@ -3,6 +3,7 @@ package dsl.interpreter;
 import dsl.antlr.DungeonDSLLexer;
 import dsl.antlr.DungeonDSLParser;
 import dsl.error.ErrorListener;
+import dsl.error.ErrorStrategy;
 import dsl.interpreter.taskgraph.Interpreter;
 import dsl.parser.DungeonASTConverter;
 import dsl.parser.ast.*;
@@ -658,6 +659,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
     var parser = new DungeonDSLParser(tokenStream, environment);
     parser.removeErrorListeners();
     parser.addErrorListener(el);
+    parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary(), true, true));
     var programParseTree = parser.program();
 
     DungeonASTConverter astConverter =

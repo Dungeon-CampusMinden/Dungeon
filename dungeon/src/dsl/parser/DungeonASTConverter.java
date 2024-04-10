@@ -3,6 +3,7 @@ package dsl.parser;
 import dsl.antlr.DungeonDSLLexer;
 import dsl.antlr.DungeonDSLParser;
 import dsl.error.ErrorListener;
+import dsl.error.ErrorStrategy;
 import dsl.parser.ast.*;
 import dsl.semanticanalysis.environment.IEnvironment;
 import graph.taskdependencygraph.TaskEdge;
@@ -74,6 +75,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var parser = new DungeonDSLParser(tokenStream, environment);
     parser.removeErrorListeners();
     parser.addErrorListener(listener);
+    parser.setErrorHandler(new ErrorStrategy(lexer.getVocabulary(), true, true));
     var programParseTree = parser.program();
 
     DungeonASTConverter astConverter =
@@ -142,18 +144,6 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
     var programNode = new Node(Node.Type.Program, new ArrayList<>(nodes));
     astStack.push(programNode);
-  }
-
-  @Override
-  public void enterError_recovery(DungeonDSLParser.Error_recoveryContext ctx) {
-    this.errorRuleStack.push(ctx);
-  }
-
-  @Override
-  public void exitError_recovery(DungeonDSLParser.Error_recoveryContext ctx) {
-    var offendingSymbolNode = getOffendingSymbolNode(ctx);
-    astStack.push(offendingSymbolNode);
-    boolean b = true;
   }
 
   @Override

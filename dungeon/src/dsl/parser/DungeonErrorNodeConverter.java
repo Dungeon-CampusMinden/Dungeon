@@ -28,11 +28,6 @@ public class DungeonErrorNodeConverter implements DungeonDSLParserVisitor<Node> 
   }
 
   @Override
-  public Node visitError_recovery(DungeonDSLParser.Error_recoveryContext ctx) {
-    return new Node(Node.Type.ErrorNode, this.childNodes);
-  }
-
-  @Override
   public Node visitDefinition(DungeonDSLParser.DefinitionContext ctx) {
     return genericErrorNode(this.childNodes);
   }

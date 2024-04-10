@@ -442,7 +442,24 @@ public class ErrorStrategy extends DefaultErrorStrategy {
               return;
             }
 
-            throw new InputMismatchException(recognizer);
+            // -------- my addition -------
+            // explanation: if the parser enters the 'program'-rule and encounters multiple
+            // tokens, which do not match any of its sub-rules, it will land here, throw a
+            // InputMismatchException and will call `recover` afterwards, which in turn will calculate
+            // the recovery-set in a way, which won't allow for anything to match it (because
+            // the program-rule is the topmost rule called and therefore has no surrounding context
+            // determining the recovery-set. This will cause the parser to gobble up all remaining tokens
+            // and after that just exit the rule.
+            // By not throwing an input mismatch exception here and falling through to the following cases,
+            // we gain the chance to resynchronize on any of the expected tokens. This is because the calculation
+            // of the following-set in this case (whatFollowsLoopIterationOrRule) actually contains all expected tokens,
+            // not only the 'normally' calculated following-set. For more information about how the 'normal' follow set
+            // gets calculated, see the difference between FOLLOW sets and following sets in
+            // 'The definitive ANTLR4 Reference' on p. 161.
+            if (!(ctx instanceof DungeonDSLParser.ProgramContext)) {
+              // -------- end of my addition
+              throw new InputMismatchException(recognizer);
+            }
           case 9: // STAR_LOOP_BACK
           case 11: // PLUS_LOOP_BACK
             this.reportUnwantedToken(recognizer);
