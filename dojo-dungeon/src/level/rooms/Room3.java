@@ -23,8 +23,34 @@ import task.tasktype.Quiz;
 import task.tasktype.quizquestion.FreeText;
 
 public class Room3 extends Room {
-  // TODO: add more complex regexes
-  private final String[] regexes = {"Wort", "\\d+", "((public|private|protected) )?class"};
+  private final String[] regexes;
+
+  {
+    Random r = new Random();
+    int min = r.nextInt(4) + 2; // 2-5
+    int max = r.nextInt(5) + min; // 2-9
+    regexes =
+        new String[] {
+          ".",
+          String.format(".{%d,%d}", min, max),
+          "\\d+",
+          String.format("\\d{%d,%d}", min, max),
+          "\\D+",
+          String.format("\\D{%d,%d}", min, max),
+          "\\s+",
+          String.format("\\s{%d,%d}", min, max),
+          "\\S+",
+          String.format("\\S{%d,%d}", min, max),
+          "\\w+",
+          String.format("\\w{%d,%d}", min, max),
+          "\\W+",
+          String.format("\\W{%d,%d}", min, max),
+          "Word",
+          "(dog){3}",
+          "((public|private|protected) )?class \\w+",
+          "^.(?=.*[a-z].)(?=.*[0-9].)(?=.*[@#$,.].).{6,}$",
+        };
+  }
 
   private Entity bossOgrex;
 
