@@ -94,7 +94,7 @@ public class L3_R2_Fehler_Quader extends TaskRoom {
             impHealth,
             (e) -> {
               // Test players solution
-              DojoCompiler.TestResult testResult = new DojoCompiler().testRoom8();
+              DojoCompiler.TestResult testResult = new DojoCompiler().testMathematicalClass();
               if (testResult.passed()) {
                 OkDialog.showOkDialog(
                     "Danke, du hast die Aufgabe gelöst.",

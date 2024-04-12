@@ -32,8 +32,8 @@ import java.util.function.Function;
  */
 public class L1_R2_Fehler_Syntax extends TaskRoom {
   private final String FILENAME1 = "../dojo-dungeon/todo-assets/lvl1r2/FehlerhafteKlasse.java";
-  private final String FILENAME2 = "../dojo-dungeon/todo-assets/lvl1r2/FehlerhafteKlasse2.java";
-  private final String CLASS_NAME = "FehlerhafteKlasse2";
+  private final String FILENAME2 = "../dojo-dungeon/todo-assets/lvl1r2/Klasse.java";
+  private final String CLASS_NAME = "Klasse";
   private final String[] TEXT = {
     // 0
     "Die Datei " + FILENAME1 + " enthält 4 Fehler (Syntax und Semantik).",
@@ -97,7 +97,8 @@ public class L1_R2_Fehler_Syntax extends TaskRoom {
     IVoidFunction openDialog1 = () -> OkDialog.showOkDialog(TEXT[3], "Aufgabe 1:", openDialog2);
     Function<Task, Boolean> openDialog3 =
         (t) -> {
-          DojoCompiler.TestResult results = new DojoCompiler().test1(FILENAME2, CLASS_NAME);
+          DojoCompiler.TestResult results =
+              new DojoCompiler().testWrongClass1(FILENAME2, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 1:", this::openOrCloseChests);
@@ -113,7 +114,8 @@ public class L1_R2_Fehler_Syntax extends TaskRoom {
     IVoidFunction openDialog5 = () -> OkDialog.showOkDialog(TEXT[7], "Aufgabe 2:", openDialog6);
     Function<Task, Boolean> openDialog7 =
         (t) -> {
-          DojoCompiler.TestResult results = new DojoCompiler().test2(FILENAME2, CLASS_NAME);
+          DojoCompiler.TestResult results =
+              new DojoCompiler().testWrongClass2(FILENAME2, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 2:", this::openOrCloseChests);
@@ -129,7 +131,8 @@ public class L1_R2_Fehler_Syntax extends TaskRoom {
     IVoidFunction openDialog9 = () -> OkDialog.showOkDialog(TEXT[11], "Aufgabe 3:", openDialog10);
     Function<Task, Boolean> openDialog11 =
         (t) -> {
-          DojoCompiler.TestResult results = new DojoCompiler().test3(FILENAME2, CLASS_NAME);
+          DojoCompiler.TestResult results =
+              new DojoCompiler().testWrongClass3(FILENAME2, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 3:", this::openOrCloseChests);
