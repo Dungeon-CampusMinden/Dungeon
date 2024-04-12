@@ -20,11 +20,14 @@ import javax.tools.*;
 
 public class Room12 extends Room {
 
+  private static final String IMP_FQC = "dojo.monster.MyImp";
+  private static final String IMP_PATH = "src/dojo/monster/MyImp";
+
   public static class ReplacingClassLoader extends ClassLoader {
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-      if (name.equals("level.monster.MyImp")) {
-        try (InputStream is = new FileInputStream("src/level/monster/MyImp.class")) {
+      if (name.equals(IMP_FQC)) {
+        try (InputStream is = new FileInputStream(IMP_PATH + ".class")) {
           byte[] buf = new byte[10000];
           int len = is.read(buf);
           return defineClass(name, buf, 0, len);
@@ -78,9 +81,9 @@ public class Room12 extends Room {
   private Class<?> compile() throws Exception {
     // Compile source file
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    compiler.run(null, null, null, new File("src/level/monster/MyImp.java").getPath());
+    compiler.run(null, null, null, new File(IMP_PATH + ".java").getPath());
 
     // Load compiled class, and replace existing MyImp class with new one
-    return new ReplacingClassLoader().loadClass("dojo.monster.MyImp");
+    return new ReplacingClassLoader().loadClass(IMP_FQC);
   }
 }

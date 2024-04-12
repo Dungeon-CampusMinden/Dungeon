@@ -12,8 +12,6 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 
 public class MyImp {
-  public static final String PATH_TO_IMP = "dojo-dungeon/src/level/monster/MyImp.java";
-
   public MyImp(Entity entity, boolean isInitialized) {
     if (!isInitialized) {
       entity.name("MyImp");
@@ -51,7 +49,7 @@ public class MyImp {
               true,
               (entity1, entity2) ->
                   OkDialog.showOkDialog(
-                      "Du findest meine Implementierung in " + PATH_TO_IMP + ".",
+                      "Du findest meine Implementierung in \"" + getClass().getName() + "\".",
                       "Aufgabe in diesem Raum:",
                       () ->
                           OkDialog.showOkDialog(

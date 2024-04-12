@@ -1,4 +1,4 @@
-package dojo.rooms.level_3;
+package dojo.rooms.level_4;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
