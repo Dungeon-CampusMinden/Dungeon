@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms.level_4;
 
 import contrib.components.*;
 import contrib.entities.AIFactory;
@@ -14,6 +14,8 @@ import core.components.VelocityComponent;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
+import dojo.rooms.LevelRoom;
+import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Set;
@@ -23,7 +25,7 @@ public class Room10 extends Room {
   private int monsterGroupsSpawned = 0;
   private int activeMonsters = 0;
 
-  Room10(
+  public Room10(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

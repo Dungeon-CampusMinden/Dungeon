@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms.level_3;
 
 import contrib.components.*;
 import contrib.entities.AIFactory;
@@ -19,14 +19,17 @@ import core.components.VelocityComponent;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
+import dojo.compiler.DojoCompiler;
+import dojo.rooms.LevelRoom;
+import dojo.rooms.Room;
+import dojo.rooms.TaskRoom;
 import java.io.IOException;
 import java.util.Set;
-import level.compiler.DojoCompiler;
 
 public class Room8 extends TaskRoom {
   private int impHealth = 10;
 
-  Room8(
+  public Room8(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

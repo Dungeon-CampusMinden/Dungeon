@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms.level_1;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
@@ -12,13 +12,16 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.IVoidFunction;
 import core.utils.components.path.SimpleIPath;
+import dojo.compiler.DojoCompiler;
+import dojo.rooms.LevelRoom;
+import dojo.rooms.Room;
+import dojo.rooms.TaskRoom;
+import dojo.tasks.Task;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
-import level.compiler.DojoCompiler;
-import level.tasks.Task;
 
 public class Room2 extends TaskRoom {
   private final String FILENAME1 = "../dojo-dungeon/todo-assets/r2/FehlerhafteKlasse.java";
@@ -55,7 +58,7 @@ public class Room2 extends TaskRoom {
   private final String[] TASK_NAMES = {"task_1_easy", "task_2_medium", "task_3_hard"};
   private final Entity[] CHESTS = new Entity[3];
 
-  Room2(
+  public Room2(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

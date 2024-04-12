@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -10,10 +10,10 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.IVoidFunction;
 import core.utils.components.path.SimpleIPath;
+import dojo.compiler.DojoCompiler;
+import dojo.tasks.Task;
 import java.io.IOException;
 import java.util.Set;
-import level.compiler.DojoCompiler;
-import level.tasks.Task;
 
 public class Room5ToRefactor extends TaskRoom {
   public final String title = "Title";

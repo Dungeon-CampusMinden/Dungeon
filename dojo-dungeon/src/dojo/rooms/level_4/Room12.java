@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms.level_4;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
@@ -7,6 +7,9 @@ import contrib.level.generator.graphBased.RoomGenerator;
 import core.Entity;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
+import dojo.monster.MyImp;
+import dojo.rooms.LevelRoom;
+import dojo.rooms.Room;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -14,7 +17,6 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import javax.tools.*;
-import level.monster.MyImp;
 
 public class Room12 extends Room {
 
@@ -34,7 +36,7 @@ public class Room12 extends Room {
     }
   }
 
-  Room12(
+  public Room12(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
@@ -79,6 +81,6 @@ public class Room12 extends Room {
     compiler.run(null, null, null, new File("src/level/monster/MyImp.java").getPath());
 
     // Load compiled class, and replace existing MyImp class with new one
-    return new ReplacingClassLoader().loadClass("level.monster.MyImp");
+    return new ReplacingClassLoader().loadClass("dojo.monster.MyImp");
   }
 }

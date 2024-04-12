@@ -1,8 +1,9 @@
-package level.compiler;
+package dojo.compiler;
 
 import core.Entity;
 import core.components.DrawComponent;
 import core.utils.components.path.SimpleIPath;
+import dojo.rooms.Room;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-import level.rooms.Room;
 
 public class DojoCompiler {
   public record TestResult(String testName, boolean passed, List<String> messages) {}

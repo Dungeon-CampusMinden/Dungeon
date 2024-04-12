@@ -13,13 +13,13 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import dojo.rooms.LevelRoom;
+import dojo.rooms.Room;
+import dojo.rooms.builder.RoomBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
-import level.rooms.LevelRoom;
-import level.rooms.Room;
-import level.rooms.RoomBuilder;
 
 /** Starter for the dojo-dungeon game. */
 public class DojoStarter {

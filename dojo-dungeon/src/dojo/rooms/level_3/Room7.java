@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms.level_3;
 
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
@@ -18,6 +18,9 @@ import core.level.utils.LevelSize;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import dojo.rooms.LevelRoom;
+import dojo.rooms.MonsterRoom;
+import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.*;
 

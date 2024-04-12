@@ -1,4 +1,4 @@
-package level.item;
+package dojo.item;
 
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
@@ -9,7 +9,7 @@ import core.Game;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
-import level.rooms.Room;
+import dojo.rooms.Room;
 
 /** An implementation for an item that acts as a key and opens specific doors on pickup. */
 public class ItemKey extends Item {

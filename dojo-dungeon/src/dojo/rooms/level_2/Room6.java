@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms.level_2;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -10,18 +10,18 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.IVoidFunction;
 import core.utils.components.path.SimpleIPath;
+import dojo.rooms.LevelRoom;
+import dojo.rooms.Room;
+import dojo.rooms.TaskRoom;
+import dojo.tasks.Task;
 import java.io.IOException;
 import java.util.Set;
-import level.compiler.DojoCompiler;
-import level.tasks.Task;
 
-public class Room5 extends TaskRoom {
-  private final String FILENAME1 = "../dojo-dungeon/todo-assets/r5/Monster.java";
-  private final String FILENAME2 = "../dojo-dungeon/todo-assets/r5/MyMonster.java";
-  private final String CLASS_NAME = "MyMonster";
-  private final String title = "Monster besiegen";
+public class Room6 extends TaskRoom {
+  private final String FILENAME1 = "Room5ToRefactor.java";
+  private final String title = "Refactoring";
 
-  Room5(
+  public Room6(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
@@ -42,31 +42,22 @@ public class Room5 extends TaskRoom {
     IVoidFunction empty = () -> {};
     addTask(
         new Task(
-                this,
-                "task1",
-                empty,
-                () ->
-                    OkDialog.showOkDialog(
-                        String.format(
-                            "Implementiere die Datei %s, nach der Vorgabe in %s. Wenn das Monster besiegt ist, soll sich die Tür zum nächsten Raum öffnen.",
-                            FILENAME2, FILENAME1),
-                        title,
-                        empty),
-                (t1) -> {
-                  DojoCompiler.TestResult results =
-                      new DojoCompiler().spawnMonsterToOpenTheDoor(FILENAME2, CLASS_NAME, this);
-                  if (results.passed()) {
-                    OkDialog.showOkDialog(
-                        "Ok! " + results.messages(),
-                        title,
-                        () -> OkDialog.showOkDialog("Das Monster ist gespawnt!", title, empty));
-                    return true;
-                  }
-                  OkDialog.showOkDialog("Fehler: " + results.messages(), title, empty);
-                  return false;
-                },
-                empty)
-            .setShouldOpenDoors(false));
+            this,
+            "task1",
+            empty,
+            () ->
+                OkDialog.showOkDialog(
+                    String.format(
+                        "Refactor die Datei %s und lasse die korrigierte Datei von einem Tutor überprüfen.",
+                        FILENAME1),
+                    title,
+                    empty),
+            (t1) -> {
+              OkDialog.showOkDialog(
+                  "Das war schon alles, die Tür zum nächsten Level ist geöffnet.", title, empty);
+              return true;
+            },
+            empty));
 
     // Create questioner
     Entity questioner = new Entity();
@@ -88,7 +79,7 @@ public class Room5 extends TaskRoom {
                         },
                         () ->
                             OkDialog.showOkDialog(
-                                "Das Monster ist bereits gespawnt!", title, empty))));
+                                "Die Aufgabe ist abgeschlossen!", title, empty))));
 
     // Add questioner to room
     addRoomEntities(Set.of(questioner));

@@ -1,4 +1,4 @@
-package level.monster;
+package dojo.monster;
 
 import contrib.components.*;
 import contrib.entities.AIFactory;

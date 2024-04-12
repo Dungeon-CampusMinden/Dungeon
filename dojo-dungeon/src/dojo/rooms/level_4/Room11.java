@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms.level_4;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -9,6 +9,8 @@ import core.components.PositionComponent;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
+import dojo.rooms.LevelRoom;
+import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +25,6 @@ import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
 
 public class Room11 extends Room {
-
   private record QuestionAndAnswers(Quiz question, Set<Quiz.Content> correctAnswers) {}
 
   private static QuestionAndAnswers question;
@@ -31,7 +32,7 @@ public class Room11 extends Room {
   // to toggle between question types
   private static int toggle = -1;
 
-  Room11(
+  public Room11(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

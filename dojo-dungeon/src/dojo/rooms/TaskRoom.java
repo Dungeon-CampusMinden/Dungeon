@@ -1,17 +1,17 @@
-package level.rooms;
+package dojo.rooms;
 
 import contrib.level.generator.graphBased.RoomGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
+import dojo.tasks.Task;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import level.tasks.Task;
 
 public class TaskRoom extends Room {
   private final List<Task> roomTasks = new ArrayList<>();
 
-  TaskRoom(
+  public TaskRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

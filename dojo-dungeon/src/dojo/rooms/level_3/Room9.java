@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms.level_3;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -9,6 +9,8 @@ import core.components.PositionComponent;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
+import dojo.rooms.LevelRoom;
+import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,7 +30,7 @@ public class Room9 extends Room {
   private Entity zauberer;
   private int correctAnswerCount = 0;
 
-  Room9(
+  public Room9(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

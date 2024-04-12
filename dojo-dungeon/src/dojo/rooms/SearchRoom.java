@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms;
 
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
@@ -10,17 +10,17 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
+import dojo.item.ItemKey;
 import java.io.IOException;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import level.item.ItemKey;
 
 public class SearchRoom extends MonsterRoom {
   private final String keyType;
   private final String keyDescription;
   private final IPath keyTexture;
 
-  SearchRoom(
+  public SearchRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
