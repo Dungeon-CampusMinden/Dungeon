@@ -1,6 +1,6 @@
 package dsl.parser.ast;
 
-import dsl.error.ErrorListener;
+import dsl.error.ErrorRecord;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -13,7 +13,7 @@ public class ASTOffendingSymbol extends Node {
     this.offendingTerminal = null;
   }
 
-  public ASTOffendingSymbol(TerminalNode offendingTerminal, ErrorListener.ErrorRecord errorRecord) {
+  public ASTOffendingSymbol(TerminalNode offendingTerminal, ErrorRecord errorRecord) {
     super(Type.ErrorNode);
     this.offendingTerminal = offendingTerminal;
     this.setErrorRecord(errorRecord);

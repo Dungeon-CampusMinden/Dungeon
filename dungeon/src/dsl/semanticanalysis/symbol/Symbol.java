@@ -21,6 +21,7 @@
 
 package dsl.semanticanalysis.symbol;
 
+import dsl.IndexGenerator;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import org.neo4j.ogm.annotation.*;
@@ -34,9 +35,6 @@ public class Symbol {
     Callable
   }
 
-  // running index, used as unique identifier
-  protected static int s_idx;
-
   @Property protected String name;
 
   @Relationship(type = "OF_TYPE", direction = Relationship.Direction.OUTGOING)
@@ -48,9 +46,7 @@ public class Symbol {
 
   @Property protected SymbolType symbolType;
 
-  @Id @GeneratedValue private long ogmIdx;
-
-  private int internalIdx;
+  @Id private long idx;
 
   public static Symbol NULL = new Symbol("NULL SYMBOL", null, null);
 
@@ -101,8 +97,8 @@ public class Symbol {
    *
    * @return the index of the symbol
    */
-  public int getInternalIdx() {
-    return internalIdx;
+  public long getIdx() {
+    return idx;
   }
 
   /**
@@ -122,7 +118,7 @@ public class Symbol {
    * @param dataType the datatype of the symbol
    */
   public Symbol(String symbolName, IScope parentScope, IType dataType) {
-    this.internalIdx = s_idx++;
+    this.idx = IndexGenerator.getIdx();
     this.scope = parentScope;
     this.name = symbolName;
     this.dataType = dataType;

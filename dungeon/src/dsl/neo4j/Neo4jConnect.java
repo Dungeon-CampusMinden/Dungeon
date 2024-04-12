@@ -187,13 +187,15 @@ public class Neo4jConnect {
     Driver ogmDriver = new BoltDriver(driver);
     return new SessionFactory(
         ogmDriver,
+        "dsl.error",
         "dsl.parser.ast",
         "dsl.semanticanalysis.symbol",
         "dsl.semanticanalysis.typesystem.typebuilding.type",
         "dsl.runtime.callable",
         "dslinterop.dslnativefunction",
         "dsl.semanticanalysis.scope",
-        "dsl.semanticanalysis.environment");
+        "dsl.semanticanalysis.environment"
+        );
   }
 
   public static org.neo4j.driver.Driver openConnection() {

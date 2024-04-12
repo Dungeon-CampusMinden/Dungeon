@@ -1,20 +1,32 @@
 package dsl.parser.ast;
 
-import dsl.error.ErrorListener;
+import dsl.IndexGenerator;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import dsl.error.ErrorRecord;
 import org.antlr.v4.runtime.RecognitionException;
 import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
 public class Node {
   // used for running index to give every Node a unique identifier
-  private static int _idx;
+  // TODO: this really just for testing!!
+  private static long g_fileVersion;
+
+  public static void setFileVersion (long version) {
+    g_fileVersion = version;
+  }
+
   @Property private boolean hasErrorChild;
   @Property private boolean subTreeHasError;
 
-  @Property @Transient private ErrorListener.ErrorRecord errorRecord;
+  @Relationship(type = "HAS_ERROR_RECORD", direction = Relationship.Direction.OUTGOING)
+  private ErrorRecord errorRecord;
+
   @Property private boolean hasErrorRecord;
+  @Property protected long fileVersion;
 
   @Property @Transient private RecognitionException exception;
 
@@ -94,9 +106,8 @@ public class Node {
   private Node parent;
 
   @Property @Transient private SourceFileReference sourceFileReference = SourceFileReference.NULL;
-  @Id @GeneratedValue private long ogmIdx;
 
-  private final int internalIdx;
+  @Id private final long idx;
 
   public Node() {
     this(Type.NONE, new ArrayList<>());
@@ -109,8 +120,8 @@ public class Node {
    * @param nodeChildren List of children of the node
    */
   public Node(Type nodeType, ArrayList<Node> nodeChildren) {
-    _idx++;
-    internalIdx = _idx;
+    this.fileVersion = g_fileVersion;
+    idx = IndexGenerator.getIdx();
 
     type = nodeType;
     children = nodeChildren;
@@ -134,8 +145,8 @@ public class Node {
    * @param nodeType The {@link Type} of the node
    */
   public Node(Type nodeType) {
-    _idx++;
-    internalIdx = _idx;
+    this.fileVersion = g_fileVersion;
+    idx = IndexGenerator.getIdx();
 
     type = nodeType;
     children = new ArrayList<>();
@@ -149,8 +160,8 @@ public class Node {
    * @param sourceReference The {@link SourceFileReference} for the new node
    */
   public Node(Type nodeType, SourceFileReference sourceReference) {
-    _idx++;
-    internalIdx = _idx;
+    this.fileVersion = g_fileVersion;
+    idx = IndexGenerator.getIdx();
 
     type = nodeType;
     children = new ArrayList<>();
@@ -179,6 +190,14 @@ public class Node {
   }
 
   public void addChild(Node node) {
+    if (node instanceof ASTErrorNode errorNode) {
+      if (node.hasErrorRecord && node.errorRecord == null) {
+        boolean b = true;
+      }
+      if (((ASTErrorNode) node).internalErrorNode() == null) {
+        boolean b = true;
+      }
+    }
     this.children.add(node);
     node.parent = this;
 
@@ -190,8 +209,8 @@ public class Node {
     }
   }
 
-  public int getInternalIdx() {
-    return internalIdx;
+  public long getIdx() {
+    return idx;
   }
 
   public Node getParent() {
@@ -240,11 +259,11 @@ public class Node {
     return this.subTreeHasError;
   }
 
-  public ErrorListener.ErrorRecord getErrorRecord() {
+  public ErrorRecord getErrorRecord() {
     return this.errorRecord;
   }
 
-  public void setErrorRecord(ErrorListener.ErrorRecord errorRecord) {
+  public void setErrorRecord(ErrorRecord errorRecord) {
     if (this.equals(Node.NONE)) {
       throw new RuntimeException("TRIED TO SET ERROR RECORD IN Node.NONE!!");
     }

@@ -2,6 +2,7 @@ package dsl.error;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
 import org.antlr.v4.runtime.*;
@@ -10,23 +11,16 @@ import org.antlr.v4.runtime.dfa.DFA;
 
 public class ErrorListener extends BaseErrorListener {
   private static final Logger LOGGER = Logger.getLogger(ErrorListener.class.getName());
+  private static HashSet<Class> differentErrorClasses = new HashSet<>();
+  private final boolean trace;
   private List<ErrorRecord> errors = new ArrayList<>();
 
-  public record ErrorRecord(
-      String msg,
-      CommonToken offendingSymbol,
-      int line,
-      int charPositionInLine,
-      RecognitionException exception) {
-    public static ErrorRecord fromRecognitionException(RecognitionException exception) {
-      var offendingToken = (CommonToken) exception.getOffendingToken();
-      return new ErrorListener.ErrorRecord(
-          exception.getMessage(),
-          offendingToken,
-          offendingToken.getLine(),
-          offendingToken.getCharPositionInLine(),
-          exception);
-    }
+  public ErrorListener() {
+    this.trace = false;
+  }
+
+  public ErrorListener(boolean trace) {
+    this.trace = trace;
   }
 
   public List<ErrorRecord> getErrors() {
@@ -48,17 +42,28 @@ public class ErrorListener extends BaseErrorListener {
         var ruleIdx = ctx.getRuleIndex();
         String ruleName = recognizer.getRuleNames()[ruleIdx];
       }
+
+      var clazz = e.getClass();
+      differentErrorClasses.add(clazz);
     }
 
-    // get parent of offending symbol?
-    this.errors.add(
-        new ErrorRecord(msg, (CommonToken) offendingSymbol, line, charPositionInLine, e));
 
-    String warning =
+    // get parent of offending symbol?
+    //this.errors.add(
+        //new ErrorRecord(msg, (CommonToken) offendingSymbol, line, charPositionInLine, e));
+
+    // TODO: how to figure out, that this is actually a lexing error?
+    this.errors.add(
+    ErrorRecordFactory.instance.errorRecord(msg, (CommonToken) offendingSymbol, line, charPositionInLine, e));
+
+    if (this.trace) {
+      String warning =
         String.format(
-            "Syntax error, recognizer: '%s', offendingSymbol: '%s', line: %x, charPosition: %x, msg: '%s', exception: '%s'",
-            recognizer, offendingSymbol, line, charPositionInLine, msg, e);
-    LOGGER.severe(warning);
+          "Syntax error, recognizer: '%s', offendingSymbol: '%s', line: %x, charPosition: %x, msg: '%s', exception: '%s'",
+          recognizer, offendingSymbol, line, charPositionInLine, msg, e);
+
+      LOGGER.severe(warning);
+    }
   }
 
   @Override

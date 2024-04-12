@@ -161,7 +161,8 @@ public class ErrorStrategy extends DefaultErrorStrategy {
               + tokenName
               + " expecting "
               + expecting.toString(recognizer.getVocabulary());
-      recognizer.notifyErrorListeners(t, msg, (RecognitionException) null);
+      var e = new UnwantedTokenException(msg, recognizer);
+      recognizer.notifyErrorListeners(t, msg, e);
     }
   }
 
@@ -175,7 +176,9 @@ public class ErrorStrategy extends DefaultErrorStrategy {
               + expecting.toString(recognizer.getVocabulary())
               + " at "
               + this.getTokenErrorDisplay(t);
-      recognizer.notifyErrorListeners(t, msg, (RecognitionException) null);
+      // TODO: add expected rules in a more sophisticated way
+      var e = new MissingTokenException(msg, recognizer);
+      recognizer.notifyErrorListeners(t, msg, e);
     }
   }
 

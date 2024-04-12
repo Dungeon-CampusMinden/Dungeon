@@ -3,6 +3,7 @@ package dsl.parser;
 import dsl.antlr.DungeonDSLLexer;
 import dsl.antlr.DungeonDSLParser;
 import dsl.error.ErrorListener;
+import dsl.error.ErrorRecord;
 import dsl.error.ErrorStrategy;
 import dsl.parser.ast.*;
 import dsl.semanticanalysis.environment.IEnvironment;
@@ -34,9 +35,9 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   private List<String> ruleNames;
   private boolean errorMode = false;
   private Stack<ParserRuleContext> errorRuleStack;
-  private HashMap<Token, ErrorListener.ErrorRecord> tokensErrorRecords;
+  private HashMap<Token, ErrorRecord> tokensErrorRecords;
   private HashSet<Token> offendingTokens;
-  private HashMap<ParserRuleContext, List<ErrorListener.ErrorRecord>> lexerErrors;
+  private HashMap<ParserRuleContext, List<ErrorRecord>> lexerErrors;
   private HashMap<ParserRuleContext, List<TerminalNode>> rulesWithOffendingTerminalNodes;
   private DungeonErrorNodeConverter errorNodeConverter;
 
@@ -94,7 +95,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   // TODO: where to store the Errors encountered while converting the whole parsetree
-  public Node walk(ParseTree parseTree, List<ErrorListener.ErrorRecord> errors) {
+  public Node walk(ParseTree parseTree, List<ErrorRecord> errors) {
     this.offendingTokens = new HashSet<>();
     this.tokensErrorRecords = new HashMap<>();
     this.lexerErrors.clear();
@@ -1280,12 +1281,14 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   @Override
   public void visitErrorNode(ErrorNode node) {
     var parent = node.getParent();
-    var text = node.getText();
-    var symbol = node.getSymbol();
-    String msg =
+    if (this.trace) {
+      var text = node.getText();
+      var symbol = node.getSymbol();
+      String msg =
         String.format(
-            "Visitting Error node, parent: '%s', text: '%s', symbol: '%s'", parent, text, symbol);
-    LOGGER.warning(msg);
+          "Visitting Error node, parent: '%s', text: '%s', symbol: '%s'", parent, text, symbol);
+      LOGGER.warning(msg);
+    }
 
     // the parent of this node is responsible for clearing up the astStack!
     if (this.errorRuleStack.empty() || this.errorRuleStack.peek() != parent) {
@@ -1293,11 +1296,14 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     }
 
     var offendingSymbol = node.getSymbol();
-    ErrorListener.ErrorRecord errorRecord = null;
+    ErrorRecord errorRecord = null;
     if (this.offendingTokens.contains(offendingSymbol)) {
       errorRecord = this.tokensErrorRecords.get(offendingSymbol);
     }
 
+    if (errorRecord == null) {
+      errorRecord = ErrorRecord.fromOffendingSymbol((CommonToken) offendingSymbol);
+    }
     var errorNode = new ASTErrorNode(node, errorRecord);
     astStack.push(errorNode);
   }
@@ -1329,7 +1335,9 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     }
 
     if (ctx.exception != null) {
-      LOGGER.warning("Rule context contains exception: " + ctx.exception + "; pushing error ctx!");
+      if (trace) {
+        LOGGER.warning("Rule context contains exception: " + ctx.exception + "; pushing error ctx!");
+      }
       this.errorRuleStack.push(ctx);
     }
   }
@@ -1339,11 +1347,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       String rulename = getRuleName(ctx);
       String msg = String.format("Pre exit rule '%s'", rulename);
       LOGGER.info(msg);
+      if (ctx.exception != null) {
+        LOGGER.warning("Rule context contains exception: " + ctx.exception);
+      }
     }
 
-    if (ctx.exception != null) {
-      LOGGER.warning("Rule context contains exception: " + ctx.exception);
-    }
 
     var errorNode = handleParserError(ctx);
     if (!errorNode.equals(Node.NONE)) {
@@ -1451,7 +1459,9 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
   private void handleLexerError(ParserRuleContext ctx) {
     if (this.lexerErrors.containsKey(ctx)) {
-      LOGGER.info("Handling lexer error");
+      if (trace) {
+        LOGGER.info("Handling lexer error");
+      }
       // pop current top level node from astStack
       var parentNode = astStack.pop();
       try {
@@ -1471,7 +1481,9 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   private Node handleParserError(ParserRuleContext ctx) {
     Node nodeToReturn = Node.NONE;
     if (!this.errorRuleStack.empty() && this.errorRuleStack.peek().equals(ctx)) {
-      LOGGER.info("Handling error mode");
+      if (trace) {
+        LOGGER.info("Handling error mode");
+      }
       int currentASTStackCount = this.astStack.getCurrentCount();
       var list = new ArrayList<>(Collections.nCopies(currentASTStackCount, Node.NONE));
       for (int i = 0; i < currentASTStackCount; i++) {
@@ -1484,7 +1496,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       var errorNode = this.errorNodeConverter.createErrorNode(ctx, list);
 
       if (ctx.exception != null) {
-        var record = ErrorListener.ErrorRecord.fromRecognitionException(ctx.exception);
+        var record = ErrorRecord.fromRecognitionException(ctx.exception);
         errorNode.setErrorRecord(record);
       }
 

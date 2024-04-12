@@ -1,11 +1,11 @@
 package dsl.parser.ast;
 
-import dsl.error.ErrorListener;
+import dsl.error.ErrorRecord;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 @NodeEntity
 public class ASTLexerErrorNode extends Node {
-  public ASTLexerErrorNode(ErrorListener.ErrorRecord errorRecord) {
+  public ASTLexerErrorNode(ErrorRecord errorRecord) {
     super(Type.ErrorNode);
     this.setErrorRecord(errorRecord);
   }
