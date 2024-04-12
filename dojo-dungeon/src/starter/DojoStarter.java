@@ -50,22 +50,22 @@ public class DojoStarter {
     // create a customised level comprising rooms
     LevelGraph graph = new LevelGraph();
 
-    // level 1 has 3 rooms: room1, room2, room3
+    // level 1 has 3 rooms
     LevelRoom levelRoom1 = new LevelRoom(graph);
     LevelRoom levelRoom2 = new LevelRoom(graph);
     LevelRoom levelRoom3 = new LevelRoom(graph);
 
-    // level 2 has 3 rooms: room4, room5, room6
+    // level 2 has 3 rooms
     LevelRoom levelRoom4 = new LevelRoom(graph);
     LevelRoom levelRoom5 = new LevelRoom(graph);
     LevelRoom levelRoom6 = new LevelRoom(graph);
 
-    // level 3 has 3 rooms: room7, room8, room9
+    // level 3 has 3 rooms
     LevelRoom levelRoom7 = new LevelRoom(graph);
     LevelRoom levelRoom8 = new LevelRoom(graph);
     LevelRoom levelRoom9 = new LevelRoom(graph);
 
-    // level 4 has 3 rooms: room10, room11, room12
+    // level 4 has 3 rooms
     LevelRoom levelRoom10 = new LevelRoom(graph);
     LevelRoom levelRoom11 = new LevelRoom(graph);
     LevelRoom levelRoom12 = new LevelRoom(graph);
@@ -85,18 +85,18 @@ public class DojoStarter {
 
     // build the rooms
     RoomGenerator gen = new RoomGenerator();
-    Room room12 = buildRoom12(levelRoom12, gen, null);
-    Room room11 = buildRoom9(levelRoom11, gen, room12);
-    Room room10 = buildRoom10(levelRoom10, gen, room11);
-    Room room9 = buildRoom3(levelRoom9, gen, room10);
-    Room room8 = buildRoom8(levelRoom8, gen, room9);
-    Room room7 = buildRoom7(levelRoom7, gen, room8);
-    Room room6 = buildRoom6(levelRoom6, gen, room7);
-    Room room5 = buildRoom5(levelRoom5, gen, room6);
-    Room room4 = buildRoom4(levelRoom4, gen, room5);
-    Room room3 = buildRoom11(levelRoom3, gen, room4);
-    Room room2 = buildRoom2(levelRoom2, gen, room3);
-    Room room1 = buildRoom1(levelRoom1, gen, room2);
+    Room room12 = buildRoom_L4_R3_Monster_Implement_2(levelRoom12, gen, null);
+    Room room11 = buildRoom_L4_R2_Fragen_Pattern(levelRoom11, gen, room12);
+    Room room10 = buildRoom_L4_R1_Monster_3(levelRoom10, gen, room11);
+    Room room9 = buildRoom_L3_R3_Fragen_RegExes(levelRoom9, gen, room10);
+    Room room8 = buildRoom_L3_R2_Fehler_Quader(levelRoom8, gen, room9);
+    Room room7 = buildRoom_L3_R1_Fragen_Schriftrollen(levelRoom7, gen, room8);
+    Room room6 = buildRoom_L2_R3_Fehler_Refactoring(levelRoom6, gen, room7);
+    Room room5 = buildRoom_L2_R2_Monster_Implement_1(levelRoom5, gen, room6);
+    Room room4 = buildRoom_L2_R1_Monster_2(levelRoom4, gen, room5);
+    Room room3 = buildRoom_L1_R3_Fragen_Lambda(levelRoom3, gen, room4);
+    Room room2 = buildRoom_L1_R2_Fehler_Syntax(levelRoom2, gen, room3);
+    Room room1 = buildRoom_L1_R1_Monster_1(levelRoom1, gen, room2);
 
     room1.configDoors();
     room2.configDoors();
@@ -185,67 +185,74 @@ public class DojoStarter {
     Game.add(new IdleSoundSystem());
   }
 
-  private static Room buildRoom1(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L1_R1_Monster_1(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.LARGE)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_1)
-        .buildRoom1();
+        .buildRoom_L1_R1_Monster_1();
   }
 
-  private static Room buildRoom2(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L1_R2_Fehler_Syntax(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_1)
-        .buildRoom2();
+        .buildRoom_L1_R2_Fehler_Syntax();
   }
 
-  private static Room buildRoom11(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L1_R3_Fragen_Lambda(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.SMALL)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_1)
-        .buildRoom11();
+        .buildRoom_L1_R3_Fragen_Lambda();
   }
 
-  private static Room buildRoom4(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L2_R1_Monster_2(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.LARGE)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_2)
-        .buildRoom4();
+        .buildRoom_L2_R1_Monster_2();
   }
 
-  private static Room buildRoom5(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L2_R2_Monster_Implement_1(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_2)
-        .buildRoom5();
+        .buildRoom_L2_R2_Monster_Implement_1();
   }
 
-  private static Room buildRoom6(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L2_R3_Fehler_Refactoring(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.SMALL)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_2)
-        .buildRoom6();
+        .buildRoom_L2_R3_Fehler_Refactoring();
   }
 
-  private static Room buildRoom7(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L3_R1_Fragen_Schriftrollen(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     ArrayList<String> list1 = new ArrayList<>();
     list1.add("Builder");
     list1.add("Factory");
@@ -274,56 +281,61 @@ public class DojoStarter {
               new SimpleIPath("character/monster/zombie")
             })
         .sortables(sortables)
-        .buildRoom7();
+        .buildRoom_L3_R1_Fragen_Schriftrollen();
   }
 
-  private static Room buildRoom8(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L3_R2_Fehler_Quader(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_3)
-        .buildRoom8();
+        .buildRoom_L3_R2_Fehler_Quader();
   }
 
-  private static Room buildRoom3(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L3_R3_Fragen_RegExes(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.SMALL)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_3)
-        .buildRoom3();
+        .buildRoom_L3_R3_Fragen_RegExes();
   }
 
-  private static Room buildRoom10(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L4_R1_Monster_3(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_4)
-        .buildRoom10();
+        .buildRoom_L4_R1_Monster_3();
   }
 
-  private static Room buildRoom9(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L4_R2_Fragen_Pattern(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_4)
-        .buildRoom9();
+        .buildRoom_L4_R2_Fragen_Pattern();
   }
 
-  private static Room buildRoom12(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom_L4_R3_Monster_Implement_2(
+      LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_4)
-        .buildRoom12();
+        .buildRoom_L4_R3_Monster_Implement_2();
   }
 }

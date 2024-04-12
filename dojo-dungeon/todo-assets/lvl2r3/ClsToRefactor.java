@@ -15,9 +15,9 @@ import dojo.tasks.Task;
 import java.io.IOException;
 import java.util.Set;
 
-public class Room5ToRefactor extends TaskRoom {
+public class ClsToRefactor extends TaskRoom {
   public final String title = "Title";
-  public String FILENAME2 = "../dojo-dungeon/todo-assets/r5/MyMonster.java";
+  public String FILENAME2 = "../dojo-dungeon/todo-assets/lvl2r2/MyMonster.java";
 
   Room5ToRefactor(
       LevelRoom a, RoomGenerator b, Room c, LevelSize d, DesignLabel e, IVoidFunction empty) {
@@ -42,13 +42,14 @@ public class Room5ToRefactor extends TaskRoom {
                     OkDialog.showOkDialog(
                         String.format(
                             "Implementiere die Datei %s, nach der Vorgabe in %s. Wenn das Monster besiegt ist, soll sich die Tür zum nächsten Raum öffnen.",
-                            "../dojo-dungeon/todo-assets/r5/MyMonster.java",
-                            "../dojo-dungeon/todo-assets/r5/Monster.java"),
+                            "../dojo-dungeon/todo-assets/lvl2r2/MyMonster.java",
+                            "../dojo-dungeon/todo-assets/lvl2r2/Monster.java"),
                         title,
                         f),
                 (t1) -> {
                   DojoCompiler.TestResult results =
-                      new DojoCompiler("../dojo-dungeon/todo-assets/r5/MyMonster.java", "MyMonster")
+                      new DojoCompiler(
+                              "../dojo-dungeon/todo-assets/lvl2r2/MyMonster.java", "MyMonster")
                           .spawnMonsterToOpenTheDoor(this);
                   if (results.passed()) {
                     OkDialog.showOkDialog(

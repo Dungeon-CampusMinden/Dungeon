@@ -24,12 +24,20 @@ import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.*;
 
-public class Room7 extends MonsterRoom {
+/**
+ * Informationen für den Spieler über diesen Raum:
+ *
+ * <p>Der Spieler muss Schriftrollen, die verschiedene Programming Patterns und Software Development
+ * Principles repräsentieren, den entsprechenden Truhen zuordnen. Die Truhen sind mit den Kategorien
+ * der Programming Patterns und Software Development Principles beschriftet. Erst wenn alle
+ * Schriftrollen korrekt zugeordnet sind, kann der Spieler in den nächsten Raum weitergehen.
+ */
+public class L3_R1_Fragen_Schriftrollen extends MonsterRoom {
 
   HashMap<String, ArrayList<String>> sortables;
   HashMap<Entity, Boolean> doneChests = new HashMap<>();
 
-  public Room7(
+  public L3_R1_Fragen_Schriftrollen(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

@@ -126,7 +126,8 @@ public class DojoCompiler {
 
   public TestResult testRoom8() {
     try {
-      Class<?> cls2 = compile(getSource("../dojo-dungeon/todo-assets/r8/Cuboid.java"), "Cuboid");
+      Class<?> cls2 =
+          compile(getSource("../dojo-dungeon/todo-assets/lvl3r2/Cuboid.java"), "Cuboid");
       Constructor<?> tor2 = cls2.getConstructor(float.class, float.class, float.class);
       Object inst2 = tor2.newInstance(10.0f, 30.0f, 20.0f);
       Method m1 = cls2.getMethod("calculateArea");

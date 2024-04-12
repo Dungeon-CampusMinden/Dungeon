@@ -9,7 +9,13 @@ import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
 import dojo.rooms.SearchRoom;
 
-public class Room1 extends SearchRoom {
+/**
+ * Informationen für den Spieler über diesen Raum:
+ *
+ * <p>In diesem Raum muss man den Schlüssel, der zufällig von einem Monster fallengelassen wird,
+ * finden, um in den nächsten Raum zu kommen.
+ */
+public class L1_R1_Monster_1 extends SearchRoom {
   private static final int monsterCount = 5;
   private static final IPath[] monsterPaths = {
     new SimpleIPath("character/monster/imp"), new SimpleIPath("character/monster/goblin")
@@ -19,7 +25,7 @@ public class Room1 extends SearchRoom {
   private static final String keyDescription = "A key to unlock the next room.";
   private static final IPath keyTexture = new SimpleIPath("items/key/gold_key.png");
 
-  public Room1(
+  public L1_R1_Monster_1(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

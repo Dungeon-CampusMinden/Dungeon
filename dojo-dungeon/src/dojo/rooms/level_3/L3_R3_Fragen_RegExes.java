@@ -24,7 +24,13 @@ import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.FreeText;
 
-public class Room3 extends Room {
+/**
+ * Informationen für den Spieler über diesen Raum:
+ *
+ * <p>In diesem Raum muss ein String eingegeben werden, der zum regulären Ausdruck passt. Wenn der
+ * passende String eingegeben wurde, lässt OgreX den Spieler zur nächsten Ebene weitergehen.
+ */
+public class L3_R3_Fragen_RegExes extends Room {
   private final String[] regexes;
 
   {
@@ -60,7 +66,7 @@ public class Room3 extends Room {
 
   private int correctAnswerCount = 0;
 
-  public Room3(
+  public L3_R3_Fragen_RegExes(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

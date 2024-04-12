@@ -18,7 +18,14 @@ import java.lang.reflect.Constructor;
 import java.util.*;
 import javax.tools.*;
 
-public class Room12 extends Room {
+/**
+ * Informationen für den Spieler über diesen Raum:
+ *
+ * <p>In diesem Raum erhält man eine Beschreibung des erwarteten Verhaltens, die implementiert
+ * werden muss. Der Dämon erteilt die Aufgabe, Methoden zu schreiben, die dieses Verhalten
+ * implementieren. Danach muss der Dämon angegriffen werden.
+ */
+public class L4_R3_Monster_Implement_2 extends Room {
 
   private static final String IMP_FQC = "dojo.monster.MyImp";
   private static final String IMP_PATH = "src/dojo/monster/MyImp";
@@ -39,7 +46,7 @@ public class Room12 extends Room {
     }
   }
 
-  public Room12(
+  public L4_R3_Monster_Implement_2(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
