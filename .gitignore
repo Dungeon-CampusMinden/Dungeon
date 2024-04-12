@@ -63,3 +63,8 @@ replay_pid*
 *.zip
 *.tgz
 *.tar.gz
+
+# Licences #
+############
+licenses/
+!licenses/third-party-libs.md
