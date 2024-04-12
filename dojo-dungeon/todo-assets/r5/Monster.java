@@ -1,7 +1,7 @@
 import core.Entity;
 import core.components.DrawComponent;
+import dojo.rooms.Room;
 import java.io.IOException;
-import level.rooms.Room;
 
 public class Monster {
   /**

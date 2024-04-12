@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms;
 
 import contrib.entities.MonsterFactory;
 import contrib.level.generator.graphBased.RoomGenerator;
@@ -16,7 +16,7 @@ public class MonsterRoom extends Room {
   private final int monsterCount;
   private final IPath[] monsterPaths;
 
-  MonsterRoom(
+  public MonsterRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

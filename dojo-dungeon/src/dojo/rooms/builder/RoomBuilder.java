@@ -1,9 +1,23 @@
-package level.rooms;
+package dojo.rooms.builder;
 
 import contrib.level.generator.graphBased.RoomGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.IPath;
+import dojo.rooms.LevelRoom;
+import dojo.rooms.Room;
+import dojo.rooms.level_1.Room1;
+import dojo.rooms.level_1.Room2;
+import dojo.rooms.level_1.Room3;
+import dojo.rooms.level_2.Room4;
+import dojo.rooms.level_2.Room5;
+import dojo.rooms.level_2.Room6;
+import dojo.rooms.level_3.Room7;
+import dojo.rooms.level_3.Room8;
+import dojo.rooms.level_3.Room9;
+import dojo.rooms.level_4.Room10;
+import dojo.rooms.level_4.Room11;
+import dojo.rooms.level_4.Room12;
 import java.util.ArrayList;
 import java.util.HashMap;
 

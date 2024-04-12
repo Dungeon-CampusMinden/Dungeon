@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms;
 
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;

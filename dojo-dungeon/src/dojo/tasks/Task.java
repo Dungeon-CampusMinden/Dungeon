@@ -1,8 +1,8 @@
-package level.tasks;
+package dojo.tasks;
 
 import core.utils.IVoidFunction;
+import dojo.rooms.TaskRoom;
 import java.util.function.Function;
-import level.rooms.TaskRoom;
 
 public class Task {
   private final TaskRoom taskRoom;

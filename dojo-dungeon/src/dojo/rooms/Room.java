@@ -1,4 +1,4 @@
-package level.rooms;
+package dojo.rooms;
 
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
@@ -40,7 +40,7 @@ public class Room {
   private final LevelSize levelSize;
   private final DesignLabel designLabel;
 
-  Room(
+  public Room(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
