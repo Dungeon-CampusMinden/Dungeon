@@ -31,12 +31,11 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       Fehler enthält.
     - Der Spieler muss den Fehler identifizieren
       und korrigieren, um voranzukommen.
-- Bosskampf "OgreX":
-    - OgreX stellt verschiedene Fragen, die auf regulären Ausdrücken
-      basieren. Der Spieler muss daraufhin einen String eingeben, der zum
-      regulären Ausdruck passt. Wenn der Spieler die passenden Strings
-      eingegeben hat, lässt OgreX den Spieler zur nächsten Ebene
-      weitergehen.
+- Rätsel im dritten Raum:
+    - Der Spieler trifft auf einen mysteriösen NPC.
+    - Der NPC stellt Fragen zu Lambda-Ausdrücken
+      und Funktionsinterfaces.
+    - Der Spieler muss die Fragen richtig beantworten, um weiterzukommen.
 
 ## Level 2: "Tempel der verlorenen Geheimnisse"
 
@@ -57,7 +56,7 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       ihm eine Aufgabe. Der Spieler muss ein Monster erstellen.
       Um weiterzukommen, muss der Spieler nicht nur das Monster
       erschaffen, sondern auch besiegen.
-- Bosskampf "Skelettdoktor der Code Refactorer":
+- Bosskampf "Skelettdoktor der Code Refactorer" im dritten Raum:
     - Der Skelettdoktor ist verzweifelt, weil der
       Quellcode miserabel, unvollständig und ineffizient ist und
       bittet den Spieler um Hilfe.
@@ -89,13 +88,12 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       symbolisiert durch seine Lebenspunkte. Wenn der Spieler die
       Klasse richtig verbessert hat, gilt der Imp als besiegt und
       der Spieler kann in den nächsten Raum weitergehen.
-- Bosskampf "Zauberer von Patternson":
-    - Der "Zauberer von Patternson" stellt dem Spieler eine neue
-      Herausforderung: Er muss verschiedene Design Patterns anhand
-      eines UML-Klassendiagramms erkennen. Der Spieler muss dann
-      die erkannten Design Patterns dem Zauberer mitteilen.
-      Wenn die Lösung korrekt ist, kann der Spieler in die nächste
-      Ebene weitergehen.
+- Bosskampf "OgreX" im dritten Raum:
+    - OgreX stellt verschiedene Fragen, die auf regulären Ausdrücken
+      basieren. Der Spieler muss daraufhin einen String eingeben, der zum
+      regulären Ausdruck passt. Wenn der Spieler die passenden Strings
+      eingegeben hat, lässt OgreX den Spieler zur nächsten Ebene
+      weitergehen.
 
 ## Level 4: "Die Vulkanhöhle"
 
@@ -107,21 +105,23 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
     - Der Spieler muss alle Monster erledigen um
       weiterzukommen.
     - Folgende Monster sind anzutreffen: "Imps"
-      und "kleiner Dämon".
-- Rätsel im zweiten Raum:
-    - Der Spieler trifft auf einen mysteriösen NPC.
-    - Der NPC stellt Fragen zu Lambda-Ausdrücken
-      und Funktionsinterfaces.
-    - Der Spieler muss die Fragen richtig beantworten, um weiterzukommen.
-- Bosskampf "Der Artefakt Dämon":
-    - In diesem Raum erhält der Spieler eine Beschreibung des erwarteten Verhaltens,
-      die er implementieren muss. Es ist jedoch zu beachten, dass die genaue
-      Aufgabenstellung noch nicht festgelegt ist. Der Dämon erteilt dem Spieler
-      die Aufgabe, eine Java-Klasse zu schreiben, die dieses Verhalten implementiert.
-      Nur wenn diese Aufgabe erfolgreich abgeschlossen ist, kann der Spieler in
-      den nächsten Raum gelangen.
+      und "kleine Dämonen".
+- Bosskampf "Zauberer von Patternson" im zweiten Raum:
+    - Der "Zauberer von Patternson" stellt dem Spieler eine neue
+      Herausforderung: Er muss verschiedene Design Patterns anhand
+      eines UML-Klassendiagramms erkennen. Der Spieler muss dann
+      die erkannten Design Patterns dem Zauberer mitteilen.
+      Wenn die Lösung korrekt ist, kann der Spieler in die nächste
+      Ebene weitergehen.
+- Bosskampf "Der Artefakt Dämon" im dritten Raum:
+    - Der Dämon stellt dem Spieler eine neue Herausforderung:
+      In diesem Raum erhält man eine Beschreibung des erwarteten Verhaltens,
+      die implementiert werden muss. Der Spieler muss dann die
+      implementierten Methoden dem Dämon vorlegen.
+      Wenn die Implementierung korrekt ist, muss der Dämon angegriffen
+      werden und der Spieler kann in die nächste Ebene weitergehen.
 
-## Level 5: "Spezial-Welt Bielefeld"
+## Level 5: "Spezial-Welt Bielefeld" (Nicht realisiert!)
 
 - Umgebung:
     - Die Stadt Bielefeld mit ihren Sehenswürdigkeiten.
