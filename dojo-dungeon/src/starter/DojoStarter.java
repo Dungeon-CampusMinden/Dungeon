@@ -26,8 +26,8 @@ public class DojoStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_1 = DesignLabel.FOREST;
   private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_2 = DesignLabel.TEMPLE;
-  private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_3 = DesignLabel.ICE;
-  private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_4 = DesignLabel.randomDesign();
+  private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_3 = DesignLabel.DEFAULT;
+  private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_4 = DesignLabel.FIRE;
 
   /**
    * Start a new dojo-dungeon game.
