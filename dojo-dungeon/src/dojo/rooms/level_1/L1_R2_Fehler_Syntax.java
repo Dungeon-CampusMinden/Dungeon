@@ -23,9 +23,16 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
-public class Room2 extends TaskRoom {
-  private final String FILENAME1 = "../dojo-dungeon/todo-assets/r2/FehlerhafteKlasse.java";
-  private final String FILENAME2 = "../dojo-dungeon/todo-assets/r2/FehlerhafteKlasse2.java";
+/**
+ * Informationen für den Spieler über diesen Raum:
+ *
+ * <p>In diesem Raum soll eine fehlerhafte Java-Klasse korrigiert werden, während man spielt. Erst,
+ * wenn man alle Fehler gefunden und alle Überprüfungen geschafft hat, kann man in den nächsten Raum
+ * weitergehen. Es gibt dabei drei "Prüfstufen".
+ */
+public class L1_R2_Fehler_Syntax extends TaskRoom {
+  private final String FILENAME1 = "../dojo-dungeon/todo-assets/lvl1r2/FehlerhafteKlasse.java";
+  private final String FILENAME2 = "../dojo-dungeon/todo-assets/lvl1r2/FehlerhafteKlasse2.java";
   private final String CLASS_NAME = "FehlerhafteKlasse2";
   private final String[] TEXT = {
     // 0
@@ -58,7 +65,7 @@ public class Room2 extends TaskRoom {
   private final String[] TASK_NAMES = {"task_1_easy", "task_2_medium", "task_3_hard"};
   private final Entity[] CHESTS = new Entity[3];
 
-  public Room2(
+  public L1_R2_Fehler_Syntax(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

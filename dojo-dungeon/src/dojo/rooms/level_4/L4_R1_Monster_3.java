@@ -20,12 +20,17 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.Set;
 
-public class Room10 extends Room {
+/**
+ * Informationen für den Spieler über diesen Raum:
+ *
+ * <p>In diesem Raum müssen alle Monster erledigt werden, um weiterzukommen.
+ */
+public class L4_R1_Monster_3 extends Room {
 
   private int monsterGroupsSpawned = 0;
   private int activeMonsters = 0;
 
-  public Room10(
+  public L4_R1_Monster_3(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

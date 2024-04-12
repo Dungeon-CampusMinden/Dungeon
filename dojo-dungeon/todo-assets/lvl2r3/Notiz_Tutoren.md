@@ -1,4 +1,4 @@
-Bitte die Klasse `Room5ToRefactor.java` auf folgende Punkte prüfen:
+Bitte die Klasse `ClsToRefactor.java` auf folgende Punkte prüfen:
 
 - Nicht genutzte Parameter und Variablen
 - Zu kurze Parameter-, Variablen- und Methodennamen

@@ -26,10 +26,18 @@ import dojo.rooms.TaskRoom;
 import java.io.IOException;
 import java.util.Set;
 
-public class Room8 extends TaskRoom {
+/**
+ * Informationen für den Spieler über diesen Raum:
+ *
+ * <p>In diesem Raum muss eine Klasse mit mathematischen Funktionen verbessert werden. Der Spieler
+ * hat jedoch nur eine begrenzte Anzahl an Versuchen, symbolisiert durch seine Lebenspunkte. Wenn
+ * die Klasse richtig verbessert wurde, gilt der Imp als besiegt und der Spieler kann in den
+ * nächsten Raum weitergehen.
+ */
+public class L3_R2_Fehler_Quader extends TaskRoom {
   private int impHealth = 10;
 
-  public Room8(
+  public L3_R2_Fehler_Quader(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
@@ -130,7 +138,7 @@ public class Room8 extends TaskRoom {
             true,
             (entity1, entity2) ->
                 OkDialog.showOkDialog(
-                    "Finde und verbessere die Fehler in der Klasse: todo-assets/r8/Cuboid.java.",
+                    "Finde und verbessere die Fehler in der Klasse: todo-assets/lvl3r2/Cuboid.java.",
                     "Aufgabe in diesem Raum:",
                     () -> {
                       OkDialog.showOkDialog(
