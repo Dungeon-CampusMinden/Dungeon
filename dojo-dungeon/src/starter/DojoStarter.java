@@ -86,15 +86,15 @@ public class DojoStarter {
     // build the rooms
     RoomGenerator gen = new RoomGenerator();
     Room room12 = buildRoom12(levelRoom12, gen, null);
-    Room room11 = buildRoom11(levelRoom11, gen, room12);
+    Room room11 = buildRoom9(levelRoom11, gen, room12);
     Room room10 = buildRoom10(levelRoom10, gen, room11);
-    Room room9 = buildRoom9(levelRoom9, gen, room10);
+    Room room9 = buildRoom3(levelRoom9, gen, room10);
     Room room8 = buildRoom8(levelRoom8, gen, room9);
     Room room7 = buildRoom7(levelRoom7, gen, room8);
     Room room6 = buildRoom6(levelRoom6, gen, room7);
     Room room5 = buildRoom5(levelRoom5, gen, room6);
     Room room4 = buildRoom4(levelRoom4, gen, room5);
-    Room room3 = buildRoom3(levelRoom3, gen, room4);
+    Room room3 = buildRoom11(levelRoom3, gen, room4);
     Room room2 = buildRoom2(levelRoom2, gen, room3);
     Room room1 = buildRoom1(levelRoom1, gen, room2);
 
@@ -205,14 +205,14 @@ public class DojoStarter {
         .buildRoom2();
   }
 
-  private static Room buildRoom3(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom11(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
         .levelSize(LevelSize.SMALL)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_1)
-        .buildRoom3();
+        .buildRoom11();
   }
 
   private static Room buildRoom4(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
@@ -287,14 +287,14 @@ public class DojoStarter {
         .buildRoom8();
   }
 
-  private static Room buildRoom9(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom3(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
-        .levelSize(LevelSize.MEDIUM)
+        .levelSize(LevelSize.SMALL)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_3)
-        .buildRoom9();
+        .buildRoom3();
   }
 
   private static Room buildRoom10(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
@@ -302,19 +302,19 @@ public class DojoStarter {
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
-        .levelSize(LevelSize.LARGE)
+        .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_4)
         .buildRoom10();
   }
 
-  private static Room buildRoom11(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
+  private static Room buildRoom9(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
-        .levelSize(LevelSize.LARGE)
+        .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_4)
-        .buildRoom11();
+        .buildRoom9();
   }
 
   private static Room buildRoom12(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom) {
@@ -322,7 +322,7 @@ public class DojoStarter {
         .levelRoom(levelRoom)
         .roomGenerator(gen)
         .nextRoom(nextRoom)
-        .levelSize(LevelSize.LARGE)
+        .levelSize(LevelSize.MEDIUM)
         .designLabel(DESIGN_LABEL_FOR_LEVEL_4)
         .buildRoom12();
   }
