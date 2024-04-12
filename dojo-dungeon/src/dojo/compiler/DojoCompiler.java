@@ -36,7 +36,7 @@ public class DojoCompiler {
   public TestResult spawnMonsterToOpenTheDoor(String fileName, String className, Room currentRoom) {
     String testName = "spawnMonster";
 
-    if (!testInternal1(fileName) || !testInternal2(className)) {
+    if (!stage_1_readSourceFile(fileName) || !stage_2_checkCompilation(className)) {
       return new TestResult(testName, false, messages);
     }
 
@@ -82,49 +82,49 @@ public class DojoCompiler {
     return new TestResult(testName, true, messages);
   }
 
-  public TestResult test1(String fileName, String className) {
+  public TestResult testWrongClass1(String fileName, String className) {
     String testName = "test1";
-    if (testInternal1(fileName)
-        && testInternal2(className)
-        && testInternal3()
-        && testInternal4()
-        && testInternal5()
-        && testInternal6()) {
+    if (stage_1_readSourceFile(fileName)
+        && stage_2_checkCompilation(className)
+        && stage_3_checkFirstMethodDeclaration()
+        && stage_4_checkFirstOutput()
+        && stage_5_checkSecondMethodDeclaration()
+        && stage_6_checkSecondOutput()) {
       return new TestResult(testName, true, messages);
     }
     return new TestResult(testName, false, messages);
   }
 
-  public TestResult test2(String fileName, String className) {
+  public TestResult testWrongClass2(String fileName, String className) {
     String testName = "test2";
-    if (testInternal1(fileName)
-        && testInternal1_2()
-        && testInternal2(className)
-        && testInternal3()
-        && testInternal4()
-        && testInternal5()
-        && testInternal6()) {
+    if (stage_1_readSourceFile(fileName)
+        && stage_1_2_replaceSmthInSource()
+        && stage_2_checkCompilation(className)
+        && stage_3_checkFirstMethodDeclaration()
+        && stage_4_checkFirstOutput()
+        && stage_5_checkSecondMethodDeclaration()
+        && stage_6_checkSecondOutput()) {
       return new TestResult(testName, true, messages);
     }
     return new TestResult(testName, false, messages);
   }
 
-  public TestResult test3(String fileName, String className) {
+  public TestResult testWrongClass3(String fileName, String className) {
     String testName = "test3";
-    if (testInternal1(fileName)
-        && testInternal1_2()
-        && testInternal2(className)
-        && testInternal3()
-        && testInternal4()
-        && testInternal5()
-        && testInternal6()
-        && testInternal6_2()) {
+    if (stage_1_readSourceFile(fileName)
+        && stage_1_2_replaceSmthInSource()
+        && stage_2_checkCompilation(className)
+        && stage_3_checkFirstMethodDeclaration()
+        && stage_4_checkFirstOutput()
+        && stage_5_checkSecondMethodDeclaration()
+        && stage_6_checkSecondOutput()
+        && stage_6_2_checkTryCatch()) {
       return new TestResult(testName, true, messages);
     }
     return new TestResult(testName, false, messages);
   }
 
-  public TestResult testRoom8() {
+  public TestResult testMathematicalClass() {
     try {
       Class<?> cls2 =
           compile(getSource("../dojo-dungeon/todo-assets/lvl3r2/Cuboid.java"), "Cuboid");
@@ -148,7 +148,7 @@ public class DojoCompiler {
     return new TestResult("testRoom8", false, messages);
   }
 
-  private boolean testInternal1(String fileName) {
+  private boolean stage_1_readSourceFile(String fileName) {
     try {
       source = getSource(fileName);
     } catch (IOException ex) {
@@ -163,14 +163,14 @@ public class DojoCompiler {
     return true;
   }
 
-  private boolean testInternal1_2() {
-    // --- Replace 10 with yuppie ---
-    source = source.replace("10", "yuppie");
+  private boolean stage_1_2_replaceSmthInSource() {
+    // Replace "10" with "wuppie":
+    source = source.replace("10", "wuppie");
     messages.add("replace ok");
     return true;
   }
 
-  private boolean testInternal2(String className) {
+  private boolean stage_2_checkCompilation(String className) {
     try {
       cls = compile(source, className);
     } catch (Exception ex) {
@@ -181,9 +181,9 @@ public class DojoCompiler {
     return true;
   }
 
-  private boolean testInternal3() {
+  private boolean stage_3_checkFirstMethodDeclaration() {
     try {
-      method1 = cls.getDeclaredMethod("testExpectedOutput7", PrintWriter.class);
+      method1 = cls.getDeclaredMethod("redirectOutputTo1", PrintWriter.class);
     } catch (NoSuchMethodException ex) {
       messages.add("method1 not ok");
       return false;
@@ -192,7 +192,7 @@ public class DojoCompiler {
     return true;
   }
 
-  private boolean testInternal4() {
+  private boolean stage_4_checkFirstOutput() {
     ByteArrayOutputStream buf1 = new ByteArrayOutputStream();
     try (PrintWriter writer = new PrintWriter(buf1, true)) {
       try {
@@ -203,20 +203,18 @@ public class DojoCompiler {
       }
       messages.add("invocation1 ok");
     }
-
     String actualOutput1 = buf1.toString(Charset.defaultCharset());
     if (actualOutput1 == null || !actualOutput1.contains("Die Summe ist: 7")) {
       messages.add("output1 wrong: " + actualOutput1);
       return false;
     }
     messages.add("output1 ok");
-
     return true;
   }
 
-  private boolean testInternal5() {
+  private boolean stage_5_checkSecondMethodDeclaration() {
     try {
-      method2 = cls.getDeclaredMethod("testExpectedOutput8", PrintWriter.class);
+      method2 = cls.getDeclaredMethod("redirectOutputTo2", PrintWriter.class);
     } catch (NoSuchMethodException ex) {
       messages.add("method2 not ok");
       return false;
@@ -225,7 +223,7 @@ public class DojoCompiler {
     return true;
   }
 
-  private boolean testInternal6() {
+  private boolean stage_6_checkSecondOutput() {
     ByteArrayOutputStream buf2 = new ByteArrayOutputStream();
     try (PrintWriter writer = new PrintWriter(buf2, true)) {
       try {
@@ -236,18 +234,16 @@ public class DojoCompiler {
       }
       messages.add("invocation2 ok");
     }
-
     String actualOutput2 = buf2.toString(Charset.defaultCharset());
     if (actualOutput2 == null || !actualOutput2.contains("Die dritte Zahl ist: 8")) {
       messages.add("output2 wrong: " + actualOutput2);
       return false;
     }
     messages.add("output2 ok");
-
     return true;
   }
 
-  private boolean testInternal6_2() {
+  private boolean stage_6_2_checkTryCatch() {
     Pattern pattern = Pattern.compile("try.+catch", Pattern.DOTALL);
     Matcher matcher = pattern.matcher(source);
     boolean b3 = matcher.find();
@@ -257,7 +253,6 @@ public class DojoCompiler {
       messages.add("try-catch not ok");
       return false;
     }
-
     return true;
   }
 
@@ -266,17 +261,17 @@ public class DojoCompiler {
   }
 
   private Class<?> compile(String source, String className) throws Exception {
-    // Save source in .java file.
+    // Save source text to temporary file
     File root = Files.createTempDirectory("java").toFile();
     File sourceFile = new File(root, className + ".java");
     assert sourceFile.getParentFile().mkdirs();
     Files.writeString(sourceFile.toPath(), source);
 
-    // Compile source file.
+    // Compile source file
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     compiler.run(null, null, null, sourceFile.getPath());
 
-    // Load and instantiate compiled class.
+    // Load compiled class
     URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] {root.toURI().toURL()});
 
     return Class.forName(className, true, classLoader);
