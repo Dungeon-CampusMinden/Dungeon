@@ -82,7 +82,12 @@ This project was funded by [Stiftung für Innovation in der Hochschullehre] (["F
 
 The [`game/assets/`] and [`dungeon/assets/`] are a mix from free resources:
 
--   Textures and animations:
+-   Level-Textures [`game/assets/dungeon`] created by @dkirshner (CC0 1.0)
+-   Item-Textures [`dungeon/assets/items`] created by @dkirshner and @fwatermann (CC0 1.0)
+-   Knight and Wizard [`game/assets/character/knight`] and [`dungeon/assets/character/Wizard`] created by @dkirshner (CC0 1.0)
+-   HUD Assets @dkirshner (CC0 1.0)
+-   Misc Assets by @dkirshner and @fwatermann (CC0 1.0)
+- Also uses monster and character assets from:    
     -   https://0x72.itch.io/16x16-dungeon-tileset (CC0 1.0)
     -   https://0x72.itch.io/dungeontileset-ii (CC0 1.0)
 -   Music and soundeffects:
@@ -91,6 +96,7 @@ The [`game/assets/`] and [`dungeon/assets/`] are a mix from free resources:
     -   https://opengameart.org/content/hurt-death-sound-effect-for-character (CC0 1.0)
     -   https://opengameart.org/content/80-cc0-creture-sfx-2 (CC0 1.0)
 
+-   Logo  [`game/assets/logo`] created by @dkirshner
 ## Licenses
 
 This [work] by [André Matutat], [Malte Reinsch], and [contributors] is licensed under [MIT].
