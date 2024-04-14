@@ -252,13 +252,15 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
         this.getCurrentRoom().mobAI(true);
       }
 
-      for (Entity mob : this.getCurrentRoom().mobs()) {
-        Consumer<Entity> fightAI =
-            mob.fetch(AIComponent.class)
-                .orElseThrow(() -> MissingComponentException.build(mob, AIComponent.class))
-                .fightBehavior();
-        if (fightAI instanceof RangeAI rangeAI) {
-          rangeAI.getSkill().setLastUsedToNow();
+      if (this.getCurrentRoom() != null) {
+        for (Entity mob : this.getCurrentRoom().mobs()) {
+          Consumer<Entity> fightAI =
+              mob.fetch(AIComponent.class)
+                  .orElseThrow(() -> MissingComponentException.build(mob, AIComponent.class))
+                  .fightBehavior();
+          if (fightAI instanceof RangeAI rangeAI) {
+            rangeAI.getSkill().setLastUsedToNow();
+          }
         }
       }
 
