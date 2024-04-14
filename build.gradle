@@ -56,7 +56,6 @@ spotless {
 
 
 import com.github.jk1.license.render.*
-import com.github.jk1.license.importer.*
 
 licenseReport {
     // By default this plugin will collect the union of all licenses from
@@ -80,14 +79,6 @@ licenseReport {
     // configurations = ALL
     configurations = ['runtimeClasspath']
 
-    // List the groups ids to exclude from dependency report. Supports regular expressions.
-    // For finer granularity, see: excludes.
-    excludeGroups = ['do.not.want']
-
-    // List the ids (in module:name format) to exclude from dependency report. Supports regular expressions.
-    // By default excludes is empty.
-    excludes = ['moduleGroup:moduleName']
-
     // Don't include artifacts of project's own group into the report
     excludeOwnGroup = true
 
@@ -98,12 +89,4 @@ licenseReport {
     // Set custom report renderer, implementing ReportRenderer.
     // Yes, you can write your own to support any format necessary.
     renderers = [new InventoryMarkdownReportRenderer('third-party-libs.md', 'Back-End Libraries')]
-
-    // Set importers to import any external dependency information, i.e. from npm.
-    // Custom importer should implement DependencyDataImporter interface.
-    // importers = [new XmlReportImporter('Frontend dependencies', file(frontend_libs.xml))]
-
-    // This is for the allowed-licenses-file in checkLicense Task
-    // Accepts File, URL or String path to local or remote file
-    allowedLicensesFile = new File("$projectDir/config/allowed-licenses.json")
 }
