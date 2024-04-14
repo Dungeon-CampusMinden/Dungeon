@@ -28,9 +28,9 @@ public final class BurningFireballSkill extends DamageProjectile {
   private static final float PROJECTILE_SPEED = 15.0f;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final Point HIT_BOX_SIZE = new Point(1, 1);
-  private static final float PROJECTILE_RANGE = 7f;
   private static final BurningEffect BURNING_EFFECT = new BurningEffect(1f, 1);
-  public static boolean UNLOCKED = true;
+  public static float PROJECTILE_RANGE = 7f;
+  public static boolean UNLOCKED = false;
   public static int DAMAGE_AMOUNT = 2;
 
   /**

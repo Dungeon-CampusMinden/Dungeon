@@ -25,8 +25,17 @@ import java.util.Optional;
 
 public class DevHeroFactory extends HeroFactory {
   public static final boolean ENABLE_MOUSE_MOVEMENT = true;
-  private static final Skill SKILL =
+  private static Skill SKILL =
       new Skill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint), 500L);
+
+  /**
+   * Update the skill used by the hero.
+   *
+   * <p>This method should be called whenever the skill was modified, and needs to be updated.
+   */
+  public static void updateSkill() {
+    SKILL = new Skill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint), 500L);
+  }
 
   public static Skill getSkill() {
     return SKILL;
@@ -60,7 +69,7 @@ public class DevHeroFactory extends HeroFactory {
     // Mouse movement
     if (ENABLE_MOUSE_MOVEMENT) {
       // Mouse Left Click
-      registerMouseLeftClick(pc, SKILL);
+      registerMouseLeftClick(pc);
 
       // Mouse Movement (Right Click)
       pc.registerCallback(
@@ -105,10 +114,10 @@ public class DevHeroFactory extends HeroFactory {
     return hero;
   }
 
-  private static void registerMouseLeftClick(PlayerComponent pc, Skill fireball) {
+  private static void registerMouseLeftClick(PlayerComponent pc) {
     if (!Objects.equals(
         KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
-      pc.registerCallback(KeyboardConfig.MOUSE_FIRST_SKILL.value(), fireball::execute, true, false);
+      pc.registerCallback(KeyboardConfig.MOUSE_FIRST_SKILL.value(), SKILL::execute, true, false);
       pc.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
           DevHeroFactory::handleInteractWithClosestInteractable,
@@ -123,7 +132,7 @@ public class DevHeroFactory extends HeroFactory {
             Point mousePosition = SkillTools.cursorPositionAsPoint();
             Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
             if (interactable == null || !interactable.isPresent(InteractionComponent.class)) {
-              fireball.execute(hero);
+              SKILL.execute(hero);
             } else {
               handleInteractWithClosestInteractable(hero);
             }
