@@ -64,7 +64,8 @@ public class DevHeroFactory extends HeroFactory {
     registerMovement(
         pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT_SECOND.value(), new Vector2(-1, 0));
 
-    pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), SKILL::execute);
+    pc.registerCallback(
+        KeyboardConfig.FIRST_SKILL.value(), heroEntity -> SKILL.execute(heroEntity));
 
     // Mouse movement
     if (ENABLE_MOUSE_MOVEMENT) {
@@ -117,7 +118,8 @@ public class DevHeroFactory extends HeroFactory {
   private static void registerMouseLeftClick(PlayerComponent pc) {
     if (!Objects.equals(
         KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
-      pc.registerCallback(KeyboardConfig.MOUSE_FIRST_SKILL.value(), SKILL::execute, true, false);
+      pc.registerCallback(
+          KeyboardConfig.MOUSE_FIRST_SKILL.value(), hero -> SKILL.execute(hero), true, false);
       pc.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
           DevHeroFactory::handleInteractWithClosestInteractable,
