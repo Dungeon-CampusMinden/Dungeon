@@ -41,6 +41,7 @@ public final class BurningFireballSkill extends DamageProjectile {
    */
   public BurningFireballSkill(final Supplier<Point> targetSelection) {
     super(
+        "burningfireball",
         PROJECTILE_TEXTURES,
         PROJECTILE_SPEED,
         DAMAGE_AMOUNT,

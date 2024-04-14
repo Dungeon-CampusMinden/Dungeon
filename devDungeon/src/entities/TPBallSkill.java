@@ -43,6 +43,7 @@ public final class TPBallSkill extends DamageProjectile {
    */
   public TPBallSkill(final Supplier<Point> targetSelection, Point tpTarget) {
     super(
+        "tpball",
         PROJECTILE_TEXTURES,
         PROJECTILE_SPEED,
         DAMAGE_AMOUNT,
