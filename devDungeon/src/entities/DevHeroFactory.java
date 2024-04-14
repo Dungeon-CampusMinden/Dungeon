@@ -4,8 +4,10 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.math.Vector2;
 import components.PathComponent;
 import contrib.components.InteractionComponent;
+import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroFactory;
+import contrib.hud.elements.GUICombination;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -132,6 +134,12 @@ public class DevHeroFactory extends HeroFactory {
   }
 
   private static void handleInteractWithClosestInteractable(Entity hero) {
+    UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
+    if (uiComponent != null && uiComponent.dialog() instanceof GUICombination) {
+      // close the dialog if already open
+      hero.remove(UIComponent.class);
+      return;
+    }
     Point mousePosition = SkillTools.cursorPositionAsPoint();
     Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
     if (interactable == null) return;
