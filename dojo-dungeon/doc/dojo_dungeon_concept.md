@@ -16,35 +16,33 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
     - Ein geheimnisvoller Wald mit dichtem
       Unterholz und moosbedecktem Boden.
     - Der Wald besteht aus drei Räumen.
-- Ziele und Aufgaben:
+- Ziele und Aufgaben im ersten Raum:
     - Der Spieler muss den versteckten Schlüssel
-      finden, um die Tür zuöffnen. Der Schlüssel
-      befindet sich in einer der Truhen.
+      finden, um die Tür zuöffnen. Ein Monster trägt den
+      Schlüssel bei sich. Um den Schlüssen zu erhalten, muss
+      der Spieler das Monster besiegen.
     - Auf dem Weg begegnet er wilde Imps und
       Goblins.
     - In den Truhen befinden sich zusätzlich
-      Heiltränke, damit sich der Spieler heilen
+      Heilgegenstände, damit sich der Spieler heilen
       kann.
 - Rätsel im zweiten Raum:
-    - Stelle dem Spieler Codeausschnitte oder
-      Fehlermeldungen vor.
+    - Dem Spieler wird eine Java-Datei präsentiert, die vier
+      Fehler enthält.
     - Der Spieler muss den Fehler identifizieren
       und korrigieren, um voranzukommen.
-- Bosskampf "OgreX":
-    - OgreX hat verschiedene Angriffsmuster, die
-      aus regulären Ausdrücken bestehen. Der
-      Spieler muss daraufhin einen zum regulären
-      Ausdruck passenden String eingeben. Hat
-      der Spieler die passenden Strings eingegeben,
-      ist der Boss erledigt und die nächste Ebene
-      öffnet sich.
+- Rätsel im dritten Raum:
+    - Der Spieler trifft auf einen mysteriösen NPC.
+    - Der NPC stellt Fragen zu Lambda-Ausdrücken
+      und Funktionsinterfaces.
+    - Der Spieler muss die Fragen richtig beantworten, um weiterzukommen.
 
 ## Level 2: "Tempel der verlorenen Geheimnisse"
 
 - Umgebung:
     - Ein uralter Tempel mit geheimnisvollen Inschriften.
     - Der Tempel besteht aus drei Räumen.
-- Ziele und Aufgaben:
+- Ziele und Aufgaben im ersten Raum:
     - Der Spieler muss den versteckten Saphir
       finden, der von einem bestimmten Monster
       fallengelassen wird. Sobald der Saphir im
@@ -52,21 +50,21 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
     - Ork-Krieger und Ork-Schamanen wollen es
       verhindern.
     - Zusätzlich befinden sich Truhen im Raum,
-      die Ausrüstung beinhalten.
+      die Heilgegenstände beinhalten.
 - Rätsel im zweiten Raum:
-    - Eine Schriftrolle befindet sich auf dem Boden,
-      mit der Aufgabe, dass der Spieler
-      ein Monster mit verschiedenen Eigenschaften
-      (z.B. Gesundheit, Angriffskraft) erstellen
-      muss, um weiterzukommen.
-- Bosskampf "Skelettdoktor der Code Refactorer":
+    - Der blaue Ritter tritt vor dem Spieler und stellt
+      ihm eine Aufgabe. Der Spieler muss ein Monster erstellen.
+      Um weiterzukommen, muss der Spieler nicht nur das Monster
+      erschaffen, sondern auch besiegen.
+- Bosskampf "Skelettdoktor der Code Refactorer" im dritten Raum:
     - Der Skelettdoktor ist verzweifelt, weil der
       Quellcode miserabel, unvollständig und ineffizient ist und
       bittet den Spieler um Hilfe.
-      Ziel ist es, den Code zu optimieren, Fehler
-      zu beheben und die Lesbarkeit zu verbessern.
-      Falls die Lösung zufriedenstellend ist, öffnet
-      sich die Tür zur nächsten Ebene.
+      Der Spieler soll eine Klasse auf Anti-Pattern untersuchen und
+      "refactoren". Das Ziel dabei ist, den Code zu optimieren und die
+      Lesbarkeit zu verbessern. Diese überarbeitete Klasse soll er im
+      Praktikum von einem Tutor überprüfen lassen. Falls die Lösung
+      zufriedenstellend ist, kann er in den nächsten Raum weitergehen.
 
 ## Level 3: "Kerker des Grauens"
 
@@ -74,28 +72,28 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
     - Ein düsterer, verfallener Kerker mit steinernen
       Wänden und alten Türen.
     - Der Kerker besteht aus drei Räumen.
-- Ziele und Aufgaben:
-    - Der Spieler muss Schriftrollen mit Tieren
-      der richtigen Kategorie (Reptil usw.)
-      den Truhen zuordnen. Erst wenn alle
-      Schriftrollen korrekt zugeordnet sind, öffnet
-      sich die nächste Tür.
-    - Unterwegs trifft er auf Kürbisköpfe und
-      Zombies, die ihn angreifen.
+- Ziele und Aufgaben im ersten Raum:
+    - Der Spieler muss Schriftrollen, die verschiedene Programming
+      Patterns und Software Development Principles repräsentieren,
+      den entsprechenden Truhen zuordnen. Die Truhen sind mit den
+      Kategorien der Programming Patterns und Software Development
+      Principles beschriftet. Erst wenn alle Schriftrollen korrekt
+      zugeordnet sind, kann der Spieler in den nächsten Raum
+      weitergehen.
+    - Unterwegs trifft der Spieler auf Zombies, die ihn angreifen.
 - Rätsel im zweiten Raum:
-    - Ein friedlicher Imp will, dass der Spieler in
-      einem vorgegeben Code Fehler findet und korrigiert.
-    - Dies kann dazu beitragen, das Verständnis
-      für häufige Fehler und Debugging-Techniken
-      zu vertiefen.
-- Bosskampf "Zauberer von Patternson":
-    - Der "Zauber von Patternson" verlangt vom
-      Spieler, dass er verschiedene Design Patterns
-      (z.B. Singleton, Factory, Observer) ins Spiel
-      implementieren muss, damit er in die nächste
-      Ebene kommt.
-    - Ziel: Der Spieler kann diese Muster erkennen
-      und anwenden.
+    - Ein friedlicher Imp stellt dem Spieler eine Herausforderung:
+      Er soll eine Klasse mit mathematischen Funktionen verbessern.
+      Der Spieler hat jedoch nur eine  begrenzte Anzahl an Versuchen,
+      symbolisiert durch seine Lebenspunkte. Wenn der Spieler die
+      Klasse richtig verbessert hat, gilt der Imp als besiegt und
+      der Spieler kann in den nächsten Raum weitergehen.
+- Bosskampf "OgreX" im dritten Raum:
+    - OgreX stellt verschiedene Fragen, die auf regulären Ausdrücken
+      basieren. Der Spieler muss daraufhin einen String eingeben, der zum
+      regulären Ausdruck passt. Wenn der Spieler die passenden Strings
+      eingegeben hat, lässt OgreX den Spieler zur nächsten Ebene
+      weitergehen.
 
 ## Level 4: "Die Vulkanhöhle"
 
@@ -103,39 +101,31 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
     - Eine unterirdische Höhle mit fließender Lava
       und glühenden Steinen.
     - Die Vulkanhöhle besteht aus drei Räumen.
-- Ziele und Aufgaben:
+- Ziele und Aufgaben im ersten Raum:
     - Der Spieler muss alle Monster erledigen um
       weiterzukommen.
     - Folgende Monster sind anzutreffen: "Imps"
-      und "kleiner Dämon".
-    - In einer Truhe befindet sich das "Eisschwert",
-      mit dem man mehr Schaden anrichten kann.
-- Rätsel im zweiten Raum:
-    - Der Spieler trifft auf einen mysteriösen NPC.
-    - Der NPC stellt Fragen zu Lambda-Ausdrücken
-      und Funktionsinterfaces.
-    - Der Spieler muss die Fragen richtig beantworten, um weiterzukommen.
-- Bosskampf "Der Artefakt Dämon":
-    - Der "Artefakt Dämon" ist friedlich und wird
-      den Spieler nicht angreifen.
-    - Der Spieler erhält eine Beschreibung des erwarteten
-      Verhaltens und der Schnittstelle,
-      die das Artefakt implementieren muss.
-    - Der "Artefakt Dämon" erteilt dem Spieler
-      die Aufgabe, eine Java-Klasse zu schreiben,
-      die dieses Verhalten implementiert und die
-      Schnittstelle implementiert.
-    - Die Klasse muss auf Code-Ebene in das Spiel
-      integriert werden, um die Truhe zuöffnen.
-    - Hat der Spieler die Truhe aufgekriegt und
-      das Artefakt erhalten, kommt er in die
-      nächste Ebene.
+      und "kleine Dämonen".
+- Bosskampf "Zauberer von Patternson" im zweiten Raum:
+    - Der "Zauberer von Patternson" stellt dem Spieler eine neue
+      Herausforderung: Er muss verschiedene Design Patterns anhand
+      eines UML-Klassendiagramms erkennen. Der Spieler muss dann
+      die erkannten Design Patterns dem Zauberer mitteilen.
+      Wenn die Lösung korrekt ist, kann der Spieler in die nächste
+      Ebene weitergehen.
+- Bosskampf "Der Artefakt Dämon" im dritten Raum:
+    - Der Dämon stellt dem Spieler eine neue Herausforderung:
+      In diesem Raum erhält man eine Beschreibung des erwarteten Verhaltens,
+      die implementiert werden muss. Der Spieler muss dann die
+      implementierten Methoden dem Dämon vorlegen.
+      Wenn die Implementierung korrekt ist, muss der Dämon angegriffen
+      werden und der Spieler kann in die nächste Ebene weitergehen.
 
-## Level 5: "Spezial-Welt Bielefeld"
+## Level 5: "Spezial-Welt Bielefeld" (Nicht realisiert!)
 
 - Umgebung:
     - Die Stadt Bielefeld mit ihren Sehenswürdigkeiten.
-- Ziele und Aufgaben:
+- Ziele und Aufgaben im ersten Raum:
     - Der Spieler muss verhindern, dass der Zustand der Gebäude
       nicht unter 50 % fällt.
     - Der Spieler muss alle Monster erledigen um
