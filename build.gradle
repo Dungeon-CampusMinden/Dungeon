@@ -25,6 +25,13 @@ allprojects {
         mavenCentral()
     }
 
+    dependencies {
+        // JUnit 4, Mockito and Powermock for testing:
+        // https://mvnrepository.com/artifact/junit/junit
+        testImplementation supportDependencies.junit
+        testImplementation supportDependencies.mockito_core
+    }
+
     tasks.withType(JavaExec).configureEach {
         dependsOn classes
         standardInput = System.in
