@@ -1,5 +1,6 @@
 package level.devlevel;
 
+import contrib.entities.DialogFactory;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
@@ -61,7 +62,14 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable
     this.spawnCamps();
 
     EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns);
-    EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn);
+    EntityUtils.spawnBoss(
+        BOSS_TYPE,
+        this.levelBossSpawn,
+        (boss) -> {
+          DialogFactory.showTextPopup(
+              "The next level is the final boss. You probably want to prepare for that. It's going to be tough.",
+              "No Point of Return!");
+        });
   }
 
   private void spawnCamps() {
