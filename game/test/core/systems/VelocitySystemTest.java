@@ -46,7 +46,7 @@ public class VelocitySystemTest {
     Game.add(velocitySystem);
     velocityComponent = new VelocityComponent(xVelocity, yVelocity);
     positionComponent = new PositionComponent(new Point(startXPosition, startYPosition));
-    animationComponent = new DrawComponent(new SimpleIPath("textures/test_hero"));
+    animationComponent = new DrawComponent(new SimpleIPath("textures/dkirshner/test_hero"));
     entity.add(velocityComponent);
     entity.add(positionComponent);
     entity.add(animationComponent);

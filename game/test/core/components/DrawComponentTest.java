@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class DrawComponentTest {
 
-  private final IPath animationPath = new SimpleIPath("textures/test_hero");
+  private final IPath animationPath = new SimpleIPath("textures/dkirshner/test_hero");
   private DrawComponent animationComponent;
 
   @Before
