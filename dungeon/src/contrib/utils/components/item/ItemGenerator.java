@@ -27,7 +27,8 @@ public final class ItemGenerator {
 
     if (item.getSimpleName().contains("Potion")) { // Prevent other potions from being generated
       if (Item.RANDOM.nextBoolean()) {
-        return new ItemResourceBerry();
+        if ((Item.RANDOM.nextBoolean())) return new ItemResourceMushroomRed();
+        else return new ItemResourceBerry();
       }
       return new ItemPotionHealth(getWeightedRandomHealthPotionType());
     }
@@ -41,7 +42,7 @@ public final class ItemGenerator {
 
   /**
    * This method returns a randomly selected potion type based on a weighted system. The weights are
-   * as follows: - 70% WEAK - 25% MEDIUM - 5% GREATER
+   * as follows: - 75% WEAK - 20% MEDIUM - 5% GREATER
    *
    * <p>These weights are based on the likelihood of the player finding a potion of a certain type.
    *
@@ -50,7 +51,7 @@ public final class ItemGenerator {
   private static HealthPotionType getWeightedRandomHealthPotionType() {
     HealthPotionType[] types = HealthPotionType.values();
 
-    float[] chances = {0.7f, 0.25f, 0.05f}; /* 70%, 25%, 5% */
+    float[] chances = {0.75f, 0.20f, 0.05f}; /* 75%, 20%, 5% */
     float random = Item.RANDOM.nextFloat();
 
     for (int i = 0; i < chances.length; i++) {
