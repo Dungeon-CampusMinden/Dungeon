@@ -15,11 +15,26 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+/** Class to drop an item in the room to open the door. */
 public class SearchRoom extends MonsterRoom {
   private final String keyType;
   private final String keyDescription;
   private final IPath keyTexture;
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   * @param monsterCount the number of monsters in this room
+   * @param monsterPaths the paths of the monsters in this room
+   * @param keyType the type of the key
+   * @param keyDescription the description of the key
+   * @param keyTexture the path of the texture of the key
+   */
   public SearchRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,

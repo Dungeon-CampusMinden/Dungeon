@@ -36,6 +36,15 @@ public class L4_R2_Fragen_Pattern extends Room {
   private Entity zauberer;
   private int correctAnswerCount = 0;
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public L4_R2_Fragen_Pattern(
       LevelRoom levelRoom,
       RoomGenerator gen,
@@ -52,7 +61,7 @@ public class L4_R2_Fragen_Pattern extends Room {
     }
   }
 
-  public void generate() throws IOException {
+  private void generate() throws IOException {
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
 

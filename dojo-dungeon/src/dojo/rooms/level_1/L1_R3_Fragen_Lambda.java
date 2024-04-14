@@ -38,6 +38,15 @@ public class L1_R3_Fragen_Lambda extends Room {
   // to toggle between question types
   private static int toggle = -1;
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public L1_R3_Fragen_Lambda(
       LevelRoom levelRoom,
       RoomGenerator gen,
@@ -54,7 +63,7 @@ public class L1_R3_Fragen_Lambda extends Room {
     }
   }
 
-  public void generate() throws IOException {
+  private void generate() throws IOException {
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
 

@@ -24,7 +24,15 @@ import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
+/** Class for compiling and testing at runtime. */
 public class DojoCompiler {
+  /**
+   * Result of the tests.
+   *
+   * @param testName name of the tests
+   * @param passed if all tests passed
+   * @param messages list of messages during the tests
+   */
   public record TestResult(String testName, boolean passed, List<String> messages) {}
 
   private final List<String> messages = new ArrayList<>();
@@ -33,6 +41,14 @@ public class DojoCompiler {
   private Method method1;
   private Method method2;
 
+  /**
+   * Tries to spawn a monster at runtime.
+   *
+   * @param fileName class file name to compile
+   * @param className class name to compile
+   * @param currentRoom the current room
+   * @return a {@link TestResult} if the tests passed
+   */
   public TestResult spawnMonsterToOpenTheDoor(String fileName, String className, Room currentRoom) {
     String testName = "spawnMonster";
 
@@ -82,6 +98,13 @@ public class DojoCompiler {
     return new TestResult(testName, true, messages);
   }
 
+  /**
+   * Tests if the class is correct by certain criteria, step 1.
+   *
+   * @param fileName the name of the source file
+   * @param className the name of the class
+   * @return a {@link TestResult} if the tests passed
+   */
   public TestResult testWrongClass1(String fileName, String className) {
     String testName = "test1";
     if (stage_1_readSourceFile(fileName)
@@ -95,6 +118,13 @@ public class DojoCompiler {
     return new TestResult(testName, false, messages);
   }
 
+  /**
+   * Tests if the class is correct by certain criteria, step 2.
+   *
+   * @param fileName the name of the source file
+   * @param className the name of the class
+   * @return a {@link TestResult} if the tests passed
+   */
   public TestResult testWrongClass2(String fileName, String className) {
     String testName = "test2";
     if (stage_1_readSourceFile(fileName)
@@ -109,6 +139,13 @@ public class DojoCompiler {
     return new TestResult(testName, false, messages);
   }
 
+  /**
+   * Tests if the class is correct by certain criteria, step 3.
+   *
+   * @param fileName the name of the source file
+   * @param className the name of the class
+   * @return a {@link TestResult} if the tests passed
+   */
   public TestResult testWrongClass3(String fileName, String className) {
     String testName = "test3";
     if (stage_1_readSourceFile(fileName)
@@ -124,6 +161,11 @@ public class DojoCompiler {
     return new TestResult(testName, false, messages);
   }
 
+  /**
+   * Tests if a mathematical class is correct.
+   *
+   * @return a {@link TestResult} if the tests passed
+   */
   public TestResult testMathematicalClass() {
     try {
       Class<?> cls2 =

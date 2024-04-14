@@ -30,6 +30,15 @@ public class L2_R2_Monster_Implement_1 extends TaskRoom {
   private final String CLASS_NAME = "MyMonster";
   private final String title = "Monster besiegen";
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public L2_R2_Monster_Implement_1(
       LevelRoom levelRoom,
       RoomGenerator gen,

@@ -30,6 +30,15 @@ public class L4_R1_Monster_3 extends Room {
   private int monsterGroupsSpawned = 0;
   private int activeMonsters = 0;
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public L4_R1_Monster_3(
       LevelRoom levelRoom,
       RoomGenerator gen,
@@ -46,7 +55,7 @@ public class L4_R1_Monster_3 extends Room {
     }
   }
 
-  public void generate() throws IOException {
+  private void generate() throws IOException {
     spawnNextMonsterGroup();
   }
 

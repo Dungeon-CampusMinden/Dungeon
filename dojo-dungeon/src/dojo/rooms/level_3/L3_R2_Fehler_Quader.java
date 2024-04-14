@@ -37,6 +37,15 @@ import java.util.Set;
 public class L3_R2_Fehler_Quader extends TaskRoom {
   private int impHealth = 10;
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public L3_R2_Fehler_Quader(
       LevelRoom levelRoom,
       RoomGenerator gen,

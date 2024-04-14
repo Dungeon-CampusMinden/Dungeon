@@ -4,6 +4,7 @@ import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.Direction;
+import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
 import core.level.Tile;
 import core.level.TileLevel;
@@ -40,6 +41,15 @@ public class Room {
   private final LevelSize levelSize;
   private final DesignLabel designLabel;
 
+  /**
+   * Generate a new base room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public Room(
       LevelRoom levelRoom,
       RoomGenerator gen,
@@ -63,6 +73,7 @@ public class Room {
     addRoomEntities(Collections.emptySet());
   }
 
+  /** Configuration step to connect the doors of this room. */
   public void configDoors() {
     // the levelRooms must be generated first!
 
@@ -79,7 +90,7 @@ public class Room {
    * <p>This will add the entities (in the node payload) to the game, at the moment the level get
    * loaded for the first time.
    *
-   * @param roomEntities
+   * @param roomEntities the entities to add.
    */
   public void addRoomEntities(Set<Entity> roomEntities) {
     levelRoom.addRoomEntities(roomEntities);
@@ -94,6 +105,11 @@ public class Room {
     levelRoom.addEntityImmediately(entity);
   }
 
+  /**
+   * Gets the neighbour room.
+   *
+   * @return the next room
+   */
   public Room getNextRoom() {
     return nextRoom;
   }
@@ -116,6 +132,11 @@ public class Room {
     GeneratorUtils.doorAt(nextRoom.levelRoom.level(), Direction.NORTH).orElseThrow().close();
   }
 
+  /**
+   * Delegates to {@link LevelNode} start tile method.
+   *
+   * @return the tile for entities to spawn
+   */
   public Tile getStartTile() {
     return levelRoom.level().startTile();
   }

@@ -26,6 +26,15 @@ public class L2_R1_Monster_2 extends SearchRoom {
   private static final String keyDescription = "This gem opens the door to the next room.";
   private static final IPath keyTexture = new SimpleIPath("items/resource/saphire.png");
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public L2_R1_Monster_2(
       LevelRoom levelRoom,
       RoomGenerator gen,

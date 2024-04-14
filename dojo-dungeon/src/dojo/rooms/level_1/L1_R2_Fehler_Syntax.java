@@ -65,6 +65,15 @@ public class L1_R2_Fehler_Syntax extends TaskRoom {
   private final String[] TASK_NAMES = {"task_1_easy", "task_2_medium", "task_3_hard"};
   private final Entity[] CHESTS = new Entity[3];
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public L1_R2_Fehler_Syntax(
       LevelRoom levelRoom,
       RoomGenerator gen,

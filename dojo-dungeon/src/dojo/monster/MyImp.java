@@ -11,7 +11,14 @@ import core.components.VelocityComponent;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 
+/** Class to create and initialize the entity "MyImp". */
 public class MyImp {
+  /**
+   * Create the entity "MyImp".
+   *
+   * @param entity the entity to create
+   * @param isInitialized if the entity was already initialized
+   */
   public MyImp(Entity entity, boolean isInitialized) {
     if (!isInitialized) {
       entity.name("MyImp");

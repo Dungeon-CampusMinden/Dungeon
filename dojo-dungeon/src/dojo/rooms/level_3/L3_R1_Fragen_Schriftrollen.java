@@ -37,6 +37,18 @@ public class L3_R1_Fragen_Schriftrollen extends MonsterRoom {
   HashMap<String, ArrayList<String>> sortables;
   HashMap<Entity, Boolean> doneChests = new HashMap<>();
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   * @param monsterCount the number of monsters in this room
+   * @param monsterPaths the paths of the monsters in this room
+   * @param sortables a map of the sortables in this room
+   */
   public L3_R1_Fragen_Schriftrollen(
       LevelRoom levelRoom,
       RoomGenerator gen,

@@ -28,6 +28,15 @@ public class L2_R3_Fehler_Refactoring extends TaskRoom {
   private final String FILENAME1 = "ClsToRefactor.java";
   private final String title = "Refactoring";
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public L2_R3_Fehler_Refactoring(
       LevelRoom levelRoom,
       RoomGenerator gen,

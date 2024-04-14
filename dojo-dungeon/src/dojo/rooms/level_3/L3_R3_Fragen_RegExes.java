@@ -66,6 +66,15 @@ public class L3_R3_Fragen_RegExes extends Room {
 
   private int correctAnswerCount = 0;
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public L3_R3_Fragen_RegExes(
       LevelRoom levelRoom,
       RoomGenerator gen,
@@ -82,7 +91,7 @@ public class L3_R3_Fragen_RegExes extends Room {
     }
   }
 
-  public void generate() throws IOException {
+  private void generate() throws IOException {
     // add entities to room
     Set<Entity> roomEntities = new HashSet<>();
 

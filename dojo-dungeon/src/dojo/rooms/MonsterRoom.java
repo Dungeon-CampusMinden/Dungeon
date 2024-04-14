@@ -11,11 +11,23 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+/** Class for a monster spawning room. */
 public class MonsterRoom extends Room {
 
   private final int monsterCount;
   private final IPath[] monsterPaths;
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   * @param monsterCount the number of monsters in this room
+   * @param monsterPaths the paths of the monsters in this room
+   */
   public MonsterRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
@@ -42,10 +54,20 @@ public class MonsterRoom extends Room {
     return roomEntities;
   }
 
+  /**
+   * Number of monsters in this room.
+   *
+   * @return the number of monsters
+   */
   public int getMonsterCount() {
     return monsterCount;
   }
 
+  /**
+   * Paths of the monsters in this room.
+   *
+   * @return the monster paths
+   */
   public IPath[] getMonsterPaths() {
     return monsterPaths;
   }

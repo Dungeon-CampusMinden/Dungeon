@@ -25,6 +25,15 @@ public class L1_R1_Monster_1 extends SearchRoom {
   private static final String keyDescription = "A key to unlock the next room.";
   private static final IPath keyTexture = new SimpleIPath("items/key/gold_key.png");
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public L1_R1_Monster_1(
       LevelRoom levelRoom,
       RoomGenerator gen,

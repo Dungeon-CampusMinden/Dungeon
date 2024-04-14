@@ -39,14 +39,14 @@ public class ItemKey extends Item {
   }
 
   /**
-   * Special implementation of {@link Item#drop(Point)}
+   * Special implementation of an item drop.
    *
    * <p>This method automatically assigns a new {@link InteractionComponent} to the dropped Entity
    * of the item that allows to open the doors of the assigned rooms {@link #thisRoom} and {@link
    * #nextRoom}
    *
    * @param position The position where the item should be dropped.
-   * @return
+   * @return Whether the item was dropped successfully.
    */
   @Override
   public boolean drop(final Point position) {

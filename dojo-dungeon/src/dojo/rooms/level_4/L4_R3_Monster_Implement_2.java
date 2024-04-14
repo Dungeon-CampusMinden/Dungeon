@@ -30,6 +30,7 @@ public class L4_R3_Monster_Implement_2 extends Room {
   private static final String IMP_FQC = "dojo.monster.MyImp";
   private static final String IMP_PATH = "src/dojo/monster/MyImp";
 
+  /** A class loader that replaces the MyImp class with a new implementation. */
   public static class ReplacingClassLoader extends ClassLoader {
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -46,6 +47,15 @@ public class L4_R3_Monster_Implement_2 extends Room {
     }
   }
 
+  /**
+   * Generate a new room.
+   *
+   * @param levelRoom the level node
+   * @param gen the room generator
+   * @param nextRoom the rooms next room
+   * @param levelSize the size of this room
+   * @param designLabel the design label of this room
+   */
   public L4_R3_Monster_Implement_2(
       LevelRoom levelRoom,
       RoomGenerator gen,
@@ -62,7 +72,7 @@ public class L4_R3_Monster_Implement_2 extends Room {
     }
   }
 
-  public void generate() throws IOException {
+  private void generate() throws IOException {
     final Entity myImp = new Entity();
     new MyImp(myImp, false);
 
