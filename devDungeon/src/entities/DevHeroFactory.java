@@ -139,7 +139,7 @@ public class DevHeroFactory extends HeroFactory {
               handleInteractWithClosestInteractable(hero);
             }
           },
-          true,
+          false,
           false);
     }
   }
