@@ -107,13 +107,13 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
       DialogFactory.showTextPopup(
           "Kommen wir zum Craften. Du findest im Verlauf des Spiels verschiedene Ressourcen,"
               + " die du in Tränke und andere nützliche Gegenstände verwandeln kannst. "
-              + "Du kannst die Truhe und den Kessel mit E (oder LMB) öffnen. ",
+              + "Du kannst die Truhe und den Kessel mit E (oder LMB) öffnen und schließen. ",
           "Looting & Crafting");
     } else if (CraftingDoor.coordinate().equals(heroTile.coordinate())) {
       DialogFactory.showTextPopup(
-          "Im Dungeon findest immerwieder Hinternisse, Fallen und Rätsel."
-              + "Versuche sie zu umgehen oder zu lösen.",
-          "Rätsel");
+          "Im Dungeon findest immer wieder Hindernisse, Fallen und Rätsel."
+              + "Versuche sie zu umgehen oder zu lösen. Löcher kannst du anhand rissiger Bodenplatten erkennen oder anhand von schwarzen Löchern.",
+          "Rätsel & Fallen");
     }
   }
 
