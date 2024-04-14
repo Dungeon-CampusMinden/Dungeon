@@ -38,11 +38,6 @@ logs/
 dungeon_config.json
 
 
-# Dojo Dungeon Assets #
-#######################
-dojo-dungeon/todo-assets/
-
-
 # JAVA, Scala #
 ###############
 *.class
