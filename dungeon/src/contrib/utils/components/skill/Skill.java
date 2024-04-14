@@ -89,4 +89,14 @@ public class Skill {
   private void activateCoolDown() {
     nextUsableAt = lastUsed.plusMillis(coolDownInMilliSeconds);
   }
+
+  /**
+   * Sets the last used time to now.
+   *
+   * <p>This method is used to reset the cool down of the skill.
+   */
+  public void setLastUsedToNow() {
+    this.lastUsed = Instant.now();
+    this.activateCoolDown();
+  }
 }
