@@ -9,13 +9,15 @@ import core.level.utils.Coordinate;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import entities.BurningFireballSkill;
+import entities.DevHeroFactory;
 import java.util.List;
 import level.utils.ITickable;
 import utils.EntityUtils;
 
 public class IllusionRiddleHandler implements ITickable {
 
-  private static final int LAP_REWARD = 4;
+  private static final int LAP_REWARD = 3;
   private final TileLevel level;
   private final Coordinate[][] initTeleporterSpawns;
   private final Coordinate[][] lastTeleporterSpawns;
@@ -81,9 +83,14 @@ public class IllusionRiddleHandler implements ITickable {
 
   private void giveReward() {
     DialogFactory.showTextPopup(
-        "You will receive enhanced perception \nas a reward for running " + LAP_REWARD + " laps!",
+        "You will receive enhanced perception as a reward for running "
+            + LAP_REWARD
+            + " laps!"
+            + "You now can see and attack further than before.",
         "Run " + LAP_REWARD + " Laps");
     CameraSystem.camera().zoom += 0.1f;
+    BurningFireballSkill.PROJECTILE_RANGE += 1f;
+    DevHeroFactory.updateSkill();
     this.rewardGiven = true;
     this.level.tileAt(this.riddleRewardSpawn).tintColor(-1);
   }
