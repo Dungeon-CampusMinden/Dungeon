@@ -159,7 +159,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
 
     try {
       DrawComponent dc = new DrawComponent(pathToTexturesOfProjectile);
-      dc.tintColor(this.tintColor);
+      dc.tintColor(this.tintColor());
       projectile.add(dc);
     } catch (IOException e) {
       LOGGER.warning(
