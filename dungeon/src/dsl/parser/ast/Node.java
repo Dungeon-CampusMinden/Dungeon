@@ -97,7 +97,8 @@ public class Node {
 
   public static Node NONE = new Node(Type.NONE, new ArrayList<>());
 
-  @Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
+  //@Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
+  @Transient
   private ArrayList<Node> children;
 
   @Property public final Type type;
@@ -136,6 +137,11 @@ public class Node {
       if (child.hasErrorChild || child.subTreeHasError || child.hasErrorRecord) {
         this.subTreeHasError = true;
       }
+    }
+
+    for (int i = 0; i < nodeChildren.size(); i++) {
+      var child = nodeChildren.get(i);
+      RelationshipRecorder.instance.add(this, child, i);
     }
   }
 
@@ -198,6 +204,9 @@ public class Node {
         boolean b = true;
       }
     }
+
+    int idx = this.children.size();
+    RelationshipRecorder.instance.add(this, node, idx);
     this.children.add(node);
     node.parent = this;
 

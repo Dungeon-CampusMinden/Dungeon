@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -165,20 +167,20 @@ public class Neo4J {
   @Test
   public void testDBGetErrorNode() {
     String program =
-        """
-    assign_task t1 {
-        description: "Task1",
-        solution: <["a", "b"]>
-    }
+      """
+  assign_task t1 {
+      description: "Task1",
+      solution: <["a", "b"]>
+  }
 
-    graph g {
-        t1 -> (; // broken definition
-    }
+  graph g {
+      t1 -> (; // broken definition
+  }
 
-    dungeon_config c {
-        dependency_graph: g
-    }
-    """;
+  dungeon_config c {
+      dependency_graph: g
+  }
+  """;
 
     // print currently just prints to system.out, so we need to
     // check the contents for the printed string
@@ -220,35 +222,35 @@ public class Neo4J {
 
       // get ast root node back from db
       var graphNodeReferenceAssignDef =
-          session.queryForObject(
-              Node.class,
-              """
-            match
-            (n:Node {type:"Identifier", name:"t1"})-[:REFERENCES]->(s:Symbol {name:"t1"}),
-            (o:Node {type:"ObjectDefinition"})-[:CREATES]->(s),
-            (t:IType {name:"assign_task"})<-[:OF_TYPE]-(s)
-            return n
-            """,
-              Map.of());
+        session.queryForObject(
+          Node.class,
+          """
+        match
+        (n:Node {type:"Identifier", name:"t1"})-[:REFERENCES]->(s:Symbol {name:"t1"}),
+        (o:Node {type:"ObjectDefinition"})-[:CREATES]->(s),
+        (t:IType {name:"assign_task"})<-[:OF_TYPE]-(s)
+        return n
+        """,
+          Map.of());
       Assert.assertNotEquals(null, graphNodeReferenceAssignDef);
 
       var dungeonConfigRefGraph =
-          session.query(
-              """
-            match
-            (n:Node {type:"Identifier", name:"g"})-[:REFERENCES]->(s:Symbol {name:"g"}),
-            (o:Node {type:"DotDefinition"})-[:CREATES]->(s)
-            return n
-            """,
-              Map.of());
+        session.query(
+          """
+        match
+        (n:Node {type:"Identifier", name:"g"})-[:REFERENCES]->(s:Symbol {name:"g"}),
+        (o:Node {type:"DotDefinition"})-[:CREATES]->(s)
+        return n
+        """,
+          Map.of());
       Assert.assertNotEquals(null, dungeonConfigRefGraph);
 
       var topLevelNodesWithErrorChildren =
-          session.query(
-              """
-            match (n:Node {hasErrorChild:TRUE}) return n
-            """,
-              Map.of());
+        session.query(
+          """
+        match (n:Node {hasErrorChild:TRUE}) return n
+        """,
+          Map.of());
 
       ArrayList<Node> list = new ArrayList<>();
       topLevelNodesWithErrorChildren.queryResults().forEach(r -> list.add((Node) r.get("n")));
@@ -256,11 +258,11 @@ public class Neo4J {
       Assert.assertEquals(2, list.size());
 
       var nodesWithErrorRecord =
-          session.query(
-              """
-            match (n:Node {hasErrorRecord:TRUE}) return n
-            """,
-              Map.of());
+        session.query(
+          """
+        match (n:Node {hasErrorRecord:TRUE}) return n
+        """,
+          Map.of());
 
       ArrayList<Node> nodes = new ArrayList<>();
       nodesWithErrorRecord.queryResults().forEach(r -> nodes.add((Node) r.get("n")));
@@ -272,6 +274,114 @@ public class Neo4J {
            """, Map.of());
 
       */
+
+      sessionFactory.close();
+    }
+  }
+
+  @Test
+  public void testDBNodeRelationShips() {
+    String program =
+        """
+    assign_task t1 {
+        description: "Task1",
+        solution: <["a", "b"]>
+    }
+
+    graph g {
+        t1 -> t2;
+    }
+
+    fn test() -> {
+      var x = y;
+      var u = w;
+    }
+
+    dungeon_config c {
+        dependency_graph: g
+    }
+    """;
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    DSLInterpreter interpreter = new DSLInterpreter();
+    try {
+      RelationshipRecorder.instance.clear();
+      DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+    } catch (RuntimeException ex) {
+      // program contains error, won't be able to create quest config
+    }
+
+    var env = interpreter.getRuntimeEnvironment();
+    var fileScope = env.getFileScopes().get(null);
+    var parsedFile = fileScope.file();
+    var ast = parsedFile.rootASTNode();
+    var symTable = env.getSymbolTable();
+    var nodeRelationShips = RelationshipRecorder.instance.get();
+
+    // URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
+    try (var driver = Neo4jConnect.openConnection()) {
+      var sessionFactory = Neo4jConnect.getSessionFactory(driver);
+      var session = sessionFactory.openSession();
+
+      // clean up db
+      session.query("MATCH (n) DETACH DELETE n", Map.of());
+
+      // save ast in db
+      session.save(ast);
+      session.save(nodeRelationShips);
+
+      //session.save(symTable.getSymbolCreations());
+      //session.save(symTable.getSymbolReferences());
+      //session.save(symTable.globalScope());
+      /*var filScopes = env.getFileScopes().entrySet();
+      for (var entry : filScopes) {
+        var scope = entry.getValue();
+        session.save(scope);
+      }*/
+
+      var nodesOnRhsOfVarDecl =
+          session.query(
+              """
+            match (n:IdNode)<-[:PARENT_OF{idx:1}]-(v:VarDeclNode) return n
+            """,
+              Map.of());
+
+      ArrayList<Node> nodesOnRhs = new ArrayList<>();
+      nodesOnRhsOfVarDecl.queryResults().forEach(r -> nodesOnRhs.add((Node) r.get("n")));
+      Assert.assertEquals(2, nodesOnRhs.size());
+
+      var nameSet = nodesOnRhs.stream().map(n -> ((IdNode)n).getName()).collect(Collectors.toSet());
+      Assert.assertTrue(nameSet.contains("y"));
+      Assert.assertTrue(nameSet.contains("w"));
+
+      // test for persistence of child-relationships
+      var varDecls =
+        session.query(
+          """
+        match (n:IdNode)<-[:PARENT_OF{idx:1}]-(v:VarDeclNode) return distinct v
+        """,
+          Map.of());
+
+      ArrayList<Node> varDeclNodes = new ArrayList<>();
+      varDecls.queryResults().forEach(r -> varDeclNodes.add((Node) r.get("v")));
+      Assert.assertEquals(2, varDeclNodes.size());
+
+      for (var node : varDeclNodes) {
+        Assert.assertEquals(2, node.getChildren().size());
+        var firstChild = (IdNode)node.getChild(0);
+        var secondChild = (IdNode)node.getChild(1);
+        if (firstChild.getName().equals("x")) {
+          Assert.assertEquals("y", secondChild.getName());
+        }
+        if (firstChild.getName().equals("u")) {
+          Assert.assertEquals("w", secondChild.getName());
+        }
+      }
+      // TODO: assert on children
 
       sessionFactory.close();
     }
