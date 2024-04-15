@@ -59,7 +59,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickab
       this.pitTiles()
           .forEach(
               pit -> {
-                pit.timeToOpen(50);
+                pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
                 pit.close();
               });
       this.handleFirstTick();

@@ -59,6 +59,12 @@ public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
+      this.pitTiles()
+          .forEach(
+              pit -> {
+                pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
+                pit.close();
+              });
       this.handleFirstTick();
       this.doorTiles().forEach(DoorTile::close);
     }

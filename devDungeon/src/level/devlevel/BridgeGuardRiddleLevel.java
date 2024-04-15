@@ -1,6 +1,7 @@
 package level.devlevel;
 
 import contrib.entities.DialogFactory;
+import core.Game;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
@@ -48,7 +49,7 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable
       this.pitTiles()
           .forEach(
               pit -> {
-                pit.timeToOpen(50);
+                pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
                 pit.close();
               });
       this.handleFirstTick();
