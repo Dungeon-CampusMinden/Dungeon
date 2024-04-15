@@ -117,11 +117,13 @@ public class HeroFactory {
 
     pc.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(),
-        (e) -> { // TODO: Change this
+        (e) -> {
           UIComponent uiComponent = e.fetch(UIComponent.class).orElse(null);
           if (uiComponent != null && uiComponent.dialog() instanceof GUICombination) {
+            if (InventoryGUI.inHeroInventory) {
+              e.remove(UIComponent.class);
+            }
             InventoryGUI.inHeroInventory = false;
-            e.remove(UIComponent.class);
           } else {
             InventoryGUI.inHeroInventory = true;
             e.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
@@ -170,7 +172,9 @@ public class HeroFactory {
         KeyboardConfig.INTERACT_WORLD.value(),
         entity -> {
           UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
-          if (uiComponent != null && uiComponent.dialog() instanceof GUICombination) {
+          if (uiComponent != null
+              && uiComponent.dialog() instanceof GUICombination
+              && !InventoryGUI.inHeroInventory) {
             entity.remove(UIComponent.class);
           } else {
             InteractionTool.interactWithClosestInteractable(entity);

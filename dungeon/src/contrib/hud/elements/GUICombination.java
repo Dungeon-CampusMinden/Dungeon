@@ -112,5 +112,14 @@ public final class GUICombination extends Group {
     this.combinableGuis.forEach(CombinableGUI::drawDebug);
   }
 
+  /**
+   * Returns the list of CombinableGUI elements that are part of this GUICombination.
+   *
+   * @return An ArrayList of CombinableGUI elements.
+   */
+  public ArrayList<CombinableGUI> combinableGuis() {
+    return this.combinableGuis;
+  }
+
   public record AvailableSpace(int x, int y, int width, int height) {}
 }

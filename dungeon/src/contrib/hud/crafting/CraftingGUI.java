@@ -359,4 +359,14 @@ public class CraftingGUI extends CombinableGUI {
     this.items.clear();
     this.updateRecipe();
   }
+
+  /**
+   * Add an item to the cauldron.
+   *
+   * @param item The item to add.
+   */
+  public void addItem(Item item) {
+    this.items.add(item);
+    this.updateRecipe();
+  }
 }

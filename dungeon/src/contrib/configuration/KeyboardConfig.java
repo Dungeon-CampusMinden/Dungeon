@@ -11,6 +11,7 @@ public class KeyboardConfig {
 
   public static final ConfigKey<Integer> INVENTORY_OPEN =
       new ConfigKey<>(new String[] {"inventory", "open"}, new ConfigIntValue(Input.Keys.I));
+
   public static final ConfigKey<Integer> CLOSE_UI =
       new ConfigKey<>(new String[] {"ui", "close"}, new ConfigIntValue(Input.Keys.ESCAPE));
   public static final ConfigKey<Integer> INTERACT_WORLD =
@@ -20,6 +21,9 @@ public class KeyboardConfig {
           new String[] {"interact", "mouse_world"}, new ConfigIntValue(Input.Buttons.LEFT));
   public static final ConfigKey<Integer> USE_ITEM =
       new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Input.Keys.E));
+  public static final ConfigKey<Integer> TRANSFER_ITEM =
+      new ConfigKey<>(
+          new String[] {"inventory", "transfer"}, new ConfigIntValue(Input.Buttons.RIGHT));
   public static final ConfigKey<Integer> FIRST_SKILL =
       new ConfigKey<>(new String[] {"skill", "fireball"}, new ConfigIntValue(Input.Keys.Q));
   public static final ConfigKey<Integer> MOUSE_FIRST_SKILL =
