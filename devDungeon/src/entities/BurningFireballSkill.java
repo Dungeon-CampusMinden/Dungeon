@@ -23,15 +23,15 @@ import systems.EventScheduler;
  * the maximum distance.
  */
 public final class BurningFireballSkill extends DamageProjectile {
-  public static boolean UNLOCKED = false;
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");
   private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
   private static final float PROJECTILE_SPEED = 15.0f;
-  public static int DAMAGE_AMOUNT = 2;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final Point HIT_BOX_SIZE = new Point(1, 1);
-  private static final float PROJECTILE_RANGE = 7f;
-  private static final BurningEffect BURNING_EFFECT = new BurningEffect(0.25f, 4);
+  private static final BurningEffect BURNING_EFFECT = new BurningEffect(1f, 1);
+  public static float PROJECTILE_RANGE = 7f;
+  public static boolean UNLOCKED = false;
+  public static int DAMAGE_AMOUNT = 2;
 
   /**
    * Create a {@link DamageProjectile} that looks like a fireball and will cause fire damage.
@@ -41,6 +41,7 @@ public final class BurningFireballSkill extends DamageProjectile {
    */
   public BurningFireballSkill(final Supplier<Point> targetSelection) {
     super(
+        "burningfireball",
         PROJECTILE_TEXTURES,
         PROJECTILE_SPEED,
         DAMAGE_AMOUNT,
@@ -52,6 +53,11 @@ public final class BurningFireballSkill extends DamageProjectile {
         (projectile, entity) -> {
           if (UNLOCKED) BURNING_EFFECT.applyBurning(entity);
         });
+  }
+
+  @Override
+  public int tintColor() {
+    return UNLOCKED ? 0xFF9999FF : -1;
   }
 
   @Override

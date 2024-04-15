@@ -1,22 +1,14 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
-import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
-import contrib.entities.DialogFactory;
-import contrib.item.HealthPotionType;
-import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.systems.*;
-import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.System;
 import core.game.ECSManagment;
 import core.systems.LevelSystem;
 import core.utils.components.path.SimpleIPath;
-import entities.BurningFireballSkill;
 import entities.DevHeroFactory;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -124,35 +116,41 @@ public class DevDungeon {
     Game.add(new LeverSystem());
     Game.add(new MobSpawnerSystem());
     Game.add(new MagicShieldSystem());
-    Game.add(
-        new System() {
-          @Override
-          public void execute() {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) {
-              Game.hero()
-                  .orElseThrow()
-                  .fetch(InventoryComponent.class)
-                  .orElseThrow()
-                  .add(new ItemPotionHealth(HealthPotionType.GREATER));
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
-              if (BurningFireballSkill.DAMAGE_AMOUNT == 2) {
-                BurningFireballSkill.DAMAGE_AMOUNT = 6;
-              } else {
-                BurningFireballSkill.DAMAGE_AMOUNT = 2;
-              }
-              DialogFactory.showTextPopup(
-                  "Fireball damage set to " + BurningFireballSkill.DAMAGE_AMOUNT,
-                  "Cheat: Fireball Damage");
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_3)) {
-              Debugger.TELEPORT_TO_END();
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_4)) {
-              FallingSystem.DEBUG_DONT_KILL = !FallingSystem.DEBUG_DONT_KILL;
-              DialogFactory.showTextPopup(
-                  "Falling damage is now "
-                      + (FallingSystem.DEBUG_DONT_KILL ? "disabled" : "enabled"),
-                  "Cheat: Falling Damage");
-            }
+
+    /*Game.add(
+    new System() {
+      @Override
+      public void execute() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) {
+          Game.hero()
+              .orElseThrow()
+              .fetch(InventoryComponent.class)
+              .orElseThrow()
+              .add(new ItemPotionHealth(HealthPotionType.GREATER));
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
+          if (BurningFireballSkill.DAMAGE_AMOUNT == 2) {
+            BurningFireballSkill.DAMAGE_AMOUNT = 6;
+          } else {
+            BurningFireballSkill.DAMAGE_AMOUNT = 2;
           }
-        });
+          DevHeroFactory.updateSkill();
+          DialogFactory.showTextPopup(
+              "Fireball damage set to " + BurningFireballSkill.DAMAGE_AMOUNT,
+              "Cheat: Fireball Damage");
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_3)) {
+          Debugger.TELEPORT_TO_END();
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_4)) {
+          FallingSystem.DEBUG_DONT_KILL = !FallingSystem.DEBUG_DONT_KILL;
+          DialogFactory.showTextPopup(
+              "Falling damage is now "
+                  + (FallingSystem.DEBUG_DONT_KILL ? "disabled" : "enabled"),
+              "Cheat: Falling Damage");
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
+          Debugger.TELEPORT_TO_CURSOR();
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_6)) {
+          BurningFireballSkill.UNLOCKED = !BurningFireballSkill.UNLOCKED;
+        }
+      }
+    });*/
   }
 }

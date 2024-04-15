@@ -176,8 +176,8 @@ public enum MonsterType {
       "Doc",
       "character/monster/doc",
       6,
-      5.5f,
-      0.15f,
+      4.0f,
+      0.25f,
       MonsterDeathSound.LOW_PITCH,
       () ->
           new RangeAI(
@@ -189,7 +189,7 @@ public enum MonsterType {
                       LevelUtils.getRandomTPTargetForCurrentLevel()),
                   AIFactory.FIREBALL_COOL_DOWN * 4)),
       () -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH),
-      () -> new RangeTransition(4, false),
+      () -> new RangeTransition(6, false),
       5,
       2 * Game.frameRate(),
       MonsterIdleSound.LOW_PITCH,

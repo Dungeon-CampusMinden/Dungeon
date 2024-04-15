@@ -123,7 +123,8 @@ public class TorchRiddleRiddleHandler implements ITickable {
    */
   private void giveReward() {
     DialogFactory.showTextPopup(
-        "You will receive the new burning fireball skill\nas a reward for solving this puzzle!",
+        "You will receive the new burning fireball skill\nas a reward for solving this puzzle!"
+            + "Your fireballs will now deal extra burning damage.",
         "Riddle solved");
     BurningFireballSkill.UNLOCKED = true;
     this.rewardGiven = true;

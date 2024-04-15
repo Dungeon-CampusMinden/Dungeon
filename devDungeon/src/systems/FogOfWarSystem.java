@@ -217,6 +217,7 @@ public class FogOfWarSystem extends System {
         .flatMap(Game::entityAtTile)
         .filter(entity -> entity.isPresent(DrawComponent.class))
         .filter(entity -> !this.isAntiTorchAndLit(entity)) // Ignore anti-torches
+        .filter(entity -> !entity.name().contains("tpball")) // Ignore tpballs
         .forEach(
             entity -> {
               DrawComponent dc =

@@ -52,8 +52,13 @@ public class PitTile extends Tile {
     this.open = true;
   }
 
-  /** Close the pit. */
+  /** Close the pit. Unless the time to open is set to 0 */
   public void close() {
+    if (this.timeToOpen == 0) {
+      this.open();
+      return;
+    }
+
     Game.currentLevel().addConnectionsToNeighbours(this);
     this.connections.forEach(
         x -> {
@@ -83,6 +88,9 @@ public class PitTile extends Tile {
   public void timeToOpen(long time) {
     if (time < 0) {
       throw new IllegalArgumentException("Time to open must be positive.");
+    }
+    if (time == 0) {
+      this.open();
     }
     this.timeToOpen = time;
   }

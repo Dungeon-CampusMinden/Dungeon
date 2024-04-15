@@ -1,12 +1,14 @@
 package level.devlevel;
 
 import components.TorchComponent;
+import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.utils.components.ai.fight.RangeAI;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -22,6 +24,7 @@ import entities.MonsterType;
 import entities.levercommands.OpenPassageCommand;
 import item.concreteItem.ItemPotionSpeedPotion;
 import java.util.*;
+import java.util.function.Consumer;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.IllusionRiddleHandler;
 import level.utils.ITickable;
@@ -35,7 +38,13 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
 
   // Difficulty (Mob Types)
   public static final MonsterType[] MONSTER_TYPES =
-      new MonsterType[] {MonsterType.DARK_GOO, MonsterType.SMALL_DARK_GOO, MonsterType.DOC};
+      new MonsterType[] {
+        MonsterType.DARK_GOO,
+        MonsterType.SMALL_DARK_GOO,
+        MonsterType.DARK_GOO,
+        MonsterType.SMALL_DARK_GOO,
+        MonsterType.DOC
+      };
   private static final MonsterType BOSS_TYPE = MonsterType.ILLUSION_BOSS;
 
   // Spawn Points / Locations
@@ -145,7 +154,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
       this.pitTiles()
           .forEach(
               pit -> {
-                pit.timeToOpen(50);
+                pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
                 pit.close();
               });
       this.rooms.forEach(DevDungeonRoom::spawnEntities);
@@ -239,10 +248,23 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
       if (this.lastRoom != null) {
         this.lastRoom.mobAI(false);
       }
-      this.lastRoom = this.getCurrentRoom();
-      if (this.lastRoom != null) {
-        this.lastRoom.mobAI(true);
+      if (this.getCurrentRoom() != null) {
+        this.getCurrentRoom().mobAI(true);
       }
+
+      if (this.getCurrentRoom() != null) {
+        for (Entity mob : this.getCurrentRoom().mobs()) {
+          Consumer<Entity> fightAI =
+              mob.fetch(AIComponent.class)
+                  .orElseThrow(() -> MissingComponentException.build(mob, AIComponent.class))
+                  .fightBehavior();
+          if (fightAI instanceof RangeAI rangeAI) {
+            rangeAI.getSkill().setLastUsedToNow();
+          }
+        }
+      }
+
+      this.lastRoom = this.getCurrentRoom();
     }
 
     // Anti Torch Logic

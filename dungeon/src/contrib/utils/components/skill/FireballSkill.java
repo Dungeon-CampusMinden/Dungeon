@@ -37,6 +37,7 @@ public final class FireballSkill extends DamageProjectile {
    */
   public FireballSkill(final Supplier<Point> targetSelection) {
     super(
+        "fireball",
         PROJECTILE_TEXTURES,
         PROJECTILE_SPEED,
         DAMAGE_AMOUNT,
@@ -61,6 +62,7 @@ public final class FireballSkill extends DamageProjectile {
   public FireballSkill(
       final Supplier<Point> targetSelection, float range, float speed, int damageAmount) {
     super(
+        "fireball",
         PROJECTILE_TEXTURES,
         speed,
         damageAmount,

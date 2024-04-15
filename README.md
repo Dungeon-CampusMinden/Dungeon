@@ -88,10 +88,11 @@ The assets in [`game/assets/`](game/assets/), [`dungeon/assets/`](dungeon/assets
     -   https://opengameart.org/content/50-rpg-sound-effects (CC0 1.0)
     -   https://opengameart.org/content/hurt-death-sound-effect-for-character (CC0 1.0)
     -   https://opengameart.org/content/80-cc0-creture-sfx-2 (CC0 1.0)
+    -   https://freesound.org/s/578488/ (CC0 1.0)
 -   Adapted and modified by @Flamtky:
-    -   Files (except Health Potion) in [`dungeon/assets/items/potion/`](dungeon/assets/items/potion/) (originating from original Health Potion)
-    -   Files in [`game/assets/dungeon/*/floor`](game/assets/dungeon/) each `floor_damaged.png`. (originating from original Floor Tiles)
-    -   `floor_1.png` in [`game/assets/dungeon/fire/floor/`](`game/assets/dungeon/fire/floor/floor_1.png`) (originating from original Floor Tile)
+    -   Files (except Health Potion) in [`dungeon/assets/items/potion/`](dungeon/assets/items/potion/) (originating from @dkirshner)
+    -   Files in [`game/assets/dungeon/*/floor`](game/assets/dungeon/) each `floor_damaged.png` (originating from @dkirshner)
+    -   `floor_1.png` in [`game/assets/dungeon/fire/floor/`](`game/assets/dungeon/fire/floor/floor_1.png`) (originating from @dkirshner)
 -    Self created by @Flamtky:  
     -   Files in [`devDungeon/assets/objects/spawner/`](devDungeon/assets/objects/spawner/)
 

@@ -43,6 +43,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final Point projectileHitBoxSize;
   private final Supplier<Point> selectionFunction;
   private final Consumer<Entity> onWallHit;
+  private final String name;
   private final List<Entity> ignoreEntities = new ArrayList<>();
 
   /**
@@ -62,6 +63,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
    *
    * <p>For a specific implementation, see {@link FireballSkill}.
    *
+   * @param name Name of the projectile.
    * @param pathToTexturesOfProjectile Path to the textures of the projectile.
    * @param projectileSpeed Speed of the projectile.
    * @param damageAmount Amount of damage to be dealt.
@@ -72,6 +74,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
    * @param onWallHit Behavior when a wall is hit.
    */
   public DamageProjectile(
+      final String name,
       final IPath pathToTexturesOfProjectile,
       float projectileSpeed,
       int damageAmount,
@@ -81,6 +84,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       float projectileRange,
       final Consumer<Entity> onWallHit,
       final BiConsumer<Entity, Entity> onEntityHit) {
+    this.name = name;
     this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
     this.damageAmount = damageAmount;
     this.damageType = damageType;
@@ -99,6 +103,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
    *
    * <p>For a specific implementation, see {@link FireballSkill}
    *
+   * @param name Name of the projectile.
    * @param pathToTexturesOfProjectile Path to the textures of the projectile.
    * @param projectileSpeed Speed of the projectile.
    * @param damageAmount Amount of damage to be dealt.
@@ -108,6 +113,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
    * @param projectileRange Range in which the projectile is effective.
    */
   public DamageProjectile(
+      String name,
       final IPath pathToTexturesOfProjectile,
       float projectileSpeed,
       int damageAmount,
@@ -116,6 +122,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       final Supplier<Point> selectionFunction,
       float projectileRange) {
     this(
+        name,
         pathToTexturesOfProjectile,
         projectileSpeed,
         damageAmount,
@@ -142,7 +149,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
    */
   @Override
   public void accept(final Entity entity) {
-    Entity projectile = new Entity("Projectile");
+    Entity projectile = new Entity(this.name);
     // Get the PositionComponent of the entity
     PositionComponent epc =
         entity
@@ -152,7 +159,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
 
     try {
       DrawComponent dc = new DrawComponent(pathToTexturesOfProjectile);
-      dc.tintColor(this.tintColor);
+      dc.tintColor(this.tintColor());
       projectile.add(dc);
     } catch (IOException e) {
       LOGGER.warning(

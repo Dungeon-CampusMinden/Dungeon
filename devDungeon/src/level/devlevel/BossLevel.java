@@ -9,6 +9,7 @@ import contrib.entities.IHealthObserver;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.item.concreteItem.ItemResourceBerry;
 import contrib.utils.components.ai.fight.RangeAI;
 import core.Entity;
 import core.Game;
@@ -24,7 +25,6 @@ import core.level.utils.LevelUtils;
 import core.utils.components.MissingComponentException;
 import entities.BossAttackSkills;
 import entities.MonsterType;
-import item.concreteItem.ItemPotionRegenerationPotion;
 import item.concreteItem.ItemReward;
 import java.util.List;
 import java.util.function.Consumer;
@@ -115,8 +115,9 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
         chest
             .fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, InventoryComponent.class));
-    ic.add(new ItemPotionHealth(HealthPotionType.GREATER));
-    ic.add(new ItemPotionRegenerationPotion());
+    ic.add(new ItemPotionHealth(HealthPotionType.WEAK));
+    ic.add(new ItemResourceBerry());
+    ic.add(new ItemResourceBerry());
 
     Game.add(chest);
 
