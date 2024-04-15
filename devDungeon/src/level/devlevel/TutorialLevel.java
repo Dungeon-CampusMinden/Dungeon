@@ -1,7 +1,9 @@
 package level.devlevel;
 
+import com.badlogic.gdx.Input;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
+import contrib.configuration.KeyboardConfig;
 import contrib.entities.DialogFactory;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
@@ -89,8 +91,14 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
     }
     this.setupCauldron(cauldron);
 
+    String movmentKeys =
+        Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_UP.value())
+            + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_LEFT.value())
+            + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_DOWN.value())
+            + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value());
     DialogFactory.showTextPopup(
-        "Verwende WASD (oder RMB), um dich zu bewegen.", "Willkommen im DevDungeon!");
+        "Verwende " + movmentKeys + " (oder RMB), um dich zu bewegen.",
+        "Willkommen im DevDungeon!");
   }
 
   private void handleTextPopups() {
@@ -102,13 +110,34 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
     if (heroTile == null) return;
 
     if (frontDoor.coordinate().equals(heroTile.coordinate())) {
-      DialogFactory.showTextPopup("Mit Q (oder LMB) kannst du angreifen.", "Kampf");
+      DialogFactory.showTextPopup(
+          "Mit "
+              + Input.Keys.toString(KeyboardConfig.FIRST_SKILL.value())
+              + " (oder LMB) kannst du angreifen.",
+          "Kampf");
     } else if (mobDoor.coordinate().equals(heroTile.coordinate())) {
       DialogFactory.showTextPopup(
           "Kommen wir zum Craften. Du findest im Verlauf des Spiels verschiedene Ressourcen,"
-              + " die du in Tränke und andere nützliche Gegenstände verwandeln kannst. "
-              + "Du kannst die Truhe und den Kessel mit E (oder LMB) öffnen und schließen. ",
-          "Looting & Crafting");
+              + " die du in Tränke und andere nützliche Gegenstände verwandeln kannst.",
+          "Looting & Crafting",
+          () -> {
+            DialogFactory.showTextPopup(
+                "\nTruhe/Kessel öffnen/schließen: ESC oder "
+                    + Input.Keys.toString(KeyboardConfig.INTERACT_WORLD.value())
+                    + "/"
+                    + "RMB" // TODO: KeyboardConfig.MOUSE_INTERACT_WORLD.value() -> 'Unknown'
+                    + "; Inventar öffnen/schließen: "
+                    + Input.Keys.toString(KeyboardConfig.INVENTORY_OPEN.value())
+                    + "; Items verwenden: Doppel-Linksklick oder "
+                    + Input.Keys.toString(KeyboardConfig.USE_ITEM.value())
+                    + "; Items verschieben: Drag & Drop oder RMB",
+                "Looting & Crafting: Steuerung",
+                () -> {
+                  DialogFactory.showTextPopup(
+                      "Du kannst Tränke und andere Gegenstände herstellen, indem du die Ressourcen in den Kessel legst und auf den Kessel klickst.",
+                      "Looting & Crafting");
+                });
+          });
     } else if (CraftingDoor.coordinate().equals(heroTile.coordinate())) {
       DialogFactory.showTextPopup(
           "Im Dungeon findest immer wieder Hindernisse, Fallen und Rätsel."
