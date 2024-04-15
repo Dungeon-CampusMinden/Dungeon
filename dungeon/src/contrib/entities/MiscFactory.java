@@ -100,8 +100,7 @@ public final class MiscFactory {
                         UIComponent uiComponent =
                             new UIComponent(
                                 new GUICombination(
-                                    new InventoryGUI(whoIc),
-                                    new InventoryGUI("Chest", ic, 6, true)),
+                                    new InventoryGUI(whoIc), new InventoryGUI("Chest", ic, 6)),
                                 true);
                         uiComponent.onClose(
                             () ->

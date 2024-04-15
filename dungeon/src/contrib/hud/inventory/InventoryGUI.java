@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import contrib.components.InventoryComponent;
 import contrib.configuration.KeyboardConfig;
+import contrib.hud.UIUtils;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.item.Item;
@@ -70,7 +71,6 @@ public class InventoryGUI extends CombinableGUI {
   private int slotSize = 0;
   private int slotsPerRow = 0;
   private int maxItemsPerRow = DEFAULT_MAX_ITEMS_PER_ROW;
-  private boolean isInteractive = true;
 
   /**
    * Create a new inventory GUI
@@ -78,20 +78,14 @@ public class InventoryGUI extends CombinableGUI {
    * @param title the title of the inventory
    * @param inventoryComponent the inventory component on which the GUI is based.
    * @param maxItemsPerRow the maximum number of items per row in the inventory
-   * @param isInteractive if the inventory is interactive
    */
-  public InventoryGUI(
-      String title,
-      InventoryComponent inventoryComponent,
-      int maxItemsPerRow,
-      boolean isInteractive) {
+  public InventoryGUI(String title, InventoryComponent inventoryComponent, int maxItemsPerRow) {
     super();
     this.inventoryComponent = inventoryComponent;
     this.title = title;
     this.maxItemsPerRow = maxItemsPerRow;
     this.slotsPerRow = Math.min(maxItemsPerRow, this.inventoryComponent.items().length);
-    this.isInteractive = isInteractive;
-    if (this.isInteractive) addInputListener();
+    addInputListener();
   }
 
   /**
@@ -241,29 +235,34 @@ public class InventoryGUI extends CombinableGUI {
     Item item = InventoryGUI.this.inventoryComponent.get(hoveredSlot);
     if (item == null) return;
 
-    GlyphLayout layoutName = new GlyphLayout(bitmapFont, item.displayName());
-    GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, item.description());
+    String title = item.displayName();
+    String description = UIUtils.formatString(item.description());
+    GlyphLayout layoutName = new GlyphLayout(bitmapFont, title);
+    GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, description);
 
     float x = mousePos.x + HOVER_OFFSET.x;
     float y = mousePos.y + HOVER_OFFSET.y;
     float width = Math.max(layoutName.width, layoutDesc.width) + HOVER_OFFSET.x;
     float height = layoutName.height + layoutDesc.height + HOVER_OFFSET.y + LINE_GAP;
+
+    // if out of bounds, move to the left of cursor
+    if (x + width > Gdx.graphics.getWidth()) {
+      x = mousePos.x - width - HOVER_OFFSET.x;
+    }
+
     batch.draw(hoverBackground, x, y, width, height);
     bitmapFont.setColor(Color.BLACK);
     bitmapFont.draw(
         batch,
-        item.displayName(),
+        title,
         x + BORDER_PADDING,
-        y + layoutName.height + LINE_GAP + layoutDesc.height + 5);
+        y + layoutDesc.height + LINE_GAP + layoutName.height + LINE_GAP);
     bitmapFont.setColor(new Color(0x000000b0));
-    bitmapFont.draw(
-        batch, item.description(), x + BORDER_PADDING, y + layoutName.height + LINE_GAP);
+    bitmapFont.draw(batch, description, x + BORDER_PADDING, y + layoutDesc.height + LINE_GAP);
   }
 
   @Override
   protected void initDragAndDrop(DragAndDrop dragAndDrop) {
-    if (!this.isInteractive) return;
-
     dragAndDrop.addSource(
         new DragAndDrop.Source(this.actor()) {
           @Override
@@ -412,26 +411,5 @@ public class InventoryGUI extends CombinableGUI {
    */
   public void title(String title) {
     this.title = title;
-  }
-
-  /**
-   * Sets the interactivity of the InventoryGUI. If set to true, the InventoryGUI will respond to
-   * user inputs. If set to false, the InventoryGUI will ignore user inputs.
-   *
-   * @param isInteractive a boolean value representing the interactivity of the InventoryGUI
-   */
-  public void isInteractive(boolean isInteractive) {
-    this.isInteractive = isInteractive;
-  }
-
-  /**
-   * Returns the interactivity of the InventoryGUI. If the returned value is true, the InventoryGUI
-   * is interactive and responds to user inputs. If the returned value is false, the InventoryGUI is
-   * not interactive and ignores user inputs.
-   *
-   * @return a boolean value representing the interactivity of the InventoryGUI
-   */
-  public boolean isInteractive() {
-    return this.isInteractive;
   }
 }
