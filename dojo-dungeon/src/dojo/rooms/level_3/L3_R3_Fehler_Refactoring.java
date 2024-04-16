@@ -1,4 +1,4 @@
-package dojo.rooms.level_2;
+package dojo.rooms.level_3;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -24,7 +24,7 @@ import java.util.Set;
  * Lesbarkeit zu verbessern. Nur wenn der Code korrekt ist, kann man in den nächsten Raum
  * weitergehen.
  */
-public class L2_R3_Fehler_Refactoring extends TaskRoom {
+public class L3_R3_Fehler_Refactoring extends TaskRoom {
   private final String FILENAME1 = "ClsToRefactor.java";
   private final String title = "Refactoring";
 
@@ -37,7 +37,7 @@ public class L2_R3_Fehler_Refactoring extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public L2_R3_Fehler_Refactoring(
+  public L3_R3_Fehler_Refactoring(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

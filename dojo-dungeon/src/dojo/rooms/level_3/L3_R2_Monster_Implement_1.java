@@ -1,4 +1,4 @@
-package dojo.rooms.level_2;
+package dojo.rooms.level_3;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -24,7 +24,7 @@ import java.util.Set;
  * <p>In diesem Raum muss ein Monster mit verschiedenen Eigenschaften erstellt und danach besiegt
  * werden, um in den nächsten Raum zu gelangen.
  */
-public class L2_R2_Monster_Implement_1 extends TaskRoom {
+public class L3_R2_Monster_Implement_1 extends TaskRoom {
   private final String FILENAME1 = "../dojo-dungeon/todo-assets/lvl2r2/Monster.java";
   private final String FILENAME2 = "../dojo-dungeon/todo-assets/lvl2r2/MyMonster.java";
   private final String CLASS_NAME = "MyMonster";
@@ -39,7 +39,7 @@ public class L2_R2_Monster_Implement_1 extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public L2_R2_Monster_Implement_1(
+  public L3_R2_Monster_Implement_1(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

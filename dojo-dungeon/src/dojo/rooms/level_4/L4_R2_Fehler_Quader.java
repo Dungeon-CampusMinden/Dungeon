@@ -1,4 +1,4 @@
-package dojo.rooms.level_3;
+package dojo.rooms.level_4;
 
 import contrib.components.*;
 import contrib.entities.AIFactory;
@@ -34,7 +34,7 @@ import java.util.Set;
  * die Klasse richtig verbessert wurde, gilt der Imp als besiegt und der Spieler kann in den
  * nächsten Raum weitergehen.
  */
-public class L3_R2_Fehler_Quader extends TaskRoom {
+public class L4_R2_Fehler_Quader extends TaskRoom {
   private int impHealth = 10;
 
   /**
@@ -46,7 +46,7 @@ public class L3_R2_Fehler_Quader extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public L3_R2_Fehler_Quader(
+  public L4_R2_Fehler_Quader(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
