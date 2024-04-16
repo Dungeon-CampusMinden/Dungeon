@@ -88,8 +88,6 @@ public class L1_R2_Fehler_Syntax extends TaskRoom {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
-
-    addRoomDescription("Gehe zum Questioner für Aufgabe 1.");
   }
 
   private void generate() throws IOException {
