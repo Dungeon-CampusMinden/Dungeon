@@ -33,6 +33,10 @@ public final class ItemGenerator {
       return new ItemPotionHealth(getWeightedRandomHealthPotionType());
     }
 
+    if (item.getSimpleName().contains("Egg")) { // Prevent eggs from being generated
+      return new ItemPotionWater();
+    }
+
     try {
       return item.getDeclaredConstructor().newInstance();
     } catch (ReflectiveOperationException e) {
@@ -51,7 +55,7 @@ public final class ItemGenerator {
   private static HealthPotionType getWeightedRandomHealthPotionType() {
     HealthPotionType[] types = HealthPotionType.values();
 
-    float[] chances = {0.75f, 0.20f, 0.05f}; /* 75%, 20%, 5% */
+    float[] chances = {0.75f, 0.05f, 0.00f}; /* 75%, 20%, 5% */
     float random = Item.RANDOM.nextFloat();
 
     for (int i = 0; i < chances.length; i++) {
