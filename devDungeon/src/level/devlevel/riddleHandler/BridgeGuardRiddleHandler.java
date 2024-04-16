@@ -212,6 +212,7 @@ public class BridgeGuardRiddleHandler implements ITickable, IHealthObserver {
     if (hero == null) return;
     hero.add(new MagicShieldComponent());
     this.rewardGiven = true;
+    this.level.tileAt(this.riddleRewardSpawn).tintColor(-1);
   }
 
   // Riddle Methods
