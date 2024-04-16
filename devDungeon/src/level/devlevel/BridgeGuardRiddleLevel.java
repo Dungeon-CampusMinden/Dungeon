@@ -12,6 +12,7 @@ import java.util.List;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.BridgeGuardRiddleHandler;
 import level.utils.ITickable;
+import starter.DevDungeon;
 import utils.EntityUtils;
 
 /** The Bridge Guard Riddle Level */
@@ -44,6 +45,10 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable
   @Override
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
+      DialogFactory.showTextPopup(
+          "Where are we? This forest look like it be filled with orcs. I heard that a wise Bridge Guard lives here. "
+              + "We should find him maybe he can help us.",
+          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Bridge Guard");
       ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
       this.doorTiles().forEach(DoorTile::close);
       this.pitTiles()

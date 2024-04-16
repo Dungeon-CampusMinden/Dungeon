@@ -26,6 +26,7 @@ import entities.MonsterType;
 import java.util.List;
 import level.DevDungeonLevel;
 import level.utils.ITickable;
+import starter.DevDungeon;
 import utils.EntityUtils;
 
 /** The tutorial level */
@@ -49,9 +50,14 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
   @Override
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
-      this.handleFirstTick();
-      this.doorTiles().forEach(DoorTile::close);
-      this.buildBridge();
+      DialogFactory.showTextPopup(
+          "Willkommen im Tutorial! Hier lernst du die Grundlagen des Spiels kennen. ",
+          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": Tutorial",
+          () -> {
+            this.handleFirstTick();
+            this.doorTiles().forEach(DoorTile::close);
+            this.buildBridge();
+          });
     }
     if (this.lastHeroCoords != null && !this.lastHeroCoords.equals(EntityUtils.getHeroCoords())) {
       // Only handle text popups if the hero has moved
@@ -91,14 +97,13 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
     }
     this.setupCauldron(cauldron);
 
-    String movmentKeys =
+    String movementKeys =
         Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_UP.value())
             + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_LEFT.value())
             + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_DOWN.value())
             + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value());
     DialogFactory.showTextPopup(
-        "Verwende " + movmentKeys + " (oder RMB), um dich zu bewegen.",
-        "Willkommen im DevDungeon!");
+        "Verwende " + movementKeys + " (oder RMB), um dich zu bewegen.", "Bewegung");
   }
 
   private void handleTextPopups() {
@@ -128,7 +133,7 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
                     + "RMB" // TODO: KeyboardConfig.MOUSE_INTERACT_WORLD.value() -> 'Unknown'
                     + "; Inventar öffnen/schließen: "
                     + Input.Keys.toString(KeyboardConfig.INVENTORY_OPEN.value())
-                    + "; Items verwenden: Doppel-Linksklick oder "
+                    + "; Items verwenden: "
                     + Input.Keys.toString(KeyboardConfig.USE_ITEM.value())
                     + "; Items verschieben: Drag & Drop oder RMB",
                 "Looting & Crafting: Steuerung",

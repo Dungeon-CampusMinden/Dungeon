@@ -2,6 +2,7 @@ package level.devlevel;
 
 import components.TorchComponent;
 import contrib.components.InventoryComponent;
+import contrib.entities.DialogFactory;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
@@ -22,6 +23,7 @@ import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.TorchRiddleRiddleHandler;
 import level.utils.ITickable;
 import level.utils.LevelUtils;
+import starter.DevDungeon;
 import utils.EntityUtils;
 
 /** The Torch Riddle Level */
@@ -58,6 +60,11 @@ public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {
   @Override
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
+      DialogFactory.showTextPopup(
+          "Welcome to the Torch Riddle! This is an old ancient riddle. But it probably holds some valuable loot."
+              + "Try to find the riddle room to proceed. Good luck!",
+          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Torch Riddle");
+
       ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
       this.pitTiles()
           .forEach(

@@ -1,6 +1,7 @@
 package level.devlevel;
 
 import contrib.components.InventoryComponent;
+import contrib.entities.DialogFactory;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
@@ -20,6 +21,7 @@ import java.util.*;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
 import level.utils.ITickable;
+import starter.DevDungeon;
 import utils.EntityUtils;
 
 /** The Damaged Bridge Riddle Level */
@@ -54,6 +56,9 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickab
   @Override
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
+      DialogFactory.showTextPopup(
+          "I heard that a quite powerful artifact is hidden nearby. It's said that it's hidden behind an old bridge. Let's see if we can find it.",
+          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Damaged Bridge");
       ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
       this.doorTiles().forEach(DoorTile::close);
       this.pitTiles()
