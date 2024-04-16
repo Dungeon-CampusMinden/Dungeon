@@ -165,9 +165,9 @@ public final class PlayerComponent implements Component {
    * @param level the level to get the callback from
    * @return the callback for the level
    * @see HashMap#get(Object)
-   * @see Optional#of(Object)
+   * @see Optional#ofNullable(Object)
    */
   public Optional<IVoidFunction> getOnLevelChangeCallback(ILevel level) {
-    return Optional.of(onLevelChangeCallbacks.get(level));
+    return Optional.ofNullable(onLevelChangeCallbacks.get(level));
   }
 }
