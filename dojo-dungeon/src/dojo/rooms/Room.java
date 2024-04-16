@@ -65,6 +65,7 @@ public class Room {
     this.levelSize = levelSize;
     this.designLabel = designLabel;
     generate();
+    addRoomDescription("");
   }
 
   private void generate() {
