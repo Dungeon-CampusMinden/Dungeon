@@ -144,7 +144,13 @@ public class Room {
     return levelRoom.level().startTile();
   }
 
+  /**
+   * Add a description dialog to this room, that is shown each time the player enters the room.
+   *
+   * @param description the description of the room
+   */
   public void addRoomDescription(String description) {
+    String roomName = getClass().getSimpleName();
     Game.hero()
         .flatMap(hero -> hero.fetch(PlayerComponent.class))
         .ifPresent(
@@ -153,6 +159,9 @@ public class Room {
                     levelRoom.level(),
                     () ->
                         OkDialog.showOkDialog(
-                            description, "Raum: " + getClass().getSimpleName(), () -> {})));
+                            String.format(
+                                "Du bist gerade in diesem Raum: %s. %s", roomName, description),
+                            "Raum: " + roomName,
+                            () -> {})));
   }
 }
