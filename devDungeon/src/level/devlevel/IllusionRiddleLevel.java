@@ -215,6 +215,8 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                 }
                 this.lightTorch(devDungeonRoom, 0, false);
                 this.lightTorch(devDungeonRoom, 1, false);
+
+                this.exitTiles().forEach(tile -> tile.tintColor(-1)); // Workaround due to FogOfWar
               });
       HealthComponent bhc =
           b.fetch(HealthComponent.class)
