@@ -25,9 +25,9 @@ import java.util.logging.Level;
 public class DojoStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_1 = DesignLabel.FOREST;
-  private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_2 = DesignLabel.TEMPLE;
-  private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_3 = DesignLabel.DEFAULT;
-  private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_4 = DesignLabel.FIRE;
+  private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_2 = DesignLabel.FIRE;
+  private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_3 = DesignLabel.TEMPLE;
+  private static final DesignLabel DESIGN_LABEL_FOR_LEVEL_4 = DesignLabel.DEFAULT;
 
   /**
    * Start a new dojo-dungeon game.
@@ -128,7 +128,7 @@ public class DojoStarter {
     room6.openDoors();
 
     // set room1 as start level
-    Game.currentLevel(levelRoom1.level());
+    Game.currentLevel(levelRoom4.level());
   }
 
   private static void connectBidirectional(LevelRoom levelRoom, LevelRoom nextRoom) {
