@@ -124,6 +124,12 @@ public final class LevelSystem extends System {
   public void loadLevel(final ILevel level) {
     currentLevel = level;
     onLevelLoad.execute();
+    Game.hero()
+        .flatMap(
+            e ->
+                e.fetch(PlayerComponent.class)
+                    .flatMap(pc -> pc.getOnLevelChangeCallback(currentLevel)))
+        .ifPresent(IVoidFunction::execute);
     levelAPI_logger.info("A new level was loaded.");
   }
 

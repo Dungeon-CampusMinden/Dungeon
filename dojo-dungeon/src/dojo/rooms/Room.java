@@ -1,11 +1,14 @@
 package dojo.rooms;
 
+import contrib.hud.dialogs.OkDialog;
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
+import core.Game;
+import core.components.PlayerComponent;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
@@ -139,5 +142,17 @@ public class Room {
    */
   public Tile getStartTile() {
     return levelRoom.level().startTile();
+  }
+
+  public void addRoomDescription(String description) {
+    Game.hero()
+        .flatMap(hero -> hero.fetch(PlayerComponent.class))
+        .ifPresent(
+            pc ->
+                pc.addOnLevelChangeCallbacks(
+                    levelRoom.level(),
+                    () ->
+                        OkDialog.showOkDialog(
+                            description, "Raum: " + getClass().getSimpleName(), () -> {})));
   }
 }
