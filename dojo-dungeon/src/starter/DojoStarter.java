@@ -112,20 +112,20 @@ public class DojoStarter {
     room12.configDoors();
 
     // Now after the doors are properly configured, we can close or open them:
-    //    room1.closeDoors();
-    //    room2.closeDoors();
-    //    room3.closeDoors();
-    //    room4.closeDoors();
-    //    room5.closeDoors();
-    //    room6.closeDoors();
-    //    room7.closeDoors();
-    //    room8.closeDoors();
-    //    room9.closeDoors();
-    //    room10.closeDoors();
-    //    room11.closeDoors();
+    room1.closeDoors();
+    room2.closeDoors();
+    room3.closeDoors();
+    room4.closeDoors();
+    room5.closeDoors();
+    room6.closeDoors();
+    room7.closeDoors();
+    room8.closeDoors();
+    room9.closeDoors();
+    room10.closeDoors();
+    room11.closeDoors();
 
-    // room6 should not be closed:
-    room6.openDoors();
+    // Fehler_Refactoring should not be closed:
+    room9.openDoors();
 
     // set room1 as start level
     Game.currentLevel(levelRoom1.level());

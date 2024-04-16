@@ -9,6 +9,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.components.path.SimpleIPath;
+import dojo.rooms.Room;
 import java.io.IOException;
 
 /** Class to create and initialize the entity "MyImp". */
@@ -18,8 +19,9 @@ public class MyImp {
    *
    * @param entity the entity to create
    * @param isInitialized if the entity was already initialized
+   * @param currentRoom the current room the entity is in
    */
-  public MyImp(Entity entity, boolean isInitialized) {
+  public MyImp(Entity entity, boolean isInitialized, Room currentRoom) {
     if (!isInitialized) {
       entity.name("MyImp");
 
@@ -33,7 +35,10 @@ public class MyImp {
                   OkDialog.showOkDialog(
                       "Danke, du hast das Dojo-Dungeon gelöst!",
                       "Alle Aufgaben gelöst:",
-                      () -> new DropItemsInteraction().accept(e, null))));
+                      () -> {
+                        new DropItemsInteraction().accept(e, null);
+                        currentRoom.openDoors();
+                      })));
 
       entity.add(new PositionComponent());
 

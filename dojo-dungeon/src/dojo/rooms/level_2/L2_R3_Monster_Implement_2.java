@@ -74,7 +74,7 @@ public class L2_R3_Monster_Implement_2 extends Room {
 
   private void generate() throws IOException {
     final Entity myImp = new Entity();
-    new MyImp(myImp, false);
+    new MyImp(myImp, false, this);
 
     final Entity chest = EntityFactory.newChest();
     chest.add(
@@ -84,8 +84,9 @@ public class L2_R3_Monster_Implement_2 extends Room {
             (entity1, entity2) -> {
               try {
                 Class<?> cls = compile();
-                Constructor<?> tor = cls.getDeclaredConstructor(Entity.class, boolean.class);
-                tor.newInstance(myImp, true);
+                Constructor<?> tor =
+                    cls.getDeclaredConstructor(Entity.class, boolean.class, Room.class);
+                tor.newInstance(myImp, true, this);
                 OkDialog.showOkDialog("Imp wurde erneut geladen.", "Ok:", () -> {});
               } catch (Exception e) {
                 OkDialog.showOkDialog(e.getMessage(), "Fehler:", () -> {});
