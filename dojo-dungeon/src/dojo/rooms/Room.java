@@ -147,22 +147,49 @@ public class Room {
     return levelRoom.level().startTile();
   }
 
+  /**
+   * Checks if the room has the specified level.
+   *
+   * @param level the level to check
+   * @return true if the room has the specified level, false otherwise
+   */
   public boolean hasLevel(ILevel level) {
     return levelRoom.level() == level;
   }
 
+  /**
+   * Returns the description of the room.
+   *
+   * @return the description of the room, or null if no description has been set
+   */
   public String getRoomDescription() {
     return roomDescription;
   }
 
+  /**
+   * Sets the description of the room.
+   *
+   * @param roomDescription the new description of the room, or null if no description should be
+   *     displayed
+   */
   public void setRoomDescription(String roomDescription) {
     this.roomDescription = roomDescription;
   }
 
+  /**
+   * Returns the title of the room.
+   *
+   * @return the title of the room, or null if no title has been set
+   */
   public String getRoomTitle() {
     return roomTitle;
   }
 
+  /**
+   * Sets the title of the room.
+   *
+   * @param roomTitle the new title of the room, or null if no title should be displayed
+   */
   public void setRoomTitle(String roomTitle) {
     this.roomTitle = roomTitle;
   }
