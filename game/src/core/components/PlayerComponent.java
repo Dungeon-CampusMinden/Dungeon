@@ -3,8 +3,6 @@ package core.components;
 import com.badlogic.gdx.Input;
 import core.Component;
 import core.Entity;
-import core.level.elements.ILevel;
-import core.utils.IVoidFunction;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +21,6 @@ import java.util.function.Consumer;
 public final class PlayerComponent implements Component {
 
   private final Map<Integer, InputData> callbacks;
-  private final Map<ILevel, IVoidFunction> onLevelChangeCallbacks = new HashMap<>();
   private int openDialogs = 0;
 
   /** Create a new PlayerComponent. */
@@ -145,29 +142,5 @@ public final class PlayerComponent implements Component {
    */
   public boolean openDialogs() {
     return openDialogs > 0;
-  }
-
-  /**
-   * Add a callback to be executed when the player changes the levels.
-   *
-   * @param level the level to add the callback to
-   * @param callback the callback to add
-   * @return the old callback if it existed
-   * @see HashMap#put(Object, Object)
-   */
-  public IVoidFunction addOnLevelChangeCallbacks(ILevel level, IVoidFunction callback) {
-    return onLevelChangeCallbacks.put(level, callback);
-  }
-
-  /**
-   * Returns the callback for the given level.
-   *
-   * @param level the level to get the callback from
-   * @return the callback for the level
-   * @see HashMap#get(Object)
-   * @see Optional#ofNullable(Object)
-   */
-  public Optional<IVoidFunction> getOnLevelChangeCallback(ILevel level) {
-    return Optional.ofNullable(onLevelChangeCallbacks.get(level));
   }
 }

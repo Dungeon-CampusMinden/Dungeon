@@ -124,7 +124,6 @@ public final class LevelSystem extends System {
   public void loadLevel(final ILevel level) {
     currentLevel = level;
     onLevelLoad.execute();
-    executeOnLevelChangeCallback();
     levelAPI_logger.info("A new level was loaded.");
   }
 
@@ -139,17 +138,7 @@ public final class LevelSystem extends System {
   public void loadLevel(final LevelSize size, final DesignLabel label) {
     currentLevel = generator.level(label, size);
     onLevelLoad.execute();
-    executeOnLevelChangeCallback();
     levelAPI_logger.info("A new level was loaded.");
-  }
-
-  private void executeOnLevelChangeCallback() {
-    Game.hero()
-        .flatMap(
-            e ->
-                e.fetch(PlayerComponent.class)
-                    .flatMap(pc -> pc.getOnLevelChangeCallback(currentLevel)))
-        .ifPresent(IVoidFunction::execute);
   }
 
   /**
