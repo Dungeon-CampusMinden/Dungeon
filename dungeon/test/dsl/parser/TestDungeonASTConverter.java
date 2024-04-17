@@ -1704,9 +1704,55 @@ public class TestDungeonASTConverter {
     Assert.assertFalse(objectDefNode.subTreeHasError());
     Assert.assertEquals(Node.Type.ObjectDefinition, objectDefNode.type);
   }
-    var ast = DungeonASTConverter.getProgramAST(program, env);
-    boolean b = true;
 
-    // TODO: it works, no test it
+  @Test
+  public void testASTErrorBrokenIdList() {
+    String program =
+        """
+      //#imIpot "test.dng;kjl;ajsdf
+
+      single_choice_task t1 {
+          description:"hello",
+          correct_answer_index: 1,
+          answers: [1,2,3]
+      }
+
+      graph g {
+          t1,;khas // broken
+      }
+
+      dungeon_config c {
+          dependency_graph: ga
+      }
+      """;
+
+    var env = new TestEnvironment();
+    env.addMockTypeName("single_choice_task");
+    env.addMockTypeName("assign_task");
+    env.addMockTypeName("dungeon_config");
+
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, true);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+    var dotEdgeStmtNode = (DotEdgeStmtNode)ast.getChild(1).getChild(1);
+
+    var idList = dotEdgeStmtNode.getIdLists().get(0);
+    Assert.assertEquals(2, idList.getChildren().size());
+
+    var lhsId = idList.getChild(0);
+    Assert.assertEquals("t1", ((IdNode)lhsId).getName());
+
+    var rhsIdNode = idList.getChild(1);
+    Assert.assertEquals(2, rhsIdNode.getChildren().size());
+    Assert.assertTrue(rhsIdNode.subTreeHasError());
+
+    var expectedToBeErrorNode = rhsIdNode.getChild(0);
+    Assert.assertTrue(expectedToBeErrorNode instanceof ASTErrorNode);
+
+    var expectedToBeIdNode = rhsIdNode.getChild(1);
+    Assert.assertEquals(Node.Type.Identifier, expectedToBeIdNode.type);
+    Assert.assertEquals("khas", ((IdNode)expectedToBeIdNode).getName());
+  }
   }
 }
