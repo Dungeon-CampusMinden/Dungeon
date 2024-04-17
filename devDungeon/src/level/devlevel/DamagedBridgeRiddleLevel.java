@@ -57,7 +57,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickab
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       DialogFactory.showTextPopup(
-          "I heard that a powerful artifact is hidden nearby. Rumor says its just beyond a old bridge. Let's see if we can find it.",
+          "I heard that a powerful artifact is hidden nearby. Rumor says it's just beyond an old bridge. Let's see if we can find it.",
           "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Damaged Bridge");
       ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
       this.doorTiles().forEach(DoorTile::close);

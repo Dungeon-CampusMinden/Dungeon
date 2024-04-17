@@ -51,7 +51,7 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       DialogFactory.showTextPopup(
-          "Willkommen im Tutorial! Hier lernst du die Grundlagen des Spiels kennen. ",
+          "Willkommen im Tutorial! Hier lernst Du die Grundlagen des Spiels kennen. ",
           "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": Tutorial",
           () -> {
             this.handleFirstTick();

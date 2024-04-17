@@ -71,7 +71,7 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       DialogFactory.showTextPopup(
-          "Woah! What is this place? This place is scorching, and im getting uneasy. We should prepare ourselves just in case",
+          "Woah! What is this place? This place is scorching, and I'm getting uneasy. We should prepare ourselves just in case.",
           "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Final Boss");
       ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
       this.doorTiles().forEach(DoorTile::close);
