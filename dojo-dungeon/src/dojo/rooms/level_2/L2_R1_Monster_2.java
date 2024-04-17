@@ -52,5 +52,8 @@ public class L2_R1_Monster_2 extends SearchRoom {
         keyType,
         keyDescription,
         keyTexture);
+    addRoomDescription(
+        "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Schlüssel für den nächsten Raum.",
+        "\"Tempel der verlorenen Geheimnisse\" (Raum 1)");
   }
 }

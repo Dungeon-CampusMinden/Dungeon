@@ -59,6 +59,7 @@ public class L4_R2_Fragen_Pattern extends Room {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
+    addRoomDescription("Sprich mit dem Zauberer.", "\"Die Vulkanhöhle\" (Raum 2)");
   }
 
   private void generate() throws IOException {

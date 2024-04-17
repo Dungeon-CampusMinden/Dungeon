@@ -53,6 +53,8 @@ public class L2_R2_Monster_Implement_1 extends TaskRoom {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
+    addRoomDescription(
+        "Gehe zum Ritter für die Raumaufgabe.", "\"Tempel der verlorenen Geheimnisse\" (Raum 2)");
   }
 
   private void generate() throws IOException {

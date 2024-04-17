@@ -60,6 +60,8 @@ public class L3_R2_Fehler_Quader extends TaskRoom {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
+    addRoomDescription(
+        "Spreche mit der Truhe für die Raumaufgabe.", "\"Kerker des Grauens\" (Raum 2)");
   }
 
   private void generate() throws IOException {

@@ -65,7 +65,7 @@ public class Room {
     this.levelSize = levelSize;
     this.designLabel = designLabel;
     generate();
-    addRoomDescription("");
+    addRoomDescription(null, null);
   }
 
   private void generate() {
@@ -149,20 +149,18 @@ public class Room {
    * Add a description dialog to this room, that is shown each time the player enters the room.
    *
    * @param description the description of the room
+   * @param title the title of the room
    */
-  public void addRoomDescription(String description) {
-    String roomName = getClass().getSimpleName();
+  public void addRoomDescription(String description, String title) {
+    String roomName = String.format("Raum: %s", getClass().getSimpleName());
+    String description1 = description == null || description.isEmpty() ? roomName : description;
+    String title1 = title == null || title.isEmpty() ? roomName : title;
     Game.hero()
         .flatMap(hero -> hero.fetch(PlayerComponent.class))
         .ifPresent(
             pc ->
                 pc.addOnLevelChangeCallbacks(
                     levelRoom.level(),
-                    () ->
-                        OkDialog.showOkDialog(
-                            String.format(
-                                "Du bist gerade in diesem Raum: %s. %s", roomName, description),
-                            "Raum: " + roomName,
-                            () -> {})));
+                    () -> OkDialog.showOkDialog(description1, title1, () -> {})));
   }
 }
