@@ -54,7 +54,7 @@ public class L3_R1_Monster_2 extends SearchRoom {
         keyTexture);
 
     addRoomDescription(
-        "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Schlüssel für den nächsten Raum.",
+        "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Saphir für den nächsten Raum.",
         "\"Tempel der verlorenen Geheimnisse\" (Raum 1)");
   }
 }
