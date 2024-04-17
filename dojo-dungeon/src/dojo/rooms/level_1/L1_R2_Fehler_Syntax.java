@@ -90,7 +90,8 @@ public class L1_R2_Fehler_Syntax extends TaskRoom {
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
 
-    addRoomDescription("Gehe zum Ritter für die Raumaufgabe.", "\"Der vergessene Wald\" (Raum 2)");
+    setRoomTitle("\"Der vergessene Wald\" (Raum 2)");
+    setRoomDescription("Gehe zum Ritter für die Raumaufgabe.");
   }
 
   private void generate() throws IOException {

@@ -52,8 +52,8 @@ public class L1_R1_Monster_1 extends SearchRoom {
         keyDescription,
         keyTexture);
 
-    addRoomDescription(
-        "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Schlüssel für den nächsten Raum.",
-        "\"Der vergessene Wald\" (Raum 1)");
+    setRoomTitle("\"Der vergessene Wald\" (Raum 1)");
+    setRoomDescription(
+        "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Schlüssel für den nächsten Raum.");
   }
 }

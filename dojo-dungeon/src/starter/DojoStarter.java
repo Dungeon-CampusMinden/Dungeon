@@ -4,11 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
+import contrib.hud.dialogs.OkDialog;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.systems.*;
 import core.Game;
+import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.IPath;
@@ -92,6 +94,22 @@ public class DojoStarter {
 
     // Fehler_Refactoring should not be closed:
     rooms.get(8).openDoors();
+
+    // add a room description popup dialog on room enter for each room
+    final List<Room> finalRooms = rooms;
+    Game.userOnLevelLoad(
+        (wasAlreadyLoaded) -> {
+          ILevel il = Game.currentLevel();
+          for (Room room : finalRooms) {
+            if (room.hasLevel(il)) {
+              String roomTitle = room.getRoomTitle();
+              String roomDescription = room.getRoomDescription();
+              if (roomTitle != null && roomDescription != null) {
+                OkDialog.showOkDialog(roomDescription, roomTitle, () -> {});
+              }
+            }
+          }
+        });
 
     // set level 1, room 1 as start level
     Game.currentLevel(dojoLevels[0].levelRooms()[0].level());

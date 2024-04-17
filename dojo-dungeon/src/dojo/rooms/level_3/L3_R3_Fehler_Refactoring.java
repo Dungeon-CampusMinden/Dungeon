@@ -52,8 +52,8 @@ public class L3_R3_Fehler_Refactoring extends TaskRoom {
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
 
-    addRoomDescription(
-        "Gehe zum Ritter für die Raumaufgabe.", "\"Tempel der verlorenen Geheimnisse\" (Raum 3)");
+    setRoomTitle("\"Tempel der verlorenen Geheimnisse\" (Raum 3)");
+    setRoomDescription("Gehe zum Ritter für die Raumaufgabe.");
   }
 
   private void generate() throws IOException {

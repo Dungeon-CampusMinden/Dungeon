@@ -62,8 +62,8 @@ public class L1_R3_Fragen_Lambda extends Room {
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
 
-    addRoomDescription(
-        "Gehe zum pumpkin dude und beantworte alle Fragen.", "\"Der vergessene Wald\" (Raum 3)");
+    setRoomTitle("\"Der vergessene Wald\" (Raum 3)");
+    setRoomDescription("Gehe zum pumpkin dude und beantworte alle Fragen.");
   }
 
   private void generate() throws IOException {

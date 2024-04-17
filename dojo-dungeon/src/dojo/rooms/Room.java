@@ -1,14 +1,11 @@
 package dojo.rooms;
 
-import contrib.hud.dialogs.OkDialog;
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
-import core.Game;
-import core.components.PlayerComponent;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
@@ -43,6 +40,8 @@ public class Room {
   private final Room nextRoom;
   private final LevelSize levelSize;
   private final DesignLabel designLabel;
+  private String roomTitle;
+  private String roomDescription;
 
   /**
    * Generate a new base room.
@@ -66,8 +65,9 @@ public class Room {
     this.designLabel = designLabel;
     generate();
 
-    // add a default room description
-    addRoomDescription(null, null);
+    // set default room title and description
+    setRoomTitle(getClass().getSimpleName());
+    setRoomDescription(getClass().getSimpleName());
   }
 
   private void generate() {
@@ -147,22 +147,23 @@ public class Room {
     return levelRoom.level().startTile();
   }
 
-  /**
-   * Add a description dialog to this room, that is shown each time the player enters the room.
-   *
-   * @param description the description of the room
-   * @param title the title of the room
-   */
-  public void addRoomDescription(String description, String title) {
-    String roomName = String.format("Raum: %s", getClass().getSimpleName());
-    String description1 = description == null || description.isEmpty() ? roomName : description;
-    String title1 = title == null || title.isEmpty() ? roomName : title;
-    Game.hero()
-        .flatMap(hero -> hero.fetch(PlayerComponent.class))
-        .ifPresent(
-            pc ->
-                pc.addOnLevelChangeCallbacks(
-                    levelRoom.level(),
-                    () -> OkDialog.showOkDialog(description1, title1, () -> {})));
+  public boolean hasLevel(ILevel level) {
+    return levelRoom.level() == level;
+  }
+
+  public String getRoomDescription() {
+    return roomDescription;
+  }
+
+  public void setRoomDescription(String roomDescription) {
+    this.roomDescription = roomDescription;
+  }
+
+  public String getRoomTitle() {
+    return roomTitle;
+  }
+
+  public void setRoomTitle(String roomTitle) {
+    this.roomTitle = roomTitle;
   }
 }
