@@ -25,8 +25,8 @@ import java.util.Set;
  * werden, um in den nächsten Raum zu gelangen.
  */
 public class L3_R2_Monster_Implement_1 extends TaskRoom {
-  private final String FILENAME1 = "../dojo-dungeon/todo-assets/lvl2r2/Monster.java";
-  private final String FILENAME2 = "../dojo-dungeon/todo-assets/lvl2r2/MyMonster.java";
+  private final String FILENAME1 = "../dojo-dungeon/todo-assets/Monster_Implement_1/Monster.java";
+  private final String FILENAME2 = "../dojo-dungeon/todo-assets/Monster_Implement_1/MyMonster.java";
   private final String CLASS_NAME = "MyMonster";
   private final String title = "Monster besiegen";
 

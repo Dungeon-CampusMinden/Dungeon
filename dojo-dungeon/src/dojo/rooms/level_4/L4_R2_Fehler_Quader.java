@@ -35,6 +35,7 @@ import java.util.Set;
  * nächsten Raum weitergehen.
  */
 public class L4_R2_Fehler_Quader extends TaskRoom {
+  public static final String FILENAME = "../dojo-dungeon/todo-assets/Fehler_Quader/Cuboid.java";
   private int impHealth = 10;
 
   /**
@@ -150,7 +151,7 @@ public class L4_R2_Fehler_Quader extends TaskRoom {
             true,
             (entity1, entity2) ->
                 OkDialog.showOkDialog(
-                    "Finde und verbessere die Fehler in der Klasse: todo-assets/lvl3r2/Cuboid.java.",
+                    "Finde und verbessere die Fehler in der Klasse: " + FILENAME,
                     "Aufgabe in diesem Raum:",
                     () -> {
                       OkDialog.showOkDialog(

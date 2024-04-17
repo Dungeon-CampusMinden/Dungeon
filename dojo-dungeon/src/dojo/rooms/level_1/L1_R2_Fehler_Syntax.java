@@ -31,8 +31,9 @@ import java.util.function.Function;
  * weitergehen. Es gibt dabei drei "Prüfstufen".
  */
 public class L1_R2_Fehler_Syntax extends TaskRoom {
-  private final String FILENAME1 = "../dojo-dungeon/todo-assets/lvl1r2/FehlerhafteKlasse.java";
-  private final String FILENAME2 = "../dojo-dungeon/todo-assets/lvl1r2/Klasse.java";
+  private final String FILENAME1 =
+      "../dojo-dungeon/todo-assets/Fehler_Syntax/FehlerhafteKlasse.java";
+  private final String FILENAME2 = "../dojo-dungeon/todo-assets/Fehler_Syntax/Klasse.java";
   private final String CLASS_NAME = "Klasse";
   private final String[] TEXT = {
     // 0

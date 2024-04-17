@@ -4,6 +4,7 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.utils.components.path.SimpleIPath;
 import dojo.rooms.Room;
+import dojo.rooms.level_4.L4_R2_Fehler_Quader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -168,8 +169,7 @@ public class DojoCompiler {
    */
   public TestResult testMathematicalClass() {
     try {
-      Class<?> cls2 =
-          compile(getSource("../dojo-dungeon/todo-assets/lvl3r2/Cuboid.java"), "Cuboid");
+      Class<?> cls2 = compile(getSource(L4_R2_Fehler_Quader.FILENAME), "Cuboid");
       Constructor<?> tor2 = cls2.getConstructor(float.class, float.class, float.class);
       Object inst2 = tor2.newInstance(10.0f, 30.0f, 20.0f);
       Method m1 = cls2.getMethod("calculateArea");
@@ -181,13 +181,13 @@ public class DojoCompiler {
       if (Math.round(f1) != 2200 || Math.round(f2) != 240 || Math.round(f3) != 6000) {
         throw new NoSuchElementException("wrong values ...");
       }
-      messages.add("testRoom8 ok");
-      return new TestResult("testRoom8", true, messages);
+      messages.add("testMaths ok");
+      return new TestResult("testMaths", true, messages);
     } catch (Exception ex) {
-      messages.add("testRoom8 not ok");
+      messages.add("testMaths not ok");
       messages.add(ex.getMessage());
     }
-    return new TestResult("testRoom8", false, messages);
+    return new TestResult("testMaths", false, messages);
   }
 
   private boolean stage_1_readSourceFile(String fileName) {
