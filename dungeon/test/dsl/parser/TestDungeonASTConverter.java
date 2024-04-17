@@ -12,6 +12,7 @@ import java.util.List;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.InputMismatchException;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 // CHECKSTYLE:OFF: AvoidStarImport
@@ -1754,5 +1755,40 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.Identifier, expectedToBeIdNode.type);
     Assert.assertEquals("khas", ((IdNode)expectedToBeIdNode).getName());
   }
+
+  @Test
+  @Ignore // TODO: for later
+  public void testPlusInGraphDefinition() {
+    // NOTE: The DotDefNode will contain only the 't1' identifier, the rest of the definition from the '+' on
+    // will be contained in ASTErrorNodes; would be nice, if the '+' got kicked out via single token deletion
+    // followed by single token insertion (basically a 'single token substitution')
+    String program =
+        """
+      single_choice_task t1 {
+          description:"hello",
+          correct_answer_index: 1,
+          answers: [1,2,3]
+      }
+
+      graph g {
+          t1+id,derp
+      }
+
+      dungeon_config c {
+          dependency_graph: ga
+      }
+      """;
+
+    var env = new TestEnvironment();
+    env.addMockTypeName("single_choice_task");
+    env.addMockTypeName("assign_task");
+    env.addMockTypeName("dungeon_config");
+
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, true);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+    boolean b = true;
+    // TODO: test implementation
   }
 }
