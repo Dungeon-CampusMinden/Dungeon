@@ -56,7 +56,7 @@ public class L2_R1_Monster_3 extends Room {
 
     setRoomTitle("\"Die Vulkanhöhle\" (Raum 1)");
     setRoomDescription(
-        "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Schlüssel für den nächsten Raum.");
+        "Du bist in einem Raum voller Monster. Besiege alle Monster, um in den nächsten Raum zu kommen.");
   }
 
   private void generate() throws IOException {
