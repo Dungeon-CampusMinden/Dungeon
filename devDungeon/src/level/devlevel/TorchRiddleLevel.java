@@ -61,8 +61,8 @@ public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       DialogFactory.showTextPopup(
-          "Welcome to the Torch Riddle! This is an old ancient riddle. But it probably holds some valuable loot."
-              + "Try to find the riddle room to proceed. Good luck!",
+          "Welcome to the Torch Riddle! This is an ancient test, rewarding rewards to those who look closer. You may find the Riddle Door "
+              + "to proceed. Best of luck!",
           "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Torch Riddle");
 
       ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
