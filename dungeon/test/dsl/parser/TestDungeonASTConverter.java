@@ -1660,7 +1660,7 @@ public class TestDungeonASTConverter {
   }
 
   @Test
-  public void testWeird() {
+  public void testTopLevelSync() {
     String program =
         """
       ;asa(asa 2asa<<<derp;return;while
@@ -1680,6 +1680,30 @@ public class TestDungeonASTConverter {
     String parseTree = Helpers.getPrettyPrintedParseTree(program, env, true);
     System.out.println(parseTree);
 
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+
+    List<String> expectedTokenStrings =
+        List.of(
+            ";", "asa", "(", "asa", "2", "asa", "<", "<", "<", "derp", ";", "return", ";", "while");
+
+    var errorNodes =
+        ast.getChildren().stream()
+            .filter(n -> n instanceof ASTErrorNode)
+            .map(n -> (ASTErrorNode) n)
+            .toList();
+    Assert.assertEquals(expectedTokenStrings.size(), errorNodes.size());
+
+    for (int i = 0; i < errorNodes.size(); i++) {
+      var errorNode = errorNodes.get(i);
+      String errorNodeStringActual = errorNode.internalErrorNode().toString();
+      String errorNodeStringExpected = expectedTokenStrings.get(i);
+      Assert.assertEquals(errorNodeStringExpected, errorNodeStringActual);
+    }
+
+    var objectDefNode = ast.getChild(14);
+    Assert.assertFalse(objectDefNode.subTreeHasError());
+    Assert.assertEquals(Node.Type.ObjectDefinition, objectDefNode.type);
+  }
     var ast = DungeonASTConverter.getProgramAST(program, env);
     boolean b = true;
 
