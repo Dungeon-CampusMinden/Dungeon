@@ -52,43 +52,7 @@ public class DojoStarter {
 
   private static void createLevel() throws IOException {
     // create a customised level comprising rooms
-    LevelGraph graph = new LevelGraph();
-
-    LevelRooms[] dojoLevels =
-        new LevelRooms[] {
-          new LevelRooms(
-              DesignLabel.FOREST,
-              new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
-              new BuildRoomMethod[] {
-                DojoStarter::buildRoom_Monster_1,
-                DojoStarter::buildRoom_Fehler_Syntax,
-                DojoStarter::buildRoom_Fragen_Lambda
-              }),
-          new LevelRooms(
-              DesignLabel.TEMPLE,
-              new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
-              new BuildRoomMethod[] {
-                DojoStarter::buildRoom_Monster_3,
-                DojoStarter::buildRoom_Fragen_Pattern,
-                DojoStarter::buildRoom_Monster_Implement_2
-              }),
-          new LevelRooms(
-              DesignLabel.DEFAULT,
-              new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
-              new BuildRoomMethod[] {
-                DojoStarter::buildRoom_Monster_2,
-                DojoStarter::buildRoom_Monster_Implement_1,
-                DojoStarter::buildRoom_Fehler_Refactoring
-              }),
-          new LevelRooms(
-              DesignLabel.FIRE,
-              new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
-              new BuildRoomMethod[] {
-                DojoStarter::buildRoom_Fragen_Schriftrollen,
-                DojoStarter::buildRoom_Fehler_Quader,
-                DojoStarter::buildRoom_Fragen_RegExes
-              })
-        };
+    LevelRooms[] dojoLevels = getLevelRooms();
 
     // connect the rooms, this is needed to build the rooms in next steps
     LevelRoom previousLevelRoom = null;
@@ -131,6 +95,45 @@ public class DojoStarter {
 
     // set level 1, room 1 as start level
     Game.currentLevel(dojoLevels[0].levelRooms()[0].level());
+  }
+
+  private static LevelRooms[] getLevelRooms() {
+    LevelGraph graph = new LevelGraph();
+
+    return new LevelRooms[] {
+      new LevelRooms(
+          DesignLabel.FOREST,
+          new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
+          new BuildRoomMethod[] {
+            DojoStarter::buildRoom_Monster_1,
+            DojoStarter::buildRoom_Fehler_Syntax,
+            DojoStarter::buildRoom_Fragen_Lambda
+          }),
+      new LevelRooms(
+          DesignLabel.TEMPLE,
+          new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
+          new BuildRoomMethod[] {
+            DojoStarter::buildRoom_Monster_3,
+            DojoStarter::buildRoom_Fragen_Pattern,
+            DojoStarter::buildRoom_Monster_Implement_2
+          }),
+      new LevelRooms(
+          DesignLabel.DEFAULT,
+          new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
+          new BuildRoomMethod[] {
+            DojoStarter::buildRoom_Monster_2,
+            DojoStarter::buildRoom_Monster_Implement_1,
+            DojoStarter::buildRoom_Fehler_Refactoring
+          }),
+      new LevelRooms(
+          DesignLabel.FIRE,
+          new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
+          new BuildRoomMethod[] {
+            DojoStarter::buildRoom_Fragen_Schriftrollen,
+            DojoStarter::buildRoom_Fehler_Quader,
+            DojoStarter::buildRoom_Fragen_RegExes
+          })
+    };
   }
 
   private static void connectBidirectional(LevelRoom levelRoom, LevelRoom nextRoom) {
