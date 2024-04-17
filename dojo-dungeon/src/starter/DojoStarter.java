@@ -110,7 +110,7 @@ public class DojoStarter {
             DojoStarter::buildRoom_Fragen_Lambda
           }),
       new LevelRooms(
-          DesignLabel.TEMPLE,
+          DesignLabel.FIRE,
           new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
           new BuildRoomMethod[] {
             DojoStarter::buildRoom_Monster_3,
@@ -118,7 +118,7 @@ public class DojoStarter {
             DojoStarter::buildRoom_Monster_Implement_2
           }),
       new LevelRooms(
-          DesignLabel.DEFAULT,
+          DesignLabel.TEMPLE,
           new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
           new BuildRoomMethod[] {
             DojoStarter::buildRoom_Monster_2,
@@ -126,7 +126,7 @@ public class DojoStarter {
             DojoStarter::buildRoom_Fehler_Refactoring
           }),
       new LevelRooms(
-          DesignLabel.FIRE,
+          DesignLabel.DEFAULT,
           new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
           new BuildRoomMethod[] {
             DojoStarter::buildRoom_Fragen_Schriftrollen,
