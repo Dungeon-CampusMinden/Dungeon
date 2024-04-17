@@ -103,10 +103,20 @@ public class DungeonLoader {
     }
   }
 
+  /**
+   * Returns the current level order.
+   *
+   * @return The current level order.
+   */
   public String[] levelOrder() {
     return this.levelOrder;
   }
 
+  /**
+   * Returns the name of the current level (in lowercase).
+   *
+   * @return The name of the current level.
+   */
   public String currentLevel() {
     return this.levelOrder()[this.currentLevel];
   }
@@ -124,6 +134,13 @@ public class DungeonLoader {
     return DevDungeonLevel.loadFromPath(levelPath);
   }
 
+  /**
+   * Loads the next level in the level order.
+   *
+   * <p>If the current level is the last level in the level order, the game will exit.
+   *
+   * <p>It chooses a random variant of the next level.
+   */
   public void loadNextLevel() {
     this.currentLevel++;
     try {
@@ -135,11 +152,22 @@ public class DungeonLoader {
     }
   }
 
+  /**
+   * Loads a specific level (with a random variant).
+   *
+   * @param levelName The name of the level.
+   */
   public void loadLevel(String levelName) {
     this.setCurrentLevelByLevelName(levelName);
     Game.currentLevel(this.getRandomVariant(levelName));
   }
 
+  /**
+   * Loads a specific level variant.
+   *
+   * @param levelName The name of the level.
+   * @param variant The index of the level variant.
+   */
   public void loadLevel(String levelName, int variant) {
     this.setCurrentLevelByLevelName(levelName);
     List<String> levelVariants = LEVELS.get(levelName);
@@ -162,5 +190,14 @@ public class DungeonLoader {
     if (this.currentLevel == -1) {
       throw new MissingLevelException(levelName);
     }
+  }
+
+  /**
+   * Returns the index of the current level.
+   *
+   * @return The index of the current level.
+   */
+  public int currentLevelIndex() {
+    return this.currentLevel;
   }
 }

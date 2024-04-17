@@ -5,6 +5,7 @@ import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.AIFactory;
+import contrib.entities.DialogFactory;
 import contrib.entities.IHealthObserver;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import level.DevDungeonLevel;
 import level.utils.ITickable;
+import starter.DevDungeon;
 import systems.DevHealthSystem;
 import utils.EntityUtils;
 
@@ -68,6 +70,9 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
   @Override
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
+      DialogFactory.showTextPopup(
+          "Woah! What is this place? This place is scorching, and I'm getting uneasy. We should prepare ourselves just in case.",
+          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Final Boss");
       ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
       this.doorTiles().forEach(DoorTile::close);
       this.pitTiles()

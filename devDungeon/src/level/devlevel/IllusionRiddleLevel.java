@@ -5,6 +5,7 @@ import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
+import contrib.entities.DialogFactory;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
@@ -29,6 +30,7 @@ import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.IllusionRiddleHandler;
 import level.utils.ITickable;
 import level.utils.Teleporter;
+import starter.DevDungeon;
 import systems.FogOfWarSystem;
 import systems.TeleporterSystem;
 import utils.EntityUtils;
@@ -149,6 +151,10 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
   @Override
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
+      DialogFactory.showTextPopup(
+          "Wait, who turned off the lights? Try to find a way out of this dark place.",
+          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Illusion Riddle");
+
       ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
       this.doorTiles().forEach(DoorTile::close);
       this.pitTiles()
@@ -209,6 +215,8 @@ public class IllusionRiddleLevel extends DevDungeonLevel implements ITickable {
                 }
                 this.lightTorch(devDungeonRoom, 0, false);
                 this.lightTorch(devDungeonRoom, 1, false);
+
+                this.exitTiles().forEach(tile -> tile.tintColor(-1)); // Workaround due to FogOfWar
               });
       HealthComponent bhc =
           b.fetch(HealthComponent.class)
