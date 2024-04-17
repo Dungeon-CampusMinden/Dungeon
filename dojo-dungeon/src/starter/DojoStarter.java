@@ -129,8 +129,8 @@ public class DojoStarter {
     // Fehler_Refactoring should not be closed:
     rooms.get(8).openDoors();
 
-    // set room1 as start level
-    Game.currentLevel(rooms.get(1).getStartTile().level());
+    // set level 1, room 1 as start level
+    Game.currentLevel(dojoLevels[0].levelRooms()[0].level());
   }
 
   private static void connectBidirectional(LevelRoom levelRoom, LevelRoom nextRoom) {
