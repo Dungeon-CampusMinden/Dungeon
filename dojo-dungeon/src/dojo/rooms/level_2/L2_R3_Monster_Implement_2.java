@@ -70,6 +70,9 @@ public class L2_R3_Monster_Implement_2 extends Room {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
+
+    addRoomDescription(
+        "Sprich mit dem Imp und danach mit der Truhe!", "\"Die Vulkanhöhle\" (Raum 3)");
   }
 
   private void generate() throws IOException {

@@ -68,6 +68,9 @@ public class L4_R1_Fragen_Schriftrollen extends MonsterRoom {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
+
+    addRoomDescription(
+        "Ordne die Schriftrollen den entsprechenden Truhen zu.", "\"Kerker des Grauens\" (Raum 1)");
   }
 
   private void generate() throws IOException {

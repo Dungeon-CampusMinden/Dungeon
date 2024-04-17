@@ -53,6 +53,10 @@ public class L2_R1_Monster_3 extends Room {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
+
+    addRoomDescription(
+        "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Schlüssel für den nächsten Raum.",
+        "\"Die Vulkanhöhle\" (Raum 1)");
   }
 
   private void generate() throws IOException {

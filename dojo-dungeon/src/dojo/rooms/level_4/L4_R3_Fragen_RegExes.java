@@ -89,6 +89,8 @@ public class L4_R3_Fragen_RegExes extends Room {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
+
+    addRoomDescription("Gehe zu OgreX für die Raumaufgabe.", "\"Kerker des Grauens\" (Raum 3)");
   }
 
   private void generate() throws IOException {
