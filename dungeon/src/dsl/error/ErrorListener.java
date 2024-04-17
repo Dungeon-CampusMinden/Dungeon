@@ -47,20 +47,20 @@ public class ErrorListener extends BaseErrorListener {
       differentErrorClasses.add(clazz);
     }
 
-
     // get parent of offending symbol?
-    //this.errors.add(
-        //new ErrorRecord(msg, (CommonToken) offendingSymbol, line, charPositionInLine, e));
+    // this.errors.add(
+    // new ErrorRecord(msg, (CommonToken) offendingSymbol, line, charPositionInLine, e));
 
     // TODO: how to figure out, that this is actually a lexing error?
     this.errors.add(
-    ErrorRecordFactory.instance.errorRecord(msg, (CommonToken) offendingSymbol, line, charPositionInLine, e));
+        ErrorRecordFactory.instance.errorRecord(
+            msg, (CommonToken) offendingSymbol, line, charPositionInLine, e));
 
     if (this.trace) {
       String warning =
-        String.format(
-          "Syntax error, recognizer: '%s', offendingSymbol: '%s', line: %x, charPosition: %x, msg: '%s', exception: '%s'",
-          recognizer, offendingSymbol, line, charPositionInLine, msg, e);
+          String.format(
+              "Syntax error, recognizer: '%s', offendingSymbol: '%s', line: %x, charPosition: %x, msg: '%s', exception: '%s'",
+              recognizer, offendingSymbol, line, charPositionInLine, msg, e);
 
       LOGGER.severe(warning);
     }

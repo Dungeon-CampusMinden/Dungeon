@@ -1,11 +1,9 @@
 package dsl.parser.ast;
 
 import dsl.IndexGenerator;
-
+import dsl.error.ErrorRecord;
 import java.util.ArrayList;
 import java.util.List;
-
-import dsl.error.ErrorRecord;
 import org.antlr.v4.runtime.RecognitionException;
 import org.neo4j.ogm.annotation.*;
 
@@ -15,7 +13,7 @@ public class Node {
   // TODO: this really just for testing!!
   private static long g_fileVersion;
 
-  public static void setFileVersion (long version) {
+  public static void setFileVersion(long version) {
     g_fileVersion = version;
   }
 
@@ -97,9 +95,8 @@ public class Node {
 
   public static Node NONE = new Node(Type.NONE, new ArrayList<>());
 
-  //@Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
-  @Transient
-  private ArrayList<Node> children;
+  // @Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
+  @Transient private ArrayList<Node> children;
 
   @Property public final Type type;
 

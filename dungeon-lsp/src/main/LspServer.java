@@ -12,9 +12,7 @@ import dsl.error.ErrorStrategy;
 import dsl.helper.ProfilingTimer;
 import dsl.interpreter.DSLInterpreter;
 import dsl.neo4j.Neo4jConnect;
-import dsl.parser.ast.ASTErrorNode;
-import dsl.parser.ast.ASTOffendingSymbol;
-import dsl.parser.ast.Node;
+import dsl.parser.ast.*;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.scope.IScope;
@@ -28,7 +26,6 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
-
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.eclipse.lsp4j.*;
@@ -184,7 +181,8 @@ public class LspServer
                * TODO: if this is a good idea remains to be seen. For now, just enable it and see...
                */
 
-              // DiagnosticRegistrationOptions diagnosticOptions = new DiagnosticRegistrationOptions();
+              // DiagnosticRegistrationOptions diagnosticOptions = new
+              // DiagnosticRegistrationOptions();
               // diagnosticOptions.setId("DungeonDSL Diagnostics ID");
               // diagnosticOptions.setIdentifier("DungeonDSL Diagnostics identifier");
 
@@ -337,31 +335,42 @@ public class LspServer
 
   // TODO: add version
   public void publishDiagnostics(String uri, List<Diagnostic> diagnostics) {
-    // Diagnostics notifications are sent from the server to the client to signal results of validation runs.
+    // Diagnostics notifications are sent from the server to the client to signal results of
+    // validation runs.
     //
-    // Diagnostics are “owned” by the server so it is the server’s responsibility to clear them if necessary.
+    // Diagnostics are “owned” by the server so it is the server’s responsibility to clear them if
+    // necessary.
     // The following rule is used for VS Code servers that generate diagnostics:
     //
-    // - if a language is single file only (for example HTML) then diagnostics are cleared by the server when
-    //   the file is closed. Please note that open / close events don’t necessarily reflect what the user sees
+    // - if a language is single file only (for example HTML) then diagnostics are cleared by the
+    // server when
+    //   the file is closed. Please note that open / close events don’t necessarily reflect what the
+    // user sees
     //   in the user interface.
-    //   These events are ownership events. So with the current version of the specification it is possible that
-    //   problems are not cleared although the file is not visible in the user interface since the client
+    //   These events are ownership events. So with the current version of the specification it is
+    // possible that
+    //   problems are not cleared although the file is not visible in the user interface since the
+    // client
     //   has not closed the file yet.
-    // - if a language has a project system (for example C#) diagnostics are not cleared when a file closes.
-    //   When a project is opened all diagnostics for all files are recomputed (or read from a cache).
+    // - if a language has a project system (for example C#) diagnostics are not cleared when a file
+    // closes.
+    //   When a project is opened all diagnostics for all files are recomputed (or read from a
+    // cache).
     //
-    // When a file changes it is the server’s responsibility to re-compute diagnostics and push them to the
-    // client. If the computed set is empty it has to push the empty array to clear former diagnostics.
-    // Newly pushed diagnostics always replace previously pushed diagnostics. There is no merging that
+    // When a file changes it is the server’s responsibility to re-compute diagnostics and push them
+    // to the
+    // client. If the computed set is empty it has to push the empty array to clear former
+    // diagnostics.
+    // Newly pushed diagnostics always replace previously pushed diagnostics. There is no merging
+    // that
     // happens on the client side.
 
-    LOGGER.info("Publishing ["+diagnostics.size()+"]diagnostics for file: " + uri);
+    LOGGER.info("Publishing [" + diagnostics.size() + "]diagnostics for file: " + uri);
     var client = this.clients.get(0);
     PublishDiagnosticsParams params = new PublishDiagnosticsParams();
     params.setDiagnostics(diagnostics);
     params.setUri(uri);
-    //params.setVersion(version);
+    // params.setVersion(version);
     client.publishDiagnostics(params);
   }
 
@@ -403,35 +412,37 @@ public class LspServer
     // TODO: should make this cancelable!
     // TODO: more testing required....
     CompletableFuture<Void> analyzeDocumentFuture =
-      CompletableFuture.supplyAsync(
-        () -> {
-          try {
-            // this is a problem, because the docVersionMutex won't be unlocked, if the future gets cancelled
-            // ...but this isn't a problem anymore, bzw. the mutex isnt' needed anymore, because the whole computation
-            // of the diagnostics is performed sequentially after update of the database..
-            // future changes will likely require modifications, but just make it work for now
-            //this.docVersionMutex.lock();
+        CompletableFuture.supplyAsync(
+            () -> {
+              try {
+                // this is a problem, because the docVersionMutex won't be unlocked, if the future
+                // gets cancelled
+                // ...but this isn't a problem anymore, bzw. the mutex isnt' needed anymore, because
+                // the whole computation
+                // of the diagnostics is performed sequentially after update of the database..
+                // future changes will likely require modifications, but just make it work for now
+                // this.docVersionMutex.lock();
 
-            this.documentDiagnosticVersionMap.compute(uri, (k, versionIdx) -> versionIdx + 1L);
-            Long newVersion = this.documentDiagnosticVersionMap.get(uri);
-            ErrorRecord.setDocumentVersion(newVersion);
-            LOGGER.info("Updated document version PRE UPDATE: [" + newVersion + "]");
+                this.documentDiagnosticVersionMap.compute(uri, (k, versionIdx) -> versionIdx + 1L);
+                Long newVersion = this.documentDiagnosticVersionMap.get(uri);
+                ErrorRecord.setDocumentVersion(newVersion);
+                LOGGER.info("Updated document version PRE UPDATE: [" + newVersion + "]");
 
-            dbUpdater.updateDB(text);
+                dbUpdater.updateDB(text);
 
-            this.documentDiagnosticVersionMap.compute(uri, (k, versionIdx) -> versionIdx + 1L);
-            newVersion = this.documentDiagnosticVersionMap.get(uri);
-            ErrorRecord.setDocumentVersion(newVersion);
-            LOGGER.info("Updated document version POST UPDATE: [" + newVersion + "]");
+                this.documentDiagnosticVersionMap.compute(uri, (k, versionIdx) -> versionIdx + 1L);
+                newVersion = this.documentDiagnosticVersionMap.get(uri);
+                ErrorRecord.setDocumentVersion(newVersion);
+                LOGGER.info("Updated document version POST UPDATE: [" + newVersion + "]");
 
-            List<Diagnostic> diagnostics = computeDiagnostics(uri);
-            publishDiagnostics(uri, diagnostics);
+                List<Diagnostic> diagnostics = computeDiagnostics(uri);
+                publishDiagnostics(uri, diagnostics);
 
-            //this.docVersionMutex.unlock();
-          } catch (InterruptedException ignored) { }
-          return null;
-        }
-      );
+                // this.docVersionMutex.unlock();
+              } catch (InterruptedException ignored) {
+              }
+              return null;
+            });
 
     this.documentAnalysisFutures.put(uri, analyzeDocumentFuture);
     documentCalculationsMutex.unlock();
@@ -442,18 +453,17 @@ public class LspServer
   @Override
   public void didOpen(DidOpenTextDocumentParams didOpenTextDocumentParams) {
     LOGGER.entering(this.getClass().getName(), getMethodName());
-    //LOGGER.info("Param: '" + didOpenTextDocumentParams + "'");
+    // LOGGER.info("Param: '" + didOpenTextDocumentParams + "'");
     String text = didOpenTextDocumentParams.getTextDocument().getText();
     String uri = didOpenTextDocumentParams.getTextDocument().getUri();
 
     analyzeFile(uri, text);
   }
 
-
   @Override
   public void didChange(DidChangeTextDocumentParams didChangeTextDocumentParams) {
     LOGGER.entering(this.getClass().getName(), getMethodName());
-    //LOGGER.info("Param: '" + didChangeTextDocumentParams + "'");
+    // LOGGER.info("Param: '" + didChangeTextDocumentParams + "'");
 
     String text = didChangeTextDocumentParams.getContentChanges().get(0).getText();
     String uri = didChangeTextDocumentParams.getTextDocument().getUri();
@@ -539,7 +549,7 @@ public class LspServer
     private boolean stop;
     private boolean isRunning;
 
-    public DBUpdater() { }
+    public DBUpdater() {}
 
     public void stop() {
       this.stop = true;
@@ -564,12 +574,16 @@ public class LspServer
       this.isRunning = true;
       dbMutex.lock();
 
-      // TODO: this is a temporary solution to the permanence problem of error nodes and error records..
+      // TODO: this is a temporary solution to the permanence problem of error nodes and error
+      // records..
       ErrorRecordFactory.instance.clear();
 
       DSLInterpreter interpreter = new DSLInterpreter();
       interpreter.setTrace(false);
       try {
+        // TODO: temporary test...
+        RelationshipRecorder.instance.clear();
+
         DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(text);
       } catch (Exception ex) {
         // not relevant right now
@@ -585,12 +599,14 @@ public class LspServer
         var parsedFile = fileScope.file();
         var ast = parsedFile.rootASTNode();
         var symTable = env.getSymbolTable();
+        var nodeRelationShips = RelationshipRecorder.instance.get();
 
-        //session.query("MATCH (n) DETACH DELETE n", Map.of());
+        // session.query("MATCH (n) DETACH DELETE n", Map.of());
 
         LOGGER.info("Updating program database...");
         throwIfStop();
         // non-interuptable!
+        session.deleteAll(ParentOf.class);
         session.deleteAll(Node.class);
         session.deleteAll(Symbol.class);
         session.deleteAll(IScope.class);
@@ -599,43 +615,45 @@ public class LspServer
 
         ProfilingTimer.Unit unit = ProfilingTimer.Unit.milli;
         HashMap<String, Long> times = new HashMap<>();
-        //try (ProfilingTimer timer = new ProfilingTimer("AST", times, unit)) {
-          // save ast in db
-          throwIfStop();
-          session.save(ast);
-        //}
-        //try (ProfilingTimer timer = new ProfilingTimer("SYMBOL CREATIONS", times, unit)) {
-          throwIfStop();
-          session.save(symTable.getSymbolCreations());
-        //}
-        //try (ProfilingTimer timer = new ProfilingTimer("SYMBOL REFERENCES", times, unit)) {
-          throwIfStop();
-          session.save(symTable.getSymbolReferences());
-        //}
-        //try (ProfilingTimer timer = new ProfilingTimer("GLOBAL SCOPE", times, unit)) {
-          throwIfStop();
-          session.save(symTable.globalScope());
-        //}
+        // try (ProfilingTimer timer = new ProfilingTimer("AST", times, unit)) {
+        // save ast in db
+        throwIfStop();
+        session.save(ast);
+
+        throwIfStop();
+        session.save(nodeRelationShips);
+        // }
+        // try (ProfilingTimer timer = new ProfilingTimer("SYMBOL CREATIONS", times, unit)) {
+        throwIfStop();
+        session.save(symTable.getSymbolCreations());
+        // }
+        // try (ProfilingTimer timer = new ProfilingTimer("SYMBOL REFERENCES", times, unit)) {
+        throwIfStop();
+        session.save(symTable.getSymbolReferences());
+        // }
+        // try (ProfilingTimer timer = new ProfilingTimer("GLOBAL SCOPE", times, unit)) {
+        throwIfStop();
+        session.save(symTable.globalScope());
+        // }
 
         var filScopes = env.getFileScopes().entrySet();
         for (var entry : filScopes) {
           var scope = entry.getValue();
-          //try (ProfilingTimer timer = new ProfilingTimer("SCOPE " + scope.getName(), times, unit)) {
-            throwIfStop();
-            session.save(scope);
-          //}
+          // try (ProfilingTimer timer = new ProfilingTimer("SCOPE " + scope.getName(), times,
+          // unit)) {
+          throwIfStop();
+          session.save(scope);
+          // }
         }
         tx.commit();
         LOGGER.info("Finished updating database!");
-      }
-      catch (InterruptedException interrupt) {
+      } catch (InterruptedException interrupt) {
         LOGGER.info("Database update was interrupted");
         tx.rollback();
         interrupted = true;
       } catch (Exception ex) {
         boolean b = true;
-      }
-      finally {
+      } finally {
         tx.close();
         dbMutex.unlock();
         this.isRunning = false;
@@ -646,7 +664,6 @@ public class LspServer
     }
   }
 
-
   private List<Diagnostic> computeDiagnostics(String fileUri) {
     Long documentVersion = this.documentDiagnosticVersionMap.get(fileUri);
 
@@ -654,18 +671,19 @@ public class LspServer
     ArrayList<ErrorRecord> errorRecords = new ArrayList<>();
     ArrayList<ASTErrorNode> errorNodes = new ArrayList<>();
 
-    // fetch all necessary data from database while ensuring that the database was not updated in the meantime
-    LOGGER.info("Fetching data from database with document version ["+documentVersion+"]...");
+    // fetch all necessary data from database while ensuring that the database was not updated in
+    // the meantime
+    LOGGER.info("Fetching data from database with document version [" + documentVersion + "]...");
     Result queryResult;
     try {
       LOGGER.info("Getting nodes with error record from database...");
       queryResult =
-        session.query(
-          """
+          session.query(
+              """
           match (n:Node)-[:HAS_ERROR_RECORD]->(e:ErrorRecord) return distinct e
           """,
-          Map.of());
-      //queryResult.queryResults().forEach(r -> nodesWithErrorRecord.add((Node) r.get("n")));
+              Map.of());
+      // queryResult.queryResults().forEach(r -> nodesWithErrorRecord.add((Node) r.get("n")));
       queryResult.queryResults().forEach(r -> errorRecords.add((ErrorRecord) r.get("e")));
     } catch (ClassCastException ex) {
       boolean b = true;
@@ -717,10 +735,9 @@ public class LspServer
       String internalMsg = errorRecord.msg() != null ? errorRecord.msg() : "";
       String msg = String.format("Error of type '%s' - '%s'", errorType, internalMsg);
 
-      //String msg = errorRecord.msg() != null ? errorRecord.msg() : "LEXER ERROR!";
+      // String msg = errorRecord.msg() != null ? errorRecord.msg() : "LEXER ERROR!";
       Diagnostic diagnostic =
-        new Diagnostic(
-          range, msg, DiagnosticSeverity.Error, "Source: DungeonDSL LSP Server");
+          new Diagnostic(range, msg, DiagnosticSeverity.Error, "Source: DungeonDSL LSP Server");
       diagnostics.add(diagnostic);
     }
 
@@ -782,8 +799,7 @@ public class LspServer
       Range range = new Range(start, end);
       String msg = errorRecord.msg() != null ? errorRecord.msg() : "LEXER ERROR!";
       Diagnostic diagnostic =
-        new Diagnostic(
-          range, msg, DiagnosticSeverity.Error, "Source: DungeonDSL LSP Server");
+          new Diagnostic(range, msg, DiagnosticSeverity.Error, "Source: DungeonDSL LSP Server");
       diagnostics.add(diagnostic);
     }
 
@@ -798,22 +814,21 @@ public class LspServer
         boolean b = true;
       } else {
         var errorRecord = node.getErrorRecord();
-        //var sourceInterval = internalErrorNode.getSourceInterval();
+        // var sourceInterval = internalErrorNode.getSourceInterval();
         // to use source interval, we need the lexer output.. i guess
-        //var symbol = internalErrorNode.getSymbol();
-        //var tokenSource = symbol.getTokenSource();
-        int line = errorRecord.line() - 1;//symbol.getLine() - 1;
-        int charInLine = errorRecord.charPositionInLine();//symbol.getCharPositionInLine();
+        // var symbol = internalErrorNode.getSymbol();
+        // var tokenSource = symbol.getTokenSource();
+        int line = errorRecord.line() - 1; // symbol.getLine() - 1;
+        int charInLine = errorRecord.charPositionInLine(); // symbol.getCharPositionInLine();
 
         // get range for error
         Position start = new Position(line, charInLine);
         Position end = new Position(line, charInLine);
 
         Range range = new Range(start, end);
-        String msg = errorRecord.msg();//internalErrorNode.toString();
+        String msg = errorRecord.msg(); // internalErrorNode.toString();
         Diagnostic diagnostic =
-          new Diagnostic(
-            range, msg, DiagnosticSeverity.Error, "Source: DungeonDSL LSP Server");
+            new Diagnostic(range, msg, DiagnosticSeverity.Error, "Source: DungeonDSL LSP Server");
         diagnostics.add(diagnostic);
       }
     }
@@ -821,6 +836,7 @@ public class LspServer
   }
 
   @Override
+  // NOTE: not used in current implementation
   public CompletableFuture<DocumentDiagnosticReport> diagnostic(DocumentDiagnosticParams params) {
     LOGGER.entering(this.getClass().getName(), getMethodName());
 
@@ -928,9 +944,8 @@ public class LspServer
 
   // helpers
 
-
   public static String getPrettyPrintedParseTree(
-    String program, IEnvironment environment, boolean trace) {
+      String program, IEnvironment environment, boolean trace) {
     ErrorListener el = new ErrorListener();
     var stream = CharStreams.fromString(program);
     var lexer = new dsl.antlr.DungeonDSLLexer(stream, environment);
@@ -947,7 +962,8 @@ public class LspServer
     }
     parser.setTrace(trace);
     var programParseTree = parser.program();
-    return TreeUtils.toPrettyTree(programParseTree, java.util.Arrays.stream(parser.getRuleNames()).toList());
+    return TreeUtils.toPrettyTree(
+        programParseTree, java.util.Arrays.stream(parser.getRuleNames()).toList());
   }
 
   public static String getPrettyPrintedParseTree(String program, IEnvironment environment) {

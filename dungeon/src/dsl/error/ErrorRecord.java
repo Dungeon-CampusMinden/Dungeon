@@ -10,6 +10,7 @@ import org.neo4j.ogm.annotation.Transient;
 @NodeEntity
 public class ErrorRecord {
   private static long g_documentVersion = 0;
+
   public static void setDocumentVersion(long version) {
     g_documentVersion = version;
   }
@@ -32,7 +33,7 @@ public class ErrorRecord {
     noViableAlternative,
     failedPredicate,
     specificErrorAlternative // TODO: specify, which one
-    ;
+  ;
 
     @Override
     public String toString() {
@@ -75,23 +76,22 @@ public class ErrorRecord {
 
   public ErrorRecord() {
     this.documentVersion = g_documentVersion;
-    this.msg="";
+    this.msg = "";
     this.errorType = ErrorType.none;
-    this.line=-1;
-    this.charPositionInLine=-1;
-    this.exception=null;
-    this.offendingSymbol=null;
-    this.idx=-1;
+    this.line = -1;
+    this.charPositionInLine = -1;
+    this.exception = null;
+    this.offendingSymbol = null;
+    this.idx = -1;
   }
 
   public ErrorRecord(
-    String msg,
-    CommonToken offendingSymbol,
-    int line,
-    int charPositionInLine,
-    ErrorType errorType,
-    RecognitionException exception
-  ) {
+      String msg,
+      CommonToken offendingSymbol,
+      int line,
+      int charPositionInLine,
+      ErrorType errorType,
+      RecognitionException exception) {
     this.documentVersion = g_documentVersion;
     this.idx = IndexGenerator.getIdx();
     this.msg = msg;
@@ -122,8 +122,8 @@ public class ErrorRecord {
     var offendingToken = (CommonToken) exception.getOffendingToken();
     ErrorType errorType = exceptionToType(exception);
 
-    return //new ErrorRecord(
-      ErrorRecordFactory.instance.errorRecord(
+    return // new ErrorRecord(
+    ErrorRecordFactory.instance.errorRecord(
         exception.getMessage(),
         offendingToken,
         offendingToken.getLine(),
@@ -136,8 +136,8 @@ public class ErrorRecord {
   public static ErrorRecord fromOffendingSymbol(CommonToken offendingSymbol) {
     String msg = "Found offending symbol " + offendingSymbol.toString();
 
-    return //new ErrorRecord(
-      ErrorRecordFactory.instance.errorRecord(
+    return // new ErrorRecord(
+    ErrorRecordFactory.instance.errorRecord(
         msg,
         offendingSymbol,
         offendingSymbol.getLine(),

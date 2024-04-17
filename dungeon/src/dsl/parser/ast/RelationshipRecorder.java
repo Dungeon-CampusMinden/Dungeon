@@ -17,5 +17,7 @@ public class RelationshipRecorder {
     this.parentRelationShips.clear();
   }
 
-  public List<ParentOf> get() {return parentRelationShips;}
+  public List<ParentOf> get() {
+    return parentRelationShips;
+  }
 }

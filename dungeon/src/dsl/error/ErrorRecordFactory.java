@@ -1,10 +1,8 @@
 package dsl.error;
 
-import dsl.IndexGenerator;
+import java.util.ArrayList;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.RecognitionException;
-
-import java.util.ArrayList;
 
 public class ErrorRecordFactory {
   public static ErrorRecordFactory instance = new ErrorRecordFactory();
@@ -21,15 +19,27 @@ public class ErrorRecordFactory {
     return records;
   }
 
-  public ErrorRecord errorRecord(String msg, CommonToken offendingSymbol, int line, int charPositionInLine, RecognitionException exception) {
+  public ErrorRecord errorRecord(
+      String msg,
+      CommonToken offendingSymbol,
+      int line,
+      int charPositionInLine,
+      RecognitionException exception) {
     ErrorRecord.ErrorType errorType = ErrorRecord.exceptionToType(exception);
 
-    var record = new ErrorRecord(msg, offendingSymbol, line, charPositionInLine, errorType, exception);
+    var record =
+        new ErrorRecord(msg, offendingSymbol, line, charPositionInLine, errorType, exception);
     records.add(record);
     return record;
   }
 
-  public ErrorRecord errorRecord(String msg, CommonToken offendingSymbol, int line, int charPositionInLine, ErrorRecord.ErrorType type, RecognitionException exception) {
+  public ErrorRecord errorRecord(
+      String msg,
+      CommonToken offendingSymbol,
+      int line,
+      int charPositionInLine,
+      ErrorRecord.ErrorType type,
+      RecognitionException exception) {
 
     var record = new ErrorRecord(msg, offendingSymbol, line, charPositionInLine, type, exception);
     records.add(record);

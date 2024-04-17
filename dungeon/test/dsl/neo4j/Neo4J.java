@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -167,7 +166,7 @@ public class Neo4J {
   @Test
   public void testDBGetErrorNode() {
     String program =
-      """
+        """
   assign_task t1 {
       description: "Task1",
       solution: <["a", "b"]>
@@ -222,35 +221,34 @@ public class Neo4J {
 
       // get ast root node back from db
       var graphNodeReferenceAssignDef =
-        session.queryForObject(
-          Node.class,
-          """
+          session.queryForObject(
+              Node.class,
+              """
         match
         (n:Node {type:"Identifier", name:"t1"})-[:REFERENCES]->(s:Symbol {name:"t1"}),
         (o:Node {type:"ObjectDefinition"})-[:CREATES]->(s),
         (t:IType {name:"assign_task"})<-[:OF_TYPE]-(s)
         return n
         """,
-          Map.of());
+              Map.of());
       Assert.assertNotEquals(null, graphNodeReferenceAssignDef);
 
       var dungeonConfigRefGraph =
-        session.query(
-          """
+          session.query(
+              """
         match
         (n:Node {type:"Identifier", name:"g"})-[:REFERENCES]->(s:Symbol {name:"g"}),
         (o:Node {type:"DotDefinition"})-[:CREATES]->(s)
         return n
         """,
-          Map.of());
+              Map.of());
       Assert.assertNotEquals(null, dungeonConfigRefGraph);
 
       var topLevelNodesWithErrorChildren =
-        session.query(
-          """
+          session.query(
+              """
         match (n:Node {hasErrorChild:TRUE}) return n
-        """,
-          Map.of());
+        """, Map.of());
 
       ArrayList<Node> list = new ArrayList<>();
       topLevelNodesWithErrorChildren.queryResults().forEach(r -> list.add((Node) r.get("n")));
@@ -258,11 +256,10 @@ public class Neo4J {
       Assert.assertEquals(2, list.size());
 
       var nodesWithErrorRecord =
-        session.query(
-          """
+          session.query(
+              """
         match (n:Node {hasErrorRecord:TRUE}) return n
-        """,
-          Map.of());
+        """, Map.of());
 
       ArrayList<Node> nodes = new ArrayList<>();
       nodesWithErrorRecord.queryResults().forEach(r -> nodes.add((Node) r.get("n")));
@@ -334,9 +331,9 @@ public class Neo4J {
       session.save(ast);
       session.save(nodeRelationShips);
 
-      //session.save(symTable.getSymbolCreations());
-      //session.save(symTable.getSymbolReferences());
-      //session.save(symTable.globalScope());
+      // session.save(symTable.getSymbolCreations());
+      // session.save(symTable.getSymbolReferences());
+      // session.save(symTable.globalScope());
       /*var filScopes = env.getFileScopes().entrySet();
       for (var entry : filScopes) {
         var scope = entry.getValue();
@@ -354,17 +351,18 @@ public class Neo4J {
       nodesOnRhsOfVarDecl.queryResults().forEach(r -> nodesOnRhs.add((Node) r.get("n")));
       Assert.assertEquals(2, nodesOnRhs.size());
 
-      var nameSet = nodesOnRhs.stream().map(n -> ((IdNode)n).getName()).collect(Collectors.toSet());
+      var nameSet =
+          nodesOnRhs.stream().map(n -> ((IdNode) n).getName()).collect(Collectors.toSet());
       Assert.assertTrue(nameSet.contains("y"));
       Assert.assertTrue(nameSet.contains("w"));
 
       // test for persistence of child-relationships
       var varDecls =
-        session.query(
-          """
+          session.query(
+              """
         match (n:IdNode)<-[:PARENT_OF{idx:1}]-(v:VarDeclNode) return distinct v
         """,
-          Map.of());
+              Map.of());
 
       ArrayList<Node> varDeclNodes = new ArrayList<>();
       varDecls.queryResults().forEach(r -> varDeclNodes.add((Node) r.get("v")));
@@ -372,8 +370,8 @@ public class Neo4J {
 
       for (var node : varDeclNodes) {
         Assert.assertEquals(2, node.getChildren().size());
-        var firstChild = (IdNode)node.getChild(0);
-        var secondChild = (IdNode)node.getChild(1);
+        var firstChild = (IdNode) node.getChild(0);
+        var secondChild = (IdNode) node.getChild(1);
         if (firstChild.getName().equals("x")) {
           Assert.assertEquals("y", secondChild.getName());
         }

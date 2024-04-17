@@ -1285,8 +1285,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       var text = node.getText();
       var symbol = node.getSymbol();
       String msg =
-        String.format(
-          "Visitting Error node, parent: '%s', text: '%s', symbol: '%s'", parent, text, symbol);
+          String.format(
+              "Visitting Error node, parent: '%s', text: '%s', symbol: '%s'", parent, text, symbol);
       LOGGER.warning(msg);
     }
 
@@ -1336,7 +1336,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
     if (ctx.exception != null) {
       if (trace) {
-        LOGGER.warning("Rule context contains exception: " + ctx.exception + "; pushing error ctx!");
+        LOGGER.warning(
+            "Rule context contains exception: " + ctx.exception + "; pushing error ctx!");
       }
       this.errorRuleStack.push(ctx);
     }
@@ -1351,7 +1352,6 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
         LOGGER.warning("Rule context contains exception: " + ctx.exception);
       }
     }
-
 
     var errorNode = handleParserError(ctx);
     if (!errorNode.equals(Node.NONE)) {
