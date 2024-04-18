@@ -672,11 +672,11 @@ public class DSLInterpreter implements AstVisitor<Object> {
     var result = semanticAnalyzer.walk(programAST);
     ParsedFile pf = semanticAnalyzer.latestParsedFile;
 
-    initializeRuntime(environment, pf.filePath());
-    scanFileForScenarioBuilders(pf.filePath());
-
     // -------------------------------------------------- END ANALYSIS
     // ------------------------------------------------
+
+    initializeRuntime(environment, pf.filePath());
+    scanFileForScenarioBuilders(pf.filePath());
 
     Value questConfigValue = (Value) generateQuestConfig(programAST, pf);
     return questConfigValue.getInternalValue();
