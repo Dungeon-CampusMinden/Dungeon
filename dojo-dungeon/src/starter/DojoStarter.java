@@ -19,9 +19,7 @@ import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
 import dojo.rooms.builder.RoomBuilder;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 /** Starter for the dojo-dungeon game. */
@@ -32,8 +30,48 @@ public class DojoStarter {
     Room buildRoom(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel);
   }
 
-  private record LevelRooms(
-      DesignLabel designLabel, LevelRoom[] levelRooms, BuildRoomMethod[] buildRoomMethods) {}
+  private static class LevelRoomLevel {
+    private final DesignLabel designLabel;
+    private final BuildRoomMethod[] buildRoomMethods;
+    private final LevelRoom[] levelRooms;
+
+    private LevelRoomLevel(
+        LevelGraph graph, DesignLabel designLabel, BuildRoomMethod[] buildRoomMethods) {
+      this.designLabel = designLabel;
+      this.buildRoomMethods = buildRoomMethods;
+      levelRooms =
+          Arrays.stream(buildRoomMethods)
+              .map(temp -> new LevelRoom(graph))
+              .toArray(LevelRoom[]::new);
+    }
+
+    /**
+     * Get the level rooms.
+     *
+     * @return the level rooms
+     */
+    public LevelRoom[] getLevelRooms() {
+      return levelRooms;
+    }
+
+    /**
+     * Get the build room methods.
+     *
+     * @return the build room methods
+     */
+    public BuildRoomMethod[] getBuildRoomMethods() {
+      return buildRoomMethods;
+    }
+
+    /**
+     * Get the design label.
+     *
+     * @return the design label
+     */
+    public DesignLabel getDesignLabel() {
+      return designLabel;
+    }
+  }
 
   /**
    * Start a new dojo-dungeon game.
@@ -54,12 +92,12 @@ public class DojoStarter {
 
   private static void createLevel() throws IOException {
     // create a customised level comprising rooms
-    LevelRooms[] dojoLevels = getLevelRooms();
+    LevelRoomLevel[] allLevels = getLevelRoomLevels();
 
     // connect the rooms, this is needed to build the rooms in next steps
     LevelRoom previousLevelRoom = null;
-    for (LevelRooms levelRooms : dojoLevels) {
-      for (LevelRoom levelRoom : levelRooms.levelRooms()) {
+    for (LevelRoomLevel level : allLevels) {
+      for (LevelRoom levelRoom : level.getLevelRooms()) {
         if (previousLevelRoom != null) {
           connectBidirectional(previousLevelRoom, levelRoom);
         }
@@ -71,12 +109,12 @@ public class DojoStarter {
     List<Room> rooms = new ArrayList<>();
     RoomGenerator gen = new RoomGenerator();
     Room nextRoom = null;
-    for (int i = dojoLevels.length - 1; i >= 0; i--) {
-      LevelRooms levelRooms = dojoLevels[i];
-      for (int j = levelRooms.levelRooms().length - 1; j >= 0; j--) {
-        LevelRoom levelRoom = levelRooms.levelRooms()[j];
-        BuildRoomMethod buildRoomMethod = levelRooms.buildRoomMethods()[j];
-        nextRoom = buildRoomMethod.buildRoom(levelRoom, gen, nextRoom, levelRooms.designLabel());
+    for (int i = allLevels.length - 1; i >= 0; i--) {
+      LevelRoomLevel level = allLevels[i];
+      for (int j = level.getLevelRooms().length - 1; j >= 0; j--) {
+        LevelRoom levelRoom = level.getLevelRooms()[j];
+        BuildRoomMethod buildRoomMethod = level.getBuildRoomMethods()[j];
+        nextRoom = buildRoomMethod.buildRoom(levelRoom, gen, nextRoom, level.getDesignLabel());
         rooms.add(nextRoom);
       }
     }
@@ -112,40 +150,39 @@ public class DojoStarter {
         });
 
     // set level 1, room 1 as start level
-    Game.currentLevel(dojoLevels[0].levelRooms()[0].level());
+    Game.currentLevel(allLevels[0].getLevelRooms()[0].level());
   }
 
-  private static LevelRooms[] getLevelRooms() {
-    LevelGraph graph = new LevelGraph();
-
-    return new LevelRooms[] {
-      new LevelRooms(
+  private static LevelRoomLevel[] getLevelRoomLevels() {
+    final LevelGraph graph = new LevelGraph();
+    return new LevelRoomLevel[] {
+      new LevelRoomLevel(
+          graph,
           DesignLabel.FOREST,
-          new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
           new BuildRoomMethod[] {
             DojoStarter::buildRoom_Monster_1,
             DojoStarter::buildRoom_Fehler_Syntax,
             DojoStarter::buildRoom_Fragen_Lambda
           }),
-      new LevelRooms(
+      new LevelRoomLevel(
+          graph,
           DesignLabel.FIRE,
-          new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
           new BuildRoomMethod[] {
             DojoStarter::buildRoom_Monster_3,
             DojoStarter::buildRoom_Fragen_Pattern,
             DojoStarter::buildRoom_Monster_Implement_2
           }),
-      new LevelRooms(
+      new LevelRoomLevel(
+          graph,
           DesignLabel.TEMPLE,
-          new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
           new BuildRoomMethod[] {
             DojoStarter::buildRoom_Monster_2,
             DojoStarter::buildRoom_Monster_Implement_1,
             DojoStarter::buildRoom_Fehler_Refactoring
           }),
-      new LevelRooms(
+      new LevelRoomLevel(
+          graph,
           DesignLabel.DEFAULT,
-          new LevelRoom[] {new LevelRoom(graph), new LevelRoom(graph), new LevelRoom(graph)},
           new BuildRoomMethod[] {
             DojoStarter::buildRoom_Fragen_Schriftrollen,
             DojoStarter::buildRoom_Fehler_Quader,
