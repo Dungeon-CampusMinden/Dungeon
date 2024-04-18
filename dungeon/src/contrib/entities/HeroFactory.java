@@ -148,6 +148,10 @@ public final class HeroFactory {
     pc.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(),
         (e) -> {
+          if (pc.openDialogs()) {
+            return; // do not open inventory if dialogs are open
+          }
+
           UIComponent uiComponent = e.fetch(UIComponent.class).orElse(null);
           if (uiComponent != null) {
             if (uiComponent.dialog() instanceof GUICombination) {

@@ -7,6 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.components.UIComponent;
 import core.Entity;
 import core.Game;
+import core.components.PlayerComponent;
+import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
@@ -44,13 +46,34 @@ public final class UIUtils {
   private static final int MAX_ROW_LENGTH = 40;
 
   /**
+   * Line break character to use in the {@link UIUtils#formatString} method.
+   *
+   * <p>No need for {@code System.lineSeparator()} as libGDX wants {@code '\n'}
+   */
+  private static final char LS = '\n';
+
+  /**
    * Show the given dialog on the screen.
    *
    * @param provider Returns the dialog.
    * @param entity Entity that stores the {@link UIComponent} with the UI elements.
    */
   public static void show(final Supplier<Dialog> provider, final Entity entity) {
-    entity.add(new UIComponent(provider.get(), true));
+    // displays this dialog, caches the dialog callback, and increments and decrements the dialog
+    // counter so that the inventory is not opened while the dialog is displayed
+    PlayerComponent heroPC = Game.hero().orElseThrow().fetch(PlayerComponent.class).orElseThrow();
+    heroPC.incrementOpenDialogs();
+
+    UIComponent uiComponent = new UIComponent(provider.get(), true);
+    IVoidFunction oldOnClose = uiComponent.onClose();
+    uiComponent.onClose(
+        () -> {
+          heroPC.decrementOpenDialogs();
+
+          // execute the original on-close callback
+          oldOnClose.execute();
+        });
+    entity.add(uiComponent);
   }
 
   /**
@@ -64,31 +87,90 @@ public final class UIUtils {
   }
 
   /**
-   * Creates line breaks after a word once a certain character count is reached.
+   * Wrap texts to a maximum line length.
    *
-   * @param string String which should be reformatted
-   * @return WTF? .
+   * <p>This function can be used to soft-wrap texts to a maximum of {@link UIUtils#MAX_ROW_LENGTH}
+   * characters per line. The text is sanitised before wrapping by replacing multiple consecutive
+   * whitespace characters (including line breaks) with single spaces. The text is then wrapped
+   * according to the following algorithm: The last space before the maximum line length of {@link
+   * UIUtils#MAX_ROW_LENGTH} characters is replaced by a line break. Any words exceeding the maximum
+   * line length are cut off and wrapped at the position of the maximum line length.
+   *
+   * @param text text to be soft-wrapped at {@link UIUtils#MAX_ROW_LENGTH} characters per line
+   * @return the reformatted text where all lines have been soft-wrapped to at maximum {@link
+   *     UIUtils#MAX_ROW_LENGTH} characters per line
    */
-  public static String formatString(final String string) {
-    StringBuilder formattedMsg = new StringBuilder();
-    String[] lines = string.split(System.lineSeparator());
+  public static String formatString(final String text) {
+    return formatString(text, MAX_ROW_LENGTH);
+  }
 
-    for (String line : lines) {
-      String[] words = line.split(" ");
-      int sumLength = 0;
-
-      for (String word : words) {
-        sumLength += word.length();
-        formattedMsg.append(word);
-        formattedMsg.append(" ");
-
-        if (sumLength > MAX_ROW_LENGTH) {
-          formattedMsg.append(System.lineSeparator());
-          sumLength = 0;
-        }
-      }
-      formattedMsg.append(System.lineSeparator());
+  /**
+   * Wrap texts to a maximum line length of {@code maxLen} characters.
+   *
+   * <p>This function can be used to soft-wrap texts to a maximum of {@code maxLen} characters per
+   * line. The text is sanitised before wrapping by replacing multiple consecutive whitespace
+   * characters (including line breaks) with single spaces. The text is then wrapped according to
+   * the following algorithm: The last space before the maximum line length of {@code maxLen}
+   * characters is replaced by a line break. Any words exceeding the maximum line length are cut off
+   * and wrapped at the position of the maximum line length.
+   *
+   * @param text text to be soft-wrapped at {@code maxLen} characters per line
+   * @param maxLen maximum number of characters per line
+   * @return the reformatted text where all lines have been soft-wrapped to at maximum {@code
+   *     maxLen} characters per line
+   */
+  public static String formatString(final String text, int maxLen) {
+    if (text == null) {
+      return null;
     }
-    return formattedMsg.toString().trim();
+
+    final StringBuilder sb = new StringBuilder();
+    final String[] words = text.trim().replaceAll("\\s+", " ").split(" ");
+
+    int wordIndex = 0;
+    int lineIndex = 0;
+
+    while (wordIndex < words.length) {
+      final String word = words[wordIndex++];
+      final int before = sb.length();
+
+      if (lineIndex + word.length() <= maxLen) {
+        // word will fit
+        sb.append(word);
+      } else if (word.length() <= maxLen) {
+        // do not split word
+        --wordIndex;
+        int len = maxLen - lineIndex;
+        lineIndex += len;
+      } else {
+        // split word
+        int splitIndex = maxLen - lineIndex;
+        String newWord1 = word.substring(0, splitIndex);
+        String newWord2 = word.substring(splitIndex);
+        sb.append(newWord1);
+        --wordIndex;
+        words[wordIndex] = newWord2;
+      }
+
+      if (wordIndex >= words.length) {
+        break;
+      }
+
+      lineIndex += sb.length() - before;
+      if (lineIndex < maxLen) {
+        sb.append(' ');
+        ++lineIndex;
+      }
+
+      if (lineIndex >= maxLen) {
+        while (!sb.isEmpty() && sb.charAt(sb.length() - 1) == ' ') {
+          sb.deleteCharAt(sb.length() - 1);
+        }
+        sb.append(LS);
+        lineIndex = 0;
+      }
+    }
+
+    return sb.toString();
   }
 }
