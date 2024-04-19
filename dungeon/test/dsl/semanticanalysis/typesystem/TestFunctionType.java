@@ -5,7 +5,9 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import org.junit.Assert;
 import org.junit.Test;
 
+/** WTF? . */
 public class TestFunctionType {
+  /** WTF? . */
   @Test
   public void equality() {
     FunctionType type1 = new FunctionType(BuiltInType.noType);
@@ -14,6 +16,7 @@ public class TestFunctionType {
     Assert.assertEquals(type1, type2);
   }
 
+  /** WTF? . */
   @Test
   public void inequalityRetType() {
     FunctionType type1 = new FunctionType(BuiltInType.intType);
@@ -22,6 +25,7 @@ public class TestFunctionType {
     Assert.assertNotEquals(type1, type2);
   }
 
+  /** WTF? . */
   @Test
   public void equalityParam() {
     FunctionType type1 = new FunctionType(BuiltInType.intType, BuiltInType.intType);
@@ -30,6 +34,7 @@ public class TestFunctionType {
     Assert.assertEquals(type1, type2);
   }
 
+  /** WTF? . */
   @Test
   public void inequalityDifferentParamCounts() {
     FunctionType type1 = new FunctionType(BuiltInType.noType, BuiltInType.intType);
@@ -39,6 +44,7 @@ public class TestFunctionType {
     Assert.assertNotEquals(type1, type2);
   }
 
+  /** WTF? . */
   @Test
   public void inequalityDifferentParams() {
     FunctionType type1 =
