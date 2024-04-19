@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import core.level.Tile;
 
 /**
- * Represents a connection between two tile
+ * Represents a connection between two tile.
  *
  * @author Marti Stuwe
  */
@@ -16,7 +16,7 @@ public class TileConnection implements Connection<Tile> {
   private final float cost;
 
   /**
-   * Create a directed connection between two Tiles
+   * Create a directed connection between two Tiles.
    *
    * @param from Start-Tile
    * @param to End-Tile

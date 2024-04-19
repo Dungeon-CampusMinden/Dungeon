@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/** WTF? . */
 public class EncapsulatedObject extends Value implements IMemorySpace {
   private IMemorySpace parent;
   private AggregateType type;
@@ -27,11 +28,12 @@ public class EncapsulatedObject extends Value implements IMemorySpace {
   private HashMap<String, Value> objectCache;
 
   /**
-   * Constructor
+   * Constructor. Creates a new EncapsulatedObject with the given {@link AggregateType}.
    *
    * @param innerObject the object to encapsulate
    * @param type {@link AggregateType} of the Value represented by the new EncapsulatedObject (used
    *     for resolving member access)
+   * @param environment the {@link IEnvironment} to use for resolving member access
    */
   public EncapsulatedObject(Object innerObject, AggregateType type, IEnvironment environment) {
     super(type, innerObject);

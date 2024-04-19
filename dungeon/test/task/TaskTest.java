@@ -13,15 +13,18 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import task.game.components.TaskComponent;
 
+/** WTF? . */
 public class TaskTest {
 
   private Task task;
 
+  /** WTF? . */
   @Before
   public void setup() {
     task = new DummyTask();
   }
 
+  /** WTF? . */
   @Test
   public void register_and_notify_place() {
     Place onActive = new Place();
@@ -46,6 +49,7 @@ public class TaskTest {
     assertEquals(0, onPerfect.tokenCount());
   }
 
+  /** WTF? . */
   @Test
   public void state_perfect() {
     assertEquals(Task.TaskState.INACTIVE, task.state());
@@ -55,6 +59,7 @@ public class TaskTest {
     assertEquals(Task.TaskState.FINISHED_CORRECT, task.state());
   }
 
+  /** WTF? . */
   @Test
   public void state_bad() {
     assertEquals(Task.TaskState.INACTIVE, task.state());
@@ -64,6 +69,7 @@ public class TaskTest {
     assertEquals(Task.TaskState.FINISHED_WRONG, task.state());
   }
 
+  /** WTF? . */
   @Test
   public void taskText() {
     String newTest = "Test 1";
@@ -71,6 +77,7 @@ public class TaskTest {
     assertEquals(newTest, task.taskText());
   }
 
+  /** WTF? . */
   @Test
   public void managerEntity() {
     assertTrue(task.managerEntity().isEmpty());
@@ -80,6 +87,7 @@ public class TaskTest {
     assertEquals(e, task.managerEntity().get());
   }
 
+  /** WTF? . */
   @Test
   public void notify_managerEntity() {
     Entity e = new Entity();
@@ -90,6 +98,7 @@ public class TaskTest {
     assertEquals(1, c[0]);
   }
 
+  /** WTF? . */
   @Test
   public void addContent() {
     TaskContent a = Mockito.mock(TaskContent.class);
@@ -104,6 +113,7 @@ public class TaskTest {
     assertTrue(contents.contains(c));
   }
 
+  /** WTF? . */
   @Test
   public void scoringFunction() {
     BiFunction scoring = Mockito.mock(BiFunction.class);
@@ -112,6 +122,7 @@ public class TaskTest {
     assertEquals(scoring, task.scoringFunction());
   }
 
+  /** WTF? . */
   @Test
   public void id() {
     Task t1 = new DummyTask();

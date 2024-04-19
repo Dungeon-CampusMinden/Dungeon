@@ -3,6 +3,7 @@ package dsl.parser.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+/** WTF? . */
 public class DotEdgeStmtNode extends Node {
   private final int lhsIdIdx = 0;
 
@@ -10,7 +11,7 @@ public class DotEdgeStmtNode extends Node {
   private int attrListIdx = -1;
 
   /**
-   * Constructor
+   * Constructor. WTF? .
    *
    * @param idGroups A list of all {@link IdNode}s of the statement in order
    * @param attrList The {@link Node} corresponding to the attribute list of the statement (or
@@ -24,7 +25,7 @@ public class DotEdgeStmtNode extends Node {
   }
 
   /**
-   * Returns a list of the stored DotIdList-Nodes, in order of definition
+   * Returns a list of the stored DotIdList-Nodes, in order of definition.
    *
    * @return a list of the stored DotIdList-Nodes
    */
@@ -35,6 +36,8 @@ public class DotEdgeStmtNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return The {@link Node} corresponding to the attribute list of the statement (or 'Node.NONE',
    *     if there is no attribute list)
    */
@@ -42,6 +45,11 @@ public class DotEdgeStmtNode extends Node {
     return this.getChild(attrListIdx);
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public List<Node> getAttributes() {
     return this.getChild(attrListIdx).getChildren();
   }

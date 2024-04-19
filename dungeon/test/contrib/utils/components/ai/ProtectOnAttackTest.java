@@ -17,6 +17,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/** WTF? . */
 public class ProtectOnAttackTest {
 
   private AISystem system;
@@ -28,6 +29,7 @@ public class ProtectOnAttackTest {
   private HealthComponent entityHC;
   private int updateCounter;
 
+  /** WTF? . */
   @Before
   public void setup() {
     // Get a protector
@@ -56,13 +58,14 @@ public class ProtectOnAttackTest {
     system = new AISystem();
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllSystems();
     Game.removeAllEntities();
   }
 
-  /** Add one entity to transition and inflict damage */
+  /** Add one entity to transition and inflict damage. */
   @Test
   public void oneEntityAdded() {
     // given
@@ -82,7 +85,7 @@ public class ProtectOnAttackTest {
     assertEquals(1, updateCounter);
   }
 
-  /** Add one entity to transition and inflict no damage */
+  /** Add one entity to transition and inflict no damage. */
   @Test
   public void oneEntityAddedWithoutDamage() {
     // given
@@ -100,7 +103,7 @@ public class ProtectOnAttackTest {
     assertEquals(0, updateCounter);
   }
 
-  /** Add a list of entities to the transition and inflict damage to all */
+  /** Add a list of entities to the transition and inflict damage to all. */
   @Test
   public void dmgToAllEntities() {
     // given
@@ -125,7 +128,7 @@ public class ProtectOnAttackTest {
     assertEquals(1, updateCounter);
   }
 
-  /** Add an empty list of entities to the transition */
+  /** Add an empty list of entities to the transition. */
   @Test
   public void emptyListOfEntities() {
     List<Entity> emptyList = new ArrayList<>();

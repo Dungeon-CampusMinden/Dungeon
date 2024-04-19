@@ -1,10 +1,11 @@
 package dsl.parser.ast;
 
+/** WTF? . */
 public class DecNumNode extends Node {
   private final float value;
 
   /**
-   * Constructor
+   * Constructor. WTF? .
    *
    * @param value The integer value of the number
    * @param sourceFileReference Reference to the location of the identifier in the source file
@@ -15,6 +16,8 @@ public class DecNumNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return The value of the number
    */
   public float getValue() {

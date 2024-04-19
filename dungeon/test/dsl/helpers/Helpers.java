@@ -20,6 +20,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
+/** WTF? . */
 public class Helpers {
 
   private static DungeonDSLParser.ProgramContext getParseTreeFromCharStream(CharStream stream) {
@@ -32,7 +33,7 @@ public class Helpers {
   }
 
   /**
-   * Uses ANTLR-classes to create a parse tree from passed program string
+   * Uses ANTLR-classes to create a parse tree from passed program string.
    *
    * @param program the program to parse
    * @return the {@link DungeonDSLParser.ProgramContext} for the parsed program
@@ -43,7 +44,7 @@ public class Helpers {
   }
 
   /**
-   * Converts a {@link DungeonDSLParser.ProgramContext} to a {@link Node}
+   * Converts a {@link DungeonDSLParser.ProgramContext} to a {@link Node}.
    *
    * @param parseTree the parser tree to convert
    * @return the AST for the parse tree
@@ -54,7 +55,7 @@ public class Helpers {
   }
 
   /**
-   * Generates the AST for a passed program string
+   * Generates the AST for a passed program string.
    *
    * @param program the program to generate an AST for
    * @return the AST
@@ -65,7 +66,7 @@ public class Helpers {
   }
 
   /**
-   * Load a resource file and generate an AST for it's contents
+   * Load a resource file and generate an AST for it's contents.
    *
    * @param fileResourceURL the URL of the resourceFile
    * @return the AST for the contents of the file
@@ -83,7 +84,7 @@ public class Helpers {
 
   /**
    * Performs semantic analysis for given AST and returns the {@link SemanticAnalyzer.Result} output
-   * from the SymbolTableParser
+   * from the SymbolTableParser.
    *
    * @param ast the AST to create the symbol table for
    * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
@@ -96,7 +97,7 @@ public class Helpers {
 
   /**
    * Performs semantic analysis with custom environment for given AST and returns the {@link
-   * SemanticAnalyzer.Result} output from the SymbolTableParser
+   * SemanticAnalyzer.Result} output from the SymbolTableParser.
    *
    * @param ast the AST to create the symbol table for
    * @param environment the environment to use during semantic analysis
@@ -109,6 +110,13 @@ public class Helpers {
     return symbolTableParser.walk(ast);
   }
 
+  /**
+   * WTF? .
+   *
+   * @param symbol foo
+   * @param ms foo
+   * @param interpreter foo
+   */
   public static void bindDefaultValueInMemorySpace(
       Symbol symbol, MemorySpace ms, DSLInterpreter interpreter) {
     var defaultValue = interpreter.createDefaultValue(symbol.getDataType());

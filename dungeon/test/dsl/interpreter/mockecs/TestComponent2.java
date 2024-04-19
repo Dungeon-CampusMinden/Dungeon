@@ -7,12 +7,15 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
+/** WTF? . */
 @DSLType
 public class TestComponent2 extends Component {
 
+  /** WTF? . */
   @DSLTypeProperty(name = "this_is_a_float", extendedType = TestComponent2.class)
   public static class TestComponentPseudoProperty
       implements IDSLExtensionProperty<TestComponent2, Float> {
+    /** WTF? . */
     public static TestComponentPseudoProperty instance = new TestComponentPseudoProperty();
 
     private TestComponentPseudoProperty() {}
@@ -28,9 +31,11 @@ public class TestComponent2 extends Component {
     }
   }
 
+  /** WTF? . */
   @DSLTypeProperty(name = "this_is_complex", extendedType = TestComponent2.class)
   public static class TestComponentPseudoPropertyComplexType
       implements IDSLExtensionProperty<TestComponent2, ComplexType> {
+    /** WTF? . */
     public static TestComponentPseudoPropertyComplexType instance =
         new TestComponentPseudoPropertyComplexType();
 
@@ -47,8 +52,10 @@ public class TestComponent2 extends Component {
     }
   }
 
+  /** WTF? . */
   @DSLExtensionMethod(name = "my_method", extendedType = TestComponent2.class)
   public static class MyMethod implements IDSLExtensionMethod<TestComponent2, TestComponent2> {
+    /** WTF? . */
     public static MyMethod instance = new MyMethod();
 
     @Override
@@ -71,6 +78,11 @@ public class TestComponent2 extends Component {
 
   private Entity entity;
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public Entity getEntity() {
     return entity;
   }
@@ -82,6 +94,11 @@ public class TestComponent2 extends Component {
   private float hiddenFloat;
   private ComplexType hiddenComplexMember;
 
+  /**
+   * WTF? .
+   *
+   * @param entity foo
+   */
   public TestComponent2(@DSLContextMember(name = "entity") Entity entity) {
     super(entity);
     this.entity = entity;
@@ -89,18 +106,38 @@ public class TestComponent2 extends Component {
     this.hiddenComplexMember = new ComplexType();
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public String getMember1() {
     return member1;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public int getMember2() {
     return member2;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param value foo
+   */
   public void setMember2(int value) {
     member2 = value;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public String getMember3() {
     return member3;
   }

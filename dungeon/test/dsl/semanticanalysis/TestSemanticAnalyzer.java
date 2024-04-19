@@ -23,9 +23,10 @@ import java.io.PrintStream;
 import org.junit.Assert;
 import org.junit.Test;
 
+/** WTF? . */
 public class TestSemanticAnalyzer {
 
-  /** Test, if the name of symbols is set correctly */
+  /** Test, if the name of symbols is set correctly. */
   @Test
   public void testSymbolName() {
     String program =
@@ -58,7 +59,7 @@ public class TestSemanticAnalyzer {
 
   /**
    * Test, if the reference to a symbol is correctly resolved and that the symbol is linked to the
-   * identifier
+   * identifier.
    */
   @Test
   public void testSymbolReferenceComponent() {
@@ -108,6 +109,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(symbolForDotDefNode, symbolForStmtNode);
   }
 
+  /** WTF? . */
   @Test
   public void testItemTypeDeclaration() {
     String program =
@@ -142,7 +144,7 @@ public class TestSemanticAnalyzer {
 
   /**
    * Test, if the reference to a symbol is correctly resolved and that the symbol is linked to the
-   * identifier
+   * identifier.
    */
   @Test
   public void testSymbolReference() {
@@ -179,7 +181,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(symbolForDotDefNode, symbolForStmtNode);
   }
 
-  /** Test, if native functions are correctly setup and linked to function call */
+  /** Test, if native functions are correctly setup and linked to function call. */
   @Test
   public void testSetupNativeFunctions() {
     String program =
@@ -198,7 +200,7 @@ public class TestSemanticAnalyzer {
     Assert.assertTrue(printFuncDefSymbol instanceof NativePrint);
   }
 
-  /** Test, if a native function call is correctly resolved */
+  /** Test, if a native function call is correctly resolved. */
   @Test
   public void testResolveNativeFunction() {
     String program =
@@ -230,7 +232,7 @@ public class TestSemanticAnalyzer {
 
   /**
    * Test, if symbol of property of aggregate datatype is correctly linked to the symbol inside of
-   * the datatype
+   * the datatype.
    */
   @Test
   public void testPropertyReference() {
@@ -271,7 +273,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(levelGraphPropertySymbol, symbolForPropertyIdNode);
   }
 
-  /** Test, if a native function call is correctly resolved */
+  /** Test, if a native function call is correctly resolved. */
   @Test
   public void funcDef() {
     String program =
@@ -296,6 +298,7 @@ public class TestSemanticAnalyzer {
     Assert.assertNotEquals(Symbol.NULL, funcSymbol.resolve("param3"));
   }
 
+  /** WTF? . */
   @Test
   public void resolveParameterInFunctionBody() {
     String program =
@@ -321,6 +324,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(parameterSymbolFromFunctionSymbol, symbolForParam1);
   }
 
+  /** WTF? . */
   @Test
   public void funcDefFuncType() {
     String program =
@@ -343,6 +347,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(funcSymbol1.getDataType(), funcSymbol2.getDataType());
   }
 
+  /** WTF? . */
   @Test
   public void funcTypeObjectEquality() {
     String program =
@@ -367,6 +372,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(funcType1.hashCode(), funcType2.hashCode());
   }
 
+  /** WTF? . */
   @Test
   public void funcTypeNativeFunction() {
     var env = new GameEnvironment();
@@ -379,6 +385,7 @@ public class TestSemanticAnalyzer {
     Assert.assertTrue(nativePrintSymbol.getDataType() instanceof FunctionType);
   }
 
+  /** WTF? . */
   @Test
   public void removeFuncTypeRedundancy() {
     String program = """
@@ -417,7 +424,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(dummyFunc1Sym.getDataType().hashCode(), testFunc1.getDataType().hashCode());
   }
 
-  /** Test, if a native function call is correctly resolved in nested stmt blocks */
+  /** Test, if a native function call is correctly resolved in nested stmt blocks. */
   @Test
   public void funcDefNestedBlocks() {
     String program =
@@ -451,7 +458,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(NativePrint.func, funcCallSymbol);
   }
 
-  /** Test, if a native function call is correctly resolved in nested stmt blocks */
+  /** Test, if a native function call is correctly resolved in nested stmt blocks. */
   @Test
   public void funcDefIfElse() {
     String program =
@@ -501,6 +508,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(NativePrint.func, funcCallSymbol);
   }
 
+  /** WTF? . */
   @Test
   public void memberAccessSimple() {
     String program =
@@ -559,6 +567,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(member1Symbol, symbolForMember1Identifier);
   }
 
+  /** WTF? . */
   @Test
   public void memberAccessFuncCall() {
     String program =
@@ -617,6 +626,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(member1Symbol, symbolForMember1Identifier);
   }
 
+  /** WTF? . */
   @Test
   public void memberAccessFuncCallChainedMethod() {
     String program =
@@ -686,6 +696,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(member1Symbol, symbolForMember1Identifier);
   }
 
+  /** WTF? . */
   @Test
   public void testVariableCreation() {
     String program =
@@ -729,6 +740,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(BuiltInType.stringType, testVariableSymbol.getDataType());
   }
 
+  /** WTF? . */
   @Test
   public void testVariableCreationIfStmt() {
     String program =
@@ -794,6 +806,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(funcSymbol, expectedToBeFunctionScope);
   }
 
+  /** WTF? . */
   @Test
   public void testEnumVariantBinding() {
     String program =
@@ -848,6 +861,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(enumVariantSymbolExpected, enumVariantIdSymbol);
   }
 
+  /** WTF? . */
   @Test
   public void testEnumVariantBindingIllegalAccess() {
     String program =
@@ -879,6 +893,7 @@ public class TestSemanticAnalyzer {
     }
   }
 
+  /** WTF? . */
   @Test
   public void testEnumVariantBindingIllegalAccessVariable() {
     String program =
@@ -915,6 +930,7 @@ public class TestSemanticAnalyzer {
     }
   }
 
+  /** WTF? . */
   @Test
   public void testTaskReferenceInGraph() {
     String program =
@@ -967,6 +983,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(t2TaskSymbol, t2Symbol);
   }
 
+  /** WTF? . */
   @Test
   public void testTaskReferenceInGraphForwardReference() {
     String program =
@@ -1020,6 +1037,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(t2TaskSymbol, t2Symbol);
   }
 
+  /** WTF? . */
   @Test
   public void testForLoopVariableBinding() {
     String program =
@@ -1065,6 +1083,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(loopVariableSymbol, parameterSymbol);
   }
 
+  /** WTF? . */
   @Test
   public void testCountingLoopVariableBinding() {
     String program =
@@ -1125,6 +1144,7 @@ public class TestSemanticAnalyzer {
     Assert.assertEquals(counterVariableSymbol, secondPrintParameterSymbol);
   }
 
+  /** WTF? . */
   @Test
   public void testWhileLoop() {
     String program =

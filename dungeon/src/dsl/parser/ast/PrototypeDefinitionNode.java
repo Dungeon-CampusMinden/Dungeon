@@ -3,11 +3,17 @@ package dsl.parser.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+/** WTF? . */
 public class PrototypeDefinitionNode extends Node {
+  /** WTF? . */
   public final int idIdx = 0;
+
+  /** WTF? . */
   public final int componentDefinitionListIdx = 1;
 
   /**
+   * WTF? .
+   *
    * @return literal String of the identifier of the game object definition node
    */
   public String getIdName() {
@@ -15,6 +21,8 @@ public class PrototypeDefinitionNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return the node representing the identifier of this game object definition node
    */
   public Node getIdNode() {
@@ -22,6 +30,8 @@ public class PrototypeDefinitionNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return the node representing the component definitions of this game object definition node
    */
   public Node getComponentDefinitionListNode() {
@@ -29,6 +39,8 @@ public class PrototypeDefinitionNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return a List of nodes representing individual component definitions of this game object
    *     definition node
    */
@@ -37,7 +49,7 @@ public class PrototypeDefinitionNode extends Node {
   }
 
   /**
-   * Constructor
+   * Constructor. WTF? .
    *
    * @param idNode node representing the identifier of the game object definition
    * @param componentDefinitionList node representing the component definition list of the game

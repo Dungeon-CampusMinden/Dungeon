@@ -9,16 +9,22 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
 import java.util.ArrayList;
 import java.util.List;
 
+/** WTF? . */
 // TODO: revise class-structure.. maybe the GameEnvironment should extend the
 //  'DefaultEnvironment`, which only bind the basic built in types and the
 //  'TestEnvironment' would be a parallel implementation, not a deriving implementation
 public class TestEnvironment extends GameEnvironment {
-
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   @Override
   public TypeBuilder getTypeBuilder() {
     return super.getTypeBuilder();
   }
 
+  /** WTF? . */
   public TestEnvironment() {
     super();
 

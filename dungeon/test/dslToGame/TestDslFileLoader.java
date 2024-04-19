@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.junit.Test;
 
+/** WTF? . */
 public class TestDslFileLoader {
 
   private static final String PATH_TO_ASSETS_AS_STRING = "./test_resources/dslFileLoader";
@@ -31,6 +32,7 @@ public class TestDslFileLoader {
 
   private static final Path PATH_TO_EMPTY_DNGFILE = Paths.get(".", "dslFileLoader", "empty.dng");
 
+  /** WTF? . */
   @Test
   public void processArguments_oneJar() throws IOException {
     String[] args = {PATH_TO_JAR_AS_STRING};
@@ -41,6 +43,7 @@ public class TestDslFileLoader {
     assertFalse(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_TXTFILE_IN_JAR.normalize())));
   }
 
+  /** WTF? . */
   @Test
   public void processArguments_oneDSLFile() throws IOException {
     String[] args = {PATH_TO_DNGFILE_AS_STRING};
@@ -50,6 +53,7 @@ public class TestDslFileLoader {
     assertTrue(p.endsWith(PATH_TO_DNGFILE.normalize()));
   }
 
+  /** WTF? . */
   @Test
   public void processArguments_oneJarOneDSL() throws IOException {
     String[] args = {PATH_TO_JAR_AS_STRING, PATH_TO_DNGFILE_AS_STRING};
@@ -61,6 +65,7 @@ public class TestDslFileLoader {
     assertFalse(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_TXTFILE_IN_JAR.normalize())));
   }
 
+  /** WTF? . */
   @Test
   public void processArguments_mixed() throws IOException {
     String[] args = {
@@ -75,6 +80,7 @@ public class TestDslFileLoader {
     assertFalse(paths.stream().anyMatch(p -> p.endsWith(PATH_OF_TXTFILE_IN_JAR.normalize())));
   }
 
+  /** WTF? . */
   @Test
   public void processArguments_nonDSLFile() throws IOException {
     String[] args = {PAHT_TO_TXTFILE_AS_STRING};
@@ -82,6 +88,7 @@ public class TestDslFileLoader {
     assertEquals(0, paths.size());
   }
 
+  /** WTF? . */
   @Test
   public void fileToString() {
     ClassLoader classLoader = getClass().getClassLoader();
@@ -103,6 +110,7 @@ public class TestDslFileLoader {
     assertEquals(expectedContent, read);
   }
 
+  /** WTF? . */
   @Test
   public void argFileToString() throws IOException {
     String[] args = {PATH_TO_DNGFILE_AS_STRING};
@@ -122,6 +130,7 @@ public class TestDslFileLoader {
     assertEquals(expectedContent, read);
   }
 
+  /** WTF? . */
   @Test
   public void emptyFileToString() {
     ClassLoader classLoader = getClass().getClassLoader();

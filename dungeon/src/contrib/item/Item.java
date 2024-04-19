@@ -130,6 +130,7 @@ public class Item implements CraftingIngredient, CraftingResult {
   /**
    * Get the class name of the specific item.
    *
+   * @param id WTF? .
    * @return The class name of the specific item.
    */
   public static Class<? extends Item> getItem(final String id) {

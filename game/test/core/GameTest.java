@@ -8,8 +8,9 @@ import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** Tests for the {@link Game} class. */
 public class GameTest {
-
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllEntities();
@@ -17,6 +18,7 @@ public class GameTest {
     Game.currentLevel(null);
   }
 
+  /** WTF? . */
   @Test
   public void allEntites() {
     Game.add(new Entity());
@@ -32,6 +34,7 @@ public class GameTest {
     assertEquals(8, Game.allEntities().count());
   }
 
+  /** WTF? . */
   @Test
   public void removeAllEntites() {
     Game.add(new Entity());
@@ -49,6 +52,7 @@ public class GameTest {
     assertEquals(0, Game.allEntities().count());
   }
 
+  /** WTF? . */
   @Test
   public void find_exisiting() {
     Entity e = new Entity();
@@ -61,11 +65,12 @@ public class GameTest {
     assertEquals(e, Game.find(dc).get());
   }
 
+  /** WTF? . */
   @Test
   public void find_nonExisting() {
     DummyComponent dc = new DummyComponent();
     assertTrue(Game.find(dc).isEmpty());
   }
 
-  private class DummyComponent implements Component {}
+  private static class DummyComponent implements Component {}
 }

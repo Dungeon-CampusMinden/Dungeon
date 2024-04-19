@@ -6,6 +6,7 @@ import dsl.runtime.callable.IInstanceCallable;
 import dsl.semanticanalysis.typesystem.typebuilding.type.MapType;
 import java.util.*;
 
+/** WTF? . */
 public class MapValue extends Value {
 
   // stores the internal values of the Value-instances in order to ensure,
@@ -13,7 +14,7 @@ public class MapValue extends Value {
   private HashMap<Object, Object> internalObjectMap = new HashMap<>();
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param dataType type of the set
    */
@@ -21,11 +22,18 @@ public class MapValue extends Value {
     super(dataType, new HashMap<Value, Value>());
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public MapType getDataType() {
     return (MapType) this.dataType;
   }
 
   /**
+   * WTF? .
+   *
    * @return the internal HashMap of this {@link SetValue}.
    */
   public HashMap<Value, Value> internalMap() {
@@ -33,9 +41,12 @@ public class MapValue extends Value {
   }
 
   /**
-   * Add a Value to the set. The Value will only be added to the set, if no other Value with the
+   * WTF? (KURZER erster Satz!) .
+   *
+   * <p>Add a Value to the set. The Value will only be added to the set, if no other Value with the
    * same internal value of the passed Value is already stored in this set.
    *
+   * @param key foo
    * @param entry the Value to store in the set
    * @return true, if the Value was added, false otherwise
    */
@@ -54,6 +65,12 @@ public class MapValue extends Value {
     return true;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param key foo
+   * @return foo
+   */
   public boolean removeKeyValue(Value key) {
     var internalKeyValue = key.getInternalValue();
 
@@ -66,6 +83,12 @@ public class MapValue extends Value {
     return true;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param key foo
+   * @return foo
+   */
   public Value getValue(Value key) {
     var value = internalMap().get(key);
     if (value == null) {
@@ -76,24 +99,28 @@ public class MapValue extends Value {
   }
 
   /**
+   * WTF? .
+   *
    * @return all stored values
    */
   public Map<Value, Value> getValues() {
     return new HashMap<>(this.internalMap());
   }
 
+  /** WTF? . */
   public void clearMap() {
     internalObjectMap.clear();
     internalMap().clear();
   }
 
-  // region native_methods
+  // region native_methods WTF?
   /**
    * Native method, which implements adding a Value to the internal {@link Map} of a {@link
    * MapValue}.
    */
   public static class AddMethod implements IInstanceCallable {
 
+    /** WTF? . */
     public static MapValue.AddMethod instance = new MapValue.AddMethod();
 
     private AddMethod() {}
@@ -110,8 +137,10 @@ public class MapValue extends Value {
     }
   }
 
+  /** WTF? . */
   public static class GetKeysMethod implements IInstanceCallable {
 
+    /** WTF? . */
     public static MapValue.GetKeysMethod instance = new MapValue.GetKeysMethod();
 
     private GetKeysMethod() {}
@@ -125,8 +154,10 @@ public class MapValue extends Value {
     }
   }
 
+  /** WTF? . */
   public static class GetElementsMethod implements IInstanceCallable {
 
+    /** WTF? . */
     public static MapValue.GetElementsMethod instance = new MapValue.GetElementsMethod();
 
     private GetElementsMethod() {}

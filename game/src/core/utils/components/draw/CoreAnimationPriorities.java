@@ -9,8 +9,11 @@ package core.utils.components.draw;
  * @see CoreAnimations
  */
 public enum CoreAnimationPriorities {
+  /** WTF? . */
   IDLE(1000),
+  /** WTF? . */
   RUN(2000),
+  /** WTF? . */
   DEFAULT(0);
 
   private final int priority;
