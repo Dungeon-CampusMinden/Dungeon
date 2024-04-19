@@ -35,7 +35,12 @@ import java.util.Set;
  * nächsten Raum weitergehen.
  */
 public class L4_R2_Fehler_Quader extends TaskRoom {
+  /**
+   * The file name of the mathematical cuboid class in this room that should be improved and
+   * automatically checked.
+   */
   public static final String FILENAME = "../dojo-dungeon/todo-assets/Fehler_Quader/Cuboid.java";
+
   private int impHealth = 10;
 
   /**
