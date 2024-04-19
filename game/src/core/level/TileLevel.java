@@ -46,7 +46,7 @@ public class TileLevel implements ILevel {
   private boolean wasLoaded = false;
 
   /**
-   * Create a new level
+   * Create a new level.
    *
    * @param layout The layout of the level.
    */
@@ -58,7 +58,7 @@ public class TileLevel implements ILevel {
   }
 
   /**
-   * Create a new Level
+   * Create a new Level.
    *
    * @param layout The layout of the Level
    * @param designLabel The design the level should have
@@ -68,7 +68,7 @@ public class TileLevel implements ILevel {
   }
 
   /**
-   * Converts the given LevelElement[][] in a corresponding Tile[][]
+   * Converts the given LevelElement[][] in a corresponding Tile[][].
    *
    * @param layout The LevelElement[][]
    * @param designLabel The selected Design for the Tiles

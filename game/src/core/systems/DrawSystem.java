@@ -43,7 +43,7 @@ public final class DrawSystem extends System {
    */
   private static final SpriteBatch BATCH = new SpriteBatch();
 
-  /** Draws objects */
+  /** Draws objects. */
   private static final Painter PAINTER = new Painter(BATCH);
 
   private final Map<IPath, PainterConfig> configs;
@@ -172,7 +172,7 @@ public final class DrawSystem extends System {
     }
   }
 
-  /** DrawSystem can't be paused */
+  /** DrawSystem can't be paused. */
   @Override
   public void stop() {
     run = true;

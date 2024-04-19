@@ -25,7 +25,8 @@ import java.util.Comparator;
 /** A utility class for building the hero entity in the game world. */
 public class HeroFactory {
 
-  private static final int DEFAULT_INVENTORY_SIZE = 6;
+  /** WTF? . */
+  public static final int DEFAULT_INVENTORY_SIZE = 6;
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
   private static final Vector2 SPEED_HERO = new Vector2(7.5f, 7.5f);
   private static final int FIREBALL_COOL_DOWN = 500;
@@ -37,7 +38,7 @@ public class HeroFactory {
    * <p>The Entity is not added to the game yet.
    *
    * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
-   * PositionComponent}, {@link VelocityComponent} {@link core.components.DrawComponent}, {@link
+   * PositionComponent}, {@link VelocityComponent}, {@link core.components.DrawComponent}, {@link
    * contrib.components.CollideComponent} and {@link HealthComponent}.
    *
    * @return A new Entity.

@@ -46,6 +46,7 @@ public final class VelocityComponent implements Component {
    *
    * @param xVelocity Speed with which the entity can move on the x-axis.
    * @param yVelocity Speed with which the entity can move on the y-axis.
+   * @param onWallHit Callback that will be executed if the entity runs against a wall.
    */
   public VelocityComponent(
       float xVelocity, float yVelocity, Consumer<Entity> onWallHit, boolean canEnterEmptyTiles) {

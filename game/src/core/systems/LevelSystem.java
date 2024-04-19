@@ -47,13 +47,12 @@ import java.util.logging.Logger;
  * onLevelLoad callback.
  */
 public final class LevelSystem extends System {
-
-  /** offset the coordinate by half a tile, it makes every Entity not walk on the sidewalls */
+  /** offset the coordinate by half a tile, it makes every Entity not walk on the sidewalls. */
   private static final float X_OFFSET = 0.5f;
 
   /**
    * offset the coordinate by a quarter tile,it looks a bit more like every Entity is not walking
-   * over walls
+   * over walls.
    */
   private static final float Y_OFFSET = 0.25f;
 

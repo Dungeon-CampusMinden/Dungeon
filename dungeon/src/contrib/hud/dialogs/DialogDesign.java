@@ -16,7 +16,7 @@ public class DialogDesign extends VerticalGroup {
   }
 
   /**
-   * Simple Helper with default ScrollPane Configuration
+   * Simple Helper with default ScrollPane Configuration.
    *
    * @param skin how the ScrollPane should look like
    * @param container a container which should be scrollable
@@ -30,7 +30,7 @@ public class DialogDesign extends VerticalGroup {
   }
 
   /**
-   * Simple default Textarea with default Text
+   * Simple default Textarea with default Text.
    *
    * @param skin how the ScrollPane should look like
    * @return the TextArea which then can be added to any UI Element

@@ -51,6 +51,10 @@ public abstract class Task {
   private static final List<Task> SOLVED_TASK_IN_ORDER = new ArrayList<>();
   private static final String DEFAULT_TASK_TEXT = "No task description provided";
   private static final String DEFAULT_TASK_NAME = "No task name provided";
+
+  /** The default explanation for a task. */
+  public static final String DEFAULT_EXPLANATION = "No explanation provided";
+
   private static final TaskState DEFAULT_TASK_STATE = TaskState.INACTIVE;
   private static final float DEFAULT_POINTS = 1f;
   private static final float DEFAULT_POINTS_TO_SOLVE = DEFAULT_POINTS;
@@ -311,6 +315,7 @@ public abstract class Task {
    * Set a new Entity that implements the {@link TaskComponent} to manage this task.
    *
    * @param taskmanager new manager.
+   * @return true if the manager was set successfully, false if not.
    */
   public boolean managerEntity(final Entity taskmanager) {
     if (taskmanager.isPresent(TaskComponent.class)) {
@@ -319,6 +324,11 @@ public abstract class Task {
     } else return false;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public Stream<TaskContent> contentStream() {
     return content.stream();
   }
@@ -348,8 +358,8 @@ public abstract class Task {
   /**
    * Set the Set of Entity-Sets.
    *
-   * <p>For each Set<Entity> in the outer set, the level generator will generate a room for that
-   * where the entities of the inner collection are placed.
+   * <p>For each Entity in the outer set, the level generator will generate a room for that where
+   * the entities of the inner collection are placed.
    *
    * @param entitySets Set that contains the Set of Entities that are related to the task.
    */
@@ -367,7 +377,7 @@ public abstract class Task {
   }
 
   /**
-   * Callback function to score the task, given a Set of TaskContent
+   * Callback function to score the task, given a Set of TaskContent.
    *
    * @return the callback function
    */
@@ -564,6 +574,11 @@ public abstract class Task {
     return achievedPoints;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public int id() {
     return id;
   }
@@ -575,24 +590,17 @@ public abstract class Task {
    */
   public abstract String correctAnswersAsString();
 
-  /**
-   * Status that a task can assume.
-   *
-   * <p>ACTIVE - The task can be actively worked on.
-   *
-   * <p>INACTIVE - The task cannot be worked on.
-   *
-   * <p>FINISHED_PERFECT - The task has been perfectly completed and cannot be worked on anymore.
-   *
-   * <p>FINISHED_OKAY - The task has been okay completed and cannot be worked on anymore.
-   *
-   * <p>FINISHED_BAD - The task has been completed poorly and cannot be worked on anymore.
-   */
+  /** Status that a task can assume. */
   public enum TaskState {
+    /** ACTIVE - The task can be actively worked on. */
     ACTIVE,
+    /** INACTIVE - The task cannot be worked on. */
     INACTIVE,
+    /** FINISHED_PERFECT - The task has been perfectly completed and cannot be worked on anymore. */
     PROCESSING_ACTIVE,
+    /** FINISHED_OKAY - The task has been okay completed and cannot be worked on anymore. */
     FINISHED_CORRECT,
+    /** FINISHED_BAD - The task has been completed poorly and cannot be worked on anymore. */
     FINISHED_WRONG
   }
 }

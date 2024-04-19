@@ -5,14 +5,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/** WTF? . */
 public class MemorySpace implements IMemorySpace {
+  /** WTF? . */
   public static MemorySpace NONE = new MemorySpace();
+
   private final HashMap<String, Value> values = new HashMap<>();
   // TODO: is this really needed?!
   private final IMemorySpace parent;
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param parent parent MemorySpace
    */
@@ -20,13 +23,13 @@ public class MemorySpace implements IMemorySpace {
     this.parent = parent;
   }
 
-  /** Constructor, parent will be set to NONE */
+  /** Constructor, parent will be set to NONE. */
   public MemorySpace() {
     this.parent = MemorySpace.NONE;
   }
 
   /**
-   * Returns all stored Values
+   * Returns all stored Values.
    *
    * @return A Set containing all entries from the value Map
    */
@@ -49,7 +52,7 @@ public class MemorySpace implements IMemorySpace {
 
   /**
    * Lookup passed name and return the stored {@link Value}, if one exists. If no Value was found in
-   * own stored values, resolve it in the parent {@link MemorySpace}
+   * own stored values, resolve it in the parent {@link MemorySpace}.
    *
    * @param name The name to resolve
    * @return The resolved {@link Value} or Value.NONE, if the name could not be resolved

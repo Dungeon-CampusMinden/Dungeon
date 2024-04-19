@@ -136,7 +136,9 @@ public final class CollisionSystem extends System {
   /**
    * Check if two hitBoxes intersect.
    *
+   * @param h1 WTF? .
    * @param hitBox1 First hitBox.
+   * @param h2 WTF? .
    * @param hitBox2 Second hitBox.
    * @return true if intersection exists, otherwise false.
    */
@@ -154,7 +156,9 @@ public final class CollisionSystem extends System {
   /**
    * Calculates the direction based on a square, can be broken once the hitBoxes are rectangular.
    *
+   * @param h1 WTF? .
    * @param hitBox1 The first hitBox.
+   * @param h2 WTF? .
    * @param hitBox2 The second hitBox.
    * @return Tile direction for where hitBox2 is compared to hitBox1.
    */

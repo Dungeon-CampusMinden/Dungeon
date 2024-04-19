@@ -36,9 +36,14 @@ public class EntityExtension {
   // private ctor, because this class should not be instantiated
   private EntityExtension() {}
 
+  /**
+   * {@link IDSLExtensionProperty} extension to access the {@link VelocityComponent} of an {@link
+   * Entity} instance.
+   */
   @DSLTypeProperty(name = "velocity_component", extendedType = Entity.class)
   public static class VelocityComponentProperty
       implements IDSLExtensionProperty<Entity, VelocityComponent> {
+    /** WTF? . */
     public static EntityExtension.VelocityComponentProperty instance =
         new EntityExtension.VelocityComponentProperty();
 
@@ -57,9 +62,11 @@ public class EntityExtension {
     }
   }
 
+  /** WTF? . */
   @DSLTypeProperty(name = "inventory_component", extendedType = Entity.class)
   public static class InventoryComponentProperty
       implements IDSLExtensionProperty<Entity, InventoryComponent> {
+    /** WTF? . */
     public static EntityExtension.InventoryComponentProperty instance =
         new EntityExtension.InventoryComponentProperty();
 
@@ -78,9 +85,11 @@ public class EntityExtension {
     }
   }
 
+  /** WTF? . */
   @DSLTypeProperty(name = "position_component", extendedType = Entity.class)
   public static class PositionComponentProperty
       implements IDSLExtensionProperty<Entity, PositionComponent> {
+    /** WTF? . */
     public static PositionComponentProperty instance = new PositionComponentProperty();
 
     private PositionComponentProperty() {}
@@ -98,9 +107,11 @@ public class EntityExtension {
     }
   }
 
+  /** WTF? . */
   @DSLTypeProperty(name = "task_content_component", extendedType = Entity.class)
   public static class TaskContentComponentProperty
       implements IDSLExtensionProperty<Entity, TaskContentComponent> {
+    /** WTF? . */
     public static TaskContentComponentProperty instance = new TaskContentComponentProperty();
 
     private TaskContentComponentProperty() {}
@@ -118,9 +129,14 @@ public class EntityExtension {
     }
   }
 
+  /** WTF? . */
   @DSLTypeProperty(name = "draw_component", extendedType = Entity.class)
   public static class DrawComponentProperty
       implements IDSLExtensionProperty<Entity, DrawComponent> {
+    /**
+     * {@link IDSLExtensionProperty} extension to access the {@link DrawComponent} of an {@link
+     * Entity}.
+     */
     public static DrawComponentProperty instance = new DrawComponentProperty();
 
     private DrawComponentProperty() {}
@@ -138,9 +154,14 @@ public class EntityExtension {
     }
   }
 
+  /**
+   * {@link IDSLExtensionProperty} extension to access the {@link InteractionComponent} of an {@link
+   * Entity}.
+   */
   @DSLTypeProperty(name = "interaction_component", extendedType = Entity.class)
   public static class InteractionComponentProperty
       implements IDSLExtensionProperty<Entity, InteractionComponent> {
+    /** WTF? . */
     public static InteractionComponentProperty instance = new InteractionComponentProperty();
 
     private InteractionComponentProperty() {}
@@ -158,9 +179,14 @@ public class EntityExtension {
     }
   }
 
+  /**
+   * {@link IDSLExtensionProperty} extension to access the {@link TaskComponent} of an {@link
+   * Entity}.
+   */
   @DSLTypeProperty(name = "task_component", extendedType = Entity.class)
   public static class TaskComponentProperty
       implements IDSLExtensionProperty<Entity, TaskComponent> {
+    /** WTF? . */
     public static TaskComponentProperty instance = new TaskComponentProperty();
 
     private TaskComponentProperty() {}
@@ -185,8 +211,10 @@ public class EntityExtension {
     }
   }
 
+  /** {@link IDSLExtensionMethod} extension to open an {@link InventoryComponent}. */
   @DSLExtensionMethod(name = "open", extendedType = InventoryComponent.class)
   public static class OpenInventoryMethod implements IDSLExtensionMethod<InventoryComponent, Void> {
+    /** WTF? . */
     public static EntityExtension.OpenInventoryMethod instance =
         new EntityExtension.OpenInventoryMethod();
 
@@ -260,8 +288,10 @@ public class EntityExtension {
     }
   }
 
+  /** WTF? . */
   @DSLExtensionMethod(name = "mark_as_task_container", extendedType = Entity.class)
   public static class AddNamedTaskContentMethod implements IDSLExtensionMethod<Entity, Void> {
+    /** WTF? . */
     public static EntityExtension.AddNamedTaskContentMethod instance =
         new EntityExtension.AddNamedTaskContentMethod();
 
@@ -295,8 +325,10 @@ public class EntityExtension {
     }
   }
 
+  /** WTF? . */
   @DSLExtensionMethod(name = "mark_as_task_container_with_element", extendedType = Entity.class)
   public static class AddTaskContentMethod implements IDSLExtensionMethod<Entity, Void> {
+    /** WTF? . */
     public static EntityExtension.AddTaskContentMethod instance =
         new EntityExtension.AddTaskContentMethod();
 
@@ -329,9 +361,11 @@ public class EntityExtension {
     }
   }
 
+  /** WTF? . */
   @DSLExtensionMethod(name = "add_item", extendedType = InventoryComponent.class)
   public static class AddItemToInventoryMethod
       implements IDSLExtensionMethod<InventoryComponent, Void> {
+    /** WTF? . */
     public static EntityExtension.AddItemToInventoryMethod instance =
         new EntityExtension.AddItemToInventoryMethod();
 
@@ -349,8 +383,10 @@ public class EntityExtension {
     }
   }
 
+  /** WTF? . */
   @DSLExtensionMethod(name = "drop_items", extendedType = InventoryComponent.class)
   public static class DropItemsMethod implements IDSLExtensionMethod<InventoryComponent, Void> {
+    /** WTF? . */
     public static EntityExtension.DropItemsMethod instance = new EntityExtension.DropItemsMethod();
 
     @Override

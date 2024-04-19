@@ -20,7 +20,7 @@ import java.util.function.BiFunction;
  */
 public final class TextDialog extends Dialog {
 
-  /** Handler for Button presses */
+  /** Handler for Button presses. */
   private final BiFunction<TextDialog, String, Boolean> resultHandler;
 
   /**

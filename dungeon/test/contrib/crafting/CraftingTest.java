@@ -10,8 +10,10 @@ import contrib.item.concreteItem.ItemResourceMushroomRed;
 import java.util.Optional;
 import org.junit.Test;
 
+/** Tests for the {@link Crafting} class. */
 public class CraftingTest {
 
+  /** WTF? . */
   @Test
   public void testFindRecipeWithNoInputs() {
     assertTrue(
@@ -19,6 +21,7 @@ public class CraftingTest {
         Crafting.recipeByIngredients(new Item[0]).isEmpty());
   }
 
+  /** WTF? . */
   @Test
   public void testRecipeFoundUnordered() {
     // Prepare Recipe
@@ -44,6 +47,7 @@ public class CraftingTest {
     Crafting.clearRecipes();
   }
 
+  /** WTF? . */
   @Test
   public void testRecipeOrdered_CorrectOrder() {
     // Prepare Recipe
@@ -69,6 +73,7 @@ public class CraftingTest {
     Crafting.clearRecipes();
   }
 
+  /** WTF? . */
   @Test
   public void testRecipeOrdered_IncorrectOrder() {
     // Prepare Recipe
@@ -93,6 +98,7 @@ public class CraftingTest {
     Crafting.clearRecipes();
   }
 
+  /** WTF? . */
   @Test
   public void testPrioritizeOrderedRecipes() {
     // Prepare Recipe

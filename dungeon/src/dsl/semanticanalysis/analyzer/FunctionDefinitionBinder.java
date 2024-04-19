@@ -11,7 +11,7 @@ import java.util.Stack;
 
 /**
  * Implements a semantic analysis pass, in which all function definitions are bound as {@link
- * FunctionSymbol} in the global scope of a {@link SymbolTable}
+ * FunctionSymbol} in the global scope of a {@link SymbolTable}.
  */
 public class FunctionDefinitionBinder implements AstVisitor<Void> {
   private SymbolTable symbolTable;
@@ -19,7 +19,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
 
   /**
    * Visit all function definitions in the passed programRootNode and bind them as {@link
-   * FunctionSymbol} in the global {@link IScope} of the passed {@link SymbolTable}
+   * FunctionSymbol} in the global {@link IScope} of the passed {@link SymbolTable}.
    *
    * @param symbolTable the symboltable to bind the function definitions in
    * @param programRootNode the root {@link Node} of the program containing function definitions

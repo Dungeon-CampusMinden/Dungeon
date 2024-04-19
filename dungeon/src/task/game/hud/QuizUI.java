@@ -17,9 +17,12 @@ import java.util.function.Function;
 import task.Task;
 import task.tasktype.Quiz;
 
+/** WTF? . */
 public class QuizUI {
-
+  /** The default dialog confirmation. */
   public static final String DEFAULT_DIALOG_CONFIRM = "Confirm";
+
+  /** The default dialog abort. */
   public static final String DEFAULT_DIALOG_ABORT = "Abort";
 
   /**
@@ -123,6 +126,10 @@ public class QuizUI {
    * text and picture, single or multiple choice ) in the Dialog
    *
    * @param question Various question configurations
+   * @param questionMsg foo
+   * @param buttonMsg foo
+   * @param dialogTitle foo
+   * @param resulthandlerLinker foo
    * @return the Entity that stores the {@link UIComponent} with the UI-Elements The entity will
    *     already be added to the game by this method.
    */
@@ -184,6 +191,11 @@ public class QuizUI {
 
   /**
    * Create a default callback-function that will delete the entity that stores the hud-component.
+   *
+   * @param abortButtonID foo
+   * @param confirmButtonID foo
+   * @param entity foo
+   * @return foo
    */
   public static BiFunction<TextDialog, String, Boolean> createResultHandlerQuiz(
       final Entity entity, final String confirmButtonID, String abortButtonID) {

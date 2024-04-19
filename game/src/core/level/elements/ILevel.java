@@ -32,6 +32,7 @@ import java.util.Random;
  */
 public interface ILevel extends IndexedGraph<Tile> {
 
+  /** Default random number generator (seeded with current time). */
   Random RANDOM = new Random();
 
   /**

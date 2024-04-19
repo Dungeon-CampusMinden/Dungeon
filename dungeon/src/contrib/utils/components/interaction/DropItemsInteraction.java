@@ -17,8 +17,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * This class is a specific implementation of the {@link Consumer<Entity>} interface to use in the
- * {@link InteractionComponent}.
+ * This class is a specific implementation of the {@link Consumer} interface to use in the {@link
+ * InteractionComponent}.
  *
  * <p>The implementation will drop all the items inside the {@link InventoryComponent} of the
  * associated entity on the floor.

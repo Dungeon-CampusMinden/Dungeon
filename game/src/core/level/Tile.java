@@ -307,11 +307,16 @@ public abstract class Tile {
         + '}';
   }
 
+  /** The direction of a tile. */
   @DSLType(name = "tile_direction")
   public enum Direction {
+    /** The tile is in the north direction. */
     N,
+    /** The tile is in the east direction. */
     E,
+    /** The tile is in the south direction. */
     S,
+    /** The tile is in the west direction. */
     W,
   }
 }

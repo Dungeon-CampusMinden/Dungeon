@@ -28,8 +28,8 @@ import java.util.logging.Logger;
  * <p>To calculate the damage received, the {@link HealthSystem} calls the {@link
  * #calculateDamageOf(DamageType)} method for each {@link DamageType} and calculates the sum of the
  * damage. Next, the {@link HealthSystem} reduces the {@link #currentHealthpoints} by this value and
- * calls {@link #clearDamage()} to clear the internal list afterwards. When the health points drop
- * to 0 or less, the system calls {@link #triggerOnDeath(Entity)}.
+ * calls {@link #clearDamage()} to clear the internal list afterward. When the health points drop to
+ * 0 or less, the system calls {@link #triggerOnDeath(Entity)}.
  *
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
@@ -82,7 +82,7 @@ public final class HealthComponent implements Component {
   }
 
   /**
-   * Trigger the onDeath function
+   * Trigger the onDeath function.
    *
    * @param entity associated entity of this component.
    */
@@ -114,7 +114,7 @@ public final class HealthComponent implements Component {
   }
 
   /**
-   * Calculate the amount of damage of a certain type
+   * Calculate the amount of damage to a certain type.
    *
    * @param dt Type of damage object that still need to be accounted for
    * @return Sum of all damage objects of type dt (default: 0)

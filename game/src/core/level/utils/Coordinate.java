@@ -9,11 +9,14 @@ import core.utils.Point;
  */
 public class Coordinate {
 
+  /** The x-Coordinate. */
   public int x;
+
+  /** The y-Coordinate. */
   public int y;
 
   /**
-   * Create a new Coordinate
+   * Create a new Coordinate.
    *
    * @param x x-Coordinate
    * @param y y-Coordinate
@@ -24,7 +27,7 @@ public class Coordinate {
   }
 
   /**
-   * Copy a coordinate
+   * Copy a coordinate.
    *
    * @param copyFrom Coordinate to copy
    */
@@ -47,7 +50,7 @@ public class Coordinate {
   }
 
   /**
-   * Convert Coordinate to Point
+   * Convert Coordinate to Point.
    *
    * @return Coordinate converted to a point;
    */

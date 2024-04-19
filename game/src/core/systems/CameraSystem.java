@@ -26,7 +26,9 @@ import core.utils.components.MissingComponentException;
  * @see CameraComponent
  */
 public final class CameraSystem extends System {
+  /** WTF? . */
   public static final float DEFAULT_ZOOM_FACTOR = 0.35f;
+
   private static final float FIELD_WIDTH_AND_HEIGHT_IN_PIXEL = 16f;
   private static final OrthographicCamera CAMERA =
       new OrthographicCamera(viewportWidth(), viewportHeight());
@@ -35,7 +37,7 @@ public final class CameraSystem extends System {
     camera().zoom = DEFAULT_ZOOM_FACTOR;
   }
 
-  /** Creat a new {@link CameraSystem} */
+  /** Create a new {@link CameraSystem}. */
   public CameraSystem() {
     super(CameraComponent.class, PositionComponent.class);
   }
@@ -51,6 +53,10 @@ public final class CameraSystem extends System {
   /**
    * Checks if point (x,y) is probably visible on screen. Points that are not visible should not be
    * rendered.
+   *
+   * @param x WTF? .
+   * @param y WTF? .
+   * @return WTF? .
    */
   public static boolean isPointInFrustum(float x, float y) {
     final float OFFSET = 1f;
@@ -61,7 +67,7 @@ public final class CameraSystem extends System {
   }
 
   /**
-   * Getter for the camera
+   * Getter for the camera.
    *
    * @return Orthographic Camera from the libGDX Framework
    */

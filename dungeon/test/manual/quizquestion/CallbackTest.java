@@ -55,6 +55,11 @@ public class CallbackTest {
     }
   }
 
+  /**
+   * Main method.
+   *
+   * @param args the command line arguments
+   */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.ALL);
     // start the game
@@ -122,6 +127,11 @@ public class CallbackTest {
     };
   }
 
+  /**
+   * Generates a single choice quiz question about the goals of Refactoring.
+   *
+   * @return The generated single choice quiz question.
+   */
   public static Quiz singleChoiceDummy() {
     Quiz question = new SingleChoice("Was ist kein Ziel von Refactoring?");
     question.addAnswer(new Quiz.Content("Lesbarkeit von Code verbessern"));
@@ -131,6 +141,11 @@ public class CallbackTest {
     return question;
   }
 
+  /**
+   * A method that generates a multiple choice quiz question.
+   *
+   * @return the generated multiple choice quiz question
+   */
   public static Quiz multipleChoiceDummy() {
     Quiz question =
         new MultipleChoice("Welche der hier genannten Komponenten sind \"atomare Komponenten\"?");
@@ -144,6 +159,11 @@ public class CallbackTest {
     return question;
   }
 
+  /**
+   * Generate a dummy FreeText Quiz object with a specific question.
+   *
+   * @return the FreeText Quiz object with the specified question
+   */
   public static Quiz freeTextDummy() {
     return new FreeText(
         "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");

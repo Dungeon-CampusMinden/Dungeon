@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** Tests for the {@link LevelUtils} class. */
 public class LevelUtilsTest {
 
   // default layout is:
@@ -24,6 +25,7 @@ public class LevelUtilsTest {
   // W F E F W
   // W F F F W
   // W W W W W
+  /** WTF? . */
   @Before
   public void setup() {
     Game.add(
@@ -74,17 +76,20 @@ public class LevelUtilsTest {
             DesignLabel.randomDesign()));
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllSystems();
   }
 
+  /** WTF? . */
   @Test
   public void tilesInRangeCenterNotInLevel() {
     var tiles = LevelUtils.tilesInRange(new Point(-10, -10), 1.1f);
     assertEquals("tile is outside of the level no Tile should be returned", 0, tiles.size());
   }
 
+  /** WTF? . */
   @Test
   public void tilesInRangeOnlyCorners() {
     var tiles = LevelUtils.tilesInRange(new Point(0, 0), 1.1f);
@@ -100,6 +105,7 @@ public class LevelUtilsTest {
         tiles.stream().anyMatch(tile -> tile.coordinate().x == 0 && tile.coordinate().y == 1));
   }
 
+  /** WTF? . */
   @Test
   public void tilesInRangeNotInCorner() {
     var tiles = LevelUtils.tilesInRange(new Point(0.5f, 0.5f), 0.6f);

@@ -54,6 +54,7 @@ public final class GeneratorUtils {
    * <p>Returns an empty Optional if no level is generated for this room, or if no door is at that
    * direction.
    *
+   * @param level WTF? .
    * @param direction Direction in which to find the door.
    * @return DoorTile in the room at the given direction.
    */

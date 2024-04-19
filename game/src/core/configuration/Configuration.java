@@ -68,7 +68,7 @@ public class Configuration {
   }
 
   /**
-   * Loads the configuration from the given path
+   * Loads the configuration from the given path.
    *
    * <p>SIDE EFFECT: Will create a new file containing a default configuration, if (a) there is no
    * configuration file, or (b) if the file exists, but does not contain valid JSON.
@@ -136,7 +136,7 @@ public class Configuration {
     }
   }
 
-  /** Save the current configuration to the file */
+  /** Save the current configuration to the file. */
   public void saveConfiguration() {
     try {
       File file = new File(configFilePath.pathString());
@@ -170,7 +170,7 @@ public class Configuration {
     return node;
   }
 
-  /** Load the default configuration from the static fields in the ConfigKey classes */
+  /** Load the default configuration from the static fields in the ConfigKey classes. */
   private void loadDefault() {
     configRoot = new JsonValue(JsonValue.ValueType.object);
     Field[] fields = findConfigFields();
@@ -197,7 +197,7 @@ public class Configuration {
         .toArray(Field[]::new);
   }
 
-  /** Prepare the fields in the ConfigKey classes (use the path from the ConfigMap as prefix) */
+  /** Prepare the fields in the ConfigKey classes (use the path from the ConfigMap as prefix). */
   private void prepareFields() {
     if (fieldsLoaded) return;
     Stream.of(findConfigFields())
@@ -220,7 +220,7 @@ public class Configuration {
   }
 
   /**
-   * Update the configuration with the given key
+   * Update the configuration with the given key.
    *
    * @param key Key to update
    */

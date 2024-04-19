@@ -41,8 +41,13 @@ import java.util.logging.Logger;
  */
 @DSLType(name = "hitbox_component")
 public final class CollideComponent implements Component {
+  /** The default offset of the hit box. */
   public static final Point DEFAULT_OFFSET = new Point(0.35f, 0.35f);
+
+  /** The default size of the hit box. */
   public static final Point DEFAULT_SIZE = new Point(0.7f, 0.7f);
+
+  /** The default collision behaviour. */
   public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER =
       (a, b, c) -> {};
 

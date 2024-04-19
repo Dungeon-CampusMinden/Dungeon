@@ -9,11 +9,23 @@ import task.tasktype.Quiz;
  * possibilities.
  */
 public class MultipleChoice extends Quiz {
+
+  /**
+   * WTF? .
+   *
+   * @param questionText foo
+   * @param image foo
+   */
   public MultipleChoice(String questionText, Image image) {
     super(questionText, image);
     scoringFunction(GradingFunctions.multipeChoiceGrading());
   }
 
+  /**
+   * WTF? .
+   *
+   * @param questionText foo
+   */
   public MultipleChoice(String questionText) {
     super(questionText);
     scoringFunction(GradingFunctions.multipeChoiceGrading());
