@@ -285,7 +285,7 @@ public class TestDSLInterpreter {
     assertFalse(outputStream.toString().contains("Hello, World!"));
   }
 
-  /** Test, if Value.NULL does not get set, if non-existing property of datatype is assigned */
+  /** Test, if Value. NULL does not get set, if non-existing property of datatype is assigned. */
   @Test
   public void testDontSetNullValue() {
     String program =
@@ -300,7 +300,7 @@ public class TestDSLInterpreter {
   }
 
   /**
-   * Test, if a dot definition and object definition is correctly created
+   * Test, if a dot definition and object definition is correctly created.
    *
    * @throws URISyntaxException if the resource URL is not valid
    * @throws IOException if the resource file does not exist
@@ -545,6 +545,7 @@ public class TestDSLInterpreter {
     assertNull(((ComponentWithExternalTypeMember) internalComponent).point);
   }
 
+  /** WTF? . */
   // TODO: should test resolving of member_external_type in the instantiated object
   @Test
   @Ignore
@@ -1273,6 +1274,7 @@ public class TestDSLInterpreter {
     }
   }
 
+  /** WTF? . */
   @Test
   // TODO: requires implementation of task dependency graph parsing (see:
   // https://github.com/Dungeon-CampusMinden/Dungeon/issues/520)
@@ -2964,6 +2966,7 @@ public class TestDSLInterpreter {
     }
   }
 
+  /** WTF? . */
   @Test
   // native scenario builders will make this test case obsolete
   @Ignore
@@ -3770,6 +3773,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals(AssignTask.EMPTY_ELEMENT, derpElementSetEntry);
   }
 
+  /** WTF? . */
   @Test
   @Ignore // red on first run, green on subsequent runs??? wtf?
   public void testAssignmentTaskScenarioBuilder() {
