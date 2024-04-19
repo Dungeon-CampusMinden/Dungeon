@@ -11,8 +11,9 @@ import core.level.utils.DesignLabel;
 import core.utils.components.path.SimpleIPath;
 import org.junit.Test;
 
+/** Tests for the {@link Tile} class. */
 public class TileTest {
-
+  /** WTF? . */
   @Test
   public void test_isAccessible() {
     Coordinate dummyCoordinate = new Coordinate(0, 0);
@@ -28,6 +29,7 @@ public class TileTest {
     assertFalse(skip.isAccessible());
   }
 
+  /** WTF? . */
   @Test
   public void test_directionTo() {
     Tile north = new FloorTile(new SimpleIPath(""), new Coordinate(0, 1), DesignLabel.DEFAULT);

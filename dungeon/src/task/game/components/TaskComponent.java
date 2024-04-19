@@ -38,6 +38,11 @@ public final class TaskComponent implements Component {
   private Task task;
   private Entity my_entity;
 
+  /**
+   * WTF? .
+   *
+   * @param entity foo
+   */
   public TaskComponent(@DSLContextMember(name = "entity") final Entity entity) {
     this.my_entity = entity;
     onActivate = DOOR_OPENER;
@@ -86,8 +91,10 @@ public final class TaskComponent implements Component {
     onActivate.accept(taskManager);
   }
 
+  /** WTF? . */
   @DSLTypeProperty(name = "task", extendedType = TaskComponent.class)
   public static class TaskProperty implements IDSLExtensionProperty<TaskComponent, Task> {
+    /** WTF? . */
     public static TaskComponent.TaskProperty instance = new TaskComponent.TaskProperty();
 
     private TaskProperty() {}

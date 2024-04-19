@@ -28,6 +28,14 @@ public class Element<T> extends TaskContent {
     this.content = content;
   }
 
+  /**
+   * Create a new element that can be used as {@link TaskContent}.
+   *
+   * <p>This content will not automatically register itself with the task. Call {@link
+   * Task#addContent(TaskContent)} for that.
+   *
+   * @param content Content to store in this element.
+   */
   public Element(T content) {
     this.content = content;
   }

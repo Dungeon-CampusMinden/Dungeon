@@ -13,10 +13,10 @@ import org.junit.Test;
 // CHECKSTYLE:OFF: AvoidStarImport
 
 // CHECKSTYLE:ON: AvoidStarImport
-
+/** WTF? . */
 public class TestDungeonASTConverter {
 
-  /** Test AST structure of a simple dot definition */
+  /** Test AST structure of a simple dot definition. */
   @Test
   public void testSimpleDotDef() {
     String program = "graph g { a -> b }";
@@ -46,7 +46,7 @@ public class TestDungeonASTConverter {
   }
 
   /**
-   * Test AST structure of a chained edge statement, that is multiple edge definitions in one line
+   * Test AST structure of a chained edge statement, that is multiple edge definitions in one line.
    */
   @Test
   public void testChainedEdgeStmt() {
@@ -74,6 +74,7 @@ public class TestDungeonASTConverter {
     assertEquals("c", thirdIdNode.getName());
   }
 
+  /** WTF? . */
   @Test
   public void testChainedEdgeStmtIdGroups() {
     String program = "graph g { a,b,c -> d,e,f -> g,h,j }";
@@ -106,7 +107,7 @@ public class TestDungeonASTConverter {
     assertEquals("j", idNodes.get(2).getName());
   }
 
-  /** Test AST of a function call inside a property definition */
+  /** Test AST of a function call inside a property definition. */
   @Test
   public void testFuncCall() {
     String program = "quest_config q { \n test: hello_world(x, \"wuppi\" ,42)\n }";
@@ -128,7 +129,7 @@ public class TestDungeonASTConverter {
     assertEquals(Node.Type.Number, paramList.get(2).type);
   }
 
-  /** Test AST of function call as parameter ot another function call */
+  /** Test AST of function call as parameter ot another function call. */
   @Test
   public void testFuncCallAsParam() {
     String program = "quest_config q { \n test: hello_world(other_func())\n }";
@@ -148,7 +149,7 @@ public class TestDungeonASTConverter {
     assertEquals(Node.Type.FuncCall, paramList.get(0).type);
   }
 
-  /** Test the definition of a game object with one trivial component definition */
+  /** Test the definition of a game object with one trivial component definition. */
   @Test
   public void testGameObjectDefinitionSimpleComponent() {
     String program =
@@ -179,7 +180,7 @@ public class TestDungeonASTConverter {
     assertEquals(Node.NONE, propertyDefinitionListNode);
   }
 
-  /** Test the definition of a game object with one trivial component definition */
+  /** Test the definition of a game object with one trivial component definition. */
   @Test
   public void testItemTypeDefinition() {
     String program =
@@ -213,7 +214,7 @@ public class TestDungeonASTConverter {
   }
 
   /**
-   * Test the definition of a game object with one component definition with property definitions
+   * Test the definition of a game object with one component definition with property definitions.
    */
   @Test
   public void testGameObjectDefinition() {
@@ -254,7 +255,7 @@ public class TestDungeonASTConverter {
     assertEquals("prop2", secondPropertyDefNode.getIdName());
   }
 
-  /** Test the definition of a game object with multiple component definitions */
+  /** Test the definition of a game object with multiple component definitions. */
   @Test
   public void testGameObjectDefinitionMultiComponent() {
     String program =
@@ -307,6 +308,7 @@ public class TestDungeonASTConverter {
     assertEquals("prop4", secondPropertyDefNode.getIdName());
   }
 
+  /** WTF? . */
   @Test
   public void adaptedAggregateType() {
     String program =
@@ -331,6 +333,7 @@ public class TestDungeonASTConverter {
     assertEquals(stmtNode.type, Node.Type.AggregateValueDefinition);
   }
 
+  /** WTF? . */
   @Test
   public void funcDefMinimal() {
     String program = """
@@ -351,6 +354,7 @@ public class TestDungeonASTConverter {
     assertEquals(0, stmts.size());
   }
 
+  /** WTF? . */
   @Test
   public void funcDefFull() {
     String program =
@@ -384,6 +388,7 @@ public class TestDungeonASTConverter {
     assertNotEquals(Node.NONE, funcDefNode);
   }
 
+  /** WTF? . */
   @Test
   public void returnStmt() {
     String program =
@@ -404,6 +409,7 @@ public class TestDungeonASTConverter {
     assertEquals(Node.Type.Number, innerStmt.type);
   }
 
+  /** WTF? . */
   @Test
   public void nestedBlocks() {
     String program =
@@ -437,6 +443,7 @@ public class TestDungeonASTConverter {
     Node funcCallStmt = ((StmtBlockNode) innerStmtBlock).getStmts().get(0);
   }
 
+  /** WTF? . */
   @Test
   public void ifStmt() {
     String program =
@@ -463,6 +470,7 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.Block, stmt.type);
   }
 
+  /** WTF? . */
   @Test
   public void ifElseStmt() {
     String program =
@@ -493,6 +501,7 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.FuncCall, elseStmt.type);
   }
 
+  /** WTF? . */
   @Test
   public void elseIfStmt() {
     String program =
@@ -527,6 +536,7 @@ public class TestDungeonASTConverter {
     Assert.assertEquals("other_expr", ((IdNode) elseIfStmtCondition).getName());
   }
 
+  /** WTF? . */
   @Test
   public void elseIfElseStmt() {
     String program =
@@ -567,8 +577,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.Block, elseStmt.type);
   }
 
-  @Test
-  public void nestedIfElseStmts() {
+  /** WTF? . */
+  void nestedIfElseStmts() {
     String program =
         """
             fn test_func() {
@@ -608,9 +618,8 @@ public class TestDungeonASTConverter {
   }
 
   // TODO: tests for complex expressions
-
-  @Test
-  public void testUnary() {
+  /** WTF? . */
+  void testUnary() {
     String program =
         """
                 fn test_func() {
@@ -636,8 +645,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(UnaryNode.UnaryType.minus, unaryNode.getUnaryType());
   }
 
-  @Test
-  public void testFactor() {
+  /** WTF? . */
+  void testFactor() {
     String program =
         """
                 fn test_func() {
@@ -681,8 +690,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(1, ((NumNode) rhs).getValue());
   }
 
-  @Test
-  public void testTerm() {
+  /** WTF? . */
+  void testTerm() {
     String program =
         """
                 fn test_func() {
@@ -726,8 +735,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(1, ((NumNode) rhs).getValue());
   }
 
-  @Test
-  public void testComparison() {
+  /** WTF? . */
+  void testComparison() {
     String program =
         """
             fn test_func() {
@@ -771,8 +780,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(ComparisonNode.ComparisonType.lessEquals, compNode.getComparisonType());
   }
 
-  @Test
-  public void testEquality() {
+  /** WTF? . */
+  void testEquality() {
     String program =
         """
                 fn test_func() {
@@ -800,8 +809,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(EqualityNode.EqualityType.notEquals, equalityNode.getEqualityType());
   }
 
-  @Test
-  public void testLogicAnd() {
+  /** WTF? . */
+  void testLogicAnd() {
     String program =
         """
                 fn test_func() {
@@ -817,8 +826,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.LogicAnd, andStmt.type);
   }
 
-  @Test
-  public void testLogicOr() {
+  /** WTF? . */
+  void testLogicOr() {
     String program =
         """
                 fn test_func() {
@@ -834,8 +843,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.LogicOr, orStmt.type);
   }
 
-  @Test
-  public void testAssignmentId() {
+  /** WTF? . */
+  void testAssignmentId() {
     String program =
         """
             fn test_func() {
@@ -854,8 +863,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.Identifier, assignmentNode.getLhs().type);
   }
 
-  @Test
-  public void testAssignmentMemberAccessWithCall() {
+  /** WTF? . */
+  void testAssignmentMemberAccessWithCall() {
     String program =
         """
             fn test_func() {
@@ -879,8 +888,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
   }
 
-  @Test
-  public void testAssignmentMemberAccess() {
+  /** WTF? . */
+  void testAssignmentMemberAccess() {
     String program =
         """
                 fn test_func() {
@@ -904,8 +913,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
   }
 
-  @Test
-  public void testMethodCallExpression() {
+  /** WTF? . */
+  void testMethodCallExpression() {
     String program =
         """
                 fn test_func() {
@@ -929,8 +938,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.FuncCall, memberAccessNode.getRhs().type);
   }
 
-  @Test
-  public void testMemberAccessExpression() {
+  /** WTF? . */
+  void testMemberAccessExpression() {
     String program =
         """
                 fn test_func() {
@@ -954,8 +963,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
   }
 
-  @Test
-  public void testListDefinition() {
+  /** WTF? . */
+  void testListDefinition() {
     String program =
         """
             fn test_func() {
@@ -977,8 +986,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(3, ((NumNode) listDefinitionNode.getEntries().get(2)).getValue());
   }
 
-  @Test
-  public void testSetDefinition() {
+  /** WTF? . */
+  void testSetDefinition() {
     String program =
         """
             fn test_func() {
@@ -1000,8 +1009,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals(3, ((NumNode) setDefinitionNode.getEntries().get(2)).getValue());
   }
 
-  @Test
-  public void testForLoop() {
+  /** WTF? . */
+  void testForLoop() {
     String program =
         """
         fn test_func() {
@@ -1030,8 +1039,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals("iterable", iterableIdNode.getName());
   }
 
-  @Test
-  public void testCountingForLoop() {
+  /** WTF? . */
+  void testCountingForLoop() {
     String program =
         """
         fn test_func() {
@@ -1063,8 +1072,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals("i", counterIdNode.getName());
   }
 
-  @Test
-  public void testWhileLoop() {
+  /** WTF? . */
+  void testWhileLoop() {
     String program =
         """
         fn test_func() {
@@ -1087,8 +1096,8 @@ public class TestDungeonASTConverter {
     Assert.assertEquals("expr", counterIdNode.getName());
   }
 
-  @Test
-  public void testGraphEdgeAttribute() {
+  /** WTF? . */
+  void testGraphEdgeAttribute() {
     String program =
         """
             graph g {

@@ -10,6 +10,7 @@ plugins {
 
 allprojects {
     apply plugin: 'java'
+    apply plugin: 'checkstyle'
 
     java {
         toolchain {
@@ -33,6 +34,22 @@ allprojects {
 
     clean {
         delete project.baseLogDir
+    }
+
+    checkstyle {
+        configFile = rootProject.file('.checkstyle.xml')
+        // Default version vs. current version? The default version is quite old (9.3 from
+        // Jan 30, 2022), so let's go with the current version (10.14).
+        // However, this needs to be updated manually as Dependabot won't deal with this!
+        toolVersion = '10.15.0'
+        ignoreFailures = false
+        maxWarnings = 0
+    }
+    // Workaround to resolve CS dependencies: https://github.com/checkstyle/checkstyle/issues/14123#issuecomment-1961029772
+    configurations.checkstyle {
+        resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
+            select("com.google.guava:guava:0")
+        }
     }
 }
 

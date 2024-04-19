@@ -1,24 +1,31 @@
 package dsl.parser.ast;
 
+/** WTF? . */
 public class EdgeOpNode extends Node {
 
   /**
+   * WTF? .
+   *
    * @return The {@link Type} of this EdgeOperator
    */
   public Type getEdgeOpType() {
     return edgeOpType;
   }
 
+  /** WTF? . */
   public enum Type {
+    /** WTF? . */
     NONE,
+    /** WTF? . */
     arrow,
+    /** WTF? . */
     doubleLine
   }
 
   private final Type edgeOpType;
 
   /**
-   * Constructor
+   * Constructor. WTF? .
    *
    * @param sourceFileReference The sourceFileReference of the node corresponding the EdgeOperator.
    * @param edgeOpType The {@link Type} of the new EdgeOperator

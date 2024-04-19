@@ -6,7 +6,7 @@ import dsl.runtime.callable.IInstanceCallable;
 import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
 import java.util.*;
 
-/** Implements a set value */
+/** Implements a set value. */
 public class SetValue extends Value {
 
   // stores the internal values of the Value-instances in order to ensure,
@@ -14,7 +14,7 @@ public class SetValue extends Value {
   private HashSet<Object> internalValueSet = new HashSet<>();
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param dataType type of the set
    */
@@ -22,11 +22,18 @@ public class SetValue extends Value {
     super(dataType, new HashSet<Value>());
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public SetType getDataType() {
     return (SetType) this.dataType;
   }
 
   /**
+   * WTF? .
+   *
    * @return the internal HashSet of this {@link SetValue}.
    */
   public HashSet<Value> internalSet() {
@@ -34,7 +41,9 @@ public class SetValue extends Value {
   }
 
   /**
-   * Add a Value to the set. The Value will only be added to the set, if no other Value with the
+   * WTF? (erster Satz KURZ).
+   *
+   * <p>Add a Value to the set. The Value will only be added to the set, if no other Value with the
    * same internal value of the passed Value is already stored in this set.
    *
    * @param value the Value to store in the set
@@ -51,12 +60,15 @@ public class SetValue extends Value {
   }
 
   /**
+   * WTF? .
+   *
    * @return all stored values
    */
   public Set<Value> getValues() {
     return internalSet();
   }
 
+  /** WTF? . */
   public void clearSet() {
     internalValueSet.clear();
     internalSet().clear();
@@ -69,6 +81,7 @@ public class SetValue extends Value {
    */
   public static class AddMethod implements IInstanceCallable {
 
+    /** WTF? . */
     public static SetValue.AddMethod instance = new SetValue.AddMethod();
 
     private AddMethod() {}
@@ -88,7 +101,7 @@ public class SetValue extends Value {
    * {@link SetValue}.
    */
   public static class SizeMethod implements IInstanceCallable {
-
+    /** WTF? . */
     public static SetValue.SizeMethod instance = new SetValue.SizeMethod();
 
     private SizeMethod() {}
@@ -102,12 +115,15 @@ public class SetValue extends Value {
   }
 
   /**
-   * Native method, which checks whether a given Value is present in the internal value set of a
+   * WTF? (erster Satz KURZ) .
+   *
+   * <p>Native method, which checks whether a given Value is present in the internal value set of a
    * {@link SetValue}. Because different instances of {@link Value} can refer to the same internal
    * value, the internal values are used for the lookup.
    */
   public static class ContainsMethod implements IInstanceCallable {
 
+    /** WTF? . */
     public static SetValue.ContainsMethod instance = new SetValue.ContainsMethod();
 
     private ContainsMethod() {}

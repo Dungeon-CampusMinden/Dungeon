@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** Tests for the {@link PositionSystem} class. */
 public class PositionSystemTest {
 
   private PositionSystem system;
@@ -26,6 +27,7 @@ public class PositionSystemTest {
   private Entity entity;
   private PositionComponent pc;
 
+  /** WTF? . */
   @Before
   public void setup() {
     pc = new PositionComponent();
@@ -43,6 +45,7 @@ public class PositionSystemTest {
     Mockito.when(mock.coordinate()).thenReturn(new Coordinate(3, 3));
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllSystems();
@@ -50,6 +53,7 @@ public class PositionSystemTest {
     Game.currentLevel(null);
   }
 
+  /** WTF? . */
   @Test
   public void test_illegalPosition() {
     pc.position(PositionComponent.ILLEGAL_POSITION);
@@ -59,6 +63,7 @@ public class PositionSystemTest {
     assertTrue(pc.position().equals(offsetPoint));
   }
 
+  /** WTF? . */
   @Test
   public void test_legalPosition() {
     pc.position(new Point(2, 2));

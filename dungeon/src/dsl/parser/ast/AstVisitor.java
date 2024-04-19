@@ -3,10 +3,16 @@ package dsl.parser.ast;
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling
 // will be high naturally
+
+/**
+ * WTF? .
+ *
+ * @param <T> foo
+ */
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public interface AstVisitor<T> {
   /**
-   * Basic fallback method for all Node types
+   * Basic fallback method for all Node types.
    *
    * @param node Node to visit
    * @return T
@@ -16,7 +22,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for IdNodes
+   * Visitor method for IdNodes.
    *
    * @param node Node to visit
    * @return T
@@ -26,7 +32,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for DecNumNodes
+   * Visitor method for DecNumNodes.
    *
    * @param node Node to visit
    * @return T
@@ -36,7 +42,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for NumNodes
+   * Visitor method for NumNodes.
    *
    * @param node Node to visit
    * @return T
@@ -46,7 +52,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for StringNodes
+   * Visitor method for StringNodes.
    *
    * @param node Node to visit
    * @return T
@@ -56,7 +62,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for BinaryNodes
+   * Visitor method for BinaryNodes.
    *
    * @param node Node to visit
    * @return T
@@ -66,7 +72,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for DotDefNodes
+   * Visitor method for DotDefNodes.
    *
    * @param node Node to visit
    * @return T
@@ -76,7 +82,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for EdgeRhsNodes
+   * Visitor method for EdgeRhsNodes.
    *
    * @param node Node to visit
    * @return T
@@ -86,7 +92,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for DotEdgeStmtNodes
+   * Visitor method for DotEdgeStmtNodes.
    *
    * @param node Node to visit
    * @return T
@@ -96,7 +102,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for DotAttrNodes
+   * Visitor method for DotAttrNodes.
    *
    * @param node Node to visit
    * @return T
@@ -106,7 +112,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for DotNodeLists
+   * Visitor method for DotNodeLists.
    *
    * @param node Node to visit
    * @return T
@@ -116,7 +122,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for DotNodeStmtNodes
+   * Visitor method for DotNodeStmtNodes.
    *
    * @param node Node to visit
    * @return T
@@ -126,7 +132,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for DotAttrListNodes
+   * Visitor method for DotAttrListNodes.
    *
    * @param node Node to visit
    * @return T
@@ -136,7 +142,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for DotDependencyTypeNodes
+   * Visitor method for DotDependencyTypeNodes.
    *
    * @param node Node to visit
    * @return T
@@ -146,7 +152,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for DotDependencyTypeAttrNodes
+   * Visitor method for DotDependencyTypeAttrNodes.
    *
    * @param node Node to visit
    * @return T
@@ -156,7 +162,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for EdgeOpNodes
+   * Visitor method for EdgeOpNodes.
    *
    * @param node Node to visit
    * @return T
@@ -166,7 +172,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for PropertyDefNodes
+   * Visitor method for PropertyDefNodes.
    *
    * @param node Node to visit
    * @return T
@@ -176,7 +182,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for ObjectDefNodes
+   * Visitor method for ObjectDefNodes.
    *
    * @param node Node to visit
    * @return T
@@ -186,7 +192,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for FuncCallNodes
+   * Visitor method for FuncCallNodes.
    *
    * @param node Node to visit
    * @return T
@@ -196,7 +202,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for ComponentDefinitionNodes
+   * Visitor method for ComponentDefinitionNodes.
    *
    * @param node Node to visit
    * @return T
@@ -206,7 +212,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for FuncDefNodes
+   * Visitor method for FuncDefNodes.
    *
    * @param node Node to visit
    * @return T
@@ -216,7 +222,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for ParamDefNodes
+   * Visitor method for ParamDefNodes.
    *
    * @param node Node to visit
    * @return T
@@ -226,7 +232,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for GameObjectDefinitionNodes
+   * Visitor method for GameObjectDefinitionNodes.
    *
    * @param node Node to visit
    * @return T
@@ -236,7 +242,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for ReturnStmtNodes
+   * Visitor method for ReturnStmtNodes.
    *
    * @param node Node to visit
    * @return T
@@ -246,7 +252,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for ConditionStmtNodeIfs
+   * Visitor method for ConditionStmtNodeIfs.
    *
    * @param node Node to visit
    * @return T
@@ -256,7 +262,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for ConditionalStmtNodeIfElses
+   * Visitor method for ConditionalStmtNodeIfElses.
    *
    * @param node Node to visit
    * @return T
@@ -266,7 +272,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for StmtBlockNodes
+   * Visitor method for StmtBlockNodes.
    *
    * @param node Node to visit
    * @return T
@@ -276,7 +282,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for BoolNodes
+   * Visitor method for BoolNodes.
    *
    * @param node Node to visit
    * @return T
@@ -286,7 +292,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for MemberAccessNodes
+   * Visitor method for MemberAccessNodes.
    *
    * @param node Node to visit
    * @return T
@@ -296,7 +302,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for LogicOrNode
+   * Visitor method for LogicOrNode.
    *
    * @param node Node to visit
    * @return T
@@ -306,7 +312,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for LogicAndNode
+   * Visitor method for LogicAndNode.
    *
    * @param node Node to visit
    * @return T
@@ -316,7 +322,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for EqualityNodes
+   * Visitor method for EqualityNodes.
    *
    * @param node Node to visit
    * @return T
@@ -326,7 +332,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for ComparisonNodes
+   * Visitor method for ComparisonNodes.
    *
    * @param node Node to visit
    * @return T
@@ -336,7 +342,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for TermNodes
+   * Visitor method for TermNodes.
    *
    * @param node Node to visit
    * @return T
@@ -346,7 +352,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for FactorNodes
+   * Visitor method for FactorNodes.
    *
    * @param node Node to visit
    * @return T
@@ -356,7 +362,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for UnaryNodes
+   * Visitor method for UnaryNodes.
    *
    * @param node Node to visit
    * @return T
@@ -366,7 +372,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for AssignmentNodes
+   * Visitor method for AssignmentNodes.
    *
    * @param node Node to visit
    * @return T
@@ -376,7 +382,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for ListDefinitionNodes
+   * Visitor method for ListDefinitionNodes.
    *
    * @param node Node to visit
    * @return T
@@ -386,7 +392,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for SetDefinitionNodes
+   * Visitor method for SetDefinitionNodes.
    *
    * @param node Node to visit
    * @return T
@@ -396,7 +402,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for ListTYpeIdentifierNodes
+   * Visitor method for ListTYpeIdentifierNodes.
    *
    * @param node Node to visit
    * @return T
@@ -406,7 +412,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for SetTypeIdentifierNodes
+   * Visitor method for SetTypeIdentifierNodes.
    *
    * @param node Node to visit
    * @return T
@@ -416,7 +422,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for MapTypeDefinitionNodes
+   * Visitor method for MapTypeDefinitionNodes.
    *
    * @param node Node to visit
    * @return T
@@ -426,7 +432,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for LoopStmtNodes
+   * Visitor method for LoopStmtNodes.
    *
    * @param node Node to visit
    * @return T
@@ -436,7 +442,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for WhileLoopStmtNode
+   * Visitor method for WhileLoopStmtNode.
    *
    * @param node Node to visit
    * @return T
@@ -446,7 +452,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for CountingForLoopStmtNodes
+   * Visitor method for CountingForLoopStmtNodes.
    *
    * @param node Node to visit
    * @return T
@@ -456,7 +462,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for ForLoopStmtNodes
+   * Visitor method for ForLoopStmtNodes.
    *
    * @param node Node to visit
    * @return T
@@ -466,7 +472,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for LoopBottomMarks
+   * Visitor method for LoopBottomMarks.
    *
    * @param node Node to visit
    * @return T
@@ -476,7 +482,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for VarDeclNodes
+   * Visitor method for VarDeclNodes.
    *
    * @param node Node to visit
    * @return T
@@ -486,7 +492,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visitor method for ItemPrototypeDefinitionNodes
+   * Visitor method for ItemPrototypeDefinitionNodes.
    *
    * @param node Node to visit
    * @return T
@@ -496,7 +502,7 @@ public interface AstVisitor<T> {
   }
 
   /**
-   * Visit all children of the passed node
+   * Visit all children of the passed node.
    *
    * @param node The node to visit all children of
    */

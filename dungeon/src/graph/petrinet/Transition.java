@@ -56,7 +56,7 @@ public class Transition {
   }
 
   /**
-   * Add a dependency place to this Transition
+   * Add a dependency place to this Transition.
    *
    * @param place place to add
    */
@@ -66,7 +66,7 @@ public class Transition {
   }
 
   /**
-   * Add a place to add a token to on fire
+   * Add a place to add a token to on fire.
    *
    * @param place add token on fire
    */

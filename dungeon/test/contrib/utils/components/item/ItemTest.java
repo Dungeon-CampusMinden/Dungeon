@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** WTF? . */
 public class ItemTest {
 
   Animation defaultAnimation =
@@ -34,6 +35,7 @@ public class ItemTest {
   Animation worldAnimation = Animation.fromSingleImage(new SimpleIPath("item/key/gold_key"));
   Animation inventoryAnimation = Animation.fromSingleImage(new SimpleIPath("item/key/red_key"));
 
+  /** WTF? . */
   @Before
   public void before() {
     Game.add(
@@ -89,6 +91,7 @@ public class ItemTest {
     Game.currentLevel(level);
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllEntities();
@@ -96,6 +99,7 @@ public class ItemTest {
     Game.currentLevel(null);
   }
 
+  /** WTF? . */
   @Test
   public void testConstructorThreeParameter() {
     Item item = new Item("Test item", "Test description", defaultAnimation);
@@ -107,6 +111,7 @@ public class ItemTest {
     assertEquals(1, item.maxStackSize());
   }
 
+  /** WTF? . */
   @Test
   public void testConstructorFourParameter() {
     Item item =
@@ -119,6 +124,7 @@ public class ItemTest {
     assertEquals(1, item.maxStackSize());
   }
 
+  /** WTF? . */
   @Test
   public void testConstructorSixParameter() {
     Item item =
@@ -131,6 +137,7 @@ public class ItemTest {
     assertEquals(6, item.maxStackSize());
   }
 
+  /** WTF? . */
   @Test
   public void testDisplayName() {
     Item item = new Item("Test item", "Test description", defaultAnimation);
@@ -139,6 +146,7 @@ public class ItemTest {
     assertEquals(item.displayName(), "New Display Name");
   }
 
+  /** WTF? . */
   @Test
   public void testDescription() {
     Item item = new Item("Test item", "Test description", defaultAnimation);
@@ -147,6 +155,7 @@ public class ItemTest {
     assertEquals(item.description(), "New Description");
   }
 
+  /** WTF? . */
   @Test
   public void testInventoryAnimation() {
     Item item = new Item("Test item", "Test description", defaultAnimation);
@@ -155,6 +164,7 @@ public class ItemTest {
     assertEquals(item.inventoryAnimation(), inventoryAnimation);
   }
 
+  /** WTF? . */
   @Test
   public void testWorldAnimation() {
     Item item = new Item("Test item", "Test description", defaultAnimation);
@@ -163,6 +173,7 @@ public class ItemTest {
     assertEquals(item.worldAnimation(), worldAnimation);
   }
 
+  /** WTF? . */
   @Test
   public void testStackSize() {
     Item item = new Item("Test item", "Test description", defaultAnimation);
@@ -171,6 +182,7 @@ public class ItemTest {
     assertEquals(2, item.stackSize());
   }
 
+  /** WTF? . */
   @Test
   public void testMaxStackSize() {
     Item item = new Item("Test item", "Test description", defaultAnimation);
@@ -194,7 +206,7 @@ public class ItemTest {
     assertTrue(worldItem.isPresent(InteractionComponent.class));
   }
 
-  /** Tests if item is present in inventory and removed from Game world after collect */
+  /** Tests if item is present in inventory and removed from Game world after collect. */
   @Test
   public void testCollect() {
     assertEquals("There should be no entity in the game", 0, Game.entityStream().count());

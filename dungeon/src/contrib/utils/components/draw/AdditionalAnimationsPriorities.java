@@ -6,8 +6,11 @@ package contrib.utils.components.draw;
  * @see core.utils.components.draw.CoreAnimationPriorities
  */
 public enum AdditionalAnimationsPriorities {
+  /** WTF? . */
   DIE(5000),
+  /** WTF? . */
   HIT(4000),
+  /** WTF? . */
   FIGHT(3000);
 
   private final int priority;
@@ -16,6 +19,11 @@ public enum AdditionalAnimationsPriorities {
     this.priority = priority;
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public int priority() {
     return priority;
   }

@@ -8,10 +8,11 @@ import java.lang.reflect.Type;
 
 /**
  * Builder for a {@link FunctionType} for a callback defined by the {@link
- * java.util.function.Function} interface
+ * java.util.function.Function} interface.
  */
 public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
 
+  /** Singleton instance. */
   public static FunctionFunctionTypeBuilder instance = new FunctionFunctionTypeBuilder();
 
   private FunctionFunctionTypeBuilder() {}

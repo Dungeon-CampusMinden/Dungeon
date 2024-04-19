@@ -36,11 +36,17 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
   Stack<Node> astStack;
 
-  /** Constructor */
+  /** Constructor. WTF? . */
   public DungeonASTConverter() {
     astStack = new Stack<>();
   }
 
+  /**
+   * WTF? .
+   *
+   * @param program foo
+   * @return foo
+   */
   public static Node getProgramAST(String program) {
     var stream = CharStreams.fromString(program);
     var lexer = new DungeonDSLLexer(stream);
@@ -54,7 +60,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
   }
 
   /**
-   * Walk the passed parseTree and create an AST from it
+   * Walk the passed parseTree and create an AST from it.
    *
    * @param parseTree The ParseTree to walk
    * @return Root Node of the AST.
@@ -70,7 +76,7 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
 
   /**
    * Pops all remaining AST-Nodes from the stack (they will be in reverse order) and adds all as
-   * children to the root node of the program
+   * children to the root node of the program.
    *
    * @param ctx the parse tree
    */
@@ -871,7 +877,9 @@ public class DungeonASTConverter implements antlr.main.DungeonDSLListener {
   public void enterDot_def(DungeonDSLParser.Dot_defContext ctx) {}
 
   /**
-   * Adds the Node, representing the dot_stmt_list of the dot definition, as child to a {@link
+   * WTF? (erster Satz KURZ).
+   *
+   * <p>Adds the Node, representing the dot_stmt_list of the dot definition, as child to a {@link
    * DotDefNode}. Validates consistency of all edge operators with the type of the defined graph
    * ('graph' or 'digraph').
    *

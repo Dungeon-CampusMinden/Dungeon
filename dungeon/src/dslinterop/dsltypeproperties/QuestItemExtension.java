@@ -24,6 +24,7 @@ public class QuestItemExtension {
       isSettable = false)
   public static class TaskContentComponentProperty
       implements IDSLExtensionProperty<QuestItem, TaskContentComponent> {
+    /** WTF? . */
     public static TaskContentComponentProperty instance = new TaskContentComponentProperty();
 
     private TaskContentComponentProperty() {}

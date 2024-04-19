@@ -18,6 +18,20 @@ import task.tasktype.quizquestion.SingleChoice;
 /** Typeadapter for the creation of {@link SingleChoice} instances via dsl. */
 public class DSLSingleChoice {
 
+  /**
+   * WTF? .
+   *
+   * @param name foo
+   * @param description foo
+   * @param answers foo
+   * @param points foo
+   * @param pointsToPass foo
+   * @param correctAnswerIndex foo
+   * @param explanation foo
+   * @param gradingFunction foo
+   * @param scenarioBuilder foo
+   * @return foo
+   */
   @DSLTypeAdapter(name = "single_choice_task")
   public static SingleChoice buildQuizFromSingleChoiceTask(
       @DSLTypeNameMember String name,
@@ -76,11 +90,12 @@ public class DSLSingleChoice {
 
   /**
    * {@link IDSLExtensionMethod} to get the stored {@link TaskContent} of a {@link SingleChoice}
-   * instance
+   * instance.
    */
   @DSLExtensionMethod(name = "get_content", extendedType = SingleChoice.class)
   public static class GetContentMethod
       implements IDSLExtensionMethod<SingleChoice, List<TaskContent>> {
+    /** Get the stored {@link TaskContent} of a {@link SingleChoice} instance. */
     public static GetContentMethod instance = new GetContentMethod();
 
     @Override
@@ -101,9 +116,10 @@ public class DSLSingleChoice {
     }
   }
 
-  /** {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance */
+  /** {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance. */
   @DSLExtensionMethod(name = "set_scenario_text", extendedType = SingleChoice.class)
   public static class SetScenarioText implements IDSLExtensionMethod<SingleChoice, Void> {
+    /** Set the scenario text in a single choice task instance. */
     public static SetScenarioText instance = new SetScenarioText();
 
     @Override
@@ -124,6 +140,7 @@ public class DSLSingleChoice {
   @DSLExtensionMethod(name = "set_grading_function", extendedType = SingleChoice.class)
   public static class SingleChoiceSetGradingFunction
       implements IDSLExtensionMethod<SingleChoice, Void> {
+    /** Set the grading function of a {@link SingleChoice} instance. */
     public static DSLSingleChoice.SingleChoiceSetGradingFunction instance =
         new DSLSingleChoice.SingleChoiceSetGradingFunction();
 
@@ -190,6 +207,7 @@ public class DSLSingleChoice {
   @DSLExtensionMethod(name = "set_answer_picker_function", extendedType = SingleChoice.class)
   public static class SingleChoiceSetAnswerPickerFunction
       implements IDSLExtensionMethod<SingleChoice, Void> {
+    /** The {@link SingleChoiceSetAnswerPickerFunction} instance. */
     public static DSLSingleChoice.SingleChoiceSetAnswerPickerFunction instance =
         new DSLSingleChoice.SingleChoiceSetAnswerPickerFunction();
 
@@ -252,9 +270,11 @@ public class DSLSingleChoice {
     }
   }
 
+  /** {@link IDSLExtensionProperty} to set the description of a {@link SingleChoice} instance. */
   @DSLTypeProperty(name = "description", extendedType = DSLSingleChoice.class)
   public static class SingleChoiceDescriptionProperty
       implements IDSLExtensionProperty<Quiz, String> {
+    /** Create a new {@link SingleChoiceDescriptionProperty}. */
     public static SingleChoiceDescriptionProperty instance = new SingleChoiceDescriptionProperty();
 
     private SingleChoiceDescriptionProperty() {}

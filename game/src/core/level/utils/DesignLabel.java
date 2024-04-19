@@ -6,12 +6,19 @@ import java.util.Random;
 
 /** Specifies which textures and layouts should be used for the room. */
 public enum DesignLabel {
+  /** WTF? . */
   DEFAULT(50), // 50% chance
+  /** WTF? . */
   FIRE(0), // 0% chance //we have no closed doors texture
+  /** WTF? . */
   FOREST(9), // 9% chance
+  /** WTF? . */
   ICE(10), // 10% chance
+  /** WTF? . */
   TEMPLE(30), // 30% chance
+  /** WTF? . */
   DARK(0), // 0% chance //we have no closed doors texture
+  /** WTF? . */
   RAINBOW(1); // 1% chance
 
   private static final Random RANDOM = new Random();
@@ -34,6 +41,8 @@ public enum DesignLabel {
   }
 
   /**
+   * WTF? .
+   *
    * @return A random enum-value based on chances
    */
   public static DesignLabel randomDesign() {
