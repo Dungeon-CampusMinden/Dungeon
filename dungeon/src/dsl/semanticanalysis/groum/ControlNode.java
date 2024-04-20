@@ -30,6 +30,11 @@ public class ControlNode extends GroumNode {
     return this.controlType.toString();
   }
 
+  @Override
+  public String toString() {
+    return this.getLabel();
+  }
+
   public ControlNode(ControlType type) {
     this.controlType = type;
   }

@@ -61,6 +61,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     public final SymbolTable symbolTable;
     public final boolean gotError;
     public final String errorString;
+    public final IEnvironment environment;
 
     /**
      * Constructor. If the errorString is empty, gotError will be set to false
@@ -68,10 +69,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
      * @param symbolTable the symbol table
      * @param errorString the errorString which was generated during semantic analysis
      */
-    public Result(SymbolTable symbolTable, String errorString) {
+    public Result(SymbolTable symbolTable, String errorString, IEnvironment environment) {
       this.symbolTable = symbolTable;
       this.errorString = errorString;
       this.gotError = !errorString.equals("");
+      this.environment = environment;
     }
   }
 
@@ -181,7 +183,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   public Result walk(ParsedFile file) {
     if (!setup) {
       errorStringBuilder.append("Symbol table parser was not setup with an environment");
-      return new Result(symbolTable, errorStringBuilder.toString());
+      return new Result(symbolTable, errorStringBuilder.toString(), this.environment);
     }
 
     var path = file.filePath();
@@ -200,7 +202,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     this.scopeStack.pop();
 
-    return new Result(symbolTable, errorStringBuilder.toString());
+    return new Result(symbolTable, errorStringBuilder.toString(), this.environment);
   }
 
   /**
@@ -212,7 +214,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   public Result walk(Node node) {
     if (!setup) {
       errorStringBuilder.append("Symbol table parser was not setup with an environment");
-      return new Result(symbolTable, errorStringBuilder.toString());
+      return new Result(symbolTable, errorStringBuilder.toString(), this.environment);
     }
 
     ParsedFile pf = new ParsedFile(null, node);
@@ -226,7 +228,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
     // TODO: got a feeling, this should also return the file scope -> otherwise it won't be
     //  accessed afterwards by the DSLInterpreter, i guess
-    return new Result(symbolTable, errorStringBuilder.toString());
+    return new Result(symbolTable, errorStringBuilder.toString(), this.environment);
   }
 
   @Override

@@ -134,7 +134,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     var action = new InstantiationAction(symbol, createOrGetInstanceId(symbol));
     Groum mergedGroum = new Groum(action);
     if (!rhsGroum.equals(Groum.NONE)) {
-      mergedGroum = mergedGroum.mergeSequential(rhsGroum);
+      mergedGroum = rhsGroum.mergeSequential(mergedGroum);
     }
     return mergedGroum;
   }
