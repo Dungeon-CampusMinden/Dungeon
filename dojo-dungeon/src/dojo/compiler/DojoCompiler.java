@@ -164,6 +164,8 @@ public class DojoCompiler {
   /**
    * Tests if a mathematical class is correct.
    *
+   * @param fileName the name of the source file
+   * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
    */
   public TestResult testMathematicalClass(String fileName, String className) {
