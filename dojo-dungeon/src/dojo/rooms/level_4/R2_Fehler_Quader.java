@@ -34,7 +34,7 @@ import java.util.Set;
  * die Klasse richtig verbessert wurde, gilt der Imp als besiegt und der Spieler kann in den
  * nächsten Raum weitergehen.
  */
-public class L4_R2_Fehler_Quader extends TaskRoom {
+public class R2_Fehler_Quader extends TaskRoom {
   /**
    * The file name of the mathematical cuboid class in this room that should be improved and
    * automatically checked.
@@ -52,7 +52,7 @@ public class L4_R2_Fehler_Quader extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public L4_R2_Fehler_Quader(
+  public R2_Fehler_Quader(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

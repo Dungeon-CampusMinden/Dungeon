@@ -29,7 +29,7 @@ import task.tasktype.quizquestion.FreeText;
  * <p>In diesem Raum müssen verschiedene Design Patterns anhand eines UML-Klassendiagramms erkannt
  * werden. Die erkannten Design Patterns müssen dann dem Zauberer mitgeteilt werden.
  */
-public class L2_R2_Fragen_Pattern extends Room {
+public class R2_Fragen_Pattern extends Room {
   private final String FILENAME = "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
   private final String[] expectedPatterns = {"Observer", "Visitor"};
   private int currentPatternIndex = 0;
@@ -46,7 +46,7 @@ public class L2_R2_Fragen_Pattern extends Room {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public L2_R2_Fragen_Pattern(
+  public R2_Fragen_Pattern(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

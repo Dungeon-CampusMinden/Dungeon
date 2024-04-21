@@ -6,18 +6,18 @@ import core.level.utils.LevelSize;
 import core.utils.components.path.IPath;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
-import dojo.rooms.level_1.L1_R1_Monster_1;
-import dojo.rooms.level_1.L1_R2_Fehler_Syntax;
-import dojo.rooms.level_1.L1_R3_Fragen_Lambda;
-import dojo.rooms.level_2.L2_R1_Monster_3;
-import dojo.rooms.level_2.L2_R2_Fragen_Pattern;
-import dojo.rooms.level_2.L2_R3_Monster_Implement_2;
-import dojo.rooms.level_3.L3_R1_Monster_2;
-import dojo.rooms.level_3.L3_R2_Monster_Implement_1;
-import dojo.rooms.level_3.L3_R3_Fehler_Refactoring;
-import dojo.rooms.level_4.L4_R1_Fragen_Schriftrollen;
-import dojo.rooms.level_4.L4_R2_Fehler_Quader;
-import dojo.rooms.level_4.L4_R3_Fragen_RegExes;
+import dojo.rooms.level_1.R1_Monster_1;
+import dojo.rooms.level_1.R2_Fehler_Syntax;
+import dojo.rooms.level_1.R3_Fragen_Lambda;
+import dojo.rooms.level_2.R1_Monster_3;
+import dojo.rooms.level_2.R2_Fragen_Pattern;
+import dojo.rooms.level_2.R3_Monster_Implement_2;
+import dojo.rooms.level_3.R1_Monster_2;
+import dojo.rooms.level_3.R2_Monster_Implement_1;
+import dojo.rooms.level_3.R3_Fehler_Refactoring;
+import dojo.rooms.level_4.R1_Fragen_Schriftrollen;
+import dojo.rooms.level_4.R2_Fehler_Quader;
+import dojo.rooms.level_4.R3_Fragen_RegExes;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -128,7 +128,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Monster_1() {
-    return new L1_R1_Monster_1(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new R1_Monster_1(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -137,7 +137,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fehler_Syntax() {
-    return new L1_R2_Fehler_Syntax(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new R2_Fehler_Syntax(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -146,7 +146,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fragen_Lambda() {
-    return new L1_R3_Fragen_Lambda(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new R3_Fragen_Lambda(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -155,7 +155,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Monster_2() {
-    return new L3_R1_Monster_2(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new R1_Monster_2(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -164,7 +164,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Monster_Implement_1() {
-    return new L3_R2_Monster_Implement_1(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new R2_Monster_Implement_1(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -173,7 +173,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fehler_Refactoring() {
-    return new L3_R3_Fehler_Refactoring(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new R3_Fehler_Refactoring(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -182,7 +182,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fragen_Schriftrollen() {
-    return new L4_R1_Fragen_Schriftrollen(
+    return new R1_Fragen_Schriftrollen(
         levelRoom, gen, nextRoom, levelSize, designLabel, monsterCount, monsterPaths, sortables);
   }
 
@@ -192,7 +192,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fehler_Quader() {
-    return new L4_R2_Fehler_Quader(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new R2_Fehler_Quader(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -201,7 +201,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fragen_RegExes() {
-    return new L4_R3_Fragen_RegExes(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new R3_Fragen_RegExes(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -210,7 +210,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Monster_3() {
-    return new L2_R1_Monster_3(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new R1_Monster_3(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -219,7 +219,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fragen_Pattern() {
-    return new L2_R2_Fragen_Pattern(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new R2_Fragen_Pattern(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -228,6 +228,6 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Monster_Implement_2() {
-    return new L2_R3_Monster_Implement_2(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new R3_Monster_Implement_2(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 }
