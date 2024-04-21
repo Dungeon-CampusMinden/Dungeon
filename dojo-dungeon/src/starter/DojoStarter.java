@@ -91,10 +91,10 @@ public class DojoStarter {
   }
 
   private static void createLevel() throws IOException {
-    // create a customised level comprising rooms
+    // Create a customised level comprising rooms
     LevelRoomLevel[] allLevels = getLevelRoomLevels();
 
-    // connect the rooms, this is needed to build the rooms in next steps
+    // Connect the rooms, this is needed to build the rooms in next steps
     LevelRoom previousLevelRoom = null;
     for (LevelRoomLevel level : allLevels) {
       for (LevelRoom levelRoom : level.getLevelRooms()) {
@@ -105,7 +105,7 @@ public class DojoStarter {
       }
     }
 
-    // build the rooms (reverse order)
+    // Build the rooms (reverse order)
     Deque<Room> rooms = new ArrayDeque<>();
     RoomGenerator gen = new RoomGenerator();
     Room nextRoom = null;
@@ -119,7 +119,7 @@ public class DojoStarter {
       }
     }
 
-    // configure the doors
+    // Configure the doors
     for (Room room : rooms) {
       room.configDoors();
     }
@@ -136,7 +136,7 @@ public class DojoStarter {
         .orElseThrow()
         .openDoors();
 
-    // add a room description popup dialog on room enter for each room
+    // Add a room description popup dialog on room enter for each room
     Game.userOnLevelLoad(
         (wasAlreadyLoaded) -> {
           ILevel il = Game.currentLevel();
@@ -151,7 +151,7 @@ public class DojoStarter {
           }
         });
 
-    // set level 1, room 1 as start level
+    // Set level 1, room 1 as start level (or start room)
     Game.currentLevel(allLevels[0].getLevelRooms()[0].level());
   }
 
