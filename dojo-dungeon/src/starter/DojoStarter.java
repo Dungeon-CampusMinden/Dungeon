@@ -134,7 +134,7 @@ public class DojoStarter {
     rooms.get(8).openDoors();
 
     // add a room description popup dialog on room enter for each room
-    final List<Room> finalRooms = rooms;
+    List<Room> finalRooms = rooms;
     Game.userOnLevelLoad(
         (wasAlreadyLoaded) -> {
           ILevel il = Game.currentLevel();
