@@ -35,11 +35,8 @@ import java.util.Set;
  * nächsten Raum weitergehen.
  */
 public class R2_Fehler_Quader extends TaskRoom {
-  /**
-   * The file name of the mathematical cuboid class in this room that should be improved and
-   * automatically checked.
-   */
-  public static final String FILENAME = "../dojo-dungeon/todo-assets/Fehler_Quader/Cuboid.java";
+  private static final String FILE_NAME = "../dojo-dungeon/todo-assets/Fehler_Quader/Cuboid.java";
+  private static final String CLASS_NAME = "Cuboid";
 
   private int impHealth = 10;
 
@@ -112,7 +109,8 @@ public class R2_Fehler_Quader extends TaskRoom {
             impHealth,
             (e) -> {
               // Test players solution
-              DojoCompiler.TestResult testResult = new DojoCompiler().testMathematicalClass();
+              DojoCompiler.TestResult testResult =
+                  new DojoCompiler().testMathematicalClass(FILE_NAME, CLASS_NAME);
               if (testResult.passed()) {
                 OkDialog.showOkDialog(
                     "Danke, du hast die Aufgabe gelöst.",
@@ -156,7 +154,7 @@ public class R2_Fehler_Quader extends TaskRoom {
             true,
             (entity1, entity2) ->
                 OkDialog.showOkDialog(
-                    "Finde und verbessere die Fehler in der Klasse: " + FILENAME,
+                    "Finde und verbessere die Fehler in der Klasse: " + FILE_NAME,
                     "Aufgabe in diesem Raum:",
                     () -> {
                       OkDialog.showOkDialog(

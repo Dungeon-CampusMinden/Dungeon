@@ -4,7 +4,6 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.utils.components.path.SimpleIPath;
 import dojo.rooms.Room;
-import dojo.rooms.level_4.R2_Fehler_Quader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -167,9 +166,9 @@ public class DojoCompiler {
    *
    * @return a {@link TestResult} if the tests passed
    */
-  public TestResult testMathematicalClass() {
+  public TestResult testMathematicalClass(String fileName, String className) {
     try {
-      Class<?> cls2 = compile(getSource(R2_Fehler_Quader.FILENAME), "Cuboid");
+      Class<?> cls2 = compile(getSource(fileName), className);
       Constructor<?> tor2 = cls2.getConstructor(float.class, float.class, float.class);
       Object inst2 = tor2.newInstance(10.0f, 30.0f, 20.0f);
       Method m1 = cls2.getMethod("calculateArea");
