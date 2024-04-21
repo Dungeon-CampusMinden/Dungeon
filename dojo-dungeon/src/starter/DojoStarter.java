@@ -106,7 +106,7 @@ public class DojoStarter {
     }
 
     // build the rooms (reverse order)
-    List<Room> rooms = new ArrayList<>();
+    Deque<Room> rooms = new ArrayDeque<>();
     RoomGenerator gen = new RoomGenerator();
     Room nextRoom = null;
     for (int i = allLevels.length - 1; i >= 0; i--) {
@@ -115,10 +115,9 @@ public class DojoStarter {
         LevelRoom levelRoom = level.getLevelRooms()[j];
         BuildRoomMethod buildRoomMethod = level.getBuildRoomMethods()[j];
         nextRoom = buildRoomMethod.buildRoom(levelRoom, gen, nextRoom, level.getDesignLabel());
-        rooms.add(nextRoom);
+        rooms.addFirst(nextRoom);
       }
     }
-    rooms = rooms.reversed();
 
     // configure the doors
     for (Room room : rooms) {
@@ -130,15 +129,18 @@ public class DojoStarter {
       room.closeDoors();
     }
 
-    // Fehler_Refactoring should not be closed:
-    rooms.get(8).openDoors();
+    // Room "Fehler_Refactoring" should not be closed:
+    rooms.stream()
+        .filter(r -> r.getClass().getSimpleName().contains("Fehler_Refactoring"))
+        .findFirst()
+        .orElseThrow()
+        .openDoors();
 
     // add a room description popup dialog on room enter for each room
-    List<Room> finalRooms = rooms;
     Game.userOnLevelLoad(
         (wasAlreadyLoaded) -> {
           ILevel il = Game.currentLevel();
-          for (Room room : finalRooms) {
+          for (Room room : rooms) {
             if (room.hasLevel(il)) {
               String roomTitle = room.getRoomTitle();
               String roomDescription = room.getRoomDescription();
