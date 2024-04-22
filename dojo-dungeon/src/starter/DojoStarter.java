@@ -30,19 +30,23 @@ public class DojoStarter {
     Room buildRoom(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel);
   }
 
+  private record BuildRoomData(
+      BuildRoomMethod buildRoomMethod, String roomTitle, String roomDescription) {}
+
+  private record BuildRoom(
+      LevelRoomLevel levelRoomLevel, BuildRoomData buildRoomData, LevelRoom levelRoom) {}
+
   private static class LevelRoomLevel {
     private final DesignLabel designLabel;
-    private final BuildRoomMethod[] buildRoomMethods;
-    private final LevelRoom[] levelRooms;
+    private final List<BuildRoom> buildRooms;
 
     private LevelRoomLevel(
-        LevelGraph graph, DesignLabel designLabel, BuildRoomMethod[] buildRoomMethods) {
+        LevelGraph graph, DesignLabel designLabel, BuildRoomData[] buildRoomData) {
       this.designLabel = designLabel;
-      this.buildRoomMethods = buildRoomMethods;
-      levelRooms =
-          Arrays.stream(buildRoomMethods)
-              .map(temp -> new LevelRoom(graph))
-              .toArray(LevelRoom[]::new);
+      buildRooms =
+          Arrays.stream(buildRoomData)
+              .map(brm -> new BuildRoom(this, brm, new LevelRoom(graph)))
+              .toList();
     }
   }
 
@@ -70,7 +74,8 @@ public class DojoStarter {
     // Connect the rooms, this is needed to build the rooms in next steps
     LevelRoom previousLevelRoom = null;
     for (LevelRoomLevel level : allLevels) {
-      for (LevelRoom levelRoom : level.levelRooms) {
+      for (BuildRoom buildRoom : level.buildRooms) {
+        LevelRoom levelRoom = buildRoom.levelRoom;
         if (previousLevelRoom != null) {
           connectBidirectional(previousLevelRoom, levelRoom);
         }
@@ -84,12 +89,10 @@ public class DojoStarter {
     Room nextRoom = null;
     Deque<Room> rooms = new ArrayDeque<>();
     for (LevelRoomLevel level : tempReversedLevels) {
-      Iterator<LevelRoom> levelRoomIterator = Arrays.asList(level.levelRooms).reversed().iterator();
-      Iterator<BuildRoomMethod> buildRoomMethodIterator =
-          Arrays.asList(level.buildRoomMethods).reversed().iterator();
-      while (levelRoomIterator.hasNext() && buildRoomMethodIterator.hasNext()) {
-        LevelRoom levelRoom = levelRoomIterator.next();
-        BuildRoomMethod buildRoomMethod = buildRoomMethodIterator.next();
+      List<BuildRoom> tempReversedBuildRooms = level.buildRooms.reversed();
+      for (BuildRoom buildRoom : tempReversedBuildRooms) {
+        LevelRoom levelRoom = buildRoom.levelRoom;
+        BuildRoomMethod buildRoomMethod = buildRoom.buildRoomData.buildRoomMethod;
         nextRoom = buildRoomMethod.buildRoom(levelRoom, gen, nextRoom, level.designLabel);
         rooms.addFirst(nextRoom);
       }
@@ -116,19 +119,21 @@ public class DojoStarter {
     Game.userOnLevelLoad(
         (wasAlreadyLoaded) -> {
           ILevel il = Game.currentLevel();
-          for (Room room : rooms) {
-            if (room.hasLevel(il)) {
-              String roomTitle = room.getRoomTitle();
-              String roomDescription = room.getRoomDescription();
-              if (roomTitle != null && roomDescription != null) {
-                OkDialog.showOkDialog(roomDescription, roomTitle, () -> {});
+          for (LevelRoomLevel level : allLevels) {
+            for (BuildRoom buildRoom : level.buildRooms) {
+              if (buildRoom.levelRoom.level() == il) {
+                String roomTitle = buildRoom.buildRoomData.roomTitle;
+                String roomDescription = buildRoom.buildRoomData.roomDescription;
+                if (roomTitle != null && roomDescription != null) {
+                  OkDialog.showOkDialog(roomDescription, roomTitle, () -> {});
+                }
               }
             }
           }
         });
 
     // Set level 1, room 1 as start level (or start room)
-    Game.currentLevel(allLevels[0].levelRooms[0].level());
+    Game.currentLevel(allLevels[0].buildRooms.getFirst().levelRoom.level());
   }
 
   private static LevelRoomLevel[] getLevelRoomLevels() {
@@ -143,34 +148,70 @@ public class DojoStarter {
       new LevelRoomLevel(
           graph,
           DesignLabel.FOREST,
-          new BuildRoomMethod[] {
-            DojoStarter::buildRoom_Key,
-            DojoStarter::buildRoom_Fehler_Syntax,
-            DojoStarter::buildRoom_Fragen_Lambda
+          new BuildRoomData[] {
+            new BuildRoomData(
+                DojoStarter::buildRoom_Key,
+                "\"Der vergessene Wald\" (Raum 1)",
+                "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Schlüssel für den nächsten Raum."),
+            new BuildRoomData(
+                DojoStarter::buildRoom_Fehler_Syntax,
+                "\"Der vergessene Wald\" (Raum 2)",
+                "Gehe zum Ritter für die Raumaufgabe."),
+            new BuildRoomData(
+                DojoStarter::buildRoom_Fragen_Lambda,
+                "\"Der vergessene Wald\" (Raum 3)",
+                "Gehe zum pumpkin dude und beantworte alle Fragen.")
           }),
       new LevelRoomLevel(
           graph,
           DesignLabel.FIRE,
-          new BuildRoomMethod[] {
-            DojoStarter::buildRoom_Monster_Kill,
-            DojoStarter::buildRoom_Fragen_Pattern,
-            DojoStarter::buildRoom_Implement_MyImp
+          new BuildRoomData[] {
+            new BuildRoomData(
+                DojoStarter::buildRoom_Monster_Kill,
+                "\"Die Vulkanhöhle\" (Raum 1)",
+                "Du bist in einem Raum voller Monster. Besiege alle Monster, um in den nächsten Raum zu kommen."),
+            new BuildRoomData(
+                DojoStarter::buildRoom_Fragen_Pattern,
+                "\"Die Vulkanhöhle\" (Raum 2)",
+                "Sprich mit dem Zauberer."),
+            new BuildRoomData(
+                DojoStarter::buildRoom_Implement_MyImp,
+                "\"Die Vulkanhöhle\" (Raum 3)",
+                "Sprich mit dem Imp und danach mit der Truhe!")
           }),
       new LevelRoomLevel(
           graph,
           DesignLabel.TEMPLE,
-          new BuildRoomMethod[] {
-            DojoStarter::buildRoom_Saphire,
-            DojoStarter::buildRoom_Implement_MyMonster,
-            DojoStarter::buildRoom_Fehler_Refactoring
+          new BuildRoomData[] {
+            new BuildRoomData(
+                DojoStarter::buildRoom_Saphire,
+                "\"Tempel der verlorenen Geheimnisse\" (Raum 1)",
+                "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Saphir für den nächsten Raum."),
+            new BuildRoomData(
+                DojoStarter::buildRoom_Implement_MyMonster,
+                "\"Tempel der verlorenen Geheimnisse\" (Raum 2)",
+                "Gehe zum Ritter für die Raumaufgabe."),
+            new BuildRoomData(
+                DojoStarter::buildRoom_Fehler_Refactoring,
+                "\"Tempel der verlorenen Geheimnisse\" (Raum 3)",
+                "Gehe zum Ritter für die Raumaufgabe.")
           }),
       new LevelRoomLevel(
           graph,
           DesignLabel.DEFAULT,
-          new BuildRoomMethod[] {
-            DojoStarter::buildRoom_Fragen_Schriftrollen,
-            DojoStarter::buildRoom_Fehler_Quader,
-            DojoStarter::buildRoom_Fragen_RegExes
+          new BuildRoomData[] {
+            new BuildRoomData(
+                DojoStarter::buildRoom_Fragen_Schriftrollen,
+                "\"Kerker des Grauens\" (Raum 1)",
+                "Ordne die Schriftrollen den entsprechenden Truhen zu."),
+            new BuildRoomData(
+                DojoStarter::buildRoom_Fehler_Quader,
+                "\"Kerker des Grauens\" (Raum 2)",
+                "Spreche mit der Truhe für die Raumaufgabe."),
+            new BuildRoomData(
+                DojoStarter::buildRoom_Fragen_RegExes,
+                "\"Kerker des Grauens\" (Raum 3)",
+                "Gehe zu OgreX für die Raumaufgabe.")
           })
     };
   }

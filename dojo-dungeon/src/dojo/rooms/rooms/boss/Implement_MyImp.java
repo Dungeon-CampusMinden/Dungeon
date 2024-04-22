@@ -70,9 +70,6 @@ public class Implement_MyImp extends Room {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
-
-    setRoomTitle("\"Die Vulkanhöhle\" (Raum 3)");
-    setRoomDescription("Sprich mit dem Imp und danach mit der Truhe!");
   }
 
   private void generate() throws IOException {

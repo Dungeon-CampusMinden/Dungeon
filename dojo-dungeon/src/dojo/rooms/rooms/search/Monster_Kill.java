@@ -53,10 +53,6 @@ public class Monster_Kill extends Room {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
-
-    setRoomTitle("\"Die Vulkanhöhle\" (Raum 1)");
-    setRoomDescription(
-        "Du bist in einem Raum voller Monster. Besiege alle Monster, um in den nächsten Raum zu kommen.");
   }
 
   private void generate() throws IOException {

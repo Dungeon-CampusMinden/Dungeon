@@ -53,9 +53,6 @@ public class Implement_MyMonster extends TaskRoom {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
-
-    setRoomTitle("\"Tempel der verlorenen Geheimnisse\" (Raum 2)");
-    setRoomDescription("Gehe zum Ritter für die Raumaufgabe.");
   }
 
   private void generate() throws IOException {

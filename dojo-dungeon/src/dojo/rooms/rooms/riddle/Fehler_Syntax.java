@@ -89,9 +89,6 @@ public class Fehler_Syntax extends TaskRoom {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
-
-    setRoomTitle("\"Der vergessene Wald\" (Raum 2)");
-    setRoomDescription("Gehe zum Ritter für die Raumaufgabe.");
   }
 
   private void generate() throws IOException {

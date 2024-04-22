@@ -52,9 +52,5 @@ public class Saphire extends SearchRoom {
         keyType,
         keyDescription,
         keyTexture);
-
-    setRoomTitle("\"Tempel der verlorenen Geheimnisse\" (Raum 1)");
-    setRoomDescription(
-        "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Saphir für den nächsten Raum.");
   }
 }

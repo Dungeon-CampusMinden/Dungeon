@@ -51,9 +51,5 @@ public class Key extends SearchRoom {
         keyType,
         keyDescription,
         keyTexture);
-
-    setRoomTitle("\"Der vergessene Wald\" (Raum 1)");
-    setRoomDescription(
-        "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Schlüssel für den nächsten Raum.");
   }
 }

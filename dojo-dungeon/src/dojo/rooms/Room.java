@@ -40,8 +40,6 @@ public class Room {
   private final Room nextRoom;
   private final LevelSize levelSize;
   private final DesignLabel designLabel;
-  private String roomTitle;
-  private String roomDescription;
 
   /**
    * Generate a new base room.
@@ -64,10 +62,6 @@ public class Room {
     this.levelSize = levelSize;
     this.designLabel = designLabel;
     generate();
-
-    // set default room title and description
-    setRoomTitle(getClass().getSimpleName());
-    setRoomDescription(getClass().getSimpleName());
   }
 
   private void generate() {
@@ -145,52 +139,5 @@ public class Room {
    */
   public Tile getStartTile() {
     return levelRoom.level().startTile();
-  }
-
-  /**
-   * Checks if the room has the specified level.
-   *
-   * @param level the level to check
-   * @return true if the room has the specified level, false otherwise
-   */
-  public boolean hasLevel(ILevel level) {
-    return levelRoom.level() == level;
-  }
-
-  /**
-   * Returns the description of the room.
-   *
-   * @return the description of the room, or null if no description has been set
-   */
-  public String getRoomDescription() {
-    return roomDescription;
-  }
-
-  /**
-   * Sets the description of the room.
-   *
-   * @param roomDescription the new description of the room, or null if no description should be
-   *     displayed
-   */
-  public void setRoomDescription(String roomDescription) {
-    this.roomDescription = roomDescription;
-  }
-
-  /**
-   * Returns the title of the room.
-   *
-   * @return the title of the room, or null if no title has been set
-   */
-  public String getRoomTitle() {
-    return roomTitle;
-  }
-
-  /**
-   * Sets the title of the room.
-   *
-   * @param roomTitle the new title of the room, or null if no title should be displayed
-   */
-  public void setRoomTitle(String roomTitle) {
-    this.roomTitle = roomTitle;
   }
 }

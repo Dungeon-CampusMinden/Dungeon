@@ -89,9 +89,6 @@ public class Fragen_RegExes extends Room {
       throw new RuntimeException(
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
-
-    setRoomTitle("\"Kerker des Grauens\" (Raum 3)");
-    setRoomDescription("Gehe zu OgreX für die Raumaufgabe.");
   }
 
   private void generate() throws IOException {
