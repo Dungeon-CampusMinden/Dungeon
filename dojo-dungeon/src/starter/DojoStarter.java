@@ -44,33 +44,6 @@ public class DojoStarter {
               .map(temp -> new LevelRoom(graph))
               .toArray(LevelRoom[]::new);
     }
-
-    /**
-     * Get the level rooms.
-     *
-     * @return the level rooms
-     */
-    public LevelRoom[] getLevelRooms() {
-      return levelRooms;
-    }
-
-    /**
-     * Get the build room methods.
-     *
-     * @return the build room methods
-     */
-    public BuildRoomMethod[] getBuildRoomMethods() {
-      return buildRoomMethods;
-    }
-
-    /**
-     * Get the design label.
-     *
-     * @return the design label
-     */
-    public DesignLabel getDesignLabel() {
-      return designLabel;
-    }
   }
 
   /**
@@ -97,7 +70,7 @@ public class DojoStarter {
     // Connect the rooms, this is needed to build the rooms in next steps
     LevelRoom previousLevelRoom = null;
     for (LevelRoomLevel level : allLevels) {
-      for (LevelRoom levelRoom : level.getLevelRooms()) {
+      for (LevelRoom levelRoom : level.levelRooms) {
         if (previousLevelRoom != null) {
           connectBidirectional(previousLevelRoom, levelRoom);
         }
@@ -111,14 +84,13 @@ public class DojoStarter {
     Room nextRoom = null;
     Deque<Room> rooms = new ArrayDeque<>();
     for (LevelRoomLevel level : tempReversedLevels) {
-      Iterator<LevelRoom> levelRoomIterator =
-          Arrays.asList(level.getLevelRooms()).reversed().iterator();
+      Iterator<LevelRoom> levelRoomIterator = Arrays.asList(level.levelRooms).reversed().iterator();
       Iterator<BuildRoomMethod> buildRoomMethodIterator =
-          Arrays.asList(level.getBuildRoomMethods()).reversed().iterator();
+          Arrays.asList(level.buildRoomMethods).reversed().iterator();
       while (levelRoomIterator.hasNext() && buildRoomMethodIterator.hasNext()) {
         LevelRoom levelRoom = levelRoomIterator.next();
         BuildRoomMethod buildRoomMethod = buildRoomMethodIterator.next();
-        nextRoom = buildRoomMethod.buildRoom(levelRoom, gen, nextRoom, level.getDesignLabel());
+        nextRoom = buildRoomMethod.buildRoom(levelRoom, gen, nextRoom, level.designLabel);
         rooms.addFirst(nextRoom);
       }
     }
@@ -156,7 +128,7 @@ public class DojoStarter {
         });
 
     // Set level 1, room 1 as start level (or start room)
-    Game.currentLevel(allLevels[0].getLevelRooms()[0].level());
+    Game.currentLevel(allLevels[0].levelRooms[0].level());
   }
 
   private static LevelRoomLevel[] getLevelRoomLevels() {
