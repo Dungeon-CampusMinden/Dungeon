@@ -1,8 +1,16 @@
+/** This class represents a Cuboid (3D box). */
 public class Cuboid {
   private final float sideA;
   private final float sideB;
   private final float sideC;
 
+  /**
+   * Constructs the Cuboid.
+   *
+   * @param sideA side length a of the Cuboid
+   * @param sideB side length b of the Cuboid
+   * @param sideC side length c of the Cuboid
+   */
   public Cuboid(float sideA, float sideB, float sideC) {
     this.sideA = sideA;
     this.sideB = sideB;
