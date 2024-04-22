@@ -106,14 +106,18 @@ public class DojoStarter {
     }
 
     // Build the rooms (reverse order)
-    Deque<Room> rooms = new ArrayDeque<>();
+    List<LevelRoomLevel> tempReversedLevels = Arrays.asList(allLevels).reversed();
     RoomGenerator gen = new RoomGenerator();
     Room nextRoom = null;
-    for (int i = allLevels.length - 1; i >= 0; i--) {
-      LevelRoomLevel level = allLevels[i];
-      for (int j = level.getLevelRooms().length - 1; j >= 0; j--) {
-        LevelRoom levelRoom = level.getLevelRooms()[j];
-        BuildRoomMethod buildRoomMethod = level.getBuildRoomMethods()[j];
+    Deque<Room> rooms = new ArrayDeque<>();
+    for (LevelRoomLevel level : tempReversedLevels) {
+      Iterator<LevelRoom> levelRoomIterator =
+          Arrays.asList(level.getLevelRooms()).reversed().iterator();
+      Iterator<BuildRoomMethod> buildRoomMethodIterator =
+          Arrays.asList(level.getBuildRoomMethods()).reversed().iterator();
+      while (levelRoomIterator.hasNext() && buildRoomMethodIterator.hasNext()) {
+        LevelRoom levelRoom = levelRoomIterator.next();
+        BuildRoomMethod buildRoomMethod = buildRoomMethodIterator.next();
         nextRoom = buildRoomMethod.buildRoom(levelRoom, gen, nextRoom, level.getDesignLabel());
         rooms.addFirst(nextRoom);
       }
