@@ -48,7 +48,7 @@ allprojects {
     // Workaround to resolve CS dependencies: https://github.com/checkstyle/checkstyle/issues/14123#issuecomment-1961029772
     configurations.checkstyle {
         resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
-            select("com.google.guava:guava:0")
+            select("com.google.guava:guava:23.0")
         }
     }
 }
