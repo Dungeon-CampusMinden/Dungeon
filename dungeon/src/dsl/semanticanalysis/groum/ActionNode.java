@@ -42,7 +42,8 @@ public abstract class ActionNode extends GroumNode {
     passAsParameter,
     // TODO: how to model prototype definition???
     propertyDefinition,
-    componentDefinition
+    componentDefinition,
+    expression
   }
 
   // this may model access to a specific instance, so need a unique id for modelling this
@@ -99,3 +100,4 @@ public abstract class ActionNode extends GroumNode {
     return this.getLabel();
   }
 }
+

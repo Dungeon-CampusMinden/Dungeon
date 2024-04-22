@@ -120,7 +120,8 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(VarDeclNode node) {
-    // TODO:
+    // TODO: the rhs should be created in a way, which allows for treating it as a single node
+    //  which is used by the resulting primary <init> node of this here method
     Groum rhsGroum = Groum.NONE;
     if (node.getDeclType().equals(VarDeclNode.DeclType.assignmentDecl)) {
       // get rhs
@@ -131,11 +132,21 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     var symbol = symbolTable.getSymbolsForAstNode(id).get(0);
 
     // TODO: this does not take into account the data dependencies!!
-    var action = new InstantiationAction(symbol, createOrGetInstanceId(symbol));
-    Groum mergedGroum = new Groum(action);
+    var instantiationAction = new InstantiationAction(symbol, createOrGetInstanceId(symbol));
+    Groum initGroum = new Groum(instantiationAction);
+    Groum mergedGroum;
     if (!rhsGroum.equals(Groum.NONE)) {
-      mergedGroum = rhsGroum.mergeSequential(mergedGroum);
+      // expression action
+      ExpressionAction expr = new ExpressionAction(rhsGroum.nodes, IndexGenerator.getIdx());
+      Groum exprGroum = new Groum(expr);
+
+      var intermediaryGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
+      //exprGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
+      mergedGroum = intermediaryGroum.mergeSequential(initGroum);
+    } else {
+      mergedGroum = initGroum;
     }
+
     return mergedGroum;
   }
 
