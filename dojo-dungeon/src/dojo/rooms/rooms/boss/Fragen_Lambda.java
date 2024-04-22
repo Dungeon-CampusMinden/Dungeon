@@ -1,4 +1,4 @@
-package dojo.rooms.level_1;
+package dojo.rooms.rooms.boss;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -30,7 +30,7 @@ import task.tasktype.quizquestion.SingleChoice;
  * <p>In diesem Raum muss der Spieler alle Fragen eines NPCs zu Lambda-Ausdrücken und
  * Funktionsinterfaces richtig beantworten, um in den nächsten Raum zu gelangen.
  */
-public class R3_Fragen_Lambda extends Room {
+public class Fragen_Lambda extends Room {
   private record QuestionAndAnswers(Quiz question, Set<Quiz.Content> correctAnswers) {}
 
   private static QuestionAndAnswers question;
@@ -47,7 +47,7 @@ public class R3_Fragen_Lambda extends Room {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public R3_Fragen_Lambda(
+  public Fragen_Lambda(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

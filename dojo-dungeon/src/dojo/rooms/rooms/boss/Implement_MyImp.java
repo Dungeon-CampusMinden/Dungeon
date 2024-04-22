@@ -1,4 +1,4 @@
-package dojo.rooms.level_2;
+package dojo.rooms.rooms.boss;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
@@ -25,7 +25,7 @@ import javax.tools.*;
  * werden muss. Der Dämon erteilt die Aufgabe, Methoden zu schreiben, die dieses Verhalten
  * implementieren. Danach muss der Dämon angegriffen werden.
  */
-public class R3_Monster_Implement_2 extends Room {
+public class Implement_MyImp extends Room {
 
   private static final String IMP_FQC = "dojo.monster.MyImp";
   private static final String IMP_PATH = "src/dojo/monster/MyImp";
@@ -56,7 +56,7 @@ public class R3_Monster_Implement_2 extends Room {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public R3_Monster_Implement_2(
+  public Implement_MyImp(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

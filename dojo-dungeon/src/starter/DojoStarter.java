@@ -157,12 +157,18 @@ public class DojoStarter {
 
   private static LevelRoomLevel[] getLevelRoomLevels() {
     final LevelGraph graph = new LevelGraph();
+    /*
+     * One level consists of three rooms:
+     * First room: one room each from "search".
+     * Second room: one room each from "riddle".
+     * Third room: one room each from "boss".
+     */
     return new LevelRoomLevel[] {
       new LevelRoomLevel(
           graph,
           DesignLabel.FOREST,
           new BuildRoomMethod[] {
-            DojoStarter::buildRoom_Monster_1,
+            DojoStarter::buildRoom_Key,
             DojoStarter::buildRoom_Fehler_Syntax,
             DojoStarter::buildRoom_Fragen_Lambda
           }),
@@ -170,16 +176,16 @@ public class DojoStarter {
           graph,
           DesignLabel.FIRE,
           new BuildRoomMethod[] {
-            DojoStarter::buildRoom_Monster_3,
+            DojoStarter::buildRoom_Monster_Kill,
             DojoStarter::buildRoom_Fragen_Pattern,
-            DojoStarter::buildRoom_Monster_Implement_2
+            DojoStarter::buildRoom_Implement_MyImp
           }),
       new LevelRoomLevel(
           graph,
           DesignLabel.TEMPLE,
           new BuildRoomMethod[] {
-            DojoStarter::buildRoom_Monster_2,
-            DojoStarter::buildRoom_Monster_Implement_1,
+            DojoStarter::buildRoom_Saphire,
+            DojoStarter::buildRoom_Implement_MyMonster,
             DojoStarter::buildRoom_Fehler_Refactoring
           }),
       new LevelRoomLevel(
@@ -247,7 +253,7 @@ public class DojoStarter {
     Game.add(new IdleSoundSystem());
   }
 
-  private static Room buildRoom_Monster_1(
+  private static Room buildRoom_Key(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -255,7 +261,7 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.LARGE)
         .designLabel(designLabel)
-        .buildRoom_Monster_1();
+        .buildRoom_Key();
   }
 
   private static Room buildRoom_Fehler_Syntax(
@@ -280,7 +286,7 @@ public class DojoStarter {
         .buildRoom_Fragen_Lambda();
   }
 
-  private static Room buildRoom_Monster_2(
+  private static Room buildRoom_Saphire(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -288,10 +294,10 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.LARGE)
         .designLabel(designLabel)
-        .buildRoom_Monster_2();
+        .buildRoom_Saphire();
   }
 
-  private static Room buildRoom_Monster_Implement_1(
+  private static Room buildRoom_Implement_MyMonster(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -299,7 +305,7 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(designLabel)
-        .buildRoom_Monster_Implement_1();
+        .buildRoom_Implement_MyMonster();
   }
 
   private static Room buildRoom_Fehler_Refactoring(
@@ -368,7 +374,7 @@ public class DojoStarter {
         .buildRoom_Fragen_RegExes();
   }
 
-  private static Room buildRoom_Monster_3(
+  private static Room buildRoom_Monster_Kill(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -376,7 +382,7 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(designLabel)
-        .buildRoom_Monster_3();
+        .buildRoom_Monster_Kill();
   }
 
   private static Room buildRoom_Fragen_Pattern(
@@ -390,7 +396,7 @@ public class DojoStarter {
         .buildRoom_Fragen_Pattern();
   }
 
-  private static Room buildRoom_Monster_Implement_2(
+  private static Room buildRoom_Implement_MyImp(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -398,6 +404,6 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(designLabel)
-        .buildRoom_Monster_Implement_2();
+        .buildRoom_Implement_MyImp();
   }
 }

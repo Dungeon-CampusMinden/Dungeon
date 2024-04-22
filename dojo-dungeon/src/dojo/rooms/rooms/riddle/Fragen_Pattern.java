@@ -1,4 +1,4 @@
-package dojo.rooms.level_4;
+package dojo.rooms.rooms.riddle;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -13,7 +13,6 @@ import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -27,43 +26,15 @@ import task.tasktype.quizquestion.FreeText;
 /**
  * Informationen für den Spieler über diesen Raum:
  *
- * <p>In diesem Raum muss ein String eingegeben werden, der zum regulären Ausdruck passt. Wenn der
- * passende String eingegeben wurde, lässt OgreX den Spieler zur nächsten Ebene weitergehen.
+ * <p>In diesem Raum müssen verschiedene Design Patterns anhand eines UML-Klassendiagramms erkannt
+ * werden. Die erkannten Design Patterns müssen dann dem Zauberer mitgeteilt werden.
  */
-public class R3_Fragen_RegExes extends Room {
-  private final String[] regexes;
+public class Fragen_Pattern extends Room {
+  private final String FILENAME = "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
+  private final String[] expectedPatterns = {"Observer", "Visitor"};
+  private int currentPatternIndex = 0;
 
-  {
-    Random r = new Random();
-    int min = r.nextInt(4) + 2; // 2-5
-    int max = r.nextInt(5) + min; // 2-9
-    regexes =
-        new String[] {
-          ".",
-          String.format(".{%d,%d}", min, max),
-          "\\d+",
-          String.format("\\d{%d,%d}", min, max),
-          "\\D+",
-          String.format("\\D{%d,%d}", min, max),
-          "\\s+",
-          String.format("\\s{%d,%d}", min, max),
-          "\\S+",
-          String.format("\\S{%d,%d}", min, max),
-          "\\w+",
-          String.format("\\w{%d,%d}", min, max),
-          "\\W+",
-          String.format("\\W{%d,%d}", min, max),
-          "Word",
-          "(dog){3}",
-          "((public|private|protected) )?class \\w+",
-          "^.(?=.*[a-z].)(?=.*[0-9].)(?=.*[@#$,.].).{6,}$",
-        };
-  }
-
-  private Entity bossOgrex;
-
-  private String currentRegex;
-
+  private Entity zauberer;
   private int correctAnswerCount = 0;
 
   /**
@@ -75,7 +46,7 @@ public class R3_Fragen_RegExes extends Room {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public R3_Fragen_RegExes(
+  public Fragen_Pattern(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
@@ -90,8 +61,8 @@ public class R3_Fragen_RegExes extends Room {
           "Failed to generate: " + getClass().getName() + ": " + e.getMessage(), e);
     }
 
-    setRoomTitle("\"Kerker des Grauens\" (Raum 3)");
-    setRoomDescription("Gehe zu OgreX für die Raumaufgabe.");
+    setRoomTitle("\"Die Vulkanhöhle\" (Raum 2)");
+    setRoomDescription("Sprich mit dem Zauberer.");
   }
 
   private void generate() throws IOException {
@@ -106,22 +77,20 @@ public class R3_Fragen_RegExes extends Room {
 
   private Entity questBoss() throws IOException {
     // add boss
-    bossOgrex = new Entity("OgreX");
-    bossOgrex.add(new PositionComponent());
-    bossOgrex.add(new DrawComponent(new SimpleIPath("character/monster/ogre")));
+    zauberer = new Entity("Zauberer von Patternson");
+    zauberer.add(new PositionComponent());
+    zauberer.add(new DrawComponent(new SimpleIPath("character/wizard")));
 
     setNextTask();
 
-    return bossOgrex;
+    return zauberer;
   }
 
   private void setNextTask() {
-    // choose random regex for question
-    nextRegex();
     final Quiz question = newFreeText();
 
-    bossOgrex.add(new TaskComponent(question, bossOgrex));
-    bossOgrex.add(
+    zauberer.add(new TaskComponent(question, zauberer));
+    zauberer.add(
         new InteractionComponent(
             1,
             true,
@@ -139,22 +108,18 @@ public class R3_Fragen_RegExes extends Room {
 
       // remove the automatically added \n from the answer string
       String answer = answers.get();
+      String cleanedAnswer = answer.trim();
 
-      String cleanedAnswer = answer.substring(0, answer.length() - 1);
-
-      System.out.println(System.getProperty("os.name"));
-      if (System.getProperty("os.name").startsWith("Windows")) {
-
-        cleanedAnswer = cleanedAnswer.substring(0, cleanedAnswer.length() - 1);
-      }
-
-      if (cleanedAnswer.matches(getCurrentRegex())) {
+      if (cleanedAnswer.equals(expectedPatterns[currentPatternIndex])) {
         OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
         correctAnswerCount++;
-        if (correctAnswerCount >= 3) {
+        if (correctAnswerCount >= 2) {
           openDoors();
         }
-        setNextTask();
+        currentPatternIndex++;
+        if (currentPatternIndex < expectedPatterns.length) {
+          setNextTask();
+        }
       } else {
         OkDialog.showOkDialog("Ihre Antwort ist nicht korrekt!", "Ok", () -> {});
       }
@@ -163,21 +128,10 @@ public class R3_Fragen_RegExes extends Room {
 
   private Quiz newFreeText() {
     String questionText =
-        "Gib einen String ein, der durch das RegEx pattern '"
-            + getCurrentRegex()
-            + "' gematcht wird.";
-
+        "Welches Design-Pattern wird in dem UML-Klassendiagramm unter \""
+            + FILENAME
+            + (currentPatternIndex + 1)
+            + ".png\" dargestellt? Es reicht das Wort ohne den Zusatz Pattern!";
     return new FreeText(questionText);
-  }
-
-  private void nextRegex() {
-    currentRegex = regexes[new Random().nextInt(regexes.length)];
-  }
-
-  private String getCurrentRegex() {
-    if (currentRegex == null) {
-      nextRegex();
-    }
-    return currentRegex;
   }
 }

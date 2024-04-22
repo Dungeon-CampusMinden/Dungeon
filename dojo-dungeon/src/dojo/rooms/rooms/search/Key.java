@@ -1,4 +1,4 @@
-package dojo.rooms.level_3;
+package dojo.rooms.rooms.search;
 
 import contrib.level.generator.graphBased.RoomGenerator;
 import core.level.utils.DesignLabel;
@@ -12,19 +12,18 @@ import dojo.rooms.SearchRoom;
 /**
  * Informationen für den Spieler über diesen Raum:
  *
- * <p>In diesem Raum muss man den Saphir, der zufällig von einem Monster fallengelassen wird,
+ * <p>In diesem Raum muss man den Schlüssel, der zufällig von einem Monster fallengelassen wird,
  * finden, um in den nächsten Raum zu kommen.
  */
-public class R1_Monster_2 extends SearchRoom {
+public class Key extends SearchRoom {
   private static final int monsterCount = 5;
   private static final IPath[] monsterPaths = {
-    new SimpleIPath("character/monster/orc_shaman"),
-    new SimpleIPath("character/monster/orc_warrior")
+    new SimpleIPath("character/monster/imp"), new SimpleIPath("character/monster/goblin")
   };
 
-  private static final String keyType = "A blue gemstone";
-  private static final String keyDescription = "This gem opens the door to the next room.";
-  private static final IPath keyTexture = new SimpleIPath("items/resource/saphire.png");
+  private static final String keyType = "Golden Key";
+  private static final String keyDescription = "A key to unlock the next room.";
+  private static final IPath keyTexture = new SimpleIPath("items/key/gold_key.png");
 
   /**
    * Generate a new room.
@@ -35,7 +34,7 @@ public class R1_Monster_2 extends SearchRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public R1_Monster_2(
+  public Key(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
@@ -53,8 +52,8 @@ public class R1_Monster_2 extends SearchRoom {
         keyDescription,
         keyTexture);
 
-    setRoomTitle("\"Tempel der verlorenen Geheimnisse\" (Raum 1)");
+    setRoomTitle("\"Der vergessene Wald\" (Raum 1)");
     setRoomDescription(
-        "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Saphir für den nächsten Raum.");
+        "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Schlüssel für den nächsten Raum.");
   }
 }

@@ -1,4 +1,4 @@
-package dojo.rooms.level_2;
+package dojo.rooms.rooms.search;
 
 import contrib.components.*;
 import contrib.entities.AIFactory;
@@ -25,7 +25,7 @@ import java.util.Set;
  *
  * <p>In diesem Raum müssen alle Monster erledigt werden, um weiterzukommen.
  */
-public class R1_Monster_3 extends Room {
+public class Monster_Kill extends Room {
 
   private int monsterGroupsSpawned = 0;
   private int activeMonsters = 0;
@@ -39,7 +39,7 @@ public class R1_Monster_3 extends Room {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public R1_Monster_3(
+  public Monster_Kill(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

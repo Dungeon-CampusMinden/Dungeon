@@ -1,4 +1,4 @@
-package dojo.rooms.level_4;
+package dojo.rooms.rooms.search;
 
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
@@ -32,7 +32,7 @@ import java.util.*;
  * der Programming Patterns und Software Development Principles beschriftet. Erst wenn alle
  * Schriftrollen korrekt zugeordnet sind, kann der Spieler in den nächsten Raum weitergehen.
  */
-public class R1_Fragen_Schriftrollen extends MonsterRoom {
+public class Fragen_Schriftrollen extends MonsterRoom {
 
   HashMap<String, ArrayList<String>> sortables;
   HashMap<Entity, Boolean> doneChests = new HashMap<>();
@@ -49,7 +49,7 @@ public class R1_Fragen_Schriftrollen extends MonsterRoom {
    * @param monsterPaths the paths of the monsters in this room
    * @param sortables a map of the sortables in this room
    */
-  public R1_Fragen_Schriftrollen(
+  public Fragen_Schriftrollen(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

@@ -1,4 +1,4 @@
-package dojo.rooms.level_4;
+package dojo.rooms.rooms.riddle;
 
 import contrib.components.*;
 import contrib.entities.AIFactory;
@@ -34,7 +34,7 @@ import java.util.Set;
  * die Klasse richtig verbessert wurde, gilt der Imp als besiegt und der Spieler kann in den
  * nächsten Raum weitergehen.
  */
-public class R2_Fehler_Quader extends TaskRoom {
+public class Fehler_Quader extends TaskRoom {
   private static final String FILE_NAME = "../dojo-dungeon/todo-assets/Fehler_Quader/Cuboid.java";
   private static final String CLASS_NAME = "Cuboid";
 
@@ -49,7 +49,7 @@ public class R2_Fehler_Quader extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public R2_Fehler_Quader(
+  public Fehler_Quader(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
