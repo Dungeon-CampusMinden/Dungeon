@@ -152,15 +152,15 @@ public class DojoStarter {
             new BuildRoomData(
                 DojoStarter::buildRoom_Key,
                 "\"Der vergessene Wald\" (Raum 1)",
-                "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Schlüssel für den nächsten Raum."),
+                "In diesem Raum muss man den Schlüssel, der zufällig von einem Monster fallengelassen wird, finden, um in den nächsten Raum zu kommen. - Besiege die Monster und finde den Schlüssel für den nächsten Raum."),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fehler_Syntax,
                 "\"Der vergessene Wald\" (Raum 2)",
-                "Gehe zum Ritter für die Raumaufgabe."),
+                "In diesem Raum soll eine fehlerhafte Java-Klasse korrigiert werden, während man spielt. Erst, wenn man alle Fehler gefunden und alle Überprüfungen geschafft hat, kann man in den nächsten Raum weitergehen. Es gibt dabei drei \"Prüfstufen\". - Gehe zum Ritter für die Raumaufgabe."),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fragen_Lambda,
                 "\"Der vergessene Wald\" (Raum 3)",
-                "Gehe zum pumpkin dude und beantworte alle Fragen.")
+                "In diesem Raum muss der Spieler alle Fragen eines NPCs zu Lambda-Ausdrücken und Funktionsinterfaces richtig beantworten, um in den nächsten Raum zu gelangen. - Gehe zum pumpkin dude und beantworte alle Fragen.")
           }),
       new LevelRoomLevel(
           graph,
@@ -169,15 +169,15 @@ public class DojoStarter {
             new BuildRoomData(
                 DojoStarter::buildRoom_Monster_Kill,
                 "\"Die Vulkanhöhle\" (Raum 1)",
-                "Du bist in einem Raum voller Monster. Besiege alle Monster, um in den nächsten Raum zu kommen."),
+                "In diesem Raum müssen alle Monster erledigt werden, um weiterzukommen. - Besiege alle Monster, um in den nächsten Raum zu kommen."),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fragen_Pattern,
                 "\"Die Vulkanhöhle\" (Raum 2)",
-                "Sprich mit dem Zauberer."),
+                "In diesem Raum müssen verschiedene Design Patterns anhand eines UML-Klassendiagramms erkannt werden. Die erkannten Design Patterns müssen dann dem Zauberer mitgeteilt werden. - Sprich mit dem Zauberer."),
             new BuildRoomData(
                 DojoStarter::buildRoom_Implement_MyImp,
                 "\"Die Vulkanhöhle\" (Raum 3)",
-                "Sprich mit dem Imp und danach mit der Truhe!")
+                "In diesem Raum erhält man eine Beschreibung des erwarteten Verhaltens, die implementiert werden muss. Der Dämon erteilt die Aufgabe, Methoden zu schreiben, die dieses Verhalten implementieren. Danach muss der Dämon angegriffen werden. - Sprich mit dem Imp und danach mit der Truhe!")
           }),
       new LevelRoomLevel(
           graph,
@@ -186,15 +186,15 @@ public class DojoStarter {
             new BuildRoomData(
                 DojoStarter::buildRoom_Saphire,
                 "\"Tempel der verlorenen Geheimnisse\" (Raum 1)",
-                "Du bist in einem Raum voller Monster. Besiege die Monster und finde den Saphir für den nächsten Raum."),
+                "In diesem Raum muss man den Saphir, der zufällig von einem Monster fallengelassen wird, finden, um in den nächsten Raum zu kommen. - Besiege die Monster und finde den Saphir für den nächsten Raum."),
             new BuildRoomData(
                 DojoStarter::buildRoom_Implement_MyMonster,
                 "\"Tempel der verlorenen Geheimnisse\" (Raum 2)",
-                "Gehe zum Ritter für die Raumaufgabe."),
+                "In diesem Raum muss ein Monster mit verschiedenen Eigenschaften erstellt und danach besiegt werden, um in den nächsten Raum zu gelangen. - Gehe zum Ritter für die Raumaufgabe."),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fehler_Refactoring,
                 "\"Tempel der verlorenen Geheimnisse\" (Raum 3)",
-                "Gehe zum Ritter für die Raumaufgabe.")
+                "In diesem Raum ist das Ziel, den vorgegebenen Code zu optimieren, Fehler zu beheben und die Lesbarkeit zu verbessern. Nur wenn der Code korrekt ist, kann man in den nächsten Raum weitergehen. - Gehe zum Ritter für die Raumaufgabe.")
           }),
       new LevelRoomLevel(
           graph,
@@ -203,15 +203,15 @@ public class DojoStarter {
             new BuildRoomData(
                 DojoStarter::buildRoom_Fragen_Schriftrollen,
                 "\"Kerker des Grauens\" (Raum 1)",
-                "Ordne die Schriftrollen den entsprechenden Truhen zu."),
+                "Der Spieler muss Schriftrollen, die verschiedene Programming Patterns und Software Development Principles repräsentieren, den entsprechenden Truhen zuordnen. Die Truhen sind mit den Kategorien der Programming Patterns und Software Development Principles beschriftet. Erst wenn alle Schriftrollen korrekt zugeordnet sind, kann der Spieler in den nächsten Raum weitergehen. - Ordne die Schriftrollen den entsprechenden Truhen zu."),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fehler_Quader,
                 "\"Kerker des Grauens\" (Raum 2)",
-                "Spreche mit der Truhe für die Raumaufgabe."),
+                "In diesem Raum muss eine Klasse mit mathematischen Funktionen verbessert werden. Der Spieler hat jedoch nur eine begrenzte Anzahl an Versuchen, symbolisiert durch seine Lebenspunkte. Wenn die Klasse richtig verbessert wurde, gilt der Imp als besiegt und der Spieler kann in den nächsten Raum weitergehen. - Sprich mit der Truhe für die Raumaufgabe."),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fragen_RegExes,
                 "\"Kerker des Grauens\" (Raum 3)",
-                "Gehe zu OgreX für die Raumaufgabe.")
+                "In diesem Raum muss ein String eingegeben werden, der zum regulären Ausdruck passt. Wenn der passende String eingegeben wurde, lässt OgreX den Spieler zur nächsten Ebene weitergehen. - Gehe zu OgreX für die Raumaufgabe.")
           })
     };
   }
