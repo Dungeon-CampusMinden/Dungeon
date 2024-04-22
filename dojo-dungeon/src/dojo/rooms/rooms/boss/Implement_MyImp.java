@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.util.*;
 import javax.tools.*;
 
@@ -73,8 +72,7 @@ public class Implement_MyImp extends Room {
   }
 
   private void generate() throws IOException {
-    final Entity myImp = new Entity();
-    new MyImp(myImp, false, this);
+    final Entity myImp = MyImp.createEntity(this);
 
     final Entity chest = EntityFactory.newChest();
     chest.add(
@@ -84,10 +82,8 @@ public class Implement_MyImp extends Room {
             (entity1, entity2) -> {
               try {
                 Class<?> cls = compile();
-                Constructor<?> tor =
-                    cls.getDeclaredConstructor(Entity.class, boolean.class, Room.class);
-                tor.newInstance(myImp, true, this);
-                OkDialog.showOkDialog("Imp wurde erneut geladen.", "Ok:", () -> {});
+                cls.getDeclaredMethod("modifyMyImp", Entity.class).invoke(null, myImp);
+                OkDialog.showOkDialog("Die Entität \"MyImp\" wurde angepasst.", "Ok:", () -> {});
               } catch (Exception e) {
                 OkDialog.showOkDialog(e.getMessage(), "Fehler:", () -> {});
               }
