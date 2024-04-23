@@ -3,9 +3,9 @@ package dsl.semanticanalysis.groum;
 import dsl.IndexGenerator;
 import dsl.parser.ast.*;
 import dsl.semanticanalysis.SymbolTable;
+import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,15 +14,18 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
   private SymbolTable symbolTable;
   private IEnvironment environment;
   private HashMap<Symbol, Long> instanceMap = new HashMap<>();
+  private TypeInferrer inferrer;
 
   public Groum walk(Node astNode, SymbolTable symbolTable, IEnvironment environment) {
     this.symbolTable = symbolTable;
     this.environment = environment;
+    this.inferrer = new TypeInferrer(this.symbolTable, null);
 
     var groumNode = astNode.accept(this);
 
     this.symbolTable = null;
     this.environment = null;
+    this.inferrer = null;
 
     return groumNode;
   }
@@ -49,7 +52,10 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
           merged = merged.mergeParallel(groum);
         }
         return merged;
-        //break;
+      case GroupedExpression:
+        // TODO: could create a new expression here, because this will in fact be evaluated before
+        // everything else
+        return node.getChild(0).accept(this);
       default:
         return Groum.NONE;
     }
@@ -104,6 +110,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
     // maybe just add the reference in a return stmt as an annotation?
     ControlNode returnNode = new ControlNode(ControlNode.ControlType.returnStmt);
+    returnNode.addChildren(innerGroum.nodes);
     var controlGroum = new Groum(returnNode);
 
     // TODO: ???
@@ -114,14 +121,13 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
   public Groum visit(IdNode node) {
     // Id in expression.. i guess
     Symbol referencedSymbol = symbolTable.getSymbolsForAstNode(node).get(0);
-    var action = new VariableReferenceAction(referencedSymbol, createOrGetInstanceId(referencedSymbol));
+    var action =
+        new VariableReferenceAction(referencedSymbol, createOrGetInstanceId(referencedSymbol));
     return new Groum(action);
   }
 
   @Override
   public Groum visit(VarDeclNode node) {
-    // TODO: the rhs should be created in a way, which allows for treating it as a single node
-    //  which is used by the resulting primary <init> node of this here method
     Groum rhsGroum = Groum.NONE;
     if (node.getDeclType().equals(VarDeclNode.DeclType.assignmentDecl)) {
       // get rhs
@@ -132,7 +138,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     var symbol = symbolTable.getSymbolsForAstNode(id).get(0);
 
     // TODO: this does not take into account the data dependencies!!
-    var instantiationAction = new InstantiationAction(symbol, createOrGetInstanceId(symbol));
+    var instantiationAction = new DefinitionAction(symbol, createOrGetInstanceId(symbol));
     Groum initGroum = new Groum(instantiationAction);
     Groum mergedGroum;
     if (!rhsGroum.equals(Groum.NONE)) {
@@ -140,8 +146,9 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
       ExpressionAction expr = new ExpressionAction(rhsGroum.nodes, IndexGenerator.getIdx());
       Groum exprGroum = new Groum(expr);
 
-      var intermediaryGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
-      //exprGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
+      var intermediaryGroum =
+          rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
+      // exprGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
       mergedGroum = intermediaryGroum.mergeSequential(initGroum);
     } else {
       mergedGroum = initGroum;
@@ -152,17 +159,23 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(DecNumNode node) {
-    throw new UnsupportedOperationException();
+    var type = node.accept(this.inferrer);
+    var refAction = new ConstRefAction((Symbol) type);
+    return new Groum(refAction);
   }
 
   @Override
   public Groum visit(NumNode node) {
-    throw new UnsupportedOperationException();
+    var type = node.accept(this.inferrer);
+    var refAction = new ConstRefAction((Symbol) type);
+    return new Groum(refAction);
   }
 
   @Override
   public Groum visit(StringNode node) {
-    throw new UnsupportedOperationException();
+    var type = node.accept(this.inferrer);
+    var refAction = new ConstRefAction((Symbol) type);
+    return new Groum(refAction);
   }
 
   @Override
@@ -257,7 +270,25 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(StmtBlockNode node) {
-    throw new UnsupportedOperationException();
+    // get all stmts
+    ArrayList<Groum> stmtGroums = new ArrayList<>(node.getStmts().size());
+    for (var stmt : node.getStmts()) {
+      stmtGroums.add(stmt.accept(this));
+    }
+
+    // merge them all under stmt node
+    var blockAction = new ControlNode(ControlNode.ControlType.block);
+    for (var stmtGroum : stmtGroums) {
+      blockAction.addChildren(stmtGroum.nodes);
+    }
+    Groum blockGroum = new Groum(blockAction);
+    for (var groum : stmtGroums) {
+      // TODO: add the nodes as children to calculate scope?
+
+      blockGroum = blockGroum.mergeSequential(groum);
+    }
+
+    return blockGroum;
   }
 
   @Override
@@ -272,22 +303,30 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(LogicOrNode node) {
-    throw new UnsupportedOperationException();
+    var lhsGroum = node.getLhs().accept(this);
+    var rhsGroum = node.getRhs().accept(this);
+    return lhsGroum.mergeParallel(rhsGroum);
   }
 
   @Override
   public Groum visit(LogicAndNode node) {
-    throw new UnsupportedOperationException();
+    var lhsGroum = node.getLhs().accept(this);
+    var rhsGroum = node.getRhs().accept(this);
+    return lhsGroum.mergeParallel(rhsGroum);
   }
 
   @Override
   public Groum visit(EqualityNode node) {
-    throw new UnsupportedOperationException();
+    var lhsGroum = node.getLhs().accept(this);
+    var rhsGroum = node.getRhs().accept(this);
+    return lhsGroum.mergeParallel(rhsGroum);
   }
 
   @Override
   public Groum visit(ComparisonNode node) {
-    throw new UnsupportedOperationException();
+    var lhsGroum = node.getLhs().accept(this);
+    var rhsGroum = node.getRhs().accept(this);
+    return lhsGroum.mergeParallel(rhsGroum);
   }
 
   @Override
@@ -299,27 +338,88 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(FactorNode node) {
-    throw new UnsupportedOperationException();
+    var lhsGroum = node.getLhs().accept(this);
+    var rhsGroum = node.getRhs().accept(this);
+    return lhsGroum.mergeParallel(rhsGroum);
   }
 
   @Override
   public Groum visit(UnaryNode node) {
-    throw new UnsupportedOperationException();
+    return node.getInnerNode().accept(this);
   }
 
   @Override
   public Groum visit(AssignmentNode node) {
-    throw new UnsupportedOperationException();
+    // basically like init
+
+    // get rhs
+    Groum rhsGroum = node.getRhs().accept(this);
+
+    var id = node.getLhs();
+    var symbol = symbolTable.getSymbolsForAstNode(id).get(0);
+
+    // TODO: this does not take into account the data dependencies!!
+    var assignmentAction = new DefinitionAction(symbol, createOrGetInstanceId(symbol));
+    Groum assignmentGroum = new Groum(assignmentAction);
+    Groum mergedGroum;
+    if (!rhsGroum.equals(Groum.NONE)) {
+      // expression action
+      ExpressionAction expr = new ExpressionAction(rhsGroum.nodes, IndexGenerator.getIdx());
+      Groum exprGroum = new Groum(expr);
+
+      var intermediaryGroum =
+          rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
+      // exprGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
+      mergedGroum = intermediaryGroum.mergeSequential(assignmentGroum);
+    } else {
+      mergedGroum = assignmentGroum;
+    }
+
+    return mergedGroum;
   }
 
   @Override
   public Groum visit(ListDefinitionNode node) {
-    throw new UnsupportedOperationException();
+    // get groums for entries
+    ArrayList<Groum> entryGroums = new ArrayList<>(node.getEntries().size());
+    for (var entry : node.getEntries()) {
+      var groum = entry.accept(this);
+      entryGroums.add(groum);
+    }
+
+    // merge all entry groums parallely under expression node
+    Groum mergedEntryGroums = Groum.NONE;
+    for (Groum entryGroum : entryGroums) {
+      mergedEntryGroums = mergedEntryGroums.mergeParallel(entryGroum);
+    }
+
+    // add all to expression action
+    ExpressionAction expressionAction =
+        new ExpressionAction(mergedEntryGroums.nodes, IndexGenerator.getIdx());
+    Groum expressionGroum = new Groum(expressionAction);
+    return mergedEntryGroums.mergeSequential(expressionGroum);
   }
 
   @Override
   public Groum visit(SetDefinitionNode node) {
-    throw new UnsupportedOperationException();
+    // get groums for entries
+    ArrayList<Groum> entryGroums = new ArrayList<>(node.getEntries().size());
+    for (var entry : node.getEntries()) {
+      var groum = entry.accept(this);
+      entryGroums.add(groum);
+    }
+
+    // merge all entry groums parallely under expression node
+    Groum mergedEntryGroums = Groum.NONE;
+    for (Groum entryGroum : entryGroums) {
+      mergedEntryGroums = mergedEntryGroums.mergeParallel(entryGroum);
+    }
+
+    // add all to expression action
+    ExpressionAction expressionAction =
+        new ExpressionAction(mergedEntryGroums.nodes, IndexGenerator.getIdx());
+    Groum expressionGroum = new Groum(expressionAction);
+    return mergedEntryGroums.mergeSequential(expressionGroum);
   }
 
   @Override
@@ -344,7 +444,22 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(WhileLoopStmtNode node) {
-    throw new UnsupportedOperationException();
+    Groum conditionGroum = node.getExpressionNode().accept(this);
+    Groum conditionExpressionGroum =
+        new Groum(new ExpressionAction(conditionGroum.nodes, IndexGenerator.getIdx()));
+    Groum mergedGroum = conditionGroum.mergeSequential(conditionExpressionGroum);
+
+    var controlNode = new ControlNode(ControlNode.ControlType.whileLoop);
+    Groum controlGroum = new Groum(controlNode);
+    mergedGroum = mergedGroum.mergeSequential(controlGroum);
+
+    var stmtGroum = node.getStmtNode().accept(this);
+    mergedGroum = mergedGroum.mergeSequential(stmtGroum);
+
+    // Note: this will cause the controlNode to contain itself
+    controlNode.addChildren(mergedGroum.nodes);
+
+    return mergedGroum;
   }
 
   @Override
@@ -362,7 +477,6 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     throw new UnsupportedOperationException();
   }
 
-
   @Override
   public Groum visit(ItemPrototypeDefinitionNode node) {
     throw new UnsupportedOperationException();
@@ -370,6 +484,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(ImportNode node) {
+    // basically definition
     throw new UnsupportedOperationException();
   }
 }

@@ -15,5 +15,4 @@ public class FunctionCallAction extends ActionNode {
   public String getLabel() {
     return "";
   }
-
 }

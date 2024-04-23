@@ -20,6 +20,9 @@ public class ParameterInstantiationAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return this.instantiatedType().toString() + ":<param_init ["+this.referencedInstanceId()+"]>";
+    return this.instantiatedType().toString()
+        + ":<param_init ["
+        + this.referencedInstanceId()
+        + "]>";
   }
 }

@@ -2,7 +2,6 @@ package dsl.semanticanalysis;
 
 import dsl.helpers.Helpers;
 import dsl.parser.ast.FuncDefNode;
-import dsl.parser.ast.ReturnStmtNode;
 import dsl.parser.ast.TermNode;
 import dsl.parser.ast.VarDeclNode;
 import dsl.semanticanalysis.groum.GroumPrinter;
@@ -14,8 +13,9 @@ import org.junit.Test;
 
 public class TestGroum {
   @Test
-  public void poc() {
-    String program = """
+  public void simple() {
+    String program =
+        """
       fn add(int x, int y) -> int {
         var sum = x + y;
         var derp = y + sum;
@@ -33,13 +33,13 @@ public class TestGroum {
     var xParamSymbol = functionSymbol.resolve("x");
     var yParamSymbol = functionSymbol.resolve("y");
 
-    var node = (FuncDefNode)symbolTable.getCreationAstNode(functionSymbol);
-    var varDecl = (VarDeclNode)node.getStmts().get(0);
+    var node = (FuncDefNode) symbolTable.getCreationAstNode(functionSymbol);
+    var varDecl = (VarDeclNode) node.getStmts().get(0);
     var idDef = varDecl.getIdentifier();
     var sumSymbol = symbolTable.getSymbolsForAstNode(idDef).get(0);
     Assert.assertNotEquals(Symbol.NULL, sumSymbol);
 
-    var term = (TermNode)varDecl.getRhs();
+    var term = (TermNode) varDecl.getRhs();
     var xRef = term.getLhs();
     var xTermSymbol = symbolTable.getSymbolsForAstNode(xRef).get(0);
     Assert.assertEquals(xParamSymbol, xTermSymbol);
@@ -57,6 +57,30 @@ public class TestGroum {
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
+  }
 
+  @Test
+  public void whileLoop() {
+    String program =
+        """
+      fn add(int x, int y) -> int {
+        var sum = x;
+        while (sum < 42) {
+          sum = sum + 1;
+        }
+        return sum;
+      }
+      """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
   }
 }

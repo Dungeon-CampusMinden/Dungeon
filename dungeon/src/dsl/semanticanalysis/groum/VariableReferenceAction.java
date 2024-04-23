@@ -9,7 +9,7 @@ public class VariableReferenceAction extends ActionNode {
 
   public VariableReferenceAction(Symbol referencedSymbol, long referenceId) {
     super(ActionType.referencedInExpression);
-    this.addSymbolReference((Symbol)referencedSymbol.getDataType());
+    this.addSymbolReference((Symbol) referencedSymbol.getDataType());
     this.addSymbolReference(referencedSymbol);
     this.referencedInstanceId(referenceId);
   }
@@ -24,6 +24,6 @@ public class VariableReferenceAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return this.variableType().getName()+":<ref ["+this.referencedInstanceId()+"]>";
+    return this.variableType().getName() + ":<ref [" + this.referencedInstanceId() + "]>";
   }
 }

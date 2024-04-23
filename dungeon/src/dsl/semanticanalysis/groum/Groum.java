@@ -2,7 +2,6 @@ package dsl.semanticanalysis.groum;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Groum {
   public static Groum NONE = new Groum();
@@ -40,12 +39,12 @@ public class Groum {
     ArrayList<GroumNode> mergedNodes = new ArrayList<>(this.nodes.size() + other.nodes.size());
     mergedNodes.addAll(this.nodes);
     mergedNodes.addAll(other.nodes);
-    //mergedNodes = new ArrayList<>(mergedNodes.stream().distinct().toList());
+    // mergedNodes = new ArrayList<>(mergedNodes.stream().distinct().toList());
 
     ArrayList<GroumEdge> mergedEdges = new ArrayList<>(this.edges.size() + other.edges.size());
     mergedEdges.addAll(this.edges);
     mergedEdges.addAll(other.edges);
-    //mergedEdges = new ArrayList<>(mergedEdges.stream().distinct().toList());
+    // mergedEdges = new ArrayList<>(mergedEdges.stream().distinct().toList());
 
     return new Groum(mergedNodes, mergedEdges);
   }

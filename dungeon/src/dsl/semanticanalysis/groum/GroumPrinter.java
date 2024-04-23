@@ -2,6 +2,8 @@ package dsl.semanticanalysis.groum;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class GroumPrinter {
   private static String preamble = "digraph G {";
@@ -15,33 +17,39 @@ public class GroumPrinter {
   private static String nodeWithChildrenEnd = "}";
 
   private HashMap<Object, String> idMap = new HashMap<>();
-  private HashMap<GroumNode, GroumNode> expressionActionMap = new HashMap<>();
-  private HashMap<GroumNode, StringBuilder> expressionActionStrings = new HashMap<>();
+  private HashMap<GroumNode, StringBuilder> actionsWithChildren = new HashMap<>();
   private long actionNodeCounter = 0;
   private long controlNodeCounter = 0;
 
+  private StringBuilder builder;
+
   public String print(Groum groum) {
-    StringBuilder builder = new StringBuilder();
+    builder = new StringBuilder();
     builder.append(preamble).append("\n");
 
     // collect all expression nodes
-    var expressionActions = groum.nodes.stream().filter(n -> n instanceof ExpressionAction).map(n -> (ExpressionAction)n).toList();
-    for (var node : expressionActions) {
-      // fill expressionActionMap
-      for (var childNode : node.childNodes()) {
-        expressionActionMap.put(childNode, node);
-      }
-
+    ArrayList<GroumNode> rootNodes = new ArrayList<>();
+    var actionsWithChildren =
+        groum.nodes.stream().filter(n -> !n.children().isEmpty()).collect(Collectors.toSet());
+    for (var node : actionsWithChildren) {
       // start Strings
-      String init = String.format(nodeWithChildrenStartFmt, getOrCreateIdAction(node), node.getLabel());
-      expressionActionStrings.put(node, new StringBuilder(init));
+      String id =
+          node instanceof ActionNode
+              ? getOrCreateIdAction((ActionNode) node)
+              : getOrCreateIdControl((ControlNode) node);
+      String init = String.format(nodeWithChildrenStartFmt, id, node.getLabel());
+      this.actionsWithChildren.put(node, new StringBuilder(init));
+
+      if (node.parent() == GroumNode.NONE) {
+        rootNodes.add(node);
+      }
     }
 
     for (var node : groum.nodes) {
       if (node instanceof ActionNode) {
-        actionNode((ActionNode)node, builder);
+        actionNode((ActionNode) node, builder);
       } else {
-        controlNode((ControlNode)node, builder);
+        controlNode((ControlNode) node, builder);
       }
     }
 
@@ -49,18 +57,42 @@ public class GroumPrinter {
       edge(edge, builder);
     }
 
-    for (var expressionActionStringBuilder : expressionActionStrings.values()) {
-      expressionActionStringBuilder.append(nodeWithChildrenEnd);
-      builder.append(expressionActionStringBuilder);
+    for (var rootNode : rootNodes) {
+      // check, if it contains children, which also contain other nodes
+      printNodeWithChildren(rootNode);
     }
 
     builder.append("\n").append(postamble);
     return builder.toString();
   }
 
+  private void printNodeWithChildren(GroumNode node) {
+    List<GroumNode> children = node.children();
+
+    for (var child : children) {
+      // check, whether the child contains children
+      if (this.actionsWithChildren.containsKey(child)) {
+        printNodeWithChildren(child);
+      }
+    }
+
+    // get stringbuilder
+    var stringBuilder = this.actionsWithChildren.get(node);
+    stringBuilder.append(nodeWithChildrenEnd);
+    if (node.parent() == GroumNode.NONE) {
+      // print globally
+      this.builder.append(stringBuilder);
+    } else {
+      // print to string builder of parent
+      var parent = node.parent();
+      var parentsBuilder = this.actionsWithChildren.get(parent);
+      parentsBuilder.append(stringBuilder);
+    }
+  }
+
   private String getOrCreateIdAction(ActionNode node) {
     if (!this.idMap.containsKey(node)) {
-      String id = "a"+actionNodeCounter;
+      String id = "a" + actionNodeCounter;
       actionNodeCounter++;
       this.idMap.put(node, id);
     }
@@ -69,7 +101,7 @@ public class GroumPrinter {
 
   private String getOrCreateIdControl(ControlNode node) {
     if (!this.idMap.containsKey(node)) {
-      String id = "c"+controlNodeCounter;
+      String id = "c" + controlNodeCounter;
       controlNodeCounter++;
       this.idMap.put(node, id);
     }
@@ -80,13 +112,14 @@ public class GroumPrinter {
     String nodeId = getOrCreateIdAction(node);
     String nodeString = String.format(actionNodeDeclarationFmt, nodeId, node.toString());
 
-    if (expressionActionStrings.containsKey(node)) {
-      var expressionNodeStringBuilder = expressionActionStrings.get(node);
-      for (var child : ((ExpressionAction) node).childNodes()) {
+    if (actionsWithChildren.containsKey(node)) {
+      var expressionNodeStringBuilder = actionsWithChildren.get(node);
+
+      for (var child : node.children()) {
         if (child instanceof ActionNode) {
-          actionNode((ActionNode)child, expressionNodeStringBuilder);
+          actionNode((ActionNode) child, expressionNodeStringBuilder);
         } else {
-          controlNode((ControlNode)child, expressionNodeStringBuilder);
+          controlNode((ControlNode) child, expressionNodeStringBuilder);
         }
       }
 
@@ -100,7 +133,22 @@ public class GroumPrinter {
   private void controlNode(ControlNode node, StringBuilder builder) {
     String nodeId = getOrCreateIdControl(node);
     String nodeString = String.format(controlNodeDeclarationFmt, nodeId, node.toString());
-    builder.append(nodeString).append("\n");
+
+    if (actionsWithChildren.containsKey(node)) {
+      var expressionNodeStringBuilder = actionsWithChildren.get(node);
+      for (var child : node.children()) {
+        if (child instanceof ActionNode) {
+          actionNode((ActionNode) child, expressionNodeStringBuilder);
+        } else {
+          controlNode((ControlNode) child, expressionNodeStringBuilder);
+        }
+      }
+
+      // put expression node definition in expressionNodeStringBuilder
+      expressionNodeStringBuilder.append(nodeString).append("\n");
+    } else {
+      builder.append(nodeString).append("\n");
+    }
   }
 
   private void edge(GroumEdge edge, StringBuilder builder) {
@@ -113,12 +161,15 @@ public class GroumPrinter {
     String edgeType = edge.edgeType().toString();
     String edgeString = String.format(edgeFmt, startId, endId, edgeType);
 
-    // if start and end both are in expressionActionMap -> put edge in corresponding expression subgraph
-    if (expressionActionMap.containsKey(start) && expressionActionMap.containsKey(end) &&
-    expressionActionMap.get(start) == expressionActionMap.get(end)) {
+    // if start and end both are in expressionActionMap -> put edge in corresponding expression
+    // subgraph
+    if (start.parent() != GroumNode.NONE && start.parent() == end.parent()) {
       // put edge in subgraph of parent
-      var parent = expressionActionMap.get(start);
-      var expressionActionStringBuilder = expressionActionStrings.get(parent);
+      var parent = start.parent();
+      var expressionActionStringBuilder = actionsWithChildren.get(parent);
+      if (expressionActionStringBuilder == null) {
+        boolean b = true;
+      }
       expressionActionStringBuilder.append(edgeString).append("\n");
     } else {
       builder.append(edgeString).append("\n");

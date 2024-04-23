@@ -2,13 +2,14 @@ package dsl.semanticanalysis.groum;
 
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.symbol.Symbol;
-
 import java.util.ArrayList;
 import java.util.List;
 
 // TODO: how to model prototype definition?
 // TODO: How to model the passing of parameters to a function?
 public abstract class ActionNode extends GroumNode {
+
+  public static long uninitializedInstanceId = -1;
 
   /*@Override
   public String getLabel() {
@@ -31,9 +32,9 @@ public abstract class ActionNode extends GroumNode {
 
   public enum ActionType {
     none,
-    instantiation,
-    parameterInstantiation,  // parameter 'instantiation';
-                        // TODO: this may be two different types (by value, by reference) -> see value semantics!
+    definition,
+    parameterInstantiation, // parameter 'instantiation';
+    // TODO: this may be two different types (by value, by reference) -> see value semantics!
     functionCall,
     propertyAccess,
     functionCallAccess,
@@ -43,11 +44,12 @@ public abstract class ActionNode extends GroumNode {
     // TODO: how to model prototype definition???
     propertyDefinition,
     componentDefinition,
-    expression
+    expression,
+    constRef
   }
 
   // this may model access to a specific instance, so need a unique id for modelling this
-  private long referencedInstanceId;
+  private long referencedInstanceId = uninitializedInstanceId;
 
   // if the groum describes a pattern, this is empty
   private Node astNodeReference;
@@ -100,4 +102,3 @@ public abstract class ActionNode extends GroumNode {
     return this.getLabel();
   }
 }
-

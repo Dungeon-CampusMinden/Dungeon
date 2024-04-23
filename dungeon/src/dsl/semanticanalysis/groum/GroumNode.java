@@ -17,25 +17,43 @@ import java.util.List;
 public abstract class GroumNode {
 
   // explicit null object
-  public static GroumNode NONE = new GroumNode() {
-    @Override
-    public String getLabel() {
-      return "NONE";
-    }
+  public static GroumNode NONE =
+      new GroumNode() {
+        @Override
+        public String getLabel() {
+          return "NONE";
+        }
 
-    @Override
-    public void addIncoming(GroumEdge edge) { }
+        @Override
+        public void addIncoming(GroumEdge edge) {}
 
-    @Override
-    public void addOutgoing(GroumEdge edge) { }
-  };
-
-  private List<GroumEdge> incomingEdges;
-  private List<GroumEdge> outgoingEdges;
+        @Override
+        public void addOutgoing(GroumEdge edge) {}
+      };
 
   public GroumNode() {
     this.incomingEdges = new ArrayList<>();
     this.outgoingEdges = new ArrayList<>();
+    this.children = new ArrayList<>();
+  }
+
+  private List<GroumEdge> incomingEdges;
+  private List<GroumEdge> outgoingEdges;
+
+  // only relevant, if contained in a larger Scope
+  private GroumNode parent = GroumNode.NONE;
+  private ArrayList<GroumNode> children;
+
+  public void addChildren(List<GroumNode> nodes) {
+    var nodesButThis = nodes.stream().filter(c -> c != this).toList();
+    for (var node : nodesButThis) {
+      node.setParent(this);
+    }
+    this.children.addAll(nodesButThis);
+  }
+
+  public List<GroumNode> children() {
+    return this.children;
   }
 
   public void addIncoming(GroumEdge edge) {
@@ -44,6 +62,16 @@ public abstract class GroumNode {
 
   public void addOutgoing(GroumEdge edge) {
     this.outgoingEdges.add(edge);
+  }
+
+  public void setParent(GroumNode parent) {
+    if (this.parent == GroumNode.NONE) {
+      this.parent = parent;
+    }
+  }
+
+  public GroumNode parent() {
+    return this.parent;
   }
 
   public List<GroumEdge> incoming() {
@@ -60,4 +88,3 @@ public abstract class GroumNode {
 
   // TODO: attributes? (such as contained nodes in control structure-nodes, etc.)
 }
-
