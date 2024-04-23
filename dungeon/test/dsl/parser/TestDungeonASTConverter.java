@@ -1736,13 +1736,13 @@ public class TestDungeonASTConverter {
     System.out.println(parseTree);
 
     var ast = DungeonASTConverter.getProgramAST(program, env);
-    var dotEdgeStmtNode = (DotEdgeStmtNode)ast.getChild(1).getChild(1);
+    var dotEdgeStmtNode = (DotEdgeStmtNode) ast.getChild(1).getChild(1);
 
     var idList = dotEdgeStmtNode.getIdLists().get(0);
     Assert.assertEquals(2, idList.getChildren().size());
 
     var lhsId = idList.getChild(0);
-    Assert.assertEquals("t1", ((IdNode)lhsId).getName());
+    Assert.assertEquals("t1", ((IdNode) lhsId).getName());
 
     var rhsIdNode = idList.getChild(1);
     Assert.assertEquals(2, rhsIdNode.getChildren().size());
@@ -1753,14 +1753,16 @@ public class TestDungeonASTConverter {
 
     var expectedToBeIdNode = rhsIdNode.getChild(1);
     Assert.assertEquals(Node.Type.Identifier, expectedToBeIdNode.type);
-    Assert.assertEquals("khas", ((IdNode)expectedToBeIdNode).getName());
+    Assert.assertEquals("khas", ((IdNode) expectedToBeIdNode).getName());
   }
 
   @Test
   @Ignore // TODO: for later
   public void testPlusInGraphDefinition() {
-    // NOTE: The DotDefNode will contain only the 't1' identifier, the rest of the definition from the '+' on
-    // will be contained in ASTErrorNodes; would be nice, if the '+' got kicked out via single token deletion
+    // NOTE: The DotDefNode will contain only the 't1' identifier, the rest of the definition from
+    // the '+' on
+    // will be contained in ASTErrorNodes; would be nice, if the '+' got kicked out via single token
+    // deletion
     // followed by single token insertion (basically a 'single token substitution')
     String program =
         """

@@ -393,11 +393,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
       mergedEntryGroums = mergedEntryGroums.mergeParallel(entryGroum);
     }
 
-    // add all to expression action
-    ExpressionAction expressionAction =
-        new ExpressionAction(mergedEntryGroums.nodes, IndexGenerator.getIdx());
-    Groum expressionGroum = new Groum(expressionAction);
-    return mergedEntryGroums.mergeSequential(expressionGroum);
+    return mergedEntryGroums;
   }
 
   @Override
@@ -415,11 +411,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
       mergedEntryGroums = mergedEntryGroums.mergeParallel(entryGroum);
     }
 
-    // add all to expression action
-    ExpressionAction expressionAction =
-        new ExpressionAction(mergedEntryGroums.nodes, IndexGenerator.getIdx());
-    Groum expressionGroum = new Groum(expressionAction);
-    return mergedEntryGroums.mergeSequential(expressionGroum);
+    return mergedEntryGroums;
   }
 
   @Override

@@ -4,10 +4,7 @@ import dsl.helpers.Helpers;
 import dsl.parser.ast.FuncDefNode;
 import dsl.parser.ast.TermNode;
 import dsl.parser.ast.VarDeclNode;
-import dsl.semanticanalysis.groum.ActionNode;
-import dsl.semanticanalysis.groum.ControlNode;
-import dsl.semanticanalysis.groum.GroumPrinter;
-import dsl.semanticanalysis.groum.TemporaryGroumBuilder;
+import dsl.semanticanalysis.groum.*;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import org.junit.Assert;
@@ -169,5 +166,84 @@ public class TestGroum {
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
+
+    var sourceNodes = groum.sourceNodes();
+    Assert.assertEquals(2, sourceNodes.size());
+
+    var xParam = sourceNodes.get(0);
+    Assert.assertEquals(3, xParam.outgoing().size());
+
+    var yParam = sourceNodes.get(1);
+
+    var constRef = xParam.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.constRef, ((ActionNode)constRef).actionType());
+
+    var xRef = xParam.outgoing().get(1).end();
+    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)xRef).actionType());
+    Assert.assertEquals(((ActionNode)xParam).referencedInstanceId(), ((ActionNode) xRef).referencedInstanceId());
+
+    var yRef = xParam.outgoing().get(2).end();
+    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)yRef).actionType());
+    Assert.assertEquals(((ActionNode)yParam).referencedInstanceId(), ((ActionNode) yRef).referencedInstanceId());
+
+    var expr = constRef.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode)expr).actionType());
+
+    var def = expr.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode)def).actionType());
+    DefinitionAction defAction = (DefinitionAction) def;
+    var type = defAction.instancedType();
+    Assert.assertEquals("int[]", type.getName());
+  }
+
+  @Test
+  public void setDefinition() {
+
+    String program =
+      """
+    fn add(int x, int y) -> int[] {
+      var list = <1,x,y>;
+      return list;
+    }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+
+    var sourceNodes = groum.sourceNodes();
+    Assert.assertEquals(2, sourceNodes.size());
+
+    var xParam = sourceNodes.get(0);
+    Assert.assertEquals(3, xParam.outgoing().size());
+
+    var yParam = sourceNodes.get(1);
+
+    var constRef = xParam.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.constRef, ((ActionNode)constRef).actionType());
+
+    var xRef = xParam.outgoing().get(1).end();
+    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)xRef).actionType());
+    Assert.assertEquals(((ActionNode)xParam).referencedInstanceId(), ((ActionNode) xRef).referencedInstanceId());
+
+    var yRef = xParam.outgoing().get(2).end();
+    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)yRef).actionType());
+    Assert.assertEquals(((ActionNode)yParam).referencedInstanceId(), ((ActionNode) yRef).referencedInstanceId());
+
+    var expr = constRef.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode)expr).actionType());
+
+    var def = expr.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode)def).actionType());
+    DefinitionAction defAction = (DefinitionAction) def;
+    var type = defAction.instancedType();
+    Assert.assertEquals("int<>", type.getName());
   }
 }
