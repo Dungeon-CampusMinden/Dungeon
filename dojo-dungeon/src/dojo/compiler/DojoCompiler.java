@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
-/** Class for compiling and testing at runtime. */
+/** Class for compiling and testing sources at runtime. */
 public class DojoCompiler {
   /**
    * Result of the tests.
@@ -101,6 +101,8 @@ public class DojoCompiler {
   /**
    * Tests if the class is correct by certain criteria, step 1.
    *
+   * <p>Tests if the output of the methods are correct.
+   *
    * @param fileName the name of the source file
    * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
@@ -120,6 +122,10 @@ public class DojoCompiler {
 
   /**
    * Tests if the class is correct by certain criteria, step 2.
+   *
+   * <p>Tests if the output of the methods are correct.
+   *
+   * <p>Tests if the methods can handle unexpected inputs.
    *
    * @param fileName the name of the source file
    * @param className the name of the class
@@ -142,6 +148,12 @@ public class DojoCompiler {
   /**
    * Tests if the class is correct by certain criteria, step 3.
    *
+   * <p>Tests if the output of the methods are correct.
+   *
+   * <p>Tests if the methods can handle unexpected inputs.
+   *
+   * <p>Tests if a try-catch block is used.
+   *
    * @param fileName the name of the source file
    * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
@@ -163,6 +175,9 @@ public class DojoCompiler {
 
   /**
    * Tests if a mathematical class is correct.
+   *
+   * <p>Tests if the methods calculateArea, calculatePerimeter and calculateVolume are correct, e.g.
+   * returning the correct values.
    *
    * @param fileName the name of the source file
    * @param className the name of the class
