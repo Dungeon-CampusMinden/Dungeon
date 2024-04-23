@@ -1,9 +1,11 @@
 package dsl.semanticanalysis;
 
+import core.Game;
 import dsl.helpers.Helpers;
 import dsl.parser.ast.FuncDefNode;
 import dsl.parser.ast.TermNode;
 import dsl.parser.ast.VarDeclNode;
+import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.groum.*;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
@@ -245,5 +247,67 @@ public class TestGroum {
     DefinitionAction defAction = (DefinitionAction) def;
     var type = defAction.instancedType();
     Assert.assertEquals("int<>", type.getName());
+  }
+
+  @Test
+  public void graph() {
+
+    String program =
+      """
+      single_choice_task t1 {
+        description: "t1",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      single_choice_task t2 {
+        description: "t2",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      single_choice_task t3 {
+        description: "t3",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      single_choice_task t4 {
+        description: "t4",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      single_choice_task t5 {
+        description: "t5",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      single_choice_task t6 {
+        description: "t6",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      graph g {
+        t1 -> t2 [type=seq];
+        t3,t4 -> t5 [type=seq];
+        t6;
+      }
+      """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
   }
 }

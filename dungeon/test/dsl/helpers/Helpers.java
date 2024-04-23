@@ -116,8 +116,12 @@ public class Helpers {
    * @return the {@link SemanticAnalyzer.Result} of the semantic analysis
    */
   public static SemanticAnalyzer.Result getSymtableForAST(Node ast) {
+    return getSymtableForAST(ast, new GameEnvironment());
+  }
+
+  public static SemanticAnalyzer.Result getSymtableForAST(Node ast, IEnvironment env) {
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
-    symbolTableParser.setup(new GameEnvironment());
+    symbolTableParser.setup(env);
     return symbolTableParser.walk(ast);
   }
 

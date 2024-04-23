@@ -6,6 +6,8 @@ import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -185,7 +187,38 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(DotDefNode node) {
-    throw new UnsupportedOperationException();
+    /*
+    // example:
+    graph g {
+      t1 -> t2;
+      t3, t4 -> t5;
+    }
+    */
+
+    // visit all stmts
+    ArrayList<Groum> stmtGroums = new ArrayList<>(node.getStmtNodes().size());
+    for (var stmtNode : node.getStmtNodes()) {
+      Groum stmtGroum = stmtNode.accept(this);
+      stmtGroums.add(stmtGroum);
+    }
+
+    Groum stmtGroumsMerged = Groum.NONE;
+    for (var stmtGroum : stmtGroums) {
+      stmtGroumsMerged = stmtGroumsMerged.mergeSequential(stmtGroum);
+    }
+
+    // get symbol of graph
+    var groum = Groum.NONE;
+    var graphSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+
+    // create definition action for graph
+    var defAction = new DefinitionAction(graphSymbol, createOrGetInstanceId(graphSymbol));
+    var defGroum = new Groum(defAction);
+
+    groum = stmtGroumsMerged.mergeSequential(defGroum);
+    // TODO: scope for definition node?
+
+    return groum;
   }
 
   @Override
@@ -195,7 +228,20 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(DotEdgeStmtNode node) {
-    throw new UnsupportedOperationException();
+    // TODO: create an "expression"-like group here to cluster the idList-references
+    //  based on their occurence in separate statements?
+    ArrayList<Groum> idListGroums = new ArrayList<>(node.getIdLists().size());
+    for (var idList : node.getIdLists()) {
+      var idListGroum = idList.accept(this);
+      idListGroums.add(idListGroum);
+    }
+
+    Groum mergedIdListGroums = Groum.NONE;
+    for (var idListGroum : idListGroums) {
+      mergedIdListGroums = mergedIdListGroums.mergeSequential(idListGroum);
+    }
+
+    return mergedIdListGroums;
   }
 
   @Override
@@ -205,12 +251,27 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(DotIdList node) {
-    throw new UnsupportedOperationException();
+    ArrayList<Groum> idGroums = new ArrayList<>(node.getIdNodes().size());
+    for (var idNode : node.getIdNodes()) {
+      var idSymbol = this.symbolTable.getSymbolsForAstNode(idNode).get(0);
+      if (idSymbol != Symbol.NULL) {
+        var refAction = new ReferenceInGraphAction(idSymbol, createOrGetInstanceId(idSymbol));
+        Groum refGroum = new Groum(refAction);
+        idGroums.add(refGroum);
+      }
+    }
+    Groum mergedGroum = Groum.NONE;
+    for (var idGroum :idGroums) {
+      mergedGroum = mergedGroum.mergeSequential(idGroum);
+    }
+    return mergedGroum;
   }
 
   @Override
   public Groum visit(DotNodeStmtNode node) {
-    throw new UnsupportedOperationException();
+    var idSymbol = this.symbolTable.getSymbolsForAstNode(node.getId()).get(0);
+    ReferenceInGraphAction referenceInGraphAction = new ReferenceInGraphAction(idSymbol, createOrGetInstanceId(idSymbol));
+    return new Groum(referenceInGraphAction);
   }
 
   @Override
@@ -235,36 +296,73 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(PropertyDefNode node) {
-    throw new UnsupportedOperationException();
+    // visit stmt
+    var stmtGroum = node.getStmtNode().accept(this);
+
+    // get symbol
+    var propertySymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+    // TODO: are there problems related to instance id, because references a property of a datatype?
+    DefinitionAction definitionAction = new DefinitionAction(propertySymbol, createOrGetInstanceId(propertySymbol));
+    Groum definitionGroum = new Groum(definitionAction);
+    Groum merged = stmtGroum.mergeSequential(definitionGroum);
+
+    return merged;
   }
 
   @Override
   public Groum visit(ObjectDefNode node) {
-    throw new UnsupportedOperationException();
+    // visit all property definitions
+
+    ArrayList<Groum> propertyDefGroums = new ArrayList<>(node.getPropertyDefinitions().size());
+    for (var propDef : node.getPropertyDefinitions()) {
+      Groum propDefGroum = propDef.accept(this);
+      propertyDefGroums.add(propDefGroum);
+    }
+
+    Groum mergedPropDefGroums = Groum.NONE;
+    for (var propDefGroum : propertyDefGroums) {
+      mergedPropDefGroums = mergedPropDefGroums.mergeSequential(propDefGroum);
+    }
+
+    // get object symbol
+    var objectSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+
+    // create object def action
+    DefinitionAction objectDefAction = new DefinitionAction(objectSymbol, createOrGetInstanceId(objectSymbol));
+    Groum definitionGroum = new Groum(objectDefAction);
+
+    Groum groum = mergedPropDefGroums.mergeSequential(definitionGroum);
+
+    return groum;
   }
 
   @Override
   public Groum visit(FuncCallNode node) {
+    // TODO
     throw new UnsupportedOperationException();
   }
 
   @Override
   public Groum visit(AggregateValueDefinitionNode node) {
+    // TODO
     throw new UnsupportedOperationException();
   }
 
   @Override
   public Groum visit(PrototypeDefinitionNode node) {
+    // TODO
     throw new UnsupportedOperationException();
   }
 
   @Override
   public Groum visit(ConditionalStmtNodeIf node) {
+    // TODO
     throw new UnsupportedOperationException();
   }
 
   @Override
   public Groum visit(ConditionalStmtNodeIfElse node) {
+    // TODO
     throw new UnsupportedOperationException();
   }
 
@@ -298,6 +396,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(MemberAccessNode node) {
+    // TODO
     throw new UnsupportedOperationException();
   }
 
@@ -456,11 +555,13 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(CountingLoopStmtNode node) {
+    // TODO
     throw new UnsupportedOperationException();
   }
 
   @Override
   public Groum visit(ForLoopStmtNode node) {
+    // TODO
     throw new UnsupportedOperationException();
   }
 
@@ -476,6 +577,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(ImportNode node) {
+    // TODO
     // basically definition
     throw new UnsupportedOperationException();
   }

@@ -3,12 +3,12 @@ package dsl.semanticanalysis.groum;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
-public class VariableReferenceAction extends ActionNode {
+public class ReferenceInGraphAction extends ActionNode {
   private static final int referencedVariableTypeIdx = 0;
   private static final int referencedSymbolIdx = 1;
 
-  public VariableReferenceAction(Symbol referencedSymbol, long referenceId) {
-    super(ActionType.referencedInExpression);
+  public ReferenceInGraphAction(Symbol referencedSymbol, long referenceId) {
+    super(ActionType.referencedInGraph);
     this.addSymbolReference((Symbol) referencedSymbol.getDataType());
     this.addSymbolReference(referencedSymbol);
     this.referencedInstanceId(referenceId);
@@ -24,7 +24,6 @@ public class VariableReferenceAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return this.variableType().getName() + ":<ref [" + this.referencedInstanceId() + "]>";
+    return this.variableType().getName() + ":<ref in graph [" + this.referencedInstanceId() + "]>";
   }
 }
-

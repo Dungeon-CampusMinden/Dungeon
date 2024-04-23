@@ -45,7 +45,7 @@ public abstract class ActionNode extends GroumNode {
     propertyDefinition,
     componentDefinition,
     expression,
-    constRef
+    referencedInGraph, constRef
   }
 
   // this may model access to a specific instance, so need a unique id for modelling this
