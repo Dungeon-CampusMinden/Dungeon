@@ -15,6 +15,7 @@ public class ExpressionAction extends ActionNode {
   }
 
   public ExpressionAction(List<GroumNode> childNodes, long expressionId) {
+    super(ActionType.expression);
     this.addChildren(childNodes);
     this.referencedInstanceId(expressionId);
   }

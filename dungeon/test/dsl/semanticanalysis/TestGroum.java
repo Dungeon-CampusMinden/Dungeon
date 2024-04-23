@@ -4,12 +4,16 @@ import dsl.helpers.Helpers;
 import dsl.parser.ast.FuncDefNode;
 import dsl.parser.ast.TermNode;
 import dsl.parser.ast.VarDeclNode;
+import dsl.semanticanalysis.groum.ActionNode;
+import dsl.semanticanalysis.groum.ControlNode;
 import dsl.semanticanalysis.groum.GroumPrinter;
 import dsl.semanticanalysis.groum.TemporaryGroumBuilder;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import org.junit.Assert;
 import org.junit.Test;
+
+import javax.naming.ldap.Control;
 
 public class TestGroum {
   @Test
@@ -71,6 +75,89 @@ public class TestGroum {
         return sum;
       }
       """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+
+    var sourceNodes = groum.sourceNodes();
+    Assert.assertEquals(2, sourceNodes.size());
+    var firstParam = sourceNodes.get(0);
+    Assert.assertEquals(ActionNode.ActionType.parameterInstantiation, ((ActionNode)firstParam).actionType());
+    Assert.assertEquals(1, firstParam.outgoing().size());
+    var secondParam = sourceNodes.get(1);
+    Assert.assertEquals(ActionNode.ActionType.parameterInstantiation, ((ActionNode)secondParam).actionType());
+    Assert.assertEquals(1, secondParam.outgoing().size());
+
+    var paramRef = firstParam.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)paramRef).actionType());
+
+    Assert.assertEquals(1, paramRef.outgoing().size());
+
+    var expr = paramRef.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode)expr).actionType());
+
+    var defNode = expr.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode)defNode).actionType());
+    Assert.assertEquals(2, defNode.outgoing().size());
+
+    var ref = defNode.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)ref).actionType());
+    var refId = ((ActionNode)ref).referencedInstanceId();
+    var defId = ((ActionNode)defNode).referencedInstanceId();
+    Assert.assertEquals(defId, refId);
+
+    var constRef = defNode.outgoing().get(1).end();
+    Assert.assertEquals(ActionNode.ActionType.constRef, ((ActionNode)constRef).actionType());
+
+    var whileExpr = ref.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode)whileExpr).actionType());
+
+    var whileNode = whileExpr.outgoing().get(0).end();
+    Assert.assertEquals(ControlNode.ControlType.whileLoop, ((ControlNode)whileNode).controlType());
+    var block = whileNode.outgoing().get(0).end();
+    Assert.assertEquals(ControlNode.ControlType.block, ((ControlNode)block).controlType());
+    var refInBlock = block.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)refInBlock).actionType());
+    var exprOfDefInBlock = refInBlock.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode)exprOfDefInBlock).actionType());
+
+    var reDef = exprOfDefInBlock.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode)reDef).actionType());
+
+    var returnRef = reDef.outgoing().get(0).end();
+    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)returnRef).actionType());
+
+    var returnNode = returnRef.outgoing().get(0).end();
+    Assert.assertEquals(ControlNode.ControlType.returnStmt, ((ControlNode)returnNode).controlType());
+
+    // check scoping
+    // while:
+    Assert.assertTrue(whileNode.children().contains(whileExpr));
+    Assert.assertTrue(whileNode.children().contains(block));
+
+    // block:
+    Assert.assertTrue(block.children().contains(exprOfDefInBlock));
+    Assert.assertTrue(block.children().contains(reDef));
+  }
+
+  @Test
+  public void listDefinition() {
+
+    String program =
+      """
+    fn add(int x, int y) -> int[] {
+      var list = [1,x,y];
+      return list;
+    }
+    """;
 
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForAST(ast);

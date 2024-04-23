@@ -8,7 +8,7 @@ public class ParameterInstantiationAction extends ActionNode {
   public static final int parameterSymbol = 1;
 
   public ParameterInstantiationAction(Symbol parameterSymbol, long instanceId) {
-    super(ActionType.passAsParameter);
+    super(ActionType.parameterInstantiation);
     this.addSymbolReference((Symbol) parameterSymbol.getDataType());
     this.addSymbolReference(parameterSymbol);
     this.referencedInstanceId(instanceId);

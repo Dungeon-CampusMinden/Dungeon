@@ -20,6 +20,14 @@ public class Groum {
     this.addNode(node);
   }
 
+  public List<GroumNode> nodes() {
+    return this.nodes;
+  }
+
+  public List<GroumEdge> edges() {
+    return this.edges;
+  }
+
   public void addNode(GroumNode node) {
     if (this.equals(NONE)) {
       throw new RuntimeException("Tried adding node to null-Groum");
@@ -47,6 +55,14 @@ public class Groum {
     // mergedEdges = new ArrayList<>(mergedEdges.stream().distinct().toList());
 
     return new Groum(mergedNodes, mergedEdges);
+  }
+
+  public List<GroumNode> sourceNodes() {
+    return this.nodes.stream().filter(n -> n.incoming().isEmpty()).toList();
+  }
+
+  public List<GroumNode> sinkNodes() {
+    return this.nodes.stream().filter(n -> n.outgoing().isEmpty()).toList();
   }
 
   // X (this) => Y (other)
