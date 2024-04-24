@@ -454,4 +454,56 @@ public class TestGroum {
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
   }
+
+  @Test
+  public void forLoop() {
+    String program =
+      """
+      fn test() {
+        var my_list = [1,2,3];
+        for int entry in my_list {
+          print(entry);
+        }
+      }
+      """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+  }
+
+  @Test
+  public void countingForLoop() {
+    String program =
+      """
+      fn test() {
+        var my_list = [1,2,3];
+        for int entry in my_list count counter {
+          print(entry);
+        }
+      }
+      """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+  }
 }

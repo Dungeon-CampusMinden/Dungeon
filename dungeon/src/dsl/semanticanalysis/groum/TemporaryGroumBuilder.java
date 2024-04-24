@@ -664,14 +664,57 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(CountingLoopStmtNode node) {
-    // TODO
-    throw new UnsupportedOperationException();
+    Groum mergedGroum = Groum.NONE;
+
+    var iterableSymbol = this.symbolTable.getSymbolsForAstNode(node.getIterableIdNode()).get(0);
+    var iterableRef = new VariableReferenceAction(iterableSymbol, createOrGetInstanceId(iterableSymbol));
+    mergedGroum = mergedGroum.mergeSequential(iterableRef);
+
+    var varSymbol = this.symbolTable.getSymbolsForAstNode(node.getVarIdNode()).get(0);
+    var varDef = new DefinitionAction(varSymbol, createOrGetInstanceId(varSymbol));
+    mergedGroum = mergedGroum.mergeSequential(varDef);
+
+    var controlNode = new ControlNode(ControlNode.ControlType.forLoop);
+    Groum controlGroum = new Groum(controlNode);
+    mergedGroum = mergedGroum.mergeSequential(controlGroum);
+
+    // counter variable definition
+    var counterSymbol = this.symbolTable.getSymbolsForAstNode(node.getCounterIdNode()).get(0);
+    var counterDef = new DefinitionAction(counterSymbol, createOrGetInstanceId(counterSymbol));
+    mergedGroum = mergedGroum.mergeSequential(counterDef);
+
+    var stmtGroum = node.getStmtNode().accept(this);
+    mergedGroum = mergedGroum.mergeSequential(stmtGroum);
+
+    // Note: this will cause the controlNode to contain itself
+    controlNode.addChildren(mergedGroum.nodes);
+
+    return mergedGroum;
   }
 
   @Override
   public Groum visit(ForLoopStmtNode node) {
-    // TODO
-    throw new UnsupportedOperationException();
+    Groum mergedGroum = Groum.NONE;
+
+    var iterableSymbol = this.symbolTable.getSymbolsForAstNode(node.getIterableIdNode()).get(0);
+    var iterableRef = new VariableReferenceAction(iterableSymbol, createOrGetInstanceId(iterableSymbol));
+    mergedGroum = mergedGroum.mergeSequential(iterableRef);
+
+    var varSymbol = this.symbolTable.getSymbolsForAstNode(node.getVarIdNode()).get(0);
+    var varDef = new DefinitionAction(varSymbol, createOrGetInstanceId(varSymbol));
+    mergedGroum = mergedGroum.mergeSequential(varDef);
+
+    var controlNode = new ControlNode(ControlNode.ControlType.forLoop);
+    Groum controlGroum = new Groum(controlNode);
+    mergedGroum = mergedGroum.mergeSequential(controlGroum);
+
+    var stmtGroum = node.getStmtNode().accept(this);
+    mergedGroum = mergedGroum.mergeSequential(stmtGroum);
+
+    // Note: this will cause the controlNode to contain itself
+    controlNode.addChildren(mergedGroum.nodes);
+
+    return mergedGroum;
   }
 
   @Override
