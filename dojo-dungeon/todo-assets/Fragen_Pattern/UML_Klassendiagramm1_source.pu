@@ -1,0 +1,41 @@
+@startuml UML_Klassendiagramm1.png
+interface Anzeige {
+  +aktualisieren(temperatur: float, feuchtigkeit: float, druck: float)
+}
+
+class WetterStation {
+  -anzeigeListe: List<Anzeige>
+  -temperatur: float
+  -feuchtigkeit: float
+  -druck: float
+  +hinzufuegenAnzeige(anzeige: Anzeige)
+  +entfernenAnzeige(anzeige: Anzeige)
+  +benachrichtigenAnzeige()
+}
+
+class AktuelleBedingungenAnzeige {
+  -temperatur: float
+  -feuchtigkeit: float
+  -druck: float
+  +aktualisieren(temperatur: float, feuchtigkeit: float, druck: float)
+}
+
+class StatistikAnzeige {
+  -temperatur: float
+  -feuchtigkeit: float
+  -druck: float
+  +aktualisieren(temperatur: float, feuchtigkeit: float, druck: float)
+}
+
+class VorhersageAnzeige {
+  -temperatur: float
+  -feuchtigkeit: float
+  -druck: float
+  +aktualisieren(temperatur: float, feuchtigkeit: float, druck: float)
+}
+
+WetterStation "1" -- "0..*" Anzeige
+Anzeige <|.. AktuelleBedingungenAnzeige
+Anzeige <|.. StatistikAnzeige
+Anzeige <|.. VorhersageAnzeige
+@enduml

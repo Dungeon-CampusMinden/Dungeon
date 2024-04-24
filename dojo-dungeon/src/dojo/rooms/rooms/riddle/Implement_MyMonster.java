@@ -1,4 +1,4 @@
-package dojo.rooms.level_2;
+package dojo.rooms.rooms.riddle;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -10,6 +10,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.IVoidFunction;
 import core.utils.components.path.SimpleIPath;
+import dojo.compiler.DojoCompiler;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
 import dojo.rooms.TaskRoom;
@@ -20,13 +21,14 @@ import java.util.Set;
 /**
  * Informationen für den Spieler über diesen Raum:
  *
- * <p>In diesem Raum ist das Ziel, den vorgegebenen Code zu optimieren, Fehler zu beheben und die
- * Lesbarkeit zu verbessern. Nur wenn der Code korrekt ist, kann man in den nächsten Raum
- * weitergehen.
+ * <p>In diesem Raum muss ein Monster mit verschiedenen Eigenschaften erstellt und danach besiegt
+ * werden, um in den nächsten Raum zu gelangen.
  */
-public class L2_R3_Fehler_Refactoring extends TaskRoom {
-  private final String FILENAME1 = "ClsToRefactor.java";
-  private final String title = "Refactoring";
+public class Implement_MyMonster extends TaskRoom {
+  private final String FILENAME1 = "../dojo-dungeon/todo-assets/Implement_MyMonster/Monster.java";
+  private final String FILENAME2 = "../dojo-dungeon/todo-assets/Implement_MyMonster/MyMonster.java";
+  private final String CLASS_NAME = "MyMonster";
+  private final String title = "Monster besiegen";
 
   /**
    * Generate a new room.
@@ -37,7 +39,7 @@ public class L2_R3_Fehler_Refactoring extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public L2_R3_Fehler_Refactoring(
+  public Implement_MyMonster(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
@@ -58,22 +60,31 @@ public class L2_R3_Fehler_Refactoring extends TaskRoom {
     IVoidFunction empty = () -> {};
     addTask(
         new Task(
-            this,
-            "task1",
-            empty,
-            () ->
-                OkDialog.showOkDialog(
-                    String.format(
-                        "Refactor die Datei %s und lasse die korrigierte Datei von einem Tutor überprüfen.",
-                        FILENAME1),
-                    title,
-                    empty),
-            (t1) -> {
-              OkDialog.showOkDialog(
-                  "Das war schon alles, die Tür zum nächsten Level ist geöffnet.", title, empty);
-              return true;
-            },
-            empty));
+                this,
+                "task1",
+                empty,
+                () ->
+                    OkDialog.showOkDialog(
+                        String.format(
+                            "Implementiere die Datei %s, nach der Vorgabe in %s. Wenn das Monster besiegt ist, soll sich die Tür zum nächsten Raum öffnen.",
+                            FILENAME2, FILENAME1),
+                        title,
+                        empty),
+                (t1) -> {
+                  DojoCompiler.TestResult results =
+                      new DojoCompiler().spawnMonsterToOpenTheDoor(FILENAME2, CLASS_NAME, this);
+                  if (results.passed()) {
+                    OkDialog.showOkDialog(
+                        "Ok! " + results.messages(),
+                        title,
+                        () -> OkDialog.showOkDialog("Das Monster ist gespawnt!", title, empty));
+                    return true;
+                  }
+                  OkDialog.showOkDialog("Fehler: " + results.messages(), title, empty);
+                  return false;
+                },
+                empty)
+            .setShouldOpenDoors(false));
 
     // Create questioner
     Entity questioner = new Entity();
@@ -95,7 +106,7 @@ public class L2_R3_Fehler_Refactoring extends TaskRoom {
                         },
                         () ->
                             OkDialog.showOkDialog(
-                                "Die Aufgabe ist abgeschlossen!", title, empty))));
+                                "Das Monster ist bereits gespawnt!", title, empty))));
 
     // Add questioner to room
     addRoomEntities(Set.of(questioner));

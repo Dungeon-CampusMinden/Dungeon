@@ -1,4 +1,4 @@
-package dojo.rooms.level_4;
+package dojo.rooms.rooms.boss;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.util.*;
 import javax.tools.*;
 
@@ -25,7 +24,7 @@ import javax.tools.*;
  * werden muss. Der Dämon erteilt die Aufgabe, Methoden zu schreiben, die dieses Verhalten
  * implementieren. Danach muss der Dämon angegriffen werden.
  */
-public class L4_R3_Monster_Implement_2 extends Room {
+public class Implement_MyImp extends Room {
 
   private static final String IMP_FQC = "dojo.monster.MyImp";
   private static final String IMP_PATH = "src/dojo/monster/MyImp";
@@ -56,7 +55,7 @@ public class L4_R3_Monster_Implement_2 extends Room {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public L4_R3_Monster_Implement_2(
+  public Implement_MyImp(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
@@ -73,8 +72,7 @@ public class L4_R3_Monster_Implement_2 extends Room {
   }
 
   private void generate() throws IOException {
-    final Entity myImp = new Entity();
-    new MyImp(myImp, false);
+    final Entity myImp = MyImp.createEntity(this);
 
     final Entity chest = EntityFactory.newChest();
     chest.add(
@@ -84,9 +82,8 @@ public class L4_R3_Monster_Implement_2 extends Room {
             (entity1, entity2) -> {
               try {
                 Class<?> cls = compile();
-                Constructor<?> tor = cls.getDeclaredConstructor(Entity.class, boolean.class);
-                tor.newInstance(myImp, true);
-                OkDialog.showOkDialog("Imp wurde erneut geladen.", "Ok:", () -> {});
+                cls.getDeclaredMethod("modifyMyImp", Entity.class).invoke(null, myImp);
+                OkDialog.showOkDialog("Die Entität \"MyImp\" wurde angepasst.", "Ok:", () -> {});
               } catch (Exception e) {
                 OkDialog.showOkDialog(e.getMessage(), "Fehler:", () -> {});
               }

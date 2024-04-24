@@ -37,7 +37,33 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       und Funktionsinterfaces.
     - Der Spieler muss die Fragen richtig beantworten, um weiterzukommen.
 
-## Level 2: "Tempel der verlorenen Geheimnisse"
+## Level 2: "Die Vulkanhöhle"
+
+- Umgebung:
+    - Eine unterirdische Höhle mit fließender Lava
+      und glühenden Steinen.
+    - Die Vulkanhöhle besteht aus drei Räumen.
+- Ziele und Aufgaben im ersten Raum:
+    - Der Spieler muss alle Monster erledigen um
+      weiterzukommen.
+    - Folgende Monster sind anzutreffen: "Imps"
+      und "kleine Dämonen".
+- Bosskampf "Zauberer von Patternson" im zweiten Raum:
+    - Der "Zauberer von Patternson" stellt dem Spieler eine neue
+      Herausforderung: Er muss verschiedene Design Patterns anhand
+      eines UML-Klassendiagramms erkennen. Der Spieler muss dann
+      die erkannten Design Patterns dem Zauberer mitteilen.
+      Wenn die Lösung korrekt ist, kann der Spieler in die nächste
+      Ebene weitergehen.
+- Bosskampf "Der Artefakt Dämon" im dritten Raum:
+    - Der Dämon stellt dem Spieler eine neue Herausforderung:
+      In diesem Raum erhält man eine Beschreibung des erwarteten Verhaltens,
+      die implementiert werden muss. Der Spieler muss dann die
+      implementierten Methoden dem Dämon vorlegen.
+      Wenn die Implementierung korrekt ist, muss der Dämon angegriffen
+      werden und der Spieler kann in die nächste Ebene weitergehen.
+
+## Level 3: "Tempel der verlorenen Geheimnisse"
 
 - Umgebung:
     - Ein uralter Tempel mit geheimnisvollen Inschriften.
@@ -66,7 +92,7 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       Praktikum von einem Tutor überprüfen lassen. Falls die Lösung
       zufriedenstellend ist, kann er in den nächsten Raum weitergehen.
 
-## Level 3: "Kerker des Grauens"
+## Level 4: "Kerker des Grauens"
 
 - Umgebung:
     - Ein düsterer, verfallener Kerker mit steinernen
@@ -94,32 +120,6 @@ löst Rätsel, besiegt Monster und sammelt Schätze. Hier sind die Details für 
       regulären Ausdruck passt. Wenn der Spieler die passenden Strings
       eingegeben hat, lässt OgreX den Spieler zur nächsten Ebene
       weitergehen.
-
-## Level 4: "Die Vulkanhöhle"
-
-- Umgebung:
-    - Eine unterirdische Höhle mit fließender Lava
-      und glühenden Steinen.
-    - Die Vulkanhöhle besteht aus drei Räumen.
-- Ziele und Aufgaben im ersten Raum:
-    - Der Spieler muss alle Monster erledigen um
-      weiterzukommen.
-    - Folgende Monster sind anzutreffen: "Imps"
-      und "kleine Dämonen".
-- Bosskampf "Zauberer von Patternson" im zweiten Raum:
-    - Der "Zauberer von Patternson" stellt dem Spieler eine neue
-      Herausforderung: Er muss verschiedene Design Patterns anhand
-      eines UML-Klassendiagramms erkennen. Der Spieler muss dann
-      die erkannten Design Patterns dem Zauberer mitteilen.
-      Wenn die Lösung korrekt ist, kann der Spieler in die nächste
-      Ebene weitergehen.
-- Bosskampf "Der Artefakt Dämon" im dritten Raum:
-    - Der Dämon stellt dem Spieler eine neue Herausforderung:
-      In diesem Raum erhält man eine Beschreibung des erwarteten Verhaltens,
-      die implementiert werden muss. Der Spieler muss dann die
-      implementierten Methoden dem Dämon vorlegen.
-      Wenn die Implementierung korrekt ist, muss der Dämon angegriffen
-      werden und der Spieler kann in die nächste Ebene weitergehen.
 
 ## Level 5: "Spezial-Welt Bielefeld" (Nicht realisiert!)
 
