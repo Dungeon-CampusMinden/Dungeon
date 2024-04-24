@@ -71,11 +71,19 @@ public class TypeInferrer implements AstVisitor<IType> {
       rhsNode = ((MemberAccessNode) rhsNode).getRhs();
     }
 
+    IType inferredType;
     Symbol rhsSymbol = this.symbolTable.getSymbolsForAstNode(rhsNode).getFirst();
     if (rhsSymbol.equals(Symbol.NULL)) {
       return BuiltInType.noType;
     }
-    return rhsSymbol.getDataType();
+
+    if (rhsSymbol instanceof ICallable callable) {
+      inferredType = callable.getFunctionType().getReturnType();
+    } else {
+      inferredType = rhsSymbol.getDataType();
+    }
+
+    return inferredType;
   }
 
   @Override
