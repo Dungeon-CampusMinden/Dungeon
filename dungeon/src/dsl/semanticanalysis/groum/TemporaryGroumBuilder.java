@@ -366,14 +366,49 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(AggregateValueDefinitionNode node) {
-    // TODO
-    throw new UnsupportedOperationException();
+    // visit all property definitions
+    ArrayList<Groum> propertyDefinitionGroums = new ArrayList<>(node.getPropertyDefinitionNodes().size());
+    for (var propDefNode : node.getPropertyDefinitionNodes()) {
+      var propDefGroum = propDefNode.accept(this);
+      propertyDefinitionGroums.add(propDefGroum);
+    }
+
+    // merge them all
+    Groum mergedPropertyDefinitionGroums = Groum.NONE;
+    for (var groum : propertyDefinitionGroums) {
+      // TODO: parallel or sequential?
+      mergedPropertyDefinitionGroums = mergedPropertyDefinitionGroums.mergeParallel(groum);
+    }
+
+    // add def node for aggergate value def
+    var valueSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+    var definitionAction = new DefinitionAction(valueSymbol, createOrGetInstanceId(valueSymbol));
+
+    Groum mergedGroum = mergedPropertyDefinitionGroums.mergeSequential(definitionAction);
+    return mergedGroum;
   }
 
   @Override
   public Groum visit(PrototypeDefinitionNode node) {
-    // TODO
-    throw new UnsupportedOperationException();
+    // visit all component definitions
+    ArrayList<Groum> componentDefGroums = new ArrayList<>(node.getComponentDefinitionNodes().size());
+    for (var componentDefNode : node.getComponentDefinitionNodes()) {
+      var componentDefGroum = componentDefNode.accept(this);
+      componentDefGroums.add(componentDefGroum);
+    }
+
+    Groum mergedComponentDefinitionGroums = Groum.NONE;
+    for (var groum : componentDefGroums) {
+      // TODO: parallel or sequential?
+      mergedComponentDefinitionGroums = mergedComponentDefinitionGroums.mergeParallel(groum);
+    }
+
+    // create definition action
+    var protoTypeSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+    var defAction = new DefinitionAction(protoTypeSymbol, createOrGetInstanceId(protoTypeSymbol));
+    Groum merged = mergedComponentDefinitionGroums.mergeSequential(defAction);
+
+    return merged;
   }
 
   @Override

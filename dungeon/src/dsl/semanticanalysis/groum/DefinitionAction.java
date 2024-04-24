@@ -9,7 +9,7 @@ public class DefinitionAction extends ActionNode {
 
   public DefinitionAction(Symbol symbol, long instanceId) {
     super(ActionType.definition);
-    this.addSymbolReference((Symbol) symbol.getDataType());
+    this.addSymbolReference(getInstanceSymbolType(symbol));
     this.addSymbolReference(symbol);
     this.referencedInstanceId(instanceId);
   }

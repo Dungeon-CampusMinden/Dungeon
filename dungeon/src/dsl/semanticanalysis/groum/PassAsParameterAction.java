@@ -11,6 +11,6 @@ public class PassAsParameterAction extends ExpressionAction {
 
   @Override
   public String getLabel() {
-    return "<pass as param [" + this.referencedInstanceId() + "]";
+    return "<pass as param [" + this.referencedInstanceId() + "]>";
   }
 }

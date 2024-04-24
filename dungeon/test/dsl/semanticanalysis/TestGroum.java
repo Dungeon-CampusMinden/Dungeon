@@ -379,8 +379,21 @@ public class TestGroum {
           task_component{}
       }
 
+      entity_type wizard_type {
+          draw_component {
+              path: "character/wizard"
+          },
+          hitbox_component {},
+          position_component{},
+          interaction_component{
+              radius: 1.5
+          },
+          task_component{}
+      }
+
       fn test() -> entity {
         var knight = instantiate_named(knight_type, "Questgeber");
+        var wizard = instantiate_named(wizard_type, "Zauberererer");
         return knight;
       }
       """;
