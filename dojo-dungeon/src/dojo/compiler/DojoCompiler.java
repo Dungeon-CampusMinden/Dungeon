@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
-/** Class for compiling and testing at runtime. */
+/** Class for compiling and testing sources at runtime. */
 public class DojoCompiler {
   /**
    * Result of the tests.
@@ -101,6 +101,8 @@ public class DojoCompiler {
   /**
    * Tests if the class is correct by certain criteria, step 1.
    *
+   * <p>Tests if the output of the methods are correct.
+   *
    * @param fileName the name of the source file
    * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
@@ -120,6 +122,10 @@ public class DojoCompiler {
 
   /**
    * Tests if the class is correct by certain criteria, step 2.
+   *
+   * <p>Tests if the output of the methods are correct.
+   *
+   * <p>Tests if the methods can handle unexpected inputs.
    *
    * @param fileName the name of the source file
    * @param className the name of the class
@@ -141,6 +147,12 @@ public class DojoCompiler {
 
   /**
    * Tests if the class is correct by certain criteria, step 3.
+   *
+   * <p>Tests if the output of the methods are correct.
+   *
+   * <p>Tests if the methods can handle unexpected inputs.
+   *
+   * <p>Tests if a try-catch block is used.
    *
    * @param fileName the name of the source file
    * @param className the name of the class
@@ -164,12 +176,16 @@ public class DojoCompiler {
   /**
    * Tests if a mathematical class is correct.
    *
+   * <p>Tests if the methods calculateArea, calculatePerimeter and calculateVolume are correct, e.g.
+   * returning the correct values.
+   *
+   * @param fileName the name of the source file
+   * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
    */
-  public TestResult testMathematicalClass() {
+  public TestResult testMathematicalClass(String fileName, String className) {
     try {
-      Class<?> cls2 =
-          compile(getSource("../dojo-dungeon/todo-assets/lvl3r2/Cuboid.java"), "Cuboid");
+      Class<?> cls2 = compile(getSource(fileName), className);
       Constructor<?> tor2 = cls2.getConstructor(float.class, float.class, float.class);
       Object inst2 = tor2.newInstance(10.0f, 30.0f, 20.0f);
       Method m1 = cls2.getMethod("calculateArea");
@@ -181,13 +197,13 @@ public class DojoCompiler {
       if (Math.round(f1) != 2200 || Math.round(f2) != 240 || Math.round(f3) != 6000) {
         throw new NoSuchElementException("wrong values ...");
       }
-      messages.add("testRoom8 ok");
-      return new TestResult("testRoom8", true, messages);
+      messages.add("testMaths ok");
+      return new TestResult("testMaths", true, messages);
     } catch (Exception ex) {
-      messages.add("testRoom8 not ok");
+      messages.add("testMaths not ok");
       messages.add(ex.getMessage());
     }
-    return new TestResult("testRoom8", false, messages);
+    return new TestResult("testMaths", false, messages);
   }
 
   private boolean stage_1_readSourceFile(String fileName) {
