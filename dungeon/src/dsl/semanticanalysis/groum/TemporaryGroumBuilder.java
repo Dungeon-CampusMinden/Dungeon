@@ -681,7 +681,26 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(ItemPrototypeDefinitionNode node) {
-    throw new UnsupportedOperationException();
+    // visit all property definitions
+    ArrayList<Groum> propertyDefinitionGroums = new ArrayList<>(node.getPropertyDefinitionNodes().size());
+    for (var propDefNode : node.getPropertyDefinitionNodes()) {
+      var propDefGroum = propDefNode.accept(this);
+      propertyDefinitionGroums.add(propDefGroum);
+    }
+
+    // merge them all
+    Groum mergedPropertyDefinitionGroums = Groum.NONE;
+    for (var groum : propertyDefinitionGroums) {
+      // TODO: parallel or sequential?
+      mergedPropertyDefinitionGroums = mergedPropertyDefinitionGroums.mergeParallel(groum);
+    }
+
+    // add def node for aggergate value def
+    var valueSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+    var definitionAction = new DefinitionAction(valueSymbol, createOrGetInstanceId(valueSymbol));
+
+    Groum mergedGroum = mergedPropertyDefinitionGroums.mergeSequential(definitionAction);
+    return mergedGroum;
   }
 
   @Override

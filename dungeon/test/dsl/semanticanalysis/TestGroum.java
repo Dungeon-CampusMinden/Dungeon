@@ -411,4 +411,47 @@ public class TestGroum {
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
   }
+
+  @Test
+  public void itemPrototypeDef() {
+    String program =
+      """
+      item_type scroll_type {
+          display_name: "Eine Schriftrolle",
+          description: "Lies mich",
+          texture_path: "items/book/wisdom_scroll.png"
+      }
+
+      item_type mushroom_type {
+          display_name: "Ein Pilz",
+          description: "Iss mich (nicht)",
+          texture_path: "items/resource/toadstool.png"
+      }
+
+      fn build_task_single_chest(single_choice_task t) -> entity<><> {
+        var return_set : entity<><>;
+        var room_set : entity<>;
+
+        var content = t.get_content().get(0);
+        var item = build_quest_item(scroll_type, content);
+        place_quest_item(item, room_set);
+
+        return_set.add(room_set);
+        return return_set;
+      }
+      """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+  }
 }
