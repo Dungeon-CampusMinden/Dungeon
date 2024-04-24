@@ -47,9 +47,11 @@ public abstract class GroumNode {
   public void addChildren(List<GroumNode> nodes) {
     var nodesButThis = nodes.stream().filter(c -> c != this).toList();
     for (var node : nodesButThis) {
-      node.setParent(this);
+      if (node.setParent(this)) {
+        this.children.add(node);
+      }
     }
-    this.children.addAll(nodesButThis);
+    //this.children.addAll(nodesButThis);
   }
 
   public List<GroumNode> children() {
@@ -64,10 +66,12 @@ public abstract class GroumNode {
     this.outgoingEdges.add(edge);
   }
 
-  public void setParent(GroumNode parent) {
+  public boolean setParent(GroumNode parent) {
     if (this.parent == GroumNode.NONE) {
       this.parent = parent;
+      return true;
     }
+    return false;
   }
 
   public GroumNode parent() {

@@ -19,4 +19,10 @@ public class ExpressionAction extends ActionNode {
     this.addChildren(childNodes);
     this.referencedInstanceId(expressionId);
   }
+
+  protected ExpressionAction(ActionType type, List<GroumNode> childNodes, long expressionId) {
+    super(type);
+    this.addChildren(childNodes);
+    this.referencedInstanceId(expressionId);
+  }
 }

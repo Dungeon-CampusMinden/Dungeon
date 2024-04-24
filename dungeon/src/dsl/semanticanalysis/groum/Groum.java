@@ -66,7 +66,30 @@ public class Groum {
   }
 
   // X (this) => Y (other)
-  // TODO: does weird stuff!
+  public Groum mergeSequential(GroumNode otherNode) {
+    ArrayList<GroumNode> mergedNodes = new ArrayList<>(this.nodes.size() + 1);
+    mergedNodes.addAll(this.nodes);
+    mergedNodes.add(otherNode);
+
+    ArrayList<GroumEdge> mergedEdges = new ArrayList<>(this.edges.size());
+    mergedEdges.addAll(this.edges);
+
+    // sinks
+    List<GroumNode> sinkNodes = this.nodes.stream().filter(n -> n.outgoing().isEmpty()).toList();
+    // sources
+    List<GroumNode> sourceNodes = List.of(otherNode);
+    // connect sinks to sources
+    for (var sinkNode : sinkNodes) {
+      for (var sourceNode : sourceNodes) {
+        var edge = new GroumEdge(sinkNode, sourceNode, GroumEdge.GroumEdgeType.temporal);
+        mergedEdges.add(edge);
+      }
+    }
+
+    return new Groum(mergedNodes, mergedEdges);
+  }
+
+  // X (this) => Y (other)
   public Groum mergeSequential(Groum other) {
     ArrayList<GroumNode> mergedNodes = new ArrayList<>(this.nodes.size() + other.nodes.size());
     mergedNodes.addAll(this.nodes);

@@ -310,4 +310,92 @@ public class TestGroum {
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
   }
+
+  @Test
+  public void funcCall() {
+
+    String program =
+      """
+      fn test(string x)  {
+        print(x);
+      }
+      """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+  }
+
+  @Test
+  public void methodCall() {
+
+    String program =
+      """
+      fn test(entity ent, quest_item item, single_choice_task t) {
+        var ic = ent.inventory_component;
+        var noType = ent.mark_as_task_container(t, "hello");
+
+        ent.inventory_component.add_item(item);
+        var size = t.get_content().size();
+      }
+      """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+  }
+
+  @Test
+  public void prototypeDef() {
+    String program =
+      """
+      entity_type knight_type {
+          draw_component {
+              path: "character/blue_knight"
+          },
+          hitbox_component {},
+          position_component{},
+          interaction_component{
+              radius: 1.5
+          },
+          task_component{}
+      }
+
+      fn test() -> entity {
+        var knight = instantiate_named(knight_type, "Questgeber");
+        return knight;
+      }
+      """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+  }
 }

@@ -5,6 +5,7 @@ import dsl.parser.ast.*;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 
 import java.lang.reflect.Array;
@@ -48,7 +49,6 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
           var childGroum = child.accept(this);
           groums.add(childGroum);
         }
-        // TODO: merge all groums together (parallel for now?)
         Groum merged = new Groum();
         for (var groum : groums) {
           merged = merged.mergeParallel(groum);
@@ -107,7 +107,6 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(ReturnStmtNode node) {
-    // TODO: visit inner node
     var innerGroum = node.getInnerStmtNode().accept(this);
 
     // maybe just add the reference in a return stmt as an annotation?
@@ -139,7 +138,6 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     var id = node.getIdentifier();
     var symbol = symbolTable.getSymbolsForAstNode(id).get(0);
 
-    // TODO: this does not take into account the data dependencies!!
     var instantiationAction = new DefinitionAction(symbol, createOrGetInstanceId(symbol));
     Groum initGroum = new Groum(instantiationAction);
     Groum mergedGroum;
@@ -148,6 +146,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
       ExpressionAction expr = new ExpressionAction(rhsGroum.nodes, IndexGenerator.getIdx());
       Groum exprGroum = new Groum(expr);
 
+      // TODO: is this the correct place to add a data dependency?
       var intermediaryGroum =
           rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
       // exprGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
@@ -330,7 +329,6 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     // create object def action
     DefinitionAction objectDefAction = new DefinitionAction(objectSymbol, createOrGetInstanceId(objectSymbol));
     Groum definitionGroum = new Groum(objectDefAction);
-
     Groum groum = mergedPropDefGroums.mergeSequential(definitionGroum);
 
     return groum;
@@ -338,8 +336,32 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(FuncCallNode node) {
-    // TODO
-    throw new UnsupportedOperationException();
+    var mergedParameterGroums = getGroumForParameters(node);
+
+    // add funcCall
+    var functionSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+    FunctionCallAction action = new FunctionCallAction(functionSymbol, createOrGetInstanceId(functionSymbol));
+    Groum finalGroum = mergedParameterGroums.mergeSequential(action);
+
+    return finalGroum;
+  }
+
+  private Groum getGroumForParameters(FuncCallNode node) {
+    // visit all parameters
+    ArrayList<Groum> parameterGroums = new ArrayList<>(node.getParameters().size());
+    for (var paramNode : node.getParameters()) {
+      var paramGroum = paramNode.accept(this);
+      var parameterAction = new PassAsParameterAction(paramGroum.nodes, IndexGenerator.getIdx());
+      Groum mergedPassGroum = paramGroum.mergeSequential(parameterAction);
+      parameterGroums.add(mergedPassGroum);
+    }
+
+    Groum mergedParameterGroums = Groum.NONE;
+    for (var parameterGroum : parameterGroums) {
+      mergedParameterGroums = mergedParameterGroums.mergeParallel(parameterGroum);
+    }
+
+    return mergedParameterGroums;
   }
 
   @Override
@@ -396,8 +418,60 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(MemberAccessNode node) {
-    // TODO
-    throw new UnsupportedOperationException();
+    // lhs is never member access, whenever we chain member accesses,
+    // rhs is the 'deeper' member access
+    var lhsSymbol = this.symbolTable.getSymbolsForAstNode(node.getLhs()).get(0);
+
+    Groum mergedGroum = Groum.NONE;
+    // in a method call, we first land here
+    if (node.getRhs().type.equals(Node.Type.FuncCall)) {
+      Groum parameterEvaluationGroum = getGroumForParameters((FuncCallNode)node.getRhs());
+
+      Symbol functionSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
+      var methodAccessAction = new MethodAccessAction(lhsSymbol, functionSymbol, createOrGetInstanceId(lhsSymbol));
+
+      // add scoping information: the parameter evaluations are 'owned' by the method access
+      methodAccessAction.addChildren(parameterEvaluationGroum.nodes);
+
+      mergedGroum = parameterEvaluationGroum.mergeSequential(methodAccessAction);
+    } else if (node.getRhs().type.equals(Node.Type.MemberAccess)) {
+
+      // visit inner member access
+      var innerMemberAccessGroum = node.getRhs().accept(this);
+
+      // need to get the information about lhs of deeper member access
+      var lhsOfInnerMemberAccess = node.getRhs().getChild(0);
+      var innerLhsSymbol = this.symbolTable.getSymbolsForAstNode(lhsOfInnerMemberAccess).get(0);
+
+      Groum accessGroum;
+      if (lhsOfInnerMemberAccess.type.equals(Node.Type.Identifier)) {
+        var accessAction = new PropertyAccessAction(lhsSymbol, innerLhsSymbol, createOrGetInstanceId(lhsSymbol));
+
+        // add scoping information: the inner member access is 'owned' by this property access
+        accessAction.addChildren(innerMemberAccessGroum.nodes);
+        accessGroum = new Groum(accessAction);
+      } else {
+        // function call node
+        // handle method access
+        Groum parameterEvaluationGroum = getGroumForParameters((FuncCallNode)lhsOfInnerMemberAccess);
+        var methodAccessAction = new MethodAccessAction(lhsSymbol, innerLhsSymbol, createOrGetInstanceId(lhsSymbol));
+
+        // add scoping information: the parameter evaluation and inner member access is 'owned' by the method access
+        methodAccessAction.addChildren(parameterEvaluationGroum.nodes);
+        methodAccessAction.addChildren(innerMemberAccessGroum.nodes);
+        accessGroum = parameterEvaluationGroum.mergeSequential(methodAccessAction);
+      }
+
+      mergedGroum = accessGroum.mergeSequential(innerMemberAccessGroum);
+    } else if (node.getRhs().type.equals(Node.Type.Identifier)) {
+      // property access
+      var rhsSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
+      var accessAction = new PropertyAccessAction(lhsSymbol, rhsSymbol, createOrGetInstanceId(lhsSymbol));
+
+      mergedGroum = new Groum(accessAction);
+    }
+
+    return mergedGroum;
   }
 
   @Override
@@ -578,7 +652,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
   @Override
   public Groum visit(ImportNode node) {
     // TODO
-    // basically definition
+    // basically definition??
     throw new UnsupportedOperationException();
   }
 }

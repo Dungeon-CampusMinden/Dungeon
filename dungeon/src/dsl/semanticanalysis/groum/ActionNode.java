@@ -2,6 +2,9 @@ package dsl.semanticanalysis.groum;
 
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.symbol.Symbol;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,25 +13,6 @@ import java.util.List;
 public abstract class ActionNode extends GroumNode {
 
   public static long uninitializedInstanceId = -1;
-
-  /*@Override
-  public String getLabel() {
-    return switch (this.actionType) {
-      case none -> "NONE";
-      case instantiation -> this.symbolReference.getDataType().getName() + ":<init>";
-      // this may be interpreted as an <init>, based on the type of the parameter...lets see about it
-      case passedAsParameter -> this.symbolReference.getDataType().getName()+ ":<param>";
-      case functionParameter -> "<passed as param>:" + this.symbolReference.getDataType().getName();
-      case functionCall -> "<func_call>:" + this.symbolReference.getDataType().getName();
-      case propertyAccess -> ""; //should be: type name + property name
-      case functionCallAccess -> ""; // should be: type name + function name
-      case referencedInExpression -> this.symbolReference.getDataType().getName();
-      // TODO: this is a control statement
-      case referencedInReturnStmt -> this.symbolReference.getDataType().getName();
-      case propertyDefinition -> "";
-      case componentDefinition -> "";
-    };
-  }*/
 
   public enum ActionType {
     none,
@@ -46,6 +30,15 @@ public abstract class ActionNode extends GroumNode {
     componentDefinition,
     expression,
     referencedInGraph, constRef
+  }
+
+  protected static Symbol getInstanceSymbolType(Symbol symbol) {
+    IType instanceSymbolType = symbol.getDataType();
+    if (instanceSymbolType instanceof FunctionType functionType) {
+      // reduce to return type
+      instanceSymbolType = functionType.getReturnType();
+    }
+    return (Symbol)instanceSymbolType;
   }
 
   // this may model access to a specific instance, so need a unique id for modelling this
