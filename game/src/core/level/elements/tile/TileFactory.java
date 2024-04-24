@@ -10,7 +10,7 @@ import core.utils.components.path.IPath;
 public class TileFactory {
 
   /**
-   * creates a new Tile which can then be added to the level
+   * Creates a new Tile which can then be added to the level.
    *
    * @param texturePath the path to the texture
    * @param coordinate the position of the newly created Tile

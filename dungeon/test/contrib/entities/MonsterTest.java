@@ -19,12 +19,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/** WTF? . */
 public class MonsterTest {
+  /** WTF? . */
   @Before
   public void setup() {
     Game.add(new LevelSystem(null, null, () -> {}));
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllEntities();
@@ -32,6 +35,7 @@ public class MonsterTest {
     Game.removeAllSystems();
   }
 
+  /** WTF? . */
   @Test
   public void checkCreation() throws IOException {
     Game.currentLevel(

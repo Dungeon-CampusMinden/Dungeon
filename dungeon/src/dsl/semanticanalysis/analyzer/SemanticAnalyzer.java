@@ -37,7 +37,7 @@ import java.util.Stack;
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
 
-/** Creates a symbol table for an AST node for a DSL program */
+/** Creates a symbol table for an AST node for a DSL program. */
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling
 // will be high naturally
@@ -49,13 +49,19 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   StringBuilder errorStringBuilder = new StringBuilder();
   private boolean setup = false;
 
+  /** WTF? . */
   public class Result {
+    /** WTF? . */
     public final SymbolTable symbolTable;
+
+    /** WTF? . */
     public final boolean gotError;
+
+    /** WTF? . */
     public final String errorString;
 
     /**
-     * Constructor. If the errorString is empty, gotError will be set to false
+     * Constructor. If the errorString is empty, gotError will be set to false.
      *
      * @param symbolTable the symbol table
      * @param errorString the errorString which was generated during semantic analysis
@@ -68,7 +74,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   }
 
   /**
-   * Helper method for getting the current scope (the top of the scopeStack)
+   * Helper method for getting the current scope (the top of the scopeStack).
    *
    * @return the top of the scopeStack
    */
@@ -77,7 +83,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   }
 
   /**
-   * Helper method for getting the global scope (the bottom of the scopeStack)
+   * Helper method for getting the global scope (the bottom of the scopeStack).
    *
    * @return the bottom of the scopeStack
    */
@@ -85,12 +91,19 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     return scopeStack.get(0);
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public IEnvironment getEnvironment() {
     return this.environment;
   }
 
   /**
-   * Setup environment for semantic analysis (setup builtin types and native functions); use an
+   * WTF? (erster Satz kurz) .
+   *
+   * <p>Setup environment for semantic analysis (setup builtin types and native functions); use an
    * externally provided symbol table, which will be used and extended during semantic analysis
    *
    * @param environment environment to use for setup of built in types and native functions
@@ -100,7 +113,9 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   }
 
   /**
-   * Setup environment for semantic analysis (setup builtin types and native functions); use an
+   * WTF? (erster Satz kurz) .
+   *
+   * <p>Setup environment for semantic analysis (setup builtin types and native functions); use an
    * externally provided symbol table, which will be used and extended during semantic analysis
    *
    * @param environment environment to use for setup of built in types and native functions
@@ -139,9 +154,11 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   }
 
   /**
-   * Built in types (such as all BuiltIns and built in AggregateTypes such as quest_config) have no
-   * parent Scope. This leads to situations, in which the topmost scope is such an aggregate type.
-   * Resolving a reference to a global variable does not work in this context, so this method
+   * WTF? (erster Satz kurz) .
+   *
+   * <p>Built in types (such as all BuiltIns and built in AggregateTypes such as quest_config) have
+   * no parent Scope. This leads to situations, in which the topmost scope is such an aggregate
+   * type. Resolving a reference to a global variable does not work in this context, so this method
    * implements a manual stack walk of the scope stack to deal with this case.
    *
    * @param name the name of the symbol to resolve
@@ -162,7 +179,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   }
 
   /**
-   * Visit children node in node, create symbol table and resolve function calls
+   * Visit children node in node, create symbol table and resolve function calls.
    *
    * @param node The node to walk
    * @return The symbol table for given node

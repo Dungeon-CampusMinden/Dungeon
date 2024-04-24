@@ -10,9 +10,10 @@ import core.level.utils.LevelElement;
 import core.utils.components.path.SimpleIPath;
 import org.junit.Test;
 
+/** Tests for {@link TileFactory} class. */
 public class TileFactoryTest {
 
-  /** checks if Tile of type SKIP can be generated.... */
+  /** Checks if Tile of type SKIP can be generated. */
   @Test
   public void createSKIPTile() {
     Tile t =
@@ -26,7 +27,7 @@ public class TileFactoryTest {
     assertNull("No Level should be set for a newly created Tile", t.level());
   }
 
-  /** checks if Tile of type FLOOR can be generated.... */
+  /** Checks if Tile of type FLOOR can be generated. */
   @Test
   public void createFLOORTile() {
     Tile t =
@@ -40,7 +41,7 @@ public class TileFactoryTest {
     assertNull("No Level should be set for a newly created Tile", t.level());
   }
 
-  /** checks if Tile of type WALL can be generated.... */
+  /** Checks if Tile of type WALL can be generated. */
   @Test
   public void createWALLTile() {
     Tile t =
@@ -54,7 +55,7 @@ public class TileFactoryTest {
     assertNull("No Level should be set for a newly created Tile", t.level());
   }
 
-  /** checks if Tile of type HOLE can be generated.... */
+  /** Checks if Tile of type HOLE can be generated. */
   @Test
   public void createHOLETile() {
     Tile t =
@@ -68,7 +69,7 @@ public class TileFactoryTest {
     assertNull("No Level should be set for a newly created Tile", t.level());
   }
 
-  /** checks if Tile of type EXIT can be generated.... */
+  /** Checks if Tile of type EXIT can be generated. */
   @Test
   public void createEXITTile() {
     Tile t =
@@ -82,7 +83,7 @@ public class TileFactoryTest {
     assertNull("No Level should be set for a newly created Tile", t.level());
   }
 
-  /** checks if Tile of type DOOR can be generated.... */
+  /** Checks if Tile of type DOOR can be generated. */
   @Test
   public void createDOORTile() {
     Tile t =

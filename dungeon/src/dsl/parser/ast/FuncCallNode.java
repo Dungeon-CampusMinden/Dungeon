@@ -3,12 +3,16 @@ package dsl.parser.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+/** WTF? . */
 public class FuncCallNode extends Node {
+  /** WTF? . */
   public final int idIdx = 0;
+
+  /** WTF? . */
   public final int paramListIdx = 1;
 
   /**
-   * Getter for the AstNode corresponding to the identifier of the function call
+   * Getter for the AstNode corresponding to the identifier of the function call.
    *
    * @return AstNode corresponding to the identifier of the function call
    */
@@ -17,7 +21,7 @@ public class FuncCallNode extends Node {
   }
 
   /**
-   * Getter for the name of the called function
+   * Getter for the name of the called function.
    *
    * @return Name of the called function as String
    */
@@ -26,7 +30,7 @@ public class FuncCallNode extends Node {
   }
 
   /**
-   * Getter for the AstNodes corresponding to the parameters of the function call
+   * Getter for the AstNodes corresponding to the parameters of the function call.
    *
    * @return List of the AstNodes corresponding to the parameters of the function call
    */
@@ -35,7 +39,7 @@ public class FuncCallNode extends Node {
   }
 
   /**
-   * Constructor
+   * Constructor. WTF? .
    *
    * @param id The AstNode corresponding to the identifier of the called function
    * @param paramList The AstNode corresponding to the parameter list of the function call

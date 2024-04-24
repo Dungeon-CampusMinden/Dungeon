@@ -1,4 +1,4 @@
-package dojo.rooms.level_1;
+package dojo.rooms.rooms.riddle;
 
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
@@ -30,9 +30,10 @@ import java.util.function.Function;
  * wenn man alle Fehler gefunden und alle Überprüfungen geschafft hat, kann man in den nächsten Raum
  * weitergehen. Es gibt dabei drei "Prüfstufen".
  */
-public class L1_R2_Fehler_Syntax extends TaskRoom {
-  private final String FILENAME1 = "../dojo-dungeon/todo-assets/lvl1r2/FehlerhafteKlasse.java";
-  private final String FILENAME2 = "../dojo-dungeon/todo-assets/lvl1r2/Klasse.java";
+public class Fehler_Syntax extends TaskRoom {
+  private final String FILENAME1 =
+      "../dojo-dungeon/todo-assets/Fehler_Syntax/FehlerhafteKlasse.java";
+  private final String FILENAME2 = "../dojo-dungeon/todo-assets/Fehler_Syntax/Klasse.java";
   private final String CLASS_NAME = "Klasse";
   private final String[] TEXT = {
     // 0
@@ -74,7 +75,7 @@ public class L1_R2_Fehler_Syntax extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public L1_R2_Fehler_Syntax(
+  public Fehler_Syntax(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

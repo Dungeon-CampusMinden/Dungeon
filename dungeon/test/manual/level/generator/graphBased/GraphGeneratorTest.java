@@ -15,6 +15,11 @@ import java.util.Set;
  */
 public class GraphGeneratorTest {
 
+  /**
+   * Main method.
+   *
+   * @param args the command line arguments
+   */
   public static void main(String[] args) {
     int nodes = 11;
     Set<Set<Entity>> set = new HashSet<>();

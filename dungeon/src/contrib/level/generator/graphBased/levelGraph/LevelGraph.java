@@ -98,7 +98,8 @@ public final class LevelGraph {
    *
    * @param connect List with nodes (for example, from graph A).
    * @param with List with nodes (for example, from graph B).
-   * @return Tuple with the first found matching node pair Tuple<NodeFromListA, NodeFromListB>.
+   * @return Tuple with the first found matching node pair {@code Tuple<NodeFromListA,
+   *     NodeFromListB>}.
    */
   private static Optional<Tuple<LevelNode, LevelNode>> matchingEdges(
       final List<LevelNode> connect, final List<LevelNode> with) {

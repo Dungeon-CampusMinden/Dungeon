@@ -9,85 +9,121 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.components.path.SimpleIPath;
+import dojo.rooms.Room;
 import java.io.IOException;
 
 /** Class to create and initialize the entity "MyImp". */
 public class MyImp {
   /**
-   * Create the entity "MyImp".
+   * Creates and initializes a new {@link Entity} "MyImp".
    *
-   * @param entity the entity to create
-   * @param isInitialized if the entity was already initialized
+   * @param currentRoom the current room the entity is placed in.
+   * @return the new entity.
    */
-  public MyImp(Entity entity, boolean isInitialized) {
-    if (!isInitialized) {
-      entity.name("MyImp");
+  public static Entity createEntity(Room currentRoom) {
+    Entity entity = new Entity();
 
-      InventoryComponent ic = new InventoryComponent(5);
-      entity.add(ic);
+    entity.name("MyImp");
 
-      entity.add(
-          new HealthComponent(
-              1000,
-              (e) ->
-                  OkDialog.showOkDialog(
-                      "Danke, du hast das Dojo-Dungeon gelöst!",
-                      "Alle Aufgaben gelöst:",
-                      () -> new DropItemsInteraction().accept(e, null))));
+    InventoryComponent ic = new InventoryComponent(5);
+    entity.add(ic);
 
-      entity.add(new PositionComponent());
+    entity.add(
+        new HealthComponent(
+            1000,
+            (e) ->
+                OkDialog.showOkDialog(
+                    "Danke, du hast das Dojo-Dungeon gelöst!",
+                    "Alle Aufgaben gelöst:",
+                    () -> {
+                      new DropItemsInteraction().accept(e, null);
+                      currentRoom.openDoors();
+                    })));
+    entity.fetch(HealthComponent.class).orElseThrow().godMode(true);
 
-      entity.add(new AIComponent(AIFactory.randomFightAI(), AIFactory.randomIdleAI(), e -> false));
+    entity.add(new PositionComponent());
 
-      try {
-        entity.add(new DrawComponent(new SimpleIPath("character/monster/imp")));
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+    entity.add(new AIComponent(AIFactory.randomFightAI(), AIFactory.randomIdleAI(), e -> false));
 
-      entity.add(new VelocityComponent(0, 0));
-
-      entity.add(new CollideComponent());
-
-      // Tell the tasks of this room ...
-      entity.add(
-          new InteractionComponent(
-              1,
-              true,
-              (entity1, entity2) ->
-                  OkDialog.showOkDialog(
-                      "Du findest meine Implementierung in \"" + getClass().getName() + "\".",
-                      "Aufgabe in diesem Raum:",
-                      () ->
-                          OkDialog.showOkDialog(
-                              "Implementiere die Methoden addPotionHealthToInventory(), decreaseImpHealthTo25(), toggleImpGodMode() und setImpMoveable().",
-                              "Aufgabe in diesem Raum:",
-                              () ->
-                                  OkDialog.showOkDialog(
-                                      "Sprich dann mit der Truhe, um mich erneut zu laden, und greife an!",
-                                      "Aufgabe in diesem Raum:",
-                                      () -> {})))));
+    try {
+      entity.add(new DrawComponent(new SimpleIPath("character/monster/imp")));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
 
-    addPotionHealthToInventory(entity);
-    decreaseImpHealthTo25(entity);
-    toggleImpGodMode(entity);
-    setImpMoveable(entity);
+    entity.add(new VelocityComponent(0, 0));
+
+    entity.add(new CollideComponent());
+
+    // Tell the tasks of this room ...
+    entity.add(
+        new InteractionComponent(
+            1,
+            true,
+            (entity1, entity2) ->
+                OkDialog.showOkDialog(
+                    "Du findest meine Implementierung in \"" + MyImp.class.getName() + "\".",
+                    "Aufgabe in diesem Raum:",
+                    () ->
+                        OkDialog.showOkDialog(
+                            "Implementiere die Methoden addPotionHealthToInventory(), decreaseImpHealthTo25(), toggleImpGodMode() und setImpMoveable().",
+                            "Aufgabe in diesem Raum:",
+                            () ->
+                                OkDialog.showOkDialog(
+                                    "Sprich dann mit der Truhe, um mich erneut zu laden, und greife an!",
+                                    "Aufgabe in diesem Raum:",
+                                    () -> {})))));
+
+    return entity;
   }
 
-  private void addPotionHealthToInventory(Entity myImp) {
+  /**
+   * Static method to modify the entity MyImp.
+   *
+   * <p>Warning: Don't modify this method.
+   *
+   * @param myImp the entity to modify
+   */
+  public static void modifyMyImp(Entity myImp) {
+    addPotionHealthToInventory(myImp);
+    decreaseImpHealthTo25(myImp);
+    toggleImpGodMode(myImp);
+    setImpMoveable(myImp);
+  }
+
+  /**
+   * Modifies the inventory of MyImp.
+   *
+   * @param myImp the entity to modify
+   */
+  public static void addPotionHealthToInventory(Entity myImp) {
     // todo
   }
 
-  private void decreaseImpHealthTo25(Entity myImp) {
+  /**
+   * Sets the health of MyImp to 25.
+   *
+   * @param myImp the entity to modify
+   */
+  public static void decreaseImpHealthTo25(Entity myImp) {
     // todo
   }
 
-  private void toggleImpGodMode(Entity myImp) {
+  /**
+   * Sets the god mode of MyImp to false.
+   *
+   * @param myImp the entity to modify
+   */
+  public static void toggleImpGodMode(Entity myImp) {
     // todo
   }
 
-  private void setImpMoveable(Entity myImp) {
+  /**
+   * Makes MyImp moveable (increases its speed).
+   *
+   * @param myImp the entity to modify
+   */
+  public static void setImpMoveable(Entity myImp) {
     // todo
   }
 }

@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** Tests for the {@link VelocitySystem} class. */
 public class VelocitySystemTest {
 
   private final ILevel level = Mockito.mock(ILevel.class);
@@ -35,6 +36,7 @@ public class VelocitySystemTest {
   private DrawComponent animationComponent;
   private Entity entity;
 
+  /** WTF? . */
   @Before
   public void setup() throws IOException {
     Game.add(new LevelSystem(null, null, () -> {}));
@@ -53,6 +55,7 @@ public class VelocitySystemTest {
     Game.add(entity);
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllEntities();
@@ -60,6 +63,7 @@ public class VelocitySystemTest {
     Game.removeAllSystems();
   }
 
+  /** WTF? . */
   @Test
   public void updateValidMove() {
     Mockito.when(tile.isAccessible()).thenReturn(true);
@@ -85,6 +89,7 @@ public class VelocitySystemTest {
     assertEquals(yVelocity * (1.0f - tile.friction()), velocityComponent.currentYVelocity(), 0.001);
   }
 
+  /** WTF? . */
   @Test
   public void updateValidMoveWithNegativeVelocity() {
     Mockito.when(tile.isAccessible()).thenReturn(true);
@@ -113,6 +118,7 @@ public class VelocitySystemTest {
     assertEquals(-8 * (1.0f - tile.friction()), velocityComponent.currentYVelocity(), 0.001);
   }
 
+  /** WTF? . */
   @Test
   public void updateUnValidMove() {
     Mockito.when(tile.isAccessible()).thenReturn(false);
@@ -126,6 +132,7 @@ public class VelocitySystemTest {
     assertEquals(yVelocity * (1.0f - tile.friction()), velocityComponent.currentYVelocity(), 0.001);
   }
 
+  /** WTF? . */
   @Test
   public void updateUnValidMoveWithNegativeVelocity() {
     Mockito.when(tile.isAccessible()).thenReturn(false);
@@ -139,6 +146,7 @@ public class VelocitySystemTest {
     assertEquals(-8 * (1.0f - tile.friction()), velocityComponent.currentYVelocity(), 0.001);
   }
 
+  /** WTF? . */
   @Test
   public void changeAnimation() {
     /*

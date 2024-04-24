@@ -8,6 +8,7 @@ import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 
+/** WTF? . */
 public class TypeBinder implements AstVisitor<Object> {
 
   private StringBuilder errorStringBuilder;
@@ -18,10 +19,11 @@ public class TypeBinder implements AstVisitor<Object> {
   }
 
   /**
-   * Create new types for all game object definitions
+   * Create new types for all game object definitions.
    *
-   * <p>//* @param symbolTable the symbol table in which to store the types
+   * <p>WTF? param symbolTable the symbol table in which to store the types
    *
+   * @param environment foo
    * @param rootNode the root node of the program to scan for types
    * @param errorStringBuilder a string builder to which errors will be appended
    */

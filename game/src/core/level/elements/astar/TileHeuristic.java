@@ -10,7 +10,7 @@ import core.level.Tile;
 public class TileHeuristic implements Heuristic<Tile> {
 
   /**
-   * Heuristic used by the pathfinding algorithm
+   * Heuristic used by the pathfinding algorithm.
    *
    * @param start From
    * @param goal To

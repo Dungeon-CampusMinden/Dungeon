@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+/** WTF? . */
 public class TypeInstantiator {
   private static final Set<IType.Kind> directlyConvertableTypeKinds =
       Collections.unmodifiableSet(
@@ -36,6 +37,11 @@ public class TypeInstantiator {
   private final HashMap<String, Object> context = new HashMap<>();
   private final CallbackAdapterBuilder callbackAdapterBuilder;
 
+  /**
+   * WTF? .
+   *
+   * @param interpreter foo
+   */
   public TypeInstantiator(DSLInterpreter interpreter) {
     callbackAdapterBuilder = new CallbackAdapterBuilder(interpreter);
   }
@@ -69,7 +75,7 @@ public class TypeInstantiator {
 
   /**
    * Instantiate a new Object corresponding to the passed {@link AggregateType} with the values from
-   * an {@link AggregateValue}
+   * an {@link AggregateValue}.
    *
    * @param value the aggregateValue to instantiate an object from
    * @param type the type to use for instantiation
@@ -162,6 +168,12 @@ public class TypeInstantiator {
     return hashSetInstance;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param mapValue foo
+   * @return foo
+   */
   public Map<?, ?> instantiateMap(MapValue mapValue) {
     HashMap<Object, Object> hashMapInstance = new HashMap<>();
     HashMap<Value, Value> internalMap = mapValue.internalMap();
@@ -178,7 +190,7 @@ public class TypeInstantiator {
 
   /**
    * Push an object as part of the context (so it can be looked up, if it is referenced by {@link
-   * DSLContextMember} by a constructor parameter)
+   * DSLContextMember} by a constructor parameter).
    *
    * @param name the name to use for the contextMember
    * @param contextMember the Object to push
@@ -188,7 +200,7 @@ public class TypeInstantiator {
   }
 
   /**
-   * Remove a context member with name
+   * Remove a context member with name.
    *
    * @param name the name of the context member to remove
    */
@@ -206,6 +218,7 @@ public class TypeInstantiator {
    * datatype of the {@link Value} instance.
    *
    * @param value the Value to convert
+   * @param valuesType foo
    * @return the converted Object
    */
   private Object convertValueToObject(Value value, IType valuesType) {

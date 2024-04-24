@@ -108,6 +108,11 @@ public class Starter {
         // show list for task: reached points
       };
 
+  /**
+   * A method to start the main game loop and handle exceptions.
+   *
+   * @param args array of file names supplied on the command line
+   */
   public static void main(String[] args) {
     try {
       // if file names have been supplied on CLI, let's use these

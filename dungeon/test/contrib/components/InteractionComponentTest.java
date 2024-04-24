@@ -9,9 +9,10 @@ import java.util.function.BiConsumer;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** Tests for the {@link InteractionComponent}. */
 public class InteractionComponentTest {
 
-  /** Tests if the simple ctor sets the attributes to the default values */
+  /** Tests if the simple ctor sets the attributes to the default values. */
   @Test
   public void createSimpleConstructor() {
     Entity e = new Entity();
@@ -20,7 +21,7 @@ public class InteractionComponentTest {
     assertEquals(InteractionComponent.DEFAULT_INTERACTION_RADIUS, component.radius(), 0.0001);
   }
 
-  /** Tests if the complex Constructor sets the attributes to the parameter */
+  /** Tests if the complex Constructor sets the attributes to the parameter. */
   @Test
   public void createComplexConstructor() {
     Entity e = new Entity();
@@ -34,7 +35,7 @@ public class InteractionComponentTest {
     assertEquals(radius, component.radius(), 0.0001);
   }
 
-  /** Checks if the iInteraction is called on triggerInteraction */
+  /** Checks if the iInteraction is called on triggerInteraction. */
   @Test
   public void triggerInteractionOnLinkedEntity() {
     BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
@@ -46,7 +47,7 @@ public class InteractionComponentTest {
     assertTrue(e.fetch(InteractionComponent.class).isPresent());
   }
 
-  /** Checks if after the interaction the component gets removed */
+  /** Checks if after the interaction the component gets removed. */
   @Test
   public void triggerInteractionOnLinkedEntityRemovesComponent() {
     BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
@@ -58,7 +59,7 @@ public class InteractionComponentTest {
     assertFalse(e.fetch(InteractionComponent.class).isPresent());
   }
 
-  /** Checks that the interaction only gets triggered for the linked iInteraction */
+  /** Checks that the interaction only gets triggered for the linked iInteraction. */
   @Test
   public void triggerInteractionNonLinkedEntity() {
     BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);
@@ -73,7 +74,7 @@ public class InteractionComponentTest {
     verify(iInteraction2, never()).accept(e, null);
   }
 
-  /** Checks that the Component does not ge removed when the interaction was not triggered */
+  /** Checks that the Component does not ge removed when the interaction was not triggered. */
   @Test
   public void triggerInteractionNonLinkedEntityComponentNotRemoved() {
     BiConsumer<Entity, Entity> iInteraction = Mockito.mock(BiConsumer.class);

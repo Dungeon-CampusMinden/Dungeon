@@ -12,6 +12,11 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 public class CallbackAdapterBuilder {
   DSLInterpreter interpreter;
 
+  /**
+   * WTF? .
+   *
+   * @param interpreter foo
+   */
   public CallbackAdapterBuilder(DSLInterpreter interpreter) {
     this.interpreter = interpreter;
   }

@@ -71,11 +71,11 @@ public final class MonsterFactory {
    *
    * <p>The Entity is not added to the game yet. *
    *
-   * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent} *
-   * with random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set *
+   * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent} with
+   * random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set
    * Animation, {@link VelocityComponent}, {@link CollideComponent}, {@link IdleSoundComponent} and
-   * a 10% chance for an {@link * InventoryComponent}. If it has an Inventory it will use the {@link
-   * DropItemsInteraction} on * death.
+   * a 10% chance for an {@link InventoryComponent}. If it has an Inventory it will use the {@link
+   * DropItemsInteraction} on death.
    *
    * @param pathToTexture Textures to use for the monster.
    * @return A new Entity.
