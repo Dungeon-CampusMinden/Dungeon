@@ -13,6 +13,7 @@ import core.Game;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
+import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import dojo.rooms.LevelRoom;
@@ -30,8 +31,7 @@ public class DojoStarter {
     Room buildRoom(LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel);
   }
 
-  private record BuildRoomData(
-      BuildRoomMethod buildRoomMethod, String roomTitle, String roomDescription) {}
+  private record BuildRoomData(BuildRoomMethod buildRoomMethod, IVoidFunction roomEnterCallback) {}
 
   private record BuildRoom(
       LevelRoomLevel levelRoomLevel, BuildRoomData buildRoomData, LevelRoom levelRoom) {}
@@ -122,11 +122,8 @@ public class DojoStarter {
           for (LevelRoomLevel level : allLevels) {
             for (BuildRoom buildRoom : level.buildRooms) {
               if (buildRoom.levelRoom.level() == il) {
-                String roomTitle = buildRoom.buildRoomData.roomTitle;
-                String roomDescription = buildRoom.buildRoomData.roomDescription;
-                if (roomTitle != null && roomDescription != null) {
-                  OkDialog.showOkDialog(roomDescription, roomTitle, () -> {});
-                }
+                // Execute the roomEnterCallback
+                buildRoom.buildRoomData.roomEnterCallback.execute();
               }
             }
           }
@@ -151,16 +148,29 @@ public class DojoStarter {
           new BuildRoomData[] {
             new BuildRoomData(
                 DojoStarter::buildRoom_Key,
-                "\"Der vergessene Wald\" (Raum 1)",
-                "In diesem Raum muss man den Schlüssel, der zufällig von einem Monster fallengelassen wird, finden, um in den nächsten Raum zu kommen. - Besiege die Monster und finde den Schlüssel für den nächsten Raum."),
+                () ->
+                    OkDialog.showOkDialog(
+                        "Ein geheimnisvoller Wald mit dichtem Unterholz und moosbedecktem Boden. - Der Wald besteht aus drei Räumen.",
+                        "Umgebung (Level 1):",
+                        () ->
+                            OkDialog.showOkDialog(
+                                "In diesem Raum muss man den Schlüssel, der zufällig von einem Monster fallengelassen wird, finden, um in den nächsten Raum zu kommen. - Besiege die Monster und finde den Schlüssel für den nächsten Raum.",
+                                "\"Der vergessene Wald\" (Raum 1)",
+                                () -> {}))),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fehler_Syntax,
-                "\"Der vergessene Wald\" (Raum 2)",
-                "In diesem Raum soll eine fehlerhafte Java-Klasse korrigiert werden, während man spielt. Erst, wenn man alle Fehler gefunden und alle Überprüfungen geschafft hat, kann man in den nächsten Raum weitergehen. Es gibt dabei drei \"Prüfstufen\". - Gehe zum Ritter für die Raumaufgabe."),
+                () ->
+                    OkDialog.showOkDialog(
+                        "In diesem Raum soll eine fehlerhafte Java-Klasse korrigiert werden, während man spielt. Erst, wenn man alle Fehler gefunden und alle Überprüfungen geschafft hat, kann man in den nächsten Raum weitergehen. Es gibt dabei drei \"Prüfstufen\". - Gehe zum Ritter für die Raumaufgabe.",
+                        "\"Der vergessene Wald\" (Raum 2)",
+                        () -> {})),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fragen_Lambda,
-                "\"Der vergessene Wald\" (Raum 3)",
-                "In diesem Raum muss der Spieler alle Fragen eines NPCs zu Lambda-Ausdrücken und Funktionsinterfaces richtig beantworten, um in den nächsten Raum zu gelangen. - Gehe zum pumpkin dude und beantworte alle Fragen.")
+                () ->
+                    OkDialog.showOkDialog(
+                        "In diesem Raum muss der Spieler alle Fragen eines NPCs zu Lambda-Ausdrücken und Funktionsinterfaces richtig beantworten, um in den nächsten Raum zu gelangen. - Gehe zum pumpkin dude und beantworte alle Fragen.",
+                        "\"Der vergessene Wald\" (Raum 3)",
+                        () -> {})),
           }),
       new LevelRoomLevel(
           graph,
@@ -168,16 +178,29 @@ public class DojoStarter {
           new BuildRoomData[] {
             new BuildRoomData(
                 DojoStarter::buildRoom_Monster_Kill,
-                "\"Die Vulkanhöhle\" (Raum 1)",
-                "In diesem Raum müssen alle Monster erledigt werden, um weiterzukommen. - Besiege alle Monster, um in den nächsten Raum zu kommen."),
+                () ->
+                    OkDialog.showOkDialog(
+                        "Eine unterirdische Höhle mit fließender Lava und glühenden Steinen. - Die Vulkanhöhle besteht aus drei Räumen.",
+                        "Umgebung (Level 2):",
+                        () ->
+                            OkDialog.showOkDialog(
+                                "In diesem Raum müssen alle Monster erledigt werden, um weiterzukommen. - Besiege alle Monster, um in den nächsten Raum zu kommen.",
+                                "\"Die Vulkanhöhle\" (Raum 1)",
+                                () -> {}))),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fragen_Pattern,
-                "\"Die Vulkanhöhle\" (Raum 2)",
-                "In diesem Raum müssen verschiedene Design Patterns anhand eines UML-Klassendiagramms erkannt werden. Die erkannten Design Patterns müssen dann dem Zauberer mitgeteilt werden. - Sprich mit dem Zauberer."),
+                () ->
+                    OkDialog.showOkDialog(
+                        "In diesem Raum müssen verschiedene Design Patterns anhand eines UML-Klassendiagramms erkannt werden. Die erkannten Design Patterns müssen dann dem Zauberer mitgeteilt werden. - Sprich mit dem Zauberer.",
+                        "\"Die Vulkanhöhle\" (Raum 2)",
+                        () -> {})),
             new BuildRoomData(
                 DojoStarter::buildRoom_Implement_MyImp,
-                "\"Die Vulkanhöhle\" (Raum 3)",
-                "In diesem Raum erhält man eine Beschreibung des erwarteten Verhaltens, die implementiert werden muss. Der Dämon erteilt die Aufgabe, Methoden zu schreiben, die dieses Verhalten implementieren. Danach muss der Dämon angegriffen werden. - Sprich mit dem Imp und danach mit der Truhe!")
+                () ->
+                    OkDialog.showOkDialog(
+                        "In diesem Raum erhält man eine Beschreibung des erwarteten Verhaltens, die implementiert werden muss. Der Dämon erteilt die Aufgabe, Methoden zu schreiben, die dieses Verhalten implementieren. Danach muss der Dämon angegriffen werden. - Sprich mit dem Imp und danach mit der Truhe!",
+                        "\"Die Vulkanhöhle\" (Raum 3)",
+                        () -> {})),
           }),
       new LevelRoomLevel(
           graph,
@@ -185,16 +208,29 @@ public class DojoStarter {
           new BuildRoomData[] {
             new BuildRoomData(
                 DojoStarter::buildRoom_Saphire,
-                "\"Tempel der verlorenen Geheimnisse\" (Raum 1)",
-                "In diesem Raum muss man den Saphir, der zufällig von einem Monster fallengelassen wird, finden, um in den nächsten Raum zu kommen. - Besiege die Monster und finde den Saphir für den nächsten Raum."),
+                () ->
+                    OkDialog.showOkDialog(
+                        "Ein uralter Tempel mit geheimnisvollen Inschriften. - Der Tempel besteht aus drei Räumen.",
+                        "Umgebung (Level 3):",
+                        () ->
+                            OkDialog.showOkDialog(
+                                "In diesem Raum muss man den Saphir, der zufällig von einem Monster fallengelassen wird, finden, um in den nächsten Raum zu kommen. - Besiege die Monster und finde den Saphir für den nächsten Raum.",
+                                "\"Tempel der verlorenen Geheimnisse\" (Raum 1)",
+                                () -> {}))),
             new BuildRoomData(
                 DojoStarter::buildRoom_Implement_MyMonster,
-                "\"Tempel der verlorenen Geheimnisse\" (Raum 2)",
-                "In diesem Raum muss ein Monster mit verschiedenen Eigenschaften erstellt und danach besiegt werden, um in den nächsten Raum zu gelangen. - Gehe zum Ritter für die Raumaufgabe."),
+                () ->
+                    OkDialog.showOkDialog(
+                        "In diesem Raum muss ein Monster mit verschiedenen Eigenschaften erstellt und danach besiegt werden, um in den nächsten Raum zu gelangen. - Gehe zum Ritter für die Raumaufgabe.",
+                        "\"Tempel der verlorenen Geheimnisse\" (Raum 2)",
+                        () -> {})),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fehler_Refactoring,
-                "\"Tempel der verlorenen Geheimnisse\" (Raum 3)",
-                "In diesem Raum ist das Ziel, den vorgegebenen Code zu optimieren, Fehler zu beheben und die Lesbarkeit zu verbessern. Nur wenn der Code korrekt ist, kann man in den nächsten Raum weitergehen. - Gehe zum Ritter für die Raumaufgabe.")
+                () ->
+                    OkDialog.showOkDialog(
+                        "In diesem Raum ist das Ziel, den vorgegebenen Code zu optimieren, Fehler zu beheben und die Lesbarkeit zu verbessern. Nur wenn der Code korrekt ist, kann man in den nächsten Raum weitergehen. - Gehe zum Ritter für die Raumaufgabe.",
+                        "\"Tempel der verlorenen Geheimnisse\" (Raum 3)",
+                        () -> {})),
           }),
       new LevelRoomLevel(
           graph,
@@ -202,16 +238,29 @@ public class DojoStarter {
           new BuildRoomData[] {
             new BuildRoomData(
                 DojoStarter::buildRoom_Fragen_Schriftrollen,
-                "\"Kerker des Grauens\" (Raum 1)",
-                "Der Spieler muss Schriftrollen, die verschiedene Programming Patterns und Software Development Principles repräsentieren, den entsprechenden Truhen zuordnen. Die Truhen sind mit den Kategorien der Programming Patterns und Software Development Principles beschriftet. Erst wenn alle Schriftrollen korrekt zugeordnet sind, kann der Spieler in den nächsten Raum weitergehen. - Ordne die Schriftrollen den entsprechenden Truhen zu."),
+                () ->
+                    OkDialog.showOkDialog(
+                        "Ein düsterer, verfallener Kerker mit steinernen Wänden und alten Türen. - Der Kerker besteht aus drei Räumen.",
+                        "Umgebung (Level 4):",
+                        () ->
+                            OkDialog.showOkDialog(
+                                "Der Spieler muss Schriftrollen, die verschiedene Programming Patterns und Software Development Principles repräsentieren, den entsprechenden Truhen zuordnen. Die Truhen sind mit den Kategorien der Programming Patterns und Software Development Principles beschriftet. Erst wenn alle Schriftrollen korrekt zugeordnet sind, kann der Spieler in den nächsten Raum weitergehen. - Ordne die Schriftrollen den entsprechenden Truhen zu.",
+                                "\"Kerker des Grauens\" (Raum 1)",
+                                () -> {}))),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fehler_Quader,
-                "\"Kerker des Grauens\" (Raum 2)",
-                "In diesem Raum muss eine Klasse mit mathematischen Funktionen verbessert werden. Der Spieler hat jedoch nur eine begrenzte Anzahl an Versuchen, symbolisiert durch seine Lebenspunkte. Wenn die Klasse richtig verbessert wurde, gilt der Imp als besiegt und der Spieler kann in den nächsten Raum weitergehen. - Sprich mit der Truhe für die Raumaufgabe."),
+                () ->
+                    OkDialog.showOkDialog(
+                        "In diesem Raum muss eine Klasse mit mathematischen Funktionen verbessert werden. Der Spieler hat jedoch nur eine begrenzte Anzahl an Versuchen, symbolisiert durch seine Lebenspunkte. Wenn die Klasse richtig verbessert wurde, gilt der Imp als besiegt und der Spieler kann in den nächsten Raum weitergehen. - Sprich mit der Truhe für die Raumaufgabe.",
+                        "\"Kerker des Grauens\" (Raum 2)",
+                        () -> {})),
             new BuildRoomData(
                 DojoStarter::buildRoom_Fragen_RegExes,
-                "\"Kerker des Grauens\" (Raum 3)",
-                "In diesem Raum muss ein String eingegeben werden, der zum regulären Ausdruck passt. Wenn der passende String eingegeben wurde, lässt OgreX den Spieler zur nächsten Ebene weitergehen. - Gehe zu OgreX für die Raumaufgabe.")
+                () ->
+                    OkDialog.showOkDialog(
+                        "In diesem Raum muss ein String eingegeben werden, der zum regulären Ausdruck passt. Wenn der passende String eingegeben wurde, lässt OgreX den Spieler zur nächsten Ebene weitergehen. - Gehe zu OgreX für die Raumaufgabe.",
+                        "\"Kerker des Grauens\" (Raum 3)",
+                        () -> {})),
           })
     };
   }
