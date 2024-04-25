@@ -3,6 +3,7 @@ package dsl.semanticanalysis.groum;
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
@@ -18,28 +19,26 @@ public abstract class ActionNode extends GroumNode {
   public enum ActionType {
     none,
     definition,
+    definitionByImport,
     parameterInstantiation, // parameter 'instantiation';
     // TODO: this may be two different types (by value, by reference) -> see value semantics!
     functionCall,
     propertyAccess,
     functionCallAccess,
     referencedInExpression,
-    referencedInReturnStmt,
     passAsParameter,
-    // TODO: how to model prototype definition???
-    propertyDefinition,
-    componentDefinition,
     expression,
-    referencedInGraph, constRef
+    referencedInGraph,
+    constRef
   }
 
   protected static Symbol getInstanceSymbolType(Symbol symbol) {
-    IType instanceSymbolType = symbol.getDataType();
-    if (symbol instanceof AggregateType aggregateType) {
-      instanceSymbolType = aggregateType;
-    } else if (instanceSymbolType instanceof FunctionType functionType) {
-      // reduce to return type
-      instanceSymbolType = functionType.getReturnType();
+    IType instanceSymbolType;
+
+    if (symbol instanceof IType type) {
+      instanceSymbolType = type;
+    } else {
+      instanceSymbolType = symbol.getDataType();
     }
     return (Symbol)instanceSymbolType;
   }

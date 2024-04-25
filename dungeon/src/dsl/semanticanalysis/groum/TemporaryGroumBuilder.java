@@ -2,6 +2,7 @@ package dsl.semanticanalysis.groum;
 
 import dsl.IndexGenerator;
 import dsl.parser.ast.*;
+import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
@@ -494,6 +495,12 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     // rhs is the 'deeper' member access
     var lhsSymbol = this.symbolTable.getSymbolsForAstNode(node.getLhs()).get(0);
 
+    // if the lhs of the member access is a callable, we generally want to use the return type as the 'scope'
+    // in which the member access is happening
+    if (lhsSymbol instanceof ICallable callable) {
+      lhsSymbol = (Symbol)callable.getFunctionType().getReturnType();
+    }
+
     Groum mergedGroum = Groum.NONE;
     // in a method call, we first land here
     if (node.getRhs().type.equals(Node.Type.FuncCall)) {
@@ -785,8 +792,8 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(ImportNode node) {
-    // TODO
-    // basically definition??
-    throw new UnsupportedOperationException();
+    var importSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+    var defAction = new DefinitionByImportAction(importSymbol, createOrGetInstanceId(importSymbol));
+    return new Groum(defAction);
   }
 }

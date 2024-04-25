@@ -9,6 +9,10 @@ public class DefinitionAction extends ActionNode {
 
   public DefinitionAction(Symbol symbol, long instanceId) {
     super(ActionType.definition);
+
+    // just always using the return type of a function symbol here is not correct, because
+    // sometimes the value can be of a function type (setting a specific scenario_builer
+    // in task definitions for example...)
     this.addSymbolReference(getInstanceSymbolType(symbol));
     this.addSymbolReference(symbol);
     this.referencedInstanceId(instanceId);
@@ -28,3 +32,4 @@ public class DefinitionAction extends ActionNode {
     return this.instancedType().toString() + ":<def [" + this.referencedInstanceId() + "]>";
   }
 }
+

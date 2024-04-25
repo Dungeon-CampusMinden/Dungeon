@@ -6,7 +6,7 @@ public class FunctionCallAction extends ActionNode {
   public static final int functionSymbolIdx = 0;
 
   public FunctionCallAction(Symbol functionSymbol, long instanceId) {
-    super(ActionType.passAsParameter);
+    super(ActionType.functionCall);
     this.addSymbolReference(functionSymbol);
     this.referencedInstanceId(instanceId);
   }

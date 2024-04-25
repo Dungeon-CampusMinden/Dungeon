@@ -137,6 +137,7 @@ public class ImportAnalyzer implements AstVisitor<Void> {
       throw new RuntimeException(
           "Invalid import symbol! Only type definitions and functions can be imported!");
     }
+    this.environment.getSymbolTable().addSymbolNodeRelation(importSymbol, node, true);
     this.parentScope.bind(importSymbol);
     return null;
   }

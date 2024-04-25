@@ -1,7 +1,10 @@
 package dsl.semanticanalysis;
 
+import contrib.components.InteractionComponent;
+import core.Entity;
 import core.Game;
 import dsl.helpers.Helpers;
+import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.FuncDefNode;
 import dsl.parser.ast.TermNode;
 import dsl.parser.ast.VarDeclNode;
@@ -9,12 +12,22 @@ import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.groum.*;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
+import entrypoint.DungeonConfig;
 import org.junit.Assert;
 import org.junit.Test;
+import task.tasktype.quizquestion.SingleChoice;
 
 import javax.naming.ldap.Control;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.file.Path;
+import java.util.HashSet;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestGroum {
+  private static final Path testLibPath = Path.of("test_resources/testlib");
+
   @Test
   public void simple() {
     String program =
@@ -553,6 +566,82 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+  }
+
+  @Test
+  public void importFunc() {
+    String program =
+      """
+      #import "test.dng":test_fn_param as my_func
+      #import "test.dng":my_ent_type as my_type
+
+      fn test(int x) {
+        my_func(x);
+      }
+      """;
+
+    var gameEnv = new GameEnvironment(testLibPath);
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    // TODO: do this for all files!
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+  }
+
+  @Test
+  public void funcValueSetting() {
+    String program =
+
+      """
+      #import "test.dng":my_ent_type as my_type
+
+      single_choice_task t1 {
+          description: "Task1",
+          answers: ["1", "HELLO", "3"],
+          correct_answer_index: 2,
+          scenario_builder: mock_builder
+      }
+
+      graph g {
+          t1
+      }
+
+      dungeon_config c {
+          dependency_graph: g
+      }
+
+      fn mock_builder(single_choice_task t) -> entity<><> {
+          var return_set : entity<><>;
+          var room_set : entity<>;
+
+          var my_ent : entity;
+          my_ent = instantiate(my_type);
+          room_set.add(my_ent);
+          return_set.add(room_set);
+          return return_set;
+      }
+      """;
+
+    var gameEnv = new GameEnvironment(testLibPath);
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    // TODO: do this for all files!
     TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
