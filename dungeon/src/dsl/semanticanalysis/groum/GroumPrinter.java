@@ -2,6 +2,7 @@ package dsl.semanticanalysis.groum;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ public class GroumPrinter {
 
   private HashMap<Object, String> idMap = new HashMap<>();
   private HashMap<GroumNode, StringBuilder> actionsWithChildren = new HashMap<>();
+  private HashSet<GroumNode> alreadyPrintedNodes = new HashSet<>();
   private long actionNodeCounter = 0;
   private long controlNodeCounter = 0;
 
@@ -109,12 +111,17 @@ public class GroumPrinter {
   }
 
   private void actionNode(ActionNode node, StringBuilder builder) {
+    if (this.alreadyPrintedNodes.contains(node)) {
+      // skip
+      return;
+    }
     String nodeId = getOrCreateIdAction(node);
     String nodeString = String.format(actionNodeDeclarationFmt, nodeId, node.toString());
 
     if (actionsWithChildren.containsKey(node)) {
       var expressionNodeStringBuilder = actionsWithChildren.get(node);
 
+      // iteration over children
       for (var child : node.children()) {
         if (child instanceof ActionNode) {
           actionNode((ActionNode) child, expressionNodeStringBuilder);
@@ -128,9 +135,14 @@ public class GroumPrinter {
     } else {
       builder.append(nodeString).append("\n");
     }
+    alreadyPrintedNodes.add(node);
   }
 
   private void controlNode(ControlNode node, StringBuilder builder) {
+    if (this.alreadyPrintedNodes.contains(node)) {
+      // skip
+      return;
+    }
     String nodeId = getOrCreateIdControl(node);
     String nodeString = String.format(controlNodeDeclarationFmt, nodeId, node.toString());
 
@@ -149,6 +161,7 @@ public class GroumPrinter {
     } else {
       builder.append(nodeString).append("\n");
     }
+    this.alreadyPrintedNodes.add(node);
   }
 
   private void edge(GroumEdge edge, StringBuilder builder) {
