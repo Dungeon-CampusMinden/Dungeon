@@ -7,19 +7,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GroumPrinter {
-  private static String preamble = "digraph G {";
-  private static String postamble = "}";
-  private static String controlShape = "shape=diamond";
-  private static String actionShape = "shape=ellipse";
-  private static String actionNodeDeclarationFmt = "%s [label=\"%s\"" + actionShape + "]";
-  private static String controlNodeDeclarationFmt = "%s [label=\"%s\"" + controlShape + "]";
-  private static String edgeFmt = "%s -> %s [label=%s]";
-  private static String nodeWithChildrenStartFmt = "subgraph cluster_%s {\n label=\"%s\";\n";
-  private static String nodeWithChildrenEnd = "}";
+  private static final String preamble = "digraph G {";
+  private static final String epilog = "}";
+  private static final String controlShape = "shape=diamond";
+  private static final String actionShape = "shape=ellipse";
+  private static final String actionNodeDeclarationFmt = "%s [label=\"%s\"" + actionShape + "]";
+  private static final String controlNodeDeclarationFmt = "%s [label=\"%s\"" + controlShape + "]";
+  private static final String edgeFmt = "%s -> %s [label=%s]";
+  private static final String nodeWithChildrenStartFmt = "subgraph cluster_%s {\n label=\"%s\";\n";
+  private static final String nodeWithChildrenEnd = "}";
 
-  private HashMap<Object, String> idMap = new HashMap<>();
-  private HashMap<GroumNode, StringBuilder> actionsWithChildren = new HashMap<>();
-  private HashSet<GroumNode> alreadyPrintedNodes = new HashSet<>();
+  private final HashMap<Object, String> idMap = new HashMap<>();
+  private final HashMap<GroumNode, StringBuilder> actionsWithChildren = new HashMap<>();
+  private final HashSet<GroumNode> alreadyPrintedNodes = new HashSet<>();
   private long actionNodeCounter = 0;
   private long controlNodeCounter = 0;
 
@@ -64,7 +64,7 @@ public class GroumPrinter {
       printNodeWithChildren(rootNode);
     }
 
-    builder.append("\n").append(postamble);
+    builder.append("\n").append(epilog);
     return builder.toString();
   }
 
