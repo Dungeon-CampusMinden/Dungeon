@@ -90,6 +90,12 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
       merged = merged.mergeSequential(stmtGroum);
     }
 
+    var funcSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+    var funcDefAction = new DefinitionAction(funcSymbol, createOrGetInstanceId(funcSymbol));
+
+    funcDefAction.addChildren(merged.nodes);
+    merged = merged.mergeSequential(funcDefAction);
+
     return merged;
   }
 
@@ -215,6 +221,8 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     var defAction = new DefinitionAction(graphSymbol, createOrGetInstanceId(graphSymbol));
     var defGroum = new Groum(defAction);
 
+    defAction.addChildren(stmtGroumsMerged.nodes);
+
     groum = stmtGroumsMerged.mergeSequential(defGroum);
     // TODO: scope for definition node?
 
@@ -329,6 +337,8 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
     // create object def action
     DefinitionAction objectDefAction = new DefinitionAction(objectSymbol, createOrGetInstanceId(objectSymbol));
+    objectDefAction.addChildren(mergedPropDefGroums.nodes);
+
     Groum definitionGroum = new Groum(objectDefAction);
     Groum groum = mergedPropDefGroums.mergeSequential(definitionGroum);
 
@@ -407,6 +417,8 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     // create definition action
     var protoTypeSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
     var defAction = new DefinitionAction(protoTypeSymbol, createOrGetInstanceId(protoTypeSymbol));
+
+    defAction.addChildren(mergedComponentDefinitionGroums.nodes);
     Groum merged = mergedComponentDefinitionGroums.mergeSequential(defAction);
 
     return merged;
@@ -785,6 +797,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     // add def node for aggergate value def
     var valueSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
     var definitionAction = new DefinitionAction(valueSymbol, createOrGetInstanceId(valueSymbol));
+    definitionAction.addChildren(mergedPropertyDefinitionGroums.nodes);
 
     Groum mergedGroum = mergedPropertyDefinitionGroums.mergeSequential(definitionAction);
     return mergedGroum;

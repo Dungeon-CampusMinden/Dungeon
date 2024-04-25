@@ -48,10 +48,14 @@ public class GroumPrinter {
     }
 
     for (var node : groum.nodes) {
+      var builderToUse = this.builder;
+      if (node.parent() != GroumNode.NONE) {
+        builderToUse = this.actionsWithChildren.get(node.parent());
+      }
       if (node instanceof ActionNode) {
-        actionNode((ActionNode) node, builder);
+        actionNode((ActionNode) node, builderToUse);
       } else {
-        controlNode((ControlNode) node, builder);
+        controlNode((ControlNode) node, builderToUse);
       }
     }
 
@@ -115,6 +119,7 @@ public class GroumPrinter {
       // skip
       return;
     }
+
     String nodeId = getOrCreateIdAction(node);
     String nodeString = String.format(actionNodeDeclarationFmt, nodeId, node.toString());
 
@@ -168,6 +173,7 @@ public class GroumPrinter {
     var start = edge.start();
     String startId = this.idMap.get(start);
 
+
     var end = edge.end();
     String endId = this.idMap.get(end);
 
@@ -180,9 +186,6 @@ public class GroumPrinter {
       // put edge in subgraph of parent
       var parent = start.parent();
       var expressionActionStringBuilder = actionsWithChildren.get(parent);
-      if (expressionActionStringBuilder == null) {
-        boolean b = true;
-      }
       expressionActionStringBuilder.append(edgeString).append("\n");
     } else {
       builder.append(edgeString).append("\n");
