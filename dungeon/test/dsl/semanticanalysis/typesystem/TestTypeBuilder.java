@@ -15,7 +15,9 @@ import java.lang.reflect.InvocationTargetException;
 import org.junit.Assert;
 import org.junit.Test;
 
+/** WTF? . */
 public class TestTypeBuilder {
+  /** WTF? . */
   @Test
   public void testNameConversion() {
     String name = "helloWorldW";
@@ -23,7 +25,7 @@ public class TestTypeBuilder {
     assertEquals("hello_world_w", convertedName);
   }
 
-  /** Test class for testing conversion into DSL datatype */
+  /** Test class for testing conversion into DSL datatype. */
   @DSLType
   private class TestComponent {
     @DSLTypeMember public int intMember;
@@ -33,7 +35,7 @@ public class TestTypeBuilder {
     @DSLTypeMember public TaskDependencyGraph graphMember;
   }
 
-  /** Test class for testing conversion into DSL datatype */
+  /** Test class for testing conversion into DSL datatype. */
   @DSLType
   private class ChainClass {
     @DSLTypeMember public TestComponent testComponentMember;
@@ -45,6 +47,7 @@ public class TestTypeBuilder {
   private record TestRecord(
       @DSLTypeMember int comp1, @DSLTypeMember String comp2, @DSLTypeMember float comp3) {}
 
+  /** WTF? . */
   @Test
   public void testSimpleClass() {
     TypeBuilder typeBuilder = new TypeBuilder();
@@ -65,6 +68,7 @@ public class TestTypeBuilder {
     assertEquals(BuiltInType.graphType, graphMember.getDataType());
   }
 
+  /** WTF? . */
   @Test
   public void testChainedClass() {
     TypeBuilder typeBuilder = new TypeBuilder();
@@ -82,6 +86,7 @@ public class TestTypeBuilder {
     assertNotSame(intMemberInTestComponent, Symbol.NULL);
   }
 
+  /** WTF? . */
   @Test
   public void testRecord() {
     TypeBuilder typeBuilder = new TypeBuilder();
@@ -102,6 +107,7 @@ public class TestTypeBuilder {
     assertEquals(BuiltInType.floatType, comp3.getDataType());
   }
 
+  /** WTF? . */
   @Test
   public void testTypeAdapterRegister() {
     TypeBuilder tb = new TypeBuilder();
@@ -121,6 +127,7 @@ public class TestTypeBuilder {
     }
   }
 
+  /** WTF? . */
   @Test
   public void testAggregateTypeAdapterRegister() {
     TypeBuilder tb = new TypeBuilder();
@@ -140,6 +147,7 @@ public class TestTypeBuilder {
     }
   }
 
+  /** WTF? . */
   @Test
   public void testAggregateTypeAdapterCreation() {
     TypeBuilder tb = new TypeBuilder();
@@ -165,6 +173,7 @@ public class TestTypeBuilder {
     }
   }
 
+  /** WTF? . */
   @Test
   public void testAdapterUsage() {
     TypeBuilder tb = new TypeBuilder();
@@ -177,6 +186,7 @@ public class TestTypeBuilder {
     assertEquals(IType.Kind.AggregateAdapted, membersDatatype.getTypeKind());
   }
 
+  /** WTF? . */
   @Test
   public void testExternalTypeMember() {
     TypeBuilder typeBuilder = new TypeBuilder();
@@ -190,6 +200,7 @@ public class TestTypeBuilder {
     assertNotSame(dslType, Symbol.NULL);
   }
 
+  /** WTF? . */
   @Test
   public void testInterfaceMember() {
     TypeBuilder typeBuilder = new TypeBuilder();
@@ -202,6 +213,7 @@ public class TestTypeBuilder {
     assertNotSame(dslType, Symbol.NULL);
   }
 
+  /** WTF? . */
   @Test
   public void testCallbackConsumer() {
     TypeBuilder tb = new TypeBuilder();
@@ -219,6 +231,7 @@ public class TestTypeBuilder {
     assertEquals(entityType, functionType.getParameterTypes().get(0));
   }
 
+  /** WTF? . */
   @Test
   public void testCallbackTriConsumer() {
     TestEnvironment env = new TestEnvironment();
@@ -246,6 +259,7 @@ public class TestTypeBuilder {
     assertEquals(BuiltInType.boolType, functionType.getParameterTypes().get(2));
   }
 
+  /** WTF? . */
   @Test
   public void testCallbackFunction() {
     TestEnvironment env = new TestEnvironment();
@@ -272,15 +286,23 @@ public class TestTypeBuilder {
     assertEquals(BuiltInType.boolType, functionType.getReturnType());
   }
 
+  /** WTF? . */
   public class TestClass {
     boolean b = true;
 
+    /**
+     * WTF? .
+     *
+     * @param object foo
+     * @return foo
+     */
     public Object accept(Object object) {
       Entity entity = (Entity) object;
       return b;
     }
   }
 
+  /** WTF? . */
   @Test
   public void testListMember() {
     TestEnvironment env = new TestEnvironment();
@@ -301,6 +323,7 @@ public class TestTypeBuilder {
     assertEquals(BuiltInType.floatType, listType.getElementType());
   }
 
+  /** WTF? . */
   @Test
   public void testSetMember() {
     TestEnvironment env = new TestEnvironment();
@@ -320,6 +343,7 @@ public class TestTypeBuilder {
     assertEquals(BuiltInType.floatType, setType.getElementType());
   }
 
+  /** WTF? . */
   @Test
   public void testTypeForNull() {
     TestEnvironment env = new TestEnvironment();

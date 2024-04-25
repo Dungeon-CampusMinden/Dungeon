@@ -12,17 +12,20 @@ import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** Tests for the {@link InventoryComponent}. */
 public class InventoryComponentTest {
 
+  /** WTF? . */
   public static final SimpleIPath MISSING_TEXTURE =
       new SimpleIPath("animation/missing_texture.png");
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllEntities();
   }
 
-  /** constructor should create the inventory with the given parameters. */
+  /** Constructor should create the inventory with the given parameters. */
   @Test
   public void validCreation() {
 
@@ -32,7 +35,7 @@ public class InventoryComponentTest {
     assertEquals(0, ic.count());
   }
 
-  /** Adding one valid Item */
+  /** Adding one valid Item. */
   @Test
   public void addItemValid() {
     Entity e = new Entity();
@@ -44,7 +47,9 @@ public class InventoryComponentTest {
     assertEquals(1, ic.count());
   }
 
-  /** when there is enough space in the Inventory it should be possible to add more than one Item */
+  /**
+   * When there is enough space in the Inventory it should be possible to add more than one Item.
+   */
   @Test
   public void addItemValidMultiple() {
     Entity e = new Entity();
@@ -58,7 +63,7 @@ public class InventoryComponentTest {
     assertEquals(2, ic.count());
   }
 
-  /** Adding two Items to an Inventory with a size of 1 should only add the first */
+  /** Adding two Items to an Inventory with a size of 1 should only add the first. */
   @Test
   public void addItemOverSize() {
     Entity e = new Entity();
@@ -71,7 +76,7 @@ public class InventoryComponentTest {
     assertEquals(1, ic.count());
   }
 
-  /** removing of an added Item */
+  /** Removing of an added Item. */
   @Test
   public void removeItemExisting() {
     Entity e = new Entity();
@@ -85,7 +90,7 @@ public class InventoryComponentTest {
     assertEquals(0, ic.count());
   }
 
-  /** removing an Item which was already removed before */
+  /** Removing an Item which was already removed before. */
   @Test
   public void removeItemTwice() {
     Entity e = new Entity();
@@ -100,7 +105,7 @@ public class InventoryComponentTest {
     assertEquals(0, ic.count());
   }
 
-  /** null should not remove any Item */
+  /** {@code null} should not remove any Item. */
   @Test
   public void removeItemNull() {
     Entity e = new Entity();
@@ -114,7 +119,7 @@ public class InventoryComponentTest {
     assertEquals(1, ic.count());
   }
 
-  /** empty inventory should return an empty List */
+  /** Empty inventory should return an empty List. */
   @Test
   public void getAllItemsEmptyInventory() {
     Entity e = new Entity();
@@ -123,7 +128,7 @@ public class InventoryComponentTest {
     assertEquals("should have no Items", 0, ic.count());
   }
 
-  /** an inventory with one Item should return a List with this Item */
+  /** An inventory with one Item should return a List with this Item. */
   @Test
   public void getAllItemsInventoryWithOnlyOneItem() {
     Entity e = new Entity();
@@ -137,7 +142,7 @@ public class InventoryComponentTest {
     assertTrue("Item should be in returned List", Arrays.asList(list).contains(itemData));
   }
 
-  /** an inventory with one Item should return a List with this Item */
+  /** An inventory with one Item should return a List with this Item. */
   @Test
   public void getAllItemsInventoryWithTwoItems() {
     Entity e = new Entity();
@@ -155,7 +160,7 @@ public class InventoryComponentTest {
     assertTrue("Item 2 should be in returned List", Arrays.asList(list).contains(itemData2));
   }
 
-  /** an inventory should only be able to return Items it contains */
+  /** An inventory should only be able to return Items it contains. */
   @Test
   public void getAllItemsInventoryNoAddedItemButCreated() {
     Entity e = new Entity();
@@ -168,6 +173,7 @@ public class InventoryComponentTest {
     assertFalse("Item should not be in returned List", Arrays.asList(list).contains(itemData));
   }
 
+  /** WTF? . */
   @Test
   public void tranfserItem() {
     InventoryComponent ic = new InventoryComponent(1);
@@ -182,6 +188,7 @@ public class InventoryComponentTest {
         "Item should be removed from this inventroy.", Arrays.asList(ic.items()).contains(item));
   }
 
+  /** WTF? . */
   @Test
   public void tranfserItemNoSpace() {
     InventoryComponent ic = new InventoryComponent(1);
@@ -194,6 +201,7 @@ public class InventoryComponentTest {
     assertTrue("Item should still be in tis inventroy.", Arrays.asList(ic.items()).contains(item));
   }
 
+  /** WTF? . */
   @Test
   public void tranfserItemNoItem() {
     InventoryComponent ic = new InventoryComponent(1);
@@ -202,6 +210,7 @@ public class InventoryComponentTest {
     assertFalse("No item, no transfer", ic.transfer(item, other));
   }
 
+  /** WTF? . */
   @Test
   public void transferItemToItself() {
     InventoryComponent ic = new InventoryComponent(1);

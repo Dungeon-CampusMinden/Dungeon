@@ -26,14 +26,17 @@ import task.tasktype.Element;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.SingleChoice;
 
+/** WTF? . */
 public class AnswerPickingFunctionsTest {
 
+  /** Cleanup function to be executed after each test case. */
   @After
   public void cleanup() {
     Task.cleanupAllTask();
     Game.removeAllEntities();
   }
 
+  /** WTF? . */
   @Test
   public void singlechestpicker_twoQuestItems() {
     // setup question
@@ -68,6 +71,10 @@ public class AnswerPickingFunctionsTest {
     assertEquals(2, callback.apply(sc).size());
   }
 
+  /**
+   * Generate a test scenario where a single chest is picked with two quest items and one regular
+   * item.
+   */
   @Test
   public void singlechestpicker_twoQuestItemsOneItem() {
     // setup question
@@ -103,6 +110,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(2, callback.apply(sc).size());
   }
 
+  /** A test case for the single chest picker function with zero quest items. */
   @Test
   public void singlechestpicker_zeroQuestItems() {
     // setup question
@@ -135,6 +143,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(0, callback.apply(sc).size());
   }
 
+  /** Generate a test scenario with zero quest items and two items in a single chest. */
   @Test
   public void singlechestpicker_zeroQuestItemsTwoItems() {
     // setup question
@@ -168,6 +177,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(0, callback.apply(sc).size());
   }
 
+  /** WTF? . */
   @Test
   public void singlechestpicker_empty() {
     // setup question
@@ -199,6 +209,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(0, callback.apply(sc).size());
   }
 
+  /** WTF? . */
   @Test
   public void singlechestpicker_otherQuestsItem() {
     // setup question
@@ -247,6 +258,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals("Other Quest-Items should be ignored.", 2, callback.apply(sc).size());
   }
 
+  /** WTF? . */
   @Test
   public void multiplechestpicker_questItemAnswers() {
     // setup question
@@ -312,6 +324,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(givenSol, sol);
   }
 
+  /** Generate a test for the multiplechestpicker_emtpy function. */
   @Test
   public void multiplechestpicker_emtpy() {
     // setup question
@@ -375,6 +388,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(expectedSol, givenSol);
   }
 
+  /** Test case for the multipleChestPicker() method. */
   @Test
   public void multiplechestpicker_normalItems() {
     // setup question
@@ -443,6 +457,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(expectedSol, givenSol);
   }
 
+  /** WTF? . */
   @Test
   public void multiplechestpicker_QuestItemAndNormalItemMix() {
     // setup question
@@ -510,6 +525,10 @@ public class AnswerPickingFunctionsTest {
     assertEquals(sol, givenSol);
   }
 
+  /**
+   * Setup the question, chests, and quest items for the multiple chest picker other quests item
+   * test.
+   */
   @Test
   public void multiplechestpicker_otherQuestsItem() {
     // setup question
@@ -589,6 +608,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals("Other Quest-Items should be ignored.", givenSol, sol);
   }
 
+  /** WTF? . */
   public void heroinventorypicker_twoQuestItems() throws IOException {
     // setup question
     SingleChoice sc = new SingleChoice("Dummy");
@@ -622,6 +642,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(2, callback.apply(sc).size());
   }
 
+  /** WTF? . */
   @Test
   public void heroinventorypicker_twoQuestItemsOneItem() throws IOException {
     // setup question
@@ -658,6 +679,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(2, callback.apply(sc).size());
   }
 
+  /** WTF? . */
   @Test
   public void heroinventorypicker_zeroQuestItems() throws IOException {
     // setup question
@@ -690,6 +712,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(0, callback.apply(sc).size());
   }
 
+  /** WTF? . */
   @Test
   public void heroinventorypicker_zeroQuestItemsTwoItems() throws IOException {
     // setup question
@@ -723,6 +746,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(0, callback.apply(sc).size());
   }
 
+  /** WTF? . */
   @Test
   public void heroinventorypicker_empty() throws IOException {
     // setup question
@@ -754,6 +778,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(0, callback.apply(sc).size());
   }
 
+  /** WTF? . */
   @Test
   public void heroinventorypicker_otherQuestsItem() throws IOException {
     // setup question

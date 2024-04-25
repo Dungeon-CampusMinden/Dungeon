@@ -21,7 +21,11 @@ public class DSLEntryPointFinder implements AstVisitor<Object> {
   private AggregateType questConfigDataType;
   private final HashMap<Path, ParsedFile> parsedFiles;
 
-  /** Constructor. Creates a GameEnvironment to get the {@link IType} for {@link DungeonConfig}. */
+  /**
+   * Constructor.
+   *
+   * <p>Creates a GameEnvironment to get the {@link IType} for {@link DungeonConfig}.
+   */
   public DSLEntryPointFinder() {
     this.environment = new GameEnvironment();
     this.parsedFiles = new HashMap<>();

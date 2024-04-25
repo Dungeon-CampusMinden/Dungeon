@@ -9,11 +9,12 @@ import core.utils.components.MissingComponentException;
 import java.util.function.Function;
 import org.junit.Test;
 
+/** WTF? . */
 public class SelfDefendTransitionTest {
 
   /**
-   * tests if the isInFight method returns false when the current HealthPoints of an entity are
-   * equal to its max HealthPoints
+   * Tests if the isInFight method returns false when the current HealthPoints of an entity are
+   * equal to its max HealthPoints.
    */
   @Test
   public void isInFightModeHealtpointsAreMax() {
@@ -28,8 +29,8 @@ public class SelfDefendTransitionTest {
   }
 
   /**
-   * tests if the isInFight method returns true when the current HealthPoints of an entity are lower
-   * than its max HealthPoints
+   * Tests if the isInFight method returns true when the current HealthPoints of an entity are lower
+   * than its max HealthPoints.
    */
   @Test
   public void isInFightModeHealthpointsAreLowerThenMax() {
@@ -45,7 +46,8 @@ public class SelfDefendTransitionTest {
   }
 
   /**
-   * checks the thrown Exception when the required HealthComponent is missing in the provided Entity
+   * Checks the thrown Exception when the required HealthComponent is missing in the provided
+   * Entity.
    */
   @Test
   public void isInFightModeHealthComponentMissing() {

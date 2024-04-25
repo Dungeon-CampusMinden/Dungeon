@@ -9,12 +9,14 @@ import core.level.utils.TileTextureFactory;
 import org.junit.Before;
 import org.junit.Test;
 
+/** Tests for the {@link TileTextureFactory} class. */
 public class TileTextureFactoryTest {
 
   private String targetTexture;
   private DesignLabel design;
   private LevelElement[][] layout;
 
+  /** WTF? . */
   @Before
   public void setup() {
     design = DesignLabel.DEFAULT;

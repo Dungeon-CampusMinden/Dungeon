@@ -122,7 +122,7 @@ public final class RoomBasedLevelGenerator {
    *
    * @param node Node to configure the doors for.
    */
-  private static void configureDoors(final LevelNode node) {
+  public static void configureDoors(final LevelNode node) {
     for (DoorTile door : node.level().doorTiles()) {
       Direction doorDirection = GeneratorUtils.doorDirection(node.level(), door);
 

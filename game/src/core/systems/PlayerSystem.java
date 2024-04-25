@@ -19,6 +19,7 @@ public final class PlayerSystem extends System {
 
   private boolean running = true;
 
+  /** WTF? . */
   public PlayerSystem() {
     super(PlayerComponent.class);
   }
@@ -54,6 +55,7 @@ public final class PlayerSystem extends System {
    * <p>The callbacks are executed only if the game is not paused or if the callback is not
    * pauseable.
    *
+   * @param callbacks WTF? .
    * @param entity associated entity of this component.
    * @param paused if the game is paused or not.
    */

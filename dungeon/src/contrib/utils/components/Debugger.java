@@ -80,7 +80,7 @@ public class Debugger {
     }
   }
 
-  /** Will teleport the Hero on the EndTile so the next level gets loaded */
+  /** Will teleport the Hero on the EndTile so the next level gets loaded. */
   public static void LOAD_NEXT_LEVEL() {
     LOGGER.info("TELEPORT ON END");
     TELEPORT(Game.endTile());

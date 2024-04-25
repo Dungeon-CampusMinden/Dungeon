@@ -98,6 +98,8 @@ public class WallGenerator implements IGenerator {
   /**
    * Checks if at least one accessible tile is nearby.
    *
+   * @param y y coordinate of the tile
+   * @param x x coordinate of the tile
    * @return true if at least one tile (including corner tiles) surrounding this tile is accessible
    */
   private boolean accessibleTileIsAdjacent(int y, int x) {

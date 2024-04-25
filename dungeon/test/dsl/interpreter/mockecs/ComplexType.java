@@ -3,6 +3,7 @@ package dsl.interpreter.mockecs;
 import dsl.annotation.DSLType;
 import dsl.annotation.DSLTypeMember;
 
+/** WTF? . */
 @DSLType
 public class ComplexType {
   @DSLTypeMember int member1;

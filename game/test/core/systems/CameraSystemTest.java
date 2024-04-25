@@ -16,6 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** Tests for the {@link CameraSystem} class. */
 public class CameraSystemTest {
 
   private static final Point testPoint = new Point(3, 3);
@@ -24,11 +25,13 @@ public class CameraSystemTest {
   private CameraSystem cameraSystem;
   private Point expectedFocusPoint;
 
+  /** WTF? . */
   @BeforeClass
   public static void initGDX() {
     GdxNativesLoader.load(); // load natives for headless testing
   }
 
+  /** WTF? . */
   @Before
   public void setup() {
     cameraSystem = new CameraSystem();
@@ -39,6 +42,7 @@ public class CameraSystemTest {
     Game.add(new LevelSystem(null, null, () -> {}));
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllEntities();
@@ -46,6 +50,7 @@ public class CameraSystemTest {
     Game.removeAllSystems();
   }
 
+  /** WTF? . */
   @Test
   public void executeWithEntity() {
     Game.currentLevel(level);
@@ -60,6 +65,7 @@ public class CameraSystemTest {
     assertEquals(expectedFocusPoint.y, CameraSystem.camera().position.y, 0.001);
   }
 
+  /** WTF? . */
   @Test
   public void executeWithoutEntity() {
     Game.currentLevel(level);
@@ -72,6 +78,7 @@ public class CameraSystemTest {
     assertEquals(expectedFocusPoint.y, CameraSystem.camera().position.y, 0.001);
   }
 
+  /** WTF? . */
   @Test
   public void executeWithoutLevel() {
     Game.currentLevel(null);
@@ -81,6 +88,7 @@ public class CameraSystemTest {
     assertEquals(expectedFocusPoint.y, CameraSystem.camera().position.y, 0.001);
   }
 
+  /** WTF? . */
   @Test
   public void isPointInFrustumWithVisiblePoint() {
     float x = 1.0f;
@@ -88,6 +96,7 @@ public class CameraSystemTest {
     assertTrue(CameraSystem.isPointInFrustum(x, y));
   }
 
+  /** WTF? . */
   @Test
   public void isPointInFrustumWithInvisiblePoint() {
     float x = 100.0f;

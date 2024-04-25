@@ -20,6 +20,8 @@ public @interface DSLExtensionMethod {
    * The Java-Class corresponding to the dsl type, which should be extended by this method.
    *
    * <p>For AggregateTypeAdapter instances, this should be the adapter-class.
+   *
+   * @return WTF? .
    */
   Class<?> extendedType();
 }

@@ -20,6 +20,11 @@ import java.util.logging.Level;
  */
 public class YesNoDialogTest {
 
+  /**
+   * Main method.
+   *
+   * @param args the command line arguments
+   */
   public static void main(String[] args) {
     Game.initBaseLogger(Level.ALL);
     Game.add(new HudSystem());

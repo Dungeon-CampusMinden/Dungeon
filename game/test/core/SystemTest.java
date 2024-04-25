@@ -6,11 +6,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/** Tests for the {@link System} class. */
 public class SystemTest {
   private System ts;
   private final boolean[] onAdd = {false};
   private final boolean[] onRemove = {false};
 
+  /** WTF? . */
   @Before
   public void setup() {
     ts =
@@ -23,12 +25,14 @@ public class SystemTest {
     ts.onEntityRemove = entity -> onRemove[0] = true;
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     onAdd[0] = false;
     onRemove[0] = false;
   }
 
+  /** WTF? . */
   @Test
   public void add() {
     Entity e = new Entity();
@@ -36,6 +40,7 @@ public class SystemTest {
     assertTrue(onAdd[0]);
   }
 
+  /** WTF? . */
   @Test
   public void remove() {
     Entity e = new Entity();
@@ -43,5 +48,5 @@ public class SystemTest {
     assertTrue(onRemove[0]);
   }
 
-  private class DummyComponent implements Component {}
+  private static class DummyComponent implements Component {}
 }

@@ -11,20 +11,27 @@ import java.util.Set;
 
 /** A Prototype stores default values for some AggregateValue. */
 public class PrototypeValue extends Value implements IType {
+  /** WTF? . */
   public static BuiltInType PROTOTYPE = new BuiltInType("prototype", Scope.NULL, (v) -> false);
+
+  /** WTF? . */
   public static BuiltInType ITEM_PROTOTYPE =
       new BuiltInType("item_prototype", Scope.NULL, (v) -> false);
+
+  /** WTF? . */
   public static PrototypeValue NONE =
       new PrototypeValue(PROTOTYPE, new AggregateType("NO_TYPE_NAME", Scope.NULL));
+
   private final AggregateType internalType;
 
   private final HashMap<String, Value> defaultValues;
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param prototypeType the {@link BuiltInType} of this Prototype (either {@link
    *     PrototypeValue#ITEM_PROTOTYPE} or {@link PrototypeValue#PROTOTYPE}
+   * @param internalType
    */
   public PrototypeValue(BuiltInType prototypeType, AggregateType internalType) {
     // an Prototype is a value and a type at the same time
@@ -34,11 +41,18 @@ public class PrototypeValue extends Value implements IType {
     defaultValues = new HashMap<>();
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public AggregateType getInternalType() {
     return internalType;
   }
 
   /**
+   * WTF? .
+   *
    * @return the name of the internal datatype
    */
   @Override
@@ -47,6 +61,8 @@ public class PrototypeValue extends Value implements IType {
   }
 
   /**
+   * WTF? .
+   *
    * @return the {@link IType.Kind} of the internal datatype
    */
   @Override
@@ -55,7 +71,7 @@ public class PrototypeValue extends Value implements IType {
   }
 
   /**
-   * Add a new default value to the Prototype
+   * Add a new default value to the Prototype.
    *
    * @param name name of the new default value
    * @param value default value
@@ -72,6 +88,8 @@ public class PrototypeValue extends Value implements IType {
   }
 
   /**
+   * WTF? .
+   *
    * @param name the name of the default value to get
    * @return Value with name or Value.NONE
    */
@@ -80,6 +98,8 @@ public class PrototypeValue extends Value implements IType {
   }
 
   /**
+   * WTF? .
+   *
    * @return Set of all default values (as combination of name and value)
    */
   public Set<Map.Entry<String, Value>> getDefaultValues() {

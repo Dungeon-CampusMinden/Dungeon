@@ -12,8 +12,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import task.Task;
 
+/** WTF? . */
 public class TetsDSLEntryPointFinder {
-
+  /** WTF? . */
   @Test
   public void testReadEntrtyPoints() {
     List<DSLEntryPoint> entryPoints = new ArrayList<>();
@@ -61,6 +62,7 @@ public class TetsDSLEntryPointFinder {
     Assert.assertEquals(secondPath, forthEntryPoint.file().filePath());
   }
 
+  /** WTF? . */
   @Test
   public void testEntryPointToDungeonConfig() {
     List<DSLEntryPoint> entryPoints = new ArrayList<>();

@@ -19,6 +19,20 @@ import task.tasktype.quizquestion.MultipleChoice;
 
 /** Typeadapter for creation of {@link MultipleChoice} instances via dsl. */
 public class DSLMultipleChoice {
+  /**
+   * WTF? .
+   *
+   * @param name foo
+   * @param description foo
+   * @param answers foo
+   * @param points foo
+   * @param pointsToPass foo
+   * @param correctAnswerIndices foo
+   * @param explanation foo
+   * @param gradingFunction foo
+   * @param scenarioBuilder foo
+   * @return foo
+   */
   @DSLTypeAdapter(name = "multiple_choice_task")
   public static MultipleChoice buildQuizFromMultipleChoiceTask(
       @DSLTypeNameMember String name,
@@ -82,11 +96,12 @@ public class DSLMultipleChoice {
 
   /**
    * {@link IDSLExtensionMethod} to get the stored {@link TaskContent} of a {@link MultipleChoice}
-   * instance
+   * instance.
    */
   @DSLExtensionMethod(name = "get_content", extendedType = MultipleChoice.class)
   public static class GetContentMethod
       implements IDSLExtensionMethod<MultipleChoice, List<TaskContent>> {
+    /** Get the stored {@link TaskContent} of a {@link MultipleChoice} instance. */
     public static DSLMultipleChoice.GetContentMethod instance =
         new DSLMultipleChoice.GetContentMethod();
 
@@ -108,9 +123,10 @@ public class DSLMultipleChoice {
     }
   }
 
-  /** {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance */
+  /** {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance. */
   @DSLExtensionMethod(name = "set_scenario_text", extendedType = MultipleChoice.class)
   public static class SetScenarioText implements IDSLExtensionMethod<MultipleChoice, Void> {
+    /** Set the scenario text in a single choice task instance. */
     public static DSLMultipleChoice.SetScenarioText instance =
         new DSLMultipleChoice.SetScenarioText();
 
@@ -134,6 +150,7 @@ public class DSLMultipleChoice {
   @DSLExtensionMethod(name = "set_grading_function", extendedType = MultipleChoice.class)
   public static class MultipleChoiceSetGradingFunction
       implements IDSLExtensionMethod<MultipleChoice, Void> {
+    /** Set the grading function of a {@link MultipleChoice} instance. */
     public static DSLMultipleChoice.MultipleChoiceSetGradingFunction instance =
         new DSLMultipleChoice.MultipleChoiceSetGradingFunction();
 
@@ -202,6 +219,7 @@ public class DSLMultipleChoice {
   @DSLExtensionMethod(name = "set_answer_picker_function", extendedType = MultipleChoice.class)
   public static class MultipleChoiceSetAnswerPickerFunction
       implements IDSLExtensionMethod<MultipleChoice, Void> {
+    /** The {@link MultipleChoiceSetAnswerPickerFunction} instance. */
     public static DSLMultipleChoice.MultipleChoiceSetAnswerPickerFunction instance =
         new DSLMultipleChoice.MultipleChoiceSetAnswerPickerFunction();
 

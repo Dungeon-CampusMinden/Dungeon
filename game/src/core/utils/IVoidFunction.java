@@ -4,6 +4,6 @@ package core.utils;
 @FunctionalInterface
 public interface IVoidFunction {
 
-  /** Performs this operation */
+  /** Performs this operation. */
   void execute();
 }

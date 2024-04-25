@@ -28,14 +28,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/** WTF? . */
 public class ScopedSymbol extends Symbol implements IScope {
 
+  /** WTF? . */
   public static Scope NULL = new Scope();
 
   protected HashMap<String, Symbol> symbols;
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param name The name of the new ScopedSymbol
    * @param parentScope the parent scope of the new symbol
@@ -48,7 +50,7 @@ public class ScopedSymbol extends Symbol implements IScope {
   }
 
   /**
-   * Bind a new symbol in this scope
+   * Bind a new symbol in this scope.
    *
    * @param symbol The symbol to bind
    * @return True, if no symbol with the same name exists in this scope, false otherwise
@@ -67,6 +69,7 @@ public class ScopedSymbol extends Symbol implements IScope {
    * Try to resolve the passed name in this scope (or the parent scope).
    *
    * @param name the name of the symbol to resolvle
+   * @param resolveInParent foo
    * @return the resolved symbol or Symbol.NULL, if the name could not be resolved
    */
   public Symbol resolve(String name, boolean resolveInParent) {
@@ -90,7 +93,7 @@ public class ScopedSymbol extends Symbol implements IScope {
   }
 
   /**
-   * Getter for the parent scope of this scope
+   * Getter for the parent scope of this scope.
    *
    * @return the parent of this scope
    */
@@ -100,7 +103,7 @@ public class ScopedSymbol extends Symbol implements IScope {
   }
 
   /**
-   * Getter for a List of all bound symbols
+   * Getter for a List of all bound symbols.
    *
    * @return a List of all bound symbols
    */

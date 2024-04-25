@@ -16,6 +16,7 @@ import core.utils.components.MissingComponentException;
 import org.junit.Test;
 import testingUtils.SimpleCounter;
 
+/** WTF? . */
 public class InteractionToolTest {
 
   private static ILevel prepareLevel() {
@@ -41,13 +42,13 @@ public class InteractionToolTest {
     return hero;
   }
 
-  /** cleanup to reset static Attributes from Game used by the InteractionTool */
+  /** Cleanup to reset static Attributes from Game used by the InteractionTool. */
   private static void cleanup() {
     Game.removeAllEntities();
     Game.currentLevel(null);
   }
 
-  /** Tests the functionality when the Hero does not have the PositionComponent */
+  /** Tests the functionality when the Hero does not have the PositionComponent. */
   @Test
   public void interactWithClosestInteractableHeroMissingPositionComponent() {
     cleanup();
@@ -64,7 +65,7 @@ public class InteractionToolTest {
     cleanup();
   }
 
-  /** Tests the functionality when there are no Entities in the Game */
+  /** Tests the functionality when there are no Entities in the Game. */
   @Test
   public void interactWithClosestInteractableNoEntities() {
     cleanup();
@@ -75,7 +76,7 @@ public class InteractionToolTest {
   }
 
   /**
-   * Tests the functionality when there are no Entities with the interactionComponent in the Game
+   * Tests the functionality when there are no Entities with the interactionComponent in the Game.
    */
   @Test
   public void interactWithClosestInteractableNoInteractable() {
@@ -89,7 +90,7 @@ public class InteractionToolTest {
 
   /**
    * Tests the functionality when there is exactly one Entity in the Game with the
-   * InteractionComponent and not in Radius
+   * InteractionComponent and not in Radius.
    */
   @Test
   public void interactWithClosestInteractableOneInteractableOutOfRange() {
@@ -109,11 +110,11 @@ public class InteractionToolTest {
     cleanup();
   }
 
-  /**
+  /*
    * Tests the functionality when there is exactly one Entity in the Game with the
-   * InteractionComponent and n range //
+   * InteractionComponent and n range.
    *
-   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
+   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
    * cant be tested.
    */
   /* @Test
@@ -134,10 +135,10 @@ public class InteractionToolTest {
       cleanup();
   }*/
 
-  /**
-   * Test if the interactable is missing the PositionComponent //
+  /*
+   * Test if the interactable is missing the PositionComponent.
    *
-   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
+   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
    * cant be tested.
    */
   /* @Test
@@ -172,11 +173,11 @@ public class InteractionToolTest {
       cleanup();
   }*/
 
-  /**
+  /*
    * Test if the interaction happens with the closest entity closer Entity is first in
-   * `Game.entities`
+   * `Game.entities`.
    *
-   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
+   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
    * cant be tested.
    */
   /*@Test
@@ -205,11 +206,11 @@ public class InteractionToolTest {
       cleanup();
   }*/
 
-  /**
+  /*
    * Test if the interaction happens with the closest entity closer Entity is last in
-   * `Game.entities` //
+   * `Game.entities`.
    *
-   * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
+   * <p>Since we cant update the {@link Game#entities} from outside the game loop, this is testcase
    * cant be tested.
    */
   /* @Test

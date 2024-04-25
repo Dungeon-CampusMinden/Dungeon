@@ -17,11 +17,13 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
 import org.junit.Assert;
 import org.junit.Test;
 
+/** WTF? . */
 public class TestTypeBinder {
   @DSLType
   private record TestComponent(
       @DSLTypeMember int member1, @DSLTypeMember String member2, @DSLTypeMember float member3) {}
 
+  /** WTF? . */
   @Test
   public void testAggregateTypeBinding() {
     TypeBuilder tb = new TypeBuilder();
@@ -65,6 +67,7 @@ public class TestTypeBinder {
     Assert.assertNotSame(Symbol.NULL, member3);
   }
 
+  /** WTF? . */
   @Test
   public void testAggregateTypeBindingAstNodeRelation() {
     TypeBuilder tb = new TypeBuilder();
@@ -103,6 +106,7 @@ public class TestTypeBinder {
     Assert.assertEquals(testComponentDefNodeFromAST, testComponentDefNode);
   }
 
+  /** WTF? . */
   @Test
   public void testAdapterBinding() {
 
@@ -140,6 +144,7 @@ public class TestTypeBinder {
     Assert.assertEquals(TestRecordComponent.class, adaptedType.getOriginType());
   }
 
+  /** WTF? . */
   @Test
   public void testSetTypeBinding() {
     TypeBuilder typeBuilder = new TypeBuilder();

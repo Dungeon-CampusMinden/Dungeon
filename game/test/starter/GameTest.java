@@ -6,6 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/** Tests for the {@link Game} class. */
 public class GameTest {
 
   private Game game;
@@ -13,8 +14,10 @@ public class GameTest {
   private final int someArbitraryValueGreater0forDelta = 7;
 
   // Because of use of PowerMockRunner we need an empty constructor here
+  /** WTF? . */
   public GameTest() {}
 
+  /** WTF? . */
   @Before
   public void setup() throws Exception {
     /*
@@ -41,12 +44,14 @@ public class GameTest {
     */
   }
 
+  /** WTF? . */
   @After
   public void cleanup() throws Exception {
     // Game.getDelayedEntitySet().removeAll(Game.getEntities());
     // Game.getDelayedEntitySet().update();
   }
 
+  /** WTF? . */
   @Test
   public void test_render() {
     /*
@@ -63,6 +68,7 @@ public class GameTest {
     */
   }
 
+  /** WTF? . */
   @Test
   public void test_render_paused() {
     /*
@@ -81,6 +87,7 @@ public class GameTest {
      */
   }
 
+  /** WTF? . */
   @Test
   public void addEntity() {
     /*    Entity e1 = new Entity();
@@ -91,6 +98,7 @@ public class GameTest {
     assertEquals(1, Game.getEntities().size());*/
   }
 
+  /** WTF? . */
   @Test
   public void removeEntity() {
     /*        Entity e1 = new Entity();
@@ -107,7 +115,7 @@ public class GameTest {
   @Test
   public void test_getEntity(){}
    */
-
+  /** WTF? . */
   @Test
   public void setHero() {
     /* Entity hero = new Entity();

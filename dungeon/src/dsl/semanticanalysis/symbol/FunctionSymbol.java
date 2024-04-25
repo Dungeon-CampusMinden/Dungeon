@@ -8,12 +8,18 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import java.util.List;
 
+/** WTF? . */
 public class FunctionSymbol extends ScopedSymbol implements ICallable {
 
   private final FuncDefNode astRootNode;
 
   /**
-   * @param astRootNode
+   * WTF? .
+   *
+   * @param name foo
+   * @param parentScope foo
+   * @param astRootNode foo
+   * @param functionType foo
    */
   public FunctionSymbol(
       String name, IScope parentScope, FuncDefNode astRootNode, FunctionType functionType) {
@@ -37,6 +43,11 @@ public class FunctionSymbol extends ScopedSymbol implements ICallable {
     return (FunctionType) this.getDataType();
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public FuncDefNode getAstRootNode() {
     return astRootNode;
   }

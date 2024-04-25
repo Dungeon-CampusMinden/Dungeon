@@ -5,15 +5,25 @@ import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: extend this for named parameters
+/** FunctionType. */
 public class FunctionType extends Symbol implements IType {
   private final IType returnType;
   private final ArrayList<IType> parameterTypes;
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public IType getReturnType() {
     return returnType;
   }
 
+  /**
+   * Retrieves the parameter types of the function.
+   *
+   * @return foo
+   */
   public List<IType> getParameterTypes() {
     return parameterTypes;
   }
@@ -33,6 +43,12 @@ public class FunctionType extends Symbol implements IType {
     }
   }
 
+  /**
+   * Constructor.
+   *
+   * @param returnType foo
+   * @param parameterTypes foo
+   */
   public FunctionType(IType returnType, IType... parameterTypes) {
     super(
         calculateTypeName(returnType, new ArrayList<>(List.of(parameterTypes))), Scope.NULL, null);
@@ -40,12 +56,25 @@ public class FunctionType extends Symbol implements IType {
     this.parameterTypes = new ArrayList<>(List.of(parameterTypes));
   }
 
+  /**
+   * Constructor.
+   *
+   * @param returnType foo
+   * @param parameterTypes foo
+   */
   public FunctionType(IType returnType, List<IType> parameterTypes) {
     super(calculateTypeName(returnType, parameterTypes), Scope.NULL, null);
     this.returnType = returnType;
     this.parameterTypes = new ArrayList<>(parameterTypes);
   }
 
+  /**
+   * A method to calculate the type name based on the return type and parameter types.
+   *
+   * @param returnType the return type of the function
+   * @param parameterTypes the list of parameter types
+   * @return the calculated type name as a string
+   */
   public static String calculateTypeName(IType returnType, List<IType> parameterTypes) {
     StringBuilder nameBuilder = new StringBuilder();
     nameBuilder.append("$fn(");

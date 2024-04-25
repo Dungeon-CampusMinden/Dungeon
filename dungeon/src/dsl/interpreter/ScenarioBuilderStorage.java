@@ -11,22 +11,26 @@ import java.util.*;
 import task.Task;
 
 /**
- * This class stores {@link FunctionSymbol}s, which refer to scenario builder methods (which take a
- * `task` definition as an argument and return `entity<><>`) in a Map, in which the concrete task
+ * WTF? (erster Satz ist kurz).
+ *
+ * <p>This class stores {@link FunctionSymbol}s, which refer to scenario builder methods (which take
+ * a `task` definition as an argument and return `entity<><>`) in a Map, in which the concrete task
  * type is the key (as {@link IType}).
  */
 public class ScenarioBuilderStorage {
   HashMap<IType, List<ICallable>> storedScenarioBuilders;
   HashMap<IType, ArrayDeque<Integer>> lastRetrievedBuilderIdxs;
 
-  /** Constructor. */
+  /** Constructor. ??? */
   public ScenarioBuilderStorage() {
     storedScenarioBuilders = new HashMap<>();
     lastRetrievedBuilderIdxs = new HashMap<>();
   }
 
   /**
-   * Initialize this {@link ScenarioBuilderStorage} from an existing {@link IEnvironment}. The
+   * WTF? (erster Satz ist kurz).
+   *
+   * <p>Initialize this {@link ScenarioBuilderStorage} from an existing {@link IEnvironment}. The
    * environment's global symbols will be scanned for {@link AggregateType} instances, which map to
    * a {@link Task} implementation. For each such {@link AggregateType} a new key is inserted into
    * the internal HashMap.
@@ -70,11 +74,13 @@ public class ScenarioBuilderStorage {
   }
 
   /**
-   * Store a {@link FunctionSymbol} as a scenario builder method. The task type will be determined
-   * from the {@link FunctionType} of the passed functionSymbol. The passed {@link FunctionSymbol}
-   * should have a {@link FunctionType} which accepts a single parameter of a {@link IType}, which
-   * maps to {@link Task} and return an `entity<><>` {@link Value}. The client code is responsible
-   * to ensure this!
+   * WTF? (erster Satz ist kurz).
+   *
+   * <p>Store a {@link FunctionSymbol} as a scenario builder method. The task type will be
+   * determined from the {@link FunctionType} of the passed functionSymbol. The passed {@link
+   * FunctionSymbol} should have a {@link FunctionType} which accepts a single parameter of a {@link
+   * IType}, which maps to {@link Task} and return an `entity<><>` {@link Value}. The client code is
+   * responsible to ensure this!
    *
    * @param callable the {@link FunctionSymbol} to store as a scenario builder method.
    */

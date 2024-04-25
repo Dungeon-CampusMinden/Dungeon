@@ -7,6 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import contrib.components.UIComponent;
 import core.Entity;
 import core.Game;
+import core.components.PlayerComponent;
+import core.utils.IVoidFunction;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
@@ -57,7 +59,21 @@ public final class UIUtils {
    * @param entity Entity that stores the {@link UIComponent} with the UI elements.
    */
   public static void show(final Supplier<Dialog> provider, final Entity entity) {
-    entity.add(new UIComponent(provider.get(), true));
+    // displays this dialog, caches the dialog callback, and increments and decrements the dialog
+    // counter so that the inventory is not opened while the dialog is displayed
+    PlayerComponent heroPC = Game.hero().orElseThrow().fetch(PlayerComponent.class).orElseThrow();
+    heroPC.incrementOpenDialogs();
+
+    UIComponent uiComponent = new UIComponent(provider.get(), true);
+    IVoidFunction oldOnClose = uiComponent.onClose();
+    uiComponent.onClose(
+        () -> {
+          heroPC.decrementOpenDialogs();
+
+          // execute the original on-close callback
+          oldOnClose.execute();
+        });
+    entity.add(uiComponent);
   }
 
   /**

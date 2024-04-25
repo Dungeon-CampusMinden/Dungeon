@@ -45,6 +45,7 @@ public final class RoomGenerator {
    *
    * @param layout The layout of the room.
    * @param size The size of the room.
+   * @return WTF? .
    */
   public static String layoutToString(final LevelElement[][] layout, final LevelSize size) {
     StringBuilder result = new StringBuilder();

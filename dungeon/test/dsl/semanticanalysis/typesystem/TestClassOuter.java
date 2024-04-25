@@ -4,6 +4,7 @@ import dsl.annotation.DSLType;
 import dsl.annotation.DSLTypeMember;
 import graph.taskdependencygraph.TaskDependencyGraph;
 
+/** WTF? . */
 @DSLType
 public class TestClassOuter {
   @DSLTypeMember private String member1;

@@ -32,6 +32,7 @@ import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+/** WTF? . */
 public class TileLevelAPITest {
 
   private LevelSystem api;
@@ -42,6 +43,7 @@ public class TileLevelAPITest {
 
   private MockedConstruction<Texture> textureMockedConstruction;
 
+  /** WTF? . */
   @Before
   public void setup() {
     Texture texture = Mockito.mock(Texture.class);
@@ -61,6 +63,7 @@ public class TileLevelAPITest {
     Game.add(api);
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.currentLevel(null);
@@ -69,6 +72,7 @@ public class TileLevelAPITest {
     textureMockedConstruction.close();
   }
 
+  /** WTF? . */
   @Test
   public void test_loadLevel() {
     when(generator.level(Mockito.any(), Mockito.any())).thenReturn(level);
@@ -82,6 +86,7 @@ public class TileLevelAPITest {
     assertEquals(level, LevelSystem.level());
   }
 
+  /** WTF? . */
   @Test
   public void test_loadLevel_noParameter() {
     when(generator.level(Mockito.any(), Mockito.any())).thenReturn(level);
@@ -93,6 +98,7 @@ public class TileLevelAPITest {
     assertEquals(level, LevelSystem.level());
   }
 
+  /** WTF? . */
   @Test
   public void test_loadLevel_withDesign_noSize() {
     when(generator.level(eq(DesignLabel.DEFAULT), any())).thenReturn(level);
@@ -104,6 +110,7 @@ public class TileLevelAPITest {
     assertEquals(level, LevelSystem.level());
   }
 
+  /** WTF? . */
   @Test
   public void test_loadLevel_noDesign_WithSize() {
     when(generator.level(any(), eq(LevelSize.SMALL))).thenReturn(level);
@@ -115,6 +122,7 @@ public class TileLevelAPITest {
     assertEquals(level, LevelSystem.level());
   }
 
+  /** WTF? . */
   @Test
   public void test_execute_draw() {
     IPath textureT1 = new SimpleIPath("dummyPath1");
@@ -181,6 +189,7 @@ public class TileLevelAPITest {
     verifyNoMoreInteractions(painter);
   }
 
+  /** WTF? . */
   @Test
   public void test_execute_noLevel() {
     assertNull(LevelSystem.level());
@@ -192,6 +201,7 @@ public class TileLevelAPITest {
     verify(onLevelLoader, times(1)).execute();
   }
 
+  /** WTF? . */
   @Test
   public void test_execute_heroOnEndTile() throws IOException {
     when(generator.level(any(), Mockito.any())).thenReturn(level);
@@ -216,6 +226,7 @@ public class TileLevelAPITest {
     verify(onLevelLoader, times(2)).execute();
   }
 
+  /** WTF? . */
   @Test
   public void test_setLevel() {
     api.loadLevel(level);

@@ -26,7 +26,9 @@ import java.util.Comparator;
 /** A utility class for building the hero entity in the game world. */
 public final class HeroFactory {
 
+  /** WTF? . */
   public static final int DEFAULT_INVENTORY_SIZE = 10;
+
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
   private static final float X_SPEED_HERO = 7.5f;
   private static final float Y_SPEED_HERO = 7.5f;
@@ -38,9 +40,9 @@ public final class HeroFactory {
    *
    * <p>The Entity is not added to the game yet.
    *
-   * <p>It will have a {@link * CameraComponent}, {@link core.components.PlayerComponent}. {@link
-   * PositionComponent}, {@link * VelocityComponent} {@link core.components.DrawComponent}, {@link
-   * contrib.components.CollideComponent} and {@link * HealthComponent}.
+   * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
+   * PositionComponent}, {@link VelocityComponent}, {@link core.components.DrawComponent}, {@link
+   * contrib.components.CollideComponent} and {@link HealthComponent}.
    *
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
@@ -146,6 +148,10 @@ public final class HeroFactory {
     pc.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(),
         (e) -> {
+          if (pc.openDialogs()) {
+            return; // do not open inventory if dialogs are open
+          }
+
           UIComponent uiComponent = e.fetch(UIComponent.class).orElse(null);
           if (uiComponent != null) {
             if (uiComponent.dialog() instanceof GUICombination) {

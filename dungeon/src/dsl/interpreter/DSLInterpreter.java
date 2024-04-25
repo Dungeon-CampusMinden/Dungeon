@@ -39,6 +39,8 @@ import task.tasktype.Quiz;
 // we need to provide visitor methods for many node classes, so the method count and the class data
 // abstraction coupling
 // will be high naturally
+
+/** WTF? . */
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class DSLInterpreter implements AstVisitor<Object> {
   private RuntimeEnvironment environment;
@@ -50,10 +52,20 @@ public class DSLInterpreter implements AstVisitor<Object> {
     return environment.getSymbolTable();
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public IMemorySpace getCurrentMemorySpace() {
     return this.memoryStack.peek();
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public IMemorySpace getCurrentInstanceMemorySpace() {
     return this.instanceMemoryStack.peek();
   }
@@ -64,7 +76,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
   private final ScenarioBuilderStorage scenarioBuilderStorage;
 
-  /** Constructor. */
+  /** Constructor. WTF? . */
   public DSLInterpreter() {
     memoryStack = new ArrayDeque<>();
     instanceMemoryStack = new ArrayDeque<>();
@@ -76,7 +88,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
   /**
    * Create a {@link DungeonConfig} instance for given {@link DSLEntryPoint}, this will reset the
-   * environment of this {@link DSLInterpreter}
+   * environment of this {@link DSLInterpreter}.
    *
    * @param entryPoint the {@link DSLEntryPoint} to interpret.
    * @return the interpreted {@link DungeonConfig}.
@@ -95,6 +107,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
   }
 
   /**
+   * WTF? .
+   *
    * @return the runtime environment of the DSLInterpreter
    */
   public RuntimeEnvironment getRuntimeEnvironment() {
@@ -102,6 +116,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
   }
 
   /**
+   * WTF? .
+   *
    * @return the global memory space of the DSLInterpreter
    */
   public IMemorySpace getGlobalMemorySpace() {
@@ -122,7 +138,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
   /**
    * Iterates over all types in the passed IEnvironment and creates a {@link PrototypeValue} for any
-   * game object definition, which was defined by the user
+   * game object definition, which was defined by the user.
    *
    * @param environment the environment to check for game object definitions
    */
@@ -151,10 +167,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
   }
 
   /**
-   * Create {@link PrototypeValue} instances for {@link ItemPrototypeDefinitionNode}s in the global
-   * scope of passed {@link IEnvironment}. The created prototypes will be registered in the {@link
-   * RuntimeEnvironment} of this {@link DSLInterpreter} and is stored as a {@link Value} in the
-   * global {@link IMemorySpace} of the interpreter.
+   * WTF? (erster Satz ist kurz).
+   *
+   * <p>Create {@link PrototypeValue} instances for {@link ItemPrototypeDefinitionNode}s in the
+   * global scope of passed {@link IEnvironment}. The created prototypes will be registered in the
+   * {@link RuntimeEnvironment} of this {@link DSLInterpreter} and is stored as a {@link Value} in
+   * the global {@link IMemorySpace} of the interpreter.
    *
    * @param environment the {@link IEnvironment} to search for item prototype definitions
    */
@@ -308,17 +326,19 @@ public class DSLInterpreter implements AstVisitor<Object> {
   }
 
   /**
-   * Execute a scenario builder method for the given {@link Task}. The {@link DSLInterpreter} will
-   * lookup a random scenario builder method in its internal {@link ScenarioBuilderStorage}
+   * WTF? (erster Satz ist kurz).
+   *
+   * <p>Execute a scenario builder method for the given {@link Task}. The {@link DSLInterpreter}
+   * will lookup a random scenario builder method in its internal {@link ScenarioBuilderStorage}
    * corresponding to the {@link Class} of the passed {@link Task}.
    *
    * @param task The {@link Task} to execute a scenario builder method for.
    * @return An {@link Optional} containing the Java-Object which was instantiated from the return
    *     value of the scenario builder. If no custom {@link IEnvironment} implementation apart from
    *     {@link GameEnvironment} is used (this is the default case), the content inside the {@link
-   *     Optional} will be of type HashSet<HashSet<core.Entity>>. If the execution of the scenario
-   *     builder method was unsuccessful or no fitting scenario builder method for the given {@link
-   *     Task} could be found, an empty {@link Optional} will be returned.
+   *     Optional} will be of type {@code HashSet<HashSet<core.Entity>>}. If the execution of the
+   *     scenario builder method was unsuccessful or no fitting scenario builder method for the
+   *     given {@link Task} could be found, an empty {@link Optional} will be returned.
    */
   public Optional<Object> buildTask(Task task) {
     var taskClass = task.getClass();
@@ -447,8 +467,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
    * Creates a DSL level instantiation of a type, which means, that all fields of an aggregate type
    * are set to their default value.
    *
-   * @param type
-   * @return
+   * @param type foo
+   * @return foo
    */
   public Value createDefaultValue(IType type) {
     if (type == null) {
@@ -513,6 +533,8 @@ public class DSLInterpreter implements AstVisitor<Object> {
   }
 
   /**
+   * WTF? .
+   *
    * @param programAST The AST of the DSL program to generate a quest config object from
    * @return the object, which represents the quest config of the passed DSL program. The type of
    *     this object depends on the Class, which is set up as the 'quest_config' type in the {@link
@@ -565,7 +587,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
   }
 
   /**
-   * Instantiate a dsl prototype (which is an aggregate type with defaults) as a new Value
+   * Instantiate a dsl prototype (which is an aggregate type with defaults) as a new Value.
    *
    * @param prototype the {@link PrototypeValue} to instantiate
    * @return A new {@link Value} created from the {@link PrototypeValue}
@@ -601,6 +623,12 @@ public class DSLInterpreter implements AstVisitor<Object> {
     return instance;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param type foo
+   * @return foo
+   */
   public AggregateType getOriginalTypeOfPrototype(PrototypeValue type) {
     IType returnType = type;
     while (returnType instanceof PrototypeValue) {
@@ -638,6 +666,13 @@ public class DSLInterpreter implements AstVisitor<Object> {
     return this.environment.lookupPrototype(node.getIdName());
   }
 
+  /**
+   * WTF? .
+   *
+   * @param dslValue foo
+   * @param asType foo
+   * @return foo
+   */
   public Object instantiateRuntimeValue(AggregateValue dslValue, AggregateType asType) {
     var typeInstantiator = this.environment.getTypeInstantiator();
     return typeInstantiator.instantiateAsType(dslValue, asType);
@@ -1368,7 +1403,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
   // region function execution
 
   /**
-   * Implements the call of a {@link ICallable} with parameters given as a {@link List} of {@link
+   * WTF? (erster Satz ist KURZ).
+   *
+   * <p>Implements the call of a {@link ICallable} with parameters given as a {@link List} of {@link
    * Node}s representing the parameters of the call. This function will automatically package the
    * returned object of the call into an {@link Value} instance, if the call did return an arbitrary
    * {@link Object}.
@@ -1400,7 +1437,9 @@ public class DSLInterpreter implements AstVisitor<Object> {
   }
 
   /**
-   * Implement a call of an {@link ICallable} with raw {@link Object}s for the parameters. This
+   * WTF? (erster Satz ist KURZ).
+   *
+   * <p>Implement a call of an {@link ICallable} with raw {@link Object}s for the parameters. This
    * method will create a new {@link IMemorySpace}, create {@link Value}s for each parameter of the
    * {@link ICallable} and set these {@link Value}s to the passed {@link Objects}. It will also
    * create new {@link IdNode}s with names, which match the parameter names of the {@link ICallable}
@@ -1438,7 +1477,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
   }
 
   /**
-   * This implements a call to a user defined dsl-function
+   * This implements a call to a user defined dsl-function.
    *
    * @param symbol The symbol corresponding to the function to call
    * @param parameterObjects The concrete raw objects to use as parameters of the function call
@@ -1457,7 +1496,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
   }
 
   /**
-   * This implements a call to a user defined dsl-function
+   * This implements a call to a user defined dsl-function.
    *
    * @param symbol The symbol corresponding to the function to call
    * @param parameterNodes The ASTNodes of the parameters of the function call
@@ -1479,9 +1518,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
   /**
    * This function translates all passed parameters into DSL-Values and binds them as parameters in
-   * the current memory space
+   * the current memory space.
    *
    * @param functionSymbol The symbol corresponding to the function definition
+   * @param functionsMemorySpace foo
    * @param parameterObjects Raw objects to use as values for the function's parameters
    */
   private void setupFunctionParametersRaw(
@@ -1507,9 +1547,10 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
   /**
    * This function evaluates all passed nodes as values and binds them as parameters in the current
-   * memory space
+   * memory space.
    *
    * @param functionSymbol The symbol corresponding to the function definition
+   * @param functionsMemorySpace foo
    * @param parameterNodes AST-Nodes representing the passed parameters
    */
   private void setupFunctionParameters(
@@ -1530,7 +1571,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
 
   /**
    * Create a new IMemorySpace for a function call and bind the return Value, if the function has a
-   * return type
+   * return type.
    *
    * @param functionSymbol The Symbol representing the function definition
    * @return The created IMemorySpace
@@ -1549,7 +1590,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
   }
 
   /**
-   * Extract a return value from a IMemorySpace
+   * Extract a return value from a IMemorySpace.
    *
    * @param ms The given memorySpace to resolve the return value in
    * @return The resolved return value
@@ -1563,7 +1604,7 @@ public class DSLInterpreter implements AstVisitor<Object> {
   }
 
   /**
-   * Execute Statements in a functions body
+   * Execute Statements in a functions body.
    *
    * @param symbol The symbol representing the function definition
    */

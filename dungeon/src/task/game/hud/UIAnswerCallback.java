@@ -52,6 +52,10 @@ public final class UIAnswerCallback {
   /**
    * Callback after the answers were confirmed.
    *
+   * @param quest foo
+   * @param hudEntity foo
+   * @param dslCallback foo
+   * @return foo
    * @see UIUtils
    */
   static BiFunction<TextDialog, String, Boolean> uiCallback(

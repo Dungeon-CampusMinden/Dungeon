@@ -11,7 +11,9 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import java.lang.reflect.Field;
 
+/** WTF? . */
 public class MockEntityTranslator implements IObjectToValueTranslator {
+  /** WTF? . */
   public static MockEntityTranslator instance = new MockEntityTranslator();
 
   private MockEntityTranslator() {}

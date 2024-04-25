@@ -9,11 +9,13 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import java.util.List;
 
+/** WTF? . */
 public class TestFunctionReturnHelloWorld extends NativeFunction {
+  /** WTF? . */
   public static TestFunctionReturnHelloWorld func = new TestFunctionReturnHelloWorld(Scope.NULL);
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param parentScope parent scope of this function
    */

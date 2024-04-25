@@ -8,8 +8,10 @@ import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 /**
- * Represents a property value, which encapsulated an {@link IDSLExtensionProperty} and an object to
- * use as the instance to use with this {@link IDSLExtensionProperty} and returns an aggregate
+ * WTF? (erster Satz KURZ).
+ *
+ * <p>Represents a property value, which encapsulated an {@link IDSLExtensionProperty} and an object
+ * to use as the instance to use with this {@link IDSLExtensionProperty} and returns an aggregate
  * value. This means, that this class does not store the actual object representing the aggregate
  * value, but the 'parent-object', of which the aggregate value can be retrieved by means of the
  * {@link IDSLExtensionProperty} .
@@ -21,6 +23,15 @@ public class AggregatePropertyValue extends AggregateValue {
   private final boolean isSettable;
   private final boolean isGettable;
 
+  /**
+   * WTF? .
+   *
+   * @param type foo
+   * @param property foo
+   * @param instance foo
+   * @param parentMemorySpace foo
+   * @param environment foo
+   */
   public AggregatePropertyValue(
       IType type,
       IDSLExtensionProperty<Object, Object> property,
@@ -39,9 +50,11 @@ public class AggregatePropertyValue extends AggregateValue {
   }
 
   /**
-   * As this AggregatePropertyValue does not store the aggregate value directly, we need to call the
-   * {@link IDSLExtensionProperty#get(Object)} implementation. This will return an aggregate value,
-   * which is converted in an actual {@link AggregateValue} instance, of which the {@link
+   * WTF? (erster Satz KURZ).
+   *
+   * <p>As this AggregatePropertyValue does not store the aggregate value directly, we need to call
+   * the {@link IDSLExtensionProperty#get(Object)} implementation. This will return an aggregate
+   * value, which is converted in an actual {@link AggregateValue} instance, of which the {@link
    * IMemorySpace} will contain the members of the aggregate value.
    */
   @Override

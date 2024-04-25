@@ -5,8 +5,11 @@ import java.util.Random;
 
 /** Specifies how large a level should be. Exact definition is interpreted by the generator. */
 public enum LevelSize {
+  /** WTF? . */
   SMALL,
+  /** WTF? . */
   MEDIUM,
+  /** WTF? . */
   LARGE;
 
   private static final List<LevelSize> VALUES = List.of(values());

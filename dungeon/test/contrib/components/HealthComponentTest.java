@@ -11,8 +11,10 @@ import java.util.function.Consumer;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** Tests for the {@link HealthComponent}. */
 public class HealthComponentTest {
 
+  /** WTF? . */
   @Test
   public void receiveHit() {
     Game.removeAllEntities();
@@ -32,6 +34,7 @@ public class HealthComponentTest {
     assertEquals(pdmg.damageAmount(), hc.calculateDamageOf(DamageType.PHYSICAL));
   }
 
+  /** WTF? . */
   @Test
   public void testDamageCause() {
     Game.removeAllEntities();
@@ -49,6 +52,7 @@ public class HealthComponentTest {
     assertEquals(damager, hc.lastDamageCause().get());
   }
 
+  /** WTF? . */
   @Test
   public void setMaximalHealthPointsLowerThanCurrent() {
     Game.removeAllEntities();
@@ -62,6 +66,7 @@ public class HealthComponentTest {
     assertEquals(8, hc.currentHealthpoints());
   }
 
+  /** WTF? . */
   @Test
   public void setMaximalHealthPointsHigherThanCurrent() {
     Game.removeAllEntities();
@@ -75,6 +80,7 @@ public class HealthComponentTest {
     assertEquals(10, hc.currentHealthpoints());
   }
 
+  /** WTF? . */
   @Test
   public void setCurrentHealthPointsHigherThanMaximum() {
     Game.removeAllEntities();
@@ -85,6 +91,7 @@ public class HealthComponentTest {
     assertEquals(10, hc.currentHealthpoints());
   }
 
+  /** WTF? . */
   @Test
   public void setCurrentHealthPointsLowerThanMaximum() {
     Game.removeAllEntities();
@@ -95,6 +102,7 @@ public class HealthComponentTest {
     assertEquals(8, hc.currentHealthpoints());
   }
 
+  /** WTF? . */
   @Test
   public void triggerOnDeath() {
     Game.removeAllEntities();

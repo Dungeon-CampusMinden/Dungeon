@@ -18,7 +18,9 @@ import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
 
+/** WTF? . */
 public class TestTypeInstantiator {
+  /** WTF? . */
   @Test
   public void testInstantiatorRecord()
       throws NoSuchFieldException,
@@ -79,6 +81,7 @@ public class TestTypeInstantiator {
     }
   }
 
+  /** WTF? . */
   @Test
   public void testInstantiatorClass()
       throws NoSuchFieldException,

@@ -47,8 +47,9 @@ import task.tasktype.AssignTask;
 import task.tasktype.Element;
 import task.tasktype.Quiz;
 
+/** WTF? . */
 public class TestDSLInterpreter {
-  /** Tests, if a native function call is evaluated by the DSLInterpreter */
+  /** Tests, if a native function call is evaluated by the DSLInterpreter. */
   @Test
   public void funcCall() {
     String program =
@@ -68,6 +69,7 @@ public class TestDSLInterpreter {
     assertTrue(outputStream.toString().contains("Hello, World!"));
   }
 
+  /** WTF? . */
   @Test
   public void funcCallReturn() {
     String program =
@@ -96,6 +98,7 @@ public class TestDSLInterpreter {
     assertTrue(outputStream.toString().contains("Hello, World!"));
   }
 
+  /** WTF? . */
   @Test
   public void funcCallDoubleReturnUserFunc() {
     String program =
@@ -130,6 +133,7 @@ public class TestDSLInterpreter {
     assertTrue(outputStream.toString().contains("Hello, World!"));
   }
 
+  /** WTF? . */
   @Test
   public void funcCallDoubleReturnUserFuncDifferentValues() {
     String program =
@@ -166,6 +170,7 @@ public class TestDSLInterpreter {
     assertFalse(outputStream.toString().contains("Moin"));
   }
 
+  /** WTF? . */
   @Test
   public void funcCallReturnUserFunc() {
     String program =
@@ -192,6 +197,7 @@ public class TestDSLInterpreter {
     assertTrue(outputStream.toString().contains("Hello, World!"));
   }
 
+  /** WTF? . */
   @Test
   public void funcCallReturnUserFuncNestedBlock() {
     String program =
@@ -221,6 +227,7 @@ public class TestDSLInterpreter {
     assertTrue(outputStream.toString().contains("Hello, World!"));
   }
 
+  /** WTF? . */
   @Test
   public void funcCallNestedStmtBlock() {
     String program =
@@ -251,6 +258,7 @@ public class TestDSLInterpreter {
     assertTrue(outputStream.toString().contains("Hello, World!"));
   }
 
+  /** WTF? . */
   @Test
   public void funcCallReturnUserFuncWithoutReturnType() {
     String program =
@@ -277,7 +285,7 @@ public class TestDSLInterpreter {
     assertFalse(outputStream.toString().contains("Hello, World!"));
   }
 
-  /** Test, if Value.NULL does not get set, if non-existing property of datatype is assigned */
+  /** Test, if Value. NULL does not get set, if non-existing property of datatype is assigned. */
   @Test
   public void testDontSetNullValue() {
     String program =
@@ -292,7 +300,7 @@ public class TestDSLInterpreter {
   }
 
   /**
-   * Test, if a dot definition and object definition is correctly created
+   * Test, if a dot definition and object definition is correctly created.
    *
    * @throws URISyntaxException if the resource URL is not valid
    * @throws IOException if the resource file does not exist
@@ -317,6 +325,7 @@ public class TestDSLInterpreter {
   private record OtherComponent(
       @DSLTypeMember int member3, @DSLTypeMember TaskDependencyGraph member4) {}
 
+  /** WTF? . */
   @Test
   public void aggregateTypeWithDefaults() {
     String program =
@@ -362,6 +371,7 @@ public class TestDSLInterpreter {
     assertEquals("Hello, World!", member2Value.getInternalValue());
   }
 
+  /** WTF? . */
   @Test
   public void aggregateTypeInstancing() {
     String program =
@@ -436,6 +446,7 @@ public class TestDSLInterpreter {
     assertEquals("DEFAULT VALUE", testComp2.getMember3());
   }
 
+  /** WTF? . */
   @Test
   public void objectEncapsulation() {
     String program =
@@ -491,6 +502,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals(42, internalValue);
   }
 
+  /** WTF? . */
   @Test
   public void aggregateTypeInstancingNonSupportedExternalType() {
     String program =
@@ -533,6 +545,7 @@ public class TestDSLInterpreter {
     assertNull(((ComponentWithExternalTypeMember) internalComponent).point);
   }
 
+  /** WTF? . */
   // TODO: should test resolving of member_external_type in the instantiated object
   @Test
   @Ignore
@@ -583,6 +596,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals("Hello, World!", externalTypeMember.member3);
   }
 
+  /** WTF? . */
   @Test
   public void adaptedInstancingMultiParam() {
     String program =
@@ -637,6 +651,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals(42, externalTypeMember.member1);
   }
 
+  /** WTF? . */
   @Test
   public void testIsBoolean() {
     Assert.assertFalse(DSLInterpreter.isBooleanTrue(Value.NONE));
@@ -668,6 +683,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(DSLInterpreter.isBooleanTrue(graphValue));
   }
 
+  /** WTF? . */
   @Test
   public void testIfStmtFalse() {
     String program =
@@ -693,6 +709,7 @@ public class TestDSLInterpreter {
     assertFalse(outputStream.toString().contains("Hello, World!"));
   }
 
+  /** WTF? . */
   @Test
   public void testIfStmtTrue() {
     String program =
@@ -718,6 +735,7 @@ public class TestDSLInterpreter {
     assertTrue(outputStream.toString().contains("Hello, World!"));
   }
 
+  /** WTF? . */
   @Test
   public void testElseStmt() {
     String program =
@@ -744,6 +762,7 @@ public class TestDSLInterpreter {
     assertTrue(outputStream.toString().contains("World"));
   }
 
+  /** WTF? . */
   @Test
   public void testIfElseStmt() {
     String program =
@@ -771,6 +790,7 @@ public class TestDSLInterpreter {
     assertTrue(outputStream.toString().contains("!"));
   }
 
+  /** WTF? . */
   @Test
   public void testIfElseStmtSecondIf() {
     String program =
@@ -799,6 +819,7 @@ public class TestDSLInterpreter {
     assertFalse(outputStream.toString().contains("!"));
   }
 
+  /** WTF? . */
   @Test
   public void testBranchingReturn() {
     String program =
@@ -834,6 +855,7 @@ public class TestDSLInterpreter {
     assertFalse(outputStream.toString().contains("branch1"));
   }
 
+  /** WTF? . */
   @Test
   public void testBranchingReturnNested() {
     String program =
@@ -882,6 +904,7 @@ public class TestDSLInterpreter {
         outputStream.toString());
   }
 
+  /** WTF? . */
   @Test
   public void testFuncRefValue() {
     String program =
@@ -915,6 +938,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(true);
   }
 
+  /** WTF? . */
   @Test
   public void testFuncRefValueCall() {
     String program =
@@ -960,6 +984,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(output.contains("Tach och"));
   }
 
+  /** WTF? . */
   @Test
   public void testFuncRefValueCallReturn() {
     String program =
@@ -1002,6 +1027,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(returnValue.contains("Moin"));
   }
 
+  /** WTF? . */
   @Test
   public void registerListAndSetTypesInEnvironment() {
     String program =
@@ -1035,6 +1061,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals(BuiltInType.stringType, ((ListType) stringListType).getElementType());
   }
 
+  /** WTF? . */
   @Test
   public void setListValues() {
     String program =
@@ -1066,6 +1093,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals("!", config.stringList().get(2));
   }
 
+  /** WTF? . */
   @Test
   public void setSetValues() {
     String program =
@@ -1100,6 +1128,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(stringSet.contains("!"));
   }
 
+  /** WTF? . */
   @Test
   public void passListValueToFunc() {
     String program =
@@ -1147,6 +1176,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(returnValue);
   }
 
+  /** WTF? . */
   @Test
   public void passListValueThroughFunc() {
     String program =
@@ -1197,6 +1227,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals(entities.get(2), returnedEntities.get(2));
   }
 
+  /** WTF? . */
   @Test
   public void passSetValueThroughFunc() {
     String program =
@@ -1243,6 +1274,7 @@ public class TestDSLInterpreter {
     }
   }
 
+  /** WTF? . */
   @Test
   // TODO: requires implementation of task dependency graph parsing (see:
   // https://github.com/Dungeon-CampusMinden/Dungeon/issues/520)
@@ -1295,6 +1327,7 @@ public class TestDSLInterpreter {
      */
   }
 
+  /** WTF? . */
   @Test
   public void testMemberAccess() {
     String program =
@@ -1343,6 +1376,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(outputStreamString.contains("Hello, World!"));
   }
 
+  /** WTF? . */
   @Test
   public void testMemberAccessFuncCall() {
     String program =
@@ -1396,6 +1430,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(outputStreamString.contains("Hello, World!"));
   }
 
+  /** WTF? . */
   @Test
   public void testProperty() {
     String program =
@@ -1448,6 +1483,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(output.contains("3.14"));
   }
 
+  /** WTF? . */
   @Test
   public void testPropertyOfComplexType() {
     String program =
@@ -1502,6 +1538,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(output.contains("42"));
   }
 
+  /** WTF? . */
   @Test
   public void testComponentPropertyOfEntity() {
     String program =
@@ -1552,6 +1589,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(output.contains("42"));
   }
 
+  /** WTF? . */
   @Test
   public void testComponentPropertyOfEntityUpdateValue() {
     String program =
@@ -1620,6 +1658,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(output.contains("123"));
   }
 
+  /** WTF? . */
   @Test
   public void testAssignmentProperty() {
     String program =
@@ -1679,6 +1718,7 @@ public class TestDSLInterpreter {
         output.equals("kuckuck" + System.lineSeparator() + "kuckuck" + System.lineSeparator()));
   }
 
+  /** WTF? . */
   @Test
   public void testAssignmentObjectMember() {
     String program =
@@ -1740,6 +1780,7 @@ public class TestDSLInterpreter {
         output.equals("ja" + System.lineSeparator() + "nein" + System.lineSeparator()));
   }
 
+  /** WTF? . */
   @Test
   public void testAssignmentFuncParam() {
     String program =
@@ -1792,6 +1833,7 @@ public class TestDSLInterpreter {
         output.equals("hello" + System.lineSeparator() + "my text" + System.lineSeparator()));
   }
 
+  /** WTF? . */
   @Test
   public void testVariableCreation() {
     String program =
@@ -1845,6 +1887,7 @@ public class TestDSLInterpreter {
     assertEquals(output, System.lineSeparator());
   }
 
+  /** WTF? . */
   @Test
   public void testVariableCreationAndAssignment() {
     String program =
@@ -1899,6 +1942,7 @@ public class TestDSLInterpreter {
     assertEquals(output, "Hello, World!" + System.lineSeparator());
   }
 
+  /** WTF? . */
   @Test
   public void testVariableCreationAndAssignmentEntity() {
     String program =
@@ -1959,6 +2003,7 @@ public class TestDSLInterpreter {
     assertEquals(output, "Hello, World!" + System.lineSeparator());
   }
 
+  /** WTF? . */
   @Test
   public void testVariableCreationList() {
     String program =
@@ -2020,6 +2065,7 @@ public class TestDSLInterpreter {
     assertEquals(output, "Hello, World!" + System.lineSeparator());
   }
 
+  /** WTF? . */
   @Test
   public void testVariableCreationIfStmtBlock() {
     String program =
@@ -2077,6 +2123,7 @@ public class TestDSLInterpreter {
     assertEquals(System.lineSeparator(), output);
   }
 
+  /** WTF? . */
   @Test
   public void testVariableCreationIfStmtSingleStmt() {
     String program =
@@ -2133,6 +2180,7 @@ public class TestDSLInterpreter {
     assertEquals(System.lineSeparator(), output);
   }
 
+  /** WTF? . */
   @Test
   public void testVariableCreationIfElseStmtSingleStmt() {
     String program =
@@ -2198,6 +2246,7 @@ public class TestDSLInterpreter {
     assertEquals(System.lineSeparator() + System.lineSeparator(), output);
   }
 
+  /** WTF? . */
   @Test
   public void testNativeMethodCallList() {
     String program =
@@ -2265,6 +2314,7 @@ public class TestDSLInterpreter {
         output);
   }
 
+  /** WTF? . */
   @Test
   public void testNativeMethodCallSet() {
     String program =
@@ -2328,6 +2378,7 @@ public class TestDSLInterpreter {
         output);
   }
 
+  /** WTF? . */
   @Test
   public void testExtensionMethodCall() {
     String program =
@@ -2392,6 +2443,7 @@ public class TestDSLInterpreter {
     assertEquals("42" + System.lineSeparator(), output);
   }
 
+  /** WTF? . */
   @Test
   public void testChainedExtensionMethodCall() {
     String program =
@@ -2456,6 +2508,7 @@ public class TestDSLInterpreter {
     assertEquals("42" + System.lineSeparator(), output);
   }
 
+  /** WTF? . */
   @Test
   public void testInstantiateEntityDrawComponent() {
     String program =
@@ -2491,6 +2544,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(entity.isPresent(PositionComponent.class));
   }
 
+  /** WTF? . */
   @Test
   public void testInstantiateEntityDrawComponentAccessPath() {
     String program =
@@ -2544,6 +2598,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals("[no value]" + System.lineSeparator(), output);
   }
 
+  /** WTF? . */
   @Test
   public void testTaskDependencyGraphNonConnected() {
     String program =
@@ -2591,6 +2646,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals(0, edges.size());
   }
 
+  /** WTF? . */
   @Test
   public void testTaskDependencyGraph() {
     String program =
@@ -2704,6 +2760,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals(TaskEdge.Type.conditional_correct, t1t6edge.edgeType());
   }
 
+  /** WTF? . */
   @Test
   public void testTaskDependencyGraphGroupNotation() {
     String program =
@@ -2817,6 +2874,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals(taskNode6, t4t6edge.endNode());
   }
 
+  /** WTF? . */
   @Test
   public void testScenarioBuilderIntegration() {
     String program =
@@ -2908,6 +2966,7 @@ public class TestDSLInterpreter {
     }
   }
 
+  /** WTF? . */
   @Test
   // native scenario builders will make this test case obsolete
   @Ignore
@@ -2943,6 +3002,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(builtTask.isEmpty());
   }
 
+  /** WTF? . */
   @Test
   public void testEnumVariantInstantiation() {
     String program =
@@ -2991,6 +3051,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals(MyEnum.A, enumValue);
   }
 
+  /** WTF? . */
   @Test
   public void testEnumCallbackParameter() {
     String program =
@@ -3044,6 +3105,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(returnValue);
   }
 
+  /** WTF? . */
   @Test
   public void testCollisionCallback() {
     String program =
@@ -3114,6 +3176,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(output.contains("N"));
   }
 
+  /** WTF? . */
   @Test
   public void testForLoop() {
     String program =
@@ -3174,6 +3237,7 @@ public class TestDSLInterpreter {
         output);
   }
 
+  /** WTF? . */
   @Test
   public void testForLoopIterableExpression() {
     String program =
@@ -3235,6 +3299,7 @@ public class TestDSLInterpreter {
         output);
   }
 
+  /** WTF? . */
   @Test
   public void testCountingForLoop() {
     String program =
@@ -3307,6 +3372,7 @@ public class TestDSLInterpreter {
         output);
   }
 
+  /** WTF? . */
   @Test
   public void testWhileLoop() {
     String program =
@@ -3379,6 +3445,7 @@ public class TestDSLInterpreter {
         output);
   }
 
+  /** WTF? . */
   @Test
   public void testItemTypeInstantiationSingleChoice() {
     String program =
@@ -3436,6 +3503,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals("2", content.content());
   }
 
+  /** WTF? . */
   @Test
   public void testItemTypeInstantiationMultipleChoice() {
     String program =
@@ -3493,6 +3561,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals("2", content.content());
   }
 
+  /** WTF? . */
   @Test
   public void testSetGradingFuncSingleChoice() {
     String program =
@@ -3524,6 +3593,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals((Float) 1.0f, score);
   }
 
+  /** WTF? . */
   @Test
   public void testSetGradingFuncMultipleChoice() {
     String program =
@@ -3553,6 +3623,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals((Float) 0.5f, score);
   }
 
+  /** WTF? . */
   @Test
   public void testSetGradingFunctionInScenarioBuilderSingleChoice() {
     String program =
@@ -3600,6 +3671,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals((Float) 1.0f, score);
   }
 
+  /** WTF? . */
   @Test
   public void testNameSymbol() {
     String program =
@@ -3631,6 +3703,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals("t1", task.taskName());
   }
 
+  /** WTF? . */
   @Test
   public void testDeclareAssignmentTask() {
     String program =
@@ -3700,6 +3773,7 @@ public class TestDSLInterpreter {
     Assert.assertEquals(AssignTask.EMPTY_ELEMENT, derpElementSetEntry);
   }
 
+  /** WTF? . */
   @Test
   @Ignore // red on first run, green on subsequent runs??? wtf?
   public void testAssignmentTaskScenarioBuilder() {
@@ -3827,6 +3901,7 @@ public class TestDSLInterpreter {
     Assert.assertTrue(keyContents.contains("!"));
   }
 
+  /** WTF? . */
   @Test
   public void testNamedInstantiate() {
     String program =

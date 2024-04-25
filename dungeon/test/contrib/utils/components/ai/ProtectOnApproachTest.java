@@ -11,6 +11,7 @@ import core.components.PositionComponent;
 import core.utils.Point;
 import org.junit.Before;
 
+/** WTF? . */
 public class ProtectOnApproachTest {
   private final Point pointOfProtect = new Point(0, 0);
   private Entity entity;
@@ -18,6 +19,7 @@ public class ProtectOnApproachTest {
   private Entity protectedEntity;
   private Entity hero;
 
+  /** WTF? . */
   @Before
   public void setup() {
 

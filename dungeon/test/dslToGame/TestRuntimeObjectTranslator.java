@@ -20,7 +20,9 @@ import dsl.semanticanalysis.environment.GameEnvironment;
 import org.junit.Assert;
 import org.junit.Test;
 
+/** WTF? . */
 public class TestRuntimeObjectTranslator {
+  /** WTF? . */
   @Test
   public void testEntityTranslation() {
     Entity entity = new Entity();
@@ -53,6 +55,7 @@ public class TestRuntimeObjectTranslator {
     Assert.assertNotEquals(Value.NONE, positionComponent);
   }
 
+  /** WTF? . */
   @Test
   public void testIsolatedComponentTranslation() {
     Entity entity = new Entity();
@@ -87,6 +90,7 @@ public class TestRuntimeObjectTranslator {
     Assert.assertEquals(42.0f, xVelocityFromComponent, 0.0f);
   }
 
+  /** WTF? . */
   @Test
   public void testIsolatedComponentTranslationPODAdapted() {
     String program = """
@@ -120,6 +124,7 @@ public class TestRuntimeObjectTranslator {
     Assert.assertEquals("Hello", object.member3);
   }
 
+  /** WTF? . */
   @Test
   public void testIsolatedComponentTranslationAggregateAdapted() {
     String program = """

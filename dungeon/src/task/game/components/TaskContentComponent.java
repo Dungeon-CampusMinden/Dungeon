@@ -42,14 +42,20 @@ public final class TaskContentComponent implements Component {
     return content;
   }
 
-  /** Set the internal represented {@link TaskContent}. */
+  /**
+   * Set the internal represented {@link TaskContent}.
+   *
+   * @param content foo
+   */
   public void content(TaskContent content) {
     this.content = content;
   }
 
+  /** WTF? . */
   @DSLTypeProperty(name = "content", extendedType = TaskContentComponent.class)
   public static class ContentProperty
       implements IDSLExtensionProperty<TaskContentComponent, TaskContent> {
+    /** WTF? . */
     public static TaskContentComponent.ContentProperty instance =
         new TaskContentComponent.ContentProperty();
 
