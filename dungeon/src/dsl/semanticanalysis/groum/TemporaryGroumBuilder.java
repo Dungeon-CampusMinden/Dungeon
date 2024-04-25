@@ -413,14 +413,51 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(ConditionalStmtNodeIf node) {
-    // TODO
-    throw new UnsupportedOperationException();
+    // visit condition
+    Groum conditionGroum = node.getCondition().accept(this);
+    Groum stmtGroum = node.getIfStmt().accept(this);
+
+    var ifControlNode = new ControlNode(ControlNode.ControlType.ifStmt);
+    ifControlNode.addChildren(conditionGroum.nodes);
+    ifControlNode.addChildren(stmtGroum.nodes);
+
+    Groum merged = conditionGroum.mergeSequential(ifControlNode);
+    merged = merged.mergeSequential(stmtGroum);
+
+    return merged;
   }
 
   @Override
   public Groum visit(ConditionalStmtNodeIfElse node) {
-    // TODO
-    throw new UnsupportedOperationException();
+    // visit condition and branches
+    Groum conditionGroum = node.getCondition().accept(this);
+    Groum ifStmtGroum = node.getIfStmt().accept(this);
+    Groum elseStmtGroum = node.getElseStmt().accept(this);
+
+    // create control nodes
+    var parentControlNode = new ControlNode(ControlNode.ControlType.ifElseStmt);
+    var ifControlNode = new ControlNode(ControlNode.ControlType.ifStmt);
+    var elseControlNode = new ControlNode(ControlNode.ControlType.elseStmt);
+
+    // add groum nodes as children to their respective parents
+    parentControlNode.addChildren(conditionGroum.nodes);
+    ifControlNode.addChildren(ifStmtGroum.nodes);
+    elseControlNode.addChildren(elseStmtGroum.nodes);
+
+    // merge groums for conditions and branches
+    var mergedIfBranch = new Groum(ifControlNode).mergeSequential(ifStmtGroum);
+    var mergedElseBranch = new Groum(elseControlNode).mergeSequential(elseStmtGroum);
+
+    // add the merged branches as children to the parent control node
+    parentControlNode.addChildren(mergedIfBranch.nodes);
+    parentControlNode.addChildren(mergedElseBranch.nodes);
+
+    // merge groums
+    var parentControlWithCondition = conditionGroum.mergeSequential(parentControlNode);
+    Groum mergedBranches = mergedIfBranch.mergeParallel(mergedElseBranch);
+    Groum merged = parentControlWithCondition.mergeSequential(mergedBranches);
+
+    return merged;
   }
 
   @Override

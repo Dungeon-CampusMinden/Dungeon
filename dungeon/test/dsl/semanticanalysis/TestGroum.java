@@ -506,4 +506,56 @@ public class TestGroum {
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
   }
+
+  @Test
+  public void conditionalIf() {
+    String program =
+      """
+      fn test(int x) {
+        if (x == 0) {
+          print("Hello");
+        }
+      }
+      """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+  }
+
+  @Test
+  public void conditionalIfElse() {
+    String program =
+      """
+      fn test(int x) {
+        if (x == 0) {
+          print("Hello");
+        } else {
+          print("World");
+        }
+      }
+      """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+  }
 }
