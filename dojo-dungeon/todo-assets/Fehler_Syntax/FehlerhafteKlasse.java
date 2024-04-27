@@ -26,8 +26,8 @@ public class FehlerhafteKlasse {
    *
    * <p>Wenn {@code in} kleiner 0 oder größer als 10 ist, soll "Too large" zurückgegeben werden.
    *
-   * @param n Eingabe, für die die Fibonacci-Zahl berechnet werden soll
+   * @param in Eingabe, für die die Fibonacci-Zahl berechnet werden soll
    * @return Die Fibonacci-Zahl als String
    */
-  public static String calculateFibonacci(String n) {}
+  public static String calculateFibonacci(String in) {}
 }
