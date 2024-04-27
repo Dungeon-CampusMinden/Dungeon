@@ -7,8 +7,8 @@ public class FehlerhafteKlasse {
   private final int addend2 = 2;
 
   /**
-   * Diese Methode soll 2 zum Zahlenwert, der im Parameter {@code in} als String übergeben wird, addieren und das Ergebnis wieder in einen String umwandeln und
-   * zurückgeben.
+   * Diese Methode soll 2 zum Zahlenwert, der im Parameter {@code in} als String übergeben wird,
+   * addieren und das Ergebnis wieder in einen String umwandeln und zurückgeben.
    *
    * <p>Wenn {@code in} {@code null} oder keine Zahl ist, soll "NaN" zurückgegeben werden.
    *

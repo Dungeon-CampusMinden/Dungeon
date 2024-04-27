@@ -35,7 +35,7 @@ public class Fehler_Syntax extends TaskRoom {
   private final String FILENAME_PLAIN =
       "dojo-dungeon/todo-assets/Fehler_Syntax/FehlerhafteKlasse.java";
   private final String FILENAME_TECH = "../" + FILENAME_PLAIN;
-  private final String CLASS_NAME = "FehlerhafteKlasse";
+  private final String CLASS_NAME = getClassNameFromFilename(FILENAME_PLAIN);
   private final String[] TEXT = {
     // 0
     "Die Datei " + FILENAME_PLAIN + " enthält kleinere Syntaxfehler.",
@@ -66,6 +66,10 @@ public class Fehler_Syntax extends TaskRoom {
   };
   private final String[] TASK_NAMES = {"task_1_easy", "task_2_medium", "task_3_hard"};
   private final Entity[] CHESTS = new Entity[3];
+
+  private static String getClassNameFromFilename(String filename) {
+    return filename.substring(filename.lastIndexOf("/") + 1).replace(".java", "");
+  }
 
   /**
    * Generate a new room.
