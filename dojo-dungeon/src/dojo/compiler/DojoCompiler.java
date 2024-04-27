@@ -128,7 +128,6 @@ public class DojoCompiler {
   public TestResult testWrongClass2_validInputValues(String fileName, String className) {
     String testName = "test2";
     if (stage_1_readSourceFile(fileName)
-        && stage_1_2_replaceSmthInSource()
         && stage_2_checkCompilation(className)
         && stage_3_checkFirstMethodDeclaration()
         && stage_4_checkFirstOutput()
@@ -155,7 +154,6 @@ public class DojoCompiler {
   public TestResult testWrongClass3_invalidInputValues(String fileName, String className) {
     String testName = "test3";
     if (stage_1_readSourceFile(fileName)
-        && stage_1_2_replaceSmthInSource()
         && stage_2_checkCompilation(className)
         && stage_3_checkFirstMethodDeclaration()
         && stage_4_checkFirstOutput()
@@ -213,13 +211,6 @@ public class DojoCompiler {
       return false;
     }
     messages.add("source ok");
-    return true;
-  }
-
-  private boolean stage_1_2_replaceSmthInSource() {
-    // Replace "10" with "wuppie":
-    source = source.replace("10", "wuppie");
-    messages.add("replace ok");
     return true;
   }
 
