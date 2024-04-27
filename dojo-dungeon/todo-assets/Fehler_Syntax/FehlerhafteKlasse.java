@@ -20,7 +20,7 @@ public class FehlerhafteKlasse {
   public static String incrementByTwo(String in) {}
 
   /**
-   * Diese Methode soll die Fibonacci-Zahl für {@code n} berechnen und zurückgeben.
+   * Diese Methode soll die Fibonacci-Zahl für {@code in} berechnen und zurückgeben.
    *
    * <p>Wenn {@code in} {@code null} oder keine Zahl ist, soll "NaN" zurückgegeben werden.
    *
