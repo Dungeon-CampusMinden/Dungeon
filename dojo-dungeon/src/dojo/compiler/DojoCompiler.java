@@ -4,23 +4,19 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.utils.components.path.SimpleIPath;
 import dojo.rooms.Room;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Random;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -101,20 +97,18 @@ public class DojoCompiler {
   /**
    * Tests if the class is correct by certain criteria, step 1.
    *
-   * <p>Tests if the output of the methods are correct.
+   * <p>Checks if the class can be compiled and the methods are declared correctly.
    *
    * @param fileName the name of the source file
    * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
    */
-  public TestResult testWrongClass1(String fileName, String className) {
+  public TestResult testWrongClass1_compilationAndInvocation(String fileName, String className) {
     String testName = "test1";
     if (stage_1_readSourceFile(fileName)
         && stage_2_checkCompilation(className)
         && stage_3_checkFirstMethodDeclaration()
-        && stage_4_checkFirstOutput()
-        && stage_5_checkSecondMethodDeclaration()
-        && stage_6_checkSecondOutput()) {
+        && stage_5_checkSecondMethodDeclaration()) {
       return new TestResult(testName, true, messages);
     }
     return new TestResult(testName, false, messages);
@@ -123,15 +117,15 @@ public class DojoCompiler {
   /**
    * Tests if the class is correct by certain criteria, step 2.
    *
-   * <p>Tests if the output of the methods are correct.
+   * <p>Checks if the class can be compiled and the methods are declared correctly.
    *
-   * <p>Tests if the methods can handle unexpected inputs.
+   * <p>Checks the methods output with valid input values.
    *
    * @param fileName the name of the source file
    * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
    */
-  public TestResult testWrongClass2(String fileName, String className) {
+  public TestResult testWrongClass2_validInputValues(String fileName, String className) {
     String testName = "test2";
     if (stage_1_readSourceFile(fileName)
         && stage_1_2_replaceSmthInSource()
@@ -148,26 +142,27 @@ public class DojoCompiler {
   /**
    * Tests if the class is correct by certain criteria, step 3.
    *
-   * <p>Tests if the output of the methods are correct.
+   * <p>Checks if the class can be compiled and the methods are declared correctly.
    *
-   * <p>Tests if the methods can handle unexpected inputs.
+   * <p>Checks the methods output with valid input values.
    *
-   * <p>Tests if a try-catch block is used.
+   * <p>Checks the methods output with invalid input values.
    *
    * @param fileName the name of the source file
    * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
    */
-  public TestResult testWrongClass3(String fileName, String className) {
+  public TestResult testWrongClass3_invalidInputValues(String fileName, String className) {
     String testName = "test3";
     if (stage_1_readSourceFile(fileName)
         && stage_1_2_replaceSmthInSource()
         && stage_2_checkCompilation(className)
         && stage_3_checkFirstMethodDeclaration()
         && stage_4_checkFirstOutput()
+        && stage_4_2_checkFirstOutput()
         && stage_5_checkSecondMethodDeclaration()
         && stage_6_checkSecondOutput()
-        && stage_6_2_checkTryCatch()) {
+        && stage_6_2_checkSecondOutput()) {
       return new TestResult(testName, true, messages);
     }
     return new TestResult(testName, false, messages);
@@ -241,7 +236,7 @@ public class DojoCompiler {
 
   private boolean stage_3_checkFirstMethodDeclaration() {
     try {
-      method1 = cls.getDeclaredMethod("redirectOutputTo1", PrintWriter.class);
+      method1 = cls.getDeclaredMethod("incrementByTwo", String.class);
     } catch (NoSuchMethodException ex) {
       messages.add("method1 not ok");
       return false;
@@ -251,19 +246,53 @@ public class DojoCompiler {
   }
 
   private boolean stage_4_checkFirstOutput() {
-    ByteArrayOutputStream buf1 = new ByteArrayOutputStream();
-    try (PrintWriter writer = new PrintWriter(buf1, true)) {
-      try {
-        method1.invoke(null, writer);
-      } catch (IllegalAccessException | InvocationTargetException ex) {
-        messages.add("invocation1 not ok");
+    try {
+      for (int i = -10; i <= 10; i++) {
+        String result = (String) method1.invoke(null, String.valueOf(i));
+        if (!result.equals("" + (i + 2))) {
+          messages.add("output1 wrong: " + result);
+          return false;
+        }
+      }
+      if (!method1
+          .invoke(null, String.valueOf(Integer.MAX_VALUE - 2))
+          .equals(String.valueOf(Integer.MAX_VALUE))) {
+        messages.add("output1 wrong");
         return false;
       }
-      messages.add("invocation1 ok");
+      int r = new Random().nextInt(1000);
+      if (!method1.invoke(null, String.valueOf(r)).equals(String.valueOf(r + 2))) {
+        messages.add("output1 wrong");
+        return false;
+      }
+    } catch (Exception ex) {
+      messages.add("invocation1 not ok");
+      return false;
     }
-    String actualOutput1 = buf1.toString(Charset.defaultCharset());
-    if (actualOutput1 == null || !actualOutput1.contains("Die Summe ist: 7")) {
-      messages.add("output1 wrong: " + actualOutput1);
+    messages.add("output1 ok");
+    return true;
+  }
+
+  private boolean stage_4_2_checkFirstOutput() {
+    try {
+      if (!"NaN".equals(method1.invoke(null, (String) null))) {
+        messages.add("output1 wrong");
+        return false;
+      }
+      if (!"NaN".equals(method1.invoke(null, "coffee time"))) {
+        messages.add("output1 wrong");
+        return false;
+      }
+      if (!"Integer overflow".equals(method1.invoke(null, String.valueOf(Integer.MAX_VALUE - 1)))) {
+        messages.add("output1 wrong");
+        return false;
+      }
+      if (!"Integer overflow".equals(method1.invoke(null, String.valueOf(Integer.MAX_VALUE)))) {
+        messages.add("output1 wrong");
+        return false;
+      }
+    } catch (Exception ex) {
+      messages.add("invocation1 not ok");
       return false;
     }
     messages.add("output1 ok");
@@ -272,7 +301,7 @@ public class DojoCompiler {
 
   private boolean stage_5_checkSecondMethodDeclaration() {
     try {
-      method2 = cls.getDeclaredMethod("redirectOutputTo2", PrintWriter.class);
+      method2 = cls.getDeclaredMethod("calculateFibonacci", String.class);
     } catch (NoSuchMethodException ex) {
       messages.add("method2 not ok");
       return false;
@@ -282,35 +311,46 @@ public class DojoCompiler {
   }
 
   private boolean stage_6_checkSecondOutput() {
-    ByteArrayOutputStream buf2 = new ByteArrayOutputStream();
-    try (PrintWriter writer = new PrintWriter(buf2, true)) {
-      try {
-        method2.invoke(null, writer);
-      } catch (IllegalAccessException | InvocationTargetException ex) {
-        messages.add("invocation2 not ok");
-        return false;
+    try {
+      int[] firstFibNumbers = {0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89};
+      for (int i = 0; i <= 10; i++) {
+        String result = (String) method2.invoke(null, String.valueOf(i));
+        if (!result.equals(String.valueOf(firstFibNumbers[i]))) {
+          messages.add("output2 wrong: " + result);
+          return false;
+        }
       }
-      messages.add("invocation2 ok");
-    }
-    String actualOutput2 = buf2.toString(Charset.defaultCharset());
-    if (actualOutput2 == null || !actualOutput2.contains("Die dritte Zahl ist: 8")) {
-      messages.add("output2 wrong: " + actualOutput2);
+    } catch (Exception ex) {
+      messages.add("invocation2 not ok");
       return false;
     }
     messages.add("output2 ok");
     return true;
   }
 
-  private boolean stage_6_2_checkTryCatch() {
-    Pattern pattern = Pattern.compile("try.+catch", Pattern.DOTALL);
-    Matcher matcher = pattern.matcher(source);
-    boolean b3 = matcher.find();
-    if (b3) {
-      messages.add("try-catch ok");
-    } else {
-      messages.add("try-catch not ok");
+  private boolean stage_6_2_checkSecondOutput() {
+    try {
+      if (!"NaN".equals(method2.invoke(null, (String) null))) {
+        messages.add("output2 wrong");
+        return false;
+      }
+      if (!"NaN".equals(method2.invoke(null, "coffee time"))) {
+        messages.add("output2 wrong");
+        return false;
+      }
+      if (!"Too large".equals(method2.invoke(null, String.valueOf(-1)))) {
+        messages.add("output2 wrong");
+        return false;
+      }
+      if (!"Too large".equals(method2.invoke(null, String.valueOf(11)))) {
+        messages.add("output2 wrong");
+        return false;
+      }
+    } catch (Exception ex) {
+      messages.add("invocation2 not ok");
       return false;
     }
+    messages.add("output2 ok");
     return true;
   }
 
