@@ -3,6 +3,8 @@
  * Implementierung haben. Das Verhalten dieser Methoden wird dann im Spiel überprüft werden.
  */
 public class FehlerhafteKlasse {
+  private final int addend1 = 5;
+  private final int addend2 = 2;
 
   /**
    * Diese Methode soll 2 zu {@code in} addieren und das Ergebnis in einen String umwandeln und
@@ -20,14 +22,15 @@ public class FehlerhafteKlasse {
   public static String incrementByTwo(String in) {}
 
   /**
-   * Diese Methode soll die Fibonacci-Zahl für {@code in} berechnen und zurückgeben.
+   * Diese Methode korregiert werden und sie soll die Summe der beiden Attribute {@link
+   * FehlerhafteKlasse#addend1} und {@link FehlerhafteKlasse#addend2} als String zurückgeben.
    *
-   * <p>Wenn {@code in} {@code null} oder keine Zahl ist, soll "NaN" zurückgegeben werden.
+   * <p>Passen Sie dazu nur diese Methode an.
    *
-   * <p>Wenn {@code in} kleiner 0 oder größer als 10 ist, soll "Too large" zurückgegeben werden.
-   *
-   * @param in Eingabe, für die die Fibonacci-Zahl berechnet werden soll
-   * @return Die Fibonacci-Zahl als String
+   * @return Die Summe beider Addenden als String.
    */
-  public static String calculateFibonacci(String in) {}
+  public static String getSum() {
+    FehlerhafteKlasse fk = null;
+    return "" + fk.addend1 + fk.addend2;
+  }
 }

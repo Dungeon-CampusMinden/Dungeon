@@ -159,8 +159,7 @@ public class DojoCompiler {
         && stage_4_checkFirstOutput()
         && stage_4_2_checkFirstOutput()
         && stage_5_checkSecondMethodDeclaration()
-        && stage_6_checkSecondOutput()
-        && stage_6_2_checkSecondOutput()) {
+        && stage_6_checkSecondOutput()) {
       return new TestResult(testName, true, messages);
     }
     return new TestResult(testName, false, messages);
@@ -295,7 +294,7 @@ public class DojoCompiler {
 
   private boolean stage_5_checkSecondMethodDeclaration() {
     try {
-      method2 = cls.getDeclaredMethod("calculateFibonacci", String.class);
+      method2 = cls.getDeclaredMethod("getSum");
     } catch (NoSuchMethodException ex) {
       messages.add("method2 not ok");
       return false;
@@ -306,42 +305,9 @@ public class DojoCompiler {
 
   private boolean stage_6_checkSecondOutput() {
     try {
-      int[] firstFibNumbers = {0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89};
-      for (int i = 0; i <= 10; i++) {
-        String result = (String) method2.invoke(null, String.valueOf(i));
-        if (!String.valueOf(firstFibNumbers[i]).equals(result)) {
-          messages.add("output2 wrong: " + result);
-          return false;
-        }
-      }
-    } catch (Exception ex) {
-      messages.add("invocation2 not ok");
-      return false;
-    }
-    messages.add("output2 ok");
-    return true;
-  }
-
-  private boolean stage_6_2_checkSecondOutput() {
-    try {
-      if (!"NaN".equals(method2.invoke(null, (String) null))) {
-        messages.add("output2 wrong");
-        return false;
-      }
-      if (!"NaN".equals(method2.invoke(null, "coffee time"))) {
-        messages.add("output2 wrong");
-        return false;
-      }
-      if (!"NaN".equals(method2.invoke(null, ""))) {
-        messages.add("output2 wrong");
-        return false;
-      }
-      if (!"Too large".equals(method2.invoke(null, String.valueOf(-1)))) {
-        messages.add("output2 wrong");
-        return false;
-      }
-      if (!"Too large".equals(method2.invoke(null, String.valueOf(11)))) {
-        messages.add("output2 wrong");
+      String sum = (String) method2.invoke(null);
+      if (!"7".equals(sum)) {
+        messages.add("output2 wrong: 7 expected");
         return false;
       }
     } catch (Exception ex) {
