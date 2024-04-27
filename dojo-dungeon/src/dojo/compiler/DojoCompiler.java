@@ -249,19 +249,18 @@ public class DojoCompiler {
     try {
       for (int i = -10; i <= 10; i++) {
         String result = (String) method1.invoke(null, String.valueOf(i));
-        if (!result.equals("" + (i + 2))) {
+        if (!String.valueOf(i + 2).equals(result)) {
           messages.add("output1 wrong: " + result);
           return false;
         }
       }
-      if (!method1
-          .invoke(null, String.valueOf(Integer.MAX_VALUE - 2))
-          .equals(String.valueOf(Integer.MAX_VALUE))) {
+      if (!String.valueOf(Integer.MAX_VALUE)
+          .equals(method1.invoke(null, String.valueOf(Integer.MAX_VALUE - 2)))) {
         messages.add("output1 wrong");
         return false;
       }
       int r = new Random().nextInt(1000);
-      if (!method1.invoke(null, String.valueOf(r)).equals(String.valueOf(r + 2))) {
+      if (!String.valueOf(r + 2).equals(method1.invoke(null, String.valueOf(r)))) {
         messages.add("output1 wrong");
         return false;
       }
@@ -280,6 +279,10 @@ public class DojoCompiler {
         return false;
       }
       if (!"NaN".equals(method1.invoke(null, "coffee time"))) {
+        messages.add("output1 wrong");
+        return false;
+      }
+      if (!"NaN".equals(method1.invoke(null, ""))) {
         messages.add("output1 wrong");
         return false;
       }
@@ -315,7 +318,7 @@ public class DojoCompiler {
       int[] firstFibNumbers = {0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89};
       for (int i = 0; i <= 10; i++) {
         String result = (String) method2.invoke(null, String.valueOf(i));
-        if (!result.equals(String.valueOf(firstFibNumbers[i]))) {
+        if (!String.valueOf(firstFibNumbers[i]).equals(result)) {
           messages.add("output2 wrong: " + result);
           return false;
         }
@@ -335,6 +338,10 @@ public class DojoCompiler {
         return false;
       }
       if (!"NaN".equals(method2.invoke(null, "coffee time"))) {
+        messages.add("output2 wrong");
+        return false;
+      }
+      if (!"NaN".equals(method2.invoke(null, ""))) {
         messages.add("output2 wrong");
         return false;
       }
