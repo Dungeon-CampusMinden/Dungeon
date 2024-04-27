@@ -1,33 +1,36 @@
-// what is wrong here?
-
-/** This class should be fixed, so that testExcpectedOutput7 and testExcpectedOutput8 work. */
-public class FehlerhafteKlasse { // what is wrong here?
-  int num1 = 5; // what is wrong here?
-  int num2 = 2; // what is wrong here?
-
-  /**
-   * This test should be fixed to print: "Die Summe ist: 7".
-   *
-   * @param out the output stream to print to.
-   */
-  public static void redirectOutputTo1(PrintWriter out) {
-    int sum = 0;
-    sum = FehlerhafteKlasse.num1 + FehlerhafteKlasse.num2; // what is wrong here?
-    out.println("Die Summe ist: " + sum);
-  }
+/**
+ * In dieser Klasse sollen unterschiedliche Methoden implementiert werden, die noch keine
+ * Implementierung haben. Das Verhalten dieser Methoden wird dann im Spiel überprüft werden.
+ */
+public class FehlerhafteKlasse {
+  private final int addend1 = 5;
+  private final int addend2 = 2;
 
   /**
-   * This test should be fixed to print: "Die dritte Zahl ist: 8".
+   * Diese Methode soll 2 zum Zahlenwert, der im Parameter {@code in} als String übergeben wird,
+   * addieren und das Ergebnis wieder in einen String umwandeln und zurückgeben.
    *
-   * <p>Tip: Don't forget to use trycatch.
+   * <p>Wenn {@code in} {@code null} oder keine Zahl ist, soll "NaN" zurückgegeben werden.
    *
-   * @param out the output stream to print to.
+   * <p>Wenn die Operation einen Integer-Overflow verursachen würde, soll "Integer overflow"
+   * zurückgegeben werden.
+   *
+   * @param in Eingabe, zu der 2 addiert werden soll
+   * @return Die Summe der Addition als String
+   * @see Integer
    */
-  public static void redirectOutputTo2(PrintWriter out) {
-    String perhapsJunk = "10";
-    int num3 = Integer.parseInt(perhapsJunk); // what is wrong here?
-    num3--;
-    num3--;
-    out.println("Die dritte Zahl ist: " + num3);
+  public static String incrementByTwo(String in) {}
+
+  /**
+   * Diese Methode soll korrigiert werden und die Summe der beiden Attribute {@link
+   * FehlerhafteKlasse#addend1} und {@link FehlerhafteKlasse#addend2} als String zurückgeben.
+   *
+   * <p>Passen Sie dazu nur diese Methode an.
+   *
+   * @return Die Summe beider Summanden als String.
+   */
+  public static String getSum() {
+    FehlerhafteKlasse fk;
+    return "" + fk.addend1 + fk.addend2;
   }
 }

@@ -31,15 +31,16 @@ import java.util.function.Function;
  * weitergehen. Es gibt dabei drei "Prüfstufen".
  */
 public class Fehler_Syntax extends TaskRoom {
-  private final String FILENAME1 =
-      "../dojo-dungeon/todo-assets/Fehler_Syntax/FehlerhafteKlasse.java";
-  private final String FILENAME2 = "../dojo-dungeon/todo-assets/Fehler_Syntax/Klasse.java";
-  private final String CLASS_NAME = "Klasse";
+
+  private final String FILENAME_PLAIN =
+      "dojo-dungeon/todo-assets/Fehler_Syntax/FehlerhafteKlasse.java";
+  private final String FILENAME_TECH = "../" + FILENAME_PLAIN;
+  private final String CLASS_NAME = getClassNameFromFilename(FILENAME_PLAIN);
   private final String[] TEXT = {
     // 0
-    "Die Datei " + FILENAME1 + " enthält 4 Fehler (Syntax und Semantik).",
+    "Die Datei " + FILENAME_PLAIN + " enthält kleinere Syntaxfehler.",
     // 1
-    "Öffne/Kopiere die Datei, korrigiere die Fehler und speichere die Datei unter: " + FILENAME2,
+    "Öffne die Datei, korrigiere die Fehler und speichere sie unter: " + FILENAME_PLAIN,
     // 2
     "Laufe dann zur Truhe 1 und lasse die Datei überprüfen.",
     // 3
@@ -65,6 +66,10 @@ public class Fehler_Syntax extends TaskRoom {
   };
   private final String[] TASK_NAMES = {"task_1_easy", "task_2_medium", "task_3_hard"};
   private final Entity[] CHESTS = new Entity[3];
+
+  private static String getClassNameFromFilename(String filename) {
+    return filename.substring(filename.lastIndexOf("/") + 1).replace(".java", "");
+  }
 
   /**
    * Generate a new room.
@@ -108,7 +113,8 @@ public class Fehler_Syntax extends TaskRoom {
     Function<Task, Boolean> openDialog3 =
         (t) -> {
           DojoCompiler.TestResult results =
-              new DojoCompiler().testWrongClass1(FILENAME2, CLASS_NAME);
+              new DojoCompiler()
+                  .testWrongClass1_compilationAndInvocation(FILENAME_TECH, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 1:", this::openOrCloseChests);
@@ -125,7 +131,7 @@ public class Fehler_Syntax extends TaskRoom {
     Function<Task, Boolean> openDialog7 =
         (t) -> {
           DojoCompiler.TestResult results =
-              new DojoCompiler().testWrongClass2(FILENAME2, CLASS_NAME);
+              new DojoCompiler().testWrongClass2_validInputValues(FILENAME_TECH, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 2:", this::openOrCloseChests);
@@ -142,7 +148,7 @@ public class Fehler_Syntax extends TaskRoom {
     Function<Task, Boolean> openDialog11 =
         (t) -> {
           DojoCompiler.TestResult results =
-              new DojoCompiler().testWrongClass3(FILENAME2, CLASS_NAME);
+              new DojoCompiler().testWrongClass3_invalidInputValues(FILENAME_TECH, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 3:", this::openOrCloseChests);
