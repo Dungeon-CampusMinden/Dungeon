@@ -22,7 +22,7 @@ public class FehlerhafteKlasse {
   public static String incrementByTwo(String in) {}
 
   /**
-   * Diese Methode korregiert werden und sie soll die Summe der beiden Attribute {@link
+   * Diese Methode soll korrigiert werden und die Summe der beiden Attribute {@link
    * FehlerhafteKlasse#addend1} und {@link FehlerhafteKlasse#addend2} als String zurückgeben.
    *
    * <p>Passen Sie dazu nur diese Methode an.
