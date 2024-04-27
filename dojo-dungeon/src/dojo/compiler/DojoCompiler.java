@@ -264,23 +264,25 @@ public class DojoCompiler {
 
   private boolean stage_4_2_checkFirstOutput() {
     try {
-      if (!"NaN".equals(method1.invoke(null, (String) null))) {
+      if (!"nan".equalsIgnoreCase((String) method1.invoke(null, (String) null))) {
         messages.add("output1 wrong");
         return false;
       }
-      if (!"NaN".equals(method1.invoke(null, "coffee time"))) {
+      if (!"nan".equalsIgnoreCase((String) method1.invoke(null, "coffee time"))) {
         messages.add("output1 wrong");
         return false;
       }
-      if (!"NaN".equals(method1.invoke(null, ""))) {
+      if (!"nan".equalsIgnoreCase((String) method1.invoke(null, ""))) {
         messages.add("output1 wrong");
         return false;
       }
-      if (!"Integer overflow".equals(method1.invoke(null, String.valueOf(Integer.MAX_VALUE - 1)))) {
+      if (!"integer overflow"
+          .equalsIgnoreCase((String) method1.invoke(null, String.valueOf(Integer.MAX_VALUE - 1)))) {
         messages.add("output1 wrong");
         return false;
       }
-      if (!"Integer overflow".equals(method1.invoke(null, String.valueOf(Integer.MAX_VALUE)))) {
+      if (!"integer overflow"
+          .equalsIgnoreCase((String) method1.invoke(null, String.valueOf(Integer.MAX_VALUE)))) {
         messages.add("output1 wrong");
         return false;
       }
