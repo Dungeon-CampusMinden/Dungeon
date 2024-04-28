@@ -12,7 +12,7 @@ public class FehlerhafteKlasse {
    *
    * <p>Wenn {@code in} {@code null} oder keine Zahl ist, soll "NaN" zurückgegeben werden.
    *
-   * <p>Wenn die Operation einen Integer-Overflow verursachen würde, soll "Integer overflow"
+   * <p>Wenn die Operation einen Integer-Overflow verursachen würde, soll "Integer Overflow"
    * zurückgegeben werden.
    *
    * @param in Eingabe, zu der 2 addiert werden soll
