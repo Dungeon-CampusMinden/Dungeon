@@ -10,9 +10,9 @@ public class FehlerhafteKlasse {
    * Diese Methode soll 2 zum Zahlenwert, der im Parameter {@code in} als String übergeben wird,
    * addieren und das Ergebnis wieder in einen String umwandeln und zurückgeben.
    *
-   * <p>Wenn {@code in} {@code null} oder keine Zahl ist, soll "nan" zurückgegeben werden.
+   * <p>Wenn {@code in} {@code null} oder keine Zahl ist, soll "NaN" zurückgegeben werden.
    *
-   * <p>Wenn die Operation einen Integer-Overflow verursachen würde, soll "integer overflow"
+   * <p>Wenn die Operation einen Integer-Overflow verursachen würde, soll "Integer Overflow"
    * zurückgegeben werden.
    *
    * @param in Eingabe, zu der 2 addiert werden soll
