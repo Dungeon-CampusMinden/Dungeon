@@ -110,21 +110,15 @@ public class Fragen_Lambda extends Room {
   private void toggleQuiz() {
     toggle = (toggle + 1) % 3;
     switch (toggle) {
-      case 0 -> {
-        question = singleChoice(); // Index 3 ist die richtige Antwort
-      }
-      case 1 -> {
-        question = multipleChoice(); // Index 0, 1, 2 sind die richtigen Antworten
-      }
-      case 2 -> {
-        question = multipleChoice2(); // Index 0, 1, 2, 4 sind die richtigen Antworten
-      }
+      case 0 -> question = singleChoice(); // Index 0 ist die richtige Antwort
+      case 1 -> question = multipleChoice(); // Index 0, 1, 2 sind die richtigen Antworten
+      case 2 -> question = multipleChoice2(); // Index 0, 1, 2, 4 sind die richtigen Antworten
     }
   }
 
   private QuestionAndAnswers singleChoice() {
     SingleChoice question = new SingleChoice("Was ist ein Lambda-Ausdruck in Java?");
-    Quiz.Content c1 = new Quiz.Content("Eine Methode, die ohne einen Namen definiert wird");
+    Quiz.Content c1 = new Quiz.Content("Eine Methode ohne Namen");
     Quiz.Content c2 = new Quiz.Content("Eine anonyme Klasse");
     Quiz.Content c3 = new Quiz.Content("Ein spezieller Datentyp");
     Quiz.Content c4 = new Quiz.Content("Ein Interface mit nur einer Methode");
@@ -132,7 +126,7 @@ public class Fragen_Lambda extends Room {
     question.addAnswer(c2);
     question.addAnswer(c3);
     question.addAnswer(c4);
-    return new QuestionAndAnswers(question, Set.of(c4));
+    return new QuestionAndAnswers(question, Set.of(c1));
   }
 
   private QuestionAndAnswers multipleChoice() {
