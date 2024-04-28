@@ -28,6 +28,7 @@ public class KeyboardConfig {
   /** WTF? . */
   public static final ConfigKey<Integer> USE_ITEM =
       new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Input.Keys.E));
+
   public static final ConfigKey<Integer> TRANSFER_ITEM =
       new ConfigKey<>(
           new String[] {"inventory", "transfer"}, new ConfigIntValue(Input.Buttons.RIGHT));
