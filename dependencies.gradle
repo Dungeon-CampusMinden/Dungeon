@@ -8,7 +8,6 @@ ext {
     junitVersion = '4.13.2'
     mockitoVersion = '5.11.0'
     antlrVersion = '4.13.1'
-    gsonVersion = '2.10.1'
 
     supportDependencies = [
         // LibGDX
@@ -19,9 +18,6 @@ ext {
         gdx_platform              : "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop",
         gdx_freetype_platform     : "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop",
         gdx_ai                    : "com.badlogicgames.gdx:gdx-ai:$aiVersion",
-
-        // Gson
-        gson                      : "com.google.code.gson:gson:$gsonVersion",
 
         // JUnit 4 and Mockito for testing
         junit                     : "junit:junit:$junitVersion",
