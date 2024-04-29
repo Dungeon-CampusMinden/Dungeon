@@ -1,18 +1,10 @@
-plugins {
-    id 'java-library'
-}
-
-
 dependencies {
-    api project(':dungeon')
+    implementation project(':dungeon')
 }
 
 
 sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
-
-sourceSets.test.java.srcDirs = ['test/']
-sourceSets.test.resources.srcDirs = ['test_resources/']
 
 processResources {
     from new File(project(':game').projectDir, '/assets')
@@ -21,8 +13,7 @@ processResources {
 }
 
 
-// start the dungeon (different configurations)
-tasks.register('runDojoStarter', JavaExec) {
+tasks.register('runDojoDungeon', JavaExec) {
     mainClass = 'starter.DojoStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
