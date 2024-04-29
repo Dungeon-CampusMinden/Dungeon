@@ -10,7 +10,7 @@ dependencies {
     // ANTLR version 4 for DSL Grammar
     antlr supportDependencies.antlr
 
-    // Testing dependencies:
+    // JUnit 4 and Mockito for testing
     testImplementation supportDependencies.junit
     testImplementation supportDependencies.mockito_core
 }
