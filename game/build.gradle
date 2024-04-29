@@ -13,9 +13,6 @@ dependencies {
     api supportDependencies.gdx_freetype_platform
     api supportDependencies.gdx_ai
 
-    // https://mvnrepository.com/artifact/com.google.code.gson/gson
-    api supportDependencies.gson
-
     // JUnit 4 and Mockito for testing
     testImplementation supportDependencies.junit
     testImplementation supportDependencies.mockito_core
