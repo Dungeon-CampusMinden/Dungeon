@@ -4,7 +4,7 @@ plugins {
 
 
 dependencies {
-    api project(':dungeon')
+    implementation project(':dungeon')
 }
 
 
