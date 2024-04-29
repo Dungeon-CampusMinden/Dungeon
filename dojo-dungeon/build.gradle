@@ -13,7 +13,7 @@ processResources {
 }
 
 
-tasks.register('runDojoStarter', JavaExec) {
+tasks.register('runDojoDungeon', JavaExec) {
     mainClass = 'starter.DojoStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
