@@ -45,4 +45,8 @@ public class ControlNode extends GroumNode {
   public ControlType controlType() {
     return controlType;
   }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }

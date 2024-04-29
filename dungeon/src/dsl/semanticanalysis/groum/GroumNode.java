@@ -1,5 +1,8 @@
 package dsl.semanticanalysis.groum;
 
+import dsl.parser.ast.AstVisitor;
+import dsl.semanticanalysis.symbol.Symbol;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,4 +94,20 @@ public abstract class GroumNode {
   // TODO: implement merging operations
 
   // TODO: attributes? (such as contained nodes in control structure-nodes, etc.)
+
+
+  public Symbol getDefinitionSymbol() {
+    if (this instanceof DefinitionAction definitionAction) {
+      return definitionAction.instanceSymbol();
+    } else if (this instanceof DefinitionByImportAction definitionByImportAction) {
+      return definitionByImportAction.instanceSymbol();
+    } else if (this instanceof ParameterInstantiationAction parameterInstantiationAction) {
+      return parameterInstantiationAction.parameterSymbol();
+    }
+    return Symbol.NULL;
+  }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }

@@ -19,4 +19,8 @@ public class FunctionCallAction extends ActionNode {
   public String getLabel() {
     return "<call '" + this.functionSymbol().getName() +"' ["+this.referencedInstanceId()+"]>";
   }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }

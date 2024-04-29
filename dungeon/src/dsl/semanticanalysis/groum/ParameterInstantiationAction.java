@@ -18,11 +18,19 @@ public class ParameterInstantiationAction extends ActionNode {
     return (IType) this.symbolReferences().get(instantiatedTypeIdx);
   }
 
+  public Symbol parameterSymbol() {
+    return this.symbolReferences().get(parameterSymbol);
+  }
+
   @Override
   public String getLabel() {
     return this.instantiatedType().toString()
         + ":<param_init ["
         + this.referencedInstanceId()
         + "]>";
+  }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
   }
 }

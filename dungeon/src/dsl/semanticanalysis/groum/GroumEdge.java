@@ -4,7 +4,8 @@ public class GroumEdge {
   public enum GroumEdgeType {
     none,
     temporal,
-    dataDependency
+    dataDependencyRead,
+    dataDependencyWrite
   }
 
   private final GroumNode start;

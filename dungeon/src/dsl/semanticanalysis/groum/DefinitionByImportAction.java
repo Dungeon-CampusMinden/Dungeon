@@ -42,4 +42,8 @@ public class DefinitionByImportAction extends ActionNode {
   public String getLabel() {
     return this.instancedType().toString() + ":<import [" + this.referencedInstanceId() + "]>";
   }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }

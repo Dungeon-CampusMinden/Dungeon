@@ -96,4 +96,8 @@ public abstract class ActionNode extends GroumNode {
   public String toString() {
     return this.getLabel();
   }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }

@@ -31,5 +31,9 @@ public class DefinitionAction extends ActionNode {
   public String getLabel() {
     return this.instancedType().toString() + ":<def [" + this.referencedInstanceId() + "]>";
   }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }
 

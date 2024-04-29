@@ -6,23 +6,22 @@ import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
-import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class TemporaryGroumBuilder implements AstVisitor<Groum> {
+public class TemporalGroumBuilder implements AstVisitor<Groum> {
   private SymbolTable symbolTable;
   private IEnvironment environment;
-  private HashMap<Symbol, Long> instanceMap = new HashMap<>();
+  private HashMap<Symbol, Long> instanceMap;
   private TypeInferrer inferrer;
 
-  public Groum walk(Node astNode, SymbolTable symbolTable, IEnvironment environment) {
+  public Groum walk(Node astNode, SymbolTable symbolTable, IEnvironment environment, HashMap<Symbol, Long> instanceMap) {
     this.symbolTable = symbolTable;
     this.environment = environment;
+    this.instanceMap = instanceMap;
     this.inferrer = new TypeInferrer(this.symbolTable, null);
 
     var groumNode = astNode.accept(this);
@@ -30,8 +29,13 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     this.symbolTable = null;
     this.environment = null;
     this.inferrer = null;
+    this.instanceMap = null;
 
     return groumNode;
+  }
+
+  public Groum walk(Node astNode, SymbolTable symbolTable, IEnvironment environment) {
+    return this.walk(astNode, symbolTable, environment, new HashMap<>());
   }
 
   private long createOrGetInstanceId(Symbol symbol) {
@@ -153,9 +157,8 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
       ExpressionAction expr = new ExpressionAction(rhsGroum.nodes, IndexGenerator.getIdx());
       Groum exprGroum = new Groum(expr);
 
-      // TODO: is this the correct place to add a data dependency?
       var intermediaryGroum =
-          rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
+          rhsGroum.mergeSequential(exprGroum);
       // exprGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
       mergedGroum = intermediaryGroum.mergeSequential(initGroum);
     } else {
@@ -622,7 +625,6 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
     var id = node.getLhs();
     var symbol = symbolTable.getSymbolsForAstNode(id).get(0);
 
-    // TODO: this does not take into account the data dependencies!!
     var assignmentAction = new DefinitionAction(symbol, createOrGetInstanceId(symbol));
     Groum assignmentGroum = new Groum(assignmentAction);
     Groum mergedGroum;
@@ -632,7 +634,7 @@ public class TemporaryGroumBuilder implements AstVisitor<Groum> {
       Groum exprGroum = new Groum(expr);
 
       var intermediaryGroum =
-          rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
+          rhsGroum.mergeSequential(exprGroum);
       // exprGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
       mergedGroum = intermediaryGroum.mergeSequential(assignmentGroum);
     } else {

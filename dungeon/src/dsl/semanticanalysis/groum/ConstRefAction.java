@@ -27,4 +27,8 @@ public class ConstRefAction extends ActionNode {
   public IType referencedType() {
     return (IType) this.symbolReferences().get(referencedTypeIdx);
   }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }

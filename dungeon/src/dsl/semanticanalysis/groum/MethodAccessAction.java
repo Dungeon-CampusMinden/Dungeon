@@ -35,4 +35,8 @@ public class MethodAccessAction extends ActionNode {
   public String getLabel() {
     return this.instanceDataType().getName() + ":<method access '" + this.methodSymbol().getName() + "' [" + this.referencedInstanceId()+"]>";
   }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }

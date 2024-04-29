@@ -26,4 +26,8 @@ public class ReferenceInGraphAction extends ActionNode {
   public String getLabel() {
     return this.variableType().getName() + ":<ref in graph [" + this.referencedInstanceId() + "]>";
   }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }

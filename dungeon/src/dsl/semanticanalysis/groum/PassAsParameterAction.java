@@ -13,4 +13,8 @@ public class PassAsParameterAction extends ExpressionAction {
   public String getLabel() {
     return "<pass as param [" + this.referencedInstanceId() + "]>";
   }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }

@@ -19,8 +19,11 @@ import task.tasktype.quizquestion.SingleChoice;
 
 import javax.naming.ldap.Control;
 import java.io.ByteArrayOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
@@ -69,7 +72,7 @@ public class TestGroum {
     var exprSymbol = symbolTable.getSymbolsForAstNode(expr).get(0);
     Assert.assertEquals(sumSymbol, exprSymbol);*/
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -94,7 +97,7 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -177,7 +180,7 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -228,7 +231,7 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -318,7 +321,7 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -342,7 +345,7 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new dsl.semanticanalysis.groum.TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -370,7 +373,31 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    var groum = builder.walk(ast, symbolTable, env);
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(groum);
+  }
+
+  @Test
+  public void singleMethodCall() {
+
+    String program =
+      """
+      fn test(entity ent, quest_item item) {
+        ent.inventory_component.add_item(item);
+      }
+      """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -419,7 +446,7 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -462,7 +489,7 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -488,7 +515,7 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -514,7 +541,7 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -539,7 +566,7 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -566,7 +593,7 @@ public class TestGroum {
     var env = result.environment;
     var fs = env.getFileScope(null);
 
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -593,7 +620,7 @@ public class TestGroum {
     var fs = env.getFileScope(null);
 
     // TODO: do this for all files!
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
@@ -642,9 +669,154 @@ public class TestGroum {
     var fs = env.getFileScope(null);
 
     // TODO: do this for all files!
-    TemporaryGroumBuilder builder = new TemporaryGroumBuilder();
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
     var groum = builder.walk(ast, symbolTable, env);
     GroumPrinter p = new GroumPrinter();
     String str = p.print(groum);
+  }
+
+  @Test
+  public void graphDataDependency() {
+
+    String program =
+      """
+      single_choice_task t1 {
+        description: "t1",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      single_choice_task t2 {
+        description: "t2",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      single_choice_task t3 {
+        description: "t3",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      single_choice_task t4 {
+        description: "t4",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      single_choice_task t5 {
+        description: "t5",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      single_choice_task t6 {
+        description: "t6",
+        answers: [ "test", "other test"],
+        correct_answer_index: 0
+      }
+
+      graph g {
+        t1 -> t2 [type=seq];
+        t3,t4 -> t5 [type=seq];
+        t6;
+      }
+      """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p = new GroumPrinter();
+    String str = p.print(temporalGroum);
+  }
+
+  @Test
+  public void simpleDataDependencies() {
+    String program =
+      """
+    fn add(int x, int y) -> int {
+      var sum = x + y;
+      var derp = y + sum;
+      return derp;
+    }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum);
+  }
+
+  @Test
+  public void loopDataDependency() {
+    String program =
+      """
+    fn add(int x, int y) {
+      while y {
+        y = x;
+      }
+
+      var other_y = y;
+      var sum = 2 + 4;
+      y = sum;
+    }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
+  public static void write(String content, String path) {
+    try {
+      FileWriter writer = new FileWriter(path);
+      writer.append(content);
+      writer.close();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

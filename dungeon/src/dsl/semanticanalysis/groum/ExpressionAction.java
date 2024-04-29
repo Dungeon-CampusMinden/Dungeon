@@ -25,4 +25,8 @@ public class ExpressionAction extends ActionNode {
     this.addChildren(childNodes);
     this.referencedInstanceId(expressionId);
   }
+
+  public <T> T accept(GroumVisitor<T> visitor) {
+    return visitor.visit(this);
+  }
 }
