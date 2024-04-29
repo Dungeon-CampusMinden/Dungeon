@@ -7,6 +7,15 @@ plugins {
 dependencies {
     api project(':game')
 
+    // LibGDX: expose this API to users because of core.level.elements.ILevel
+    api supportDependencies.gdx
+    api supportDependencies.gdx_platform
+    api supportDependencies.gdx_backend_lwjgl3
+    api supportDependencies.gdx_lwjgl3_glfw_awt_macos
+    api supportDependencies.gdx_ai
+    api supportDependencies.gdx_freetype
+    api supportDependencies.gdx_freetype_platform
+
     // ANTLR version 4 for DSL Grammar
     antlr supportDependencies.antlr
 
@@ -61,9 +70,10 @@ tasks.register('runRoomBasedDungeon', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+
 // create our Starter.jar
 tasks.register('buildStarterJar', Jar) {
-    dependsOn ':game:jar'
+    dependsOn ':game:build'
 
     manifest {
         attributes 'Main-Class': 'starter.Starter'
@@ -79,6 +89,7 @@ tasks.register('buildStarterJar', Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*module-info.class'
 }
+
 
 // some manual tests (wtf? this should be real tests! to be removed.)
 tasks.register('runCallbackTest', JavaExec) {

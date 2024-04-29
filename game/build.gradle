@@ -4,13 +4,11 @@ plugins {
 
 
 dependencies {
-    // LibGDX
+    // LibGDX: expose this API to users because of core.level.elements.ILevel
     api supportDependencies.gdx
-    api supportDependencies.gdx_freetype
+    api supportDependencies.gdx_platform
     api supportDependencies.gdx_backend_lwjgl3
     api supportDependencies.gdx_lwjgl3_glfw_awt_macos
-    api supportDependencies.gdx_platform
-    api supportDependencies.gdx_freetype_platform
     api supportDependencies.gdx_ai
 
     // JUnit 4 and Mockito for testing

@@ -12,12 +12,12 @@ ext {
     supportDependencies = [
         // LibGDX
         gdx                       : "com.badlogicgames.gdx:gdx:$gdxVersion",
-        gdx_freetype              : "com.badlogicgames.gdx:gdx-freetype:$gdxVersion",
+        gdx_platform              : "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop",
         gdx_backend_lwjgl3        : "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion",
         gdx_lwjgl3_glfw_awt_macos : "com.badlogicgames.gdx:gdx-lwjgl3-glfw-awt-macos:$gdxVersion",
-        gdx_platform              : "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop",
-        gdx_freetype_platform     : "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop",
         gdx_ai                    : "com.badlogicgames.gdx:gdx-ai:$aiVersion",
+        gdx_freetype              : "com.badlogicgames.gdx:gdx-freetype:$gdxVersion",
+        gdx_freetype_platform     : "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop",
 
         // JUnit 4 and Mockito for testing
         junit                     : "junit:junit:$junitVersion",
