@@ -13,7 +13,6 @@ processResources {
 }
 
 
-// start the dungeon (different configurations)
 tasks.register('runDojoStarter', JavaExec) {
     mainClass = 'starter.DojoStarter'
     classpath = sourceSets.main.runtimeClasspath
