@@ -27,7 +27,9 @@ public class ParameterInstantiationAction extends ActionNode {
     return this.instantiatedType().toString()
         + ":<param_init ["
         + this.referencedInstanceId()
-        + "]>";
+        + "]>"
+        + "(name: '" + this.parameterSymbol().getName() + "')"
+      ;
   }
 
   public <T> T accept(GroumVisitor<T> visitor) {

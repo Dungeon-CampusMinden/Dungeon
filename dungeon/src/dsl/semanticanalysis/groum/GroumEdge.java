@@ -5,7 +5,7 @@ public class GroumEdge {
     none,
     temporal,
     dataDependencyRead,
-    dataDependencyWrite
+    dataDependencyRedefinition
   }
 
   private final GroumNode start;

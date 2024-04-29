@@ -2,7 +2,9 @@ package dsl.semanticanalysis.groum;
 
 import dsl.semanticanalysis.symbol.Symbol;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class GroumScope {
 public static GroumScope NONE = new GroumScope(GroumNode.NONE);
@@ -21,7 +23,7 @@ public static GroumScope NONE = new GroumScope(GroumNode.NONE);
   //  ...
   //  is this necessary? could we just go the easy route and just calculate data dependencies without
   //  regard of the type of involvement?? like the original paper..
-  private HashMap<Long, GroumNode> variableDefinitions = new HashMap<>();
+  private HashMap<Long, List<GroumNode>> variableDefinitions = new HashMap<>();
   private GroumScope parent;
   private GroumNode associatedGroumNode;
 
@@ -40,35 +42,72 @@ public static GroumScope NONE = new GroumScope(GroumNode.NONE);
     return this.associatedGroumNode;
   }
 
-  public GroumNode getDefinition(Long instanceId) {
+  public List<GroumNode> getDefinitions(Long instanceId) {
     if (this.variableDefinitions.containsKey(instanceId)) {
       return this.variableDefinitions.get(instanceId);
     } else {
       if (this.parent != NONE) {
-        return this.parent.getDefinition(instanceId);
+        return this.parent.getDefinitions(instanceId);
       } else {
-        return GroumNode.NONE;
+        return new ArrayList<>();
       }
     }
   }
 
   public Symbol getDefinitionSymbol(Long instanceId) {
-    GroumNode definitionNode = this.getDefinition(instanceId);
-    return definitionNode.getDefinitionSymbol();
-  }
-
-
-  public void addDefinition(Long instanceId, GroumNode node) {
-    this.addDefinition(instanceId, node, false);
-  }
-
-  public void addDefinition(Long instanceId, GroumNode node, boolean overwrite) {
-    if (this.variableDefinitions.containsKey(instanceId)) {
-      if (overwrite) {
-        this.variableDefinitions.put(instanceId, node);
-      }
+    var list = this.getDefinitions(instanceId);
+    if (list.isEmpty()) {
+      return Symbol.NULL;
     } else {
-      this.variableDefinitions.put(instanceId, node);
+      GroumNode definitionNode = list.get(0);
+      return definitionNode.getDefinitionSymbol();
     }
+  }
+
+  // this may be just called from propagation...
+  private void addDefinition(Long instanceId, GroumNode node) {
+    if (!this.variableDefinitions.containsKey(instanceId)) {
+      this.variableDefinitions.put(instanceId, new ArrayList<>());
+    }
+
+    var list = this.variableDefinitions.get(instanceId);
+    list.add(node);
+  }
+
+  protected void propagateDefinitionToParents(Long instanceId, GroumNode node) {
+    if (this == NONE || this.parent == NONE) {
+      return;
+    }
+
+    var parentsList = this.parent.getDefinitions(instanceId);
+    if (!parentsList.isEmpty()) {
+      this.parent.addDefinitionFromPropagation(instanceId, node);
+    }
+  }
+
+  protected void addDefinitionFromPropagation(Long instanceId, GroumNode node) {
+    if (this == NONE) {
+      return;
+    }
+
+    if (this.variableDefinitions.containsKey(instanceId) && !this.variableDefinitions.get(instanceId).isEmpty()) {
+      this.addDefinition(instanceId, node);
+    } else {
+      if (this.parent != GroumScope.NONE) {
+        this.parent.addDefinitionFromPropagation(instanceId, node);
+      }
+    }
+  }
+
+  public void createNewDefinition(Long instanceId, GroumNode node) {
+    if (!this.variableDefinitions.containsKey(instanceId)) {
+      this.variableDefinitions.put(instanceId, new ArrayList<>());
+    }
+
+    var list = this.variableDefinitions.get(instanceId);
+    list.clear();
+    list.add(node);
+
+    propagateDefinitionToParents(instanceId, node);
   }
 }

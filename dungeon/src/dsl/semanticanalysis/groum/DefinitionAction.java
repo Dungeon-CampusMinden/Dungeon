@@ -29,7 +29,8 @@ public class DefinitionAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return this.instancedType().toString() + ":<def [" + this.referencedInstanceId() + "]>";
+    return this.instancedType().toString() + ":<def [" + this.referencedInstanceId() + "]>"
+    + "(name: '" + this.instanceSymbol().getName() + "')";
   }
 
   public <T> T accept(GroumVisitor<T> visitor) {

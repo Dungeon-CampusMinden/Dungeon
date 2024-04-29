@@ -66,7 +66,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           //  if a definition is file-global
           if (actionNode.parent() == GroumNode.NONE) {
             this.defNodes.put(actionNode.referencedInstanceId(), actionNode);
-            this.currentScope().addDefinition(actionNode.referencedInstanceId(), actionNode);
+            this.currentScope().createNewDefinition(actionNode.referencedInstanceId(), actionNode);
           }
         }
       }
@@ -186,8 +186,19 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       }
     }
 
+    var existingDefinitions = this.currentScope().getDefinitions(node.referencedInstanceId());
+    if (!existingDefinitions.isEmpty()) {
+      // there is a definition, which is replaced by this new definition
+      // create redefinition edge
+      existingDefinitions.forEach(v -> {
+        GroumEdge dataEdge = new GroumEdge(v, node, GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+        this.groum.addEdge(dataEdge);
+      });
+    }
+
     // create new definition in scope
-    this.currentScope().addDefinition(node.referencedInstanceId(), node);
+    this.currentScope().createNewDefinition(node.referencedInstanceId(), node);
+
     // add write involved variable
     var instanceSymbol = node.instanceSymbol();
     var involvedVariable = this.addInvolvedVariable(node, instanceSymbol, InvolvedVariable.TypeOfInvolvement.write, node);
@@ -250,7 +261,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     //  this node to a pass as param node..
 
     var instanceId = node.referencedInstanceId();
-    this.currentScope().addDefinition(instanceId, node);
+    this.currentScope().createNewDefinition(instanceId, node);
 
     var involvedVariable = this.addInvolvedVariable(node, node.parameterSymbol(), InvolvedVariable.TypeOfInvolvement.write, node);
 
@@ -288,15 +299,19 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     var instanceId = node.referencedInstanceId();
 
     // search instanceId in current definitions
-    var definitionNode = this.currentScope().getDefinition(instanceId);
-    var definitionSymbol = definitionNode.getDefinitionSymbol();
+    var definitionNodes = this.currentScope().getDefinitions(instanceId);
+    var definitionSymbol = this.currentScope().getDefinitionSymbol(instanceId);
 
-    var involvedVariable = this.addInvolvedVariable(node, definitionSymbol, InvolvedVariable.TypeOfInvolvement.read, definitionNode);
+    ArrayList<InvolvedVariable> involvedVariables = new ArrayList<>();
+    for (var definitionNode : definitionNodes) {
+      var involvedVariable = this.addInvolvedVariable(node, definitionSymbol, InvolvedVariable.TypeOfInvolvement.read, definitionNode);
 
-    var dataDependency = new GroumEdge(definitionNode, node, GroumEdge.GroumEdgeType.dataDependencyRead);
-    this.groum.addEdge(dataDependency);
+      var dataDependency = new GroumEdge(definitionNode, node, GroumEdge.GroumEdgeType.dataDependencyRead);
+      this.groum.addEdge(dataDependency);
+      involvedVariables.add(involvedVariable);
+    }
 
-    return List.of(involvedVariable);
+    return involvedVariables;
   }
 
   public InvolvedVariable addInvolvedVariable(GroumNode node, Symbol variableSymbol, InvolvedVariable.TypeOfInvolvement type, GroumNode definitionNode) {

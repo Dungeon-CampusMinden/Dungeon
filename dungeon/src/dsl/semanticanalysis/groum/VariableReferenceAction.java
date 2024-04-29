@@ -25,7 +25,7 @@ public class VariableReferenceAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return this.variableType().getName() + ":<ref [" + this.referencedInstanceId() + "]>";
+    return this.variableType().getName() + ":<ref [" + this.referencedInstanceId() + "]> (name: '" + this.variableSymbol().getName() + "')";
   }
 
   public <T> T accept(GroumVisitor<T> visitor) {
