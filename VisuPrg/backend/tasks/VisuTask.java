@@ -1,14 +1,15 @@
 package tasks;
 
-public class VisuTask implements IVisuTask{
-    private final String message;
+import systems.VisualProgrammingSystem;
 
-    public VisuTask(String message) {
-        this.message = message;
-    }
+public class VisuTask {
+  private final String message;
+  protected final VisualProgrammingSystem visualProgrammingSystem;
 
-    @Override
-    public void execute() {
+  public VisuTask(String message, VisualProgrammingSystem visualProgrammingSystem) {
+    this.message = message;
+    this.visualProgrammingSystem = visualProgrammingSystem;
+  }
 
-    }
+  public void execute() {}
 }

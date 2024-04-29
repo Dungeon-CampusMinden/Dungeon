@@ -8,27 +8,31 @@ import systems.VisualProgrammingSystem;
 
 public class CreateVariable extends VisuTask {
 
-    final String variableName;
-    final VisualProgrammingSystem visualProgrammingSystem;
-    public CreateVariable(String message, VisualProgrammingSystem visualProgrammingSystem, String variableName) {
-        super(message);
-        this.variableName = variableName;
-        this.visualProgrammingSystem = visualProgrammingSystem;
+  final String variableName;
+  final int value;
+
+  public CreateVariable(
+      String message,
+      VisualProgrammingSystem visualProgrammingSystem,
+      String variableName,
+      int value) {
+    super(message, visualProgrammingSystem);
+    this.variableName = variableName;
+    this.value = value;
+  }
+
+  @Override
+  public void execute() {
+    // todo - set value if given (is this necessary?)
+    Entity chest = null;
+    try {
+      // todo - dont make position random
+      chest = EntityFactory.newChestDummy(PositionComponent.ILLEGAL_POSITION, variableName, value);
+      Game.add(chest);
+    } catch (Exception e) {
+      new RuntimeException(e);
     }
-
-
-    @Override
-    public void execute() {
-        // todo - set value if given (is this necessary?)
-        Entity chest = null;
-        try{
-            // todo - dont make position random
-            chest = EntityFactory.newChestDummy( PositionComponent.ILLEGAL_POSITION, variableName, 0);
-            Game.add(chest);
-        } catch(Exception e){
-
-        }
-        visualProgrammingSystem.addVariable(chest);
-        visualProgrammingSystem.setTaskDone();
-    }
+    visualProgrammingSystem.addVariable(chest);
+    visualProgrammingSystem.setTaskDone();
+  }
 }

@@ -9,7 +9,6 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.path.IPath;
-
 import java.io.IOException;
 import java.util.Set;
 
@@ -38,7 +37,18 @@ public final class EntityFactory {
     return HeroFactory.newHero();
   }
 
-  public static Entity newHeroDummy() throws IOException{
+  /**
+   * Get an Entity that is used to visualize Blockly-programs.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   * <p>It will have a {@link * CameraComponent}, {@link core.components.PlayerComponent}. {@link
+   * PositionComponent}, {@link * VelocityComponent} and {@link core.components.DrawComponent}.
+   *
+   * @return A new Entity.
+   * @throws IOException if the animation could not been loaded.
+   */
+  public static Entity newHeroDummy() throws IOException {
     return HeroFactory.newHeroDummy();
   }
 
@@ -98,8 +108,23 @@ public final class EntityFactory {
     return MiscFactory.newChest();
   }
 
-  public static Entity newChestDummy(final Point position, String variableName, int value) throws IOException{
-      return MiscFactory.newChestDummy(position, variableName, value);
+  /**
+   * Get an Entity that is used to visualize variables in Blockly-programs.
+   *
+   * <p>The Entity is not added to the game yet. *
+   *
+   * <p>It will have a {@link components.ValueComponent}, {@link PositionComponent} and {@link
+   * core.components.DrawComponent}.
+   *
+   * @param position Position of the chest.
+   * @param variableName Name of variable that should be visualized through the chest.
+   * @param value Value of the given variable.
+   * @return A new Entity.
+   * @throws IOException if the animation could not been loaded.
+   */
+  public static Entity newChestDummy(final Point position, String variableName, int value)
+      throws IOException {
+    return MiscFactory.newChestDummy(position, variableName, value);
   }
 
   /**

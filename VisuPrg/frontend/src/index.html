@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Blockprogrammierung</title>
+  </head>
+  <body>
+    <h1>Blockprogrammierung</h1>
+
+    <div id="buttons">
+        <button type="button" id="loadBtn">Load</button>
+        <button type="button" id="stepBtn">Step</button>
+        <button type="button" id="resetBtn">Reset</button>
+    </div>
+
+    <div id="blocklyDiv" style="height: 720px; width: 1280px;"></div>
+
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script src="./acorn.js"></script>
+    <script src="./interpreter.js"></script>
+
+    <script type='text/javascript' src="./main.js"></script>
+
+  </body>
+</html>

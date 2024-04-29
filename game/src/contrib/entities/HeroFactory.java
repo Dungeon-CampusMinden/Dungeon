@@ -247,15 +247,26 @@ public final class HeroFactory {
     return hero;
   }
 
-    public static Entity newHeroDummy() throws IOException {
-        Entity hero = new Entity("hero");
-        CameraComponent cc = new CameraComponent();
-        hero.add(cc);
-        PositionComponent poc = new PositionComponent(PositionComponent.ILLEGAL_POSITION);
-        hero.add(poc);
-        hero.add(new DrawComponent(HERO_FILE_PATH));
-        hero.add(new PlayerComponent());
-        hero.add(new VelocityComponent(1, 1));
-        return hero;
-    }
+  /**
+   * Get an Entity that is used to visualize Blockly-programs.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   * <p>It will have a {@link * CameraComponent}, {@link core.components.PlayerComponent}. {@link
+   * PositionComponent}, {@link * VelocityComponent} and {@link core.components.DrawComponent}.
+   *
+   * @return A new Entity.
+   * @throws IOException if the animation could not been loaded.
+   */
+  public static Entity newHeroDummy() throws IOException {
+    Entity hero = new Entity("hero");
+    CameraComponent cc = new CameraComponent();
+    hero.add(cc);
+    PositionComponent poc = new PositionComponent(PositionComponent.ILLEGAL_POSITION);
+    hero.add(poc);
+    hero.add(new DrawComponent(HERO_FILE_PATH));
+    hero.add(new PlayerComponent());
+    hero.add(new VelocityComponent(1, 1));
+    return hero;
+  }
 }

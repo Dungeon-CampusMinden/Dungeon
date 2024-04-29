@@ -17,7 +17,6 @@ import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.IOException;
 import java.util.Random;
 import java.util.Set;
@@ -155,8 +154,23 @@ public final class MiscFactory {
     return chest;
   }
 
-  // Todo - Add Variables/Chest that can contain a string
-  public static Entity newChestDummy(final Point position, String variableName, int value) throws IOException{
+  // Todo - Add Variables/Chest for other data types
+  /**
+   * Get an Entity that is used to visualize variables in Blockly-programs.
+   *
+   * <p>The Entity is not added to the game yet. *
+   *
+   * <p>It will have a {@link components.ValueComponent}, {@link PositionComponent} and {@link
+   * core.components.DrawComponent}.
+   *
+   * @param position Position of the chest.
+   * @param variableName Name of variable that should be visualized through the chest.
+   * @param value Value of the given variable.
+   * @return A new Entity.
+   * @throws IOException if the animation could not been loaded.
+   */
+  public static Entity newChestDummy(final Point position, String variableName, int value)
+      throws IOException {
     Entity chest = new Entity(variableName);
     chest.add(new ValueComponent(value));
     chest.add(new PositionComponent(position));
