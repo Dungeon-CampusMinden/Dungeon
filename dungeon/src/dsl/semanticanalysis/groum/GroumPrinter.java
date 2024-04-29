@@ -13,7 +13,9 @@ public class GroumPrinter {
   private static final String actionShape = "shape=ellipse";
   private static final String actionNodeDeclarationFmt = "%s [label=\"%s\"" + actionShape + "]";
   private static final String controlNodeDeclarationFmt = "%s [label=\"%s\"" + controlShape + "]";
-  private static final String edgeFmt = "%s -> %s [label=%s]";
+  private static final String invisibleEdgeStyle = "invis";
+  private static final String normaleEdgeStyle = "solid";
+  private static final String edgeFmt = "%s -> %s [label=%s, style=%s]";
   private static final String nodeWithChildrenStartFmt = "subgraph cluster_%s {\n label=\"%s\";\n";
   private static final String nodeWithChildrenEnd = "}";
 
@@ -22,10 +24,16 @@ public class GroumPrinter {
   private final HashSet<GroumNode> alreadyPrintedNodes = new HashSet<>();
   private long actionNodeCounter = 0;
   private long controlNodeCounter = 0;
+  private boolean invisibleTemporalEdge = false;
 
   private StringBuilder builder;
 
   public String print(Groum groum) {
+    return this.print(groum, false);
+  }
+
+  public String print(Groum groum, boolean invisibleTemporalEdges) {
+    this.invisibleTemporalEdge = invisibleTemporalEdges;
     builder = new StringBuilder();
     builder.append(preamble).append("\n");
 
@@ -177,8 +185,13 @@ public class GroumPrinter {
     var end = edge.end();
     String endId = this.idMap.get(end);
 
-    String edgeType = edge.edgeType().toString();
-    String edgeString = String.format(edgeFmt, startId, endId, edgeType);
+    String edgeTypeStr = edge.edgeType().toString();
+    var edgeType = edge.edgeType();
+    String edgeStyle = normaleEdgeStyle;
+    if (edgeType == GroumEdge.GroumEdgeType.temporal && this.invisibleTemporalEdge) {
+      edgeStyle = invisibleEdgeStyle;
+    }
+    String edgeString = String.format(edgeFmt, startId, endId, edgeTypeStr, edgeStyle);
 
     // if start and end both are in expressionActionMap -> put edge in corresponding expression
     // subgraph
