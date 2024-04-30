@@ -171,21 +171,21 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   @Override
   public Groum visit(DecNumNode node) {
     var type = node.accept(this.inferrer);
-    var refAction = new ConstRefAction((Symbol) type);
+    var refAction = new ConstRefAction((Symbol) type, node.getValue());
     return new Groum(refAction);
   }
 
   @Override
   public Groum visit(NumNode node) {
     var type = node.accept(this.inferrer);
-    var refAction = new ConstRefAction((Symbol) type);
+    var refAction = new ConstRefAction((Symbol) type, node.getValue());
     return new Groum(refAction);
   }
 
   @Override
   public Groum visit(StringNode node) {
     var type = node.accept(this.inferrer);
-    var refAction = new ConstRefAction((Symbol) type);
+    var refAction = new ConstRefAction((Symbol) type, node.getValue());
     return new Groum(refAction);
   }
 
@@ -489,6 +489,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     for (var stmtGroum : stmtGroums) {
       blockAction.addChildren(stmtGroum.nodes);
     }
+
     Groum blockGroum = new Groum(blockAction);
     for (var groum : stmtGroums) {
       // TODO: add the nodes as children to calculate scope?

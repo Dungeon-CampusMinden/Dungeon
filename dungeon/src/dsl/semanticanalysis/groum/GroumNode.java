@@ -1,6 +1,5 @@
 package dsl.semanticanalysis.groum;
 
-import dsl.parser.ast.AstVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 
 import java.util.ArrayList;
@@ -46,6 +45,29 @@ public abstract class GroumNode {
   // only relevant, if contained in a larger Scope
   private GroumNode parent = GroumNode.NONE;
   private ArrayList<GroumNode> children;
+
+  private long processedCounter = -1;
+
+  public void setProcessedCounter(long counter) {
+    if (this.processedCounter == -1) {
+      this.processedCounter = counter;
+    }
+  }
+
+  public long processedCounter() {
+    return this.processedCounter;
+  }
+
+  public boolean hasAncestorLikeParentOf(GroumNode other) {
+    var myParent = this.parent;
+    while (myParent != GroumNode.NONE) {
+      myParent = myParent.parent;
+      if (myParent == other.parent) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   public void addChildren(List<GroumNode> nodes) {
     var nodesButThis = nodes.stream().filter(c -> c != this).toList();

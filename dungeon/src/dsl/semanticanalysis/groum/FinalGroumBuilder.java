@@ -21,10 +21,13 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   private TypeInferrer inferrer;
   private Stack<GroumScope> groumScopeStack = new Stack<>();
   private HashMap<GroumNode, List<InvolvedVariable>> involvedVariables = new HashMap<>();
-  private ArrayDeque<GroumNode> nodesToProcess = new ArrayDeque<>();
   private Groum groum;
   private HashSet<GroumNode> processedNodes = new HashSet<>();
-  private HashMap<ControlNode, GroumScope> controlScopes = new HashMap<>();
+  private HashMap<GroumNode, GroumScope> scopesForNodes = new HashMap<>();
+  private long processedCounter = 0;
+
+  // TODO: need other data structure to handle this..
+  private ArrayDeque<GroumNode> nodesToProcess = new ArrayDeque<>();
 
   public Groum finalize(Groum groum, HashMap<Symbol, Long> instanceMap) {
     // TODO: do we really need the instance map here? we won't define new actions
@@ -66,6 +69,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           //  if a definition is file-global
           if (actionNode.parent() == GroumNode.NONE) {
             this.defNodes.put(actionNode.referencedInstanceId(), actionNode);
+            // TODO: FILESCOPE
             this.currentScope().createNewDefinition(actionNode.referencedInstanceId(), actionNode);
           }
         }
@@ -89,6 +93,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
     // process all global definitions
     processedNodes.clear();
+    processedCounter = 0;
     for (var defNode : this.defNodes.values()) {
       // create new scope
       var defScope = new GroumScope(this.currentScope(), defNode);
@@ -99,27 +104,56 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       nodesToProcess.addAll(defNodesSourceNodes);
 
       while (!nodesToProcess.isEmpty()) {
-        GroumNode nodeToProcess = nodesToProcess.pop();
-        if (processedNodes.contains(nodeToProcess)) {
-          // skip
+        GroumNode currentNode = nodesToProcess.pop();
+        if (processedNodes.contains(currentNode)) {
+          // skip already processed node
           continue;
         }
 
         // push correct scope
         boolean pushedScope = false;
-        var parent = nodeToProcess.parent();
-        if (parent instanceof ControlNode controlNode && controlNode.controlType() != ControlNode.ControlType.returnStmt) {
-          if (this.controlScopes.containsKey(parent)) {
-            this.groumScopeStack.push(this.controlScopes.get(parent));
-            pushedScope = true;
-          }
+        var parent = currentNode.parent();
+
+        // get next upper parent, which is in controlScopes
+        while (parent != GroumNode.NONE && !this.scopesForNodes.containsKey(parent)) {
+          parent = parent.parent();
         }
 
-        nodeToProcess.accept(this);
-        // add all following nodes to nodestoprocess
-        nodesToProcess.addAll(nodeToProcess.outgoing().stream().map(GroumEdge::end).toList());
-        processedNodes.add(nodeToProcess);
+        // get parents groum scope
+        if (parent instanceof ControlNode controlNode && controlNode.controlType() != ControlNode.ControlType.returnStmt) {
+          if (controlNode.controlType() != ControlNode.ControlType.returnStmt) {
+            if (this.scopesForNodes.containsKey(parent)) {
+              this.groumScopeStack.push(this.scopesForNodes.get(parent));
+              pushedScope = true;
+            }
+          }
+        } /*else {
+          if (this.scopesForNodes.containsKey(parent)) {
+            this.groumScopeStack.push(this.scopesForNodes.get(parent));
+            pushedScope = true;
+          }
+        }*/
 
+        // visit node
+        currentNode.accept(this);
+
+        // set processed counter idx
+        this.processedCounter++;
+        currentNode.setProcessedCounter(this.processedCounter);
+
+        // add all following nodes to nodestoprocess
+        if (!currentNode.children().isEmpty()) {
+          // If the current node to process has children, add them first!
+          var currentNodeChildren = currentNode.children();
+          currentNodeChildren.reversed().forEach(nodesToProcess::addFirst);
+        }
+        // add following children
+        nodesToProcess.addAll(currentNode.outgoing().stream().filter(e -> e.edgeType().equals(GroumEdge.GroumEdgeType.temporal)).map(GroumEdge::end).toList());
+
+        // mark node as processed
+        processedNodes.add(currentNode);
+
+        // restore scope stack
         if (pushedScope) {
           this.groumScopeStack.pop();
         }
@@ -136,20 +170,41 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
   @Override
   public List<InvolvedVariable> visit(ControlNode node) {
-
+    GroumScope scope;
     switch (node.controlType()) {
+      case ifElseStmt:
+        // we never expect to visit the same node twice
+        if(!this.scopesForNodes.containsKey(node)) {
+          // new scope
+          scope = new GroumScope(this.currentScope(),node);
+          this.scopesForNodes.put(node, scope);
+
+          // get if node
+          var ifNode = node.outgoing().get(0).end();
+          var ifScope = new GroumScope(scope, ifNode);
+          this.scopesForNodes.put(ifNode, ifScope);
+
+          // get else node
+          var elseNode = node.outgoing().get(1).end();
+          var elseScope = new GroumScope(scope, elseNode);
+          this.scopesForNodes.put(elseNode, elseScope);
+
+          // add conditional branch to current scope
+          this.currentScope().setIfElseScopes(ifScope, elseScope);
+        }
+        break;
       case whileLoop:
       case forLoop:
       case countingForLoop:
       case ifStmt:
-      case ifElseStmt:
       case elseStmt:
       case block:
         // we never expect to visit the same node twice
-        assert !this.controlScopes.containsKey(node);
-        // new scope
-        GroumScope scope = new GroumScope(this.currentScope(),node);
-        this.controlScopes.put(node, scope);
+        if (!this.scopesForNodes.containsKey(node)){
+          // new scope
+          scope = new GroumScope(this.currentScope(),node);
+          this.scopesForNodes.put(node, scope);
+        }
         break;
       case returnStmt:
         // TODO
@@ -168,6 +223,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
   @Override
   public List<InvolvedVariable> visit(DefinitionAction node) {
+
     // all involved variables for the expression will already be calculated
     // does this node reference an expression on incoming edge?
     if (node.incoming().size() == 1) {
@@ -188,11 +244,21 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
     var existingDefinitions = this.currentScope().getDefinitions(node.referencedInstanceId());
     if (!existingDefinitions.isEmpty()) {
-      // there is a definition, which is replaced by this new definition
-      // create redefinition edge
       existingDefinitions.forEach(v -> {
-        GroumEdge dataEdge = new GroumEdge(v, node, GroumEdge.GroumEdgeType.dataDependencyRedefinition);
-        this.groum.addEdge(dataEdge);
+        // it is possible, that the current at this point contains redefinitions of the same variable from other
+        // execution paths (from other groum scopes)
+        // these definitions need to be filtered out, because the redefinitions are localized to their respective
+        // scope
+        // in order to filter them out, we check, if the current node lies in the same heritage (as an ancestor, which
+        // is equal to the parent of v), which is equal to checking for a common parent scope
+        // TODO: this does not work correctly for its intent...this will block definitions from
+        //  conditional branches to be redefined..
+        //if (node.hasAncestorLikeParentOf(v)) {
+          // there is a definition, which is replaced by this new definition
+          // create redefinition edge
+          GroumEdge dataEdge = new GroumEdge(v, node, GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+          this.groum.addEdge(dataEdge);
+        //}
       });
     }
 
@@ -298,9 +364,17 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     // get instance id
     var instanceId = node.referencedInstanceId();
 
+    var definitionSymbol = this.currentScope().getDefinitionSymbol(instanceId);
+
+    if (definitionSymbol.getName().contains("y")) {
+      boolean t = true;
+      /*if (node.incoming().size() == 1 && node.incoming().get(0).start() instanceof PassAsParameterAction) {
+        boolean b = true;
+      }*/
+    }
+
     // search instanceId in current definitions
     var definitionNodes = this.currentScope().getDefinitions(instanceId);
-    var definitionSymbol = this.currentScope().getDefinitionSymbol(instanceId);
 
     ArrayList<InvolvedVariable> involvedVariables = new ArrayList<>();
     for (var definitionNode : definitionNodes) {

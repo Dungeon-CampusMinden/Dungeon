@@ -129,7 +129,8 @@ public class GroumPrinter {
     }
 
     String nodeId = getOrCreateIdAction(node);
-    String nodeString = String.format(actionNodeDeclarationFmt, nodeId, node.toString());
+    String nodeContent = node.toString() + (node.processedCounter()!=-1 ? " proc idx: " + node.processedCounter() : "");
+    String nodeString = String.format(actionNodeDeclarationFmt, nodeId, nodeContent);
 
     if (actionsWithChildren.containsKey(node)) {
       var expressionNodeStringBuilder = actionsWithChildren.get(node);
@@ -157,7 +158,8 @@ public class GroumPrinter {
       return;
     }
     String nodeId = getOrCreateIdControl(node);
-    String nodeString = String.format(controlNodeDeclarationFmt, nodeId, node.toString());
+    String nodeContent = node.toString() + (node.processedCounter()!=-1 ? " proc idx: " +node.processedCounter() : "");
+    String nodeString = String.format(controlNodeDeclarationFmt, nodeId, nodeContent);
 
     if (actionsWithChildren.containsKey(node)) {
       var expressionNodeStringBuilder = actionsWithChildren.get(node);
