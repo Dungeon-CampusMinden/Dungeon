@@ -19,9 +19,24 @@ import task.reporting.GradingFunctions;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
 
+/** Typeadapter for creation of {@link AssignTask} instances via dsl. */
 public class DSLAssignTask {
+  /** The empty element name. */
   public static final String EMPTY_ELEMENT_NAME = AssignTask.EMPTY_ELEMENT_NAME;
 
+  /**
+   * WTF? .
+   *
+   * @param name foo
+   * @param description foo
+   * @param points foo
+   * @param pointsToPass foo
+   * @param solution foo
+   * @param explanation foo
+   * @param gradingFunction foo
+   * @param scenarioBuilder foo
+   * @return foo
+   */
   @DSLTypeAdapter(name = "assign_task")
   public static AssignTask buildAssignTask(
       @DSLTypeNameMember String name,
@@ -120,11 +135,12 @@ public class DSLAssignTask {
 
   /**
    * {@link IDSLExtensionMethod} to get the stored {@link TaskContent} of a {@link AssignTask}
-   * instance
+   * instance.
    */
   @DSLExtensionMethod(name = "get_solution", extendedType = AssignTask.class)
   public static class GetSolutionMethod
       implements IDSLExtensionMethod<AssignTask, Map<Element, Set<Element>>> {
+    /** Get the stored {@link TaskContent} of a {@link AssignTask} instance. */
     public static GetSolutionMethod instance = new GetSolutionMethod();
 
     @Override
@@ -139,9 +155,10 @@ public class DSLAssignTask {
     }
   }
 
-  /** {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance */
+  /** {@link IDSLExtensionMethod} to set the scenario text in a single choice task instance. */
   @DSLExtensionMethod(name = "set_scenario_text", extendedType = AssignTask.class)
   public static class SetScenarioText implements IDSLExtensionMethod<AssignTask, Void> {
+    /** Set the scenario text in a single choice task instance. */
     public static DSLAssignTask.SetScenarioText instance = new DSLAssignTask.SetScenarioText();
 
     @Override
@@ -162,6 +179,7 @@ public class DSLAssignTask {
   @DSLExtensionMethod(name = "set_grading_function", extendedType = AssignTask.class)
   public static class AssignTaskSetGradingFunction
       implements IDSLExtensionMethod<AssignTask, Void> {
+    /** Set the grading function of a {@link AssignTask} instance. */
     public static DSLAssignTask.AssignTaskSetGradingFunction instance =
         new DSLAssignTask.AssignTaskSetGradingFunction();
 
@@ -228,6 +246,7 @@ public class DSLAssignTask {
   @DSLExtensionMethod(name = "set_answer_picker_function", extendedType = AssignTask.class)
   public static class AssignTaskSetAnswerPickerFunction
       implements IDSLExtensionMethod<AssignTask, Void> {
+    /** The {@link AssignTaskSetAnswerPickerFunction} instance. */
     public static DSLAssignTask.AssignTaskSetAnswerPickerFunction instance =
         new DSLAssignTask.AssignTaskSetAnswerPickerFunction();
 

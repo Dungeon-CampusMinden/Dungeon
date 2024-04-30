@@ -9,8 +9,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import task.Task;
 
+/** A test class for the Place class. */
 public class PlaceTest {
 
+  /** A method to test the tokenCount functionality. */
   @Test
   public void placeToken() {
     Place place = new Place();
@@ -21,6 +23,7 @@ public class PlaceTest {
     assertEquals(2, place.tokenCount());
   }
 
+  /** A method to test the removeToken functionality. */
   @Test
   public void removeToken() {
     Place place = new Place();
@@ -35,6 +38,7 @@ public class PlaceTest {
     assertEquals("Token-count should not be negative", 0, place.tokenCount());
   }
 
+  /** WTF? . */
   @Test
   public void changeStateOnTokenAdd() {
     Task taskA = new DummyTask();
@@ -51,6 +55,7 @@ public class PlaceTest {
     assertEquals(changeBTo, taskB.state());
   }
 
+  /** Observe and notify function for testing task state changes in a place. */
   @Test
   public void observe_and_notify() {
     Task taskA = new DummyTask();
@@ -69,6 +74,7 @@ public class PlaceTest {
     assertEquals(2, place.tokenCount());
   }
 
+  /** WTF? . */
   @Test
   public void cant_observe_and_change() {
     Place place = new Place();
@@ -88,6 +94,7 @@ public class PlaceTest {
     assertEquals(expectedMessage, actualMessage);
   }
 
+  /** A test to verify that a Place cannot change and observe at the same time. */
   @Test
   public void cant_change_and_observe() {
     Place place = new Place();
@@ -107,6 +114,7 @@ public class PlaceTest {
     assertEquals(expectedMessage, actualMessage);
   }
 
+  /** WTF? . */
   @Test
   public void register_and_notify_transition() {
     Place place = new Place();

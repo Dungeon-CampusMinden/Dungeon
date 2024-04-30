@@ -28,14 +28,29 @@ public class ReplacementTask extends Task {
     scoringFunction(GradingFunctions.replacementGrading());
   }
 
+  /**
+   * WTF? .
+   *
+   * @param e foo
+   */
   public void addSolution(Element e) {
     solution.add(e);
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public List<Element> solution() {
     return new ArrayList<>(solution);
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public List<Rule> rules() {
     return new ArrayList<>(rules);
   }
@@ -53,6 +68,10 @@ public class ReplacementTask extends Task {
    * Rules for how elements can be replaced by each other.
    *
    * <p>This is basically an abstract implementation of {@link contrib.crafting.Recipe}.
+   *
+   * @param input foo
+   * @param ordered foo
+   * @param output foo
    */
   public record Rule(boolean ordered, Element[] input, Element[] output) {
     @Override

@@ -5,22 +5,47 @@ import dsl.runtime.value.MapValue;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.ScopedSymbol;
 
+/** MapType. */
 public class MapType extends ScopedSymbol implements IType {
   private final IType keyType;
   private final IType elementType;
 
+  /**
+   * Gets the key type of the object.
+   *
+   * @return the key type of the object
+   */
   public IType getKeyType() {
     return this.keyType;
   }
 
+  /**
+   * Gets the type of element.
+   *
+   * @return the type of element
+   */
   public IType getElementType() {
     return this.elementType;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param keyType foo
+   * @param elementType foo
+   * @return foo
+   */
   public static String getMapTypeName(IType keyType, IType elementType) {
     return "[" + keyType.getName() + "->" + elementType.getName() + "]";
   }
 
+  /**
+   * Constructor.
+   *
+   * @param keyType foo
+   * @param elementType foo
+   * @param parentScope foo
+   */
   public MapType(IType keyType, IType elementType, IScope parentScope) {
     super(getMapTypeName(keyType, elementType), parentScope, elementType);
     this.keyType = keyType;

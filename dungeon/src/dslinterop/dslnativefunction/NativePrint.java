@@ -12,11 +12,13 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import java.util.List;
 
+/** WTF? . */
 public class NativePrint extends NativeFunction {
+  /** Instance of this class. */
   public static NativePrint func = new NativePrint(Scope.NULL);
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param parentScope parent scope of this function
    */

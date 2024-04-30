@@ -1,10 +1,11 @@
 package dsl.parser.ast;
 
+/** WTF? . */
 public class IdNode extends Node {
   private final String name;
 
   /**
-   * Constructor
+   * Constructor. WTF? .
    *
    * @param name The literal value of the identifier
    * @param sourceFileReference Reference to the location of the identifier in the source file
@@ -15,7 +16,7 @@ public class IdNode extends Node {
   }
 
   /**
-   * Constructor for subclasses
+   * Constructor for subclasses.
    *
    * @param nodeType the type of this node
    * @param name The literal value of the identifier
@@ -27,6 +28,8 @@ public class IdNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return The name of the identifier
    */
   public String getName() {

@@ -18,8 +18,9 @@ import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
+/** Tests for the {@link TileLevel} class. */
 public class TileLevelTest {
-
+  /** WTF? . */
   @Test
   public void test_levelCTOR_Tiles() {
     Tile[][] tileLayout =
@@ -38,6 +39,7 @@ public class TileLevelTest {
     assertArrayEquals(tileLayout, layout);
   }
 
+  /** WTF? . */
   @Test
   public void test_levelCTOR_TilesNoExit() {
     Tile[][] tileLayout =
@@ -61,6 +63,7 @@ public class TileLevelTest {
             || layout[1][1].levelElement() == LevelElement.EXIT);
   }
 
+  /** WTF? . */
   @Test
   public void test_levelCTOR_LevelElements() {
     LevelElement[][] elementsLayout =
@@ -75,6 +78,7 @@ public class TileLevelTest {
     assertSame(elementsLayout[1][1], layout[1][1].levelElement());
   }
 
+  /** WTF? . */
   @Test
   public void test_levelCTOR_LevelElementsNoExit() {
     LevelElement[][] elementsLayout =
@@ -91,6 +95,7 @@ public class TileLevelTest {
             || layout[1][1].levelElement() == LevelElement.EXIT);
   }
 
+  /** WTF? . */
   @Test
   public void test_levelCTOR_LevelElementsNoFloors() {
     LevelElement[][] elementsLayout =
@@ -103,6 +108,7 @@ public class TileLevelTest {
     assertNull(level.endTile());
   }
 
+  /** WTF? . */
   @Test
   public void test_levelCTOR_LevelElementsEnoughFloorsForStartButNotExit() {
     LevelElement[][] elementsLayout =
@@ -115,6 +121,7 @@ public class TileLevelTest {
     assertNull(level.endTile());
   }
 
+  /** WTF? . */
   @Test
   public void test_levelCTOR_LevelElements_connections() {
     LevelElement[][] elementsLayout =
@@ -130,6 +137,7 @@ public class TileLevelTest {
     assertSame(layout[0][1], layout[0][2].connections().first().getToNode());
   }
 
+  /** WTF? . */
   @Test
   public void test_levelCTOR_LevelElements_tileTypeLists() {
     LevelElement[][] elementsLayout =
@@ -146,6 +154,7 @@ public class TileLevelTest {
     assertEquals(3, tileLevel.skipTiles().size());
   }
 
+  /** WTF? . */
   @Test
   public void test_nodeCount_NoAccessible() {
     LevelElement[][] elementsLayout =
@@ -156,6 +165,7 @@ public class TileLevelTest {
     assertEquals(0, tileLevel.getNodeCount());
   }
 
+  /** WTF? . */
   @Test
   public void test_nodeCount_OneAccessible() {
     LevelElement[][] elementsLayout =
@@ -166,6 +176,7 @@ public class TileLevelTest {
     assertEquals(1, tileLevel.getNodeCount());
   }
 
+  /** WTF? . */
   @Test
   public void test_nodeCount_FourAccessible() {
     LevelElement[][] elementsLayout =
@@ -176,6 +187,7 @@ public class TileLevelTest {
     assertEquals(4, tileLevel.getNodeCount());
   }
 
+  /** WTF? . */
   @Test
   public void test_setRandomEnd() {
     LevelElement[][] elementsLayout =
@@ -189,6 +201,7 @@ public class TileLevelTest {
     assertNotSame(oldEndTile, tileLevel.endTile());
   }
 
+  /** WTF? . */
   @Test
   public void test_setRandomEnd_NoFreeFloors() {
     LevelElement[][] elementsLayout =
@@ -201,6 +214,7 @@ public class TileLevelTest {
     assertNull(tileLevel.endTile());
   }
 
+  /** WTF? . */
   @Test
   public void test_setRandomEnd_NoFloors() {
     LevelElement[][] elementsLayout =
@@ -212,6 +226,7 @@ public class TileLevelTest {
     assertNull(tileLevel.endTile());
   }
 
+  /** WTF? . */
   @Test
   public void test_findPath_onlyOnePathPossible() {
     Tile[][] layout = new Tile[3][3];
@@ -239,6 +254,7 @@ public class TileLevelTest {
     assertEquals(layout[0][2], path.get(6));
   }
 
+  /** WTF? . */
   @Test
   public void test_findPath_moreThanOnePathPossible() {
     Tile[][] layout = new Tile[3][3];
@@ -267,6 +283,7 @@ public class TileLevelTest {
     assertEquals(layout[0][2], path.get(4));
   }
 
+  /** WTF? . */
   @Test
   public void test_findPath_withSkips() {
     var levelElement = new LevelElement[3][2];
@@ -283,6 +300,7 @@ public class TileLevelTest {
     assertEquals(3, path.getCount());
   }
 
+  /** WTF? . */
   @Test
   public void test_findPath_withoutSkips() {
     var levelElement = new LevelElement[3][1];
@@ -297,6 +315,7 @@ public class TileLevelTest {
     assertEquals(3, path.getCount());
   }
 
+  /** WTF? . */
   @Test
   public void test_findPath_startPositionNotAccessible() {
     Tile[][] layout = new Tile[3][3];
@@ -314,6 +333,7 @@ public class TileLevelTest {
     assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
   }
 
+  /** WTF? . */
   @Test
   public void test_findPath_endPositionNotAccessible() {
     Tile[][] layout = new Tile[3][3];
@@ -331,6 +351,7 @@ public class TileLevelTest {
     assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
   }
 
+  /** WTF? . */
   @Test
   public void test_findPath_startAndEndPositionNotAccessible() {
     Tile[][] layout = new Tile[3][3];
@@ -349,6 +370,7 @@ public class TileLevelTest {
     assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(start, end));
   }
 
+  /** WTF? . */
   @Test
   public void test_getTileAt() {
     var levelLayout = new LevelElement[3][3];
@@ -361,6 +383,7 @@ public class TileLevelTest {
     assertEquals(levelLayout[1][2], level.tileAt(new Coordinate(2, 1)).levelElement());
   }
 
+  /** WTF? . */
   @Test
   public void test_getRandomTile() {
     var levelLayout = new LevelElement[3][3];
@@ -371,6 +394,7 @@ public class TileLevelTest {
     assertNotNull(level.randomTile());
   }
 
+  /** WTF? . */
   @Test
   public void test_getRandomTile_WithElementType() {
     LevelElement[][] layout = new LevelElement[3][3];
@@ -394,6 +418,7 @@ public class TileLevelTest {
     assertEquals(LevelElement.WALL, randomWall.levelElement());
   }
 
+  /** WTF? . */
   @Test
   public void test_getRandomTilePoint() {
     var levelLayout = new LevelElement[3][3];
@@ -406,6 +431,7 @@ public class TileLevelTest {
     assertNotNull(level.tileAt(randomPoint.toCoordinate()));
   }
 
+  /** WTF? . */
   @Test
   public void test_getRandomTilePoint_WithElementType() {
     LevelElement[][] layout = new LevelElement[3][3];
@@ -430,6 +456,7 @@ public class TileLevelTest {
     assertEquals(LevelElement.FLOOR, randomFloor.levelElement());
   }
 
+  /** WTF? . */
   @Test
   public void test_toString() {
     LevelElement[][] tileLayout =
@@ -458,6 +485,7 @@ public class TileLevelTest {
     assertEquals(compareString.toString(), level.printLevel());
   }
 
+  /** WTF? . */
   @Test
   public void test_addTile_FloorTile() {
     TileLevel level =
@@ -490,6 +518,7 @@ public class TileLevelTest {
             .count());
   }
 
+  /** WTF? . */
   @Test
   public void test_addTile_ExitTile() {
     TileLevel level =
@@ -522,6 +551,7 @@ public class TileLevelTest {
             .count());
   }
 
+  /** WTF? . */
   @Test
   public void test_addTile_DoorTile() {
     TileLevel level =
@@ -554,6 +584,7 @@ public class TileLevelTest {
             .count());
   }
 
+  /** WTF? . */
   @Test
   public void test_addTile_SkipTile() {
     TileLevel level =
@@ -583,6 +614,7 @@ public class TileLevelTest {
             .count());
   }
 
+  /** WTF? . */
   @Test
   public void test_addTile_WallTile() {
     TileLevel level =
@@ -612,6 +644,7 @@ public class TileLevelTest {
             .count());
   }
 
+  /** WTF? . */
   @Test
   public void test_addTile_HoleTile() {
     TileLevel level =
@@ -641,6 +674,7 @@ public class TileLevelTest {
             .count());
   }
 
+  /** WTF? . */
   @Test
   public void test_changeTileElementType_SameElementType() {
     LevelElement[][] layout =
@@ -659,6 +693,7 @@ public class TileLevelTest {
     assertEquals(3, counter.get());
   }
 
+  /** WTF? . */
   @Test
   public void test_changeTileElementType_SameAccess() {
     LevelElement[][] layout =
@@ -677,6 +712,7 @@ public class TileLevelTest {
     assertEquals(3, counter.get());
   }
 
+  /** WTF? . */
   @Test
   public void test_changeTileElementType_toNotAccessible() {
     LevelElement[][] layout =
@@ -695,6 +731,7 @@ public class TileLevelTest {
     assertEquals(2, counter.get());
   }
 
+  /** WTF? . */
   @Test
   public void test_changeTileElementType_notOnLevel() {
     LevelElement[][] layout =
