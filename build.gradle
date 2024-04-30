@@ -12,6 +12,7 @@ plugins {
 allprojects {
     apply plugin: 'java'
     apply plugin: 'checkstyle'
+    apply plugin: 'com.github.jk1.dependency-license-report'
 
     java {
         toolchain {
@@ -62,41 +63,4 @@ spotless {
 
         target '**/*.java'
     }
-}
-
-
-import com.github.jk1.license.render.*
-
-licenseReport {
-    // By default this plugin will collect the union of all licenses from
-    // the immediate pom and the parent poms. If your legal team thinks this
-    // is too liberal, you can restrict collected licenses to only include the
-    // those found in the immediate pom file
-    // Defaults to: true
-    unionParentPomLicenses = false
-
-    // Set output directory for the report data.
-    // Defaults to ${project.buildDir}/reports/dependency-license.
-    outputDir = "$projectDir/licenses"
-
-    // Select projects to examine for dependencies.
-    // Defaults to current project and all its subprojects
-    projects = [project] + project.subprojects
-
-    // Adjust the configurations to fetch dependencies. Default is 'runtimeClasspath'
-    // For Android projects use 'releaseRuntimeClasspath' or 'yourFlavorNameReleaseRuntimeClasspath'
-    // Use 'ALL' to dynamically resolve all configurations:
-    // configurations = ALL
-    configurations = ['runtimeClasspath']
-
-    // Don't include artifacts of project's own group into the report
-    excludeOwnGroup = true
-
-    // Don't exclude bom dependencies.
-    // If set to true, then all boms will be excluded from the report
-    excludeBoms = false
-
-    // Set custom report renderer, implementing ReportRenderer.
-    // Yes, you can write your own to support any format necessary.
-    renderers = [new InventoryMarkdownReportRenderer('third-party-libs.md', 'Back-End Libraries')]
 }

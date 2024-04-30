@@ -50,7 +50,7 @@ tasks.withType(JavaCompile).configureEach {
 // generate ANTLR visitor and listener classes from grammar
 generateGrammarSource {
     maxHeapSize = '64m'
-    arguments += ['-visitor', '-listener' ]
+    arguments += ['-visitor', '-listener']
 }
 
 
@@ -71,15 +71,39 @@ tasks.register('runRoomBasedDungeon', JavaExec) {
 }
 
 
-// create our Starter.jar
+// Generate license report
+import com.github.jk1.license.render.*
+
+licenseReport {
+    unionParentPomLicenses = true
+
+    outputDir = "${rootProject.project('dungeon').buildDir}/licenses"
+
+    // For game and dungeon dependencies (default is 'all projects'):
+    projects = [rootProject.project('game'), rootProject.project('dungeon')]
+
+    configurations = ['runtimeClasspath']
+
+    excludeOwnGroup = true
+
+    excludeBoms = false
+
+    renderers = [new InventoryMarkdownReportRenderer('third-party-licenses.md', 'Back-End Libraries')]
+}
+
+// Create our Starter.jar
 tasks.register('buildStarterJar', Jar) {
-    dependsOn ':game:build'
+    // Generate license report first ...
+    // Path: dungeon/build/licenses/
+
+    dependsOn generateLicenseReport, ':game:build'
 
     manifest {
         attributes 'Main-Class': 'starter.Starter'
     }
     archiveFileName = 'Starter.jar'
 
+    from "${rootProject.project('dungeon').buildDir}/licenses"
     from sourceSets.main.output
     from project(':game').sourceSets.main.output
     from {
