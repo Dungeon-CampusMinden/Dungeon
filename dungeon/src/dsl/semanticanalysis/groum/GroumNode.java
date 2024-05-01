@@ -1,7 +1,6 @@
 package dsl.semanticanalysis.groum;
 
 import dsl.semanticanalysis.symbol.Symbol;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +57,22 @@ public abstract class GroumNode {
     return this.processedCounter;
   }
 
+  public boolean isOrDescendentOf(GroumNode other) {
+    var node = this;
+    while (node != GroumNode.NONE && node != other) {
+      node = node.parent;
+    }
+    return node == other;
+  }
+
+  public boolean hasAncestorLike(GroumNode other) {
+    var myParent = this.parent;
+    while (myParent != GroumNode.NONE && myParent != other) {
+      myParent = myParent.parent;
+    }
+    return myParent == other;
+  }
+
   public boolean hasAncestorLikeParentOf(GroumNode other) {
     var myParent = this.parent;
     while (myParent != GroumNode.NONE) {
@@ -76,7 +91,7 @@ public abstract class GroumNode {
         this.children.add(node);
       }
     }
-    //this.children.addAll(nodesButThis);
+    // this.children.addAll(nodesButThis);
   }
 
   public List<GroumNode> children() {
@@ -116,7 +131,6 @@ public abstract class GroumNode {
   // TODO: implement merging operations
 
   // TODO: attributes? (such as contained nodes in control structure-nodes, etc.)
-
 
   public Symbol getDefinitionSymbol() {
     if (this instanceof DefinitionAction definitionAction) {
