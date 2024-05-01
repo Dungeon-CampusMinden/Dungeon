@@ -87,6 +87,23 @@ public abstract class GroumNode {
     return false;
   }
 
+
+  public List<GroumEdge> getOutgoingOfType(GroumEdge.GroumEdgeType edgeType) {
+    return this.outgoing().stream().filter(e -> e.edgeType().equals(edgeType)).toList();
+  }
+
+  public List<GroumEdge> getIncomingOfType(GroumEdge.GroumEdgeType edgeType) {
+    return this.incoming().stream().filter(e -> e.edgeType().equals(edgeType)).toList();
+  }
+
+  public List<GroumNode> getEndsOfOutgoing(GroumEdge.GroumEdgeType edgeType) {
+    return getOutgoingOfType(edgeType).stream().map(GroumEdge::end).toList();
+  }
+
+  public List<GroumNode> getStartsOfIncoming(GroumEdge.GroumEdgeType edgeType) {
+    return getIncomingOfType(edgeType).stream().map(GroumEdge::start).toList();
+  }
+
   public void addChildren(List<GroumNode> nodes) {
     var nodesButThis = nodes.stream().filter(c -> c != this).toList();
     for (var node : nodesButThis) {

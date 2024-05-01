@@ -12,6 +12,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -850,6 +852,7 @@ public class TestGroum {
   }
 
   @Test
+  // TODO: test
   public void dataDependencyConditionalNestedIf() {
     String program =
         """
@@ -890,6 +893,7 @@ public class TestGroum {
   }
 
   @Test
+  // TODO: test
   public void dataDependencyConditionalSequentialIfElse() {
     String program =
         """
@@ -946,6 +950,7 @@ public class TestGroum {
   }
 
   @Test
+  // TODO: test
   public void dataDependencyBlock() {
     String program =
       """
@@ -996,6 +1001,7 @@ public class TestGroum {
   }
 
   @Test
+  // TODO: test
   public void dataDependencyMultiBlock() {
     String program =
       """
@@ -1045,6 +1051,7 @@ public class TestGroum {
   }
 
   @Test
+  // TODO: test
   public void dataDependencyConditionalComplex() {
     String program =
         """
@@ -1091,20 +1098,26 @@ public class TestGroum {
   public void dataDependencyConditionalRedef() {
     String program =
       """
+      // param y idx: 2
       fn test(int x, int y, int z) {
         if x {
           if z {
+            // def action idx: 13
             y = 1;
+            // print param ref idx: 15
             print(y);
           }
+          // def action idx: 19
           y = 2;
         } else {
+          // def action idx: 24
           y = 3;
         }
 
+        // ref in expression idx: 25
         print(y);
       }
-  """;
+      """;
 
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForAST(ast);
@@ -1126,6 +1139,47 @@ public class TestGroum {
     GroumPrinter p2 = new GroumPrinter();
     String finalizedGroumStr = p2.print(finalizedGroum, false);
     write(finalizedGroumStr, "final_groum.dot");
+
+    // tests:
+    var paramYDefNode = findNodeByProcessIdx(finalizedGroum, 2);
+    var nestedIfDefNode = findNodeByProcessIdx(finalizedGroum, 13);
+    var nestedFuncParamRefNode = findNodeByProcessIdx(finalizedGroum, 15);
+    var ifDefNode = findNodeByProcessIdx(finalizedGroum, 19);
+
+    var elseDefNode = findNodeByProcessIdx(finalizedGroum, 24);
+    var funcParamRefNode = findNodeByProcessIdx(finalizedGroum, 25);
+
+    var redefsOfParam = paramYDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(3, redefsOfParam.size());
+
+    var startsOfRedefNestedIfDefNode = nestedIfDefNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(1, startsOfRedefNestedIfDefNode.size());
+    Assert.assertEquals(paramYDefNode, startsOfRedefNestedIfDefNode.get(0));
+
+    // check for print refererence
+    var endsOfDataRefsNestedIf = nestedIfDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(1, endsOfDataRefsNestedIf.size());
+    Assert.assertEquals(nestedFuncParamRefNode, endsOfDataRefsNestedIf.get(0));
+
+    var startsOfRedefIfDefNode = ifDefNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(2, startsOfRedefIfDefNode.size());
+    Assert.assertTrue(startsOfRedefIfDefNode.contains(paramYDefNode));
+    Assert.assertTrue(startsOfRedefIfDefNode.contains(nestedIfDefNode));
+
+    // check for final print reference
+    var endsOfDataRefIf = ifDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(1, endsOfDataRefIf.size());
+    Assert.assertEquals(funcParamRefNode, endsOfDataRefIf.get(0));
+
+    var startsOfRedefElseNode = elseDefNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(1, startsOfRedefElseNode.size());
+    Assert.assertEquals(paramYDefNode, startsOfRedefElseNode.get(0));
+
+    // check for final print reference
+    var endsOfDataRefElse = elseDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(1, endsOfDataRefElse.size());
+    Assert.assertEquals(funcParamRefNode, endsOfDataRefElse.get(0));
+
   }
 
   public static void write(String content, String path) {

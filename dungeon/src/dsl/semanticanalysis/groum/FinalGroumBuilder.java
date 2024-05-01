@@ -129,12 +129,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
               pushedScope = true;
             }
           }
-        } /*else {
-            if (this.scopesForNodes.containsKey(parent)) {
-              this.groumScopeStack.push(this.scopesForNodes.get(parent));
-              pushedScope = true;
-            }
-          }*/
+        }
 
         // visit node
         currentNode.accept(this);
@@ -255,24 +250,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     if (!existingDefinitions.isEmpty()) {
       existingDefinitions.forEach(
           v -> {
-            // it is possible, that the current at this point contains redefinitions of the same
-            // variable from other
-            // execution paths (from other groum scopes)
-            // these definitions need to be filtered out, because the redefinitions are localized to
-            // their respective
-            // scope
-            // in order to filter them out, we check, if the current node lies in the same heritage
-            // (as an ancestor, which
-            // is equal to the parent of v), which is equal to checking for a common parent scope
-            // TODO: this does not work correctly for its intent...this will block definitions from
-            //  conditional branches to be redefined..
-            // if (node.hasAncestorLikeParentOf(v)) {
-            // there is a definition, which is replaced by this new definition
-            // create redefinition edge
             GroumEdge dataEdge =
                 new GroumEdge(v, node, GroumEdge.GroumEdgeType.dataDependencyRedefinition);
             this.groum.addEdge(dataEdge);
-            // }
           });
     }
 
