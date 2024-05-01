@@ -5,29 +5,6 @@ import java.util.*;
 
 public class GroumScope {
   public static GroumScope NONE = new GroumScope(GroumNode.NONE);
-
-  // TODO: THIS DOES NOT WORK!!
-  //  if a variable is re-defined in a block, this information won't be carried
-  //  out of this scope...this is a flawed idea!
-  //  .
-  //  Okay - Idea: we need to keep track of all possible execution flows, where a variable COULD
-  //  be set (there is a write operation regarding the instance id in question)
-  //  rules for that:
-  //  - while: could be bypassed, so two execution flows
-  //  - if/else: could not be bypassed, depends on the statements in bodies
-  //  - ...
-  //  - basically we need to find out, where the control flow regarding variable writes converges
-  //  ...
-  //  is this necessary? could we just go the easy route and just calculate data dependencies
-  // without
-  //  regard of the type of involvement?? like the original paper..
-
-  // TODO: keep track of competing definitions of conditional branches
-  //  if a variable is redefined in all conditional branches, the original
-  //  definition is not longer reachable
-  // TODO: need a way of modelling conditional branches..
-  //  basically for all conditional nodes we have a new branch
-  //  we can only ever have one active definition of a variable per branch at a time!
   private HashMap<Long, HashMap<GroumScope, GroumNode>> variableDefinitions = new HashMap<>();
   private HashSet<GroumScope> ifElseConditionalScopes = new HashSet<>();
   private GroumScope parent;
@@ -46,7 +23,6 @@ public class GroumScope {
     this.associatedGroumNode = associatedGroumNode;
   }
 
-  // public HashMap<Long, List<GroumNode>> variableDefinitions() {
   public HashMap<Long, HashMap<GroumScope, GroumNode>> variableDefinitions() {
     return this.variableDefinitions;
   }
@@ -60,12 +36,8 @@ public class GroumScope {
   }
 
   public List<GroumNode> getDefinitions(Long instanceId, GroumScope fromScope) {
-    // TODO: filter out non-reachable definitions, which get shadowed by more recent definitions
     if (this.variableDefinitions.containsKey(instanceId)) {
-      var filtered =
-          this.variableDefinitions.get(instanceId).values();
-            /*.stream()
-              .filter(n -> this.shadowedDefinitions.get(instanceId) != n);*/
+      var instanceDefinitions = this.variableDefinitions.get(instanceId).values();
       if (!this.ifElseConditionalScopes.isEmpty()) {
         // block all definitions from other scope
 
@@ -86,26 +58,18 @@ public class GroumScope {
         }
 
         if (scopeToBlock != GroumScope.NONE) {
-          //var intermediaryList = filtered.toList();
-          var intermediaryList = filtered;
-          var definitionsFromScope = this.variableDefinitions.get(instanceId).get(scopeToBlock);
-          final var finalScopeToBlock = scopeToBlock;
-
           // need to filter out also all children of that scope (all nested if-definitions)
           // TODO: this probably can be simplified with the controlFlowParent!
 
           // check, whether the definition node has the scope to block node as ancestor
-          // var filteredList = intermediaryList.stream().filter(n ->
-          // !n.equals(definitionsFromScope)).toList();
-          var filteredList =
-              intermediaryList.stream()
+          final var finalScopeToBlock = scopeToBlock;
+          return
+              instanceDefinitions.stream()
                   .filter(n -> !n.hasAncestorLike(finalScopeToBlock.associatedGroumNode))
                   .toList();
-          return filteredList;
         }
       }
-      //return filtered.toList();
-      return filtered.stream().toList();
+      return instanceDefinitions.stream().toList();
     } else {
       if (this.parent != NONE) {
         return this.parent.getDefinitions(instanceId, fromScope);
@@ -136,24 +100,6 @@ public class GroumScope {
     if (!this.variableDefinitions.containsKey(instanceId)) {
       this.variableDefinitions.put(instanceId, new HashMap<>());
     }
-
-    // parent scope is required to be of a conditional type
-    //var immediateParentScope = getConditionalParentScope(parentScope, 1);
-
-    /*if (immediateParentScope.associatedGroumNode() instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.block)) {
-      // the parent scope of the passed parent scope is a block (nested block!)
-      // this overwrites any previous definitions!
-      // treat it as a new variable definition!
-
-      //var conditionalParentScope = getConditionalParentScope(immediateParentScope, -1);
-      // TODO: unwrap the parentScope until it is a conditional
-      //propagateDefinitionToParents(instanceId, node, immediateParentScope);
-
-      // TODO: need to debug this and the definition getting when proc idx == 31 (variable ref)
-      //  NEXT STEP !!!
-      // Note: this likely does not work, because propagation is done after the call to this addDefinition anyways..
-      immediateParentScope.addDefinition(instanceId, node, immediateParentScope);
-    }*/
 
     var scopeToNodeMap = this.variableDefinitions.get(instanceId);
     var controlFlowParent = parentScope.controlFlowParent;
@@ -204,7 +150,6 @@ public class GroumScope {
     // check, if both conditional scopes contain a definition of the same variable
     for (var conditionalScope : this.ifElseConditionalScopes) {
       if (!instancesDefinitions.containsKey(conditionalScope)) {
-        //this.shadowedDefinitions.remove(instanceId);
         return;
       }
     }
@@ -227,8 +172,6 @@ public class GroumScope {
       }
 
     }
-
-    //var shadowedDefinitions = instancesDefinitions.keySet().stream().filter(n -> !shadowedDefinitions.contains(n)).toList();
 
     for (var def : shadowedDefinitions) {
       this.variableDefinitions.get(instanceId).remove(def);
