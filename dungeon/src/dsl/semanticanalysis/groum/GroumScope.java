@@ -142,19 +142,24 @@ public class GroumScope {
     this.ifElseConditionalScopes.add(elseScope);
   }
 
-  // this may be just called from propagation...
+  // this is just called from propagating a definition to parents
   private void addDefinition(Long instanceId, GroumNode node, GroumScope parentScope) {
-    if (node.getDefinitionSymbol().getName().equals("x")) {
-      boolean b = true;
-    }
-
     if (!this.variableDefinitions.containsKey(instanceId)) {
       this.variableDefinitions.put(instanceId, new HashMap<>());
     }
 
     var map = this.variableDefinitions.get(instanceId);
+
     // parent scope is required to be of a conditional type
-    var conditionalParentScope = getConditionalParentScope(parentScope);
+    var conditionalParentScope = getConditionalParentScope(parentScope, 1);
+
+    if (conditionalParentScope.associatedGroumNode() instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.block)) {
+      // the parent scope of the passed parent scope is a block (nested block!)
+      // this overwrites any previous definitions!
+      // treat it as a new variable definition!
+      this.parent.addDefinitionFromPropagation(instanceId, node, conditionalParentScope);
+    }
+
     if (conditionalParentScope == GroumScope.NONE) {
       // TODO: is this correct?
       map.put(parentScope, node);
@@ -163,17 +168,20 @@ public class GroumScope {
     }
 
     checkForShadowedDefinitions(instanceId);
+
   }
 
-  private GroumScope getConditionalParentScope(GroumScope scope) {
+  private GroumScope getConditionalParentScope(GroumScope scope, int maxSearchDepth) {
     var parentScope = scope;
-    while (parentScope != GroumScope.NONE) {
+    int searchDepth = 0;
+    while (searchDepth < maxSearchDepth && parentScope != GroumScope.NONE) {
       if (parentScope.associatedGroumNode instanceof ControlNode controlNode
           && (controlNode.controlType() != ControlNode.ControlType.block
               && controlNode.controlType() != ControlNode.ControlType.returnStmt)) {
         break;
       }
       parentScope = parentScope.parent;
+      searchDepth++;
     }
     return parentScope;
   }
@@ -181,10 +189,13 @@ public class GroumScope {
   private void checkForShadowedDefinitions(Long instanceId) {
     var instancesDefinitions = this.variableDefinitions.get(instanceId);
 
+    // if there are no mutually exclusive conditional scopes (a combination of one if- and one else-branch),
+    // all definitions will be reachable
     if (this.ifElseConditionalScopes.isEmpty()) {
       return;
     }
 
+    // check, if both conditional scopes contain a definition of the same variable
     for (var conditionalScope : this.ifElseConditionalScopes) {
       if (!instancesDefinitions.containsKey(conditionalScope)) {
         this.shadowedDefinitions.remove(instanceId);
@@ -194,15 +205,7 @@ public class GroumScope {
 
     // there are definitions in all conditional branches, definitions from before will not be
     // accessible
-    // TODO: this returns nested if-branches -> need to check, if the returned definitions are not
-    // contained in the ifElseConditionalScopes
-    var shadowedDefinitions =
-        instancesDefinitions.entrySet().stream()
-            .filter(e -> !this.ifElseConditionalScopes.contains(e.getKey()))
-            .map(Map.Entry::getKey)
-            .toList();
-
-    HashSet<GroumScope> safeScopes = new HashSet<>();
+    HashSet<GroumScope> shadowedDefinitions = new HashSet<>();
 
     var conditionalScopeList = this.ifElseConditionalScopes.stream().toList();
     var ifScope = conditionalScopeList.get(0);
@@ -213,14 +216,14 @@ public class GroumScope {
       var ifScopeNode = ifScope.associatedGroumNode();
       var elseScopeNode = elseScope.associatedGroumNode();
 
-      if (defNode.isOrDescendentOf(ifScopeNode) || defNode.isOrDescendentOf(elseScopeNode)){
-        safeScopes.add(definition);
+      if ((!defNode.isOrDescendentOf(ifScopeNode) && !defNode.isOrDescendentOf(elseScopeNode))){
+        shadowedDefinitions.add(definition);
       }
     }
 
-    var newShadowedDefinitions = instancesDefinitions.keySet().stream().filter(n -> !safeScopes.contains(n)).toList();
+    //var shadowedDefinitions = instancesDefinitions.keySet().stream().filter(n -> !shadowedDefinitions.contains(n)).toList();
 
-    for (var def : newShadowedDefinitions) {
+    for (var def : shadowedDefinitions) {
       this.variableDefinitions.get(instanceId).remove(def);
     }
   }
