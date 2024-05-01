@@ -1,7 +1,6 @@
 package dsl.semanticanalysis.groum;
 
 import dsl.IndexGenerator;
-import org.neo4j.ogm.annotation.Index;
 
 // TODO: add way to specify scope -> store child nodes?
 public class ControlNode extends GroumNode {
@@ -29,7 +28,7 @@ public class ControlNode extends GroumNode {
 
   @Override
   public String getLabel() {
-    return this.controlType.toString()+"["+id+"]";
+    return this.controlType.toString() + "[" + id + "]";
   }
 
   @Override

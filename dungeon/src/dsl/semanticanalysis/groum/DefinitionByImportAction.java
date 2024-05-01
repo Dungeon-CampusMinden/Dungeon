@@ -17,7 +17,7 @@ public class DefinitionByImportAction extends ActionNode {
       this.addSymbolReference(functionSymbol.getFunctionType());
       this.addSymbolReference(symbol);
       this.addSymbolReference(functionSymbol.originalFunctionSymbol());
-    } else if (symbol instanceof ImportAggregateTypeSymbol typeSymbol){
+    } else if (symbol instanceof ImportAggregateTypeSymbol typeSymbol) {
       this.addSymbolReference(getInstanceSymbolType(symbol));
       this.addSymbolReference(symbol);
       this.addSymbolReference(typeSymbol.originalTypeSymbol());

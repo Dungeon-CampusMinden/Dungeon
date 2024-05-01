@@ -1,10 +1,6 @@
 package dsl.semanticanalysis;
 
-import contrib.components.InteractionComponent;
-import core.Entity;
-import core.Game;
 import dsl.helpers.Helpers;
-import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.FuncDefNode;
 import dsl.parser.ast.TermNode;
 import dsl.parser.ast.VarDeclNode;
@@ -12,21 +8,12 @@ import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.groum.*;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import entrypoint.DungeonConfig;
-import org.junit.Assert;
-import org.junit.Test;
-import task.tasktype.quizquestion.SingleChoice;
-
-import javax.naming.ldap.Control;
-import java.io.ByteArrayOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.HashSet;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class TestGroum {
   private static final Path testLibPath = Path.of("test_resources/testlib");
@@ -105,53 +92,61 @@ public class TestGroum {
     var sourceNodes = groum.sourceNodes();
     Assert.assertEquals(2, sourceNodes.size());
     var firstParam = sourceNodes.get(0);
-    Assert.assertEquals(ActionNode.ActionType.parameterInstantiation, ((ActionNode)firstParam).actionType());
+    Assert.assertEquals(
+        ActionNode.ActionType.parameterInstantiation, ((ActionNode) firstParam).actionType());
     Assert.assertEquals(1, firstParam.outgoing().size());
     var secondParam = sourceNodes.get(1);
-    Assert.assertEquals(ActionNode.ActionType.parameterInstantiation, ((ActionNode)secondParam).actionType());
+    Assert.assertEquals(
+        ActionNode.ActionType.parameterInstantiation, ((ActionNode) secondParam).actionType());
     Assert.assertEquals(1, secondParam.outgoing().size());
 
     var paramRef = firstParam.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)paramRef).actionType());
+    Assert.assertEquals(
+        ActionNode.ActionType.referencedInExpression, ((ActionNode) paramRef).actionType());
 
     Assert.assertEquals(1, paramRef.outgoing().size());
 
     var expr = paramRef.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode)expr).actionType());
+    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode) expr).actionType());
 
     var defNode = expr.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode)defNode).actionType());
+    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode) defNode).actionType());
     Assert.assertEquals(2, defNode.outgoing().size());
 
     var ref = defNode.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)ref).actionType());
-    var refId = ((ActionNode)ref).referencedInstanceId();
-    var defId = ((ActionNode)defNode).referencedInstanceId();
+    Assert.assertEquals(
+        ActionNode.ActionType.referencedInExpression, ((ActionNode) ref).actionType());
+    var refId = ((ActionNode) ref).referencedInstanceId();
+    var defId = ((ActionNode) defNode).referencedInstanceId();
     Assert.assertEquals(defId, refId);
 
     var constRef = defNode.outgoing().get(1).end();
-    Assert.assertEquals(ActionNode.ActionType.constRef, ((ActionNode)constRef).actionType());
+    Assert.assertEquals(ActionNode.ActionType.constRef, ((ActionNode) constRef).actionType());
 
     var whileExpr = ref.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode)whileExpr).actionType());
+    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode) whileExpr).actionType());
 
     var whileNode = whileExpr.outgoing().get(0).end();
-    Assert.assertEquals(ControlNode.ControlType.whileLoop, ((ControlNode)whileNode).controlType());
+    Assert.assertEquals(ControlNode.ControlType.whileLoop, ((ControlNode) whileNode).controlType());
     var block = whileNode.outgoing().get(0).end();
-    Assert.assertEquals(ControlNode.ControlType.block, ((ControlNode)block).controlType());
+    Assert.assertEquals(ControlNode.ControlType.block, ((ControlNode) block).controlType());
     var refInBlock = block.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)refInBlock).actionType());
+    Assert.assertEquals(
+        ActionNode.ActionType.referencedInExpression, ((ActionNode) refInBlock).actionType());
     var exprOfDefInBlock = refInBlock.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode)exprOfDefInBlock).actionType());
+    Assert.assertEquals(
+        ActionNode.ActionType.expression, ((ActionNode) exprOfDefInBlock).actionType());
 
     var reDef = exprOfDefInBlock.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode)reDef).actionType());
+    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode) reDef).actionType());
 
     var returnRef = reDef.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)returnRef).actionType());
+    Assert.assertEquals(
+        ActionNode.ActionType.referencedInExpression, ((ActionNode) returnRef).actionType());
 
     var returnNode = returnRef.outgoing().get(0).end();
-    Assert.assertEquals(ControlNode.ControlType.returnStmt, ((ControlNode)returnNode).controlType());
+    Assert.assertEquals(
+        ControlNode.ControlType.returnStmt, ((ControlNode) returnNode).controlType());
 
     // check scoping
     // while:
@@ -167,7 +162,7 @@ public class TestGroum {
   public void listDefinition() {
 
     String program =
-      """
+        """
     fn add(int x, int y) -> int[] {
       var list = [1,x,y];
       return list;
@@ -194,21 +189,25 @@ public class TestGroum {
     var yParam = sourceNodes.get(1);
 
     var constRef = xParam.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.constRef, ((ActionNode)constRef).actionType());
+    Assert.assertEquals(ActionNode.ActionType.constRef, ((ActionNode) constRef).actionType());
 
     var xRef = xParam.outgoing().get(1).end();
-    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)xRef).actionType());
-    Assert.assertEquals(((ActionNode)xParam).referencedInstanceId(), ((ActionNode) xRef).referencedInstanceId());
+    Assert.assertEquals(
+        ActionNode.ActionType.referencedInExpression, ((ActionNode) xRef).actionType());
+    Assert.assertEquals(
+        ((ActionNode) xParam).referencedInstanceId(), ((ActionNode) xRef).referencedInstanceId());
 
     var yRef = xParam.outgoing().get(2).end();
-    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)yRef).actionType());
-    Assert.assertEquals(((ActionNode)yParam).referencedInstanceId(), ((ActionNode) yRef).referencedInstanceId());
+    Assert.assertEquals(
+        ActionNode.ActionType.referencedInExpression, ((ActionNode) yRef).actionType());
+    Assert.assertEquals(
+        ((ActionNode) yParam).referencedInstanceId(), ((ActionNode) yRef).referencedInstanceId());
 
     var expr = constRef.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode)expr).actionType());
+    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode) expr).actionType());
 
     var def = expr.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode)def).actionType());
+    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode) def).actionType());
     DefinitionAction defAction = (DefinitionAction) def;
     var type = defAction.instancedType();
     Assert.assertEquals("int[]", type.getName());
@@ -218,7 +217,7 @@ public class TestGroum {
   public void setDefinition() {
 
     String program =
-      """
+        """
     fn add(int x, int y) -> int[] {
       var list = <1,x,y>;
       return list;
@@ -245,21 +244,25 @@ public class TestGroum {
     var yParam = sourceNodes.get(1);
 
     var constRef = xParam.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.constRef, ((ActionNode)constRef).actionType());
+    Assert.assertEquals(ActionNode.ActionType.constRef, ((ActionNode) constRef).actionType());
 
     var xRef = xParam.outgoing().get(1).end();
-    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)xRef).actionType());
-    Assert.assertEquals(((ActionNode)xParam).referencedInstanceId(), ((ActionNode) xRef).referencedInstanceId());
+    Assert.assertEquals(
+        ActionNode.ActionType.referencedInExpression, ((ActionNode) xRef).actionType());
+    Assert.assertEquals(
+        ((ActionNode) xParam).referencedInstanceId(), ((ActionNode) xRef).referencedInstanceId());
 
     var yRef = xParam.outgoing().get(2).end();
-    Assert.assertEquals(ActionNode.ActionType.referencedInExpression, ((ActionNode)yRef).actionType());
-    Assert.assertEquals(((ActionNode)yParam).referencedInstanceId(), ((ActionNode) yRef).referencedInstanceId());
+    Assert.assertEquals(
+        ActionNode.ActionType.referencedInExpression, ((ActionNode) yRef).actionType());
+    Assert.assertEquals(
+        ((ActionNode) yParam).referencedInstanceId(), ((ActionNode) yRef).referencedInstanceId());
 
     var expr = constRef.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode)expr).actionType());
+    Assert.assertEquals(ActionNode.ActionType.expression, ((ActionNode) expr).actionType());
 
     var def = expr.outgoing().get(0).end();
-    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode)def).actionType());
+    Assert.assertEquals(ActionNode.ActionType.definition, ((ActionNode) def).actionType());
     DefinitionAction defAction = (DefinitionAction) def;
     var type = defAction.instancedType();
     Assert.assertEquals("int<>", type.getName());
@@ -269,7 +272,7 @@ public class TestGroum {
   public void graph() {
 
     String program =
-      """
+        """
       single_choice_task t1 {
         description: "t1",
         answers: [ "test", "other test"],
@@ -330,8 +333,7 @@ public class TestGroum {
   @Test
   public void funcCall() {
 
-    String program =
-      """
+    String program = """
       fn test(string x)  {
         print(x);
       }
@@ -355,7 +357,7 @@ public class TestGroum {
   public void methodCall() {
 
     String program =
-      """
+        """
       fn test(entity ent, quest_item item, single_choice_task t) {
         var ic = ent.inventory_component;
         var noType = ent.mark_as_task_container(t, "hello");
@@ -383,7 +385,7 @@ public class TestGroum {
   public void singleMethodCall() {
 
     String program =
-      """
+        """
       fn test(entity ent, quest_item item) {
         ent.inventory_component.add_item(item);
       }
@@ -406,7 +408,7 @@ public class TestGroum {
   @Test
   public void prototypeDef() {
     String program =
-      """
+        """
       entity_type knight_type {
           draw_component {
               path: "character/blue_knight"
@@ -455,7 +457,7 @@ public class TestGroum {
   @Test
   public void itemPrototypeDef() {
     String program =
-      """
+        """
       item_type scroll_type {
           display_name: "Eine Schriftrolle",
           description: "Lies mich",
@@ -498,7 +500,7 @@ public class TestGroum {
   @Test
   public void forLoop() {
     String program =
-      """
+        """
       fn test() {
         var my_list = [1,2,3];
         for int entry in my_list {
@@ -524,7 +526,7 @@ public class TestGroum {
   @Test
   public void countingForLoop() {
     String program =
-      """
+        """
       fn test() {
         var my_list = [1,2,3];
         for int entry in my_list count counter {
@@ -550,7 +552,7 @@ public class TestGroum {
   @Test
   public void conditionalIf() {
     String program =
-      """
+        """
       fn test(int x) {
         if (x == 0) {
           print("Hello");
@@ -575,7 +577,7 @@ public class TestGroum {
   @Test
   public void conditionalIfElse() {
     String program =
-      """
+        """
       fn test(int x) {
         if (x == 0) {
           print("Hello");
@@ -602,7 +604,7 @@ public class TestGroum {
   @Test
   public void importFunc() {
     String program =
-      """
+        """
       #import "test.dng":test_fn_param as my_func
       #import "test.dng":my_ent_type as my_type
 
@@ -629,8 +631,7 @@ public class TestGroum {
   @Test
   public void funcValueSetting() {
     String program =
-
-      """
+        """
       #import "test.dng":my_ent_type as my_type
 
       single_choice_task t1 {
@@ -679,7 +680,7 @@ public class TestGroum {
   public void graphDataDependency() {
 
     String program =
-      """
+        """
       single_choice_task t1 {
         description: "t1",
         answers: [ "test", "other test"],
@@ -745,7 +746,7 @@ public class TestGroum {
   @Test
   public void simpleDataDependencies() {
     String program =
-      """
+        """
     fn add(int x, int y) -> int {
       var sum = x + y;
       var derp = y + sum;
@@ -776,7 +777,7 @@ public class TestGroum {
   @Test
   public void loopDataDependency() {
     String program =
-      """
+        """
     fn add(int x, int y) {
       while y {
         y = x;
@@ -810,11 +811,10 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
   }
 
-
   @Test
   public void dataDependencyConditional() {
     String program =
-      """
+        """
     fn add(int x, int y) -> int {
       if x {
         y = 42;
@@ -852,7 +852,7 @@ public class TestGroum {
   @Test
   public void dataDependencyConditionalNestedIf() {
     String program =
-      """
+        """
     fn add(int x, int y, int z) -> int {
       if x {
         y = 42;
@@ -892,19 +892,22 @@ public class TestGroum {
   @Test
   public void dataDependencyConditionalSequentialIfElse() {
     String program =
-      """
+        """
     fn add(int x, int y, int z) -> int {
       if x {
         y = 42;
+        if z {
+          y = 56;
+        }
       } else {
         y = 123;
       }
 
-      if x {
+      /*if x {
         y = 1;
       } else {
         y = 2;
-      }
+      }*/
 
       var sum = x + y;
       y = 21;
@@ -935,9 +938,109 @@ public class TestGroum {
   }
 
   @Test
-  public void dataDependencyConditionalComplex() {
-  String program =
+  public void dataDependencyBlock() {
+    String program =
       """
+  fn add(int x, int y, int z) -> int {
+    if x {
+      y = 42;
+      if z {
+        y = 56;
+        {
+          y = 12;
+          y = 1;
+        }
+        {{{
+          y = 4321;
+        }}}
+        print(y);
+      }
+    } else {
+      y = 123;
+    }
+
+    var sum = x + y;
+    y = 21;
+    return y;
+  }
+  """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
+  @Test
+  public void dataDependencyMultiBlock() {
+    String program =
+      """
+  fn add(int x, int y, int z) -> int {
+    if x {
+      y = 1;
+      {
+        y = 2;
+        {
+          y = 3;
+          {
+            y = 4;
+            var test = y;
+          }
+        }
+      }
+      print(y);
+    } else {
+      y = 123;
+    }
+
+    var sum = x + y;
+    y = 21;
+    return y;
+  }
+  """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
+  @Test
+  public void dataDependencyConditionalComplex() {
+    String program =
+        """
         fn test(int x, int y, int z) {
         	if x {
         		if y {

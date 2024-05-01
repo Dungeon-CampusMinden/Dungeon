@@ -1,8 +1,6 @@
 package dsl.semanticanalysis.groum;
 
-import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
 public class MethodAccessAction extends ActionNode {
@@ -33,7 +31,12 @@ public class MethodAccessAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return this.instanceDataType().getName() + ":<method access '" + this.methodSymbol().getName() + "' [" + this.referencedInstanceId()+"]>";
+    return this.instanceDataType().getName()
+        + ":<method access '"
+        + this.methodSymbol().getName()
+        + "' ["
+        + this.referencedInstanceId()
+        + "]>";
   }
 
   public <T> T accept(GroumVisitor<T> visitor) {

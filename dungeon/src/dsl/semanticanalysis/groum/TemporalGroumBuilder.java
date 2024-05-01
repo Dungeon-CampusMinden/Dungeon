@@ -7,7 +7,6 @@ import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +17,11 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   private HashMap<Symbol, Long> instanceMap;
   private TypeInferrer inferrer;
 
-  public Groum walk(Node astNode, SymbolTable symbolTable, IEnvironment environment, HashMap<Symbol, Long> instanceMap) {
+  public Groum walk(
+      Node astNode,
+      SymbolTable symbolTable,
+      IEnvironment environment,
+      HashMap<Symbol, Long> instanceMap) {
     this.symbolTable = symbolTable;
     this.environment = environment;
     this.instanceMap = instanceMap;
@@ -157,8 +160,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       ExpressionAction expr = new ExpressionAction(rhsGroum.nodes, IndexGenerator.getIdx());
       Groum exprGroum = new Groum(expr);
 
-      var intermediaryGroum =
-          rhsGroum.mergeSequential(exprGroum);
+      var intermediaryGroum = rhsGroum.mergeSequential(exprGroum);
       // exprGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
       mergedGroum = intermediaryGroum.mergeSequential(initGroum);
     } else {
@@ -272,7 +274,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       }
     }
     Groum mergedGroum = Groum.NONE;
-    for (var idGroum :idGroums) {
+    for (var idGroum : idGroums) {
       mergedGroum = mergedGroum.mergeSequential(idGroum);
     }
     return mergedGroum;
@@ -281,7 +283,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   @Override
   public Groum visit(DotNodeStmtNode node) {
     var idSymbol = this.symbolTable.getSymbolsForAstNode(node.getId()).get(0);
-    ReferenceInGraphAction referenceInGraphAction = new ReferenceInGraphAction(idSymbol, createOrGetInstanceId(idSymbol));
+    ReferenceInGraphAction referenceInGraphAction =
+        new ReferenceInGraphAction(idSymbol, createOrGetInstanceId(idSymbol));
     return new Groum(referenceInGraphAction);
   }
 
@@ -313,7 +316,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     // get symbol
     var propertySymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
     // TODO: are there problems related to instance id, because references a property of a datatype?
-    DefinitionAction definitionAction = new DefinitionAction(propertySymbol, createOrGetInstanceId(propertySymbol));
+    DefinitionAction definitionAction =
+        new DefinitionAction(propertySymbol, createOrGetInstanceId(propertySymbol));
     Groum definitionGroum = new Groum(definitionAction);
     Groum merged = stmtGroum.mergeSequential(definitionGroum);
 
@@ -339,7 +343,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     var objectSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
 
     // create object def action
-    DefinitionAction objectDefAction = new DefinitionAction(objectSymbol, createOrGetInstanceId(objectSymbol));
+    DefinitionAction objectDefAction =
+        new DefinitionAction(objectSymbol, createOrGetInstanceId(objectSymbol));
     objectDefAction.addChildren(mergedPropDefGroums.nodes);
 
     Groum definitionGroum = new Groum(objectDefAction);
@@ -354,7 +359,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     // add funcCall
     var functionSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
-    FunctionCallAction action = new FunctionCallAction(functionSymbol, createOrGetInstanceId(functionSymbol));
+    FunctionCallAction action =
+        new FunctionCallAction(functionSymbol, createOrGetInstanceId(functionSymbol));
     Groum finalGroum = mergedParameterGroums.mergeSequential(action);
 
     return finalGroum;
@@ -381,7 +387,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   @Override
   public Groum visit(AggregateValueDefinitionNode node) {
     // visit all property definitions
-    ArrayList<Groum> propertyDefinitionGroums = new ArrayList<>(node.getPropertyDefinitionNodes().size());
+    ArrayList<Groum> propertyDefinitionGroums =
+        new ArrayList<>(node.getPropertyDefinitionNodes().size());
     for (var propDefNode : node.getPropertyDefinitionNodes()) {
       var propDefGroum = propDefNode.accept(this);
       propertyDefinitionGroums.add(propDefGroum);
@@ -405,7 +412,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   @Override
   public Groum visit(PrototypeDefinitionNode node) {
     // visit all component definitions
-    ArrayList<Groum> componentDefGroums = new ArrayList<>(node.getComponentDefinitionNodes().size());
+    ArrayList<Groum> componentDefGroums =
+        new ArrayList<>(node.getComponentDefinitionNodes().size());
     for (var componentDefNode : node.getComponentDefinitionNodes()) {
       var componentDefGroum = componentDefNode.accept(this);
       componentDefGroums.add(componentDefGroum);
@@ -511,19 +519,21 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     // rhs is the 'deeper' member access
     var lhsSymbol = this.symbolTable.getSymbolsForAstNode(node.getLhs()).get(0);
 
-    // if the lhs of the member access is a callable, we generally want to use the return type as the 'scope'
+    // if the lhs of the member access is a callable, we generally want to use the return type as
+    // the 'scope'
     // in which the member access is happening
     if (lhsSymbol instanceof ICallable callable) {
-      lhsSymbol = (Symbol)callable.getFunctionType().getReturnType();
+      lhsSymbol = (Symbol) callable.getFunctionType().getReturnType();
     }
 
     Groum mergedGroum = Groum.NONE;
     // in a method call, we first land here
     if (node.getRhs().type.equals(Node.Type.FuncCall)) {
-      Groum parameterEvaluationGroum = getGroumForParameters((FuncCallNode)node.getRhs());
+      Groum parameterEvaluationGroum = getGroumForParameters((FuncCallNode) node.getRhs());
 
       Symbol functionSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
-      var methodAccessAction = new MethodAccessAction(lhsSymbol, functionSymbol, createOrGetInstanceId(lhsSymbol));
+      var methodAccessAction =
+          new MethodAccessAction(lhsSymbol, functionSymbol, createOrGetInstanceId(lhsSymbol));
 
       // add scoping information: the parameter evaluations are 'owned' by the method access
       methodAccessAction.addChildren(parameterEvaluationGroum.nodes);
@@ -540,7 +550,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
       Groum accessGroum;
       if (lhsOfInnerMemberAccess.type.equals(Node.Type.Identifier)) {
-        var accessAction = new PropertyAccessAction(lhsSymbol, innerLhsSymbol, createOrGetInstanceId(lhsSymbol));
+        var accessAction =
+            new PropertyAccessAction(lhsSymbol, innerLhsSymbol, createOrGetInstanceId(lhsSymbol));
 
         // add scoping information: the inner member access is 'owned' by this property access
         accessAction.addChildren(innerMemberAccessGroum.nodes);
@@ -548,10 +559,13 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       } else {
         // function call node
         // handle method access
-        Groum parameterEvaluationGroum = getGroumForParameters((FuncCallNode)lhsOfInnerMemberAccess);
-        var methodAccessAction = new MethodAccessAction(lhsSymbol, innerLhsSymbol, createOrGetInstanceId(lhsSymbol));
+        Groum parameterEvaluationGroum =
+            getGroumForParameters((FuncCallNode) lhsOfInnerMemberAccess);
+        var methodAccessAction =
+            new MethodAccessAction(lhsSymbol, innerLhsSymbol, createOrGetInstanceId(lhsSymbol));
 
-        // add scoping information: the parameter evaluation and inner member access is 'owned' by the method access
+        // add scoping information: the parameter evaluation and inner member access is 'owned' by
+        // the method access
         methodAccessAction.addChildren(parameterEvaluationGroum.nodes);
         methodAccessAction.addChildren(innerMemberAccessGroum.nodes);
         accessGroum = parameterEvaluationGroum.mergeSequential(methodAccessAction);
@@ -561,7 +575,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     } else if (node.getRhs().type.equals(Node.Type.Identifier)) {
       // property access
       var rhsSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
-      var accessAction = new PropertyAccessAction(lhsSymbol, rhsSymbol, createOrGetInstanceId(lhsSymbol));
+      var accessAction =
+          new PropertyAccessAction(lhsSymbol, rhsSymbol, createOrGetInstanceId(lhsSymbol));
 
       mergedGroum = new Groum(accessAction);
     }
@@ -634,8 +649,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       ExpressionAction expr = new ExpressionAction(rhsGroum.nodes, IndexGenerator.getIdx());
       Groum exprGroum = new Groum(expr);
 
-      var intermediaryGroum =
-          rhsGroum.mergeSequential(exprGroum);
+      var intermediaryGroum = rhsGroum.mergeSequential(exprGroum);
       // exprGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
       mergedGroum = intermediaryGroum.mergeSequential(assignmentGroum);
     } else {
@@ -726,7 +740,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     Groum mergedGroum = Groum.NONE;
 
     var iterableSymbol = this.symbolTable.getSymbolsForAstNode(node.getIterableIdNode()).get(0);
-    var iterableRef = new VariableReferenceAction(iterableSymbol, createOrGetInstanceId(iterableSymbol));
+    var iterableRef =
+        new VariableReferenceAction(iterableSymbol, createOrGetInstanceId(iterableSymbol));
     mergedGroum = mergedGroum.mergeSequential(iterableRef);
 
     var varSymbol = this.symbolTable.getSymbolsForAstNode(node.getVarIdNode()).get(0);
@@ -756,7 +771,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     Groum mergedGroum = Groum.NONE;
 
     var iterableSymbol = this.symbolTable.getSymbolsForAstNode(node.getIterableIdNode()).get(0);
-    var iterableRef = new VariableReferenceAction(iterableSymbol, createOrGetInstanceId(iterableSymbol));
+    var iterableRef =
+        new VariableReferenceAction(iterableSymbol, createOrGetInstanceId(iterableSymbol));
     mergedGroum = mergedGroum.mergeSequential(iterableRef);
 
     var varSymbol = this.symbolTable.getSymbolsForAstNode(node.getVarIdNode()).get(0);
@@ -784,7 +800,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   @Override
   public Groum visit(ItemPrototypeDefinitionNode node) {
     // visit all property definitions
-    ArrayList<Groum> propertyDefinitionGroums = new ArrayList<>(node.getPropertyDefinitionNodes().size());
+    ArrayList<Groum> propertyDefinitionGroums =
+        new ArrayList<>(node.getPropertyDefinitionNodes().size());
     for (var propDefNode : node.getPropertyDefinitionNodes()) {
       var propDefGroum = propDefNode.accept(this);
       propertyDefinitionGroums.add(propDefGroum);

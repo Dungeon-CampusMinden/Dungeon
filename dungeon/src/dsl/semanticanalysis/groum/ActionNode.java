@@ -2,11 +2,7 @@ package dsl.semanticanalysis.groum;
 
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +36,7 @@ public abstract class ActionNode extends GroumNode {
     } else {
       instanceSymbolType = symbol.getDataType();
     }
-    return (Symbol)instanceSymbolType;
+    return (Symbol) instanceSymbolType;
   }
 
   // this may model access to a specific instance, so need a unique id for modelling this

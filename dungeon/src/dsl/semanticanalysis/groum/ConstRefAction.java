@@ -14,7 +14,8 @@ public class ConstRefAction extends ActionNode {
         + this.referencedType().getName()
         + " ["
         + this.referencedInstanceId()
-        + "]> value: " + this.value;
+        + "]> value: "
+        + this.value;
   }
 
   public ConstRefAction() {

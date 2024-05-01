@@ -151,30 +151,37 @@ public class GroumScope {
     var map = this.variableDefinitions.get(instanceId);
 
     // parent scope is required to be of a conditional type
-    var conditionalParentScope = getConditionalParentScope(parentScope, 1);
+    var immediateParentScope = getConditionalParentScope(parentScope, 1);
 
-    if (conditionalParentScope.associatedGroumNode() instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.block)) {
+    if (immediateParentScope.associatedGroumNode() instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.block)) {
       // the parent scope of the passed parent scope is a block (nested block!)
       // this overwrites any previous definitions!
       // treat it as a new variable definition!
-      this.parent.addDefinitionFromPropagation(instanceId, node, conditionalParentScope);
+
+      //var conditionalParentScope = getConditionalParentScope(immediateParentScope, -1);
+      // TODO: unwrap the parentScope until it is a conditional
+      //propagateDefinitionToParents(instanceId, node, immediateParentScope);
+
+      // TODO: need to debug this and the definition getting when proc idx == 31 (variable ref)
+      //  NEXT STEP !!!
+      // Note: this likely does not work, because propagation is done after the call to this addDefinition anyways..
+      immediateParentScope.addDefinition(instanceId, node, immediateParentScope);
     }
 
-    if (conditionalParentScope == GroumScope.NONE) {
+    if (immediateParentScope == GroumScope.NONE) {
       // TODO: is this correct?
       map.put(parentScope, node);
     } else {
-      map.put(conditionalParentScope, node);
+      map.put(immediateParentScope, node);
     }
 
     checkForShadowedDefinitions(instanceId);
-
   }
 
   private GroumScope getConditionalParentScope(GroumScope scope, int maxSearchDepth) {
     var parentScope = scope;
     int searchDepth = 0;
-    while (searchDepth < maxSearchDepth && parentScope != GroumScope.NONE) {
+    while ((maxSearchDepth == -1 || searchDepth < maxSearchDepth) && parentScope != GroumScope.NONE) {
       if (parentScope.associatedGroumNode instanceof ControlNode controlNode
           && (controlNode.controlType() != ControlNode.ControlType.block
               && controlNode.controlType() != ControlNode.ControlType.returnStmt)) {

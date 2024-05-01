@@ -31,7 +31,12 @@ public class PropertyAccessAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return this.instanceDataType().getName() + ":<property access '" + this.propertySymbol().getName() + "' [" + this.referencedInstanceId()+"]>";
+    return this.instanceDataType().getName()
+        + ":<property access '"
+        + this.propertySymbol().getName()
+        + "' ["
+        + this.referencedInstanceId()
+        + "]>";
   }
 
   public <T> T accept(GroumVisitor<T> visitor) {

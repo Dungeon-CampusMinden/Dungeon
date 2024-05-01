@@ -12,7 +12,6 @@ public class VariableReferenceAction extends ActionNode {
     this.addSymbolReference(getInstanceSymbolType(referencedSymbol));
     this.addSymbolReference(referencedSymbol);
     this.referencedInstanceId(referenceId);
-
   }
 
   public IType variableType() {
@@ -25,11 +24,15 @@ public class VariableReferenceAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return this.variableType().getName() + ":<ref [" + this.referencedInstanceId() + "]> (name: '" + this.variableSymbol().getName() + "')";
+    return this.variableType().getName()
+        + ":<ref ["
+        + this.referencedInstanceId()
+        + "]> (name: '"
+        + this.variableSymbol().getName()
+        + "')";
   }
 
   public <T> T accept(GroumVisitor<T> visitor) {
     return visitor.visit(this);
   }
 }
-

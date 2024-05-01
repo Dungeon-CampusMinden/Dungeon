@@ -129,7 +129,9 @@ public class GroumPrinter {
     }
 
     String nodeId = getOrCreateIdAction(node);
-    String nodeContent = node.toString() + (node.processedCounter()!=-1 ? " proc idx: " + node.processedCounter() : "");
+    String nodeContent =
+        node.toString()
+            + (node.processedCounter() != -1 ? " proc idx: " + node.processedCounter() : "");
     String nodeString = String.format(actionNodeDeclarationFmt, nodeId, nodeContent);
 
     if (actionsWithChildren.containsKey(node)) {
@@ -158,7 +160,9 @@ public class GroumPrinter {
       return;
     }
     String nodeId = getOrCreateIdControl(node);
-    String nodeContent = node.toString() + (node.processedCounter()!=-1 ? " proc idx: " +node.processedCounter() : "");
+    String nodeContent =
+        node.toString()
+            + (node.processedCounter() != -1 ? " proc idx: " + node.processedCounter() : "");
     String nodeString = String.format(controlNodeDeclarationFmt, nodeId, nodeContent);
 
     if (actionsWithChildren.containsKey(node)) {
@@ -182,7 +186,6 @@ public class GroumPrinter {
   private void edge(GroumEdge edge, StringBuilder builder) {
     var start = edge.start();
     String startId = this.idMap.get(start);
-
 
     var end = edge.end();
     String endId = this.idMap.get(end);

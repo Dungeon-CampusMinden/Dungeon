@@ -4,7 +4,6 @@ import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
-
 import java.util.*;
 
 // TODO: how are we going to calculate data dependencies based on the SETS of
@@ -47,13 +46,14 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     //    variable x is also involved.
 
     // three passes:
-    // 1. iterate over all nodes to find definition nodes for instances (todo: maybe this should be restricted
+    // 1. iterate over all nodes to find definition nodes for instances (todo: maybe this should be
+    // restricted
     //    to global definitions)
     // 2. calculate shared variables for each node
-    //    (nodes, which are children of an expression node are used to model specific variable references,
+    //    (nodes, which are children of an expression node are used to model specific variable
+    // references,
     //    and don't store 'shared variables', only the expression stores them...i guess)
     // 3. add data dependency edges (maybe able to do this in second pass)
-
 
     // first pass
     var fileGlobalScope = new GroumScope(GroumNode.NONE);
@@ -100,7 +100,8 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       this.groumScopeStack.push(defScope);
 
       // get subgroums source nodes
-      var defNodesSourceNodes = defNode.children().stream().filter(c -> c.incoming().size() == 0).toList();
+      var defNodesSourceNodes =
+          defNode.children().stream().filter(c -> c.incoming().size() == 0).toList();
       nodesToProcess.addAll(defNodesSourceNodes);
 
       while (!nodesToProcess.isEmpty()) {
@@ -120,7 +121,8 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
         }
 
         // get parents groum scope
-        if (parent instanceof ControlNode controlNode && controlNode.controlType() != ControlNode.ControlType.returnStmt) {
+        if (parent instanceof ControlNode controlNode
+            && controlNode.controlType() != ControlNode.ControlType.returnStmt) {
           if (controlNode.controlType() != ControlNode.ControlType.returnStmt) {
             if (this.scopesForNodes.containsKey(parent)) {
               this.groumScopeStack.push(this.scopesForNodes.get(parent));
@@ -128,11 +130,11 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
             }
           }
         } /*else {
-          if (this.scopesForNodes.containsKey(parent)) {
-            this.groumScopeStack.push(this.scopesForNodes.get(parent));
-            pushedScope = true;
-          }
-        }*/
+            if (this.scopesForNodes.containsKey(parent)) {
+              this.groumScopeStack.push(this.scopesForNodes.get(parent));
+              pushedScope = true;
+            }
+          }*/
 
         // visit node
         currentNode.accept(this);
@@ -148,7 +150,11 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           currentNodeChildren.reversed().forEach(nodesToProcess::addFirst);
         }
         // add following children
-        nodesToProcess.addAll(currentNode.outgoing().stream().filter(e -> e.edgeType().equals(GroumEdge.GroumEdgeType.temporal)).map(GroumEdge::end).toList());
+        nodesToProcess.addAll(
+            currentNode.outgoing().stream()
+                .filter(e -> e.edgeType().equals(GroumEdge.GroumEdgeType.temporal))
+                .map(GroumEdge::end)
+                .toList());
 
         // mark node as processed
         processedNodes.add(currentNode);
@@ -174,9 +180,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     switch (node.controlType()) {
       case ifElseStmt:
         // we never expect to visit the same node twice
-        if(!this.scopesForNodes.containsKey(node)) {
+        if (!this.scopesForNodes.containsKey(node)) {
           // new scope
-          scope = new GroumScope(this.currentScope(),node);
+          scope = new GroumScope(this.currentScope(), node);
           this.scopesForNodes.put(node, scope);
 
           // get if node
@@ -200,9 +206,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       case elseStmt:
       case block:
         // we never expect to visit the same node twice
-        if (!this.scopesForNodes.containsKey(node)){
+        if (!this.scopesForNodes.containsKey(node)) {
           // new scope
-          scope = new GroumScope(this.currentScope(),node);
+          scope = new GroumScope(this.currentScope(), node);
           this.scopesForNodes.put(node, scope);
         }
         break;
@@ -233,33 +239,41 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
         if (involvedVariablesInExpression == null) {
           boolean b = true;
         } else {
-          involvedVariablesInExpression.forEach(v -> {
-            this.addInvolvedVariable(node, v, InvolvedVariable.TypeOfInvolvement.read);
-            GroumEdge dataEdge = new GroumEdge(v.definitionNode(), node, GroumEdge.GroumEdgeType.dataDependencyRead);
-            this.groum.addEdge(dataEdge);
-          });
+          involvedVariablesInExpression.forEach(
+              v -> {
+                this.addInvolvedVariable(node, v, InvolvedVariable.TypeOfInvolvement.read);
+                GroumEdge dataEdge =
+                    new GroumEdge(
+                        v.definitionNode(), node, GroumEdge.GroumEdgeType.dataDependencyRead);
+                this.groum.addEdge(dataEdge);
+              });
         }
       }
     }
 
     var existingDefinitions = this.currentScope().getDefinitions(node.referencedInstanceId());
     if (!existingDefinitions.isEmpty()) {
-      existingDefinitions.forEach(v -> {
-        // it is possible, that the current at this point contains redefinitions of the same variable from other
-        // execution paths (from other groum scopes)
-        // these definitions need to be filtered out, because the redefinitions are localized to their respective
-        // scope
-        // in order to filter them out, we check, if the current node lies in the same heritage (as an ancestor, which
-        // is equal to the parent of v), which is equal to checking for a common parent scope
-        // TODO: this does not work correctly for its intent...this will block definitions from
-        //  conditional branches to be redefined..
-        //if (node.hasAncestorLikeParentOf(v)) {
-          // there is a definition, which is replaced by this new definition
-          // create redefinition edge
-          GroumEdge dataEdge = new GroumEdge(v, node, GroumEdge.GroumEdgeType.dataDependencyRedefinition);
-          this.groum.addEdge(dataEdge);
-        //}
-      });
+      existingDefinitions.forEach(
+          v -> {
+            // it is possible, that the current at this point contains redefinitions of the same
+            // variable from other
+            // execution paths (from other groum scopes)
+            // these definitions need to be filtered out, because the redefinitions are localized to
+            // their respective
+            // scope
+            // in order to filter them out, we check, if the current node lies in the same heritage
+            // (as an ancestor, which
+            // is equal to the parent of v), which is equal to checking for a common parent scope
+            // TODO: this does not work correctly for its intent...this will block definitions from
+            //  conditional branches to be redefined..
+            // if (node.hasAncestorLikeParentOf(v)) {
+            // there is a definition, which is replaced by this new definition
+            // create redefinition edge
+            GroumEdge dataEdge =
+                new GroumEdge(v, node, GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+            this.groum.addEdge(dataEdge);
+            // }
+          });
     }
 
     // create new definition in scope
@@ -267,7 +281,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
     // add write involved variable
     var instanceSymbol = node.instanceSymbol();
-    var involvedVariable = this.addInvolvedVariable(node, instanceSymbol, InvolvedVariable.TypeOfInvolvement.write, node);
+    var involvedVariable =
+        this.addInvolvedVariable(
+            node, instanceSymbol, InvolvedVariable.TypeOfInvolvement.write, node);
     return List.of(involvedVariable);
   }
 
@@ -312,12 +328,14 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   @Override
   public List<InvolvedVariable> visit(MethodAccessAction node) {
     // Note: temporally, lhs is evaluated before rhs
-    // Note: if this method access is chained after some other member access (on lhs), the lhs member access
+    // Note: if this method access is chained after some other member access (on lhs), the lhs
+    // member access
     //       will be the parent of this node...
 
     // read all variables from parameters
 
-    // write & read lhs (can't say for sure without more information about the method (does it mutate the object?)
+    // write & read lhs (can't say for sure without more information about the method (does it
+    // mutate the object?)
     return new ArrayList<>();
   }
 
@@ -329,7 +347,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     var instanceId = node.referencedInstanceId();
     this.currentScope().createNewDefinition(instanceId, node);
 
-    var involvedVariable = this.addInvolvedVariable(node, node.parameterSymbol(), InvolvedVariable.TypeOfInvolvement.write, node);
+    var involvedVariable =
+        this.addInvolvedVariable(
+            node, node.parameterSymbol(), InvolvedVariable.TypeOfInvolvement.write, node);
 
     return List.of(involvedVariable);
   }
@@ -366,21 +386,17 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
     var definitionSymbol = this.currentScope().getDefinitionSymbol(instanceId);
 
-    if (definitionSymbol.getName().contains("y")) {
-      boolean t = true;
-      /*if (node.incoming().size() == 1 && node.incoming().get(0).start() instanceof PassAsParameterAction) {
-        boolean b = true;
-      }*/
-    }
-
     // search instanceId in current definitions
     var definitionNodes = this.currentScope().getDefinitions(instanceId);
 
     ArrayList<InvolvedVariable> involvedVariables = new ArrayList<>();
     for (var definitionNode : definitionNodes) {
-      var involvedVariable = this.addInvolvedVariable(node, definitionSymbol, InvolvedVariable.TypeOfInvolvement.read, definitionNode);
+      var involvedVariable =
+          this.addInvolvedVariable(
+              node, definitionSymbol, InvolvedVariable.TypeOfInvolvement.read, definitionNode);
 
-      var dataDependency = new GroumEdge(definitionNode, node, GroumEdge.GroumEdgeType.dataDependencyRead);
+      var dataDependency =
+          new GroumEdge(definitionNode, node, GroumEdge.GroumEdgeType.dataDependencyRead);
       this.groum.addEdge(dataDependency);
       involvedVariables.add(involvedVariable);
     }
@@ -388,7 +404,11 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     return involvedVariables;
   }
 
-  public InvolvedVariable addInvolvedVariable(GroumNode node, Symbol variableSymbol, InvolvedVariable.TypeOfInvolvement type, GroumNode definitionNode) {
+  public InvolvedVariable addInvolvedVariable(
+      GroumNode node,
+      Symbol variableSymbol,
+      InvolvedVariable.TypeOfInvolvement type,
+      GroumNode definitionNode) {
     if (!this.involvedVariables.containsKey(node)) {
       this.involvedVariables.put(node, new ArrayList<>());
     }
@@ -397,12 +417,17 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     return involvedVariable;
   }
 
-  public InvolvedVariable addInvolvedVariable(GroumNode node, InvolvedVariable involvedVariable, InvolvedVariable.TypeOfInvolvement type) {
+  public InvolvedVariable addInvolvedVariable(
+      GroumNode node, InvolvedVariable involvedVariable, InvolvedVariable.TypeOfInvolvement type) {
     if (!this.involvedVariables.containsKey(node)) {
       this.involvedVariables.put(node, new ArrayList<>());
     }
     if (!involvedVariable.typeOfInvolvement().equals(type)) {
-      this.involvedVariables.get(node).add(new InvolvedVariable(involvedVariable.variableSymbol(), type, involvedVariable.definitionNode()));
+      this.involvedVariables
+          .get(node)
+          .add(
+              new InvolvedVariable(
+                  involvedVariable.variableSymbol(), type, involvedVariable.definitionNode()));
     } else {
       this.involvedVariables.get(node).add(involvedVariable);
     }
