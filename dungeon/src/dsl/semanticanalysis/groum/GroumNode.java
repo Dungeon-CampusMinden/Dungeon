@@ -67,6 +67,9 @@ public abstract class GroumNode {
 
   public boolean hasAncestorLike(GroumNode other) {
     var myParent = this.parent;
+    if (myParent == null) {
+      return false;
+    }
     while (myParent != GroumNode.NONE && myParent != other) {
       myParent = myParent.parent;
     }

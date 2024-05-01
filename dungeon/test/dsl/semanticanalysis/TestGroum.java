@@ -898,16 +898,24 @@ public class TestGroum {
         y = 42;
         if z {
           y = 56;
+          z = 31;
         }
+        z = 12;
       } else {
         y = 123;
+        z = 13;
       }
 
-      /*if x {
+      if x {
         y = 1;
+        z = 44;
       } else {
         y = 2;
-      }*/
+        z = 55
+        {{{
+          z = 66;
+        }}}
+      }
 
       var sum = x + y;
       y = 21;
@@ -995,22 +1003,21 @@ public class TestGroum {
     if x {
       y = 1;
       {
-        y = 2;
-        {
-          y = 3;
-          {
-            y = 4;
-            var test = y;
-          }
-        }
+        z = 21;
+        {{{
+          y = 2;
+          z = 31;
+        }}}
+        var test = y;
       }
       print(y);
     } else {
-      y = 123;
+      y = 5;
+      z = 41;
     }
 
-    var sum = x + y;
-    y = 21;
+    var sum = z + y;
+    y = 6;
     return y;
   }
   """;
@@ -1048,7 +1055,7 @@ public class TestGroum {
         			if z {
         				x = 123;
         			}
-        			//x = 1234;
+        			x = 1234;
         			print(x);
         		} else {
         			x = 42;
@@ -1080,6 +1087,47 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
   }
 
+  @Test
+  public void dataDependencyConditionalRedef() {
+    String program =
+      """
+      fn test(int x, int y, int z) {
+        if x {
+          if z {
+            y = 1;
+            print(y);
+          }
+          y = 2;
+        } else {
+          y = 3;
+        }
+
+        print(y);
+      }
+  """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, false);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
   public static void write(String content, String path) {
     try {
       FileWriter writer = new FileWriter(path);
@@ -1088,5 +1136,9 @@ public class TestGroum {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private static GroumNode findNodeByProcessIdx(Groum groumToSearch, long idx) {
+    return groumToSearch.nodes().stream().filter(n -> n.processedCounter() == idx).findFirst().orElse(GroumNode.NONE);
   }
 }
