@@ -954,22 +954,29 @@ public class TestGroum {
   public void dataDependencyConditionalShadowing() {
     String program =
       """
-  fn add(int x, int y, int z) -> int {
-    y = 1;
-    if x {
-      y = 2;
-    } else if z {
-      y = 3;
-    } else {
-      y = 4; // this value is not properly read afterwards
-    }
+      // param idx: 2
+      fn add(int x, int y, int z) -> int {
+        // redef idx: 6
+        y = 1;
+        if x {
+          // idx: 13
+          y = 2;
+        } else if z {
+          // idx: 21
+          y = 3;
+        } else {
+          // idx: 26
+          y = 4;
+        }
 
-    print(y);
+        // param ref idx: 27
+        print(y);
 
-    y = 21;
-    return y;
-  }
-  """;
+        // redef idx: 32
+        y = 21;
+        return y;
+      }
+      """;
 
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForAST(ast);
@@ -991,6 +998,38 @@ public class TestGroum {
     GroumPrinter p2 = new GroumPrinter();
     String finalizedGroumStr = p2.print(finalizedGroum, true);
     write(finalizedGroumStr, "final_groum.dot");
+
+    // tests
+    var firstRedef = findNodeByProcessIdx(finalizedGroum, 6);
+    var secondRedef = findNodeByProcessIdx(finalizedGroum, 13);
+    var thirdRedef = findNodeByProcessIdx(finalizedGroum, 21);
+    var forthRedef = findNodeByProcessIdx(finalizedGroum, 26);
+    var paramRef = findNodeByProcessIdx(finalizedGroum, 27);
+    var finalRedef = findNodeByProcessIdx(finalizedGroum, 32);
+
+    // shadowing of first redefinition
+    var firstRedefShadowing = firstRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(3, firstRedefShadowing.size());
+    Assert.assertEquals(secondRedef, firstRedefShadowing.get(0));
+    Assert.assertEquals(thirdRedef, firstRedefShadowing.get(1));
+    Assert.assertEquals(forthRedef, firstRedefShadowing.get(2));
+
+    var firstRedefReads = firstRedef.getOutgoingOfType(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(0, firstRedefReads.size());
+
+    // param references
+    var paramReads = paramRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(3, paramReads.size());
+    Assert.assertTrue(paramReads.contains(secondRedef));
+    Assert.assertTrue(paramReads.contains(thirdRedef));
+    Assert.assertTrue(paramReads.contains(forthRedef));
+
+    // final redef
+    var finalRedefs = finalRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(3, finalRedefs.size());
+    Assert.assertTrue(finalRedefs.contains(secondRedef));
+    Assert.assertTrue(finalRedefs.contains(thirdRedef));
+    Assert.assertTrue(finalRedefs.contains(forthRedef));
   }
 
   @Test
@@ -1003,26 +1042,27 @@ public class TestGroum {
         y = 42;
         if z {
           y = 56;
-          z = 31;
+          //z = 31;
         }
-        z = 12;
+        print(y);
+        //z = 12;
       } else {
         y = 123;
-        z = 13;
+        //z = 13;
       }
 
       if x {
         y = 1;
-        z = 44;
+        //z = 44;
       } else {
         y = 2;
-        z = 55
+        //z = 55
         {{{
-          z = 66;
+          y = 66;
         }}}
       }
 
-      var sum = x + y;
+      print(y);
       y = 21;
       return y;
     }
