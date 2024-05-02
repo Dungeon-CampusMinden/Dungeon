@@ -856,12 +856,16 @@ public class TestGroum {
   public void dataDependencyConditionalNestedIf() {
     String program =
         """
+    // param y def idx: 2
     fn add(int x, int y, int z) -> int {
       if x {
+        // y def idx: 10
         y = 42;
       } else if z {
+        // y def idx: 18
         y = 123;
       } else {
+        // y def idx: 23
         y = 321;
       }
       var sum = x + y;
@@ -869,6 +873,103 @@ public class TestGroum {
       return y;
     }
     """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
+  @Test
+  // TODO: test
+  public void dataDependencySequentialConditional() {
+    String program =
+      """
+  fn add(int x, int y, int z) -> int {
+    if x {
+      y = 42;
+    } else {
+      y = 321;
+    }
+
+    if x {
+      y = 1;
+    }
+
+    if x {
+      y = 2;
+    } else if z {
+      y = 3;
+    } else {
+      y = 4;
+    }
+
+    print(y);
+
+    y = 21;
+    return y;
+  }
+  """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, false);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
+  @Test
+  // TODO: test
+  public void dataDependencyConditionalShadowing() {
+    String program =
+      """
+  fn add(int x, int y, int z) -> int {
+    y = 1;
+    if x {
+      y = 2;
+    } else if z {
+      y = 3;
+    } else {
+      y = 4; // this value is not properly read afterwards
+    }
+
+    print(y);
+
+    y = 21;
+    return y;
+  }
+  """;
 
     var ast = Helpers.getASTFromString(program);
     var result = Helpers.getSymtableForAST(ast);
