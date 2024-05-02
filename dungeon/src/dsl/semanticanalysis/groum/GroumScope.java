@@ -11,6 +11,8 @@ public class GroumScope {
   private HashMap<GroumNode, GroumScope> conditionalScopes = new HashMap<>();
   private GroumScope parent;
   private GroumScope controlFlowParent;
+  private HashSet<GroumScope> children = new HashSet<>();
+  private HashSet<GroumScope> heritage = new HashSet<>();
   private GroumNode associatedGroumNode;
 
   public GroumScope(GroumNode associatedGroumNode) {
@@ -21,6 +23,7 @@ public class GroumScope {
 
   public GroumScope(GroumScope parent, GroumNode associatedGroumNode) {
     this.parent = parent;
+    this.parent.addChild(this);
     this.controlFlowParent = getConditionalParentScope(parent, -1);
     this.associatedGroumNode = associatedGroumNode;
   }
@@ -28,6 +31,29 @@ public class GroumScope {
   public void pushConditionalScope(GroumScope conditionalScope) {
     this.conditionalScopes.put(conditionalScope.associatedGroumNode, conditionalScope);
     this.conditionalScopesOrdered.push(conditionalScope.associatedGroumNode);
+  }
+
+  public void addChild(GroumScope scope) {
+    this.children.add(scope);
+    this.parent.recalculateHeritage();
+  }
+
+  public HashSet<GroumScope> children() {
+    return this.children;
+  }
+
+  private void recalculateHeritage() {
+    this.heritage = new HashSet<>(this.children);
+    for (var child : this.children) {
+      this.heritage.addAll(child.heritage);
+    }
+    if (this.parent != NONE && this.parent != null) {
+      this.parent.recalculateHeritage();
+    }
+  }
+
+  public HashSet<GroumScope> heritage() {
+    return heritage;
   }
 
   public GroumScope getConditionalScopeFor(GroumNode node) {
@@ -52,6 +78,8 @@ public class GroumScope {
       // - if so, add the scope of the other branch to the blocked scopes
       // - repeat that until we reach THIS scope or conditional parent is NONE
 
+      var instanceDefinitions = this.variableDefinitions.get(instanceId);
+
       GroumScope scopeToCheck = fromScope;
       HashSet<GroumScope> scopesToBlock = new HashSet<>();
       while (scopeToCheck != GroumScope.NONE) {
@@ -71,6 +99,8 @@ public class GroumScope {
           break;
         }
 
+
+        GroumScope scopeToBlock = GroumScope.NONE;
         if (parentControlNode.controlType().equals(ControlNode.ControlType.ifStmt) && parentsParentControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
           // get else control node
           var elseStmtNode = assocNodeParentOfControlFlowParent.getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal).get(1);
@@ -78,7 +108,8 @@ public class GroumScope {
           assert ((ControlNode)elseStmtNode).controlType().equals(ControlNode.ControlType.elseStmt);
 
           // block the other scope
-          var scopeToBlock = parentOfControlFlowParent.getConditionalScopeFor(elseStmtNode);
+          // TODO: and all other child scopes..
+          scopeToBlock = parentOfControlFlowParent.getConditionalScopeFor(elseStmtNode);
           if (scopeToBlock != GroumScope.NONE) {
             scopesToBlock.add(scopeToBlock);
           }
@@ -88,17 +119,21 @@ public class GroumScope {
           assert ifStmtNode instanceof ControlNode;
           assert ((ControlNode)ifStmtNode).controlType().equals(ControlNode.ControlType.ifStmt);
 
-          var scopeToBlock = parentOfControlFlowParent.getConditionalScopeFor(ifStmtNode);
+          // block the other scope
+          scopeToBlock = parentOfControlFlowParent.getConditionalScopeFor(ifStmtNode);
           if (scopeToBlock != GroumScope.NONE) {
             scopesToBlock.add(scopeToBlock);
           }
+        }
+
+        if (scopeToBlock != GroumScope.NONE) {
+          scopesToBlock.addAll(scopeToBlock.heritage);
         }
 
         // cont
         scopeToCheck = parentOfControlFlowParent;
       }
       final var finalScopesToBlock = scopesToBlock;
-      var instanceDefinitions = this.variableDefinitions.get(instanceId);
       return instanceDefinitions.entrySet().stream()
         .filter(e -> !finalScopesToBlock.contains(e.getKey()))
         .map(Map.Entry::getValue)
@@ -172,41 +207,11 @@ public class GroumScope {
     return parentScope;
   }
 
-  /*private boolean doBothBranchesContainDef(Long instanceId, GroumScope ifElseScope) {
-    HashMap<GroumScope, GroumNode> instanceDefinitions = this.variableDefinitions.get(instanceId);
-    List<GroumNode> ifElseChildNodes = ifElseScope.associatedGroumNode().getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal);
-    GroumNode ifNode = ifElseChildNodes.get(0);
-    GroumNode elseNode = ifElseChildNodes.get(1);
-
-    boolean containsDefForAllBranches = true;
-    GroumScope ifScope = ifElseScope.getConditionalScopeFor(ifNode);
-    if ()
-    containsDefForAllBranches &= instanceDefinitions.containsKey(ifScope);
-    GroumScope elseScope = ifElseScope.getConditionalScopeFor(elseNode);
-    containsDefForAllBranches &= instanceDefinitions.containsKey(elseScope);
-
-  }*/
-
   private void checkForShadowedDefinitions(Long instanceId, GroumScope scopeOfRecentlyAddedNode) {
     var instancesDefinitions = this.variableDefinitions.get(instanceId);
 
     // check, if the scopeOfRecenltyAddedNode Kind eines ifElseStmts ist, was in conditionalScopes dieser Scope
     // gespeichert ist
-
-    /*GroumScope ifElseParentScope = scopeOfRecentlyAddedNode.controlFlowParent;
-    while (ifElseParentScope != GroumScope.NONE) {
-      if (ifElseParentScope.associatedGroumNode() instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
-        if (this.conditionalScopes.containsKey(controlNode)) {
-          break;
-        }
-      }
-    }
-
-    if (ifElseParentScope == GroumScope.NONE) {
-      return;
-    }
-     */
-
     // TODO:
     //  if the last pushed scope is an ifElse stmt and this contains definitions for both scopes
     //  this shadows the definitions in the scopes above the ifElse stmt
@@ -332,19 +337,19 @@ public class GroumScope {
         // if the if scope does not itself contain the definitions, it's block may contain it
 
         if (ifScope.variableDefinitions.containsKey(instanceId)) {
-          propagateShadowingToParents(instanceId, this, new ArrayList<>());
+          propagateShadowingToParents(instanceId, this, new HashSet<>());
         }
       }
     }
   }
 
-  private void propagateShadowingToParents(Long instanceId, GroumScope fromScope, List<GroumScope> definitionsToShadow) {
+  private void propagateShadowingToParents(Long instanceId, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
     if (this.parent != GroumScope.NONE) {
       this.parent.propagateShadowing(instanceId, fromScope, definitionsToShadow);
     }
   }
 
-  private void propagateShadowing(Long instanceId, GroumScope fromScope, List<GroumScope> definitionsToShadow) {
+  private void propagateShadowing(Long instanceId, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
 
     // check, if the from scope is a direct child of the else branch of this
     // if so, just propagate on from this scope
@@ -356,6 +361,7 @@ public class GroumScope {
       // (fromScope is guaranteed to be an ifElseScope)
       var iter = this.conditionalScopesOrdered.iterator();
 
+      var definitions = this.variableDefinitions.get(instanceId);
       // TODO: also collect the definitions, which are just children of the current scope
       while (iter.hasNext())  {
         var next = iter.next();
@@ -364,13 +370,24 @@ public class GroumScope {
         }
         var shadowedScope  = this.conditionalScopes.get(next);
         definitionsToShadow.add(shadowedScope);
+        definitionsToShadow.addAll(shadowedScope.heritage);
+
+        // TODO: also add all scope of which the shadowed scope is an ancestor
+        /*for (var definition : definitions.keySet()) {
+          if (definitionsToShadow.contains(definition)) {
+            // skip
+            continue;
+          }
+          if (definition.associatedGroumNode.hasAncestorLike(shadowedScope.associatedGroumNode)) {
+            definitionsToShadow.add(definition);
+          }
+        }*/
       }
 
       if (fromScope.controlFlowParent != this) {
         definitionsToShadow.add(this);
       }
 
-      var definitions = this.variableDefinitions.get(instanceId);
       if (definitions != null) {
         for (var definitionToShadow : definitionsToShadow) {
           definitions.remove(definitionToShadow);
