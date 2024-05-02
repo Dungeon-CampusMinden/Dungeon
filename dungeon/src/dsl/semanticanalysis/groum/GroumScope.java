@@ -7,6 +7,7 @@ public class GroumScope {
   public static GroumScope NONE = new GroumScope(GroumNode.NONE);
   private HashMap<Long, HashMap<GroumScope, GroumNode>> variableDefinitions = new HashMap<>();
   private HashMap<ControlNode.ControlType, GroumScope> ifElseConditionalScopes = new HashMap<>();
+  private Stack<GroumNode> conditionalScopesOrdered = new Stack<>();
   private HashMap<GroumNode, GroumScope> conditionalScopes = new HashMap<>();
   private GroumScope parent;
   private GroumScope controlFlowParent;
@@ -26,6 +27,7 @@ public class GroumScope {
 
   public void pushConditionalScope(GroumScope conditionalScope) {
     this.conditionalScopes.put(conditionalScope.associatedGroumNode, conditionalScope);
+    this.conditionalScopesOrdered.push(conditionalScope.associatedGroumNode);
   }
 
   public GroumScope getConditionalScopeFor(GroumNode node) {
@@ -169,8 +171,70 @@ public class GroumScope {
     return parentScope;
   }
 
+  /*private boolean doBothBranchesContainDef(Long instanceId, GroumScope ifElseScope) {
+    HashMap<GroumScope, GroumNode> instanceDefinitions = this.variableDefinitions.get(instanceId);
+    List<GroumNode> ifElseChildNodes = ifElseScope.associatedGroumNode().getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal);
+    GroumNode ifNode = ifElseChildNodes.get(0);
+    GroumNode elseNode = ifElseChildNodes.get(1);
+
+    boolean containsDefForAllBranches = true;
+    GroumScope ifScope = ifElseScope.getConditionalScopeFor(ifNode);
+    if ()
+    containsDefForAllBranches &= instanceDefinitions.containsKey(ifScope);
+    GroumScope elseScope = ifElseScope.getConditionalScopeFor(elseNode);
+    containsDefForAllBranches &= instanceDefinitions.containsKey(elseScope);
+
+  }*/
+
   private void checkForShadowedDefinitions(Long instanceId, GroumScope scopeOfRecentlyAddedNode) {
     var instancesDefinitions = this.variableDefinitions.get(instanceId);
+
+    // check, if the scopeOfRecenltyAddedNode Kind eines ifElseStmts ist, was in conditionalScopes dieser Scope
+    // gespeichert ist
+
+    /*GroumScope ifElseParentScope = scopeOfRecentlyAddedNode.controlFlowParent;
+    while (ifElseParentScope != GroumScope.NONE) {
+      if (ifElseParentScope.associatedGroumNode() instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+        if (this.conditionalScopes.containsKey(controlNode)) {
+          break;
+        }
+      }
+    }
+
+    if (ifElseParentScope == GroumScope.NONE) {
+      return;
+    }
+     */
+
+    // TODO:
+    //  if the last pushed scope is an ifElse stmt and this contains definitions for both scopes
+    //  this shadows the definitions in the scopes above the ifElse stmt
+    //  if the last pushed scope is another conditional statement (for, while) and this contains
+    //  a definition for that scope, nothing is shadowed
+    //  basically determine, the last conditional scope, which contains a definition for the variable
+    //  if it happens to be an if else statement and this scope stores a definition for both branches,
+    //  the definitions from before are shadowed, otherwise not
+    // TODO: Note: would be nice, if a scope would propagate the shadowing to their parents.. is that possible?
+
+    // reaching check
+    /*var ifElseScope = ifElseParentScope;
+    HashMap<GroumScope, GroumNode> instanceDefinitions = this.variableDefinitions.get(instanceId);
+    List<GroumNode> ifElseChildNodes = ifElseScope.associatedGroumNode().getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal);
+    GroumNode ifNode = ifElseChildNodes.get(0);
+    GroumNode elseNode = ifElseChildNodes.get(1);
+
+    GroumScope ifScope = ifElseScope.getConditionalScopeFor(ifNode);
+    instanceDefinitions.containsKey(ifScope);
+
+    GroumScope elseScope = ifElseScope.getConditionalScopeFor(elseNode);
+    instanceDefinitions.containsKey(elseScope);
+     */
+
+    // TODO: has this scope an ifElseScope in it's conditional scopes?
+    //  if yes: does this scope store a definition for both branches?
+    //  has one of the branches of the ifElseScope another ifElseScope?
+    //  if yes: does this scope store a definition for both branches?
+    //  repeat ad nauseam
 
     // if there are no mutually exclusive conditional scopes (a combination of one if- and one else-branch),
     // all definitions will be reachable
@@ -184,12 +248,6 @@ public class GroumScope {
         return;
       }
     }
-
-    // TODO: has this scope an ifElseScope in it's conditional scopes?
-    //  if yes: does this scope store a definition for both branches?
-    //  has one of the branches of the ifElseScope another ifElseScope?
-    //  if yes: does this scope store a definition for both branches?
-    //  repeat ad nauseam
 
     // there are definitions in all conditional branches, definitions from before will not be
     // accessible
@@ -256,5 +314,63 @@ public class GroumScope {
 
     propagateDefinitionToParents(instanceId, node, this);
     checkForShadowedDefinitions(instanceId, this);
+
+    // TODO: propagate shadowed variable definitions
+
+    /*if (this.controlFlowParent.associatedGroumNode instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.elseStmt)) {
+      var parentsParent = controlFlowParent.controlFlowParent;
+      if (parentsParent.associatedGroumNode instanceof ControlNode parentsControlNode && parentsControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+        // does the if-branch contain a definition for instanceID?
+        // get if node
+        var ifNode = parentsControlNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal).get(0);
+        var ifScope = parentsParent.getConditionalScopeFor(ifNode);
+        var variableDefinitionsForInstanceId = parentsParent.variableDefinitions.get(instanceId);
+        if (variableDefinitionsForInstanceId.containsKey(ifScope)) {
+          // todo: notify parents..
+          propagateShadowingToParents(instanceId, this, new ArrayList<>());
+        }
+      }
+    }*/
+  }
+
+  private void propagateShadowingToParents(Long instanceId, GroumScope fromScope, List<GroumScope> definitionsToShadow) {
+    this.parent.propagateShadowing(instanceId, fromScope, definitionsToShadow);
+  }
+
+  private void propagateShadowing(Long instanceId, GroumScope fromScope, List<GroumScope> definitionsToShadow) {
+    var definitions = this.variableDefinitions.get(instanceId);
+    for (var definitionToShadow : definitionsToShadow) {
+      definitions.remove(definitionToShadow);
+    }
+
+    // check, if the from scope is a direct child of the else branch of this
+    // if so, just propagate on from this scope
+    if (this.associatedGroumNode instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+      var elseNode = this.associatedGroumNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal).get(1);
+      var elseScope = this.conditionalScopes.get(elseNode);
+      if (elseScope.conditionalScopes.containsKey(fromScope.associatedGroumNode)) {
+        boolean yes = true;
+        propagateShadowingToParents(instanceId, this, definitionsToShadow);
+      }
+      // TODO: what happens if not?
+    } else {
+      // TODO: collect all previous definitions to shadow
+      //  which will be all conditionalScopes before the 'fromScope' (fromScope is guaranteed to be an ifElseScope)
+      var iter = this.conditionalScopesOrdered.iterator();
+
+      // TODO: NEXT STEP!!!
+      while (iter.hasNext())  {
+        var next = iter.next();
+        var shadowedScope  = this.conditionalScopes.get(next);
+        definitions.remove(shadowedScope);
+
+        definitionsToShadow.add(shadowedScope);
+        if (next == fromScope.associatedGroumNode) {
+          break;
+        }
+      }
+
+      //propagateShadowingToParents(instanceId, this, );
+    }
   }
 }
