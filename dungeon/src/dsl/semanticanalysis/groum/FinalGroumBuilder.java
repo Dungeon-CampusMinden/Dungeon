@@ -184,14 +184,17 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           var ifNode = node.outgoing().get(0).end();
           var ifScope = new GroumScope(scope, ifNode);
           this.scopesForNodes.put(ifNode, ifScope);
+          scope.pushConditionalScope(ifScope);
 
           // get else node
           var elseNode = node.outgoing().get(1).end();
           var elseScope = new GroumScope(scope, elseNode);
           this.scopesForNodes.put(elseNode, elseScope);
+          scope.pushConditionalScope(elseScope);
 
           // add conditional branch to current scope
           this.currentScope().setIfElseScopes(ifScope, elseScope);
+          this.currentScope().pushConditionalScope(scope);
         }
         break;
       case whileLoop:
@@ -199,6 +202,13 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       case countingForLoop:
       case ifStmt:
       case elseStmt:
+        if (!this.scopesForNodes.containsKey(node)) {
+          // new scope
+          scope = new GroumScope(this.currentScope(), node);
+          this.scopesForNodes.put(node, scope);
+          this.currentScope().pushConditionalScope(scope);
+        }
+        break;
       case block:
         // we never expect to visit the same node twice
         if (!this.scopesForNodes.containsKey(node)) {
