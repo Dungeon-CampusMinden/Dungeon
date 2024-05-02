@@ -75,12 +75,13 @@ tasks.register('runRoomBasedDungeon', JavaExec) {
 import com.github.jk1.license.render.*
 
 licenseReport {
-    unionParentPomLicenses = true
+    // doesn't concern us:
+    //unionParentPomLicenses = false
 
     outputDir = "${rootProject.project('dungeon').buildDir}/licenses"
 
-    // For game and dungeon dependencies (default is 'all projects'):
-    projects = [rootProject.project('game'), rootProject.project('dungeon')]
+    // atm, no need to set this property explicitly, but it could be useful in the future:
+    //projects = [rootProject.project('game'), rootProject.project('dungeon')]
 
     configurations = ['runtimeClasspath']
 
