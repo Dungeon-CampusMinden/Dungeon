@@ -12,8 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -900,7 +898,7 @@ public class TestGroum {
   // TODO: test
   public void dataDependencySequentialConditional() {
     String program =
-      """
+        """
   fn add(int x, int y, int z) -> int {
     if x {
       y = 42;
@@ -953,7 +951,7 @@ public class TestGroum {
   // TODO: test
   public void dataDependencyConditionalShadowing() {
     String program =
-      """
+        """
       // param idx: 2
       fn add(int x, int y, int z) -> int {
         // redef idx: 6
@@ -1008,7 +1006,8 @@ public class TestGroum {
     var finalRedef = findNodeByProcessIdx(finalizedGroum, 32);
 
     // shadowing of first redefinition
-    var firstRedefShadowing = firstRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var firstRedefShadowing =
+        firstRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertEquals(3, firstRedefShadowing.size());
     Assert.assertEquals(secondRedef, firstRedefShadowing.get(0));
     Assert.assertEquals(thirdRedef, firstRedefShadowing.get(1));
@@ -1025,7 +1024,8 @@ public class TestGroum {
     Assert.assertTrue(paramReads.contains(forthRedef));
 
     // final redef
-    var finalRedefs = finalRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var finalRedefs =
+        finalRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertEquals(3, finalRedefs.size());
     Assert.assertTrue(finalRedefs.contains(secondRedef));
     Assert.assertTrue(finalRedefs.contains(thirdRedef));
@@ -1094,7 +1094,7 @@ public class TestGroum {
   // TODO: test
   public void dataDependencyBlock() {
     String program =
-      """
+        """
   fn add(int x, int y, int z) -> int {
     if x {
       y = 42;
@@ -1145,7 +1145,7 @@ public class TestGroum {
   // TODO: test
   public void dataDependencyMultiBlock() {
     String program =
-      """
+        """
   fn add(int x, int y, int z) -> int {
     if x {
       y = 1;
@@ -1238,7 +1238,7 @@ public class TestGroum {
   @Test
   public void dataDependencyConditionalRedef() {
     String program =
-      """
+        """
       // param y idx: 2
       fn test(int x, int y, int z) {
         if x {
@@ -1278,7 +1278,7 @@ public class TestGroum {
     var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
 
     GroumPrinter p2 = new GroumPrinter();
-    String finalizedGroumStr = p2.print(finalizedGroum, false);
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests:
@@ -1290,19 +1290,23 @@ public class TestGroum {
     var elseDefNode = findNodeByProcessIdx(finalizedGroum, 24);
     var funcParamRefNode = findNodeByProcessIdx(finalizedGroum, 25);
 
-    var redefsOfParam = paramYDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var redefsOfParam =
+        paramYDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertEquals(3, redefsOfParam.size());
 
-    var startsOfRedefNestedIfDefNode = nestedIfDefNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var startsOfRedefNestedIfDefNode =
+        nestedIfDefNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertEquals(1, startsOfRedefNestedIfDefNode.size());
     Assert.assertEquals(paramYDefNode, startsOfRedefNestedIfDefNode.get(0));
 
     // check for print refererence
-    var endsOfDataRefsNestedIf = nestedIfDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var endsOfDataRefsNestedIf =
+        nestedIfDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(1, endsOfDataRefsNestedIf.size());
     Assert.assertEquals(nestedFuncParamRefNode, endsOfDataRefsNestedIf.get(0));
 
-    var startsOfRedefIfDefNode = ifDefNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var startsOfRedefIfDefNode =
+        ifDefNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertEquals(2, startsOfRedefIfDefNode.size());
     Assert.assertTrue(startsOfRedefIfDefNode.contains(paramYDefNode));
     Assert.assertTrue(startsOfRedefIfDefNode.contains(nestedIfDefNode));
@@ -1312,15 +1316,16 @@ public class TestGroum {
     Assert.assertEquals(1, endsOfDataRefIf.size());
     Assert.assertEquals(funcParamRefNode, endsOfDataRefIf.get(0));
 
-    var startsOfRedefElseNode = elseDefNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var startsOfRedefElseNode =
+        elseDefNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertEquals(1, startsOfRedefElseNode.size());
     Assert.assertEquals(paramYDefNode, startsOfRedefElseNode.get(0));
 
     // check for final print reference
-    var endsOfDataRefElse = elseDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var endsOfDataRefElse =
+        elseDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(1, endsOfDataRefElse.size());
     Assert.assertEquals(funcParamRefNode, endsOfDataRefElse.get(0));
-
   }
 
   public static void write(String content, String path) {
@@ -1334,6 +1339,9 @@ public class TestGroum {
   }
 
   private static GroumNode findNodeByProcessIdx(Groum groumToSearch, long idx) {
-    return groumToSearch.nodes().stream().filter(n -> n.processedCounter() == idx).findFirst().orElse(GroumNode.NONE);
+    return groumToSearch.nodes().stream()
+        .filter(n -> n.processedCounter() == idx)
+        .findFirst()
+        .orElse(GroumNode.NONE);
   }
 }

@@ -87,7 +87,6 @@ public abstract class GroumNode {
     return false;
   }
 
-
   public List<GroumEdge> getOutgoingOfType(GroumEdge.GroumEdgeType edgeType) {
     return this.outgoing().stream().filter(e -> e.edgeType().equals(edgeType)).toList();
   }

@@ -193,7 +193,6 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           scope.pushConditionalScope(elseScope);
 
           // add conditional branch to current scope
-          this.currentScope().setIfElseScopes(ifScope, elseScope);
           this.currentScope().pushConditionalScope(scope);
         }
         break;

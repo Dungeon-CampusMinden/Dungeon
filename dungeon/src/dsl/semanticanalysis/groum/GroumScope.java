@@ -6,7 +6,6 @@ import java.util.*;
 public class GroumScope {
   public static GroumScope NONE = new GroumScope(GroumNode.NONE);
   private HashMap<Long, HashMap<GroumScope, GroumNode>> variableDefinitions = new HashMap<>();
-  private HashMap<ControlNode.ControlType, GroumScope> ifElseConditionalScopes = new HashMap<>();
   private Stack<GroumNode> conditionalScopesOrdered = new Stack<>();
   private HashMap<GroumNode, GroumScope> conditionalScopes = new HashMap<>();
   private GroumScope parent;
@@ -95,29 +94,39 @@ public class GroumScope {
         }
 
         var assocNodeParentOfControlFlowParent = parentOfControlFlowParent.associatedGroumNode();
-        if (!(assocNodeControlFlowParent instanceof ControlNode parentControlNode && assocNodeParentOfControlFlowParent instanceof ControlNode parentsParentControlNode)) {
+        if (!(assocNodeControlFlowParent instanceof ControlNode parentControlNode
+            && assocNodeParentOfControlFlowParent
+                instanceof ControlNode parentsParentControlNode)) {
           break;
         }
 
-
         GroumScope scopeToBlock = GroumScope.NONE;
-        if (parentControlNode.controlType().equals(ControlNode.ControlType.ifStmt) && parentsParentControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+        if (parentControlNode.controlType().equals(ControlNode.ControlType.ifStmt)
+            && parentsParentControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
           // get else control node
-          var elseStmtNode = assocNodeParentOfControlFlowParent.getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal).get(1);
+          var elseStmtNode =
+              assocNodeParentOfControlFlowParent
+                  .getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal)
+                  .get(1);
           assert elseStmtNode instanceof ControlNode;
-          assert ((ControlNode)elseStmtNode).controlType().equals(ControlNode.ControlType.elseStmt);
+          assert ((ControlNode) elseStmtNode)
+              .controlType()
+              .equals(ControlNode.ControlType.elseStmt);
 
           // block the other scope
-          // TODO: and all other child scopes..
           scopeToBlock = parentOfControlFlowParent.getConditionalScopeFor(elseStmtNode);
           if (scopeToBlock != GroumScope.NONE) {
             scopesToBlock.add(scopeToBlock);
           }
-        } else if (parentControlNode.controlType().equals(ControlNode.ControlType.elseStmt) && parentsParentControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+        } else if (parentControlNode.controlType().equals(ControlNode.ControlType.elseStmt)
+            && parentsParentControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
           // get if control node
-          var ifStmtNode = assocNodeParentOfControlFlowParent.getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal).get(0);
+          var ifStmtNode =
+              assocNodeParentOfControlFlowParent
+                  .getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal)
+                  .get(0);
           assert ifStmtNode instanceof ControlNode;
-          assert ((ControlNode)ifStmtNode).controlType().equals(ControlNode.ControlType.ifStmt);
+          assert ((ControlNode) ifStmtNode).controlType().equals(ControlNode.ControlType.ifStmt);
 
           // block the other scope
           scopeToBlock = parentOfControlFlowParent.getConditionalScopeFor(ifStmtNode);
@@ -126,6 +135,7 @@ public class GroumScope {
           }
         }
 
+        // add all children scopes of the scope to block
         if (scopeToBlock != GroumScope.NONE) {
           scopesToBlock.addAll(scopeToBlock.heritage);
         }
@@ -135,9 +145,9 @@ public class GroumScope {
       }
       final var finalScopesToBlock = scopesToBlock;
       return instanceDefinitions.entrySet().stream()
-        .filter(e -> !finalScopesToBlock.contains(e.getKey()))
-        .map(Map.Entry::getValue)
-        .toList();
+          .filter(e -> !finalScopesToBlock.contains(e.getKey()))
+          .map(Map.Entry::getValue)
+          .toList();
     } else {
       if (this.parent != NONE) {
         return this.parent.getDefinitions(instanceId, fromScope);
@@ -157,12 +167,6 @@ public class GroumScope {
     }
   }
 
-  public void setIfElseScopes(GroumScope ifScope, GroumScope elseScope) {
-    this.ifElseConditionalScopes.clear();
-    this.ifElseConditionalScopes.put(ControlNode.ControlType.ifStmt, ifScope);
-    this.ifElseConditionalScopes.put(ControlNode.ControlType.elseStmt, elseScope);
-  }
-
   // this is just called from propagating a definition to parents
   private void addDefinition(Long instanceId, GroumNode node, GroumScope parentScope) {
     if (!this.variableDefinitions.containsKey(instanceId)) {
@@ -172,7 +176,8 @@ public class GroumScope {
     var scopeToNodeMap = this.variableDefinitions.get(instanceId);
     var controlFlowParent = parentScope.controlFlowParent;
     if (this.controlFlowParent == controlFlowParent) {
-      // The definition lies in the same control path as the current scope and will overwrite the definition!
+      // The definition lies in the same control path as the current scope and will overwrite the
+      // definition!
       // Therefore, we need to clear all variable definitions and just add the new one.
       scopeToNodeMap.clear();
       scopeToNodeMap.put(controlFlowParent, node);
@@ -193,7 +198,8 @@ public class GroumScope {
   private GroumScope getConditionalParentScope(GroumScope scope, int maxSearchDepth) {
     var parentScope = scope;
     int searchDepth = 0;
-    while ((maxSearchDepth == -1 || searchDepth < maxSearchDepth) && parentScope != GroumScope.NONE) {
+    while ((maxSearchDepth == -1 || searchDepth < maxSearchDepth)
+        && parentScope != GroumScope.NONE) {
       if (parentScope.associatedGroumNode instanceof ControlNode controlNode
           && (controlNode.controlType() != ControlNode.ControlType.block
               && controlNode.controlType() != ControlNode.ControlType.returnStmt)) {
@@ -208,17 +214,21 @@ public class GroumScope {
   private void checkForShadowedDefinitions(Long instanceId, GroumScope scopeOfRecentlyAddedNode) {
     var instancesDefinitions = this.variableDefinitions.get(instanceId);
 
-    // check, if the scopeOfRecenltyAddedNode Kind eines ifElseStmts ist, was in conditionalScopes dieser Scope
+    // check, if the scopeOfRecenltyAddedNode Kind eines ifElseStmts ist, was in conditionalScopes
+    // dieser Scope
     // gespeichert ist
     // TODO:
     //  if the last pushed scope is an ifElse stmt and this contains definitions for both scopes
     //  this shadows the definitions in the scopes above the ifElse stmt
     //  if the last pushed scope is another conditional statement (for, while) and this contains
     //  a definition for that scope, nothing is shadowed
-    //  basically determine, the last conditional scope, which contains a definition for the variable
-    //  if it happens to be an if else statement and this scope stores a definition for both branches,
+    //  basically determine, the last conditional scope, which contains a definition for the
+    // variable
+    //  if it happens to be an if else statement and this scope stores a definition for both
+    // branches,
     //  the definitions from before are shadowed, otherwise not
-    // TODO: Note: would be nice, if a scope would propagate the shadowing to their parents.. is that possible?
+    // TODO: Note: would be nice, if a scope would propagate the shadowing to their parents.. is
+    // that possible?
 
     // reaching check
     /*var ifElseScope = ifElseParentScope;
@@ -240,7 +250,8 @@ public class GroumScope {
     //  if yes: does this scope store a definition for both branches?
     //  repeat ad nauseam
 
-    // if there are no mutually exclusive conditional scopes (a combination of one if- and one else-branch),
+    // if there are no mutually exclusive conditional scopes (a combination of one if- and one
+    // else-branch),
     // all definitions will be reachable
     /*if (this.ifElseConditionalScopes.isEmpty()) {
       return;
@@ -314,7 +325,6 @@ public class GroumScope {
     var list = this.variableDefinitions.get(instanceId);
     list.clear();
     list.put(this, node);
-    this.ifElseConditionalScopes.clear();
 
     // this causes a problem with resolving of variable definitions..
     this.controlFlowParent.addDefinition(instanceId, node, this);
@@ -324,9 +334,11 @@ public class GroumScope {
 
     // TODO: propagate shadowed variable definitions
 
-    if (this.controlFlowParent.associatedGroumNode instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.elseStmt)) {
+    if (this.controlFlowParent.associatedGroumNode instanceof ControlNode controlNode
+        && controlNode.controlType().equals(ControlNode.ControlType.elseStmt)) {
       var parentsParent = controlFlowParent.controlFlowParent;
-      if (parentsParent.associatedGroumNode instanceof ControlNode parentsControlNode && parentsControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+      if (parentsParent.associatedGroumNode instanceof ControlNode parentsControlNode
+          && parentsControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
         // does the if-branch contain a definition for instanceID?
         // get if node
         var ifNode = parentsControlNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal).get(0);
@@ -341,17 +353,20 @@ public class GroumScope {
     }
   }
 
-  private void propagateShadowingToParents(Long instanceId, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
+  private void propagateShadowingToParents(
+      Long instanceId, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
     if (this.parent != GroumScope.NONE) {
       this.parent.propagateShadowing(instanceId, fromScope, definitionsToShadow);
     }
   }
 
-  private void propagateShadowing(Long instanceId, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
+  private void propagateShadowing(
+      Long instanceId, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
 
     // check, if the from scope is a direct child of the else branch of this
     // if so, just propagate on from this scope
-    if (this.associatedGroumNode instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+    if (this.associatedGroumNode instanceof ControlNode controlNode
+        && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
       propagateShadowingToParents(instanceId, this, definitionsToShadow);
     } else {
       // collect all previous definitions to shadow
@@ -361,12 +376,12 @@ public class GroumScope {
 
       var definitions = this.variableDefinitions.get(instanceId);
       // TODO: also collect the definitions, which are just children of the current scope
-      while (iter.hasNext())  {
+      while (iter.hasNext()) {
         var next = iter.next();
         if (next == fromScope.associatedGroumNode) {
           break;
         }
-        var shadowedScope  = this.conditionalScopes.get(next);
+        var shadowedScope = this.conditionalScopes.get(next);
         definitionsToShadow.add(shadowedScope);
         definitionsToShadow.addAll(shadowedScope.heritage);
 
