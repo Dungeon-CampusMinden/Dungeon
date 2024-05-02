@@ -182,9 +182,7 @@ public class GroumScope {
       scopeToNodeMap.put(controlFlowParent, node);
     }
 
-    var controlFlowParentNode = controlFlowParent.associatedGroumNode();
-    var childScopesOfDefinitionScope = scopeToNodeMap.keySet().stream().filter(s -> s.associatedGroumNode.hasAncestorLike(controlFlowParentNode)).toList();
-
+    var childScopesOfDefinitionScope = controlFlowParent.heritage;
     for (var scope : childScopesOfDefinitionScope) {
       scopeToNodeMap.remove(scope);
     }
