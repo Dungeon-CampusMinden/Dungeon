@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import task.Task;
 import task.TaskContent;
@@ -98,13 +97,8 @@ public class Fragen_Pattern extends Room {
 
   private BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
     return (task, taskContents) -> {
-      AtomicReference<String> answers = new AtomicReference<>("");
-      taskContents.stream()
-          .map(t -> (Quiz.Content) t)
-          .forEach(t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
-
-      String rawAnswer = answers.get();
-      // remove the automatically added '\n' from the rawAnswer string
+      String rawAnswer =
+          taskContents.stream().map(t -> (Quiz.Content) t).findFirst().orElseThrow().content();
       String answer = rawAnswer.trim().toLowerCase(Locale.ROOT);
 
       if (answer.startsWith(expectedPatterns[currentPatternIndex])) {
