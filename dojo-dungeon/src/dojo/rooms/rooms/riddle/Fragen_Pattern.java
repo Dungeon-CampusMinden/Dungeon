@@ -13,6 +13,7 @@ import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -31,7 +32,7 @@ import task.tasktype.quizquestion.FreeText;
  */
 public class Fragen_Pattern extends Room {
   private final String FILENAME = "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
-  private final String[] expectedPatterns = {"Observer", "Visitor"};
+  private final String[] expectedPatterns = {"observer", "visitor"};
   private int currentPatternIndex = 0;
 
   private Entity zauberer;
@@ -91,9 +92,8 @@ public class Fragen_Pattern extends Room {
         new InteractionComponent(
             1,
             true,
-            (e, who) -> {
-              UIAnswerCallback.askOnInteraction(question, showAnswersOnHud()).accept(e, who);
-            }));
+            (e, who) ->
+                UIAnswerCallback.askOnInteraction(question, showAnswersOnHud()).accept(e, who)));
   }
 
   private BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
@@ -103,14 +103,14 @@ public class Fragen_Pattern extends Room {
           .map(t -> (Quiz.Content) t)
           .forEach(t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
 
-      // remove the automatically added \n from the answer string
-      String answer = answers.get();
-      String cleanedAnswer = answer.trim();
+      String rawAnswer = answers.get();
+      // remove the automatically added '\n' from the rawAnswer string
+      String answer = rawAnswer.trim().toLowerCase(Locale.ROOT);
 
-      if (cleanedAnswer.equals(expectedPatterns[currentPatternIndex])) {
-        OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
+      if (answer.startsWith(expectedPatterns[currentPatternIndex])) {
+        OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Ergebnis", () -> {});
         correctAnswerCount++;
-        if (correctAnswerCount >= 2) {
+        if (correctAnswerCount == expectedPatterns.length) {
           openDoors();
         }
         currentPatternIndex++;
@@ -118,7 +118,7 @@ public class Fragen_Pattern extends Room {
           setNextTask();
         }
       } else {
-        OkDialog.showOkDialog("Ihre Antwort ist nicht korrekt!", "Ok", () -> {});
+        OkDialog.showOkDialog("Ihre Antwort ist nicht korrekt!", "Ergebnis", () -> {});
       }
     };
   }
