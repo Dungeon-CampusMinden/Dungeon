@@ -12,10 +12,10 @@ import core.utils.components.path.SimpleIPath;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -30,12 +30,18 @@ import task.tasktype.quizquestion.FreeText;
  * werden. Die erkannten Design Patterns müssen dann dem Zauberer mitgeteilt werden.
  */
 public class Fragen_Pattern extends Room {
-  private final String FILENAME = "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
   private final String[] expectedPatterns = {"observer", "visitor"};
-  private int currentPatternIndex = 0;
+  private final List<Integer> expectedPatternsIndices;
 
-  private Entity zauberer;
+  {
+    expectedPatternsIndices =
+        IntStream.range(0, expectedPatterns.length).boxed().collect(Collectors.toList());
+    Collections.shuffle(expectedPatternsIndices);
+  }
+
+  private int currentPatternIndex = 0;
   private int correctAnswerCount = 0;
+  private Entity zauberer;
 
   /**
    * Generate a new room.
@@ -101,16 +107,15 @@ public class Fragen_Pattern extends Room {
           taskContents.stream().map(t -> (Quiz.Content) t).findFirst().orElseThrow().content();
       String answer = rawAnswer.trim().toLowerCase(Locale.ROOT);
 
-      if (answer.startsWith(expectedPatterns[currentPatternIndex])) {
+      if (answer.contains(expectedPatterns[expectedPatternsIndices.get(currentPatternIndex)])) {
         OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Ergebnis", () -> {});
         correctAnswerCount++;
         if (correctAnswerCount == expectedPatterns.length) {
           openDoors();
         }
-        currentPatternIndex++;
-        if (currentPatternIndex < expectedPatterns.length) {
-          setNextTask();
-        }
+
+        currentPatternIndex = (currentPatternIndex + 1) % expectedPatterns.length;
+        setNextTask();
       } else {
         OkDialog.showOkDialog("Ihre Antwort ist nicht korrekt!", "Ergebnis", () -> {});
       }
@@ -118,10 +123,11 @@ public class Fragen_Pattern extends Room {
   }
 
   private Quiz newFreeText() {
+    String fileNamePrefix = "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
     String questionText =
         "Welches Design-Pattern wird in dem UML-Klassendiagramm unter \""
-            + FILENAME
-            + (currentPatternIndex + 1)
+            + fileNamePrefix
+            + (expectedPatternsIndices.get(currentPatternIndex) + 1)
             + ".png\" dargestellt? Es reicht das Wort ohne den Zusatz Pattern!";
     return new FreeText(questionText);
   }
