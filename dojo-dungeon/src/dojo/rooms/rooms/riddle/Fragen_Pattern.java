@@ -115,9 +115,10 @@ public class Fragen_Pattern extends Room {
   }
 
   private Quiz newFreeText() {
+    String fileNamePrefix = "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
     String questionText =
         "Welches Design-Pattern wird in dem UML-Klassendiagramm unter \""
-            + "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm"
+            + fileNamePrefix
             + (currentPatternIndex + 1)
             + ".png\" dargestellt? Es reicht das Wort ohne den Zusatz Pattern!";
     return new FreeText(questionText);
