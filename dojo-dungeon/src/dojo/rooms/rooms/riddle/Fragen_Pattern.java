@@ -76,7 +76,7 @@ public class Fragen_Pattern extends Room {
     // add boss
     zauberer = new Entity("Zauberer von Patternson");
     zauberer.add(new PositionComponent());
-    zauberer.add(new DrawComponent(new SimpleIPath("character/wizard")));
+    zauberer.add(new DrawComponent(new SimpleIPath("character/monster/orc_shaman")));
 
     setNextTask();
 
