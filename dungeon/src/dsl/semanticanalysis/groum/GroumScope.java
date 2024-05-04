@@ -280,42 +280,50 @@ public class GroumScope {
   private void propagateShadowing(
       Long instanceId, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
 
-    // check, if the from scope is a direct child of the else branch of this
-    // if so, just propagate on from this scope
-    if (this.associatedGroumNode instanceof ControlNode controlNode
-        && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+    if(this.associatedGroumNode.getLabel().contains("fn(int, ")) {
+      boolean b = true;
+    }
+
+    if (this.associatedGroumNode instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+      propagateShadowingToParents(instanceId, this, definitionsToShadow);
+    } else if (this.associatedGroumNode instanceof ControlNode controlNode && controlNode.isConditional() && !this.isBranchOfIfElse()) {
+      // this is a conditional statement, which is not part of an ifElse stmt
+      // stop the collection of definitions to shadow
       propagateShadowingToParents(instanceId, this, definitionsToShadow);
     } else {
-      // collect all previous definitions to shadow
-      // which will be all conditionalScopes before the 'fromScope'
-      // (fromScope is guaranteed to be an ifElseScope)
-      var iter = this.conditionalScopesOrdered.iterator();
-
       var definitions = this.variableDefinitions.get(instanceId);
-      // TODO: also collect the definitions, which are just children of the current scope
-      while (iter.hasNext()) {
-        var next = iter.next();
-        if (next == fromScope.associatedGroumNode) {
-          break;
+
+      if (fromScope.associatedGroumNode instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+        // collect all previous definitions to shadow
+        // which will be all conditionalScopes before the 'fromScope'
+        // (fromScope is guaranteed to be an ifElseScope)
+        var iter = this.conditionalScopesOrdered.iterator();
+        while (iter.hasNext()) {
+          var next = iter.next();
+          var nextScope = this.conditionalScopes.get(next);
+
+          if (nextScope == fromScope || nextScope.heritage.contains(fromScope)) {
+            break;
+          }
+
+          var shadowedScope = this.conditionalScopes.get(next);
+          definitionsToShadow.add(shadowedScope);
+
+          var heritage = shadowedScope.heritage;
+          definitionsToShadow.addAll(heritage);
         }
-        var shadowedScope = this.conditionalScopes.get(next);
-        definitionsToShadow.add(shadowedScope);
-        definitionsToShadow.addAll(shadowedScope.heritage);
 
-        // TODO: also add all scope of which the shadowed scope is an ancestor
-        /*for (var definition : definitions.keySet()) {
-          if (definitionsToShadow.contains(definition)) {
-            // skip
-            continue;
-          }
-          if (definition.associatedGroumNode.hasAncestorLike(shadowedScope.associatedGroumNode)) {
-            definitionsToShadow.add(definition);
-          }
-        }*/
-      }
-
-      if (fromScope.controlFlowParent != this) {
-        definitionsToShadow.add(this);
+        if (fromScope.controlFlowParent == this) {
+          // don't add this scope
+          // why not?
+          // what does this mean?
+          // if this is the control flow parent of the from scope, this means, that this is a j
+          boolean b = true;
+        } else {
+          //definitionsToShadow.add(this);
+          definitionsToShadow.add(this);
+          definitionsToShadow.add(this.controlFlowParent);
+        }
       }
 
       if (definitions != null) {
@@ -326,5 +334,14 @@ public class GroumScope {
 
       propagateShadowingToParents(instanceId, fromScope, definitionsToShadow);
     }
+  }
+
+  private boolean isBranchOfIfElse() {
+    return this.controlFlowParent != null && this.controlFlowParent.associatedGroumNode instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt);
+  }
+
+  @Override
+  public String toString() {
+    return "scope: " + this.associatedGroumNode;
   }
 }
