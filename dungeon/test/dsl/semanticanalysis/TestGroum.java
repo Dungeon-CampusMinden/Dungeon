@@ -1091,30 +1091,41 @@ public class TestGroum {
   }
 
   @Test
-  // TODO: test
+  // TODO: test, it works
   public void dataDependencyBlock() {
     String program =
         """
+  //y idx: 2
   fn add(int x, int y, int z) -> int {
     if x {
+      // idx: 10
       y = 42;
       if z {
+        // idx: 16
         y = 56;
         {
+          // idx: 20
           y = 12;
+          // idx: 23
           y = 1;
         }
         {{{
+          // idx: 29
           y = 4321;
         }}}
+        // ref idx: 31
         print(y);
       }
     } else {
+      // idx: 37
       y = 123;
     }
 
+    // y ref idx: 39
     var sum = x + y;
+    // idx: 41
     y = 21;
+    // ref idx: 45
     return y;
   }
   """;
