@@ -130,7 +130,7 @@ public class DojoStarter {
         });
 
     // Set level 1, room 1 as start level (or start room)
-    Game.currentLevel(allLevels[1].buildRooms.get(1).levelRoom.level());
+    Game.currentLevel(allLevels[0].buildRooms.getFirst().levelRoom.level());
   }
 
   private static LevelRoomLevel[] getLevelRoomLevels() {
