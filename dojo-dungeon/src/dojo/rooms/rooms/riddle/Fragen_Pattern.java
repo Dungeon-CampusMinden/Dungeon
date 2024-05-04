@@ -27,7 +27,7 @@ import task.tasktype.quizquestion.FreeText;
  * Informationen für den Spieler über diesen Raum:
  *
  * <p>In diesem Raum müssen verschiedene Design Patterns anhand eines UML-Klassendiagramms erkannt
- * werden. Die erkannten Design Patterns müssen dann dem Zauberer mitgeteilt werden.
+ * werden. Die erkannten Design Patterns müssen dann dem Schamanen mitgeteilt werden.
  */
 public class Fragen_Pattern extends Room {
   private final String FILENAME = "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
@@ -74,9 +74,9 @@ public class Fragen_Pattern extends Room {
 
   private Entity questBoss() throws IOException {
     // add boss
-    zauberer = new Entity("Zauberer von Patternson");
+    zauberer = new Entity("Schamane der Patterns");
     zauberer.add(new PositionComponent());
-    zauberer.add(new DrawComponent(new SimpleIPath("character/wizard")));
+    zauberer.add(new DrawComponent(new SimpleIPath("character/monster/orc_shaman")));
 
     setNextTask();
 
