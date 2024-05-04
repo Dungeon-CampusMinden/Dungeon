@@ -191,7 +191,7 @@ public class DojoStarter {
                 DojoStarter::buildRoom_Fragen_Pattern,
                 () ->
                     OkDialog.showOkDialog(
-                        "In diesem Raum müssen verschiedene Design Patterns anhand eines UML-Klassendiagramms erkannt werden. Die erkannten Design Patterns müssen dann dem Zauberer mitgeteilt werden. - Sprich mit dem Zauberer.",
+                        "In diesem Raum müssen verschiedene Design Patterns anhand eines UML-Klassendiagramms erkannt werden. Die erkannten Design Patterns müssen dann dem Schamanen mitgeteilt werden. - Sprich mit dem Schamanen.",
                         "\"Die Vulkanhöhle\" (Raum 2)",
                         () -> {})),
             new BuildRoomData(
