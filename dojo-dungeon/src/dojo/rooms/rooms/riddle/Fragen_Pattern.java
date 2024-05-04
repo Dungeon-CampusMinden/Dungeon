@@ -32,8 +32,8 @@ import task.tasktype.quizquestion.FreeText;
 public class Fragen_Pattern extends Room {
   private final String FILENAME = "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
   private final String[] expectedPatterns = {"Observer", "Visitor"};
-  private int currentPatternIndex = 0;
-
+  private final Set<Integer> usedIndices = new HashSet<>();
+  private int currentPatternIndex;
   private Entity zauberer;
   private int correctAnswerCount = 0;
 
@@ -84,6 +84,7 @@ public class Fragen_Pattern extends Room {
   }
 
   private void setNextTask() {
+    nextPattern();
     final Quiz question = newFreeText();
 
     zauberer.add(new TaskComponent(question, zauberer));
@@ -113,10 +114,7 @@ public class Fragen_Pattern extends Room {
         if (correctAnswerCount >= 2) {
           openDoors();
         }
-        currentPatternIndex++;
-        if (currentPatternIndex < expectedPatterns.length) {
-          setNextTask();
-        }
+        setNextTask();
       } else {
         OkDialog.showOkDialog("Ihre Antwort ist nicht korrekt!", "Ok", () -> {});
       }
@@ -130,5 +128,17 @@ public class Fragen_Pattern extends Room {
             + (currentPatternIndex + 1)
             + ".png\" dargestellt? Es reicht das Wort ohne den Zusatz Pattern!";
     return new FreeText(questionText);
+  }
+
+  private void nextPattern() {
+    if (usedIndices.size() == expectedPatterns.length) {
+      usedIndices.clear();
+    }
+    int r;
+    do {
+      r = (int) (Math.random() * expectedPatterns.length);
+    } while (usedIndices.contains(r));
+    currentPatternIndex = r;
+    usedIndices.add(r);
   }
 }
