@@ -28,7 +28,7 @@ import task.tasktype.quizquestion.FreeText;
  * werden. Die erkannten Design Patterns müssen dann dem Zauberer mitgeteilt werden.
  */
 public class Fragen_Pattern extends Room {
-  private final String[] expectedPatterns = {"observer", "visitor"};
+  private final String[] expectedPatterns = {".*?observer.*?", ".*?visitor.*?"};
   private int currentPatternIndex = 0;
   private int correctAnswerCount = 0;
   private Entity zauberer;
@@ -96,9 +96,9 @@ public class Fragen_Pattern extends Room {
     return (task, taskContents) -> {
       String rawAnswer =
           taskContents.stream().map(t -> (Quiz.Content) t).findFirst().orElseThrow().content();
-      String answer = rawAnswer.toLowerCase(Locale.ROOT);
+      String answer = rawAnswer.toLowerCase();
 
-      if (answer.matches(".*?" + expectedPatterns[currentPatternIndex] + ".*?")) {
+      if (answer.matches(expectedPatterns[currentPatternIndex])) {
         OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
         correctAnswerCount++;
         if (correctAnswerCount >= 2) {
