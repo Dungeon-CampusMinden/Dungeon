@@ -3,7 +3,9 @@ package task.game.hud;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogDesign;
@@ -140,7 +142,17 @@ public class QuizDialogDesign {
     VerticalGroup vg = new VerticalGroup();
 
     if (quizQuestion instanceof FreeText) {
-      ScrollPane scroller = new ScrollPane(DialogDesign.createEditableText(skin), skin);
+      TextArea editableText = DialogDesign.createEditableText(skin);
+      // Make the text field empty on each click
+      editableText.addListener(
+          new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              super.clicked(event, x, y);
+              editableText.setText("");
+            }
+          });
+      ScrollPane scroller = new ScrollPane(editableText, skin);
       scroller.setFadeScrollBars(false);
       scroller.setScrollbarsVisible(true);
       vg.addActor(scroller);
