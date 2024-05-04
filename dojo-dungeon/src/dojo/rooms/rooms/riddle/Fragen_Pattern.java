@@ -12,10 +12,10 @@ import core.utils.components.path.SimpleIPath;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -32,7 +32,7 @@ import task.tasktype.quizquestion.FreeText;
 public class Fragen_Pattern extends Room {
   private final String FILENAME = "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
   private final String[] expectedPatterns = {"Observer", "Visitor"};
-  private final Set<Integer> usedIndices = new HashSet<>();
+  private final List<Integer> indicesList = new LinkedList<>();
   private int currentPatternIndex;
   private Entity zauberer;
   private int correctAnswerCount = 0;
@@ -131,14 +131,10 @@ public class Fragen_Pattern extends Room {
   }
 
   private void nextPattern() {
-    if (usedIndices.size() == expectedPatterns.length) {
-      usedIndices.clear();
+    if (indicesList.isEmpty()) {
+      indicesList.addAll(IntStream.range(0, expectedPatterns.length).boxed().toList());
+      Collections.shuffle(indicesList);
     }
-    int r;
-    do {
-      r = (int) (Math.random() * expectedPatterns.length);
-    } while (usedIndices.contains(r));
-    currentPatternIndex = r;
-    usedIndices.add(r);
+    currentPatternIndex = indicesList.removeFirst();
   }
 }
