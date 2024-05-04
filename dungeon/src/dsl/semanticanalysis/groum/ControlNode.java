@@ -17,6 +17,14 @@ public class ControlNode extends GroumNode {
     returnStmt
   }
 
+  public boolean isConditional() {
+    return switch (this.controlType) {
+      case whileLoop, forLoop, countingForLoop, ifStmt, ifElseStmt, elseStmt -> true;
+      case none, block, returnStmt -> false;
+      default -> throw new IllegalStateException("Unexpected value: " + this.controlType);
+    };
+  }
+
   private final long id;
 
   private final ControlType controlType;
