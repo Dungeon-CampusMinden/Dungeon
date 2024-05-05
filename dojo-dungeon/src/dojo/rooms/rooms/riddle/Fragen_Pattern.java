@@ -84,8 +84,7 @@ public class Fragen_Pattern extends Room {
   }
 
   private void setNextTask() {
-    nextPattern();
-    final Quiz question = newFreeText();
+    Quiz question = newFreeText();
 
     zauberer.add(new TaskComponent(question, zauberer));
     zauberer.add(
@@ -122,6 +121,7 @@ public class Fragen_Pattern extends Room {
   }
 
   private Quiz newFreeText() {
+    nextPattern();
     String questionText =
         "Welches Design-Pattern wird in dem UML-Klassendiagramm unter \""
             + FILENAME
