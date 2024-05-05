@@ -32,7 +32,7 @@ public class Fragen_Pattern extends Room {
   private final String FILE_NAME_PREFIX =
       "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
   private final String[] EXPECTED_PATTERNS = {".*?observer.*?", ".*?visitor.*?"};
-  private final List<Integer> indicesList = new LinkedList<>();
+  private List<Integer> indicesList;
   private int currentPatternIndex = 0;
   private int correctAnswerCount = 0;
   private Entity zauberer;
@@ -126,8 +126,8 @@ public class Fragen_Pattern extends Room {
   }
 
   private void nextPattern() {
-    if (indicesList.isEmpty()) {
-      indicesList.addAll(IntStream.range(0, EXPECTED_PATTERNS.length).boxed().toList());
+    if (indicesList == null || indicesList.isEmpty()) {
+      indicesList = new LinkedList<>(IntStream.range(0, EXPECTED_PATTERNS.length).boxed().toList());
       Collections.shuffle(indicesList);
     }
     currentPatternIndex = indicesList.removeFirst();
