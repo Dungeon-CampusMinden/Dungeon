@@ -28,9 +28,9 @@ import task.tasktype.quizquestion.FreeText;
  * werden. Die erkannten Design Patterns müssen dann dem Zauberer mitgeteilt werden.
  */
 public class Fragen_Pattern extends Room {
-  private final String fileNamePrefix =
+  private final String FILE_NAME_PREFIX =
       "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
-  private final String[] expectedPatterns = {".*?observer.*?", ".*?visitor.*?"};
+  private final String[] EXPECTED_PATTERNS = {".*?observer.*?", ".*?visitor.*?"};
   private int currentPatternIndex = 0;
   private int correctAnswerCount = 0;
   private Entity zauberer;
@@ -100,14 +100,14 @@ public class Fragen_Pattern extends Room {
           taskContents.stream().map(t -> (Quiz.Content) t).findFirst().orElseThrow().content();
       String answer = rawAnswer.toLowerCase();
 
-      if (answer.matches(expectedPatterns[currentPatternIndex])) {
+      if (answer.matches(EXPECTED_PATTERNS[currentPatternIndex])) {
         OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
         correctAnswerCount++;
         if (correctAnswerCount >= 2) {
           openDoors();
         }
         currentPatternIndex++;
-        if (currentPatternIndex < expectedPatterns.length) {
+        if (currentPatternIndex < EXPECTED_PATTERNS.length) {
           setNextTask();
         }
       } else {
@@ -119,7 +119,7 @@ public class Fragen_Pattern extends Room {
   private Quiz newFreeText() {
     String questionText =
         "Welches Design-Pattern wird in dem UML-Klassendiagramm unter \""
-            + fileNamePrefix
+            + FILE_NAME_PREFIX
             + (currentPatternIndex + 1)
             + ".png\" dargestellt? Es reicht das Wort ohne den Zusatz Pattern!";
     return new FreeText(questionText);
