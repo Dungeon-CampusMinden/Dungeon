@@ -13,7 +13,6 @@ import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 import task.Task;
@@ -128,7 +127,7 @@ public class Fragen_Pattern extends Room {
 
   private void nextPattern() {
     if (indicesList.isEmpty()) {
-      indicesList.addAll(IntStream.range(0, expectedPatterns.length).boxed().toList());
+      indicesList.addAll(IntStream.range(0, EXPECTED_PATTERNS.length).boxed().toList());
       Collections.shuffle(indicesList);
     }
     currentPatternIndex = indicesList.removeFirst();
