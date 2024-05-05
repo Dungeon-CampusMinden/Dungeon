@@ -12,9 +12,7 @@ import core.utils.components.path.SimpleIPath;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.*;
 import java.util.function.BiConsumer;
 import task.Task;
 import task.TaskContent;
@@ -30,12 +28,12 @@ import task.tasktype.quizquestion.FreeText;
  * werden. Die erkannten Design Patterns müssen dann dem Schamanen mitgeteilt werden.
  */
 public class Fragen_Pattern extends Room {
-  private final String FILENAME = "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
-  private final String[] expectedPatterns = {"Observer", "Visitor"};
+  private final String FILE_NAME_PREFIX =
+      "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
+  private final String[] EXPECTED_PATTERNS = {".*?observer.*?", ".*?visitor.*?"};
   private int currentPatternIndex = 0;
-
-  private Entity zauberer;
   private int correctAnswerCount = 0;
+  private Entity zauberer;
 
   /**
    * Generate a new room.
@@ -98,23 +96,18 @@ public class Fragen_Pattern extends Room {
 
   private BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
     return (task, taskContents) -> {
-      AtomicReference<String> answers = new AtomicReference<>("");
-      taskContents.stream()
-          .map(t -> (Quiz.Content) t)
-          .forEach(t -> answers.set(answers.get() + t.content() + System.lineSeparator()));
+      String rawAnswer =
+          taskContents.stream().map(t -> (Quiz.Content) t).findFirst().orElseThrow().content();
+      String answer = rawAnswer.toLowerCase();
 
-      // remove the automatically added \n from the answer string
-      String answer = answers.get();
-      String cleanedAnswer = answer.trim();
-
-      if (cleanedAnswer.equals(expectedPatterns[currentPatternIndex])) {
+      if (answer.matches(EXPECTED_PATTERNS[currentPatternIndex])) {
         OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
         correctAnswerCount++;
         if (correctAnswerCount >= 2) {
           openDoors();
         }
         currentPatternIndex++;
-        if (currentPatternIndex < expectedPatterns.length) {
+        if (currentPatternIndex < EXPECTED_PATTERNS.length) {
           setNextTask();
         }
       } else {
@@ -126,7 +119,7 @@ public class Fragen_Pattern extends Room {
   private Quiz newFreeText() {
     String questionText =
         "Welches Design-Pattern wird in dem UML-Klassendiagramm unter \""
-            + FILENAME
+            + FILE_NAME_PREFIX
             + (currentPatternIndex + 1)
             + ".png\" dargestellt? Es reicht das Wort ohne den Zusatz Pattern!";
     return new FreeText(questionText);
