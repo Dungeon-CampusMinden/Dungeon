@@ -895,31 +895,42 @@ public class TestGroum {
   }
 
   @Test
-  // TODO: test
   public void dataDependencySequentialConditional() {
     String program =
         """
+  // y param idx: 2
   fn add(int x, int y, int z) -> int {
     if x {
+      // idx: 10
       y = 42;
     } else {
+      // idx: 15
       y = 321;
     }
 
     if x {
+      // idx: 21
       y = 1;
     }
 
+    // param ref idx: 22
+    print(y);
+
     if x {
+      // idx: 31
       y = 2;
     } else if z {
+      // idx: 39
       y = 3;
     } else {
+      // idx: 44
       y = 4;
     }
 
+    // ref idx: 45
     print(y);
 
+    // idx: 50
     y = 21;
     return y;
   }
@@ -945,10 +956,73 @@ public class TestGroum {
     GroumPrinter p2 = new GroumPrinter();
     String finalizedGroumStr = p2.print(finalizedGroum, false);
     write(finalizedGroumStr, "final_groum.dot");
+
+    // tests:
+    var paramDef = findNodeByProcessIdx(finalizedGroum, 2);
+    var firstIfDef = findNodeByProcessIdx(finalizedGroum, 10);
+    var firstElseDef = findNodeByProcessIdx(finalizedGroum, 15);
+    var secondIfDef = findNodeByProcessIdx(finalizedGroum, 21);
+    var firstPrintParamRef = findNodeByProcessIdx(finalizedGroum, 22);
+    var thirdIfDef = findNodeByProcessIdx(finalizedGroum, 31);
+    var elseIfDef = findNodeByProcessIdx(finalizedGroum, 39);
+    var secondElseDef = findNodeByProcessIdx(finalizedGroum, 44);
+    var secondPrintParamRef = findNodeByProcessIdx(finalizedGroum, 45);
+    var finalDef = findNodeByProcessIdx(finalizedGroum, 50);
+
+    // check param redefs
+    var paramRedefs = paramDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(2, paramRedefs.size());
+    Assert.assertTrue(paramRedefs.contains(firstIfDef));
+    Assert.assertTrue(paramRedefs.contains(firstElseDef));
+
+    // check first if-else redefs
+    var firstIfDefRedefs = firstIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(4, firstIfDefRedefs.size());
+    Assert.assertTrue(firstIfDefRedefs.contains(secondIfDef));
+    Assert.assertTrue(firstIfDefRedefs.contains(thirdIfDef));
+    Assert.assertTrue(firstIfDefRedefs.contains(elseIfDef));
+    Assert.assertTrue(firstIfDefRedefs.contains(secondElseDef));
+
+    var firstElseDefRedefs = firstElseDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(4, firstIfDefRedefs.size());
+    Assert.assertTrue(firstElseDefRedefs.contains(secondIfDef));
+    Assert.assertTrue(firstElseDefRedefs.contains(thirdIfDef));
+    Assert.assertTrue(firstElseDefRedefs.contains(elseIfDef));
+    Assert.assertTrue(firstElseDefRedefs.contains(secondElseDef));
+
+    // check first print param refs
+    var firstPrintParamRefs = firstPrintParamRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(3, firstPrintParamRefs.size());
+    Assert.assertTrue(firstPrintParamRefs.contains(firstIfDef));
+    Assert.assertTrue(firstPrintParamRefs.contains(firstElseDef));
+    Assert.assertTrue(firstPrintParamRefs.contains(secondIfDef));
+
+    // check only one read on first defs
+    var firstIfDefReads = firstIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(1, firstIfDefReads.size());
+
+    var firstElseDefReads = firstElseDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(1, firstElseDefReads.size());
+
+    var secondIfDefReads = secondIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(1, secondIfDefReads.size());
+
+    // check second print param refs
+    var secondPrintParamRefs = secondPrintParamRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(3, secondPrintParamRefs.size());
+    Assert.assertTrue(secondPrintParamRefs.contains(thirdIfDef));
+    Assert.assertTrue(secondPrintParamRefs.contains(elseIfDef));
+    Assert.assertTrue(secondPrintParamRefs.contains(secondElseDef));
+
+    // check final redefs
+    var finalRedefs = finalDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(3, finalRedefs.size());
+    Assert.assertTrue(finalRedefs.contains(thirdIfDef));
+    Assert.assertTrue(finalRedefs.contains(elseIfDef));
+    Assert.assertTrue(finalRedefs.contains(secondElseDef));
   }
 
   @Test
-  // TODO: test
   public void dataDependencyConditionalShadowing() {
     String program =
         """
