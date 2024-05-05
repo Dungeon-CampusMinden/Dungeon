@@ -2,6 +2,7 @@ package dsl.semanticanalysis.groum;
 
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.symbol.Symbol;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,9 @@ public abstract class ActionNode extends GroumNode {
   protected static Symbol getInstanceSymbolType(Symbol symbol) {
     IType instanceSymbolType;
 
+    if (symbol == Symbol.NULL) {
+      return BuiltInType.noType;
+    }
     if (symbol instanceof IType type) {
       instanceSymbolType = type;
     } else {

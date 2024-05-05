@@ -1541,6 +1541,65 @@ public class TestGroum {
     Assert.assertEquals(funcParamRefNode, endsOfDataRefElse.get(0));
   }
 
+  @Test
+  public void functionCall() {
+    String program =
+      """
+        // x idx: 7
+        // y idx: 8
+        // z idx: 9
+        fn add(int x, int y, int z) {
+          // redef idx: 17
+          // func call idx: 15
+          x = other_func(x, y + z);
+          print(x);
+        }
+
+        fn other_func(int x, int y) -> int {
+          return x + y;
+        }
+      """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+
+    // tests
+    var paramXDef = findNodeByProcessIdx(finalizedGroum, 7);
+    var paramYDef = findNodeByProcessIdx(finalizedGroum, 8);
+    var paramZDef = findNodeByProcessIdx(finalizedGroum, 9);
+    var funcCall = findNodeByProcessIdx(finalizedGroum, 15);
+    var xRedef = findNodeByProcessIdx(finalizedGroum, 17);
+
+    var funcCallReads = funcCall.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(funcCallReads.contains(paramXDef));
+    Assert.assertTrue(funcCallReads.contains(paramYDef));
+    Assert.assertTrue(funcCallReads.contains(paramZDef));
+
+    var xRedefReads = xRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(xRedefReads.contains(paramXDef));
+    Assert.assertTrue(xRedefReads.contains(paramYDef));
+    Assert.assertTrue(xRedefReads.contains(paramZDef));
+
+  }
+
   public static void write(String content, String path) {
     try {
       FileWriter writer = new FileWriter(path);

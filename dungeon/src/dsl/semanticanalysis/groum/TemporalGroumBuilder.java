@@ -136,6 +136,9 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   public Groum visit(IdNode node) {
     // Id in expression.. i guess
     Symbol referencedSymbol = symbolTable.getSymbolsForAstNode(node).get(0);
+    if (referencedSymbol == Symbol.NULL) {
+      boolean b = true;
+    }
     var action =
         new VariableReferenceAction(referencedSymbol, createOrGetInstanceId(referencedSymbol));
     return new Groum(action);

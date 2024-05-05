@@ -9,6 +9,9 @@ public class VariableReferenceAction extends ActionNode {
 
   public VariableReferenceAction(Symbol referencedSymbol, long referenceId) {
     super(ActionType.referencedInExpression);
+    if (referenceId == 374) {
+      boolean b = true;
+    }
     this.addSymbolReference(getInstanceSymbolType(referencedSymbol));
     this.addSymbolReference(referencedSymbol);
     this.referencedInstanceId(referenceId);

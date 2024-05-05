@@ -4,6 +4,8 @@ import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
+
+import java.sql.Array;
 import java.util.*;
 
 // TODO: how are we going to calculate data dependencies based on the SETS of
@@ -309,13 +311,33 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
   @Override
   public List<InvolvedVariable> visit(FunctionCallAction node) {
+    // TODO
     // get involved variables for all parameters -> read
+
+    var passAsParamNodes = node.getStartsOfIncoming(GroumEdge.GroumEdgeType.temporal);
+    for (var paramNode : passAsParamNodes) {
+      var paramNodesInvolvedVariables = this.involvedVariables.get(paramNode);
+      paramNodesInvolvedVariables.forEach(n -> this.addInvolvedVariable(node, n, n.typeOfInvolvement()));
+    }
+
+    // get all definitions
+    var involvedVariables = this.involvedVariables.get(node);
+    for (var involvedVariable : involvedVariables) {
+      long instanceId = this.instanceMap.get(involvedVariable.variableSymbol());
+      var definitions = this.currentScope().getDefinitions(instanceId);
+      // add read dependency
+      for (var definition : definitions) {
+        var edge = new GroumEdge(definition, node, GroumEdge.GroumEdgeType.dataDependencyRead);
+        this.groum.addEdge(edge);
+      }
+    }
 
     return new ArrayList<>();
   }
 
   @Override
   public List<InvolvedVariable> visit(MethodAccessAction node) {
+    // TODO
     // Note: temporally, lhs is evaluated before rhs
     // Note: if this method access is chained after some other member access (on lhs), the lhs
     // member access
@@ -346,12 +368,19 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   @Override
   public List<InvolvedVariable> visit(PassAsParameterAction node) {
     // read involved variables from incoming
+    var incomingNodes = node.getStartsOfIncoming(GroumEdge.GroumEdgeType.temporal);
+    //var involvedVariables = new ArrayList<InvolvedVariable>();
+    for (var incomingNode : incomingNodes) {
+      var nodesInvolvedVariables = this.involvedVariables.get(incomingNode);
+      nodesInvolvedVariables.forEach(n -> this.addInvolvedVariable(node, n, n.typeOfInvolvement()));
+    }
 
-    return new ArrayList<>();
+    return this.involvedVariables.get(node);
   }
 
   @Override
   public List<InvolvedVariable> visit(PropertyAccessAction node) {
+    // TODO
     // read lhs
 
     // involve current property
@@ -361,6 +390,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
   @Override
   public List<InvolvedVariable> visit(ReferenceInGraphAction node) {
+    // TODO
     // read variable
 
     return new ArrayList<>();
