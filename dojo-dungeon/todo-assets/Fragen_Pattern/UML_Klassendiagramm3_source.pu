@@ -1,0 +1,13 @@
+@startuml UML_Klassendiagramm3.png
+abstract Bauteil
+Bauteil <|-- EinfachBauteil
+Bauteil <|-- KomplexBauteil
+Bauteil -[hidden]- KomplexBauteil
+Bauteil "*" <--o KomplexBauteil : Einzelteile
+note "Klient" as n0
+note "Primitiv" as n1
+note "Komponente" as n2
+n0 .. Bauteil
+EinfachBauteil .. n1
+Bauteil .. n2
+@enduml
