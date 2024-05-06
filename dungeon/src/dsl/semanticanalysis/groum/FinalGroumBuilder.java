@@ -4,8 +4,6 @@ import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
-
-import java.sql.Array;
 import java.util.*;
 
 // TODO: how are we going to calculate data dependencies based on the SETS of
@@ -113,6 +111,30 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           continue;
         }
 
+        // ensure, that all preceding nodes are processed before the expression itself is processed
+        // TODO: this is kind of ugly, would be nice, if we pushed the children on the stack in a
+        // way, where
+        //  this is always the case!
+        if (currentNode instanceof ExpressionAction) {
+          var precedents = currentNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.temporal);
+          boolean allPrecedentsProcesseed = true;
+          for (var precedent : precedents) {
+            allPrecedentsProcesseed = this.processedNodes.contains(precedent);
+            if (!allPrecedentsProcesseed) {
+              break;
+            }
+          }
+
+          if (!allPrecedentsProcesseed) {
+            // If the current node to process has children, add them first!
+            var currentNodeChildren = currentNode.children();
+
+            this.nodesToProcess.addFirst(currentNode);
+            currentNodeChildren.reversed().forEach(nodesToProcess::addFirst);
+            continue;
+          }
+        }
+
         // push correct scope
         boolean pushedScope = false;
         var parent = currentNode.parent();
@@ -146,6 +168,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           var currentNodeChildren = currentNode.children();
           currentNodeChildren.reversed().forEach(nodesToProcess::addFirst);
         }
+
         // add following children
         nodesToProcess.addAll(
             currentNode.outgoing().stream()
@@ -242,9 +265,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       var precedingNode = node.incoming().get(0).start();
       if (precedingNode instanceof ExpressionAction expressionAction) {
         var involvedVariablesInExpression = this.involvedVariables.get(expressionAction);
-        if (involvedVariablesInExpression == null) {
-          boolean b = true;
-        } else {
+        if (involvedVariablesInExpression != null) {
           involvedVariablesInExpression.forEach(
               v -> {
                 this.addInvolvedVariable(node, v, InvolvedVariable.TypeOfInvolvement.read);
@@ -317,7 +338,8 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     var passAsParamNodes = node.getStartsOfIncoming(GroumEdge.GroumEdgeType.temporal);
     for (var paramNode : passAsParamNodes) {
       var paramNodesInvolvedVariables = this.involvedVariables.get(paramNode);
-      paramNodesInvolvedVariables.forEach(n -> this.addInvolvedVariable(node, n, n.typeOfInvolvement()));
+      paramNodesInvolvedVariables.forEach(
+          n -> this.addInvolvedVariable(node, n, n.typeOfInvolvement()));
     }
 
     // get all definitions
@@ -369,7 +391,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   public List<InvolvedVariable> visit(PassAsParameterAction node) {
     // read involved variables from incoming
     var incomingNodes = node.getStartsOfIncoming(GroumEdge.GroumEdgeType.temporal);
-    //var involvedVariables = new ArrayList<InvolvedVariable>();
+    // var involvedVariables = new ArrayList<InvolvedVariable>();
     for (var incomingNode : incomingNodes) {
       var nodesInvolvedVariables = this.involvedVariables.get(incomingNode);
       nodesInvolvedVariables.forEach(n -> this.addInvolvedVariable(node, n, n.typeOfInvolvement()));
