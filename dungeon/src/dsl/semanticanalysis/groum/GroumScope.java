@@ -280,20 +280,24 @@ public class GroumScope {
   private void propagateShadowing(
       Long instanceId, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
 
-    if(this.associatedGroumNode.getLabel().contains("fn(int, ")) {
+    if (this.associatedGroumNode.getLabel().contains("fn(int, ")) {
       boolean b = true;
     }
 
-    if (this.associatedGroumNode instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+    if (this.associatedGroumNode instanceof ControlNode controlNode
+        && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
       propagateShadowingToParents(instanceId, this, definitionsToShadow);
-    } else if (this.associatedGroumNode instanceof ControlNode controlNode && controlNode.isConditional() && !this.isBranchOfIfElse()) {
+    } else if (this.associatedGroumNode instanceof ControlNode controlNode
+        && controlNode.isConditional()
+        && !this.isBranchOfIfElse()) {
       // this is a conditional statement, which is not part of an ifElse stmt
       // stop the collection of definitions to shadow
       propagateShadowingToParents(instanceId, this, definitionsToShadow);
     } else {
       var definitions = this.variableDefinitions.get(instanceId);
 
-      if (fromScope.associatedGroumNode instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+      if (fromScope.associatedGroumNode instanceof ControlNode controlNode
+          && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
         // collect all previous definitions to shadow
         // which will be all conditionalScopes before the 'fromScope'
         // (fromScope is guaranteed to be an ifElseScope)
@@ -320,7 +324,7 @@ public class GroumScope {
           // if this is the control flow parent of the from scope, this means, that this is a j
           boolean b = true;
         } else {
-          //definitionsToShadow.add(this);
+          // definitionsToShadow.add(this);
           definitionsToShadow.add(this);
           definitionsToShadow.add(this.controlFlowParent);
         }
@@ -337,7 +341,9 @@ public class GroumScope {
   }
 
   private boolean isBranchOfIfElse() {
-    return this.controlFlowParent != null && this.controlFlowParent.associatedGroumNode instanceof ControlNode controlNode && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt);
+    return this.controlFlowParent != null
+        && this.controlFlowParent.associatedGroumNode instanceof ControlNode controlNode
+        && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt);
   }
 
   @Override

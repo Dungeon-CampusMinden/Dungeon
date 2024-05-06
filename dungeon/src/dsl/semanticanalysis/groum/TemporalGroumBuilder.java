@@ -8,8 +8,6 @@ import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-
-import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +58,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     return this.instanceMap.get(symbol);
   }
 
-  private long createOrGetMemberInstanceId(Long contextInstanceId, Symbol symbolToResolveInContext) {
+  private long createOrGetMemberInstanceId(
+      Long contextInstanceId, Symbol symbolToResolveInContext) {
     // lookup contextInstanceId in memberAccessInstanceMap
     if (this.memberAccessInstanceMap.containsKey(contextInstanceId)) {
       // this maps the symbol resolved in the context to other instance ids
@@ -584,8 +583,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       Groum parameterEvaluationGroum = getGroumForParameters((FuncCallNode) node.getRhs());
 
       Symbol functionSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
-      var methodAccessAction =
-          new MethodAccessAction(lhsSymbol, functionSymbol, contextInstanceId);
+      var methodAccessAction = new MethodAccessAction(lhsSymbol, functionSymbol, contextInstanceId);
 
       createOrGetMemberInstanceId(contextInstanceId, functionSymbol);
 
@@ -604,8 +602,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
       Groum accessGroum;
       if (lhsOfInnerMemberAccess.type.equals(Node.Type.Identifier)) {
-        var accessAction =
-            new PropertyAccessAction(lhsSymbol, innerLhsSymbol, contextInstanceId);
+        var accessAction = new PropertyAccessAction(lhsSymbol, innerLhsSymbol, contextInstanceId);
 
         // add scoping information: the inner member access is 'owned' by this property access
         accessAction.addChildren(innerMemberAccessGroum.nodes);
@@ -631,8 +628,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
       // property access
       var rhsSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
-      var accessAction =
-          new PropertyAccessAction(lhsSymbol, rhsSymbol, contextInstanceId);
+      var accessAction = new PropertyAccessAction(lhsSymbol, rhsSymbol, contextInstanceId);
 
       createOrGetMemberInstanceId(contextInstanceId, rhsSymbol);
 
@@ -711,7 +707,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     } else {
       var id = node.getLhs();
       assigneeSymbol = symbolTable.getSymbolsForAstNode(id).get(0);
-      assignmentAction = new DefinitionAction(assigneeSymbol, createOrGetInstanceId(assigneeSymbol));
+      assignmentAction =
+          new DefinitionAction(assigneeSymbol, createOrGetInstanceId(assigneeSymbol));
     }
 
     Groum assignmentGroum = new Groum(assignmentAction);
