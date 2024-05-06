@@ -14,7 +14,6 @@ import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.stream.IntStream;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -32,7 +31,6 @@ public class Fragen_Pattern extends Room {
   private final String FILE_NAME_PREFIX =
       "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
   private final String[] EXPECTED_PATTERNS = {".*?observer.*?", ".*?visitor.*?"};
-  private List<Integer> indicesList;
   private int currentPatternIndex = 0;
   private int correctAnswerCount = 0;
   private Entity zauberer;
@@ -105,7 +103,7 @@ public class Fragen_Pattern extends Room {
       if (answer.matches(EXPECTED_PATTERNS[currentPatternIndex])) {
         OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
         correctAnswerCount++;
-        if (correctAnswerCount >= 2) {
+        if (correctAnswerCount >= 1) {
           openDoors();
         }
         setNextTask();
@@ -126,10 +124,6 @@ public class Fragen_Pattern extends Room {
   }
 
   private void nextPattern() {
-    if (indicesList == null || indicesList.isEmpty()) {
-      indicesList = new LinkedList<>(IntStream.range(0, EXPECTED_PATTERNS.length).boxed().toList());
-      Collections.shuffle(indicesList);
-    }
-    currentPatternIndex = indicesList.removeFirst();
+    currentPatternIndex = new Random().nextInt(EXPECTED_PATTERNS.length);
   }
 }
