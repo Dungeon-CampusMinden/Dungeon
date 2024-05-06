@@ -1,0 +1,14 @@
+@startuml UML_Klassendiagramm0.png
+class A {
+}
+class B {
+}
+class C {
+}
+class D {
+}
+A <|-- B
+A <|-- C
+B <|-- D
+C <|-- D
+@enduml
