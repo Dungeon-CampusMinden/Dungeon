@@ -1,12 +1,19 @@
 package dojo.rooms.rooms.boss;
 
-import contrib.components.InteractionComponent;
+import contrib.components.*;
+import contrib.entities.AIFactory;
 import contrib.entities.EntityFactory;
 import contrib.hud.dialogs.OkDialog;
+import contrib.item.concreteItem.ItemResourceBerry;
 import contrib.level.generator.graphBased.RoomGenerator;
+import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
+import core.utils.components.path.SimpleIPath;
 import dojo.monster.MyImp;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
@@ -72,7 +79,7 @@ public class Implement_MyImp extends Room {
   }
 
   private void generate() throws IOException {
-    final Entity myImp = MyImp.createEntity(this);
+    final Entity myImp = createEntity(this);
 
     final Entity chest = EntityFactory.newChest();
     chest.add(
@@ -82,7 +89,10 @@ public class Implement_MyImp extends Room {
             (entity1, entity2) -> {
               try {
                 Class<?> cls = compile();
-                cls.getDeclaredMethod("modifyMyImp", Entity.class).invoke(null, myImp);
+                cls.getDeclaredMethod("disableImpGodMode", Entity.class).invoke(null, myImp);
+                cls.getDeclaredMethod("setImpHealthTo25", Entity.class).invoke(null, myImp);
+                cls.getDeclaredMethod("increaseImpSpeed", Entity.class).invoke(null, myImp);
+                cls.getDeclaredMethod("addNewPotionHealthToHerosInventory").invoke(null);
                 OkDialog.showOkDialog("Die Entität \"MyImp\" wurde angepasst.", "Ok:", () -> {});
               } catch (Exception e) {
                 OkDialog.showOkDialog(e.getMessage(), "Fehler:", () -> {});
@@ -99,5 +109,69 @@ public class Implement_MyImp extends Room {
 
     // Load compiled class, and replace existing MyImp class with new one
     return new ReplacingClassLoader().loadClass(IMP_FQC);
+  }
+
+  /**
+   * Creates and initializes a new {@link Entity} "MyImp".
+   *
+   * @param currentRoom the current room the entity is placed in.
+   * @return the new entity.
+   */
+  private static Entity createEntity(Room currentRoom) {
+    Entity entity = new Entity();
+
+    entity.name("MyImp");
+
+    InventoryComponent ic = new InventoryComponent(5);
+    entity.add(ic);
+    ic.add(new ItemResourceBerry());
+
+    entity.add(
+        new HealthComponent(
+            1000,
+            (e) ->
+                OkDialog.showOkDialog(
+                    "Danke, du hast das Dojo-Dungeon gelöst!",
+                    "Alle Aufgaben gelöst:",
+                    () -> {
+                      new DropItemsInteraction().accept(e, null);
+                      currentRoom.openDoors();
+                    })));
+    entity.fetch(HealthComponent.class).orElseThrow().godMode(true);
+
+    entity.add(new PositionComponent());
+
+    entity.add(new AIComponent(AIFactory.randomFightAI(), AIFactory.randomIdleAI(), e -> false));
+
+    try {
+      entity.add(new DrawComponent(new SimpleIPath("character/monster/imp")));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    entity.add(new VelocityComponent(0, 0));
+
+    entity.add(new CollideComponent());
+
+    // Tell the tasks of this room ...
+    entity.add(
+        new InteractionComponent(
+            1,
+            true,
+            (entity1, entity2) ->
+                OkDialog.showOkDialog(
+                    "Du findest meine Implementierung in \"" + MyImp.class.getName() + "\".",
+                    "Aufgabe in diesem Raum:",
+                    () ->
+                        OkDialog.showOkDialog(
+                            "Implementiere die Methoden disableImpGodMode(), setImpHealthTo25(), increaseImpSpeed() und addNewPotionHealthToHerosInventory().",
+                            "Aufgabe in diesem Raum:",
+                            () ->
+                                OkDialog.showOkDialog(
+                                    "Sprich dann mit der Truhe, um mich erneut zu laden, und greife an!",
+                                    "Aufgabe in diesem Raum:",
+                                    () -> {})))));
+
+    return entity;
   }
 }
