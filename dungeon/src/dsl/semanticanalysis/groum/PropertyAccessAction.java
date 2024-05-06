@@ -8,14 +8,17 @@ public class PropertyAccessAction extends ActionNode {
   public static final int instanceSymbolIdx = 1;
   public static final int propertySymbolIdx = 2;
 
-  public PropertyAccessAction(Symbol instanceSymbol, Symbol property, long instanceId) {
+  public PropertyAccessAction(Symbol instanceSymbol, Symbol property, long instanceId, long propertyInstanceId) {
     super(ActionType.propertyAccess);
 
     this.addSymbolReference(getInstanceSymbolType(instanceSymbol));
     this.addSymbolReference(instanceSymbol);
     this.addSymbolReference(property);
     this.referencedInstanceId(instanceId);
+    this.propertyInstanceId = propertyInstanceId;
   }
+
+  public final long propertyInstanceId;
 
   public IType instanceDataType() {
     return (IType) this.symbolReferences().get(instanceTypeIdx);

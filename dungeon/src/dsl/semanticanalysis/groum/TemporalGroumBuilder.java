@@ -602,7 +602,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
       Groum accessGroum;
       if (lhsOfInnerMemberAccess.type.equals(Node.Type.Identifier)) {
-        var accessAction = new PropertyAccessAction(lhsSymbol, innerLhsSymbol, contextInstanceId);
+        var memberInstanceId = createOrGetMemberInstanceId(contextInstanceId, innerLhsSymbol);
+        var accessAction = new PropertyAccessAction(lhsSymbol, innerLhsSymbol, contextInstanceId, memberInstanceId);
 
         // add scoping information: the inner member access is 'owned' by this property access
         accessAction.addChildren(innerMemberAccessGroum.nodes);
@@ -628,9 +629,9 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
       // property access
       var rhsSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
-      var accessAction = new PropertyAccessAction(lhsSymbol, rhsSymbol, contextInstanceId);
+      var memberInstanceId = createOrGetMemberInstanceId(contextInstanceId, rhsSymbol);
+      var accessAction = new PropertyAccessAction(lhsSymbol, rhsSymbol, contextInstanceId, memberInstanceId);
 
-      createOrGetMemberInstanceId(contextInstanceId, rhsSymbol);
 
       mergedGroum = new Groum(accessAction);
     }

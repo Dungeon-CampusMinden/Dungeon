@@ -293,9 +293,10 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
     // add write involved variable
     var instanceSymbol = node.instanceSymbol();
+    var instanceId = node.referencedInstanceId();
     var involvedVariable =
         this.addInvolvedVariable(
-            node, instanceSymbol, InvolvedVariable.TypeOfInvolvement.write, node);
+            node, instanceId, InvolvedVariable.TypeOfInvolvement.write, node);
     return List.of(involvedVariable);
   }
 
@@ -345,7 +346,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     // get all definitions
     var involvedVariables = this.involvedVariables.get(node);
     for (var involvedVariable : involvedVariables) {
-      long instanceId = this.instanceMap.get(involvedVariable.variableSymbol());
+      long instanceId = involvedVariable.variableInstanceId();
       var definitions = this.currentScope().getDefinitions(instanceId);
       // add read dependency
       for (var definition : definitions) {
@@ -382,7 +383,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
     var involvedVariable =
         this.addInvolvedVariable(
-            node, node.parameterSymbol(), InvolvedVariable.TypeOfInvolvement.write, node);
+            node, instanceId, InvolvedVariable.TypeOfInvolvement.write, node);
 
     return List.of(involvedVariable);
   }
@@ -401,11 +402,55 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   }
 
   @Override
+  // TODO:
+  //  NEXT STEP!!!!
+  //  finish, contemplate!
   public List<InvolvedVariable> visit(PropertyAccessAction node) {
-    // TODO
     // read lhs
+    var lhsInstanceId = node.referencedInstanceId();
+    var definitions = this.currentScope().getDefinitions(lhsInstanceId);
 
-    // involve current property
+    boolean pushedScope = false;
+    if (!node.children().isEmpty()) {
+      // create new groum scope for propertyAccess
+      var scope = new GroumScope(this.currentScope(), node);
+      this.scopesForNodes.put(node, scope);
+      this.groumScopeStack.push(scope);
+      pushedScope = true;
+    }
+
+
+    List<InvolvedVariable> parentsInvolvedVariables = new ArrayList<>();
+    if (node.parent() instanceof PropertyAccessAction parentNode) {
+      // get parents involved variables
+      parentsInvolvedVariables = this.involvedVariables.get(parentNode);
+    }
+
+    //definitions.forEach(d -> this.addInvolvedVariable(node, node.referencedInstanceId(), InvolvedVariable.TypeOfInvolvement.readWrite, d));
+
+    // create a new defintion for the rhs of the property access in the scope of the property access
+    // TODO: is the scope really needed, if we propagate the definitions via involvedVariables?
+    this.currentScope().createNewDefinition(node.propertyInstanceId, node);
+
+    this.addInvolvedVariable(node, node.propertyInstanceId, InvolvedVariable.TypeOfInvolvement.read, node);
+
+    // get involved variables for definitions
+    definitions.forEach(d -> {
+      // TODO: just read? or also write? or just write?
+      this.addInvolvedVariable(node, node.referencedInstanceId(), InvolvedVariable.TypeOfInvolvement.readWrite, d);
+      var edge = new GroumEdge(d, node, GroumEdge.GroumEdgeType.dataDependencyRead);
+      this.groum.addEdge(edge);
+    });
+
+    parentsInvolvedVariables.forEach(v -> {
+      this.addInvolvedVariable(node, v, InvolvedVariable.TypeOfInvolvement.readWrite);
+      var edge = new GroumEdge(v.definitionNode(), node, GroumEdge.GroumEdgeType.dataDependencyRead);
+      this.groum.addEdge(edge);
+    });
+
+    if (pushedScope) {
+      this.groumScopeStack.pop();
+    }
 
     return new ArrayList<>();
   }
@@ -434,7 +479,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     for (var definitionNode : definitionNodes) {
       var involvedVariable =
           this.addInvolvedVariable(
-              node, definitionSymbol, InvolvedVariable.TypeOfInvolvement.read, definitionNode);
+              node, instanceId, InvolvedVariable.TypeOfInvolvement.read, definitionNode);
 
       var dataDependency =
           new GroumEdge(definitionNode, node, GroumEdge.GroumEdgeType.dataDependencyRead);
@@ -447,13 +492,13 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
   public InvolvedVariable addInvolvedVariable(
       GroumNode node,
-      Symbol variableSymbol,
+      Long variableInstanceId,
       InvolvedVariable.TypeOfInvolvement type,
       GroumNode definitionNode) {
     if (!this.involvedVariables.containsKey(node)) {
       this.involvedVariables.put(node, new ArrayList<>());
     }
-    var involvedVariable = new InvolvedVariable(variableSymbol, type, definitionNode);
+    var involvedVariable = new InvolvedVariable(variableInstanceId, type, definitionNode);
     this.involvedVariables.get(node).add(involvedVariable);
     return involvedVariable;
   }
@@ -468,7 +513,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           .get(node)
           .add(
               new InvolvedVariable(
-                  involvedVariable.variableSymbol(), type, involvedVariable.definitionNode()));
+                  involvedVariable.variableInstanceId(), type, involvedVariable.definitionNode()));
     } else {
       this.involvedVariables.get(node).add(involvedVariable);
     }

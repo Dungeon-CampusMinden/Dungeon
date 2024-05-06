@@ -11,20 +11,20 @@ public class InvolvedVariable {
   }
 
   // TODO: maybe this should be just instanceId?
-  private Symbol variableSymbol;
+  private Long variableInstanceId;
 
   private TypeOfInvolvement type;
 
   private GroumNode definitionNode;
 
-  public InvolvedVariable(Symbol variableSymbol, TypeOfInvolvement type, GroumNode definitionNode) {
+  public InvolvedVariable(Long variableInstanceId, TypeOfInvolvement type, GroumNode definitionNode) {
     this.type = type;
-    this.variableSymbol = variableSymbol;
+    this.variableInstanceId = variableInstanceId;
     this.definitionNode = definitionNode;
   }
 
-  public Symbol variableSymbol() {
-    return this.variableSymbol;
+  public Long variableInstanceId() {
+    return this.variableInstanceId;
   }
 
   public TypeOfInvolvement typeOfInvolvement() {

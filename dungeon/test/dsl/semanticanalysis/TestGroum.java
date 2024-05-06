@@ -1625,11 +1625,11 @@ public class TestGroum {
   public void propertyAccessDifferentInstanceIds() {
     String program =
         """
-        fn func(entity ent1, entity ent2) {
+        fn func(entity ent1, entity ent2, int x) {
           var c1 = ent1.inventory_component.count;
           var c2 = ent2.inventory_component.count;
 
-          ent1.inventory_component.count = 42;
+          ent1.inventory_component.count = x;
           ent2.inventory_component.count = 21;
 
           //ent.inventory_component.count = 12;
@@ -1656,7 +1656,38 @@ public class TestGroum {
     var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
 
     GroumPrinter p2 = new GroumPrinter();
-    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    String finalizedGroumStr = p2.print(finalizedGroum, false);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
+  @Test
+  public void propertyAccessChained() {
+    String program =
+      """
+      fn func(entity ent, single_choice_task x) {
+        var t = ent.task_content_component.content.task;
+      }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, false);
     write(finalizedGroumStr, "final_groum.dot");
   }
 

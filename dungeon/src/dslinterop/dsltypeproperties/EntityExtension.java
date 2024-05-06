@@ -131,7 +131,24 @@ public class EntityExtension {
     @Override
     public TaskContentComponent get(Entity instance) {
       var optionalComponent = instance.fetch(TaskContentComponent.class);
+      var comp = optionalComponent.get();
       return optionalComponent.orElse(null);
+    }
+  }
+
+  @DSLTypeProperty(name = "task", extendedType = TaskContent.class)
+  public static class TaskProperty
+    implements IDSLExtensionProperty<TaskContent, Task> {
+    public static TaskProperty instance = new TaskProperty();
+
+    private TaskProperty() {}
+
+    @Override
+    public void set(TaskContent instance, Task valueToSet) { }
+
+    @Override
+    public Task get(TaskContent instance) {
+      return instance.task();
     }
   }
 
