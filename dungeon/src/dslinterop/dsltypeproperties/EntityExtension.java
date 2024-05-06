@@ -57,6 +57,25 @@ public class EntityExtension {
     }
   }
 
+  @DSLTypeProperty(name = "count", extendedType = InventoryComponent.class)
+  public static class InventoryComponentCountProperty
+    implements IDSLExtensionProperty<InventoryComponent, Integer> {
+    public static EntityExtension.InventoryComponentCountProperty instance =
+      new EntityExtension.InventoryComponentCountProperty();
+
+    private InventoryComponentCountProperty() {}
+
+    @Override
+    public void set(InventoryComponent instance, Integer valueToSet) {
+
+    }
+
+    @Override
+    public Integer get(InventoryComponent instance) {
+      return instance.count();
+    }
+  }
+
   @DSLTypeProperty(name = "inventory_component", extendedType = Entity.class)
   public static class InventoryComponentProperty
       implements IDSLExtensionProperty<Entity, InventoryComponent> {

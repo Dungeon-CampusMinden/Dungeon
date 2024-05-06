@@ -160,6 +160,7 @@ public class GameEnvironment implements IEnvironment {
     properties.add(EntityExtension.TaskComponentProperty.instance);
     properties.add(EntityExtension.TaskContentComponentProperty.instance);
     properties.add(EntityExtension.InventoryComponentProperty.instance);
+    properties.add(EntityExtension.InventoryComponentCountProperty.instance);
     properties.add(EntityExtension.InteractionComponentProperty.instance);
     properties.add(TaskComponent.TaskProperty.instance);
     properties.add(QuestItemExtension.TaskContentComponentProperty.instance);
