@@ -6,17 +6,21 @@ import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 
 import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 
 public class TemporalGroumBuilder implements AstVisitor<Groum> {
   private SymbolTable symbolTable;
   private IEnvironment environment;
   private HashMap<Symbol, Long> instanceMap;
+  private HashMap<Long, HashMap<Symbol, Long>> memberAccessInstanceMap;
+  private Stack<Long> memberAccessContextStack;
   private TypeInferrer inferrer;
 
   public Groum walk(
@@ -27,6 +31,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     this.symbolTable = symbolTable;
     this.environment = environment;
     this.instanceMap = instanceMap;
+    this.memberAccessContextStack = new Stack<>();
+    this.memberAccessInstanceMap = new HashMap<>();
     this.inferrer = new TypeInferrer(this.symbolTable, null);
 
     var groumNode = astNode.accept(this);
@@ -44,10 +50,35 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   }
 
   private long createOrGetInstanceId(Symbol symbol) {
+    if (symbol instanceof PropertySymbol pSym) {
+      boolean b = true;
+    }
+
     if (!this.instanceMap.containsKey(symbol)) {
       this.instanceMap.put(symbol, IndexGenerator.getIdx());
     }
     return this.instanceMap.get(symbol);
+  }
+
+  private long createOrGetMemberInstanceId(Long contextInstanceId, Symbol symbolToResolveInContext) {
+    // lookup contextInstanceId in memberAccessInstanceMap
+    if (this.memberAccessInstanceMap.containsKey(contextInstanceId)) {
+      // this maps the symbol resolved in the context to other instance ids
+      var contextMap = this.memberAccessInstanceMap.get(contextInstanceId);
+
+      if (!contextMap.containsKey(symbolToResolveInContext)) {
+        contextMap.put(symbolToResolveInContext, IndexGenerator.getIdx());
+      }
+
+      return contextMap.get(symbolToResolveInContext);
+    }
+    return -1;
+  }
+
+  private void createContextMap(Long instanceIdToCreateContextFor) {
+    if (!this.memberAccessInstanceMap.containsKey(instanceIdToCreateContextFor)) {
+      this.memberAccessInstanceMap.put(instanceIdToCreateContextFor, new HashMap<>());
+    }
   }
 
   @Override
@@ -531,6 +562,22 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       lhsSymbol = (Symbol) callable.getFunctionType().getReturnType();
     }
 
+    // setup context
+    Long contextInstanceId;
+    if (node.getParent().type == Node.Type.MemberAccess) {
+      // if the parent is also a member access, another context will be on the context stack
+      // -> get that id, that is the parents context
+      var parentsInstanceId = this.memberAccessContextStack.peek();
+
+      // create a new member instance id in the context of the parents instance for lhs symbol
+      contextInstanceId = createOrGetMemberInstanceId(parentsInstanceId, lhsSymbol);
+    } else {
+      contextInstanceId = createOrGetInstanceId(lhsSymbol);
+    }
+
+    this.memberAccessContextStack.push(contextInstanceId);
+    createContextMap(contextInstanceId);
+
     Groum mergedGroum = Groum.NONE;
     // in a method call, we first land here
     if (node.getRhs().type.equals(Node.Type.FuncCall)) {
@@ -538,7 +585,9 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
       Symbol functionSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
       var methodAccessAction =
-          new MethodAccessAction(lhsSymbol, functionSymbol, createOrGetInstanceId(lhsSymbol));
+          new MethodAccessAction(lhsSymbol, functionSymbol, contextInstanceId);
+
+      createOrGetMemberInstanceId(contextInstanceId, functionSymbol);
 
       // add scoping information: the parameter evaluations are 'owned' by the method access
       methodAccessAction.addChildren(parameterEvaluationGroum.nodes);
@@ -556,7 +605,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       Groum accessGroum;
       if (lhsOfInnerMemberAccess.type.equals(Node.Type.Identifier)) {
         var accessAction =
-            new PropertyAccessAction(lhsSymbol, innerLhsSymbol, createOrGetInstanceId(lhsSymbol));
+            new PropertyAccessAction(lhsSymbol, innerLhsSymbol, contextInstanceId);
 
         // add scoping information: the inner member access is 'owned' by this property access
         accessAction.addChildren(innerMemberAccessGroum.nodes);
@@ -567,7 +616,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
         Groum parameterEvaluationGroum =
             getGroumForParameters((FuncCallNode) lhsOfInnerMemberAccess);
         var methodAccessAction =
-            new MethodAccessAction(lhsSymbol, innerLhsSymbol, createOrGetInstanceId(lhsSymbol));
+            new MethodAccessAction(lhsSymbol, innerLhsSymbol, contextInstanceId);
 
         // add scoping information: the parameter evaluation and inner member access is 'owned' by
         // the method access
@@ -578,13 +627,19 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
       mergedGroum = accessGroum.mergeSequential(innerMemberAccessGroum);
     } else if (node.getRhs().type.equals(Node.Type.Identifier)) {
+      // TODO: calculate instance id for whole member access!
+
       // property access
       var rhsSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
       var accessAction =
-          new PropertyAccessAction(lhsSymbol, rhsSymbol, createOrGetInstanceId(lhsSymbol));
+          new PropertyAccessAction(lhsSymbol, rhsSymbol, contextInstanceId);
+
+      createOrGetMemberInstanceId(contextInstanceId, rhsSymbol);
 
       mergedGroum = new Groum(accessAction);
     }
+
+    this.memberAccessContextStack.pop();
 
     return mergedGroum;
   }
@@ -641,22 +696,24 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     Symbol assigneeSymbol;
 
     Groum lhsGroum = Groum.NONE;
+    GroumNode assignmentAction = GroumNode.NONE;
     if (node.getLhs().type == Node.Type.MemberAccess) {
       lhsGroum = node.getLhs().accept(this);
 
       // the sink node (last node in groum) will be the accessed property
       var sinkNode = lhsGroum.sinkNodes().get(0);
       if (sinkNode instanceof PropertyAccessAction propertyAccessAction) {
+        var contextId = propertyAccessAction.referencedInstanceId();
         assigneeSymbol = propertyAccessAction.propertySymbol();
-      } else {
-        assigneeSymbol = Symbol.NULL;
+        var assigneeInstanceId = this.memberAccessInstanceMap.get(contextId).get(assigneeSymbol);
+        assignmentAction = new DefinitionAction(assigneeSymbol, assigneeInstanceId);
       }
     } else {
       var id = node.getLhs();
       assigneeSymbol = symbolTable.getSymbolsForAstNode(id).get(0);
+      assignmentAction = new DefinitionAction(assigneeSymbol, createOrGetInstanceId(assigneeSymbol));
     }
 
-    var assignmentAction = new DefinitionAction(assigneeSymbol, createOrGetInstanceId(assigneeSymbol));
     Groum assignmentGroum = new Groum(assignmentAction);
 
     if (node.getLhs().type == Node.Type.MemberAccess) {
