@@ -7,6 +7,8 @@ import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
+
+import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -636,30 +638,50 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(AssignmentNode node) {
-    // basically like init
+    Symbol assigneeSymbol;
+
+    Groum lhsGroum = Groum.NONE;
+    if (node.getLhs().type == Node.Type.MemberAccess) {
+      lhsGroum = node.getLhs().accept(this);
+
+      // the sink node (last node in groum) will be the accessed property
+      var sinkNode = lhsGroum.sinkNodes().get(0);
+      if (sinkNode instanceof PropertyAccessAction propertyAccessAction) {
+        assigneeSymbol = propertyAccessAction.propertySymbol();
+      } else {
+        assigneeSymbol = Symbol.NULL;
+      }
+    } else {
+      var id = node.getLhs();
+      assigneeSymbol = symbolTable.getSymbolsForAstNode(id).get(0);
+    }
+
+    var assignmentAction = new DefinitionAction(assigneeSymbol, createOrGetInstanceId(assigneeSymbol));
+    Groum assignmentGroum = new Groum(assignmentAction);
+
+    if (node.getLhs().type == Node.Type.MemberAccess) {
+      var sourceNode = lhsGroum.sourceNodes().get(0);
+      sourceNode.addChildren(assignmentGroum.nodes);
+    }
+
+    Groum mergedAssignmentGroum;
 
     // get rhs
     Groum rhsGroum = node.getRhs().accept(this);
-
-    var id = node.getLhs();
-    var symbol = symbolTable.getSymbolsForAstNode(id).get(0);
-
-    var assignmentAction = new DefinitionAction(symbol, createOrGetInstanceId(symbol));
-    Groum assignmentGroum = new Groum(assignmentAction);
-    Groum mergedGroum;
     if (!rhsGroum.equals(Groum.NONE)) {
       // expression action
       ExpressionAction expr = new ExpressionAction(rhsGroum.nodes, IndexGenerator.getIdx());
       Groum exprGroum = new Groum(expr);
 
-      var intermediaryGroum = rhsGroum.mergeSequential(exprGroum);
-      // exprGroum = rhsGroum.mergeSequential(exprGroum, GroumEdge.GroumEdgeType.dataDependency);
-      mergedGroum = intermediaryGroum.mergeSequential(assignmentGroum);
+      var mergedExpressionGroum = rhsGroum.mergeSequential(exprGroum);
+
+      mergedAssignmentGroum = lhsGroum.mergeParallel(mergedExpressionGroum);
+      mergedAssignmentGroum = mergedAssignmentGroum.mergeSequential(assignmentGroum);
     } else {
-      mergedGroum = assignmentGroum;
+      mergedAssignmentGroum = lhsGroum.mergeSequential(assignmentGroum);
     }
 
-    return mergedGroum;
+    return mergedAssignmentGroum;
   }
 
   @Override
