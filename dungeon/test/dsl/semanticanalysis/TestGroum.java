@@ -1626,15 +1626,15 @@ public class TestGroum {
     String program =
         """
         fn func(entity ent1, entity ent2, int x) {
+          // count reference idx: 5
           var c1 = ent1.inventory_component.count;
+          // count reference idx: 9
           var c2 = ent2.inventory_component.count;
 
+          // count def idx: 16
           ent1.inventory_component.count = x;
+          // count def idx: 21
           ent2.inventory_component.count = 21;
-
-          //ent.inventory_component.count = 12;
-
-          //ent.inventory_component.count = ent.inventory_component.count = 42;
         }
       """;
 
@@ -1658,6 +1658,16 @@ public class TestGroum {
     GroumPrinter p2 = new GroumPrinter();
     String finalizedGroumStr = p2.print(finalizedGroum, false);
     write(finalizedGroumStr, "final_groum.dot");
+
+    // tests
+    var firstCountAccess = (PropertyAccessAction)findNodeByProcessIdx(finalizedGroum, 5);
+    var secondCountAccess = (PropertyAccessAction)findNodeByProcessIdx(finalizedGroum, 9);
+    Assert.assertNotEquals(firstCountAccess.propertyInstanceId, secondCountAccess.propertyInstanceId);
+
+    var firstCountWrite = (DefinitionAction)findNodeByProcessIdx(finalizedGroum, 16);
+    var secondCountWrite = (DefinitionAction)findNodeByProcessIdx(finalizedGroum, 21);
+    Assert.assertEquals(firstCountAccess.propertyInstanceId, firstCountWrite.referencedInstanceId());
+    Assert.assertEquals(secondCountAccess.propertyInstanceId, secondCountWrite.referencedInstanceId());
   }
 
   @Test
