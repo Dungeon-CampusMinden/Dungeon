@@ -135,6 +135,23 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           }
         }
 
+        if (currentNode instanceof DefinitionAction) {
+          var precedents = currentNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.temporal);
+          boolean allPrecedentsProcesseed = true;
+          for (var precedent : precedents) {
+            allPrecedentsProcesseed = this.processedNodes.contains(precedent);
+            if (!allPrecedentsProcesseed) {
+              break;
+            }
+          }
+
+          if (!allPrecedentsProcesseed) {
+            this.nodesToProcess.addFirst(currentNode);
+            precedents.reversed().forEach(nodesToProcess::addFirst);
+            continue;
+          }
+        }
+
         // push correct scope
         boolean pushedScope = false;
         var parent = currentNode.parent();
