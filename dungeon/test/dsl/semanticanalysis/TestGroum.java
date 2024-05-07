@@ -1674,7 +1674,12 @@ public class TestGroum {
   public void propertyAccessChained() {
     String program =
       """
-      fn func(entity ent, single_choice_task x) {
+      // param def idx: 1
+      fn func(entity ent) {
+        // t def idx: 6
+        // task_content_component access idx: 2
+        // content access idx: 3
+        // task access idx: 4
         var t = ent.task_content_component.content.task;
       }
     """;
@@ -1697,8 +1702,21 @@ public class TestGroum {
     var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
 
     GroumPrinter p2 = new GroumPrinter();
-    String finalizedGroumStr = p2.print(finalizedGroum, false);
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
     write(finalizedGroumStr, "final_groum.dot");
+
+    // tests
+    var tDef = (DefinitionAction)findNodeByProcessIdx(finalizedGroum, 6);
+    var paramDef = findNodeByProcessIdx(finalizedGroum, 1);
+    var taskContentComponentAccess = findNodeByProcessIdx(finalizedGroum, 2);
+    var contentAccess = findNodeByProcessIdx(finalizedGroum, 3);
+    var taskAccess = findNodeByProcessIdx(finalizedGroum, 4);
+    var tDefReads = tDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(4, tDefReads.size());
+    Assert.assertTrue(tDefReads.contains(paramDef));
+    Assert.assertTrue(tDefReads.contains(taskContentComponentAccess));
+    Assert.assertTrue(tDefReads.contains(contentAccess));
+    Assert.assertTrue(tDefReads.contains(taskAccess));
   }
 
   @Test
