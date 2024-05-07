@@ -1720,6 +1720,55 @@ public class TestGroum {
   }
 
   @Test
+  public void propertyAccessChainedTwice() {
+    String program =
+      """
+      // param def idx: 1
+      fn func(entity ent) {
+        // t def idx: 6
+        // task_content_component access idx: 2
+        // content access idx: 3
+        // task access idx: 4
+        var t = ent.task_content_component.content.task;
+        var x = ent.task_content_component.content.task;
+      }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+
+    // tests
+    var tDef = (DefinitionAction)findNodeByProcessIdx(finalizedGroum, 6);
+    var paramDef = findNodeByProcessIdx(finalizedGroum, 1);
+    var taskContentComponentAccess = findNodeByProcessIdx(finalizedGroum, 2);
+    var contentAccess = findNodeByProcessIdx(finalizedGroum, 3);
+    var taskAccess = findNodeByProcessIdx(finalizedGroum, 4);
+    var tDefReads = tDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(4, tDefReads.size());
+    Assert.assertTrue(tDefReads.contains(paramDef));
+    Assert.assertTrue(tDefReads.contains(taskContentComponentAccess));
+    Assert.assertTrue(tDefReads.contains(contentAccess));
+    Assert.assertTrue(tDefReads.contains(taskAccess));
+  }
+  @Test
   public void propertyAccess() {
     String program =
         """
