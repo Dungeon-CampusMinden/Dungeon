@@ -34,11 +34,11 @@ public class PropertyAccessAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return this.instanceDataType().getName()
+    return this.instanceDataType().getName() + " [" + this.referencedInstanceId() + "]"
         + ":<property access '"
         + this.propertySymbol().getName()
         + "' ["
-        + this.referencedInstanceId()
+        + this.propertyInstanceId
         + "]>";
   }
 
