@@ -1908,9 +1908,15 @@ public class TestGroum {
     var icRef = findNodeByProcessIdx(finalizedGroum, 27);
     var inventoryCountDef = findNodeByProcessIdx(finalizedGroum, 29);
 
-    // contentDef should have no reads, at most a redef
+    // contentDef should have no reads
     var contentDefReads = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(0, contentDefReads.size());
+
+    // contentDef should be redefined by tccRedef
+    var contentRedefs = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(1, contentRedefs.size());
+    Assert.assertTrue(contentRedefs.contains(tccRedef));
+
 
     // tccRedef should have three reads, first the access on rhs of cont1 def, the content property
     // access and the cont1 def itself
@@ -1925,6 +1931,92 @@ public class TestGroum {
     Assert.assertEquals(2, countDefReads.size());
     Assert.assertTrue(countDefReads.contains(icRef));
     Assert.assertTrue(countDefReads.contains(inventoryCountDef));
+  }
+
+  @Test
+  public void propertyAccessWriteConditional() {
+    String program =
+      """
+      fn func(entity ent1, entity ent2, content c, int y) {
+        var ent = ent1;
+
+        // this creates a definition for the content property of the ent.task_content_component instance
+        // def idx: 12
+        ent.task_content_component.content = c;
+        // content ref idx: 14
+        // cont1 def idx: 16
+        var cont1 = ent.task_content_component.content;
+
+        // setting the variable itself invalidates all definitions of the
+        // child properties in the current scope
+        if y {
+          // def idx: 23
+          ent = ent2;
+        } else {
+          // def idx: 28
+          ent = ent1;
+        }
+
+        // content ref idx: 30
+        // cont2 def idx: 32
+        var cont2 = ent.task_content_component.content;
+      }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+
+    // tests
+    var contentDef = findNodeByProcessIdx(finalizedGroum, 12);
+    var contentRef = findNodeByProcessIdx(finalizedGroum, 14);
+    var cont1Def = findNodeByProcessIdx(finalizedGroum, 16);
+    var ifDef = findNodeByProcessIdx(finalizedGroum, 23);
+    var elseDef = findNodeByProcessIdx(finalizedGroum, 28);
+    var finalContentRef = findNodeByProcessIdx(finalizedGroum, 30);
+    var cont2Def = findNodeByProcessIdx(finalizedGroum, 32);
+
+    // contentDef should be read by contentRef and cont1Def
+    var contentDefReads =contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(2, contentDefReads.size());
+    Assert.assertTrue(contentDefReads.contains(contentRef));
+    Assert.assertTrue(contentDefReads.contains(cont1Def));
+
+    // ifDef and elseDef should redefine contentDef
+    var contentDefRedefs = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(2, contentDefRedefs.size());
+    Assert.assertTrue(contentDefRedefs.contains(ifDef));
+    Assert.assertTrue(contentDefRedefs.contains(elseDef));
+
+    // final content ref should not reference contentDef
+    var finalContentRefs = finalContentRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(3, finalContentRefs.size());
+    Assert.assertFalse(finalContentRefs.contains(contentDef));
+    Assert.assertTrue(finalContentRefs.contains(ifDef));
+    Assert.assertTrue(finalContentRefs.contains(elseDef));
+
+    // cont2 def should reference if def and else def
+    var cont2Refs = cont2Def.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertFalse(cont2Refs.contains(contentDef));
+    Assert.assertTrue(cont2Refs.contains(ifDef));
+    Assert.assertTrue(cont2Refs.contains(elseDef));
   }
 
   @Test
