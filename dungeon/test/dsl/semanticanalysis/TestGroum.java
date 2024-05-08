@@ -1855,16 +1855,23 @@ public class TestGroum {
         // creates a definition for content-property of the ent.task_content_component.instance
         // def idx: 12
         ent.task_content_component.content = c;
+        // count def idx: 17
+        ent.inventory_component.count = 4;
 
         // this definition invalidates the definition of the content component, because the parent
         // property of content is changed
-        // def idx: 16
+        // def idx: 21
         ent.task_content_component = tcc;
 
-        // task content component access idx: 17
-        // content access idx: 18
-        // cont1 def idx: 20
+        // task content component access idx: 22
+        // content access idx: 23
+        // cont1 def idx: 25
         var cont1 = ent.task_content_component.content;
+
+        // inventory_count should still reference the definition from above (idx 17)
+        // def idx: 29
+        // ic ref idx: 27
+        var inventory_count = ent.inventory_component.count;
 
         print(cont1);
       }
@@ -1893,10 +1900,13 @@ public class TestGroum {
 
     // tests
     var contentDef = findNodeByProcessIdx(finalizedGroum, 12);
-    var tccRedef = findNodeByProcessIdx(finalizedGroum, 16);
-    var taskContentCompRef = findNodeByProcessIdx(finalizedGroum, 17);
-    var contentRef = findNodeByProcessIdx(finalizedGroum, 18);
-    var cont1Def = findNodeByProcessIdx(finalizedGroum, 20);
+    var countDef = findNodeByProcessIdx(finalizedGroum, 17);
+    var tccRedef = findNodeByProcessIdx(finalizedGroum, 21);
+    var taskContentCompRef = findNodeByProcessIdx(finalizedGroum, 22);
+    var contentRef = findNodeByProcessIdx(finalizedGroum, 23);
+    var cont1Def = findNodeByProcessIdx(finalizedGroum, 25);
+    var icRef = findNodeByProcessIdx(finalizedGroum, 27);
+    var inventoryCountDef = findNodeByProcessIdx(finalizedGroum, 29);
 
     // contentDef should have no reads, at most a redef
     var contentDefReads = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
@@ -1909,6 +1919,12 @@ public class TestGroum {
     Assert.assertTrue(tccRedefReads.contains(taskContentCompRef));
     Assert.assertTrue(tccRedefReads.contains(contentRef));
     Assert.assertTrue(tccRedefReads.contains(cont1Def));
+
+    // the icRef and inventoryCountDef should still reference the countDefinition from above (idx 17)
+    var countDefReads = countDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(2, countDefReads.size());
+    Assert.assertTrue(countDefReads.contains(icRef));
+    Assert.assertTrue(countDefReads.contains(inventoryCountDef));
   }
 
   @Test
