@@ -4,19 +4,18 @@ import contrib.components.*;
 import contrib.entities.AIFactory;
 import contrib.entities.EntityFactory;
 import contrib.hud.dialogs.OkDialog;
-import contrib.item.concreteItem.ItemResourceBerry;
 import contrib.level.generator.graphBased.RoomGenerator;
-import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
+import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
-import dojo.monster.MyImp;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
+import dojo.utils.studentTasks.modifyEntities.ModifyEntities;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,10 +32,11 @@ import javax.tools.*;
  */
 public class Implement_MyImp extends Room {
 
-  private static final String IMP_FQC = "dojo.monster.MyImp";
-  private static final String IMP_PATH = "src/dojo/monster/MyImp";
+  private static final String IMP_FQC = "dojo.utils.studentTasks.modifyEntities.ModifyEntities";
+  private static final String IMP_PATH =
+      "src/dojo/utils/studentTasks/modifyEntities/ModifyEntities";
 
-  /** A class loader that replaces the MyImp class with a new implementation. */
+  /** A class loader that replaces the ModifyEntities class with a new implementation. */
   public static class ReplacingClassLoader extends ClassLoader {
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -89,11 +89,12 @@ public class Implement_MyImp extends Room {
             (entity1, entity2) -> {
               try {
                 Class<?> cls = compile();
-                cls.getDeclaredMethod("disableImpGodMode", Entity.class).invoke(null, myImp);
-                cls.getDeclaredMethod("setImpHealthTo25", Entity.class).invoke(null, myImp);
-                cls.getDeclaredMethod("increaseImpSpeed", Entity.class).invoke(null, myImp);
-                cls.getDeclaredMethod("addNewPotionHealthToHerosInventory").invoke(null);
-                OkDialog.showOkDialog("Die Entität \"MyImp\" wurde angepasst.", "Ok:", () -> {});
+                cls.getDeclaredMethod("disableGodMode", Entity.class).invoke(null, myImp);
+                cls.getDeclaredMethod("setHealthTo25", Entity.class).invoke(null, myImp);
+                cls.getDeclaredMethod("increaseSpeed", Entity.class).invoke(null, myImp);
+                cls.getDeclaredMethod("addNewHealthPotionToInventory", Entity.class)
+                    .invoke(null, Game.hero().orElseThrow());
+                OkDialog.showOkDialog("Die Entitäten wurden angepasst.", "Ok:", () -> {});
               } catch (Exception e) {
                 OkDialog.showOkDialog(e.getMessage(), "Fehler:", () -> {});
               }
@@ -107,12 +108,12 @@ public class Implement_MyImp extends Room {
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     compiler.run(null, null, null, new File(IMP_PATH + ".java").getPath());
 
-    // Load compiled class, and replace existing MyImp class with new one
+    // Load compiled class, and replace existing ModifyEntities class with new one
     return new ReplacingClassLoader().loadClass(IMP_FQC);
   }
 
   /**
-   * Creates and initializes a new {@link Entity} "MyImp".
+   * Creates and initializes a new {@link Entity} "ModifyEntities".
    *
    * @param currentRoom the current room the entity is placed in.
    * @return the new entity.
@@ -124,19 +125,15 @@ public class Implement_MyImp extends Room {
 
     InventoryComponent ic = new InventoryComponent(5);
     entity.add(ic);
-    ic.add(new ItemResourceBerry());
 
     entity.add(
         new HealthComponent(
             1000,
             (e) ->
                 OkDialog.showOkDialog(
-                    "Danke, du hast das Dojo-Dungeon gelöst!",
-                    "Alle Aufgaben gelöst:",
-                    () -> {
-                      new DropItemsInteraction().accept(e, null);
-                      currentRoom.openDoors();
-                    })));
+                    "Danke, du hast die Aufgabe in diesem Raum gelöst!",
+                    "Aufgabe gelöst:",
+                    currentRoom::openDoors)));
     entity.fetch(HealthComponent.class).orElseThrow().godMode(true);
 
     entity.add(new PositionComponent());
@@ -160,11 +157,13 @@ public class Implement_MyImp extends Room {
             true,
             (entity1, entity2) ->
                 OkDialog.showOkDialog(
-                    "Du findest meine Implementierung in \"" + MyImp.class.getName() + "\".",
+                    "Du findest eine Implementierung in \""
+                        + ModifyEntities.class.getName()
+                        + "\".",
                     "Aufgabe in diesem Raum:",
                     () ->
                         OkDialog.showOkDialog(
-                            "Implementiere die Methoden disableImpGodMode(), setImpHealthTo25(), increaseImpSpeed() und addNewPotionHealthToHerosInventory().",
+                            "Implementiere die Methoden disableGodMode(), setHealthTo25(), increaseSpeed() und addNewHealthPotionToInventory().",
                             "Aufgabe in diesem Raum:",
                             () ->
                                 OkDialog.showOkDialog(
