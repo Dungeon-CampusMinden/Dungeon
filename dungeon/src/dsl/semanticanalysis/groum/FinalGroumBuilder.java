@@ -311,6 +311,13 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     // create new definition in scope
     this.currentScope().createNewDefinition(node.referencedInstanceId(), node);
 
+    // store the information, that the definition is linked to another instance
+    // so that we can invalidate the definition, if the instance itself is redefined
+    GroumNode nodeParent = node.parent();
+    while (nodeParent instanceof PropertyAccessAction propertyAccessAction) {
+      this.currentScope().registerInstanceDefinition(node.referencedInstanceId(), propertyAccessAction.referencedInstanceId());
+      nodeParent = nodeParent.parent();
+    }
     // TODO: we could interpret the modification of a member of an instance as a modification to the instance itself
     /*if (node.parent() instanceof PropertyAccessAction propertyAccessAction) {
       this.currentScope().createNewDefinition(propertyAccessAction.referencedInstanceId(), node);

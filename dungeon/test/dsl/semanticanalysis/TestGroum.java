@@ -1768,6 +1768,83 @@ public class TestGroum {
     Assert.assertTrue(tDefReads.contains(contentAccess));
     Assert.assertTrue(tDefReads.contains(taskAccess));
   }
+
+  @Test
+  public void propertyAccessWrite() {
+    String program =
+      """
+      // param c idx: 2
+      fn func(entity ent1, content c, int y) {
+
+        // def idx: 6
+        var ent = ent1;
+
+        // task_content_component property access idx: 7
+        // content property access idx: 8
+        // content def idx: 11
+        ent.task_content_component.content = c;
+
+        // content propertyaccess idx: 13
+        // cont1 def idx: 15
+        var cont1 = ent.task_content_component.content;
+
+        print(cont1);
+      }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+
+    // tests
+    var paramCDef = findNodeByProcessIdx(finalizedGroum, 2);
+    var entDef = findNodeByProcessIdx(finalizedGroum, 6);
+    var taskContentComponentPropAccess = findNodeByProcessIdx(finalizedGroum, 7);
+    var firstContentPropAccess = findNodeByProcessIdx(finalizedGroum, 8);
+    var contentDef = findNodeByProcessIdx(finalizedGroum, 11);
+    var secondContentPropAccess = findNodeByProcessIdx(finalizedGroum, 13);
+    var cont1Def = findNodeByProcessIdx(finalizedGroum, 15);
+
+    // first content property access should reference ent and previous task_content_component access
+    var firstContentPropAccessReads = firstContentPropAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(2, firstContentPropAccessReads.size());
+    Assert.assertTrue(firstContentPropAccessReads.contains(entDef));
+    Assert.assertTrue(firstContentPropAccessReads.contains(taskContentComponentPropAccess));
+
+    // content prop access should be redefined by content def
+    var firstContentPropRedefs = firstContentPropAccess.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertTrue(firstContentPropRedefs.contains(contentDef));
+
+    // content def should reference param c
+    var readsForContentDef = contentDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(1, readsForContentDef.size());
+    Assert.assertTrue(readsForContentDef.contains(paramCDef));
+
+    // content def should be read twice (by second content property access and cont1 def)
+    var readsOfContentDef = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(2, readsOfContentDef.size());
+    Assert.assertTrue(readsOfContentDef.contains(secondContentPropAccess));
+    Assert.assertTrue(readsOfContentDef.contains(cont1Def));
+
+  }
+
   @Test
   public void propertyAccess() {
     String program =

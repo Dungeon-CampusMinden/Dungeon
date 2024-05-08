@@ -8,6 +8,7 @@ public class GroumScope {
   private HashMap<Long, HashMap<GroumScope, GroumNode>> variableDefinitions = new HashMap<>();
   private Stack<GroumNode> conditionalScopesOrdered = new Stack<>();
   private HashMap<GroumNode, GroumScope> conditionalScopes = new HashMap<>();
+  private HashMap<Long, HashSet<Long>> instancedDefinitions = new HashMap<>();
   private GroumScope parent;
   private GroumScope controlFlowParent;
   private HashSet<GroumScope> children = new HashSet<>();
@@ -175,21 +176,40 @@ public class GroumScope {
 
     var scopeToNodeMap = this.variableDefinitions.get(instanceId);
     var controlFlowParent = parentScope.controlFlowParent;
+
     if (this.controlFlowParent == controlFlowParent) {
       // The definition lies in the same control path as the current scope and will overwrite the
       // definition!
       // Therefore, we need to clear all variable definitions and just add the new one.
       scopeToNodeMap.clear();
       scopeToNodeMap.put(controlFlowParent, node);
+      checkInstancedDefinitionsOverwriting(instanceId, controlFlowParent);
     } else if (controlFlowParent == GroumScope.NONE) {
       scopeToNodeMap.put(parentScope, node);
+      // TODO: ??? -> seems about right, not to do it...
+      //checkInstancedDefinitionsOverwriting(instanceId, parentScope);
     } else {
       scopeToNodeMap.put(controlFlowParent, node);
+      // TODO: ??? -> seems about right, not to do it...
+      //checkInstancedDefinitionsOverwriting(instanceId, controlFlowParent);
     }
 
     var childScopesOfDefinitionScope = controlFlowParent.heritage;
     for (var scope : childScopesOfDefinitionScope) {
       scopeToNodeMap.remove(scope);
+    }
+  }
+
+  private void checkInstancedDefinitionsOverwriting(Long instanceId, GroumScope fromScope) {
+    if (this.instancedDefinitions.containsKey(instanceId)) {
+      var dependentInstances = this.instancedDefinitions.get(instanceId);
+      for (var dependentInstance : dependentInstances) {
+        var instanceDefinitions = this.variableDefinitions.get(dependentInstance);
+        //instanceDefinitions.remove(fromScope);
+        instanceDefinitions.clear();
+        checkInstancedDefinitionsOverwriting(dependentInstance, fromScope);
+      }
+      this.instancedDefinitions.remove(instanceId);
     }
   }
 
@@ -247,6 +267,7 @@ public class GroumScope {
     var list = this.variableDefinitions.get(instanceId);
     list.clear();
     list.put(this, node);
+    this.checkInstancedDefinitionsOverwriting(instanceId, this);
 
     this.controlFlowParent.addDefinition(instanceId, node, this);
 
@@ -332,6 +353,7 @@ public class GroumScope {
 
       if (definitions != null) {
         for (var definitionToShadow : definitionsToShadow) {
+          checkInstancedDefinitionsOverwriting(instanceId, definitionToShadow);
           definitions.remove(definitionToShadow);
         }
       }
@@ -349,5 +371,32 @@ public class GroumScope {
   @Override
   public String toString() {
     return "scope: " + this.associatedGroumNode;
+  }
+
+  private void propagateInstanceDefinitionToParents(long instanceId, long parentsInstanceId, GroumScope fromScope) {
+    if (this.parent != NONE && this.parent != null) {
+      this.parent.registerInstanceDefinitionFromPropagation(instanceId, parentsInstanceId, fromScope);
+      this.parent.propagateInstanceDefinitionToParents(instanceId, parentsInstanceId, fromScope);
+    }
+  }
+
+  private void registerInstanceDefinitionFromPropagation(long instanceId, long parentsInstanceId, GroumScope fromScope) {
+    if (this.variableDefinitions.containsKey(instanceId)) {
+      if (!this.instancedDefinitions.containsKey(parentsInstanceId)) {
+        this.instancedDefinitions.put(parentsInstanceId, new HashSet<>());
+      }
+      this.instancedDefinitions.get(parentsInstanceId).add(parentsInstanceId);
+    }
+  }
+
+  public void registerInstanceDefinition(long instanceId, long parentsInstanceId) {
+    if (!this.instancedDefinitions.containsKey(parentsInstanceId)) {
+      this.instancedDefinitions.put(parentsInstanceId, new HashSet<>());
+    }
+
+    this.instancedDefinitions.get(parentsInstanceId).add(instanceId);
+
+    // propagate to parents..
+    this.propagateInstanceDefinitionToParents(instanceId, parentsInstanceId, this);
   }
 }
