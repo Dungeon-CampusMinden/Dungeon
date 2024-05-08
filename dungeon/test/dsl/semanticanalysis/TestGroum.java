@@ -2020,6 +2020,99 @@ public class TestGroum {
   }
 
   @Test
+  public void multiTerm() {
+    String program =
+      """
+      fn func(int x, int y, int z) {
+        var term = x + y * z;
+      }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
+  @Test
+  public void methodAccessSimple() {
+    String program =
+      """
+      // ic def idx: 2
+      // idx def idx: 3
+      fn func(entity ent, inventory_component ic, int idx) {
+        // method access idx: 7
+        // i1 def idx: 9
+        // inventory_component redef idx: 5
+        var i1 = ic.get_item(idx);
+      }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+
+    // test
+    var icParamDef = findNodeByProcessIdx(finalizedGroum, 2);
+    var idxParamDef = findNodeByProcessIdx(finalizedGroum, 3);
+    var icRedef = findNodeByProcessIdx(finalizedGroum, 5);
+    var methodAccess = findNodeByProcessIdx(finalizedGroum, 7);
+    var i1Def = findNodeByProcessIdx(finalizedGroum, 9);
+
+    // test param ic redef
+    var icRedefs = icRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertTrue(icRedefs.contains(icParamDef));
+    Assert.assertEquals(1, icRedefs.size());
+
+    // test method access reads
+    var methodAccessReads = methodAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(2, methodAccessReads.size());
+    Assert.assertTrue(methodAccessReads.contains(icRedef));
+    Assert.assertTrue(methodAccessReads.contains(idxParamDef));
+
+    // test i1 reads
+    var i1defReads = i1Def.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(3, i1defReads.size());
+    Assert.assertTrue(i1defReads.contains(icRedef));
+    Assert.assertTrue(i1defReads.contains(methodAccess));
+    Assert.assertTrue(i1defReads.contains(idxParamDef));
+
+  }
+
+  @Test
   public void methodAccessInvalidation() {
     String program =
       """
@@ -2103,6 +2196,39 @@ public class TestGroum {
     var myOtherIcDefReads = myOtherIcDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(myOtherIcDefReads.contains(getItemIcRedef));
   }
+
+  @Test
+  // TODO: test
+  public void mixedMemberAccess() {
+    String program =
+      """
+      fn func(entity ent) {
+        var c = ent.inventory_component.get_item(0).task_content_component.content;
+      }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
 
   @Test
   public void propertyAccess() {
