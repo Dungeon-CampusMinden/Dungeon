@@ -2020,6 +2020,91 @@ public class TestGroum {
   }
 
   @Test
+  public void methodAccessInvalidation() {
+    String program =
+      """
+      // ent def idx: 1
+      // ic def idx: 2
+      // idx def idx: 3
+      // name def idx: 4
+      fn func(entity ent, inventory_component ic, int idx, string name) {
+        // def idx: 8
+        ent.inventory_component = ic;
+        // this redefines the ent definition and invalidates the inventory_component
+        // ent redef idx: 10
+        ent.set_name(name);
+
+        // this defines the component
+        // redef idx: 15
+        ent.inventory_component = ic;
+
+        // this redefines the inventory_component and invalidates the definition from above
+        // ic redef idx: 21
+        // i2 def idx: 23
+        var i2 = ent.inventory_component.get_item(idx);
+        // def idx: 26
+        var my_other_ic = ent.inventory_component;
+      }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+
+    // test
+    var entParamDef = findNodeByProcessIdx(finalizedGroum, 1);
+    var firstEntRedef = findNodeByProcessIdx(finalizedGroum, 8);
+    var setNameRedef = findNodeByProcessIdx(finalizedGroum, 10);
+    var icRedef = findNodeByProcessIdx(finalizedGroum, 15);
+    var getItemIcRedef = findNodeByProcessIdx(finalizedGroum, 21);
+    var i2Def = findNodeByProcessIdx(finalizedGroum, 23);
+    var myOtherIcDef = findNodeByProcessIdx(finalizedGroum, 26);
+
+    // the setName call should invalidate the firstEntRedef and ent param def
+    var setNameRedefs = setNameRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertTrue(setNameRedefs.contains(firstEntRedef));
+    Assert.assertTrue(setNameRedefs.contains(entParamDef));
+    Assert.assertEquals(2, setNameRedefs.size());
+
+    // firstEntRedef should not be read
+    var firstEntRedefReads = firstEntRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(0, firstEntRedefReads.size());
+
+    // icRedef should reference setNameRedef
+    var icRedefRead = icRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(icRedefRead.contains(setNameRedef));
+
+    // getItemIcRedef should redefine icRedef
+    var getItemIcRedefRedefs = getItemIcRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertTrue(getItemIcRedefRedefs.contains(icRedef));
+
+    //i2Def should read from getItemIcRedef
+    var i2DefReads = i2Def.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(i2DefReads.contains(getItemIcRedef));
+
+    // myOtherIcDef should read from getItemIcRedef
+    var myOtherIcDefReads = myOtherIcDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(myOtherIcDefReads.contains(getItemIcRedef));
+  }
+
+  @Test
   public void propertyAccess() {
     String program =
         """
