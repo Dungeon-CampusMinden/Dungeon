@@ -581,14 +581,11 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       Symbol functionSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
       var methodAccessAction = new MethodAccessAction(lhsSymbol, functionSymbol, contextInstanceId);
 
-      // TODO: we dont know, what kind of instance the method returns and will never know that, just
-      //  create a new id!
-      //var methodInstanceId = createOrGetMemberInstanceId(contextInstanceId, functionSymbol);
-
       // add scoping information: the parameter evaluations are 'owned' by the method access
       methodAccessAction.addChildren(parameterEvaluationGroum.nodes);
 
       var lhsRedefinitionAction = new DefinitionAction(lhsSymbol, contextInstanceId);
+      methodAccessAction.instanceRedefinitionNode(lhsRedefinitionAction);
       methodAccessAction.addChild(lhsRedefinitionAction);
 
       var methodEvaluation = parameterEvaluationGroum.mergeSequential(methodAccessAction);
@@ -620,14 +617,25 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
         // handle method access
         Groum parameterEvaluationGroum =
             getGroumForParameters((FuncCallNode) lhsOfInnerMemberAccess);
+
         var methodAccessAction =
             new MethodAccessAction(lhsSymbol, innerLhsSymbol, contextInstanceId);
 
-        // add scoping information: the parameter evaluation and inner member access is 'owned' by
-        // the method access
+        // add scoping information: the parameter evaluations are 'owned' by the method access
         methodAccessAction.addChildren(parameterEvaluationGroum.nodes);
         methodAccessAction.addChildren(innerMemberAccessGroum.nodes);
-        accessGroum = parameterEvaluationGroum.mergeSequential(methodAccessAction);
+
+        var lhsRedefinitionAction = new DefinitionAction(lhsSymbol, contextInstanceId);
+        methodAccessAction.instanceRedefinitionNode(lhsRedefinitionAction);
+        methodAccessAction.addChild(lhsRedefinitionAction);
+
+        var methodEvaluation = parameterEvaluationGroum.mergeSequential(methodAccessAction);
+        var methodWithRedefinition = Groum.NONE;
+
+        methodWithRedefinition = methodWithRedefinition.mergeParallel(methodEvaluation);
+        methodWithRedefinition = methodWithRedefinition.mergeParallel(lhsRedefinitionAction);
+
+        accessGroum = methodWithRedefinition;
       }
 
       mergedGroum = accessGroum.mergeSequential(innerMemberAccessGroum);

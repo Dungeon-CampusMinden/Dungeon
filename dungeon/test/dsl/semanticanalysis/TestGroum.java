@@ -2198,11 +2198,17 @@ public class TestGroum {
   }
 
   @Test
-  // TODO: test
   public void mixedMemberAccess() {
     String program =
       """
+      // ent def idx: 1
       fn func(entity ent) {
+        // inventory_component access idx: 2
+        // get item access idx: 3
+        // inventory_component redefinition idx: 8
+        // task_content_component access idx: 6
+        // content access idx: 7
+        // c def idx: 10
         var c = ent.inventory_component.get_item(0).task_content_component.content;
       }
     """;
@@ -2227,6 +2233,49 @@ public class TestGroum {
     GroumPrinter p2 = new GroumPrinter();
     String finalizedGroumStr = p2.print(finalizedGroum, true);
     write(finalizedGroumStr, "final_groum.dot");
+
+    // test
+    var entDef = findNodeByProcessIdx(finalizedGroum, 1);
+    var inventoryCompAccess = findNodeByProcessIdx(finalizedGroum, 2);
+    var getItemAccess = findNodeByProcessIdx(finalizedGroum, 3);
+    var tccAccess =findNodeByProcessIdx(finalizedGroum, 6);
+    var contentAccess =findNodeByProcessIdx(finalizedGroum, 7);
+    var icRedef = findNodeByProcessIdx(finalizedGroum, 8);
+    var cDef = findNodeByProcessIdx(finalizedGroum, 10);
+
+    var inventoryCompAccessReads = inventoryCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(1, inventoryCompAccessReads.size());
+    Assert.assertTrue(inventoryCompAccessReads.contains(entDef));
+
+    var itemAccessReads = getItemAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(2, itemAccessReads.size());
+    Assert.assertTrue(itemAccessReads.contains(entDef));
+    Assert.assertTrue(itemAccessReads.contains(inventoryCompAccess));
+
+    var icRedefs = icRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertTrue(icRedefs.contains(inventoryCompAccess));
+
+    var tccAccessReads = tccAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(3, tccAccessReads.size());
+    Assert.assertTrue(tccAccessReads.contains(icRedef));
+    Assert.assertTrue(tccAccessReads.contains(entDef));
+    Assert.assertTrue(tccAccessReads.contains(getItemAccess));
+
+    var contentAccessReads = contentAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(4, contentAccessReads.size());
+    Assert.assertTrue(contentAccessReads.contains(entDef));
+    Assert.assertTrue(contentAccessReads.contains(icRedef));
+    Assert.assertTrue(contentAccessReads.contains(getItemAccess));
+    Assert.assertTrue(contentAccessReads.contains(tccAccess));
+
+    var cDefReads = cDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(5, cDefReads.size());
+    Assert.assertTrue(cDefReads.contains(entDef));
+    Assert.assertTrue(cDefReads.contains(icRedef));
+    Assert.assertTrue(cDefReads.contains(getItemAccess));
+    Assert.assertTrue(cDefReads.contains(tccAccess));
+    Assert.assertTrue(cDefReads.contains(contentAccess));
+
   }
 
 

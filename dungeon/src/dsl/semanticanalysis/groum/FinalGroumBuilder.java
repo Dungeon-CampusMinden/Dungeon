@@ -474,15 +474,28 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
     List<InvolvedVariable> parentsInvolvedVariables = new ArrayList<>();
     if (node.parent() instanceof MethodAccessAction parentNode) {
-      // TODO: handle
+      // TODO: handle; should be easy
       parentsInvolvedVariables = this.involvedVariables.get(parentNode);
+
+      parentsInvolvedVariables.forEach(v -> {
+        this.addInvolvedVariable(node, v, InvolvedVariable.TypeOfInvolvement.readWrite);
+        var edge = new GroumEdge(v.definitionNode(), node, GroumEdge.GroumEdgeType.dataDependencyRead);
+        this.groum.addEdge(edge);
+      });
+
 
     } else if (node.parent() instanceof PropertyAccessAction parentNode) {
       // get parents involved variables
       parentsInvolvedVariables = this.involvedVariables.get(parentNode);
 
-      // read all the involved variables of the definition of parent
-      // write direct parent
+      // should the direct parent variables also be read?
+      // it would be completely correct to include the redefinition action as an involved variable here..
+      var directParentVariables = parentsInvolvedVariables.stream().filter(n -> n.variableInstanceId().equals(parentNode.propertyInstanceId)).toList();
+      directParentVariables.forEach(v -> {
+        var edge = new GroumEdge(v.definitionNode(), node, GroumEdge.GroumEdgeType.dataDependencyRead);
+        this.groum.addEdge(edge);
+      });
+
       var otherInvolvedVariables = parentsInvolvedVariables.stream().filter(n -> !n.variableInstanceId().equals(parentNode.propertyInstanceId)).toList();
       otherInvolvedVariables.forEach(v -> {
         this.addInvolvedVariable(node, v, InvolvedVariable.TypeOfInvolvement.read);
@@ -502,6 +515,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       });
     }
 
+    // add redefined instance as involved variable
+    this.addInvolvedVariable(node, node.instanceRedefinitionNode().referencedInstanceId(), InvolvedVariable.TypeOfInvolvement.write, node.instanceRedefinitionNode());
+
     // add method return value as involved variable
     this.addInvolvedVariable(node, node.methodCallInstanceId(), InvolvedVariable.TypeOfInvolvement.write, node);
 
@@ -512,7 +528,14 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   public List<InvolvedVariable> visit(PropertyAccessAction node) {
     List<InvolvedVariable> parentsInvolvedVariables = new ArrayList<>();
     if (node.parent() instanceof MethodAccessAction parentNode) {
-      // TODO: handle
+      // TODO: handle; should be easy
+      parentsInvolvedVariables = this.involvedVariables.get(parentNode);
+
+      parentsInvolvedVariables.forEach(v -> {
+        this.addInvolvedVariable(node, v, InvolvedVariable.TypeOfInvolvement.readWrite);
+        var edge = new GroumEdge(v.definitionNode(), node, GroumEdge.GroumEdgeType.dataDependencyRead);
+        this.groum.addEdge(edge);
+      });
 
     } else if (node.parent() instanceof PropertyAccessAction parentNode) {
       // get parents involved variables

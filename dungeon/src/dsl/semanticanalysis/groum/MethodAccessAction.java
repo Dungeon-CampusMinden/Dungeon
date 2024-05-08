@@ -20,6 +20,16 @@ public class MethodAccessAction extends ActionNode {
     this.methodCallInstanceId = IndexGenerator.getIdx();
   }
 
+  private DefinitionAction instanceRedefinitionNode;
+
+  public void instanceRedefinitionNode(DefinitionAction node) {
+    this.instanceRedefinitionNode = node;
+  }
+
+  public DefinitionAction instanceRedefinitionNode() {
+    return this.instanceRedefinitionNode;
+  }
+
   public IType instanceDataType() {
     return (IType) this.symbolReferences().get(instanceTypeIdx);
   }
