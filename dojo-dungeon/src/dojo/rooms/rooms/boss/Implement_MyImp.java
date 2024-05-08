@@ -79,7 +79,7 @@ public class Implement_MyImp extends Room {
   }
 
   private void generate() throws IOException {
-    final Entity myImp = createEntity(this);
+    final Entity myImp = createEntityMyImp(this);
 
     final Entity chest = EntityFactory.newChest();
     chest.add(
@@ -112,13 +112,7 @@ public class Implement_MyImp extends Room {
     return new ReplacingClassLoader().loadClass(IMP_FQC);
   }
 
-  /**
-   * Creates and initializes a new {@link Entity} "ModifyEntities".
-   *
-   * @param currentRoom the current room the entity is placed in.
-   * @return the new entity.
-   */
-  private static Entity createEntity(Room currentRoom) {
+  private static Entity createEntityMyImp(Room currentRoom) {
     Entity entity = new Entity();
 
     entity.name("MyImp");
