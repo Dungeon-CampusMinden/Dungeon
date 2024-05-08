@@ -56,7 +56,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     // 3. add data dependency edges (maybe able to do this in second pass)
 
     // first pass
-    var fileGlobalScope = new GroumScope(GroumNode.NONE);
+    var fileGlobalScope = new GroumScope(groum, GroumNode.NONE);
     this.groumScopeStack.add(fileGlobalScope);
 
     this.defNodes = new HashMap<>();
@@ -96,7 +96,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     processedCounter = 0;
     for (var defNode : this.defNodes.values()) {
       // create new scope
-      var defScope = new GroumScope(this.currentScope(), defNode);
+      var defScope = new GroumScope(this.groum, this.currentScope(), defNode);
       this.groumScopeStack.push(defScope);
 
       // get subgroums source nodes
@@ -219,18 +219,18 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
         // we never expect to visit the same node twice
         if (!this.scopesForNodes.containsKey(node)) {
           // new scope
-          scope = new GroumScope(this.currentScope(), node);
+          scope = new GroumScope(this.groum, this.currentScope(), node);
           this.scopesForNodes.put(node, scope);
 
           // get if node
           var ifNode = node.outgoing().get(0).end();
-          var ifScope = new GroumScope(scope, ifNode);
+          var ifScope = new GroumScope(this.groum, scope, ifNode);
           this.scopesForNodes.put(ifNode, ifScope);
           scope.pushConditionalScope(ifScope);
 
           // get else node
           var elseNode = node.outgoing().get(1).end();
-          var elseScope = new GroumScope(scope, elseNode);
+          var elseScope = new GroumScope(this.groum, scope, elseNode);
           this.scopesForNodes.put(elseNode, elseScope);
           scope.pushConditionalScope(elseScope);
 
@@ -245,7 +245,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       case elseStmt:
         if (!this.scopesForNodes.containsKey(node)) {
           // new scope
-          scope = new GroumScope(this.currentScope(), node);
+          scope = new GroumScope(this.groum, this.currentScope(), node);
           this.scopesForNodes.put(node, scope);
           this.currentScope().pushConditionalScope(scope);
         }
@@ -254,7 +254,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
         // we never expect to visit the same node twice
         if (!this.scopesForNodes.containsKey(node)) {
           // new scope
-          scope = new GroumScope(this.currentScope(), node);
+          scope = new GroumScope(this.groum, this.currentScope(), node);
           this.scopesForNodes.put(node, scope);
         }
         break;

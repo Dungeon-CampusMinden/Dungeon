@@ -1,10 +1,11 @@
 package dsl.semanticanalysis.groum;
 
 import dsl.semanticanalysis.symbol.Symbol;
+
 import java.util.*;
 
 public class GroumScope {
-  public static GroumScope NONE = new GroumScope(GroumNode.NONE);
+  public static GroumScope NONE = new GroumScope(Groum.NONE, GroumNode.NONE);
   private HashMap<Long, HashMap<GroumScope, GroumNode>> variableDefinitions = new HashMap<>();
   private Stack<GroumNode> conditionalScopesOrdered = new Stack<>();
   private HashMap<GroumNode, GroumScope> conditionalScopes = new HashMap<>();
@@ -14,14 +15,17 @@ public class GroumScope {
   private HashSet<GroumScope> children = new HashSet<>();
   private HashSet<GroumScope> heritage = new HashSet<>();
   private GroumNode associatedGroumNode;
+  private final Groum groum;
 
-  public GroumScope(GroumNode associatedGroumNode) {
+  public GroumScope(Groum groum, GroumNode associatedGroumNode) {
+    this.groum = groum;
     this.parent = NONE;
     this.controlFlowParent = NONE;
     this.associatedGroumNode = associatedGroumNode;
   }
 
-  public GroumScope(GroumScope parent, GroumNode associatedGroumNode) {
+  public GroumScope(Groum groum, GroumScope parent, GroumNode associatedGroumNode) {
+    this.groum = groum;
     this.parent = parent;
     this.parent.addChild(this);
     this.controlFlowParent = getConditionalParentScope(parent, -1);
@@ -183,7 +187,8 @@ public class GroumScope {
       // Therefore, we need to clear all variable definitions and just add the new one.
       scopeToNodeMap.clear();
       scopeToNodeMap.put(controlFlowParent, node);
-      checkInstancedDefinitionsOverwriting(instanceId, controlFlowParent);
+
+      checkInstancedDefinitionsOverwriting(instanceId, List.of(node));
     } else if (controlFlowParent == GroumScope.NONE) {
       scopeToNodeMap.put(parentScope, node);
       // TODO: ??? -> seems about right, not to do it...
@@ -200,14 +205,31 @@ public class GroumScope {
     }
   }
 
-  private void checkInstancedDefinitionsOverwriting(Long instanceId, GroumScope fromScope) {
+  // returns: overwrittenDefinitions
+  private void checkInstancedDefinitionsOverwriting(Long instanceId, List<GroumNode> definitionNodes) {
     if (this.instancedDefinitions.containsKey(instanceId)) {
       var dependentInstances = this.instancedDefinitions.get(instanceId);
       for (var dependentInstance : dependentInstances) {
-        var instanceDefinitions = this.variableDefinitions.get(dependentInstance);
-        //instanceDefinitions.remove(fromScope);
-        instanceDefinitions.clear();
-        checkInstancedDefinitionsOverwriting(dependentInstance, fromScope);
+        // the dependentInstance may be registered in instancedDefinitions even though no definition is stored in this scope
+        // example: in the statement `ent.task_content_component.content = x;`
+        // the `content` property is defined directly (and this definition will be stored in `variableDefinitions`)
+        // the `task_content_component` is not directly defined but registered in `dependentInstances`
+        // nonetheless, in order to 'connect' both the `task_content_component` and `content` properties with
+        // the `ent` definition; this is needed for the case, when `ent.task_content_component` is assigned a new
+        // value -> we need to invalidate the definition to `content`, even though `ent` is not redefined;
+        // if only the `ent`-definition would be registered as a key to `instancedDefinitions`, this connection
+        // could not be made!
+        if (this.variableDefinitions.containsKey(dependentInstance)) {
+          var instanceDefinitions = this.variableDefinitions.get(dependentInstance);
+          for (var oldDefinitionNode : instanceDefinitions.values()) {
+            definitionNodes.forEach(d -> {
+              var redefEdges = new GroumEdge(oldDefinitionNode, d, GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+              this.groum.addEdge(redefEdges);
+            });
+          }
+          instanceDefinitions.clear();
+        }
+        checkInstancedDefinitionsOverwriting(dependentInstance, definitionNodes);
       }
       this.instancedDefinitions.remove(instanceId);
     }
@@ -267,7 +289,8 @@ public class GroumScope {
     var list = this.variableDefinitions.get(instanceId);
     list.clear();
     list.put(this, node);
-    this.checkInstancedDefinitionsOverwriting(instanceId, this);
+
+    this.checkInstancedDefinitionsOverwriting(instanceId, List.of(node));
 
     this.controlFlowParent.addDefinition(instanceId, node, this);
 
@@ -285,35 +308,35 @@ public class GroumScope {
 
         // if the if scope does not itself contain the definitions, it's block may contain it
         if (ifScope.variableDefinitions.containsKey(instanceId)) {
-          propagateShadowingToParents(instanceId, this, new HashSet<>());
+          var ifDefinition = ifScope.variableDefinitions.get(instanceId).values().stream().toList();
+          // TODO: should pass all groumNodes, which do the shadowing
+          var shadowingNodes = new ArrayList<>(ifDefinition);
+          shadowingNodes.add(node);
+          propagateShadowingToParents(instanceId, shadowingNodes, this, new HashSet<>());
         }
       }
     }
   }
 
   private void propagateShadowingToParents(
-      Long instanceId, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
+    Long instanceIdNewDefiniton, ArrayList<GroumNode> newDefinitions, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
     if (this.parent != GroumScope.NONE) {
-      this.parent.propagateShadowing(instanceId, fromScope, definitionsToShadow);
+      this.parent.propagateShadowing(instanceIdNewDefiniton, newDefinitions, fromScope, definitionsToShadow);
     }
   }
 
   private void propagateShadowing(
-      Long instanceId, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
-
-    if (this.associatedGroumNode.getLabel().contains("fn(int, ")) {
-      boolean b = true;
-    }
+    Long instanceId, ArrayList<GroumNode> newDefinitions, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
 
     if (this.associatedGroumNode instanceof ControlNode controlNode
         && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
-      propagateShadowingToParents(instanceId, this, definitionsToShadow);
+      propagateShadowingToParents(instanceId, newDefinitions, this, definitionsToShadow);
     } else if (this.associatedGroumNode instanceof ControlNode controlNode
         && controlNode.isConditional()
         && !this.isBranchOfIfElse()) {
       // this is a conditional statement, which is not part of an ifElse stmt
       // stop the collection of definitions to shadow
-      propagateShadowingToParents(instanceId, this, definitionsToShadow);
+      propagateShadowingToParents(instanceId, newDefinitions, this, definitionsToShadow);
     } else {
       var definitions = this.variableDefinitions.get(instanceId);
 
@@ -353,12 +376,12 @@ public class GroumScope {
 
       if (definitions != null) {
         for (var definitionToShadow : definitionsToShadow) {
-          checkInstancedDefinitionsOverwriting(instanceId, definitionToShadow);
+          checkInstancedDefinitionsOverwriting(instanceId, newDefinitions);
           definitions.remove(definitionToShadow);
         }
       }
 
-      propagateShadowingToParents(instanceId, fromScope, definitionsToShadow);
+      propagateShadowingToParents(instanceId, newDefinitions, fromScope, definitionsToShadow);
     }
   }
 
