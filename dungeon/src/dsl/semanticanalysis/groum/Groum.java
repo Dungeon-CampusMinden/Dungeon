@@ -43,16 +43,26 @@ public class Groum {
   }
 
   // X (this) v Y (other)
+  public Groum mergeParallel(GroumNode other) {
+    ArrayList<GroumNode> mergedNodes = new ArrayList<>(this.nodes.size() + 1);
+    mergedNodes.addAll(this.nodes);
+    mergedNodes.add(other);
+
+    ArrayList<GroumEdge> mergedEdges = new ArrayList<>(this.edges.size());
+    mergedEdges.addAll(this.edges);
+
+    return new Groum(mergedNodes, mergedEdges);
+  }
+
+  // X (this) v Y (other)
   public Groum mergeParallel(Groum other) {
     ArrayList<GroumNode> mergedNodes = new ArrayList<>(this.nodes.size() + other.nodes.size());
     mergedNodes.addAll(this.nodes);
     mergedNodes.addAll(other.nodes);
-    // mergedNodes = new ArrayList<>(mergedNodes.stream().distinct().toList());
 
     ArrayList<GroumEdge> mergedEdges = new ArrayList<>(this.edges.size() + other.edges.size());
     mergedEdges.addAll(this.edges);
     mergedEdges.addAll(other.edges);
-    // mergedEdges = new ArrayList<>(mergedEdges.stream().distinct().toList());
 
     return new Groum(mergedNodes, mergedEdges);
   }

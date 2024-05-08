@@ -48,10 +48,6 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   }
 
   private long createOrGetInstanceId(Symbol symbol) {
-    if (symbol instanceof PropertySymbol pSym) {
-      boolean b = true;
-    }
-
     if (!this.instanceMap.containsKey(symbol)) {
       this.instanceMap.put(symbol, IndexGenerator.getIdx());
     }
@@ -585,12 +581,23 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       Symbol functionSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
       var methodAccessAction = new MethodAccessAction(lhsSymbol, functionSymbol, contextInstanceId);
 
-      createOrGetMemberInstanceId(contextInstanceId, functionSymbol);
+      // TODO: we dont know, what kind of instance the method returns and will never know that, just
+      //  create a new id!
+      //var methodInstanceId = createOrGetMemberInstanceId(contextInstanceId, functionSymbol);
 
       // add scoping information: the parameter evaluations are 'owned' by the method access
       methodAccessAction.addChildren(parameterEvaluationGroum.nodes);
 
-      mergedGroum = parameterEvaluationGroum.mergeSequential(methodAccessAction);
+      var lhsRedefinitionAction = new DefinitionAction(lhsSymbol, contextInstanceId);
+      methodAccessAction.addChild(lhsRedefinitionAction);
+
+      var methodEvaluation = parameterEvaluationGroum.mergeSequential(methodAccessAction);
+      var methodWithRedefinition = Groum.NONE;
+
+      methodWithRedefinition = methodWithRedefinition.mergeParallel(methodEvaluation);
+      methodWithRedefinition = methodWithRedefinition.mergeParallel(lhsRedefinitionAction);
+
+      mergedGroum = methodWithRedefinition;
     } else if (node.getRhs().type.equals(Node.Type.MemberAccess)) {
 
       // visit inner member access
@@ -673,6 +680,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   public Groum visit(TermNode node) {
     var lhsGroum = node.getLhs().accept(this);
     var rhsGroum = node.getRhs().accept(this);
+    // TODO: save operator? how? subexpression?
     return lhsGroum.mergeParallel(rhsGroum);
   }
 

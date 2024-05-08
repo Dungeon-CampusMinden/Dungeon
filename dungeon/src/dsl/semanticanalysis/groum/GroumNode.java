@@ -103,6 +103,14 @@ public abstract class GroumNode {
     return getIncomingOfType(edgeType).stream().map(GroumEdge::start).toList();
   }
 
+  public void addChild(GroumNode node) {
+    if (node != this) {
+      if (node.setParent(this)) {
+        this.children.add(node);
+      }
+    }
+  }
+
   public void addChildren(List<GroumNode> nodes) {
     var nodesButThis = nodes.stream().filter(c -> c != this).toList();
     for (var node : nodesButThis) {

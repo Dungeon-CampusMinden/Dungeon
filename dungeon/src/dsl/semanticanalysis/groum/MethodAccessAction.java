@@ -1,5 +1,6 @@
 package dsl.semanticanalysis.groum;
 
+import dsl.IndexGenerator;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
@@ -7,6 +8,7 @@ public class MethodAccessAction extends ActionNode {
   public static final int instanceTypeIdx = 0;
   public static final int instanceSymbolIdx = 1;
   public static final int methodSymbolIdx = 2;
+  private final long methodCallInstanceId;
 
   public MethodAccessAction(Symbol instanceSymbol, Symbol method, long instanceId) {
     super(ActionType.functionCallAccess);
@@ -15,6 +17,7 @@ public class MethodAccessAction extends ActionNode {
     this.addSymbolReference(instanceSymbol);
     this.addSymbolReference(method);
     this.referencedInstanceId(instanceId);
+    this.methodCallInstanceId = IndexGenerator.getIdx();
   }
 
   public IType instanceDataType() {
@@ -28,6 +31,7 @@ public class MethodAccessAction extends ActionNode {
   public Symbol methodSymbol() {
     return this.symbolReferences().get(methodSymbolIdx);
   }
+  public long methodCallInstanceId() {return this.methodCallInstanceId;}
 
   @Override
   public String getLabel() {
