@@ -193,7 +193,9 @@ public class GameEnvironment implements IEnvironment {
     methods.add(ElementContentMethod.instance);
     methods.add(QuizContentContentMethod.instance);
     methods.add(TaskContentContentMethod.instance);
+    methods.add(EntityExtension.SetName.instance);
     methods.add(EntityExtension.OpenInventoryMethod.instance);
+    methods.add(EntityExtension.GetItemFromInventoryMethod.instance);
     methods.add(EntityExtension.AddNamedTaskContentMethod.instance);
     methods.add(EntityExtension.AddTaskContentMethod.instance);
     methods.add(EntityExtension.AddItemToInventoryMethod.instance);

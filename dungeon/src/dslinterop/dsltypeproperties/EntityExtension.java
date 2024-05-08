@@ -219,6 +219,47 @@ public class EntityExtension {
     }
   }
 
+  @DSLExtensionMethod(name = "set_name", extendedType = Entity.class)
+  public static class SetName implements IDSLExtensionMethod<Entity, Void> {
+    public static EntityExtension.SetName instance =
+      new EntityExtension.SetName();
+
+    @Override
+    public Void call(Entity instance, List<Object> params) {
+      String nameToSet = (String) params.get(0);
+      instance.name(nameToSet);
+      return null;
+    }
+
+    @Override
+    public List<Type> getParameterTypes() {
+      var arr = new Type[] {String.class};
+      return Arrays.stream(arr).toList();
+    }
+  }
+
+  @DSLExtensionMethod(name = "get_item", extendedType = InventoryComponent.class)
+  public static class GetItemFromInventoryMethod implements IDSLExtensionMethod<InventoryComponent, QuestItem> {
+    public static EntityExtension.GetItemFromInventoryMethod instance =
+      new EntityExtension.GetItemFromInventoryMethod();
+
+    @Override
+    public QuestItem call(InventoryComponent instance, List<Object> params) {
+      Integer idx = (Integer) params.get(0);
+      if (idx >= instance.count()) {
+        return null;
+      } else {
+        return (QuestItem)instance.get(idx);
+      }
+    }
+
+    @Override
+    public List<Type> getParameterTypes() {
+      var arr = new Type[] {Integer.class};
+      return Arrays.stream(arr).toList();
+    }
+  }
+
   @DSLExtensionMethod(name = "open", extendedType = InventoryComponent.class)
   public static class OpenInventoryMethod implements IDSLExtensionMethod<InventoryComponent, Void> {
     public static EntityExtension.OpenInventoryMethod instance =
