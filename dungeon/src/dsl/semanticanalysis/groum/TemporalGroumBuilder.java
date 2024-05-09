@@ -6,7 +6,6 @@ import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
-import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +15,18 @@ import java.util.Stack;
 public class TemporalGroumBuilder implements AstVisitor<Groum> {
   private SymbolTable symbolTable;
   private IEnvironment environment;
-  private HashMap<Symbol, Long> instanceMap;
+
+  // this will store instance ids for specific symbols
+  private HashMap<Symbol, Long> symbolInstanceMap;
+
+  // this will store instance ids for specific ast nodes; this is needed, because
+  // a property definition may be child of a aggregate value definition which is
+  // child of a global object definition; in this case, only the global
+  // object definition will have a unique symbol instance id, the value definitions
+  // and property definitions inside it will just link to the symbol inside the
+  // objects aggregate data type, which won't be unique
+  private HashMap<Node, Long> nodeInstanceMap;
+
   private HashMap<Long, HashMap<Symbol, Long>> memberAccessInstanceMap;
   private Stack<Long> memberAccessContextStack;
   private TypeInferrer inferrer;
@@ -28,7 +38,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       HashMap<Symbol, Long> instanceMap) {
     this.symbolTable = symbolTable;
     this.environment = environment;
-    this.instanceMap = instanceMap;
+    this.symbolInstanceMap = instanceMap;
+    this.nodeInstanceMap = new HashMap<>();
     this.memberAccessContextStack = new Stack<>();
     this.memberAccessInstanceMap = new HashMap<>();
     this.inferrer = new TypeInferrer(this.symbolTable, null);
@@ -38,7 +49,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     this.symbolTable = null;
     this.environment = null;
     this.inferrer = null;
-    this.instanceMap = null;
+    this.symbolInstanceMap = null;
 
     return groumNode;
   }
@@ -48,15 +59,19 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   }
 
   private long createOrGetInstanceId(Symbol symbol) {
-    if (!this.instanceMap.containsKey(symbol)) {
-      this.instanceMap.put(symbol, IndexGenerator.getIdx());
+    if (!this.symbolInstanceMap.containsKey(symbol)) {
+      this.symbolInstanceMap.put(symbol, IndexGenerator.getIdx());
     }
-    return this.instanceMap.get(symbol);
+    return this.symbolInstanceMap.get(symbol);
   }
 
   private long createOrGetMemberInstanceId(
       Long contextInstanceId, Symbol symbolToResolveInContext) {
     // lookup contextInstanceId in memberAccessInstanceMap
+    if (!this.memberAccessInstanceMap.containsKey(contextInstanceId)) {
+      createContextMap(contextInstanceId);
+    }
+
     if (this.memberAccessInstanceMap.containsKey(contextInstanceId)) {
       // this maps the symbol resolved in the context to other instance ids
       var contextMap = this.memberAccessInstanceMap.get(contextInstanceId);
@@ -340,15 +355,38 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   }
 
   @Override
+  // TODO: this should get an instanced id!
   public Groum visit(PropertyDefNode node) {
+    // get symbol
+    var propertySymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+    if (propertySymbol == Symbol.NULL) {
+      boolean b = true;
+    }
+    // get parent object definition and get instanced id
+    var parent = node.getParent();
+    var parentsParent = parent.getParent();
+    long propertyInstanceId = -1;
+    if (parentsParent.type == Node.Type.ObjectDefinition) {
+      Symbol symbolOfParent = this.symbolTable.getSymbolsForAstNode(parentsParent).get(0);
+      long parentInstanceId = createOrGetInstanceId(symbolOfParent);
+      propertyInstanceId = createOrGetMemberInstanceId(parentInstanceId, propertySymbol);
+    } else if (parentsParent.type == Node.Type.AggregateValueDefinition) {
+      long parentsInstanceId = this.nodeInstanceMap.getOrDefault(parentsParent, -1L);
+      propertyInstanceId = createOrGetMemberInstanceId(parentsInstanceId, propertySymbol);
+    }
+
+    this.nodeInstanceMap.put(node, propertyInstanceId);
+
     // visit stmt
     var stmtGroum = node.getStmtNode().accept(this);
 
-    // get symbol
-    var propertySymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
-    // TODO: are there problems related to instance id, because references a property of a datatype?
+    // TODO: if this is a child of an aggregate value definition, just getting the parent
+    //  symbol wont' be enough -> this will just get the instanceId of the generic symbol
+    //  -> we need the specific instanced id for the parent node, not the symbol!
+
+
     DefinitionAction definitionAction =
-        new DefinitionAction(propertySymbol, createOrGetInstanceId(propertySymbol));
+        new DefinitionAction(propertySymbol, propertyInstanceId);
     Groum definitionGroum = new Groum(definitionAction);
     Groum merged = stmtGroum.mergeSequential(definitionGroum);
 
@@ -367,19 +405,24 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     Groum mergedPropDefGroums = Groum.NONE;
     for (var propDefGroum : propertyDefGroums) {
-      mergedPropDefGroums = mergedPropDefGroums.mergeSequential(propDefGroum);
+      //mergedPropDefGroums = mergedPropDefGroums.mergeSequential(propDefGroum);
+      mergedPropDefGroums = mergedPropDefGroums.mergeParallel(propDefGroum);
     }
 
     // get object symbol
     var objectSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
 
     // create object def action
+    // TODO: make it an object definition (explicit subclass)
+    //  - visit method should include data dependency of all previous definition nodes!
+    //  - or just add the data dependency here?
     DefinitionAction objectDefAction =
         new DefinitionAction(objectSymbol, createOrGetInstanceId(objectSymbol));
     objectDefAction.addChildren(mergedPropDefGroums.nodes);
 
     Groum definitionGroum = new Groum(objectDefAction);
-    Groum groum = mergedPropDefGroums.mergeSequential(definitionGroum);
+    //Groum groum = mergedPropDefGroums.mergeSequential(definitionGroum);
+    Groum groum = mergedPropDefGroums.mergeSequential(definitionGroum, GroumEdge.GroumEdgeType.dataDependencyRead);
 
     return groum;
   }
@@ -417,6 +460,35 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(AggregateValueDefinitionNode node) {
+    // add def node for aggergate value def
+    var valueSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
+    // TODO: this should get an instanced id!
+    if (valueSymbol == Symbol.NULL) {
+      boolean b = true;
+    }
+
+    // get parent of value definition
+    var nodesParent = node.getParent();
+    var parentsParent = nodesParent.getParent();
+    long valuesInstanceId = -1;
+    if (parentsParent.type == Node.Type.PrototypeDefinition
+      || parentsParent.type == Node.Type.ItemPrototypeDefinition) {
+      // parent is a unique symbol.. but we could also just reference the instance id for the AST node..
+      var parentsSymbol = this.symbolTable.getSymbolsForAstNode(parentsParent).get(0);
+      var parentsInstanceId = createOrGetInstanceId(parentsSymbol);
+      valuesInstanceId = createOrGetMemberInstanceId(parentsInstanceId, valueSymbol);
+    } else if (nodesParent.type == Node.Type.AggregateValueDefinition) {
+      // the node is part of another aggregate value definition
+      boolean b = true;
+    } else if (nodesParent.type == Node.Type.PropertyDefinition) {
+      // the node is part of another property definition
+      long parentsInstanceId = this.nodeInstanceMap.get(nodesParent);
+      valuesInstanceId = createOrGetMemberInstanceId(parentsInstanceId, valueSymbol);
+    }
+
+    // add values instance id to map
+    this.nodeInstanceMap.put(node, valuesInstanceId);
+
     // visit all property definitions
     ArrayList<Groum> propertyDefinitionGroums =
         new ArrayList<>(node.getPropertyDefinitionNodes().size());
@@ -432,9 +504,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       mergedPropertyDefinitionGroums = mergedPropertyDefinitionGroums.mergeParallel(groum);
     }
 
-    // add def node for aggergate value def
-    var valueSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
-    var definitionAction = new DefinitionAction(valueSymbol, createOrGetInstanceId(valueSymbol));
+
+    var definitionAction = new DefinitionAction(valueSymbol, valuesInstanceId);
 
     Groum mergedGroum = mergedPropertyDefinitionGroums.mergeSequential(definitionAction);
     return mergedGroum;
