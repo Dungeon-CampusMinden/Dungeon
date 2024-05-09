@@ -2278,6 +2278,93 @@ public class TestGroum {
 
   }
 
+  @Test
+  public void mixedMemberAccessChainedMethods() {
+    String program =
+      """
+      // ent def idx: 1
+      // other_end def idx: 2
+      // idx def idx: 3
+      fn func(entity ent, entity other_ent, int idx) {
+        // inventory_component access idx: 4
+        // get item access idx: 9
+        // inventory_component redef idx: 11
+        // use method access idx: 10
+        // quest_item redef: 12
+        // c def idx: 14
+        var c = ent.inventory_component.get_item(idx).use(other_ent);
+      }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+    var result = Helpers.getSymtableForAST(ast);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+
+    // test
+    var entParamDef = findNodeByProcessIdx(finalizedGroum, 1);
+    var otherEntParamDef = findNodeByProcessIdx(finalizedGroum, 2);
+    var idxParamDef = findNodeByProcessIdx(finalizedGroum, 3);
+    var inventoryComponentAccess = findNodeByProcessIdx(finalizedGroum, 4);
+    var getItemAccess = findNodeByProcessIdx(finalizedGroum, 9);
+    var inventoryComponentRedef = findNodeByProcessIdx(finalizedGroum, 11);
+    var useMethodAccess = findNodeByProcessIdx(finalizedGroum, 10);
+    var questItemRedef = findNodeByProcessIdx(finalizedGroum, 12);
+    var cDef = findNodeByProcessIdx(finalizedGroum, 14);
+
+    // get item access should read ent, idx, and inventory_component
+    var getItemAccessReads = getItemAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(3, getItemAccessReads.size());
+    Assert.assertTrue(getItemAccessReads.contains(entParamDef));
+    Assert.assertTrue(getItemAccessReads.contains(inventoryComponentAccess));
+    Assert.assertTrue(getItemAccessReads.contains(idxParamDef));
+
+    // inventory component redef should redefine inventoryComponentAccess
+    var inventoryComponentRedefs = inventoryComponentRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertTrue(inventoryComponentRedefs.contains(inventoryComponentAccess));
+
+    // use method access should read ent, inventoryComponentRedef, idx, other_ent, getItemAccess
+    var useMethodReads = useMethodAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(5, useMethodReads.size());
+    Assert.assertTrue(useMethodReads.contains(entParamDef));
+    Assert.assertTrue(useMethodReads.contains(otherEntParamDef));
+    Assert.assertTrue(useMethodReads.contains(inventoryComponentRedef));
+    Assert.assertTrue(useMethodReads.contains(idxParamDef));
+    Assert.assertTrue(useMethodReads.contains(getItemAccess));
+
+    // quest item redefs should not actually redefine anything, because it is chained after a method..
+    var questItemRedefs = questItemRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    Assert.assertEquals(0, questItemRedefs.size());
+
+    // cdef should reference ent, use method access, getItemAccess, questItemRedef, inventoryComponentRedef, idx, other_ent
+    var cDefReads = cDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertEquals(7, cDefReads.size());
+    Assert.assertTrue(cDefReads.contains(entParamDef));
+    Assert.assertTrue(cDefReads.contains(useMethodAccess));
+    Assert.assertTrue(cDefReads.contains(getItemAccess));
+    Assert.assertTrue(cDefReads.contains(questItemRedef));
+    Assert.assertTrue(cDefReads.contains(inventoryComponentRedef));
+    Assert.assertTrue(cDefReads.contains(idxParamDef));
+    Assert.assertTrue(cDefReads.contains(otherEntParamDef));
+    Assert.assertFalse(cDefReads.contains(inventoryComponentAccess));
+  }
+
 
   @Test
   public void propertyAccess() {
