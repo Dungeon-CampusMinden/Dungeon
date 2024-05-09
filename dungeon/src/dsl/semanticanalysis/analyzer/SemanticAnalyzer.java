@@ -371,8 +371,13 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
       var type = this.environment.getGlobalScope().resolve(valueName);
       assert type instanceof AggregateType;
       membersType = (IType) type;
+      this.symbolTable.addSymbolNodeRelation(memberSymbol, node, true);
+    } else if (memberSymbol instanceof IType) {
+      membersType = (IType) memberSymbol;
+      this.symbolTable.addSymbolNodeRelation(memberSymbol, node, false);
     } else {
       membersType = memberSymbol.getDataType();
+      this.symbolTable.addSymbolNodeRelation(memberSymbol, node, true);
     }
 
     // TODO: errorhandling
