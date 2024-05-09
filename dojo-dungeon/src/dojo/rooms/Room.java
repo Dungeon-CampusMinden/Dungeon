@@ -1,21 +1,21 @@
 package dojo.rooms;
 
+import contrib.components.HealthComponent;
+import contrib.hud.dialogs.OkDialog;
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
+import core.Game;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Our basic room type.
@@ -139,5 +139,14 @@ public class Room {
    */
   public Tile getStartTile() {
     return levelRoom.level().startTile();
+  }
+
+  /** Decreases the heros health at a wrong try (minus 25% (ceiling) of maximal health points). */
+  protected void decreaseHerosHealthAtWrongTry() {
+    OkDialog.showOkDialog(
+        "Das war falsch. Deine Gesundheit wird um 25% verringert.", "Gesundheit", () -> {});
+    HealthComponent hc = Game.hero().orElseThrow().fetch(HealthComponent.class).orElseThrow();
+    int toReduce = (int) Math.ceil(hc.maximalHealthpoints() / 4.0);
+    hc.currentHealthpoints(hc.currentHealthpoints() - toReduce);
   }
 }

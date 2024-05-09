@@ -14,6 +14,7 @@ import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -31,6 +32,8 @@ public class Fragen_Pattern extends Room {
   private final String FILE_NAME_PREFIX =
       "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
   private final String[] EXPECTED_PATTERNS = {".*?observer.*?", ".*?visitor.*?"};
+  private final int NUMBER_OF_CORRECT_ANSWERS_NEEDED = 1;
+  private Deque<Integer> patternIndices;
   private int currentPatternIndex = 0;
   private int correctAnswerCount = 0;
   private Entity zauberer;
@@ -103,12 +106,16 @@ public class Fragen_Pattern extends Room {
       if (answer.matches(EXPECTED_PATTERNS[currentPatternIndex])) {
         OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
         correctAnswerCount++;
-        if (correctAnswerCount >= 1) {
+        if (correctAnswerCount == NUMBER_OF_CORRECT_ANSWERS_NEEDED) {
+          OkDialog.showOkDialog(
+              "Die Tür wird geöffnet, aber Sie können auch noch weiter Fragen beantworten!",
+              "Antwort",
+              () -> {});
           openDoors();
         }
         setNextTask();
       } else {
-        OkDialog.showOkDialog("Ihre Antwort ist nicht korrekt!", "Ok", () -> {});
+        decreaseHerosHealthAtWrongTry();
       }
     };
   }
@@ -124,6 +131,12 @@ public class Fragen_Pattern extends Room {
   }
 
   private void nextPattern() {
-    currentPatternIndex = new Random().nextInt(EXPECTED_PATTERNS.length);
+    if (patternIndices == null || patternIndices.isEmpty()) {
+      List<Integer> tempList =
+          new ArrayList<>(IntStream.range(0, EXPECTED_PATTERNS.length).boxed().toList());
+      Collections.shuffle(tempList);
+      patternIndices = new ArrayDeque<>(tempList);
+    }
+    currentPatternIndex = patternIndices.remove();
   }
 }
