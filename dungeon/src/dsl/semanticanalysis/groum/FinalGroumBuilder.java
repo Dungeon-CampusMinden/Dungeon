@@ -578,6 +578,15 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     // TODO
     // read variable
 
+    long instanceId = node.referencedInstanceId();
+    var definitons = this.currentScope().getDefinitions(instanceId);
+    definitons.forEach(d ->  {
+      this.addInvolvedVariable(node, instanceId, InvolvedVariable.TypeOfInvolvement.read, d);
+      var dataEdge = new GroumEdge(d, node, GroumEdge.GroumEdgeType.dataDependencyRead);
+      this.groum.addEdge(dataEdge);
+      }
+    );
+
     return new ArrayList<>();
   }
 
