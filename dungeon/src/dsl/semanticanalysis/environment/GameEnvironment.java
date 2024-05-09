@@ -200,6 +200,7 @@ public class GameEnvironment implements IEnvironment {
     methods.add(EntityExtension.AddTaskContentMethod.instance);
     methods.add(EntityExtension.AddItemToInventoryMethod.instance);
     methods.add(EntityExtension.DropItemsMethod.instance);
+    methods.add(QuestItemExtension.UseMethod.instance);
 
     return methods;
   }

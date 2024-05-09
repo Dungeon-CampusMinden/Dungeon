@@ -1,10 +1,15 @@
 package dslinterop.dsltypeproperties;
 
+import core.Entity;
+import dsl.annotation.DSLExtensionMethod;
 import dsl.annotation.DSLTypeProperty;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionMethod;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import task.game.components.TaskContentComponent;
 import task.game.content.QuestItem;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * Class, which stores dsl-extensions (e.g. {@link IDSLExtensionProperty} or {@link
@@ -29,11 +34,33 @@ public class QuestItemExtension {
     private TaskContentComponentProperty() {}
 
     @Override
-    public void set(QuestItem instance, TaskContentComponent valueToSet) {}
+    public void set(QuestItem instance, TaskContentComponent valueToSet) { }
 
     @Override
     public TaskContentComponent get(QuestItem instance) {
       return instance.taskContentComponent();
+    }
+  }
+
+  @DSLExtensionMethod(
+    name = "use",
+    extendedType = QuestItem.class)
+  public static class UseMethod
+    implements IDSLExtensionMethod<QuestItem, Void> {
+    public static UseMethod instance = new UseMethod();
+
+    private UseMethod() {}
+
+    @Override
+    public Void call(QuestItem instance, List<Object> params) {
+      Entity paramEntity = (Entity)params.get(0);
+      instance.use(paramEntity);
+      return null;
+    }
+
+    @Override
+    public List<Type> getParameterTypes() {
+      return List.of(Entity.class);
     }
   }
 }
