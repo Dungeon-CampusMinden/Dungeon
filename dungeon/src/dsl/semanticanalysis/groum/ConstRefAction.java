@@ -1,5 +1,6 @@
 package dsl.semanticanalysis.groum;
 
+import dsl.IndexGenerator;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 
@@ -10,12 +11,13 @@ public class ConstRefAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return "<ref const "
+    return "<ref CONST "
         + this.referencedType().getName()
         + " ["
         + this.referencedInstanceId()
-        + "]> value: "
-        + this.value;
+        + "]> value: '"
+        + this.value
+        + "'";
   }
 
   public ConstRefAction() {
@@ -26,6 +28,7 @@ public class ConstRefAction extends ActionNode {
     super(ActionType.constRef);
     this.addSymbolReference(type);
     this.value = value;
+    this.referencedInstanceId(IndexGenerator.getIdx());
   }
 
   public IType referencedType() {
