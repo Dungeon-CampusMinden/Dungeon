@@ -10,6 +10,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
+import core.utils.Point;
 import dsl.annotation.DSLExtensionMethod;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.Node;
@@ -132,6 +133,7 @@ public class GameEnvironment implements IEnvironment {
           DungeonConfig.class,
           Entity.class,
           QuestItem.class,
+          Point.class,
           PositionComponent.class,
           VelocityComponent.class,
           HealthComponent.class,

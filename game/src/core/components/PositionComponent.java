@@ -4,6 +4,7 @@ import core.Component;
 import core.level.Tile;
 import core.utils.Point;
 import dsl.annotation.DSLType;
+import dsl.annotation.DSLTypeMember;
 
 /**
  * Store the position of the associated entity in the level.
@@ -29,6 +30,7 @@ import dsl.annotation.DSLType;
 public final class PositionComponent implements Component {
 
   public static final Point ILLEGAL_POSITION = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
+  @DSLTypeMember
   private Point position;
 
   /**

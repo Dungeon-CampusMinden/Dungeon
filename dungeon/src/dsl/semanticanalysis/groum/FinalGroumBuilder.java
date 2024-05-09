@@ -270,6 +270,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
   @Override
   public List<InvolvedVariable> visit(ConstRefAction node) {
+    this.addInvolvedVariable(node, node.referencedInstanceId(), InvolvedVariable.TypeOfInvolvement.read, node);
     return new ArrayList<>();
   }
 
@@ -280,7 +281,8 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     for (var precedingNode : precedingNodes) {
       if (precedingNode instanceof MethodAccessAction
           || precedingNode instanceof PropertyAccessAction
-          || precedingNode instanceof ExpressionAction) {
+          || precedingNode instanceof ExpressionAction
+          || precedingNode instanceof ConstRefAction) {
         var involvedVariablesInExpression = this.involvedVariables.get(precedingNode);
 
         if (precedingNode instanceof PropertyAccessAction propertyAccessAction) {
@@ -314,9 +316,11 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     if (!existingDefinitions.isEmpty()) {
       existingDefinitions.forEach(
           v -> {
-            GroumEdge dataEdge =
+            if (v != node) {
+              GroumEdge dataEdge =
                 new GroumEdge(v, node, GroumEdge.GroumEdgeType.dataDependencyRedefinition);
-            this.groum.addEdge(dataEdge);
+              this.groum.addEdge(dataEdge);
+            }
           });
     }
 

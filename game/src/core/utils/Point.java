@@ -1,15 +1,20 @@
 package core.utils;
 
 import core.level.utils.Coordinate;
+import dsl.annotation.DSLType;
+import dsl.annotation.DSLTypeMember;
 
 /**
  * For easy handling of positions in the dungeon. <br>
  *
  * <p>No getter needed. All attributes are public.
  */
+@DSLType
 public final class Point {
   private static final float EPSILON = 0.000001f;
+  @DSLTypeMember
   public float x;
+  @DSLTypeMember
   public float y;
 
   /**
@@ -22,6 +27,12 @@ public final class Point {
     this.x = x;
     this.y = y;
   }
+
+  public Point() {
+    this.x = 0.0f;
+    this.y = 0.0f;
+  }
+
 
   /** Copies the point. */
   public Point(final Point p) {
