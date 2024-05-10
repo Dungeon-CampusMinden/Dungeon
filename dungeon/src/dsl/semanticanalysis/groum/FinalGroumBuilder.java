@@ -135,7 +135,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           }
         }
 
-        if (currentNode instanceof DefinitionAction) {
+        if (currentNode instanceof DefinitionAction || currentNode instanceof PropertyAccessAction) {
           var precedents = currentNode.getStartsOfIncoming(GroumEdge.GroumEdgeType.temporal);
           boolean allPrecedentsProcesseed = true;
           for (var precedent : precedents) {
@@ -523,12 +523,16 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     if (node.parent() instanceof MethodAccessAction parentNode) {
       // TODO: handle; should be easy
       parentsInvolvedVariables = this.involvedVariables.get(parentNode);
+      if (parentsInvolvedVariables == null) {
+        boolean b = true;
+      } else {
+        parentsInvolvedVariables.forEach(v -> {
+          this.addInvolvedVariable(node, v, InvolvedVariable.TypeOfInvolvement.readWrite);
+          var edge = new GroumEdge(v.definitionNode(), node, GroumEdge.GroumEdgeType.dataDependencyRead);
+          this.groum.addEdge(edge);
+        });
+      }
 
-      parentsInvolvedVariables.forEach(v -> {
-        this.addInvolvedVariable(node, v, InvolvedVariable.TypeOfInvolvement.readWrite);
-        var edge = new GroumEdge(v.definitionNode(), node, GroumEdge.GroumEdgeType.dataDependencyRead);
-        this.groum.addEdge(edge);
-      });
 
     } else if (node.parent() instanceof PropertyAccessAction parentNode) {
       // get parents involved variables
