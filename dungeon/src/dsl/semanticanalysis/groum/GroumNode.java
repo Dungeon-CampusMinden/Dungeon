@@ -133,6 +133,14 @@ public abstract class GroumNode {
     this.outgoingEdges.add(edge);
   }
 
+  public void removeIncomingEdge(GroumEdge edge) {
+    this.incomingEdges.remove(edge);
+  }
+
+  public void removeOutgoingEdge(GroumEdge edge) {
+    this.outgoingEdges.remove(edge);
+  }
+
   public boolean setParent(GroumNode parent) {
     if (this.parent == GroumNode.NONE) {
       this.parent = parent;

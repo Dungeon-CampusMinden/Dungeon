@@ -1,6 +1,8 @@
 package dsl.semanticanalysis.groum;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class Groum {
@@ -125,6 +127,36 @@ public class Groum {
   }
 
   // X (this) => Y (other)
+  public Groum mergeSequential(Groum other, List<GroumEdge.GroumEdgeType> edgeTypes) {
+    ArrayList<GroumNode> mergedNodes = new ArrayList<>(this.nodes.size() + other.nodes.size());
+    mergedNodes.addAll(this.nodes);
+    mergedNodes.addAll(other.nodes);
+
+    ArrayList<GroumEdge> mergedEdges = new ArrayList<>(this.edges.size() + other.edges.size());
+    mergedEdges.addAll(this.edges);
+    mergedEdges.addAll(other.edges);
+
+    // sinks
+    List<GroumNode> sinkNodes = this.nodes.stream().filter(n -> n.outgoing().isEmpty()).toList();
+    // sources
+    List<GroumNode> sourceNodes = other.nodes.stream().filter(n -> n.incoming().isEmpty()).toList();
+
+    var distinctEdgeTypes = edgeTypes.stream().distinct().toList();
+
+    // connect sinks to sources
+    for (var sinkNode : sinkNodes) {
+      for (var sourceNode : sourceNodes) {
+        for (var edgeType : distinctEdgeTypes) {
+          var edge = new GroumEdge(sinkNode, sourceNode, edgeType);
+          mergedEdges.add(edge);
+        }
+      }
+    }
+
+    return new Groum(mergedNodes, mergedEdges);
+  }
+
+  // X (this) => Y (other)
   public Groum mergeSequential(Groum other, GroumEdge.GroumEdgeType edgeType) {
     ArrayList<GroumNode> mergedNodes = new ArrayList<>(this.nodes.size() + other.nodes.size());
     mergedNodes.addAll(this.nodes);
@@ -147,5 +179,34 @@ public class Groum {
     }
 
     return new Groum(mergedNodes, mergedEdges);
+  }
+
+  public void removeRedundantEdges() {
+    HashMap<GroumNode, HashMap<GroumNode, HashSet<GroumEdge.GroumEdgeType>>> map = new HashMap<>();
+    for (int i = 0; i < this.edges.size(); i++) {
+      var edge = this.edges.get(i);
+      if (!map.containsKey(edge.start())) {
+        map.put(edge.start(), new HashMap<>());
+      }
+      var startMap = map.get(edge.start());
+      if (startMap.containsKey(edge.end())) {
+        var edgeTypeSet = startMap.get(edge.end());
+
+        if (edgeTypeSet.contains(edge.edgeType())) {
+          // remove edge
+          this.edges.remove(i);
+          edge.start().removeOutgoingEdge(edge);
+          edge.end().removeIncomingEdge(edge);
+          i--;
+        } else {
+          // add edge
+          edgeTypeSet.add(edge.edgeType());
+        }
+      } else {
+        HashSet<GroumEdge.GroumEdgeType> set = new HashSet<>();
+        set.add(edge.edgeType());
+        startMap.put(edge.end(),set);
+      }
+    }
   }
 }

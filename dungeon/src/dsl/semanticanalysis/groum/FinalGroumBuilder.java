@@ -1,5 +1,6 @@
 package dsl.semanticanalysis.groum;
 
+import dsl.helper.ProfilingTimer;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
@@ -125,6 +126,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
             }
           }
 
+          // TODO: wouldn't it be better to just add the precedent nodes? not the children?
           if (!allPrecedentsProcesseed) {
             // If the current node to process has children, add them first!
             var currentNodeChildren = currentNode.children();
@@ -204,6 +206,10 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       this.groumScopeStack.pop();
     }
 
+    HashMap<String, Long> times = new HashMap<>();
+    try (var t = new ProfilingTimer("remove redundancy", times, ProfilingTimer.Unit.micro)) {
+      this.groum.removeRedundantEdges();
+    }
     return this.groum;
   }
 
