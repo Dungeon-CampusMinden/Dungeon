@@ -597,12 +597,13 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
       return null;
     }
 
+
     Node currentNode = node;
     Node lhs = Node.NONE;
     Node rhs = Node.NONE;
     IType lhsDataType = BuiltInType.noType;
-    IScope scopeToUse = this.currentScope();
 
+    IScope previousCurrentScope = this.currentScope();
     while (currentNode.type.equals(Node.Type.MemberAccess)) {
       lhs = ((MemberAccessNode) currentNode).getLhs();
       rhs = ((MemberAccessNode) currentNode).getRhs();
@@ -611,7 +612,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
       // lhsDataType = BuiltInType.noType;
       if (lhs.type.equals(Node.Type.Identifier)) {
         String nameToResolve = ((IdNode) lhs).getName();
-        Symbol symbol = scopeToUse.resolve(nameToResolve);
+        Symbol symbol = this.resolve(nameToResolve);
         IType symbolsType = symbol.getDataType();
 
         if (symbolsType != null && symbolsType.getTypeKind().equals(IType.Kind.EnumType)) {
@@ -621,6 +622,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         }
 
         if (symbol instanceof EnumType) {
+          lhsDataType = (IType) symbol;
+        } else if (symbol instanceof AggregateType) {
           lhsDataType = (IType) symbol;
         } else {
           lhsDataType = symbolsType;
@@ -633,7 +636,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
         // resolve function definition
         String functionName = ((FuncCallNode) lhs).getIdName();
-        Symbol resolvedFunction = scopeToUse.resolve(functionName);
+        //Symbol resolvedFunction = scopeToUse.resolve(functionName);
+        Symbol resolvedFunction = this.resolve(functionName);
         ICallable callable = (ICallable) resolvedFunction;
         FunctionType functionType = callable.getFunctionType();
         lhsDataType = functionType.getReturnType();
@@ -647,7 +651,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
         throw new RuntimeException(
             "Datatype " + lhsDataType.getName() + " of lhs in member access is no scoped symbol!");
       }
-      scopeToUse = lhsTypeScopedSymbol;
+      this.scopeStack.pop();
+      this.scopeStack.push(lhsTypeScopedSymbol);
     }
 
     // if we arrive here, we have got two options:
@@ -655,13 +660,12 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     // 2. we resolve an FuncCallNode at the rhs of the MemberAccessNode
     if (rhs.type.equals(Node.Type.Identifier)) {
       // push lhsDataType on stack
-      scopeStack.push(scopeToUse);
+      // there will be the scope to use on the scope stack!
       rhs.accept(this);
-      scopeStack.pop();
     } else if (rhs.type.equals(Node.Type.FuncCall)) {
       // resolve function name in scope to use
       String funcName = ((FuncCallNode) rhs).getIdName();
-      Symbol funcSymbol = scopeToUse.resolve(funcName, true);
+      Symbol funcSymbol = this.resolve(funcName);
       if (funcSymbol.equals(Symbol.NULL)) {
         throw new RuntimeException("Function with name " + funcName + " could not be resolved!");
       }
@@ -673,6 +677,10 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
       rhs.accept(this);
     }
+
+    // restore scope stack
+    this.scopeStack.pop();
+    this.scopeStack.push(previousCurrentScope);
 
     return null;
   }
