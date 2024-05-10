@@ -676,72 +676,6 @@ public class TestGroum {
     String str = p.print(groum);
   }
 
-  @Test
-  public void graphDataDependency() {
-
-    String program =
-        """
-      single_choice_task t1 {
-        description: "t1",
-        answers: [ "test", "other test"],
-        correct_answer_index: 0
-      }
-
-      single_choice_task t2 {
-        description: "t2",
-        answers: [ "test", "other test"],
-        correct_answer_index: 0
-      }
-
-      single_choice_task t3 {
-        description: "t3",
-        answers: [ "test", "other test"],
-        correct_answer_index: 0
-      }
-
-      single_choice_task t4 {
-        description: "t4",
-        answers: [ "test", "other test"],
-        correct_answer_index: 0
-      }
-
-      single_choice_task t5 {
-        description: "t5",
-        answers: [ "test", "other test"],
-        correct_answer_index: 0
-      }
-
-      single_choice_task t6 {
-        description: "t6",
-        answers: [ "test", "other test"],
-        correct_answer_index: 0
-      }
-
-      graph g {
-        t1 -> t2 [type=seq];
-        t3,t4 -> t5 [type=seq];
-        t6;
-      }
-      """;
-
-    var gameEnv = new GameEnvironment();
-    var ast = Helpers.getASTFromString(program, gameEnv);
-
-    var result = Helpers.getSymtableForAST(ast, gameEnv);
-    var symbolTable = result.symbolTable;
-    var env = result.environment;
-    var fs = env.getFileScope(null);
-
-    TemporalGroumBuilder builder = new TemporalGroumBuilder();
-    HashMap<Symbol, Long> instanceMap = new HashMap<>();
-    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
-
-    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
-    finalGroumBuilder.finalize(temporalGroum, instanceMap);
-
-    GroumPrinter p = new GroumPrinter();
-    String str = p.print(temporalGroum);
-  }
 
   @Test
   public void simpleDataDependencies() {
@@ -2414,6 +2348,105 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
   }
 
+  @Test
+  public void graphDataDependency() {
+    String program =
+      """
+    // my_point def idx: 48
+    point my_point {
+      x: 1.0,
+      y: 11.0
+    }
+
+    entity_type monster_type {
+      health_component {
+          max_health: 10,
+          start_health: 10,
+          on_death: drop_items // drop items ref idx: 3
+      },
+      position_component {
+        position: my_point // point ref idx: 4
+      },
+      draw_component {
+          path: "character/monster/chort"
+      },
+      velocity_component {
+          x_velocity: 4.0,
+          y_velocity: 4.0
+      }
+    }
+
+    // t1 def idx: 27
+    single_choice_task t1 {
+      description: "t1",
+      answers: [ "test", "other test"],
+      correct_answer_index: 0
+    }
+
+    // t2 def idx: 43
+    single_choice_task t2 {
+      description: "t2",
+      answers: [ "test", "other test"],
+      correct_answer_index: 0
+    }
+
+    // drop items def idx: 35
+    fn drop_items(entity me) {
+        me.inventory_component.drop_items();
+    }
+
+    graph g {
+      // t1 ref idx: 28
+      // t2 ref idx: 29
+      t1 -> t2 [type=seq];
+    }
+    """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+
+    // tests
+    var pointDef = findNodeByProcessIdx(finalizedGroum, 48);
+    var pointRef = findNodeByProcessIdx(finalizedGroum, 4);
+    var dropItemsDef = findNodeByProcessIdx(finalizedGroum, 35);
+    var dropItemsRef = findNodeByProcessIdx(finalizedGroum, 3);
+    var t1Def = findNodeByProcessIdx(finalizedGroum, 27);
+    var t2Def = findNodeByProcessIdx(finalizedGroum, 43);
+    var t1Ref = findNodeByProcessIdx(finalizedGroum, 28);
+    var t2Ref = findNodeByProcessIdx(finalizedGroum, 29);
+
+    var pointRefReads = pointRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(pointRefReads.contains(pointDef));
+
+    var dropItemsRefReads = dropItemsRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(dropItemsRefReads.contains(dropItemsDef));
+
+    var t1RefReads = t1Ref.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(t1RefReads.contains(t1Def));
+
+    var t2RefReads = t2Ref.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(t2RefReads.contains(t2Def));
+  }
   public static void write(String content, String path) {
     try {
       FileWriter writer = new FileWriter(path);
