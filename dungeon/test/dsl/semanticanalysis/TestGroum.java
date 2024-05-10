@@ -2447,6 +2447,80 @@ public class TestGroum {
     var t2RefReads = t2Ref.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(t2RefReads.contains(t2Def));
   }
+
+  @Test
+  public void cyclicalDefinition() {
+    String program =
+      """
+    // t1 def idx: 5
+    entity_type type1 {
+      position_component {
+        // position_component access idx: 1
+        // position access idx: 2
+        // position def idx: 3
+        position: type2.position_component.position
+      }
+    }
+
+    // t2 def idx: 10
+    entity_type type2 {
+      position_component {
+        // position_component access idx: 6
+        // position access idx: 7
+        // position def idx: 8
+        position: type1.position_component.position
+      }
+    }
+    """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+
+    // test
+    var t1PosCompAccess = findNodeByProcessIdx(finalizedGroum, 1);
+    var t1PosAccess = findNodeByProcessIdx(finalizedGroum, 2);
+    var t1PosDef = findNodeByProcessIdx(finalizedGroum, 3);
+    var t2PosCompAccess = findNodeByProcessIdx(finalizedGroum, 6);
+    var t2PosAccess = findNodeByProcessIdx(finalizedGroum, 7);
+    var t2PosDef = findNodeByProcessIdx(finalizedGroum, 8);
+    var t1Def = findNodeByProcessIdx(finalizedGroum, 5);
+    var t2Def = findNodeByProcessIdx(finalizedGroum, 10);
+
+    var t1PosCompAccessReads = t1PosCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(t1PosCompAccessReads.contains(t2Def));
+    var t1PosAccessReads = t1PosAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(t1PosAccessReads.contains(t2Def));
+    var t1PosDefReads = t1PosDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(t1PosDefReads.contains(t2Def));
+
+    var t2PosCompAccessReads = t2PosCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(t2PosCompAccessReads.contains(t1Def));
+    var t2PosAccessReads = t2PosAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(t2PosAccessReads.contains(t1Def));
+    var t2PosDefReads = t2PosDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(t2PosDefReads.contains(t1Def));
+  }
+
   public static void write(String content, String path) {
     try {
       FileWriter writer = new FileWriter(path);
