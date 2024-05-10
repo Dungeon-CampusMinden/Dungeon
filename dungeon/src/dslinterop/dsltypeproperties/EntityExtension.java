@@ -137,14 +137,13 @@ public class EntityExtension {
   }
 
   @DSLTypeProperty(name = "task", extendedType = TaskContent.class)
-  public static class TaskProperty
-    implements IDSLExtensionProperty<TaskContent, Task> {
+  public static class TaskProperty implements IDSLExtensionProperty<TaskContent, Task> {
     public static TaskProperty instance = new TaskProperty();
 
     private TaskProperty() {}
 
     @Override
-    public void set(TaskContent instance, Task valueToSet) { }
+    public void set(TaskContent instance, Task valueToSet) {}
 
     @Override
     public Task get(TaskContent instance) {
@@ -221,8 +220,7 @@ public class EntityExtension {
 
   @DSLExtensionMethod(name = "set_name", extendedType = Entity.class)
   public static class SetName implements IDSLExtensionMethod<Entity, Void> {
-    public static EntityExtension.SetName instance =
-      new EntityExtension.SetName();
+    public static EntityExtension.SetName instance = new EntityExtension.SetName();
 
     @Override
     public Void call(Entity instance, List<Object> params) {
@@ -239,9 +237,10 @@ public class EntityExtension {
   }
 
   @DSLExtensionMethod(name = "get_item", extendedType = InventoryComponent.class)
-  public static class GetItemFromInventoryMethod implements IDSLExtensionMethod<InventoryComponent, QuestItem> {
+  public static class GetItemFromInventoryMethod
+      implements IDSLExtensionMethod<InventoryComponent, QuestItem> {
     public static EntityExtension.GetItemFromInventoryMethod instance =
-      new EntityExtension.GetItemFromInventoryMethod();
+        new EntityExtension.GetItemFromInventoryMethod();
 
     @Override
     public QuestItem call(InventoryComponent instance, List<Object> params) {
@@ -249,7 +248,7 @@ public class EntityExtension {
       if (idx >= instance.count()) {
         return null;
       } else {
-        return (QuestItem)instance.get(idx);
+        return (QuestItem) instance.get(idx);
       }
     }
 

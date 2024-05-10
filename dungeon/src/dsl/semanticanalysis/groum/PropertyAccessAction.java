@@ -8,7 +8,8 @@ public class PropertyAccessAction extends ActionNode {
   public static final int instanceSymbolIdx = 1;
   public static final int propertySymbolIdx = 2;
 
-  public PropertyAccessAction(Symbol instanceSymbol, Symbol property, long instanceId, long propertyInstanceId) {
+  public PropertyAccessAction(
+      Symbol instanceSymbol, Symbol property, long instanceId, long propertyInstanceId) {
     super(ActionType.propertyAccess);
 
     this.addSymbolReference(getInstanceSymbolType(instanceSymbol));
@@ -34,7 +35,10 @@ public class PropertyAccessAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return this.instanceDataType().getName() + " [" + this.referencedInstanceId() + "]"
+    return this.instanceDataType().getName()
+        + " ["
+        + this.referencedInstanceId()
+        + "]"
         + ":<property access '"
         + this.propertySymbol().getName()
         + "' ["

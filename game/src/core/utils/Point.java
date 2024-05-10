@@ -12,10 +12,8 @@ import dsl.annotation.DSLTypeMember;
 @DSLType
 public final class Point {
   private static final float EPSILON = 0.000001f;
-  @DSLTypeMember
-  public float x;
-  @DSLTypeMember
-  public float y;
+  @DSLTypeMember public float x;
+  @DSLTypeMember public float y;
 
   /**
    * A simple {@code float} point class.
@@ -32,7 +30,6 @@ public final class Point {
     this.x = 0.0f;
     this.y = 0.0f;
   }
-
 
   /** Copies the point. */
   public Point(final Point p) {

@@ -30,8 +30,7 @@ import dsl.annotation.DSLTypeMember;
 public final class PositionComponent implements Component {
 
   public static final Point ILLEGAL_POSITION = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
-  @DSLTypeMember
-  private Point position;
+  @DSLTypeMember private Point position;
 
   /**
    * Create a new PositionComponent with given position.

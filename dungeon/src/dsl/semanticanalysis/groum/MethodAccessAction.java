@@ -41,7 +41,10 @@ public class MethodAccessAction extends ActionNode {
   public Symbol methodSymbol() {
     return this.symbolReferences().get(methodSymbolIdx);
   }
-  public long methodCallInstanceId() {return this.methodCallInstanceId;}
+
+  public long methodCallInstanceId() {
+    return this.methodCallInstanceId;
+  }
 
   @Override
   public String getLabel() {

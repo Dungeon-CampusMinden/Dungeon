@@ -1,7 +1,6 @@
 package dsl.semanticanalysis.groum;
 
 import dsl.semanticanalysis.symbol.Symbol;
-
 import java.util.*;
 
 public class GroumScope {
@@ -192,11 +191,11 @@ public class GroumScope {
     } else if (controlFlowParent == GroumScope.NONE) {
       scopeToNodeMap.put(parentScope, node);
       // TODO: ??? -> seems about right, not to do it...
-      //checkInstancedDefinitionsOverwriting(instanceId, parentScope);
+      // checkInstancedDefinitionsOverwriting(instanceId, parentScope);
     } else {
       scopeToNodeMap.put(controlFlowParent, node);
       // TODO: ??? -> seems about right, not to do it...
-      //checkInstancedDefinitionsOverwriting(instanceId, controlFlowParent);
+      // checkInstancedDefinitionsOverwriting(instanceId, controlFlowParent);
     }
 
     var childScopesOfDefinitionScope = controlFlowParent.heritage;
@@ -206,26 +205,37 @@ public class GroumScope {
   }
 
   // returns: overwrittenDefinitions
-  private void checkInstancedDefinitionsOverwriting(Long instanceId, List<GroumNode> definitionNodes) {
+  private void checkInstancedDefinitionsOverwriting(
+      Long instanceId, List<GroumNode> definitionNodes) {
     if (this.instancedDefinitions.containsKey(instanceId)) {
       var dependentInstances = this.instancedDefinitions.get(instanceId);
       for (var dependentInstance : dependentInstances) {
-        // the dependentInstance may be registered in instancedDefinitions even though no definition is stored in this scope
+        // the dependentInstance may be registered in instancedDefinitions even though no definition
+        // is stored in this scope
         // example: in the statement `ent.task_content_component.content = x;`
-        // the `content` property is defined directly (and this definition will be stored in `variableDefinitions`)
-        // the `task_content_component` is not directly defined but registered in `dependentInstances`
-        // nonetheless, in order to 'connect' both the `task_content_component` and `content` properties with
-        // the `ent` definition; this is needed for the case, when `ent.task_content_component` is assigned a new
-        // value -> we need to invalidate the definition to `content`, even though `ent` is not redefined;
-        // if only the `ent`-definition would be registered as a key to `instancedDefinitions`, this connection
+        // the `content` property is defined directly (and this definition will be stored in
+        // `variableDefinitions`)
+        // the `task_content_component` is not directly defined but registered in
+        // `dependentInstances`
+        // nonetheless, in order to 'connect' both the `task_content_component` and `content`
+        // properties with
+        // the `ent` definition; this is needed for the case, when `ent.task_content_component` is
+        // assigned a new
+        // value -> we need to invalidate the definition to `content`, even though `ent` is not
+        // redefined;
+        // if only the `ent`-definition would be registered as a key to `instancedDefinitions`, this
+        // connection
         // could not be made!
         if (this.variableDefinitions.containsKey(dependentInstance)) {
           var instanceDefinitions = this.variableDefinitions.get(dependentInstance);
           for (var oldDefinitionNode : instanceDefinitions.values()) {
-            definitionNodes.forEach(d -> {
-              var redefEdges = new GroumEdge(oldDefinitionNode, d, GroumEdge.GroumEdgeType.dataDependencyRedefinition);
-              this.groum.addEdge(redefEdges);
-            });
+            definitionNodes.forEach(
+                d -> {
+                  var redefEdges =
+                      new GroumEdge(
+                          oldDefinitionNode, d, GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+                  this.groum.addEdge(redefEdges);
+                });
           }
           instanceDefinitions.clear();
         }
@@ -319,14 +329,21 @@ public class GroumScope {
   }
 
   private void propagateShadowingToParents(
-    Long instanceIdNewDefiniton, ArrayList<GroumNode> newDefinitions, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
+      Long instanceIdNewDefiniton,
+      ArrayList<GroumNode> newDefinitions,
+      GroumScope fromScope,
+      HashSet<GroumScope> definitionsToShadow) {
     if (this.parent != GroumScope.NONE) {
-      this.parent.propagateShadowing(instanceIdNewDefiniton, newDefinitions, fromScope, definitionsToShadow);
+      this.parent.propagateShadowing(
+          instanceIdNewDefiniton, newDefinitions, fromScope, definitionsToShadow);
     }
   }
 
   private void propagateShadowing(
-    Long instanceId, ArrayList<GroumNode> newDefinitions, GroumScope fromScope, HashSet<GroumScope> definitionsToShadow) {
+      Long instanceId,
+      ArrayList<GroumNode> newDefinitions,
+      GroumScope fromScope,
+      HashSet<GroumScope> definitionsToShadow) {
 
     if (this.associatedGroumNode instanceof ControlNode controlNode
         && controlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
@@ -396,14 +413,17 @@ public class GroumScope {
     return "scope: " + this.associatedGroumNode;
   }
 
-  private void propagateInstanceDefinitionToParents(long instanceId, long parentsInstanceId, GroumScope fromScope) {
+  private void propagateInstanceDefinitionToParents(
+      long instanceId, long parentsInstanceId, GroumScope fromScope) {
     if (this.parent != NONE && this.parent != null) {
-      this.parent.registerInstanceDefinitionFromPropagation(instanceId, parentsInstanceId, fromScope);
+      this.parent.registerInstanceDefinitionFromPropagation(
+          instanceId, parentsInstanceId, fromScope);
       this.parent.propagateInstanceDefinitionToParents(instanceId, parentsInstanceId, fromScope);
     }
   }
 
-  private void registerInstanceDefinitionFromPropagation(long instanceId, long parentsInstanceId, GroumScope fromScope) {
+  private void registerInstanceDefinitionFromPropagation(
+      long instanceId, long parentsInstanceId, GroumScope fromScope) {
     if (this.variableDefinitions.containsKey(instanceId)) {
       if (!this.instancedDefinitions.containsKey(parentsInstanceId)) {
         this.instancedDefinitions.put(parentsInstanceId, new HashSet<>());

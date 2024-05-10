@@ -597,7 +597,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
       return null;
     }
 
-
     Node currentNode = node;
     Node lhs = Node.NONE;
     Node rhs = Node.NONE;
@@ -636,7 +635,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
         // resolve function definition
         String functionName = ((FuncCallNode) lhs).getIdName();
-        //Symbol resolvedFunction = scopeToUse.resolve(functionName);
+        // Symbol resolvedFunction = scopeToUse.resolve(functionName);
         Symbol resolvedFunction = this.resolve(functionName);
         ICallable callable = (ICallable) resolvedFunction;
         FunctionType functionType = callable.getFunctionType();

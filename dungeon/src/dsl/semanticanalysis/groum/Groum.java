@@ -205,7 +205,7 @@ public class Groum {
       } else {
         HashSet<GroumEdge.GroumEdgeType> set = new HashSet<>();
         set.add(edge.edgeType());
-        startMap.put(edge.end(),set);
+        startMap.put(edge.end(), set);
       }
     }
   }

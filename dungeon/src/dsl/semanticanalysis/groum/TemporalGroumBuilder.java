@@ -261,8 +261,10 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     Groum stmtGroumsMerged = Groum.NONE;
     for (var stmtGroum : stmtGroums) {
-      // TODO: doing this parallel has no effect for single edge, since both references are added temporally sequential
-      //  do we need to preserve the edge information (which node to which edge)? if not, we could just
+      // TODO: doing this parallel has no effect for single edge, since both references are added
+      // temporally sequential
+      //  do we need to preserve the edge information (which node to which edge)? if not, we could
+      // just
       //  treat dot edges sequentially as well
       stmtGroumsMerged = stmtGroumsMerged.mergeParallel(stmtGroum);
     }
@@ -277,7 +279,10 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     defAction.addChildren(stmtGroumsMerged.nodes);
 
-    groum = stmtGroumsMerged.mergeSequential(defGroum, List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
+    groum =
+        stmtGroumsMerged.mergeSequential(
+            defGroum,
+            List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
 
     return groum;
   }
@@ -299,7 +304,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     Groum mergedIdListGroums = Groum.NONE;
     for (var idListGroum : idListGroums) {
-      //mergedIdListGroums = mergedIdListGroums.mergeSequential(idListGroum);
+      // mergedIdListGroums = mergedIdListGroums.mergeSequential(idListGroum);
       mergedIdListGroums = mergedIdListGroums.mergeParallel(idListGroum);
     }
 
@@ -324,7 +329,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     }
     Groum mergedGroum = Groum.NONE;
     for (var idGroum : idGroums) {
-      //mergedGroum = mergedGroum.mergeSequential(idGroum);
+      // mergedGroum = mergedGroum.mergeSequential(idGroum);
       mergedGroum = mergedGroum.mergeParallel(idGroum);
     }
     return mergedGroum;
@@ -384,12 +389,13 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     //  symbol wont' be enough -> this will just get the instanceId of the generic symbol
     //  -> we need the specific instanced id for the parent node, not the symbol!
 
-
     // TODO: add data read?
-    DefinitionAction definitionAction =
-        new DefinitionAction(propertySymbol, propertyInstanceId);
+    DefinitionAction definitionAction = new DefinitionAction(propertySymbol, propertyInstanceId);
     Groum definitionGroum = new Groum(definitionAction);
-    Groum merged = stmtGroum.mergeSequential(definitionGroum, List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
+    Groum merged =
+        stmtGroum.mergeSequential(
+            definitionGroum,
+            List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
 
     return merged;
   }
@@ -406,7 +412,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     Groum mergedPropDefGroums = Groum.NONE;
     for (var propDefGroum : propertyDefGroums) {
-      //mergedPropDefGroums = mergedPropDefGroums.mergeSequential(propDefGroum);
+      // mergedPropDefGroums = mergedPropDefGroums.mergeSequential(propDefGroum);
       mergedPropDefGroums = mergedPropDefGroums.mergeParallel(propDefGroum);
     }
 
@@ -422,8 +428,11 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     objectDefAction.addChildren(mergedPropDefGroums.nodes);
 
     Groum definitionGroum = new Groum(objectDefAction);
-    //Groum groum = mergedPropDefGroums.mergeSequential(definitionGroum);
-    Groum groum = mergedPropDefGroums.mergeSequential(definitionGroum, List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
+    // Groum groum = mergedPropDefGroums.mergeSequential(definitionGroum);
+    Groum groum =
+        mergedPropDefGroums.mergeSequential(
+            definitionGroum,
+            List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
 
     return groum;
   }
@@ -469,8 +478,9 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     var parentsParent = nodesParent.getParent();
     long valuesInstanceId = -1;
     if (parentsParent.type == Node.Type.PrototypeDefinition
-      || parentsParent.type == Node.Type.ItemPrototypeDefinition) {
-      // parent is a unique symbol.. but we could also just reference the instance id for the AST node..
+        || parentsParent.type == Node.Type.ItemPrototypeDefinition) {
+      // parent is a unique symbol.. but we could also just reference the instance id for the AST
+      // node..
       var parentsSymbol = this.symbolTable.getSymbolsForAstNode(parentsParent).get(0);
       var parentsInstanceId = createOrGetInstanceId(parentsSymbol);
       valuesInstanceId = createOrGetMemberInstanceId(parentsInstanceId, valueSymbol);
@@ -504,7 +514,10 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     var definitionAction = new DefinitionAction(valueSymbol, valuesInstanceId);
     Groum definitionGroum = new Groum(definitionAction);
 
-    Groum mergedGroum = mergedPropertyDefinitionGroums.mergeSequential(definitionGroum, List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
+    Groum mergedGroum =
+        mergedPropertyDefinitionGroums.mergeSequential(
+            definitionGroum,
+            List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
     return mergedGroum;
   }
 
@@ -530,7 +543,10 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     defAction.addChildren(mergedComponentDefinitionGroums.nodes);
     var defGroum = new Groum(defAction);
-    Groum merged = mergedComponentDefinitionGroums.mergeSequential(defGroum, List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
+    Groum merged =
+        mergedComponentDefinitionGroums.mergeSequential(
+            defGroum,
+            List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
 
     return merged;
   }
@@ -676,7 +692,9 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       Groum accessGroum;
       if (lhsOfInnerMemberAccess.type.equals(Node.Type.Identifier)) {
         var memberInstanceId = createOrGetMemberInstanceId(contextInstanceId, innerLhsSymbol);
-        var accessAction = new PropertyAccessAction(lhsSymbol, innerLhsSymbol, contextInstanceId, memberInstanceId);
+        var accessAction =
+            new PropertyAccessAction(
+                lhsSymbol, innerLhsSymbol, contextInstanceId, memberInstanceId);
 
         // add scoping information: the inner member access is 'owned' by this property access
         accessAction.addChildren(innerMemberAccessGroum.nodes);
@@ -714,8 +732,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       // property access
       var rhsSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
       var memberInstanceId = createOrGetMemberInstanceId(contextInstanceId, rhsSymbol);
-      var accessAction = new PropertyAccessAction(lhsSymbol, rhsSymbol, contextInstanceId, memberInstanceId);
-
+      var accessAction =
+          new PropertyAccessAction(lhsSymbol, rhsSymbol, contextInstanceId, memberInstanceId);
 
       mergedGroum = new Groum(accessAction);
     }
@@ -986,7 +1004,10 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     var defGroum = new Groum(definitionAction);
 
-    Groum mergedGroum = mergedPropertyDefinitionGroums.mergeSequential(defGroum, List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
+    Groum mergedGroum =
+        mergedPropertyDefinitionGroums.mergeSequential(
+            defGroum,
+            List.of(GroumEdge.GroumEdgeType.dataDependencyRead, GroumEdge.GroumEdgeType.temporal));
     return mergedGroum;
   }
 

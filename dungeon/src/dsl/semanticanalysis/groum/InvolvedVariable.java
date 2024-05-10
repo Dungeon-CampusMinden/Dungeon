@@ -1,7 +1,5 @@
 package dsl.semanticanalysis.groum;
 
-import dsl.semanticanalysis.symbol.Symbol;
-
 public class InvolvedVariable {
   public enum TypeOfInvolvement {
     none,
@@ -17,7 +15,8 @@ public class InvolvedVariable {
 
   private GroumNode definitionNode;
 
-  public InvolvedVariable(Long variableInstanceId, TypeOfInvolvement type, GroumNode definitionNode) {
+  public InvolvedVariable(
+      Long variableInstanceId, TypeOfInvolvement type, GroumNode definitionNode) {
     this.type = type;
     this.variableInstanceId = variableInstanceId;
     this.definitionNode = definitionNode;
