@@ -5,6 +5,8 @@ import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.symbol.Symbol;
+import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
+
 import java.util.*;
 
 // TODO: how are we going to calculate data dependencies based on the SETS of
@@ -206,11 +208,57 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       this.groumScopeStack.pop();
     }
 
+    // propagate the references through definition nodes for all global definitions, which are not
+    // function definitions
+    var globalNonFunctionDefinitions = defNodes.values().stream().filter(n -> n instanceof DefinitionAction).map(n -> (DefinitionAction)n).filter(n -> !(n.instancedType() instanceof FunctionType)).toList();
+    for (var definition : globalNonFunctionDefinitions) {
+      var childrenSet = new HashSet<>(definition.children());
+
+      // recursive: get the involved variables of preceding nodes until we reach the boundaries of the definition /
+      // challenge: how to find the boundary of the definition? -> has the node involved variables or does it lay outside
+      // of the children set.. if it lays outside the children set, we break
+      // if it has involved variables, than an evaluation has already taken place and we can resume from that
+      // point on..
+      calculateInvolvedVariablesBottomUp(definition, childrenSet);
+    }
+
     HashMap<String, Long> times = new HashMap<>();
     try (var t = new ProfilingTimer("remove redundancy", times, ProfilingTimer.Unit.micro)) {
       this.groum.removeRedundantEdges();
     }
+
     return this.groum;
+  }
+
+  private List<InvolvedVariable> calculateInvolvedVariablesBottomUp(GroumNode node, HashSet<GroumNode> childrenInScope) {
+    // get preceding nodes
+    List<InvolvedVariable> nodesInvolvedVariables = new ArrayList<>();
+    var precedingNodes = node.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    for (var precedingNode : precedingNodes) {
+      if (!childrenInScope.contains(precedingNode)) {
+        continue;
+      }
+
+      if (this.involvedVariables.containsKey(precedingNode)) {
+        // collect involved variables
+        var precdingInvolvedVariables = this.involvedVariables.get(precedingNode);
+        var precedingInvolvedVariablesOtherThanNodes = precdingInvolvedVariables.stream().filter(v -> !v.definitionNode().equals(precedingNode)).toList();
+        if (!precedingInvolvedVariablesOtherThanNodes.isEmpty()) {
+          nodesInvolvedVariables.addAll(precdingInvolvedVariables);
+          continue;
+        }
+      }
+      var precedingInvolvedVariables = calculateInvolvedVariablesBottomUp(precedingNode, childrenInScope);
+      nodesInvolvedVariables.addAll(precedingInvolvedVariables);
+    }
+
+    nodesInvolvedVariables.forEach(v -> {
+      this.addInvolvedVariable(node, v, InvolvedVariable.TypeOfInvolvement.read);
+      var readEdge = new GroumEdge(v.definitionNode(), node, GroumEdge.GroumEdgeType.dataDependencyRead);
+      this.groum.addEdge(readEdge);
+    });
+
+    return nodesInvolvedVariables;
   }
 
   public GroumScope currentScope() {
