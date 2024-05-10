@@ -1834,7 +1834,7 @@ public class TestGroum {
 
     // content def should reference param c
     var readsForContentDef = contentDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(1, readsForContentDef.size());
+    Assert.assertEquals(3, readsForContentDef.size());
     Assert.assertTrue(readsForContentDef.contains(paramCDef));
 
     // content def should be read twice (by second content property access and cont1 def)
@@ -2128,11 +2128,11 @@ public class TestGroum {
         ent.set_name(name);
 
         // this defines the component
-        // redef idx: 15
+        // redef idx: 16
         ent.inventory_component = ic;
 
         // this redefines the inventory_component and invalidates the definition from above
-        // ic redef idx: 21
+        // ic redef idx: 20
         // i2 def idx: 23
         var i2 = ent.inventory_component.get_item(idx);
         // def idx: 26
@@ -2163,12 +2163,20 @@ public class TestGroum {
 
     // test
     var entParamDef = findNodeByProcessIdx(finalizedGroum, 1);
+    Assert.assertTrue(entParamDef instanceof ParameterInstantiationAction);
     var firstEntRedef = findNodeByProcessIdx(finalizedGroum, 8);
+    Assert.assertTrue(firstEntRedef instanceof DefinitionAction);
     var setNameRedef = findNodeByProcessIdx(finalizedGroum, 10);
-    var icRedef = findNodeByProcessIdx(finalizedGroum, 15);
-    var getItemIcRedef = findNodeByProcessIdx(finalizedGroum, 21);
+    Assert.assertTrue(setNameRedef instanceof DefinitionAction);
+    var icRedef = findNodeByProcessIdx(finalizedGroum, 16);
+    Assert.assertTrue(icRedef instanceof DefinitionAction);
+    var getItemIcRedef = findNodeByProcessIdx(finalizedGroum, 20);
+    Assert.assertTrue(getItemIcRedef instanceof DefinitionAction);
+
     var i2Def = findNodeByProcessIdx(finalizedGroum, 23);
+    Assert.assertTrue(i2Def instanceof DefinitionAction);
     var myOtherIcDef = findNodeByProcessIdx(finalizedGroum, 26);
+    Assert.assertTrue(myOtherIcDef instanceof DefinitionAction);
 
     // the setName call should invalidate the firstEntRedef and ent param def
     var setNameRedefs = setNameRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
@@ -2204,10 +2212,11 @@ public class TestGroum {
       // ent def idx: 1
       fn func(entity ent) {
         // inventory_component access idx: 2
-        // get item access idx: 3
-        // inventory_component redefinition idx: 8
-        // task_content_component access idx: 6
-        // content access idx: 7
+        // 0 const def idx: 3
+        // get item access idx: 5
+        // inventory_component redefinition idx: 6
+        // task_content_component access idx: 7
+        // content access idx: 8
         // c def idx: 10
         var c = ent.inventory_component.get_item(0).task_content_component.content;
       }
@@ -2237,10 +2246,11 @@ public class TestGroum {
     // test
     var entDef = findNodeByProcessIdx(finalizedGroum, 1);
     var inventoryCompAccess = findNodeByProcessIdx(finalizedGroum, 2);
-    var getItemAccess = findNodeByProcessIdx(finalizedGroum, 3);
-    var tccAccess =findNodeByProcessIdx(finalizedGroum, 6);
-    var contentAccess =findNodeByProcessIdx(finalizedGroum, 7);
-    var icRedef = findNodeByProcessIdx(finalizedGroum, 8);
+    var constDef = findNodeByProcessIdx(finalizedGroum, 3);
+    var getItemAccess = findNodeByProcessIdx(finalizedGroum, 5);
+    var tccAccess =findNodeByProcessIdx(finalizedGroum, 7);
+    var contentAccess =findNodeByProcessIdx(finalizedGroum, 8);
+    var icRedef = findNodeByProcessIdx(finalizedGroum, 6);
     var cDef = findNodeByProcessIdx(finalizedGroum, 10);
 
     var inventoryCompAccessReads = inventoryCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
@@ -2256,22 +2266,25 @@ public class TestGroum {
     Assert.assertTrue(icRedefs.contains(inventoryCompAccess));
 
     var tccAccessReads = tccAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(3, tccAccessReads.size());
+    Assert.assertEquals(4, tccAccessReads.size());
     Assert.assertTrue(tccAccessReads.contains(icRedef));
+    Assert.assertTrue(tccAccessReads.contains(constDef));
     Assert.assertTrue(tccAccessReads.contains(entDef));
     Assert.assertTrue(tccAccessReads.contains(getItemAccess));
 
     var contentAccessReads = contentAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(4, contentAccessReads.size());
+    Assert.assertEquals(5, contentAccessReads.size());
     Assert.assertTrue(contentAccessReads.contains(entDef));
+    Assert.assertTrue(contentAccessReads.contains(constDef));
     Assert.assertTrue(contentAccessReads.contains(icRedef));
     Assert.assertTrue(contentAccessReads.contains(getItemAccess));
     Assert.assertTrue(contentAccessReads.contains(tccAccess));
 
     var cDefReads = cDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(5, cDefReads.size());
+    Assert.assertEquals(6, cDefReads.size());
     Assert.assertTrue(cDefReads.contains(entDef));
     Assert.assertTrue(cDefReads.contains(icRedef));
+    Assert.assertTrue(cDefReads.contains(constDef));
     Assert.assertTrue(cDefReads.contains(getItemAccess));
     Assert.assertTrue(cDefReads.contains(tccAccess));
     Assert.assertTrue(cDefReads.contains(contentAccess));
