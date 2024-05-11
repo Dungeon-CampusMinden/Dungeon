@@ -1,4 +1,6 @@
-package dsl.semanticanalysis.groum;
+package dsl.semanticanalysis.groum.node;
+
+import dsl.semanticanalysis.groum.GroumVisitor;
 
 import java.util.List;
 

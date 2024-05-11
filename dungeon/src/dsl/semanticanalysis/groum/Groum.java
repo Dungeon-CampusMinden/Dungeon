@@ -1,14 +1,27 @@
 package dsl.semanticanalysis.groum;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
+import dsl.semanticanalysis.groum.node.GroumEdge;
+import dsl.semanticanalysis.groum.node.GroumNode;
+import org.neo4j.ogm.annotation.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+@NodeEntity
 public class Groum {
   public static Groum NONE = new Groum();
 
+  @Id
+  @GeneratedValue
+  private Long id;
+
+
+  @Relationship
   List<GroumNode> nodes = new ArrayList<>();
+  @Relationship
   List<GroumEdge> edges = new ArrayList<>();
 
   public Groum() {}

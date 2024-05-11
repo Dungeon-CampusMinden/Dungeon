@@ -1,14 +1,21 @@
-package dsl.semanticanalysis.groum;
+package dsl.semanticanalysis.groum.node;
 
 import dsl.parser.ast.Node;
+import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+
 import java.util.ArrayList;
 import java.util.List;
 
 // TODO: how to model prototype definition?
 // TODO: How to model the passing of parameters to a function?
+@NodeEntity
 public abstract class ActionNode extends GroumNode {
 
   public static long uninitializedInstanceId = -1;
@@ -44,14 +51,18 @@ public abstract class ActionNode extends GroumNode {
   }
 
   // this may model access to a specific instance, so need a unique id for modelling this
+  @Property
   private long referencedInstanceId = uninitializedInstanceId;
 
   // if the groum describes a pattern, this is empty
+  @Relationship
   private Node astNodeReference;
 
   // this may be a type, this may be a function, this may be a property, who knows..
+  @Relationship
   private List<Symbol> symbolReferences;
 
+  @Property
   private final ActionType actionType;
 
   public ActionNode(ActionNode.ActionType actionType) {

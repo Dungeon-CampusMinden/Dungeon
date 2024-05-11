@@ -1,6 +1,12 @@
-package dsl.semanticanalysis.groum;
+package dsl.semanticanalysis.groum.node;
 
+import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
+import org.neo4j.ogm.annotation.GeneratedValue;
+import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +21,12 @@ import java.util.List;
 //  -> the 'description' of a usage-pattern, which may be
 //  instantiated during code completion or used for advanced
 //  error handling, is just a pattern
+@NodeEntity
 public abstract class GroumNode {
+
+  @Id
+  @GeneratedValue
+  private Long id;
 
   // explicit null object
   public static GroumNode NONE =
@@ -38,11 +49,15 @@ public abstract class GroumNode {
     this.children = new ArrayList<>();
   }
 
+  @Relationship
   private List<GroumEdge> incomingEdges;
+  @Relationship
   private List<GroumEdge> outgoingEdges;
 
   // only relevant, if contained in a larger Scope
+  @Relationship
   private GroumNode parent = GroumNode.NONE;
+  @Relationship
   private ArrayList<GroumNode> children;
 
   private long processedCounter = -1;

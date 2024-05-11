@@ -1,6 +1,7 @@
-package dsl.semanticanalysis.groum;
+package dsl.semanticanalysis.groum.node;
 
 import dsl.IndexGenerator;
+import dsl.semanticanalysis.groum.GroumVisitor;
 
 // TODO: add way to specify scope -> store child nodes?
 public class ControlNode extends GroumNode {

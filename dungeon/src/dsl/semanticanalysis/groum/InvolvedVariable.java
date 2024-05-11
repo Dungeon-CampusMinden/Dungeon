@@ -1,5 +1,7 @@
 package dsl.semanticanalysis.groum;
 
+import dsl.semanticanalysis.groum.node.GroumNode;
+
 public class InvolvedVariable {
   public enum TypeOfInvolvement {
     none,

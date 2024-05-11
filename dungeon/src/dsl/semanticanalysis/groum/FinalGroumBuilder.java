@@ -1,9 +1,11 @@
 package dsl.semanticanalysis.groum;
 
 import dsl.helper.ProfilingTimer;
+import dsl.parser.ast.Node;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.groum.node.*;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import java.util.*;
@@ -29,6 +31,13 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
   // TODO: need other data structure to handle this..
   private ArrayDeque<GroumNode> nodesToProcess = new ArrayDeque<>();
+
+  public Groum build(Node ast, SymbolTable symbolTable, IEnvironment env) {
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+    return finalize(temporalGroum, instanceMap);
+  }
 
   public Groum finalize(Groum groum, HashMap<Symbol, Long> instanceMap) {
     // TODO: do we really need the instance map here? we won't define new actions

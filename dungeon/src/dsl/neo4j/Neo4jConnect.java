@@ -194,7 +194,9 @@ public class Neo4jConnect {
         "dsl.runtime.callable",
         "dslinterop.dslnativefunction",
         "dsl.semanticanalysis.scope",
-        "dsl.semanticanalysis.environment");
+        "dsl.semanticanalysis.environment",
+        "dsl.semanticanalysis.groum.node",
+        "dsl.semanticanalysis.groum");
   }
 
   public static org.neo4j.driver.Driver openConnection() {

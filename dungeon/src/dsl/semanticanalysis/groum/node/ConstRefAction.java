@@ -1,6 +1,7 @@
-package dsl.semanticanalysis.groum;
+package dsl.semanticanalysis.groum.node;
 
 import dsl.IndexGenerator;
+import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 

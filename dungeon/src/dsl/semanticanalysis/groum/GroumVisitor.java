@@ -1,5 +1,7 @@
 package dsl.semanticanalysis.groum;
 
+import dsl.semanticanalysis.groum.node.*;
+
 public interface GroumVisitor<T> {
   default T visit(GroumNode node) {
     throw new UnsupportedOperationException();
