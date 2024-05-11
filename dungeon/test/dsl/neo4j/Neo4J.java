@@ -3,6 +3,9 @@ package dsl.neo4j;
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.*;
 import dsl.runtime.callable.ICallable;
+import dsl.semanticanalysis.groum.FinalGroumBuilder;
+import dsl.semanticanalysis.groum.Groum;
+import dsl.semanticanalysis.groum.GroumPrinter;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
@@ -19,6 +22,8 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import static dsl.semanticanalysis.TestGroum.write;
 
 public class Neo4J {
   @Test
@@ -384,6 +389,116 @@ public class Neo4J {
       sessionFactory.close();
     }
   }
+
+  @Test
+  public void testDBGroum() {
+    String program =
+      """
+        // my_point def idx: 48
+        point my_point {
+          x: 1.0,
+          y: 11.0
+        }
+
+        entity_type monster_type {
+          health_component {
+              max_health: 10,
+              start_health: 10,
+              on_death: drop_items // drop items ref idx: 3
+          },
+          position_component {
+            position: my_point // point ref idx: 4
+          },
+          draw_component {
+              path: "character/monster/chort"
+          },
+          velocity_component {
+              x_velocity: 4.0,
+              y_velocity: 4.0
+          }
+        }
+
+        // t1 def idx: 27
+        single_choice_task t1 {
+          description: "t1",
+          answers: [ "test", "other test"],
+          correct_answer_index: 0
+        }
+
+        // t2 def idx: 43
+        single_choice_task t2 {
+          description: "t2",
+          answers: [ "test", "other test"],
+          correct_answer_index: 0
+        }
+
+        // drop items def idx: 35
+        fn drop_items(entity me) {
+            me.inventory_component.drop_items();
+        }
+
+        graph g {
+          // t1 ref idx: 28
+          // t2 ref idx: 29
+          t1 -> t2 [type=seq];
+        }
+      """;
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    DSLInterpreter interpreter = new DSLInterpreter();
+    try {
+      RelationshipRecorder.instance.clear();
+      DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+    } catch (RuntimeException ex) {
+      // program contains error, won't be able to create quest config
+    }
+
+    var env = interpreter.getRuntimeEnvironment();
+    var fileScope = env.getFileScopes().get(null);
+    var parsedFile = fileScope.file();
+    var ast = parsedFile.rootASTNode();
+    var symTable = env.getSymbolTable();
+    FinalGroumBuilder builder = new FinalGroumBuilder();
+    Groum finalGroum = builder.build(ast, symTable, env);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalGroum, true);
+    write(finalizedGroumStr, "final_groum_db.dot");
+
+    var nodeRelationShips = RelationshipRecorder.instance.get();
+
+    // URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
+    try (var driver = Neo4jConnect.openConnection()) {
+      var sessionFactory = Neo4jConnect.getSessionFactory(driver);
+      var session = sessionFactory.openSession();
+
+      // clean up db
+      session.query("MATCH (n) DETACH DELETE n", Map.of());
+
+      // save ast in db
+      session.save(ast);
+      session.save(nodeRelationShips);
+      session.save(nodeRelationShips);
+
+      session.save(symTable.getSymbolCreations());
+      session.save(symTable.getSymbolReferences());
+      session.save(symTable.globalScope());
+      var filScopes = env.getFileScopes().entrySet();
+      for (var entry : filScopes) {
+        var scope = entry.getValue();
+        session.save(scope);
+      }
+
+      session.save(finalGroum);
+
+      sessionFactory.close();
+    }
+  }
+
 
   private static List<String> matchAST(Node expectedNode, Node givenNode) {
     List<String> mismatches = new ArrayList<>();
