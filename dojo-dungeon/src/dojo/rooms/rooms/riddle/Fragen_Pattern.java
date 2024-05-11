@@ -32,7 +32,8 @@ public class Fragen_Pattern extends Room {
   private final String FILE_NAME_PREFIX =
       "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
   private final String[] EXPECTED_PATTERNS = {".*?observer.*?", ".*?visitor.*?"};
-  private final int NUMBER_OF_CORRECT_ANSWERS_NEEDED = 1;
+  private final int MIN_NUMBER_OF_CORRECT_ANSWERS = 1;
+  private final int MAX_NUMBER_OF_WRONG_ANSWERS = 2;
   private Deque<Integer> patternIndices;
   private int currentPatternIndex = 0;
   private int correctAnswerCount = 0;
@@ -106,7 +107,7 @@ public class Fragen_Pattern extends Room {
       if (answer.matches(EXPECTED_PATTERNS[currentPatternIndex])) {
         OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
         correctAnswerCount++;
-        if (correctAnswerCount == NUMBER_OF_CORRECT_ANSWERS_NEEDED) {
+        if (correctAnswerCount == MIN_NUMBER_OF_CORRECT_ANSWERS) {
           OkDialog.showOkDialog(
               "Die Tür wird geöffnet, aber Sie können auch noch weiter Fragen beantworten!",
               "Antwort",
@@ -115,7 +116,7 @@ public class Fragen_Pattern extends Room {
         }
         setNextTask();
       } else {
-        decreaseHerosHealthAtWrongTry();
+        decreaseHerosHealthAtWrongTry(MAX_NUMBER_OF_WRONG_ANSWERS);
       }
     };
   }

@@ -141,12 +141,16 @@ public class Room {
     return levelRoom.level().startTile();
   }
 
-  /** Decreases the heros health at a wrong try (minus 25% (ceiling) of maximal health points). */
-  protected void decreaseHerosHealthAtWrongTry() {
+  /** Decreases the heros health at a wrong try ({@code - ceil(maxPoints / maxTries)}). */
+  protected void decreaseHerosHealthAtWrongTry(int maxTries) {
     OkDialog.showOkDialog(
-        "Das war falsch. Deine Gesundheit wird um 25% verringert.", "Gesundheit", () -> {});
+        "Das war falsch. Deine Gesundheit wird um "
+            + (int) Math.ceil(100.0 / maxTries)
+            + " % verringert.",
+        "Gesundheit",
+        () -> {});
     HealthComponent hc = Game.hero().orElseThrow().fetch(HealthComponent.class).orElseThrow();
-    int toReduce = (int) Math.ceil(hc.maximalHealthpoints() / 4.0);
+    int toReduce = (int) Math.ceil((double) hc.maximalHealthpoints() / maxTries);
     hc.currentHealthpoints(hc.currentHealthpoints() - toReduce);
   }
 }
