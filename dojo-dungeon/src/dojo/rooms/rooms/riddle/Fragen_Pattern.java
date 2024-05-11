@@ -31,12 +31,14 @@ public class Fragen_Pattern extends Room {
   private final String FILE_NAME_PREFIX =
       "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
   private final String[] EXPECTED_PATTERNS = {
-    ".*kein pattern.*",
+    ".*none.*",
     ".*?observer.*?",
     ".*?visitor.*?",
     ".*?(composite)|(kompositum).*?",
     ".*?adapter.*?",
-    ".*?singleton.*?"
+    ".*?singleton.*?",
+    ".*?observer.*?",
+    ".*?visitor.*?",
   };
   private int currentPatternIndex = 0;
   private int correctAnswerCount = 0;
@@ -128,7 +130,7 @@ public class Fragen_Pattern extends Room {
         "Welches Design-Pattern wird in dem UML-Klassendiagramm unter \""
             + FILE_NAME_PREFIX
             + currentPatternIndex
-            + ".png\" dargestellt? Es reicht das Wort ohne den Zusatz Pattern! Wenn Sie kein Pattern erkennen, geben Sie bitte \"kein Pattern\" ein.";
+            + ".png\" dargestellt? Es reicht das Wort ohne den Zusatz Pattern! Wenn Sie kein Pattern erkennen, geben Sie bitte \"none\" ein.";
     return new FreeText(questionText);
   }
 }

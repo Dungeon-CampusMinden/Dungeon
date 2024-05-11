@@ -6,7 +6,6 @@ interface Tier {
 interface Besucher {
   +besuche(löwe: Löwe)
   +besuche(tiger: Tiger)
-  +besuche(bär: Bär)
 }
 
 class Löwe {
@@ -17,33 +16,19 @@ class Tiger {
   +akzeptiere(besucher: Besucher)
 }
 
-class Bär {
-  +akzeptiere(besucher: Besucher)
-}
-
 class Tierarzt {
   +besuche(löwe: Löwe)
   +besuche(tiger: Tiger)
-  +besuche(bär: Bär)
 }
 
-class Pfleger {
+class TierPfleger {
   +besuche(löwe: Löwe)
   +besuche(tiger: Tiger)
-  +besuche(bär: Bär)
-}
-
-class Führer {
-  +besuche(löwe: Löwe)
-  +besuche(tiger: Tiger)
-  +besuche(bär: Bär)
 }
 
 Tier <|.. Löwe
 Tier <|.. Tiger
-Tier <|.. Bär
 
-Besucher <|.. Tierarzt
-Besucher <|.. Pfleger
-Besucher <|.. Führer
+Tierarzt ..|> Besucher
+TierPfleger ..|> Besucher
 @enduml

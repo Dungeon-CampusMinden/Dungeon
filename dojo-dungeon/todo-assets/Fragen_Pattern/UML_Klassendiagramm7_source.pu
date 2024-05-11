@@ -1,0 +1,39 @@
+@startuml UML_Klassendiagramm7.png
+' Abstrakte Element-Klasse
+abstract class DocumentPart {
+    accept(v : Visitor) : void
+}
+
+' Konkrete Element-Klassen
+class Text extends DocumentPart {
+    +accept(v : Visitor) : void
+}
+class Image extends DocumentPart {
+    +accept(v : Visitor) : void
+}
+class Table extends DocumentPart {
+    +accept(v : Visitor) : void
+}
+
+' Abstrakte Visitor-Klasse
+interface Visitor {
+    +visit(element : Text) : void
+    +visit(element : Image) : void
+    +visit(element : Table) : void
+}
+
+' Konkrete Visitor-Klassen
+class Renderer implements Visitor {
+    +visit(element : Text) : void
+    +visit(element : Image) : void
+    +visit(element : Table) : void
+}
+class Saver implements Visitor {
+    +visit(element : Text) : void
+    +visit(element : Image) : void
+    +visit(element : Table) : void
+}
+
+' Beziehungen
+DocumentPart "1" -- "n" Visitor : > Uses
+@enduml
