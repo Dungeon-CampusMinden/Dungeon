@@ -676,7 +676,6 @@ public class TestGroum {
     String str = p.print(groum);
   }
 
-
   @Test
   public void simpleDataDependencies() {
     String program =
@@ -1594,20 +1593,23 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var firstCountAccess = (PropertyAccessAction)findNodeByProcessIdx(finalizedGroum, 5);
-    var secondCountAccess = (PropertyAccessAction)findNodeByProcessIdx(finalizedGroum, 9);
-    Assert.assertNotEquals(firstCountAccess.propertyInstanceId, secondCountAccess.propertyInstanceId);
+    var firstCountAccess = (PropertyAccessAction) findNodeByProcessIdx(finalizedGroum, 5);
+    var secondCountAccess = (PropertyAccessAction) findNodeByProcessIdx(finalizedGroum, 9);
+    Assert.assertNotEquals(
+        firstCountAccess.propertyInstanceId, secondCountAccess.propertyInstanceId);
 
-    var firstCountWrite = (DefinitionAction)findNodeByProcessIdx(finalizedGroum, 16);
-    var secondCountWrite = (DefinitionAction)findNodeByProcessIdx(finalizedGroum, 21);
-    Assert.assertEquals(firstCountAccess.propertyInstanceId, firstCountWrite.referencedInstanceId());
-    Assert.assertEquals(secondCountAccess.propertyInstanceId, secondCountWrite.referencedInstanceId());
+    var firstCountWrite = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 16);
+    var secondCountWrite = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 21);
+    Assert.assertEquals(
+        firstCountAccess.propertyInstanceId, firstCountWrite.referencedInstanceId());
+    Assert.assertEquals(
+        secondCountAccess.propertyInstanceId, secondCountWrite.referencedInstanceId());
   }
 
   @Test
   public void propertyAccessChained() {
     String program =
-      """
+        """
       // param def idx: 1
       fn func(entity ent) {
         // t def idx: 6
@@ -1640,7 +1642,7 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var tDef = (DefinitionAction)findNodeByProcessIdx(finalizedGroum, 6);
+    var tDef = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 6);
     var paramDef = findNodeByProcessIdx(finalizedGroum, 1);
     var taskContentComponentAccess = findNodeByProcessIdx(finalizedGroum, 2);
     var contentAccess = findNodeByProcessIdx(finalizedGroum, 3);
@@ -1656,7 +1658,7 @@ public class TestGroum {
   @Test
   public void propertyAccessChainedTwice() {
     String program =
-      """
+        """
       // param def idx: 1
       fn func(entity ent) {
         // t def idx: 6
@@ -1690,7 +1692,7 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var tDef = (DefinitionAction)findNodeByProcessIdx(finalizedGroum, 6);
+    var tDef = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 6);
     var paramDef = findNodeByProcessIdx(finalizedGroum, 1);
     var taskContentComponentAccess = findNodeByProcessIdx(finalizedGroum, 2);
     var contentAccess = findNodeByProcessIdx(finalizedGroum, 3);
@@ -1706,7 +1708,7 @@ public class TestGroum {
   @Test
   public void propertyAccessWrite() {
     String program =
-      """
+        """
       // param c idx: 2
       fn func(entity ent1, content c, int y) {
 
@@ -1757,32 +1759,36 @@ public class TestGroum {
     var cont1Def = findNodeByProcessIdx(finalizedGroum, 15);
 
     // first content property access should reference ent and previous task_content_component access
-    var firstContentPropAccessReads = firstContentPropAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var firstContentPropAccessReads =
+        firstContentPropAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(2, firstContentPropAccessReads.size());
     Assert.assertTrue(firstContentPropAccessReads.contains(entDef));
     Assert.assertTrue(firstContentPropAccessReads.contains(taskContentComponentPropAccess));
 
     // content prop access should be redefined by content def
-    var firstContentPropRedefs = firstContentPropAccess.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var firstContentPropRedefs =
+        firstContentPropAccess.getEndsOfOutgoing(
+            GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertTrue(firstContentPropRedefs.contains(contentDef));
 
     // content def should reference param c
-    var readsForContentDef = contentDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var readsForContentDef =
+        contentDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(3, readsForContentDef.size());
     Assert.assertTrue(readsForContentDef.contains(paramCDef));
 
     // content def should be read twice (by second content property access and cont1 def)
-    var readsOfContentDef = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var readsOfContentDef =
+        contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(2, readsOfContentDef.size());
     Assert.assertTrue(readsOfContentDef.contains(secondContentPropAccess));
     Assert.assertTrue(readsOfContentDef.contains(cont1Def));
-
   }
 
   @Test
   public void propertyAccessWriteInvalidation() {
     String program =
-      """
+        """
       fn func(entity ent1, content c, int y, task_content_component tcc) {
         var ent = ent1;
 
@@ -1847,10 +1853,10 @@ public class TestGroum {
     Assert.assertEquals(0, contentDefReads.size());
 
     // contentDef should be redefined by tccRedef
-    var contentRedefs = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var contentRedefs =
+        contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertEquals(1, contentRedefs.size());
     Assert.assertTrue(contentRedefs.contains(tccRedef));
-
 
     // tccRedef should have three reads, first the access on rhs of cont1 def, the content property
     // access and the cont1 def itself
@@ -1860,7 +1866,8 @@ public class TestGroum {
     Assert.assertTrue(tccRedefReads.contains(contentRef));
     Assert.assertTrue(tccRedefReads.contains(cont1Def));
 
-    // the icRef and inventoryCountDef should still reference the countDefinition from above (idx 17)
+    // the icRef and inventoryCountDef should still reference the countDefinition from above (idx
+    // 17)
     var countDefReads = countDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(2, countDefReads.size());
     Assert.assertTrue(countDefReads.contains(icRef));
@@ -1870,7 +1877,7 @@ public class TestGroum {
   @Test
   public void propertyAccessWriteConditional() {
     String program =
-      """
+        """
       fn func(entity ent1, entity ent2, content c, int y) {
         var ent = ent1;
 
@@ -1928,19 +1935,21 @@ public class TestGroum {
     var cont2Def = findNodeByProcessIdx(finalizedGroum, 32);
 
     // contentDef should be read by contentRef and cont1Def
-    var contentDefReads =contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var contentDefReads = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(2, contentDefReads.size());
     Assert.assertTrue(contentDefReads.contains(contentRef));
     Assert.assertTrue(contentDefReads.contains(cont1Def));
 
     // ifDef and elseDef should redefine contentDef
-    var contentDefRedefs = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var contentDefRedefs =
+        contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertEquals(2, contentDefRedefs.size());
     Assert.assertTrue(contentDefRedefs.contains(ifDef));
     Assert.assertTrue(contentDefRedefs.contains(elseDef));
 
     // final content ref should not reference contentDef
-    var finalContentRefs = finalContentRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var finalContentRefs =
+        finalContentRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(3, finalContentRefs.size());
     Assert.assertFalse(finalContentRefs.contains(contentDef));
     Assert.assertTrue(finalContentRefs.contains(ifDef));
@@ -1956,7 +1965,7 @@ public class TestGroum {
   @Test
   public void multiTerm() {
     String program =
-      """
+        """
       fn func(int x, int y, int z) {
         var term = x + y * z;
       }
@@ -1987,7 +1996,7 @@ public class TestGroum {
   @Test
   public void methodAccessSimple() {
     String program =
-      """
+        """
       // ic def idx: 2
       // idx def idx: 3
       fn func(entity ent, inventory_component ic, int idx) {
@@ -2032,7 +2041,8 @@ public class TestGroum {
     Assert.assertEquals(1, icRedefs.size());
 
     // test method access reads
-    var methodAccessReads = methodAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var methodAccessReads =
+        methodAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(2, methodAccessReads.size());
     Assert.assertTrue(methodAccessReads.contains(icRedef));
     Assert.assertTrue(methodAccessReads.contains(idxParamDef));
@@ -2043,13 +2053,12 @@ public class TestGroum {
     Assert.assertTrue(i1defReads.contains(icRedef));
     Assert.assertTrue(i1defReads.contains(methodAccess));
     Assert.assertTrue(i1defReads.contains(idxParamDef));
-
   }
 
   @Test
   public void methodAccessInvalidation() {
     String program =
-      """
+        """
       // ent def idx: 1
       // ic def idx: 2
       // idx def idx: 3
@@ -2113,13 +2122,15 @@ public class TestGroum {
     Assert.assertTrue(myOtherIcDef instanceof DefinitionAction);
 
     // the setName call should invalidate the firstEntRedef and ent param def
-    var setNameRedefs = setNameRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var setNameRedefs =
+        setNameRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertTrue(setNameRedefs.contains(firstEntRedef));
     Assert.assertTrue(setNameRedefs.contains(entParamDef));
     Assert.assertEquals(2, setNameRedefs.size());
 
     // firstEntRedef should not be read
-    var firstEntRedefReads = firstEntRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var firstEntRedefReads =
+        firstEntRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(0, firstEntRedefReads.size());
 
     // icRedef should reference setNameRedef
@@ -2127,22 +2138,24 @@ public class TestGroum {
     Assert.assertTrue(icRedefRead.contains(setNameRedef));
 
     // getItemIcRedef should redefine icRedef
-    var getItemIcRedefRedefs = getItemIcRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var getItemIcRedefRedefs =
+        getItemIcRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertTrue(getItemIcRedefRedefs.contains(icRedef));
 
-    //i2Def should read from getItemIcRedef
+    // i2Def should read from getItemIcRedef
     var i2DefReads = i2Def.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(i2DefReads.contains(getItemIcRedef));
 
     // myOtherIcDef should read from getItemIcRedef
-    var myOtherIcDefReads = myOtherIcDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var myOtherIcDefReads =
+        myOtherIcDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(myOtherIcDefReads.contains(getItemIcRedef));
   }
 
   @Test
   public void mixedMemberAccess() {
     String program =
-      """
+        """
       // ent def idx: 1
       fn func(entity ent) {
         // inventory_component access idx: 2
@@ -2182,16 +2195,18 @@ public class TestGroum {
     var inventoryCompAccess = findNodeByProcessIdx(finalizedGroum, 2);
     var constDef = findNodeByProcessIdx(finalizedGroum, 3);
     var getItemAccess = findNodeByProcessIdx(finalizedGroum, 5);
-    var tccAccess =findNodeByProcessIdx(finalizedGroum, 7);
-    var contentAccess =findNodeByProcessIdx(finalizedGroum, 8);
+    var tccAccess = findNodeByProcessIdx(finalizedGroum, 7);
+    var contentAccess = findNodeByProcessIdx(finalizedGroum, 8);
     var icRedef = findNodeByProcessIdx(finalizedGroum, 6);
     var cDef = findNodeByProcessIdx(finalizedGroum, 10);
 
-    var inventoryCompAccessReads = inventoryCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var inventoryCompAccessReads =
+        inventoryCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(1, inventoryCompAccessReads.size());
     Assert.assertTrue(inventoryCompAccessReads.contains(entDef));
 
-    var itemAccessReads = getItemAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var itemAccessReads =
+        getItemAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(2, itemAccessReads.size());
     Assert.assertTrue(itemAccessReads.contains(entDef));
     Assert.assertTrue(itemAccessReads.contains(inventoryCompAccess));
@@ -2206,7 +2221,8 @@ public class TestGroum {
     Assert.assertTrue(tccAccessReads.contains(entDef));
     Assert.assertTrue(tccAccessReads.contains(getItemAccess));
 
-    var contentAccessReads = contentAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var contentAccessReads =
+        contentAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(5, contentAccessReads.size());
     Assert.assertTrue(contentAccessReads.contains(entDef));
     Assert.assertTrue(contentAccessReads.contains(constDef));
@@ -2222,13 +2238,12 @@ public class TestGroum {
     Assert.assertTrue(cDefReads.contains(getItemAccess));
     Assert.assertTrue(cDefReads.contains(tccAccess));
     Assert.assertTrue(cDefReads.contains(contentAccess));
-
   }
 
   @Test
   public void mixedMemberAccessChainedMethods() {
     String program =
-      """
+        """
       // ent def idx: 1
       // other_end def idx: 2
       // idx def idx: 3
@@ -2276,18 +2291,22 @@ public class TestGroum {
     var cDef = findNodeByProcessIdx(finalizedGroum, 14);
 
     // get item access should read ent, idx, and inventory_component
-    var getItemAccessReads = getItemAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var getItemAccessReads =
+        getItemAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(3, getItemAccessReads.size());
     Assert.assertTrue(getItemAccessReads.contains(entParamDef));
     Assert.assertTrue(getItemAccessReads.contains(inventoryComponentAccess));
     Assert.assertTrue(getItemAccessReads.contains(idxParamDef));
 
     // inventory component redef should redefine inventoryComponentAccess
-    var inventoryComponentRedefs = inventoryComponentRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    var inventoryComponentRedefs =
+        inventoryComponentRedef.getStartsOfIncoming(
+            GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertTrue(inventoryComponentRedefs.contains(inventoryComponentAccess));
 
     // use method access should read ent, inventoryComponentRedef, idx, other_ent, getItemAccess
-    var useMethodReads = useMethodAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var useMethodReads =
+        useMethodAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(5, useMethodReads.size());
     Assert.assertTrue(useMethodReads.contains(entParamDef));
     Assert.assertTrue(useMethodReads.contains(otherEntParamDef));
@@ -2295,11 +2314,14 @@ public class TestGroum {
     Assert.assertTrue(useMethodReads.contains(idxParamDef));
     Assert.assertTrue(useMethodReads.contains(getItemAccess));
 
-    // quest item redefs should not actually redefine anything, because it is chained after a method..
-    var questItemRedefs = questItemRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+    // quest item redefs should not actually redefine anything, because it is chained after a
+    // method..
+    var questItemRedefs =
+        questItemRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRedefinition);
     Assert.assertEquals(0, questItemRedefs.size());
 
-    // cdef should reference ent, use method access, getItemAccess, questItemRedef, inventoryComponentRedef, idx, other_ent
+    // cdef should reference ent, use method access, getItemAccess, questItemRedef,
+    // inventoryComponentRedef, idx, other_ent
     var cDefReads = cDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertEquals(7, cDefReads.size());
     Assert.assertTrue(cDefReads.contains(entParamDef));
@@ -2311,7 +2333,6 @@ public class TestGroum {
     Assert.assertTrue(cDefReads.contains(otherEntParamDef));
     Assert.assertFalse(cDefReads.contains(inventoryComponentAccess));
   }
-
 
   @Test
   public void propertyAccess() {
@@ -2349,9 +2370,9 @@ public class TestGroum {
   }
 
   @Test
-  public void graphDataDependency() {
+  public void interObjectDependencies() {
     String program =
-      """
+        """
     // my_point def idx: 48
     point my_point {
       x: 1.0,
@@ -2428,6 +2449,8 @@ public class TestGroum {
     // tests
     var pointDef = findNodeByProcessIdx(finalizedGroum, 48);
     var pointRef = findNodeByProcessIdx(finalizedGroum, 4);
+    var entityTypeDef = findNodeByProcessIdx(finalizedGroum, 19);
+    var graphDef = findNodeByProcessIdx(finalizedGroum, 30);
     var dropItemsDef = findNodeByProcessIdx(finalizedGroum, 35);
     var dropItemsRef = findNodeByProcessIdx(finalizedGroum, 3);
     var t1Def = findNodeByProcessIdx(finalizedGroum, 27);
@@ -2438,7 +2461,8 @@ public class TestGroum {
     var pointRefReads = pointRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(pointRefReads.contains(pointDef));
 
-    var dropItemsRefReads = dropItemsRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var dropItemsRefReads =
+        dropItemsRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(dropItemsRefReads.contains(dropItemsDef));
 
     var t1RefReads = t1Ref.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
@@ -2446,12 +2470,20 @@ public class TestGroum {
 
     var t2RefReads = t2Ref.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(t2RefReads.contains(t2Def));
+
+    var graphDefReads = graphDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(graphDefReads.contains(t1Def));
+    Assert.assertTrue(graphDefReads.contains(t2Def));
+
+    var entityTypeDefReads = entityTypeDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(entityTypeDefReads.contains(dropItemsDef));
+    Assert.assertTrue(entityTypeDefReads.contains(pointDef));
   }
 
   @Test
   public void cyclicalDefinition() {
     String program =
-      """
+        """
     // t1 def idx: 5
     entity_type type1 {
       position_component {
@@ -2506,19 +2538,120 @@ public class TestGroum {
     var t1Def = findNodeByProcessIdx(finalizedGroum, 5);
     var t2Def = findNodeByProcessIdx(finalizedGroum, 10);
 
-    var t1PosCompAccessReads = t1PosCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var t1PosCompAccessReads =
+        t1PosCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(t1PosCompAccessReads.contains(t2Def));
-    var t1PosAccessReads = t1PosAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var t1PosAccessReads =
+        t1PosAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(t1PosAccessReads.contains(t2Def));
     var t1PosDefReads = t1PosDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(t1PosDefReads.contains(t2Def));
 
-    var t2PosCompAccessReads = t2PosCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var t2PosCompAccessReads =
+        t2PosCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(t2PosCompAccessReads.contains(t1Def));
-    var t2PosAccessReads = t2PosAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var t2PosAccessReads =
+        t2PosAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(t2PosAccessReads.contains(t1Def));
     var t2PosDefReads = t2PosDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(t2PosDefReads.contains(t1Def));
+
+    var t1DefReads = t1Def.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(t1DefReads.contains(t2Def));
+
+    var t2DefReads = t2Def.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    Assert.assertTrue(t2DefReads.contains(t1Def));
+  }
+
+  @Test
+  public void ref() {
+    String program =
+        """
+        point p {
+          x: 42.0,
+          y: 123.0
+        }
+
+        entity_type type1 {
+          position_component {
+            position: point {
+              x: p.x,
+              y: p.y
+            }
+          }
+        }
+        """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
+  public void cyclicalDefinitionCursed() {
+    String program =
+        """
+        // t1 def idx: 5
+        entity_type type1 {
+          position_component {
+            position: point {
+              x: type2.position_component.position.x,
+              y: type2.position_component.position.y
+            }
+          }
+        }
+
+        // t2 def idx: 10
+        entity_type type2 {
+          position_component {
+            // position_component access idx: 6
+            // position access idx: 7
+            // position def idx: 8
+            position: type1.position_component.position
+          }
+        }
+        """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
   }
 
   public static void write(String content, String path) {
