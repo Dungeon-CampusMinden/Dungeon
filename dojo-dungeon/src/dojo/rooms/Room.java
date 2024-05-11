@@ -141,7 +141,12 @@ public class Room {
     return levelRoom.level().startTile();
   }
 
-  /** Decreases the heros health at a wrong try ({@code - ceil(maxPoints / maxTries)}). */
+  /**
+   * Decreases the heros health at a wrong try ({@code - ceil(maxPoints / maxTries)}).
+   *
+   * @param maxTries maximal number of wrong tries (the player then dies because he does not have
+   *     sufficient health points, and game over)
+   */
   protected void decreaseHerosHealthAtWrongTry(int maxTries) {
     OkDialog.showOkDialog(
         "Das war falsch. Deine Gesundheit wird um "
