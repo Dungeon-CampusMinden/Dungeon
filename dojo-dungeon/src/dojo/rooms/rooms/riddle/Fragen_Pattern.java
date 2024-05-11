@@ -31,7 +31,7 @@ public class Fragen_Pattern extends Room {
   private final String FILE_NAME_PREFIX =
       "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
   private final String[] EXPECTED_PATTERNS = {
-    ".*none.*",
+    ".*?none.*?",
     ".*?observer.*?",
     ".*?visitor.*?",
     ".*?(composite)|(kompositum).*?",
