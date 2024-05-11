@@ -34,7 +34,14 @@ public class Fragen_Pattern extends Room {
   private final String[] EXPECTED_PATTERNS = {".*?observer.*?", ".*?visitor.*?"};
   private final int MIN_NUMBER_OF_CORRECT_ANSWERS = 1;
   private final int MAX_NUMBER_OF_WRONG_ANSWERS = 2;
-  private Deque<Integer> patternIndices;
+  private List<Integer> patternIndices =
+      new ArrayList<>(IntStream.range(0, EXPECTED_PATTERNS.length).boxed().toList());
+
+  {
+    Collections.shuffle(patternIndices);
+  }
+
+  private int currentPatternIndicesIndex = 0;
   private int currentPatternIndex = 0;
   private int correctAnswerCount = 0;
   private Entity zauberer;
@@ -132,12 +139,9 @@ public class Fragen_Pattern extends Room {
   }
 
   private void nextPattern() {
-    if (patternIndices == null || patternIndices.isEmpty()) {
-      List<Integer> tempList =
-          new ArrayList<>(IntStream.range(0, EXPECTED_PATTERNS.length).boxed().toList());
-      Collections.shuffle(tempList);
-      patternIndices = new ArrayDeque<>(tempList);
+    currentPatternIndex = patternIndices.get(currentPatternIndicesIndex);
+    if (currentPatternIndicesIndex < EXPECTED_PATTERNS.length - 1) {
+      currentPatternIndicesIndex++;
     }
-    currentPatternIndex = patternIndices.remove();
   }
 }
