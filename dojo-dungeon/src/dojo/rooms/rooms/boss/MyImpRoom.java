@@ -30,8 +30,9 @@ import javax.tools.*;
  * werden muss. Der Dämon erteilt die Aufgabe, Methoden zu schreiben, die dieses Verhalten
  * implementieren. Danach muss der Dämon angegriffen werden.
  */
-public class Implement_MyImp extends Room {
-
+public class MyImpRoom extends Room {
+  private static final String PATH_FOR_UI =
+      "dojo-dungeon/src/dojo/utils/studentTasks/modifyEntities/ModifyEntities.java";
   private static final String IMP_FQC = "dojo.utils.studentTasks.modifyEntities.ModifyEntities";
   private static final String IMP_PATH =
       "src/dojo/utils/studentTasks/modifyEntities/ModifyEntities";
@@ -62,7 +63,7 @@ public class Implement_MyImp extends Room {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public Implement_MyImp(
+  public MyImpRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
@@ -153,7 +154,9 @@ public class Implement_MyImp extends Room {
                 OkDialog.showOkDialog(
                     "Du findest eine Implementierung in \""
                         + ModifyEntities.class.getName()
-                        + "\".",
+                        + "\" (\""
+                        + PATH_FOR_UI
+                        + "\").",
                     "Aufgabe in diesem Raum:",
                     () ->
                         OkDialog.showOkDialog(

@@ -470,6 +470,6 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(designLabel)
-        .buildRoom_Implement_MyImp();
+        .buildRoom_MyImpRoom();
   }
 }
