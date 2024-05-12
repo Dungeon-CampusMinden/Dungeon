@@ -31,11 +31,10 @@ import javax.tools.*;
  * implementieren. Danach muss der Dämon angegriffen werden.
  */
 public class MyImpRoom extends Room {
+  private static final String IMP_FQC = ModifyEntities.class.getName();
+  private static final String IMP_PATH = "src/" + IMP_FQC.replace('.', '/');
   private static final String PATH_FOR_UI =
-      "dojo-dungeon/src/dojo/utils/studentTasks/modifyEntities/ModifyEntities.java";
-  private static final String IMP_FQC = "dojo.utils.studentTasks.modifyEntities.ModifyEntities";
-  private static final String IMP_PATH =
-      "src/dojo/utils/studentTasks/modifyEntities/ModifyEntities";
+      ModifyEntities.class.getSimpleName() + ".java (dojo-dungeon/" + IMP_PATH + ".java)";
 
   /** A class loader that replaces the ModifyEntities class with a new implementation. */
   public static class ReplacingClassLoader extends ClassLoader {
@@ -152,11 +151,7 @@ public class MyImpRoom extends Room {
             true,
             (entity1, entity2) ->
                 OkDialog.showOkDialog(
-                    "Du findest eine Implementierung in \""
-                        + ModifyEntities.class.getName()
-                        + "\" (\""
-                        + PATH_FOR_UI
-                        + "\").",
+                    "Du findest eine Klasse zum Anpassen in " + PATH_FOR_UI + ".",
                     "Aufgabe in diesem Raum:",
                     () ->
                         OkDialog.showOkDialog(
