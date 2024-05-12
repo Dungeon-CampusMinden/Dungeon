@@ -106,24 +106,56 @@ public class Fragen_Pattern extends Room {
   }
 
   private BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
+    String title = "Antworten";
+    String[] texts = {
+      "Ihre Antwort ist korrekt!",
+      "Die Tür wird geöffnet, aber Sie können auch noch weiter Fragen beantworten!",
+      "Bitte weitergehen, alle Fragen wurden bereits gestellt!"
+    };
+
     return (task, taskContents) -> {
       String rawAnswer =
           taskContents.stream().map(t -> (Quiz.Content) t).findFirst().orElseThrow().content();
       String answer = rawAnswer.toLowerCase();
 
       if (answer.matches(EXPECTED_PATTERNS[currentPatternIndex])) {
-        OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
+        // Correct answer
         correctAnswerCount++;
+
         if (correctAnswerCount == MIN_NUMBER_OF_CORRECT_ANSWERS) {
-          OkDialog.showOkDialog(
-              "Die Tür wird geöffnet, aber Sie können auch noch weiter Fragen beantworten!",
-              "Antwort",
-              () -> {});
           openDoors();
+          if (hasNextPattern()) {
+            setNextTask();
+            OkDialog.showOkDialog(
+                texts[0], title, () -> OkDialog.showOkDialog(texts[1], title, () -> {}));
+          } else {
+            OkDialog.showOkDialog(
+                texts[0],
+                title,
+                () ->
+                    OkDialog.showOkDialog(
+                        texts[1], title, () -> OkDialog.showOkDialog(texts[2], title, () -> {})));
+          }
+        } else {
+          if (hasNextPattern()) {
+            setNextTask();
+            OkDialog.showOkDialog(texts[0], title, () -> {});
+          } else {
+            // Should not happen: no more questions but door isn't opened yet
+            OkDialog.showOkDialog(
+                texts[0], title, () -> OkDialog.showOkDialog(texts[2], title, () -> {}));
+          }
         }
-        setNextTask();
       } else {
-        decreaseHerosHealthAtWrongTry(MAX_NUMBER_OF_WRONG_ANSWERS);
+        // Wrong answer
+        if (hasNextPattern()) {
+          setNextTask();
+          decreaseHerosHealthAtWrongTry(MAX_NUMBER_OF_WRONG_ANSWERS, () -> {});
+        } else {
+          // Should not happen: no more questions but door isn't opened yet
+          decreaseHerosHealthAtWrongTry(
+              MAX_NUMBER_OF_WRONG_ANSWERS, () -> OkDialog.showOkDialog(texts[2], title, () -> {}));
+        }
       }
     };
   }
@@ -138,9 +170,13 @@ public class Fragen_Pattern extends Room {
     return new FreeText(questionText);
   }
 
+  private boolean hasNextPattern() {
+    return currentPatternIndicesIndex < EXPECTED_PATTERNS.length;
+  }
+
   private void nextPattern() {
-    currentPatternIndex = patternIndices.get(currentPatternIndicesIndex);
-    if (currentPatternIndicesIndex < EXPECTED_PATTERNS.length - 1) {
+    if (hasNextPattern()) {
+      currentPatternIndex = patternIndices.get(currentPatternIndicesIndex);
       currentPatternIndicesIndex++;
     }
   }

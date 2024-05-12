@@ -15,6 +15,7 @@ import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.IVoidFunction;
 import java.util.*;
 
 /**
@@ -144,16 +145,20 @@ public class Room {
   /**
    * Decreases the heros health at a wrong try ({@code - ceil(maxPoints / maxTries)}).
    *
+   * <p>Informs the player with an OK dialog first.
+   *
    * @param maxTries maximal number of wrong tries (the player then dies because he does not have
    *     sufficient health points, and game over)
+   * @param onDialogDone the on dialog done callback (or the next dialog) (can be empty but not
+   *     null)
    */
-  protected void decreaseHerosHealthAtWrongTry(int maxTries) {
+  protected void decreaseHerosHealthAtWrongTry(int maxTries, IVoidFunction onDialogDone) {
     OkDialog.showOkDialog(
         "Das war falsch. Deine Gesundheit wird um "
             + (int) Math.ceil(100.0 / maxTries)
             + " % verringert.",
         "Gesundheit",
-        () -> {});
+        onDialogDone);
     HealthComponent hc = Game.hero().orElseThrow().fetch(HealthComponent.class).orElseThrow();
     int toReduce = (int) Math.ceil((double) hc.maximalHealthpoints() / maxTries);
     hc.currentHealthpoints(hc.currentHealthpoints() - toReduce);
