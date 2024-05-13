@@ -9,7 +9,7 @@ import dojo.rooms.Room;
 import dojo.rooms.rooms.boss.Fehler_Refactoring;
 import dojo.rooms.rooms.boss.Fragen_Lambda;
 import dojo.rooms.rooms.boss.Fragen_RegExes;
-import dojo.rooms.rooms.boss.Implement_MyImp;
+import dojo.rooms.rooms.boss.MyImpRoom;
 import dojo.rooms.rooms.riddle.Fehler_Quader;
 import dojo.rooms.rooms.riddle.Fehler_Syntax;
 import dojo.rooms.rooms.riddle.Fragen_Pattern;
@@ -227,7 +227,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Implement_MyImp() {
-    return new Implement_MyImp(levelRoom, gen, nextRoom, levelSize, designLabel);
+  public Room buildRoom_MyImpRoom() {
+    return new MyImpRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 }
