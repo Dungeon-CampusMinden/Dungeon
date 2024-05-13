@@ -4,13 +4,17 @@ import dsl.IndexGenerator;
 import dsl.error.ErrorRecord;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.neo4j.ogm.annotation.*;
+
+import javax.xml.transform.Source;
 
 @NodeEntity
 public class Node {
   // used for running index to give every Node a unique identifier
-  // TODO: this really just for testing!!
+  // TODO: this really just for testing!! -> remove it!
   private static long g_fileVersion;
 
   public static void setFileVersion(long version) {
@@ -103,7 +107,7 @@ public class Node {
   @Relationship(type = "CHILD_OF", direction = Relationship.Direction.OUTGOING)
   private Node parent;
 
-  @Property @Transient private SourceFileReference sourceFileReference = SourceFileReference.NULL;
+  @Relationship private SourceFileReference sourceFileReference = SourceFileReference.NULL;
 
   @Id private final long idx;
 
@@ -138,6 +142,7 @@ public class Node {
 
     for (int i = 0; i < nodeChildren.size(); i++) {
       var child = nodeChildren.get(i);
+      // TODO: do we need this? CHILD_OF relationship can be queried backwards...
       RelationshipRecorder.instance.add(this, child, i);
     }
   }
@@ -193,15 +198,6 @@ public class Node {
   }
 
   public void addChild(Node node) {
-    if (node instanceof ASTErrorNode errorNode) {
-      if (node.hasErrorRecord && node.errorRecord == null) {
-        boolean b = true;
-      }
-      if (((ASTErrorNode) node).internalErrorNode() == null) {
-        boolean b = true;
-      }
-    }
-
     int idx = this.children.size();
     RelationshipRecorder.instance.add(this, node, idx);
     this.children.add(node);
@@ -296,5 +292,17 @@ public class Node {
    */
   public <T> T accept(AstVisitor<T> visitor) {
     return visitor.visit(this);
+  }
+
+  public void setSourceFileReference(ParserRuleContext ctx) {
+    int startLine = ctx.start.getLine();
+    int startColumn = ctx.start.getCharPositionInLine();
+    int endLine = ctx.stop.getLine();
+    int endColumn = ctx.stop.getCharPositionInLine();
+    this.sourceFileReference = new SourceFileReference(startLine, startColumn, endLine, endColumn);
+  }
+
+  public void setSourceFileReference(SourceFileReference sfr) {
+    this.sourceFileReference = sfr;
   }
 }

@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
+import org.slf4j.LoggerFactory;
 
 // importing all required classes from symbolTable will be to verbose
 // CHECKSTYLE:OFF: AvoidStarImport
@@ -31,6 +32,7 @@ import org.antlr.v4.runtime.tree.*;
 @SuppressWarnings({"methodcount", "classdataabstractioncoupling"})
 public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
+  private static final org.slf4j.Logger log = LoggerFactory.getLogger(DungeonASTConverter.class);
   private static Logger LOGGER = Logger.getLogger(DungeonASTConverter.class.getName());
   private List<String> ruleNames;
   private boolean errorMode = false;
@@ -144,6 +146,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     // add lexer errors as nodes?
 
     var programNode = new Node(Node.Type.Program, new ArrayList<>(nodes));
+    programNode.setSourceFileReference(ctx);
     astStack.push(programNode);
   }
 
@@ -165,6 +168,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node pathNode = this.astStack.pop();
 
     Node importNode = new ImportNode(pathNode, idNode);
+    importNode.setSourceFileReference(ctx);
     this.astStack.push(importNode);
   }
 
@@ -183,6 +187,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node pathNode = this.astStack.pop();
 
     Node importNode = new ImportNode(pathNode, idNode, asIdNode);
+    importNode.setSourceFileReference(ctx);
     this.astStack.push(importNode);
   }
 
@@ -211,6 +216,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node functionName = astStack.pop();
 
     var funcDefNode = new FuncDefNode(functionName, paramDefList, retType, stmtBlock);
+    funcDefNode.setSourceFileReference(ctx);
     astStack.push(funcDefNode);
   }
 
@@ -238,6 +244,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
     ForLoopStmtNode loopStmtNode =
         new ForLoopStmtNode(varTypeIdNode, varIdNode, iterableNode, stmtNode);
+    loopStmtNode.setSourceFileReference(ctx);
     astStack.push(loopStmtNode);
   }
 
@@ -260,6 +267,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
     CountingLoopStmtNode loopStmtNode =
         new CountingLoopStmtNode(varTypeIdNode, varIdNode, iterableNode, counterIdNode, stmtNode);
+    loopStmtNode.setSourceFileReference(ctx);
     astStack.push(loopStmtNode);
   }
 
@@ -272,6 +280,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node expressionNode = astStack.pop();
 
     WhileLoopStmtNode loopStmtNode = new WhileLoopStmtNode(expressionNode, stmtNode);
+    loopStmtNode.setSourceFileReference(ctx);
     astStack.push(loopStmtNode);
   }
 
@@ -286,6 +295,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
     Node varDeclNode =
         new VarDeclNode(VarDeclNode.DeclType.assignmentDecl, (IdNode) identifier, expression);
+    varDeclNode.setSourceFileReference(ctx);
     astStack.push(varDeclNode);
   }
 
@@ -300,6 +310,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
     Node varDeclNode =
         new VarDeclNode(VarDeclNode.DeclType.typeDecl, (IdNode) identifier, typeDecl);
+    varDeclNode.setSourceFileReference(ctx);
     astStack.push(varDeclNode);
   }
 
@@ -313,6 +324,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node assignee = astStack.pop();
 
     Node newExpression = new AssignmentNode(assignee, expression);
+    newExpression.setSourceFileReference(ctx);
     astStack.push(newExpression);
   }
 
@@ -331,6 +343,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       Node expressionRhs = astStack.pop();
       Node funcCall = astStack.pop();
       var memberAccessNode = new MemberAccessNode(funcCall, expressionRhs);
+      memberAccessNode.setSourceFileReference(ctx);
       astStack.push(memberAccessNode);
     }
   }
@@ -344,6 +357,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       Node expressionRhs = astStack.pop();
       Node identifier = astStack.pop();
       var memberAccessNode = new MemberAccessNode(identifier, expressionRhs);
+      memberAccessNode.setSourceFileReference(ctx);
       astStack.push(memberAccessNode);
     }
   }
@@ -356,6 +370,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node rhs = astStack.pop();
     Node funcCall = astStack.pop();
     Node assignee = new MemberAccessNode(funcCall, rhs);
+    assignee.setSourceFileReference(ctx);
     astStack.push(assignee);
   }
 
@@ -367,6 +382,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node rhs = astStack.pop();
     Node identifier = astStack.pop();
     Node assignee = new MemberAccessNode(identifier, rhs);
+    assignee.setSourceFileReference(ctx);
     astStack.push(assignee);
   }
 
@@ -389,6 +405,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     if (ctx.or != null) {
       lhs = astStack.pop();
       logicOrNode = new LogicOrNode(lhs, rhs);
+      logicOrNode.setSourceFileReference(ctx);
     }
     astStack.push(logicOrNode);
   }
@@ -404,6 +421,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     if (ctx.and != null) {
       lhs = astStack.pop();
       logicAndNode = new LogicAndNode(lhs, rhs);
+      logicAndNode.setSourceFileReference(ctx);
     }
     astStack.push(logicAndNode);
   }
@@ -419,9 +437,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     if (ctx.eq != null) {
       lhs = astStack.pop();
       equalityNode = new EqualityNode(EqualityNode.EqualityType.equals, lhs, rhs);
+      equalityNode.setSourceFileReference(ctx);
     } else if (ctx.neq != null) {
       lhs = astStack.pop();
       equalityNode = new EqualityNode(EqualityNode.EqualityType.notEquals, lhs, rhs);
+      equalityNode.setSourceFileReference(ctx);
     }
     astStack.push(equalityNode);
   }
@@ -437,15 +457,19 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     if (ctx.gt != null) {
       lhs = astStack.pop();
       comparisonNode = new ComparisonNode(ComparisonNode.ComparisonType.greaterThan, lhs, rhs);
+      comparisonNode.setSourceFileReference(ctx);
     } else if (ctx.geq != null) {
       lhs = astStack.pop();
       comparisonNode = new ComparisonNode(ComparisonNode.ComparisonType.greaterEquals, lhs, rhs);
+      comparisonNode.setSourceFileReference(ctx);
     } else if (ctx.lt != null) {
       lhs = astStack.pop();
       comparisonNode = new ComparisonNode(ComparisonNode.ComparisonType.lessThan, lhs, rhs);
+      comparisonNode.setSourceFileReference(ctx);
     } else if (ctx.leq != null) {
       lhs = astStack.pop();
       comparisonNode = new ComparisonNode(ComparisonNode.ComparisonType.lessEquals, lhs, rhs);
+      comparisonNode.setSourceFileReference(ctx);
     }
     astStack.push(comparisonNode);
   }
@@ -461,9 +485,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     if (ctx.minus != null) {
       lhs = astStack.pop();
       termNode = new TermNode(TermNode.TermType.minus, lhs, rhs);
+      termNode.setSourceFileReference(ctx);
     } else if (ctx.plus != null) {
       lhs = astStack.pop();
       termNode = new TermNode(TermNode.TermType.plus, lhs, rhs);
+      termNode.setSourceFileReference(ctx);
     }
     astStack.push(termNode);
   }
@@ -479,9 +505,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     if (ctx.div != null) {
       lhs = astStack.pop();
       factorNode = new FactorNode(FactorNode.FactorType.divide, lhs, rhs);
+      factorNode.setSourceFileReference(ctx);
     } else if (ctx.mult != null) {
       lhs = astStack.pop();
       factorNode = new FactorNode(FactorNode.FactorType.multiply, lhs, rhs);
+      factorNode.setSourceFileReference(ctx);
     }
     astStack.push(factorNode);
   }
@@ -495,8 +523,10 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node unaryNode = innerNode;
     if (ctx.bang != null) {
       unaryNode = new UnaryNode(UnaryNode.UnaryType.not, innerNode);
+      unaryNode.setSourceFileReference(ctx);
     } else if (ctx.minus != null) {
       unaryNode = new UnaryNode(UnaryNode.UnaryType.minus, innerNode);
+      unaryNode.setSourceFileReference(ctx);
     }
     astStack.push(unaryNode);
   }
@@ -516,6 +546,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     }
 
     var blockNode = new StmtBlockNode(list);
+    blockNode.setSourceFileReference(ctx);
     astStack.push(blockNode);
   }
 
@@ -532,6 +563,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     }
 
     var returnStmt = new ReturnStmtNode(innerStmt);
+    returnStmt.setSourceFileReference(ctx);
     astStack.push(returnStmt);
   }
 
@@ -553,9 +585,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     if (elseStmt == Node.NONE) {
       // we have no else stmt
       conditionalStmtNode = new ConditionalStmtNodeIf(condition, stmt);
+      conditionalStmtNode.setSourceFileReference(ctx);
     } else {
       // we have an else stmt
       conditionalStmtNode = new ConditionalStmtNodeIfElse(condition, stmt, elseStmt);
+      conditionalStmtNode.setSourceFileReference(ctx);
     }
     astStack.push(conditionalStmtNode);
   }
@@ -592,6 +626,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || typeId instanceof IdNode;
 
     var paramNode = new ParamDefNode(typeId, id);
+    paramNode.setSourceFileReference(ctx);
     astStack.push(paramNode);
   }
 
@@ -609,6 +644,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || typeId instanceof IdNode;
 
     var paramNode = new ParamDefNode(typeId, id);
+    paramNode.setSourceFileReference(ctx);
     astStack.push(paramNode);
   }
 
@@ -641,6 +677,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
             if (symbol.getStartIndex() >= ctxStart) {
               var errorRecord = this.tokensErrorRecords.get(symbol);
               offendingSymbolNode = new ASTOffendingSymbol(tn, errorRecord);
+              offendingSymbolNode.setSourceFileReference(ctx);
             }
           }
         } else {
@@ -661,6 +698,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
                 if (symbol.getStartIndex() >= ctxStart) {
                   var errorRecord = this.tokensErrorRecords.get(symbol);
                   offendingSymbolNode = new ASTOffendingSymbol(tn, errorRecord);
+                  offendingSymbolNode.setSourceFileReference(ctx);
                   break;
                 }
               }
@@ -694,6 +732,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node lhsTypeNode = astStack.pop();
     MapTypeIdentifierNode mapTypeIdentifierNode =
         new MapTypeIdentifierNode((IdNode) lhsTypeNode, (IdNode) rhsTypeNode);
+    mapTypeIdentifierNode.setSourceFileReference(ctx);
     astStack.push(mapTypeIdentifierNode);
   }
 
@@ -713,6 +752,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node innerTypeNode = astStack.pop();
     ListTypeIdentifierNode listTypeIdentifierNode =
         new ListTypeIdentifierNode((IdNode) innerTypeNode);
+    listTypeIdentifierNode.setSourceFileReference(ctx);
     astStack.push(listTypeIdentifierNode);
   }
 
@@ -723,6 +763,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void exitSet_param_type(DungeonDSLParser.Set_param_typeContext ctx) {
     Node innerTypeNode = astStack.pop();
     SetTypeIdentifierNode setTypeIdentifierNode = new SetTypeIdentifierNode((IdNode) innerTypeNode);
+    setTypeIdentifierNode.setSourceFileReference(ctx);
     astStack.push(setTypeIdentifierNode);
   }
 
@@ -739,6 +780,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       list.set(listSize - i - 1, paramDef);
     }
     Node stmtList = new Node(Node.Type.ParamDefList, list);
+    stmtList.setSourceFileReference(ctx);
     astStack.push(stmtList);
   }
 
@@ -759,6 +801,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || idNode.type == Node.Type.Identifier;
 
     var prototypeDefinitionNode = new PrototypeDefinitionNode(idNode, componentDefList);
+    prototypeDefinitionNode.setSourceFileReference(ctx);
     astStack.push(prototypeDefinitionNode);
   }
 
@@ -779,6 +822,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || idNode.type == Node.Type.Identifier;
 
     var itemPrototypeDefinitionNode = new ItemPrototypeDefinitionNode(idNode, propertyDefList);
+    itemPrototypeDefinitionNode.setSourceFileReference(ctx);
     astStack.push(itemPrototypeDefinitionNode);
   }
 
@@ -795,6 +839,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       list.set(listSize - i - 1, aggregateValueDef);
     }
     var aggregateValueDefList = new Node(Node.Type.ComponentDefinitionList, list);
+    aggregateValueDefList.setSourceFileReference(ctx);
     astStack.push(aggregateValueDefList);
   }
 
@@ -815,6 +860,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || idNode.type == Node.Type.Identifier;
 
     var componentDefinitionNode = new AggregateValueDefinitionNode(idNode, propertyDefListNode);
+    componentDefinitionNode.setSourceFileReference(ctx);
     astStack.push(componentDefinitionNode);
   }
 
@@ -838,6 +884,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || (typeSpecifier.type == Node.Type.Identifier);
 
     var objectDef = new ObjectDefNode(typeSpecifier, id, propertyDefList);
+    objectDef.setSourceFileReference(ctx);
     astStack.push(objectDef);
   }
 
@@ -854,6 +901,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       list.set(listSize - i - 1, propertyDef);
     }
     var propertyDefList = new Node(Node.Type.PropertyDefinitionList, list);
+    propertyDefList.setSourceFileReference(ctx);
     astStack.push(propertyDefList);
   }
 
@@ -870,6 +918,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || (id.type == Node.Type.Identifier);
 
     var propertyDefNode = new PropertyDefNode(id, stmtNode);
+    propertyDefNode.setSourceFileReference(ctx);
     astStack.push(propertyDefNode);
   }
 
@@ -887,6 +936,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || typeId instanceof IdNode;
 
     var paramNode = new ParamDefNode(typeId, expression);
+    paramNode.setSourceFileReference(ctx);
     astStack.push(paramNode);
   }
 
@@ -908,6 +958,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || funcId.type == Node.Type.Identifier;
 
     var funcCallNode = new FuncCallNode(funcId, paramList);
+    funcCallNode.setSourceFileReference(ctx);
     astStack.push(funcCallNode);
   }
 
@@ -924,6 +975,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       list.set(listSize - i - 1, expression);
     }
     var expressionList = new Node(Node.Type.ExpressionList, list);
+    expressionList.setSourceFileReference(ctx);
     astStack.push(expressionList);
   }
 
@@ -936,6 +988,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     ArrayList<Node> list = new ArrayList<>();
     list.add(innerExpression);
     Node groupedExpression = new Node(Node.Type.GroupedExpression, list);
+    groupedExpression.setSourceFileReference(ctx);
     astStack.push(groupedExpression);
   }
 
@@ -949,6 +1002,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || expressionList.type == Node.Type.ExpressionList;
 
     Node listDefinitionNode = new ListDefinitionNode(expressionList);
+    listDefinitionNode.setSourceFileReference(ctx);
     astStack.push(listDefinitionNode);
   }
 
@@ -962,6 +1016,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     assert errorMode() || expressionList.type == Node.Type.ExpressionList;
 
     Node setDefinitionNode = new SetDefinitionNode(expressionList);
+    setDefinitionNode.setSourceFileReference(ctx);
     astStack.push(setDefinitionNode);
   }
 
@@ -974,6 +1029,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       var rhsExpression = astStack.pop();
       var lhs = astStack.pop();
       var memberAccess = new MemberAccessNode(lhs, rhsExpression);
+      memberAccess.setSourceFileReference(ctx);
       astStack.push(memberAccess);
     }
   }
@@ -998,6 +1054,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       SourceFileReference sfr =
           new SourceFileReference(symbol.getLine(), symbol.getCharPositionInLine());
       node = new IdNode(text, sfr);
+      node.setSourceFileReference(ctx);
     }
     if (ctx.dependency_type() != null) {
       // we keep the kind of dependency_type in this case and add it as a child of
@@ -1028,6 +1085,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       SourceFileReference sfr =
           new SourceFileReference(symbol.getLine(), symbol.getCharPositionInLine());
       node = new IdNode(text, sfr);
+      node.setSourceFileReference(ctx);
     }
     if (ctx.dependency_type() != null) {
       // we keep the kind of dependency_type in this case and add it as a child of
@@ -1063,6 +1121,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
     // create dotDefNode and directly add stmts as list
     DotDefNode dotDef = new DotDefNode(idNode, stmtList.getChildren());
+    dotDef.setSourceFileReference(ctx);
     astStack.push(dotDef);
   }
 
@@ -1079,6 +1138,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       list.set(listSize - i - 1, dotStmt);
     }
     var dotStmtList = new Node(Node.Type.DotStmtList, list);
+    dotStmtList.setSourceFileReference(ctx);
     astStack.push(dotStmtList);
 
     /*
@@ -1138,6 +1198,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     ids.addFirst(lhsIdNodeList);
 
     var edgeStmtNode = new DotEdgeStmtNode(ids, attr_list);
+    edgeStmtNode.setSourceFileReference(ctx);
     astStack.push(edgeStmtNode);
   }
 
@@ -1154,6 +1215,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       list.set(listSize - i - 1, id);
     }
     var dotNodeList = new DotIdList(list);
+    dotNodeList.setSourceFileReference(ctx);
     astStack.push(dotNodeList);
   }
 
@@ -1169,6 +1231,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var edgeOp = astStack.pop();
 
     var edgeRhs = new EdgeRhsNode(edgeOp, idNode);
+    edgeRhs.setSourceFileReference(ctx);
     astStack.push(edgeRhs);
   }
 
@@ -1185,6 +1248,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node id = astStack.pop();
 
     Node nodeStmtNode = new DotNodeStmtNode(id, attrList);
+    nodeStmtNode.setSourceFileReference(ctx);
     astStack.push(nodeStmtNode);
   }
 
@@ -1200,6 +1264,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     }
 
     Node attrListNode = new DotAttrListNode(attrNodes);
+    attrListNode.setSourceFileReference(ctx);
     astStack.push(attrListNode);
   }
 
@@ -1212,9 +1277,11 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     IdNode lhsId = (IdNode) astStack.pop();
     if (lhsId.getName().equals("type") && rhsId.getChild(0).type == Node.Type.DotDependencyType) {
       var attributeNode = new DotDependencyTypeAttrNode((DotDependencyTypeNode) rhsId.getChild(0));
+      attributeNode.setSourceFileReference(ctx);
       astStack.push(attributeNode);
     } else {
       var attrNode = new DotAttrNode(lhsId, rhsId);
+      attrNode.setSourceFileReference(ctx);
       astStack.push(attrNode);
     }
   }
