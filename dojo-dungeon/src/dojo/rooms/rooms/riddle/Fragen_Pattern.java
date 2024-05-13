@@ -109,8 +109,8 @@ public class Fragen_Pattern extends Room {
     String title = "Antworten";
     String[] texts = {
       "Ihre Antwort ist korrekt!",
-      "Die Tür wird geöffnet, aber Sie können auch noch weiter Fragen beantworten!",
-      "Bitte weitergehen, alle Fragen wurden bereits gestellt!"
+      "Die Tür wird geöffnet, aber Sie können auch noch weiter Fragen beantworten.",
+      "Die Tür wird geöffnet. Bitte weitergehen, alle Fragen wurden bereits gestellt.",
     };
 
     return (task, taskContents) -> {
@@ -130,11 +130,7 @@ public class Fragen_Pattern extends Room {
                 texts[0], title, () -> OkDialog.showOkDialog(texts[1], title, () -> {}));
           } else {
             OkDialog.showOkDialog(
-                texts[0],
-                title,
-                () ->
-                    OkDialog.showOkDialog(
-                        texts[1], title, () -> OkDialog.showOkDialog(texts[2], title, () -> {})));
+                texts[0], title, () -> OkDialog.showOkDialog(texts[2], title, () -> {}));
           }
         } else {
           if (hasNextPattern()) {
@@ -144,6 +140,7 @@ public class Fragen_Pattern extends Room {
             // Should not happen: no more questions but door isn't opened yet
             OkDialog.showOkDialog(
                 texts[0], title, () -> OkDialog.showOkDialog(texts[2], title, () -> {}));
+            openDoors();
           }
         }
       } else {
@@ -155,6 +152,7 @@ public class Fragen_Pattern extends Room {
           // Should not happen: no more questions but door isn't opened yet
           decreaseHerosHealthAtWrongTry(
               MAX_NUMBER_OF_WRONG_ANSWERS, () -> OkDialog.showOkDialog(texts[2], title, () -> {}));
+          openDoors();
         }
       }
     };
