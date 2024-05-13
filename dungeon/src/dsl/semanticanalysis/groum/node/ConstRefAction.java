@@ -23,6 +23,7 @@ public class ConstRefAction extends ActionNode {
 
   public ConstRefAction() {
     super(ActionType.constRef);
+    this.updateLabels();
   }
 
   public ConstRefAction(Symbol type, Object value) {
@@ -30,6 +31,7 @@ public class ConstRefAction extends ActionNode {
     this.addSymbolReference(type);
     this.value = value;
     this.referencedInstanceId(IndexGenerator.getIdx());
+    this.updateLabels();
   }
 
   public IType referencedType() {

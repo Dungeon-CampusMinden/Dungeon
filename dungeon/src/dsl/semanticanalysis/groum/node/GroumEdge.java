@@ -2,8 +2,6 @@ package dsl.semanticanalysis.groum.node;
 
 import org.neo4j.ogm.annotation.*;
 
-import java.util.List;
-
 @RelationshipEntity
 public class GroumEdge {
   public enum GroumEdgeType {
@@ -13,22 +11,14 @@ public class GroumEdge {
     dataDependencyRedefinition
   }
 
-  @Id
-  @GeneratedValue
-  private Long id;
+  @Id @GeneratedValue private Long id;
 
-  @StartNode
-  private final GroumNode start;
-  @EndNode
-  private final GroumNode end;
-  @Property
-  private final int idxOnStart;
-  @Property
-  private final int idxOnEnd;
-  @Property
-  private final GroumEdgeType edgeType;
-  //@Labels
-  //private List<String> labels;
+  @StartNode private final GroumNode start;
+  @EndNode private final GroumNode end;
+  @Property private final int idxOnStart;
+  @Property private final int idxOnEnd;
+  @Property private final GroumEdgeType edgeType;
+  @Property private String label;
 
   public GroumEdge() {
     this.start = GroumNode.NONE;
@@ -36,7 +26,7 @@ public class GroumEdge {
     this.idxOnStart = -1;
     this.idxOnEnd = -1;
     this.edgeType = GroumEdgeType.none;
-    //labels = List.of(toString());
+    this.label = this.toString();
   }
 
   public GroumEdge(GroumNode start, GroumNode end, GroumEdgeType edgeType) {
@@ -49,7 +39,8 @@ public class GroumEdge {
     end.addIncoming(this);
 
     this.edgeType = edgeType;
-    //labels = List.of(toString());
+
+    this.label = this.toString();
   }
 
   public GroumNode start() {

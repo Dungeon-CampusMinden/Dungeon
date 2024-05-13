@@ -17,6 +17,7 @@ public class DefinitionAction extends ActionNode {
     this.addSymbolReference(getInstanceSymbolType(symbol));
     this.addSymbolReference(symbol);
     this.referencedInstanceId(instanceId);
+    this.updateLabels();
   }
 
   public IType instancedType() {

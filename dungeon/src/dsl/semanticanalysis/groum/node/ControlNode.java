@@ -33,6 +33,7 @@ public class ControlNode extends GroumNode {
   public ControlNode() {
     this.controlType = ControlType.none;
     this.id = IndexGenerator.getIdx();
+    this.updateLabels();
   }
 
   @Override
@@ -48,6 +49,7 @@ public class ControlNode extends GroumNode {
   public ControlNode(ControlType type) {
     this.controlType = type;
     this.id = IndexGenerator.getIdx();
+    this.updateLabels();
   }
 
   public ControlType controlType() {

@@ -1,11 +1,15 @@
 package dsl.neo4j;
 
+import static dsl.semanticanalysis.TestGroum.write;
+
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.*;
 import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.groum.FinalGroumBuilder;
 import dsl.semanticanalysis.groum.Groum;
 import dsl.semanticanalysis.groum.GroumPrinter;
+import dsl.semanticanalysis.groum.node.GroumEdge;
+import dsl.semanticanalysis.groum.node.GroumNode;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.ListType;
@@ -14,16 +18,11 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.SetType;
 import entrypoint.DungeonConfig;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static dsl.semanticanalysis.TestGroum.write;
 
 public class Neo4J {
   @Test
@@ -393,7 +392,7 @@ public class Neo4J {
   @Test
   public void testDBGroum() {
     String program =
-      """
+        """
         // my_point def idx: 48
         point my_point {
           x: 1.0,
@@ -495,10 +494,99 @@ public class Neo4J {
 
       session.save(finalGroum);
 
+      var returnedGroum = session.queryForObject(Groum.class, "MATCH (g:Groum) RETURN g", Map.of());
+      var mismatches = matchGroum(finalGroum, returnedGroum);
+      Assert.assertTrue(mismatches.isEmpty());
+
+      var globalDefinitions = finalGroum.getGlobalDefinitions();
+
+
+      for (int i = 0; i < globalDefinitions.size(); i++) {
+        var definition = globalDefinitions.get(i);
+        // get definition from db (matching label by string is probably pretty bad practice...)... could also just use
+        // the automatically generated id
+        var definitionFromDb = session.queryForObject(GroumNode.class, "MATCH (g:GroumNode) WHERE ID(g)=$id return g", Map.of("id", definition.getId()));
+
+        matchSubGroum(definition, definitionFromDb, mismatches);
+      }
+
+      Assert.assertTrue(mismatches.isEmpty());
+
       sessionFactory.close();
     }
   }
 
+  private static void matchSubGroum(GroumNode expected, GroumNode given, List<String> mismatches) {
+    ArrayDeque<GroumEdge> expectedEdgeQueue = new ArrayDeque<>();
+    ArrayDeque<GroumEdge> givenEdgeQueue = new ArrayDeque<>();
+    ArrayDeque<GroumNode> expectedNodeQueue = new ArrayDeque<>();
+    ArrayDeque<GroumNode> givenNodeQueue = new ArrayDeque<>();
+
+    HashSet<GroumEdge> visittedEdges = new HashSet<>();
+    HashSet<GroumNode> visittedNodes = new HashSet<>();
+
+    expectedNodeQueue.add(expected);
+    givenNodeQueue.add(given);
+    while (!givenNodeQueue.isEmpty()) {
+      var expectedNode = expectedNodeQueue.pop();
+      var givenNode = givenNodeQueue.pop();
+      if (visittedEdges.contains(givenNode)) {
+        continue;
+      }
+
+      if (givenNode.incoming().size() != expectedNode.incoming().size()) {
+        mismatches.add("Number of incoming edges of node [" + givenNode + "] does not expected number of edges from [" + expectedNode + "]");
+      }
+      else {
+        expectedEdgeQueue.addAll(expectedNode.incoming());
+        givenEdgeQueue.addAll(givenNode.incoming());
+      }
+
+      while(!givenEdgeQueue.isEmpty()) {
+        var givenEdge = givenEdgeQueue.pop();
+        var expectedEdge = expectedEdgeQueue.pop();
+        if (visittedEdges.contains(givenEdge)) {
+          continue;
+        }
+        if (givenEdge != expectedEdge) {
+          mismatches.add("Edge [" + givenEdge + "] does not match expected edge [" + expectedEdge + "]");
+        } else {
+          expectedNodeQueue.add(expectedEdge.start());
+          givenNodeQueue.add(givenEdge.start());
+        }
+
+        visittedEdges.add(givenEdge);
+        visittedEdges.add(expectedEdge);
+      }
+      visittedNodes.add(givenNode);
+      visittedNodes.add(expectedNode);
+    }
+  }
+
+  // good enough for now...
+  private static List<String> matchGroum(Groum expected, Groum given) {
+    List<String> mismatches = new ArrayList<>();
+
+    var expectedNodes = new HashSet<>(expected.nodes());
+    var givenNodes = new HashSet<>(given.nodes());
+
+    for (var expectedNode : expectedNodes) {
+      if (!givenNodes.contains(expectedNode)) {
+        mismatches.add("Node [" + expectedNode + "] is not in given groum");
+      }
+    }
+
+    var expectedEdges = expected.edges();
+    var givenEdges = new HashSet<>(given.edges());
+
+    for (var expectedEdge : expectedEdges) {
+      if (!givenEdges.contains(expectedEdge)) {
+        mismatches.add("Edge [" + expectedEdge + "] is not in given groum");
+      }
+    }
+
+    return mismatches;
+  }
 
   private static List<String> matchAST(Node expectedNode, Node givenNode) {
     List<String> mismatches = new ArrayList<>();

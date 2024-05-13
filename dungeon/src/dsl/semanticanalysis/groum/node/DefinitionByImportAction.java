@@ -24,6 +24,7 @@ public class DefinitionByImportAction extends ActionNode {
       this.addSymbolReference(typeSymbol.originalTypeSymbol());
     }
     this.referencedInstanceId(instanceId);
+    this.updateLabels();
   }
 
   public IType instancedType() {

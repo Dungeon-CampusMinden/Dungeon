@@ -1,7 +1,6 @@
 package dsl.semanticanalysis.groum.node;
 
 import dsl.semanticanalysis.groum.GroumVisitor;
-
 import java.util.List;
 
 public class PassAsParameterAction extends ExpressionAction {

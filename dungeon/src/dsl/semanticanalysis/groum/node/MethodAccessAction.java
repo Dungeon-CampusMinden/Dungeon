@@ -19,6 +19,7 @@ public class MethodAccessAction extends ActionNode {
     this.addSymbolReference(method);
     this.referencedInstanceId(instanceId);
     this.methodCallInstanceId = IndexGenerator.getIdx();
+    this.updateLabels();
   }
 
   private DefinitionAction instanceRedefinitionNode;

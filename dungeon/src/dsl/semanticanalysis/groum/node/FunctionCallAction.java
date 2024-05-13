@@ -10,6 +10,7 @@ public class FunctionCallAction extends ActionNode {
     super(ActionType.functionCall);
     this.addSymbolReference(functionSymbol);
     this.referencedInstanceId(instanceId);
+    this.updateLabels();
   }
 
   public Symbol functionSymbol() {

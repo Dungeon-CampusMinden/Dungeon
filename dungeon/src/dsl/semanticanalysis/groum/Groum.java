@@ -1,28 +1,22 @@
 package dsl.semanticanalysis.groum;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
+import dsl.semanticanalysis.groum.node.ActionNode;
 import dsl.semanticanalysis.groum.node.GroumEdge;
 import dsl.semanticanalysis.groum.node.GroumNode;
-import org.neo4j.ogm.annotation.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
 public class Groum {
   public static Groum NONE = new Groum();
 
-  @Id
-  @GeneratedValue
-  private Long id;
+  @Id @GeneratedValue private Long id;
 
-
-  @Relationship
-  List<GroumNode> nodes = new ArrayList<>();
-  @Relationship
-  List<GroumEdge> edges = new ArrayList<>();
+  @Relationship List<GroumNode> nodes = new ArrayList<>();
+  @Relationship List<GroumEdge> edges = new ArrayList<>();
 
   public Groum() {}
 
@@ -221,5 +215,23 @@ public class Groum {
         startMap.put(edge.end(), set);
       }
     }
+  }
+
+  public List<GroumNode> getGlobalDefinitions() {
+    var defNodes = new ArrayList<GroumNode>();
+    for (var node : this.nodes) {
+      if (node instanceof ActionNode actionNode) {
+        if (actionNode.actionType().equals(ActionNode.ActionType.definition)
+            || actionNode.actionType().equals(ActionNode.ActionType.definitionByImport)) {
+          // is it a file-global definition?
+          // TODO: once, the file scope is represented in Groums, we need a new way to determine,
+          //  if a definition is file-global
+          if (actionNode.parent() == GroumNode.NONE) {
+            defNodes.add(actionNode);
+          }
+        }
+      }
+    }
+    return defNodes;
   }
 }

@@ -16,6 +16,7 @@ public class VariableReferenceAction extends ActionNode {
     this.addSymbolReference(getInstanceSymbolType(referencedSymbol));
     this.addSymbolReference(referencedSymbol);
     this.referencedInstanceId(referenceId);
+    this.updateLabels();
   }
 
   public IType variableType() {

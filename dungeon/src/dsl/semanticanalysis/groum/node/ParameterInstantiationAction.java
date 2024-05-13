@@ -13,6 +13,7 @@ public class ParameterInstantiationAction extends ActionNode {
     this.addSymbolReference((Symbol) parameterSymbol.getDataType());
     this.addSymbolReference(parameterSymbol);
     this.referencedInstanceId(instanceId);
+    this.updateLabels();
   }
 
   public IType instantiatedType() {

@@ -13,6 +13,7 @@ public class ReferenceInGraphAction extends ActionNode {
     this.addSymbolReference((Symbol) referencedSymbol.getDataType());
     this.addSymbolReference(referencedSymbol);
     this.referencedInstanceId(referenceId);
+    this.updateLabels();
   }
 
   public IType variableType() {

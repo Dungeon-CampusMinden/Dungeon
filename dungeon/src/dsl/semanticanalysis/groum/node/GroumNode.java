@@ -2,13 +2,10 @@ package dsl.semanticanalysis.groum.node;
 
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
-import org.neo4j.ogm.annotation.GeneratedValue;
-import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.neo4j.ogm.annotation.*;
 
 // TODO: how is this class related to symbols and AST?
 //  need to differentiate between groum (which is only
@@ -24,9 +21,9 @@ import java.util.List;
 @NodeEntity
 public abstract class GroumNode {
 
-  @Id
-  @GeneratedValue
-  private Long id;
+  @Id @GeneratedValue private Long id;
+
+  public Long getId() {return this.id;}
 
   // explicit null object
   public static GroumNode NONE =
@@ -49,16 +46,23 @@ public abstract class GroumNode {
     this.children = new ArrayList<>();
   }
 
-  @Relationship
-  private List<GroumEdge> incomingEdges;
-  @Relationship
-  private List<GroumEdge> outgoingEdges;
+  @Relationship private List<GroumEdge> incomingEdges;
+  @Relationship private List<GroumEdge> outgoingEdges;
 
   // only relevant, if contained in a larger Scope
-  @Relationship
-  private GroumNode parent = GroumNode.NONE;
-  @Relationship
-  private ArrayList<GroumNode> children;
+  @Relationship private GroumNode parent = GroumNode.NONE;
+  @Relationship private ArrayList<GroumNode> children;
+
+  @Labels
+  private List<String> labels;
+
+  @Property
+  private String label;
+
+  protected void updateLabels() {
+    this.label = this.getLabel();
+    this.labels = List.of(label);
+  }
 
   private long processedCounter = -1;
 

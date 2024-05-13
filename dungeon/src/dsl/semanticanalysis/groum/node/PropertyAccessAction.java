@@ -18,6 +18,7 @@ public class PropertyAccessAction extends ActionNode {
     this.addSymbolReference(property);
     this.referencedInstanceId(instanceId);
     this.propertyInstanceId = propertyInstanceId;
+    this.updateLabels();
   }
 
   public final long propertyInstanceId;
