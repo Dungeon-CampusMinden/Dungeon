@@ -520,6 +520,199 @@ public class Neo4J {
     }
   }
 
+  @Test
+  public void testPatternMatch() {
+    String program =
+      """
+      fn ask_task_finished(entity knight, entity who) {
+          var my_task : task;
+          my_task =  knight.task_component.task;
+          if my_task.is_active() {
+              ask_task_yes_no(my_task);
+          } else {
+              show_info("Du hast die Aufgabe schon bearbeitet.");
+          }
+      }
+
+      fn open_container(entity chest, entity who) {
+          chest.inventory_component.open(who);
+      }
+
+      fn drop_items(entity me) {
+          me.inventory_component.drop_items();
+      }
+
+      item_type scroll_type {
+          display_name: "Eine Schriftrolle",
+          description: "Lies mich",
+          texture_path: "items/book/wisdom_scroll.png"
+      }
+
+      entity_type knight_type {
+          draw_component {
+              path: "character/blue_knight"
+          },
+          hitbox_component {},
+          position_component{},
+          interaction_component{
+              radius: 1.5
+          },
+          task_component{}
+      }
+
+      entity_type chest_type {
+          inventory_component {},
+          draw_component {
+              path: "objects/treasurechest"
+          },
+          hitbox_component {},
+          position_component{},
+          interaction_component{
+              radius: 1.5,
+              on_interaction: open_container
+          },
+          task_content_component{}
+      }
+
+      entity_type monster_type {
+          inventory_component {},
+          health_component {
+              max_health: 10,
+              start_health: 10,
+              on_death: drop_items
+          },
+          position_component {},
+          draw_component {
+              path: "character/monster/chort"
+          },
+          velocity_component {
+              x_velocity: 4.0,
+              y_velocity: 4.0
+          },
+          hitbox_component {},
+          ai_component{}
+      }
+
+      fn build_task_single_chest_with_monster(single_choice_task t) -> entity<><> {
+          var return_set : entity<><>;
+          print("hello");
+          print("hello");
+          print("hello");
+          print("hello");
+          print("hello");
+          print("hello");
+          var room_set : entity<>;
+
+          for task_content content in t.get_content() {
+              var item : quest_item;
+              item = build_quest_item(scroll_type, content);
+
+              var monster: entity;
+              monster = instantiate(monster_type);
+              monster.inventory_component.add_item(item);
+              room_set.add(monster);
+          }
+
+          var chest : entity;
+          chest = instantiate(chest_type);
+          chest.mark_as_task_container(t, "Quest-Truhe");
+
+          room_set.add(chest);
+          t.set_scenario_text("Hilfe! Monster haben die Schriftrollen geklaut! Platziere die richtige Schriftrolle in der Quest-Truhe!");
+          t.set_answer_picker_function(answer_picker_single_chest);
+
+          // quest giver knight
+          var knight : entity;
+          knight = instantiate_named(knight_type, "Questgeber");
+          knight.task_component.task = t;
+          knight.interaction_component.on_interaction = ask_task_finished;
+          room_set.add(knight);
+
+          var random_entity : entity;
+          random_entity = get_random_content();
+          room_set.add(random_entity);
+          return_set.add(room_set);
+          return return_set;
+      }
+        """;
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    DSLInterpreter interpreter = new DSLInterpreter();
+    try {
+      RelationshipRecorder.instance.clear();
+      DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+    } catch (RuntimeException ex) {
+      // program contains error, won't be able to create quest config
+    }
+
+    var env = interpreter.getRuntimeEnvironment();
+    var fileScope = env.getFileScopes().get(null);
+    var parsedFile = fileScope.file();
+    var ast = parsedFile.rootASTNode();
+    var symTable = env.getSymbolTable();
+    FinalGroumBuilder builder = new FinalGroumBuilder();
+    Groum finalGroum = builder.build(ast, symTable, env);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalGroum, false);
+    write(finalizedGroumStr, "final_groum_db.dot");
+
+    var nodeRelationShips = RelationshipRecorder.instance.get();
+
+    // URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
+    try (var driver = Neo4jConnect.openConnection()) {
+      var sessionFactory = Neo4jConnect.getSessionFactory(driver);
+      var session = sessionFactory.openSession();
+
+      // clean up db
+      session.query("MATCH (n) DETACH DELETE n", Map.of());
+
+      // save ast in db
+      session.save(ast);
+      session.save(nodeRelationShips);
+      session.save(nodeRelationShips);
+
+      session.save(symTable.getSymbolCreations());
+      session.save(symTable.getSymbolReferences());
+      session.save(symTable.globalScope());
+      var filScopes = env.getFileScopes().entrySet();
+      for (var entry : filScopes) {
+        var scope = entry.getValue();
+        session.save(scope);
+      }
+
+      session.save(finalGroum);
+
+      var returnedGroum = session.queryForObject(Groum.class, "MATCH (g:Groum) RETURN g", Map.of());
+      var mismatches = matchGroum(finalGroum, returnedGroum);
+      Assert.assertTrue(mismatches.isEmpty());
+
+      var globalDefinitions = finalGroum.getGlobalDefinitions();
+
+      for (int i = 0; i < globalDefinitions.size(); i++) {
+        var definition = globalDefinitions.get(i);
+        // get definition from db (matching label by string is probably pretty bad practice...)...
+        // could also just use
+        // the automatically generated id
+        var definitionFromDb =
+          session.queryForObject(
+            GroumNode.class,
+            "MATCH (g:GroumNode) WHERE ID(g)=$id return g",
+            Map.of("id", definition.getId()));
+
+        matchSubGroum(definition, definitionFromDb, mismatches);
+      }
+
+      Assert.assertTrue(mismatches.isEmpty());
+
+      sessionFactory.close();
+    }
+  }
+
   private static void matchSubGroum(GroumNode expected, GroumNode given, List<String> mismatches) {
     ArrayDeque<GroumEdge> expectedEdgeQueue = new ArrayDeque<>();
     ArrayDeque<GroumEdge> givenEdgeQueue = new ArrayDeque<>();

@@ -2,6 +2,7 @@ package dsl.semanticanalysis.groum.node;
 
 import dsl.IndexGenerator;
 import dsl.semanticanalysis.groum.GroumVisitor;
+import org.neo4j.ogm.annotation.Property;
 
 // TODO: add way to specify scope -> store child nodes?
 public class ControlNode extends GroumNode {
@@ -26,19 +27,21 @@ public class ControlNode extends GroumNode {
     };
   }
 
-  private final long id;
+  @Property
+  private final long controlNodeId;
 
+  @Property
   private final ControlType controlType;
 
   public ControlNode() {
     this.controlType = ControlType.none;
-    this.id = IndexGenerator.getIdx();
+    this.controlNodeId = IndexGenerator.getIdx();
     this.updateLabels();
   }
 
   @Override
   public String getLabel() {
-    return this.controlType.toString() + "[" + id + "]";
+    return this.controlType.toString() + "[" + controlNodeId + "]";
   }
 
   @Override
@@ -48,7 +51,7 @@ public class ControlNode extends GroumNode {
 
   public ControlNode(ControlType type) {
     this.controlType = type;
-    this.id = IndexGenerator.getIdx();
+    this.controlNodeId = IndexGenerator.getIdx();
     this.updateLabels();
   }
 
