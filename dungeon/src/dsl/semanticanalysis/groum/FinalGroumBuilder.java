@@ -475,19 +475,23 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     var passAsParamNodes = node.getStartsOfIncoming(GroumEdge.GroumEdgeType.temporal);
     for (var paramNode : passAsParamNodes) {
       var paramNodesInvolvedVariables = this.involvedVariables.get(paramNode);
-      paramNodesInvolvedVariables.forEach(
+      if (paramNodesInvolvedVariables!=null) {
+        paramNodesInvolvedVariables.forEach(
           n -> this.addInvolvedVariable(node, n, n.typeOfInvolvement()));
+      }
     }
 
     // get all definitions
     var involvedVariables = this.involvedVariables.get(node);
-    for (var involvedVariable : involvedVariables) {
-      long instanceId = involvedVariable.variableInstanceId();
-      var definitions = this.currentScope().getDefinitions(instanceId);
-      // add read dependency
-      for (var definition : definitions) {
-        var edge = new GroumEdge(definition, node, GroumEdge.GroumEdgeType.dataDependencyRead);
-        this.groum.addEdge(edge);
+    if (involvedVariables != null) {
+      for (var involvedVariable : involvedVariables) {
+        long instanceId = involvedVariable.variableInstanceId();
+        var definitions = this.currentScope().getDefinitions(instanceId);
+        // add read dependency
+        for (var definition : definitions) {
+          var edge = new GroumEdge(definition, node, GroumEdge.GroumEdgeType.dataDependencyRead);
+          this.groum.addEdge(edge);
+        }
       }
     }
 

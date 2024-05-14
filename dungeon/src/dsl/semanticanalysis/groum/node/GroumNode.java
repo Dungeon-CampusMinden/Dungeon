@@ -48,7 +48,7 @@ public abstract class GroumNode {
     this.children = new ArrayList<>();
   }
 
-  @Relationship private Node relatedASTNode;
+  @Relationship private Node relatedAstNode;
 
   @Relationship private List<GroumEdge> incomingEdges;
   @Relationship private List<GroumEdge> outgoingEdges;
@@ -78,12 +78,12 @@ public abstract class GroumNode {
     return this.processedCounter;
   }
 
-  public void relatedASTNode(Node node) {
-    this.relatedASTNode = node;
+  public void relatedAstNode(Node node) {
+    this.relatedAstNode = node;
   }
 
-  public Node relatedASTNode() {
-    return this.relatedASTNode;
+  public Node relatedAstNode() {
+    return this.relatedAstNode;
   }
 
   public boolean isOrDescendentOf(GroumNode other) {

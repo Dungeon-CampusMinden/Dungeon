@@ -143,7 +143,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     var funcSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
     var funcDefAction = new DefinitionAction(funcSymbol, createOrGetInstanceId(funcSymbol));
-    funcDefAction.relatedASTNode(node);
+    funcDefAction.relatedAstNode(node);
 
     funcDefAction.addChildren(merged.nodes);
     merged = merged.mergeSequential(funcDefAction);
@@ -161,7 +161,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     // TODO: does this create a new value instance? -> depends on type of
     //  parameter
     var action = new ParameterInstantiationAction(paramSymbol, createOrGetInstanceId(paramSymbol));
-    action.relatedASTNode(node);
+    action.relatedAstNode(node);
     return new Groum(action);
   }
 
@@ -172,7 +172,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     // maybe just add the reference in a return stmt as an annotation?
     ControlNode returnNode = new ControlNode(ControlNode.ControlType.returnStmt);
     returnNode.addChildren(innerGroum.nodes);
-    returnNode.relatedASTNode(node);
+    returnNode.relatedAstNode(node);
     var controlGroum = new Groum(returnNode);
 
     // TODO: ???
@@ -183,12 +183,9 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   public Groum visit(IdNode node) {
     // Id in expression.. i guess
     Symbol referencedSymbol = symbolTable.getSymbolsForAstNode(node).get(0);
-    if (referencedSymbol == Symbol.NULL) {
-      boolean b = true;
-    }
     var action =
         new VariableReferenceAction(referencedSymbol, createOrGetInstanceId(referencedSymbol));
-    action.relatedASTNode(node);
+    action.relatedAstNode(node);
     return new Groum(action);
   }
 
@@ -204,14 +201,14 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     var symbol = symbolTable.getSymbolsForAstNode(id).get(0);
 
     var instantiationAction = new DefinitionAction(symbol, createOrGetInstanceId(symbol));
-    instantiationAction.relatedASTNode(node);
+    instantiationAction.relatedAstNode(node);
 
     Groum initGroum = new Groum(instantiationAction);
     Groum mergedGroum;
     if (!rhsGroum.equals(Groum.NONE)) {
       // expression action
       ExpressionAction expr = new ExpressionAction(rhsGroum.nodes, IndexGenerator.getIdx());
-      expr.relatedASTNode(node);
+      expr.relatedAstNode(node);
       Groum exprGroum = new Groum(expr);
 
       var intermediaryGroum = rhsGroum.mergeSequential(exprGroum);
@@ -228,7 +225,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   public Groum visit(DecNumNode node) {
     var type = node.accept(this.inferrer);
     var refAction = new ConstRefAction((Symbol) type, node.getValue());
-    refAction.relatedASTNode(node);
+    refAction.relatedAstNode(node);
     return new Groum(refAction);
   }
 
@@ -236,7 +233,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   public Groum visit(NumNode node) {
     var type = node.accept(this.inferrer);
     var refAction = new ConstRefAction((Symbol) type, node.getValue());
-    refAction.relatedASTNode(node);
+    refAction.relatedAstNode(node);
     return new Groum(refAction);
   }
 
@@ -244,7 +241,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   public Groum visit(StringNode node) {
     var type = node.accept(this.inferrer);
     var refAction = new ConstRefAction((Symbol) type, node.getValue());
-    refAction.relatedASTNode(node);
+    refAction.relatedAstNode(node);
     return new Groum(refAction);
   }
 
@@ -286,7 +283,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     // create definition action for graph
     var defAction = new DefinitionAction(graphSymbol, createOrGetInstanceId(graphSymbol));
-    defAction.relatedASTNode(node);
+    defAction.relatedAstNode(node);
     var defGroum = new Groum(defAction);
 
     defAction.addChildren(stmtGroumsMerged.nodes);
@@ -335,7 +332,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       var idSymbol = this.symbolTable.getSymbolsForAstNode(idNode).get(0);
       if (idSymbol != Symbol.NULL) {
         var refAction = new ReferenceInGraphAction(idSymbol, createOrGetInstanceId(idSymbol));
-        refAction.relatedASTNode(node);
+        refAction.relatedAstNode(node);
         Groum refGroum = new Groum(refAction);
         idGroums.add(refGroum);
       }
@@ -353,7 +350,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     var idSymbol = this.symbolTable.getSymbolsForAstNode(node.getId()).get(0);
     ReferenceInGraphAction referenceInGraphAction =
         new ReferenceInGraphAction(idSymbol, createOrGetInstanceId(idSymbol));
-    referenceInGraphAction.relatedASTNode(node);
+    referenceInGraphAction.relatedAstNode(node);
     return new Groum(referenceInGraphAction);
   }
 
@@ -400,7 +397,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     var stmtGroum = node.getStmtNode().accept(this);
 
     DefinitionAction definitionAction = new DefinitionAction(propertySymbol, propertyInstanceId);
-    definitionAction.relatedASTNode(node);
+    definitionAction.relatedAstNode(node);
 
     Groum definitionGroum = new Groum(definitionAction);
     Groum merged =
@@ -436,7 +433,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     //  - or just add the data dependency here?
     DefinitionAction objectDefAction =
         new DefinitionAction(objectSymbol, createOrGetInstanceId(objectSymbol));
-    objectDefAction.relatedASTNode(node);
+    objectDefAction.relatedAstNode(node);
     objectDefAction.addChildren(mergedPropDefGroums.nodes);
 
     Groum definitionGroum = new Groum(objectDefAction);
@@ -457,7 +454,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     var functionSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
     FunctionCallAction action =
         new FunctionCallAction(functionSymbol, createOrGetInstanceId(functionSymbol));
-    action.relatedASTNode(node);
+    action.relatedAstNode(node);
     Groum finalGroum = mergedParameterGroums.mergeSequential(action);
 
     return finalGroum;
@@ -469,7 +466,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     for (var paramNode : node.getParameters()) {
       var paramGroum = paramNode.accept(this);
       var parameterAction = new PassAsParameterAction(paramGroum.nodes, IndexGenerator.getIdx());
-      parameterAction.relatedASTNode(node);
+      parameterAction.relatedAstNode(node);
 
       Groum mergedPassGroum = paramGroum.mergeSequential(parameterAction);
       parameterGroums.add(mergedPassGroum);
@@ -527,7 +524,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     }
 
     var definitionAction = new DefinitionAction(valueSymbol, valuesInstanceId);
-    definitionAction.relatedASTNode(node);
+    definitionAction.relatedAstNode(node);
     Groum definitionGroum = new Groum(definitionAction);
 
     Groum mergedGroum =
@@ -556,7 +553,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     // create definition action
     var protoTypeSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
     var defAction = new DefinitionAction(protoTypeSymbol, createOrGetInstanceId(protoTypeSymbol));
-    defAction.relatedASTNode(node);
+    defAction.relatedAstNode(node);
 
     defAction.addChildren(mergedComponentDefinitionGroums.nodes);
     var defGroum = new Groum(defAction);
@@ -575,7 +572,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     Groum stmtGroum = node.getIfStmt().accept(this);
 
     var ifControlNode = new ControlNode(ControlNode.ControlType.ifStmt);
-    ifControlNode.relatedASTNode(node);
+    ifControlNode.relatedAstNode(node);
 
     ifControlNode.addChildren(conditionGroum.nodes);
     ifControlNode.addChildren(stmtGroum.nodes);
@@ -595,13 +592,13 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     // create control nodes
     var parentControlNode = new ControlNode(ControlNode.ControlType.ifElseStmt);
-    parentControlNode.relatedASTNode(node);
+    parentControlNode.relatedAstNode(node);
 
     var ifControlNode = new ControlNode(ControlNode.ControlType.ifStmt);
-    ifControlNode.relatedASTNode(node.getIfStmt());
+    ifControlNode.relatedAstNode(node.getIfStmt());
 
     var elseControlNode = new ControlNode(ControlNode.ControlType.elseStmt);
-    elseControlNode.relatedASTNode(node.getElseStmt());
+    elseControlNode.relatedAstNode(node.getElseStmt());
 
     // add groum nodes as children to their respective parents
     parentControlNode.addChildren(conditionGroum.nodes);
@@ -634,7 +631,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
     // merge them all under stmt node
     var blockAction = new ControlNode(ControlNode.ControlType.block);
-    blockAction.relatedASTNode(node);
+    blockAction.relatedAstNode(node);
     for (var stmtGroum : stmtGroums) {
       blockAction.addChildren(stmtGroum.nodes);
     }
@@ -690,13 +687,13 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
       Symbol functionSymbol = this.symbolTable.getSymbolsForAstNode(node.getRhs()).get(0);
       var methodAccessAction = new MethodAccessAction(lhsSymbol, functionSymbol, contextInstanceId);
-      methodAccessAction.relatedASTNode(node);
+      methodAccessAction.relatedAstNode(node);
 
       // add scoping information: the parameter evaluations are 'owned' by the method access
       methodAccessAction.addChildren(parameterEvaluationGroum.nodes);
 
       var lhsRedefinitionAction = new DefinitionAction(lhsSymbol, contextInstanceId);
-      lhsRedefinitionAction.relatedASTNode(node);
+      lhsRedefinitionAction.relatedAstNode(node);
 
       methodAccessAction.instanceRedefinitionNode(lhsRedefinitionAction);
       methodAccessAction.addChild(lhsRedefinitionAction);
@@ -723,7 +720,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
         var accessAction =
             new PropertyAccessAction(
                 lhsSymbol, innerLhsSymbol, contextInstanceId, memberInstanceId);
-        accessAction.relatedASTNode(node);
+        accessAction.relatedAstNode(node);
 
         // add scoping information: the inner member access is 'owned' by this property access
         accessAction.addChildren(innerMemberAccessGroum.nodes);
@@ -736,14 +733,14 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
         var methodAccessAction =
             new MethodAccessAction(lhsSymbol, innerLhsSymbol, contextInstanceId);
-        methodAccessAction.relatedASTNode(node);
+        methodAccessAction.relatedAstNode(node);
 
         // add scoping information: the parameter evaluations are 'owned' by the method access
         methodAccessAction.addChildren(parameterEvaluationGroum.nodes);
         methodAccessAction.addChildren(innerMemberAccessGroum.nodes);
 
         var lhsRedefinitionAction = new DefinitionAction(lhsSymbol, contextInstanceId);
-        lhsRedefinitionAction.relatedASTNode(node);
+        lhsRedefinitionAction.relatedAstNode(node);
 
         methodAccessAction.instanceRedefinitionNode(lhsRedefinitionAction);
         methodAccessAction.addChild(lhsRedefinitionAction);
@@ -766,7 +763,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       var memberInstanceId = createOrGetMemberInstanceId(contextInstanceId, rhsSymbol);
       var accessAction =
           new PropertyAccessAction(lhsSymbol, rhsSymbol, contextInstanceId, memberInstanceId);
-      accessAction.relatedASTNode(node);
+      accessAction.relatedAstNode(node);
 
       mergedGroum = new Groum(accessAction);
     }
@@ -840,14 +837,14 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
         assigneeSymbol = propertyAccessAction.propertySymbol();
         var assigneeInstanceId = this.memberAccessInstanceMap.get(contextId).get(assigneeSymbol);
         assignmentAction = new DefinitionAction(assigneeSymbol, assigneeInstanceId);
-        assignmentAction.relatedASTNode(node);
+        assignmentAction.relatedAstNode(node);
       }
     } else {
       var id = node.getLhs();
       assigneeSymbol = symbolTable.getSymbolsForAstNode(id).get(0);
       assignmentAction =
           new DefinitionAction(assigneeSymbol, createOrGetInstanceId(assigneeSymbol));
-      assignmentAction.relatedASTNode(node);
+      assignmentAction.relatedAstNode(node);
     }
 
     Groum assignmentGroum = new Groum(assignmentAction);
@@ -864,7 +861,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     if (!rhsGroum.equals(Groum.NONE)) {
       // expression action
       ExpressionAction expr = new ExpressionAction(rhsGroum.nodes, IndexGenerator.getIdx());
-      expr.relatedASTNode(node.getRhs());
+      expr.relatedAstNode(node.getRhs());
       Groum exprGroum = new Groum(expr);
 
       var mergedExpressionGroum = rhsGroum.mergeSequential(exprGroum);
@@ -938,13 +935,13 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   public Groum visit(WhileLoopStmtNode node) {
     Groum conditionGroum = node.getExpressionNode().accept(this);
     var expression = new ExpressionAction(conditionGroum.nodes, IndexGenerator.getIdx());
-    expression.relatedASTNode(node);
+    expression.relatedAstNode(node);
     Groum conditionExpressionGroum =
         new Groum(expression);
     Groum mergedGroum = conditionGroum.mergeSequential(conditionExpressionGroum);
 
     var controlNode = new ControlNode(ControlNode.ControlType.whileLoop);
-    controlNode.relatedASTNode(node);
+    controlNode.relatedAstNode(node);
 
     Groum controlGroum = new Groum(controlNode);
     mergedGroum = mergedGroum.mergeSequential(controlGroum);
@@ -965,18 +962,18 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     var iterableSymbol = this.symbolTable.getSymbolsForAstNode(node.getIterableIdNode()).get(0);
     var iterableRef =
         new VariableReferenceAction(iterableSymbol, createOrGetInstanceId(iterableSymbol));
-    iterableRef.relatedASTNode(node.getIterableIdNode());
+    iterableRef.relatedAstNode(node.getIterableIdNode());
 
     mergedGroum = mergedGroum.mergeSequential(iterableRef);
 
     var varSymbol = this.symbolTable.getSymbolsForAstNode(node.getVarIdNode()).get(0);
     var varDef = new DefinitionAction(varSymbol, createOrGetInstanceId(varSymbol));
-    varDef.relatedASTNode(node.getVarIdNode());
+    varDef.relatedAstNode(node.getVarIdNode());
 
     mergedGroum = mergedGroum.mergeSequential(varDef);
 
     var controlNode = new ControlNode(ControlNode.ControlType.forLoop);
-    controlNode.relatedASTNode(node);
+    controlNode.relatedAstNode(node);
 
     Groum controlGroum = new Groum(controlNode);
     mergedGroum = mergedGroum.mergeSequential(controlGroum);
@@ -984,7 +981,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     // counter variable definition
     var counterSymbol = this.symbolTable.getSymbolsForAstNode(node.getCounterIdNode()).get(0);
     var counterDef = new DefinitionAction(counterSymbol, createOrGetInstanceId(counterSymbol));
-    counterDef.relatedASTNode(node.getCounterIdNode());
+    counterDef.relatedAstNode(node.getCounterIdNode());
     mergedGroum = mergedGroum.mergeSequential(counterDef);
 
     var stmtGroum = node.getStmtNode().accept(this);
@@ -1000,19 +997,22 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   public Groum visit(ForLoopStmtNode node) {
     Groum mergedGroum = Groum.NONE;
 
-    var iterableSymbol = this.symbolTable.getSymbolsForAstNode(node.getIterableIdNode()).get(0);
+    // TODO: this may well be a member access -> just visit it?
+    /*var iterableSymbol = this.symbolTable.getSymbolsForAstNode(node.getIterableIdNode()).get(0);
     var iterableRef =
         new VariableReferenceAction(iterableSymbol, createOrGetInstanceId(iterableSymbol));
-    iterableRef.relatedASTNode(node.getIterableIdNode());
-    mergedGroum = mergedGroum.mergeSequential(iterableRef);
+    iterableRef.relatedAstNode(node.getIterableIdNode());*/
+
+    var iterableGroum = node.getIterableIdNode().accept(this);
+    mergedGroum = mergedGroum.mergeSequential(iterableGroum);
 
     var varSymbol = this.symbolTable.getSymbolsForAstNode(node.getVarIdNode()).get(0);
     var varDef = new DefinitionAction(varSymbol, createOrGetInstanceId(varSymbol));
-    varDef.relatedASTNode(node.getVarIdNode());
+    varDef.relatedAstNode(node.getVarIdNode());
     mergedGroum = mergedGroum.mergeSequential(varDef);
 
     var controlNode = new ControlNode(ControlNode.ControlType.forLoop);
-    controlNode.relatedASTNode(node);
+    controlNode.relatedAstNode(node);
     Groum controlGroum = new Groum(controlNode);
     mergedGroum = mergedGroum.mergeSequential(controlGroum);
 
@@ -1050,7 +1050,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     // add def node for aggergate value def
     var valueSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
     var definitionAction = new DefinitionAction(valueSymbol, createOrGetInstanceId(valueSymbol));
-    definitionAction.relatedASTNode(node);
+    definitionAction.relatedAstNode(node);
     definitionAction.addChildren(mergedPropertyDefinitionGroums.nodes);
 
     var defGroum = new Groum(definitionAction);
@@ -1066,7 +1066,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   public Groum visit(ImportNode node) {
     var importSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
     var defAction = new DefinitionByImportAction(importSymbol, createOrGetInstanceId(importSymbol));
-    defAction.relatedASTNode(node);
+    defAction.relatedAstNode(node);
     return new Groum(defAction);
   }
 }
