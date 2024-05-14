@@ -6,6 +6,7 @@ import dsl.parser.ast.TermNode;
 import dsl.parser.ast.VarDeclNode;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.groum.*;
+import dsl.semanticanalysis.groum.node.*;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.io.FileWriter;
@@ -2475,7 +2476,8 @@ public class TestGroum {
     Assert.assertTrue(graphDefReads.contains(t1Def));
     Assert.assertTrue(graphDefReads.contains(t2Def));
 
-    var entityTypeDefReads = entityTypeDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
+    var entityTypeDefReads =
+        entityTypeDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.dataDependencyRead);
     Assert.assertTrue(entityTypeDefReads.contains(dropItemsDef));
     Assert.assertTrue(entityTypeDefReads.contains(pointDef));
   }
@@ -2606,6 +2608,7 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
   }
 
+  @Test
   public void cyclicalDefinitionCursed() {
     String program =
         """

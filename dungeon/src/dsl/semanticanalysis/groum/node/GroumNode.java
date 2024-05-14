@@ -4,7 +4,6 @@ import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.neo4j.ogm.annotation.*;
 
 // TODO: how is this class related to symbols and AST?
@@ -23,7 +22,9 @@ public abstract class GroumNode {
 
   @Id @GeneratedValue private Long id;
 
-  public Long getId() {return this.id;}
+  public Long getId() {
+    return this.id;
+  }
 
   // explicit null object
   public static GroumNode NONE =
@@ -53,11 +54,9 @@ public abstract class GroumNode {
   @Relationship private GroumNode parent = GroumNode.NONE;
   @Relationship private ArrayList<GroumNode> children;
 
-  @Labels
-  private List<String> labels;
+  @Labels private List<String> labels;
 
-  @Property
-  private String label;
+  @Property private String label;
 
   protected void updateLabels() {
     this.label = this.getLabel();

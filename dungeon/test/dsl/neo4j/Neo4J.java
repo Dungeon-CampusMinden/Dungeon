@@ -500,12 +500,16 @@ public class Neo4J {
 
       var globalDefinitions = finalGroum.getGlobalDefinitions();
 
-
       for (int i = 0; i < globalDefinitions.size(); i++) {
         var definition = globalDefinitions.get(i);
-        // get definition from db (matching label by string is probably pretty bad practice...)... could also just use
+        // get definition from db (matching label by string is probably pretty bad practice...)...
+        // could also just use
         // the automatically generated id
-        var definitionFromDb = session.queryForObject(GroumNode.class, "MATCH (g:GroumNode) WHERE ID(g)=$id return g", Map.of("id", definition.getId()));
+        var definitionFromDb =
+            session.queryForObject(
+                GroumNode.class,
+                "MATCH (g:GroumNode) WHERE ID(g)=$id return g",
+                Map.of("id", definition.getId()));
 
         matchSubGroum(definition, definitionFromDb, mismatches);
       }
@@ -535,21 +539,26 @@ public class Neo4J {
       }
 
       if (givenNode.incoming().size() != expectedNode.incoming().size()) {
-        mismatches.add("Number of incoming edges of node [" + givenNode + "] does not expected number of edges from [" + expectedNode + "]");
-      }
-      else {
+        mismatches.add(
+            "Number of incoming edges of node ["
+                + givenNode
+                + "] does not expected number of edges from ["
+                + expectedNode
+                + "]");
+      } else {
         expectedEdgeQueue.addAll(expectedNode.incoming());
         givenEdgeQueue.addAll(givenNode.incoming());
       }
 
-      while(!givenEdgeQueue.isEmpty()) {
+      while (!givenEdgeQueue.isEmpty()) {
         var givenEdge = givenEdgeQueue.pop();
         var expectedEdge = expectedEdgeQueue.pop();
         if (visittedEdges.contains(givenEdge)) {
           continue;
         }
         if (givenEdge != expectedEdge) {
-          mismatches.add("Edge [" + givenEdge + "] does not match expected edge [" + expectedEdge + "]");
+          mismatches.add(
+              "Edge [" + givenEdge + "] does not match expected edge [" + expectedEdge + "]");
         } else {
           expectedNodeQueue.add(expectedEdge.start());
           givenNodeQueue.add(givenEdge.start());

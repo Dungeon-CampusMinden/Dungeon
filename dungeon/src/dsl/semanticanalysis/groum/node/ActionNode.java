@@ -57,7 +57,6 @@ public abstract class ActionNode extends GroumNode {
 
   @Property private final ActionType actionType;
 
-
   public ActionNode(ActionNode.ActionType actionType) {
     this.actionType = actionType;
     this.symbolReferences = new ArrayList<>();
