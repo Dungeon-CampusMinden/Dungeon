@@ -1,5 +1,6 @@
 package dsl.semanticanalysis.groum.node;
 
+import dsl.parser.ast.Node;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
@@ -47,6 +48,8 @@ public abstract class GroumNode {
     this.children = new ArrayList<>();
   }
 
+  @Relationship private Node relatedASTNode;
+
   @Relationship private List<GroumEdge> incomingEdges;
   @Relationship private List<GroumEdge> outgoingEdges;
 
@@ -73,6 +76,14 @@ public abstract class GroumNode {
 
   public long processedCounter() {
     return this.processedCounter;
+  }
+
+  public void relatedASTNode(Node node) {
+    this.relatedASTNode = node;
+  }
+
+  public Node relatedASTNode() {
+    return this.relatedASTNode;
   }
 
   public boolean isOrDescendentOf(GroumNode other) {
