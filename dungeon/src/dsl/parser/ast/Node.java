@@ -9,8 +9,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.neo4j.ogm.annotation.*;
 
-import javax.xml.transform.Source;
-
 @NodeEntity
 public class Node {
   // used for running index to give every Node a unique identifier
@@ -236,7 +234,6 @@ public class Node {
    * @return The {@link SourceFileReference} for this node (or the first one found in pre-order dps
    *     in children).
    */
-  // TODO: would be nice, if this could represent a range
   public SourceFileReference getSourceFileReference() {
     if (sourceFileReference != SourceFileReference.NULL) {
       return sourceFileReference;
