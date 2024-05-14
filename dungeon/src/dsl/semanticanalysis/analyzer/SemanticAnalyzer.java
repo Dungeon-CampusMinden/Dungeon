@@ -654,6 +654,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
       this.scopeStack.push(lhsTypeScopedSymbol);
     }
 
+    boolean restoredScopeStack = false;
     // if we arrive here, we have got two options:
     // 1. we resolve an IdNode at the rhs of the MemberAccessNode
     // 2. we resolve an FuncCallNode at the rhs of the MemberAccessNode
@@ -674,12 +675,18 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
       }
       this.symbolTable.addSymbolNodeRelation(funcSymbol, rhs, false);
 
+      // restore scope stack
+      this.scopeStack.pop();
+      this.scopeStack.push(previousCurrentScope);
+      restoredScopeStack = true;
+
       rhs.accept(this);
     }
 
-    // restore scope stack
-    this.scopeStack.pop();
-    this.scopeStack.push(previousCurrentScope);
+    if (!restoredScopeStack) {
+      this.scopeStack.pop();
+      this.scopeStack.push(previousCurrentScope);
+    }
 
     return null;
   }
