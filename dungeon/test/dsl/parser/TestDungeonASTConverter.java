@@ -1793,4 +1793,21 @@ public class TestDungeonASTConverter {
     boolean b = true;
     // TODO: test implementation
   }
+
+  @Test
+  public void testListDefinitionSourceReference() {
+    String program = """
+        fn test_func() {
+            [1,2,3];
+        }
+    """;
+
+    var ast = Helpers.getASTFromString(program);
+
+    SourceFileReference reference = ast.getChild(0).getSourceFileReference();
+    assertEquals(1, reference.getStartLine());
+    assertEquals(3, reference.getEndLine());
+    assertEquals(4, reference.getStartColumn());
+    assertEquals(4, reference.getEndColumn());
+  }
 }
