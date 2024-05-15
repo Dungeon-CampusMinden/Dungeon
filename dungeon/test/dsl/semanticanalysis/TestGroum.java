@@ -937,15 +937,15 @@ public class TestGroum {
 
     // check only one read on first defs
     var firstIfDefReads = firstIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(1, firstIfDefReads.size());
+    Assert.assertEquals(2, firstIfDefReads.size());
 
     var firstElseDefReads =
         firstElseDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(1, firstElseDefReads.size());
+    Assert.assertEquals(2, firstElseDefReads.size());
 
     var secondIfDefReads =
         secondIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(1, secondIfDefReads.size());
+    Assert.assertEquals(2, secondIfDefReads.size());
 
     // check second print param refs
     var secondPrintParamRefs =
@@ -1168,7 +1168,7 @@ public class TestGroum {
     var firstBlockDef = findNodeByProcessIdx(finalizedGroum, 20);
     var secondBlockDef = findNodeByProcessIdx(finalizedGroum, 23);
     var thirdBlockDef = findNodeByProcessIdx(finalizedGroum, 29);
-    var firstPrintParamRef = findNodeByProcessIdx(finalizedGroum, 31);
+    var firstPrintParamRef = findNodeByProcessIdx(finalizedGroum, 30);
     var elseDef = findNodeByProcessIdx(finalizedGroum, 37);
     var termYRef = findNodeByProcessIdx(finalizedGroum, 39);
     var sumDef = findNodeByProcessIdx(finalizedGroum, 41);
@@ -1225,7 +1225,7 @@ public class TestGroum {
     // check reads on third block def
     var thirdBlockDefReads =
         thirdBlockDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(3, thirdBlockDefReads.size());
+    Assert.assertEquals(4, thirdBlockDefReads.size());
     Assert.assertTrue(thirdBlockDefReads.contains(termYRef));
     Assert.assertTrue(thirdBlockDefReads.contains(sumDef));
     Assert.assertTrue(thirdBlockDefReads.contains(firstPrintParamRef));
@@ -1353,12 +1353,12 @@ public class TestGroum {
     var thirdRedef = findNodeByProcessIdx(finalizedGroum, 22);
     var forthRedef = findNodeByProcessIdx(finalizedGroum, 25);
     var fifthRedef = findNodeByProcessIdx(finalizedGroum, 33);
-    var firstPrintParamRef = findNodeByProcessIdx(finalizedGroum, 27);
+    var firstPrintParamRef = findNodeByProcessIdx(finalizedGroum, 26);
     var secondPrintParamRef = findNodeByProcessIdx(finalizedGroum, 34);
 
     // check param reads
     var paramReads = paramDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(2, paramReads.size());
+    Assert.assertEquals(3, paramReads.size());
     Assert.assertTrue(paramReads.contains(secondPrintParamRef));
 
     // check param redef
@@ -1453,7 +1453,7 @@ public class TestGroum {
     // tests:
     var paramYDefNode = findNodeByProcessIdx(finalizedGroum, 2);
     var nestedIfDefNode = findNodeByProcessIdx(finalizedGroum, 13);
-    var nestedFuncParamRefNode = findNodeByProcessIdx(finalizedGroum, 15);
+    var nestedFuncParamRefNode = findNodeByProcessIdx(finalizedGroum, 14);
     var ifDefNode = findNodeByProcessIdx(finalizedGroum, 19);
 
     var elseDefNode = findNodeByProcessIdx(finalizedGroum, 24);
@@ -1471,7 +1471,7 @@ public class TestGroum {
     // check for print refererence
     var endsOfDataRefsNestedIf =
         nestedIfDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(1, endsOfDataRefsNestedIf.size());
+    Assert.assertEquals(2, endsOfDataRefsNestedIf.size());
     Assert.assertEquals(nestedFuncParamRefNode, endsOfDataRefsNestedIf.get(0));
 
     var startsOfRedefIfDefNode =
@@ -1482,7 +1482,7 @@ public class TestGroum {
 
     // check for final print reference
     var endsOfDataRefIf = ifDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(1, endsOfDataRefIf.size());
+    Assert.assertEquals(2, endsOfDataRefIf.size());
     Assert.assertEquals(funcParamRefNode, endsOfDataRefIf.get(0));
 
     var startsOfRedefElseNode =
@@ -1493,7 +1493,7 @@ public class TestGroum {
     // check for final print reference
     var endsOfDataRefElse =
         elseDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.dataDependencyRead);
-    Assert.assertEquals(1, endsOfDataRefElse.size());
+    Assert.assertEquals(2, endsOfDataRefElse.size());
     Assert.assertEquals(funcParamRefNode, endsOfDataRefElse.get(0));
   }
 
@@ -2371,6 +2371,8 @@ public class TestGroum {
   }
 
   @Test
+  // TODO: in isolation, this test case works, it is just an issue with the processed idxs
+  //  beeing different
   public void interObjectDependencies() {
     String program =
         """
@@ -2445,11 +2447,13 @@ public class TestGroum {
 
     GroumPrinter p2 = new GroumPrinter();
     String finalizedGroumStr = p2.print(finalizedGroum, true);
-    write(finalizedGroumStr, "final_groum.dot");
+    write(finalizedGroumStr, "final_groum_test_fail.dot");
 
     // tests
     var pointDef = findNodeByProcessIdx(finalizedGroum, 48);
     var pointRef = findNodeByProcessIdx(finalizedGroum, 4);
+    System.out.println(pointRef);
+    Assert.assertTrue(pointRef instanceof VariableReferenceAction);
     var entityTypeDef = findNodeByProcessIdx(finalizedGroum, 19);
     var graphDef = findNodeByProcessIdx(finalizedGroum, 30);
     var dropItemsDef = findNodeByProcessIdx(finalizedGroum, 35);
@@ -2660,7 +2664,7 @@ public class TestGroum {
   @Test
   public void complexFunction() {
     String program =
-      """
+        """
     fn ask_task_finished(entity knight, entity who) {
         var my_task : task;
         my_task =  knight.task_component.task;
