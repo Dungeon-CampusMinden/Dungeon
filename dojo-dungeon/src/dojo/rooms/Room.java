@@ -1,21 +1,22 @@
 package dojo.rooms;
 
+import contrib.components.HealthComponent;
+import contrib.hud.dialogs.OkDialog;
 import contrib.level.generator.GeneratorUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.level.generator.graphBased.RoomGenerator;
 import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
+import core.Game;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import core.utils.IVoidFunction;
+import java.util.*;
 
 /**
  * Our basic room type.
@@ -139,5 +140,27 @@ public class Room {
    */
   public Tile getStartTile() {
     return levelRoom.level().startTile();
+  }
+
+  /**
+   * Decreases the heros health at a wrong try ({@code - ceil(maxPoints / maxTries)}).
+   *
+   * <p>Informs the player with an OK dialog first.
+   *
+   * @param maxTries maximal number of wrong tries (the player then dies because he does not have
+   *     sufficient health points, and game over)
+   * @param onDialogDone the on dialog done callback (or the next dialog) (can be empty but not
+   *     null)
+   */
+  protected void decreaseHerosHealthAtWrongTry(int maxTries, IVoidFunction onDialogDone) {
+    OkDialog.showOkDialog(
+        "Das war falsch. Deine Gesundheit wird um "
+            + (int) Math.ceil(100.0 / maxTries)
+            + " % verringert.",
+        "Gesundheit",
+        onDialogDone);
+    HealthComponent hc = Game.hero().orElseThrow().fetch(HealthComponent.class).orElseThrow();
+    int toReduce = (int) Math.ceil((double) hc.maximalHealthpoints() / maxTries);
+    hc.currentHealthpoints(hc.currentHealthpoints() - toReduce);
   }
 }

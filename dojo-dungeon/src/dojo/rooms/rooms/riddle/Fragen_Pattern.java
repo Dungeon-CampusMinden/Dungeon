@@ -14,6 +14,7 @@ import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -40,6 +41,16 @@ public class Fragen_Pattern extends Room {
     ".*?observer.*?",
     ".*?visitor.*?",
   };
+  private final int MIN_NUMBER_OF_CORRECT_ANSWERS = 1;
+  private final int MAX_NUMBER_OF_WRONG_ANSWERS = 2;
+  private List<Integer> patternIndices =
+      new ArrayList<>(IntStream.range(0, EXPECTED_PATTERNS.length).boxed().toList());
+
+  {
+    Collections.shuffle(patternIndices);
+  }
+
+  private int currentPatternIndicesIndex = 0;
   private int currentPatternIndex = 0;
   private int correctAnswerCount = 0;
   private Entity zauberer;
@@ -91,7 +102,7 @@ public class Fragen_Pattern extends Room {
   }
 
   private void setNextTask() {
-    final Quiz question = newFreeText();
+    Quiz question = newFreeText();
 
     zauberer.add(new TaskComponent(question, zauberer));
     zauberer.add(
@@ -104,33 +115,76 @@ public class Fragen_Pattern extends Room {
   }
 
   private BiConsumer<Task, Set<TaskContent>> showAnswersOnHud() {
+    String title = "Antworten";
+    String[] texts = {
+      "Ihre Antwort ist korrekt!",
+      "Die Tür wird geöffnet, aber Sie können auch noch weiter Fragen beantworten.",
+      "Die Tür wird geöffnet. Bitte weitergehen, alle Fragen wurden bereits gestellt.",
+    };
+
     return (task, taskContents) -> {
       String rawAnswer =
           taskContents.stream().map(t -> (Quiz.Content) t).findFirst().orElseThrow().content();
       String answer = rawAnswer.toLowerCase();
 
       if (answer.matches(EXPECTED_PATTERNS[currentPatternIndex])) {
-        OkDialog.showOkDialog("Ihre Antwort ist korrekt!", "Antwort", () -> {});
+        // Correct answer
         correctAnswerCount++;
-        if (correctAnswerCount >= 2) {
+
+        if (correctAnswerCount == MIN_NUMBER_OF_CORRECT_ANSWERS) {
           openDoors();
-        }
-        currentPatternIndex++;
-        if (currentPatternIndex < EXPECTED_PATTERNS.length) {
-          setNextTask();
+          if (hasNextPattern()) {
+            setNextTask();
+            OkDialog.showOkDialog(
+                texts[0], title, () -> OkDialog.showOkDialog(texts[1], title, () -> {}));
+          } else {
+            OkDialog.showOkDialog(
+                texts[0], title, () -> OkDialog.showOkDialog(texts[2], title, () -> {}));
+          }
+        } else {
+          if (hasNextPattern()) {
+            setNextTask();
+            OkDialog.showOkDialog(texts[0], title, () -> {});
+          } else {
+            // Should not happen: no more questions but door isn't opened yet
+            OkDialog.showOkDialog(
+                texts[0], title, () -> OkDialog.showOkDialog(texts[2], title, () -> {}));
+            openDoors();
+          }
         }
       } else {
-        OkDialog.showOkDialog("Ihre Antwort ist nicht korrekt!", "Ok", () -> {});
+        // Wrong answer
+        if (hasNextPattern()) {
+          setNextTask();
+          decreaseHerosHealthAtWrongTry(MAX_NUMBER_OF_WRONG_ANSWERS, () -> {});
+        } else {
+          // Should not happen: no more questions but door isn't opened yet
+          decreaseHerosHealthAtWrongTry(
+              MAX_NUMBER_OF_WRONG_ANSWERS, () -> OkDialog.showOkDialog(texts[2], title, () -> {}));
+          openDoors();
+        }
       }
     };
   }
 
   private Quiz newFreeText() {
+    nextPattern();
     String questionText =
         "Welches Design-Pattern wird in dem UML-Klassendiagramm unter \""
             + FILE_NAME_PREFIX
             + currentPatternIndex
             + ".png\" dargestellt? Es reicht das Wort ohne den Zusatz Pattern! Wenn Sie kein Pattern erkennen, geben Sie bitte \"none\" ein.";
     return new FreeText(questionText);
+  }
+
+  private boolean hasNextPattern() {
+    return currentPatternIndicesIndex < EXPECTED_PATTERNS.length;
+  }
+
+  private void nextPattern() {
+    if (hasNextPattern()) {
+      currentPatternIndex = patternIndices.get(currentPatternIndicesIndex);
+      currentPatternIndicesIndex++;
+    }
   }
 }
