@@ -3,10 +3,13 @@ package dsl.semanticanalysis.groum.node;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
+@NodeEntity
 public class DefinitionAction extends ActionNode {
-  public static final int instancedTypeIdx = 0;
-  public static final int instanceSymbolIdx = 1;
+  @Relationship private final IType instancedType;
+  @Relationship private final Symbol instanceSymbol;
 
   public DefinitionAction(Symbol symbol, long instanceId) {
     super(ActionType.definition);
@@ -14,19 +17,19 @@ public class DefinitionAction extends ActionNode {
     // just always using the return type of a function symbol here is not correct, because
     // sometimes the value can be of a function type (setting a specific scenario_builer
     // in task definitions for example...)
-    this.addSymbolReference(getInstanceSymbolType(symbol));
-    this.addSymbolReference(symbol);
+    this.instancedType = (IType) getInstanceSymbolType(symbol);
+    this.instanceSymbol = symbol;
     this.referencedInstanceId(instanceId);
     this.updateLabels();
   }
 
   public IType instancedType() {
-    return (IType) this.symbolReferences().get(instancedTypeIdx);
+    return this.instancedType;
   }
 
   // how to handle this in plain pattern groum?
   public Symbol instanceSymbol() {
-    return this.symbolReferences().get(instanceSymbolIdx);
+    return this.instanceSymbol;
   }
 
   @Override

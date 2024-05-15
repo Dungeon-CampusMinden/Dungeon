@@ -27,11 +27,9 @@ public class ControlNode extends GroumNode {
     };
   }
 
-  @Property
-  private final long controlNodeId;
+  @Property private final long controlNodeId;
 
-  @Property
-  private final ControlType controlType;
+  @Property private final ControlType controlType;
 
   public ControlNode() {
     this.controlType = ControlType.none;

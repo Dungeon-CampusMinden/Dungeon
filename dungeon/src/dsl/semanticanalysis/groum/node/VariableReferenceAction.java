@@ -3,29 +3,30 @@ package dsl.semanticanalysis.groum.node;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
+@NodeEntity
 public class VariableReferenceAction extends ActionNode {
-  private static final int referencedVariableTypeIdx = 0;
-  private static final int referencedSymbolIdx = 1;
+  @Relationship private final IType referencedVariableType;
+  @Relationship private final Symbol referencedSymbol;
 
   public VariableReferenceAction(Symbol referencedSymbol, long referenceId) {
     super(ActionType.referencedInExpression);
-    if (referencedSymbol == Symbol.NULL) {
-      boolean b = true;
-    }
 
-    this.addSymbolReference(getInstanceSymbolType(referencedSymbol));
-    this.addSymbolReference(referencedSymbol);
+    this.referencedVariableType = (IType) getInstanceSymbolType(referencedSymbol);
+    this.referencedSymbol = referencedSymbol;
+
     this.referencedInstanceId(referenceId);
     this.updateLabels();
   }
 
   public IType variableType() {
-    return (IType) this.symbolReferences().get(referencedVariableTypeIdx);
+    return this.referencedVariableType;
   }
 
   public Symbol variableSymbol() {
-    return this.symbolReferences().get(referencedSymbolIdx);
+    return this.referencedSymbol;
   }
 
   @Override

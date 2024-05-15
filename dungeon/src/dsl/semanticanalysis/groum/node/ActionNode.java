@@ -5,8 +5,6 @@ import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-import java.util.ArrayList;
-import java.util.List;
 import org.neo4j.ogm.annotation.*;
 
 // TODO: how to model prototype definition?
@@ -52,27 +50,14 @@ public abstract class ActionNode extends GroumNode {
   // if the groum describes a pattern, this is empty
   @Relationship private Node astNodeReference;
 
-  // this may be a type, this may be a function, this may be a property, who knows..
-  @Relationship private List<Symbol> symbolReferences;
-
   @Property private final ActionType actionType;
 
   public ActionNode(ActionNode.ActionType actionType) {
     this.actionType = actionType;
-    this.symbolReferences = new ArrayList<>();
   }
 
   public ActionNode() {
     this.actionType = ActionType.none;
-    this.symbolReferences = new ArrayList<>();
-  }
-
-  public List<Symbol> symbolReferences() {
-    return this.symbolReferences;
-  }
-
-  public void addSymbolReference(Symbol symbol) {
-    this.symbolReferences.add(symbol);
   }
 
   public ActionType actionType() {

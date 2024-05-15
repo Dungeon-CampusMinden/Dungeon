@@ -475,9 +475,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     var passAsParamNodes = node.getStartsOfIncoming(GroumEdge.GroumEdgeType.temporal);
     for (var paramNode : passAsParamNodes) {
       var paramNodesInvolvedVariables = this.involvedVariables.get(paramNode);
-      if (paramNodesInvolvedVariables!=null) {
+      if (paramNodesInvolvedVariables != null) {
         paramNodesInvolvedVariables.forEach(
-          n -> this.addInvolvedVariable(node, n, n.typeOfInvolvement()));
+            n -> this.addInvolvedVariable(node, n, n.typeOfInvolvement()));
       }
     }
 

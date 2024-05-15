@@ -3,25 +3,28 @@ package dsl.semanticanalysis.groum.node;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
+@NodeEntity
 public class ParameterInstantiationAction extends ActionNode {
-  public static final int instantiatedTypeIdx = 0;
-  public static final int parameterSymbol = 1;
+  @Relationship private final IType instantiatedType;
+  @Relationship private final Symbol parameterSymbol;
 
   public ParameterInstantiationAction(Symbol parameterSymbol, long instanceId) {
     super(ActionType.parameterInstantiation);
-    this.addSymbolReference((Symbol) parameterSymbol.getDataType());
-    this.addSymbolReference(parameterSymbol);
+    this.instantiatedType = parameterSymbol.getDataType();
+    this.parameterSymbol = parameterSymbol;
     this.referencedInstanceId(instanceId);
     this.updateLabels();
   }
 
   public IType instantiatedType() {
-    return (IType) this.symbolReferences().get(instantiatedTypeIdx);
+    return this.instantiatedType;
   }
 
   public Symbol parameterSymbol() {
-    return this.symbolReferences().get(parameterSymbol);
+    return this.parameterSymbol;
   }
 
   @Override

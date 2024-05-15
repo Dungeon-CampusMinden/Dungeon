@@ -936,8 +936,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     Groum conditionGroum = node.getExpressionNode().accept(this);
     var expression = new ExpressionAction(conditionGroum.nodes, IndexGenerator.getIdx());
     expression.relatedAstNode(node);
-    Groum conditionExpressionGroum =
-        new Groum(expression);
+    Groum conditionExpressionGroum = new Groum(expression);
     Groum mergedGroum = conditionGroum.mergeSequential(conditionExpressionGroum);
 
     var controlNode = new ControlNode(ControlNode.ControlType.whileLoop);

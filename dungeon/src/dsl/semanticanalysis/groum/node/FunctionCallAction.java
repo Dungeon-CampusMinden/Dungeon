@@ -2,19 +2,22 @@ package dsl.semanticanalysis.groum.node;
 
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
+@NodeEntity
 public class FunctionCallAction extends ActionNode {
-  public static final int functionSymbolIdx = 0;
+  @Relationship private final Symbol functionSymbol;
 
   public FunctionCallAction(Symbol functionSymbol, long instanceId) {
     super(ActionType.functionCall);
-    this.addSymbolReference(functionSymbol);
+    this.functionSymbol = functionSymbol;
     this.referencedInstanceId(instanceId);
     this.updateLabels();
   }
 
   public Symbol functionSymbol() {
-    return this.symbolReferences().get(functionSymbolIdx);
+    return this.functionSymbol;
   }
 
   @Override

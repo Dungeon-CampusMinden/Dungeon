@@ -4,19 +4,24 @@ import dsl.IndexGenerator;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
+@NodeEntity
 public class MethodAccessAction extends ActionNode {
-  public static final int instanceTypeIdx = 0;
-  public static final int instanceSymbolIdx = 1;
-  public static final int methodSymbolIdx = 2;
   private final long methodCallInstanceId;
+
+  @Relationship private final IType instanceType;
+  @Relationship private final Symbol instanceSymbol;
+  @Relationship private final Symbol methodSymbol;
 
   public MethodAccessAction(Symbol instanceSymbol, Symbol method, long instanceId) {
     super(ActionType.functionCallAccess);
 
-    this.addSymbolReference(getInstanceSymbolType(instanceSymbol));
-    this.addSymbolReference(instanceSymbol);
-    this.addSymbolReference(method);
+    this.instanceType = (IType) getInstanceSymbolType(instanceSymbol);
+    this.instanceSymbol = instanceSymbol;
+    this.methodSymbol = method;
+
     this.referencedInstanceId(instanceId);
     this.methodCallInstanceId = IndexGenerator.getIdx();
     this.updateLabels();
@@ -33,15 +38,15 @@ public class MethodAccessAction extends ActionNode {
   }
 
   public IType instanceDataType() {
-    return (IType) this.symbolReferences().get(instanceTypeIdx);
+    return this.instanceType;
   }
 
   public Symbol instanceSymbol() {
-    return this.symbolReferences().get(instanceSymbolIdx);
+    return this.instanceSymbol;
   }
 
   public Symbol methodSymbol() {
-    return this.symbolReferences().get(methodSymbolIdx);
+    return this.methodSymbol;
   }
 
   public long methodCallInstanceId() {

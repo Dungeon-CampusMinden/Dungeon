@@ -3,12 +3,15 @@ package dsl.semanticanalysis.groum.node;
 import dsl.IndexGenerator;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
+@NodeEntity
 public class ConstRefAction extends ActionNode {
-  public static int referencedTypeIdx = 0;
-
   private Object value;
+  @Relationship private final IType referencedType;
 
   @Override
   public String getLabel() {
@@ -23,19 +26,20 @@ public class ConstRefAction extends ActionNode {
 
   public ConstRefAction() {
     super(ActionType.constRef);
+    this.referencedType = BuiltInType.noType;
     this.updateLabels();
   }
 
   public ConstRefAction(Symbol type, Object value) {
     super(ActionType.constRef);
-    this.addSymbolReference(type);
+    this.referencedType = (IType) type;
     this.value = value;
     this.referencedInstanceId(IndexGenerator.getIdx());
     this.updateLabels();
   }
 
   public IType referencedType() {
-    return (IType) this.symbolReferences().get(referencedTypeIdx);
+    return this.referencedType;
   }
 
   public Object value() {
