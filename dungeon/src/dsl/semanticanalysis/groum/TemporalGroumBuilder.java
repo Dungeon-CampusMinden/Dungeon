@@ -19,6 +19,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
   // this will store instance ids for specific symbols
   private HashMap<Symbol, Long> symbolInstanceMap;
+  private HashMap<Object, Long> constValueInstanceMap;
 
   // this will store instance ids for specific ast nodes; this is needed, because
   // a property definition may be child of a aggregate value definition which is
@@ -43,6 +44,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     this.nodeInstanceMap = new HashMap<>();
     this.memberAccessContextStack = new Stack<>();
     this.memberAccessInstanceMap = new HashMap<>();
+    this.constValueInstanceMap = new HashMap<>();
     this.inferrer = new TypeInferrer(this.symbolTable, null);
 
     var groumNode = astNode.accept(this);
@@ -226,10 +228,18 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     return mergedGroum;
   }
 
+  public Long getConstValueInstanceId(Object value) {
+    if (!this.constValueInstanceMap.containsKey(value)) {
+      this.constValueInstanceMap.put(value, IndexGenerator.getIdx());
+    }
+    return this.constValueInstanceMap.get(value);
+  }
+
   @Override
   public Groum visit(DecNumNode node) {
     var type = node.accept(this.inferrer);
-    var refAction = new ConstRefAction((Symbol) type, node.getValue());
+    Long instanceId = getConstValueInstanceId(node.getValue());
+    var refAction = new ConstRefAction((Symbol) type, node.getValue(), instanceId);
     refAction.relatedAstNode(node);
     return new Groum(refAction);
   }
@@ -237,7 +247,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   @Override
   public Groum visit(NumNode node) {
     var type = node.accept(this.inferrer);
-    var refAction = new ConstRefAction((Symbol) type, node.getValue());
+    Long instanceId = getConstValueInstanceId(node.getValue());
+    var refAction = new ConstRefAction((Symbol) type, node.getValue(), instanceId);
     refAction.relatedAstNode(node);
     return new Groum(refAction);
   }
@@ -245,7 +256,8 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   @Override
   public Groum visit(StringNode node) {
     var type = node.accept(this.inferrer);
-    var refAction = new ConstRefAction((Symbol) type, node.getValue());
+    Long instanceId = getConstValueInstanceId(node.getValue());
+    var refAction = new ConstRefAction((Symbol) type, node.getValue(), instanceId);
     refAction.relatedAstNode(node);
     return new Groum(refAction);
   }
