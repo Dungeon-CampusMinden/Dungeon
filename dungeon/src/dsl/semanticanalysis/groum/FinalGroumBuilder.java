@@ -107,7 +107,16 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     processedCounter = 0;
     for (var defNode : this.defNodes.values()) {
       // create new scope
-      var defScope = new GroumScope(this.groum, this.currentScope(), defNode);
+      GroumScope defScope;
+      if (defNode instanceof DefinitionAction definitionAction && definitionAction.instanceSymbol().getSymbolType().equals(Symbol.SymbolType.Callable)) {
+        // function defintion
+        //var beginFuncControlNode = definitionAction.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).get(0);
+        //defScope = new GroumScope(this.groum, this.currentScope(), beginFuncControlNode);
+        var beginFuncNode = defNode.children().get(0);
+        defScope = new GroumScope(this.groum, this.currentScope(), beginFuncNode);
+      } else {
+        defScope = new GroumScope(this.groum, this.currentScope(), defNode);
+      }
       this.groumScopeStack.push(defScope);
 
       // get subgroums source nodes
@@ -362,7 +371,6 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
             this.groum.addEdge(readEdge);
           });
         }
-
 
         break;
       case block:

@@ -16,7 +16,9 @@ public class ControlNode extends GroumNode {
     ifElseStmt,
     elseStmt,
     block,
-    returnStmt
+    returnStmt,
+    beginFunc,
+    endFunc
   }
 
   public boolean isConditional() {

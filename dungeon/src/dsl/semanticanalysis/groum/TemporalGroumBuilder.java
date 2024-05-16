@@ -132,10 +132,14 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     }
 
     Groum merged = new Groum();
+    // add begin node
+    merged = merged.mergeSequential(new ControlNode(ControlNode.ControlType.beginFunc));
+    Groum mergedParamGroum = new Groum();
 
     for (var paramGroum : paramGroums) {
-      merged = merged.mergeParallel(paramGroum);
+      mergedParamGroum = mergedParamGroum.mergeParallel(paramGroum);
     }
+    merged = merged.mergeSequential(mergedParamGroum);
 
     for (var stmtGroum : stmtGroums) {
       merged = merged.mergeSequential(stmtGroum);
@@ -144,6 +148,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     var funcSymbol = this.symbolTable.getSymbolsForAstNode(node).get(0);
     var funcDefAction = new DefinitionAction(funcSymbol, createOrGetInstanceId(funcSymbol));
     funcDefAction.relatedAstNode(node);
+    merged = merged.mergeSequential(new ControlNode(ControlNode.ControlType.endFunc));
 
     funcDefAction.addChildren(merged.nodes);
     merged = merged.mergeSequential(funcDefAction);
