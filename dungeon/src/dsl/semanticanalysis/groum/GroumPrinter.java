@@ -197,7 +197,7 @@ public class GroumPrinter {
     String edgeTypeStr = edge.edgeType().toString();
     var edgeType = edge.edgeType();
     String edgeStyle = normaleEdgeStyle;
-    if (edgeType == GroumEdge.GroumEdgeType.temporal && this.invisibleTemporalEdge) {
+    if (edgeType == GroumEdge.GroumEdgeType.EDGE_TEMPORAL && this.invisibleTemporalEdge) {
       edgeStyle = invisibleEdgeStyle;
     }
     String edgeString = String.format(edgeFmt, startId, endId, edgeTypeStr, edgeStyle);

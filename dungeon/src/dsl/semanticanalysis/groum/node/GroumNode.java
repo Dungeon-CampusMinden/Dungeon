@@ -46,24 +46,26 @@ public abstract class GroumNode {
     this.incomingEdges = new ArrayList<>();
     this.outgoingEdges = new ArrayList<>();
     this.children = new ArrayList<>();
+    this.controlFlowParent = GroumNode.NONE;
+    this.relatedAstNode = Node.NONE;
   }
 
   @Relationship private Node relatedAstNode;
+  @Relationship private GroumNode controlFlowParent;
+  //@Transient private GroumNode controlFlowParent;
 
-  @Relationship private List<GroumEdge> incomingEdges;
+  @Transient private List<GroumEdge> incomingEdges;
   @Relationship private List<GroumEdge> outgoingEdges;
 
   // only relevant, if contained in a larger Scope
   @Relationship private GroumNode parent = GroumNode.NONE;
   @Relationship private ArrayList<GroumNode> children;
 
-  @Labels private List<String> labels;
-
   @Property private String label;
 
   protected void updateLabels() {
     this.label = this.getLabel();
-    this.labels = List.of(label);
+    //this.labels = List.of(label);
   }
 
   private long processedCounter = -1;
@@ -84,6 +86,14 @@ public abstract class GroumNode {
 
   public Node relatedAstNode() {
     return this.relatedAstNode;
+  }
+
+  public GroumNode controlFlowParent() {
+    return this.controlFlowParent;
+  }
+
+  public void controlFlowParent(GroumNode controlFlowParent) {
+    this.controlFlowParent = controlFlowParent;
   }
 
   public boolean isOrDescendentOf(GroumNode other) {

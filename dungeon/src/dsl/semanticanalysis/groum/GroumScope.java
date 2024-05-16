@@ -34,6 +34,14 @@ public class GroumScope {
     this.associatedGroumNode = associatedGroumNode;
   }
 
+  public GroumScope controlFlowParent() {
+    return this.controlFlowParent;
+  }
+
+  public GroumNode controlFlowParentNode() {
+    return controlFlowParent.associatedGroumNode;
+  }
+
   public void pushConditionalScope(GroumScope conditionalScope) {
     this.conditionalScopes.put(conditionalScope.associatedGroumNode, conditionalScope);
     this.conditionalScopesOrdered.push(conditionalScope.associatedGroumNode);
@@ -113,7 +121,7 @@ public class GroumScope {
           // get else control node
           var elseStmtNode =
               assocNodeParentOfControlFlowParent
-                  .getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal)
+                  .getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL)
                   .get(1);
           assert elseStmtNode instanceof ControlNode;
           assert ((ControlNode) elseStmtNode)
@@ -130,7 +138,7 @@ public class GroumScope {
           // get if control node
           var ifStmtNode =
               assocNodeParentOfControlFlowParent
-                  .getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal)
+                  .getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL)
                   .get(0);
           assert ifStmtNode instanceof ControlNode;
           assert ((ControlNode) ifStmtNode).controlType().equals(ControlNode.ControlType.ifStmt);
@@ -236,7 +244,7 @@ public class GroumScope {
                 d -> {
                   var redefEdges =
                       new GroumEdge(
-                          oldDefinitionNode, d, GroumEdge.GroumEdgeType.dataDependencyRedefinition);
+                          oldDefinitionNode, d, GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
                   this.groum.addEdge(redefEdges);
                 });
           }
@@ -316,7 +324,7 @@ public class GroumScope {
           && parentsControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
         // does the if-branch contain a definition for instanceID?
         // get if node
-        var ifNode = parentsControlNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.temporal).get(0);
+        var ifNode = parentsControlNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).get(0);
         var ifScope = parentsParent.getConditionalScopeFor(ifNode);
 
         // if the if scope does not itself contain the definitions, it's block may contain it

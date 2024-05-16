@@ -100,7 +100,7 @@ public class Groum {
     // connect sinks to sources
     for (var sinkNode : sinkNodes) {
       for (var sourceNode : sourceNodes) {
-        var edge = new GroumEdge(sinkNode, sourceNode, GroumEdge.GroumEdgeType.temporal);
+        var edge = new GroumEdge(sinkNode, sourceNode, GroumEdge.GroumEdgeType.EDGE_TEMPORAL);
         mergedEdges.add(edge);
       }
     }
@@ -125,7 +125,7 @@ public class Groum {
     // connect sinks to sources
     for (var sinkNode : sinkNodes) {
       for (var sourceNode : sourceNodes) {
-        var edge = new GroumEdge(sinkNode, sourceNode, GroumEdge.GroumEdgeType.temporal);
+        var edge = new GroumEdge(sinkNode, sourceNode, GroumEdge.GroumEdgeType.EDGE_TEMPORAL);
         mergedEdges.add(edge);
       }
     }

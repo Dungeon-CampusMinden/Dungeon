@@ -5,10 +5,11 @@ import org.neo4j.ogm.annotation.*;
 @RelationshipEntity
 public class GroumEdge {
   public enum GroumEdgeType {
-    none,
-    temporal,
-    dataDependencyRead,
-    dataDependencyRedefinition
+    EDGE_NONE,
+    EDGE_TEMPORAL,
+    EDGE_DATA_READ,
+    EDGE_DATA_WRITE,
+    EDGE_CONTROL_PARENT
   }
 
   @Id @GeneratedValue private Long id;
@@ -25,7 +26,7 @@ public class GroumEdge {
     this.end = GroumNode.NONE;
     this.idxOnStart = -1;
     this.idxOnEnd = -1;
-    this.edgeType = GroumEdgeType.none;
+    this.edgeType = GroumEdgeType.EDGE_NONE;
     this.label = this.toString();
   }
 
@@ -41,6 +42,10 @@ public class GroumEdge {
     this.edgeType = edgeType;
 
     this.label = this.toString();
+
+    if (start.processedCounter() == 4 && edgeType.equals(GroumEdgeType.EDGE_DATA_READ)) {
+      boolean b = true;
+    }
   }
 
   public GroumNode start() {
