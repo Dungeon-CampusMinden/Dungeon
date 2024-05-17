@@ -1,39 +1,39 @@
 @startuml UML_Klassendiagramm7.png
-' Abstrakte Element-Klasse
+' Abstrakte Klassen
 abstract class DocumentPart {
-    accept(v : Visitor) : void
+    accept(v : DocumentWorker) : void
 }
 
-' Konkrete Element-Klassen
+' Konkrete Klassen
 class Text extends DocumentPart {
-    +accept(v : Visitor) : void
+    +accept(v : DocumentWorker) : void
 }
 class Image extends DocumentPart {
-    +accept(v : Visitor) : void
+    +accept(v : DocumentWorker) : void
 }
 class Table extends DocumentPart {
-    +accept(v : Visitor) : void
+    +accept(v : DocumentWorker) : void
 }
 
-' Abstrakte Visitor-Klasse
-interface Visitor {
-    +visit(element : Text) : void
-    +visit(element : Image) : void
-    +visit(element : Table) : void
+' Interface Klassen
+interface DocumentWorker {
+    +workWith(element : Text) : void
+    +workWith(element : Image) : void
+    +workWith(element : Table) : void
 }
 
-' Konkrete Visitor-Klassen
-class Renderer implements Visitor {
-    +visit(element : Text) : void
-    +visit(element : Image) : void
-    +visit(element : Table) : void
+' Konkrete Klassen
+class Renderer implements DocumentWorker {
+    +workWith(element : Text) : void
+    +workWith(element : Image) : void
+    +workWith(element : Table) : void
 }
-class Saver implements Visitor {
-    +visit(element : Text) : void
-    +visit(element : Image) : void
-    +visit(element : Table) : void
+class Saver implements DocumentWorker {
+    +workWith(element : Text) : void
+    +workWith(element : Image) : void
+    +workWith(element : Table) : void
 }
 
-' Beziehungen
-DocumentPart "1" -- "n" Visitor : > Uses
+' Assoziationen
+DocumentPart "1" --> "n" DocumentWorker : > Uses
 @enduml
