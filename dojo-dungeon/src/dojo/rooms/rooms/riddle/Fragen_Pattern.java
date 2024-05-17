@@ -35,9 +35,9 @@ public class Fragen_Pattern extends Room {
     ".*?none.*?",
     ".*?observer.*?",
     ".*?visitor.*?",
-    ".*?(composite)|(kompositum).*?",
-    ".*?adapter.*?",
-    ".*?singleton.*?",
+    ".*?(composite)|(kompositum)|(none).*?",
+    ".*?(adapter)|(none).*?",
+    ".*?(singleton)|(none).*?",
     ".*?observer.*?",
     ".*?visitor.*?",
   };
