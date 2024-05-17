@@ -1,36 +1,36 @@
 @startuml UML_Klassendiagramm6.png
-' Definition der Interfaces
+' Interface Klassen
 interface Subject {
-    + attach(Observer)
-    + detach(Observer)
+    + attach(Shikoku)
+    + detach(Shikoku)
     + notify()
 }
 
-interface Observer {
+interface Shikoku {
     + update()
 }
 
-' Definition der konkreten Klassen
+' Konkrete Klassen
 class ConcreteSubject {
     - subjectState : int
     + getState() : int
     + setState(int)
 }
 
-class ConcreteObserver {
-    - observerState : int
+class ConcreteShikoku {
+    - shikokuState : int
     - subject : Subject
-    + ConcreteObserver(subject : Subject)
+    + ConcreteShikoku(subject : Subject)
     + update()
 }
 
 ' Vererbungen
-ConcreteObserver --|> Observer
+ConcreteShikoku --|> Shikoku
 Subject <|-- ConcreteSubject
 
 ' Assoziationen
-Observer -[hidden]- Subject
-Observer "*" <-- "1" Subject : notifies <
-Observer -[hidden]- Subject
-Observer "*" --> "1" Subject : observes >
+Shikoku -[hidden]- Subject
+Shikoku "*" <-- "1" Subject : notifies <
+Shikoku -[hidden]- Subject
+Shikoku "*" --> "1" Subject : observes >
 @enduml
