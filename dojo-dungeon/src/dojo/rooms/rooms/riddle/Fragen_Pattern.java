@@ -40,6 +40,7 @@ public class Fragen_Pattern extends Room {
     ".*?(singleton)|(none).*?",
     ".*?observer.*?",
     ".*?visitor.*?",
+    ".*?(strategy)|(strategie)|(none).*?",
   };
   private final int MIN_NUMBER_OF_CORRECT_ANSWERS = 1;
   private final int MAX_NUMBER_OF_WRONG_ANSWERS = 2;
