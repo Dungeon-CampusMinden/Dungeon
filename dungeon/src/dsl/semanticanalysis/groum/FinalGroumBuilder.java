@@ -520,10 +520,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     List<InvolvedVariable> returnList = new ArrayList<>(expressionInvolvedVariables.size());
     for (var involvedVariable : expressionInvolvedVariables) {
       this.addInvolvedVariable(node, involvedVariable, involvedVariable.typeOfInvolvement());
+      var dataEdge = new GroumEdge(involvedVariable.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+      this.groum.addEdge(dataEdge);
     }
-
-    // Note: we do not explicitly create data dependency edges to the expression, as the expression
-    // is just used as an intermediary object
 
     return returnList;
   }

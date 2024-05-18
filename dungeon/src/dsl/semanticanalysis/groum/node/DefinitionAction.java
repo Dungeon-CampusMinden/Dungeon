@@ -8,7 +8,7 @@ import org.neo4j.ogm.annotation.Relationship;
 
 @NodeEntity
 public class DefinitionAction extends ActionNode {
-  @Relationship private final IType instancedType;
+  @Relationship private final IType instanceType;
   @Relationship private final Symbol instanceSymbol;
 
   public DefinitionAction(Symbol symbol, long instanceId) {
@@ -17,14 +17,14 @@ public class DefinitionAction extends ActionNode {
     // just always using the return type of a function symbol here is not correct, because
     // sometimes the value can be of a function type (setting a specific scenario_builer
     // in task definitions for example...)
-    this.instancedType = (IType) getInstanceSymbolType(symbol);
+    this.instanceType = (IType) getInstanceSymbolType(symbol);
     this.instanceSymbol = symbol;
     this.referencedInstanceId(instanceId);
     this.updateLabels();
   }
 
   public IType instancedType() {
-    return this.instancedType;
+    return this.instanceType;
   }
 
   // how to handle this in plain pattern groum?

@@ -523,7 +523,7 @@ public class Neo4J {
   @Test
   public void testPatternMatch() {
     String program =
-      """
+        """
       fn ask_task_finished(entity knight, entity who) {
           var my_task : task;
           my_task =  knight.task_component.task;
@@ -699,15 +699,442 @@ public class Neo4J {
         // could also just use
         // the automatically generated id
         var definitionFromDb =
-          session.queryForObject(
-            GroumNode.class,
-            "MATCH (g:GroumNode) WHERE ID(g)=$id return g",
-            Map.of("id", definition.getId()));
+            session.queryForObject(
+                GroumNode.class,
+                "MATCH (g:GroumNode) WHERE ID(g)=$id return g",
+                Map.of("id", definition.getId()));
 
         matchSubGroum(definition, definitionFromDb, mismatches);
       }
 
       Assert.assertTrue(mismatches.isEmpty());
+
+      sessionFactory.close();
+    }
+  }
+
+  @Test
+  public void testNonVoidNoReturnSingleFlow() {
+    String program =
+      """
+      fn test(int limit, int other) -> int {
+        print("Hello");
+      }
+      """;
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    DSLInterpreter interpreter = new DSLInterpreter();
+    try {
+      RelationshipRecorder.instance.clear();
+      DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+    } catch (RuntimeException ex) {
+      // program contains error, won't be able to create quest config
+    }
+
+    var env = interpreter.getRuntimeEnvironment();
+    var fileScope = env.getFileScopes().get(null);
+    var parsedFile = fileScope.file();
+    var ast = parsedFile.rootASTNode();
+    var symTable = env.getSymbolTable();
+    FinalGroumBuilder builder = new FinalGroumBuilder();
+    Groum finalGroum = builder.build(ast, symTable, env);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalGroum, false);
+    write(finalizedGroumStr, "final_groum_db.dot");
+
+    var nodeRelationShips = RelationshipRecorder.instance.get();
+
+    // URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
+    try (var driver = Neo4jConnect.openConnection()) {
+      var sessionFactory = Neo4jConnect.getSessionFactory(driver);
+      var session = sessionFactory.openSession();
+
+      // clean up db
+      session.query("MATCH (n) DETACH DELETE n", Map.of());
+
+      // save ast in db
+      session.save(ast);
+      session.save(nodeRelationShips);
+      session.save(nodeRelationShips);
+
+      session.save(symTable.getSymbolCreations());
+      session.save(symTable.getSymbolReferences());
+      session.save(symTable.globalScope());
+      var filScopes = env.getFileScopes().entrySet();
+      for (var entry : filScopes) {
+        var scope = entry.getValue();
+        session.save(scope);
+      }
+
+      session.save(finalGroum);
+
+      var returnedGroum = session.queryForObject(Groum.class, "MATCH (g:Groum) RETURN g", Map.of());
+      var mismatches = matchGroum(finalGroum, returnedGroum);
+      Assert.assertTrue(mismatches.isEmpty());
+
+      var globalDefinitions = finalGroum.getGlobalDefinitions();
+
+      String query =
+        """
+        match (n:ControlNode {controlType:\"whileLoop\"})<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(e:ExpressionAction)<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(v:VariableReferenceAction)
+        return v,n
+        """;
+
+      var result = session.query(query,Map.of());
+
+      sessionFactory.close();
+    }
+  }
+
+  @Test
+  public void testDetectDeadCode() {
+    String program =
+      """
+      fn test(int neverRead, int read, inventory_component accessed, inventory_component other) -> int {
+        print(read);
+        var i = read + 0;
+        print(i);
+        var j = read;
+
+        // This will redefine the value, but it should not be warned about it
+        accessed.drop_items();
+
+        // this should be warned about
+        accessed = other;
+      }
+      """;
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    DSLInterpreter interpreter = new DSLInterpreter();
+    try {
+      RelationshipRecorder.instance.clear();
+      DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+    } catch (RuntimeException ex) {
+      // program contains error, won't be able to create quest config
+    }
+
+    var env = interpreter.getRuntimeEnvironment();
+    var fileScope = env.getFileScopes().get(null);
+    var parsedFile = fileScope.file();
+    var ast = parsedFile.rootASTNode();
+    var symTable = env.getSymbolTable();
+    FinalGroumBuilder builder = new FinalGroumBuilder();
+    Groum finalGroum = builder.build(ast, symTable, env);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalGroum, false);
+    write(finalizedGroumStr, "final_groum_db.dot");
+
+    var nodeRelationShips = RelationshipRecorder.instance.get();
+
+    // URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
+    try (var driver = Neo4jConnect.openConnection()) {
+      var sessionFactory = Neo4jConnect.getSessionFactory(driver);
+      var session = sessionFactory.openSession();
+
+      // clean up db
+      session.query("MATCH (n) DETACH DELETE n", Map.of());
+
+      // save ast in db
+      session.save(ast);
+      session.save(nodeRelationShips);
+      session.save(nodeRelationShips);
+
+      session.save(symTable.getSymbolCreations());
+      session.save(symTable.getSymbolReferences());
+      session.save(symTable.globalScope());
+      var filScopes = env.getFileScopes().entrySet();
+      for (var entry : filScopes) {
+        var scope = entry.getValue();
+        session.save(scope);
+      }
+
+      session.save(finalGroum);
+
+      var returnedGroum = session.queryForObject(Groum.class, "MATCH (g:Groum) RETURN g", Map.of());
+      var mismatches = matchGroum(finalGroum, returnedGroum);
+      Assert.assertTrue(mismatches.isEmpty());
+
+      var globalDefinitions = finalGroum.getGlobalDefinitions();
+
+      String query =
+        """
+        match (n:ControlNode {controlType:\"whileLoop\"})<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(e:ExpressionAction)<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(v:VariableReferenceAction)
+        return v,n
+        """;
+
+      var result = session.query(query,Map.of());
+
+      sessionFactory.close();
+    }
+  }
+
+  @Test
+  public void testTemporalAnchoring() {
+    String program =
+      """
+      fn test(int limit, int other) -> int {
+        if other {
+          print("Hello");
+        else {
+          print("Hello");
+        }
+        print("Hello");
+      }
+      """;
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    DSLInterpreter interpreter = new DSLInterpreter();
+    try {
+      RelationshipRecorder.instance.clear();
+      DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+    } catch (RuntimeException ex) {
+      // program contains error, won't be able to create quest config
+    }
+
+    var env = interpreter.getRuntimeEnvironment();
+    var fileScope = env.getFileScopes().get(null);
+    var parsedFile = fileScope.file();
+    var ast = parsedFile.rootASTNode();
+    var symTable = env.getSymbolTable();
+    FinalGroumBuilder builder = new FinalGroumBuilder();
+    Groum finalGroum = builder.build(ast, symTable, env);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalGroum, false);
+    write(finalizedGroumStr, "final_groum_db.dot");
+
+    var nodeRelationShips = RelationshipRecorder.instance.get();
+
+    // URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
+    try (var driver = Neo4jConnect.openConnection()) {
+      var sessionFactory = Neo4jConnect.getSessionFactory(driver);
+      var session = sessionFactory.openSession();
+
+      // clean up db
+      session.query("MATCH (n) DETACH DELETE n", Map.of());
+
+      // save ast in db
+      session.save(ast);
+      session.save(nodeRelationShips);
+      session.save(nodeRelationShips);
+
+      session.save(symTable.getSymbolCreations());
+      session.save(symTable.getSymbolReferences());
+      session.save(symTable.globalScope());
+      var filScopes = env.getFileScopes().entrySet();
+      for (var entry : filScopes) {
+        var scope = entry.getValue();
+        session.save(scope);
+      }
+
+      session.save(finalGroum);
+
+      var returnedGroum = session.queryForObject(Groum.class, "MATCH (g:Groum) RETURN g", Map.of());
+      var mismatches = matchGroum(finalGroum, returnedGroum);
+      Assert.assertTrue(mismatches.isEmpty());
+
+      var globalDefinitions = finalGroum.getGlobalDefinitions();
+
+      String query =
+        """
+        match (n:ControlNode {controlType:\"whileLoop\"})<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(e:ExpressionAction)<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(v:VariableReferenceAction)
+        return v,n
+        """;
+
+      var result = session.query(query,Map.of());
+
+      sessionFactory.close();
+    }
+  }
+
+  @Test
+  public void testNonVoidNoReturn() {
+    String program =
+      """
+      fn test(int limit, int other) -> int {
+        if other {
+          print("Hello");
+        else {
+          if limit {
+            return 0;
+            print(1);
+          } else {
+            print(1);
+          }
+        }
+      }
+      """;
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    DSLInterpreter interpreter = new DSLInterpreter();
+    try {
+      RelationshipRecorder.instance.clear();
+      DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+    } catch (RuntimeException ex) {
+      // program contains error, won't be able to create quest config
+    }
+
+    var env = interpreter.getRuntimeEnvironment();
+    var fileScope = env.getFileScopes().get(null);
+    var parsedFile = fileScope.file();
+    var ast = parsedFile.rootASTNode();
+    var symTable = env.getSymbolTable();
+    FinalGroumBuilder builder = new FinalGroumBuilder();
+    Groum finalGroum = builder.build(ast, symTable, env);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalGroum, false);
+    write(finalizedGroumStr, "final_groum_db.dot");
+
+    var nodeRelationShips = RelationshipRecorder.instance.get();
+
+    // URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
+    try (var driver = Neo4jConnect.openConnection()) {
+      var sessionFactory = Neo4jConnect.getSessionFactory(driver);
+      var session = sessionFactory.openSession();
+
+      // clean up db
+      session.query("MATCH (n) DETACH DELETE n", Map.of());
+
+      // save ast in db
+      session.save(ast);
+      session.save(nodeRelationShips);
+      session.save(nodeRelationShips);
+
+      session.save(symTable.getSymbolCreations());
+      session.save(symTable.getSymbolReferences());
+      session.save(symTable.globalScope());
+      var filScopes = env.getFileScopes().entrySet();
+      for (var entry : filScopes) {
+        var scope = entry.getValue();
+        session.save(scope);
+      }
+
+      session.save(finalGroum);
+
+      var returnedGroum = session.queryForObject(Groum.class, "MATCH (g:Groum) RETURN g", Map.of());
+      var mismatches = matchGroum(finalGroum, returnedGroum);
+      Assert.assertTrue(mismatches.isEmpty());
+
+      var globalDefinitions = finalGroum.getGlobalDefinitions();
+
+      String query =
+        """
+        match (n:ControlNode {controlType:\"whileLoop\"})<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(e:ExpressionAction)<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(v:VariableReferenceAction)
+        return v,n
+        """;
+
+      var result = session.query(query,Map.of());
+
+      sessionFactory.close();
+    }
+  }
+
+  @Test
+  public void testInfiniteLoopDetection() {
+    String program =
+      """
+      fn test(int limit) {
+        var i = 0;
+        while (i < limit) {
+          print(i);
+        }
+
+        var x = 0;
+        while (x < limit) {
+          print(x);
+        }
+
+        var y = 0;
+        while (y < limit) {
+          print(y);
+          y = y + 1;
+        }
+      }
+      """;
+
+    // print currently just prints to system.out, so we need to
+    // check the contents for the printed string
+    var outputStream = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStream));
+
+    DSLInterpreter interpreter = new DSLInterpreter();
+    try {
+      RelationshipRecorder.instance.clear();
+      DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
+    } catch (RuntimeException ex) {
+      // program contains error, won't be able to create quest config
+    }
+
+    var env = interpreter.getRuntimeEnvironment();
+    var fileScope = env.getFileScopes().get(null);
+    var parsedFile = fileScope.file();
+    var ast = parsedFile.rootASTNode();
+    var symTable = env.getSymbolTable();
+    FinalGroumBuilder builder = new FinalGroumBuilder();
+    Groum finalGroum = builder.build(ast, symTable, env);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalGroum, false);
+    write(finalizedGroumStr, "final_groum_db.dot");
+
+    var nodeRelationShips = RelationshipRecorder.instance.get();
+
+    // URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
+    try (var driver = Neo4jConnect.openConnection()) {
+      var sessionFactory = Neo4jConnect.getSessionFactory(driver);
+      var session = sessionFactory.openSession();
+
+      // clean up db
+      session.query("MATCH (n) DETACH DELETE n", Map.of());
+
+      // save ast in db
+      session.save(ast);
+      session.save(nodeRelationShips);
+      session.save(nodeRelationShips);
+
+      session.save(symTable.getSymbolCreations());
+      session.save(symTable.getSymbolReferences());
+      session.save(symTable.globalScope());
+      var filScopes = env.getFileScopes().entrySet();
+      for (var entry : filScopes) {
+        var scope = entry.getValue();
+        session.save(scope);
+      }
+
+      session.save(finalGroum);
+
+      var returnedGroum = session.queryForObject(Groum.class, "MATCH (g:Groum) RETURN g", Map.of());
+      var mismatches = matchGroum(finalGroum, returnedGroum);
+      Assert.assertTrue(mismatches.isEmpty());
+
+      var globalDefinitions = finalGroum.getGlobalDefinitions();
+
+      String query =
+        """
+        match (n:ControlNode {controlType:\"whileLoop\"})<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(e:ExpressionAction)<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(v:VariableReferenceAction)
+        return v,n
+        """;
+
+      var result = session.query(query,Map.of());
 
       sessionFactory.close();
     }

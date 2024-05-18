@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.neo4j.ogm.annotation.*;
 
-@NodeEntity
+@NodeEntity(label="AstNode")
 public class Node {
   // used for running index to give every Node a unique identifier
   // TODO: this really just for testing!! -> remove it!

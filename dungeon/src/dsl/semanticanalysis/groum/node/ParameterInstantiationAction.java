@@ -8,23 +8,23 @@ import org.neo4j.ogm.annotation.Relationship;
 
 @NodeEntity
 public class ParameterInstantiationAction extends ActionNode {
-  @Relationship private final IType instantiatedType;
-  @Relationship private final Symbol parameterSymbol;
+  @Relationship private final IType instanceType;
+  @Relationship private final Symbol instanceSymbol;
 
   public ParameterInstantiationAction(Symbol parameterSymbol, long instanceId) {
     super(ActionType.parameterInstantiation);
-    this.instantiatedType = parameterSymbol.getDataType();
-    this.parameterSymbol = parameterSymbol;
+    this.instanceType = parameterSymbol.getDataType();
+    this.instanceSymbol = parameterSymbol;
     this.referencedInstanceId(instanceId);
     this.updateLabels();
   }
 
   public IType instantiatedType() {
-    return this.instantiatedType;
+    return this.instanceType;
   }
 
   public Symbol parameterSymbol() {
-    return this.parameterSymbol;
+    return this.instanceSymbol;
   }
 
   @Override
