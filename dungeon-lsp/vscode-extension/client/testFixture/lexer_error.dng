@@ -1,0 +1,16 @@
+
+#import "test.dng;kjl;ajsdf" : id
+
+single_choice_task t1 {
+    description:"hello",
+    correct_answer_index: 1,
+    answers: [1,2,3]
+}
+
+graph g {
+    t1 -> +t2;
+}
+
+dungeon_config c {
+    dependency_graph: ga
+}
