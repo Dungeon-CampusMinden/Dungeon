@@ -234,7 +234,7 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   @Override
   public Void visit(Node node) {
     if (node.hasErrorChild()) {
-      return null;
+      visitChildren(node);
     }
 
     switch (node.type) {
@@ -527,7 +527,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(StmtBlockNode node) {
-    var blockScope = new Scope(scopeStack.peek());
+    var blockScope = new Scope(scopeStack.peek(), node);
+    this.symbolTable.addScope(blockScope);
     scopeStack.push(blockScope);
     for (var stmt : node.getStmts()) {
       stmt.accept(this);
@@ -548,7 +549,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     // body),
     // we need to create a new scope here (because it won't be created in a block-statement)
     if (!node.getIfStmt().type.equals(Node.Type.Block)) {
-      var scope = new Scope(scopeStack.peek());
+      var scope = new Scope(scopeStack.peek(), node);
+      this.symbolTable.addScope(scope);
       scopeStack.push(scope);
       node.getIfStmt().accept(this);
       scopeStack.pop();
@@ -571,7 +573,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     // body),
     // we need to create new scopes here (because it won't be created in block-statements)
     if (!node.getIfStmt().type.equals(Node.Type.Block)) {
-      var ifScope = new Scope(scopeStack.peek());
+      var ifScope = new Scope(scopeStack.peek(), node);
+      this.symbolTable.addScope(ifScope);
       scopeStack.push(ifScope);
       node.getIfStmt().accept(this);
       scopeStack.pop();
@@ -580,7 +583,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     }
 
     if (!node.getElseStmt().type.equals(Node.Type.Block)) {
-      var elseScope = new Scope(scopeStack.peek());
+      var elseScope = new Scope(scopeStack.peek(), node);
+      this.symbolTable.addScope(elseScope);
       scopeStack.push(elseScope);
       node.getElseStmt().accept(this);
       scopeStack.pop();
@@ -874,7 +878,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     // visit expression
     node.getExpressionNode().accept(this);
 
-    var whileScope = new Scope(scopeStack.peek());
+    var whileScope = new Scope(scopeStack.peek(), node);
+    this.symbolTable.addScope(whileScope);
     scopeStack.push(whileScope);
     node.getStmtNode().accept(this);
     scopeStack.pop();
@@ -888,7 +893,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     node.getIterableIdNode().accept(this);
 
     // create loop scope
-    Scope loopScope = new Scope(scopeStack.peek());
+    Scope loopScope = new Scope(scopeStack.peek(), node);
+    this.symbolTable.addScope(loopScope);
 
     // create loop variable
     Node typeIdNode = node.getTypeIdNode();
@@ -913,7 +919,8 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
     node.getIterableIdNode().accept(this);
 
     // create loop scope
-    Scope loopScope = new Scope(scopeStack.peek());
+    Scope loopScope = new Scope(scopeStack.peek(), node);
+    this.symbolTable.addScope(loopScope);
 
     // create loop variable
     Node typeIdNode = node.getTypeIdNode();

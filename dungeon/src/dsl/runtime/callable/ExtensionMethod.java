@@ -37,6 +37,12 @@ public class ExtensionMethod extends Symbol implements ICallable {
     this.extensionMethod = callable;
   }
 
+  public ExtensionMethod() {
+    super();
+    this.extensionMethod = null;
+  }
+
+
   @Override
   public Object call(DSLInterpreter interperter, List<Node> parameters) {
     // resolve "THIS_VALUE"

@@ -29,6 +29,12 @@ public class AggregateType extends ScopedSymbol implements IType {
     typeMemberToField = new HashMap<>();
   }
 
+  AggregateType() {
+    super();
+    originType = null;
+    typeMemberToField = new HashMap<>();
+  }
+
   /**
    * Constructor
    *

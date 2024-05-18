@@ -292,11 +292,7 @@ public class Node {
   }
 
   public void setSourceFileReference(ParserRuleContext ctx) {
-    int startLine = ctx.start.getLine();
-    int startColumn = ctx.start.getCharPositionInLine();
-    int endLine = ctx.stop.getLine();
-    int endColumn = ctx.stop.getCharPositionInLine();
-    this.sourceFileReference = new SourceFileReference(startLine, startColumn, endLine, endColumn);
+    this.sourceFileReference = SourceFileReference.fromCtx(ctx);
   }
 
   public void setSourceFileReference(SourceFileReference sfr) {

@@ -1052,7 +1052,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       var symbol = ctx.getStart();
       var text = ctx.getText();
       SourceFileReference sfr =
-          new SourceFileReference(symbol.getLine(), symbol.getCharPositionInLine());
+          new SourceFileReference(symbol.getLine()-1, symbol.getCharPositionInLine());
       node = new IdNode(text, sfr);
       node.setSourceFileReference(ctx);
     }
@@ -1083,7 +1083,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       var symbol = ctx.getStart();
       var text = ctx.getText();
       SourceFileReference sfr =
-          new SourceFileReference(symbol.getLine(), symbol.getCharPositionInLine());
+          new SourceFileReference(symbol.getLine()-1, symbol.getCharPositionInLine());
       node = new IdNode(text, sfr);
       node.setSourceFileReference(ctx);
     }
@@ -1290,7 +1290,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var symbol = node.getSymbol();
     var line = symbol.getLine();
     var column = symbol.getCharPositionInLine();
-    return new SourceFileReference(line, column);
+    return new SourceFileReference(line-1, column);
   }
 
   /**
@@ -1535,6 +1535,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
         // put all lexer errors in error nodes
         var errors = this.lexerErrors.get(ctx);
         for (var error : errors) {
+          // TODO: source file reference
           ASTLexerErrorNode errorNode = new ASTLexerErrorNode(error);
           parentNode.addChild(errorNode);
         }

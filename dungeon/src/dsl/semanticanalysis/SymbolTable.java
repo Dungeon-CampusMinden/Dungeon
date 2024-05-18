@@ -74,6 +74,8 @@ public class SymbolTable {
     return symbolReferences;
   }
 
+  private List<IScope> scopes;
+
   /**
    * Add an association between symbol and AST node. The nodeOfSymbol passed to this method with a
    * symbol, which was not previously passed, will be treated as the node, which created the symbol
@@ -154,6 +156,14 @@ public class SymbolTable {
     return symbolIdxToSymbol.getOrDefault(idx, Symbol.NULL);
   }
 
+  public List<IScope> getScopes() {
+    return this.scopes;
+  }
+
+  public void addScope(IScope scope) {
+    this.scopes.add(scope);
+  }
+
   /**
    * Constructor
    *
@@ -163,6 +173,7 @@ public class SymbolTable {
     this.globalScope = globalScope;
     this.symbolCreations = new ArrayList<>();
     this.symbolReferences = new ArrayList<>();
+    this.scopes = new ArrayList<>();
     astNodeSymbolRelation = new HashMap<>();
     symbolIdxToSymbol = new HashMap<>();
     astNodeIdxToAstNode = new HashMap<>();

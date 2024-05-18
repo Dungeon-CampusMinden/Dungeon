@@ -23,6 +23,11 @@ public class FunctionSymbol extends ScopedSymbol implements ICallable {
     this.astRootNode = astRootNode;
   }
 
+  public FunctionSymbol() {
+    super();
+    this.astRootNode = null;
+  }
+
   @Override
   public Object call(DSLInterpreter interpreter, List<Node> parameters) {
     return interpreter.executeUserDefinedFunction(this, parameters);

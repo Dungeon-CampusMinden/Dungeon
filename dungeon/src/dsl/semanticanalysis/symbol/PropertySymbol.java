@@ -34,4 +34,10 @@ public class PropertySymbol extends Symbol {
     this.settable = annotation.isSettable();
     this.gettable = annotation.isGettable();
   }
+
+  public PropertySymbol() {
+    super();
+    this.settable = false;
+    this.gettable = false;
+  }
 }

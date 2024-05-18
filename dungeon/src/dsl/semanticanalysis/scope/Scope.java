@@ -21,6 +21,8 @@
 
 package dsl.semanticanalysis.scope;
 
+import dsl.parser.ast.Node;
+import dsl.parser.ast.StmtBlockNode;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ public class Scope implements IScope {
   @Id @GeneratedValue private Long id;
   @Property private final String name;
 
+
   @Override
   public String getName() {
     return name;
@@ -39,13 +42,16 @@ public class Scope implements IScope {
 
   public static Scope NULL = new Scope("NULL_SCOPE");
 
-  @Relationship(type = "CONTAINED_IN", direction = Relationship.Direction.OUTGOING)
+  @Relationship(type = "PARENT_SCOPE", direction = Relationship.Direction.OUTGOING)
   protected IScope parent;
 
   @Transient protected HashMap<String, Symbol> symbols;
 
   @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)
   protected List<Symbol> symbolList;
+
+  @Relationship(type = "CREATES", direction= Relationship.Direction.INCOMING)
+  protected Node relatedASTNode;
 
   /**
    * Constructor
@@ -64,6 +70,14 @@ public class Scope implements IScope {
     this.name = name + " p: " + parentScope.getName();
     this.symbols = new HashMap<>();
     this.symbolList = new ArrayList<>();
+  }
+
+  public Scope(IScope parentScope, Node node) {
+    parent = parentScope;
+    this.name = "p: " + parentScope.getName();
+    this.symbols = new HashMap<>();
+    this.symbolList = new ArrayList<>();
+    this.relatedASTNode = node;
   }
 
   /** Constructor */

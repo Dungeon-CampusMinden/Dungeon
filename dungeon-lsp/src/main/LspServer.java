@@ -16,6 +16,7 @@ import dsl.parser.ast.*;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.scope.IScope;
+import dsl.semanticanalysis.symbol.ScopedSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import entrypoint.DungeonConfig;
 import java.io.IOException;
@@ -51,6 +52,7 @@ public class LspServer
   private GameEnvironment environment;
   private Driver neo4jDriver;
   private SessionFactory sessionFactory;
+  // TODO: use ReentrantReadWriteLock
   private ReentrantLock dbMutex = new ReentrantLock();
   private ReentrantLock docVersionMutex = new ReentrantLock();
   private HashMap<String, Long> documentDiagnosticVersionMap = new HashMap<>();
@@ -208,6 +210,11 @@ public class LspServer
               workspaceServerCapabilities.setWorkspaceFolders(workspaceFoldersOptions);
               serverCapabilities.setWorkspace(workspaceServerCapabilities);
 
+              // custom commands
+              ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions();
+              executeCommandOptions.setCommands(List.of("dungeon-lsp/patternCompletion"));
+              serverCapabilities.setExecuteCommandProvider(executeCommandOptions);
+
               /*
                * see https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#initialize
                * (in ServerCapabilities)
@@ -273,29 +280,120 @@ public class LspServer
   // region TextDocument Service
   @Override
   public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
-      CompletionParams position) {
+      CompletionParams completionParams) {
     LOGGER.entering(this.getClass().getName(), getMethodName());
-    LOGGER.info("Param: '" + position + "'");
+    LOGGER.info("Param: '" + completionParams + "'");
 
     return CompletableFuture.supplyAsync(
         () -> {
+          // TODO: wait for db mutex!! (properly)
+          boolean isIncomplete = false;
           List<CompletionItem> items = new ArrayList<>();
+          dbMutex.lock();
+          try {
+            LOGGER.info("IN SUPPLY ASYNC OF COMPLETION!!");
 
-          // TODO: this is heavy
-          CompletionItem item = new CompletionItem("HELLO, THIS IS MY LABEL");
-          item.setData("ARBITRARY DATA OBJECT");
-          item.setDetail("DETAIL");
-          item.setDocumentation("DOCUMENTATION");
-          item.setKind(CompletionItemKind.Text);
-          item.setFilterText("Filter text");
-          item.setInsertText("INSERT TEXT");
-          item.setInsertTextMode(InsertTextMode.AsIs);
-          item.setLabel("LABEL");
-          item.setSortText("SORT TEXT");
-          items.add(item);
+            var context = completionParams.getContext();
+            var position = completionParams.getPosition();
 
-          CompletionList completionList = new CompletionList(items);
-          return Either.forRight(completionList);
+            var result  = session.query(
+              IScope.class,
+              """
+              // resolve context v2 (works!)
+              CALL{
+              match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn and n.hasErrorRecord = false
+              // match closest scope, either referenced scopes symbol (in memberaccess) or created (in normal scope)
+              match p=(n)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(scope:ScopedSymbol)
+              return scope, n, nearestSfr,p
+              UNION
+              match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn and n.hasErrorRecord =false
+              // match closest scope, either referenced scopes symbol (in memberaccess) or created (in normal scope)
+              match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
+              return scope, n, nearestSfr,p
+              }
+              return scope
+              Order by nearestSfr.endColumn desc, length(p)
+              LIMIT 1
+              """,
+              Map.of("startline", position.getLine(), "endcolumn", position.getCharacter())
+              );
+
+
+            //var iter = result.queryResults().iterator();
+            var iter = result.iterator();
+            // only one entry (limit 1)
+            //Map<String,Object> map = iter.next();
+            //IScope scope = (IScope)map.get("scope");
+            //Node relatedNode = (Node)map.get("n");
+            //SourceFileReference sfr = (SourceFileReference)map.get("sfr");
+            IScope scope = iter.next();
+
+            // TODO: check explicitly for datatype?
+            // TODO: symbols of entity is empty, even though it should not be...
+            // TODO: got the sense, that this is some kind of db inconsistency again...
+            if (scope instanceof ScopedSymbol scopedSymbol) {
+              // create completion item for each symbol in scope
+              // TODO: fucking fuck..
+              //var symbols = scopedSymbol.getSymbols();
+
+              var results = session.query("""
+                match (s:ScopedSymbol) where s.idx=$idx
+                match (symbol:Symbol)-[:IN_SCOPE]->(s)
+                return symbol
+                """,
+                Map.of("idx", scopedSymbol.getIdx()));
+
+
+              results.forEach(map -> {
+                var symbol = (Symbol)map.get("symbol");
+                // TODO: specific method for creation of completion items from symbol
+                CompletionItem item = new CompletionItem("Label: " + symbol.getName());
+                //item.setData("ARBITRARY DATA OBJECT");
+                //item.setDetail("DETAIL");
+                // TODO:
+                item.setDocumentation("DOCUMENTATION");
+                // TODO: or method
+                item.setKind(CompletionItemKind.Property);
+                item.setFilterText("Filter text");
+                item.setInsertText(symbol.getName());
+                item.setInsertTextMode(InsertTextMode.AsIs);
+                item.setLabel("Label: "+ symbol.getName());
+                item.setSortText("SORT TEXT");
+                items.add(item);
+              });
+            } else {
+              // regular scope
+              // TODO: get all symbols of this scope and parent scopes and rank them by scope distance.. (basically by path length)
+            }
+
+            boolean b = true;
+
+            // TODO: this is heavy
+            /*CompletionItem item = new CompletionItem("HELLO, THIS IS MY LABEL");
+            item.setData("ARBITRARY DATA OBJECT");
+            item.setDetail("DETAIL");
+            item.setDocumentation("DOCUMENTATION");
+            item.setKind(CompletionItemKind.Text);
+            item.setFilterText("Filter text");
+            item.setInsertText("INSERT TEXT");
+            item.setInsertTextMode(InsertTextMode.AsIs);
+            item.setLabel("LABEL");
+            item.setSortText("SORT TEXT");
+            items.add(item);*/
+          } catch (Exception ex) {
+            LOGGER.severe(ex.toString());
+          } finally {
+            dbMutex.unlock();
+          }
+
+          boolean setList = false;
+          if (setList) {
+            CompletionList completionList = new CompletionList(items);
+            completionList.setIsIncomplete(isIncomplete);
+            return Either.forRight(completionList);
+          } else {
+            return Either.forLeft(items);
+          }
         });
   }
 
@@ -610,6 +708,7 @@ public class LspServer
         session.deleteAll(Node.class);
         session.deleteAll(Symbol.class);
         session.deleteAll(IScope.class);
+        session.deleteAll(SourceFileReference.class);
         session.deleteAll(ErrorRecord.class);
         throwIfStop();
 
@@ -636,7 +735,10 @@ public class LspServer
         session.save(symTable.globalScope());
         // }
 
-        var filScopes = env.getFileScopes().entrySet();
+        throwIfStop();
+        session.save(symTable.getScopes());
+
+        /*var filScopes = env.getFileScopes().entrySet();
         for (var entry : filScopes) {
           var scope = entry.getValue();
           // try (ProfilingTimer timer = new ProfilingTimer("SCOPE " + scope.getName(), times,
@@ -644,9 +746,12 @@ public class LspServer
           throwIfStop();
           session.save(scope);
           // }
-        }
+        }*/
         tx.commit();
         LOGGER.info("Finished updating database!");
+        var entity = session.queryForObject(IScope.class, "match (n:ScopedSymbol) where n.name = \"entity\" return n limit 1", Map.of());
+
+        LOGGER.info("");
       } catch (InterruptedException interrupt) {
         LOGGER.info("Database update was interrupted");
         tx.rollback();
@@ -680,7 +785,7 @@ public class LspServer
       queryResult =
           session.query(
               """
-          match (n:Node)-[:HAS_ERROR_RECORD]->(e:ErrorRecord) return distinct e
+          match (n:AstNode)-[:HAS_ERROR_RECORD]->(e:ErrorRecord) return distinct e
           """,
               Map.of());
       // queryResult.queryResults().forEach(r -> nodesWithErrorRecord.add((Node) r.get("n")));
