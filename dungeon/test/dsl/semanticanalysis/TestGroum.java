@@ -11,13 +11,16 @@ import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestGroum {
   private static final Path testLibPath = Path.of("test_resources/testlib");
+  private static final String tempImgDirectory = "temp-img";
 
   @Test
   public void simple() {
@@ -2795,9 +2798,11 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
   }
 
-  public static void write(String content, String path) {
+  public static void write(String content, String fileName) {
     try {
-      FileWriter writer = new FileWriter(path);
+      Files.createDirectories(Paths.get(tempImgDirectory));
+      Path path = Path.of(tempImgDirectory, fileName);
+      FileWriter writer = new FileWriter(path.toString());
       writer.append(content);
       writer.close();
     } catch (IOException e) {
