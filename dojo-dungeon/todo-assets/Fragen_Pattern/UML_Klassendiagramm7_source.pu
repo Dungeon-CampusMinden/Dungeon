@@ -35,5 +35,5 @@ class Saver implements DocumentWorker {
 }
 
 ' Assoziationen
-DocumentPart "1" --> "n" DocumentWorker : > Uses
+DocumentPart "1" --> "n" DocumentWorker : >
 @enduml

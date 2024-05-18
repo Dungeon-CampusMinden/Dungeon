@@ -3,7 +3,7 @@ abstract Bauteil
 Bauteil <|-- EinfachBauteil
 Bauteil <|-- KomplexBauteil
 Bauteil -[hidden]- KomplexBauteil
-Bauteil "*" <--o KomplexBauteil : Einzelteile
+Bauteil "*" <--o KomplexBauteil
 note "Klient" as n0
 note "Primitiv" as n1
 note "Komponente" as n2

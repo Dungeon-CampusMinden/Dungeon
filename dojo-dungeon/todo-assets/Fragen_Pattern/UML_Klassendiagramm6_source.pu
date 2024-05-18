@@ -30,7 +30,7 @@ Subject <|-- ConcreteSubject
 
 ' Assoziationen
 Shikoku -[hidden]- Subject
-Shikoku "*" <-- "1" Subject : notifies <
+Shikoku "*" <-- "1" Subject : <
 Shikoku -[hidden]- Subject
-Shikoku "*" --> "1" Subject : observes >
+Shikoku "*" --> "1" Subject : >
 @enduml
