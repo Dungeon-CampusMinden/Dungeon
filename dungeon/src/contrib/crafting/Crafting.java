@@ -93,7 +93,7 @@ public final class Crafting {
           if (recipe != null) {
             RECIPES.add(recipe);
           } else {
-            System.err.println("Failed to load recipe: " + path);
+            throw new RuntimeException("Failed to load recipe: " + path);
           }
         }
       }

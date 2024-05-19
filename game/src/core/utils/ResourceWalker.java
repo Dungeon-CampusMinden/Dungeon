@@ -37,12 +37,13 @@ public class ResourceWalker {
           }
         };
 
-    Object util = Class.forName(ResourceWalker.class.getName()).getDeclaredConstructor().newInstance();
-    URI uri = Objects.requireNonNull(
+    Object util =
+        Class.forName(ResourceWalker.class.getName()).getDeclaredConstructor().newInstance();
+    URI uri =
+        Objects.requireNonNull(
                 util.getClass().getResource(util.getClass().getSimpleName() + ".class"))
             .toURI();
-    Map<String, String> env =
-        Map.of("create", "true");
+    Map<String, String> env = Map.of("create", "true");
     try (FileSystem fs = FileSystems.newFileSystem(uri, env)) {
       Files.walkFileTree(fs.getPath(path.pathString()), visitor);
     } catch (Exception e) {
