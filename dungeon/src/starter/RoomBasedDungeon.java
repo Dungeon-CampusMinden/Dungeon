@@ -15,12 +15,20 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
+/** WTF? . */
 public class RoomBasedDungeon {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
+  /**
+   * WTF? .
+   *
+   * @param args the array of command-line arguments
+   * @throws IOException if an I/O error occurs
+   */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger();
+    Game.initBaseLogger(Level.WARNING);
     Debugger debugger = new Debugger();
     // start the game
     configGame();

@@ -9,6 +9,7 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import java.util.Random;
 
+/** Generates levels using random walk algorithm. */
 public class RandomWalkGenerator implements IGenerator {
   private static final Random RANDOM = new Random();
   private static final int SMALL_MIN_X_SIZE = 10;
@@ -32,7 +33,7 @@ public class RandomWalkGenerator implements IGenerator {
   }
 
   /**
-   * Generates the floor layout to a specified level size
+   * Generates the floor layout to a specified level size.
    *
    * @param size size of the level to be generated
    * @return layout of the level

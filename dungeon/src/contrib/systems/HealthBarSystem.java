@@ -1,6 +1,6 @@
 package contrib.systems;
 
-import static contrib.hud.UIUtils.DEFAULT_SKIN;
+import static contrib.hud.UIUtils.defaultSkin;
 
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -44,7 +44,7 @@ public final class HealthBarSystem extends System {
   /** Mapping from actual entity and health bar of this entity. */
   private final Map<Integer, ProgressBar> healthBarMapping = new HashMap<>();
 
-  /** Create a new HealthBarSystem */
+  /** Create a new HealthBarSystem. */
   public HealthBarSystem() {
     super(HealthComponent.class, PositionComponent.class);
     this.onEntityAdd =
@@ -94,7 +94,7 @@ public final class HealthBarSystem extends System {
 
   private ProgressBar createNewHealthBar(PositionComponent pc) {
     ProgressBar progressBar =
-        new ProgressBar(MIN, MAX, STEP_SIZE, false, DEFAULT_SKIN, "healthbar");
+        new ProgressBar(MIN, MAX, STEP_SIZE, false, defaultSkin(), "healthbar");
     progressBar.setAnimateDuration(HEALTH_BAR_UPDATE_DURATION);
     progressBar.setSize(HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
     progressBar.setVisible(true);
@@ -102,7 +102,12 @@ public final class HealthBarSystem extends System {
     return progressBar;
   }
 
-  /** Moves the Progressbar to follow the Entity. */
+  /**
+   * Moves the Progressbar to follow the Entity.
+   *
+   * @param pb WTF? .
+   * @param pc WTF? .
+   */
   private void updatePosition(ProgressBar pb, PositionComponent pc) {
     Point position = pc.position();
     Vector3 conveered = new Vector3(position.x, position.y, 0);

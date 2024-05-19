@@ -9,16 +9,19 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+/** WTF? . */
 public class LevelGraphTest {
 
   private LevelGraph graph;
 
+  /** WTF? . */
   @Before
   public void setup() {
     // create a graph with 5 nodes where each node has 4 Neighbours
     graph = generateFullGraph();
   }
 
+  /** WTF? . */
   @Test
   public void adapter_node_onNode() {
     // add new node
@@ -31,6 +34,7 @@ public class LevelGraphTest {
     assertEquals(7, graph.nodes().size());
   }
 
+  /** WTF? . */
   @Test
   public void adapter_node_onTwoFullGraphs() {
     LevelGraph graph2 = generateFullGraph();
@@ -40,6 +44,7 @@ public class LevelGraphTest {
     assertTrue(checkIfReachable(graph.root(), graph, graph2));
   }
 
+  /** WTF? . */
   @Test
   public void adapter_node_onThreeFullGraphs() {
     LevelGraph graph2 = generateFullGraph();
@@ -51,6 +56,7 @@ public class LevelGraphTest {
     assertTrue(checkIfReachable(graph.root(), graph, graph2, graph3));
   }
 
+  /** WTF? . */
   @Test
   public void adapter_node_onThreeFullGraphs_connectOnOrigin() {
     LevelGraph graph2 = generateFullGraph();
@@ -62,6 +68,7 @@ public class LevelGraphTest {
     assertTrue(checkIfReachable(graph.root(), graph, graph2, graph3));
   }
 
+  /** WTF? . */
   @Test
   @Ignore
   public void connect_graphs_avoid_random_success() {
@@ -77,6 +84,7 @@ public class LevelGraphTest {
     assertTrue(checkIfReachable(graph.root(), graphs));
   }
 
+  /** WTF? . */
   @Test
   public void no_adapter_onNode() {
     LevelGraph g1 = new LevelGraph();
@@ -86,6 +94,7 @@ public class LevelGraphTest {
     assertEquals(2, g1.nodes().size());
   }
 
+  /** WTF? . */
   @Test
   public void no_adapter_onGraph() {
     LevelGraph g1 = new LevelGraph();
@@ -99,9 +108,9 @@ public class LevelGraphTest {
   }
 
   /**
-   * Generates a graph with 5 nodes where each node has 5 neighbours
+   * Generates a graph with 5 nodes where each node has 5 neighbours.
    *
-   * @return generated graph
+   * @return generated graph.
    */
   private LevelGraph generateFullGraph() {
     // create second graph
@@ -166,7 +175,7 @@ public class LevelGraphTest {
     return needToBeVisited.isEmpty();
   }
 
-  public Set<LevelNode> depthFirstSearch(LevelNode rootNode) {
+  private Set<LevelNode> depthFirstSearch(LevelNode rootNode) {
     Set<LevelNode> visitedNodes = new HashSet<>();
     depthFirstSearchRecursive(rootNode, visitedNodes);
     return visitedNodes;

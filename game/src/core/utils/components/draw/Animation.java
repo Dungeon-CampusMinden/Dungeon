@@ -75,6 +75,7 @@ public final class Animation {
    * @param animationFrames The list of textures that builds the animation. Must be in order.
    * @param frameTime How many frames to wait, before switching to the next texture?
    * @param prio priority for playing this animation
+   * @return foo
    */
   public static Animation fromCollection(
       final Collection<IPath> animationFrames, int frameTime, int prio) {
@@ -85,6 +86,7 @@ public final class Animation {
    * Creates an animation with the default configuration.
    *
    * @param animationFrames The list of textures that builds the animation. Must be in order.
+   * @return foo
    */
   public static Animation fromCollection(final Collection<IPath> animationFrames) {
     return new Animation(
@@ -101,6 +103,7 @@ public final class Animation {
    * @param frameTime How many frames to wait, before switching to the next texture?
    * @param looping should the Animation continue to repeat ?
    * @param prio priority for playing this animation
+   * @return foo
    */
   public static Animation fromCollection(
       final Collection<IPath> animationFrames, int frameTime, boolean looping, int prio) {

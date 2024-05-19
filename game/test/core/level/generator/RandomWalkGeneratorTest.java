@@ -7,17 +7,20 @@ import core.level.generator.randomwalk.RandomWalkGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
+/** Tests for the {@link RandomWalkGenerator} class. */
 public class RandomWalkGeneratorTest {
 
   private RandomWalkGenerator generator;
   private ILevel level;
 
+  /** WTF? . */
   @Before
   public void setup() {
     generator = new RandomWalkGenerator();
     level = generator.level();
   }
 
+  /** WTF? . */
   @Test
   public void test_getLevel() {
     assertNotNull(level);

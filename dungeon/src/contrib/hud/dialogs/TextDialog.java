@@ -1,6 +1,6 @@
 package contrib.hud.dialogs;
 
-import static contrib.hud.UIUtils.DEFAULT_SKIN;
+import static contrib.hud.UIUtils.defaultSkin;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -19,7 +19,7 @@ import java.util.function.BiFunction;
  */
 public final class TextDialog extends Dialog {
 
-  /** Handler for Button presses */
+  /** Handler for Button presses. */
   private final BiFunction<TextDialog, String, Boolean> resultHandler;
 
   /**
@@ -74,7 +74,7 @@ public final class TextDialog extends Dialog {
         () -> {
           Dialog textDialog =
               DialogFactory.createTextDialog(
-                  DEFAULT_SKIN,
+                  defaultSkin(),
                   content,
                   buttonText,
                   windowText,

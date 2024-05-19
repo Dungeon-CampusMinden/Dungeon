@@ -9,6 +9,7 @@ import core.Game;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.logging.Level;
 import task.Task;
 import task.TaskContent;
 import task.game.hud.QuizUI;
@@ -28,8 +29,13 @@ import task.tasktype.quizquestion.SingleChoice;
  */
 public class QuizQuestionUITest {
 
+  /**
+   * Main method.
+   *
+   * @param args the command line arguments
+   */
   public static void main(String[] args) {
-    Game.initBaseLogger();
+    Game.initBaseLogger(Level.ALL);
     Game.add(new HudSystem());
     Game.userOnFrame(
         () -> {
@@ -62,6 +68,11 @@ public class QuizQuestionUITest {
    */
   public static class DummyQuizQuestionList {
 
+    /**
+     * Generate a single choice dummy quiz question.
+     *
+     * @return the generated single choice quiz question
+     */
     public static Quiz singleChoiceDummy() {
       Quiz question = new SingleChoice("Was ist kein Ziel von Refactoring?");
       question.addAnswer(new Quiz.Content("Lesbarkeit von Code verbessern"));
@@ -71,6 +82,11 @@ public class QuizQuestionUITest {
       return question;
     }
 
+    /**
+     * Generate a multiple choice quiz question with specified components.
+     *
+     * @return the generated multiple choice quiz question
+     */
     public static Quiz multipleChoiceDummy() {
       Quiz question =
           new MultipleChoice("Welche der hier genannten Komponenten sind \"atomare Komponenten\"?");
@@ -84,6 +100,11 @@ public class QuizQuestionUITest {
       return question;
     }
 
+    /**
+     * Creates and returns a dummy single-choice quiz with multiple answers.
+     *
+     * @return the quiz object with the question and answer options
+     */
     public static Quiz singleChoiceDummy2() {
       Quiz question =
           new SingleChoice("Welche Methode/n muss der Observer mindestens implementieren?");
@@ -97,11 +118,21 @@ public class QuizQuestionUITest {
       return question;
     }
 
+    /**
+     * Creates and returns a new instance of the FreeText class with a predefined question.
+     *
+     * @return A new instance of the FreeText class with a predefined question.
+     */
     public static Quiz freeTextDummy() {
       return new FreeText(
           "Mit welchem Befehl kann man sich Dateien in der Working copy anzeigen lassen, die unversioniert sind oder in denen es Änderungen seit dem letzten Commit gab?");
     }
 
+    /**
+     * Generates a dummy quiz question with an image for the user to identify the color seen.
+     *
+     * @return the created quiz question
+     */
     public static Quiz imageFreeTextDummy() {
       Quiz question =
           new SingleChoice(
@@ -112,10 +143,20 @@ public class QuizQuestionUITest {
       return question;
     }
 
+    /**
+     * Generates a dummy single choice quiz with an image.
+     *
+     * @return The generated quiz with a dummy image.
+     */
     public static Quiz imageSingleChoiceDummy() {
       return new FreeText("", new Image(new Texture("image_quiz/dummy.png")));
     }
 
+    /**
+     * Generate a single choice dummy quiz question.
+     *
+     * @return the created single choice quiz question
+     */
     public static Quiz singleChoiceDummy3() {
       Quiz question = new SingleChoice("Was ist 'Game Loop' in LibGDX und was macht diese?");
       question.addAnswer(
@@ -133,6 +174,11 @@ public class QuizQuestionUITest {
       return question;
     }
 
+    /**
+     * Generate a single choice dummy quiz question.
+     *
+     * @return the created single choice quiz question
+     */
     public static Quiz singleChoiceDummy4() {
       Quiz question =
           new SingleChoice("Mit git log kann man sich eine Liste aller Commits anzeigen lassen.");
@@ -141,6 +187,11 @@ public class QuizQuestionUITest {
       return question;
     }
 
+    /**
+     * Generate a single choice dummy quiz question.
+     *
+     * @return the created single choice quiz question
+     */
     public static Quiz singleChoiceDummy5() {
       Quiz question =
           new SingleChoice(
@@ -152,6 +203,11 @@ public class QuizQuestionUITest {
       return question;
     }
 
+    /**
+     * Generate a single choice dummy quiz question.
+     *
+     * @return the created single choice quiz question
+     */
     public static Quiz singleChoiceDummy6() {
       Quiz question = new SingleChoice("Was macht die notify()-Methode?");
       question.addAnswer(

@@ -5,6 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * @return WTF? .
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface DSLTypeProperty {
@@ -20,7 +23,7 @@ public @interface DSLTypeProperty {
    *
    * <p>For AggregateTypeAdapter instances, this should be the adapter-class.
    *
-   * @return
+   * @return foo
    */
   Class<?> extendedType();
 

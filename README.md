@@ -15,6 +15,9 @@ comprises three parts: "Game", "Dungeon" and "Blockly":
 3.  ["Blockly"] adds a block-based programming language to the project. It is primarily aimed
     at programming beginners and can be used to visualise simple algorithms.
 
+You can find an [interesting report] on our project in the news section of Bielefeld
+University of Applied Sciences (04 April 2024, in German).
+
 ## Game: Dungeon Platform
 
 The sub-project [`game`] is the foundation of the entire framework. It provides a programming
@@ -27,7 +30,7 @@ This allows the user to focus on Java programming.
 The [Quickstart] (German) and the [Documentation] (German) should help you get started
 quickly.
 
-![](game/doc/img/monster.gif)
+![][1]
 
 ## Dungeon: Learning by Questing
 
@@ -46,8 +49,7 @@ The [Quickstart][2] (German) and the [Documentation][3] (German) should help you
 The [Dungeon: StarterKit] provides you with everything you need to get started immediately
 without coding and/or compiling.
 
-![](dungeon/doc/dsl/img/quickstart_select_config_level.png)
-![](dungeon/doc/dsl/img/quickstart_answer_menu.png)
+![][4] ![][5]
 
 ## Blockly: Low Code Dungeon
 
@@ -58,7 +60,7 @@ experience.
 
 The [Documentation][6] (German) should help you get started.
 
-![](blockly/doc/img/examples/komplexes_beispiel.png)
+![][7]
 
 ## Requirements
 
@@ -102,6 +104,7 @@ All files in [`game/assets/`] and [`dungeon/assets/`] are licensed under [CC0 1.
   ["Game"]: #game-dungeon-platform
   ["Dungeon"]: #dungeon-learning-by-questing
   ["Blockly"]: #blockly-low-code-dungeon
+  [interesting report]: https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen
   [`game`]: game
   [libGDX]: https://github.com/libgdx/libgdx
   [rogue-like 2D role-playing games]: https://en.wikipedia.org/wiki/Roguelike
@@ -121,7 +124,6 @@ All files in [`game/assets/`] and [`dungeon/assets/`] are licensed under [CC0 1.
   [6]: blockly/doc/
   [7]: blockly/doc/img/examples/komplexes_beispiel.png
   [Java SE Development Kit 21 LTS]: https://jdk.java.net/21/
-  [contributor guidelines]: CONTRIBUTING.md
   [Stiftung für Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de
   ["Freiraum 2022"]: https://stiftung-hochschullehre.de/foerderung/freiraum2022/
   [`game/assets/`]: game/assets/

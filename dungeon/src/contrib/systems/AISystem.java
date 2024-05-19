@@ -12,7 +12,7 @@ import core.utils.components.MissingComponentException;
  */
 public final class AISystem extends System {
 
-  /** Create a new AISystem */
+  /** Create a new AISystem. */
   public AISystem() {
     super(AIComponent.class);
   }

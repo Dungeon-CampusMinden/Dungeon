@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -107,6 +108,11 @@ public class Starter {
         // show list for task: reached points
       };
 
+  /**
+   * A method to start the main game loop and handle exceptions.
+   *
+   * @param args array of file names supplied on the command line
+   */
   public static void main(String[] args) {
     try {
       // if file names have been supplied on CLI, let's use these
@@ -247,7 +253,7 @@ public class Starter {
   }
 
   private static void configGame() throws IOException {
-    Game.initBaseLogger();
+    Game.initBaseLogger(Level.WARNING);
     Game.windowTitle("DSL Dungeon");
     Game.frameRate(30);
     Game.disableAudio(false);

@@ -6,6 +6,16 @@ import dsl.interpreter.mockecs.Entity;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * WTF? .
+ *
+ * @param entity foo
+ * @param secondEntity foo
+ * @param intList foo
+ * @param floatSet foo
+ * @param stringSet foo
+ * @param stringList foo
+ */
 @DSLType(name = "quest_config")
 public record CustomQuestConfig(
     @DSLTypeMember Entity entity,

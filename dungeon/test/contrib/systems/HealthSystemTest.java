@@ -17,9 +17,11 @@ import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** WTF? . */
 public class HealthSystemTest {
   private static final IPath ANIMATION_PATH = new SimpleIPath("textures/test_hero");
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllEntities();
@@ -27,6 +29,7 @@ public class HealthSystemTest {
     Game.removeAllSystems();
   }
 
+  /** WTF? . */
   @Test
   public void updateEntityDies() throws IOException {
     Game.removeAllEntities();
@@ -46,6 +49,7 @@ public class HealthSystemTest {
     assertFalse(Game.entityStream().anyMatch(e -> e == entity));
   }
 
+  /** WTF? . */
   @Test
   public void updateEntityDiesGodMode() throws IOException {
     Game.removeAllEntities();
@@ -67,6 +71,7 @@ public class HealthSystemTest {
     assertTrue("Entity should still be in game.", Game.entityStream().anyMatch(e -> e == entity));
   }
 
+  /** WTF? . */
   @Test
   public void updateEntityGetDamage() throws IOException {
     Game.removeAllEntities();
@@ -87,6 +92,7 @@ public class HealthSystemTest {
     assertTrue(ac.isAnimationQueued(AdditionalAnimations.HIT));
   }
 
+  /** WTF? . */
   @Test
   public void updateEntityGetNegativeDamage() throws IOException {
     Game.removeAllEntities();
@@ -106,6 +112,7 @@ public class HealthSystemTest {
     assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
   }
 
+  /** WTF? . */
   @Test
   public void updateEntityGetZeroDamage() throws IOException {
     Game.removeAllEntities();
@@ -124,6 +131,7 @@ public class HealthSystemTest {
     assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
   }
 
+  /** WTF? . */
   @Test
   public void updateWithoutHealthComponent() {
     Game.removeAllEntities();

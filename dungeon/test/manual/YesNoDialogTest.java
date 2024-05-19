@@ -7,6 +7,7 @@ import contrib.hud.dialogs.YesNoDialog;
 import contrib.systems.HudSystem;
 import core.Game;
 import core.utils.IVoidFunction;
+import java.util.logging.Level;
 
 /**
  * This is a manual test for the YesNODialog.
@@ -19,8 +20,13 @@ import core.utils.IVoidFunction;
  */
 public class YesNoDialogTest {
 
+  /**
+   * Main method.
+   *
+   * @param args the command line arguments
+   */
   public static void main(String[] args) {
-    Game.initBaseLogger();
+    Game.initBaseLogger(Level.ALL);
     Game.add(new HudSystem());
     Game.userOnFrame(
         () -> {

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
 import task.Task;
 import task.TaskContent;
 import task.game.components.TaskComponent;
@@ -31,13 +32,20 @@ import task.tasktype.Quiz;
  * <a
  * href="file:../../../../doc/tasks/anleitung_task_test.md">../../../../doc/tasks/anleitung_task_test.md</a>
  *
- * <p>Use taskGenerationTest --args "dungeon/test_resources/task_test.dng" to run thus
+ * <p>Use taskGenerationTest --args "dungeon/test_resources/task_test.dng" to run thus.
  */
 public class TaskGenerationTest {
   static DSLInterpreter interpreter = new DSLInterpreter();
 
+  /**
+   * Generate the main game setup including initializing systems, loading configurations, adding
+   * entities, and running the game.
+   *
+   * @param args the command-line arguments passed to the game
+   * @throws IOException if an IO error occurs during the setup
+   */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger();
+    Game.initBaseLogger(Level.ALL);
     LevelSystem.levelSize(LevelSize.MEDIUM);
     Game.loadConfig(
         new SimpleIPath("dungeon_config.json"),

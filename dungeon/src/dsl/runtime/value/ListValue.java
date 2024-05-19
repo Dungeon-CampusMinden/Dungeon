@@ -10,7 +10,7 @@ import java.util.List;
 /** Implements a list value. */
 public class ListValue extends Value {
   /**
-   * Constructor
+   * Constructor.
    *
    * @param dataType The type of the list
    */
@@ -18,11 +18,18 @@ public class ListValue extends Value {
     super(dataType, new ArrayList<Value>());
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public ListType getDataType() {
     return (ListType) this.dataType;
   }
 
   /**
+   * WTF? .
+   *
    * @return the internal ArrayList of this {@link ListValue}.
    */
   public ArrayList<Value> internalList() {
@@ -30,7 +37,7 @@ public class ListValue extends Value {
   }
 
   /**
-   * Add a Value to the list
+   * Add a Value to the list.
    *
    * @param value the value to add
    */
@@ -39,7 +46,7 @@ public class ListValue extends Value {
   }
 
   /**
-   * Get a value by index
+   * Get a value by index.
    *
    * @param index the index
    * @return the Value at specified index
@@ -49,7 +56,7 @@ public class ListValue extends Value {
   }
 
   /**
-   * Return all stored Values
+   * Return all stored Values.
    *
    * @return the stored Values
    */
@@ -57,6 +64,7 @@ public class ListValue extends Value {
     return internalList();
   }
 
+  /** WTF? . */
   public void clearList() {
     internalList().clear();
   }
@@ -69,6 +77,7 @@ public class ListValue extends Value {
    */
   public static class AddMethod implements IInstanceCallable {
 
+    /** WTF? . */
     public static AddMethod instance = new AddMethod();
 
     private AddMethod() {}
@@ -90,6 +99,7 @@ public class ListValue extends Value {
    */
   public static class SizeMethod implements IInstanceCallable {
 
+    /** WTF? . */
     public static SizeMethod instance = new SizeMethod();
 
     private SizeMethod() {}
@@ -103,12 +113,15 @@ public class ListValue extends Value {
   }
 
   /**
-   * Native method, which implements the access to one element of a {@link ListValue} by index. If
-   * the index is out of range of the internal {@link List} of the {@link ListValue}, {@link
+   * WTF? (erster Satz KURZ) .
+   *
+   * <p>Native method, which implements the access to one element of a {@link ListValue} by index.
+   * If the index is out of range of the internal {@link List} of the {@link ListValue}, {@link
    * Value#NONE} is returned.
    */
   public static class GetMethod implements IInstanceCallable {
 
+    /** WTF? . */
     public static GetMethod instance = new GetMethod();
 
     private GetMethod() {}

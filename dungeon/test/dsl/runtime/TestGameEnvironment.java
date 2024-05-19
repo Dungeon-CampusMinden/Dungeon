@@ -5,7 +5,9 @@ import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.scope.Scope;
 import org.junit.Test;
 
+/** WTF? . */
 public class TestGameEnvironment {
+  /** WTF? . */
   @Test(expected = RuntimeException.class)
   public void adaptedInstancingNameClash() {
     var env = new GameEnvironment();

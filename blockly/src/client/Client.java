@@ -15,14 +15,22 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 import server.Server;
 
+/** WTF? . */
 public class Client {
+  /**
+   * WTF? .
+   *
+   * @param args
+   * @throws IOException
+   */
   public static void main(String[] args) throws IOException {
     // toggle this to off, if you want to use the default level generator
     boolean useRoomBasedLevel = false;
 
-    Game.initBaseLogger();
+    Game.initBaseLogger(Level.WARNING);
     Debugger debugger = new Debugger();
     // start the game
     configGame();

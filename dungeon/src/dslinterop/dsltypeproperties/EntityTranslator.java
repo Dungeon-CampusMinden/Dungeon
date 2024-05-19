@@ -9,8 +9,9 @@ import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 
-/** This class translates an {@link Entity}-Object into a DSL Value for */
+/** This class translates an {@link Entity}-Object into a DSL Value for. */
 public class EntityTranslator implements IObjectToValueTranslator {
+  /** The only instance of this class. */
   public static EntityTranslator instance = new EntityTranslator();
 
   private EntityTranslator() {}

@@ -14,8 +14,10 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
-// this extends the normal IEnvironment definition by storing prototypes
-// which are basically evaluated type definitions (of game objects)
+/**
+ * This class extends the normal IEnvironment definition by storing prototypes which are basically
+ * evaluated type definitions (of game objects).
+ */
 public class RuntimeEnvironment implements IEnvironment {
   private final SymbolTable symbolTable;
   private final HashMap<String, Symbol> functions;
@@ -25,6 +27,7 @@ public class RuntimeEnvironment implements IEnvironment {
   private final TypeBuilder typeBuilder;
   private final TypeInstantiator typeInstantiator;
 
+  @Override
   public RuntimeObjectTranslator getRuntimeObjectTranslator() {
     return runtimeObjectTranslator;
   }
@@ -33,7 +36,8 @@ public class RuntimeEnvironment implements IEnvironment {
    * Constructor. Create new runtime environment from an existing environment and add all type
    * definitions to the stored types.
    *
-   * @param other the other environment to create a new RuntimeEnvironment from
+   * @param other the other {@link IEnvironment} to create a new RuntimeEnvironment from
+   * @param interpreter the {@link DSLInterpreter}
    */
   public RuntimeEnvironment(IEnvironment other, DSLInterpreter interpreter) {
     this.symbolTable = other.getSymbolTable();
@@ -54,7 +58,7 @@ public class RuntimeEnvironment implements IEnvironment {
   }
 
   /**
-   * Lookup a {@link PrototypeValue} with name
+   * Lookup a {@link PrototypeValue} with name.
    *
    * @param name the name of the Prototype to lookup
    * @return the Prototype with the passed name or Prototype.NONE
@@ -64,7 +68,7 @@ public class RuntimeEnvironment implements IEnvironment {
   }
 
   /**
-   * Add new {@link PrototypeValue}
+   * Add new {@link PrototypeValue}.
    *
    * @param prototype the new Prototype
    * @return true on success, false otherwise
@@ -98,16 +102,36 @@ public class RuntimeEnvironment implements IEnvironment {
     return this.javaTypeToDSLType;
   }
 
+  /**
+   * WTF. ?
+   *
+   * @param object foo
+   * @param parentMemorySpace foo
+   * @return foo
+   */
   public Object translateRuntimeObject(Object object, IMemorySpace parentMemorySpace) {
     return this.runtimeObjectTranslator.translateRuntimeObject(object, parentMemorySpace, this);
   }
 
+  /**
+   * WTF. ?
+   *
+   * @param object foo
+   * @param parentMemorySpace foo
+   * @param targetType foo
+   * @return foo
+   */
   public Object translateRuntimeObject(
       Object object, IMemorySpace parentMemorySpace, IType targetType) {
     return this.runtimeObjectTranslator.translateRuntimeObject(
         object, parentMemorySpace, this, targetType);
   }
 
+  /**
+   * WTF. ?
+   *
+   * @return foo
+   */
   public TypeInstantiator getTypeInstantiator() {
     return this.typeInstantiator;
   }
