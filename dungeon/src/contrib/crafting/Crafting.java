@@ -81,15 +81,15 @@ public final class Crafting {
    */
   public static void loadRecipes() {
     try {
-      final String dirName = "recipes/";
+      String dirName = "recipes/";
 
       // Walk through the 'recipes' directory and load all recipes.
-      final Map<String, List<Path>> subdirectoryMap =
+      Map<String, List<Path>> subdirectoryMap =
           ResourceWalker.walk(new SimpleIPath(dirName), (p) -> p.getFileName().endsWith(".recipe"));
 
       for (Map.Entry<String, List<Path>> entry : subdirectoryMap.entrySet()) {
         for (Path path : entry.getValue()) {
-          final Recipe recipe = parseRecipe(path.toUri().toURL().openStream(), path.toString());
+          Recipe recipe = parseRecipe(path.toUri().toURL().openStream(), path.toString());
           if (recipe != null) {
             RECIPES.add(recipe);
           } else {

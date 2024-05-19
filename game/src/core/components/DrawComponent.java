@@ -325,8 +325,8 @@ public final class DrawComponent implements Component {
   private void loadAnimationAssets(final IPath path) throws IOException {
     try {
       // Walk through the (sub)directories of path and fill the subdirectoryMap.
-      final Map<String, List<Path>> subdirectoryMap = ResourceWalker.walk(path, (p) -> true);
-      final Map<String, List<IPath>> subdirectoryMap2 = new HashMap<>();
+      Map<String, List<Path>> subdirectoryMap = ResourceWalker.walk(path, (p) -> true);
+      Map<String, List<IPath>> subdirectoryMap2 = new HashMap<>();
       for (Map.Entry<String, List<Path>> entry : subdirectoryMap.entrySet()) {
         subdirectoryMap2.put(
             entry.getKey(),

@@ -21,8 +21,9 @@ public class ResourceWalker {
    */
   public static Map<String, List<Path>> walk(IPath path, Function<Path, Boolean> acceptor)
       throws Exception {
-    final Map<String, List<Path>> subdirectoryMap = new HashMap<>();
-    final SimpleFileVisitor<Path> visitor =
+    Map<String, List<Path>> subdirectoryMap = new HashMap<>();
+
+    SimpleFileVisitor<Path> visitor =
         new SimpleFileVisitor<>() {
           @Override
           public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) {
@@ -36,17 +37,12 @@ public class ResourceWalker {
           }
         };
 
-    final Object util =
-        Class.forName(ResourceWalker.class.getName()).getDeclaredConstructor().newInstance();
-    final URI uri =
-        Objects.requireNonNull(
+    Object util = Class.forName(ResourceWalker.class.getName()).getDeclaredConstructor().newInstance();
+    URI uri = Objects.requireNonNull(
                 util.getClass().getResource(util.getClass().getSimpleName() + ".class"))
             .toURI();
     Map<String, String> env =
-        Map.of(
-            "create", "true"
-            // other args here ...
-            );
+        Map.of("create", "true");
     try (FileSystem fs = FileSystems.newFileSystem(uri, env)) {
       Files.walkFileTree(fs.getPath(path.pathString()), visitor);
     } catch (Exception e) {
