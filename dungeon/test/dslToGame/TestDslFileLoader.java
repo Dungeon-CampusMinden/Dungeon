@@ -91,23 +91,27 @@ public class TestDslFileLoader {
   /** WTF? . */
   @Test
   public void fileToString() {
-    ClassLoader classLoader = getClass().getClassLoader();
-    File f =
-        new File(
-            Objects.requireNonNull(
-                    classLoader.getResource(PATH_TO_DNGFILE.toString().replace("\\", "/")))
-                .getFile());
-    String expectedContent =
-        "some test text."
-            + System.lineSeparator()
-            + "some test text, second line."
-            + System.lineSeparator()
-            + System.lineSeparator()
-            + "some test text, fourth line."
-            + System.lineSeparator();
+    try {
+      File f =
+          new File(
+              Objects.requireNonNull(
+                      this.getClass().getClassLoader().getResource(PATH_TO_DNGFILE.toString()))
+                  .toURI());
 
-    String read = DSLFileLoader.fileToString(f);
-    assertEquals(expectedContent, read);
+      String expectedContent =
+          "some test text."
+              + System.lineSeparator()
+              + "some test text, second line."
+              + System.lineSeparator()
+              + System.lineSeparator()
+              + "some test text, fourth line."
+              + System.lineSeparator();
+
+      String read = DSLFileLoader.fileToString(f);
+      assertEquals(expectedContent, read);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
   }
 
   /** WTF? . */
