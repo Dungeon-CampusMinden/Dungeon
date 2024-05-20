@@ -30,5 +30,5 @@ class PaymentContext {
     +executePayment(amount: double): void
 }
 
-PaymentContext o-- Payment
+PaymentContext --> Payment
 @enduml

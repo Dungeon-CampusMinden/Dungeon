@@ -2,12 +2,6 @@
 abstract Bauteil
 Bauteil <|-- EinfachBauteil
 Bauteil <|-- KomplexBauteil
-Bauteil -[hidden]- KomplexBauteil
-Bauteil "*" <--o KomplexBauteil
-note "Klient" as n0
-note "Primitiv" as n1
-note "Komponente" as n2
-n0 .. Bauteil
-EinfachBauteil .. n1
-Bauteil .. n2
+Bauteil <-- KomplexBauteil
+note "Bauteil ist Klient, jedes\nBauteil ist eine Komponente,\nEinfach- und KomplexBauteil\nsind zudem Primitive" as n0
 @enduml

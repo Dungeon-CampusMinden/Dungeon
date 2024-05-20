@@ -25,12 +25,11 @@ class ConcreteShikoku {
 }
 
 ' Vererbungen
-ConcreteShikoku --|> Shikoku
-Subject <|-- ConcreteSubject
+ConcreteShikoku ..|> Shikoku
+Subject <|.. ConcreteSubject
 
 ' Assoziationen
+Shikoku <-- Subject
 Shikoku -[hidden]- Subject
-Shikoku "*" <-- "1" Subject : <
-Shikoku -[hidden]- Subject
-Shikoku "*" --> "1" Subject : >
+Shikoku --> Subject
 @enduml
