@@ -14,6 +14,10 @@ public class ListType extends ScopedSymbol implements IType {
     return elementType.getName() + "[]";
   }
 
+  ListType() {
+    super();
+  }
+
   ListType(IType elementType, IScope parentScope) {
     super(getListTypeName(elementType), parentScope, elementType);
 

@@ -21,6 +21,12 @@ public class MapType extends ScopedSymbol implements IType {
     return "[" + keyType.getName() + "->" + elementType.getName() + "]";
   }
 
+  public MapType(){
+    super();
+    keyType=BuiltInType.noType;
+    elementType=BuiltInType.noType;
+  }
+
   MapType(IType keyType, IType elementType, IScope parentScope, TypeFactory typeFactory) {
     super(getMapTypeName(keyType, elementType), parentScope, elementType);
     this.keyType = keyType;

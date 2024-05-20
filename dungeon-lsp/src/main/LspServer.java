@@ -16,7 +16,7 @@ import dsl.parser.ast.*;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.scope.IScope;
-import dsl.semanticanalysis.symbol.ScopedSymbol;
+import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import entrypoint.DungeonConfig;
 import java.io.IOException;
@@ -36,6 +36,9 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
 import org.neo4j.driver.Driver;
+import org.neo4j.ogm.cypher.ComparisonOperator;
+import org.neo4j.ogm.cypher.Filter;
+import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -157,7 +160,8 @@ public class LspServer
                *
                * TODO: how does this affect completion requests?
                */
-              completionOptions.setResolveProvider(true);
+              //completionOptions.setResolveProvider(true);
+              completionOptions.setResolveProvider(false);
 
               /*
                * see https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#completionItemLabelDetails
@@ -166,8 +170,8 @@ public class LspServer
                *
                * TODO: currently not used, let's see about that in the future.
                */
-              // CompletionItemOptions completionItemOptions = new CompletionItemOptions();
-              // completionOptions.setCompletionItem();
+              //CompletionItemOptions completionItemOptions = new CompletionItemOptions();
+              //completionItemOptions.set
 
               serverCapabilities.setCompletionProvider(completionOptions);
 
@@ -277,6 +281,167 @@ public class LspServer
     clients.add(languageClient);
   }
 
+  private Map<String, Object> resolveContextToNearestAstNode(Position position) {
+    var result = session.query("""
+      // find nearest ASTNode (furthest to right)
+      match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn and n.hasErrorRecord = false
+      match (n:AstNode)-[:CHILD_OF]->(parent:AstNode)
+      return n, parent, nearestSfr
+      order by nearestSfr.startColumn desc
+      limit 1
+      """,
+      Map.of("startline", position.getLine(), "endcolumn", position.getCharacter())
+    );
+    var iter = result.iterator();
+    return iter.next();
+  }
+
+  private Map<String, Object> resolveContext(Position position) {
+    var result  = session.query(
+      """
+      // resolve context v3
+      match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn and n.hasErrorRecord = false and not exists {(n)<-[:CHILD_OF]-(:AstNode)}
+      CALL{
+      with n, nearestSfr
+      // match closest scope, either referenced scopes symbol (in memberaccess) or created (in normal scope)
+      match p=(n)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(scope:ScopedSymbol)
+      return scope,p
+      UNION
+      // match closest scope, either referenced scopes symbol (in memberaccess) or created (in normal scope)
+      match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
+      return scope,p
+      }
+      return scope, n, nearestSfr,length(p)
+      //order by length(p) desc
+      Order by nearestSfr.endColumn desc, length(p)
+      LIMIT 1
+      """,
+      Map.of("startline", position.getLine(), "endcolumn", position.getCharacter())
+    );
+
+    var iter = result.iterator();
+    return iter.next();
+  }
+
+  // TODO: does not work as expected...
+  private List<Symbol> getAllSymbolsInParentScopeLikeLhsType(Node memberAccessNode, String prefix) {
+    var result = session.query("""
+          call {
+                match (na:AssignmentNode) where na.idx=$idx
+                match (na)-[:PARENT_OF {idx:0}]->(lhsChild:AstNode)
+                match (lhsChild)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(lhsType:IType)
+                return lhsChild, na, lhsType
+                limit 1
+            }
+
+       //get symbols in scope and parent scopes v2
+            call{
+                match (n:AstNode) where n.idx=$idx
+                // match closest scope created (in normal scope)
+                match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
+                return scope, p, parent
+                order by length(p)
+                limit 1
+            }
+            call {
+                with scope
+                match l=(scope)
+                return scope as _scope, 1 as len, l
+                UNION
+                with scope
+                // collect parent scopes
+                match l=((scope)-[:PARENT_SCOPE|IN_SCOPE*]->(parentScope:IScope))
+                return parentScope as _scope, length(l) as len, l
+            }
+
+            match (symbol:Symbol)-[:IN_SCOPE]->(_scope) where
+            exists {(symbol)-[:OF_TYPE]->(lhsType)} and
+            symbol.name STARTS WITH $prefix
+            return symbol, lhsType
+      """,
+      Map.of("idx", memberAccessNode.getIdx(), "prefix", prefix));
+
+    ArrayList<Symbol> symbols = new ArrayList<>();
+    result.forEach(m -> symbols.add((Symbol)m.get("symbol")));
+    return symbols;
+  }
+
+  private List<Symbol> getAllSymbolsInScopeAndParentScopes(Node prefixNode, String prefix) {
+    var result = session.query(
+    """
+      //get symbols in scope and parent scopes v2
+      call{
+          match (n:AstNode) where n.idx=$idx
+          // match closest scope created (in normal scope)
+          match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
+          return scope, p, parent
+          order by length(p)
+          limit 1
+      }
+      call {
+          with scope
+          match l=(scope)
+          return scope as _scope, 1 as len, l
+          UNION
+          with scope
+          // collect parent scopes
+          match l=((scope)-[:PARENT_SCOPE|IN_SCOPE*]->(parentScope:IScope))
+          return parentScope as _scope, length(l) as len, l
+      }
+      //return distinct scope, _scope, len,l
+
+      //UNWIND scopes as scopeToFocus
+      match (symbol:Symbol)-[:IN_SCOPE]-(_scope) where symbol.name starts with $prefix
+      return distinct symbol
+      """,
+      Map.of("idx", prefixNode.getIdx(), "prefix", prefix));
+
+    ArrayList<Symbol> symbols = new ArrayList<>();
+    result.forEach(m -> symbols.add((Symbol)m.get("symbol")));
+    return symbols;
+  }
+
+  private List<Symbol> getSymbolsInScopeOfIdentifier(Node identifier) {
+    var result = session.query(
+      """
+      call {
+          match (n:AstNode) where n.idx=$idx
+          match (n)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(scope:ScopedSymbol)
+          return n, scope
+          limit 1
+      }
+      match (symbol:Symbol)-[:IN_SCOPE]->(scope)
+      return symbol
+      """,
+      Map.of("idx", identifier.getIdx())
+    );
+
+    ArrayList<Symbol> symbols = new ArrayList<>();
+    result.forEach(m -> symbols.add((Symbol)m.get("symbol")));
+    return symbols;
+  }
+
+  private List<Symbol> getSymbolsInScopeOfLhsIdentifierWithPrefix(Node memberAccessParentNode, String prefix) {
+    var result = session.query(
+      """
+      call {
+          match (n:MemberAccessNode) where n.idx=$idx
+          match (n)-[:PARENT_OF {idx:0}]->(lhsChild:AstNode)
+          match (lhsChild)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(scope:ScopedSymbol)
+          return lhsChild, n, scope
+          limit 1
+      }
+      match (symbol:Symbol)-[:IN_SCOPE]->(scope) where symbol.name STARTS WITH $prefix
+      return symbol
+      """,
+    Map.of("idx", memberAccessParentNode.getIdx(), "prefix", prefix)
+    );
+
+    ArrayList<Symbol> symbols = new ArrayList<>();
+    result.forEach(m -> symbols.add((Symbol)m.get("symbol")));
+    return symbols;
+  }
+
   // region TextDocument Service
   @Override
   public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
@@ -291,52 +456,129 @@ public class LspServer
           List<CompletionItem> items = new ArrayList<>();
           dbMutex.lock();
           try {
-            LOGGER.info("IN SUPPLY ASYNC OF COMPLETION!!");
-
             var context = completionParams.getContext();
+
             var position = completionParams.getPosition();
+            var nodeMap = resolveContextToNearestAstNode(position);
 
-            var result  = session.query(
-              IScope.class,
-              """
-              // resolve context v2 (works!)
-              CALL{
-              match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn and n.hasErrorRecord = false
-              // match closest scope, either referenced scopes symbol (in memberaccess) or created (in normal scope)
-              match p=(n)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(scope:ScopedSymbol)
-              return scope, n, nearestSfr,p
-              UNION
-              match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn and n.hasErrorRecord =false
-              // match closest scope, either referenced scopes symbol (in memberaccess) or created (in normal scope)
-              match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
-              return scope, n, nearestSfr,p
+            var astNode = (Node)nodeMap.get("n");
+            var sfr = (SourceFileReference)nodeMap.get("nearestSfr");
+            var parentNode = (Node)nodeMap.get("parent");
+
+            var map = resolveContext(position);
+
+            List<Symbol> symbols = new ArrayList<>();
+
+            String triggerCharacter = context.getTriggerCharacter();
+            if (triggerCharacter == null || triggerCharacter.isEmpty()) {
+              // the completion request was triggered by normal typing without special trigger character
+              // which means that we generate completion items for the nearest scope
+              if (parentNode.type == Node.Type.MemberAccess) {
+                // get symbols from scope of lhs of member access
+                String prefix = astNode.type == Node.Type.Identifier ? ((IdNode)astNode).getName() : "";
+                symbols = getSymbolsInScopeOfLhsIdentifierWithPrefix(parentNode, prefix);
+
+                Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
+
+                for (var symbol : symbols) {
+                  // TODO: specific method for creation of completion items from symbol
+                  CompletionItem item = new CompletionItem("Label: " + symbol.getName());
+                  // TODO:
+                  //item.setDocumentation("DOCUMENTATION");
+                  item.setKind(CompletionItemKind.Property);
+                  item.setFilterText(prefix);
+                  // start
+                  TextEdit textEdit = new TextEdit(new Range(startPosition, position), symbol.getName());
+                  item.setTextEdit(Either.forLeft(textEdit));
+
+                  item.setInsertText(symbol.getName());
+                  item.setInsertTextMode(InsertTextMode.AsIs);
+                  item.setLabel("Label: "+ symbol.getName());
+                  item.setSortText("SORT TEXT");
+                  items.add(item);
+                }
+              } else if (parentNode.type == Node.Type.Assignment) {
+                // TODO: may either rhs or lhs...
+                // TODO: should enable fallback, if lhs (or rhs) has no type
+                String prefix = astNode.type == Node.Type.Identifier ? ((IdNode)astNode).getName() : "";
+                symbols = getAllSymbolsInParentScopeLikeLhsType(parentNode, prefix);
+
+                Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
+
+                for (var symbol : symbols) {
+                  // TODO: specific method for creation of completion items from symbol
+                  CompletionItem item = new CompletionItem("Label: " + symbol.getName());
+                  // TODO:
+                  //item.setDocumentation("DOCUMENTATION");
+                  item.setKind(CompletionItemKind.Property);
+                  item.setFilterText(prefix);
+                  // start
+                  TextEdit textEdit = new TextEdit(new Range(startPosition, position), symbol.getName());
+                  item.setTextEdit(Either.forLeft(textEdit));
+
+                  item.setInsertText(symbol.getName());
+                  item.setInsertTextMode(InsertTextMode.AsIs);
+                  item.setLabel("Label: "+ symbol.getName());
+                  item.setSortText("SORT TEXT");
+                  items.add(item);
+                }
+              } else {
+                // get symbols from parent scope and all it's parent scopes
+                String prefix = astNode.type == Node.Type.Identifier ? ((IdNode)astNode).getName() : "";
+                symbols = getAllSymbolsInScopeAndParentScopes(astNode, prefix);
+
+                Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
+
+                for (var symbol : symbols) {
+                  // TODO: specific method for creation of completion items from symbol
+                  CompletionItem item = new CompletionItem("Label: " + symbol.getName());
+                  // TODO:
+                  //item.setDocumentation("DOCUMENTATION");
+                  item.setKind(CompletionItemKind.Property);
+                  item.setFilterText(prefix);
+                  // start
+                  TextEdit textEdit = new TextEdit(new Range(startPosition, position), symbol.getName());
+                  item.setTextEdit(Either.forLeft(textEdit));
+
+                  item.setInsertText(symbol.getName());
+                  item.setInsertTextMode(InsertTextMode.AsIs);
+                  item.setLabel("Label: "+ symbol.getName());
+                  item.setSortText("SORT TEXT");
+                  items.add(item);
+                }
               }
-              return scope
-              Order by nearestSfr.endColumn desc, length(p)
-              LIMIT 1
-              """,
-              Map.of("startline", position.getLine(), "endcolumn", position.getCharacter())
-              );
+            } else {
+              if (triggerCharacter.equals(".")) {
+                // member access, treat node as scope
+                symbols = getSymbolsInScopeOfIdentifier(astNode);
 
+                for (var symbol : symbols) {
+                  // TODO: specific method for creation of completion items from symbol
+                  CompletionItem item = new CompletionItem("Label: " + symbol.getName());
+                  // TODO:
+                  //item.setDocumentation("DOCUMENTATION");
+                  item.setKind(CompletionItemKind.Property);
+                  item.setInsertText(symbol.getName());
+                  item.setInsertTextMode(InsertTextMode.AsIs);
+                  item.setLabel("Label: "+ symbol.getName());
+                  item.setSortText("SORT TEXT");
+                  items.add(item);
+                }
 
-            //var iter = result.queryResults().iterator();
-            var iter = result.iterator();
-            // only one entry (limit 1)
-            //Map<String,Object> map = iter.next();
-            //IScope scope = (IScope)map.get("scope");
-            //Node relatedNode = (Node)map.get("n");
-            //SourceFileReference sfr = (SourceFileReference)map.get("sfr");
-            IScope scope = iter.next();
+                boolean b = true;
+              }
 
+            }
+
+            // NOTE: OLD IMPLEMENTATION
+            /*IScope scope = (IScope)map.get("scope");
             // TODO: check explicitly for datatype?
-            // TODO: symbols of entity is empty, even though it should not be...
-            // TODO: got the sense, that this is some kind of db inconsistency again...
             if (scope instanceof ScopedSymbol scopedSymbol) {
               // create completion item for each symbol in scope
-              // TODO: fucking fuck..
-              //var symbols = scopedSymbol.getSymbols();
 
-              var results = session.query("""
+              var results = session.query(
+                Symbol.class,
+                """
                 match (s:ScopedSymbol) where s.idx=$idx
                 match (symbol:Symbol)-[:IN_SCOPE]->(s)
                 return symbol
@@ -344,52 +586,25 @@ public class LspServer
                 Map.of("idx", scopedSymbol.getIdx()));
 
 
-              results.forEach(map -> {
-                var symbol = (Symbol)map.get("symbol");
-                // TODO: specific method for creation of completion items from symbol
-                CompletionItem item = new CompletionItem("Label: " + symbol.getName());
-                //item.setData("ARBITRARY DATA OBJECT");
-                //item.setDetail("DETAIL");
-                // TODO:
-                item.setDocumentation("DOCUMENTATION");
-                // TODO: or method
-                item.setKind(CompletionItemKind.Property);
-                item.setFilterText("Filter text");
-                item.setInsertText(symbol.getName());
-                item.setInsertTextMode(InsertTextMode.AsIs);
-                item.setLabel("Label: "+ symbol.getName());
-                item.setSortText("SORT TEXT");
-                items.add(item);
-              });
             } else {
               // regular scope
               // TODO: get all symbols of this scope and parent scopes and rank them by scope distance.. (basically by path length)
-            }
+            }*/
 
-            boolean b = true;
+            LOGGER.info("Found " + symbols.size() + " symbols for completion request!");
 
-            // TODO: this is heavy
-            /*CompletionItem item = new CompletionItem("HELLO, THIS IS MY LABEL");
-            item.setData("ARBITRARY DATA OBJECT");
-            item.setDetail("DETAIL");
-            item.setDocumentation("DOCUMENTATION");
-            item.setKind(CompletionItemKind.Text);
-            item.setFilterText("Filter text");
-            item.setInsertText("INSERT TEXT");
-            item.setInsertTextMode(InsertTextMode.AsIs);
-            item.setLabel("LABEL");
-            item.setSortText("SORT TEXT");
-            items.add(item);*/
+
+
           } catch (Exception ex) {
             LOGGER.severe(ex.toString());
           } finally {
             dbMutex.unlock();
           }
 
-          boolean setList = false;
+          boolean setList = true;
           if (setList) {
             CompletionList completionList = new CompletionList(items);
-            completionList.setIsIncomplete(isIncomplete);
+            completionList.setIsIncomplete(false);
             return Either.forRight(completionList);
           } else {
             return Either.forLeft(items);
@@ -704,13 +919,26 @@ public class LspServer
         LOGGER.info("Updating program database...");
         throwIfStop();
         // non-interuptable!
+        //session.query("match (n) detach delete n", Map.of());
         session.deleteAll(ParentOf.class);
         session.deleteAll(Node.class);
         session.deleteAll(Symbol.class);
         session.deleteAll(IScope.class);
+        //session.query("match (sym:Symbol)-[:IN_SCOPE]-(scope:IScope) where not scope.name='NULL_SCOPE' detach delete sym, scope", Map.of());
         session.deleteAll(SourceFileReference.class);
         session.deleteAll(ErrorRecord.class);
         throwIfStop();
+
+        tx.commit();
+
+        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+
+        throwIfStop();
+        // TODO: this does not even correctly add the BuiltIn-types..
+        session.save(Scope.NULL);
+
+        tx.commit();
+        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
 
         ProfilingTimer.Unit unit = ProfilingTimer.Unit.milli;
         HashMap<String, Long> times = new HashMap<>();

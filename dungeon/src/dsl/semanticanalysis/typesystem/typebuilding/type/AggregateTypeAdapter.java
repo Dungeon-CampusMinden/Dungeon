@@ -11,6 +11,11 @@ public class AggregateTypeAdapter extends AggregateType {
     return builderMethod;
   }
 
+  private AggregateTypeAdapter() {
+    super();
+    this.builderMethod = null;
+  }
+
   AggregateTypeAdapter(String name, IScope parentScope, Class<?> originType, Method builderMethod) {
     super(name, parentScope, originType);
     this.builderMethod = builderMethod;

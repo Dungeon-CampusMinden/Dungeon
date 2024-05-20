@@ -14,6 +14,10 @@ public class SetType extends ScopedSymbol implements IType {
     return elementType.getName() + "<>";
   }
 
+  SetType() {
+    super();
+  }
+
   SetType(IType elementType, IScope parentScope) {
     super(getSetTypeName(elementType), parentScope, elementType);
 

@@ -14,6 +14,11 @@ public class BuiltInType extends Symbol implements IType {
     boolean run(Value param);
   }
 
+  private BuiltInType() {
+    super();
+    this.asBooleanFunction = null;
+  }
+
   public static BuiltInType noType = new BuiltInType("none", Scope.NULL, (v) -> false);
   public static BuiltInType boolType =
       new BuiltInType("bool", Scope.NULL, (v) -> (boolean) v.getInternalValue());
