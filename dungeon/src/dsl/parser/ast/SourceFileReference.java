@@ -84,8 +84,16 @@ public class SourceFileReference {
   public static SourceFileReference fromCtx(ParserRuleContext ctx) {
     int startLine = ctx.start.getLine()-1;
     int startColumn = ctx.start.getCharPositionInLine();
-    int endLine = ctx.stop.getLine()-1;
-    int endColumn = ctx.stop.getCharPositionInLine();
+    int endLine;
+    int endColumn;
+
+    if (ctx.stop == null) {
+      endLine = ctx.start.getLine()-1;
+      endColumn = ctx.start.getCharPositionInLine();
+    } else {
+      endLine = ctx.stop.getLine()-1;
+      endColumn = ctx.stop.getCharPositionInLine();
+    }
     int absoluteStart = -1;
     int absoluteEnd = -1;
     if (ctx.start instanceof CommonToken commonToken) {
