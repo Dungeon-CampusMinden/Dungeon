@@ -1,0 +1,8 @@
+@startuml UML_Klassendiagramm5.png
+class A {
+  - a : A
+  - A()
+  + getA() : A
+  + exampleOperation() : void
+}
+@enduml

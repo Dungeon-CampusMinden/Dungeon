@@ -31,7 +31,17 @@ import task.tasktype.quizquestion.FreeText;
 public class Fragen_Pattern extends Room {
   private final String FILE_NAME_PREFIX =
       "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
-  private final String[] EXPECTED_PATTERNS = {".*?observer.*?", ".*?visitor.*?"};
+  private final String[] EXPECTED_PATTERNS = {
+    ".*?none.*?",
+    ".*?observer.*?",
+    ".*?visitor.*?",
+    ".*?(composite)|(kompositum)|(none).*?",
+    ".*?(adapter)|(none).*?",
+    ".*?(singleton)|(none).*?",
+    ".*?observer.*?",
+    ".*?visitor.*?",
+    ".*?(strategy)|(strategie)|(none).*?",
+  };
   private final int MIN_NUMBER_OF_CORRECT_ANSWERS = 1;
   private final int MAX_NUMBER_OF_WRONG_ANSWERS = 2;
   private List<Integer> patternIndices =
@@ -163,8 +173,8 @@ public class Fragen_Pattern extends Room {
     String questionText =
         "Welches Design-Pattern wird in dem UML-Klassendiagramm unter \""
             + FILE_NAME_PREFIX
-            + (currentPatternIndex + 1)
-            + ".png\" dargestellt? Es reicht das Wort ohne den Zusatz Pattern!";
+            + currentPatternIndex
+            + ".png\" dargestellt? Es reicht das Wort ohne den Zusatz Pattern! Wenn Sie kein Pattern erkennen, geben Sie bitte \"none\" ein.";
     return new FreeText(questionText);
   }
 

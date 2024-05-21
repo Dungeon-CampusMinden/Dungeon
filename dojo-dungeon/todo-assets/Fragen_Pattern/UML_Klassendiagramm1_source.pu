@@ -1,5 +1,5 @@
 @startuml UML_Klassendiagramm1.png
-interface Anzeige {
+abstract Anzeige {
   +aktualisieren(temperatur: float, feuchtigkeit: float, druck: float)
 }
 
@@ -34,8 +34,8 @@ class VorhersageAnzeige {
   +aktualisieren(temperatur: float, feuchtigkeit: float, druck: float)
 }
 
-WetterStation "1" -- "0..*" Anzeige
-Anzeige <|.. AktuelleBedingungenAnzeige
-Anzeige <|.. StatistikAnzeige
-Anzeige <|.. VorhersageAnzeige
+WetterStation --> Anzeige
+Anzeige <|-- AktuelleBedingungenAnzeige
+Anzeige <|-- StatistikAnzeige
+Anzeige <|-- VorhersageAnzeige
 @enduml

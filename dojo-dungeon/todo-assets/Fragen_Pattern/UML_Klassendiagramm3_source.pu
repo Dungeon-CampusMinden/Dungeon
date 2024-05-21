@@ -1,0 +1,7 @@
+@startuml UML_Klassendiagramm3.png
+abstract Bauteil
+Bauteil <|-- EinfachBauteil
+Bauteil <|-- KomplexBauteil
+Bauteil <-- KomplexBauteil
+note "Bauteil ist Klient, jedes\nBauteil ist eine Komponente,\nEinfach- und KomplexBauteil\nsind zudem Primitive" as n0
+@enduml
