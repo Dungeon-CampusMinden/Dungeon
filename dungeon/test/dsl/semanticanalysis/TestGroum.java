@@ -94,12 +94,16 @@ public class TestGroum {
     String str = p.print(groum);
 
     var sourceNodes = groum.sourceNodes();
-    Assert.assertEquals(2, sourceNodes.size());
-    var firstParam = sourceNodes.get(0);
+    // only 'beginFunc' Node expected
+    Assert.assertEquals(1, sourceNodes.size());
+    var beginFunc = sourceNodes.get(0);
+    var paramNodes = beginFunc.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL);
+    Assert.assertEquals(2, paramNodes.size());
+    var firstParam = paramNodes.get(0);
     Assert.assertEquals(
         ActionNode.ActionType.parameterInstantiation, ((ActionNode) firstParam).actionType());
     Assert.assertEquals(1, firstParam.outgoing().size());
-    var secondParam = sourceNodes.get(1);
+    var secondParam = paramNodes.get(1);
     Assert.assertEquals(
         ActionNode.ActionType.parameterInstantiation, ((ActionNode) secondParam).actionType());
     Assert.assertEquals(1, secondParam.outgoing().size());
@@ -185,12 +189,16 @@ public class TestGroum {
     String str = p.print(groum);
 
     var sourceNodes = groum.sourceNodes();
-    Assert.assertEquals(2, sourceNodes.size());
+    Assert.assertEquals(1, sourceNodes.size());
 
-    var xParam = sourceNodes.get(0);
+    var funcStartNode = sourceNodes.get(0);
+    var paramNodes = funcStartNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL);
+    Assert.assertEquals(2, paramNodes.size());
+
+    var xParam = paramNodes.get(0);
     Assert.assertEquals(3, xParam.outgoing().size());
 
-    var yParam = sourceNodes.get(1);
+    var yParam = paramNodes.get(1);
 
     var constRef = xParam.outgoing().get(0).end();
     Assert.assertEquals(ActionNode.ActionType.constRef, ((ActionNode) constRef).actionType());
@@ -240,12 +248,15 @@ public class TestGroum {
     String str = p.print(groum);
 
     var sourceNodes = groum.sourceNodes();
-    Assert.assertEquals(2, sourceNodes.size());
+    Assert.assertEquals(1, sourceNodes.size());
+    var funcBegin = sourceNodes.get(0);
+    var paramNodes = funcBegin.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL);
+    Assert.assertEquals(2, paramNodes.size());
 
-    var xParam = sourceNodes.get(0);
+    var xParam = paramNodes.get(0);
     Assert.assertEquals(3, xParam.outgoing().size());
 
-    var yParam = sourceNodes.get(1);
+    var yParam = paramNodes.get(1);
 
     var constRef = xParam.outgoing().get(0).end();
     Assert.assertEquals(ActionNode.ActionType.constRef, ((ActionNode) constRef).actionType());
@@ -832,42 +843,43 @@ public class TestGroum {
   }
 
   @Test
+  // TODO: redefinition broken!!
   public void dataDependencySequentialConditional() {
     String program =
         """
-  // y param idx: 2
+  // y param idx: 3
   fn add(int x, int y, int z) -> int {
     if x {
-      // idx: 10
+      // idx: 11
       y = 42;
     } else {
-      // idx: 15
+      // idx: 16
       y = 321;
     }
 
     if x {
-      // idx: 21
+      // idx: 22
       y = 1;
     }
 
-    // param ref idx: 22
+    // param ref idx: 23
     print(y);
 
     if x {
-      // idx: 31
+      // idx: 32
       y = 2;
     } else if z {
-      // idx: 39
+      // idx: 40
       y = 3;
     } else {
-      // idx: 44
+      // idx: 45
       y = 4;
     }
 
-    // ref idx: 45
+    // ref idx: 46
     print(y);
 
-    // idx: 50
+    // idx: 51
     y = 21;
     return y;
   }
@@ -895,16 +907,16 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests:
-    var paramDef = findNodeByProcessIdx(finalizedGroum, 2);
-    var firstIfDef = findNodeByProcessIdx(finalizedGroum, 10);
-    var firstElseDef = findNodeByProcessIdx(finalizedGroum, 15);
-    var secondIfDef = findNodeByProcessIdx(finalizedGroum, 21);
-    var firstPrintParamRef = findNodeByProcessIdx(finalizedGroum, 22);
-    var thirdIfDef = findNodeByProcessIdx(finalizedGroum, 31);
-    var elseIfDef = findNodeByProcessIdx(finalizedGroum, 39);
-    var secondElseDef = findNodeByProcessIdx(finalizedGroum, 44);
-    var secondPrintParamRef = findNodeByProcessIdx(finalizedGroum, 45);
-    var finalDef = findNodeByProcessIdx(finalizedGroum, 50);
+    var paramDef = findNodeByProcessIdx(finalizedGroum, 3);
+    var firstIfDef = findNodeByProcessIdx(finalizedGroum, 11);
+    var firstElseDef = findNodeByProcessIdx(finalizedGroum, 16);
+    var secondIfDef = findNodeByProcessIdx(finalizedGroum, 22);
+    var firstPrintParamRef = findNodeByProcessIdx(finalizedGroum, 23);
+    var thirdIfDef = findNodeByProcessIdx(finalizedGroum, 32);
+    var elseIfDef = findNodeByProcessIdx(finalizedGroum, 40);
+    var secondElseDef = findNodeByProcessIdx(finalizedGroum, 45);
+    var secondPrintParamRef = findNodeByProcessIdx(finalizedGroum, 46);
+    var finalDef = findNodeByProcessIdx(finalizedGroum, 51);
 
     // check param redefs
     var paramRedefs =
@@ -968,28 +980,29 @@ public class TestGroum {
   }
 
   @Test
+  // TODO: actually broken, final y def overwrites the first redef, which should not be visible afterwards..
   public void dataDependencyConditionalShadowing() {
     String program =
         """
-      // param idx: 2
+      // param idx: 3
       fn add(int x, int y, int z) -> int {
-        // redef idx: 6
+        // redef idx: 7
         y = 1;
         if x {
-          // idx: 13
+          // idx: 14
           y = 2;
         } else if z {
-          // idx: 21
+          // idx: 22
           y = 3;
         } else {
-          // idx: 26
+          // idx: 27
           y = 4;
         }
 
-        // param ref idx: 27
+        // param ref idx: 28
         print(y);
 
-        // redef idx: 32
+        // redef idx: 33
         y = 21;
         return y;
       }
@@ -1017,12 +1030,12 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var firstRedef = findNodeByProcessIdx(finalizedGroum, 6);
-    var secondRedef = findNodeByProcessIdx(finalizedGroum, 13);
-    var thirdRedef = findNodeByProcessIdx(finalizedGroum, 21);
-    var forthRedef = findNodeByProcessIdx(finalizedGroum, 26);
-    var paramRef = findNodeByProcessIdx(finalizedGroum, 27);
-    var finalRedef = findNodeByProcessIdx(finalizedGroum, 32);
+    var firstRedef = findNodeByProcessIdx(finalizedGroum, 7);
+    var secondRedef = findNodeByProcessIdx(finalizedGroum, 14);
+    var thirdRedef = findNodeByProcessIdx(finalizedGroum, 22);
+    var forthRedef = findNodeByProcessIdx(finalizedGroum, 27);
+    var paramRef = findNodeByProcessIdx(finalizedGroum, 28);
+    var finalRedef = findNodeByProcessIdx(finalizedGroum, 33);
 
     // shadowing of first redefinition
     var firstRedefShadowing =
@@ -1105,40 +1118,41 @@ public class TestGroum {
   }
 
   @Test
+  // TODO: does not work, y gets redefined by final y def... fucking hell
   public void dataDependencyBlock() {
     String program =
         """
-  //y idx: 2
+  //y idx: 3
   fn add(int x, int y, int z) -> int {
     if x {
-      // idx: 10
+      // idx: 11
       y = 42;
       if z {
-        // idx: 16
+        // idx: 17
         y = 56;
         {
-          // idx: 20
+          // idx: 21
           y = 12;
-          // idx: 23
+          // idx: 24
           y = 1;
         }
         {{{
-          // idx: 29
+          // idx: 30
           y = 4321;
         }}}
-        // ref idx: 31
+        // ref idx: 32
         print(y);
       }
     } else {
-      // idx: 37
+      // idx: 38
       y = 123;
     }
 
-    // y ref idx: 39
+    // y ref idx: 40
     var sum = x + y;
-    // idx: 44
+    // idx: 45
     y = 21;
-    // ref idx: 45
+    // ref idx: 46
     return y;
   }
   """;
@@ -1165,18 +1179,18 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var paramDef = findNodeByProcessIdx(finalizedGroum, 2);
-    var firstIfDef = findNodeByProcessIdx(finalizedGroum, 10);
-    var secondIfDef = findNodeByProcessIdx(finalizedGroum, 16);
-    var firstBlockDef = findNodeByProcessIdx(finalizedGroum, 20);
-    var secondBlockDef = findNodeByProcessIdx(finalizedGroum, 23);
-    var thirdBlockDef = findNodeByProcessIdx(finalizedGroum, 29);
-    var firstPrintParamRef = findNodeByProcessIdx(finalizedGroum, 30);
-    var elseDef = findNodeByProcessIdx(finalizedGroum, 37);
-    var termYRef = findNodeByProcessIdx(finalizedGroum, 39);
-    var sumDef = findNodeByProcessIdx(finalizedGroum, 41);
-    var finalRedef = findNodeByProcessIdx(finalizedGroum, 44);
-    var returnRef = findNodeByProcessIdx(finalizedGroum, 45);
+    var paramDef = findNodeByProcessIdx(finalizedGroum, 3);
+    var firstIfDef = findNodeByProcessIdx(finalizedGroum, 11);
+    var secondIfDef = findNodeByProcessIdx(finalizedGroum, 17);
+    var firstBlockDef = findNodeByProcessIdx(finalizedGroum, 21);
+    var secondBlockDef = findNodeByProcessIdx(finalizedGroum, 24);
+    var thirdBlockDef = findNodeByProcessIdx(finalizedGroum, 30);
+    var firstPrintParamRef = findNodeByProcessIdx(finalizedGroum, 31);
+    var elseDef = findNodeByProcessIdx(finalizedGroum, 38);
+    var termYRef = findNodeByProcessIdx(finalizedGroum, 40);
+    var sumDef = findNodeByProcessIdx(finalizedGroum, 42);
+    var finalRedef = findNodeByProcessIdx(finalizedGroum, 45);
+    var returnRef = findNodeByProcessIdx(finalizedGroum, 46);
 
     // check param redefs
     var paramRedefs =
@@ -1302,28 +1316,28 @@ public class TestGroum {
   public void dataDependencyConditionalComplex() {
     String program =
         """
-        // x param idx: 1
+        // x param idx: 2
         fn test(int x, int y, int z) {
         	if x {
-        	  // idx: 9
+        	  // idx: 10
         	  x = 1;
         		if y {
-        		  // idx: 16
+        		  // idx: 17
         			x = 12;
         			if z {
-        			  // idx: 22
+        			  // idx: 23
         				x = 123;
         			}
-        			// idx: 25
+        			// idx: 26
         			x = 1234;
-        			// ref idx: 27
+        			// ref idx: 28
         			print(x);
         		} else {
-        		  // idx: 33
+        		  // idx: 34
         			x = 42;
         		}
         	}
-        	// ref idx: 34
+        	// ref idx: 35
         	print(x);
         }
     """;
@@ -1350,18 +1364,18 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var paramDef = findNodeByProcessIdx(finalizedGroum, 1);
-    var firstRedef = findNodeByProcessIdx(finalizedGroum, 9);
-    var secondRedef = findNodeByProcessIdx(finalizedGroum, 16);
-    var thirdRedef = findNodeByProcessIdx(finalizedGroum, 22);
-    var forthRedef = findNodeByProcessIdx(finalizedGroum, 25);
-    var fifthRedef = findNodeByProcessIdx(finalizedGroum, 33);
-    var firstPrintParamRef = findNodeByProcessIdx(finalizedGroum, 26);
-    var secondPrintParamRef = findNodeByProcessIdx(finalizedGroum, 34);
+    var paramDef = findNodeByProcessIdx(finalizedGroum, 2);
+    var firstRedef = findNodeByProcessIdx(finalizedGroum, 10);
+    var secondRedef = findNodeByProcessIdx(finalizedGroum, 17);
+    var thirdRedef = findNodeByProcessIdx(finalizedGroum, 23);
+    var forthRedef = findNodeByProcessIdx(finalizedGroum, 26);
+    var fifthRedef = findNodeByProcessIdx(finalizedGroum, 34);
+    var firstPrintParamRef = findNodeByProcessIdx(finalizedGroum, 27);
+    var secondPrintParamRef = findNodeByProcessIdx(finalizedGroum, 35);
 
     // check param reads
     var paramReads = paramDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(3, paramReads.size());
+    Assert.assertEquals(5, paramReads.size());
     Assert.assertTrue(paramReads.contains(secondPrintParamRef));
 
     // check param redef
@@ -1411,23 +1425,23 @@ public class TestGroum {
   public void dataDependencyConditionalRedef() {
     String program =
         """
-      // param y idx: 2
+      // param y idx: 3
       fn test(int x, int y, int z) {
         if x {
           if z {
-            // def action idx: 13
+            // def action idx: 14
             y = 1;
-            // print param ref idx: 15
+            // print param ref idx: 16
             print(y);
           }
-          // def action idx: 19
+          // def action idx: 20
           y = 2;
         } else {
-          // def action idx: 24
+          // def action idx: 25
           y = 3;
         }
 
-        // ref in expression idx: 25
+        // ref in expression idx: 26
         print(y);
       }
       """;
@@ -1454,13 +1468,13 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests:
-    var paramYDefNode = findNodeByProcessIdx(finalizedGroum, 2);
-    var nestedIfDefNode = findNodeByProcessIdx(finalizedGroum, 13);
-    var nestedFuncParamRefNode = findNodeByProcessIdx(finalizedGroum, 14);
-    var ifDefNode = findNodeByProcessIdx(finalizedGroum, 19);
+    var paramYDefNode = findNodeByProcessIdx(finalizedGroum, 3);
+    var nestedIfDefNode = findNodeByProcessIdx(finalizedGroum, 14);
+    var nestedFuncParamRefNode = findNodeByProcessIdx(finalizedGroum, 15);
+    var ifDefNode = findNodeByProcessIdx(finalizedGroum, 20);
 
-    var elseDefNode = findNodeByProcessIdx(finalizedGroum, 24);
-    var funcParamRefNode = findNodeByProcessIdx(finalizedGroum, 25);
+    var elseDefNode = findNodeByProcessIdx(finalizedGroum, 25);
+    var funcParamRefNode = findNodeByProcessIdx(finalizedGroum, 26);
 
     var redefsOfParam =
         paramYDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
@@ -1474,7 +1488,7 @@ public class TestGroum {
     // check for print refererence
     var endsOfDataRefsNestedIf =
         nestedIfDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(2, endsOfDataRefsNestedIf.size());
+    Assert.assertEquals(3, endsOfDataRefsNestedIf.size());
     Assert.assertEquals(nestedFuncParamRefNode, endsOfDataRefsNestedIf.get(0));
 
     var startsOfRedefIfDefNode =
@@ -1485,7 +1499,7 @@ public class TestGroum {
 
     // check for final print reference
     var endsOfDataRefIf = ifDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(2, endsOfDataRefIf.size());
+    Assert.assertEquals(3, endsOfDataRefIf.size());
     Assert.assertEquals(funcParamRefNode, endsOfDataRefIf.get(0));
 
     var startsOfRedefElseNode =
@@ -1496,7 +1510,7 @@ public class TestGroum {
     // check for final print reference
     var endsOfDataRefElse =
         elseDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(2, endsOfDataRefElse.size());
+    Assert.assertEquals(3, endsOfDataRefElse.size());
     Assert.assertEquals(funcParamRefNode, endsOfDataRefElse.get(0));
   }
 
@@ -1504,12 +1518,12 @@ public class TestGroum {
   public void functionCall() {
     String program =
         """
-        // x idx: 7
-        // y idx: 8
-        // z idx: 9
+        // x idx: 10
+        // y idx: 11
+        // z idx: 12
         fn add(int x, int y, int z) {
-          // redef idx: 17
-          // func call idx: 15
+          // redef idx: 20
+          // func call idx: 18
           x = other_func(x, y + z);
           print(x);
         }
@@ -1541,11 +1555,11 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var paramXDef = findNodeByProcessIdx(finalizedGroum, 7);
-    var paramYDef = findNodeByProcessIdx(finalizedGroum, 8);
-    var paramZDef = findNodeByProcessIdx(finalizedGroum, 9);
-    var funcCall = findNodeByProcessIdx(finalizedGroum, 15);
-    var xRedef = findNodeByProcessIdx(finalizedGroum, 17);
+    var paramXDef = findNodeByProcessIdx(finalizedGroum, 10);
+    var paramYDef = findNodeByProcessIdx(finalizedGroum, 11);
+    var paramZDef = findNodeByProcessIdx(finalizedGroum, 12);
+    var funcCall = findNodeByProcessIdx(finalizedGroum, 18);
+    var xRedef = findNodeByProcessIdx(finalizedGroum, 20);
 
     var funcCallReads = funcCall.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertTrue(funcCallReads.contains(paramXDef));
@@ -1563,14 +1577,14 @@ public class TestGroum {
     String program =
         """
         fn func(entity ent1, entity ent2, int x) {
-          // count reference idx: 5
+          // count reference idx: 6
           var c1 = ent1.inventory_component.count;
-          // count reference idx: 9
+          // count reference idx: 10
           var c2 = ent2.inventory_component.count;
 
-          // count def idx: 16
+          // count def idx: 17
           ent1.inventory_component.count = x;
-          // count def idx: 21
+          // count def idx: 22
           ent2.inventory_component.count = 21;
         }
       """;
@@ -1597,13 +1611,13 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var firstCountAccess = (PropertyAccessAction) findNodeByProcessIdx(finalizedGroum, 5);
-    var secondCountAccess = (PropertyAccessAction) findNodeByProcessIdx(finalizedGroum, 9);
+    var firstCountAccess = (PropertyAccessAction) findNodeByProcessIdx(finalizedGroum, 6);
+    var secondCountAccess = (PropertyAccessAction) findNodeByProcessIdx(finalizedGroum, 10);
     Assert.assertNotEquals(
         firstCountAccess.propertyInstanceId, secondCountAccess.propertyInstanceId);
 
-    var firstCountWrite = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 16);
-    var secondCountWrite = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 21);
+    var firstCountWrite = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 17);
+    var secondCountWrite = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 22);
     Assert.assertEquals(
         firstCountAccess.propertyInstanceId, firstCountWrite.referencedInstanceId());
     Assert.assertEquals(
@@ -1614,12 +1628,12 @@ public class TestGroum {
   public void propertyAccessChained() {
     String program =
         """
-      // param def idx: 1
+      // param def idx: 2
       fn func(entity ent) {
-        // t def idx: 6
-        // task_content_component access idx: 2
-        // content access idx: 3
-        // task access idx: 4
+        // t def idx: 7
+        // task_content_component access idx: 3
+        // content access idx: 4
+        // task access idx: 5
         var t = ent.task_content_component.content.task;
       }
     """;
@@ -1646,11 +1660,11 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var tDef = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 6);
-    var paramDef = findNodeByProcessIdx(finalizedGroum, 1);
-    var taskContentComponentAccess = findNodeByProcessIdx(finalizedGroum, 2);
-    var contentAccess = findNodeByProcessIdx(finalizedGroum, 3);
-    var taskAccess = findNodeByProcessIdx(finalizedGroum, 4);
+    var tDef = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 7);
+    var paramDef = findNodeByProcessIdx(finalizedGroum, 2);
+    var taskContentComponentAccess = findNodeByProcessIdx(finalizedGroum, 3);
+    var contentAccess = findNodeByProcessIdx(finalizedGroum, 4);
+    var taskAccess = findNodeByProcessIdx(finalizedGroum, 5);
     var tDefReads = tDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertEquals(4, tDefReads.size());
     Assert.assertTrue(tDefReads.contains(paramDef));
@@ -1663,12 +1677,12 @@ public class TestGroum {
   public void propertyAccessChainedTwice() {
     String program =
         """
-      // param def idx: 1
+      // param def idx: 2
       fn func(entity ent) {
-        // t def idx: 6
-        // task_content_component access idx: 2
-        // content access idx: 3
-        // task access idx: 4
+        // t def idx: 7
+        // task_content_component access idx: 3
+        // content access idx: 4
+        // task access idx: 5
         var t = ent.task_content_component.content.task;
         var x = ent.task_content_component.content.task;
       }
@@ -1696,11 +1710,11 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var tDef = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 6);
-    var paramDef = findNodeByProcessIdx(finalizedGroum, 1);
-    var taskContentComponentAccess = findNodeByProcessIdx(finalizedGroum, 2);
-    var contentAccess = findNodeByProcessIdx(finalizedGroum, 3);
-    var taskAccess = findNodeByProcessIdx(finalizedGroum, 4);
+    var tDef = (DefinitionAction) findNodeByProcessIdx(finalizedGroum, 7);
+    var paramDef = findNodeByProcessIdx(finalizedGroum, 2);
+    var taskContentComponentAccess = findNodeByProcessIdx(finalizedGroum, 3);
+    var contentAccess = findNodeByProcessIdx(finalizedGroum, 4);
+    var taskAccess = findNodeByProcessIdx(finalizedGroum, 5);
     var tDefReads = tDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertEquals(4, tDefReads.size());
     Assert.assertTrue(tDefReads.contains(paramDef));
@@ -1713,19 +1727,19 @@ public class TestGroum {
   public void propertyAccessWrite() {
     String program =
         """
-      // param c idx: 2
+      // param c idx: 3
       fn func(entity ent1, content c, int y) {
 
-        // def idx: 6
+        // def idx: 7
         var ent = ent1;
 
-        // task_content_component property access idx: 7
-        // content property access idx: 8
-        // content def idx: 11
+        // task_content_component property access idx: 8
+        // content property access idx: 9
+        // content def idx: 12
         ent.task_content_component.content = c;
 
-        // content propertyaccess idx: 13
-        // cont1 def idx: 15
+        // content propertyaccess idx: 14
+        // cont1 def idx: 16
         var cont1 = ent.task_content_component.content;
 
         print(cont1);
@@ -1754,13 +1768,13 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var paramCDef = findNodeByProcessIdx(finalizedGroum, 2);
-    var entDef = findNodeByProcessIdx(finalizedGroum, 6);
-    var taskContentComponentPropAccess = findNodeByProcessIdx(finalizedGroum, 7);
-    var firstContentPropAccess = findNodeByProcessIdx(finalizedGroum, 8);
-    var contentDef = findNodeByProcessIdx(finalizedGroum, 11);
-    var secondContentPropAccess = findNodeByProcessIdx(finalizedGroum, 13);
-    var cont1Def = findNodeByProcessIdx(finalizedGroum, 15);
+    var paramCDef = findNodeByProcessIdx(finalizedGroum, 3);
+    var entDef = findNodeByProcessIdx(finalizedGroum, 7);
+    var taskContentComponentPropAccess = findNodeByProcessIdx(finalizedGroum, 8);
+    var firstContentPropAccess = findNodeByProcessIdx(finalizedGroum, 9);
+    var contentDef = findNodeByProcessIdx(finalizedGroum, 12);
+    var secondContentPropAccess = findNodeByProcessIdx(finalizedGroum, 14);
+    var cont1Def = findNodeByProcessIdx(finalizedGroum, 16);
 
     // first content property access should reference ent and previous task_content_component access
     var firstContentPropAccessReads =
@@ -1784,7 +1798,7 @@ public class TestGroum {
     // content def should be read twice (by second content property access and cont1 def)
     var readsOfContentDef =
         contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(2, readsOfContentDef.size());
+    Assert.assertEquals(3, readsOfContentDef.size());
     Assert.assertTrue(readsOfContentDef.contains(secondContentPropAccess));
     Assert.assertTrue(readsOfContentDef.contains(cont1Def));
   }
@@ -1797,24 +1811,24 @@ public class TestGroum {
         var ent = ent1;
 
         // creates a definition for content-property of the ent.task_content_component.instance
-        // def idx: 12
+        // def idx: 13
         ent.task_content_component.content = c;
-        // count def idx: 17
+        // count def idx: 18
         ent.inventory_component.count = 4;
 
         // this definition invalidates the definition of the content component, because the parent
         // property of content is changed
-        // def idx: 21
+        // def idx: 22
         ent.task_content_component = tcc;
 
-        // task content component access idx: 22
-        // content access idx: 23
-        // cont1 def idx: 25
+        // task content component access idx: 23
+        // content access idx: 24
+        // cont1 def idx: 26
         var cont1 = ent.task_content_component.content;
 
         // inventory_count should still reference the definition from above (idx 17)
-        // def idx: 29
-        // ic ref idx: 27
+        // def idx: 30
+        // ic ref idx: 28
         var inventory_count = ent.inventory_component.count;
 
         print(cont1);
@@ -1843,14 +1857,14 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var contentDef = findNodeByProcessIdx(finalizedGroum, 12);
-    var countDef = findNodeByProcessIdx(finalizedGroum, 17);
-    var tccRedef = findNodeByProcessIdx(finalizedGroum, 21);
-    var taskContentCompRef = findNodeByProcessIdx(finalizedGroum, 22);
-    var contentRef = findNodeByProcessIdx(finalizedGroum, 23);
-    var cont1Def = findNodeByProcessIdx(finalizedGroum, 25);
-    var icRef = findNodeByProcessIdx(finalizedGroum, 27);
-    var inventoryCountDef = findNodeByProcessIdx(finalizedGroum, 29);
+    var contentDef = findNodeByProcessIdx(finalizedGroum, 13);
+    var countDef = findNodeByProcessIdx(finalizedGroum, 18);
+    var tccRedef = findNodeByProcessIdx(finalizedGroum, 22);
+    var taskContentCompRef = findNodeByProcessIdx(finalizedGroum, 23);
+    var contentRef = findNodeByProcessIdx(finalizedGroum, 24);
+    var cont1Def = findNodeByProcessIdx(finalizedGroum, 26);
+    var icRef = findNodeByProcessIdx(finalizedGroum, 28);
+    var inventoryCountDef = findNodeByProcessIdx(finalizedGroum, 30);
 
     // contentDef should have no reads
     var contentDefReads = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
@@ -1865,7 +1879,7 @@ public class TestGroum {
     // tccRedef should have three reads, first the access on rhs of cont1 def, the content property
     // access and the cont1 def itself
     var tccRedefReads = tccRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(3, tccRedefReads.size());
+    Assert.assertEquals(4, tccRedefReads.size());
     Assert.assertTrue(tccRedefReads.contains(taskContentCompRef));
     Assert.assertTrue(tccRedefReads.contains(contentRef));
     Assert.assertTrue(tccRedefReads.contains(cont1Def));
@@ -1873,12 +1887,13 @@ public class TestGroum {
     // the icRef and inventoryCountDef should still reference the countDefinition from above (idx
     // 17)
     var countDefReads = countDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(2, countDefReads.size());
+    Assert.assertEquals(3, countDefReads.size());
     Assert.assertTrue(countDefReads.contains(icRef));
     Assert.assertTrue(countDefReads.contains(inventoryCountDef));
   }
 
   @Test
+  // TODO: redefinition broken!!
   public void propertyAccessWriteConditional() {
     String program =
         """
@@ -1886,24 +1901,24 @@ public class TestGroum {
         var ent = ent1;
 
         // this creates a definition for the content property of the ent.task_content_component instance
-        // def idx: 12
+        // def idx: 13
         ent.task_content_component.content = c;
-        // content ref idx: 14
-        // cont1 def idx: 16
+        // content ref idx: 15
+        // cont1 def idx: 17
         var cont1 = ent.task_content_component.content;
 
         // setting the variable itself invalidates all definitions of the
         // child properties in the current scope
         if y {
-          // def idx: 23
+          // def idx: 24
           ent = ent2;
         } else {
-          // def idx: 28
+          // def idx: 29
           ent = ent1;
         }
 
-        // content ref idx: 30
-        // cont2 def idx: 32
+        // content ref idx: 31
+        // cont2 def idx: 33
         var cont2 = ent.task_content_component.content;
       }
     """;
@@ -1930,13 +1945,13 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // tests
-    var contentDef = findNodeByProcessIdx(finalizedGroum, 12);
-    var contentRef = findNodeByProcessIdx(finalizedGroum, 14);
-    var cont1Def = findNodeByProcessIdx(finalizedGroum, 16);
-    var ifDef = findNodeByProcessIdx(finalizedGroum, 23);
-    var elseDef = findNodeByProcessIdx(finalizedGroum, 28);
-    var finalContentRef = findNodeByProcessIdx(finalizedGroum, 30);
-    var cont2Def = findNodeByProcessIdx(finalizedGroum, 32);
+    var contentDef = findNodeByProcessIdx(finalizedGroum, 13);
+    var contentRef = findNodeByProcessIdx(finalizedGroum, 15);
+    var cont1Def = findNodeByProcessIdx(finalizedGroum, 17);
+    var ifDef = findNodeByProcessIdx(finalizedGroum, 24);
+    var elseDef = findNodeByProcessIdx(finalizedGroum, 29);
+    var finalContentRef = findNodeByProcessIdx(finalizedGroum, 31);
+    var cont2Def = findNodeByProcessIdx(finalizedGroum, 33);
 
     // contentDef should be read by contentRef and cont1Def
     var contentDefReads = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
@@ -2001,12 +2016,12 @@ public class TestGroum {
   public void methodAccessSimple() {
     String program =
         """
-      // ic def idx: 2
-      // idx def idx: 3
+      // ic def idx: 3
+      // idx def idx: 4
       fn func(entity ent, inventory_component ic, int idx) {
-        // method access idx: 7
-        // i1 def idx: 9
-        // inventory_component redef idx: 5
+        // method access idx: 8
+        // i1 def idx: 10
+        // inventory_component redef idx: 6
         var i1 = ic.get_item(idx);
       }
     """;
@@ -2033,11 +2048,11 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // test
-    var icParamDef = findNodeByProcessIdx(finalizedGroum, 2);
-    var idxParamDef = findNodeByProcessIdx(finalizedGroum, 3);
-    var icRedef = findNodeByProcessIdx(finalizedGroum, 5);
-    var methodAccess = findNodeByProcessIdx(finalizedGroum, 7);
-    var i1Def = findNodeByProcessIdx(finalizedGroum, 9);
+    var icParamDef = findNodeByProcessIdx(finalizedGroum, 3);
+    var idxParamDef = findNodeByProcessIdx(finalizedGroum, 4);
+    var icRedef = findNodeByProcessIdx(finalizedGroum, 6);
+    var methodAccess = findNodeByProcessIdx(finalizedGroum, 8);
+    var i1Def = findNodeByProcessIdx(finalizedGroum, 10);
 
     // test param ic redef
     var icRedefs = icRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
@@ -2063,26 +2078,26 @@ public class TestGroum {
   public void methodAccessInvalidation() {
     String program =
         """
-      // ent def idx: 1
-      // ic def idx: 2
-      // idx def idx: 3
-      // name def idx: 4
+      // ent def idx: 2
+      // ic def idx: 3
+      // idx def idx: 4
+      // name def idx: 5
       fn func(entity ent, inventory_component ic, int idx, string name) {
-        // def idx: 8
+        // def idx: 9
         ent.inventory_component = ic;
         // this redefines the ent definition and invalidates the inventory_component
-        // ent redef idx: 10
+        // ent redef idx: 11
         ent.set_name(name);
 
         // this defines the component
-        // redef idx: 16
+        // redef idx: 17
         ent.inventory_component = ic;
 
         // this redefines the inventory_component and invalidates the definition from above
-        // ic redef idx: 20
-        // i2 def idx: 23
+        // ic redef idx: 21
+        // i2 def idx: 24
         var i2 = ent.inventory_component.get_item(idx);
-        // def idx: 26
+        // def idx: 27
         var my_other_ic = ent.inventory_component;
       }
     """;
@@ -2109,20 +2124,20 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // test
-    var entParamDef = findNodeByProcessIdx(finalizedGroum, 1);
+    var entParamDef = findNodeByProcessIdx(finalizedGroum, 2);
     Assert.assertTrue(entParamDef instanceof ParameterInstantiationAction);
-    var firstEntRedef = findNodeByProcessIdx(finalizedGroum, 8);
+    var firstEntRedef = findNodeByProcessIdx(finalizedGroum, 9);
     Assert.assertTrue(firstEntRedef instanceof DefinitionAction);
-    var setNameRedef = findNodeByProcessIdx(finalizedGroum, 10);
+    var setNameRedef = findNodeByProcessIdx(finalizedGroum, 11);
     Assert.assertTrue(setNameRedef instanceof DefinitionAction);
-    var icRedef = findNodeByProcessIdx(finalizedGroum, 16);
+    var icRedef = findNodeByProcessIdx(finalizedGroum, 17);
     Assert.assertTrue(icRedef instanceof DefinitionAction);
-    var getItemIcRedef = findNodeByProcessIdx(finalizedGroum, 20);
+    var getItemIcRedef = findNodeByProcessIdx(finalizedGroum, 21);
     Assert.assertTrue(getItemIcRedef instanceof DefinitionAction);
 
-    var i2Def = findNodeByProcessIdx(finalizedGroum, 23);
+    var i2Def = findNodeByProcessIdx(finalizedGroum, 24);
     Assert.assertTrue(i2Def instanceof DefinitionAction);
-    var myOtherIcDef = findNodeByProcessIdx(finalizedGroum, 26);
+    var myOtherIcDef = findNodeByProcessIdx(finalizedGroum, 27);
     Assert.assertTrue(myOtherIcDef instanceof DefinitionAction);
 
     // the setName call should invalidate the firstEntRedef and ent param def
@@ -2160,15 +2175,15 @@ public class TestGroum {
   public void mixedMemberAccess() {
     String program =
         """
-      // ent def idx: 1
+      // ent def idx: 2
       fn func(entity ent) {
         // inventory_component access idx: 2
-        // 0 const def idx: 3
-        // get item access idx: 5
-        // inventory_component redefinition idx: 6
-        // task_content_component access idx: 7
-        // content access idx: 8
-        // c def idx: 10
+        // 0 const def idx: 4
+        // get item access idx: 6
+        // inventory_component redefinition idx: 7
+        // task_content_component access idx: 8
+        // content access idx: 9
+        // c def idx: 11
         var c = ent.inventory_component.get_item(0).task_content_component.content;
       }
     """;
@@ -2195,14 +2210,14 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // test
-    var entDef = findNodeByProcessIdx(finalizedGroum, 1);
-    var inventoryCompAccess = findNodeByProcessIdx(finalizedGroum, 2);
-    var constDef = findNodeByProcessIdx(finalizedGroum, 3);
-    var getItemAccess = findNodeByProcessIdx(finalizedGroum, 5);
-    var tccAccess = findNodeByProcessIdx(finalizedGroum, 7);
-    var contentAccess = findNodeByProcessIdx(finalizedGroum, 8);
-    var icRedef = findNodeByProcessIdx(finalizedGroum, 6);
-    var cDef = findNodeByProcessIdx(finalizedGroum, 10);
+    var entDef = findNodeByProcessIdx(finalizedGroum, 2);
+    var inventoryCompAccess = findNodeByProcessIdx(finalizedGroum, 3);
+    var constDef = findNodeByProcessIdx(finalizedGroum, 4);
+    var getItemAccess = findNodeByProcessIdx(finalizedGroum, 6);
+    var tccAccess = findNodeByProcessIdx(finalizedGroum, 8);
+    var contentAccess = findNodeByProcessIdx(finalizedGroum, 9);
+    var icRedef = findNodeByProcessIdx(finalizedGroum, 7);
+    var cDef = findNodeByProcessIdx(finalizedGroum, 11);
 
     var inventoryCompAccessReads =
         inventoryCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
@@ -2248,16 +2263,16 @@ public class TestGroum {
   public void mixedMemberAccessChainedMethods() {
     String program =
         """
-      // ent def idx: 1
+      // ent def idx: 2
       // other_end def idx: 2
-      // idx def idx: 3
+      // idx def idx: 4
       fn func(entity ent, entity other_ent, int idx) {
-        // inventory_component access idx: 4
-        // get item access idx: 9
-        // inventory_component redef idx: 11
-        // use method access idx: 10
-        // quest_item redef: 12
-        // c def idx: 14
+        // inventory_component access idx: 5
+        // get item access idx: 10
+        // inventory_component redef idx: 12
+        // use method access idx: 11
+        // quest_item redef: 13
+        // c def idx: 15
         var c = ent.inventory_component.get_item(idx).use(other_ent);
       }
     """;
@@ -2284,15 +2299,15 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum.dot");
 
     // test
-    var entParamDef = findNodeByProcessIdx(finalizedGroum, 1);
-    var otherEntParamDef = findNodeByProcessIdx(finalizedGroum, 2);
-    var idxParamDef = findNodeByProcessIdx(finalizedGroum, 3);
-    var inventoryComponentAccess = findNodeByProcessIdx(finalizedGroum, 4);
-    var getItemAccess = findNodeByProcessIdx(finalizedGroum, 9);
-    var inventoryComponentRedef = findNodeByProcessIdx(finalizedGroum, 11);
-    var useMethodAccess = findNodeByProcessIdx(finalizedGroum, 10);
-    var questItemRedef = findNodeByProcessIdx(finalizedGroum, 12);
-    var cDef = findNodeByProcessIdx(finalizedGroum, 14);
+    var entParamDef = findNodeByProcessIdx(finalizedGroum, 2);
+    var otherEntParamDef = findNodeByProcessIdx(finalizedGroum, 3);
+    var idxParamDef = findNodeByProcessIdx(finalizedGroum, 4);
+    var inventoryComponentAccess = findNodeByProcessIdx(finalizedGroum, 5);
+    var getItemAccess = findNodeByProcessIdx(finalizedGroum, 10);
+    var inventoryComponentRedef = findNodeByProcessIdx(finalizedGroum, 12);
+    var useMethodAccess = findNodeByProcessIdx(finalizedGroum, 11);
+    var questItemRedef = findNodeByProcessIdx(finalizedGroum, 13);
+    var cDef = findNodeByProcessIdx(finalizedGroum, 15);
 
     // get item access should read ent, idx, and inventory_component
     var getItemAccessReads =
@@ -2379,7 +2394,7 @@ public class TestGroum {
   public void interObjectDependencies() {
     String program =
         """
-    // my_point def idx: 48
+    // my_point def idx: 49
     point my_point {
       x: 1.0,
       y: 11.0
@@ -2389,10 +2404,10 @@ public class TestGroum {
       health_component {
           max_health: 10,
           start_health: 10,
-          on_death: drop_items // drop items ref idx: 3
+          on_death: drop_items // drop items ref idx: 4
       },
       position_component {
-        position: my_point // point ref idx: 4
+        position: my_point // point ref idx: 5
       },
       draw_component {
           path: "character/monster/chort"
@@ -2403,28 +2418,28 @@ public class TestGroum {
       }
     }
 
-    // t1 def idx: 27
+    // t1 def idx: 28
     single_choice_task t1 {
       description: "t1",
       answers: [ "test", "other test"],
       correct_answer_index: 0
     }
 
-    // t2 def idx: 43
+    // t2 def idx: 44
     single_choice_task t2 {
       description: "t2",
       answers: [ "test", "other test"],
       correct_answer_index: 0
     }
 
-    // drop items def idx: 35
+    // drop items def idx: 36
     fn drop_items(entity me) {
         me.inventory_component.drop_items();
     }
 
     graph g {
-      // t1 ref idx: 28
-      // t2 ref idx: 29
+      // t1 ref idx: 29
+      // t2 ref idx: 30
       t1 -> t2 [type=seq];
     }
     """;
@@ -2453,18 +2468,18 @@ public class TestGroum {
     write(finalizedGroumStr, "final_groum_test_fail.dot");
 
     // tests
-    var pointDef = findNodeByProcessIdx(finalizedGroum, 48);
-    var pointRef = findNodeByProcessIdx(finalizedGroum, 4);
+    var pointDef = findNodeByProcessIdx(finalizedGroum, 49);
+    var pointRef = findNodeByProcessIdx(finalizedGroum, 5);
     System.out.println(pointRef);
     Assert.assertTrue(pointRef instanceof VariableReferenceAction);
-    var entityTypeDef = findNodeByProcessIdx(finalizedGroum, 19);
-    var graphDef = findNodeByProcessIdx(finalizedGroum, 30);
-    var dropItemsDef = findNodeByProcessIdx(finalizedGroum, 35);
-    var dropItemsRef = findNodeByProcessIdx(finalizedGroum, 3);
-    var t1Def = findNodeByProcessIdx(finalizedGroum, 27);
-    var t2Def = findNodeByProcessIdx(finalizedGroum, 43);
-    var t1Ref = findNodeByProcessIdx(finalizedGroum, 28);
-    var t2Ref = findNodeByProcessIdx(finalizedGroum, 29);
+    var entityTypeDef = findNodeByProcessIdx(finalizedGroum, 20);
+    var graphDef = findNodeByProcessIdx(finalizedGroum, 31);
+    var dropItemsDef = findNodeByProcessIdx(finalizedGroum, 36);
+    var dropItemsRef = findNodeByProcessIdx(finalizedGroum, 4);
+    var t1Def = findNodeByProcessIdx(finalizedGroum, 28);
+    var t2Def = findNodeByProcessIdx(finalizedGroum, 44);
+    var t1Ref = findNodeByProcessIdx(finalizedGroum, 29);
+    var t2Ref = findNodeByProcessIdx(finalizedGroum, 30);
 
     var pointRefReads = pointRef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertTrue(pointRefReads.contains(pointDef));
