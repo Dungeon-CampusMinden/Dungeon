@@ -421,7 +421,7 @@ public class GroumScope {
 
   @Override
   public String toString() {
-    return "scope: " + this.associatedGroumNode;
+    return this.associatedGroumNode == GroumNode.NONE ? "scope: GroumNode.NONE" : "scope: " + this.associatedGroumNode;
   }
 
   private void propagateInstanceDefinitionToParents(
