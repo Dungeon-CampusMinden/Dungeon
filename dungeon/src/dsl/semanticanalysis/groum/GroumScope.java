@@ -389,13 +389,9 @@ public class GroumScope {
           definitionsToShadow.addAll(heritage);
         }
 
-        if (fromScope.controlFlowParent == this) {
-          // don't add this scope
-          // why not?
-          // what does this mean?
-          // if this is the control flow parent of the from scope, this means, that this is a j
-          boolean b = true;
-        } else {
+        // TODO: explain
+        if (fromScope.controlFlowParent != this ||
+          this.associatedGroumNode instanceof ControlNode assocControlNode && assocControlNode.controlType() == ControlNode.ControlType.beginFunc) {
           // definitionsToShadow.add(this);
           definitionsToShadow.add(this);
           definitionsToShadow.add(this.controlFlowParent);

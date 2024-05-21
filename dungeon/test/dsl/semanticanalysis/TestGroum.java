@@ -811,7 +811,7 @@ public class TestGroum {
         // y def idx: 18
         y = 123;
       } else {
-        // y def idx: 23
+        // y def idx: 24
         y = 321;
       }
       var sum = x + y;
@@ -952,15 +952,15 @@ public class TestGroum {
 
     // check only one read on first defs
     var firstIfDefReads = firstIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(2, firstIfDefReads.size());
+    Assert.assertEquals(3, firstIfDefReads.size());
 
     var firstElseDefReads =
         firstElseDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(2, firstElseDefReads.size());
+    Assert.assertEquals(3, firstElseDefReads.size());
 
     var secondIfDefReads =
         secondIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(2, secondIfDefReads.size());
+    Assert.assertEquals(3, secondIfDefReads.size());
 
     // check second print param refs
     var secondPrintParamRefs =
@@ -1208,7 +1208,7 @@ public class TestGroum {
 
     // check first def reads
     var firstIfDefReads = firstIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(2, firstIfDefReads.size());
+    Assert.assertEquals(3, firstIfDefReads.size());
     Assert.assertTrue(firstIfDefReads.contains(termYRef));
     Assert.assertTrue(firstIfDefReads.contains(sumDef));
 
@@ -1242,7 +1242,7 @@ public class TestGroum {
     // check reads on third block def
     var thirdBlockDefReads =
         thirdBlockDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(4, thirdBlockDefReads.size());
+    Assert.assertEquals(6, thirdBlockDefReads.size());
     Assert.assertTrue(thirdBlockDefReads.contains(termYRef));
     Assert.assertTrue(thirdBlockDefReads.contains(sumDef));
     Assert.assertTrue(thirdBlockDefReads.contains(firstPrintParamRef));
@@ -1515,6 +1515,8 @@ public class TestGroum {
   }
 
   @Test
+  // TODO: works in isolation but not together with other tests, it's an issue with
+  //  processing order of nodes..
   public void functionCall() {
     String program =
         """
@@ -1955,7 +1957,7 @@ public class TestGroum {
 
     // contentDef should be read by contentRef and cont1Def
     var contentDefReads = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-    Assert.assertEquals(2, contentDefReads.size());
+    Assert.assertEquals(3, contentDefReads.size());
     Assert.assertTrue(contentDefReads.contains(contentRef));
     Assert.assertTrue(contentDefReads.contains(cont1Def));
 

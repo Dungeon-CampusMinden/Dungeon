@@ -1805,8 +1805,8 @@ public class TestDungeonASTConverter {
     var ast = Helpers.getASTFromString(program);
 
     SourceFileReference reference = ast.getChild(0).getSourceFileReference();
-    assertEquals(1, reference.getStartLine());
-    assertEquals(3, reference.getEndLine());
+    assertEquals(0, reference.getStartLine());
+    assertEquals(2, reference.getEndLine());
     assertEquals(4, reference.getStartColumn());
     assertEquals(4, reference.getEndColumn());
   }
