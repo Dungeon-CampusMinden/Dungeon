@@ -54,6 +54,10 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     this.ruleNames = parserRuleNames;
   }
 
+  public void setRuleNames(List<String> ruleNames) {
+    this.ruleNames = ruleNames;
+  }
+
   /** Constructor */
   public DungeonASTConverter() {
     this.astStack = new CountingStack<>();
