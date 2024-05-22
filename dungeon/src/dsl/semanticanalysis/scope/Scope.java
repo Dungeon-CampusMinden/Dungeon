@@ -22,7 +22,6 @@
 package dsl.semanticanalysis.scope;
 
 import dsl.parser.ast.Node;
-import dsl.parser.ast.StmtBlockNode;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +32,6 @@ import org.neo4j.ogm.annotation.*;
 public class Scope implements IScope {
   @Id @GeneratedValue private Long id;
   @Property private final String name;
-
 
   @Override
   public String getName() {
@@ -50,7 +48,7 @@ public class Scope implements IScope {
   @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)
   protected List<Symbol> symbolList;
 
-  @Relationship(type = "CREATES", direction= Relationship.Direction.INCOMING)
+  @Relationship(type = "CREATES", direction = Relationship.Direction.INCOMING)
   protected Node relatedASTNode;
 
   /**

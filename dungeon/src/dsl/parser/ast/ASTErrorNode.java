@@ -23,7 +23,8 @@ public class ASTErrorNode extends Node {
   public ASTErrorNode(ErrorNode errorNode, ErrorRecord errorRecord) {
     this(errorNode);
     this.setErrorRecord(errorRecord);
-    this.setSourceFileReference(new SourceFileReference(errorRecord.line()-1, errorRecord.charPositionInLine()));
+    this.setSourceFileReference(
+        new SourceFileReference(errorRecord.line() - 1, errorRecord.charPositionInLine()));
   }
 
   public ErrorNode internalErrorNode() {

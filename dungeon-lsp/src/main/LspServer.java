@@ -36,9 +36,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
 import org.neo4j.driver.Driver;
-import org.neo4j.ogm.cypher.ComparisonOperator;
-import org.neo4j.ogm.cypher.Filter;
-import org.neo4j.ogm.cypher.function.FilterFunction;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -160,7 +157,7 @@ public class LspServer
                *
                * TODO: how does this affect completion requests?
                */
-              //completionOptions.setResolveProvider(true);
+              // completionOptions.setResolveProvider(true);
               completionOptions.setResolveProvider(false);
 
               /*
@@ -170,8 +167,8 @@ public class LspServer
                *
                * TODO: currently not used, let's see about that in the future.
                */
-              //CompletionItemOptions completionItemOptions = new CompletionItemOptions();
-              //completionItemOptions.set
+              // CompletionItemOptions completionItemOptions = new CompletionItemOptions();
+              // completionItemOptions.set
 
               serverCapabilities.setCompletionProvider(completionOptions);
 
@@ -282,7 +279,9 @@ public class LspServer
   }
 
   private Map<String, Object> resolveContextToNearestAstNode(Position position) {
-    var result = session.query("""
+    var result =
+        session.query(
+            """
       // find nearest ASTNode (furthest to right)
       match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn and n.hasErrorRecord = false
       match (n:AstNode)-[:CHILD_OF]->(parent:AstNode)
@@ -290,15 +289,15 @@ public class LspServer
       order by nearestSfr.startColumn desc
       limit 1
       """,
-      Map.of("startline", position.getLine(), "endcolumn", position.getCharacter())
-    );
+            Map.of("startline", position.getLine(), "endcolumn", position.getCharacter()));
     var iter = result.iterator();
     return iter.next();
   }
 
   private Map<String, Object> resolveContext(Position position) {
-    var result  = session.query(
-      """
+    var result =
+        session.query(
+            """
       // resolve context v3
       match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn and n.hasErrorRecord = false and not exists {(n)<-[:CHILD_OF]-(:AstNode)}
       CALL{
@@ -316,8 +315,7 @@ public class LspServer
       Order by nearestSfr.endColumn desc, length(p)
       LIMIT 1
       """,
-      Map.of("startline", position.getLine(), "endcolumn", position.getCharacter())
-    );
+            Map.of("startline", position.getLine(), "endcolumn", position.getCharacter()));
 
     var iter = result.iterator();
     return iter.next();
@@ -325,7 +323,9 @@ public class LspServer
 
   // TODO: does not work as expected...
   private List<Symbol> getAllSymbolsInParentScopeLikeLhsType(Node memberAccessNode, String prefix) {
-    var result = session.query("""
+    var result =
+        session.query(
+            """
           call {
                 match (na:AssignmentNode) where na.idx=$idx
                 match (na)-[:PARENT_OF {idx:0}]->(lhsChild:AstNode)
@@ -359,16 +359,17 @@ public class LspServer
             symbol.name STARTS WITH $prefix
             return symbol, lhsType
       """,
-      Map.of("idx", memberAccessNode.getIdx(), "prefix", prefix));
+            Map.of("idx", memberAccessNode.getIdx(), "prefix", prefix));
 
     ArrayList<Symbol> symbols = new ArrayList<>();
-    result.forEach(m -> symbols.add((Symbol)m.get("symbol")));
+    result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
     return symbols;
   }
 
   private List<Symbol> getAllSymbolsInScopeAndParentScopes(Node prefixNode, String prefix) {
-    var result = session.query(
-    """
+    var result =
+        session.query(
+            """
       //get symbols in scope and parent scopes v2
       call{
           match (n:AstNode) where n.idx=$idx
@@ -394,16 +395,17 @@ public class LspServer
       match (symbol:Symbol)-[:IN_SCOPE]-(_scope) where symbol.name starts with $prefix
       return distinct symbol
       """,
-      Map.of("idx", prefixNode.getIdx(), "prefix", prefix));
+            Map.of("idx", prefixNode.getIdx(), "prefix", prefix));
 
     ArrayList<Symbol> symbols = new ArrayList<>();
-    result.forEach(m -> symbols.add((Symbol)m.get("symbol")));
+    result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
     return symbols;
   }
 
   private List<Symbol> getSymbolsInScopeOfIdentifier(Node identifier) {
-    var result = session.query(
-      """
+    var result =
+        session.query(
+            """
       call {
           match (n:AstNode) where n.idx=$idx
           match (n)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(scope:ScopedSymbol)
@@ -413,17 +415,18 @@ public class LspServer
       match (symbol:Symbol)-[:IN_SCOPE]->(scope)
       return symbol
       """,
-      Map.of("idx", identifier.getIdx())
-    );
+            Map.of("idx", identifier.getIdx()));
 
     ArrayList<Symbol> symbols = new ArrayList<>();
-    result.forEach(m -> symbols.add((Symbol)m.get("symbol")));
+    result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
     return symbols;
   }
 
-  private List<Symbol> getSymbolsInScopeOfLhsIdentifierWithPrefix(Node memberAccessParentNode, String prefix) {
-    var result = session.query(
-      """
+  private List<Symbol> getSymbolsInScopeOfLhsIdentifierWithPrefix(
+      Node memberAccessParentNode, String prefix) {
+    var result =
+        session.query(
+            """
       call {
           match (n:MemberAccessNode) where n.idx=$idx
           match (n)-[:PARENT_OF {idx:0}]->(lhsChild:AstNode)
@@ -434,11 +437,10 @@ public class LspServer
       match (symbol:Symbol)-[:IN_SCOPE]->(scope) where symbol.name STARTS WITH $prefix
       return symbol
       """,
-    Map.of("idx", memberAccessParentNode.getIdx(), "prefix", prefix)
-    );
+            Map.of("idx", memberAccessParentNode.getIdx(), "prefix", prefix));
 
     ArrayList<Symbol> symbols = new ArrayList<>();
-    result.forEach(m -> symbols.add((Symbol)m.get("symbol")));
+    result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
     return symbols;
   }
 
@@ -461,9 +463,9 @@ public class LspServer
             var position = completionParams.getPosition();
             var nodeMap = resolveContextToNearestAstNode(position);
 
-            var astNode = (Node)nodeMap.get("n");
-            var sfr = (SourceFileReference)nodeMap.get("nearestSfr");
-            var parentNode = (Node)nodeMap.get("parent");
+            var astNode = (Node) nodeMap.get("n");
+            var sfr = (SourceFileReference) nodeMap.get("nearestSfr");
+            var parentNode = (Node) nodeMap.get("parent");
 
             var map = resolveContext(position);
 
@@ -471,11 +473,13 @@ public class LspServer
 
             String triggerCharacter = context.getTriggerCharacter();
             if (triggerCharacter == null || triggerCharacter.isEmpty()) {
-              // the completion request was triggered by normal typing without special trigger character
+              // the completion request was triggered by normal typing without special trigger
+              // character
               // which means that we generate completion items for the nearest scope
               if (parentNode.type == Node.Type.MemberAccess) {
                 // get symbols from scope of lhs of member access
-                String prefix = astNode.type == Node.Type.Identifier ? ((IdNode)astNode).getName() : "";
+                String prefix =
+                    astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
                 symbols = getSymbolsInScopeOfLhsIdentifierWithPrefix(parentNode, prefix);
 
                 Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
@@ -484,23 +488,25 @@ public class LspServer
                   // TODO: specific method for creation of completion items from symbol
                   CompletionItem item = new CompletionItem("Label: " + symbol.getName());
                   // TODO:
-                  //item.setDocumentation("DOCUMENTATION");
+                  // item.setDocumentation("DOCUMENTATION");
                   item.setKind(CompletionItemKind.Property);
                   item.setFilterText(prefix);
                   // start
-                  TextEdit textEdit = new TextEdit(new Range(startPosition, position), symbol.getName());
+                  TextEdit textEdit =
+                      new TextEdit(new Range(startPosition, position), symbol.getName());
                   item.setTextEdit(Either.forLeft(textEdit));
 
                   item.setInsertText(symbol.getName());
                   item.setInsertTextMode(InsertTextMode.AsIs);
-                  item.setLabel("Label: "+ symbol.getName());
+                  item.setLabel("Label: " + symbol.getName());
                   item.setSortText("SORT TEXT");
                   items.add(item);
                 }
               } else if (parentNode.type == Node.Type.Assignment) {
                 // TODO: may either rhs or lhs...
                 // TODO: should enable fallback, if lhs (or rhs) has no type
-                String prefix = astNode.type == Node.Type.Identifier ? ((IdNode)astNode).getName() : "";
+                String prefix =
+                    astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
                 symbols = getAllSymbolsInParentScopeLikeLhsType(parentNode, prefix);
 
                 Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
@@ -509,22 +515,24 @@ public class LspServer
                   // TODO: specific method for creation of completion items from symbol
                   CompletionItem item = new CompletionItem("Label: " + symbol.getName());
                   // TODO:
-                  //item.setDocumentation("DOCUMENTATION");
+                  // item.setDocumentation("DOCUMENTATION");
                   item.setKind(CompletionItemKind.Property);
                   item.setFilterText(prefix);
                   // start
-                  TextEdit textEdit = new TextEdit(new Range(startPosition, position), symbol.getName());
+                  TextEdit textEdit =
+                      new TextEdit(new Range(startPosition, position), symbol.getName());
                   item.setTextEdit(Either.forLeft(textEdit));
 
                   item.setInsertText(symbol.getName());
                   item.setInsertTextMode(InsertTextMode.AsIs);
-                  item.setLabel("Label: "+ symbol.getName());
+                  item.setLabel("Label: " + symbol.getName());
                   item.setSortText("SORT TEXT");
                   items.add(item);
                 }
               } else {
                 // get symbols from parent scope and all it's parent scopes
-                String prefix = astNode.type == Node.Type.Identifier ? ((IdNode)astNode).getName() : "";
+                String prefix =
+                    astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
                 symbols = getAllSymbolsInScopeAndParentScopes(astNode, prefix);
 
                 Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
@@ -533,16 +541,17 @@ public class LspServer
                   // TODO: specific method for creation of completion items from symbol
                   CompletionItem item = new CompletionItem("Label: " + symbol.getName());
                   // TODO:
-                  //item.setDocumentation("DOCUMENTATION");
+                  // item.setDocumentation("DOCUMENTATION");
                   item.setKind(CompletionItemKind.Property);
                   item.setFilterText(prefix);
                   // start
-                  TextEdit textEdit = new TextEdit(new Range(startPosition, position), symbol.getName());
+                  TextEdit textEdit =
+                      new TextEdit(new Range(startPosition, position), symbol.getName());
                   item.setTextEdit(Either.forLeft(textEdit));
 
                   item.setInsertText(symbol.getName());
                   item.setInsertTextMode(InsertTextMode.AsIs);
-                  item.setLabel("Label: "+ symbol.getName());
+                  item.setLabel("Label: " + symbol.getName());
                   item.setSortText("SORT TEXT");
                   items.add(item);
                 }
@@ -556,18 +565,17 @@ public class LspServer
                   // TODO: specific method for creation of completion items from symbol
                   CompletionItem item = new CompletionItem("Label: " + symbol.getName());
                   // TODO:
-                  //item.setDocumentation("DOCUMENTATION");
+                  // item.setDocumentation("DOCUMENTATION");
                   item.setKind(CompletionItemKind.Property);
                   item.setInsertText(symbol.getName());
                   item.setInsertTextMode(InsertTextMode.AsIs);
-                  item.setLabel("Label: "+ symbol.getName());
+                  item.setLabel("Label: " + symbol.getName());
                   item.setSortText("SORT TEXT");
                   items.add(item);
                 }
 
                 boolean b = true;
               }
-
             }
 
             // NOTE: OLD IMPLEMENTATION
@@ -592,8 +600,6 @@ public class LspServer
             }*/
 
             LOGGER.info("Found " + symbols.size() + " symbols for completion request!");
-
-
 
           } catch (Exception ex) {
             LOGGER.severe(ex.toString());
@@ -900,6 +906,9 @@ public class LspServer
         DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(text);
       } catch (Exception ex) {
         // not relevant right now
+        if (!ex.getMessage().startsWith("Program contains")) {
+          boolean b = true;
+        }
       }
 
       LOGGER.fine(getPrettyPrintedParseTree(text, new GameEnvironment()));
@@ -908,6 +917,9 @@ public class LspServer
       var tx = session.beginTransaction(Transaction.Type.READ_WRITE);
       try {
         var env = interpreter.getRuntimeEnvironment();
+        if (env == null) {
+          env = interpreter.getRuntimeEnvironment();
+        }
         var fileScope = env.getFileScopes().get(null);
         var parsedFile = fileScope.file();
         var ast = parsedFile.rootASTNode();
@@ -919,12 +931,13 @@ public class LspServer
         LOGGER.info("Updating program database...");
         throwIfStop();
         // non-interuptable!
-        //session.query("match (n) detach delete n", Map.of());
+        // session.query("match (n) detach delete n", Map.of());
         session.deleteAll(ParentOf.class);
         session.deleteAll(Node.class);
         session.deleteAll(Symbol.class);
         session.deleteAll(IScope.class);
-        //session.query("match (sym:Symbol)-[:IN_SCOPE]-(scope:IScope) where not scope.name='NULL_SCOPE' detach delete sym, scope", Map.of());
+        // session.query("match (sym:Symbol)-[:IN_SCOPE]-(scope:IScope) where not
+        // scope.name='NULL_SCOPE' detach delete sym, scope", Map.of());
         session.deleteAll(SourceFileReference.class);
         session.deleteAll(ErrorRecord.class);
         throwIfStop();
@@ -977,7 +990,11 @@ public class LspServer
         }*/
         tx.commit();
         LOGGER.info("Finished updating database!");
-        var entity = session.queryForObject(IScope.class, "match (n:ScopedSymbol) where n.name = \"entity\" return n limit 1", Map.of());
+        var entity =
+            session.queryForObject(
+                IScope.class,
+                "match (n:ScopedSymbol) where n.name = \"entity\" return n limit 1",
+                Map.of());
 
         LOGGER.info("");
       } catch (InterruptedException interrupt) {

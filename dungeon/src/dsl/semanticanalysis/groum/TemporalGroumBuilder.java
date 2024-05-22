@@ -15,7 +15,7 @@ import java.util.Stack;
 
 public class TemporalGroumBuilder implements AstVisitor<Groum> {
   private SymbolTable symbolTable;
-  //private IEnvironment environment;
+  // private IEnvironment environment;
 
   // this will store instance ids for specific symbols
   private HashMap<Symbol, Long> symbolInstanceMap;
@@ -39,7 +39,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
       IEnvironment environment,
       HashMap<Symbol, Long> instanceMap) {
     this.symbolTable = symbolTable;
-    //this.environment = environment;
+    // this.environment = environment;
     this.symbolInstanceMap = instanceMap;
     this.nodeInstanceMap = new HashMap<>();
     this.memberAccessContextStack = new Stack<>();
@@ -50,7 +50,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     var groumNode = astNode.accept(this);
 
     this.symbolTable = null;
-    //this.environment = null;
+    // this.environment = null;
     this.inferrer = null;
     this.symbolInstanceMap = null;
 

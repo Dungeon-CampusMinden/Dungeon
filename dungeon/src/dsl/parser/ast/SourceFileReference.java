@@ -63,7 +63,13 @@ public class SourceFileReference {
     this.absoluteStart = -1;
   }
 
-  public SourceFileReference(int sourceLine, int sourceColumn, int endLine, int endColumn, int absoluteStart, int absoluteEnd) {
+  public SourceFileReference(
+      int sourceLine,
+      int sourceColumn,
+      int endLine,
+      int endColumn,
+      int absoluteStart,
+      int absoluteEnd) {
     this.startLine = sourceLine;
     this.startColumn = sourceColumn;
     this.endLine = endLine;
@@ -82,16 +88,16 @@ public class SourceFileReference {
   }
 
   public static SourceFileReference fromCtx(ParserRuleContext ctx) {
-    int startLine = ctx.start.getLine()-1;
+    int startLine = ctx.start.getLine() - 1;
     int startColumn = ctx.start.getCharPositionInLine();
     int endLine;
     int endColumn;
 
     if (ctx.stop == null) {
-      endLine = ctx.start.getLine()-1;
+      endLine = ctx.start.getLine() - 1;
       endColumn = ctx.start.getCharPositionInLine();
     } else {
-      endLine = ctx.stop.getLine()-1;
+      endLine = ctx.stop.getLine() - 1;
       endColumn = ctx.stop.getCharPositionInLine();
     }
     int absoluteStart = -1;
@@ -102,7 +108,9 @@ public class SourceFileReference {
     if (ctx.stop instanceof CommonToken commonToken) {
       absoluteEnd = commonToken.getStopIndex();
     }
-    var sourceFileReference = new SourceFileReference(startLine, startColumn, endLine, endColumn, absoluteStart, absoluteEnd);
+    var sourceFileReference =
+        new SourceFileReference(
+            startLine, startColumn, endLine, endColumn, absoluteStart, absoluteEnd);
     return sourceFileReference;
   }
 
@@ -125,7 +133,6 @@ public class SourceFileReference {
         + this.absoluteStart
         + ":"
         + this.absoluteEnd
-        + "]"
-        ;
+        + "]";
   }
 }

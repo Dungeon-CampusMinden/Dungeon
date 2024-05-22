@@ -263,7 +263,7 @@ public class DungeonErrorNodeConverter implements DungeonDSLParserVisitor<Node> 
 
   @Override
   public Node visitRet_type_def(DungeonDSLParser.Ret_type_defContext ctx) {
-    var node= genericErrorNode(this.childNodes);
+    var node = genericErrorNode(this.childNodes);
     node.setSourceFileReference(ctx);
     return node;
   }
@@ -600,7 +600,11 @@ public class DungeonErrorNodeConverter implements DungeonDSLParserVisitor<Node> 
       node.setSourceFileReference(ctx);
       return node;
     }
-    return Node.NONE;
+    // TODO: this is a problem!! we run into this case for a no viable alt exceptions with
+    // ExpressionContext..
+    //  fix it!
+    return genericErrorNode(this.childNodes);
+    // return Node.NONE;
   }
 
   private Node genericErrorNode(ArrayList<Node> children) {

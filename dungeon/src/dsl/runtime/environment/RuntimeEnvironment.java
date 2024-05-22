@@ -110,8 +110,7 @@ public class RuntimeEnvironment implements IEnvironment {
   }
 
   @Override
-  public void addFileScope(FileScope fileScope) {
-  }
+  public void addFileScope(FileScope fileScope) {}
 
   @Override
   public FileScope getFileScope(Path file) {

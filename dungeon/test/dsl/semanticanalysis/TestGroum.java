@@ -919,15 +919,13 @@ public class TestGroum {
     var finalDef = findNodeByProcessIdx(finalizedGroum, 51);
 
     // check param redefs
-    var paramRedefs =
-        paramDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var paramRedefs = paramDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(2, paramRedefs.size());
     Assert.assertTrue(paramRedefs.contains(firstIfDef));
     Assert.assertTrue(paramRedefs.contains(firstElseDef));
 
     // check first if-else redefs
-    var firstIfDefRedefs =
-        firstIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var firstIfDefRedefs = firstIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(4, firstIfDefRedefs.size());
     Assert.assertTrue(firstIfDefRedefs.contains(secondIfDef));
     Assert.assertTrue(firstIfDefRedefs.contains(thirdIfDef));
@@ -954,12 +952,10 @@ public class TestGroum {
     var firstIfDefReads = firstIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertEquals(3, firstIfDefReads.size());
 
-    var firstElseDefReads =
-        firstElseDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+    var firstElseDefReads = firstElseDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertEquals(3, firstElseDefReads.size());
 
-    var secondIfDefReads =
-        secondIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+    var secondIfDefReads = secondIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertEquals(3, secondIfDefReads.size());
 
     // check second print param refs
@@ -971,8 +967,7 @@ public class TestGroum {
     Assert.assertTrue(secondPrintParamRefs.contains(secondElseDef));
 
     // check final redefs
-    var finalRedefs =
-        finalDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var finalRedefs = finalDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(3, finalRedefs.size());
     Assert.assertTrue(finalRedefs.contains(thirdIfDef));
     Assert.assertTrue(finalRedefs.contains(elseIfDef));
@@ -980,7 +975,8 @@ public class TestGroum {
   }
 
   @Test
-  // TODO: actually broken, final y def overwrites the first redef, which should not be visible afterwards..
+  // TODO: actually broken, final y def overwrites the first redef, which should not be visible
+  // afterwards..
   public void dataDependencyConditionalShadowing() {
     String program =
         """
@@ -1038,8 +1034,7 @@ public class TestGroum {
     var finalRedef = findNodeByProcessIdx(finalizedGroum, 33);
 
     // shadowing of first redefinition
-    var firstRedefShadowing =
-        firstRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var firstRedefShadowing = firstRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(3, firstRedefShadowing.size());
     Assert.assertEquals(secondRedef, firstRedefShadowing.get(0));
     Assert.assertEquals(thirdRedef, firstRedefShadowing.get(1));
@@ -1056,8 +1051,7 @@ public class TestGroum {
     Assert.assertTrue(paramReads.contains(forthRedef));
 
     // final redef
-    var finalRedefs =
-        finalRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var finalRedefs = finalRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(3, finalRedefs.size());
     Assert.assertTrue(finalRedefs.contains(secondRedef));
     Assert.assertTrue(finalRedefs.contains(thirdRedef));
@@ -1193,15 +1187,13 @@ public class TestGroum {
     var returnRef = findNodeByProcessIdx(finalizedGroum, 46);
 
     // check param redefs
-    var paramRedefs =
-        paramDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var paramRedefs = paramDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(2, paramRedefs.size());
     Assert.assertTrue(paramRedefs.contains(firstIfDef));
     Assert.assertTrue(paramRedefs.contains(elseDef));
 
     // check first redef redefs
-    var firstIfDefRedefs =
-        firstIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var firstIfDefRedefs = firstIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(2, firstIfDefRedefs.size());
     Assert.assertTrue(firstIfDefRedefs.contains(secondIfDef));
     Assert.assertTrue(firstIfDefRedefs.contains(finalRedef));
@@ -1213,8 +1205,7 @@ public class TestGroum {
     Assert.assertTrue(firstIfDefReads.contains(sumDef));
 
     // check second def redefs
-    var secondIfDefRedefs =
-        secondIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var secondIfDefRedefs = secondIfDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(1, secondIfDefRedefs.size());
     Assert.assertTrue(secondIfDefRedefs.contains(firstBlockDef));
 
@@ -1223,8 +1214,7 @@ public class TestGroum {
     Assert.assertEquals(0, secondDefReads.size());
 
     // check first block redefs
-    var firstBlockRedefs =
-        firstBlockDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var firstBlockRedefs = firstBlockDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(1, firstBlockRedefs.size());
     Assert.assertTrue(firstBlockRedefs.contains(secondBlockDef));
 
@@ -1254,8 +1244,7 @@ public class TestGroum {
     Assert.assertTrue(thirdBlockDefRedefs.contains(finalRedef));
 
     // check final redefs
-    var finalRedefs =
-        finalRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var finalRedefs = finalRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(3, finalRedefs.size());
     Assert.assertTrue(finalRedefs.contains(thirdBlockDef));
     Assert.assertTrue(finalRedefs.contains(elseDef));
@@ -1384,26 +1373,22 @@ public class TestGroum {
     Assert.assertTrue(paramRedef.contains(firstRedef));
 
     // check first redef redefs
-    var firstRedefRedefs =
-        firstRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var firstRedefRedefs = firstRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(2, firstRedefRedefs.size());
     Assert.assertTrue(firstRedefRedefs.contains(fifthRedef));
     Assert.assertTrue(firstRedefRedefs.contains(secondRedef));
 
     // check second redef redefs
-    var secondRedefRedefs =
-        secondRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var secondRedefRedefs = secondRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(2, secondRedefRedefs.size());
     Assert.assertTrue(secondRedefRedefs.contains(thirdRedef));
     Assert.assertTrue(secondRedefRedefs.contains(forthRedef));
 
-    var secondRedefsReads =
-        secondRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+    var secondRedefsReads = secondRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertEquals(0, secondRedefsReads.size());
 
     // check third redef redefs
-    var thirdRedefRedefs =
-        thirdRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var thirdRedefRedefs = thirdRedef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(1, thirdRedefRedefs.size());
 
     // check forth redefs reads
@@ -1476,8 +1461,7 @@ public class TestGroum {
     var elseDefNode = findNodeByProcessIdx(finalizedGroum, 25);
     var funcParamRefNode = findNodeByProcessIdx(finalizedGroum, 26);
 
-    var redefsOfParam =
-        paramYDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var redefsOfParam = paramYDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(3, redefsOfParam.size());
 
     var startsOfRedefNestedIfDefNode =
@@ -1508,8 +1492,7 @@ public class TestGroum {
     Assert.assertEquals(paramYDefNode, startsOfRedefElseNode.get(0));
 
     // check for final print reference
-    var endsOfDataRefElse =
-        elseDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+    var endsOfDataRefElse = elseDefNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertEquals(3, endsOfDataRefElse.size());
     Assert.assertEquals(funcParamRefNode, endsOfDataRefElse.get(0));
   }
@@ -1787,19 +1770,16 @@ public class TestGroum {
 
     // content prop access should be redefined by content def
     var firstContentPropRedefs =
-        firstContentPropAccess.getEndsOfOutgoing(
-            GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+        firstContentPropAccess.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertTrue(firstContentPropRedefs.contains(contentDef));
 
     // content def should reference param c
-    var readsForContentDef =
-        contentDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+    var readsForContentDef = contentDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertEquals(3, readsForContentDef.size());
     Assert.assertTrue(readsForContentDef.contains(paramCDef));
 
     // content def should be read twice (by second content property access and cont1 def)
-    var readsOfContentDef =
-        contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+    var readsOfContentDef = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertEquals(3, readsOfContentDef.size());
     Assert.assertTrue(readsOfContentDef.contains(secondContentPropAccess));
     Assert.assertTrue(readsOfContentDef.contains(cont1Def));
@@ -1873,8 +1853,7 @@ public class TestGroum {
     Assert.assertEquals(0, contentDefReads.size());
 
     // contentDef should be redefined by tccRedef
-    var contentRedefs =
-        contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var contentRedefs = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(1, contentRedefs.size());
     Assert.assertTrue(contentRedefs.contains(tccRedef));
 
@@ -1962,8 +1941,7 @@ public class TestGroum {
     Assert.assertTrue(contentDefReads.contains(cont1Def));
 
     // ifDef and elseDef should redefine contentDef
-    var contentDefRedefs =
-        contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var contentDefRedefs = contentDef.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertEquals(2, contentDefRedefs.size());
     Assert.assertTrue(contentDefRedefs.contains(ifDef));
     Assert.assertTrue(contentDefRedefs.contains(elseDef));
@@ -2143,8 +2121,7 @@ public class TestGroum {
     Assert.assertTrue(myOtherIcDef instanceof DefinitionAction);
 
     // the setName call should invalidate the firstEntRedef and ent param def
-    var setNameRedefs =
-        setNameRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+    var setNameRedefs = setNameRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertTrue(setNameRedefs.contains(firstEntRedef));
     Assert.assertTrue(setNameRedefs.contains(entParamDef));
     Assert.assertEquals(2, setNameRedefs.size());
@@ -2226,8 +2203,7 @@ public class TestGroum {
     Assert.assertEquals(1, inventoryCompAccessReads.size());
     Assert.assertTrue(inventoryCompAccessReads.contains(entDef));
 
-    var itemAccessReads =
-        getItemAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+    var itemAccessReads = getItemAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertEquals(2, itemAccessReads.size());
     Assert.assertTrue(itemAccessReads.contains(entDef));
     Assert.assertTrue(itemAccessReads.contains(inventoryCompAccess));
@@ -2321,8 +2297,7 @@ public class TestGroum {
 
     // inventory component redef should redefine inventoryComponentAccess
     var inventoryComponentRedefs =
-        inventoryComponentRedef.getStartsOfIncoming(
-            GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+        inventoryComponentRedef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
     Assert.assertTrue(inventoryComponentRedefs.contains(inventoryComponentAccess));
 
     // use method access should read ent, inventoryComponentRedef, idx, other_ent, getItemAccess
@@ -2567,8 +2542,7 @@ public class TestGroum {
     var t1PosCompAccessReads =
         t1PosCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertTrue(t1PosCompAccessReads.contains(t2Def));
-    var t1PosAccessReads =
-        t1PosAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+    var t1PosAccessReads = t1PosAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertTrue(t1PosAccessReads.contains(t2Def));
     var t1PosDefReads = t1PosDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertTrue(t1PosDefReads.contains(t2Def));
@@ -2576,8 +2550,7 @@ public class TestGroum {
     var t2PosCompAccessReads =
         t2PosCompAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertTrue(t2PosCompAccessReads.contains(t1Def));
-    var t2PosAccessReads =
-        t2PosAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+    var t2PosAccessReads = t2PosAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertTrue(t2PosAccessReads.contains(t1Def));
     var t2PosDefReads = t2PosDef.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_DATA_READ);
     Assert.assertTrue(t2PosDefReads.contains(t1Def));

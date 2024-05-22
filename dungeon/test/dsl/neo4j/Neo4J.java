@@ -716,7 +716,7 @@ public class Neo4J {
   @Test
   public void testNonVoidNoReturnSingleFlow() {
     String program =
-      """
+        """
       fn test(int limit, int other) -> int {
         print("Hello");
       }
@@ -780,12 +780,12 @@ public class Neo4J {
       var globalDefinitions = finalGroum.getGlobalDefinitions();
 
       String query =
-        """
+          """
         match (n:ControlNode {controlType:\"whileLoop\"})<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(e:ExpressionAction)<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(v:VariableReferenceAction)
         return v,n
         """;
 
-      var result = session.query(query,Map.of());
+      var result = session.query(query, Map.of());
 
       sessionFactory.close();
     }
@@ -794,7 +794,7 @@ public class Neo4J {
   @Test
   public void testDetectDeadCode() {
     String program =
-      """
+        """
       fn test(int neverRead, int read, inventory_component accessed, inventory_component other) -> int {
         print(read);
         var i = read + 0;
@@ -867,12 +867,12 @@ public class Neo4J {
       var globalDefinitions = finalGroum.getGlobalDefinitions();
 
       String query =
-        """
+          """
         match (n:ControlNode {controlType:\"whileLoop\"})<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(e:ExpressionAction)<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(v:VariableReferenceAction)
         return v,n
         """;
 
-      var result = session.query(query,Map.of());
+      var result = session.query(query, Map.of());
 
       sessionFactory.close();
     }
@@ -881,7 +881,7 @@ public class Neo4J {
   @Test
   public void testTemporalAnchoring() {
     String program =
-      """
+        """
       fn test(int limit, int other) -> int {
         if other {
           print("Hello");
@@ -950,12 +950,12 @@ public class Neo4J {
       var globalDefinitions = finalGroum.getGlobalDefinitions();
 
       String query =
-        """
+          """
         match (n:ControlNode {controlType:\"whileLoop\"})<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(e:ExpressionAction)<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(v:VariableReferenceAction)
         return v,n
         """;
 
-      var result = session.query(query,Map.of());
+      var result = session.query(query, Map.of());
 
       sessionFactory.close();
     }
@@ -964,7 +964,7 @@ public class Neo4J {
   @Test
   public void testNonVoidNoReturn() {
     String program =
-      """
+        """
       fn test(int limit, int other) -> int {
         if other {
           print("Hello");
@@ -1037,12 +1037,12 @@ public class Neo4J {
       var globalDefinitions = finalGroum.getGlobalDefinitions();
 
       String query =
-        """
+          """
         match (n:ControlNode {controlType:\"whileLoop\"})<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(e:ExpressionAction)<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(v:VariableReferenceAction)
         return v,n
         """;
 
-      var result = session.query(query,Map.of());
+      var result = session.query(query, Map.of());
 
       sessionFactory.close();
     }
@@ -1051,7 +1051,7 @@ public class Neo4J {
   @Test
   public void testInfiniteLoopDetection() {
     String program =
-      """
+        """
       fn test(int limit) {
         var i = 0;
         while (i < limit) {
@@ -1129,12 +1129,12 @@ public class Neo4J {
       var globalDefinitions = finalGroum.getGlobalDefinitions();
 
       String query =
-        """
+          """
         match (n:ControlNode {controlType:\"whileLoop\"})<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(e:ExpressionAction)<-[:OUTGOING_EDGES {edgeType:\"temporal\"}]-(v:VariableReferenceAction)
         return v,n
         """;
 
-      var result = session.query(query,Map.of());
+      var result = session.query(query, Map.of());
 
       sessionFactory.close();
     }

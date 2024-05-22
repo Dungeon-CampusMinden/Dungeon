@@ -243,8 +243,7 @@ public class GroumScope {
             definitionNodes.forEach(
                 d -> {
                   var redefEdges =
-                      new GroumEdge(
-                          oldDefinitionNode, d, GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+                      new GroumEdge(oldDefinitionNode, d, GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
                   this.groum.addEdge(redefEdges);
                 });
           }
@@ -324,7 +323,8 @@ public class GroumScope {
           && parentsControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
         // does the if-branch contain a definition for instanceID?
         // get if node
-        var ifNode = parentsControlNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).get(0);
+        var ifNode =
+            parentsControlNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).get(0);
         var ifScope = parentsParent.getConditionalScopeFor(ifNode);
 
         // if the if scope does not itself contain the definitions, it's block may contain it
@@ -390,8 +390,9 @@ public class GroumScope {
         }
 
         // TODO: explain
-        if (fromScope.controlFlowParent != this ||
-          this.associatedGroumNode instanceof ControlNode assocControlNode && assocControlNode.controlType() == ControlNode.ControlType.beginFunc) {
+        if (fromScope.controlFlowParent != this
+            || this.associatedGroumNode instanceof ControlNode assocControlNode
+                && assocControlNode.controlType() == ControlNode.ControlType.beginFunc) {
           // definitionsToShadow.add(this);
           definitionsToShadow.add(this);
           definitionsToShadow.add(this.controlFlowParent);
@@ -417,7 +418,9 @@ public class GroumScope {
 
   @Override
   public String toString() {
-    return this.associatedGroumNode == GroumNode.NONE ? "scope: GroumNode.NONE" : "scope: " + this.associatedGroumNode;
+    return this.associatedGroumNode == GroumNode.NONE
+        ? "scope: GroumNode.NONE"
+        : "scope: " + this.associatedGroumNode;
   }
 
   private void propagateInstanceDefinitionToParents(

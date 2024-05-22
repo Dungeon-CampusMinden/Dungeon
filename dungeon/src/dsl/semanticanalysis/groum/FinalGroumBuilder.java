@@ -108,10 +108,12 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     for (var defNode : this.defNodes.values()) {
       // create new scope
       GroumScope defScope;
-      if (defNode instanceof DefinitionAction definitionAction && definitionAction.instanceSymbol().getSymbolType().equals(Symbol.SymbolType.Callable)) {
+      if (defNode instanceof DefinitionAction definitionAction
+          && definitionAction.instanceSymbol().getSymbolType().equals(Symbol.SymbolType.Callable)) {
         // function defintion
-        //var beginFuncControlNode = definitionAction.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).get(0);
-        //defScope = new GroumScope(this.groum, this.currentScope(), beginFuncControlNode);
+        // var beginFuncControlNode =
+        // definitionAction.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).get(0);
+        // defScope = new GroumScope(this.groum, this.currentScope(), beginFuncControlNode);
         var beginFuncNode = defNode.children().get(0);
         defScope = new GroumScope(this.groum, this.currentScope(), beginFuncNode);
       } else {
@@ -269,14 +271,13 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   private GroumNode getCurrentControlParentNode() {
     var currentScopeNode = this.currentScope().associatedGroumNode();
     if (currentScopeNode instanceof ControlNode controlNode
-      && !controlNode.controlType().equals(ControlNode.ControlType.returnStmt)
-      && !controlNode.controlType().equals(ControlNode.ControlType.block)) {
+        && !controlNode.controlType().equals(ControlNode.ControlType.returnStmt)
+        && !controlNode.controlType().equals(ControlNode.ControlType.block)) {
       return currentScopeNode;
     } else {
       return this.currentScope().controlFlowParentNode();
     }
   }
-
 
   private List<InvolvedVariable> calculateInvolvedVariablesBottomUp(
       GroumNode node, HashSet<GroumNode> childrenInScope) {
@@ -363,13 +364,14 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
         // TODO: test this
         for (var incomingNode : incomingNodes) {
           var nodesInvolvedVariables =
-            this.involvedVariables.getOrDefault(incomingNode, new ArrayList<>());
-          nodesInvolvedVariables.forEach(n ->
-          {
-            this.addInvolvedVariable(node, n, n.typeOfInvolvement());
-            var readEdge = new GroumEdge(n.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-            this.groum.addEdge(readEdge);
-          });
+              this.involvedVariables.getOrDefault(incomingNode, new ArrayList<>());
+          nodesInvolvedVariables.forEach(
+              n -> {
+                this.addInvolvedVariable(node, n, n.typeOfInvolvement());
+                var readEdge =
+                    new GroumEdge(n.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+                this.groum.addEdge(readEdge);
+              });
         }
 
         break;
@@ -381,8 +383,6 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           this.scopesForNodes.put(node, scope);
         }
 
-
-
         break;
       case returnStmt:
 
@@ -390,13 +390,14 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
         // var involvedVariables = new ArrayList<InvolvedVariable>();
         for (var incomingNode : incomingNodes) {
           var nodesInvolvedVariables =
-            this.involvedVariables.getOrDefault(incomingNode, new ArrayList<>());
-          nodesInvolvedVariables.forEach(n ->
-          {
-            this.addInvolvedVariable(node, n, n.typeOfInvolvement());
-            var readEdge = new GroumEdge(n.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-            this.groum.addEdge(readEdge);
-          });
+              this.involvedVariables.getOrDefault(incomingNode, new ArrayList<>());
+          nodesInvolvedVariables.forEach(
+              n -> {
+                this.addInvolvedVariable(node, n, n.typeOfInvolvement());
+                var readEdge =
+                    new GroumEdge(n.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+                this.groum.addEdge(readEdge);
+              });
         }
         break;
       default:
@@ -453,8 +454,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
               InvolvedVariable.TypeOfInvolvement.write,
               node);
           GroumEdge dataEdge =
-              new GroumEdge(
-                  propertyAccessAction, node, GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+              new GroumEdge(propertyAccessAction, node, GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
           this.groum.addEdge(dataEdge);
         }
       }
@@ -465,8 +465,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       existingDefinitions.forEach(
           v -> {
             if (v != node) {
-              GroumEdge dataEdge =
-                  new GroumEdge(v, node, GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
+              GroumEdge dataEdge = new GroumEdge(v, node, GroumEdge.GroumEdgeType.EDGE_DATA_WRITE);
               this.groum.addEdge(dataEdge);
             }
           });
@@ -479,7 +478,8 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     // so that we can invalidate the definition, if the instance itself is redefined
     GroumNode nodeParent = node.parent();
     if (nodeParent instanceof PropertyAccessAction propertyAccessAction) {
-      GroumNode propertyAccess = node.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).get(0);
+      GroumNode propertyAccess =
+          node.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).get(0);
 
       while (propertyAccess instanceof PropertyAccessAction previousPropertyAccess) {
         this.currentScope()
@@ -487,7 +487,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
                 previousPropertyAccess.propertyInstanceId,
                 previousPropertyAccess.referencedInstanceId());
         propertyAccess =
-            previousPropertyAccess.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).get(0);
+            previousPropertyAccess
+                .getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_TEMPORAL)
+                .get(0);
       }
     }
 
@@ -520,7 +522,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     List<InvolvedVariable> returnList = new ArrayList<>(expressionInvolvedVariables.size());
     for (var involvedVariable : expressionInvolvedVariables) {
       this.addInvolvedVariable(node, involvedVariable, involvedVariable.typeOfInvolvement());
-      var dataEdge = new GroumEdge(involvedVariable.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+      var dataEdge =
+          new GroumEdge(
+              involvedVariable.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
       this.groum.addEdge(dataEdge);
     }
 
@@ -579,12 +583,13 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     for (var incomingNode : incomingNodes) {
       var nodesInvolvedVariables =
           this.involvedVariables.getOrDefault(incomingNode, new ArrayList<>());
-      nodesInvolvedVariables.forEach(n ->
-      {
-        this.addInvolvedVariable(node, n, n.typeOfInvolvement());
-        var readEdge = new GroumEdge(n.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-        this.groum.addEdge(readEdge);
-      });
+      nodesInvolvedVariables.forEach(
+          n -> {
+            this.addInvolvedVariable(node, n, n.typeOfInvolvement());
+            var readEdge =
+                new GroumEdge(n.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+            this.groum.addEdge(readEdge);
+          });
     }
 
     return this.involvedVariables.get(node);
@@ -715,8 +720,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
             v -> {
               this.addInvolvedVariable(node, v, InvolvedVariable.TypeOfInvolvement.readWrite);
               var edge =
-                  new GroumEdge(
-                      v.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+                  new GroumEdge(v.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
               this.groum.addEdge(edge);
             });
       }

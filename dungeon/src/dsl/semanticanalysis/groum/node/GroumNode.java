@@ -52,7 +52,7 @@ public abstract class GroumNode {
 
   @Relationship private Node relatedAstNode;
   @Relationship private GroumNode controlFlowParent;
-  //@Transient private GroumNode controlFlowParent;
+  // @Transient private GroumNode controlFlowParent;
 
   @Transient private List<GroumEdge> incomingEdges;
   @Relationship private List<GroumEdge> outgoingEdges;
@@ -65,7 +65,7 @@ public abstract class GroumNode {
 
   protected void updateLabels() {
     this.label = this.getLabel();
-    //this.labels = List.of(label);
+    // this.labels = List.of(label);
   }
 
   private long processedCounter = -1;

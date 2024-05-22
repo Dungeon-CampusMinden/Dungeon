@@ -1052,7 +1052,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       var symbol = ctx.getStart();
       var text = ctx.getText();
       SourceFileReference sfr =
-          new SourceFileReference(symbol.getLine()-1, symbol.getCharPositionInLine());
+          new SourceFileReference(symbol.getLine() - 1, symbol.getCharPositionInLine());
       node = new IdNode(text, sfr);
       node.setSourceFileReference(ctx);
     }
@@ -1083,7 +1083,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
       var symbol = ctx.getStart();
       var text = ctx.getText();
       SourceFileReference sfr =
-          new SourceFileReference(symbol.getLine()-1, symbol.getCharPositionInLine());
+          new SourceFileReference(symbol.getLine() - 1, symbol.getCharPositionInLine());
       node = new IdNode(text, sfr);
       node.setSourceFileReference(ctx);
     }
@@ -1290,7 +1290,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     var symbol = node.getSymbol();
     var line = symbol.getLine();
     var column = symbol.getCharPositionInLine();
-    return new SourceFileReference(line-1, column);
+    return new SourceFileReference(line - 1, column);
   }
 
   /**
@@ -1565,6 +1565,9 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
 
       if (ctx.exception != null) {
         var record = ErrorRecord.fromRecognitionException(ctx.exception);
+        if (errorNode.equals(Node.NONE)) {
+          this.errorNodeConverter.createErrorNode(ctx, list);
+        }
         errorNode.setErrorRecord(record);
       }
 
