@@ -1810,4 +1810,31 @@ public class TestDungeonASTConverter {
     assertEquals(4, reference.getStartColumn());
     assertEquals(4, reference.getEndColumn());
   }
+
+  @Test
+  public void incompleteMemberAccess() {
+    String program =
+        """
+        fn test(entity ent, int x) {
+            if x {
+                ent.
+            }
+        }
+    """;
+
+    var env = new GameEnvironment();
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, false);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+    var funcDef = (FuncDefNode)ast.getChild(0);
+    var condStmt = (ConditionalStmtNodeIf)funcDef.getStmts().get(0);
+    var condStmtBlock = (StmtBlockNode)condStmt.getIfStmt();
+    var incompleteMemberAccess =condStmtBlock.getStmts().get(0);
+    assertEquals(Node.Type.Stmt, incompleteMemberAccess.type);
+    var memberAccess = incompleteMemberAccess.getChild(0);
+    assertEquals(Node.Type.MemberAccess, memberAccess.type);
+    var idNode = (IdNode)memberAccess.getChild(0);
+    assertEquals("ent", idNode.getName());
+  }
 }
