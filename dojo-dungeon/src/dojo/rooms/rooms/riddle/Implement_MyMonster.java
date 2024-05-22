@@ -25,10 +25,12 @@ import java.util.Set;
  * werden, um in den nächsten Raum zu gelangen.
  */
 public class Implement_MyMonster extends TaskRoom {
-  private final String FILENAME1 = "../dojo-dungeon/todo-assets/Implement_MyMonster/Monster.java";
-  private final String FILENAME2 = "../dojo-dungeon/todo-assets/Implement_MyMonster/MyMonster.java";
-  private final String CLASS_NAME = "MyMonster";
-  private final String title = "Monster besiegen";
+  private static final String PATH_TO_SOURCE_FILES =
+      "dojo-dungeon/todo-assets/Implement_MyMonster/";
+  private static final String CLASS_NAME = "MyMonster";
+  private static final String FILE_NAME = PATH_TO_SOURCE_FILES + CLASS_NAME + ".java";
+
+  private final String TITLE = "Monster besiegen";
 
   /**
    * Generate a new room.
@@ -66,21 +68,22 @@ public class Implement_MyMonster extends TaskRoom {
                 () ->
                     OkDialog.showOkDialog(
                         String.format(
-                            "Implementiere die Datei %s, nach der Vorgabe in %s. Wenn das Monster besiegt ist, soll sich die Tür zum nächsten Raum öffnen.",
-                            FILENAME2, FILENAME1),
-                        title,
+                            "Implementiere die Datei %s. Wenn das Monster besiegt ist, soll sich die Tür zum nächsten Raum öffnen.",
+                            FILE_NAME),
+                        TITLE,
                         empty),
                 (t1) -> {
                   DojoCompiler.TestResult results =
-                      new DojoCompiler().spawnMonsterToOpenTheDoor(FILENAME2, CLASS_NAME, this);
+                      new DojoCompiler()
+                          .spawnMonsterToOpenTheDoor(PATH_TO_SOURCE_FILES, CLASS_NAME, this);
                   if (results.passed()) {
                     OkDialog.showOkDialog(
                         "Ok! " + results.messages(),
-                        title,
-                        () -> OkDialog.showOkDialog("Das Monster ist gespawnt!", title, empty));
+                        TITLE,
+                        () -> OkDialog.showOkDialog("Das Monster ist gespawnt!", TITLE, empty));
                     return true;
                   }
-                  OkDialog.showOkDialog("Fehler: " + results.messages(), title, empty);
+                  OkDialog.showOkDialog("Fehler: " + results.messages(), TITLE, empty);
                   return false;
                 },
                 empty)
@@ -106,7 +109,7 @@ public class Implement_MyMonster extends TaskRoom {
                         },
                         () ->
                             OkDialog.showOkDialog(
-                                "Das Monster ist bereits gespawnt!", title, empty))));
+                                "Das Monster ist bereits gespawnt!", TITLE, empty))));
 
     // Add questioner to room
     addRoomEntities(Set.of(questioner));

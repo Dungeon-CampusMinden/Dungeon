@@ -32,10 +32,11 @@ import java.util.function.Function;
  */
 public class Fehler_Syntax extends TaskRoom {
 
-  private final String FILENAME_PLAIN =
-      "dojo-dungeon/todo-assets/Fehler_Syntax/FehlerhafteKlasse.java";
-  private final String FILENAME_TECH = "../" + FILENAME_PLAIN;
-  private final String CLASS_NAME = getClassNameFromFilename(FILENAME_PLAIN);
+  private static final String PATH_TO_SOURCE_FILES = "todo-assets/Fehler_Syntax/";
+  private static final String CLASS_NAME = "FehlerhafteKlasse";
+  private static final String FILE_NAME = PATH_TO_SOURCE_FILES + CLASS_NAME + ".java";
+  private final String FILENAME_PLAIN = FILE_NAME;
+
   private final String[] TEXT = {
     // 0
     "Die Datei " + FILENAME_PLAIN + " enthält kleinere Syntaxfehler.",
@@ -114,7 +115,7 @@ public class Fehler_Syntax extends TaskRoom {
         (t) -> {
           DojoCompiler.TestResult results =
               new DojoCompiler()
-                  .testWrongClass1_compilationAndInvocation(FILENAME_TECH, CLASS_NAME);
+                  .testWrongClass1_compilationAndInvocation(PATH_TO_SOURCE_FILES, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 1:", this::openOrCloseChests);
@@ -131,7 +132,7 @@ public class Fehler_Syntax extends TaskRoom {
     Function<Task, Boolean> openDialog7 =
         (t) -> {
           DojoCompiler.TestResult results =
-              new DojoCompiler().testWrongClass2_validInputValues(FILENAME_TECH, CLASS_NAME);
+              new DojoCompiler().testWrongClass2_validInputValues(PATH_TO_SOURCE_FILES, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 2:", this::openOrCloseChests);
@@ -148,7 +149,8 @@ public class Fehler_Syntax extends TaskRoom {
     Function<Task, Boolean> openDialog11 =
         (t) -> {
           DojoCompiler.TestResult results =
-              new DojoCompiler().testWrongClass3_invalidInputValues(FILENAME_TECH, CLASS_NAME);
+              new DojoCompiler()
+                  .testWrongClass3_invalidInputValues(PATH_TO_SOURCE_FILES, CLASS_NAME);
           if (results.passed()) {
             OkDialog.showOkDialog(
                 "Danke ... gelöst: " + results.messages(), "Lösung 3:", this::openOrCloseChests);

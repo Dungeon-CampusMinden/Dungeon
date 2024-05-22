@@ -11,12 +11,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Random;
+import java.util.*;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -32,7 +28,7 @@ public class DojoCompiler {
   public record TestResult(String testName, boolean passed, List<String> messages) {}
 
   private final List<String> messages = new ArrayList<>();
-  private String source;
+  private File pathToSourceFiles;
   private Class<?> cls;
   private Method method1;
   private Method method2;
@@ -40,15 +36,17 @@ public class DojoCompiler {
   /**
    * Tries to spawn a monster at runtime.
    *
-   * @param fileName class file name to compile
+   * @param pathToSourceFiles the path to the source file (this is the path to the file to be
+   *     compiled)
    * @param className class name to compile
    * @param currentRoom the current room
    * @return a {@link TestResult} if the tests passed
    */
-  public TestResult spawnMonsterToOpenTheDoor(String fileName, String className, Room currentRoom) {
+  public TestResult spawnMonsterToOpenTheDoor(
+      String pathToSourceFiles, String className, Room currentRoom) {
     String testName = "spawnMonster";
 
-    if (!stage_1_readSourceFile(fileName) || !stage_2_checkCompilation(className)) {
+    if (!stage_1_setPathToSourceFiles(pathToSourceFiles) || !stage_2_checkCompilation(className)) {
       return new TestResult(testName, false, messages);
     }
 
@@ -99,13 +97,15 @@ public class DojoCompiler {
    *
    * <p>Checks if the class can be compiled and the methods are declared correctly.
    *
-   * @param fileName the name of the source file
+   * @param pathToSourceFiles the path to the source file (this is the path to the file to be
+   *     compiled)
    * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
    */
-  public TestResult testWrongClass1_compilationAndInvocation(String fileName, String className) {
+  public TestResult testWrongClass1_compilationAndInvocation(
+      String pathToSourceFiles, String className) {
     String testName = "test1";
-    if (stage_1_readSourceFile(fileName)
+    if (stage_1_setPathToSourceFiles(pathToSourceFiles)
         && stage_2_checkCompilation(className)
         && stage_3_checkFirstMethodDeclaration()
         && stage_5_checkSecondMethodDeclaration()) {
@@ -121,13 +121,14 @@ public class DojoCompiler {
    *
    * <p>Checks the methods output with valid input values.
    *
-   * @param fileName the name of the source file
+   * @param pathToSourceFiles the path to the source file (this is the path to the file to be
+   *     compiled)
    * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
    */
-  public TestResult testWrongClass2_validInputValues(String fileName, String className) {
+  public TestResult testWrongClass2_validInputValues(String pathToSourceFiles, String className) {
     String testName = "test2";
-    if (stage_1_readSourceFile(fileName)
+    if (stage_1_setPathToSourceFiles(pathToSourceFiles)
         && stage_2_checkCompilation(className)
         && stage_3_checkFirstMethodDeclaration()
         && stage_4_checkFirstOutput()
@@ -147,13 +148,14 @@ public class DojoCompiler {
    *
    * <p>Checks the methods output with invalid input values.
    *
-   * @param fileName the name of the source file
+   * @param pathToSourceFiles the path to the source file (this is the path to the file to be
+   *     compiled)
    * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
    */
-  public TestResult testWrongClass3_invalidInputValues(String fileName, String className) {
+  public TestResult testWrongClass3_invalidInputValues(String pathToSourceFiles, String className) {
     String testName = "test3";
-    if (stage_1_readSourceFile(fileName)
+    if (stage_1_setPathToSourceFiles(pathToSourceFiles)
         && stage_2_checkCompilation(className)
         && stage_3_checkFirstMethodDeclaration()
         && stage_4_checkFirstOutput()
@@ -171,13 +173,14 @@ public class DojoCompiler {
    * <p>Tests if the methods calculateArea, calculatePerimeter and calculateVolume are correct, e.g.
    * returning the correct values.
    *
-   * @param fileName the name of the source file
+   * @param pathToSourceFiles the path to the source file (this is the path to the file to be
+   *     compiled)
    * @param className the name of the class
    * @return a {@link TestResult} if the tests passed
    */
-  public TestResult testMathematicalClass(String fileName, String className) {
+  public TestResult testMathematicalClass(String pathToSourceFiles, String className) {
     try {
-      Class<?> cls2 = compile(getSource(fileName), className);
+      Class<?> cls2 = compile(new File(pathToSourceFiles), className);
       Constructor<?> tor2 = cls2.getConstructor(float.class, float.class, float.class);
       Object inst2 = tor2.newInstance(10.0f, 30.0f, 20.0f);
       Method m1 = cls2.getMethod("calculateArea");
@@ -198,15 +201,10 @@ public class DojoCompiler {
     return new TestResult("testMaths", false, messages);
   }
 
-  private boolean stage_1_readSourceFile(String fileName) {
-    try {
-      source = getSource(fileName);
-    } catch (IOException ex) {
+  private boolean stage_1_setPathToSourceFiles(String pathToSourceFiles) {
+    this.pathToSourceFiles = new File(pathToSourceFiles);
+    if (!this.pathToSourceFiles.exists() || !this.pathToSourceFiles.isDirectory()) {
       messages.add("source not ok");
-      return false;
-    }
-    if (source == null || source.isEmpty()) {
-      messages.add("empty source");
       return false;
     }
     messages.add("source ok");
@@ -215,7 +213,7 @@ public class DojoCompiler {
 
   private boolean stage_2_checkCompilation(String className) {
     try {
-      cls = compile(source, className);
+      cls = compile(pathToSourceFiles, className);
     } catch (Exception ex) {
       messages.add("compile not ok");
       return false;
@@ -320,23 +318,15 @@ public class DojoCompiler {
     return true;
   }
 
-  private String getSource(String fn) throws IOException {
-    return Files.readString(Paths.get(fn));
-  }
-
-  private Class<?> compile(String source, String className) throws Exception {
-    // Save source text to temporary file
-    File root = Files.createTempDirectory("java").toFile();
-    File sourceFile = new File(root, className + ".java");
-    assert sourceFile.getParentFile().mkdirs();
-    Files.writeString(sourceFile.toPath(), source);
-
+  private Class<?> compile(File pathToSourceFiles, String className) throws Exception {
     // Compile source file
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    compiler.run(null, null, null, sourceFile.getPath());
+    compiler.run(
+        null, null, null, Paths.get(pathToSourceFiles.toString(), className + ".java").toString());
 
     // Load compiled class
-    URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] {root.toURI().toURL()});
+    URLClassLoader classLoader =
+        URLClassLoader.newInstance(new URL[] {pathToSourceFiles.toURI().toURL()});
 
     return Class.forName(className, true, classLoader);
   }

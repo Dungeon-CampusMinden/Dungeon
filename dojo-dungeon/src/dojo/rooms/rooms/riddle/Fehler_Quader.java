@@ -35,8 +35,9 @@ import java.util.Set;
  * nächsten Raum weitergehen.
  */
 public class Fehler_Quader extends TaskRoom {
-  private static final String FILE_NAME = "../dojo-dungeon/todo-assets/Fehler_Quader/Cuboid.java";
+  private static final String PATH_TO_SOURCE_FILES = "dojo-dungeon/todo-assets/Fehler_Quader/";
   private static final String CLASS_NAME = "Cuboid";
+  private static final String FILE_NAME = PATH_TO_SOURCE_FILES + CLASS_NAME + ".java";
 
   private int impHealth = 10;
 
@@ -107,7 +108,7 @@ public class Fehler_Quader extends TaskRoom {
             (e) -> {
               // Test players solution
               DojoCompiler.TestResult testResult =
-                  new DojoCompiler().testMathematicalClass(FILE_NAME, CLASS_NAME);
+                  new DojoCompiler().testMathematicalClass(PATH_TO_SOURCE_FILES, CLASS_NAME);
               if (testResult.passed()) {
                 OkDialog.showOkDialog(
                     "Danke, du hast die Aufgabe gelöst.",
