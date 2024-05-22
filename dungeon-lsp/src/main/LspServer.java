@@ -284,8 +284,10 @@ public class LspServer
             """
       // find nearest ASTNode (furthest to right)
       match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn and n.hasErrorRecord = false
+      and not exists {(n)<-[:CHILD_OF]-(:AstNode)}
       match (n:AstNode)-[:CHILD_OF]->(parent:AstNode)
-      return n, parent, nearestSfr
+      match (parent)-[]-(parentSfr:SourceFileReference)
+      return n, parent, nearestSfr, parentSfr
       order by nearestSfr.startColumn desc
       limit 1
       """,
@@ -422,6 +424,21 @@ public class LspServer
     return symbols;
   }
 
+  private List<Long> getChildIdxsOfMemberAccess(Node memberAccesNode) {
+    var result =
+      session.query(
+        """
+          match (n:MemberAccessNode) where n.idx=$idx
+          match (n)-[childEdge:PARENT_OF]->(child:AstNode)
+          return child.idx as childIdx, n order by childEdge.idx
+        """,
+        Map.of("idx", memberAccesNode.getIdx()));
+
+    ArrayList<Long> idxs = new ArrayList<>();
+    result.forEach(m -> idxs.add((Long) m.get("childIdx")));
+    return idxs;
+  }
+
   private List<Symbol> getSymbolsInScopeOfLhsIdentifierWithPrefix(
       Node memberAccessParentNode, String prefix) {
     var result =
@@ -466,23 +483,36 @@ public class LspServer
             var astNode = (Node) nodeMap.get("n");
             var sfr = (SourceFileReference) nodeMap.get("nearestSfr");
             var parentNode = (Node) nodeMap.get("parent");
+            var parentSfr = (SourceFileReference) nodeMap.get("parentSfr");
 
             var map = resolveContext(position);
 
             List<Symbol> symbols = new ArrayList<>();
 
             String triggerCharacter = context.getTriggerCharacter();
+            // TODO: complete all cases!
             if (triggerCharacter == null || triggerCharacter.isEmpty()) {
               // the completion request was triggered by normal typing without special trigger
               // character
               // which means that we generate completion items for the nearest scope
               if (parentNode.type == Node.Type.MemberAccess) {
                 // get symbols from scope of lhs of member access
-                String prefix =
-                    astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
-                symbols = getSymbolsInScopeOfLhsIdentifierWithPrefix(parentNode, prefix);
+                String prefix;
+                Position startPosition;
 
-                Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
+                // need to clarify, if the returned id is lhs or rhs of the member access node
+                var childIdxs = getChildIdxsOfMemberAccess(parentNode);
+                if (childIdxs.getFirst().equals(astNode.getIdx())) {
+                  // astNode is the lhs of the member access
+                  prefix = "";
+                  // position should be the end line of member access
+                  startPosition = new Position(parentSfr.getEndLine(), parentSfr.getEndColumn()+1);
+                } else {
+                  prefix = astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
+                  startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
+                }
+
+                symbols = getSymbolsInScopeOfLhsIdentifierWithPrefix(parentNode, prefix);
 
                 for (var symbol : symbols) {
                   // TODO: specific method for creation of completion items from symbol
