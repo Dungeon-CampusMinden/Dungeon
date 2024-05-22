@@ -26,12 +26,33 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.symbol.SymbolCreation;
 import dsl.semanticanalysis.symbol.SymbolReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+
+import java.util.*;
 
 /** The results of semantic analysis done by SymbolTableParser */
 public class SymbolTable {
+  private class Session {
+    int creationStartIdx;
+    int creationStopIdx;
+    int referenceStartIdx;
+    int referenceStopIdx;
+
+    public void countReference() {
+      this.referenceStopIdx++;
+    }
+
+    public void countCreation() {
+      this.creationStopIdx++;
+    }
+
+    public Session(int creationStartIdx, int referenceStartIdx) {
+      this.creationStartIdx = creationStartIdx;
+      this.creationStopIdx = creationStartIdx;
+      this.referenceStartIdx = referenceStartIdx;
+      this.referenceStopIdx = referenceStartIdx;
+    }
+  }
+
   /** The global scope of the program */
   IScope globalScope;
 
@@ -64,17 +85,22 @@ public class SymbolTable {
 
   private final List<SymbolCreation> symbolCreations;
 
-  public List<SymbolCreation> getSymbolCreations() {
-    return symbolCreations;
-  }
 
   private final List<SymbolReference> symbolReferences;
 
-  public List<SymbolReference> getSymbolReferences() {
-    return symbolReferences;
+
+  private HashSet<IScope> scopes;
+
+  private Stack<Session> sessions;
+
+  private Session currentSession() {
+    return this.sessions.peek();
   }
 
-  private List<IScope> scopes;
+  public void pushNewSession() {
+    var session = new Session(this.symbolCreations.size(), this.symbolReferences.size());
+    this.sessions.push(session);
+  }
 
   /**
    * Add an association between symbol and AST node. The nodeOfSymbol passed to this method with a
@@ -94,6 +120,7 @@ public class SymbolTable {
     // astNodeSymbolRelation.get(nodeOfSymbol).add(symbol);
     astNodeSymbolRelation.put(nodeOfSymbol, symbol);
     this.symbolReferences.add(new SymbolReference(nodeOfSymbol, symbol));
+    this.currentSession().countReference();
 
     if (isNodeCreationNode) {
       // TODO: model this as :CREATES in neo4j
@@ -127,6 +154,7 @@ public class SymbolTable {
   private void setCreationAstNode(Symbol symbol, Node creationNode) {
     creationASTNodeRelation.put(symbol, creationNode);
     this.symbolCreations.add(new SymbolCreation(creationNode, symbol));
+    this.currentSession().countCreation();
   }
 
   /**
@@ -157,11 +185,29 @@ public class SymbolTable {
   }
 
   public List<IScope> getScopes() {
-    return this.scopes;
+    return this.scopes.stream().toList();
   }
 
   public void addScope(IScope scope) {
     this.scopes.add(scope);
+  }
+
+  public void removeScope(IScope scope) {
+    // remove the scope and all its child scopes
+    for (var childScope : scope.getChildScopes()) {
+      removeScope(childScope);
+    }
+    this.scopes.remove(scope);
+  }
+
+  public List<SymbolReference> currentSymbolReferences() {
+    var currentSession = this.currentSession();
+    return new ArrayList<>(symbolReferences.subList(currentSession.referenceStartIdx, currentSession.referenceStopIdx));
+  }
+
+  public List<SymbolCreation> currentSymbolCreations() {
+    var currentSession = this.currentSession();
+    return new ArrayList<>(symbolCreations.subList(currentSession.creationStartIdx, currentSession.creationStopIdx));
   }
 
   /**
@@ -171,12 +217,15 @@ public class SymbolTable {
    */
   public SymbolTable(IScope globalScope) {
     this.globalScope = globalScope;
+    this.scopes = new HashSet<>();
+
+    this.sessions = new Stack<>();
+    this.sessions.push(new Session(0,0));
     this.symbolCreations = new ArrayList<>();
     this.symbolReferences = new ArrayList<>();
-    this.scopes = new ArrayList<>();
-    astNodeSymbolRelation = new HashMap<>();
-    symbolIdxToSymbol = new HashMap<>();
-    astNodeIdxToAstNode = new HashMap<>();
-    creationASTNodeRelation = new HashMap<>();
+    this.astNodeSymbolRelation = new HashMap<>();
+    this.symbolIdxToSymbol = new HashMap<>();
+    this.astNodeIdxToAstNode = new HashMap<>();
+    this.creationASTNodeRelation = new HashMap<>();
   }
 }

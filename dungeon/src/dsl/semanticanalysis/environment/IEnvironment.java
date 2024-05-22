@@ -39,6 +39,8 @@ public interface IEnvironment {
 
   // default Symbol lookupType(String name) { return Symbol.NULL; }
 
+  void removeFileScope(Path file);
+
   void addFileScope(FileScope fileScope);
 
   FileScope getFileScope(Path file);

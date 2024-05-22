@@ -125,10 +125,10 @@ public class Neo4jConnect {
           session.save(ast);
         }
         try (ProfilingTimer timer = new ProfilingTimer("SYMBOL CREATIONS", times, unit)) {
-          session.save(symTable.getSymbolCreations());
+          session.save(symTable.currentSymbolCreations());
         }
         try (ProfilingTimer timer = new ProfilingTimer("SYMBOL REFERENCES", times, unit)) {
-          session.save(symTable.getSymbolReferences());
+          session.save(symTable.currentSymbolReferences());
         }
         try (ProfilingTimer timer = new ProfilingTimer("GLOBAL SCOPE", times, unit)) {
           session.save(symTable.globalScope());
@@ -189,6 +189,7 @@ public class Neo4jConnect {
         ogmDriver,
         "dsl.error",
         "dsl.parser.ast",
+        "entrypoint",
         "dsl.semanticanalysis.symbol",
         "dsl.semanticanalysis.typesystem.typebuilding.type",
         "dsl.runtime.callable",

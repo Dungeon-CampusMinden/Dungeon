@@ -7,18 +7,16 @@ import dsl.antlr.ParseTracerForTokenType;
 import dsl.antlr.TreeUtils;
 import dsl.error.ErrorListener;
 import dsl.error.ErrorRecord;
-import dsl.error.ErrorRecordFactory;
 import dsl.error.ErrorStrategy;
 import dsl.helper.ProfilingTimer;
-import dsl.interpreter.DSLInterpreter;
 import dsl.neo4j.Neo4jConnect;
 import dsl.parser.ast.*;
+import dsl.programmanalyzer.ProgrammAnalyzer;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
-import entrypoint.DungeonConfig;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
@@ -49,6 +47,7 @@ public class LspServer
   private final Session session;
   private final DBUpdater dbUpdater = new DBUpdater();
 
+  private ProgrammAnalyzer programmAnalyzer = new ProgrammAnalyzer(false);
   private GameEnvironment environment;
   private Driver neo4jDriver;
   private SessionFactory sessionFactory;
@@ -60,8 +59,6 @@ public class LspServer
   private HashMap<String, CompletableFuture<Void>> documentAnalysisFutures = new HashMap<>();
 
   public LspServer(int socketPort) throws IOException {
-    this.environment = new GameEnvironment();
-    // TODO: Neo4j Connection
     this.neo4jDriver = Neo4jConnect.openConnection();
     this.sessionFactory = Neo4jConnect.getSessionFactory(neo4jDriver);
     this.session = sessionFactory.openSession();
@@ -74,6 +71,8 @@ public class LspServer
     this.clients.add(launcher.getRemoteProxy());
     this.serverListening = launcher.startListening();
     LOGGER.info("Started listening");
+
+    this.dbUpdater.initializeDB();
   }
 
   public Future<Void> getServerListening() {
@@ -426,13 +425,13 @@ public class LspServer
 
   private List<Long> getChildIdxsOfMemberAccess(Node memberAccesNode) {
     var result =
-      session.query(
-        """
+        session.query(
+            """
           match (n:MemberAccessNode) where n.idx=$idx
           match (n)-[childEdge:PARENT_OF]->(child:AstNode)
           return child.idx as childIdx, n order by childEdge.idx
         """,
-        Map.of("idx", memberAccesNode.getIdx()));
+            Map.of("idx", memberAccesNode.getIdx()));
 
     ArrayList<Long> idxs = new ArrayList<>();
     result.forEach(m -> idxs.add((Long) m.get("childIdx")));
@@ -506,7 +505,8 @@ public class LspServer
                   // astNode is the lhs of the member access
                   prefix = "";
                   // position should be the end line of member access
-                  startPosition = new Position(parentSfr.getEndLine(), parentSfr.getEndColumn()+1);
+                  startPosition =
+                      new Position(parentSfr.getEndLine(), parentSfr.getEndColumn() + 1);
                 } else {
                   prefix = astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
                   startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
@@ -777,7 +777,7 @@ public class LspServer
                 ErrorRecord.setDocumentVersion(newVersion);
                 LOGGER.info("Updated document version PRE UPDATE: [" + newVersion + "]");
 
-                dbUpdater.updateDB(text);
+                dbUpdater.updateDB(text, uri);
 
                 this.documentDiagnosticVersionMap.compute(uri, (k, versionIdx) -> versionIdx + 1L);
                 newVersion = this.documentDiagnosticVersionMap.get(uri);
@@ -919,114 +919,131 @@ public class LspServer
       }
     }
 
-    private void updateDB(String text) throws InterruptedException {
+    private void initializeDB() {
+      this.isRunning = true;
+      dbMutex.lock();
+      var tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+      try {
+        session.query("match (n) detach delete n", Map.of());
+        tx.commit();
+
+        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+        session.save(Scope.NULL);
+        var globalScope = programmAnalyzer.getEnvironment().getGlobalScope();
+        session.save(globalScope);
+        session.save(globalScope.getSymbols());
+        tx.commit();
+        LOGGER.info("Finished initializing database!");
+      } catch (Exception ex) {
+        boolean b = true;
+      } finally {
+        tx.close();
+        dbMutex.unlock();
+        this.isRunning = false;
+      }
+    }
+
+    private void updateDB(String text, String uri) throws InterruptedException {
       this.isRunning = true;
       dbMutex.lock();
 
-      // TODO: this is a temporary solution to the permanence problem of error nodes and error
-      // records..
-      ErrorRecordFactory.instance.clear();
+      ProgrammAnalyzer.AnalyzedProgramComplete analyzedProgram;
+      analyzedProgram = programmAnalyzer.analyze(text, uri);
 
-      DSLInterpreter interpreter = new DSLInterpreter();
-      interpreter.setTrace(false);
-      try {
-        // TODO: temporary test...
-        RelationshipRecorder.instance.clear();
-
-        DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(text);
-      } catch (Exception ex) {
-        // not relevant right now
-        if (!ex.getMessage().startsWith("Program contains")) {
-          boolean b = true;
-        }
-      }
-
-      LOGGER.fine(getPrettyPrintedParseTree(text, new GameEnvironment()));
+      //LOGGER.fine(getPrettyPrintedParseTree(text, new GameEnvironment()));
 
       boolean interrupted = false;
       var tx = session.beginTransaction(Transaction.Type.READ_WRITE);
       try {
-        var env = interpreter.getRuntimeEnvironment();
-        if (env == null) {
-          env = interpreter.getRuntimeEnvironment();
-        }
-        var fileScope = env.getFileScopes().get(null);
-        var parsedFile = fileScope.file();
-        var ast = parsedFile.rootASTNode();
-        var symTable = env.getSymbolTable();
-        var nodeRelationShips = RelationshipRecorder.instance.get();
-
-        // session.query("MATCH (n) DETACH DELETE n", Map.of());
-
         LOGGER.info("Updating program database...");
         throwIfStop();
+
         // non-interuptable!
-        // session.query("match (n) detach delete n", Map.of());
+        // TODO: for delta based update, this needs to change!!
         session.deleteAll(ParentOf.class);
         session.deleteAll(Node.class);
-        session.deleteAll(Symbol.class);
-        session.deleteAll(IScope.class);
-        // session.query("match (sym:Symbol)-[:IN_SCOPE]-(scope:IScope) where not
-        // scope.name='NULL_SCOPE' detach delete sym, scope", Map.of());
-        session.deleteAll(SourceFileReference.class);
         session.deleteAll(ErrorRecord.class);
+        session.deleteAll(SourceFileReference.class);
+
+        // TODO: delete only in file scope
+        /*session.deleteAll(Symbol.class);
+        session.deleteAll(IScope.class);*/
+
+        for (var parsedFile : analyzedProgram.parsedFiles()) {
+          var result = session.query(
+            """
+              match (f:FileScope)-[:OF_FILE]->(file:ParsedFile) where file.pathString=$pathString
+              match (g:Groum)-[:FILE_SCOPE]->(f)
+              call {
+                  with f
+                  call {
+                      with f
+                      return f as scope
+                      union
+                      with f
+                      match (scope:IScope)-[:PARENT_SCOPE|IN_SCOPE*]->(f) return scope
+                  }
+                  optional match (symbol:Symbol)-[:IN_SCOPE]->(scope)
+                  // return distinct scope, symbol
+                  detach delete scope, symbol
+              }
+              call {
+                  with g
+                  match (g)-[:NODES]->(n:GroumNode)
+                  detach delete n
+              }
+              detach delete g
+              """,
+            Map.of("pathString", parsedFile.pathString));
+
+          /*HashSet<Symbol> symbols = new HashSet<>();
+          HashSet<IScope> scopes = new HashSet<>();
+          result.forEach(r -> {
+            var symbol = r.get("symbol");
+            if (symbol != null) {
+              symbols.add((Symbol) symbol);
+            }
+            var scope = r.get("scope");
+            if (scope != null) {
+              scopes.add((IScope) scope);
+            }
+          });
+
+          boolean b = true;*/
+        }
+
         throwIfStop();
 
         tx.commit();
 
-        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
-
-        throwIfStop();
-        // TODO: this does not even correctly add the BuiltIn-types..
-        session.save(Scope.NULL);
-
-        tx.commit();
         tx = session.beginTransaction(Transaction.Type.READ_WRITE);
 
         ProfilingTimer.Unit unit = ProfilingTimer.Unit.milli;
         HashMap<String, Long> times = new HashMap<>();
         // try (ProfilingTimer timer = new ProfilingTimer("AST", times, unit)) {
         // save ast in db
-        throwIfStop();
-        session.save(ast);
-
-        throwIfStop();
-        session.save(nodeRelationShips);
-        // }
-        // try (ProfilingTimer timer = new ProfilingTimer("SYMBOL CREATIONS", times, unit)) {
-        throwIfStop();
-        session.save(symTable.getSymbolCreations());
-        // }
-        // try (ProfilingTimer timer = new ProfilingTimer("SYMBOL REFERENCES", times, unit)) {
-        throwIfStop();
-        session.save(symTable.getSymbolReferences());
-        // }
-        // try (ProfilingTimer timer = new ProfilingTimer("GLOBAL SCOPE", times, unit)) {
-        throwIfStop();
-        session.save(symTable.globalScope());
-        // }
-
-        throwIfStop();
-        session.save(symTable.getScopes());
-
-        /*var filScopes = env.getFileScopes().entrySet();
-        for (var entry : filScopes) {
-          var scope = entry.getValue();
-          // try (ProfilingTimer timer = new ProfilingTimer("SCOPE " + scope.getName(), times,
-          // unit)) {
+        for (var parsedFile : analyzedProgram.parsedFiles()) {
+          var ast = parsedFile.rootASTNode();
           throwIfStop();
-          session.save(scope);
-          // }
-        }*/
+          session.save(parsedFile);
+          session.save(ast);
+        }
+
+        throwIfStop();
+        session.save(analyzedProgram.nodeRelationships());
+        throwIfStop();
+        session.save(analyzedProgram.symboltable().currentSymbolCreations());
+        throwIfStop();
+        session.save(analyzedProgram.symboltable().currentSymbolReferences());
+
+        throwIfStop();
+        session.save(analyzedProgram.symboltable().getScopes());
+
+        throwIfStop();
+        session.save(analyzedProgram.groum());
+
         tx.commit();
         LOGGER.info("Finished updating database!");
-        var entity =
-            session.queryForObject(
-                IScope.class,
-                "match (n:ScopedSymbol) where n.name = \"entity\" return n limit 1",
-                Map.of());
-
-        LOGGER.info("");
       } catch (InterruptedException interrupt) {
         LOGGER.info("Database update was interrupted");
         tx.rollback();

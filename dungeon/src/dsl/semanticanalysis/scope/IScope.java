@@ -23,6 +23,7 @@ package dsl.semanticanalysis.scope;
 
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import java.util.HashSet;
 import java.util.List;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -67,6 +68,8 @@ public interface IScope {
    * @return The parent scope.
    */
   IScope getParent();
+
+  HashSet<IScope> getChildScopes();
 
   default IType resolveType(String name) {
     var resolvedType = resolve(name, true);

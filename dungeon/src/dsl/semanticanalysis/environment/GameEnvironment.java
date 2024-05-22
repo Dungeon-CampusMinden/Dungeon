@@ -236,6 +236,11 @@ public class GameEnvironment implements IEnvironment {
   }
 
   @Override
+  public void removeFileScope(Path file) {
+    this.fileScopes.remove(file);
+  }
+
+  @Override
   public void addFileScope(FileScope fileScope) {
     this.fileScopes.put(fileScope.file().filePath(), fileScope);
     this.symbolTable.addScope(fileScope);

@@ -3,16 +3,26 @@ package dsl.programmanalyzer;
 import dsl.antlr.DungeonDSLLexer;
 import dsl.antlr.DungeonDSLParser;
 import dsl.error.ErrorListener;
+import dsl.error.ErrorRecordFactory;
 import dsl.error.ErrorStrategy;
 import dsl.parser.DungeonASTConverter;
+import dsl.parser.ast.ParentOf;
+import dsl.parser.ast.RelationshipRecorder;
+import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
+import dsl.semanticanalysis.groum.FinalGroumBuilder;
+import dsl.semanticanalysis.groum.Groum;
+import dsl.semanticanalysis.scope.FileScope;
+import dsl.semanticanalysis.scope.IScope;
 import entrypoint.ParsedFile;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-
-import java.util.Arrays;
 
 public class ProgrammAnalyzer {
 
@@ -20,6 +30,25 @@ public class ProgrammAnalyzer {
   private final DungeonASTConverter astConverter;
   private GameEnvironment environment;
   private SemanticAnalyzer semanticAnalyzer;
+
+  public IEnvironment getEnvironment() {
+    return this.environment;
+  }
+
+  public record AnalyzedProgramComplete(
+      List<ParsedFile> parsedFiles,
+      List<IScope> scopes,
+      SymbolTable symboltable,
+      List<ParentOf> nodeRelationships,
+      Groum groum) {}
+
+  // TODO: what to put in this?
+  public record analyzedProgramDelta(
+      ParsedFile parsedFile,
+      List<IScope> scopes,
+      SymbolTable symboltable,
+      List<ParentOf> nodeRelationships,
+      Groum groum) {}
 
   public ProgrammAnalyzer(boolean trace) {
     this.trace = trace;
@@ -30,15 +59,14 @@ public class ProgrammAnalyzer {
     this.astConverter = new DungeonASTConverter();
   }
 
-  public void analyzeFile(String content, String path) {
+  public void analyzeFile(String content, String uri) {}
 
-  }
+  public void analyzeFileDelta(String content, String path) {}
 
-  public void analyzeFileDelta(String content, String path) {
+  public AnalyzedProgramComplete analyze(String configScript, String configFileUri) {
+    RelationshipRecorder.instance.clear();
+    ErrorRecordFactory.instance.clear();
 
-  }
-
-  public void analyze(String configScript) {
     // TODO: make relLibPath settable (or make the Environment settable)
     var stream = CharStreams.fromString(configScript);
     ErrorListener el = new ErrorListener();
@@ -57,9 +85,32 @@ public class ProgrammAnalyzer {
     astConverter.setTrace(this.trace);
     var programAST = astConverter.walk(programParseTree, el.getErrors());
 
-    var result = semanticAnalyzer.walk(programAST);
-    ParsedFile pf = semanticAnalyzer.latestParsedFile;
+    var configFilePath = Path.of(configFileUri);
+    ParsedFile parsedFile = new ParsedFile(configFilePath, programAST);
 
-    // TODO: grouming
+    if (this.environment.getFileScopes().containsKey(configFilePath)) {
+      var fileScope = this.environment.getFileScope(configFilePath);
+      var symTable = this.environment.getSymbolTable();
+      symTable.removeScope(fileScope);
+      this.environment.removeFileScope(configFilePath);
+    }
+
+    var currentFileScope = new FileScope(parsedFile, this.environment.getGlobalScope());
+    this.environment.addFileScope(currentFileScope);
+
+    // TODO: link session to analysis pass and file scope
+    this.environment.getSymbolTable().pushNewSession();
+    var result = semanticAnalyzer.walk(parsedFile);
+    FinalGroumBuilder groumBuilder = new FinalGroumBuilder();
+    var finalGroum = groumBuilder.build(programAST, result.symbolTable, this.environment);
+    finalGroum.setFileScope(currentFileScope);
+
+    var nodeRelationShips = RelationshipRecorder.instance.get();
+    return new AnalyzedProgramComplete(
+        List.of(parsedFile),
+        new ArrayList<>(this.environment.getFileScopes().values()),
+        this.environment.getSymbolTable(),
+        nodeRelationShips,
+        finalGroum);
   }
 }

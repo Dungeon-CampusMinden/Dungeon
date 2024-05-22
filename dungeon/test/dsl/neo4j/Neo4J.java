@@ -125,8 +125,8 @@ public class Neo4J {
       // save ast in db
       session.save(ast);
 
-      session.save(symTable.getSymbolCreations());
-      session.save(symTable.getSymbolReferences());
+      session.save(symTable.currentSymbolCreations());
+      session.save(symTable.currentSymbolReferences());
       session.save(symTable.globalScope());
       var filScopes = env.getFileScopes().entrySet();
       for (var entry : filScopes) {
@@ -214,8 +214,8 @@ public class Neo4J {
       // save ast in db
       session.save(ast);
 
-      session.save(symTable.getSymbolCreations());
-      session.save(symTable.getSymbolReferences());
+      session.save(symTable.currentSymbolCreations());
+      session.save(symTable.currentSymbolReferences());
       session.save(symTable.globalScope());
       var filScopes = env.getFileScopes().entrySet();
       for (var entry : filScopes) {
@@ -483,8 +483,8 @@ public class Neo4J {
       session.save(nodeRelationShips);
       session.save(nodeRelationShips);
 
-      session.save(symTable.getSymbolCreations());
-      session.save(symTable.getSymbolReferences());
+      session.save(symTable.currentSymbolCreations());
+      session.save(symTable.currentSymbolReferences());
       session.save(symTable.globalScope());
       var filScopes = env.getFileScopes().entrySet();
       for (var entry : filScopes) {
@@ -676,8 +676,8 @@ public class Neo4J {
       session.save(nodeRelationShips);
       session.save(nodeRelationShips);
 
-      session.save(symTable.getSymbolCreations());
-      session.save(symTable.getSymbolReferences());
+      session.save(symTable.currentSymbolCreations());
+      session.save(symTable.currentSymbolReferences());
       session.save(symTable.globalScope());
       var filScopes = env.getFileScopes().entrySet();
       for (var entry : filScopes) {
@@ -762,8 +762,8 @@ public class Neo4J {
       session.save(nodeRelationShips);
       session.save(nodeRelationShips);
 
-      session.save(symTable.getSymbolCreations());
-      session.save(symTable.getSymbolReferences());
+      session.save(symTable.currentSymbolCreations());
+      session.save(symTable.currentSymbolReferences());
       session.save(symTable.globalScope());
       var filScopes = env.getFileScopes().entrySet();
       for (var entry : filScopes) {
@@ -849,8 +849,8 @@ public class Neo4J {
       session.save(nodeRelationShips);
       session.save(nodeRelationShips);
 
-      session.save(symTable.getSymbolCreations());
-      session.save(symTable.getSymbolReferences());
+      session.save(symTable.currentSymbolCreations());
+      session.save(symTable.currentSymbolReferences());
       session.save(symTable.globalScope());
       var filScopes = env.getFileScopes().entrySet();
       for (var entry : filScopes) {
@@ -932,8 +932,8 @@ public class Neo4J {
       session.save(nodeRelationShips);
       session.save(nodeRelationShips);
 
-      session.save(symTable.getSymbolCreations());
-      session.save(symTable.getSymbolReferences());
+      session.save(symTable.currentSymbolCreations());
+      session.save(symTable.currentSymbolReferences());
       session.save(symTable.globalScope());
       var filScopes = env.getFileScopes().entrySet();
       for (var entry : filScopes) {
@@ -1019,8 +1019,8 @@ public class Neo4J {
       session.save(nodeRelationShips);
       session.save(nodeRelationShips);
 
-      session.save(symTable.getSymbolCreations());
-      session.save(symTable.getSymbolReferences());
+      session.save(symTable.currentSymbolCreations());
+      session.save(symTable.currentSymbolReferences());
       session.save(symTable.globalScope());
       var filScopes = env.getFileScopes().entrySet();
       for (var entry : filScopes) {
@@ -1111,8 +1111,8 @@ public class Neo4J {
       session.save(nodeRelationShips);
       session.save(nodeRelationShips);
 
-      session.save(symTable.getSymbolCreations());
-      session.save(symTable.getSymbolReferences());
+      session.save(symTable.currentSymbolCreations());
+      session.save(symTable.currentSymbolReferences());
       session.save(symTable.globalScope());
       var filScopes = env.getFileScopes().entrySet();
       for (var entry : filScopes) {

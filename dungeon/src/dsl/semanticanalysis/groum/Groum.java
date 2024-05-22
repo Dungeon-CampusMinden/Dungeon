@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
+import dsl.semanticanalysis.scope.FileScope;
 import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
@@ -17,6 +19,8 @@ public class Groum {
 
   @Relationship List<GroumNode> nodes = new ArrayList<>();
   @Relationship List<GroumEdge> edges = new ArrayList<>();
+  // TODO: temporary
+  @Relationship FileScope fileScope;
 
   public Groum() {}
 
@@ -35,6 +39,10 @@ public class Groum {
 
   public List<GroumEdge> edges() {
     return this.edges;
+  }
+
+  public void setFileScope(FileScope fileScope) {
+    this.fileScope = fileScope;
   }
 
   public void addNode(GroumNode node) {

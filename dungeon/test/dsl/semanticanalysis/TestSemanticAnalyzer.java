@@ -1397,7 +1397,7 @@ quest_config c {
   @Test
   public void incompleteMemberAccess() {
     String program =
-      """
+        """
         fn test(entity ent, int x) {
             if x {
                 ent.
@@ -1411,13 +1411,13 @@ quest_config c {
     var symbolTable = symtableResult.symbolTable;
     var fileScope = env.getFileScope(null);
 
-    var funcDef = (FuncDefNode)ast.getChild(0);
+    var funcDef = (FuncDefNode) ast.getChild(0);
     var paramDef = funcDef.getParameters().get(0).getChild(1);
     var paramSymbol = symbolTable.getSymbolsForAstNode(paramDef).get(0);
 
-    var stmt = (ConditionalStmtNodeIf)funcDef.getStmts().get(0);
+    var stmt = (ConditionalStmtNodeIf) funcDef.getStmts().get(0);
     var incompleteMemberAccess = stmt.getIfStmt().getChild(0);
-    var idNode = (IdNode)incompleteMemberAccess.getChild(0).getChild(0);
+    var idNode = (IdNode) incompleteMemberAccess.getChild(0).getChild(0);
     Assert.assertEquals("ent", idNode.getName());
     var symbol = symtableResult.symbolTable.getSymbolsForAstNode(idNode).get(0);
     Assert.assertEquals(paramSymbol, symbol);

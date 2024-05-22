@@ -25,6 +25,7 @@ import dsl.parser.ast.Node;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import org.neo4j.ogm.annotation.*;
 
@@ -42,6 +43,8 @@ public class Scope implements IScope {
 
   @Relationship(type = "PARENT_SCOPE", direction = Relationship.Direction.OUTGOING)
   protected IScope parent;
+
+  protected HashSet<IScope> childScopes;
 
   @Transient protected HashMap<String, Symbol> symbols;
 
@@ -61,6 +64,8 @@ public class Scope implements IScope {
     this.name = "p: " + parentScope.getName();
     this.symbols = new HashMap<>();
     this.symbolList = new ArrayList<>();
+    this.childScopes = new HashSet<>();
+    this.parent.getChildScopes().add(this);
   }
 
   public Scope(IScope parentScope, String name) {
@@ -68,6 +73,8 @@ public class Scope implements IScope {
     this.name = name + " p: " + parentScope.getName();
     this.symbols = new HashMap<>();
     this.symbolList = new ArrayList<>();
+    this.childScopes = new HashSet<>();
+    this.parent.getChildScopes().add(this);
   }
 
   public Scope(IScope parentScope, Node node) {
@@ -76,6 +83,8 @@ public class Scope implements IScope {
     this.symbols = new HashMap<>();
     this.symbolList = new ArrayList<>();
     this.relatedASTNode = node;
+    this.childScopes = new HashSet<>();
+    this.parent.getChildScopes().add(this);
   }
 
   /** Constructor */
@@ -84,6 +93,7 @@ public class Scope implements IScope {
     this.name = "";
     this.symbols = new HashMap<>();
     this.symbolList = new ArrayList<>();
+    this.childScopes = new HashSet<>();
   }
 
   public Scope(String name) {
@@ -91,6 +101,7 @@ public class Scope implements IScope {
     this.name = name;
     this.symbols = new HashMap<>();
     this.symbolList = new ArrayList<>();
+    this.childScopes = new HashSet<>();
   }
 
   /**
@@ -159,5 +170,10 @@ public class Scope implements IScope {
   @Override
   public IScope getParent() {
     return parent;
+  }
+
+  @Override
+  public HashSet<IScope> getChildScopes() {
+    return this.childScopes;
   }
 }

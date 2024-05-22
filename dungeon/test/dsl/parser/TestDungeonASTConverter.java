@@ -1827,14 +1827,14 @@ public class TestDungeonASTConverter {
     System.out.println(parseTree);
 
     var ast = DungeonASTConverter.getProgramAST(program, env);
-    var funcDef = (FuncDefNode)ast.getChild(0);
-    var condStmt = (ConditionalStmtNodeIf)funcDef.getStmts().get(0);
-    var condStmtBlock = (StmtBlockNode)condStmt.getIfStmt();
-    var incompleteMemberAccess =condStmtBlock.getStmts().get(0);
+    var funcDef = (FuncDefNode) ast.getChild(0);
+    var condStmt = (ConditionalStmtNodeIf) funcDef.getStmts().get(0);
+    var condStmtBlock = (StmtBlockNode) condStmt.getIfStmt();
+    var incompleteMemberAccess = condStmtBlock.getStmts().get(0);
     assertEquals(Node.Type.Stmt, incompleteMemberAccess.type);
     var memberAccess = incompleteMemberAccess.getChild(0);
     assertEquals(Node.Type.MemberAccess, memberAccess.type);
-    var idNode = (IdNode)memberAccess.getChild(0);
+    var idNode = (IdNode) memberAccess.getChild(0);
     assertEquals("ent", idNode.getName());
   }
 }
