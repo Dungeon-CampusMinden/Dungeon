@@ -14,15 +14,12 @@ import dsl.parser.ast.*;
 import dsl.programmanalyzer.ProgrammAnalyzer;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
-import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import org.antlr.v4.runtime.CharStreams;
@@ -46,6 +43,7 @@ public class LspServer
   private final Future<Void> serverListening;
   private final Session session;
   private final DBUpdater dbUpdater = new DBUpdater();
+  private final DBAccessor dbAccessor;
 
   private ProgrammAnalyzer programmAnalyzer = new ProgrammAnalyzer(false);
   private GameEnvironment environment;
@@ -53,15 +51,21 @@ public class LspServer
   private SessionFactory sessionFactory;
   // TODO: use ReentrantReadWriteLock
   private ReentrantLock dbMutex = new ReentrantLock();
+  private CountDownLatch latch = new CountDownLatch(1);
   private ReentrantLock docVersionMutex = new ReentrantLock();
   private HashMap<String, Long> documentDiagnosticVersionMap = new HashMap<>();
   private ReentrantLock documentCalculationsMutex = new ReentrantLock();
   private HashMap<String, CompletableFuture<Void>> documentAnalysisFutures = new HashMap<>();
 
+  private final PriorityBlockingQueue<Runnable> queue = new PriorityBlockingQueue<>();
+  private final ExecutorService EXECUTOR =
+      new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, this.queue);
+
   public LspServer(int socketPort) throws IOException {
     this.neo4jDriver = Neo4jConnect.openConnection();
     this.sessionFactory = Neo4jConnect.getSessionFactory(neo4jDriver);
     this.session = sessionFactory.openSession();
+    this.dbAccessor = new DBAccessor(session);
 
     this.socket = new Socket("127.0.0.1", socketPort);
     Launcher<LanguageClient> launcher;
@@ -73,6 +77,35 @@ public class LspServer
     LOGGER.info("Started listening");
 
     this.dbUpdater.initializeDB();
+  }
+
+  public <V> CompletableFuture<V> runAsync(Task<V> task) {
+    CompletableFuture<V> result = new CompletableFuture<>();
+
+    class Job implements Runnable, Comparable<Job>, CompletableFuture.AsynchronousCompletionTask {
+      public void run() {
+        try {
+          if (!result.isDone()) {
+            result.complete(task.call());
+          }
+        } catch (Throwable t) {
+          result.completeExceptionally(t);
+        }
+      }
+
+      private Task.Priority priority() {
+        return task.getPriority();
+      }
+
+      public int compareTo(Job o) {
+        return priority().compareTo(o.priority());
+      }
+    }
+
+    LOGGER.info("Submitting task " + task);
+    LOGGER.info("Queue: " + Arrays.toString(this.queue.toArray()));
+    this.EXECUTOR.execute(new Job());
+    return result;
   }
 
   public Future<Void> getServerListening() {
@@ -277,189 +310,6 @@ public class LspServer
     clients.add(languageClient);
   }
 
-  private Map<String, Object> resolveContextToNearestAstNode(Position position) {
-    var result =
-        session.query(
-            """
-      // find nearest ASTNode (furthest to right)
-      match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn and n.hasErrorRecord = false
-      and not exists {(n)<-[:CHILD_OF]-(:AstNode)}
-      match (n:AstNode)-[:CHILD_OF]->(parent:AstNode)
-      match (parent)-[]-(parentSfr:SourceFileReference)
-      return n, parent, nearestSfr, parentSfr
-      order by nearestSfr.startColumn desc
-      limit 1
-      """,
-            Map.of("startline", position.getLine(), "endcolumn", position.getCharacter()));
-    var iter = result.iterator();
-    return iter.next();
-  }
-
-  private Map<String, Object> resolveContext(Position position) {
-    var result =
-        session.query(
-            """
-      // resolve context v3
-      match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn and n.hasErrorRecord = false and not exists {(n)<-[:CHILD_OF]-(:AstNode)}
-      CALL{
-      with n, nearestSfr
-      // match closest scope, either referenced scopes symbol (in memberaccess) or created (in normal scope)
-      match p=(n)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(scope:ScopedSymbol)
-      return scope,p
-      UNION
-      // match closest scope, either referenced scopes symbol (in memberaccess) or created (in normal scope)
-      match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
-      return scope,p
-      }
-      return scope, n, nearestSfr,length(p)
-      //order by length(p) desc
-      Order by nearestSfr.endColumn desc, length(p)
-      LIMIT 1
-      """,
-            Map.of("startline", position.getLine(), "endcolumn", position.getCharacter()));
-
-    var iter = result.iterator();
-    return iter.next();
-  }
-
-  // TODO: does not work as expected...
-  private List<Symbol> getAllSymbolsInParentScopeLikeLhsType(Node memberAccessNode, String prefix) {
-    var result =
-        session.query(
-            """
-          call {
-                match (na:AssignmentNode) where na.idx=$idx
-                match (na)-[:PARENT_OF {idx:0}]->(lhsChild:AstNode)
-                match (lhsChild)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(lhsType:IType)
-                return lhsChild, na, lhsType
-                limit 1
-            }
-
-       //get symbols in scope and parent scopes v2
-            call{
-                match (n:AstNode) where n.idx=$idx
-                // match closest scope created (in normal scope)
-                match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
-                return scope, p, parent
-                order by length(p)
-                limit 1
-            }
-            call {
-                with scope
-                match l=(scope)
-                return scope as _scope, 1 as len, l
-                UNION
-                with scope
-                // collect parent scopes
-                match l=((scope)-[:PARENT_SCOPE|IN_SCOPE*]->(parentScope:IScope))
-                return parentScope as _scope, length(l) as len, l
-            }
-
-            match (symbol:Symbol)-[:IN_SCOPE]->(_scope) where
-            exists {(symbol)-[:OF_TYPE]->(lhsType)} and
-            symbol.name STARTS WITH $prefix
-            return symbol, lhsType
-      """,
-            Map.of("idx", memberAccessNode.getIdx(), "prefix", prefix));
-
-    ArrayList<Symbol> symbols = new ArrayList<>();
-    result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
-    return symbols;
-  }
-
-  private List<Symbol> getAllSymbolsInScopeAndParentScopes(Node prefixNode, String prefix) {
-    var result =
-        session.query(
-            """
-      //get symbols in scope and parent scopes v2
-      call{
-          match (n:AstNode) where n.idx=$idx
-          // match closest scope created (in normal scope)
-          match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
-          return scope, p, parent
-          order by length(p)
-          limit 1
-      }
-      call {
-          with scope
-          match l=(scope)
-          return scope as _scope, 1 as len, l
-          UNION
-          with scope
-          // collect parent scopes
-          match l=((scope)-[:PARENT_SCOPE|IN_SCOPE*]->(parentScope:IScope))
-          return parentScope as _scope, length(l) as len, l
-      }
-      //return distinct scope, _scope, len,l
-
-      //UNWIND scopes as scopeToFocus
-      match (symbol:Symbol)-[:IN_SCOPE]-(_scope) where symbol.name starts with $prefix
-      return distinct symbol
-      """,
-            Map.of("idx", prefixNode.getIdx(), "prefix", prefix));
-
-    ArrayList<Symbol> symbols = new ArrayList<>();
-    result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
-    return symbols;
-  }
-
-  private List<Symbol> getSymbolsInScopeOfIdentifier(Node identifier) {
-    var result =
-        session.query(
-            """
-      call {
-          match (n:AstNode) where n.idx=$idx
-          match (n)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(scope:ScopedSymbol)
-          return n, scope
-          limit 1
-      }
-      match (symbol:Symbol)-[:IN_SCOPE]->(scope)
-      return symbol
-      """,
-            Map.of("idx", identifier.getIdx()));
-
-    ArrayList<Symbol> symbols = new ArrayList<>();
-    result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
-    return symbols;
-  }
-
-  private List<Long> getChildIdxsOfMemberAccess(Node memberAccesNode) {
-    var result =
-        session.query(
-            """
-          match (n:MemberAccessNode) where n.idx=$idx
-          match (n)-[childEdge:PARENT_OF]->(child:AstNode)
-          return child.idx as childIdx, n order by childEdge.idx
-        """,
-            Map.of("idx", memberAccesNode.getIdx()));
-
-    ArrayList<Long> idxs = new ArrayList<>();
-    result.forEach(m -> idxs.add((Long) m.get("childIdx")));
-    return idxs;
-  }
-
-  private List<Symbol> getSymbolsInScopeOfLhsIdentifierWithPrefix(
-      Node memberAccessParentNode, String prefix) {
-    var result =
-        session.query(
-            """
-      call {
-          match (n:MemberAccessNode) where n.idx=$idx
-          match (n)-[:PARENT_OF {idx:0}]->(lhsChild:AstNode)
-          match (lhsChild)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(scope:ScopedSymbol)
-          return lhsChild, n, scope
-          limit 1
-      }
-      match (symbol:Symbol)-[:IN_SCOPE]->(scope) where symbol.name STARTS WITH $prefix
-      return symbol
-      """,
-            Map.of("idx", memberAccessParentNode.getIdx(), "prefix", prefix));
-
-    ArrayList<Symbol> symbols = new ArrayList<>();
-    result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
-    return symbols;
-  }
-
   // region TextDocument Service
   @Override
   public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
@@ -467,185 +317,138 @@ public class LspServer
     LOGGER.entering(this.getClass().getName(), getMethodName());
     LOGGER.info("Param: '" + completionParams + "'");
 
-    return CompletableFuture.supplyAsync(
-        () -> {
-          // TODO: wait for db mutex!! (properly)
-          boolean isIncomplete = false;
-          List<CompletionItem> items = new ArrayList<>();
-          dbMutex.lock();
-          try {
-            var context = completionParams.getContext();
+    // return CompletableFuture.supplyAsync(
+    var task =
+        new Task<Either<List<CompletionItem>, CompletionList>>(
+            () -> {
+              boolean isIncomplete = false;
+              List<CompletionItem> items = new ArrayList<>();
+              try {
+                // resolve completion context
+                var context = completionParams.getContext();
+                var position = completionParams.getPosition();
+                var nodeMap = dbAccessor.resolveContextToNearestAstNode(position);
 
-            var position = completionParams.getPosition();
-            var nodeMap = resolveContextToNearestAstNode(position);
+                var astNode = (Node) nodeMap.get("n");
+                var sfr = (SourceFileReference) nodeMap.get("nearestSfr");
+                var parentNode = (Node) nodeMap.get("parent");
+                var parentSfr = (SourceFileReference) nodeMap.get("parentSfr");
 
-            var astNode = (Node) nodeMap.get("n");
-            var sfr = (SourceFileReference) nodeMap.get("nearestSfr");
-            var parentNode = (Node) nodeMap.get("parent");
-            var parentSfr = (SourceFileReference) nodeMap.get("parentSfr");
+                if (astNode == Node.NONE) {
+                  throw new RuntimeException("No AST node matched!");
+                }
 
-            var map = resolveContext(position);
+                List<Symbol> symbols = new ArrayList<>();
 
-            List<Symbol> symbols = new ArrayList<>();
+                String triggerCharacter = context.getTriggerCharacter();
+                // TODO: complete all cases!
+                if (triggerCharacter == null || triggerCharacter.isEmpty()) {
+                  // the completion request was triggered by normal typing without special trigger
+                  // character
+                  // which means that we generate completion items for the nearest scope
+                  if (parentNode.type == Node.Type.MemberAccess) {
+                    // get symbols from scope of lhs of member access
+                    String prefix;
+                    Position startPosition;
 
-            String triggerCharacter = context.getTriggerCharacter();
-            // TODO: complete all cases!
-            if (triggerCharacter == null || triggerCharacter.isEmpty()) {
-              // the completion request was triggered by normal typing without special trigger
-              // character
-              // which means that we generate completion items for the nearest scope
-              if (parentNode.type == Node.Type.MemberAccess) {
-                // get symbols from scope of lhs of member access
-                String prefix;
-                Position startPosition;
+                    // need to clarify, if the returned id is lhs or rhs of the member access node
+                    var childIdxs = dbAccessor.getChildIdxsOfMemberAccess(parentNode);
+                    if (childIdxs.getFirst().equals(astNode.getIdx())) {
+                      // astNode is the lhs of the member access
+                      prefix = "";
+                      // position should be the end line of member access
+                      startPosition =
+                          new Position(parentSfr.getEndLine(), parentSfr.getEndColumn() + 1);
+                    } else {
+                      prefix =
+                          astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
+                      startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
+                    }
 
-                // need to clarify, if the returned id is lhs or rhs of the member access node
-                var childIdxs = getChildIdxsOfMemberAccess(parentNode);
-                if (childIdxs.getFirst().equals(astNode.getIdx())) {
-                  // astNode is the lhs of the member access
-                  prefix = "";
-                  // position should be the end line of member access
-                  startPosition =
-                      new Position(parentSfr.getEndLine(), parentSfr.getEndColumn() + 1);
+                    symbols =
+                        dbAccessor.getSymbolsInScopeOfLhsIdentifierWithPrefix(parentNode, prefix);
+
+                    symbolsToCompletionItems(items, position, symbols, prefix, startPosition);
+                  } else if (parentNode.type == Node.Type.Assignment) {
+                    // TODO: may either rhs or lhs...
+                    // TODO: should enable fallback, if lhs (or rhs) has no type
+                    String prefix =
+                        astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
+                    symbols = dbAccessor.getAllSymbolsInParentScopeLikeLhsType(parentNode, prefix);
+
+                    Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
+
+                    symbolsToCompletionItems(items, position, symbols, prefix, startPosition);
+                  } else {
+                    // get symbols from parent scope and all it's parent scopes
+                    String prefix =
+                        astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
+                    symbols = dbAccessor.getAllSymbolsInScopeAndParentScopes(astNode, prefix);
+
+                    Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
+
+                    symbolsToCompletionItems(items, position, symbols, prefix, startPosition);
+                  }
                 } else {
-                  prefix = astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
-                  startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
+                  if (triggerCharacter.equals(".")) {
+                    // member access, treat node as scope
+                    symbols = dbAccessor.getSymbolsInScopeOfIdentifier(astNode);
+
+                    for (var symbol : symbols) {
+                      // TODO: documentation
+                      CompletionItem item = new CompletionItem("Label: " + symbol.getName());
+                      item.setKind(CompletionItemKind.Property);
+                      item.setInsertText(symbol.getName());
+                      item.setInsertTextMode(InsertTextMode.AsIs);
+                      item.setLabel("Label: " + symbol.getName());
+                      item.setSortText("SORT TEXT");
+                      items.add(item);
+                    }
+                  }
                 }
+                LOGGER.info("Found " + symbols.size() + " symbols for completion request!");
 
-                symbols = getSymbolsInScopeOfLhsIdentifierWithPrefix(parentNode, prefix);
+              } catch (Exception ex) {
+                LOGGER.severe(ex.toString());
+              }
 
-                for (var symbol : symbols) {
-                  // TODO: specific method for creation of completion items from symbol
-                  CompletionItem item = new CompletionItem("Label: " + symbol.getName());
-                  // TODO:
-                  // item.setDocumentation("DOCUMENTATION");
-                  item.setKind(CompletionItemKind.Property);
-                  item.setFilterText(prefix);
-                  // start
-                  TextEdit textEdit =
-                      new TextEdit(new Range(startPosition, position), symbol.getName());
-                  item.setTextEdit(Either.forLeft(textEdit));
-
-                  item.setInsertText(symbol.getName());
-                  item.setInsertTextMode(InsertTextMode.AsIs);
-                  item.setLabel("Label: " + symbol.getName());
-                  item.setSortText("SORT TEXT");
-                  items.add(item);
-                }
-              } else if (parentNode.type == Node.Type.Assignment) {
-                // TODO: may either rhs or lhs...
-                // TODO: should enable fallback, if lhs (or rhs) has no type
-                String prefix =
-                    astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
-                symbols = getAllSymbolsInParentScopeLikeLhsType(parentNode, prefix);
-
-                Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
-
-                for (var symbol : symbols) {
-                  // TODO: specific method for creation of completion items from symbol
-                  CompletionItem item = new CompletionItem("Label: " + symbol.getName());
-                  // TODO:
-                  // item.setDocumentation("DOCUMENTATION");
-                  item.setKind(CompletionItemKind.Property);
-                  item.setFilterText(prefix);
-                  // start
-                  TextEdit textEdit =
-                      new TextEdit(new Range(startPosition, position), symbol.getName());
-                  item.setTextEdit(Either.forLeft(textEdit));
-
-                  item.setInsertText(symbol.getName());
-                  item.setInsertTextMode(InsertTextMode.AsIs);
-                  item.setLabel("Label: " + symbol.getName());
-                  item.setSortText("SORT TEXT");
-                  items.add(item);
-                }
+              boolean setList = true;
+              if (setList) {
+                CompletionList completionList = new CompletionList(items);
+                completionList.setIsIncomplete(false);
+                return Either.forRight(completionList);
               } else {
-                // get symbols from parent scope and all it's parent scopes
-                String prefix =
-                    astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
-                symbols = getAllSymbolsInScopeAndParentScopes(astNode, prefix);
-
-                Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
-
-                for (var symbol : symbols) {
-                  // TODO: specific method for creation of completion items from symbol
-                  CompletionItem item = new CompletionItem("Label: " + symbol.getName());
-                  // TODO:
-                  // item.setDocumentation("DOCUMENTATION");
-                  item.setKind(CompletionItemKind.Property);
-                  item.setFilterText(prefix);
-                  // start
-                  TextEdit textEdit =
-                      new TextEdit(new Range(startPosition, position), symbol.getName());
-                  item.setTextEdit(Either.forLeft(textEdit));
-
-                  item.setInsertText(symbol.getName());
-                  item.setInsertTextMode(InsertTextMode.AsIs);
-                  item.setLabel("Label: " + symbol.getName());
-                  item.setSortText("SORT TEXT");
-                  items.add(item);
-                }
+                return Either.forLeft(items);
               }
-            } else {
-              if (triggerCharacter.equals(".")) {
-                // member access, treat node as scope
-                symbols = getSymbolsInScopeOfIdentifier(astNode);
+            },
+            Task.Priority.LOW,
+            "Completion " + completionParams);
+    return runAsync(task);
+  }
 
-                for (var symbol : symbols) {
-                  // TODO: specific method for creation of completion items from symbol
-                  CompletionItem item = new CompletionItem("Label: " + symbol.getName());
-                  // TODO:
-                  // item.setDocumentation("DOCUMENTATION");
-                  item.setKind(CompletionItemKind.Property);
-                  item.setInsertText(symbol.getName());
-                  item.setInsertTextMode(InsertTextMode.AsIs);
-                  item.setLabel("Label: " + symbol.getName());
-                  item.setSortText("SORT TEXT");
-                  items.add(item);
-                }
+  private void symbolsToCompletionItems(
+      List<CompletionItem> items,
+      Position position,
+      List<Symbol> symbols,
+      String prefix,
+      Position startPosition) {
+    for (var symbol : symbols) {
+      CompletionItem item = new CompletionItem("Label: " + symbol.getName());
+      // TODO:
+      // item.setDocumentation("DOCUMENTATION");
+      // TODO: specific method for creation of completion items from symbol
+      item.setKind(CompletionItemKind.Property);
+      item.setFilterText(prefix);
+      // start
+      TextEdit textEdit = new TextEdit(new Range(startPosition, position), symbol.getName());
+      item.setTextEdit(Either.forLeft(textEdit));
 
-                boolean b = true;
-              }
-            }
-
-            // NOTE: OLD IMPLEMENTATION
-            /*IScope scope = (IScope)map.get("scope");
-            // TODO: check explicitly for datatype?
-            if (scope instanceof ScopedSymbol scopedSymbol) {
-              // create completion item for each symbol in scope
-
-              var results = session.query(
-                Symbol.class,
-                """
-                match (s:ScopedSymbol) where s.idx=$idx
-                match (symbol:Symbol)-[:IN_SCOPE]->(s)
-                return symbol
-                """,
-                Map.of("idx", scopedSymbol.getIdx()));
-
-
-            } else {
-              // regular scope
-              // TODO: get all symbols of this scope and parent scopes and rank them by scope distance.. (basically by path length)
-            }*/
-
-            LOGGER.info("Found " + symbols.size() + " symbols for completion request!");
-
-          } catch (Exception ex) {
-            LOGGER.severe(ex.toString());
-          } finally {
-            dbMutex.unlock();
-          }
-
-          boolean setList = true;
-          if (setList) {
-            CompletionList completionList = new CompletionList(items);
-            completionList.setIsIncomplete(false);
-            return Either.forRight(completionList);
-          } else {
-            return Either.forLeft(items);
-          }
-        });
+      item.setInsertText(symbol.getName());
+      item.setInsertTextMode(InsertTextMode.AsIs);
+      item.setLabel("Label: " + symbol.getName());
+      item.setSortText("SORT TEXT");
+      items.add(item);
+    }
   }
 
   @Override
@@ -735,6 +538,7 @@ public class LspServer
 
     LOGGER.info("Document version: [" + version + "]");
 
+    LOGGER.info("ANALYSE FILE - LOCKING CALCULATIONS LOCK");
     documentCalculationsMutex.lock();
 
     if (this.documentAnalysisFutures.containsKey(uri)) {
@@ -744,7 +548,9 @@ public class LspServer
       } else {
         if (dbUpdater.isRunning()) { // db update is in progress
           dbUpdater.stop();
+          LOGGER.info("INTERRUPTING ANALYSIS - LOCKING DB");
           dbMutex.lock(); // wait for updater to stop
+          LOGGER.info("INTERRUPTING ANALYSIS - UNLOCKING DB");
           dbMutex.unlock();
           // TODO: wait for dbUpdater to actually to stop, how to do this in simple way?
           //  dbMutex is fine for now...
@@ -756,12 +562,9 @@ public class LspServer
       }
       dbUpdater.reset();
     }
-    dbMutex.lock();
 
-    // TODO: should make this cancelable!
-    // TODO: more testing required....
-    CompletableFuture<Void> analyzeDocumentFuture =
-        CompletableFuture.supplyAsync(
+    var task =
+        new Task<Void>(
             () -> {
               try {
                 // this is a problem, because the docVersionMutex won't be unlocked, if the future
@@ -789,14 +592,18 @@ public class LspServer
 
                 // this.docVersionMutex.unlock();
               } catch (InterruptedException ignored) {
+
               }
               return null;
-            });
+            },
+            Task.Priority.HIGH,
+            "ANALYZE FILE " + uri);
+
+    CompletableFuture<Void> analyzeDocumentFuture = runAsync(task);
 
     this.documentAnalysisFutures.put(uri, analyzeDocumentFuture);
+    LOGGER.info("ANALYSE FILE - UNLOCKING CALCULATIONS LOCK");
     documentCalculationsMutex.unlock();
-
-    dbMutex.unlock();
   }
 
   @Override
@@ -921,6 +728,7 @@ public class LspServer
 
     private void initializeDB() {
       this.isRunning = true;
+      LOGGER.info("INITIALIZE - LOCKING DB");
       dbMutex.lock();
       var tx = session.beginTransaction(Transaction.Type.READ_WRITE);
       try {
@@ -938,6 +746,7 @@ public class LspServer
         boolean b = true;
       } finally {
         tx.close();
+        LOGGER.info("INITIALIZE - UNLOCKING DB");
         dbMutex.unlock();
         this.isRunning = false;
       }
@@ -945,12 +754,13 @@ public class LspServer
 
     private void updateDB(String text, String uri) throws InterruptedException {
       this.isRunning = true;
+      LOGGER.info("UPDATE DB - LOCKING DB");
       dbMutex.lock();
 
       ProgrammAnalyzer.AnalyzedProgramComplete analyzedProgram;
       analyzedProgram = programmAnalyzer.analyze(text, uri);
 
-      //LOGGER.fine(getPrettyPrintedParseTree(text, new GameEnvironment()));
+      // LOGGER.fine(getPrettyPrintedParseTree(text, new GameEnvironment()));
 
       boolean interrupted = false;
       var tx = session.beginTransaction(Transaction.Type.READ_WRITE);
@@ -965,13 +775,11 @@ public class LspServer
         session.deleteAll(ErrorRecord.class);
         session.deleteAll(SourceFileReference.class);
 
-        // TODO: delete only in file scope
-        /*session.deleteAll(Symbol.class);
-        session.deleteAll(IScope.class);*/
-
+        // delete only in file scope
         for (var parsedFile : analyzedProgram.parsedFiles()) {
-          var result = session.query(
-            """
+          var result =
+              session.query(
+                  """
               match (f:FileScope)-[:OF_FILE]->(file:ParsedFile) where file.pathString=$pathString
               match (g:Groum)-[:FILE_SCOPE]->(f)
               call {
@@ -994,22 +802,7 @@ public class LspServer
               }
               detach delete g
               """,
-            Map.of("pathString", parsedFile.pathString));
-
-          /*HashSet<Symbol> symbols = new HashSet<>();
-          HashSet<IScope> scopes = new HashSet<>();
-          result.forEach(r -> {
-            var symbol = r.get("symbol");
-            if (symbol != null) {
-              symbols.add((Symbol) symbol);
-            }
-            var scope = r.get("scope");
-            if (scope != null) {
-              scopes.add((IScope) scope);
-            }
-          });
-
-          boolean b = true;*/
+                  Map.of("pathString", parsedFile.pathString));
         }
 
         throwIfStop();
@@ -1052,6 +845,7 @@ public class LspServer
         boolean b = true;
       } finally {
         tx.close();
+        LOGGER.info("UPDATE DB - UNLOCKING DB");
         dbMutex.unlock();
         this.isRunning = false;
       }
@@ -1089,22 +883,6 @@ public class LspServer
     } finally {
       LOGGER.info("Finished getting nodes with error record!");
     }
-
-    /*try {
-      LOGGER.info("Getting ASTErrorNodes from database...");
-      var nodesWithErrorChild =
-        session.query(
-          """
-            match (n:ASTErrorNode)-[:CHILD_OF]->(p:Node) return n,p
-            """,
-          Map.of());
-
-      nodesWithErrorChild
-        .queryResults()
-        .forEach(r -> errorNodes.add((ASTErrorNode) r.get("n")));
-    } finally {
-      LOGGER.info("Finished getting ASTErrorNodes from database!");
-    }*/
 
     // get document version after fetching; if this version is different from the pre fetch version,
     // fetch the data again!

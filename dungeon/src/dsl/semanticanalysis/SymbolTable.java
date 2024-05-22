@@ -26,7 +26,6 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.symbol.SymbolCreation;
 import dsl.semanticanalysis.symbol.SymbolReference;
-
 import java.util.*;
 
 /** The results of semantic analysis done by SymbolTableParser */
@@ -85,9 +84,7 @@ public class SymbolTable {
 
   private final List<SymbolCreation> symbolCreations;
 
-
   private final List<SymbolReference> symbolReferences;
-
 
   private HashSet<IScope> scopes;
 
@@ -202,12 +199,15 @@ public class SymbolTable {
 
   public List<SymbolReference> currentSymbolReferences() {
     var currentSession = this.currentSession();
-    return new ArrayList<>(symbolReferences.subList(currentSession.referenceStartIdx, currentSession.referenceStopIdx));
+    return new ArrayList<>(
+        symbolReferences.subList(
+            currentSession.referenceStartIdx, currentSession.referenceStopIdx));
   }
 
   public List<SymbolCreation> currentSymbolCreations() {
     var currentSession = this.currentSession();
-    return new ArrayList<>(symbolCreations.subList(currentSession.creationStartIdx, currentSession.creationStopIdx));
+    return new ArrayList<>(
+        symbolCreations.subList(currentSession.creationStartIdx, currentSession.creationStopIdx));
   }
 
   /**
@@ -220,7 +220,7 @@ public class SymbolTable {
     this.scopes = new HashSet<>();
 
     this.sessions = new Stack<>();
-    this.sessions.push(new Session(0,0));
+    this.sessions.push(new Session(0, 0));
     this.symbolCreations = new ArrayList<>();
     this.symbolReferences = new ArrayList<>();
     this.astNodeSymbolRelation = new HashMap<>();

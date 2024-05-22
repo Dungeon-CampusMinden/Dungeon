@@ -3,12 +3,11 @@ package dsl.semanticanalysis.groum;
 import dsl.semanticanalysis.groum.node.ActionNode;
 import dsl.semanticanalysis.groum.node.GroumEdge;
 import dsl.semanticanalysis.groum.node.GroumNode;
+import dsl.semanticanalysis.scope.FileScope;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-
-import dsl.semanticanalysis.scope.FileScope;
 import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
