@@ -137,6 +137,11 @@ public class DungeonErrorNodeConverter implements DungeonDSLParserVisitor<Node> 
   }
 
   @Override
+  public Node visitMember_access_incomplete(DungeonDSLParser.Member_access_incompleteContext ctx) {
+    return null;
+  }
+
+  @Override
   public Node visitAssignee_func(DungeonDSLParser.Assignee_funcContext ctx) {
     var node = new MemberAccessNode();
     node.addChildren(this.childNodes);

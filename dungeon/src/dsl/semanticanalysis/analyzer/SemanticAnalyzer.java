@@ -597,10 +597,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(MemberAccessNode node) {
-    if (node.hasErrorChild()) {
-      return null;
-    }
-
     Node currentNode = node;
     Node lhs = Node.NONE;
     Node rhs = Node.NONE;

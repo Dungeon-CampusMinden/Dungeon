@@ -1393,4 +1393,33 @@ quest_config c {
     Assert.assertEquals("$fn() -> int$", funcSymbol1.getDataType().getName());
     Assert.assertEquals("$fn(int) -> int$", funcSymbol2.getDataType().getName());
   }
+
+  @Test
+  public void incompleteMemberAccess() {
+    String program =
+      """
+        fn test(entity ent, int x) {
+            if x {
+                ent.
+            }
+        }
+        """;
+
+    var env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var symbolTable = symtableResult.symbolTable;
+    var fileScope = env.getFileScope(null);
+
+    var funcDef = (FuncDefNode)ast.getChild(0);
+    var paramDef = funcDef.getParameters().get(0).getChild(1);
+    var paramSymbol = symbolTable.getSymbolsForAstNode(paramDef).get(0);
+
+    var stmt = (ConditionalStmtNodeIf)funcDef.getStmts().get(0);
+    var incompleteMemberAccess = stmt.getIfStmt().getChild(0);
+    var idNode = (IdNode)incompleteMemberAccess.getChild(0).getChild(0);
+    Assert.assertEquals("ent", idNode.getName());
+    var symbol = symtableResult.symbolTable.getSymbolsForAstNode(idNode).get(0);
+    Assert.assertEquals(paramSymbol, symbol);
+  }
 }

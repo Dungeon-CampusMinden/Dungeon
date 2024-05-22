@@ -20,6 +20,14 @@ public class ASTErrorNode extends Node {
     this.internalErrorNode = errorNode;
   }
 
+  public ASTErrorNode(ErrorRecord errorRecord) {
+    super(Type.ErrorNode);
+    this.internalErrorNode = null;
+    this.setErrorRecord(errorRecord);
+    this.setSourceFileReference(
+        new SourceFileReference(errorRecord.line() - 1, errorRecord.charPositionInLine()));
+  }
+
   public ASTErrorNode(ErrorNode errorNode, ErrorRecord errorRecord) {
     this(errorNode);
     this.setErrorRecord(errorRecord);

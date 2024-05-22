@@ -363,6 +363,30 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
+  public void enterMember_access_incomplete(DungeonDSLParser.Member_access_incompleteContext ctx) {}
+
+  @Override
+  public void exitMember_access_incomplete(DungeonDSLParser.Member_access_incompleteContext ctx) {
+    // formally this is an error, but we need to be able to ensure, that the lhs id is correctly
+    // put into the AST
+    // there is no real offending symbol here...
+
+    int line = ctx.start.getLine();
+    int charPosInLine = ctx.start.getCharPositionInLine();
+    ErrorRecord record =
+        new ErrorRecord(
+            "Incomplete member accesss",
+            null,
+            line,
+            charPosInLine,
+            ErrorRecord.ErrorType.specificErrorAlternative,
+            null);
+    var incompleteMemberAccess = new ASTErrorNode(record);
+    incompleteMemberAccess.setSourceFileReference(ctx);
+    astStack.push(incompleteMemberAccess);
+  }
+
+  @Override
   public void enterAssignee_func(DungeonDSLParser.Assignee_funcContext ctx) {}
 
   @Override

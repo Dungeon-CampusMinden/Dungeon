@@ -71,6 +71,7 @@ expression
 member_access_rhs
     : DOT func_call member_access_rhs?  #method_call_expression
     | DOT id member_access_rhs?         #member_access_expression
+    | DOT                               #member_access_incomplete // TODO:
     ;
 
 assignee
