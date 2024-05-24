@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
+
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.eclipse.lsp4j.*;
@@ -317,7 +319,6 @@ public class LspServer
     LOGGER.entering(this.getClass().getName(), getMethodName());
     LOGGER.info("Param: '" + completionParams + "'");
 
-    // return CompletableFuture.supplyAsync(
     var task =
         new Task<Either<List<CompletionItem>, CompletionList>>(
             () -> {
@@ -347,6 +348,7 @@ public class LspServer
                   // character
                   // which means that we generate completion items for the nearest scope
                   if (parentNode.type == Node.Type.MemberAccess) {
+                    LOGGER.info("Completion, no explicit trigger, context: member access");
                     // get symbols from scope of lhs of member access
                     String prefix;
                     Position startPosition;
@@ -370,13 +372,29 @@ public class LspServer
 
                     symbolsToCompletionItems(items, position, symbols, prefix, startPosition);
                   } else if (parentNode.type == Node.Type.Assignment) {
-                    // TODO: may either rhs or lhs...
+                    LOGGER.info("Completion, no explicit trigger, context: assignment");
                     // TODO: should enable fallback, if lhs (or rhs) has no type
-                    String prefix =
-                        astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
-                    symbols = dbAccessor.getAllSymbolsInParentScopeLikeLhsType(parentNode, prefix);
 
-                    Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
+                    Position startPosition;// = new Position(sfr.getStartLine(), sfr.getStartColumn());
+                    String prefix; //=
+                      //astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
+                    var childIdxs = dbAccessor.getChildIdxsOfNode(parentNode);
+                    if (childIdxs.getFirst().equals(astNode.getIdx())) {
+                      // astNode is the lhs of the member access
+                      prefix = "";
+                      // position should be the end line of member access
+                      startPosition =
+                        new Position(parentSfr.getEndLine(), parentSfr.getEndColumn() + 1);
+                    } else {
+                      prefix =
+                        astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
+                      startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
+                    }
+
+                    var symMap = dbAccessor.getSymbolAndTypeOfNode(astNode);
+                    var type = (IType)symMap.get("t");
+                    // TODO: filter out datatypes!
+                    symbols = dbAccessor.getAllSymbolsOfTypeInScopeAndParentScopes(astNode, type.getName(), prefix);
 
                     symbolsToCompletionItems(items, position, symbols, prefix, startPosition);
                   } else {
@@ -391,6 +409,7 @@ public class LspServer
                   }
                 } else {
                   if (triggerCharacter.equals(".")) {
+                    LOGGER.info("Completion, dot trigger");
                     // member access, treat node as scope
                     symbols = dbAccessor.getSymbolsInScopeOfIdentifier(astNode);
 
@@ -754,6 +773,7 @@ public class LspServer
 
     private void updateDB(String text, String uri) throws InterruptedException {
       this.isRunning = true;
+      throwIfStop();
       LOGGER.info("UPDATE DB - LOCKING DB");
       dbMutex.lock();
 

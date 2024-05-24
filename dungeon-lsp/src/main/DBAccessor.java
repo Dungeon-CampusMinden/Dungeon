@@ -6,6 +6,8 @@ import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import org.eclipse.lsp4j.Position;
 import org.neo4j.ogm.session.Session;
 
@@ -78,7 +80,7 @@ public class DBAccessor {
     var result =
         session.query(
             """
-      call {
+        call {
             match (na:AssignmentNode) where na.idx=$idx
             match (na)-[:PARENT_OF {idx:0}]->(lhsChild:AstNode)
             match (lhsChild)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(lhsType:IType)
@@ -86,15 +88,6 @@ public class DBAccessor {
             limit 1
         }
 
-   //get symbols in scope and parent scopes v2
-        call{
-            match (n:AstNode) where n.idx=$idx
-            // match closest scope created (in normal scope)
-            match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
-            return scope, p, parent
-            order by length(p)
-            limit 1
-        }
         call {
             with scope
             match l=(scope)
@@ -112,6 +105,68 @@ public class DBAccessor {
         return symbol, lhsType
   """,
             Map.of("idx", memberAccessNode.getIdx(), "prefix", prefix));
+
+    ArrayList<Symbol> symbols = new ArrayList<>();
+    result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
+    return symbols;
+  }
+
+  public Map<String, Object> getSymbolAndTypeOfNode(Node prefixNode) {
+    var result =
+      session.query(
+        """
+          match (n:AstNode)-[:REFERENCES]->(sym:Symbol)-[:OF_TYPE]->(t:IType) where n.idx=$idx
+          return n, sym, t
+          """,
+        Map.of("idx", prefixNode.getIdx()));
+
+    var iter = result.iterator();
+    if (iter.hasNext()) {
+      return iter.next();
+    } else {
+      return Map.of(
+        "n",
+        Node.NONE,
+        "sym",
+        Symbol.NULL,
+        "t",
+        BuiltInType.noType
+        );
+    }
+  }
+
+  // Note: this filters out datatypes
+  public List<Symbol> getAllSymbolsOfTypeInScopeAndParentScopes(Node prefixNode, String typeName, String prefix) {
+    var result =
+      session.query(
+        """
+          //get symbols in scope and parent scopes v2
+          call{
+            match (n:AstNode) where n.idx=$idx
+            // match closest scope created (in normal scope)
+            match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
+            return scope, p, parent
+            order by length(p)
+            limit 1
+          }
+          call {
+            with scope
+            match l=(scope)
+            return scope as _scope, 1 as len, l
+            UNION
+            with scope
+            // collect parent scopes
+            match l=((scope)-[:PARENT_SCOPE|IN_SCOPE*]->(parentScope:IScope))
+            return parentScope as _scope, length(l) as len, l
+          }
+          //return distinct scope, _scope, len,l
+
+          //UNWIND scopes as scopeToFocus
+          match (symbol:Symbol)-[:IN_SCOPE]-(_scope) where symbol.name starts with $prefix and not symbol:IType
+          match (symbol)-[:OF_TYPE]->(t:IType) where t.name=$typename
+          return distinct symbol
+          """,
+        Map.of("idx", prefixNode.getIdx(), "prefix", prefix, "typename", typeName));
 
     ArrayList<Symbol> symbols = new ArrayList<>();
     result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
@@ -172,6 +227,21 @@ public class DBAccessor {
     ArrayList<Symbol> symbols = new ArrayList<>();
     result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
     return symbols;
+  }
+
+  public List<Long> getChildIdxsOfNode(Node node) {
+    var result =
+      session.query(
+        """
+          match (n:AstNode) where n.idx=$idx
+          match (n)-[childEdge:PARENT_OF]->(child:AstNode)
+          return child.idx as childIdx, n order by childEdge.idx
+        """,
+        Map.of("idx", node.getIdx()));
+
+    ArrayList<Long> idxs = new ArrayList<>();
+    result.forEach(m -> idxs.add((Long) m.get("childIdx")));
+    return idxs;
   }
 
   public List<Long> getChildIdxsOfMemberAccess(Node memberAccesNode) {
