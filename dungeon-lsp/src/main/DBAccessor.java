@@ -27,14 +27,22 @@ public class DBAccessor {
         and not exists {(n)<-[:CHILD_OF]-(:AstNode)}
         match (n:AstNode)-[:CHILD_OF]->(parent:AstNode)
         match (parent)-[]-(parentSfr:SourceFileReference)
-        return n, parent, nearestSfr, parentSfr
+        optional match (n)-[:CHILD_OF*]->(typeRestrictingContext:AstNode) where typeRestrictingContext.type IN ["PropertyDefinition","ExpressionList", "ReturnStmt", "Assignment", "VarDeclNode"]
+        return n, parent, nearestSfr, parentSfr, typeRestrictingContext, typeRestrictingContext.type as restrictionType
+        //return n, parent, nearestSfr, parentSfr
         order by nearestSfr.startColumn desc
         limit 1
         """,
             Map.of("startline", position.getLine(), "endcolumn", position.getCharacter()));
     var iter = result.iterator();
     if (iter.hasNext()) {
-      return iter.next();
+      var map = iter.next();
+      var typeRestrictionContextObj = map.get("typeRestrictingContext");
+      if (typeRestrictionContextObj == null) {
+        map.put("typeRestrictingContext", Node.NONE);
+        map.put("restrictionType", "");
+      }
+      return map;
     } else {
       return Map.of(
           "n",
@@ -44,7 +52,12 @@ public class DBAccessor {
           "nearestSfr",
           SourceFileReference.NULL,
           "parentSfr",
-          SourceFileReference.NULL);
+          SourceFileReference.NULL,
+          "typeRestrictingContext",
+          Node.NONE,
+          "restrictionType",
+          ""
+        );
     }
   }
 

@@ -312,6 +312,52 @@ public class LspServer
     clients.add(languageClient);
   }
 
+  private String resolveTypeRestriction(Node matchedNode, Node restrictingNode, String restrictionType) {
+    switch (restrictionType) {
+      case "PropertyDefinition":
+        break;
+      case "ExpressionList":
+        break;
+      case "ReturnStmt":
+        break;
+      case "Assignment":
+        // we need to check, whether the matched node (for which the completion was triggered) is on the lhs or the rhs of the assignment
+        // TODO: could simplify
+        var lhsOrRhs = session.query(
+          """
+          match (parentNode:AstNode) where parentNode.idx=$restrictingNodeIdx
+          match (parentNode)-[childEdge:PARENT_OF]->(directLhsChild:AstNode)
+          call {
+            with directLhsChild
+            match (directLhsChild) where directLhsChild.idx=$matchedNodeIdx return directLhsChild as child
+            union
+            with directLhsChild
+            match (child)-[:CHILD_OF*]->(directLhsChild) where child.idx=$matchedNodeIdx return child
+          }
+          return child.idx as childIdx, child, childEdge.idx as edgeIdx
+          """,
+          Map.of("restrictingNodeIdx", restrictingNode.getIdx(), "matchedNodeIdx", matchedNode.getIdx())
+        );
+        var result = lhsOrRhs.iterator().next();
+
+        var lhsOrRhsIdx = (Long)result.get("edgeIdx");
+        if (lhsOrRhsIdx == 0L) {
+          // lhs -> get rhs type and use that as a restriction
+          boolean b = true;
+        } else {
+          // rhs -> get lhs type and use that as a restriction
+          boolean b = true;
+        }
+
+        break;
+      case "VarDeclNode":
+        break;
+      default:
+        break;
+    }
+    return "";
+  }
+
   // region TextDocument Service
   @Override
   public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
@@ -334,6 +380,13 @@ public class LspServer
                 var sfr = (SourceFileReference) nodeMap.get("nearestSfr");
                 var parentNode = (Node) nodeMap.get("parent");
                 var parentSfr = (SourceFileReference) nodeMap.get("parentSfr");
+                var typeRestrictionContext = (Node)nodeMap.get("typeRestrictingContext");
+                String restrictionType = (String)nodeMap.get("restrictionType");
+
+                // resolve restriction type (based on type of restriction)
+                if (typeRestrictionContext != Node.NONE) {
+                  resolveTypeRestriction(astNode, typeRestrictionContext, restrictionType);
+                }
 
                 if (astNode == Node.NONE) {
                   throw new RuntimeException("No AST node matched!");
@@ -349,6 +402,11 @@ public class LspServer
                   // which means that we generate completion items for the nearest scope
                   if (parentNode.type == Node.Type.MemberAccess) {
                     LOGGER.info("Completion, no explicit trigger, context: member access");
+
+                    // TODO: if this is enclosed by a node, which restricts the types, which are applicable,
+                    //  we need to restrict the properties by that restriction -> but don't filter out all other
+                    //  symbols, just rank them lower!!
+
                     // get symbols from scope of lhs of member access
                     String prefix;
                     Position startPosition;
@@ -393,7 +451,6 @@ public class LspServer
 
                     var symMap = dbAccessor.getSymbolAndTypeOfNode(astNode);
                     var type = (IType)symMap.get("t");
-                    // TODO: filter out datatypes!
                     symbols = dbAccessor.getAllSymbolsOfTypeInScopeAndParentScopes(astNode, type.getName(), prefix);
 
                     symbolsToCompletionItems(items, position, symbols, prefix, startPosition);
