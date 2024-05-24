@@ -1688,10 +1688,11 @@ public class TestErrorListener {
                     id
                       $'x'
                     $'='
-                    expression
-                      $DC$
-                    $')'[ERROR_NODE]
-                    $';'
+                stmt
+                  expression
+                    $DC$
+                  $')'[ERROR_NODE]
+                  $';'
                 stmt
                   expression
                     logic_or

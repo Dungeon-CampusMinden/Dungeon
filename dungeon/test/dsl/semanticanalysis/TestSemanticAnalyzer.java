@@ -1362,7 +1362,8 @@ quest_config c {
     var fileScope = env.getFileScope(null);
 
     // print call should be linked to print function
-    var funcCallNode = (FuncCallNode) ((FuncDefNode) ast.getChild(0)).getStmts().get(4);
+    var stmts = ((FuncDefNode) ast.getChild(0)).getStmts();
+    var funcCallNode = (FuncCallNode) stmts.get(5);
 
     var printFuncSymbol = symtableResult.symbolTable.getSymbolsForAstNode(funcCallNode).get(0);
     Assert.assertEquals(NativePrint.func, printFuncSymbol);
