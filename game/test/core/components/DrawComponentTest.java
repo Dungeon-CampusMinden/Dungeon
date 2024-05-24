@@ -13,7 +13,7 @@ import org.junit.Test;
 /** Tests for the {@link DrawComponent} class. */
 public class DrawComponentTest {
 
-  private final IPath animationPath = new SimpleIPath("textures/test_hero");
+  private final IPath animationPath = new SimpleIPath("textures/dkirshner/test_hero");
   private DrawComponent animationComponent;
 
   /** WTF? . */

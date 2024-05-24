@@ -32,7 +32,7 @@ import java.util.Set;
  */
 public final class Animation {
 
-  private static final IPath MISSING_TEXTURE = new SimpleIPath("animation/missing_texture.png");
+  private static final IPath MISSING_TEXTURE = new SimpleIPath("missing_texture.png");
   private static final int DEFAULT_FRAME_TIME = 5;
   private static final boolean DEFAULT_IS_LOOP = true;
   private static final int DEFAULT_PRIO = 200;
