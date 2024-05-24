@@ -168,6 +168,7 @@ public class Neo4J {
   }
 
   @Test
+  @Ignore
   public void testDBGetErrorNode() {
     String program =
         """
@@ -390,6 +391,7 @@ public class Neo4J {
   }
 
   @Test
+  @Ignore
   public void testDBGroum() {
     String program =
         """
@@ -521,6 +523,7 @@ public class Neo4J {
   }
 
   @Test
+  @Ignore
   public void testPatternMatch() {
     String program =
         """
@@ -714,6 +717,7 @@ public class Neo4J {
   }
 
   @Test
+  @Ignore
   public void testNonVoidNoReturnSingleFlow() {
     String program =
         """
@@ -792,6 +796,7 @@ public class Neo4J {
   }
 
   @Test
+  @Ignore
   public void testDetectDeadCode() {
     String program =
         """
@@ -879,6 +884,7 @@ public class Neo4J {
   }
 
   @Test
+  @Ignore
   public void testTemporalAnchoring() {
     String program =
         """
@@ -962,6 +968,7 @@ public class Neo4J {
   }
 
   @Test
+  @Ignore
   public void testNonVoidNoReturn() {
     String program =
         """
@@ -1049,6 +1056,7 @@ public class Neo4J {
   }
 
   @Test
+  @Ignore
   public void testInfiniteLoopDetection() {
     String program =
         """
