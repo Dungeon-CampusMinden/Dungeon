@@ -27,6 +27,11 @@ public class VarDeclNode extends BinaryNode {
     this.declType = DeclType.none;
   }
 
+  public VarDeclNode(VarDeclNode.DeclType type) {
+    super(Type.VarDeclNode);
+    this.declType = type;
+  }
+
   public String getVariableName() {
     return ((IdNode) this.getIdentifier()).getName();
   }

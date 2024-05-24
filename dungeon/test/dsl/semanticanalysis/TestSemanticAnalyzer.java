@@ -1409,7 +1409,6 @@ quest_config c {
     var ast = Helpers.getASTFromString(program, env);
     var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
     var symbolTable = symtableResult.symbolTable;
-    var fileScope = env.getFileScope(null);
 
     var funcDef = (FuncDefNode) ast.getChild(0);
     var paramDef = funcDef.getParameters().get(0).getChild(1);
@@ -1421,5 +1420,72 @@ quest_config c {
     Assert.assertEquals("ent", idNode.getName());
     var symbol = symtableResult.symbolTable.getSymbolsForAstNode(idNode).get(0);
     Assert.assertEquals(paramSymbol, symbol);
+  }
+
+  @Test
+  public void incompleteVarDeclExpr() {
+    String program = """
+    fn test(entity ent, int x) {
+        var y =
+    }
+    """;
+
+    var env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var symbolTable = symtableResult.symbolTable;
+
+    var funcDef = (FuncDefNode) ast.getChild(0);
+    var stmt = (VarDeclNode)funcDef.getStmts().get(0);
+    var symbol = symbolTable.getSymbolsForAstNode(stmt).get(0);
+    Assert.assertNotEquals(Symbol.NULL, symbol);
+  }
+
+  @Test
+  public void incompleteVarDeclType() {
+    String program = """
+      fn test(entity ent, int x) {
+          var y :
+      }
+      """;
+
+    var env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var symbolTable = symtableResult.symbolTable;
+    var fileScope = env.getFileScope(null);
+
+    var funcDef = (FuncDefNode) ast.getChild(0);
+    var stmt = (VarDeclNode)funcDef.getStmts().get(0);
+    var symbol = symbolTable.getSymbolsForAstNode(stmt).get(0);
+    Assert.assertNotEquals(Symbol.NULL, symbol);
+    Assert.assertEquals(BuiltInType.noType, symbol.getDataType());
+  }
+
+  @Test
+  public void incompleteAssignment() {
+    String program =
+        """
+      fn test(entity ent, int x) {
+          var y = 42;
+          y =
+      }
+      """;
+
+    var env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var symbolTable = symtableResult.symbolTable;
+
+    var funcDef = (FuncDefNode) ast.getChild(0);
+    var decl = (VarDeclNode)funcDef.getStmts().get(0);
+    var declSymbol = symbolTable.getSymbolsForAstNode(decl).get(0);
+    Assert.assertNotEquals(Symbol.NULL, declSymbol);
+
+    var assignStmt = funcDef.getStmts().get(1);
+    var assignment = (AssignmentNode)assignStmt.getChild(0);
+    var idNode = assignment.getChild(0);
+    var assignedSymbol = symbolTable.getSymbolsForAstNode(idNode).get(0);
+    Assert.assertEquals(declSymbol, assignedSymbol);
   }
 }

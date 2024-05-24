@@ -99,6 +99,15 @@ public class DungeonErrorNodeConverter implements DungeonDSLParserVisitor<Node> 
   }
 
   @Override
+  public Node visitVar_decl_assignment_incomplete(
+      DungeonDSLParser.Var_decl_assignment_incompleteContext ctx) {
+    var node = new VarDeclNode(VarDeclNode.DeclType.assignmentDecl);
+    node.addChildren(this.childNodes);
+    node.setSourceFileReference(ctx);
+    return node;
+  }
+
+  @Override
   public Node visitVar_decl_type_decl(DungeonDSLParser.Var_decl_type_declContext ctx) {
     var node = new VarDeclNode();
     node.addChildren(this.childNodes);
@@ -107,8 +116,26 @@ public class DungeonErrorNodeConverter implements DungeonDSLParserVisitor<Node> 
   }
 
   @Override
+  public Node visitVar_decl_type_decl_incomplete(
+      DungeonDSLParser.Var_decl_type_decl_incompleteContext ctx) {
+    var node = new VarDeclNode(VarDeclNode.DeclType.typeDecl);
+    node.addChildren(this.childNodes);
+    node.setSourceFileReference(ctx);
+    return node;
+  }
+
+  @Override
   public Node visitExpr_assignment(DungeonDSLParser.Expr_assignmentContext ctx) {
     var node = genericErrorNode(this.childNodes);
+    node.setSourceFileReference(ctx);
+    return node;
+  }
+
+  @Override
+  public Node visitExpr_assignment_incomplete(
+      DungeonDSLParser.Expr_assignment_incompleteContext ctx) {
+    var node = new AssignmentNode();
+    node.addChildren(this.childNodes);
     node.setSourceFileReference(ctx);
     return node;
   }

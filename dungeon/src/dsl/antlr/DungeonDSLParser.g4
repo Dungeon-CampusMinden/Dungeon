@@ -59,12 +59,15 @@ loop_stmt
     ;
 
 var_decl
-    : VAR id ASSIGN expression SEMICOLON   #var_decl_assignment
+    : VAR id ASSIGN expression SEMICOLON  #var_decl_assignment
+    | VAR id ASSIGN                       #var_decl_assignment_incomplete
     | VAR id COLON type_decl SEMICOLON    #var_decl_type_decl
+    | VAR id COLON                        #var_decl_type_decl_incomplete
     ;
 
 expression
-    : assignee ASSIGN expression           #expr_assignment
+    : assignee ASSIGN expression        #expr_assignment
+    | assignee ASSIGN                   #expr_assignment_incomplete
     | logic_or                          #expr_trivial
     ;
 

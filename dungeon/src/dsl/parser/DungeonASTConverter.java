@@ -304,6 +304,37 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
+  public void enterVar_decl_assignment_incomplete(
+      DungeonDSLParser.Var_decl_assignment_incompleteContext ctx) {}
+
+  @Override
+  public void exitVar_decl_assignment_incomplete(
+      DungeonDSLParser.Var_decl_assignment_incompleteContext ctx) {
+    // formally this is an error, but we need to be able to ensure, that the lhs id is correctly
+    // put into the AST
+    // there is no real offending symbol here...
+    int line = ctx.start.getLine();
+    int charPosInLine = ctx.start.getCharPositionInLine();
+    ErrorRecord record =
+        new ErrorRecord(
+            "Incomplete variable declaration",
+            null,
+            line,
+            charPosInLine,
+            ErrorRecord.ErrorType.specificErrorAlternative,
+            null);
+    var incompleteErrorNode = new ASTErrorNode(record);
+    incompleteErrorNode.setSourceFileReference(ctx);
+
+    var id = astStack.pop();
+    VarDeclNode varDeclNode = new VarDeclNode(VarDeclNode.DeclType.assignmentDecl);
+    varDeclNode.addChild(id);
+    varDeclNode.addChild(incompleteErrorNode);
+
+    astStack.push(varDeclNode);
+  }
+
+  @Override
   public void enterVar_decl_type_decl(DungeonDSLParser.Var_decl_type_declContext ctx) {}
 
   @Override
@@ -319,6 +350,38 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   }
 
   @Override
+  public void enterVar_decl_type_decl_incomplete(
+      DungeonDSLParser.Var_decl_type_decl_incompleteContext ctx) {}
+
+  @Override
+  public void exitVar_decl_type_decl_incomplete(
+      DungeonDSLParser.Var_decl_type_decl_incompleteContext ctx) {
+
+    // formally this is an error, but we need to be able to ensure, that the lhs id is correctly
+    // put into the AST
+    // there is no real offending symbol here...
+    int line = ctx.start.getLine();
+    int charPosInLine = ctx.start.getCharPositionInLine();
+    ErrorRecord record =
+        new ErrorRecord(
+            "Incomplete variable declaration",
+            null,
+            line,
+            charPosInLine,
+            ErrorRecord.ErrorType.specificErrorAlternative,
+            null);
+    var incompleteErrorNode = new ASTErrorNode(record);
+    incompleteErrorNode.setSourceFileReference(ctx);
+
+    var id = astStack.pop();
+    VarDeclNode varDeclNode = new VarDeclNode(VarDeclNode.DeclType.typeDecl);
+    varDeclNode.addChild(id);
+    varDeclNode.addChild(incompleteErrorNode);
+
+    astStack.push(varDeclNode);
+  }
+
+  @Override
   public void enterExpr_assignment(DungeonDSLParser.Expr_assignmentContext ctx) {}
 
   @Override
@@ -330,6 +393,37 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node newExpression = new AssignmentNode(assignee, expression);
     newExpression.setSourceFileReference(ctx);
     astStack.push(newExpression);
+  }
+
+  @Override
+  public void enterExpr_assignment_incomplete(
+      DungeonDSLParser.Expr_assignment_incompleteContext ctx) {}
+
+  @Override
+  public void exitExpr_assignment_incomplete(
+      DungeonDSLParser.Expr_assignment_incompleteContext ctx) {
+    // formally this is an error, but we need to be able to ensure, that the lhs id is correctly
+    // put into the AST
+    // there is no real offending symbol here...
+    int line = ctx.start.getLine();
+    int charPosInLine = ctx.start.getCharPositionInLine();
+    ErrorRecord record =
+        new ErrorRecord(
+            "Incomplete assignment",
+            null,
+            line,
+            charPosInLine,
+            ErrorRecord.ErrorType.specificErrorAlternative,
+            null);
+    var incompleteErrorNode = new ASTErrorNode(record);
+    incompleteErrorNode.setSourceFileReference(ctx);
+
+    var lhs = astStack.pop();
+    AssignmentNode node = new AssignmentNode();
+    node.addChild(lhs);
+    node.addChild(incompleteErrorNode);
+
+    astStack.push(node);
   }
 
   @Override

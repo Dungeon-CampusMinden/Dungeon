@@ -764,9 +764,9 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
   @Override
   public Void visit(AssignmentNode node) {
     // TODO: typechcking
-    if (node.hasErrorChild()) {
+    /*if (node.hasErrorChild()) {
       return null;
-    }
+    }*/
 
     visitChildren(node);
     return null;
@@ -855,10 +855,15 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
       Symbol symbol = createVariableSymbolInScope(rhsType, nameIdNode, this.currentScope());
       this.symbolTable.addSymbolNodeRelation(symbol, node, true);
     } else {
-      IdNode typeDeclNode = (IdNode) node.getRhs();
-      IdNode nameIdNode = (IdNode) node.getIdentifier();
-      Symbol symbol = createVariableSymbolInScope(typeDeclNode, nameIdNode, this.currentScope());
-      this.symbolTable.addSymbolNodeRelation(symbol, node, true);
+      if (node.getRhs() instanceof IdNode typeDeclNode) {
+        IdNode nameIdNode = (IdNode) node.getIdentifier();
+        Symbol symbol = createVariableSymbolInScope(typeDeclNode, nameIdNode, this.currentScope());
+        this.symbolTable.addSymbolNodeRelation(symbol, node, true);
+      } else {
+        IdNode nameIdNode = (IdNode) node.getIdentifier();
+        Symbol symbol = createVariableSymbolInScope(BuiltInType.noType, nameIdNode, this.currentScope());
+        this.symbolTable.addSymbolNodeRelation(symbol, node, true);
+      }
     }
 
     return null;

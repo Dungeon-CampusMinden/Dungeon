@@ -23,7 +23,11 @@ public class TypeInferrer implements AstVisitor<IType> {
   @Override
   public IType visit(Node node) {
     // TODO: which NodeTypes need to be supported here?
-    return AstVisitor.super.visit(node);
+    if (node.type == Node.Type.ErrorNode) {
+      return BuiltInType.noType;
+    } else {
+      return AstVisitor.super.visit(node);
+    }
   }
 
   @Override
@@ -192,6 +196,8 @@ public class TypeInferrer implements AstVisitor<IType> {
     }
     return setType;
   }
+
+
 
   @Override
   public IType visit(VarDeclNode node) {
