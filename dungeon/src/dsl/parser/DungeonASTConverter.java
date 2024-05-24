@@ -330,6 +330,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     VarDeclNode varDeclNode = new VarDeclNode(VarDeclNode.DeclType.assignmentDecl);
     varDeclNode.addChild(id);
     varDeclNode.addChild(incompleteErrorNode);
+    varDeclNode.setSourceFileReference(ctx);
 
     astStack.push(varDeclNode);
   }
@@ -377,6 +378,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     VarDeclNode varDeclNode = new VarDeclNode(VarDeclNode.DeclType.typeDecl);
     varDeclNode.addChild(id);
     varDeclNode.addChild(incompleteErrorNode);
+    varDeclNode.setSourceFileReference(ctx);
 
     astStack.push(varDeclNode);
   }
@@ -422,6 +424,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     AssignmentNode node = new AssignmentNode();
     node.addChild(lhs);
     node.addChild(incompleteErrorNode);
+    node.setSourceFileReference(ctx);
 
     astStack.push(node);
   }

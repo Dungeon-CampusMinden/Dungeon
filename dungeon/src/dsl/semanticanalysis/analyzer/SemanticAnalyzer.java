@@ -763,10 +763,6 @@ public class SemanticAnalyzer implements AstVisitor<Void> {
 
   @Override
   public Void visit(AssignmentNode node) {
-    // TODO: typechcking
-    /*if (node.hasErrorChild()) {
-      return null;
-    }*/
 
     visitChildren(node);
     return null;

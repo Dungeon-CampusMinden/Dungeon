@@ -1489,4 +1489,35 @@ quest_config c {
     var assignedSymbol = symbolTable.getSymbolsForAstNode(idNode).get(0);
     Assert.assertEquals(declSymbol, assignedSymbol);
   }
+
+  @Test
+  public void incompleteAssignmentConditional() {
+    String program =
+      """
+    fn test(entity ent, int x) {
+        var y = 42;
+        if x {
+          y =
+        }
+    }
+    """;
+
+    var env = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, env);
+    var symtableResult = Helpers.getSymtableForASTWithCustomEnvironment(ast, env);
+    var symbolTable = symtableResult.symbolTable;
+
+    var funcDef = (FuncDefNode) ast.getChild(0);
+    var decl = (VarDeclNode)funcDef.getStmts().get(0);
+    var declSymbol = symbolTable.getSymbolsForAstNode(decl).get(0);
+    Assert.assertNotEquals(Symbol.NULL, declSymbol);
+
+    var condStmt = (ConditionalStmtNodeIf)funcDef.getStmts().get(1);
+    var ifStmt = (StmtBlockNode)condStmt.getIfStmt();
+    var assignStmt = ifStmt.getStmts().get(0);
+    var assignment = (AssignmentNode)assignStmt.getChild(0);
+    var idNode = assignment.getChild(0);
+    var assignedSymbol = symbolTable.getSymbolsForAstNode(idNode).get(0);
+    Assert.assertEquals(declSymbol, assignedSymbol);
+  }
 }
