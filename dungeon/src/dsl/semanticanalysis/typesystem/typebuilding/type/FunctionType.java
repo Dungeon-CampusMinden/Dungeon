@@ -20,6 +20,7 @@ public class FunctionType extends Symbol implements IType {
     return parameterTypes;
   }
 
+
   @Override
   public boolean equals(Object other) {
     try {
@@ -40,6 +41,11 @@ public class FunctionType extends Symbol implements IType {
         calculateTypeName(returnType, new ArrayList<>(List.of(parameterTypes))), Scope.NULL, null);
     this.returnType = returnType;
     this.parameterTypes = new ArrayList<>(List.of(parameterTypes));
+  }
+
+  public FunctionType() {
+    this.returnType = BuiltInType.noType;
+    this.parameterTypes = new ArrayList<>();
   }
 
   public FunctionType(IType returnType, List<IType> parameterTypes) {

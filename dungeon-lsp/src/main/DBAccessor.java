@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import org.eclipse.lsp4j.Position;
 import org.neo4j.ogm.session.Session;
 
@@ -176,13 +177,16 @@ public class DBAccessor {
 
           //UNWIND scopes as scopeToFocus
           match (symbol:Symbol)-[:IN_SCOPE]-(_scope) where symbol.name starts with $prefix and not symbol:IType
-          match (symbol)-[:OF_TYPE]->(t:IType) where t.name=$typename
-          return distinct symbol
+          match (symbol)-[:OF_TYPE]->(type:IType) where type.name=$typename
+          return distinct symbol, type
           """,
         Map.of("idx", prefixNode.getIdx(), "prefix", prefix, "typename", typeName));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
-    result.forEach(m -> symbols.add(new RankedSymbol((Symbol) m.get("symbol"), 0)));
+    result.forEach(m -> {
+      var type = (IType)m.get("type");
+      symbols.add(new RankedSymbol((Symbol) m.get("symbol"), type, 0));
+    });
     return symbols;
   }
 
@@ -213,12 +217,16 @@ public class DBAccessor {
 
   //UNWIND scopes as scopeToFocus
   match (symbol:Symbol)-[:IN_SCOPE]-(_scope) where symbol.name starts with $prefix
-  return distinct symbol
+  match (symbol)-[:OF_TYPE]->(type:IType)
+  return distinct symbol, type
   """,
             Map.of("idx", prefixNode.getIdx(), "prefix", prefix));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
-    result.forEach(m -> symbols.add(new RankedSymbol((Symbol) m.get("symbol"), 0)));
+    result.forEach(m -> {
+      var type = (IType)m.get("type");
+      symbols.add(new RankedSymbol((Symbol) m.get("symbol"), type, 0));
+    });
     return symbols;
   }
 
@@ -233,16 +241,18 @@ public class DBAccessor {
                 limit 1
             }
             match (symbol:Symbol)-[:IN_SCOPE]->(scope)
-            optional match (symbol)-[:OF_TYPE]->(type:IType) where type.name=$typeRestriction
-            return symbol, type
+            match (symbol)-[:OF_TYPE]->(type:IType)
+            optional match (symbol)-[:OF_TYPE]->(matchingType:IType) where matchingType.name=$typeRestriction
+            return symbol, type, matchingType
             """,
             Map.of("idx", identifier.getIdx(), "typeRestriction", typeRestriction));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
     result.forEach(m -> {
-      var type = m.get("type");
-      int ranking = type == null ? 0 : 1;
-      symbols.add(new RankedSymbol((Symbol) m.get("symbol"), ranking));
+      var matchingType = m.get("matchingType");
+      var type = (IType)m.get("type");
+      int ranking = matchingType == null ? 0 : 1;
+      symbols.add(new RankedSymbol((Symbol) m.get("symbol"), type, ranking));
     });
     return symbols;
   }
@@ -291,17 +301,19 @@ public class DBAccessor {
                 limit 1
             }
             match (symbol:Symbol)-[:IN_SCOPE]->(scope) where symbol.name STARTS WITH $prefix
-            optional match (symbol)-[:OF_TYPE]->(type:IType) where type.name=$typeRestriction
-            return symbol, type
+            match (symbol)-[:OF_TYPE]->(type:IType)
+            optional match (symbol)-[:OF_TYPE]->(matchingType:IType) where matchingType.name=$typeRestriction
+            return symbol, type, matchingType
             """,
             Map.of("idx", memberAccessParentNode.getIdx(), "prefix", prefix, "typeRestriction", typeRestriction));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
     result.forEach(m ->
     {
-      var type = m.get("type");
-      int ranking = type == null ? 0 : 1;
-      symbols.add(new RankedSymbol((Symbol) m.get("symbol"), ranking));
+      var matchingType = m.get("matchingType");
+      int ranking = matchingType == null ? 0 : 1;
+      var type = (IType)m.get("type");
+      symbols.add(new RankedSymbol((Symbol) m.get("symbol"), type, ranking));
     });
     return symbols;
   }

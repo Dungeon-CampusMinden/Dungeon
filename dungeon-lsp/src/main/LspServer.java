@@ -12,9 +12,13 @@ import dsl.helper.ProfilingTimer;
 import dsl.neo4j.Neo4jConnect;
 import dsl.parser.ast.*;
 import dsl.programmanalyzer.ProgrammAnalyzer;
+import dsl.runtime.callable.ExtensionMethod;
+import dsl.runtime.callable.NativeMethod;
 import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.environment.IEnvironment;
 import dsl.semanticanalysis.scope.Scope;
+import dsl.semanticanalysis.symbol.FunctionSymbol;
+import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.io.IOException;
 import java.net.Socket;
@@ -23,6 +27,9 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
+import dsl.semanticanalysis.typesystem.typebuilding.type.EnumType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -312,6 +319,22 @@ public class LspServer
     clients.add(languageClient);
   }
 
+  private CompletionItemKind symbolToCompletionItemKind(Symbol symbol) {
+    if (symbol instanceof PropertySymbol) {
+      return CompletionItemKind.Property;
+    } else if (symbol instanceof FunctionSymbol) {
+      return CompletionItemKind.Function;
+    } else if (symbol instanceof ExtensionMethod || symbol instanceof NativeMethod) {
+      return CompletionItemKind.Method;
+    } else if (symbol instanceof EnumType) {
+      return CompletionItemKind.Enum;
+    } else if (symbol instanceof IType)  {
+      return CompletionItemKind.Class;
+    } else {
+      return CompletionItemKind.Variable;
+    }
+  }
+
   private String resolveTypeRestriction(Node matchedNode, Node restrictingNode, String restrictionType) {
     switch (restrictionType) {
       case "PropertyDefinition":
@@ -422,10 +445,6 @@ public class LspServer
                   if (parentNode.type == Node.Type.MemberAccess) {
                     LOGGER.info("Completion, no explicit trigger, context: member access");
 
-                    // TODO: if this is enclosed by a node, which restricts the types, which are applicable,
-                    //  we need to restrict the properties by that restriction -> but don't filter out all other
-                    //  symbols, just rank them lower!!
-
                     // get symbols from scope of lhs of member access
                     String prefix;
                     Position startPosition;
@@ -452,9 +471,8 @@ public class LspServer
                     LOGGER.info("Completion, no explicit trigger, context: assignment");
                     // TODO: should enable fallback, if lhs (or rhs) has no type
 
-                    Position startPosition;// = new Position(sfr.getStartLine(), sfr.getStartColumn());
-                    String prefix; //=
-                      //astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
+                    Position startPosition;
+                    String prefix;
                     var childIdxs = dbAccessor.getChildIdxsOfNode(parentNode);
                     if (childIdxs.getFirst().equals(astNode.getIdx())) {
                       // astNode is the lhs of the member access
@@ -492,14 +510,21 @@ public class LspServer
                     for (var rankedSymbol : rankedSymbols) {
                       // TODO: documentation
                       var symbol = rankedSymbol.symbol();
-                      CompletionItem item = new CompletionItem("Label: " + symbol.getName());
-                      item.setKind(CompletionItemKind.Property);
+                      CompletionItem item = new CompletionItem(symbol.getName());
+                      CompletionItemKind kind = symbolToCompletionItemKind(symbol);
+                      item.setKind(kind);
+                      if (!kind.equals(CompletionItemKind.Class)) {
+                        //item.setDetail("type: " + rankedSymbol.symbolType().getName());
+                        var details = new CompletionItemLabelDetails();
+                        //details.setDetail("type: " + rankedSymbol.symbolType().getName());
+                        details.setDescription("  " + rankedSymbol.symbolType().getName());
+                        item.setLabelDetails(details);
+                      }
 
                       TextEdit textEdit = new TextEdit(new Range(position, position), symbol.getName());
                       item.setTextEdit(Either.forLeft(textEdit));
                       item.setSortText("00" + (9-rankedSymbol.ranking()));
 
-                      item.setLabel("Label: " + symbol.getName());
                       items.add(item);
                     }
                   }
@@ -532,20 +557,22 @@ public class LspServer
       Position startPosition) {
     for (var rankedSymbol : rankedSymbols) {
       var symbol = rankedSymbol.symbol();
-      CompletionItem item = new CompletionItem("Label: " + symbol.getName());
-      // TODO:
-      // item.setDocumentation("DOCUMENTATION");
-      // TODO: specific method for creation of completion items from symbol
-      item.setKind(CompletionItemKind.Property);
-      //item.setFilterText(prefix);
+      CompletionItem item = new CompletionItem(symbol.getName());
+      CompletionItemKind kind = symbolToCompletionItemKind(symbol);
+      item.setKind(kind);
+      item.setLabel("Label: " + symbol.getName());
+      if (!kind.equals(CompletionItemKind.Class)) {
+        //item.setDetail("type: " + rankedSymbol.symbolType().getName());
+        var details = new CompletionItemLabelDetails();
+        //details.setDetail("type: " + rankedSymbol.symbolType().getName());
+        details.setDescription("  " + rankedSymbol.symbolType().getName());
+        item.setLabelDetails(details);
+      }
       // start
       TextEdit textEdit = new TextEdit(new Range(startPosition, position), symbol.getName());
       item.setTextEdit(Either.forLeft(textEdit));
       item.setSortText("00" + (9-rankedSymbol.ranking()));
 
-      //item.setInsertText(symbol.getName());
-      //item.setInsertTextMode(InsertTextMode.AsIs);
-      item.setLabel("Label: " + symbol.getName());
       items.add(item);
     }
   }
