@@ -341,15 +341,31 @@ public class LspServer
         var result = lhsOrRhs.iterator().next();
 
         var lhsOrRhsIdx = (Long)result.get("edgeIdx");
+
+        String query;
         if (lhsOrRhsIdx == 0L) {
           // lhs -> get rhs type and use that as a restriction
-          boolean b = true;
+          query = """
+            match (parentNode:AstNode) where parentNode.idx=$restrictingNodeIdx
+            match (parentNode)-[childEdge:PARENT_OF]->(directChild:AstNode) where childEdge.idx=1
+            match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
+            //return directChild, symbol, type
+            return type
+            limit 1
+            """;
         } else {
           // rhs -> get lhs type and use that as a restriction
-          boolean b = true;
+          query = """
+            match (parentNode:AstNode) where parentNode.idx=$restrictingNodeIdx
+            match (parentNode)-[childEdge:PARENT_OF]->(directChild:AstNode) where childEdge.idx=0
+            match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
+            //return directChild, symbol, type
+            return type
+            limit 1
+            """;
         }
-
-        break;
+        var otherSideType = session.queryForObject(IType.class, query, Map.of("restrictingNodeIdx", restrictingNode.getIdx()));
+        return otherSideType.getName();
       case "VarDeclNode":
         break;
       default:
@@ -384,15 +400,18 @@ public class LspServer
                 String restrictionType = (String)nodeMap.get("restrictionType");
 
                 // resolve restriction type (based on type of restriction)
+                String typeRestriction = "";
                 if (typeRestrictionContext != Node.NONE) {
-                  resolveTypeRestriction(astNode, typeRestrictionContext, restrictionType);
+                  // TODO: this means, that the types of the resolved symbols need to be assignable to the typeRestriction
+                  //  -> the notion of 'assignable' is not really a thing right now...
+                  typeRestriction = resolveTypeRestriction(astNode, typeRestrictionContext, restrictionType);
                 }
 
                 if (astNode == Node.NONE) {
                   throw new RuntimeException("No AST node matched!");
                 }
 
-                List<Symbol> symbols = new ArrayList<>();
+                List<RankedSymbol> rankedSymbols = new ArrayList<>();
 
                 String triggerCharacter = context.getTriggerCharacter();
                 // TODO: complete all cases!
@@ -425,10 +444,10 @@ public class LspServer
                       startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
                     }
 
-                    symbols =
-                        dbAccessor.getSymbolsInScopeOfLhsIdentifierWithPrefix(parentNode, prefix);
+                    rankedSymbols =
+                        dbAccessor.getSymbolsInScopeOfLhsIdentifierWithPrefix(parentNode, prefix, typeRestriction);
 
-                    symbolsToCompletionItems(items, position, symbols, prefix, startPosition);
+                    symbolsToCompletionItems(items, position, rankedSymbols, prefix, startPosition);
                   } else if (parentNode.type == Node.Type.Assignment) {
                     LOGGER.info("Completion, no explicit trigger, context: assignment");
                     // TODO: should enable fallback, if lhs (or rhs) has no type
@@ -451,38 +470,41 @@ public class LspServer
 
                     var symMap = dbAccessor.getSymbolAndTypeOfNode(astNode);
                     var type = (IType)symMap.get("t");
-                    symbols = dbAccessor.getAllSymbolsOfTypeInScopeAndParentScopes(astNode, type.getName(), prefix);
+                    rankedSymbols = dbAccessor.getAllSymbolsOfTypeInScopeAndParentScopes(astNode, type.getName(), prefix);
 
-                    symbolsToCompletionItems(items, position, symbols, prefix, startPosition);
+                    symbolsToCompletionItems(items, position, rankedSymbols, prefix, startPosition);
                   } else {
                     // get symbols from parent scope and all it's parent scopes
                     String prefix =
                         astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
-                    symbols = dbAccessor.getAllSymbolsInScopeAndParentScopes(astNode, prefix);
+                    rankedSymbols = dbAccessor.getAllSymbolsInScopeAndParentScopes(astNode, prefix);
 
                     Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
 
-                    symbolsToCompletionItems(items, position, symbols, prefix, startPosition);
+                    symbolsToCompletionItems(items, position, rankedSymbols, prefix, startPosition);
                   }
                 } else {
                   if (triggerCharacter.equals(".")) {
                     LOGGER.info("Completion, dot trigger");
                     // member access, treat node as scope
-                    symbols = dbAccessor.getSymbolsInScopeOfIdentifier(astNode);
+                    rankedSymbols = dbAccessor.getSymbolsInScopeOfIdentifier(astNode, typeRestriction);
 
-                    for (var symbol : symbols) {
+                    for (var rankedSymbol : rankedSymbols) {
                       // TODO: documentation
+                      var symbol = rankedSymbol.symbol();
                       CompletionItem item = new CompletionItem("Label: " + symbol.getName());
                       item.setKind(CompletionItemKind.Property);
-                      item.setInsertText(symbol.getName());
-                      item.setInsertTextMode(InsertTextMode.AsIs);
+
+                      TextEdit textEdit = new TextEdit(new Range(position, position), symbol.getName());
+                      item.setTextEdit(Either.forLeft(textEdit));
+                      item.setSortText("00" + (9-rankedSymbol.ranking()));
+
                       item.setLabel("Label: " + symbol.getName());
-                      item.setSortText("SORT TEXT");
                       items.add(item);
                     }
                   }
                 }
-                LOGGER.info("Found " + symbols.size() + " symbols for completion request!");
+                LOGGER.info("Found " + rankedSymbols.size() + " symbols for completion request!");
 
               } catch (Exception ex) {
                 LOGGER.severe(ex.toString());
@@ -505,24 +527,25 @@ public class LspServer
   private void symbolsToCompletionItems(
       List<CompletionItem> items,
       Position position,
-      List<Symbol> symbols,
+      List<RankedSymbol> rankedSymbols,
       String prefix,
       Position startPosition) {
-    for (var symbol : symbols) {
+    for (var rankedSymbol : rankedSymbols) {
+      var symbol = rankedSymbol.symbol();
       CompletionItem item = new CompletionItem("Label: " + symbol.getName());
       // TODO:
       // item.setDocumentation("DOCUMENTATION");
       // TODO: specific method for creation of completion items from symbol
       item.setKind(CompletionItemKind.Property);
-      item.setFilterText(prefix);
+      //item.setFilterText(prefix);
       // start
       TextEdit textEdit = new TextEdit(new Range(startPosition, position), symbol.getName());
       item.setTextEdit(Either.forLeft(textEdit));
+      item.setSortText("00" + (9-rankedSymbol.ranking()));
 
-      item.setInsertText(symbol.getName());
-      item.setInsertTextMode(InsertTextMode.AsIs);
+      //item.setInsertText(symbol.getName());
+      //item.setInsertTextMode(InsertTextMode.AsIs);
       item.setLabel("Label: " + symbol.getName());
-      item.setSortText("SORT TEXT");
       items.add(item);
     }
   }
