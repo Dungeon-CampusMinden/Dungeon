@@ -6,7 +6,7 @@ import dsl.runtime.callable.NativeFunction;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import java.util.List;
 
 public class TestFunctionReturnHelloWorld extends NativeFunction {
@@ -18,7 +18,10 @@ public class TestFunctionReturnHelloWorld extends NativeFunction {
    * @param parentScope parent scope of this function
    */
   private TestFunctionReturnHelloWorld(IScope parentScope) {
-    super("testReturnHelloWorld", parentScope, new FunctionType(BuiltInType.stringType));
+    super(
+        "testReturnHelloWorld",
+        parentScope,
+        TypeFactory.INSTANCE.functionType(BuiltInType.stringType));
   }
 
   @Override

@@ -2,21 +2,31 @@ package dsl.semanticanalysis.typesystem.typebuilding.type;
 
 import dsl.semanticanalysis.scope.IScope;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class TypeFactory {
   private HashMap<String, IType> types;
 
-  // public static TypeFactory INSTANCE = new TypeFactory();
+  public static TypeFactory INSTANCE = new TypeFactory();
 
-  public TypeFactory() {
+  TypeFactory() {
     this.types = new HashMap<>();
+  }
+
+  public void clear() {
+    this.types.clear();
+  }
+
+  public Collection<IType> getTypes() {
+    return this.types.values();
   }
 
   // TODO: function types are currently created with no parent scope and just bound in
   //  a scope; using the TypeFactory for all function type definitions (in native functions etc.)
   //  is a lot of refactoring -> do it, when more time, or when it's a real problem
-  /*public FunctionType functionType(IType returnType, IType... parameterTypes) {
+  public FunctionType functionType(IType returnType, IType... parameterTypes) {
     String typeName = FunctionType.calculateTypeName(returnType, List.of(parameterTypes));
     if (this.types.containsKey(typeName)) {
       return (FunctionType) this.types.get(typeName);
@@ -24,9 +34,9 @@ public class TypeFactory {
     FunctionType newType = new FunctionType(returnType, parameterTypes);
     this.types.put(typeName, newType);
     return newType;
-  }*/
+  }
 
-  /*public FunctionType functionType(IType returnType, List<IType> parameterTypes) {
+  public FunctionType functionType(IType returnType, List<IType> parameterTypes) {
     String typeName = FunctionType.calculateTypeName(returnType, parameterTypes);
     if (this.types.containsKey(typeName)) {
       return (FunctionType) this.types.get(typeName);
@@ -34,7 +44,7 @@ public class TypeFactory {
     FunctionType newType = new FunctionType(returnType, parameterTypes);
     this.types.put(typeName, newType);
     return newType;
-  }*/
+  }
 
   public SetType setType(IType elementType, IScope parentScope) {
     if (elementType.getName().equals("int")) {

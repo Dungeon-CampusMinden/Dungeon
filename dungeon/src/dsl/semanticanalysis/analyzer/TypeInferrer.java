@@ -197,8 +197,6 @@ public class TypeInferrer implements AstVisitor<IType> {
     return setType;
   }
 
-
-
   @Override
   public IType visit(VarDeclNode node) {
     // TODO: is this required?

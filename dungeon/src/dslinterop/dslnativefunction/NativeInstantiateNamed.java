@@ -15,7 +15,7 @@ import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,8 @@ public class NativeInstantiateNamed extends NativeFunction {
     super(
         "instantiate_named",
         parentScope,
-        new FunctionType(BuiltInType.noType, PrototypeValue.PROTOTYPE, BuiltInType.stringType));
+        TypeFactory.INSTANCE.functionType(
+            BuiltInType.noType, PrototypeValue.PROTOTYPE, BuiltInType.stringType));
   }
 
   @Override

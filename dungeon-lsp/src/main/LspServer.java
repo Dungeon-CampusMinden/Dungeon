@@ -20,6 +20,8 @@ import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;
+import dsl.semanticanalysis.typesystem.typebuilding.type.EnumType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
@@ -27,10 +29,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
-import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
-import dsl.semanticanalysis.typesystem.typebuilding.type.EnumType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.eclipse.lsp4j.*;
@@ -60,7 +59,7 @@ public class LspServer
   private SessionFactory sessionFactory;
   // TODO: use ReentrantReadWriteLock
   private ReentrantLock dbMutex = new ReentrantLock();
-  private CountDownLatch latch = new CountDownLatch(1);
+  private CountDownLatch dbLatch = new CountDownLatch(1);
   private ReentrantLock docVersionMutex = new ReentrantLock();
   private HashMap<String, Long> documentDiagnosticVersionMap = new HashMap<>();
   private ReentrantLock documentCalculationsMutex = new ReentrantLock();
@@ -328,47 +327,78 @@ public class LspServer
       return CompletionItemKind.Method;
     } else if (symbol instanceof EnumType) {
       return CompletionItemKind.Enum;
-    } else if (symbol instanceof IType)  {
+    } else if (symbol instanceof IType) {
       return CompletionItemKind.Class;
     } else {
       return CompletionItemKind.Variable;
     }
   }
 
-  private String resolveTypeRestriction(Node matchedNode, Node restrictingNode, String restrictionType) {
+  private String resolveTypeRestriction(
+      Node matchedNode, Node restrictingNode, String restrictionType) {
     switch (restrictionType) {
       case "PropertyDefinition":
+        // TODO: Problem -> no alternative for incomplete definitions..
         break;
       case "ExpressionList":
+        // Note: this may either be in a function call, or in a definition of list or set value
+        // -> question: is that even matched correctly?
         break;
       case "ReturnStmt":
-        break;
+        {
+          var result =
+              session.query(
+                  """
+          // resolve return stmt type restriction
+          match (n:AstNode) where n.idx=$returnNodeIdx
+          match (n)-[:CHILD_OF*]->(funcNode:FuncDefNode)-[:CREATES]->(funcSym:ScopedSymbol)-[:OF_TYPE]->(funcType:FunctionType)
+          optional match (funcType)-[:RETURN_TYPE]->(returnType:IType)
+          //return n, funcNode, funcSym, funcType, returnType
+          return returnType
+          """,
+                  Map.of("returnNodeIdx", restrictingNode.getIdx()));
+          var iter = result.iterator();
+          if (iter.hasNext()) {
+            var map = iter.next();
+            var type = map.get("returnType");
+            if (type != null) {
+              return ((IType) type).getName();
+            }
+          }
+          return "";
+        }
       case "Assignment":
-        // we need to check, whether the matched node (for which the completion was triggered) is on the lhs or the rhs of the assignment
-        // TODO: could simplify
-        var lhsOrRhs = session.query(
-          """
+        {
+          // we need to check, whether the matched node (for which the completion was triggered) is
+          // on the lhs or the rhs of the assignment
+          var lhsOrRhs =
+              session.query(
+                  """
           match (parentNode:AstNode) where parentNode.idx=$restrictingNodeIdx
-          match (parentNode)-[childEdge:PARENT_OF]->(directLhsChild:AstNode)
+          match (parentNode)-[childEdge:PARENT_OF]->(directChild:AstNode)
           call {
-            with directLhsChild
-            match (directLhsChild) where directLhsChild.idx=$matchedNodeIdx return directLhsChild as child
+            with directChild
+            match (directChild) where directChild.idx=$matchedNodeIdx return directChild as child
             union
-            with directLhsChild
-            match (child)-[:CHILD_OF*]->(directLhsChild) where child.idx=$matchedNodeIdx return child
+            with directChild
+            match (child)-[:CHILD_OF*]->(directChild) where child.idx=$matchedNodeIdx return child
           }
           return child.idx as childIdx, child, childEdge.idx as edgeIdx
           """,
-          Map.of("restrictingNodeIdx", restrictingNode.getIdx(), "matchedNodeIdx", matchedNode.getIdx())
-        );
-        var result = lhsOrRhs.iterator().next();
+                  Map.of(
+                      "restrictingNodeIdx",
+                      restrictingNode.getIdx(),
+                      "matchedNodeIdx",
+                      matchedNode.getIdx()));
+          var result = lhsOrRhs.iterator().next();
 
-        var lhsOrRhsIdx = (Long)result.get("edgeIdx");
+          var lhsOrRhsIdx = (Long) result.get("edgeIdx");
 
-        String query;
-        if (lhsOrRhsIdx == 0L) {
-          // lhs -> get rhs type and use that as a restriction
-          query = """
+          String query;
+          if (lhsOrRhsIdx == 0L) {
+            // lhs -> get rhs type and use that as a restriction
+            query =
+                """
             match (parentNode:AstNode) where parentNode.idx=$restrictingNodeIdx
             match (parentNode)-[childEdge:PARENT_OF]->(directChild:AstNode) where childEdge.idx=1
             match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
@@ -376,9 +406,10 @@ public class LspServer
             return type
             limit 1
             """;
-        } else {
-          // rhs -> get lhs type and use that as a restriction
-          query = """
+          } else {
+            // rhs -> get lhs type and use that as a restriction
+            query =
+                """
             match (parentNode:AstNode) where parentNode.idx=$restrictingNodeIdx
             match (parentNode)-[childEdge:PARENT_OF]->(directChild:AstNode) where childEdge.idx=0
             match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
@@ -386,11 +417,12 @@ public class LspServer
             return type
             limit 1
             """;
+          }
+          var otherSideType =
+              session.queryForObject(
+                  IType.class, query, Map.of("restrictingNodeIdx", restrictingNode.getIdx()));
+          return otherSideType.getName();
         }
-        var otherSideType = session.queryForObject(IType.class, query, Map.of("restrictingNodeIdx", restrictingNode.getIdx()));
-        return otherSideType.getName();
-      case "VarDeclNode":
-        break;
       default:
         break;
     }
@@ -419,18 +451,21 @@ public class LspServer
                 var sfr = (SourceFileReference) nodeMap.get("nearestSfr");
                 var parentNode = (Node) nodeMap.get("parent");
                 var parentSfr = (SourceFileReference) nodeMap.get("parentSfr");
-                var typeRestrictionContext = (Node)nodeMap.get("typeRestrictingContext");
-                String restrictionType = (String)nodeMap.get("restrictionType");
+                var typeRestrictionContext = (Node) nodeMap.get("typeRestrictingContext");
+                String restrictionType = (String) nodeMap.get("restrictionType");
 
                 // resolve restriction type (based on type of restriction)
                 String typeRestriction = "";
                 if (typeRestrictionContext != Node.NONE) {
-                  // TODO: this means, that the types of the resolved symbols need to be assignable to the typeRestriction
+                  // TODO: this means, that the types of the resolved symbols need to be assignable
+                  // to the typeRestriction
                   //  -> the notion of 'assignable' is not really a thing right now...
-                  typeRestriction = resolveTypeRestriction(astNode, typeRestrictionContext, restrictionType);
+                  typeRestriction =
+                      resolveTypeRestriction(astNode, typeRestrictionContext, restrictionType);
                 }
 
                 if (astNode == Node.NONE) {
+                  // TODO: sparse context resolving?
                   throw new RuntimeException("No AST node matched!");
                 }
 
@@ -464,7 +499,8 @@ public class LspServer
                     }
 
                     rankedSymbols =
-                        dbAccessor.getSymbolsInScopeOfLhsIdentifierWithPrefix(parentNode, prefix, typeRestriction);
+                        dbAccessor.getSymbolsInScopeOfLhsIdentifierWithPrefix(
+                            parentNode, prefix, typeRestriction);
 
                     symbolsToCompletionItems(items, position, rankedSymbols, prefix, startPosition);
                   } else if (parentNode.type == Node.Type.Assignment) {
@@ -479,23 +515,25 @@ public class LspServer
                       prefix = "";
                       // position should be the end line of member access
                       startPosition =
-                        new Position(parentSfr.getEndLine(), parentSfr.getEndColumn() + 1);
+                          new Position(parentSfr.getEndLine(), parentSfr.getEndColumn() + 1);
                     } else {
                       prefix =
-                        astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
+                          astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
                       startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
                     }
 
-                    var symMap = dbAccessor.getSymbolAndTypeOfNode(astNode);
-                    var type = (IType)symMap.get("t");
-                    rankedSymbols = dbAccessor.getAllSymbolsOfTypeInScopeAndParentScopes(astNode, type.getName(), prefix);
+                    rankedSymbols =
+                        dbAccessor.getAllSymbolsOfTypeInScopeAndParentScopes(
+                            astNode, typeRestriction, prefix);
 
                     symbolsToCompletionItems(items, position, rankedSymbols, prefix, startPosition);
                   } else {
                     // get symbols from parent scope and all it's parent scopes
                     String prefix =
                         astNode.type == Node.Type.Identifier ? ((IdNode) astNode).getName() : "";
-                    rankedSymbols = dbAccessor.getAllSymbolsInScopeAndParentScopes(astNode, prefix);
+                    rankedSymbols =
+                        dbAccessor.getAllSymbolsInScopeAndParentScopes(
+                            astNode, typeRestriction, prefix); // TODO: type restriction
 
                     Position startPosition = new Position(sfr.getStartLine(), sfr.getStartColumn());
 
@@ -505,7 +543,8 @@ public class LspServer
                   if (triggerCharacter.equals(".")) {
                     LOGGER.info("Completion, dot trigger");
                     // member access, treat node as scope
-                    rankedSymbols = dbAccessor.getSymbolsInScopeOfIdentifier(astNode, typeRestriction);
+                    rankedSymbols =
+                        dbAccessor.getSymbolsInScopeOfIdentifier(astNode, typeRestriction);
 
                     for (var rankedSymbol : rankedSymbols) {
                       // TODO: documentation
@@ -514,16 +553,17 @@ public class LspServer
                       CompletionItemKind kind = symbolToCompletionItemKind(symbol);
                       item.setKind(kind);
                       if (!kind.equals(CompletionItemKind.Class)) {
-                        //item.setDetail("type: " + rankedSymbol.symbolType().getName());
+                        // item.setDetail("type: " + rankedSymbol.symbolType().getName());
                         var details = new CompletionItemLabelDetails();
-                        //details.setDetail("type: " + rankedSymbol.symbolType().getName());
+                        // details.setDetail("type: " + rankedSymbol.symbolType().getName());
                         details.setDescription("  " + rankedSymbol.symbolType().getName());
                         item.setLabelDetails(details);
                       }
 
-                      TextEdit textEdit = new TextEdit(new Range(position, position), symbol.getName());
+                      TextEdit textEdit =
+                          new TextEdit(new Range(position, position), symbol.getName());
                       item.setTextEdit(Either.forLeft(textEdit));
-                      item.setSortText("00" + (9-rankedSymbol.ranking()));
+                      item.setSortText("00" + (9 - rankedSymbol.ranking()));
 
                       items.add(item);
                     }
@@ -562,16 +602,16 @@ public class LspServer
       item.setKind(kind);
       item.setLabel("Label: " + symbol.getName());
       if (!kind.equals(CompletionItemKind.Class)) {
-        //item.setDetail("type: " + rankedSymbol.symbolType().getName());
+        // item.setDetail("type: " + rankedSymbol.symbolType().getName());
         var details = new CompletionItemLabelDetails();
-        //details.setDetail("type: " + rankedSymbol.symbolType().getName());
+        // details.setDetail("type: " + rankedSymbol.symbolType().getName());
         details.setDescription("  " + rankedSymbol.symbolType().getName());
         item.setLabelDetails(details);
       }
       // start
       TextEdit textEdit = new TextEdit(new Range(startPosition, position), symbol.getName());
       item.setTextEdit(Either.forLeft(textEdit));
-      item.setSortText("00" + (9-rankedSymbol.ranking()));
+      item.setSortText("00" + (9 - rankedSymbol.ranking()));
 
       items.add(item);
     }
@@ -674,12 +714,19 @@ public class LspServer
       } else {
         if (dbUpdater.isRunning()) { // db update is in progress
           dbUpdater.stop();
-          LOGGER.info("INTERRUPTING ANALYSIS - LOCKING DB");
-          dbMutex.lock(); // wait for updater to stop
-          LOGGER.info("INTERRUPTING ANALYSIS - UNLOCKING DB");
-          dbMutex.unlock();
+
+          LOGGER.info("INTERRUPTING ANALYSIS - AWAITING LATCH");
+          // dbMutex.lock(); // wait for updater to stop
+          // LOGGER.info("INTERRUPTING ANALYSIS - UNLOCKING DB");
+          // dbMutex.unlock();
           // TODO: wait for dbUpdater to actually to stop, how to do this in simple way?
           //  dbMutex is fine for now...
+          try {
+            dbLatch.await();
+          } catch (InterruptedException exception) {
+            LOGGER.severe("Interruption while awaiting latch");
+          }
+          LOGGER.info("INTERRUPTING ANALYSIS - PASSED LATCH");
         }
         LOGGER.warning("Interrupting previous analysis!");
         previousCalculation.cancel(true);
@@ -692,6 +739,7 @@ public class LspServer
     var task =
         new Task<Void>(
             () -> {
+              dbLatch = new CountDownLatch(1);
               try {
                 // this is a problem, because the docVersionMutex won't be unlocked, if the future
                 // gets cancelled
@@ -719,6 +767,9 @@ public class LspServer
                 // this.docVersionMutex.unlock();
               } catch (InterruptedException ignored) {
 
+              } finally {
+                LOGGER.info("Counting down latch");
+                dbLatch.countDown();
               }
               return null;
             },
@@ -862,10 +913,18 @@ public class LspServer
         tx.commit();
 
         tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+
         session.save(Scope.NULL);
+
         var globalScope = programmAnalyzer.getEnvironment().getGlobalScope();
         session.save(globalScope);
-        session.save(globalScope.getSymbols());
+
+        var globalSymbols = globalScope.getSymbols();
+        session.save(globalSymbols);
+
+        var types = TypeFactory.INSTANCE.getTypes();
+        session.save(types);
+
         tx.commit();
         LOGGER.info("Finished initializing database!");
       } catch (Exception ex) {
@@ -949,20 +1008,88 @@ public class LspServer
           session.save(ast);
         }
 
+        tx.commit();
+
+        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+
         throwIfStop();
         session.save(analyzedProgram.nodeRelationships());
+
         throwIfStop();
         session.save(analyzedProgram.symboltable().currentSymbolCreations());
+
         throwIfStop();
-        session.save(analyzedProgram.symboltable().currentSymbolReferences());
+
+        tx.commit();
+
+
+        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+        var symbolReferences = analyzedProgram.symboltable().currentSymbolReferences();
+        for (var symbolReference : symbolReferences){
+          //tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+          var queryResult = session.query(
+            """
+            match (n:AstNode {idx:$nodeIdx}), (s:Symbol {idx:$symbolIdx})
+            create (n)-[:REFERENCES]->(s)
+            """,
+            Map.of("nodeIdx", symbolReference.getAstNode().getIdx(), "symbolIdx", symbolReference.getSymbol().getIdx())
+            );
+
+          // maybe create the references by hand..
+          //LOGGER.info("REFERENCE - NODE: " + symbolReference.getAstNode().type + ((symbolReference.getAstNode() instanceof IdNode) ? " name: " + ((IdNode)symbolReference.getAstNode()).getName() : "") + " - Symbol: " + symbolReference.getSymbol());
+          //session.save(symbolReference);
+          //tx.commit();
+          //var testResult = session.query("match (n:AstNode {idx:$nodeIdx})-[ref:REFERENCES]->(sym:Symbol {idx:$symIdx}) return n, sym, ref",
+           // Map.of("nodeIdx", symbolReference.getAstNode().getIdx(), "symIdx", symbolReference.getSymbol().getIdx()));
+
+          // sanity check..
+          //result = session.query("match (x)-[p:PARAMETER]->(y) return p, x, y", Map.of());
+          //if (result.queryStatistics().getNodesDeleted() > 0) {
+          //  LOGGER.info("query statistics nodes deleted > 0: " + result.queryStatistics().getNodesDeleted());
+          //}
+          //if (result.queryStatistics().getRelationshipsDeleted() > 0) {
+          //  LOGGER.info("query statistics relationships deleted > 0: " + result.queryStatistics().getRelationshipsDeleted());
+          //}
+          //iter = result.iterator();
+          //count = 0;
+          //while(iter.hasNext()) {
+          //  iter.next();
+          //  count++;
+          //}
+          //LOGGER.info("Result count: " + count);
+        }
+        tx.commit();
+
+        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
 
         throwIfStop();
         session.save(analyzedProgram.symboltable().getScopes());
-
-        throwIfStop();
-        session.save(analyzedProgram.groum());
-
         tx.commit();
+
+        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+        throwIfStop();
+        session.save(analyzedProgram.groum().nodes());
+        tx.commit();
+
+        for (var edge : analyzedProgram.groum().edges()) {
+          tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+
+          String query = "match (start:GroumNode {id:$startId}), (end:GroumNode {id:$endId}) create (start)-"+edge.cypherCreationString()+"->(end)";
+          session.query(query,
+            Map.of("startId", edge.start().id, "endId", edge.end().id)
+          );
+          tx.commit();
+
+          var res = session.query("""
+            match (start:GroumNode {id:$startId}), (end:GroumNode {id:$endId})
+            match (start)-[e:GROUM_EDGE]->(end)
+            return start, end, e
+            """,
+            Map.of("startId", edge.start().id, "endId", edge.end().id)
+          );
+          boolean b = true;
+        }
+
         LOGGER.info("Finished updating database!");
       } catch (InterruptedException interrupt) {
         LOGGER.info("Database update was interrupted");

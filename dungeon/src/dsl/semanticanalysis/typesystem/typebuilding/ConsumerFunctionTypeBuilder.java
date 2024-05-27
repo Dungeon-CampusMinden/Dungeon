@@ -4,6 +4,7 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 
@@ -32,6 +33,6 @@ public class ConsumerFunctionTypeBuilder implements IFunctionTypeBuilder {
         parameterTypes.add(dslType);
       }
     }
-    return new FunctionType(BuiltInType.noType, parameterTypes);
+    return TypeFactory.INSTANCE.functionType(BuiltInType.noType, parameterTypes);
   }
 }

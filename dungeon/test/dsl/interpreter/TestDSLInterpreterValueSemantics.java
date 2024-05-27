@@ -19,12 +19,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashSet;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import task.game.content.QuestItem;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.SingleChoice;
 
 public class TestDSLInterpreterValueSemantics {
+  @Before
+  public void clearTypeFactory() {
+    TypeFactory.INSTANCE.clear();
+  }
+
   @Test
   public void testPrototypeAssignment() {
     String program =
@@ -1469,7 +1475,8 @@ public class TestDSLInterpreterValueSemantics {
 
   @Test
   public void testValueEqualityListInternalValues() {
-    TypeFactory tf = new TypeFactory();
+    // TypeFactory tf = new TypeFactory();
+    TypeFactory tf = TypeFactory.INSTANCE;
     Scope scope = new Scope();
     ListType type = tf.listType(BuiltInType.intType, scope);
     ListValue val1 = new ListValue(type);
@@ -1487,7 +1494,8 @@ public class TestDSLInterpreterValueSemantics {
 
   @Test
   public void testValueEqualityListReference() {
-    TypeFactory tf = new TypeFactory();
+    // TypeFactory tf = new TypeFactory();
+    TypeFactory tf = TypeFactory.INSTANCE;
     Scope scope = new Scope();
     ListType type = tf.listType(BuiltInType.intType, scope);
     ListValue val1 = new ListValue(type);

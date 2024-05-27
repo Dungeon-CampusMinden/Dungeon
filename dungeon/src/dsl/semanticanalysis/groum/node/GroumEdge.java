@@ -21,6 +21,12 @@ public class GroumEdge {
   @Property private final GroumEdgeType edgeType;
   @Property private String label;
 
+  @Transient private String cypherCreationString;
+
+  public String cypherCreationString() {
+    return cypherCreationString;
+  }
+
   public GroumEdge() {
     this.start = GroumNode.NONE;
     this.end = GroumNode.NONE;
@@ -28,6 +34,7 @@ public class GroumEdge {
     this.idxOnEnd = -1;
     this.edgeType = GroumEdgeType.EDGE_NONE;
     this.label = this.toString();
+    generateCypherString();
   }
 
   public GroumEdge(GroumNode start, GroumNode end, GroumEdgeType edgeType) {
@@ -46,6 +53,7 @@ public class GroumEdge {
     if (start.processedCounter() == 4 && edgeType.equals(GroumEdgeType.EDGE_DATA_READ)) {
       boolean b = true;
     }
+    generateCypherString();
   }
 
   public GroumNode start() {
@@ -63,5 +71,13 @@ public class GroumEdge {
   @Override
   public String toString() {
     return start().getLabel() + " -[" + this.edgeType.toString() + "]-> " + end.toString();
+  }
+
+  private void generateCypherString() {
+    this.cypherCreationString = String.format("[:GROUM_EDGE {edgeType:\"%s\", idxOnStart:%s, idxOnEnd:%s, label:\"%s\"}]",
+      edgeType,
+      idxOnStart,
+      idxOnEnd,
+      label);
   }
 }

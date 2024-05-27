@@ -13,9 +13,15 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import graph.taskdependencygraph.TaskDependencyGraph;
 import java.lang.reflect.InvocationTargetException;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestTypeBuilder {
+  @Before
+  public void clearTypeFactory() {
+    TypeFactory.INSTANCE.clear();
+  }
+
   @Test
   public void testNameConversion() {
     String name = "helloWorldW";
@@ -47,7 +53,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testSimpleClass() {
-    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
+    TypeBuilder typeBuilder = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     var dslType =
         (AggregateType) typeBuilder.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
@@ -67,7 +73,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testChainedClass() {
-    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
+    TypeBuilder typeBuilder = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     var dslType =
         (AggregateType) typeBuilder.createDSLTypeForJavaTypeInScope(scope, ChainClass.class);
@@ -84,7 +90,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testRecord() {
-    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
+    TypeBuilder typeBuilder = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     var dslType =
         (AggregateType) typeBuilder.createDSLTypeForJavaTypeInScope(scope, TestRecord.class);
@@ -104,7 +110,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testTypeAdapterRegister() {
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     tb.registerTypeAdapter(RecordBuilder.class, scope);
 
@@ -123,7 +129,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testAggregateTypeAdapterRegister() {
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, scope);
 
@@ -142,7 +148,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testAggregateTypeAdapterCreation() {
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     tb.registerTypeAdapter(ExternalTypeBuilderMultiParam.class, scope);
     var adapterType = tb.createDSLTypeForJavaTypeInScope(Scope.NULL, ExternalType.class);
@@ -167,7 +173,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testAdapterUsage() {
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     tb.registerTypeAdapter(RecordBuilder.class, scope);
     var type = tb.createDSLTypeForJavaTypeInScope(scope, TestRecordUser.class);
@@ -179,7 +185,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testExternalTypeMember() {
-    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
+    TypeBuilder typeBuilder = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     var dslType =
         (AggregateType)
@@ -192,7 +198,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testInterfaceMember() {
-    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
+    TypeBuilder typeBuilder = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     var dslType =
         (AggregateType)
@@ -204,7 +210,7 @@ public class TestTypeBuilder {
 
   @Test
   public void testCallbackConsumer() {
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     // register Entity type (setup)
     var entityType = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, Entity.class);

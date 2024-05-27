@@ -14,8 +14,8 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.instantiation.TypeInstantiator;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +29,10 @@ public class NativeInstantiate extends NativeFunction {
    * @param parentScope parent scope of this function
    */
   public NativeInstantiate(IScope parentScope, IType entityType) {
-    super("instantiate", parentScope, new FunctionType(entityType, PrototypeValue.PROTOTYPE));
+    super(
+        "instantiate",
+        parentScope,
+        TypeFactory.INSTANCE.functionType(entityType, PrototypeValue.PROTOTYPE));
 
     // bind parameters
     Symbol param = new Symbol("param", this, PrototypeValue.PROTOTYPE);

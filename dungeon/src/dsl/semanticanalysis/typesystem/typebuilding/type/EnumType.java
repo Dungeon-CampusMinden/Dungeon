@@ -23,6 +23,10 @@ public class EnumType extends ScopedSymbol implements IType {
     this.originType = originType;
   }
 
+  EnumType() {
+    super();
+  }
+
   /**
    * @return The corresponding Java {@link Enum}-type of this {@link EnumType}.
    */

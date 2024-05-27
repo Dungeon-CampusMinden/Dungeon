@@ -4,19 +4,19 @@ import dsl.semanticanalysis.groum.node.ActionNode;
 import dsl.semanticanalysis.groum.node.GroumEdge;
 import dsl.semanticanalysis.groum.node.GroumNode;
 import dsl.semanticanalysis.scope.FileScope;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+
+import java.util.*;
+
 import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
 public class Groum {
   public static Groum NONE = new Groum();
 
-  @Id @GeneratedValue private Long id;
+  @Id UUID id = UUID.randomUUID();
 
   @Relationship List<GroumNode> nodes = new ArrayList<>();
+  // TODO: iterate manually over that..
   @Relationship List<GroumEdge> edges = new ArrayList<>();
   // TODO: temporary
   @Relationship FileScope fileScope;

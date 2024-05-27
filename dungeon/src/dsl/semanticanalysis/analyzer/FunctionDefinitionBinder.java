@@ -132,7 +132,7 @@ public class FunctionDefinitionBinder implements AstVisitor<Void> {
       if (functionTypeSymbol != Symbol.NULL) {
         functionType = (FunctionType) functionTypeSymbol;
       } else {
-        functionType = new FunctionType(returnType, parameterTypes);
+        functionType = TypeFactory.INSTANCE.functionType(returnType, parameterTypes);
         this.symbolTable.globalScope().bind(functionType);
       }
 

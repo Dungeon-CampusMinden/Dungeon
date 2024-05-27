@@ -9,7 +9,7 @@ import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import java.util.List;
 
 public class NativePrint extends NativeFunction {
@@ -21,7 +21,10 @@ public class NativePrint extends NativeFunction {
    * @param parentScope parent scope of this function
    */
   private NativePrint(IScope parentScope) {
-    super("print", parentScope, new FunctionType(BuiltInType.noType, BuiltInType.stringType));
+    super(
+        "print",
+        parentScope,
+        TypeFactory.INSTANCE.functionType(BuiltInType.noType, BuiltInType.stringType));
 
     // bind parameters
     Symbol param = new Symbol("param", this, BuiltInType.stringType);

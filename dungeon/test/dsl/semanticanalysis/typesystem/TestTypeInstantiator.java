@@ -17,9 +17,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestTypeInstantiator {
+  @Before
+  public void clearTypeFactory() {
+    TypeFactory.INSTANCE.clear();
+  }
+
   @Test
   public void testInstantiatorRecord()
       throws NoSuchFieldException,
@@ -29,7 +35,7 @@ public class TestTypeInstantiator {
     MemorySpace ms = new MemorySpace();
     HashMap<String, Object> setValues = new HashMap<>();
 
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     DSLInterpreter interpreter = new DSLInterpreter();
     var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, DungeonConfig.class);
@@ -90,7 +96,7 @@ public class TestTypeInstantiator {
     HashMap<String, Object> setValues = new HashMap<>();
 
     DSLInterpreter interpreter = new DSLInterpreter();
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     var type = (AggregateType) tb.createDSLTypeForJavaTypeInScope(scope, TestClassOuter.class);
 

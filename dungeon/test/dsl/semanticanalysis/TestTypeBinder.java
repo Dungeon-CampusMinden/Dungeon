@@ -16,16 +16,22 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
 import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestTypeBinder {
+  @Before
+  public void clearTypeFactory() {
+    TypeFactory.INSTANCE.clear();
+  }
+
   @DSLType
   private record TestComponent(
       @DSLTypeMember int member1, @DSLTypeMember String member2, @DSLTypeMember float member3) {}
 
   @Test
   public void testAggregateTypeBinding() {
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     var testCompType = tb.createDSLTypeForJavaTypeInScope(new Scope(), TestComponent.class);
 
     String program =
@@ -69,7 +75,7 @@ public class TestTypeBinder {
 
   @Test
   public void testAggregateTypeBindingAstNodeRelation() {
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     var testCompType = tb.createDSLTypeForJavaTypeInScope(new Scope(), TestComponent.class);
 
     String program =
@@ -145,7 +151,7 @@ public class TestTypeBinder {
 
   @Test
   public void testSetTypeBinding() {
-    TypeBuilder typeBuilder = new TypeBuilder(new TypeFactory());
+    TypeBuilder typeBuilder = new TypeBuilder(TypeFactory.INSTANCE);
     var testCompType =
         typeBuilder.createDSLTypeForJavaTypeInScope(new Scope(), TestComponent.class);
 

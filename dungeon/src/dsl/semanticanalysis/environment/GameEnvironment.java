@@ -89,7 +89,8 @@ public class GameEnvironment implements IEnvironment {
   public GameEnvironment(Path relLibPath) {
     this.relLibPath = relLibPath;
 
-    this.typeFactory = new TypeFactory();
+    this.typeFactory = TypeFactory.INSTANCE;
+    this.typeFactory.clear();
     this.typeBuilder = new TypeBuilder(this.typeFactory);
     this.globalScope = new Scope("GLOBAL SCOPE");
     this.nullFileScope = new FileScope(new ParsedFile(null, Node.NONE), this.globalScope);
@@ -486,7 +487,7 @@ public class GameEnvironment implements IEnvironment {
       super(
           "place_quest_item",
           parentScope,
-          new FunctionType(BuiltInType.noType, questItemType, entitySetType));
+          TypeFactory.INSTANCE.functionType(BuiltInType.noType, questItemType, entitySetType));
     }
 
     @Override
@@ -524,7 +525,10 @@ public class GameEnvironment implements IEnvironment {
      * @param questItemType the {@link IType} representing quest items
      */
     public NativeBuildQuestItemEntity(IScope parentScope, IType entityType, IType questItemType) {
-      super("build_item_entity", parentScope, new FunctionType(entityType, questItemType));
+      super(
+          "build_item_entity",
+          parentScope,
+          TypeFactory.INSTANCE.functionType(entityType, questItemType));
     }
 
     @Override
@@ -565,7 +569,8 @@ public class GameEnvironment implements IEnvironment {
       super(
           "build_quest_item",
           parentScope,
-          new FunctionType(questItemType, PrototypeValue.ITEM_PROTOTYPE, contentType));
+          TypeFactory.INSTANCE.functionType(
+              questItemType, PrototypeValue.ITEM_PROTOTYPE, contentType));
     }
 
     @Override
@@ -705,7 +710,10 @@ public class GameEnvironment implements IEnvironment {
      * @param parentScope parent scope of this function
      */
     public AskYesNoDialogFunction(IScope parentScope, IType taskType) {
-      super("ask_task_yes_no", parentScope, new FunctionType(BuiltInType.noType, taskType));
+      super(
+          "ask_task_yes_no",
+          parentScope,
+          TypeFactory.INSTANCE.functionType(BuiltInType.noType, taskType));
     }
 
     @Override
@@ -733,7 +741,10 @@ public class GameEnvironment implements IEnvironment {
      * @param parentScope parent scope of this function
      */
     public ShowQuizOnUI(IScope parentScope, IType taskType) {
-      super("show_task_on_ui", parentScope, new FunctionType(BuiltInType.noType, taskType));
+      super(
+          "show_task_on_ui",
+          parentScope,
+          TypeFactory.INSTANCE.functionType(BuiltInType.noType, taskType));
     }
 
     @Override
@@ -763,7 +774,10 @@ public class GameEnvironment implements IEnvironment {
      * @param parentScope parent scope of this function
      */
     private ShowInfoFunction(IScope parentScope) {
-      super("show_info", parentScope, new FunctionType(BuiltInType.noType, BuiltInType.stringType));
+      super(
+          "show_info",
+          parentScope,
+          TypeFactory.INSTANCE.functionType(BuiltInType.noType, BuiltInType.stringType));
     }
 
     @Override
@@ -800,7 +814,7 @@ public class GameEnvironment implements IEnvironment {
       super(
           "grade_single_choice_task",
           parentScope,
-          new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+          TypeFactory.INSTANCE.functionType(BuiltInType.floatType, taskType, taskContentSetType));
       this.func = GradingFunctions.singleChoiceGrading();
     }
 
@@ -835,7 +849,7 @@ public class GameEnvironment implements IEnvironment {
       super(
           "grade_multiple_choice_task",
           parentScope,
-          new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+          TypeFactory.INSTANCE.functionType(BuiltInType.floatType, taskType, taskContentSetType));
       this.func = GradingFunctions.multipeChoiceGrading();
     }
 
@@ -870,7 +884,7 @@ public class GameEnvironment implements IEnvironment {
       super(
           "grade_assign_task_easy",
           parentScope,
-          new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+          TypeFactory.INSTANCE.functionType(BuiltInType.floatType, taskType, taskContentSetType));
       this.func = GradingFunctions.assignGradingEasy();
     }
 
@@ -905,7 +919,7 @@ public class GameEnvironment implements IEnvironment {
       super(
           "grade_assign_task_hard",
           parentScope,
-          new FunctionType(BuiltInType.floatType, taskType, taskContentSetType));
+          TypeFactory.INSTANCE.functionType(BuiltInType.floatType, taskType, taskContentSetType));
       this.func = GradingFunctions.assignGradingHard();
     }
 
@@ -936,7 +950,10 @@ public class GameEnvironment implements IEnvironment {
      * @param parentScope parent scope of this function
      */
     public GenerateRandomFillerContent(IScope parentScope, IType entityType) {
-      super("get_random_content", parentScope, new FunctionType(entityType, BuiltInType.noType));
+      super(
+          "get_random_content",
+          parentScope,
+          TypeFactory.INSTANCE.functionType(entityType, BuiltInType.noType));
     }
 
     @Override
@@ -980,7 +997,7 @@ public class GameEnvironment implements IEnvironment {
       super(
           "answer_picker_single_chest",
           parentScope,
-          new FunctionType(taskContentSetType, taskType));
+          TypeFactory.INSTANCE.functionType(taskContentSetType, taskType));
       this.func = AnswerPickingFunctions.singleChestPicker();
     }
 
@@ -1012,7 +1029,9 @@ public class GameEnvironment implements IEnvironment {
      */
     public AnswerPickerMultiChest(IScope parentScope, IType taskType, IType taskContentSetType) {
       super(
-          "answer_picker_multi_chest", parentScope, new FunctionType(taskContentSetType, taskType));
+          "answer_picker_multi_chest",
+          parentScope,
+          TypeFactory.INSTANCE.functionType(taskContentSetType, taskType));
       this.func = AnswerPickingFunctions.multipleChestPicker();
     }
 
@@ -1046,7 +1065,7 @@ public class GameEnvironment implements IEnvironment {
       super(
           "answer_picker_hero_inventory",
           parentScope,
-          new FunctionType(taskContentSetType, taskType));
+          TypeFactory.INSTANCE.functionType(taskContentSetType, taskType));
       this.func = AnswerPickingFunctions.heroInventoryPicker();
     }
 
@@ -1083,7 +1102,7 @@ public class GameEnvironment implements IEnvironment {
       super(
           "$default_single_choice_scenario$",
           parentScope,
-          new FunctionType(entitySetSetType, singleChoiceType));
+          TypeFactory.INSTANCE.functionType(entitySetSetType, singleChoiceType));
     }
 
     @Override
@@ -1116,7 +1135,7 @@ public class GameEnvironment implements IEnvironment {
       super(
           "$default_multiple_choice_scenario$",
           parentScope,
-          new FunctionType(entitySetSetType, multipleChoiceType));
+          TypeFactory.INSTANCE.functionType(entitySetSetType, multipleChoiceType));
     }
 
     @Override
@@ -1149,7 +1168,7 @@ public class GameEnvironment implements IEnvironment {
       super(
           "$default_assign_task_scenario$",
           parentScope,
-          new FunctionType(entitySetSetType, assignTaskType));
+          TypeFactory.INSTANCE.functionType(entitySetSetType, assignTaskType));
     }
 
     @Override

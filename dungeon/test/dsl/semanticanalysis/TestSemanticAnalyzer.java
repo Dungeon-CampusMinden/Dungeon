@@ -23,10 +23,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestSemanticAnalyzer {
   private static final Path testLibPath = Path.of("test_resources/testlib");
+
+  @Before
+  public void clearTypeFactory() {
+    TypeFactory.INSTANCE.clear();
+  }
 
   /** Test, if the name of symbols is set correctly */
   @Test
@@ -83,7 +89,7 @@ public class TestSemanticAnalyzer {
     var ast = Helpers.getASTFromString(program);
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     var testComponentType = tb.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
 
@@ -437,10 +443,12 @@ public class TestSemanticAnalyzer {
     // of the symbolTableParser
     var dummyFunc1 =
         new DummyNativeFunction(
-            "dummyFunc1", new FunctionType(BuiltInType.intType, BuiltInType.stringType));
+            "dummyFunc1",
+            TypeFactory.INSTANCE.functionType(BuiltInType.intType, BuiltInType.stringType));
     var dummyFunc2 =
         new DummyNativeFunction(
-            "dummyFunc2", new FunctionType(BuiltInType.intType, BuiltInType.stringType));
+            "dummyFunc2",
+            TypeFactory.INSTANCE.functionType(BuiltInType.intType, BuiltInType.stringType));
 
     env.loadFunctions(dummyFunc1, dummyFunc2);
 
@@ -982,7 +990,7 @@ quest_config c {
     // setup
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     var testComponentType = tb.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
 
@@ -1037,7 +1045,7 @@ quest_config c {
     // setup
     SemanticAnalyzer symbolTableParser = new SemanticAnalyzer();
 
-    TypeBuilder tb = new TypeBuilder(new TypeFactory());
+    TypeBuilder tb = new TypeBuilder(TypeFactory.INSTANCE);
     Scope scope = new Scope();
     var testComponentType = tb.createDSLTypeForJavaTypeInScope(scope, TestComponent.class);
 
@@ -1437,7 +1445,7 @@ quest_config c {
     var symbolTable = symtableResult.symbolTable;
 
     var funcDef = (FuncDefNode) ast.getChild(0);
-    var stmt = (VarDeclNode)funcDef.getStmts().get(0);
+    var stmt = (VarDeclNode) funcDef.getStmts().get(0);
     var symbol = symbolTable.getSymbolsForAstNode(stmt).get(0);
     Assert.assertNotEquals(Symbol.NULL, symbol);
   }
@@ -1457,7 +1465,7 @@ quest_config c {
     var fileScope = env.getFileScope(null);
 
     var funcDef = (FuncDefNode) ast.getChild(0);
-    var stmt = (VarDeclNode)funcDef.getStmts().get(0);
+    var stmt = (VarDeclNode) funcDef.getStmts().get(0);
     var symbol = symbolTable.getSymbolsForAstNode(stmt).get(0);
     Assert.assertNotEquals(Symbol.NULL, symbol);
     Assert.assertEquals(BuiltInType.noType, symbol.getDataType());
@@ -1479,12 +1487,12 @@ quest_config c {
     var symbolTable = symtableResult.symbolTable;
 
     var funcDef = (FuncDefNode) ast.getChild(0);
-    var decl = (VarDeclNode)funcDef.getStmts().get(0);
+    var decl = (VarDeclNode) funcDef.getStmts().get(0);
     var declSymbol = symbolTable.getSymbolsForAstNode(decl).get(0);
     Assert.assertNotEquals(Symbol.NULL, declSymbol);
 
     var assignStmt = funcDef.getStmts().get(1);
-    var assignment = (AssignmentNode)assignStmt.getChild(0);
+    var assignment = (AssignmentNode) assignStmt.getChild(0);
     var idNode = assignment.getChild(0);
     var assignedSymbol = symbolTable.getSymbolsForAstNode(idNode).get(0);
     Assert.assertEquals(declSymbol, assignedSymbol);
@@ -1493,7 +1501,7 @@ quest_config c {
   @Test
   public void incompleteAssignmentConditional() {
     String program =
-      """
+        """
     fn test(entity ent, int x) {
         var y = 42;
         if x {
@@ -1508,14 +1516,14 @@ quest_config c {
     var symbolTable = symtableResult.symbolTable;
 
     var funcDef = (FuncDefNode) ast.getChild(0);
-    var decl = (VarDeclNode)funcDef.getStmts().get(0);
+    var decl = (VarDeclNode) funcDef.getStmts().get(0);
     var declSymbol = symbolTable.getSymbolsForAstNode(decl).get(0);
     Assert.assertNotEquals(Symbol.NULL, declSymbol);
 
-    var condStmt = (ConditionalStmtNodeIf)funcDef.getStmts().get(1);
-    var ifStmt = (StmtBlockNode)condStmt.getIfStmt();
+    var condStmt = (ConditionalStmtNodeIf) funcDef.getStmts().get(1);
+    var ifStmt = (StmtBlockNode) condStmt.getIfStmt();
     var assignStmt = ifStmt.getStmts().get(0);
-    var assignment = (AssignmentNode)assignStmt.getChild(0);
+    var assignment = (AssignmentNode) assignStmt.getChild(0);
     var idNode = assignment.getChild(0);
     var assignedSymbol = symbolTable.getSymbolsForAstNode(idNode).get(0);
     Assert.assertEquals(declSymbol, assignedSymbol);

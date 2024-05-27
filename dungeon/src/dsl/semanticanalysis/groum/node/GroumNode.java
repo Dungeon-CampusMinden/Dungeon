@@ -5,6 +5,8 @@ import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
 import org.neo4j.ogm.annotation.*;
 
 // TODO: how is this class related to symbols and AST?
@@ -21,11 +23,7 @@ import org.neo4j.ogm.annotation.*;
 @NodeEntity
 public abstract class GroumNode {
 
-  @Id @GeneratedValue private Long id;
-
-  public Long getId() {
-    return this.id;
-  }
+  @Id @GeneratedValue public Long id;
 
   // explicit null object
   public static GroumNode NONE =

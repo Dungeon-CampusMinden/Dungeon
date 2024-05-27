@@ -5,12 +5,19 @@ import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.List;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Transient;
 
 // TODO: extend this for named parameters
 @NodeEntity
 public class FunctionType extends Symbol implements IType {
   private final IType returnType;
-  private final ArrayList<IType> parameterTypes;
+
+  @Transient private final ArrayList<IType> parameterTypes;
+
+  // TODO: why does this not work for builtins???!
+  @Relationship(type = "PARAMETER")
+  private final ArrayList<ParameterRelationship> parameterRelationships;
 
   public IType getReturnType() {
     return returnType;
@@ -19,7 +26,6 @@ public class FunctionType extends Symbol implements IType {
   public List<IType> getParameterTypes() {
     return parameterTypes;
   }
-
 
   @Override
   public boolean equals(Object other) {
@@ -36,22 +42,35 @@ public class FunctionType extends Symbol implements IType {
     }
   }
 
-  public FunctionType(IType returnType, IType... parameterTypes) {
+  FunctionType(IType returnType, IType... parameterTypes) {
     super(
         calculateTypeName(returnType, new ArrayList<>(List.of(parameterTypes))), Scope.NULL, null);
     this.returnType = returnType;
     this.parameterTypes = new ArrayList<>(List.of(parameterTypes));
+
+    this.parameterRelationships = new ArrayList<>();
+    for (int i = 0; i < this.parameterTypes.size(); i++) {
+      var type = this.parameterTypes.get(i);
+      this.parameterRelationships.add(new ParameterRelationship(this, type, i));
+    }
   }
 
   public FunctionType() {
     this.returnType = BuiltInType.noType;
     this.parameterTypes = new ArrayList<>();
+    this.parameterRelationships = new ArrayList<>();
   }
 
-  public FunctionType(IType returnType, List<IType> parameterTypes) {
+  FunctionType(IType returnType, List<IType> parameterTypes) {
     super(calculateTypeName(returnType, parameterTypes), Scope.NULL, null);
     this.returnType = returnType;
     this.parameterTypes = new ArrayList<>(parameterTypes);
+
+    this.parameterRelationships = new ArrayList<>();
+    for (int i = 0; i < parameterTypes.size(); i++) {
+      var type = parameterTypes.get(i);
+      this.parameterRelationships.add(new ParameterRelationship(this, type, i));
+    }
   }
 
   public static String calculateTypeName(IType returnType, List<IType> parameterTypes) {

@@ -741,7 +741,9 @@ public class TypeBuilder {
           parameterDSLTypes.add(dslType);
         }
 
-        FunctionType functionType = new FunctionType(returnDSLType, parameterDSLTypes);
+        // TODO: get the functiontype, if it already exists..
+        FunctionType functionType =
+            TypeFactory.INSTANCE.functionType(returnDSLType, parameterDSLTypes);
 
         // create and bind method symbol
         ExtensionMethod nativeMethodSymbol =

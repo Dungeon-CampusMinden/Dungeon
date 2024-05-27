@@ -3,6 +3,7 @@ package dsl.semanticanalysis.typesystem.typebuilding;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -39,6 +40,6 @@ public class FunctionFunctionTypeBuilder implements IFunctionTypeBuilder {
     if (null == returnDSLType) {
       throw new RuntimeException("Returntype of Function could not be translated");
     }
-    return new FunctionType(returnDSLType, parameterDSLType);
+    return TypeFactory.INSTANCE.functionType(returnDSLType, parameterDSLType);
   }
 }
