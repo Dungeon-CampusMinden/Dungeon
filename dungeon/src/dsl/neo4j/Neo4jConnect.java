@@ -15,6 +15,7 @@ import java.io.PrintStream;
 import java.util.*;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.GraphDatabase;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.driver.Driver;
 import org.neo4j.ogm.drivers.bolt.driver.BoltDriver;
 import org.neo4j.ogm.session.SessionFactory;
@@ -185,6 +186,7 @@ public class Neo4jConnect {
 
   public static SessionFactory getSessionFactory(org.neo4j.driver.Driver driver) {
     Driver ogmDriver = new BoltDriver(driver);
+    var builder = new Configuration.Builder();
     return new SessionFactory(
         ogmDriver,
         "dsl.error",

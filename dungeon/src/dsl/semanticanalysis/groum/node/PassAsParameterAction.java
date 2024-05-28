@@ -10,6 +10,11 @@ public class PassAsParameterAction extends ExpressionAction {
     super(ActionType.passAsParameter, childNodes, expressionId);
   }
 
+  public PassAsParameterAction() {
+    super(ActionType.passAsParameter);
+    this.updateLabels();
+  }
+
   @Override
   public String getLabel() {
     return "<pass as param [" + this.referencedInstanceId() + "]>";

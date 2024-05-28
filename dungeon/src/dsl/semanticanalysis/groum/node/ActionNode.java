@@ -1,6 +1,5 @@
 package dsl.semanticanalysis.groum.node;
 
-import dsl.parser.ast.Node;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
@@ -47,9 +46,6 @@ public abstract class ActionNode extends GroumNode {
   // this may model access to a specific instance, so need a unique id for modelling this
   @Property private long referencedInstanceId = uninitializedInstanceId;
 
-  // if the groum describes a pattern, this is empty
-  @Relationship private Node astNodeReference;
-
   @Property private final ActionType actionType;
 
   public ActionNode(ActionNode.ActionType actionType) {
@@ -62,14 +58,6 @@ public abstract class ActionNode extends GroumNode {
 
   public ActionType actionType() {
     return actionType;
-  }
-
-  public void astNodeReference(Node node) {
-    this.astNodeReference = node;
-  }
-
-  public Node astNodeReference() {
-    return astNodeReference;
   }
 
   public long referencedInstanceId() {

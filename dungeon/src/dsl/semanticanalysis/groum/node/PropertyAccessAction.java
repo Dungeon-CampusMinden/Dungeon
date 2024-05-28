@@ -1,16 +1,34 @@
 package dsl.semanticanalysis.groum.node;
 
+import core.utils.Tuple;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
+import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import java.util.List;
+import java.util.Map;
 import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.Transient;
 
 @NodeEntity
 public class PropertyAccessAction extends ActionNode {
-  @Relationship private final IType instanceType;
-  @Relationship private final Symbol instanceSymbol;
-  @Relationship private final Symbol propertySymbol;
+  @Transient private final IType instanceType;
+  @Transient private final Symbol instanceSymbol;
+  @Transient private final Symbol propertySymbol;
+  // @Relationship private final IType instanceType;
+  // @Relationship private final Symbol instanceSymbol;
+  // @Relationship private final Symbol propertySymbol;
+  public final long propertyInstanceId;
+
+  @Override
+  public Map<String, Tuple<String, List<Long>>> getSimpleRelationships() {
+    var superMap = super.getSimpleRelationships();
+    superMap.put("INSTANCE_TYPE", new Tuple<>("IType", List.of(instanceType.getId())));
+    superMap.put("INSTANCE_SYMBOL", new Tuple<>("Symbol", List.of(instanceSymbol.getIdx())));
+    superMap.put("PROPERTY_SYMBOL", new Tuple<>("Symbol", List.of(propertySymbol.getIdx())));
+
+    return superMap;
+  }
 
   public PropertyAccessAction(
       Symbol instanceSymbol, Symbol property, long instanceId, long propertyInstanceId) {
@@ -24,7 +42,14 @@ public class PropertyAccessAction extends ActionNode {
     this.updateLabels();
   }
 
-  public final long propertyInstanceId;
+  public PropertyAccessAction() {
+    super(ActionType.propertyAccess);
+    this.instanceType = BuiltInType.noType;
+    this.instanceSymbol = Symbol.NULL;
+    this.propertySymbol = Symbol.NULL;
+    this.propertyInstanceId = -1;
+    this.updateLabels();
+  }
 
   public IType instanceDataType() {
     return this.instanceType;

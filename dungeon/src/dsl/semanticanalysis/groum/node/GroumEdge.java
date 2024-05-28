@@ -74,10 +74,9 @@ public class GroumEdge {
   }
 
   private void generateCypherString() {
-    this.cypherCreationString = String.format("[:GROUM_EDGE {edgeType:\"%s\", idxOnStart:%s, idxOnEnd:%s, label:\"%s\"}]",
-      edgeType,
-      idxOnStart,
-      idxOnEnd,
-      label);
+    this.cypherCreationString =
+        String.format(
+            "[:GROUM_EDGE {edgeType:\"%s\", idxOnStart:%s, idxOnEnd:%s, label:\"%s\"}]",
+            edgeType, idxOnStart, idxOnEnd, label);
   }
 }

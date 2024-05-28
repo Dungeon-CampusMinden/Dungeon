@@ -40,6 +40,11 @@ public class PrototypeValue extends Value implements IType {
     return internalType;
   }
 
+  @Override
+  public long getId() {
+    return 0;
+  }
+
   /**
    * @return the name of the internal datatype
    */

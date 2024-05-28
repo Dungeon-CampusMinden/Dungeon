@@ -35,6 +35,11 @@ public class EnumType extends ScopedSymbol implements IType {
   }
 
   @Override
+  public long getId() {
+    return super.getIdx();
+  }
+
+  @Override
   public Kind getTypeKind() {
     return Kind.EnumType;
   }

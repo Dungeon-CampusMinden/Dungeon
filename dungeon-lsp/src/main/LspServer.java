@@ -20,16 +20,13 @@ import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.FunctionSymbol;
 import dsl.semanticanalysis.symbol.PropertySymbol;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.typebuilding.type.EnumType;
-import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
+import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
-
-import dsl.semanticanalysis.typesystem.typebuilding.type.TypeFactory;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.eclipse.lsp4j.*;
@@ -73,6 +70,9 @@ public class LspServer
     this.neo4jDriver = Neo4jConnect.openConnection();
     this.sessionFactory = Neo4jConnect.getSessionFactory(neo4jDriver);
     this.session = sessionFactory.openSession();
+    // DeletionEventListener listener = new DeletionEventListener();
+    // this.session.register(listener);
+
     this.dbAccessor = new DBAccessor(session);
 
     this.socket = new Socket("127.0.0.1", socketPort);
@@ -929,6 +929,7 @@ public class LspServer
         LOGGER.info("Finished initializing database!");
       } catch (Exception ex) {
         boolean b = true;
+        LOGGER.severe(ex.getMessage());
       } finally {
         tx.close();
         LOGGER.info("INITIALIZE - UNLOCKING DB");
@@ -1016,47 +1017,58 @@ public class LspServer
         session.save(analyzedProgram.nodeRelationships());
 
         throwIfStop();
-        session.save(analyzedProgram.symboltable().currentSymbolCreations());
+        var creations = analyzedProgram.symboltable().currentSymbolCreations();
+        session.save(creations);
 
         throwIfStop();
 
         tx.commit();
 
-
         tx = session.beginTransaction(Transaction.Type.READ_WRITE);
         var symbolReferences = analyzedProgram.symboltable().currentSymbolReferences();
-        for (var symbolReference : symbolReferences){
-          //tx = session.beginTransaction(Transaction.Type.READ_WRITE);
-          var queryResult = session.query(
-            """
+        for (var symbolReference : symbolReferences) {
+          // tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+          var queryResult =
+              session.query(
+                  """
             match (n:AstNode {idx:$nodeIdx}), (s:Symbol {idx:$symbolIdx})
             create (n)-[:REFERENCES]->(s)
             """,
-            Map.of("nodeIdx", symbolReference.getAstNode().getIdx(), "symbolIdx", symbolReference.getSymbol().getIdx())
-            );
+                  Map.of(
+                      "nodeIdx",
+                      symbolReference.getAstNode().getIdx(),
+                      "symbolIdx",
+                      symbolReference.getSymbol().getIdx()));
 
           // maybe create the references by hand..
-          //LOGGER.info("REFERENCE - NODE: " + symbolReference.getAstNode().type + ((symbolReference.getAstNode() instanceof IdNode) ? " name: " + ((IdNode)symbolReference.getAstNode()).getName() : "") + " - Symbol: " + symbolReference.getSymbol());
-          //session.save(symbolReference);
-          //tx.commit();
-          //var testResult = session.query("match (n:AstNode {idx:$nodeIdx})-[ref:REFERENCES]->(sym:Symbol {idx:$symIdx}) return n, sym, ref",
-           // Map.of("nodeIdx", symbolReference.getAstNode().getIdx(), "symIdx", symbolReference.getSymbol().getIdx()));
+          // LOGGER.info("REFERENCE - NODE: " + symbolReference.getAstNode().type +
+          // ((symbolReference.getAstNode() instanceof IdNode) ? " name: " +
+          // ((IdNode)symbolReference.getAstNode()).getName() : "") + " - Symbol: " +
+          // symbolReference.getSymbol());
+          // session.save(symbolReference);
+          // tx.commit();
+          // var testResult = session.query("match (n:AstNode
+          // {idx:$nodeIdx})-[ref:REFERENCES]->(sym:Symbol {idx:$symIdx}) return n, sym, ref",
+          // Map.of("nodeIdx", symbolReference.getAstNode().getIdx(), "symIdx",
+          // symbolReference.getSymbol().getIdx()));
 
           // sanity check..
-          //result = session.query("match (x)-[p:PARAMETER]->(y) return p, x, y", Map.of());
-          //if (result.queryStatistics().getNodesDeleted() > 0) {
-          //  LOGGER.info("query statistics nodes deleted > 0: " + result.queryStatistics().getNodesDeleted());
-          //}
-          //if (result.queryStatistics().getRelationshipsDeleted() > 0) {
-          //  LOGGER.info("query statistics relationships deleted > 0: " + result.queryStatistics().getRelationshipsDeleted());
-          //}
-          //iter = result.iterator();
-          //count = 0;
-          //while(iter.hasNext()) {
+          // result = session.query("match (x)-[p:PARAMETER]->(y) return p, x, y", Map.of());
+          // if (result.queryStatistics().getNodesDeleted() > 0) {
+          //  LOGGER.info("query statistics nodes deleted > 0: " +
+          // result.queryStatistics().getNodesDeleted());
+          // }
+          // if (result.queryStatistics().getRelationshipsDeleted() > 0) {
+          //  LOGGER.info("query statistics relationships deleted > 0: " +
+          // result.queryStatistics().getRelationshipsDeleted());
+          // }
+          // iter = result.iterator();
+          // count = 0;
+          // while(iter.hasNext()) {
           //  iter.next();
           //  count++;
-          //}
-          //LOGGER.info("Result count: " + count);
+          // }
+          // LOGGER.info("Result count: " + count);
         }
         tx.commit();
 
@@ -1066,29 +1078,138 @@ public class LspServer
         session.save(analyzedProgram.symboltable().getScopes());
         tx.commit();
 
-        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
         throwIfStop();
-        session.save(analyzedProgram.groum().nodes());
+
+        var testResult =
+            session.query("match (x)-[p:PARAMETER_RELATIONSHIPS]->(y) return x,p,y", Map.of());
+        var iter = testResult.iterator();
+        int count = 0;
+        while (iter.hasNext()) {
+          iter.next();
+          count++;
+        }
+        LOGGER.info("Count: " + count);
+
+        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+        session.save(analyzedProgram.groum());
+
+        // connect fileScope
+        session.query(
+            "match (g:Groum) where ID(g)=$groumId match (f:FileScope) where ID(f)=$scopeId create (g)-[:FILE_SCOPE]->(f)",
+            Map.of(
+                "groumId",
+                analyzedProgram.groum().id,
+                "scopeId",
+                analyzedProgram.groum().fileScope.id));
+
+        var nodes = analyzedProgram.groum().nodes();
+        session.save(nodes);
+
+        // connect to Groum
+        for (var node : nodes) {
+          session.query(
+              "match (g:Groum) where ID(g)=$groumId match (n:GroumNode) where ID(n)=$nodeId create (g)-[:NODES]->(n)",
+              Map.of("groumId", analyzedProgram.groum().id, "nodeId", node.getId()));
+        }
+
         tx.commit();
 
+        testResult =
+            session.query("match (x)-[p:PARAMETER_RELATIONSHIPS]->(y) return x,p,y", Map.of());
+        iter = testResult.iterator();
+        count = 0;
+        while (iter.hasNext()) {
+          iter.next();
+          count++;
+        }
+        if (count < 4) {
+          boolean b = true;
+        }
+        LOGGER.info("Count: " + count);
+
+        for (var node : nodes) {
+          tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+          // how to change this?
+          // session.save(node);
+          // TODO: add relationships
+          var simpleRelationShips = node.getSimpleRelationships();
+          for (var relationShip : simpleRelationShips.entrySet()) {
+            String name = relationShip.getKey();
+            List<Long> endPointIds = relationShip.getValue().b();
+            String endPointLabel = relationShip.getValue().a();
+            if (endPointIds.size() > 1) {
+              for (int i = 0; i < endPointIds.size(); i++) {
+                // add idx
+                String query =
+                    "match (start:GroumNode) where ID(start)=$startId match (end:"
+                        + endPointLabel
+                        + ") where ID(end)=$endId "
+                        + "create (start)-[:"
+                        + name
+                        + " {idx:"
+                        + i
+                        + "}]->(end)";
+                session.query(
+                    query, Map.of("startId", node.getId(), "endId", endPointIds.getFirst()));
+              }
+            } else if (endPointIds.size() == 1) {
+              // add simple relationship
+              String query =
+                  "match (start:GroumNode) where ID(start)=$startId match (end:"
+                      + endPointLabel
+                      + ") where ID(end)=$endId "
+                      + "create (start)-[:"
+                      + name
+                      + "]->(end)";
+              session.query(
+                  query, Map.of("startId", node.getId(), "endId", endPointIds.getFirst()));
+            }
+          }
+          tx.commit();
+
+          testResult =
+              session.query("match (x)-[p:PARAMETER_RELATIONSHIPS]->(y) return x,p,y", Map.of());
+          iter = testResult.iterator();
+          count = 0;
+          while (iter.hasNext()) {
+            iter.next();
+            count++;
+          }
+          if (count < 4) {
+            boolean b = true;
+          }
+          LOGGER.info("Count: " + count);
+        }
+
+        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
         for (var edge : analyzedProgram.groum().edges()) {
+          String query =
+              "match (start:GroumNode) where ID(start)=$startId match (end:GroumNode) where ID(end)=$endId create (start)-"
+                  + edge.cypherCreationString()
+                  + "->(end)";
+          session.query(
+              query, Map.of("startId", edge.start().identifier, "endId", edge.end().identifier));
+        }
+
+        /*for (var edge : analyzedProgram.groum().edges()) {
           tx = session.beginTransaction(Transaction.Type.READ_WRITE);
 
-          String query = "match (start:GroumNode {id:$startId}), (end:GroumNode {id:$endId}) create (start)-"+edge.cypherCreationString()+"->(end)";
+          String query = "match (start:GroumNode) where ID(start)=$startId match (end:GroumNode) where ID(end)=$endId create (start)-"+edge.cypherCreationString()+"->(end)";
           session.query(query,
-            Map.of("startId", edge.start().id, "endId", edge.end().id)
+            Map.of("startId", edge.start().identifier, "endId", edge.end().identifier)
           );
           tx.commit();
 
           var res = session.query("""
-            match (start:GroumNode {id:$startId}), (end:GroumNode {id:$endId})
-            match (start)-[e:GROUM_EDGE]->(end)
+            match (start:GroumNode) where ID(start)=$startId match (end:GroumNode) where ID(end)=$endId
+            match (start)-[e:OUTGOING_EDGES]->(end)
             return start, end, e
             """,
-            Map.of("startId", edge.start().id, "endId", edge.end().id)
+            Map.of("startId", edge.start().identifier, "endId", edge.end().identifier)
           );
           boolean b = true;
-        }
+        }*/
+        tx.commit();
 
         LOGGER.info("Finished updating database!");
       } catch (InterruptedException interrupt) {
@@ -1096,7 +1217,7 @@ public class LspServer
         tx.rollback();
         interrupted = true;
       } catch (Exception ex) {
-        boolean b = true;
+        LOGGER.severe(ex.getMessage());
       } finally {
         tx.close();
         LOGGER.info("UPDATE DB - UNLOCKING DB");

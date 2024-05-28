@@ -1,12 +1,13 @@
 package dsl.semanticanalysis.groum.node;
 
+import core.utils.Tuple;
 import dsl.parser.ast.Node;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
-
+import java.util.Map;
 import org.neo4j.ogm.annotation.*;
 
 // TODO: how is this class related to symbols and AST?
@@ -23,7 +24,7 @@ import org.neo4j.ogm.annotation.*;
 @NodeEntity
 public abstract class GroumNode {
 
-  @Id @GeneratedValue public Long id;
+  @Id @Property @GeneratedValue public Long identifier;
 
   // explicit null object
   public static GroumNode NONE =
@@ -48,22 +49,46 @@ public abstract class GroumNode {
     this.relatedAstNode = Node.NONE;
   }
 
-  @Relationship private Node relatedAstNode;
+  public Map<String, Tuple<String, List<Long>>> getSimpleRelationships() {
+    var map = new HashMap<String, Tuple<String, List<Long>>>();
+    if (this.relatedAstNode != null) {
+      map.put("RELATED_AST_NODE", new Tuple<>("AstNode", List.of(this.relatedAstNode.getIdx())));
+    }
+    if (this.parent != null) {
+      if (parent.identifier == null) {
+        boolean b = true;
+      } else {
+        map.put("PARENT", new Tuple<>("GroumNode", List.of(this.parent.identifier)));
+      }
+    }
+    map.put(
+        "CHILDREN",
+        new Tuple<>("GroumNode", this.children.stream().map(c -> c.identifier).toList()));
+    return map;
+  }
+
+  // @Relationship private Node relatedAstNode;
+  @Transient private Node relatedAstNode;
   @Relationship private GroumNode controlFlowParent;
   // @Transient private GroumNode controlFlowParent;
 
   @Transient private List<GroumEdge> incomingEdges;
-  @Relationship private List<GroumEdge> outgoingEdges;
+  // @Relationship private List<GroumEdge> outgoingEdges;
+  @Transient private List<GroumEdge> outgoingEdges;
 
   // only relevant, if contained in a larger Scope
-  @Relationship private GroumNode parent = GroumNode.NONE;
-  @Relationship private ArrayList<GroumNode> children;
+  @Transient private GroumNode parent = GroumNode.NONE;
+  @Transient private ArrayList<GroumNode> children;
 
   @Property private String label;
 
   protected void updateLabels() {
     this.label = this.getLabel();
     // this.labels = List.of(label);
+  }
+
+  public Long getId() {
+    return identifier;
   }
 
   private long processedCounter = -1;

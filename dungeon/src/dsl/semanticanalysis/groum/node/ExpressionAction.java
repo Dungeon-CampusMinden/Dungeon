@@ -16,6 +16,11 @@ public class ExpressionAction extends ActionNode {
     this.updateLabels();
   }
 
+  public ExpressionAction(ActionType actionType) {
+    super(actionType);
+    this.updateLabels();
+  }
+
   public ExpressionAction(List<GroumNode> childNodes, long expressionId) {
     super(ActionType.expression);
     this.addChildren(childNodes);

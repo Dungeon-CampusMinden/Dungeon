@@ -5,7 +5,6 @@ import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
 import java.util.List;
 import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
 
 // TODO: extend this for named parameters
@@ -16,7 +15,6 @@ public class FunctionType extends Symbol implements IType {
   @Transient private final ArrayList<IType> parameterTypes;
 
   // TODO: why does this not work for builtins???!
-  @Relationship(type = "PARAMETER")
   private final ArrayList<ParameterRelationship> parameterRelationships;
 
   public IType getReturnType() {
@@ -90,6 +88,11 @@ public class FunctionType extends Symbol implements IType {
     nameBuilder.append(returnType.getName());
     nameBuilder.append("$");
     return nameBuilder.toString();
+  }
+
+  @Override
+  public long getId() {
+    return super.getIdx();
   }
 
   @Override

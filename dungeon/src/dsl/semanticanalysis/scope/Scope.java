@@ -31,7 +31,7 @@ import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
 public class Scope implements IScope {
-  @Id @GeneratedValue private Long id;
+  @Id @GeneratedValue public Long id;
   @Property private final String name;
 
   @Override

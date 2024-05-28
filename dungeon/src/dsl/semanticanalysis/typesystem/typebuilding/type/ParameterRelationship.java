@@ -2,8 +2,6 @@ package dsl.semanticanalysis.typesystem.typebuilding.type;
 
 import org.neo4j.ogm.annotation.*;
 
-import java.util.UUID;
-
 @RelationshipEntity()
 public class ParameterRelationship {
   @Id @GeneratedValue Long id;

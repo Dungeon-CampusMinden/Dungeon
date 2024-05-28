@@ -15,6 +15,9 @@ public interface IType {
     EnumType
   }
 
+  // for neo4j
+  long getId();
+
   /**
    * Getter for the type name
    *
