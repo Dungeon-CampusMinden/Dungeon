@@ -171,8 +171,7 @@ public class RelationshipRecorder {
     for (var relatable : this.currentRecord.relatables) {
       this.currentRecord.objectsToPersist.add(relatable);
       var relationFields =
-          Arrays.stream(relatable.getClass().getDeclaredFields())
-              .filter(f -> f.isAnnotationPresent(Relate.class));
+        getAllFields(relatable.getClass()).stream().filter(f -> f.isAnnotationPresent(Relate.class)).toList();
       relationFields.forEach(
           f -> {
             Relate annotation = f.getAnnotation(Relate.class);
