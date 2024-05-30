@@ -2,6 +2,7 @@ package dsl.semanticanalysis.groum;
 
 import dsl.helper.ProfilingTimer;
 import dsl.parser.ast.Node;
+import dsl.programmanalyzer.RelationshipRecorder;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.TypeInferrer;
 import dsl.semanticanalysis.environment.IEnvironment;
@@ -36,7 +37,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     TemporalGroumBuilder builder = new TemporalGroumBuilder();
     HashMap<Symbol, Long> instanceMap = new HashMap<>();
     var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
-    return finalize(temporalGroum, instanceMap);
+    var finalizedGroum = finalize(temporalGroum, instanceMap);
+    RelationshipRecorder.instance.addRelatable(finalizedGroum);
+    return finalizedGroum;
   }
 
   public Groum finalize(Groum groum, HashMap<Symbol, Long> instanceMap) {

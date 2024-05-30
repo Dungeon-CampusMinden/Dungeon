@@ -25,7 +25,7 @@ public class ListType extends ScopedSymbol implements IType {
         new NativeMethod(
             "add",
             this,
-            new FunctionType(BuiltInType.noType, elementType),
+            TypeFactory.INSTANCE.functionType(BuiltInType.noType, elementType),
             ListValue.AddMethod.instance);
     this.bind(addMethod);
 
@@ -33,7 +33,7 @@ public class ListType extends ScopedSymbol implements IType {
         new NativeMethod(
             "size",
             this,
-            new FunctionType(BuiltInType.intType, BuiltInType.noType),
+            TypeFactory.INSTANCE.functionType(BuiltInType.intType, BuiltInType.noType),
             ListValue.SizeMethod.instance);
     this.bind(sizeMethod);
 
@@ -41,7 +41,7 @@ public class ListType extends ScopedSymbol implements IType {
         new NativeMethod(
             "get",
             this,
-            new FunctionType(elementType, BuiltInType.intType),
+            TypeFactory.INSTANCE.functionType(elementType, BuiltInType.intType),
             ListValue.GetMethod.instance);
     this.bind(getMethod);
 
@@ -49,14 +49,9 @@ public class ListType extends ScopedSymbol implements IType {
         new NativeMethod(
             "clear",
             this,
-            new FunctionType(BuiltInType.noType, BuiltInType.noType),
+            TypeFactory.INSTANCE.functionType(BuiltInType.noType, BuiltInType.noType),
             ListValue.ClearMethod.instance);
     this.bind(clearMethod);
-  }
-
-  @Override
-  public long getId() {
-    return super.getIdx();
   }
 
   @Override

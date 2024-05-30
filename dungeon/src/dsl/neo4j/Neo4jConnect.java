@@ -191,6 +191,7 @@ public class Neo4jConnect {
         ogmDriver,
         "dsl.error",
         "dsl.parser.ast",
+        "dsl.programmanalyzer",
         "entrypoint",
         "dsl.semanticanalysis.symbol",
         "dsl.semanticanalysis.typesystem.typebuilding.type",

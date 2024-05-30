@@ -39,6 +39,10 @@ public class NativeInstantiate extends NativeFunction {
     this.bind(param);
   }
 
+  private NativeInstantiate() {
+    super();
+  }
+
   @Override
   public Object call(DSLInterpreter interpreter, List<Node> parameters) {
     assert parameters != null && parameters.size() > 0;

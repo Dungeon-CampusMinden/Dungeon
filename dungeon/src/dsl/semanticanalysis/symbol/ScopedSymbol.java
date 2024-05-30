@@ -21,6 +21,8 @@
 
 package dsl.semanticanalysis.symbol;
 
+import dsl.programmanalyzer.Relate;
+import dsl.programmanalyzer.RelationshipRecorder;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
@@ -29,7 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.Transient;
 
 @NodeEntity
@@ -40,7 +41,8 @@ public class ScopedSymbol extends Symbol implements IScope {
   @Transient protected HashMap<String, Symbol> symbols;
   @Transient protected HashSet<IScope> childScopes;
 
-  @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)
+  @Relate(type = "CONTAINS")
+  @Transient
   protected List<Symbol> symbolList;
 
   /**
@@ -57,10 +59,13 @@ public class ScopedSymbol extends Symbol implements IScope {
     this.symbolList = new ArrayList<>();
     this.childScopes = new HashSet<>();
     parentScope.getChildScopes().add(this);
+
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   public ScopedSymbol() {
     this("", Scope.NULL, null);
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   /**

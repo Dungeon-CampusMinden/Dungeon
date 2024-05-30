@@ -36,6 +36,10 @@ public class NativeInstantiateNamed extends NativeFunction {
             BuiltInType.noType, PrototypeValue.PROTOTYPE, BuiltInType.stringType));
   }
 
+  private NativeInstantiateNamed() {
+    super();
+  }
+
   @Override
   public Object call(DSLInterpreter interpreter, List<Node> parameters) {
     assert parameters != null && parameters.size() > 0;

@@ -2,6 +2,9 @@ package dsl.parser.ast;
 
 import dsl.IndexGenerator;
 import dsl.error.ErrorRecord;
+import dsl.programmanalyzer.Relatable;
+import dsl.programmanalyzer.Relate;
+import dsl.programmanalyzer.RelationshipRecorder;
 import java.util.ArrayList;
 import java.util.List;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -9,7 +12,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.neo4j.ogm.annotation.*;
 
 @NodeEntity(label = "AstNode")
-public class Node {
+public class Node implements Relatable {
   // used for running index to give every Node a unique identifier
   // TODO: this really just for testing!! -> remove it!
   private static long g_fileVersion;
@@ -21,13 +24,19 @@ public class Node {
   @Property private boolean hasErrorChild;
   @Property private boolean subTreeHasError;
 
-  @Relationship(type = "HAS_ERROR_RECORD", direction = Relationship.Direction.OUTGOING)
-  private ErrorRecord errorRecord;
+  @Relate(type = "HAS_ERROR_RECORD")
+  @Transient
+  protected ErrorRecord errorRecord;
 
   @Property private boolean hasErrorRecord;
   @Property protected long fileVersion;
 
   @Property @Transient private RecognitionException exception;
+
+  @Override
+  public Long getId() {
+    return this.internalId;
+  }
 
   public enum Type {
     NONE,
@@ -96,20 +105,35 @@ public class Node {
 
   public static Node NONE = new Node(Type.NONE, new ArrayList<>());
 
-  // @Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
-  @Transient private ArrayList<Node> children;
+  @Relate(type = "PARENT_OF")
+  @Transient
+  protected ArrayList<Node> children;
 
   @Property public final Type type;
 
-  @Relationship(type = "CHILD_OF", direction = Relationship.Direction.OUTGOING)
-  private Node parent;
+  @Relate(type = "CHILD_OF")
+  @Transient
+  protected Node parent;
 
-  @Relationship private SourceFileReference sourceFileReference = SourceFileReference.NULL;
+  @Relate @Transient protected SourceFileReference sourceFileReference = SourceFileReference.NULL;
 
-  @Id private final long idx;
+  @Id @GeneratedValue private Long id;
+  @Property public Long internalId = IndexGenerator.getUniqueIdx();
+
+  // @Id private final long id = IndexGenerator.getIdx();
+
+  /*private void recordRelationships() {
+    RelationshipRecorder.instance.add(this.idx, "HAS_ERROR_RECORD", errorRecord.idx);
+    RelationshipRecorder.instance.add(
+        this.idx, "PARENT_OF", children.stream().map(Node::getIdx).toList());
+    RelationshipRecorder.instance.add(this.idx, "CHILD_OF", parent.getIdx());
+    RelationshipRecorder.instance.add(this.idx, "SOURCE_FILE_REFERENCE", sourceFileReference.id);
+  }*/
 
   public Node() {
     this(Type.NONE, new ArrayList<>());
+    RelationshipRecorder.instance.addRelatable(this);
+    // recordRelationships();
   }
 
   /**
@@ -120,7 +144,6 @@ public class Node {
    */
   public Node(Type nodeType, ArrayList<Node> nodeChildren) {
     this.fileVersion = g_fileVersion;
-    idx = IndexGenerator.getIdx();
 
     type = nodeType;
     children = nodeChildren;
@@ -140,8 +163,9 @@ public class Node {
     for (int i = 0; i < nodeChildren.size(); i++) {
       var child = nodeChildren.get(i);
       // TODO: do we need this? CHILD_OF relationship can be queried backwards...
-      RelationshipRecorder.instance.add(this, child, i);
+      // RelationshipRecorder.instance.add(this, child, i);
     }
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   /**
@@ -151,11 +175,11 @@ public class Node {
    */
   public Node(Type nodeType) {
     this.fileVersion = g_fileVersion;
-    idx = IndexGenerator.getIdx();
 
     type = nodeType;
     children = new ArrayList<>();
     parent = NONE;
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   /**
@@ -166,12 +190,12 @@ public class Node {
    */
   public Node(Type nodeType, SourceFileReference sourceReference) {
     this.fileVersion = g_fileVersion;
-    idx = IndexGenerator.getIdx();
 
     type = nodeType;
     children = new ArrayList<>();
     sourceFileReference = sourceReference;
     parent = NONE;
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   /**
@@ -196,7 +220,7 @@ public class Node {
 
   public void addChild(Node node) {
     int idx = this.children.size();
-    RelationshipRecorder.instance.add(this, node, idx);
+    // RelationshipRecorder.instance.add(this, node, idx);
     this.children.add(node);
     node.parent = this;
 
@@ -206,10 +230,6 @@ public class Node {
     if (node.hasErrorChild || node.subTreeHasError || node.hasErrorRecord) {
       this.subTreeHasError = true;
     }
-  }
-
-  public long getIdx() {
-    return idx;
   }
 
   public Node getParent() {

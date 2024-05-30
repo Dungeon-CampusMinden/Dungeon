@@ -490,6 +490,10 @@ public class GameEnvironment implements IEnvironment {
           TypeFactory.INSTANCE.functionType(BuiltInType.noType, questItemType, entitySetType));
     }
 
+    private NativePlaceQuestItem() {
+      super();
+    }
+
     @Override
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
       assert parameters != null && parameters.size() > 0;
@@ -531,6 +535,10 @@ public class GameEnvironment implements IEnvironment {
           TypeFactory.INSTANCE.functionType(entityType, questItemType));
     }
 
+    private NativeBuildQuestItemEntity() {
+      super();
+    }
+
     @Override
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
       assert parameters != null && parameters.size() > 0;
@@ -558,6 +566,11 @@ public class GameEnvironment implements IEnvironment {
    * QuestItem}.
    */
   private class NativeBuildQuestItem extends NativeFunction {
+
+    public NativeBuildQuestItem() {
+      super();
+    }
+
     /**
      * Constructor
      *
@@ -572,6 +585,7 @@ public class GameEnvironment implements IEnvironment {
           TypeFactory.INSTANCE.functionType(
               questItemType, PrototypeValue.ITEM_PROTOTYPE, contentType));
     }
+
 
     @Override
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
@@ -716,6 +730,10 @@ public class GameEnvironment implements IEnvironment {
           TypeFactory.INSTANCE.functionType(BuiltInType.noType, taskType));
     }
 
+    AskYesNoDialogFunction() {
+      super();
+    }
+
     @Override
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
       assert parameters != null && parameters.size() > 0;
@@ -745,6 +763,10 @@ public class GameEnvironment implements IEnvironment {
           "show_task_on_ui",
           parentScope,
           TypeFactory.INSTANCE.functionType(BuiltInType.noType, taskType));
+    }
+
+    private ShowQuizOnUI() {
+      super();
     }
 
     @Override
@@ -778,6 +800,10 @@ public class GameEnvironment implements IEnvironment {
           "show_info",
           parentScope,
           TypeFactory.INSTANCE.functionType(BuiltInType.noType, BuiltInType.stringType));
+    }
+
+    ShowInfoFunction() {
+      super();
     }
 
     @Override
@@ -818,6 +844,10 @@ public class GameEnvironment implements IEnvironment {
       this.func = GradingFunctions.singleChoiceGrading();
     }
 
+    SingleChoiceGrading() {
+      super();
+    }
+
     @Override
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
       assert parameters != null && parameters.size() > 0;
@@ -851,6 +881,10 @@ public class GameEnvironment implements IEnvironment {
           parentScope,
           TypeFactory.INSTANCE.functionType(BuiltInType.floatType, taskType, taskContentSetType));
       this.func = GradingFunctions.multipeChoiceGrading();
+    }
+
+    MultipleChoiceGrading() {
+      super();
     }
 
     @Override
@@ -888,6 +922,10 @@ public class GameEnvironment implements IEnvironment {
       this.func = GradingFunctions.assignGradingEasy();
     }
 
+    AssignmentGradingEasy() {
+      super();
+    }
+
     @Override
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
       assert parameters != null && parameters.size() > 0;
@@ -923,6 +961,10 @@ public class GameEnvironment implements IEnvironment {
       this.func = GradingFunctions.assignGradingHard();
     }
 
+    AssignmentGradingHard() {
+      super();
+    }
+
     @Override
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
       assert parameters != null && parameters.size() > 0;
@@ -954,6 +996,10 @@ public class GameEnvironment implements IEnvironment {
           "get_random_content",
           parentScope,
           TypeFactory.INSTANCE.functionType(entityType, BuiltInType.noType));
+    }
+
+    GenerateRandomFillerContent() {
+      super();
     }
 
     @Override
@@ -1001,6 +1047,10 @@ public class GameEnvironment implements IEnvironment {
       this.func = AnswerPickingFunctions.singleChestPicker();
     }
 
+    AnswerPickerSingleChest() {
+      super();
+    }
+
     @Override
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
       assert parameters != null && parameters.size() > 0;
@@ -1035,6 +1085,10 @@ public class GameEnvironment implements IEnvironment {
       this.func = AnswerPickingFunctions.multipleChestPicker();
     }
 
+    AnswerPickerMultiChest() {
+      super();
+    }
+
     @Override
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
       assert parameters != null && parameters.size() > 0;
@@ -1067,6 +1121,10 @@ public class GameEnvironment implements IEnvironment {
           parentScope,
           TypeFactory.INSTANCE.functionType(taskContentSetType, taskType));
       this.func = AnswerPickingFunctions.heroInventoryPicker();
+    }
+
+    HeroInventoryPicker() {
+      super();
     }
 
     @Override
@@ -1105,6 +1163,10 @@ public class GameEnvironment implements IEnvironment {
           TypeFactory.INSTANCE.functionType(entitySetSetType, singleChoiceType));
     }
 
+    SingleChoiceNativeScenarioBuilder() {
+      super();
+    }
+
     @Override
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
       assert parameters != null && parameters.size() > 0;
@@ -1138,6 +1200,10 @@ public class GameEnvironment implements IEnvironment {
           TypeFactory.INSTANCE.functionType(entitySetSetType, multipleChoiceType));
     }
 
+    MultipleChoiceNativeScenarioBuilder() {
+      super();
+    }
+
     @Override
     public Object call(DSLInterpreter interpreter, List<Node> parameters) {
       assert parameters != null && parameters.size() > 0;
@@ -1169,6 +1235,10 @@ public class GameEnvironment implements IEnvironment {
           "$default_assign_task_scenario$",
           parentScope,
           TypeFactory.INSTANCE.functionType(entitySetSetType, assignTaskType));
+    }
+
+    public AssignTaskNativeScenarioBuilder() {
+      super();
     }
 
     @Override

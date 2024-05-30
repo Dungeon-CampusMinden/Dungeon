@@ -22,7 +22,7 @@ public abstract class NativeFunction extends ScopedSymbol implements ICallable {
     }
   }
 
-  private NativeFunction() {
+  protected NativeFunction() {
     super();
     this.symbolType = SymbolType.Callable;
   }

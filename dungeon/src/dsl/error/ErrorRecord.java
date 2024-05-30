@@ -1,14 +1,12 @@
 package dsl.error;
 
 import dsl.IndexGenerator;
+import dsl.programmanalyzer.Relatable;
 import org.antlr.v4.runtime.*;
-import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.Transient;
+import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
-public class ErrorRecord {
+public class ErrorRecord implements Relatable {
   private static long g_documentVersion = 0;
 
   public static void setDocumentVersion(long version) {
@@ -22,7 +20,15 @@ public class ErrorRecord {
   @Property private final ErrorType errorType;
   @Property private final long documentVersion;
   @Transient private final RecognitionException exception;
-  @Id private final long idx;
+  @Id @GeneratedValue private Long id;
+  @Property public Long internalId = IndexGenerator.getUniqueIdx();
+
+  // @Id public final long id = IndexGenerator.getIdx();
+
+  @Override
+  public Long getId() {
+    return this.internalId;
+  }
 
   public enum ErrorType {
     none,
@@ -82,7 +88,6 @@ public class ErrorRecord {
     this.charPositionInLine = -1;
     this.exception = null;
     this.offendingSymbol = null;
-    this.idx = -1;
   }
 
   public ErrorRecord(
@@ -93,7 +98,6 @@ public class ErrorRecord {
       ErrorType errorType,
       RecognitionException exception) {
     this.documentVersion = g_documentVersion;
-    this.idx = IndexGenerator.getIdx();
     this.msg = msg;
     this.errorType = errorType;
     this.offendingSymbol = offendingSymbol;

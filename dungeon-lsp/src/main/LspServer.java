@@ -12,6 +12,7 @@ import dsl.helper.ProfilingTimer;
 import dsl.neo4j.Neo4jConnect;
 import dsl.parser.ast.*;
 import dsl.programmanalyzer.ProgrammAnalyzer;
+import dsl.programmanalyzer.RelationshipRecorder;
 import dsl.runtime.callable.ExtensionMethod;
 import dsl.runtime.callable.NativeMethod;
 import dsl.semanticanalysis.environment.GameEnvironment;
@@ -36,6 +37,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.*;
 import org.neo4j.driver.Driver;
+import org.neo4j.ogm.exception.CypherException;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -46,7 +48,7 @@ public class LspServer
   private final List<LanguageClient> clients = new ArrayList<>();
   private final Socket socket;
   private final Future<Void> serverListening;
-  private final Session session;
+  private Session session;
   private final DBUpdater dbUpdater = new DBUpdater();
   private final DBAccessor dbAccessor;
 
@@ -68,8 +70,15 @@ public class LspServer
 
   public LspServer(int socketPort) throws IOException {
     this.neo4jDriver = Neo4jConnect.openConnection();
+
+    // purge database
+    var rawSession = this.neo4jDriver.session();
+    rawSession.run("match (n) detach delete n");
+    rawSession.close();
+
     this.sessionFactory = Neo4jConnect.getSessionFactory(neo4jDriver);
     this.session = sessionFactory.openSession();
+    this.session.clear();
     // DeletionEventListener listener = new DeletionEventListener();
     // this.session.register(listener);
 
@@ -356,7 +365,7 @@ public class LspServer
           //return n, funcNode, funcSym, funcType, returnType
           return returnType
           """,
-                  Map.of("returnNodeIdx", restrictingNode.getIdx()));
+                  Map.of("returnNodeIdx", restrictingNode.getId()));
           var iter = result.iterator();
           if (iter.hasNext()) {
             var map = iter.next();
@@ -387,9 +396,9 @@ public class LspServer
           """,
                   Map.of(
                       "restrictingNodeIdx",
-                      restrictingNode.getIdx(),
+                      restrictingNode.getId(),
                       "matchedNodeIdx",
-                      matchedNode.getIdx()));
+                      matchedNode.getId()));
           var result = lhsOrRhs.iterator().next();
 
           var lhsOrRhsIdx = (Long) result.get("edgeIdx");
@@ -420,7 +429,7 @@ public class LspServer
           }
           var otherSideType =
               session.queryForObject(
-                  IType.class, query, Map.of("restrictingNodeIdx", restrictingNode.getIdx()));
+                  IType.class, query, Map.of("restrictingNodeIdx", restrictingNode.getId()));
           return otherSideType.getName();
         }
       default:
@@ -486,7 +495,7 @@ public class LspServer
 
                     // need to clarify, if the returned id is lhs or rhs of the member access node
                     var childIdxs = dbAccessor.getChildIdxsOfMemberAccess(parentNode);
-                    if (childIdxs.getFirst().equals(astNode.getIdx())) {
+                    if (childIdxs.getFirst().equals(astNode.getId())) {
                       // astNode is the lhs of the member access
                       prefix = "";
                       // position should be the end line of member access
@@ -510,7 +519,7 @@ public class LspServer
                     Position startPosition;
                     String prefix;
                     var childIdxs = dbAccessor.getChildIdxsOfNode(parentNode);
-                    if (childIdxs.getFirst().equals(astNode.getIdx())) {
+                    if (childIdxs.getFirst().equals(astNode.getId())) {
                       // astNode is the lhs of the member access
                       prefix = "";
                       // position should be the end line of member access
@@ -903,35 +912,141 @@ public class LspServer
       }
     }
 
+    private void saveRelationship(dsl.programmanalyzer.Relationship relationship) {
+      String name = relationship.name();
+      List<Long> endPointIds = relationship.endIdxs();
+      StringBuilder propertyBuilder = new StringBuilder("{");
+      var propIterator = relationship.getProperties().entrySet().iterator();
+      boolean addedProperties = false;
+      for (int i = 0; i < relationship.getProperties().size(); i++) {
+        var entry = propIterator.next();
+        var propertyName = entry.getKey();
+        var propertyValue = entry.getValue();
+        propertyBuilder.append(propertyName).append(":").append(propertyValue);
+        if (i < relationship.getProperties().size() - 1) {
+          propertyBuilder.append(", ");
+        }
+        addedProperties = true;
+      }
+
+      if (endPointIds.size() > 1 || relationship.forceIdxProperty()) {
+        if (addedProperties) {
+          propertyBuilder.append(", idx: %d").append("}");
+        } else {
+          propertyBuilder.append("idx: %d").append("}");
+        }
+        for (int i = 0; i < endPointIds.size(); i++) {
+          String propertiesString = String.format(propertyBuilder.toString(), i);
+          try {
+            /*try {
+              // check
+              String checkQuery =
+                "match (start) where start.internalId=$startId "
+                  + "match (end) where end.internalId=$endId "
+                  + "return start, end";
+              var result =
+                session.query(
+                  checkQuery,
+                  Map.of("startId", relationship.startId(), "endId", endPointIds.get(i)));
+              int resultCount = 0;
+              for (Map<String, Object> stringObjectMap : result) {
+                resultCount++;
+              }
+              if (resultCount == 0) {
+                boolean b = true;
+              }
+            } catch (Exception ex) {
+              boolean b = true;
+            }*/
+
+            // add idx
+            String query =
+                "match (start:Relatable) where start.internalId=$startId "
+                    + "match (end:Relatable) where end.internalId=$endId "
+                    + "create (start)-[e:"
+                    + name
+                    + "]"
+                    + "->(end) "
+                    + "SET e = "
+                    + propertiesString
+              ;
+            var startId = relationship.startId();
+            var endId = endPointIds.get(i);
+            session.query(
+                query, Map.of("startId", startId, "endId", endId));
+          } catch (CypherException ex) {
+            LOGGER.severe(ex.getMessage());
+          }
+        }
+      } else if (endPointIds.size() == 1) {
+        propertyBuilder.append("}");
+        // add simple relationship
+        try {
+          String query =
+              "match (start:Relatable) where start.internalId=$startId match (end:Relatable)"
+                  + " where end.internalId=$endId "
+                  + "create (start)-[e:"
+                  + name
+                  + "]"
+                  + "->(end) "
+                  + "SET e = "
+                  + propertyBuilder
+            ;
+          session.query(
+              query, Map.of("startId", relationship.startId(), "endId", endPointIds.getFirst()));
+        } catch (CypherException ex) {
+          LOGGER.severe(ex.getMessage());
+        }
+      }
+    }
+
     private void initializeDB() {
       this.isRunning = true;
       LOGGER.info("INITIALIZE - LOCKING DB");
       dbMutex.lock();
-      var tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+      // var tx = session.beginTransaction(Transaction.Type.READ_WRITE);
       try {
         session.query("match (n) detach delete n", Map.of());
+        session.clear();
+        session.purgeDatabase();
+        // tx.commit();
+        // tx.close();
+        session.query("CREATE INDEX internal_id_index IF NOT EXISTS FOR (n:Relatable) ON (n.internalId)", Map.of());
+
+        // tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+        var insanityCheck = session.query("match (n) return n", Map.of());
+        session.save(Scope.NULL, 1);
+        // tx.commit();
+
+        var tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+        var globalScope = programmAnalyzer.getEnvironment().getGlobalScope();
+        session.save(globalScope);
         tx.commit();
 
         tx = session.beginTransaction(Transaction.Type.READ_WRITE);
-
-        session.save(Scope.NULL);
-
-        var globalScope = programmAnalyzer.getEnvironment().getGlobalScope();
-        session.save(globalScope);
-
         var globalSymbols = globalScope.getSymbols();
         session.save(globalSymbols);
 
         var types = TypeFactory.INSTANCE.getTypes();
         session.save(types);
-
         tx.commit();
+
+        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+        RelationshipRecorder.instance.processObjectsToPersist();
+        var objectsToPersist = RelationshipRecorder.instance.getObjectsToPersist();
+        session.save(objectsToPersist);
+        tx.commit();
+
+        RelationshipRecorder.instance.processRelationships();
+        var relationships = RelationshipRecorder.instance.get();
+        relationships.forEach(this::saveRelationship);
+
         LOGGER.info("Finished initializing database!");
       } catch (Exception ex) {
         boolean b = true;
         LOGGER.severe(ex.getMessage());
       } finally {
-        tx.close();
+        // tx.close();
         LOGGER.info("INITIALIZE - UNLOCKING DB");
         dbMutex.unlock();
         this.isRunning = false;
@@ -957,7 +1072,7 @@ public class LspServer
 
         // non-interuptable!
         // TODO: for delta based update, this needs to change!!
-        session.deleteAll(ParentOf.class);
+        // session.deleteAll(ParentOf.class);
         session.deleteAll(Node.class);
         session.deleteAll(ErrorRecord.class);
         session.deleteAll(SourceFileReference.class);
@@ -1006,209 +1121,35 @@ public class LspServer
           var ast = parsedFile.rootASTNode();
           throwIfStop();
           session.save(parsedFile);
+          // TODO: this does not work, because objects are not stored transitively..
           session.save(ast);
         }
 
-        tx.commit();
-
-        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
-
-        throwIfStop();
-        session.save(analyzedProgram.nodeRelationships());
-
-        throwIfStop();
-        var creations = analyzedProgram.symboltable().currentSymbolCreations();
-        session.save(creations);
-
-        throwIfStop();
-
-        tx.commit();
-
-        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
-        var symbolReferences = analyzedProgram.symboltable().currentSymbolReferences();
-        for (var symbolReference : symbolReferences) {
-          // tx = session.beginTransaction(Transaction.Type.READ_WRITE);
-          var queryResult =
-              session.query(
-                  """
-            match (n:AstNode {idx:$nodeIdx}), (s:Symbol {idx:$symbolIdx})
-            create (n)-[:REFERENCES]->(s)
-            """,
-                  Map.of(
-                      "nodeIdx",
-                      symbolReference.getAstNode().getIdx(),
-                      "symbolIdx",
-                      symbolReference.getSymbol().getIdx()));
-
-          // maybe create the references by hand..
-          // LOGGER.info("REFERENCE - NODE: " + symbolReference.getAstNode().type +
-          // ((symbolReference.getAstNode() instanceof IdNode) ? " name: " +
-          // ((IdNode)symbolReference.getAstNode()).getName() : "") + " - Symbol: " +
-          // symbolReference.getSymbol());
-          // session.save(symbolReference);
-          // tx.commit();
-          // var testResult = session.query("match (n:AstNode
-          // {idx:$nodeIdx})-[ref:REFERENCES]->(sym:Symbol {idx:$symIdx}) return n, sym, ref",
-          // Map.of("nodeIdx", symbolReference.getAstNode().getIdx(), "symIdx",
-          // symbolReference.getSymbol().getIdx()));
-
-          // sanity check..
-          // result = session.query("match (x)-[p:PARAMETER]->(y) return p, x, y", Map.of());
-          // if (result.queryStatistics().getNodesDeleted() > 0) {
-          //  LOGGER.info("query statistics nodes deleted > 0: " +
-          // result.queryStatistics().getNodesDeleted());
-          // }
-          // if (result.queryStatistics().getRelationshipsDeleted() > 0) {
-          //  LOGGER.info("query statistics relationships deleted > 0: " +
-          // result.queryStatistics().getRelationshipsDeleted());
-          // }
-          // iter = result.iterator();
-          // count = 0;
-          // while(iter.hasNext()) {
-          //  iter.next();
-          //  count++;
-          // }
-          // LOGGER.info("Result count: " + count);
-        }
-        tx.commit();
-
-        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
-
         throwIfStop();
         session.save(analyzedProgram.symboltable().getScopes());
-        tx.commit();
 
         throwIfStop();
-
-        var testResult =
-            session.query("match (x)-[p:PARAMETER_RELATIONSHIPS]->(y) return x,p,y", Map.of());
-        var iter = testResult.iterator();
-        int count = 0;
-        while (iter.hasNext()) {
-          iter.next();
-          count++;
-        }
-        LOGGER.info("Count: " + count);
-
-        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
         session.save(analyzedProgram.groum());
-
-        // connect fileScope
-        session.query(
-            "match (g:Groum) where ID(g)=$groumId match (f:FileScope) where ID(f)=$scopeId create (g)-[:FILE_SCOPE]->(f)",
-            Map.of(
-                "groumId",
-                analyzedProgram.groum().id,
-                "scopeId",
-                analyzedProgram.groum().fileScope.id));
 
         var nodes = analyzedProgram.groum().nodes();
         session.save(nodes);
 
-        // connect to Groum
-        for (var node : nodes) {
-          session.query(
-              "match (g:Groum) where ID(g)=$groumId match (n:GroumNode) where ID(n)=$nodeId create (g)-[:NODES]->(n)",
-              Map.of("groumId", analyzedProgram.groum().id, "nodeId", node.getId()));
+        var edges = analyzedProgram.groum().edges();
+        edges.forEach(e -> RelationshipRecorder.instance.translateRelationshipEntity(e));
+
+        throwIfStop();
+        RelationshipRecorder.instance.processObjectsToPersist();
+        var objectsToPersist = RelationshipRecorder.instance.getObjectsToPersist();
+        session.save(objectsToPersist);
+        //tx.commit();
+
+        //tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+        RelationshipRecorder.instance.processRelationships();
+        var relationships = RelationshipRecorder.instance.get();
+        for (var relationShip : relationships) {
+          throwIfStop();
+          saveRelationship(relationShip);
         }
-
-        tx.commit();
-
-        testResult =
-            session.query("match (x)-[p:PARAMETER_RELATIONSHIPS]->(y) return x,p,y", Map.of());
-        iter = testResult.iterator();
-        count = 0;
-        while (iter.hasNext()) {
-          iter.next();
-          count++;
-        }
-        if (count < 4) {
-          boolean b = true;
-        }
-        LOGGER.info("Count: " + count);
-
-        for (var node : nodes) {
-          tx = session.beginTransaction(Transaction.Type.READ_WRITE);
-          // how to change this?
-          // session.save(node);
-          // TODO: add relationships
-          var simpleRelationShips = node.getSimpleRelationships();
-          for (var relationShip : simpleRelationShips.entrySet()) {
-            String name = relationShip.getKey();
-            List<Long> endPointIds = relationShip.getValue().b();
-            String endPointLabel = relationShip.getValue().a();
-            if (endPointIds.size() > 1) {
-              for (int i = 0; i < endPointIds.size(); i++) {
-                // add idx
-                String query =
-                    "match (start:GroumNode) where ID(start)=$startId match (end:"
-                        + endPointLabel
-                        + ") where ID(end)=$endId "
-                        + "create (start)-[:"
-                        + name
-                        + " {idx:"
-                        + i
-                        + "}]->(end)";
-                session.query(
-                    query, Map.of("startId", node.getId(), "endId", endPointIds.getFirst()));
-              }
-            } else if (endPointIds.size() == 1) {
-              // add simple relationship
-              String query =
-                  "match (start:GroumNode) where ID(start)=$startId match (end:"
-                      + endPointLabel
-                      + ") where ID(end)=$endId "
-                      + "create (start)-[:"
-                      + name
-                      + "]->(end)";
-              session.query(
-                  query, Map.of("startId", node.getId(), "endId", endPointIds.getFirst()));
-            }
-          }
-          tx.commit();
-
-          testResult =
-              session.query("match (x)-[p:PARAMETER_RELATIONSHIPS]->(y) return x,p,y", Map.of());
-          iter = testResult.iterator();
-          count = 0;
-          while (iter.hasNext()) {
-            iter.next();
-            count++;
-          }
-          if (count < 4) {
-            boolean b = true;
-          }
-          LOGGER.info("Count: " + count);
-        }
-
-        tx = session.beginTransaction(Transaction.Type.READ_WRITE);
-        for (var edge : analyzedProgram.groum().edges()) {
-          String query =
-              "match (start:GroumNode) where ID(start)=$startId match (end:GroumNode) where ID(end)=$endId create (start)-"
-                  + edge.cypherCreationString()
-                  + "->(end)";
-          session.query(
-              query, Map.of("startId", edge.start().identifier, "endId", edge.end().identifier));
-        }
-
-        /*for (var edge : analyzedProgram.groum().edges()) {
-          tx = session.beginTransaction(Transaction.Type.READ_WRITE);
-
-          String query = "match (start:GroumNode) where ID(start)=$startId match (end:GroumNode) where ID(end)=$endId create (start)-"+edge.cypherCreationString()+"->(end)";
-          session.query(query,
-            Map.of("startId", edge.start().identifier, "endId", edge.end().identifier)
-          );
-          tx.commit();
-
-          var res = session.query("""
-            match (start:GroumNode) where ID(start)=$startId match (end:GroumNode) where ID(end)=$endId
-            match (start)-[e:OUTGOING_EDGES]->(end)
-            return start, end, e
-            """,
-            Map.of("startId", edge.start().identifier, "endId", edge.end().identifier)
-          );
-          boolean b = true;
-        }*/
         tx.commit();
 
         LOGGER.info("Finished updating database!");

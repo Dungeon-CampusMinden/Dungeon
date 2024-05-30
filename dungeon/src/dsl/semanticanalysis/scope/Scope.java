@@ -21,17 +21,21 @@
 
 package dsl.semanticanalysis.scope;
 
+import dsl.IndexGenerator;
 import dsl.parser.ast.Node;
+import dsl.programmanalyzer.Relatable;
+import dsl.programmanalyzer.Relate;
+import dsl.programmanalyzer.RelationshipRecorder;
 import dsl.semanticanalysis.symbol.Symbol;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
-public class Scope implements IScope {
-  @Id @GeneratedValue public Long id;
+public class Scope implements IScope, Relatable {
+
+  @Id @GeneratedValue private Long id;
+  @Property public Long internalId = IndexGenerator.getUniqueIdx();
+  // @Id public final Long uuid = IndexGenerator.getIdx();
   @Property private final String name;
 
   @Override
@@ -41,17 +45,21 @@ public class Scope implements IScope {
 
   public static Scope NULL = new Scope("NULL_SCOPE");
 
-  @Relationship(type = "PARENT_SCOPE", direction = Relationship.Direction.OUTGOING)
+  @Relate(type = "PARENT_SCOPE")
+  @Transient
   protected IScope parent;
 
-  protected HashSet<IScope> childScopes;
+  @Transient protected HashSet<IScope> childScopes;
 
   @Transient protected HashMap<String, Symbol> symbols;
 
-  @Relationship(type = "CONTAINS", direction = Relationship.Direction.OUTGOING)
+  @Relate(type = "CONTAINS")
+  @Transient
   protected List<Symbol> symbolList;
 
-  @Relationship(type = "CREATES", direction = Relationship.Direction.INCOMING)
+  @Transient
+  // TODO: direction = incoming, maybe this is redundant anyway..!!!
+  // @Relate(type = "CREATES", direction = Relationship.Direction.INCOMING)
   protected Node relatedASTNode;
 
   /**
@@ -66,6 +74,8 @@ public class Scope implements IScope {
     this.symbolList = new ArrayList<>();
     this.childScopes = new HashSet<>();
     this.parent.getChildScopes().add(this);
+
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   public Scope(IScope parentScope, String name) {
@@ -75,6 +85,8 @@ public class Scope implements IScope {
     this.symbolList = new ArrayList<>();
     this.childScopes = new HashSet<>();
     this.parent.getChildScopes().add(this);
+
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   public Scope(IScope parentScope, Node node) {
@@ -85,6 +97,8 @@ public class Scope implements IScope {
     this.relatedASTNode = node;
     this.childScopes = new HashSet<>();
     this.parent.getChildScopes().add(this);
+
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   /** Constructor */
@@ -94,6 +108,8 @@ public class Scope implements IScope {
     this.symbols = new HashMap<>();
     this.symbolList = new ArrayList<>();
     this.childScopes = new HashSet<>();
+
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   public Scope(String name) {
@@ -102,6 +118,8 @@ public class Scope implements IScope {
     this.symbols = new HashMap<>();
     this.symbolList = new ArrayList<>();
     this.childScopes = new HashSet<>();
+
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   /**
@@ -175,5 +193,10 @@ public class Scope implements IScope {
   @Override
   public HashSet<IScope> getChildScopes() {
     return this.childScopes;
+  }
+
+  @Override
+  public Long getId() {
+    return this.internalId;
   }
 }

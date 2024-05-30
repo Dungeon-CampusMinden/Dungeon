@@ -14,7 +14,7 @@ public class DotNodeStmtNode extends Node {
     super(Type.DotNodeStmt);
   }
 
-  public IdNode getId() {
+  public IdNode getIdentifier() {
     return (IdNode) this.getChild(idIdx);
   }
 

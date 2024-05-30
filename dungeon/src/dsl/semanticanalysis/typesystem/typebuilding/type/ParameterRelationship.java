@@ -1,10 +1,13 @@
 package dsl.semanticanalysis.typesystem.typebuilding.type;
 
+import dsl.IndexGenerator;
 import org.neo4j.ogm.annotation.*;
 
+// TODO: obsolete
 @RelationshipEntity()
 public class ParameterRelationship {
-  @Id @GeneratedValue Long id;
+  @Id @GeneratedValue private Long id;
+  @Property public Long internalId = IndexGenerator.getUniqueIdx();
   @Property private int idx;
 
   @StartNode private IType functionType;

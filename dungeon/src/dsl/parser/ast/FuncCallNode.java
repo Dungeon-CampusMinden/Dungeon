@@ -12,7 +12,7 @@ public class FuncCallNode extends Node {
    *
    * @return AstNode corresponding to the identifier of the function call
    */
-  public Node getId() {
+  public Node getIdentifier() {
     return this.getChild(idIdx);
   }
 

@@ -1,9 +1,10 @@
 package dsl.semanticanalysis.typesystem.typebuilding.type;
 
+import dsl.programmanalyzer.Relatable;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 @NodeEntity
-public interface IType {
+public interface IType extends Relatable {
   enum Kind {
     Basic,
     Aggregate,
@@ -14,9 +15,6 @@ public interface IType {
     MapType,
     EnumType
   }
-
-  // for neo4j
-  long getId();
 
   /**
    * Getter for the type name

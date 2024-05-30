@@ -14,7 +14,7 @@ public class FuncDefNode extends Node {
    *
    * @return AstNode corresponding to the identifier of the defined function
    */
-  public Node getId() {
+  public Node getIdentifier() {
     return this.getChild(idIdx);
   }
 

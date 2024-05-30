@@ -31,6 +31,10 @@ public class NativePrint extends NativeFunction {
     this.bind(param);
   }
 
+  private NativePrint() {
+    super();
+  }
+
   @Override
   public Object call(DSLInterpreter interperter, List<Node> parameters) {
     assert parameters != null && parameters.size() > 0;

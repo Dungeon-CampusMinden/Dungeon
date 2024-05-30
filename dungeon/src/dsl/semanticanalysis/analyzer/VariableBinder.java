@@ -136,7 +136,7 @@ public class VariableBinder implements AstVisitor<Void> {
 
   @Override
   public Void visit(ObjectDefNode node) {
-    var id = node.getId();
+    var id = node.getIdentifier();
     assert id.type == Node.Type.Identifier;
 
     // Bind assignee in current scope

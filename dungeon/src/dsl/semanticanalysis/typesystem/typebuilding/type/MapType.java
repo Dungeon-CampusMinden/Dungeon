@@ -36,7 +36,7 @@ public class MapType extends ScopedSymbol implements IType {
         new NativeMethod(
             "add",
             this,
-            new FunctionType(BuiltInType.noType, keyType, elementType),
+            TypeFactory.INSTANCE.functionType(BuiltInType.noType, keyType, elementType),
             MapValue.AddMethod.instance);
     this.bind(addMethod);
 
@@ -44,7 +44,10 @@ public class MapType extends ScopedSymbol implements IType {
     var keyListType = typeFactory.listType(keyType, parentScope);
     NativeMethod getKeysMethod =
         new NativeMethod(
-            "get_keys", this, new FunctionType(keyListType), MapValue.GetKeysMethod.instance);
+            "get_keys",
+            this,
+            TypeFactory.INSTANCE.functionType(keyListType),
+            MapValue.GetKeysMethod.instance);
     this.bind(getKeysMethod);
 
     // var elementListType = new ListType(elementType, parentScope);
@@ -53,7 +56,7 @@ public class MapType extends ScopedSymbol implements IType {
         new NativeMethod(
             "get_elements",
             this,
-            new FunctionType(elementListType),
+            TypeFactory.INSTANCE.functionType(elementListType),
             MapValue.GetElementsMethod.instance);
     this.bind(getElementsMethod);
 
@@ -61,14 +64,9 @@ public class MapType extends ScopedSymbol implements IType {
         new NativeMethod(
             "clear",
             this,
-            new FunctionType(BuiltInType.noType, BuiltInType.noType),
+            TypeFactory.INSTANCE.functionType(BuiltInType.noType, BuiltInType.noType),
             MapValue.ClearMethod.instance);
     this.bind(clearMethod);
-  }
-
-  @Override
-  public long getId() {
-    return super.getIdx();
   }
 
   @Override

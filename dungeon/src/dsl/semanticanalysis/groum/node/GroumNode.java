@@ -1,13 +1,13 @@
 package dsl.semanticanalysis.groum.node;
 
-import core.utils.Tuple;
+import dsl.IndexGenerator;
 import dsl.parser.ast.Node;
+import dsl.programmanalyzer.Relatable;
+import dsl.programmanalyzer.Relate;
+import dsl.programmanalyzer.RelationshipRecorder;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.neo4j.ogm.annotation.*;
 
 // TODO: how is this class related to symbols and AST?
@@ -22,9 +22,10 @@ import org.neo4j.ogm.annotation.*;
 //  instantiated during code completion or used for advanced
 //  error handling, is just a pattern
 @NodeEntity
-public abstract class GroumNode {
+public abstract class GroumNode implements Relatable {
 
-  @Id @Property @GeneratedValue public Long identifier;
+  @Id @GeneratedValue private Long id;
+  @Property public Long internalId = IndexGenerator.getUniqueIdx();
 
   // explicit null object
   public static GroumNode NONE =
@@ -47,38 +48,35 @@ public abstract class GroumNode {
     this.children = new ArrayList<>();
     this.controlFlowParent = GroumNode.NONE;
     this.relatedAstNode = Node.NONE;
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
-  public Map<String, Tuple<String, List<Long>>> getSimpleRelationships() {
+  /*public Map<String, Tuple<String, List<Long>>> getSimpleRelationships() {
     var map = new HashMap<String, Tuple<String, List<Long>>>();
     if (this.relatedAstNode != null) {
-      map.put("RELATED_AST_NODE", new Tuple<>("AstNode", List.of(this.relatedAstNode.getIdx())));
+      map.put("RELATED_AST_NODE", new Tuple<>("AstNode", List.of(this.relatedAstNode.getId())));
     }
     if (this.parent != null) {
-      if (parent.identifier == null) {
+      if (parent.id == null) {
         boolean b = true;
       } else {
-        map.put("PARENT", new Tuple<>("GroumNode", List.of(this.parent.identifier)));
+        map.put("PARENT", new Tuple<>("GroumNode", List.of(this.parent.id)));
       }
     }
-    map.put(
-        "CHILDREN",
-        new Tuple<>("GroumNode", this.children.stream().map(c -> c.identifier).toList()));
+    map.put("CHILDREN", new Tuple<>("GroumNode", this.children.stream().map(c -> c.id).toList()));
     return map;
-  }
+  }*/
 
-  // @Relationship private Node relatedAstNode;
-  @Transient private Node relatedAstNode;
-  @Relationship private GroumNode controlFlowParent;
-  // @Transient private GroumNode controlFlowParent;
+  @Relate @Transient protected Node relatedAstNode;
+  @Relate @Transient protected GroumNode controlFlowParent;
 
   @Transient private List<GroumEdge> incomingEdges;
-  // @Relationship private List<GroumEdge> outgoingEdges;
-  @Transient private List<GroumEdge> outgoingEdges;
+  // @Transient private List<GroumEdge> outgoingEdges;
+  /*@Relate*/ @Transient protected List<GroumEdge> outgoingEdges;
 
   // only relevant, if contained in a larger Scope
-  @Transient private GroumNode parent = GroumNode.NONE;
-  @Transient private ArrayList<GroumNode> children;
+  @Relate @Transient protected GroumNode parent = GroumNode.NONE;
+  @Relate @Transient protected ArrayList<GroumNode> children;
 
   @Property private String label;
 
@@ -87,8 +85,9 @@ public abstract class GroumNode {
     // this.labels = List.of(label);
   }
 
+  @Override
   public Long getId() {
-    return identifier;
+    return this.internalId;
   }
 
   private long processedCounter = -1;

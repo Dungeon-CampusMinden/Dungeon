@@ -6,8 +6,6 @@ import dsl.error.ErrorListener;
 import dsl.error.ErrorRecordFactory;
 import dsl.error.ErrorStrategy;
 import dsl.parser.DungeonASTConverter;
-import dsl.parser.ast.ParentOf;
-import dsl.parser.ast.RelationshipRecorder;
 import dsl.semanticanalysis.SymbolTable;
 import dsl.semanticanalysis.analyzer.SemanticAnalyzer;
 import dsl.semanticanalysis.environment.GameEnvironment;
@@ -39,7 +37,7 @@ public class ProgrammAnalyzer {
       List<ParsedFile> parsedFiles,
       List<IScope> scopes,
       SymbolTable symboltable,
-      List<ParentOf> nodeRelationships,
+      // List<Relationship> relationships,
       Groum groum) {}
 
   // TODO: what to put in this?
@@ -47,7 +45,7 @@ public class ProgrammAnalyzer {
       ParsedFile parsedFile,
       List<IScope> scopes,
       SymbolTable symboltable,
-      List<ParentOf> nodeRelationships,
+      // List<Relationship> relationships,
       Groum groum) {}
 
   public ProgrammAnalyzer(boolean trace) {
@@ -64,7 +62,7 @@ public class ProgrammAnalyzer {
   public void analyzeFileDelta(String content, String path) {}
 
   public AnalyzedProgramComplete analyze(String configScript, String configFileUri) {
-    RelationshipRecorder.instance.clear();
+    RelationshipRecorder.instance.pushNewRecord();
     ErrorRecordFactory.instance.clear();
 
     // TODO: make relLibPath settable (or make the Environment settable)
@@ -105,12 +103,18 @@ public class ProgrammAnalyzer {
     var finalGroum = groumBuilder.build(programAST, result.symbolTable, this.environment);
     finalGroum.setFileScope(currentFileScope);
 
-    var nodeRelationShips = RelationshipRecorder.instance.get();
+    var creations = this.environment.getSymbolTable().currentSymbolCreations();
+    creations.forEach(c -> RelationshipRecorder.instance.translateRelationshipEntity(c));
+
+    var references = this.environment.getSymbolTable().currentSymbolReferences();
+    references.forEach(r -> RelationshipRecorder.instance.translateRelationshipEntity(r));
+
+    // var nodeRelationShips = RelationshipRecorder.instance.get();
     return new AnalyzedProgramComplete(
         List.of(parsedFile),
         new ArrayList<>(this.environment.getFileScopes().values()),
         this.environment.getSymbolTable(),
-        nodeRelationShips,
+        // nodeRelationShips,
         finalGroum);
   }
 }

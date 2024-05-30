@@ -364,7 +364,7 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
 
   @Override
   public Groum visit(DotNodeStmtNode node) {
-    var idSymbol = this.symbolTable.getSymbolsForAstNode(node.getId()).get(0);
+    var idSymbol = this.symbolTable.getSymbolsForAstNode(node.getIdentifier()).get(0);
     ReferenceInGraphAction referenceInGraphAction =
         new ReferenceInGraphAction(idSymbol, createOrGetInstanceId(idSymbol));
     referenceInGraphAction.relatedAstNode(node);

@@ -4,6 +4,7 @@ import static dsl.semanticanalysis.TestGroum.write;
 
 import dsl.interpreter.DSLInterpreter;
 import dsl.parser.ast.*;
+import dsl.programmanalyzer.RelationshipRecorder;
 import dsl.runtime.callable.ICallable;
 import dsl.semanticanalysis.groum.FinalGroumBuilder;
 import dsl.semanticanalysis.groum.Groum;
@@ -311,7 +312,7 @@ public class Neo4J {
 
     DSLInterpreter interpreter = new DSLInterpreter();
     try {
-      RelationshipRecorder.instance.clear();
+      RelationshipRecorder.instance.pushNewRecord();
       DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
     } catch (RuntimeException ex) {
       // program contains error, won't be able to create quest config
@@ -452,7 +453,7 @@ public class Neo4J {
 
     DSLInterpreter interpreter = new DSLInterpreter();
     try {
-      RelationshipRecorder.instance.clear();
+      RelationshipRecorder.instance.pushNewRecord();
       DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
     } catch (RuntimeException ex) {
       // program contains error, won't be able to create quest config
@@ -646,7 +647,7 @@ public class Neo4J {
 
     DSLInterpreter interpreter = new DSLInterpreter();
     try {
-      RelationshipRecorder.instance.clear();
+      RelationshipRecorder.instance.pushNewRecord();
       DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
     } catch (RuntimeException ex) {
       // program contains error, won't be able to create quest config
@@ -733,7 +734,7 @@ public class Neo4J {
 
     DSLInterpreter interpreter = new DSLInterpreter();
     try {
-      RelationshipRecorder.instance.clear();
+      RelationshipRecorder.instance.pushNewRecord();
       DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
     } catch (RuntimeException ex) {
       // program contains error, won't be able to create quest config
@@ -821,7 +822,7 @@ public class Neo4J {
 
     DSLInterpreter interpreter = new DSLInterpreter();
     try {
-      RelationshipRecorder.instance.clear();
+      RelationshipRecorder.instance.pushNewRecord();
       DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
     } catch (RuntimeException ex) {
       // program contains error, won't be able to create quest config
@@ -905,7 +906,7 @@ public class Neo4J {
 
     DSLInterpreter interpreter = new DSLInterpreter();
     try {
-      RelationshipRecorder.instance.clear();
+      RelationshipRecorder.instance.pushNewRecord();
       DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
     } catch (RuntimeException ex) {
       // program contains error, won't be able to create quest config
@@ -993,7 +994,7 @@ public class Neo4J {
 
     DSLInterpreter interpreter = new DSLInterpreter();
     try {
-      RelationshipRecorder.instance.clear();
+      RelationshipRecorder.instance.pushNewRecord();
       DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
     } catch (RuntimeException ex) {
       // program contains error, won't be able to create quest config
@@ -1086,7 +1087,7 @@ public class Neo4J {
 
     DSLInterpreter interpreter = new DSLInterpreter();
     try {
-      RelationshipRecorder.instance.clear();
+      RelationshipRecorder.instance.pushNewRecord();
       DungeonConfig config = (DungeonConfig) interpreter.getQuestConfig(program);
     } catch (RuntimeException ex) {
       // program contains error, won't be able to create quest config

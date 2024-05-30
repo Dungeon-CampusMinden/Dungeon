@@ -1,5 +1,8 @@
 package dsl.semanticanalysis.groum;
 
+import dsl.IndexGenerator;
+import dsl.programmanalyzer.Relatable;
+import dsl.programmanalyzer.Relate;
 import dsl.semanticanalysis.groum.node.ActionNode;
 import dsl.semanticanalysis.groum.node.GroumEdge;
 import dsl.semanticanalysis.groum.node.GroumNode;
@@ -8,12 +11,14 @@ import java.util.*;
 import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
-public class Groum {
+public class Groum implements Relatable {
   public static Groum NONE = new Groum();
 
-  public @Id @GeneratedValue Long id;
+  @Id @GeneratedValue private Long id;
+  @Property public Long internalId = IndexGenerator.getUniqueIdx();
+  // @Id public final Long id = IndexGenerator.getIdx();
 
-  @Transient List<GroumNode> nodes = new ArrayList<>();
+  @Relate @Transient protected List<GroumNode> nodes = new ArrayList<>();
   // TODO: iterate manually over that..
   @Transient List<GroumEdge> edges = new ArrayList<>();
   // TODO: temporary
@@ -238,5 +243,10 @@ public class Groum {
       }
     }
     return defNodes;
+  }
+
+  @Override
+  public Long getId() {
+    return this.internalId;
   }
 }

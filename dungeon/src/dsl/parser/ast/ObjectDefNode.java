@@ -41,7 +41,7 @@ public class ObjectDefNode extends Node {
    *
    * @return AstNode corresponding to the name of the object definition
    */
-  public Node getId() {
+  public Node getIdentifier() {
     return this.getChild(idIdx);
   }
 

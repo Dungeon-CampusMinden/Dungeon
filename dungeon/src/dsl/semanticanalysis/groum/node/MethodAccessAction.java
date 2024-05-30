@@ -1,13 +1,12 @@
 package dsl.semanticanalysis.groum.node;
 
-import core.utils.Tuple;
 import dsl.IndexGenerator;
+import dsl.programmanalyzer.Relate;
+import dsl.programmanalyzer.RelationshipRecorder;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-import java.util.List;
-import java.util.Map;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Transient;
 
@@ -15,12 +14,9 @@ import org.neo4j.ogm.annotation.Transient;
 public class MethodAccessAction extends ActionNode {
   private final long methodCallInstanceId;
 
-  // @Relationship private final IType instanceType;
-  // @Relationship private final Symbol instanceSymbol;
-  // @Relationship private final Symbol methodSymbol;
-  @Transient private final IType instanceType;
-  @Transient private final Symbol instanceSymbol;
-  @Transient private final Symbol methodSymbol;
+  @Relate @Transient protected final IType instanceType;
+  @Relate @Transient protected final Symbol instanceSymbol;
+  @Relate @Transient protected final Symbol methodSymbol;
 
   public MethodAccessAction(Symbol instanceSymbol, Symbol method, long instanceId) {
     super(ActionType.functionCallAccess);
@@ -32,16 +28,17 @@ public class MethodAccessAction extends ActionNode {
     this.referencedInstanceId(instanceId);
     this.methodCallInstanceId = IndexGenerator.getIdx();
     this.updateLabels();
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
-  @Override
+  /*@Override
   public Map<String, Tuple<String, List<Long>>> getSimpleRelationships() {
     var superMap = super.getSimpleRelationships();
     superMap.put("INSTANCE_TYPE", new Tuple<>("IType", List.of(instanceType.getId())));
-    superMap.put("INSTANCE_SYMBOL", new Tuple<>("Symbol", List.of(instanceSymbol.getIdx())));
-    superMap.put("METHOD_SYMBOL", new Tuple<>("Symbol", List.of(methodSymbol.getIdx())));
+    superMap.put("INSTANCE_SYMBOL", new Tuple<>("Symbol", List.of(instanceSymbol.getId())));
+    superMap.put("METHOD_SYMBOL", new Tuple<>("Symbol", List.of(methodSymbol.getId())));
     return superMap;
-  }
+  }*/
 
   public MethodAccessAction() {
     super(ActionType.functionCallAccess);

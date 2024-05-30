@@ -1,5 +1,7 @@
 package dsl.semanticanalysis.typesystem.typebuilding.type;
 
+import dsl.programmanalyzer.Relate;
+import dsl.programmanalyzer.RelationshipRecorder;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
 import java.util.ArrayList;
@@ -10,12 +12,12 @@ import org.neo4j.ogm.annotation.Transient;
 // TODO: extend this for named parameters
 @NodeEntity
 public class FunctionType extends Symbol implements IType {
-  private final IType returnType;
+  @Relate @Transient protected final IType returnType;
 
-  @Transient private final ArrayList<IType> parameterTypes;
+  @Relate @Transient protected final ArrayList<IType> parameterTypes;
 
   // TODO: why does this not work for builtins???!
-  private final ArrayList<ParameterRelationship> parameterRelationships;
+  // private final ArrayList<ParameterRelationship> parameterRelationships;
 
   public IType getReturnType() {
     return returnType;
@@ -46,17 +48,18 @@ public class FunctionType extends Symbol implements IType {
     this.returnType = returnType;
     this.parameterTypes = new ArrayList<>(List.of(parameterTypes));
 
-    this.parameterRelationships = new ArrayList<>();
+    RelationshipRecorder.instance.addRelatable(this);
+    /*this.parameterRelationships = new ArrayList<>();
     for (int i = 0; i < this.parameterTypes.size(); i++) {
       var type = this.parameterTypes.get(i);
       this.parameterRelationships.add(new ParameterRelationship(this, type, i));
-    }
+    }*/
   }
 
   public FunctionType() {
     this.returnType = BuiltInType.noType;
     this.parameterTypes = new ArrayList<>();
-    this.parameterRelationships = new ArrayList<>();
+    // this.parameterRelationships = new ArrayList<>();
   }
 
   FunctionType(IType returnType, List<IType> parameterTypes) {
@@ -64,11 +67,12 @@ public class FunctionType extends Symbol implements IType {
     this.returnType = returnType;
     this.parameterTypes = new ArrayList<>(parameterTypes);
 
-    this.parameterRelationships = new ArrayList<>();
+    /*this.parameterRelationships = new ArrayList<>();
     for (int i = 0; i < parameterTypes.size(); i++) {
       var type = parameterTypes.get(i);
       this.parameterRelationships.add(new ParameterRelationship(this, type, i));
-    }
+    }*/
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   public static String calculateTypeName(IType returnType, List<IType> parameterTypes) {
@@ -88,11 +92,6 @@ public class FunctionType extends Symbol implements IType {
     nameBuilder.append(returnType.getName());
     nameBuilder.append("$");
     return nameBuilder.toString();
-  }
-
-  @Override
-  public long getId() {
-    return super.getIdx();
   }
 
   @Override

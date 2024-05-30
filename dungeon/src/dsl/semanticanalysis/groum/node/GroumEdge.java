@@ -1,7 +1,9 @@
 package dsl.semanticanalysis.groum.node;
 
+import dsl.IndexGenerator;
 import org.neo4j.ogm.annotation.*;
 
+// TODO: adapt for RelationshipRecorder
 @RelationshipEntity
 public class GroumEdge {
   public enum GroumEdgeType {
@@ -13,6 +15,7 @@ public class GroumEdge {
   }
 
   @Id @GeneratedValue private Long id;
+  @Property public Long internalId = IndexGenerator.getUniqueIdx();
 
   @StartNode private final GroumNode start;
   @EndNode private final GroumNode end;

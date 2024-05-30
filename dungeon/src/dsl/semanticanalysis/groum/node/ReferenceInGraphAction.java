@@ -1,31 +1,27 @@
 package dsl.semanticanalysis.groum.node;
 
-import core.utils.Tuple;
+import dsl.programmanalyzer.Relate;
+import dsl.programmanalyzer.RelationshipRecorder;
 import dsl.semanticanalysis.groum.GroumVisitor;
 import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
-import java.util.List;
-import java.util.Map;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Transient;
 
 @NodeEntity
 public class ReferenceInGraphAction extends ActionNode {
-  @Transient private final IType referencedVariableType;
-  @Transient private final Symbol referencedSymbol;
+  @Relate @Transient protected final IType referencedVariableType;
+  @Relate @Transient protected final Symbol referencedSymbol;
 
-  // @Relationship private final IType referencedVariableType;
-  // @Relationship private final Symbol referencedSymbol;
-
-  @Override
+  /*@Override
   public Map<String, Tuple<String, List<Long>>> getSimpleRelationships() {
     var superMap = super.getSimpleRelationships();
     superMap.put(
         "REFERENCED_VARIABLE_TYPE", new Tuple<>("IType", List.of(referencedVariableType.getId())));
-    superMap.put("REFERENCED_SYMBOL", new Tuple<>("Symbol", List.of(referencedSymbol.getIdx())));
+    superMap.put("REFERENCED_SYMBOL", new Tuple<>("Symbol", List.of(referencedSymbol.getId())));
     return superMap;
-  }
+  }*/
 
   public ReferenceInGraphAction(Symbol referencedSymbol, long referenceId) {
     super(ActionType.referencedInGraph);
@@ -33,6 +29,7 @@ public class ReferenceInGraphAction extends ActionNode {
     this.referencedSymbol = referencedSymbol;
     this.referencedInstanceId(referenceId);
     this.updateLabels();
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   public ReferenceInGraphAction() {

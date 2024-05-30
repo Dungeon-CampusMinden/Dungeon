@@ -1,12 +1,15 @@
 package dsl;
 
+import java.util.UUID;
+
 public class IndexGenerator {
-  private static long _idx; // running idx
+  private static long _idx = 1L; // running idx
 
   public static long getIdx() {
-    if (_idx == 2) {
-      boolean b = true;
-    }
     return _idx++;
+  }
+
+  public static long getUniqueIdx() {
+    return UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
   }
 }

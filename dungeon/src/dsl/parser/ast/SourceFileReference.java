@@ -1,5 +1,7 @@
 package dsl.parser.ast;
 
+import dsl.IndexGenerator;
+import dsl.programmanalyzer.Relatable;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.neo4j.ogm.annotation.GeneratedValue;
@@ -8,8 +10,10 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
 
 @NodeEntity
-public class SourceFileReference {
+public class SourceFileReference implements Relatable {
   @Id @GeneratedValue private Long id;
+  @Property public Long internalId = IndexGenerator.getUniqueIdx();
+  // @Id public final Long id = IndexGenerator.getIdx();
   @Property int startLine;
   @Property int startColumn;
   @Property int endLine;
@@ -134,5 +138,10 @@ public class SourceFileReference {
         + ":"
         + this.absoluteEnd
         + "]";
+  }
+
+  @Override
+  public Long getId() {
+    return this.internalId;
   }
 }

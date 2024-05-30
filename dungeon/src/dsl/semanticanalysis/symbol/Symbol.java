@@ -22,13 +22,21 @@
 package dsl.semanticanalysis.symbol;
 
 import dsl.IndexGenerator;
+import dsl.programmanalyzer.Relatable;
+import dsl.programmanalyzer.Relate;
+import dsl.programmanalyzer.RelationshipRecorder;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import org.neo4j.ogm.annotation.*;
 
 /** Represents a symbol in a program */
 @NodeEntity
-public class Symbol {
+public class Symbol implements Relatable {
+  @Override
+  public Long getId() {
+    return this.internalId;
+  }
+
   public enum SymbolType {
     Base,
     Scoped, // for handling of datatypes for object definitions
@@ -37,16 +45,20 @@ public class Symbol {
 
   @Property protected String name;
 
-  @Relationship(type = "OF_TYPE", direction = Relationship.Direction.OUTGOING)
+  @Relate(type = "OF_TYPE")
+  @Transient
   protected IType dataType;
 
   // the parent scope of the symbol
-  @Relationship(type = "IN_SCOPE", direction = Relationship.Direction.OUTGOING)
+  @Relate(type = "IN_SCOPE")
+  @Transient
   protected IScope scope;
 
   @Property protected SymbolType symbolType;
 
-  @Id private long idx;
+  @Id @GeneratedValue private Long id;
+  @Property public Long internalId = IndexGenerator.getUniqueIdx();
+  // @Id private final long id = IndexGenerator.getIdx();
 
   public static Symbol NULL = new Symbol("NULL SYMBOL", null, null);
 
@@ -93,15 +105,6 @@ public class Symbol {
   }
 
   /**
-   * Getter for the index of the symbol (the index is a unique identifier of the symbol)
-   *
-   * @return the index of the symbol
-   */
-  public long getIdx() {
-    return idx;
-  }
-
-  /**
    * Getter for the {@link SymbolType} of the symbol
    *
    * @return the {@link SymbolType} of the symbol
@@ -118,11 +121,12 @@ public class Symbol {
    * @param dataType the datatype of the symbol
    */
   public Symbol(String symbolName, IScope parentScope, IType dataType) {
-    this.idx = IndexGenerator.getIdx();
     this.scope = parentScope;
     this.name = symbolName;
     this.dataType = dataType;
     this.symbolType = SymbolType.Base;
+
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   /** Constructor */
@@ -131,6 +135,8 @@ public class Symbol {
     this.name = "no name";
     this.dataType = null;
     this.symbolType = SymbolType.Base;
+
+    RelationshipRecorder.instance.addRelatable(this);
   }
 
   @Override

@@ -116,7 +116,7 @@ public class DBAccessor {
         symbol.name STARTS WITH $prefix
         return symbol, lhsType
   """,
-            Map.of("idx", memberAccessNode.getIdx(), "prefix", prefix));
+            Map.of("idx", memberAccessNode.getId(), "prefix", prefix));
 
     ArrayList<Symbol> symbols = new ArrayList<>();
     result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
@@ -130,7 +130,7 @@ public class DBAccessor {
           match (n:AstNode)-[:REFERENCES]->(sym:Symbol)-[:OF_TYPE]->(t:IType) where n.idx=$idx
           return n, sym, t
           """,
-            Map.of("idx", prefixNode.getIdx()));
+            Map.of("idx", prefixNode.getId()));
 
     var iter = result.iterator();
     if (iter.hasNext()) {
@@ -174,7 +174,7 @@ public class DBAccessor {
           return distinct symbol, type, matchingType
           """,
             Map.of(
-                "idx", prefixNode.getIdx(), "prefix", prefix, "typeRestriction", typeRestriction));
+                "idx", prefixNode.getId(), "prefix", prefix, "typeRestriction", typeRestriction));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
     result.forEach(
@@ -220,7 +220,7 @@ public class DBAccessor {
   return distinct symbol, type, matchingType
   """,
             Map.of(
-                "idx", prefixNode.getIdx(), "prefix", prefix, "typeRestriction", typeRestriction));
+                "idx", prefixNode.getId(), "prefix", prefix, "typeRestriction", typeRestriction));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
     result.forEach(
@@ -248,7 +248,7 @@ public class DBAccessor {
             optional match (symbol)-[:OF_TYPE]->(matchingType:IType) where matchingType.name=$typeRestriction
             return symbol, type, matchingType
             """,
-            Map.of("idx", identifier.getIdx(), "typeRestriction", typeRestriction));
+            Map.of("idx", identifier.getId(), "typeRestriction", typeRestriction));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
     result.forEach(
@@ -269,7 +269,7 @@ public class DBAccessor {
           match (n)-[childEdge:PARENT_OF]->(child:AstNode)
           return child.idx as childIdx, n order by childEdge.idx
         """,
-            Map.of("idx", node.getIdx()));
+            Map.of("idx", node.getId()));
 
     ArrayList<Long> idxs = new ArrayList<>();
     result.forEach(m -> idxs.add((Long) m.get("childIdx")));
@@ -284,7 +284,7 @@ public class DBAccessor {
       match (n)-[childEdge:PARENT_OF]->(child:AstNode)
       return child.idx as childIdx, n order by childEdge.idx
     """,
-            Map.of("idx", memberAccesNode.getIdx()));
+            Map.of("idx", memberAccesNode.getId()));
 
     ArrayList<Long> idxs = new ArrayList<>();
     result.forEach(m -> idxs.add((Long) m.get("childIdx")));
@@ -311,7 +311,7 @@ public class DBAccessor {
             """,
             Map.of(
                 "idx",
-                memberAccessParentNode.getIdx(),
+                memberAccessParentNode.getId(),
                 "prefix",
                 prefix,
                 "typeRestriction",

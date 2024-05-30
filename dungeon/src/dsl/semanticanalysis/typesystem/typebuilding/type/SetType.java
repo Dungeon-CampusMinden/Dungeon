@@ -25,7 +25,7 @@ public class SetType extends ScopedSymbol implements IType {
         new NativeMethod(
             "add",
             this,
-            new FunctionType(BuiltInType.boolType, elementType),
+            TypeFactory.INSTANCE.functionType(BuiltInType.boolType, elementType),
             SetValue.AddMethod.instance);
     this.bind(addMethod);
 
@@ -33,7 +33,7 @@ public class SetType extends ScopedSymbol implements IType {
         new NativeMethod(
             "size",
             this,
-            new FunctionType(BuiltInType.intType, BuiltInType.noType),
+            TypeFactory.INSTANCE.functionType(BuiltInType.intType, BuiltInType.noType),
             SetValue.SizeMethod.instance);
     this.bind(sizeMethod);
 
@@ -41,7 +41,7 @@ public class SetType extends ScopedSymbol implements IType {
         new NativeMethod(
             "contains",
             this,
-            new FunctionType(BuiltInType.boolType, elementType),
+            TypeFactory.INSTANCE.functionType(BuiltInType.boolType, elementType),
             SetValue.ContainsMethod.instance);
     this.bind(getMethod);
 
@@ -49,14 +49,9 @@ public class SetType extends ScopedSymbol implements IType {
         new NativeMethod(
             "clear",
             this,
-            new FunctionType(BuiltInType.noType, BuiltInType.noType),
+            TypeFactory.INSTANCE.functionType(BuiltInType.noType, BuiltInType.noType),
             SetValue.ClearMethod.instance);
     this.bind(clearMethod);
-  }
-
-  @Override
-  public long getId() {
-    return super.getIdx();
   }
 
   @Override
