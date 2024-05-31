@@ -12,6 +12,7 @@ import dsl.helper.ProfilingTimer;
 import dsl.neo4j.Neo4jConnect;
 import dsl.parser.ast.*;
 import dsl.programmanalyzer.ProgrammAnalyzer;
+import dsl.programmanalyzer.Relate;
 import dsl.programmanalyzer.RelationshipRecorder;
 import dsl.runtime.callable.ExtensionMethod;
 import dsl.runtime.callable.NativeMethod;
@@ -383,22 +384,26 @@ public class LspServer
           var lhsOrRhs =
               session.query(
                   """
-          match (parentNode:AstNode) where parentNode.idx=$restrictingNodeIdx
+          match (parentNode:AstNode) where parentNode.internalId=$restrictingNodeIdx
           match (parentNode)-[childEdge:PARENT_OF]->(directChild:AstNode)
           call {
             with directChild
-            match (directChild) where directChild.idx=$matchedNodeIdx return directChild as child
+            match (directChild) where directChild.internalId=$matchedNodeIdx return directChild as child
             union
             with directChild
-            match (child)-[:CHILD_OF*]->(directChild) where child.idx=$matchedNodeIdx return child
+            match (child)-[:CHILD_OF*]->(directChild) where child.internalId=$matchedNodeIdx return child
           }
-          return child.idx as childIdx, child, childEdge.idx as edgeIdx
+          return child.internalId as childIdx, child, childEdge.idx as edgeIdx
           """,
                   Map.of(
                       "restrictingNodeIdx",
                       restrictingNode.getId(),
                       "matchedNodeIdx",
                       matchedNode.getId()));
+          var iter = lhsOrRhs.iterator();
+          if (!iter.hasNext()) {
+            return "";
+          }
           var result = lhsOrRhs.iterator().next();
 
           var lhsOrRhsIdx = (Long) result.get("edgeIdx");
@@ -406,31 +411,67 @@ public class LspServer
           String query;
           if (lhsOrRhsIdx == 0L) {
             // lhs -> get rhs type and use that as a restriction
+            // two steps: if the other child is an error node, there is no valid id and the matched id was matched on
+            // the other side of assignment
             query =
                 """
-            match (parentNode:AstNode) where parentNode.idx=$restrictingNodeIdx
+            match (parentNode:AstNode) where parentNode.internalId=$restrictingNodeIdx
             match (parentNode)-[childEdge:PARENT_OF]->(directChild:AstNode) where childEdge.idx=1
-            match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
+            //match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
             //return directChild, symbol, type
-            return type
-            limit 1
+            return directChild
+            //limit 1
             """;
           } else {
             // rhs -> get lhs type and use that as a restriction
             query =
                 """
-            match (parentNode:AstNode) where parentNode.idx=$restrictingNodeIdx
+            match (parentNode:AstNode) where parentNode.internalId=$restrictingNodeIdx
             match (parentNode)-[childEdge:PARENT_OF]->(directChild:AstNode) where childEdge.idx=0
-            match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
+            //match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
             //return directChild, symbol, type
-            return type
+            return directChild
+            //return type
             limit 1
             """;
           }
-          var otherSideType =
+
+          var directChild =
+            session.queryForObject(
+              Node.class, query, Map.of("restrictingNodeIdx", restrictingNode.getId()));
+
+          // TODO: handle error node
+          if (directChild.type == Node.Type.ErrorNode) {
+            // get
+            query =
+              """
+              match (parentNode:AstNode) where parentNode.internalId=$restrictingNodeIdx
+              match (parentNode)-[childEdge:PARENT_OF]->(directChild:AstNode) where childEdge.idx=$edgeIdx
+              match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
+              //return directChild, symbol, type
+              //return directChild
+              return type
+              limit 1
+              """;
+            var otherSideType =
               session.queryForObject(
-                  IType.class, query, Map.of("restrictingNodeIdx", restrictingNode.getId()));
-          return otherSideType.getName();
+                IType.class, query, Map.of("restrictingNodeIdx", restrictingNode.getId(), "edgeIdx", lhsOrRhsIdx));
+            return otherSideType.getName();
+
+          } else {
+            // use the type of the direct child
+            query =
+              """
+              match (directChild:AstNode) where directChild.internalId=$childInternalId
+              match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
+              return type
+              limit 1
+              """;
+            var otherSideType =
+              session.queryForObject(
+                IType.class, query, Map.of("childInternalId", directChild.getId()));
+            return otherSideType.getName();
+          }
         }
       default:
         break;
@@ -912,6 +953,7 @@ public class LspServer
       }
     }
 
+    // TODO: direction!!
     private void saveRelationship(dsl.programmanalyzer.Relationship relationship) {
       String name = relationship.name();
       List<Long> endPointIds = relationship.endIdxs();
@@ -928,6 +970,10 @@ public class LspServer
         }
         addedProperties = true;
       }
+
+      String edgeString = relationship.direction() == Relate.Direction.OUTGOING ?
+        "(start)-[e:" + name + "]->(end)" :
+        "(end)-[e:" + name + "]->(start)" ;
 
       if (endPointIds.size() > 1 || relationship.forceIdxProperty()) {
         if (addedProperties) {
@@ -963,11 +1009,9 @@ public class LspServer
             String query =
                 "match (start:Relatable) where start.internalId=$startId "
                     + "match (end:Relatable) where end.internalId=$endId "
-                    + "create (start)-[e:"
-                    + name
-                    + "]"
-                    + "->(end) "
-                    + "SET e = "
+                    + "create "
+                    + edgeString
+                    + " SET e = "
                     + propertiesString
               ;
             var startId = relationship.startId();
@@ -985,11 +1029,9 @@ public class LspServer
           String query =
               "match (start:Relatable) where start.internalId=$startId match (end:Relatable)"
                   + " where end.internalId=$endId "
-                  + "create (start)-[e:"
-                  + name
-                  + "]"
-                  + "->(end) "
-                  + "SET e = "
+                  + "create "
+                  + edgeString
+                  + " SET e = "
                   + propertyBuilder
             ;
           session.query(

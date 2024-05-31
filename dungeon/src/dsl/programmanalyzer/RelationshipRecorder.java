@@ -37,15 +37,16 @@ public class RelationshipRecorder {
       Long startIdx,
       String relationshipName,
       List<Long> endIdxs,
+      Relate.Direction direction,
       boolean forceIdxProperty) {
-    var rel = new Relationship(startIdx, relationshipName, endIdxs, forceIdxProperty);
+    var rel = new Relationship(startIdx, relationshipName, endIdxs, direction, forceIdxProperty);
     this.currentRecord.relationships.add(rel);
     rel.startObject(startObject);
     return rel;
   }
 
-  public Relationship add(Object startObject, Long startIdx, String relationshipName, Long endIdx) {
-    var rel = new Relationship(startIdx, relationshipName, List.of(endIdx));
+  public Relationship add(Object startObject, Long startIdx, String relationshipName, Long endIdx, Relate.Direction direction) {
+    var rel = new Relationship(startIdx, relationshipName, List.of(endIdx), direction);
     this.currentRecord.relationships.add(rel);
     rel.startObject(startObject);
     return rel;
@@ -84,7 +85,7 @@ public class RelationshipRecorder {
         var endObject = endField.get(relationshipEntity);
         if (startObject instanceof Relatable startRelatable
             && endObject instanceof Relatable endRelatable) {
-          var relationship = this.add(startObject, startRelatable.getId(), relationName, endRelatable.getId());
+          var relationship = this.add(startObject, startRelatable.getId(), relationName, endRelatable.getId(), Relate.Direction.OUTGOING);
 
           var propertyFielsd = Arrays.stream(clazz.getFields()).filter(f -> f.isAnnotationPresent(Property.class));
           HashMap<String, Object> properties = new HashMap<>();
@@ -137,6 +138,7 @@ public class RelationshipRecorder {
       relationFields.forEach(
           f -> {
             Relate annotation = f.getAnnotation(Relate.class);
+            var direction = annotation.direction();
             Long startId = relatable.getId();
             String relationName =
                 annotation.type().isBlank() ? convertFieldName(f.getName()) : annotation.type();
@@ -149,9 +151,9 @@ public class RelationshipRecorder {
                   Iterable<Relatable> iterable = (Iterable<Relatable>) value;
                   ArrayList<Long> ids = new ArrayList<>();
                   iterable.forEach(i -> ids.add(i.getId()));
-                  this.add(relatable, startId, relationName, ids, true);
+                  this.add(relatable, startId, relationName, ids, direction, true);
                 } else if (value instanceof Relatable relatableValue) {
-                  this.add(relatable, startId, relationName, relatableValue.getId());
+                  this.add(relatable, startId, relationName, relatableValue.getId(), direction);
                 } else {
                   throw new RuntimeException(
                       "Field marked with @Relate does not implement Relatable");

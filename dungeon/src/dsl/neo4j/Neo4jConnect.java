@@ -190,6 +190,7 @@ public class Neo4jConnect {
     return new SessionFactory(
         ogmDriver,
         "dsl.error",
+        "dsl.semanticanalysis.environment",
         "dsl.parser.ast",
         "dsl.programmanalyzer",
         "entrypoint",
@@ -198,7 +199,6 @@ public class Neo4jConnect {
         "dsl.runtime.callable",
         "dslinterop.dslnativefunction",
         "dsl.semanticanalysis.scope",
-        "dsl.semanticanalysis.environment",
         "dsl.semanticanalysis.groum.node",
         "dsl.semanticanalysis.groum");
   }

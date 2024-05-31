@@ -46,6 +46,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import org.neo4j.ogm.annotation.NodeEntity;
 import task.*;
 import task.dslinterop.*;
 import task.game.components.TaskComponent;
@@ -389,9 +391,9 @@ public class GameEnvironment implements IEnvironment {
     nativeFunctions.add(addFillerContent);
 
     IType taskContentType = (IType) this.globalScope.resolve("task_content");
-    NativeFunction nativeBuildQuestItem =
-        new NativeBuildQuestItem(Scope.NULL, questItemType, taskContentType);
-    nativeFunctions.add(nativeBuildQuestItem);
+    //NativeFunction nativeBuildQuestItem =
+        //new NativeBuildQuestItemFunc(Scope.NULL, questItemType, taskContentType);
+    //nativeFunctions.add(nativeBuildQuestItem);
 
     var taskSymbol = this.globalScope.resolve("task");
     if (!taskSymbol.equals(Symbol.NULL)) {
@@ -565,10 +567,12 @@ public class GameEnvironment implements IEnvironment {
    * content automatically to the internal {@link TaskContentComponent} of the newly created {@link
    * QuestItem}.
    */
-  private class NativeBuildQuestItem extends NativeFunction {
-
-    public NativeBuildQuestItem() {
+  @NodeEntity
+  public class NativeBuildQuestItemFunc extends NativeFunction {
+    // TODO: test
+    public NativeBuildQuestItemFunc() {
       super();
+      this.name = name;
     }
 
     /**
@@ -578,7 +582,7 @@ public class GameEnvironment implements IEnvironment {
      * @param questItemType {@link IType} representing quest items
      * @param contentType {@link IType} representing task content
      */
-    private NativeBuildQuestItem(IScope parentScope, IType questItemType, IType contentType) {
+    public NativeBuildQuestItemFunc(IScope parentScope, IType questItemType, IType contentType) {
       super(
           "build_quest_item",
           parentScope,

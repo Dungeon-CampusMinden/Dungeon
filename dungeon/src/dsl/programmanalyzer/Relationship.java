@@ -9,19 +9,21 @@ public class Relationship {
   List<Long> endIdxs;
   boolean forceIdxProperty;
   Object startObject;
+  Relate.Direction direction;
   HashMap<String, Object> properties;
 
-  public Relationship(Long startIdx, String name, List<Long> endIdxs, boolean forceIdxProperty) {
+  public Relationship(Long startIdx, String name, List<Long> endIdxs, Relate.Direction direction, boolean forceIdxProperty) {
     this.startIdx = startIdx;
     this.name = name;
     // this.endLabel = endLabel;
     this.endIdxs = endIdxs;
     this.forceIdxProperty = forceIdxProperty;
+    this.direction = direction;
     this.properties = new HashMap<>();
   }
 
-  public Relationship(Long startIdx, String name, List<Long> endIdxs) {
-    this(startIdx, name, endIdxs, false);
+  public Relationship(Long startIdx, String name, List<Long> endIdxs, Relate.Direction direction) {
+    this(startIdx, name, endIdxs, direction, false);
   }
 
   public void addProperties(HashMap<String, Object> properties) {
@@ -30,6 +32,10 @@ public class Relationship {
 
   public HashMap<String, Object> getProperties() {
     return this.properties;
+  }
+
+  public Relate.Direction direction() {
+    return this.direction;
   }
 
   public void startObject(Object object) {

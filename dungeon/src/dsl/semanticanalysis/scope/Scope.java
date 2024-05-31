@@ -59,7 +59,7 @@ public class Scope implements IScope, Relatable {
 
   @Transient
   // TODO: direction = incoming, maybe this is redundant anyway..!!!
-  // @Relate(type = "CREATES", direction = Relationship.Direction.INCOMING)
+  @Relate(type = "CREATES", direction = Relate.Direction.INCOMING)
   protected Node relatedASTNode;
 
   /**

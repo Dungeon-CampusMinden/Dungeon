@@ -93,7 +93,7 @@ public class DBAccessor {
         session.query(
             """
         call {
-            match (na:AssignmentNode) where na.idx=$idx
+            match (na:AssignmentNode) where na.internalId=$internalId
             match (na)-[:PARENT_OF {idx:0}]->(lhsChild:AstNode)
             match (lhsChild)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(lhsType:IType)
             return lhsChild, na, lhsType
@@ -116,7 +116,7 @@ public class DBAccessor {
         symbol.name STARTS WITH $prefix
         return symbol, lhsType
   """,
-            Map.of("idx", memberAccessNode.getId(), "prefix", prefix));
+            Map.of("internalId", memberAccessNode.getId(), "prefix", prefix));
 
     ArrayList<Symbol> symbols = new ArrayList<>();
     result.forEach(m -> symbols.add((Symbol) m.get("symbol")));
@@ -127,10 +127,10 @@ public class DBAccessor {
     var result =
         session.query(
             """
-          match (n:AstNode)-[:REFERENCES]->(sym:Symbol)-[:OF_TYPE]->(t:IType) where n.idx=$idx
+          match (n:AstNode)-[:REFERENCES]->(sym:Symbol)-[:OF_TYPE]->(t:IType) where n.internalId=$internalId
           return n, sym, t
           """,
-            Map.of("idx", prefixNode.getId()));
+            Map.of("internalId", prefixNode.getId()));
 
     var iter = result.iterator();
     if (iter.hasNext()) {
@@ -148,7 +148,7 @@ public class DBAccessor {
             """
           //get symbols in scope and parent scopes v2
           call{
-            match (n:AstNode) where n.idx=$idx
+            match (n:AstNode) where n.internalId=$internalId
             // match closest scope created (in normal scope)
             match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
             return scope, p, parent
@@ -174,7 +174,7 @@ public class DBAccessor {
           return distinct symbol, type, matchingType
           """,
             Map.of(
-                "idx", prefixNode.getId(), "prefix", prefix, "typeRestriction", typeRestriction));
+                "internalId", prefixNode.getId(), "prefix", prefix, "typeRestriction", typeRestriction));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
     result.forEach(
@@ -194,7 +194,7 @@ public class DBAccessor {
             """
   //get symbols in scope and parent scopes v2
   call{
-      match (n:AstNode) where n.idx=$idx
+      match (n:AstNode) where n.internalId=$internalId
       // match closest scope created (in normal scope)
       match p=(n)-[:CHILD_OF*]-(parent:AstNode)-[:CREATES]-(scope:IScope)
       return scope, p, parent
@@ -220,7 +220,7 @@ public class DBAccessor {
   return distinct symbol, type, matchingType
   """,
             Map.of(
-                "idx", prefixNode.getId(), "prefix", prefix, "typeRestriction", typeRestriction));
+                "internalId", prefixNode.getId(), "prefix", prefix, "typeRestriction", typeRestriction));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
     result.forEach(
@@ -238,7 +238,7 @@ public class DBAccessor {
         session.query(
             """
             call {
-                match (n:AstNode) where n.idx=$idx
+                match (n:AstNode) where n.internalId=$internalId
                 match (n)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(scope:ScopedSymbol)
                 return n, scope
                 limit 1
@@ -248,7 +248,7 @@ public class DBAccessor {
             optional match (symbol)-[:OF_TYPE]->(matchingType:IType) where matchingType.name=$typeRestriction
             return symbol, type, matchingType
             """,
-            Map.of("idx", identifier.getId(), "typeRestriction", typeRestriction));
+            Map.of("internalId", identifier.getId(), "typeRestriction", typeRestriction));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
     result.forEach(
@@ -265,11 +265,11 @@ public class DBAccessor {
     var result =
         session.query(
             """
-          match (n:AstNode) where n.idx=$idx
+          match (n:AstNode) where n.internalId=$internalId
           match (n)-[childEdge:PARENT_OF]->(child:AstNode)
-          return child.idx as childIdx, n order by childEdge.idx
+          return child.internalId as childIdx, n order by childEdge.idx
         """,
-            Map.of("idx", node.getId()));
+            Map.of("internalId", node.getId()));
 
     ArrayList<Long> idxs = new ArrayList<>();
     result.forEach(m -> idxs.add((Long) m.get("childIdx")));
@@ -280,11 +280,11 @@ public class DBAccessor {
     var result =
         session.query(
             """
-      match (n:MemberAccessNode) where n.idx=$idx
+      match (n:MemberAccessNode) where n.internalId=$internalId
       match (n)-[childEdge:PARENT_OF]->(child:AstNode)
-      return child.idx as childIdx, n order by childEdge.idx
+      return child.internalId as childIdx, n order by childEdge.idx
     """,
-            Map.of("idx", memberAccesNode.getId()));
+            Map.of("internalId", memberAccesNode.getId()));
 
     ArrayList<Long> idxs = new ArrayList<>();
     result.forEach(m -> idxs.add((Long) m.get("childIdx")));
@@ -298,7 +298,7 @@ public class DBAccessor {
         session.query(
             """
             call {
-                match (n:MemberAccessNode) where n.idx=$idx
+                match (n:MemberAccessNode) where n.internalId=$internalId
                 match (n)-[:PARENT_OF {idx:0}]->(lhsChild:AstNode)
                 match (lhsChild)-[:REFERENCES]-(sym:Symbol)-[:OF_TYPE]-(scope:ScopedSymbol)
                 return lhsChild, n, scope
@@ -310,7 +310,7 @@ public class DBAccessor {
             return symbol, type, matchingType
             """,
             Map.of(
-                "idx",
+                "internalId",
                 memberAccessParentNode.getId(),
                 "prefix",
                 prefix,
