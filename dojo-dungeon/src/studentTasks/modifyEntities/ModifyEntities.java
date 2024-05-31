@@ -1,4 +1,4 @@
-package dojo.utils.studentTasks.modifyEntities;
+package studentTasks.modifyEntities;
 
 import core.Entity;
 

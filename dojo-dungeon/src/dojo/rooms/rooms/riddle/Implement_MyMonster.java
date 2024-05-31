@@ -10,13 +10,21 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.IVoidFunction;
 import core.utils.components.path.SimpleIPath;
-import dojo.compiler.DojoCompiler;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
 import dojo.rooms.TaskRoom;
 import dojo.tasks.Task;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Set;
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
+import studentTasks.implementMyMonster.MyMonster;
 
 /**
  * Informationen für den Spieler über diesen Raum:
@@ -25,12 +33,13 @@ import java.util.Set;
  * werden, um in den nächsten Raum zu gelangen.
  */
 public class Implement_MyMonster extends TaskRoom {
-  private static final String PATH_TO_SOURCE_FILES =
-      "dojo-dungeon/todo-assets/Implement_MyMonster/";
-  private static final String CLASS_NAME = "MyMonster";
-  private static final String FILE_NAME = PATH_TO_SOURCE_FILES + CLASS_NAME + ".java";
+  private static final Class<?> CLASS_TO_TEST = MyMonster.class;
+  private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
+  private static final String PATH_TO_TEST_CLASS = "src/studentTasks/implementMyMonster/";
+  private static final String FRIENDLY_NAME =
+      PATH_TO_TEST_CLASS + CLASS_TO_TEST.getSimpleName() + ".java";
 
-  private final String TITLE = "Monster besiegen";
+  private static final String TITLE = "Monster besiegen";
 
   /**
    * Generate a new room.
@@ -69,21 +78,19 @@ public class Implement_MyMonster extends TaskRoom {
                     OkDialog.showOkDialog(
                         String.format(
                             "Implementiere die Datei %s. Wenn das Monster besiegt ist, soll sich die Tür zum nächsten Raum öffnen.",
-                            FILE_NAME),
+                            FRIENDLY_NAME),
                         TITLE,
                         empty),
                 (t1) -> {
-                  DojoCompiler.TestResult results =
-                      new DojoCompiler()
-                          .spawnMonsterToOpenTheDoor(PATH_TO_SOURCE_FILES, CLASS_NAME, this);
-                  if (results.passed()) {
+                  String results = spawnMonsterToOpenTheDoor();
+                  if (results.isEmpty()) {
                     OkDialog.showOkDialog(
-                        "Ok! " + results.messages(),
+                        "Ok!",
                         TITLE,
                         () -> OkDialog.showOkDialog("Das Monster ist gespawnt!", TITLE, empty));
                     return true;
                   }
-                  OkDialog.showOkDialog("Fehler: " + results.messages(), TITLE, empty);
+                  OkDialog.showOkDialog("Fehler: " + results, TITLE, empty);
                   return false;
                 },
                 empty)
@@ -113,5 +120,94 @@ public class Implement_MyMonster extends TaskRoom {
 
     // Add questioner to room
     addRoomEntities(Set.of(questioner));
+  }
+
+  private String spawnMonsterToOpenTheDoor() {
+    Class<?> cls;
+    try {
+      cls = compile();
+    } catch (Exception e) {
+      return "compile not ok";
+    }
+
+    Method method;
+    try {
+      method = cls.getMethod("spawnMonster", DrawComponent.class, int.class, float.class);
+    } catch (NoSuchMethodException e) {
+      return "method not found";
+    }
+
+    Object instance;
+    try {
+      instance = cls.getConstructor(Room.class).newInstance(this);
+    } catch (InstantiationException
+        | NoSuchMethodException
+        | InvocationTargetException
+        | IllegalAccessException e) {
+      return "instance not found";
+    }
+
+    Entity entity;
+    try {
+      entity =
+          (Entity)
+              method.invoke(
+                  instance,
+                  new DrawComponent(new SimpleIPath("character/monster/pumpkin_dude")),
+                  10,
+                  10.0f);
+    } catch (IllegalAccessException | IOException | InvocationTargetException e) {
+      return "entity not found";
+    }
+
+    this.addEntityImmediately(entity);
+
+    // All ok.
+    return "";
+  }
+
+  private Class<?> compile() throws Exception {
+    String argBuildDir = "build/temp";
+    String argToCompile =
+        Paths.get(PATH_TO_TEST_CLASS, CLASS_TO_TEST.getSimpleName() + ".java").toString();
+    URL argToLoad = Paths.get(argBuildDir).toUri().toURL();
+    System.out.println(
+        "Try to compile: "
+            + CLASS_TO_TEST_FQ_NAME
+            + " in: "
+            + argToCompile
+            + " ("
+            + argBuildDir
+            + ") and load: "
+            + argToLoad);
+
+    // Compile source file
+    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    compiler.run(null, null, null, "-d", argBuildDir, argToCompile);
+
+    // Load compiled class
+    ClassLoader reloadClassLoader =
+        new ClassLoader() {
+          @Override
+          public Class<?> loadClass(String name) throws ClassNotFoundException {
+            if (name.equals(CLASS_TO_TEST_FQ_NAME)) {
+              try (InputStream is =
+                  new FileInputStream(
+                      Paths.get(
+                              argBuildDir,
+                              PATH_TO_TEST_CLASS.substring(4),
+                              CLASS_TO_TEST.getSimpleName() + ".class")
+                          .toFile())) {
+                byte[] buf = new byte[10000];
+                int len = is.read(buf);
+                return defineClass(name, buf, 0, len);
+              } catch (IOException e) {
+                throw new ClassNotFoundException("", e);
+              }
+            }
+            return getParent().loadClass(name);
+          }
+        };
+    return reloadClassLoader.loadClass(CLASS_TO_TEST_FQ_NAME);
   }
 }

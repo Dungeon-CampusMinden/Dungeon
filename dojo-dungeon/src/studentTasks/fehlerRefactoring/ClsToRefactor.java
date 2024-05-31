@@ -1,4 +1,4 @@
-package dojo.rooms;
+package studentTasks.fehlerRefactoring;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
@@ -10,16 +10,32 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.IVoidFunction;
 import core.utils.components.path.SimpleIPath;
-import dojo.compiler.DojoCompiler;
+import dojo.rooms.LevelRoom;
+import dojo.rooms.Room;
+import dojo.rooms.TaskRoom;
 import dojo.tasks.Task;
 import java.io.IOException;
 import java.util.Set;
 
+/** ??? */
 public class ClsToRefactor extends TaskRoom {
+  /** ??? */
   public final String title = "Title";
+
+  /** ??? */
   public String FILENAME2 = "../dojo-dungeon/todo-assets/lvl2r2/MyMonster.java";
 
-  Room5ToRefactor(
+  /**
+   * ?
+   *
+   * @param a ?
+   * @param b ?
+   * @param c ?
+   * @param d ?
+   * @param e ?
+   * @param empty ?
+   */
+  public ClsToRefactor(
       LevelRoom a, RoomGenerator b, Room c, LevelSize d, DesignLabel e, IVoidFunction empty) {
     super(a, b, c, d, e);
 
@@ -47,18 +63,15 @@ public class ClsToRefactor extends TaskRoom {
                         title,
                         f),
                 (t1) -> {
-                  DojoCompiler.TestResult results =
-                      new DojoCompiler(
-                              "../dojo-dungeon/todo-assets/lvl2r2/MyMonster.java", "MyMonster")
-                          .spawnMonsterToOpenTheDoor(this);
-                  if (results.passed()) {
+                  String results = "";
+                  if (results.isEmpty()) {
                     OkDialog.showOkDialog(
-                        "Ok! " + results.messages(),
+                        "Ok!",
                         title,
                         () -> OkDialog.showOkDialog("Das Monster ist gespawnt!", title, f));
                     return true;
                   }
-                  OkDialog.showOkDialog("Fehler: " + results.messages(), title, f);
+                  OkDialog.showOkDialog("Fehler: " + results, title, f);
                   return false;
                 },
                 f)

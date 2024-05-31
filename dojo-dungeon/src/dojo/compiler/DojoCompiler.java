@@ -1,20 +1,13 @@
 package dojo.compiler;
 
-import core.Entity;
-import core.components.DrawComponent;
-import core.utils.components.path.SimpleIPath;
-import dojo.rooms.Room;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.*;
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
+import javax.tools.*;
 
 /** Class for compiling and testing sources at runtime. */
 public class DojoCompiler {
@@ -28,69 +21,10 @@ public class DojoCompiler {
   public record TestResult(String testName, boolean passed, List<String> messages) {}
 
   private final List<String> messages = new ArrayList<>();
-  private File pathToSourceFiles;
+  private String pathToSourceFiles;
   private Class<?> cls;
   private Method method1;
   private Method method2;
-
-  /**
-   * Tries to spawn a monster at runtime.
-   *
-   * @param pathToSourceFiles the path to the source file (this is the path to the file to be
-   *     compiled)
-   * @param className class name to compile
-   * @param currentRoom the current room
-   * @return a {@link TestResult} if the tests passed
-   */
-  public TestResult spawnMonsterToOpenTheDoor(
-      String pathToSourceFiles, String className, Room currentRoom) {
-    String testName = "spawnMonster";
-
-    if (!stage_1_setPathToSourceFiles(pathToSourceFiles) || !stage_2_checkCompilation(className)) {
-      return new TestResult(testName, false, messages);
-    }
-
-    Method method;
-    try {
-      method = cls.getMethod("spawnMonster", DrawComponent.class, int.class, float.class);
-    } catch (NoSuchMethodException e) {
-      messages.add("method not found");
-      return new TestResult(testName, false, messages);
-    }
-    messages.add("method ok");
-
-    Object instance;
-    try {
-      instance = cls.getConstructor(Room.class).newInstance(currentRoom);
-    } catch (InstantiationException
-        | NoSuchMethodException
-        | InvocationTargetException
-        | IllegalAccessException e) {
-      messages.add("instance not found");
-      return new TestResult(testName, false, messages);
-    }
-    messages.add("instance ok");
-
-    Entity entity;
-    try {
-      entity =
-          (Entity)
-              method.invoke(
-                  instance,
-                  new DrawComponent(new SimpleIPath("character/monster/pumpkin_dude")),
-                  10,
-                  10.0f);
-    } catch (IllegalAccessException | IOException | InvocationTargetException e) {
-      messages.add("entity not found");
-      return new TestResult(testName, false, messages);
-    }
-    messages.add("entity ok");
-
-    currentRoom.addEntityImmediately(entity);
-
-    // All ok.
-    return new TestResult(testName, true, messages);
-  }
 
   /**
    * Tests if the class is correct by certain criteria, step 1.
@@ -180,7 +114,7 @@ public class DojoCompiler {
    */
   public TestResult testMathematicalClass(String pathToSourceFiles, String className) {
     try {
-      Class<?> cls2 = compile(new File(pathToSourceFiles), className);
+      Class<?> cls2 = compile(pathToSourceFiles, className);
       Constructor<?> tor2 = cls2.getConstructor(float.class, float.class, float.class);
       Object inst2 = tor2.newInstance(10.0f, 30.0f, 20.0f);
       Method m1 = cls2.getMethod("calculateArea");
@@ -202,8 +136,8 @@ public class DojoCompiler {
   }
 
   private boolean stage_1_setPathToSourceFiles(String pathToSourceFiles) {
-    this.pathToSourceFiles = new File(pathToSourceFiles);
-    if (!this.pathToSourceFiles.exists() || !this.pathToSourceFiles.isDirectory()) {
+    this.pathToSourceFiles = pathToSourceFiles;
+    if (!new File(this.pathToSourceFiles).isDirectory()) {
       messages.add("source not ok");
       return false;
     }
@@ -318,16 +252,30 @@ public class DojoCompiler {
     return true;
   }
 
-  private Class<?> compile(File pathToSourceFiles, String className) throws Exception {
+  private Class<?> compile(String pathToSourceFiles, String fqClassName) throws Exception {
+    Class<?> cls = Class.forName(fqClassName);
+
+    String argBuildDir = "build/temp";
+    String argToCompile = Paths.get(pathToSourceFiles, cls.getSimpleName() + ".java").toString();
+    URL argToLoad = Paths.get(argBuildDir).toUri().toURL();
+    System.out.println(
+        "Try to compile: "
+            + fqClassName
+            + " in: "
+            + argToCompile
+            + " ("
+            + argBuildDir
+            + ") and load: "
+            + argToLoad);
+
     // Compile source file
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    compiler.run(
-        null, null, null, Paths.get(pathToSourceFiles.toString(), className + ".java").toString());
+    compiler.run(null, null, null, "-d", argBuildDir, argToCompile);
 
     // Load compiled class
-    URLClassLoader classLoader =
-        URLClassLoader.newInstance(new URL[] {pathToSourceFiles.toURI().toURL()});
-
-    return Class.forName(className, true, classLoader);
+    try (URLClassLoader reloadClassLoader =
+        new URLClassLoader(new URL[] {argToLoad}, cls.getClassLoader().getParent())) {
+      return reloadClassLoader.loadClass(fqClassName);
+    }
   }
 }

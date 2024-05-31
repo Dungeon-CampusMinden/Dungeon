@@ -15,13 +15,14 @@ import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
-import dojo.utils.studentTasks.modifyEntities.ModifyEntities;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.*;
 import javax.tools.*;
+import studentTasks.modifyEntities.ModifyEntities;
 
 /**
  * Informationen für den Spieler über diesen Raum:
@@ -31,27 +32,11 @@ import javax.tools.*;
  * implementieren. Danach muss der Dämon angegriffen werden.
  */
 public class MyImpRoom extends Room {
-  private static final String IMP_FQC = ModifyEntities.class.getName();
-  private static final String IMP_PATH = "src/" + IMP_FQC.replace('.', '/');
-  private static final String PATH_FOR_UI =
-      ModifyEntities.class.getSimpleName() + ".java (dojo-dungeon/" + IMP_PATH + ".java)";
-
-  /** A class loader that replaces the ModifyEntities class with a new implementation. */
-  public static class ReplacingClassLoader extends ClassLoader {
-    @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
-      if (name.equals(IMP_FQC)) {
-        try (InputStream is = new FileInputStream(IMP_PATH + ".class")) {
-          byte[] buf = new byte[10000];
-          int len = is.read(buf);
-          return defineClass(name, buf, 0, len);
-        } catch (IOException e) {
-          throw new ClassNotFoundException("", e);
-        }
-      }
-      return getParent().loadClass(name);
-    }
-  }
+  private static final Class<?> CLASS_TO_TEST = ModifyEntities.class;
+  private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
+  private static final String PATH_TO_TEST_CLASS = "src/studentTasks/modifyEntities/";
+  private static final String FRIENDLY_NAME =
+      PATH_TO_TEST_CLASS + CLASS_TO_TEST.getSimpleName() + ".java";
 
   /**
    * Generate a new room.
@@ -104,12 +89,48 @@ public class MyImpRoom extends Room {
   }
 
   private Class<?> compile() throws Exception {
+    String argBuildDir = "build/temp";
+    String argToCompile =
+        Paths.get(PATH_TO_TEST_CLASS, CLASS_TO_TEST.getSimpleName() + ".java").toString();
+    URL argToLoad = Paths.get(argBuildDir).toUri().toURL();
+    System.out.println(
+        "Try to compile: "
+            + CLASS_TO_TEST_FQ_NAME
+            + " in: "
+            + argToCompile
+            + " ("
+            + argBuildDir
+            + ") and load: "
+            + argToLoad);
+
     // Compile source file
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    compiler.run(null, null, null, new File(IMP_PATH + ".java").getPath());
+    compiler.run(null, null, null, "-d", argBuildDir, argToCompile);
 
-    // Load compiled class, and replace existing ModifyEntities class with new one
-    return new ReplacingClassLoader().loadClass(IMP_FQC);
+    // Load compiled class
+    ClassLoader reloadClassLoader =
+        new ClassLoader() {
+          @Override
+          public Class<?> loadClass(String name) throws ClassNotFoundException {
+            if (name.equals(CLASS_TO_TEST_FQ_NAME)) {
+              try (InputStream is =
+                  new FileInputStream(
+                      Paths.get(
+                              argBuildDir,
+                              PATH_TO_TEST_CLASS.substring(4),
+                              CLASS_TO_TEST.getSimpleName() + ".class")
+                          .toFile())) {
+                byte[] buf = new byte[10000];
+                int len = is.read(buf);
+                return defineClass(name, buf, 0, len);
+              } catch (IOException e) {
+                throw new ClassNotFoundException("", e);
+              }
+            }
+            return getParent().loadClass(name);
+          }
+        };
+    return reloadClassLoader.loadClass(CLASS_TO_TEST_FQ_NAME);
   }
 
   private static Entity createEntityMyImp(Room currentRoom) {
@@ -151,7 +172,7 @@ public class MyImpRoom extends Room {
             true,
             (entity1, entity2) ->
                 OkDialog.showOkDialog(
-                    "Du findest eine Klasse zum Anpassen in " + PATH_FOR_UI + ".",
+                    "Du findest eine Klasse zum Anpassen in " + FRIENDLY_NAME + ".",
                     "Aufgabe in diesem Raum:",
                     () ->
                         OkDialog.showOkDialog(

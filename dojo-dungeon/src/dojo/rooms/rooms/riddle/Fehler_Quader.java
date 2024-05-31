@@ -25,6 +25,7 @@ import dojo.rooms.Room;
 import dojo.rooms.TaskRoom;
 import java.io.IOException;
 import java.util.Set;
+import studentTasks.fehlerCuboid.Cuboid;
 
 /**
  * Informationen für den Spieler über diesen Raum:
@@ -35,9 +36,11 @@ import java.util.Set;
  * nächsten Raum weitergehen.
  */
 public class Fehler_Quader extends TaskRoom {
-  private static final String PATH_TO_SOURCE_FILES = "dojo-dungeon/todo-assets/Fehler_Quader/";
-  private static final String CLASS_NAME = "Cuboid";
-  private static final String FILE_NAME = PATH_TO_SOURCE_FILES + CLASS_NAME + ".java";
+  private static final Class<?> CLASS_TO_TEST = Cuboid.class;
+  private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
+  private static final String PATH_TO_TEST_CLASS = "src/studentTasks/fehlerCuboid/";
+  private static final String FRIENDLY_NAME =
+      PATH_TO_TEST_CLASS + CLASS_TO_TEST.getSimpleName() + ".java";
 
   private int impHealth = 10;
 
@@ -108,7 +111,8 @@ public class Fehler_Quader extends TaskRoom {
             (e) -> {
               // Test players solution
               DojoCompiler.TestResult testResult =
-                  new DojoCompiler().testMathematicalClass(PATH_TO_SOURCE_FILES, CLASS_NAME);
+                  new DojoCompiler()
+                      .testMathematicalClass(PATH_TO_TEST_CLASS, CLASS_TO_TEST_FQ_NAME);
               if (testResult.passed()) {
                 OkDialog.showOkDialog(
                     "Danke, du hast die Aufgabe gelöst.",
@@ -152,7 +156,7 @@ public class Fehler_Quader extends TaskRoom {
             true,
             (entity1, entity2) ->
                 OkDialog.showOkDialog(
-                    "Finde und verbessere die Fehler in der Klasse: " + FILE_NAME,
+                    "Finde und verbessere die Fehler in der Klasse: " + FRIENDLY_NAME,
                     "Aufgabe in diesem Raum:",
                     () -> {
                       OkDialog.showOkDialog(

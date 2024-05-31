@@ -1,8 +1,11 @@
+package studentTasks.implementMyMonster;
+
 import core.Entity;
 import core.components.DrawComponent;
 import dojo.rooms.Room;
 import java.io.IOException;
 
+/** Class template for spawning a monster in the dungeon. */
 public class MyMonster {
   /**
    * TODO:

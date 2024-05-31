@@ -1,3 +1,5 @@
+package studentTasks.fehlerSyntax;
+
 /**
  * In dieser Klasse sollen unterschiedliche Methoden implementiert werden, die noch keine
  * Implementierung haben. Das Verhalten dieser Methoden wird dann im Spiel überprüft werden.
@@ -19,7 +21,9 @@ public class FehlerhafteKlasse {
    * @return Die Summe der Addition als String
    * @see Integer
    */
-  public static String incrementByTwo(String in) {}
+  public static String incrementByTwo(String in) {
+    throw new RuntimeException("Not implemented yet");
+  }
 
   /**
    * Diese Methode soll korrigiert werden und die Summe der beiden Attribute {@link
@@ -30,7 +34,6 @@ public class FehlerhafteKlasse {
    * @return Die Summe beider Summanden als String.
    */
   public static String getSum() {
-    FehlerhafteKlasse fk;
-    return "" + fk.addend1 + fk.addend2;
+    throw new RuntimeException("Not implemented yet");
   }
 }
