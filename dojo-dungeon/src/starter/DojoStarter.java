@@ -105,7 +105,7 @@ public class DojoStarter {
 
     // Now after the doors are properly configured, we can close or open them:
     for (Room room : rooms) {
-      // room.closeDoors();
+      room.closeDoors();
     }
 
     // Room "Fehler_Refactoring" should not be closed:
