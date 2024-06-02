@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.logging.Logger;
 import javax.tools.*;
 
 /** Class for compiling and testing sources at runtime. */
@@ -255,11 +256,14 @@ public class DojoCompiler {
   private Class<?> compile(String pathToSourceFiles, String fqClassName) throws Exception {
     Class<?> cls = Class.forName(fqClassName);
 
+    // hard coded build dir for now:
     String argBuildDir = "build/temp";
+
     String argToCompile = Paths.get(pathToSourceFiles, cls.getSimpleName() + ".java").toString();
     URL argToLoad = Paths.get(argBuildDir).toUri().toURL();
-    System.out.println(
-        "Try to compile: "
+    Logger logger = Logger.getLogger(DojoCompiler.class.getName());
+    logger.warning(
+        "Compiling: "
             + fqClassName
             + " in: "
             + argToCompile
@@ -277,5 +281,65 @@ public class DojoCompiler {
         new URLClassLoader(new URL[] {argToLoad}, cls.getClassLoader().getParent())) {
       return reloadClassLoader.loadClass(fqClassName);
     }
+  }
+
+  /**
+   * Compile and load an existing class that depends on other classes (imports them).
+   *
+   * @param pathToSourceFiles the path to the source file.
+   * @param fqClassName the fully qualified name of the class.
+   * @return the loaded class.
+   * @throws Exception if compiling or loading fails.
+   */
+  public static Class<?> compileClassDependentOnOthers(String pathToSourceFiles, String fqClassName)
+      throws Exception {
+    Class<?> cls = Class.forName(fqClassName);
+
+    // hard coded build dir for now:
+    String argBuildDir = "build/temp";
+
+    String argToCompile = Paths.get(pathToSourceFiles, cls.getSimpleName() + ".java").toString();
+    File fileToLoad =
+        Paths.get(argBuildDir, pathToSourceFiles.substring(4), cls.getSimpleName() + ".class")
+            .toFile();
+    Logger logger = Logger.getLogger(DojoCompiler.class.getName());
+    logger.warning(
+        "Compiling: "
+            + fqClassName
+            + " in: "
+            + argToCompile
+            + " ("
+            + argBuildDir
+            + ") and load: "
+            + fileToLoad);
+
+    // Compile source file
+    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    compiler.run(null, null, null, "-d", argBuildDir, argToCompile);
+
+    // Load compiled class
+    ClassLoader reloadClassLoader =
+        new ClassLoader() {
+          @Override
+          public Class<?> loadClass(String name) throws ClassNotFoundException {
+            if (name.equals(fqClassName)) {
+              try (BufferedInputStream bis =
+                  new BufferedInputStream(new FileInputStream(fileToLoad))) {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                int b;
+                while ((b = bis.read()) != -1) {
+                  bos.write(b);
+                }
+                byte[] buf = bos.toByteArray();
+                return defineClass(name, buf, 0, buf.length);
+              } catch (IOException e) {
+                logger.warning("Could not load class: " + e.getMessage());
+                throw new ClassNotFoundException("", e);
+              }
+            }
+            return getParent().loadClass(name);
+          }
+        };
+    return reloadClassLoader.loadClass(fqClassName);
   }
 }

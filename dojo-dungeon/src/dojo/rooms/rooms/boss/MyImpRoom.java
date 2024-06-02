@@ -13,13 +13,10 @@ import core.components.VelocityComponent;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
+import dojo.compiler.DojoCompiler;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.*;
 import javax.tools.*;
 import studentTasks.modifyEntities.ModifyEntities;
@@ -73,7 +70,9 @@ public class MyImpRoom extends Room {
             true,
             (entity1, entity2) -> {
               try {
-                Class<?> cls = compile();
+                Class<?> cls =
+                    DojoCompiler.compileClassDependentOnOthers(
+                        PATH_TO_TEST_CLASS, CLASS_TO_TEST_FQ_NAME);
                 cls.getDeclaredMethod("disableGodMode", Entity.class).invoke(null, myImp);
                 cls.getDeclaredMethod("setHealthTo25", Entity.class).invoke(null, myImp);
                 cls.getDeclaredMethod("increaseSpeed", Entity.class).invoke(null, myImp);
@@ -86,51 +85,6 @@ public class MyImpRoom extends Room {
             }));
 
     addRoomEntities(Set.of(myImp, chest));
-  }
-
-  private Class<?> compile() throws Exception {
-    String argBuildDir = "build/temp";
-    String argToCompile =
-        Paths.get(PATH_TO_TEST_CLASS, CLASS_TO_TEST.getSimpleName() + ".java").toString();
-    URL argToLoad = Paths.get(argBuildDir).toUri().toURL();
-    System.out.println(
-        "Try to compile: "
-            + CLASS_TO_TEST_FQ_NAME
-            + " in: "
-            + argToCompile
-            + " ("
-            + argBuildDir
-            + ") and load: "
-            + argToLoad);
-
-    // Compile source file
-    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    compiler.run(null, null, null, "-d", argBuildDir, argToCompile);
-
-    // Load compiled class
-    ClassLoader reloadClassLoader =
-        new ClassLoader() {
-          @Override
-          public Class<?> loadClass(String name) throws ClassNotFoundException {
-            if (name.equals(CLASS_TO_TEST_FQ_NAME)) {
-              try (InputStream is =
-                  new FileInputStream(
-                      Paths.get(
-                              argBuildDir,
-                              PATH_TO_TEST_CLASS.substring(4),
-                              CLASS_TO_TEST.getSimpleName() + ".class")
-                          .toFile())) {
-                byte[] buf = new byte[10000];
-                int len = is.read(buf);
-                return defineClass(name, buf, 0, len);
-              } catch (IOException e) {
-                throw new ClassNotFoundException("", e);
-              }
-            }
-            return getParent().loadClass(name);
-          }
-        };
-    return reloadClassLoader.loadClass(CLASS_TO_TEST_FQ_NAME);
   }
 
   private static Entity createEntityMyImp(Room currentRoom) {
