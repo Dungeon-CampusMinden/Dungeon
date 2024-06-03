@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 import javax.tools.*;
 
@@ -257,11 +258,12 @@ public class DojoCompiler {
     Class<?> cls = Class.forName(fqClassName);
 
     // hard coded build dir for now:
-    String argBuildDir = "build/temp";
+    String argBuildDir = "build/classes/java/main";
 
     String argToCompile = Paths.get(pathToSourceFiles, cls.getSimpleName() + ".java").toString();
     URL argToLoad = Paths.get(argBuildDir).toUri().toURL();
     Logger logger = Logger.getLogger(DojoCompiler.class.getName());
+    logger.addHandler(new ConsoleHandler());
     logger.warning(
         "Compiling: "
             + fqClassName
@@ -296,13 +298,14 @@ public class DojoCompiler {
     Class<?> cls = Class.forName(fqClassName);
 
     // hard coded build dir for now:
-    String argBuildDir = "build/temp";
+    String argBuildDir = "build/classes/java/main";
 
     String argToCompile = Paths.get(pathToSourceFiles, cls.getSimpleName() + ".java").toString();
     File fileToLoad =
         Paths.get(argBuildDir, pathToSourceFiles.substring(4), cls.getSimpleName() + ".class")
             .toFile();
     Logger logger = Logger.getLogger(DojoCompiler.class.getName());
+    logger.addHandler(new ConsoleHandler());
     logger.warning(
         "Compiling: "
             + fqClassName
