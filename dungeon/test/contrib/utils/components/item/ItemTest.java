@@ -113,18 +113,6 @@ public class ItemTest {
 
   /** WTF? . */
   @Test
-  public void wuppieFluppieFooBar() {
-    Item item = new Item("Test item", "Test description", defaultAnimation);
-    assertEquals(item.displayName(), "Test item");
-    assertEquals(item.description(), "Test description");
-    assertEquals(item.inventoryAnimation(), defaultAnimation);
-    assertEquals(item.worldAnimation(), defaultAnimation);
-    assertEquals(1, item.stackSize());
-    assertEquals(3, item.maxStackSize());
-  }
-
-  /** WTF? . */
-  @Test
   public void testConstructorFourParameter() {
     Item item =
         new Item("Test item 2", "Another test description", inventoryAnimation, worldAnimation);
