@@ -111,6 +111,17 @@ public class ItemTest {
     assertEquals(1, item.maxStackSize());
   }
 
+    @Test
+    public void wuppieFluppieFooBar() {
+        Item item = new Item("Test item", "Test description", defaultAnimation);
+        assertEquals(item.displayName(), "Test item");
+        assertEquals(item.description(), "Test description");
+        assertEquals(item.inventoryAnimation(), defaultAnimation);
+        assertEquals(item.worldAnimation(), defaultAnimation);
+        assertEquals(1, item.stackSize());
+        assertEquals(1, item.maxStackSize());
+    }
+
   /** WTF? . */
   @Test
   public void testConstructorFourParameter() {
