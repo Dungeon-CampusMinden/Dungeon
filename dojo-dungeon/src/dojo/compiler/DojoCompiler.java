@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 import javax.tools.*;
+import starter.DojoStarter;
 
 /** Class for compiling and testing sources at runtime. */
 public class DojoCompiler {
@@ -259,6 +260,9 @@ public class DojoCompiler {
 
     // hard coded build dir for now:
     String argBuildDir = "build/classes/java/main";
+    if (DojoStarter.ABSOLUTE_BUILD_PATH != null) {
+      argBuildDir = DojoStarter.ABSOLUTE_BUILD_PATH + "/classes/java/main";
+    }
 
     String argToCompile = Paths.get(pathToSourceFiles, cls.getSimpleName() + ".java").toString();
     URL argToLoad = Paths.get(argBuildDir).toUri().toURL();
@@ -299,6 +303,9 @@ public class DojoCompiler {
 
     // hard coded build dir for now:
     String argBuildDir = "build/classes/java/main";
+    if (DojoStarter.ABSOLUTE_BUILD_PATH != null) {
+      argBuildDir = DojoStarter.ABSOLUTE_BUILD_PATH + "/classes/java/main";
+    }
 
     String argToCompile = Paths.get(pathToSourceFiles, cls.getSimpleName() + ".java").toString();
     File fileToLoad =

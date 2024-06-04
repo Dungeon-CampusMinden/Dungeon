@@ -21,10 +21,18 @@ import dojo.rooms.Room;
 import dojo.rooms.builder.RoomBuilder;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Starter for the dojo-dungeon game. */
 public class DojoStarter {
+  /**
+   * The absolute path to the build directory, passed as a command line argument. If null, the build
+   * directory is assumed to be "build/classes/java/main".
+   */
+  public static String ABSOLUTE_BUILD_PATH = null;
+
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
 
   private interface BuildRoomMethod {
@@ -56,6 +64,12 @@ public class DojoStarter {
    * @param args the command line arguments, currently unused
    */
   public static void main(String[] args) {
+    if (args.length >= 2 && args[0].equals("build-dir")) {
+      ABSOLUTE_BUILD_PATH = args[1];
+      Logger logger = Logger.getLogger(DojoStarter.class.getName());
+      logger.addHandler(new ConsoleHandler());
+      logger.warning("Using build-dir: " + ABSOLUTE_BUILD_PATH);
+    }
     try {
       Game.initBaseLogger(Level.WARNING);
       configGame();

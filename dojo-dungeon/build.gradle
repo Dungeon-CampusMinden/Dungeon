@@ -16,4 +16,5 @@ processResources {
 tasks.register('runDojoDungeon', JavaExec) {
     mainClass = 'starter.DojoStarter'
     classpath = sourceSets.main.runtimeClasspath
+    args = ['build-dir', getLayout().getBuildDirectory().get().toString()]
 }
