@@ -1,4 +1,4 @@
-package studentTasks.fehlerRefactoring;
+package studenttasks.refactoring;
 
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;

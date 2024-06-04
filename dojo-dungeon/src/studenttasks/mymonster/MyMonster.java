@@ -1,4 +1,4 @@
-package studentTasks.implementMyMonster;
+package studenttasks.mymonster;
 
 import core.Entity;
 import core.components.DrawComponent;

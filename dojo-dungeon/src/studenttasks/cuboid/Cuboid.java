@@ -1,4 +1,4 @@
-package studentTasks.fehlerCuboid;
+package studenttasks.cuboid;
 
 /** This class represents a Cuboid (3D box). */
 public class Cuboid {

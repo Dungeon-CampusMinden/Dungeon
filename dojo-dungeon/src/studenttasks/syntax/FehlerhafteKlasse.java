@@ -1,4 +1,4 @@
-package studentTasks.fehlerSyntax;
+package studenttasks.syntax;
 
 /**
  * In dieser Klasse sollen unterschiedliche Methoden implementiert werden, die noch keine

@@ -18,8 +18,7 @@ import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
 import java.io.IOException;
 import java.util.*;
-import javax.tools.*;
-import studentTasks.modifyEntities.ModifyEntities;
+import studenttasks.modifyentities.ModifyEntities;
 
 /**
  * Informationen für den Spieler über diesen Raum:
@@ -31,7 +30,7 @@ import studentTasks.modifyEntities.ModifyEntities;
 public class MyImpRoom extends Room {
   private static final Class<?> CLASS_TO_TEST = ModifyEntities.class;
   private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
-  private static final String PATH_TO_TEST_CLASS = "src/studentTasks/modifyEntities/";
+  private static final String PATH_TO_TEST_CLASS = "src/studenttasks/modifyentities/";
   private static final String FRIENDLY_NAME =
       PATH_TO_TEST_CLASS + CLASS_TO_TEST.getSimpleName() + ".java";
 

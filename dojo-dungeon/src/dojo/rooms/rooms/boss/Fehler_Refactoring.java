@@ -25,8 +25,7 @@ import java.util.Set;
  * weitergehen.
  */
 public class Fehler_Refactoring extends TaskRoom {
-  private final String FILENAME1 =
-      "dojo-dungeon/src/studentTasks/fehlerRefactoring/ClsToRefactor.java";
+  private final String FILENAME1 = "dojo-dungeon/src/studenttasks/refactoring/ClsToRefactor.java";
   private final String title = "Refactoring";
 
   /**

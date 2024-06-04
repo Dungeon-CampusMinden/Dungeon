@@ -1,4 +1,4 @@
-package studentTasks.modifyEntities;
+package studenttasks.modifyentities;
 
 import core.Entity;
 

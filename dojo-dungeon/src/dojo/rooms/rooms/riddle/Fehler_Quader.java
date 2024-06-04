@@ -25,7 +25,7 @@ import dojo.rooms.Room;
 import dojo.rooms.TaskRoom;
 import java.io.IOException;
 import java.util.Set;
-import studentTasks.fehlerCuboid.Cuboid;
+import studenttasks.cuboid.Cuboid;
 
 /**
  * Informationen für den Spieler über diesen Raum:
@@ -38,7 +38,7 @@ import studentTasks.fehlerCuboid.Cuboid;
 public class Fehler_Quader extends TaskRoom {
   private static final Class<?> CLASS_TO_TEST = Cuboid.class;
   private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
-  private static final String PATH_TO_TEST_CLASS = "src/studentTasks/fehlerCuboid/";
+  private static final String PATH_TO_TEST_CLASS = "src/studenttasks/cuboid/";
   private static final String FRIENDLY_NAME =
       PATH_TO_TEST_CLASS + CLASS_TO_TEST.getSimpleName() + ".java";
 

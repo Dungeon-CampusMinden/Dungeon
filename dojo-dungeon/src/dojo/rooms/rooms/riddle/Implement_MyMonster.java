@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
-import studentTasks.implementMyMonster.MyMonster;
+import studenttasks.mymonster.MyMonster;
 
 /**
  * Informationen für den Spieler über diesen Raum:
@@ -30,7 +30,7 @@ import studentTasks.implementMyMonster.MyMonster;
 public class Implement_MyMonster extends TaskRoom {
   private static final Class<?> CLASS_TO_TEST = MyMonster.class;
   private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
-  private static final String PATH_TO_TEST_CLASS = "src/studentTasks/implementMyMonster/";
+  private static final String PATH_TO_TEST_CLASS = "src/studenttasks/mymonster/";
   private static final String FRIENDLY_NAME =
       PATH_TO_TEST_CLASS + CLASS_TO_TEST.getSimpleName() + ".java";
 

@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
-import studentTasks.fehlerSyntax.FehlerhafteKlasse;
+import studenttasks.syntax.FehlerhafteKlasse;
 
 /**
  * Informationen für den Spieler über diesen Raum:
@@ -34,7 +34,7 @@ import studentTasks.fehlerSyntax.FehlerhafteKlasse;
 public class Fehler_Syntax extends TaskRoom {
   private static final Class<?> CLASS_TO_TEST = FehlerhafteKlasse.class;
   private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
-  private static final String PATH_TO_TEST_CLASS = "src/studentTasks/fehlerSyntax/";
+  private static final String PATH_TO_TEST_CLASS = "src/studenttasks/syntax/";
   private static final String FRIENDLY_NAME =
       PATH_TO_TEST_CLASS + CLASS_TO_TEST.getSimpleName() + ".java";
 
