@@ -35,7 +35,7 @@ import studenttasks.cuboid.Cuboid;
  * die Klasse richtig verbessert wurde, gilt der Imp als besiegt und der Spieler kann in den
  * nächsten Raum weitergehen.
  */
-public class Fehler_Quader extends TaskRoom {
+public class QuaderRoom extends TaskRoom {
   private static final Class<?> CLASS_TO_TEST = Cuboid.class;
   private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
   private static final String PATH_TO_TEST_CLASS = "src/studenttasks/cuboid/";
@@ -53,7 +53,7 @@ public class Fehler_Quader extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public Fehler_Quader(
+  public QuaderRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

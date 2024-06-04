@@ -24,7 +24,7 @@ import java.util.Set;
  * Lesbarkeit zu verbessern. Nur wenn der Code korrekt ist, kann man in den nächsten Raum
  * weitergehen.
  */
-public class Fehler_Refactoring extends TaskRoom {
+public class RefactoringRoom extends TaskRoom {
   private final String FILENAME1 = "dojo-dungeon/src/studenttasks/refactoring/ClsToRefactor.java";
   private final String title = "Refactoring";
 
@@ -37,7 +37,7 @@ public class Fehler_Refactoring extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public Fehler_Refactoring(
+  public RefactoringRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

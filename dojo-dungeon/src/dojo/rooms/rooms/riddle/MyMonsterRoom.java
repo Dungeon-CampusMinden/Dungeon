@@ -27,7 +27,7 @@ import studenttasks.mymonster.MyMonster;
  * <p>In diesem Raum muss ein Monster mit verschiedenen Eigenschaften erstellt und danach besiegt
  * werden, um in den nächsten Raum zu gelangen.
  */
-public class Implement_MyMonster extends TaskRoom {
+public class MyMonsterRoom extends TaskRoom {
   private static final Class<?> CLASS_TO_TEST = MyMonster.class;
   private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
   private static final String PATH_TO_TEST_CLASS = "src/studenttasks/mymonster/";
@@ -45,7 +45,7 @@ public class Implement_MyMonster extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public Implement_MyMonster(
+  public MyMonsterRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

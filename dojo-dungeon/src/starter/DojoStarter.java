@@ -108,9 +108,9 @@ public class DojoStarter {
       room.closeDoors();
     }
 
-    // Room "Fehler_Refactoring" should not be closed:
+    // Room "RefactoringRoom" should not be closed:
     rooms.stream()
-        .filter(r -> r.getClass().getSimpleName().contains("Fehler_Refactoring"))
+        .filter(r -> r.getClass().getSimpleName().contains("RefactoringRoom"))
         .findFirst()
         .orElseThrow()
         .openDoors();

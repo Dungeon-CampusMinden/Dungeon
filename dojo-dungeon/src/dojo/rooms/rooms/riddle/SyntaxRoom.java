@@ -31,7 +31,7 @@ import studenttasks.syntax.FehlerhafteKlasse;
  * wenn man alle Fehler gefunden und alle Überprüfungen geschafft hat, kann man in den nächsten Raum
  * weitergehen. Es gibt dabei drei "Prüfstufen".
  */
-public class Fehler_Syntax extends TaskRoom {
+public class SyntaxRoom extends TaskRoom {
   private static final Class<?> CLASS_TO_TEST = FehlerhafteKlasse.class;
   private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
   private static final String PATH_TO_TEST_CLASS = "src/studenttasks/syntax/";
@@ -82,7 +82,7 @@ public class Fehler_Syntax extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public Fehler_Syntax(
+  public SyntaxRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

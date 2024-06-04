@@ -6,14 +6,14 @@ import core.level.utils.LevelSize;
 import core.utils.components.path.IPath;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
-import dojo.rooms.rooms.boss.Fehler_Refactoring;
+import dojo.rooms.rooms.boss.RefactoringRoom;
 import dojo.rooms.rooms.boss.Fragen_Lambda;
 import dojo.rooms.rooms.boss.Fragen_RegExes;
 import dojo.rooms.rooms.boss.MyImpRoom;
-import dojo.rooms.rooms.riddle.Fehler_Quader;
-import dojo.rooms.rooms.riddle.Fehler_Syntax;
+import dojo.rooms.rooms.riddle.QuaderRoom;
+import dojo.rooms.rooms.riddle.SyntaxRoom;
 import dojo.rooms.rooms.riddle.Fragen_Pattern;
-import dojo.rooms.rooms.riddle.Implement_MyMonster;
+import dojo.rooms.rooms.riddle.MyMonsterRoom;
 import dojo.rooms.rooms.search.Fragen_Schriftrollen;
 import dojo.rooms.rooms.search.Key;
 import dojo.rooms.rooms.search.Monster_Kill;
@@ -137,7 +137,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fehler_Syntax() {
-    return new Fehler_Syntax(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new SyntaxRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -164,7 +164,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Implement_MyMonster() {
-    return new Implement_MyMonster(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new MyMonsterRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -173,7 +173,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fehler_Refactoring() {
-    return new Fehler_Refactoring(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new RefactoringRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -192,7 +192,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fehler_Quader() {
-    return new Fehler_Quader(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new QuaderRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
