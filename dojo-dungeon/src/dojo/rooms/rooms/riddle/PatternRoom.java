@@ -28,9 +28,9 @@ import task.tasktype.quizquestion.FreeText;
  * <p>In diesem Raum müssen verschiedene Design Patterns anhand eines UML-Klassendiagramms erkannt
  * werden. Die erkannten Design Patterns müssen dann dem Schamanen mitgeteilt werden.
  */
-public class Fragen_Pattern extends Room {
+public class PatternRoom extends Room {
   private final String FILE_NAME_PREFIX =
-      "dojo-dungeon/todo-assets/Fragen_Pattern/UML_Klassendiagramm";
+      "dojo-dungeon/todo-assets/PatternRoom/UML_Klassendiagramm";
   private final String[] EXPECTED_PATTERNS = {
     ".*?none.*?",
     ".*?observer.*?",
@@ -65,7 +65,7 @@ public class Fragen_Pattern extends Room {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public Fragen_Pattern(
+  public PatternRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

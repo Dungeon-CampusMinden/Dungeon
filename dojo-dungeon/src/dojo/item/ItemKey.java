@@ -17,7 +17,7 @@ public class ItemKey extends Item {
   private Room nextRoom;
 
   /**
-   * Create a new Key.
+   * Create a new FindKeyRoom.
    *
    * @param displayName The display name of the item.
    * @param description The description of the item.

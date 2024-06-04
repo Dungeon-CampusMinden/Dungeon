@@ -25,7 +25,7 @@ import java.util.Set;
  *
  * <p>In diesem Raum müssen alle Monster erledigt werden, um weiterzukommen.
  */
-public class Monster_Kill extends Room {
+public class KillMonsterRoom extends Room {
 
   private int monsterGroupsSpawned = 0;
   private int activeMonsters = 0;
@@ -39,7 +39,7 @@ public class Monster_Kill extends Room {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public Monster_Kill(
+  public KillMonsterRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

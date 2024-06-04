@@ -6,18 +6,18 @@ import core.level.utils.LevelSize;
 import core.utils.components.path.IPath;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
-import dojo.rooms.rooms.boss.RefactoringRoom;
-import dojo.rooms.rooms.boss.Fragen_Lambda;
-import dojo.rooms.rooms.boss.Fragen_RegExes;
+import dojo.rooms.rooms.boss.LambdaRoom;
 import dojo.rooms.rooms.boss.MyImpRoom;
+import dojo.rooms.rooms.boss.RefactoringRoom;
+import dojo.rooms.rooms.boss.RegExesRoom;
+import dojo.rooms.rooms.riddle.MyMonsterRoom;
+import dojo.rooms.rooms.riddle.PatternRoom;
 import dojo.rooms.rooms.riddle.QuaderRoom;
 import dojo.rooms.rooms.riddle.SyntaxRoom;
-import dojo.rooms.rooms.riddle.Fragen_Pattern;
-import dojo.rooms.rooms.riddle.MyMonsterRoom;
-import dojo.rooms.rooms.search.Fragen_Schriftrollen;
-import dojo.rooms.rooms.search.Key;
-import dojo.rooms.rooms.search.Monster_Kill;
-import dojo.rooms.rooms.search.Saphire;
+import dojo.rooms.rooms.search.FindKeyRoom;
+import dojo.rooms.rooms.search.KillMonsterRoom;
+import dojo.rooms.rooms.search.RollOfPaperRoom;
+import dojo.rooms.rooms.search.SaphireRoom;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -128,7 +128,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Key() {
-    return new Key(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new FindKeyRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -146,7 +146,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fragen_Lambda() {
-    return new Fragen_Lambda(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new LambdaRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -155,7 +155,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Saphire() {
-    return new Saphire(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new SaphireRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -182,7 +182,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fragen_Schriftrollen() {
-    return new Fragen_Schriftrollen(
+    return new RollOfPaperRoom(
         levelRoom, gen, nextRoom, levelSize, designLabel, monsterCount, monsterPaths, sortables);
   }
 
@@ -201,7 +201,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fragen_RegExes() {
-    return new Fragen_RegExes(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new RegExesRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -210,7 +210,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Monster_Kill() {
-    return new Monster_Kill(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new KillMonsterRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
@@ -219,7 +219,7 @@ public class RoomBuilder {
    * @return the newly generated room instance
    */
   public Room buildRoom_Fragen_Pattern() {
-    return new Fragen_Pattern(levelRoom, gen, nextRoom, levelSize, designLabel);
+    return new PatternRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
   /**
