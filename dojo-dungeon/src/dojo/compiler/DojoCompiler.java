@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 import javax.tools.*;
-import starter.DojoStarter;
 
 /** Class for compiling and testing sources at runtime. */
 public class DojoCompiler {
@@ -23,6 +22,8 @@ public class DojoCompiler {
    */
   public record TestResult(String testName, boolean passed, List<String> messages) {}
 
+  private static final String ABSOLUTE_BUILD_PATH =
+      System.getProperty("dojoDungeonAbsBuildDir", "build/classes/java/main");
   private final List<String> messages = new ArrayList<>();
   private String pathToSourceFiles;
   private Class<?> cls;
@@ -258,12 +259,7 @@ public class DojoCompiler {
   private Class<?> compile(String pathToSourceFiles, String fqClassName) throws Exception {
     Class<?> cls = Class.forName(fqClassName);
 
-    // hard coded build dir for now:
-    String argBuildDir = "build/classes/java/main";
-    if (DojoStarter.ABSOLUTE_BUILD_PATH != null) {
-      argBuildDir = DojoStarter.ABSOLUTE_BUILD_PATH + "/classes/java/main";
-    }
-
+    String argBuildDir = ABSOLUTE_BUILD_PATH;
     String argToCompile = Paths.get(pathToSourceFiles, cls.getSimpleName() + ".java").toString();
     URL argToLoad = Paths.get(argBuildDir).toUri().toURL();
     Logger logger = Logger.getLogger(DojoCompiler.class.getName());
@@ -301,12 +297,7 @@ public class DojoCompiler {
       throws Exception {
     Class<?> cls = Class.forName(fqClassName);
 
-    // hard coded build dir for now:
-    String argBuildDir = "build/classes/java/main";
-    if (DojoStarter.ABSOLUTE_BUILD_PATH != null) {
-      argBuildDir = DojoStarter.ABSOLUTE_BUILD_PATH + "/classes/java/main";
-    }
-
+    String argBuildDir = ABSOLUTE_BUILD_PATH;
     String argToCompile = Paths.get(pathToSourceFiles, cls.getSimpleName() + ".java").toString();
     File fileToLoad =
         Paths.get(argBuildDir, pathToSourceFiles.substring(4), cls.getSimpleName() + ".class")
