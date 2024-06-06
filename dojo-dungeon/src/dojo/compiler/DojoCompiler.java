@@ -22,8 +22,18 @@ public class DojoCompiler {
    */
   public record TestResult(String testName, boolean passed, List<String> messages) {}
 
-  private static final String ABSOLUTE_BUILD_PATH =
-      System.getProperty("dojoDungeonAbsBuildDir", "build/classes/java/main");
+  private static final String ABSOLUTE_BUILD_PATH;
+
+  static {
+    if (!System.getProperties().containsKey("dojoDungeonAbsBuildDir")) {
+      Logger logger = Logger.getLogger(DojoCompiler.class.getName());
+      logger.addHandler(new ConsoleHandler());
+      logger.warning("Path to build directory not found: \"dojoDungeonAbsBuildDir\"");
+      throw new RuntimeException("Path to build directory not found: \"dojoDungeonAbsBuildDir\"");
+    }
+    ABSOLUTE_BUILD_PATH = System.getProperty("dojoDungeonAbsBuildDir");
+  }
+
   private final List<String> messages = new ArrayList<>();
   private String pathToSourceFiles;
   private Class<?> cls;
