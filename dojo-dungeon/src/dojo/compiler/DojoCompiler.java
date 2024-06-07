@@ -25,13 +25,12 @@ public class DojoCompiler {
   private static final String ABSOLUTE_BUILD_PATH;
 
   static {
-    if (!System.getProperties().containsKey("dojoDungeonAbsBuildDir")) {
-      Logger logger = Logger.getLogger(DojoCompiler.class.getName());
-      logger.addHandler(new ConsoleHandler());
-      logger.warning("Path to build directory not found: \"dojoDungeonAbsBuildDir\"");
-      throw new RuntimeException("Path to build directory not found: \"dojoDungeonAbsBuildDir\"");
-    }
     ABSOLUTE_BUILD_PATH = System.getProperty("dojoDungeonAbsBuildDir");
+
+    if (ABSOLUTE_BUILD_PATH == null) {
+      Logger.getLogger(DojoCompiler.class.getName()).warning("Path to build directory not set as system property 'dojoDungeonAbsBuildDir'!");
+      throw new RuntimeException("Path to build directory not set as system property 'dojoDungeonAbsBuildDir'!");
+    }
   }
 
   private final List<String> messages = new ArrayList<>();
