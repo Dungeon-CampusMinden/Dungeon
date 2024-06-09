@@ -8,6 +8,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tools.*;
 
@@ -22,15 +23,29 @@ public class DojoCompiler {
    */
   public record TestResult(String testName, boolean passed, List<String> messages) {}
 
+  private static final Logger LOGGER = Logger.getLogger(DojoCompiler.class.getName());
+
+  static {
+    LOGGER.addHandler(new ConsoleHandler());
+    LOGGER.setLevel(Level.INFO);
+  }
+
   private static final String ABSOLUTE_BUILD_PATH;
 
   static {
-    ABSOLUTE_BUILD_PATH = System.getProperty("dojoDungeonAbsBuildDir");
-
-    if (ABSOLUTE_BUILD_PATH == null) {
-      Logger.getLogger(DojoCompiler.class.getName()).warning("Path to build directory not set as system property 'dojoDungeonAbsBuildDir'!");
-      throw new RuntimeException("Path to build directory not set as system property 'dojoDungeonAbsBuildDir'!");
+    String path = System.getProperty("dojoDungeonAbsBuildDir");
+    if (path == null) {
+      LOGGER.warning(
+          "Path to build directory not set as system property 'dojoDungeonAbsBuildDir'!");
+      throw new RuntimeException();
     }
+    try {
+      ABSOLUTE_BUILD_PATH = path.substring(1, path.length() - 1);
+    } catch (IndexOutOfBoundsException e) {
+      LOGGER.warning("Path to build directory ('dojoDungeonAbsBuildDir') is not valid!");
+      throw new RuntimeException();
+    }
+    LOGGER.info("Using path to build directory: " + ABSOLUTE_BUILD_PATH);
   }
 
   private final List<String> messages = new ArrayList<>();
@@ -271,9 +286,7 @@ public class DojoCompiler {
     String argBuildDir = ABSOLUTE_BUILD_PATH;
     String argToCompile = Paths.get(pathToSourceFiles, cls.getSimpleName() + ".java").toString();
     URL argToLoad = Paths.get(argBuildDir).toUri().toURL();
-    Logger logger = Logger.getLogger(DojoCompiler.class.getName());
-    logger.addHandler(new ConsoleHandler());
-    logger.warning(
+    LOGGER.info(
         "Compiling: "
             + fqClassName
             + " in: "
@@ -311,9 +324,7 @@ public class DojoCompiler {
     File fileToLoad =
         Paths.get(argBuildDir, pathToSourceFiles.substring(4), cls.getSimpleName() + ".class")
             .toFile();
-    Logger logger = Logger.getLogger(DojoCompiler.class.getName());
-    logger.addHandler(new ConsoleHandler());
-    logger.warning(
+    LOGGER.info(
         "Compiling: "
             + fqClassName
             + " in: "
@@ -343,7 +354,7 @@ public class DojoCompiler {
                 byte[] buf = bos.toByteArray();
                 return defineClass(name, buf, 0, buf.length);
               } catch (IOException e) {
-                logger.warning("Could not load class: " + e.getMessage());
+                LOGGER.warning("Could not load class: " + e.getMessage());
                 throw new ClassNotFoundException("", e);
               }
             }
