@@ -430,23 +430,24 @@ public final class Game {
   }
 
   /**
-   * Returns the entities on the given tile.
+   * Returns the entities on the given tile. If the tile is null, an empty stream will be returned.
    *
    * @param check Tile to check for.
    * @return Stream of all entities on the given tile
    */
   public static Stream<Entity> entityAtTile(final Tile check) {
     Tile tile = Game.tileAT(check.position());
+    if (tile == null) return Stream.empty();
 
     return ECSManagment.entityStream(Set.of(PositionComponent.class))
         .filter(
             e ->
-                tileAT(
+                tile.equals(
+                    tileAT(
                         e.fetch(PositionComponent.class)
                             .orElseThrow(
                                 () -> MissingComponentException.build(e, PositionComponent.class))
-                            .position())
-                    .equals(tile));
+                            .position())));
   }
 
   /**
