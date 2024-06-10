@@ -43,11 +43,13 @@ public final class CameraSystem extends System {
   }
 
   private static float viewportWidth() {
-    return PreRunConfiguration.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    return PreRunConfiguration.windowWidth()
+        / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL; // Using PreRun to keep the same zoom
   }
 
   private static float viewportHeight() {
-    return PreRunConfiguration.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    return PreRunConfiguration.windowHeight()
+        / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL; // Using PreRun to keep the same zoom
   }
 
   /**
