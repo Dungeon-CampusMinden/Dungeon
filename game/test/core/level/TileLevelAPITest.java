@@ -140,18 +140,29 @@ public class TileLevelAPITest {
     Tile[][] layout = new Tile[2][2];
     layout[0][0] = Mockito.mock(Tile.class);
     when(layout[0][0].levelElement()).thenReturn(elementT1);
+    when(layout[0][0].visible()).thenReturn(true);
+    when(layout[0][0].tintColor()).thenReturn(-1);
     when(layout[0][0].texturePath()).thenReturn(textureT1);
     when(layout[0][0].position()).thenReturn(coordinateT1.toPoint());
     layout[0][1] = Mockito.mock(Tile.class);
     when(layout[0][1].levelElement()).thenReturn(elementT2);
+    when(layout[0][1].visible()).thenReturn(true);
+    when(layout[0][1].tintColor()).thenReturn(-1);
+
     when(layout[0][1].texturePath()).thenReturn(textureT2);
     when(layout[0][1].position()).thenReturn(coordinateT2.toPoint());
     layout[1][0] = Mockito.mock(Tile.class);
     when(layout[1][0].levelElement()).thenReturn(elementT3);
+    when(layout[1][0].visible()).thenReturn(true);
+    when(layout[1][0].tintColor()).thenReturn(-1);
+
     when(layout[1][0].texturePath()).thenReturn(textureT3);
     when(layout[1][0].position()).thenReturn(coordinateT3.toPoint());
     layout[1][1] = Mockito.mock(Tile.class);
     when(layout[1][1].levelElement()).thenReturn(elementT4);
+    when(layout[1][1].visible()).thenReturn(false);
+    when(layout[1][1].tintColor()).thenReturn(-1);
+
     when(layout[1][1].texturePath()).thenReturn(textureT4);
     when(layout[1][1].position()).thenReturn(coordinateT4.toPoint());
 
@@ -164,20 +175,26 @@ public class TileLevelAPITest {
     verifyNoMoreInteractions(level);
 
     verify(layout[0][0]).levelElement();
+    verify(layout[0][0]).visible();
     verify(layout[0][0]).texturePath();
+    verify(layout[0][0]).tintColor();
     verify(layout[0][0]).position();
     // for some reason mockito.verify can't compare the points of the tile correctly
     verify(painter, times(3)).draw(any(Point.class), any(IPath.class), any(PainterConfig.class));
     verifyNoMoreInteractions(layout[0][0]);
 
     verify(layout[0][1]).levelElement();
+    verify(layout[0][1]).visible();
     verify(layout[0][1]).texturePath();
+    verify(layout[0][1]).tintColor();
     verify(layout[0][1]).position();
     // for some reason mockito.verify can't compare the points of the tile correctly
     verify(painter, times(3)).draw(any(Point.class), any(IPath.class), any(PainterConfig.class));
     verifyNoMoreInteractions(layout[0][1]);
     verify(layout[1][0]).levelElement();
+    verify(layout[1][0]).visible();
     verify(layout[1][0]).texturePath();
+    verify(layout[1][0]).tintColor();
     verify(layout[1][0]).position();
     // for some reason mockito.verify can't compare the points of the tile correctly
     verify(painter, times(3)).draw(any(Point.class), any(IPath.class), any(PainterConfig.class));
