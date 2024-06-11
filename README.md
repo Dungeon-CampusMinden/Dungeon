@@ -135,7 +135,7 @@ All files in [`game/assets/`] and [`dungeon/assets/`] are licensed under [CC0 1.
   [\@Flamtky]: https://github.com/Flamtky
   [`game/assets/dungeon/*/floor`]: game/assets/dungeon/
   [\@dkirshner]: https://github.com/dkirshner
-  [`game/assets/dungeon/fire/floor/`]: %60game/assets/dungeon/fire/floor/floor_1.png%60
+  [`game/assets/dungeon/fire/floor/`]: game/assets/dungeon/fire/floor/floor_1.png
   [work]: https://github.com/Dungeon-CampusMinden/Dungeon
   [André Matutat]: https://github.com/AMatutat
   [Malte Reinsch]: https://github.com/malt-r
