@@ -1,5 +1,6 @@
 package core.level.utils;
 
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import core.Entity;
 import core.Game;
@@ -38,7 +39,11 @@ public final class LevelUtils {
    * @return Path from the start coordinate to the end coordinate.
    */
   public static GraphPath<Tile> calculatePath(final Coordinate from, final Coordinate to) {
-    return Game.findPath(Game.tileAT(from), Game.tileAT(to));
+    Tile fromTile = Game.tileAT(from);
+    Tile toTile = Game.tileAT(to);
+    if (fromTile == null || !fromTile.isAccessible()) return new DefaultGraphPath<>();
+    if (toTile == null || !toTile.isAccessible()) return new DefaultGraphPath<>();
+    return Game.findPath(fromTile, toTile);
   }
 
   /**
@@ -205,10 +210,20 @@ public final class LevelUtils {
 
   private static boolean isAnyCornerOfTileInRadius(
       final Point center, float radius, final Tile tile) {
-    return Point.inRange(center, tile.coordinate().toPoint(), radius)
-        || Point.inRange(center, tile.coordinate().toPoint(), radius)
-        || Point.inRange(center, tile.coordinate().toPoint(), radius)
-        || Point.inRange(center, tile.coordinate().toPoint(), radius);
+    return Point.inRange(
+            center, new Point(tile.coordinate().toPoint().x, tile.coordinate().toPoint().y), radius)
+        || Point.inRange(
+            center,
+            new Point(tile.coordinate().toPoint().x + 1, tile.coordinate().toPoint().y),
+            radius)
+        || Point.inRange(
+            center,
+            new Point(tile.coordinate().toPoint().x, tile.coordinate().toPoint().y + 1),
+            radius)
+        || Point.inRange(
+            center,
+            new Point(tile.coordinate().toPoint().x + 1, tile.coordinate().toPoint().y + 1),
+            radius);
   }
 
   /**
@@ -257,7 +272,6 @@ public final class LevelUtils {
    * @return True if the position of the two entities is within the given range, else false.
    */
   public static boolean entityInRange(final Entity entity1, final Entity entity2, float range) {
-
     Point entity1Position =
         entity1
             .fetch(PositionComponent.class)
@@ -280,7 +294,6 @@ public final class LevelUtils {
    *     given entity. If there is no hero, return false.
    */
   public static boolean playerInRange(final Entity entity, float range) {
-
     Optional<Entity> hero = Game.hero();
     return hero.filter(value -> entityInRange(entity, value, range)).isPresent();
   }
