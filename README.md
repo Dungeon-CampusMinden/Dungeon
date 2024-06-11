@@ -80,16 +80,20 @@ problems or suggestions, please feel free to contact us in English or German.
 This project was funded by [Stiftung für Innovation in der Hochschullehre] (["Freiraum
 2022"]).
 
-The [`game/assets/`] and [`dungeon/assets/`] are a mix from free resources:
+The assets in [`game/assets/`] and [`dungeon/assets/`] are a mix from free resources:
 
 -   Textures and animations:
     -   https://0x72.itch.io/16x16-dungeon-tileset (CC0 1.0)
     -   https://0x72.itch.io/dungeontileset-ii (CC0 1.0)
--   Music and soundeffects:
+-   Music and sound effects:
     -   https://alkakrab.itch.io/free-12-tracks-pixel-rpg-game-music-pack (CC0 1.0)
     -   https://opengameart.org/content/50-rpg-sound-effects (CC0 1.0)
     -   https://opengameart.org/content/hurt-death-sound-effect-for-character (CC0 1.0)
     -   https://opengameart.org/content/80-cc0-creture-sfx-2 (CC0 1.0)
+-   Adapted and modified by [\@Flamtky][]:
+    -   Files in [`game/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating from
+        [\@dkirshner])
+    -   [`game/assets/dungeon/fire/floor/floor_1.png`] (originating from [\@dkirshner])
 
 ## Licenses
 
@@ -128,6 +132,10 @@ All files in [`game/assets/`] and [`dungeon/assets/`] are licensed under [CC0 1.
   ["Freiraum 2022"]: https://stiftung-hochschullehre.de/foerderung/freiraum2022/
   [`game/assets/`]: game/assets/
   [`dungeon/assets/`]: dungeon/assets/
+  [\@Flamtky]: https://github.com/Flamtky
+  [`game/assets/dungeon/*/floor`]: game/assets/dungeon/
+  [\@dkirshner]: https://github.com/dkirshner
+  [`game/assets/dungeon/fire/floor/floor_1.png`]: game/assets/dungeon/fire/floor/floor_1.png
   [work]: https://github.com/Dungeon-CampusMinden/Dungeon
   [André Matutat]: https://github.com/AMatutat
   [Malte Reinsch]: https://github.com/malt-r
