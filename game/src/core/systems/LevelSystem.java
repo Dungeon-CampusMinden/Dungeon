@@ -1,7 +1,5 @@
 package core.systems;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -19,6 +17,8 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
+import core.utils.sound.SoundPlayer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -57,8 +57,6 @@ public final class LevelSystem extends System {
    * over walls.
    */
   private static final float Y_OFFSET = 0.25f;
-
-  private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
 
   /** Currently used level-size configuration for generating new level. */
   private static LevelSize levelSize = LevelSize.MEDIUM;
@@ -241,10 +239,7 @@ public final class LevelSystem extends System {
   }
 
   private void playSound() {
-    Sound doorSound = Gdx.audio.newSound(Gdx.files.internal(SOUND_EFFECT));
-    long soundId = doorSound.play();
-    doorSound.setLooping(soundId, false);
-    doorSound.setVolume(soundId, 0.3f);
+    SoundPlayer.playSound(new SimpleIPath("sounds/enterDoor.wav"), false, 0.3f);
   }
 
   /**

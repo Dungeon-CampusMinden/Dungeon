@@ -1,7 +1,5 @@
 package contrib.entities;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.elements.GUICombination;
@@ -20,6 +18,7 @@ import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.sound.SoundPlayer;
 import java.io.IOException;
 import java.util.Comparator;
 
@@ -60,13 +59,7 @@ public final class HeroFactory {
             HERO_HP,
             entity -> {
               // play sound
-              Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
-              long soundId = sound.play();
-              sound.setLooping(soundId, false);
-              sound.setVolume(soundId, 0.3f);
-              sound.setLooping(soundId, false);
-              sound.play();
-              sound.setVolume(soundId, 0.9f);
+              SoundPlayer.playSound(new SimpleIPath("sounds/death.wav"), false, 0.9f);
 
               // relink components for camera
               Entity cameraDummy = new Entity();

@@ -1,7 +1,5 @@
 package contrib.entities;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import contrib.components.*;
 import contrib.item.Item;
 import contrib.utils.components.health.DamageType;
@@ -14,6 +12,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.sound.SoundPlayer;
 import java.io.IOException;
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -115,16 +114,15 @@ public final class MonsterFactory {
   }
 
   private static void playMonsterDieSound() {
-    Sound dieSoundEffect;
-    switch (RANDOM.nextInt(4)) {
-      case 0 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_01.wav"));
-      case 1 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_02.wav"));
-      case 2 -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_03.wav"));
-      default -> dieSoundEffect = Gdx.audio.newSound(Gdx.files.internal("sounds/die_04.wav"));
-    }
-    long soundID = dieSoundEffect.play();
-    dieSoundEffect.setLooping(soundID, false);
-    dieSoundEffect.setVolume(soundID, 0.35f);
+    String dieSoundEffect =
+        switch (RANDOM.nextInt(4)) {
+          case 0 -> "sounds/die_01.wav";
+          case 1 -> "sounds/die_02.wav";
+          case 2 -> "sounds/die_03.wav";
+          default -> "sounds/die_04.wav";
+        };
+
+    SoundPlayer.playSound(new SimpleIPath(dieSoundEffect), false, 0.35f);
   }
 
   private static IPath randomMonsterIdleSound() {
