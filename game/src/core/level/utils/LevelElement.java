@@ -12,18 +12,20 @@ public enum LevelElement {
   HOLE(false),
   /** This field is the exit-field to the next level. */
   EXIT(true),
-  /** WTF? . */
+  /** This field is a pit-field. */
+  PIT(false),
+  /** This field is a door-field. */
   DOOR(true);
 
-  private final boolean value;
+  private final boolean accessible;
 
   /**
    * Represents a level element with accessibility information.
    *
-   * @param value The accessibility value of the element.
+   * @param accessible The accessibility value of the element.
    */
-  LevelElement(boolean value) {
-    this.value = value;
+  LevelElement(boolean accessible) {
+    this.accessible = accessible;
   }
 
   /**
@@ -32,6 +34,6 @@ public enum LevelElement {
    * @return true if the element is accessible, code false if not.
    */
   public boolean value() {
-    return value;
+    return accessible;
   }
 }
