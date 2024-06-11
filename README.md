@@ -90,10 +90,10 @@ The assets in [`game/assets/`] and [`dungeon/assets/`] are a mix from free resou
     -   https://opengameart.org/content/50-rpg-sound-effects (CC0 1.0)
     -   https://opengameart.org/content/hurt-death-sound-effect-for-character (CC0 1.0)
     -   https://opengameart.org/content/80-cc0-creture-sfx-2 (CC0 1.0)
--   Adapted and modified by [\@Flamtky]:
-    -   Files in [`game/assets/dungeon/*/floor`]: each `floor_damaged.png` (originating from
+-   Adapted and modified by [\@Flamtky][]:
+    -   Files in [`game/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating from
         [\@dkirshner])
-    -   `floor_1.png` in [`game/assets/dungeon/fire/floor/`] (originating from [\@dkirshner])
+    -   [`game/assets/dungeon/fire/floor/floor_1.png`] (originating from [\@dkirshner])
 
 ## Licenses
 
@@ -135,7 +135,7 @@ All files in [`game/assets/`] and [`dungeon/assets/`] are licensed under [CC0 1.
   [\@Flamtky]: https://github.com/Flamtky
   [`game/assets/dungeon/*/floor`]: game/assets/dungeon/
   [\@dkirshner]: https://github.com/dkirshner
-  [`game/assets/dungeon/fire/floor/`]: game/assets/dungeon/fire/floor/floor_1.png
+  [`game/assets/dungeon/fire/floor/floor_1.png`]: game/assets/dungeon/fire/floor/floor_1.png
   [work]: https://github.com/Dungeon-CampusMinden/Dungeon
   [André Matutat]: https://github.com/AMatutat
   [Malte Reinsch]: https://github.com/malt-r
