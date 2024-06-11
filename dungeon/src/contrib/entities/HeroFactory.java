@@ -53,7 +53,7 @@ public final class HeroFactory {
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
-    hero.add(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO));
+    hero.add(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
     HealthComponent hc =
         new HealthComponent(
