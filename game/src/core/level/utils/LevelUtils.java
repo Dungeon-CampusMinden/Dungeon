@@ -294,7 +294,6 @@ public final class LevelUtils {
    *     given entity. If there is no hero, return false.
    */
   public static boolean playerInRange(final Entity entity, float range) {
-    Optional<Entity> hero = Game.hero();
-    return hero.filter(value -> entityInRange(entity, value, range)).isPresent();
+    return Game.hero().filter(value -> entityInRange(entity, value, range)).isPresent();
   }
 }
