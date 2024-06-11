@@ -307,6 +307,18 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void enterVar_decl_assignment_incomplete(
       DungeonDSLParser.Var_decl_assignment_incompleteContext ctx) {}
 
+  private List<String> contextRuleNames (RuleContext ctx) {
+    List<String> contextRuleNames = new ArrayList<>();
+    RuleContext iterRule = ctx;
+    String iterRuleName;
+    while (iterRule != null) {
+      iterRuleName = this.ruleNames.get(iterRule.getRuleIndex());
+      contextRuleNames.add(iterRuleName);
+      iterRule = iterRule.getParent();
+    }
+    return contextRuleNames;
+  }
+
   @Override
   public void exitVar_decl_assignment_incomplete(
       DungeonDSLParser.Var_decl_assignment_incompleteContext ctx) {
@@ -322,7 +334,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
             line,
             charPosInLine,
             ErrorRecord.ErrorType.specificErrorAlternative,
-            null);
+            null,
+            contextRuleNames(ctx));
     var incompleteErrorNode = new ASTErrorNode(record);
     incompleteErrorNode.setSourceFileReference(ctx);
 
@@ -370,7 +383,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
             line,
             charPosInLine,
             ErrorRecord.ErrorType.specificErrorAlternative,
-            null);
+            null,
+            contextRuleNames(ctx));
     var incompleteErrorNode = new ASTErrorNode(record);
     incompleteErrorNode.setSourceFileReference(ctx);
 
@@ -416,7 +430,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
             line,
             charPosInLine,
             ErrorRecord.ErrorType.specificErrorAlternative,
-            null);
+            null,
+            contextRuleNames(ctx));
     var incompleteErrorNode = new ASTErrorNode(record);
     incompleteErrorNode.setSourceFileReference(ctx);
 
@@ -481,7 +496,8 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
             line,
             charPosInLine,
             ErrorRecord.ErrorType.specificErrorAlternative,
-            null);
+            null,
+            contextRuleNames(ctx));
     var incompleteMemberAccess = new ASTErrorNode(record);
     incompleteMemberAccess.setSourceFileReference(ctx);
     astStack.push(incompleteMemberAccess);
@@ -1057,12 +1073,12 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     Node expression = getOffendingSymbolNode(ctx);
 
     // id on lhs
-    var typeId = astStack.pop();
-    assert errorMode() || typeId instanceof IdNode;
+    var id = astStack.pop();
+    assert errorMode() || id instanceof IdNode;
 
-    var paramNode = new ParamDefNode(typeId, expression);
-    paramNode.setSourceFileReference(ctx);
-    astStack.push(paramNode);
+    var propertyDefNode = new PropertyDefNode(id, expression);
+    propertyDefNode.setSourceFileReference(ctx);
+    astStack.push(propertyDefNode);
   }
 
   @Override

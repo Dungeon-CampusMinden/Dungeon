@@ -1,8 +1,7 @@
 package dsl.programmanalyzer;
 
-import org.neo4j.ogm.annotation.ValueFor;
-
 import java.lang.annotation.*;
+import org.neo4j.ogm.annotation.ValueFor;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
@@ -26,8 +25,6 @@ public @interface Relate {
     OUTGOING,
     INCOMING;
 
-    private Direction() {
-    }
+    private Direction() {}
   }
-
 }

@@ -12,7 +12,12 @@ public class Relationship {
   Relate.Direction direction;
   HashMap<String, Object> properties;
 
-  public Relationship(Long startIdx, String name, List<Long> endIdxs, Relate.Direction direction, boolean forceIdxProperty) {
+  public Relationship(
+      Long startIdx,
+      String name,
+      List<Long> endIdxs,
+      Relate.Direction direction,
+      boolean forceIdxProperty) {
     this.startIdx = startIdx;
     this.name = name;
     // this.endLabel = endLabel;

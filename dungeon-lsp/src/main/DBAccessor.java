@@ -1,5 +1,6 @@
 package main;
 
+import dsl.parser.ast.ASTErrorNode;
 import dsl.parser.ast.Node;
 import dsl.parser.ast.SourceFileReference;
 import dsl.semanticanalysis.symbol.Symbol;
@@ -174,7 +175,12 @@ public class DBAccessor {
           return distinct symbol, type, matchingType
           """,
             Map.of(
-                "internalId", prefixNode.getId(), "prefix", prefix, "typeRestriction", typeRestriction));
+                "internalId",
+                prefixNode.getId(),
+                "prefix",
+                prefix,
+                "typeRestriction",
+                typeRestriction));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
     result.forEach(
@@ -220,7 +226,12 @@ public class DBAccessor {
   return distinct symbol, type, matchingType
   """,
             Map.of(
-                "internalId", prefixNode.getId(), "prefix", prefix, "typeRestriction", typeRestriction));
+                "internalId",
+                prefixNode.getId(),
+                "prefix",
+                prefix,
+                "typeRestriction",
+                typeRestriction));
 
     ArrayList<RankedSymbol> symbols = new ArrayList<>();
     result.forEach(
@@ -326,5 +337,66 @@ public class DBAccessor {
           symbols.add(new RankedSymbol((Symbol) m.get("symbol"), type, ranking));
         });
     return symbols;
+  }
+
+  public Map<String, Object> sparseContextResolving(Position position) {
+    var result =
+        session.query(
+            """
+    // find nearest ASTNode (furthest to right)
+    match (n:AstNode)-[]-(nearestSfr:SourceFileReference) where nearestSfr.startLine = $startline and nearestSfr.endColumn < $endcolumn
+    and not exists {(n)<-[:CHILD_OF]-(:AstNode)}
+    optional match (n:AstNode)-[:CHILD_OF]->(parent:AstNode)
+    optional match (parent)-[]-(parentSfr:SourceFileReference)
+    optional match (n)-[:CHILD_OF*]->(typeRestrictingContext:AstNode) where typeRestrictingContext.type IN ["PropertyDefinition","ExpressionList", "ReturnStmt", "Assignment"]
+    return n, parent, nearestSfr, parentSfr, typeRestrictingContext, typeRestrictingContext.type as restrictionType
+    //return n, parent, nearestSfr, parentSfr
+    order by nearestSfr.startColumn desc
+    limit 1
+    """,
+            Map.of("startline", position.getLine(), "endcolumn", position.getCharacter()));
+    var iter = result.iterator();
+    if (iter.hasNext()) {
+      var map = iter.next();
+      var typeRestrictionContextObj = map.get("typeRestrictingContext");
+      var matchedNode = map.get("n");
+      var nearestSfr = map.get("nearestSfr");
+      var parent = map.get("parent");
+      var parentSfr = map.get("parentSfr");
+      var restrictionType = map.get("restrictionType");
+      String matchedText = "";
+      if (matchedNode instanceof ASTErrorNode errorNode) {
+        matchedText = errorNode.optionalMatchedText();
+      }
+      return Map.of(
+          "n",
+          matchedNode != null ? matchedNode : Node.NONE,
+          "parent",
+          parent != null ? parent : Node.NONE,
+          "nearestSfr",
+          nearestSfr != null ? nearestSfr : SourceFileReference.NULL,
+          "parentSfr",
+          parentSfr != null ? parentSfr : SourceFileReference.NULL,
+          "typeRestrictionContext",
+          typeRestrictionContextObj != null ? typeRestrictionContextObj : Node.NONE,
+          "restrictionType",
+          restrictionType != null ? restrictionType : "",
+          "matchedText",
+          matchedText);
+    } else {
+      return Map.of(
+          "n",
+          Node.NONE,
+          "parent",
+          Node.NONE,
+          "nearestSfr",
+          SourceFileReference.NULL,
+          "parentSfr",
+          SourceFileReference.NULL,
+          "typeRestrictingContext",
+          Node.NONE,
+          "restrictionType",
+          "");
+    }
   }
 }

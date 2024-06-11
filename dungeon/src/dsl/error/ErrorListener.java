@@ -47,6 +47,20 @@ public class ErrorListener extends BaseErrorListener {
       differentErrorClasses.add(clazz);
     }
 
+    List<String> contextRuleNames = new ArrayList<>();
+    RuleContext iterRule;
+    String iterRuleName;
+    if (recognizer instanceof Parser parser) {
+      iterRule = parser.getRuleContext();
+      while (iterRule != null) {
+        iterRuleName = recognizer.getRuleNames()[iterRule.getRuleIndex()];
+        contextRuleNames.add(iterRuleName);
+        iterRule = iterRule.getParent();
+      }
+    }
+
+    boolean b = true;
+
     // get parent of offending symbol?
     // this.errors.add(
     // new ErrorRecord(msg, (CommonToken) offendingSymbol, line, charPositionInLine, e));
@@ -54,7 +68,7 @@ public class ErrorListener extends BaseErrorListener {
     // TODO: how to figure out, that this is actually a lexing error?
     this.errors.add(
         ErrorRecordFactory.instance.errorRecord(
-            msg, (CommonToken) offendingSymbol, line, charPositionInLine, e));
+            msg, (CommonToken) offendingSymbol, line, charPositionInLine, e, contextRuleNames));
 
     if (this.trace) {
       String warning =

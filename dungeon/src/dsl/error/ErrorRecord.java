@@ -5,6 +5,9 @@ import dsl.programmanalyzer.Relatable;
 import org.antlr.v4.runtime.*;
 import org.neo4j.ogm.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @NodeEntity
 public class ErrorRecord implements Relatable {
   private static long g_documentVersion = 0;
@@ -19,6 +22,9 @@ public class ErrorRecord implements Relatable {
   @Property private final int charPositionInLine;
   @Property private final ErrorType errorType;
   @Property private final long documentVersion;
+
+  @Property private final List<String> contextRuleNames;
+
   @Transient private final RecognitionException exception;
   @Id @GeneratedValue private Long id;
   @Property public Long internalId = IndexGenerator.getUniqueIdx();
@@ -60,6 +66,10 @@ public class ErrorRecord implements Relatable {
     return msg;
   }
 
+  public List<String> contextRuleNames() {
+    return this.contextRuleNames;
+  }
+
   public CommonToken offendingSymbol() {
     return offendingSymbol;
   }
@@ -88,6 +98,7 @@ public class ErrorRecord implements Relatable {
     this.charPositionInLine = -1;
     this.exception = null;
     this.offendingSymbol = null;
+    this.contextRuleNames = new ArrayList<>();
   }
 
   public ErrorRecord(
@@ -96,7 +107,8 @@ public class ErrorRecord implements Relatable {
       int line,
       int charPositionInLine,
       ErrorType errorType,
-      RecognitionException exception) {
+      RecognitionException exception,
+      List<String> contextRuleNames) {
     this.documentVersion = g_documentVersion;
     this.msg = msg;
     this.errorType = errorType;
@@ -104,6 +116,7 @@ public class ErrorRecord implements Relatable {
     this.line = line;
     this.charPositionInLine = charPositionInLine;
     this.exception = exception;
+    this.contextRuleNames = contextRuleNames;
   }
 
   public static ErrorType exceptionToType(RecognitionException exception) {

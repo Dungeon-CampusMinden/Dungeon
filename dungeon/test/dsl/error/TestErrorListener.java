@@ -382,6 +382,8 @@ public class TestErrorListener {
     var tree = Helpers.getPrettyPrintedParseTree(program, testEnvironment);
     System.out.println(tree);
     Assert.assertEquals(0, mismatches.size());
+
+    var records = ErrorRecordFactory.instance.get();
   }
 
   @Test
@@ -691,6 +693,9 @@ public class TestErrorListener {
     var mismatches = Helpers.validateParseTree(program, testEnvironment, expectedTree, true);
     System.out.println(mismatches);
     Assert.assertEquals(0, mismatches.size());
+
+    var list = ErrorRecordFactory.instance.get();
+
   }
 
   @Test

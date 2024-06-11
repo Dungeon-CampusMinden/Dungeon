@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Property;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -26,6 +25,7 @@ public class RelationshipRecorder {
   private Stack<Record> records = new Stack<>();
   private Record currentRecord;
   private HashMap<Class<?>, List<Field>> fieldMemo = new HashMap<>();
+  private HashSet<String> relationshipTypes = new HashSet<>();
 
   public RelationshipRecorder() {
     this.currentRecord = new Record();
@@ -41,12 +41,19 @@ public class RelationshipRecorder {
       boolean forceIdxProperty) {
     var rel = new Relationship(startIdx, relationshipName, endIdxs, direction, forceIdxProperty);
     this.currentRecord.relationships.add(rel);
+    this.relationshipTypes.add(relationshipName);
     rel.startObject(startObject);
     return rel;
   }
 
-  public Relationship add(Object startObject, Long startIdx, String relationshipName, Long endIdx, Relate.Direction direction) {
+  public Relationship add(
+      Object startObject,
+      Long startIdx,
+      String relationshipName,
+      Long endIdx,
+      Relate.Direction direction) {
     var rel = new Relationship(startIdx, relationshipName, List.of(endIdx), direction);
+    this.relationshipTypes.add(relationshipName);
     this.currentRecord.relationships.add(rel);
     rel.startObject(startObject);
     return rel;
@@ -85,24 +92,33 @@ public class RelationshipRecorder {
         var endObject = endField.get(relationshipEntity);
         if (startObject instanceof Relatable startRelatable
             && endObject instanceof Relatable endRelatable) {
-          var relationship = this.add(startObject, startRelatable.getId(), relationName, endRelatable.getId(), Relate.Direction.OUTGOING);
+          var relationship =
+              this.add(
+                  startObject,
+                  startRelatable.getId(),
+                  relationName,
+                  endRelatable.getId(),
+                  Relate.Direction.OUTGOING);
 
-          var propertyFielsd = Arrays.stream(clazz.getFields()).filter(f -> f.isAnnotationPresent(Property.class));
+          var propertyFielsd =
+              Arrays.stream(clazz.getFields()).filter(f -> f.isAnnotationPresent(Property.class));
           HashMap<String, Object> properties = new HashMap<>();
-          propertyFielsd.forEach(f -> {
-            try {
-              f.setAccessible(true);
-              String name = f.getName();
-              var value = f.get(relationshipEntity);
-              if (value instanceof String stringValue) {
-                properties.put(name, "\""+stringValue+"\"");
-              } else if (value.getClass().isEnum())  {
-                properties.put(name, "\""+value+"\"");
-              } else {
-                properties.put(name, value);
-              }
-            } catch (IllegalAccessException ignored) { }
-          });
+          propertyFielsd.forEach(
+              f -> {
+                try {
+                  f.setAccessible(true);
+                  String name = f.getName();
+                  var value = f.get(relationshipEntity);
+                  if (value instanceof String stringValue) {
+                    properties.put(name, "\"" + stringValue + "\"");
+                  } else if (value.getClass().isEnum()) {
+                    properties.put(name, "\"" + value + "\"");
+                  } else {
+                    properties.put(name, value);
+                  }
+                } catch (IllegalAccessException ignored) {
+                }
+              });
           relationship.addProperties(properties);
         }
       } catch (IllegalAccessException e) {
@@ -127,14 +143,15 @@ public class RelationshipRecorder {
     return result;
   }
 
-
   public void processRelationships() {
     if (currentRecord.processed) {
       return;
     }
     for (var relatable : this.currentRecord.relatables) {
       var relationFields =
-        getAllFields(relatable.getClass()).stream().filter(f -> f.isAnnotationPresent(Relate.class)).toList();
+          getAllFields(relatable.getClass()).stream()
+              .filter(f -> f.isAnnotationPresent(Relate.class))
+              .toList();
       relationFields.forEach(
           f -> {
             Relate annotation = f.getAnnotation(Relate.class);
@@ -173,7 +190,9 @@ public class RelationshipRecorder {
     for (var relatable : this.currentRecord.relatables) {
       this.currentRecord.objectsToPersist.add(relatable);
       var relationFields =
-        getAllFields(relatable.getClass()).stream().filter(f -> f.isAnnotationPresent(Relate.class)).toList();
+          getAllFields(relatable.getClass()).stream()
+              .filter(f -> f.isAnnotationPresent(Relate.class))
+              .toList();
       relationFields.forEach(
           f -> {
             Relate annotation = f.getAnnotation(Relate.class);

@@ -1837,4 +1837,22 @@ public class TestDungeonASTConverter {
     var idNode = (IdNode) memberAccess.getChild(0);
     assertEquals("ent", idNode.getName());
   }
+
+  @Test
+  public void testWeird() {
+    String program = """
+      single_choice_task task1 {
+        description: "desc",
+        answers: [ "1", "2", "3", "4"],
+        correct_answer_index:
+      }
+      """;
+
+    var env = new GameEnvironment();
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, false);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+    boolean b = true;
+  }
 }

@@ -411,7 +411,8 @@ public class LspServer
           String query;
           if (lhsOrRhsIdx == 0L) {
             // lhs -> get rhs type and use that as a restriction
-            // two steps: if the other child is an error node, there is no valid id and the matched id was matched on
+            // two steps: if the other child is an error node, there is no valid id and the matched
+            // id was matched on
             // the other side of assignment
             query =
                 """
@@ -437,14 +438,14 @@ public class LspServer
           }
 
           var directChild =
-            session.queryForObject(
-              Node.class, query, Map.of("restrictingNodeIdx", restrictingNode.getId()));
+              session.queryForObject(
+                  Node.class, query, Map.of("restrictingNodeIdx", restrictingNode.getId()));
 
           // TODO: handle error node
           if (directChild.type == Node.Type.ErrorNode) {
             // get
             query =
-              """
+                """
               match (parentNode:AstNode) where parentNode.internalId=$restrictingNodeIdx
               match (parentNode)-[childEdge:PARENT_OF]->(directChild:AstNode) where childEdge.idx=$edgeIdx
               match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
@@ -454,22 +455,24 @@ public class LspServer
               limit 1
               """;
             var otherSideType =
-              session.queryForObject(
-                IType.class, query, Map.of("restrictingNodeIdx", restrictingNode.getId(), "edgeIdx", lhsOrRhsIdx));
+                session.queryForObject(
+                    IType.class,
+                    query,
+                    Map.of("restrictingNodeIdx", restrictingNode.getId(), "edgeIdx", lhsOrRhsIdx));
             return otherSideType.getName();
 
           } else {
             // use the type of the direct child
             query =
-              """
+                """
               match (directChild:AstNode) where directChild.internalId=$childInternalId
               match (directChild)-[:REFERENCES]->(symbol:Symbol)-[:OF_TYPE]->(type:IType)
               return type
               limit 1
               """;
             var otherSideType =
-              session.queryForObject(
-                IType.class, query, Map.of("childInternalId", directChild.getId()));
+                session.queryForObject(
+                    IType.class, query, Map.of("childInternalId", directChild.getId()));
             return otherSideType.getName();
           }
         }
@@ -514,8 +517,20 @@ public class LspServer
                       resolveTypeRestriction(astNode, typeRestrictionContext, restrictionType);
                 }
 
+                String matchedText;
                 if (astNode == Node.NONE) {
-                  // TODO: sparse context resolving?
+                  var map = dbAccessor.sparseContextResolving(position);
+                  astNode = (Node) map.get("n");
+                  sfr = (SourceFileReference) map.get("nearestSfr");
+                  parentNode = (Node) map.get("parent");
+                  parentSfr = (SourceFileReference) map.get("parentSfr");
+                  typeRestrictionContext = (Node) map.get("typeRestrictingContext");
+                  restrictionType = (String) map.get("restrictionType");
+                  matchedText = (String) map.get("matchedText");
+                  // TODO: test
+                }
+
+                if (astNode == Node.NONE) {
                   throw new RuntimeException("No AST node matched!");
                 }
 
@@ -817,7 +832,10 @@ public class LspServer
                 // this.docVersionMutex.unlock();
               } catch (InterruptedException ignored) {
 
-              } finally {
+              } catch (Exception other) {
+                LOGGER.severe(other.getMessage());
+              } finally
+               {
                 LOGGER.info("Counting down latch");
                 dbLatch.countDown();
               }
@@ -971,9 +989,10 @@ public class LspServer
         addedProperties = true;
       }
 
-      String edgeString = relationship.direction() == Relate.Direction.OUTGOING ?
-        "(start)-[e:" + name + "]->(end)" :
-        "(end)-[e:" + name + "]->(start)" ;
+      String edgeString =
+          relationship.direction() == Relate.Direction.OUTGOING
+              ? "(start)-[e:" + name + "]->(end)"
+              : "(end)-[e:" + name + "]->(start)";
 
       if (endPointIds.size() > 1 || relationship.forceIdxProperty()) {
         if (addedProperties) {
@@ -1012,12 +1031,10 @@ public class LspServer
                     + "create "
                     + edgeString
                     + " SET e = "
-                    + propertiesString
-              ;
+                    + propertiesString;
             var startId = relationship.startId();
             var endId = endPointIds.get(i);
-            session.query(
-                query, Map.of("startId", startId, "endId", endId));
+            session.query(query, Map.of("startId", startId, "endId", endId));
           } catch (CypherException ex) {
             LOGGER.severe(ex.getMessage());
           }
@@ -1032,8 +1049,7 @@ public class LspServer
                   + "create "
                   + edgeString
                   + " SET e = "
-                  + propertyBuilder
-            ;
+                  + propertyBuilder;
           session.query(
               query, Map.of("startId", relationship.startId(), "endId", endPointIds.getFirst()));
         } catch (CypherException ex) {
@@ -1053,7 +1069,9 @@ public class LspServer
         session.purgeDatabase();
         // tx.commit();
         // tx.close();
-        session.query("CREATE INDEX internal_id_index IF NOT EXISTS FOR (n:Relatable) ON (n.internalId)", Map.of());
+        session.query(
+            "CREATE INDEX internal_id_index IF NOT EXISTS FOR (n:Relatable) ON (n.internalId)",
+            Map.of());
 
         // tx = session.beginTransaction(Transaction.Type.READ_WRITE);
         var insanityCheck = session.query("match (n) return n", Map.of());
@@ -1180,12 +1198,13 @@ public class LspServer
         edges.forEach(e -> RelationshipRecorder.instance.translateRelationshipEntity(e));
 
         throwIfStop();
+        // TODO: could this be done in ProgramAnalyzer? does this really have to be done here?
         RelationshipRecorder.instance.processObjectsToPersist();
         var objectsToPersist = RelationshipRecorder.instance.getObjectsToPersist();
         session.save(objectsToPersist);
-        //tx.commit();
+        // tx.commit();
 
-        //tx = session.beginTransaction(Transaction.Type.READ_WRITE);
+        // tx = session.beginTransaction(Transaction.Type.READ_WRITE);
         RelationshipRecorder.instance.processRelationships();
         var relationships = RelationshipRecorder.instance.get();
         for (var relationShip : relationships) {
