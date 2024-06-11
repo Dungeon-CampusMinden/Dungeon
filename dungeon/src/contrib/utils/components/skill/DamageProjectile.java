@@ -160,7 +160,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     Point velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
 
     // Add the VelocityComponent to the projectile
-    VelocityComponent vc = new VelocityComponent(velocity.x, velocity.y, onWallHit);
+    VelocityComponent vc = new VelocityComponent(velocity.x, velocity.y, onWallHit, true);
     projectile.add(vc);
 
     // Add the ProjectileComponent with the initial and target positions to the projectile
