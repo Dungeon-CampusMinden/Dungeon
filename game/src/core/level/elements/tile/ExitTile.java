@@ -38,7 +38,7 @@ public class ExitTile extends Tile {
    */
   public void open() {
     this.tintColor(-1); // reset tint
-    open = true;
+    this.open = true;
   }
 
   /**
@@ -48,7 +48,7 @@ public class ExitTile extends Tile {
    */
   public void close() {
     this.tintColor(DEFAULT_CLOSE_TINT);
-    open = false;
+    this.open = false;
   }
 
   /**
@@ -57,7 +57,7 @@ public class ExitTile extends Tile {
    * @return true if the exist is open, false if not.
    */
   public boolean isOpen() {
-    return open;
+    return this.open;
   }
 
   @Override
