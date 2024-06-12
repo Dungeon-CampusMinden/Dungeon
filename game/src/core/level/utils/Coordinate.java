@@ -59,7 +59,7 @@ public class Coordinate {
   }
 
   /**
-   * Convert Coordinate to Point centered in the tile
+   * Convert Coordinate to Point centered in the tile.
    *
    * @return Coordinate converted to a point;
    */
