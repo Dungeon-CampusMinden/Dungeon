@@ -271,7 +271,7 @@ public abstract class Tile {
   /**
    * Gets the tint color of the tile. This color is used to tint the tile's texture.
    *
-   * @return The tint color of the tile. Null if no tint is set.
+   * @return The tint color of the tile.
    */
   public int tintColor() {
     return this.tintColor;
