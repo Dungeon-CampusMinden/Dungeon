@@ -277,6 +277,26 @@ public abstract class Tile {
     return this.tintColor;
   }
 
+  @Override
+  public String toString() {
+    return "Tile{"
+        + "position="
+        + this.position()
+        + ", friction="
+        + this.friction()
+        + ", designLabel="
+        + this.designLabel()
+        + ", texturePath="
+        + this.texturePath().pathString()
+        + ", levelElement="
+        + this.levelElement()
+        + ", visible="
+        + this.visible()
+        + ", tintColor="
+        + this.tintColor()
+        + '}';
+  }
+
   /** The direction of a tile. */
   @DSLType(name = "tile_direction")
   public enum Direction {
