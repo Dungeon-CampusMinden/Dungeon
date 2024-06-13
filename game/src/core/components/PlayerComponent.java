@@ -89,7 +89,7 @@ public final class PlayerComponent implements Component {
    */
   public Optional<Consumer<Entity>> registerCallback(
       int key, final Consumer<Entity> callback, boolean repeat) {
-    return this.registerCallback(key, callback, repeat, true);
+    return this.registerCallback(key, callback, repeat, false);
   }
 
   /**
@@ -111,26 +111,6 @@ public final class PlayerComponent implements Component {
     return new HashMap<>(callbacks);
   }
 
-  /**
-   * Stores information for a Key Press Callback.
-   *
-   * @param repeat If the callback should be executed repeatedly while the key is pressed.
-   * @param callback The {@link Consumer} that contains the callback to execute if the key is
-   *     pressed.
-   * @param pauseable If the callback should be executed while the game is paused.
-   */
-  public record InputData(boolean repeat, Consumer<Entity> callback, boolean pauseable) {
-    /**
-     * WTF? .
-     *
-     * @param repeat foo
-     * @param callback foo
-     */
-    public InputData(boolean repeat, Consumer<Entity> callback) {
-      this(repeat, callback, true);
-    }
-  }
-
   /** Increases the dialogue counter by 1. */
   public void incrementOpenDialogs() {
     openDialogs++;
@@ -148,5 +128,25 @@ public final class PlayerComponent implements Component {
    */
   public boolean openDialogs() {
     return openDialogs > 0;
+  }
+
+  /**
+   * Stores information for a Key Press Callback.
+   *
+   * @param repeat If the callback should be executed repeatedly while the key is pressed.
+   * @param callback The {@link Consumer} that contains the callback to execute if the key is
+   *     pressed.
+   * @param pauseable If the callback should be executed while the game is paused.
+   */
+  public record InputData(boolean repeat, Consumer<Entity> callback, boolean pauseable) {
+    /**
+     * WTF? .
+     *
+     * @param repeat foo
+     * @param callback foo
+     */
+    public InputData(boolean repeat, Consumer<Entity> callback) {
+      this(repeat, callback, false);
+    }
   }
 }
