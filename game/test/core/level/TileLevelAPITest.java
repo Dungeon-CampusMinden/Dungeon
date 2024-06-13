@@ -11,6 +11,7 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.elements.ILevel;
+import core.level.elements.tile.ExitTile;
 import core.level.generator.IGenerator;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -228,9 +229,10 @@ public class TileLevelAPITest {
     hero.add(new PlayerComponent());
     Game.add(hero);
 
-    Tile end = Mockito.mock(Tile.class);
+    ExitTile end = Mockito.mock(ExitTile.class);
     Point p = new Point(3, 3);
     when(end.position()).thenReturn(p);
+    when(end.isOpen()).thenReturn(true);
     when(level.tileAt((Point) any())).thenReturn(end);
     Mockito.when(level.endTile()).thenReturn(end);
 
