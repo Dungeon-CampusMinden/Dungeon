@@ -23,7 +23,7 @@ import task.tasktype.quizquestion.SingleChoice;
  * the question is asked via the UI, the {@link QuizUI} will configure the UI for the question based
  * on that type.
  *
- * <p>Add a {@link Content} answer by using the {@link #addAnswer(Quiz.Content)} method. Use the
+ * <p>Add a {@link Content} answer by using the {@link #addAnswer(Content...)} method. Use the
  * {@link #contentStream()} method to get the answers as a stream.
  *
  * <p>The question will be stored as {@link Content} and can be accessed via {@link #question()}.
@@ -99,21 +99,25 @@ public abstract class Quiz extends Task {
   }
 
   /**
-   * Add a {@link Content} answer instance as a possible answer for this question.
+   * Add a {@link Content} answers instance as a possible answer for this question.
    *
    * <p>If the answer has no task reference yet, the reference will be set to this task and the
    * answer will be added to this task's content. If the answer already has a task reference, the
    * answer will not be added to this task's content.
    *
-   * @param answer The answer (can contain a path to images).
+   * @param answers The answers (can contain a path to images).
    * @return true if the answer was added to this task's content, false if not.
    */
-  public boolean addAnswer(Quiz.Content answer) {
-    if (answer.task(this)) {
-      addContent(answer);
-      return true;
+  public boolean addAnswer(Quiz.Content... answers) {
+    boolean added = true;
+    for (Quiz.Content answer : answers) {
+      if (answer.task(this)) {
+        this.addContent(answer);
+      } else {
+        added = false;
+      }
     }
-    return false;
+    return added;
   }
 
   /**

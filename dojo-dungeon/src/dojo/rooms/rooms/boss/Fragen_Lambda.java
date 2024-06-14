@@ -122,10 +122,7 @@ public class Fragen_Lambda extends Room {
     Quiz.Content c2 = new Quiz.Content("Eine anonyme Klasse");
     Quiz.Content c3 = new Quiz.Content("Ein spezieller Datentyp");
     Quiz.Content c4 = new Quiz.Content("Ein Interface mit nur einer Methode");
-    question.addAnswer(c1);
-    question.addAnswer(c2);
-    question.addAnswer(c3);
-    question.addAnswer(c4);
+    question.addAnswer(c1, c2, c3, c4);
     return new QuestionAndAnswers(question, Set.of(c1));
   }
 
@@ -137,11 +134,7 @@ public class Fragen_Lambda extends Room {
     Quiz.Content c3 = new Quiz.Content("test");
     Quiz.Content c4 = new Quiz.Content("get");
     Quiz.Content c5 = new Quiz.Content("set");
-    question.addAnswer(c1);
-    question.addAnswer(c2);
-    question.addAnswer(c3);
-    question.addAnswer(c4);
-    question.addAnswer(c5);
+    question.addAnswer(c1, c2, c3, c4, c5);
     return new QuestionAndAnswers(question, Set.of(c3));
   }
 
@@ -153,11 +146,7 @@ public class Fragen_Lambda extends Room {
     Quiz.Content c3 = new Quiz.Content("Comparator");
     Quiz.Content c4 = new Quiz.Content("EventListener");
     Quiz.Content c5 = new Quiz.Content("ActionListener");
-    question.addAnswer(c1);
-    question.addAnswer(c2);
-    question.addAnswer(c3);
-    question.addAnswer(c4);
-    question.addAnswer(c5);
+    question.addAnswer(c1, c2, c3, c4, c5);
     return new QuestionAndAnswers(question, Set.of(c1, c2, c3, c5));
   }
 
