@@ -3,7 +3,11 @@ package contrib.systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import contrib.components.IdleSoundComponent;
+import core.Entity;
+import core.Game;
 import core.System;
+import core.components.PositionComponent;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.Random;
 
@@ -18,15 +22,38 @@ import java.util.Random;
 public final class IdleSoundSystem extends System {
 
   private static final Random RANDOM = new Random();
+  private static final float DISTANCE_THRESHOLD = 10.0f;
 
   /** Create a new {@link IdleSoundSystem}. */
   public IdleSoundSystem() {
     super(IdleSoundComponent.class);
   }
 
+  private static boolean onlyKeepNearbyEntities(Entity entity) {
+    Entity hero = Game.hero().orElse(null);
+    if (hero == null) {
+      return false;
+    }
+
+    PositionComponent heroPositionComponent = hero.fetch(PositionComponent.class).orElse(null);
+    PositionComponent entityPositionComponent = entity.fetch(PositionComponent.class).orElse(null);
+
+    if (heroPositionComponent == null || entityPositionComponent == null) {
+      return false;
+    }
+
+    Point heroPosition = heroPositionComponent.position();
+    Point entityPosition = entityPositionComponent.position();
+
+    double distance = heroPosition.distance(entityPosition);
+
+    return distance < DISTANCE_THRESHOLD;
+  }
+
   @Override
   public void execute() {
     entityStream()
+        .filter(IdleSoundSystem::onlyKeepNearbyEntities)
         .forEach(
             e ->
                 playSound(
