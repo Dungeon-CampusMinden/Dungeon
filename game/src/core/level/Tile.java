@@ -230,8 +230,18 @@ public abstract class Tile {
   }
 
   /**
-   * Sets the visibility of the tile. If the tile is visible, it gets drawn. If it is not visible,
-   * it is hidden.
+   * Checks if the player can see through this tile. This depends on the level element of the tile.
+   * Some level elements may be transparent or just a pit. Others may be walls or closed doors.
+   *
+   * @return True if the player can see through this tile, false otherwise.
+   */
+  public boolean canSeeThrough() {
+    return levelElement.canSeeThrough();
+  }
+
+  /**
+   * Sets the visibility of the tile. If the tile is visible, it can be seen by the player. If it is
+   * not visible, it is hidden.
    *
    * @param b The visibility status to set. True for visible, false for hidden.
    */
@@ -261,10 +271,30 @@ public abstract class Tile {
   /**
    * Gets the tint color of the tile. This color is used to tint the tile's texture.
    *
-   * @return The tint color of the tile. Null if no tint is set.
+   * @return The tint color of the tile.
    */
   public int tintColor() {
     return this.tintColor;
+  }
+
+  @Override
+  public String toString() {
+    return "Tile{"
+        + "position="
+        + this.position()
+        + ", friction="
+        + this.friction()
+        + ", designLabel="
+        + this.designLabel()
+        + ", texturePath="
+        + this.texturePath().pathString()
+        + ", levelElement="
+        + this.levelElement()
+        + ", visible="
+        + this.visible()
+        + ", tintColor="
+        + this.tintColor()
+        + '}';
   }
 
   /** The direction of a tile. */
