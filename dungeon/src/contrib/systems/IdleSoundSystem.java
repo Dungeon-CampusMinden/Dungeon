@@ -30,24 +30,19 @@ public final class IdleSoundSystem extends System {
   }
 
   private static boolean isEntityNearby(Entity entity) {
-    Entity hero = Game.hero().orElse(null);
-    if (hero == null) {
-      return false;
-    }
+    Point heroPosition =
+        Game.hero()
+            .flatMap(h -> h.fetch(PositionComponent.class))
+            .map(PositionComponent::position)
+            .orElse(null);
 
-    PositionComponent heroPositionComponent = hero.fetch(PositionComponent.class).orElse(null);
-    PositionComponent entityPositionComponent = entity.fetch(PositionComponent.class).orElse(null);
+    Point entityPosition =
+        entity.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
 
-    if (heroPositionComponent == null || entityPositionComponent == null) {
-      return false;
-    }
+    if ((heroPosition != null) && (entityPosition != null))
+      return Point.calculateDistance(heroPosition, entityPosition) < DISTANCE_THRESHOLD;
 
-    Point heroPosition = heroPositionComponent.position();
-    Point entityPosition = entityPositionComponent.position();
-
-    double distance = heroPosition.distance(entityPosition);
-
-    return distance < DISTANCE_THRESHOLD;
+    return false;
   }
 
   @Override
