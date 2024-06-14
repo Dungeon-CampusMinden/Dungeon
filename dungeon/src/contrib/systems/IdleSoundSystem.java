@@ -29,26 +29,27 @@ public final class IdleSoundSystem extends System {
     super(IdleSoundComponent.class);
   }
 
-  private static boolean isEntityNearby(Entity entity) {
-    Point heroPosition =
-        Game.hero()
-            .flatMap(h -> h.fetch(PositionComponent.class))
-            .map(PositionComponent::position)
-            .orElse(null);
-
+  private static boolean isEntityNearby(Point heroPos, Entity entity) {
     Point entityPosition =
         entity.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
 
-    if ((heroPosition != null) && (entityPosition != null))
-      return Point.calculateDistance(heroPosition, entityPosition) < DISTANCE_THRESHOLD;
+    if (heroPos == null || entityPosition == null) {
+      return false;
+    }
 
-    return false;
+    double distance = heroPos.distance(entityPosition);
+
+    return distance < DISTANCE_THRESHOLD;
   }
 
   @Override
   public void execute() {
+    Point heroPos =
+        Game.hero()
+            .flatMap(e -> e.fetch(PositionComponent.class).map(PositionComponent::position))
+            .orElse(null);
     entityStream()
-        .filter(IdleSoundSystem::isEntityNearby)
+        .filter(e -> isEntityNearby(heroPos, e))
         .forEach(
             e ->
                 playSound(
