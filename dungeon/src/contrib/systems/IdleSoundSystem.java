@@ -29,7 +29,7 @@ public final class IdleSoundSystem extends System {
     super(IdleSoundComponent.class);
   }
 
-  private static boolean onlyKeepNearbyEntities(Entity entity) {
+  private static boolean isEntityNearby(Entity entity) {
     Entity hero = Game.hero().orElse(null);
     if (hero == null) {
       return false;
@@ -53,7 +53,7 @@ public final class IdleSoundSystem extends System {
   @Override
   public void execute() {
     entityStream()
-        .filter(IdleSoundSystem::onlyKeepNearbyEntities)
+        .filter(IdleSoundSystem::isEntityNearby)
         .forEach(
             e ->
                 playSound(
