@@ -19,7 +19,7 @@ public class QuizDialogDesign {
   /** The name of the answers group. */
   public static final String ANSWERS_GROUP_NAME = "Answers";
 
-  private static final String QUIZ_MESSAGE_TASK = "Aufgabestellung";
+  private static final String QUIZ_MESSAGE_TASK = "Aufgabenstellung";
   private static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
 
   /**
