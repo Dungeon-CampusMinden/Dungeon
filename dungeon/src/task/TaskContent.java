@@ -44,7 +44,7 @@ public abstract class TaskContent {
    * Set the reference to the task if no reference is set yet.
    *
    * <p>If the reference was set, this Content will not automatically register itself at the Task.
-   * Call {@link Task#addContent(TaskContent)} for that.
+   * Call {@link Task#addContent(TaskContent...)} for that.
    *
    * <p>Note: You cannot change the reference because then this content must be removed from the
    * Task, and at the moment there is no functionality for that because we don't think we will need

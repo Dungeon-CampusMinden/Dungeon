@@ -35,6 +35,8 @@ public abstract class Tile {
   protected LevelElement levelElement;
   protected transient Array<Connection<Tile>> connections = new Array<>();
   protected int index;
+  protected boolean visible = true;
+  protected int tintColor = -1; // -1 means no tint color
 
   /**
    * Create a new Tile.
@@ -225,6 +227,74 @@ public abstract class Tile {
    */
   public boolean isAccessible() {
     return levelElement.value();
+  }
+
+  /**
+   * Checks if the player can see through this tile. This depends on the level element of the tile.
+   * Some level elements may be transparent or just a pit. Others may be walls or closed doors.
+   *
+   * @return True if the player can see through this tile, false otherwise.
+   */
+  public boolean canSeeThrough() {
+    return levelElement.canSeeThrough();
+  }
+
+  /**
+   * Sets the visibility of the tile. If the tile is visible, it can be seen by the player. If it is
+   * not visible, it is hidden.
+   *
+   * @param b The visibility status to set. True for visible, false for hidden.
+   */
+  public void visible(boolean b) {
+    this.visible = b;
+  }
+
+  /**
+   * Gets the visibility of the tile. If the tile is visible, it can be seen by the player. If it is
+   * not visible, it is hidden.
+   *
+   * @return The visibility of the tile. True if the tile is visible, false if it is hidden.
+   */
+  public boolean visible() {
+    return this.visible;
+  }
+
+  /**
+   * Sets the tint color of the tile. This color is used to tint the tile's texture.
+   *
+   * @param color The color to set. -1 for no tint.
+   */
+  public void tintColor(int color) {
+    this.tintColor = color;
+  }
+
+  /**
+   * Gets the tint color of the tile. This color is used to tint the tile's texture.
+   *
+   * @return The tint color of the tile.
+   */
+  public int tintColor() {
+    return this.tintColor;
+  }
+
+  @Override
+  public String toString() {
+    return "Tile{"
+        + "position="
+        + this.position()
+        + ", friction="
+        + this.friction()
+        + ", designLabel="
+        + this.designLabel()
+        + ", texturePath="
+        + this.texturePath().pathString()
+        + ", levelElement="
+        + this.levelElement()
+        + ", visible="
+        + this.visible()
+        + ", tintColor="
+        + this.tintColor()
+        + '}';
   }
 
   /** The direction of a tile. */

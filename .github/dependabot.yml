@@ -10,3 +10,8 @@ updates:
     schedule:
       interval: "weekly"
     labels: []
+  - package-ecosystem: "npm"
+    directory: "/blockly"
+    schedule:
+      interval: "weekly"
+    labels: []

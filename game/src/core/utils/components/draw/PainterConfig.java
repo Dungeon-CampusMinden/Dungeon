@@ -11,10 +11,12 @@ import core.utils.components.path.IPath;
  * @see Painter
  */
 public final class PainterConfig {
+
   private final float xOffset;
   private final float yOffset;
   private final float xScaling;
   private final float yScaling;
+  private int tintColor = -1; // -1 means no tint color
 
   /**
    * Create a new PainterConfig with the given offset.
@@ -24,10 +26,11 @@ public final class PainterConfig {
    * @param texturePath Path to the texture.
    * @param xOffset The texture will be moved on the x-axis, based on this value.
    * @param yOffset The texture will be moved on the y-axis, based on this value.
+   * @param tintColor The color to tint the texture with.
    */
-  public PainterConfig(final IPath texturePath, float xOffset, float yOffset) {
+  public PainterConfig(final IPath texturePath, float xOffset, float yOffset, int tintColor) {
     // half the texture xOffset, yOffset is a quarter texture down
-    this(xOffset, yOffset, 1, TextureMap.instance().textureAt(texturePath));
+    this(xOffset, yOffset, 1, TextureMap.instance().textureAt(texturePath), tintColor);
   }
 
   /**
@@ -41,19 +44,27 @@ public final class PainterConfig {
     this(TextureMap.instance().textureAt(texturePath));
   }
 
-  private PainterConfig(float xOffset, float yOffset, float xScaling, float yScaling) {
+  private PainterConfig(
+      float xOffset, float yOffset, float xScaling, float yScaling, int tintColor) {
     this.xOffset = xOffset;
     this.yOffset = yOffset;
     this.xScaling = xScaling;
     this.yScaling = yScaling;
+    this.tintColor = tintColor;
   }
 
-  private PainterConfig(float xOffset, float yOffset, float xScaling, final Texture texture) {
-    this(xOffset, yOffset, xScaling, ((float) texture.getHeight() / (float) texture.getWidth()));
+  private PainterConfig(
+      float xOffset, float yOffset, float xScaling, final Texture texture, int tintColor) {
+    this(
+        xOffset,
+        yOffset,
+        xScaling,
+        ((float) texture.getHeight() / (float) texture.getWidth()),
+        tintColor);
   }
 
   private PainterConfig(Texture texture) {
-    this(0f, 0f, 1, texture);
+    this(0f, 0f, 1, texture, -1);
   }
 
   /**
@@ -90,5 +101,23 @@ public final class PainterConfig {
    */
   public float yScaling() {
     return yScaling;
+  }
+
+  /**
+   * Get the tint color in this configuration.
+   *
+   * @return The color to tint the texture with. -1 means no tint color.
+   */
+  public int tintColor() {
+    return this.tintColor;
+  }
+
+  /**
+   * Set the tint color in this configuration.
+   *
+   * @param tintcolor The color to tint the texture with.
+   */
+  public void tintColor(int tintcolor) {
+    this.tintColor = tintcolor;
   }
 }

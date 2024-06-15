@@ -40,6 +40,7 @@ public class TileLevel implements ILevel {
   protected ArrayList<DoorTile> doorTiles = new ArrayList<>();
   protected ArrayList<ExitTile> exitTiles = new ArrayList<>();
   protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
+  protected ArrayList<PitTile> pitTiles = new ArrayList<>();
   private IVoidFunction onFirstLoad = () -> {};
 
   private boolean wasLoaded = false;
@@ -172,6 +173,11 @@ public class TileLevel implements ILevel {
   }
 
   @Override
+  public void addPitTile(PitTile tile) {
+    pitTiles.add(tile);
+  }
+
+  @Override
   public List<FloorTile> floorTiles() {
     return floorTiles;
   }
@@ -202,6 +208,11 @@ public class TileLevel implements ILevel {
   }
 
   @Override
+  public List<PitTile> pitTiles() {
+    return pitTiles;
+  }
+
+  @Override
   public void removeTile(Tile tile) {
     switch (tile.levelElement()) {
       case SKIP -> skipTiles.remove((SkipTile) tile);
@@ -210,8 +221,18 @@ public class TileLevel implements ILevel {
       case HOLE -> holeTiles.remove((HoleTile) tile);
       case DOOR -> doorTiles.remove((DoorTile) tile);
       case EXIT -> exitTiles.remove((ExitTile) tile);
+      case PIT -> pitTiles.remove((PitTile) tile);
     }
+    this.removeFromPathfinding(tile);
+  }
 
+  /**
+   * Removes the given tile from the pathfinding. By removing all neighbours connections to this
+   * tile and its index.
+   *
+   * @param tile Tile to remove from pathfinding.
+   */
+  public void removeFromPathfinding(Tile tile) {
     tile.connections()
         .forEach(
             x ->
@@ -219,6 +240,26 @@ public class TileLevel implements ILevel {
                     .connections()
                     .removeValue(new TileConnection(x.getToNode(), tile), false));
     if (tile.isAccessible()) removeIndex(tile.index());
+  }
+
+  /**
+   * Adds the given tile to the pathfinding. By adding all neighbours connections to this tile and
+   * giving it an index. If the tile is not accessible, it will not be added to the pathfinding.
+   *
+   * @param tile Tile to add to pathfinding.
+   */
+  public void addToPathfinding(Tile tile) {
+    if (!tile.isAccessible()) return;
+    this.addConnectionsToNeighbours(tile);
+    tile.connections()
+        .forEach(
+            x -> {
+              if (!x.getToNode()
+                  .connections()
+                  .contains(new TileConnection(x.getToNode(), tile), false))
+                x.getToNode().addConnection(tile);
+            });
+    tile.index(nodeCount++);
   }
 
   private void removeIndex(int index) {
@@ -237,19 +278,9 @@ public class TileLevel implements ILevel {
       case HOLE -> addHoleTile((HoleTile) tile);
       case EXIT -> addExitTile((ExitTile) tile);
       case DOOR -> addDoorTile((DoorTile) tile);
+      case PIT -> addPitTile((PitTile) tile);
     }
-    if (tile.isAccessible()) {
-      this.addConnectionsToNeighbours(tile);
-      tile.connections()
-          .forEach(
-              x -> {
-                if (!x.getToNode()
-                    .connections()
-                    .contains(new TileConnection(x.getToNode(), tile), false))
-                  x.getToNode().addConnection(tile);
-              });
-      tile.index(nodeCount++);
-    }
+    this.addToPathfinding(tile);
     tile.level(this);
   }
 

@@ -33,7 +33,7 @@ import task.game.content.QuestItem;
  * #content} collection.
  *
  * <p>The internal collection can be queried as a stream using {@link #contentStream()}, and
- * manipulated using {@link #addContent(TaskContent)}.
+ * manipulated using {@link #addContent(TaskContent...)}.
  *
  * <p>Each task is associated with a {@link TaskComponent} that handles the meta-control of the
  * task.
@@ -328,13 +328,15 @@ public abstract class Task {
   }
 
   /**
-   * Add given element to the internal {@link #content} collection.
+   * Add given elements to the internal {@link #content} collection.
    *
-   * @param content element to add to the internal collection
+   * @param content elements to add to the internal collection
    */
-  public void addContent(final TaskContent content) {
-    content.task(this);
-    this.content.add(content);
+  public void addContent(final TaskContent... content) {
+    for (TaskContent c : content) {
+      c.task(this);
+      this.content.add(c);
+    }
   }
 
   /**
