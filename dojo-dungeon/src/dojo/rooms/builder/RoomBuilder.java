@@ -127,7 +127,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Key() {
+  public Room buildRoom_FindKeyRoom() {
     return new FindKeyRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
@@ -136,7 +136,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Fehler_Syntax() {
+  public Room buildRoom_SyntaxRoom() {
     return new SyntaxRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
@@ -145,7 +145,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Fragen_Lambda() {
+  public Room buildRoom_LambdaRoom() {
     return new LambdaRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
@@ -154,7 +154,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Saphire() {
+  public Room buildRoom_SaphireRoom() {
     return new SaphireRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
@@ -163,7 +163,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Implement_MyMonster() {
+  public Room buildRoom_MyMonsterRoom() {
     return new MyMonsterRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
@@ -172,7 +172,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Fehler_Refactoring() {
+  public Room buildRoom_RefactoringRoom() {
     return new RefactoringRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
@@ -181,7 +181,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Fragen_Schriftrollen() {
+  public Room buildRoom_RollOfPaperRoom() {
     return new RollOfPaperRoom(
         levelRoom, gen, nextRoom, levelSize, designLabel, monsterCount, monsterPaths, sortables);
   }
@@ -191,7 +191,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Fehler_Quader() {
+  public Room buildRoom_QuaderRoom() {
     return new QuaderRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
@@ -200,7 +200,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Fragen_RegExes() {
+  public Room buildRoom_RegExesRoom() {
     return new RegExesRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
@@ -209,7 +209,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Monster_Kill() {
+  public Room buildRoom_KillMonsterRoom() {
     return new KillMonsterRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
@@ -218,7 +218,7 @@ public class RoomBuilder {
    *
    * @return the newly generated room instance
    */
-  public Room buildRoom_Fragen_Pattern() {
+  public Room buildRoom_PatternRoom() {
     return new PatternRoom(levelRoom, gen, nextRoom, levelSize, designLabel);
   }
 
