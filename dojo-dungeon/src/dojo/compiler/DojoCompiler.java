@@ -33,16 +33,10 @@ public class DojoCompiler {
   private static final String ABSOLUTE_BUILD_PATH;
 
   static {
-    String path = System.getProperty("dojoDungeonAbsBuildDir");
-    if (path == null) {
+    ABSOLUTE_BUILD_PATH = System.getProperty("dojoDungeonAbsBuildDir");
+    if (ABSOLUTE_BUILD_PATH == null) {
       LOGGER.warning(
           "Path to build directory not set as system property 'dojoDungeonAbsBuildDir'!");
-      throw new RuntimeException();
-    }
-    try {
-      ABSOLUTE_BUILD_PATH = path.substring(1, path.length() - 1);
-    } catch (IndexOutOfBoundsException e) {
-      LOGGER.warning("Path to build directory ('dojoDungeonAbsBuildDir') is not valid!");
       throw new RuntimeException();
     }
     LOGGER.info("Using path to build directory: " + ABSOLUTE_BUILD_PATH);
