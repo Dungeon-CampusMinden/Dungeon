@@ -147,7 +147,7 @@ public class DojoStarter {
           DesignLabel.FOREST,
           new BuildRoomData[] {
             new BuildRoomData(
-                DojoStarter::buildRoom_FindKeyRoom,
+                DojoStarter::buildFindKeyRoom,
                 () ->
                     OkDialog.showOkDialog(
                         "Ein geheimnisvoller Wald mit dichtem Unterholz und moosbedecktem Boden. - Der Wald besteht aus drei Räumen.",
@@ -158,14 +158,14 @@ public class DojoStarter {
                                 "\"Der vergessene Wald\" (Raum 1)",
                                 () -> {}))),
             new BuildRoomData(
-                DojoStarter::buildRoom_SyntaxRoom,
+                DojoStarter::buildSyntaxRoom,
                 () ->
                     OkDialog.showOkDialog(
                         "In diesem Raum soll eine fehlerhafte Java-Klasse korrigiert werden, während man spielt. Erst, wenn man alle Fehler gefunden und alle Überprüfungen geschafft hat, kann man in den nächsten Raum weitergehen. Es gibt dabei drei \"Prüfstufen\". - Gehe zum Ritter für die Raumaufgabe.",
                         "\"Der vergessene Wald\" (Raum 2)",
                         () -> {})),
             new BuildRoomData(
-                DojoStarter::buildRoom_LambdaRoom,
+                DojoStarter::buildLambdaRoom,
                 () ->
                     OkDialog.showOkDialog(
                         "In diesem Raum muss der Spieler alle Fragen eines NPCs zu Lambda-Ausdrücken und Funktionsinterfaces richtig beantworten, um in den nächsten Raum zu gelangen. - Gehe zum pumpkin dude und beantworte alle Fragen.",
@@ -177,7 +177,7 @@ public class DojoStarter {
           DesignLabel.FIRE,
           new BuildRoomData[] {
             new BuildRoomData(
-                DojoStarter::buildRoom_KillMonsterRoom,
+                DojoStarter::buildKillMonsterRoom,
                 () ->
                     OkDialog.showOkDialog(
                         "Eine unterirdische Höhle mit fließender Lava und glühenden Steinen. - Die Vulkanhöhle besteht aus drei Räumen.",
@@ -188,14 +188,14 @@ public class DojoStarter {
                                 "\"Die Vulkanhöhle\" (Raum 1)",
                                 () -> {}))),
             new BuildRoomData(
-                DojoStarter::buildRoom_PatternRoom,
+                DojoStarter::buildPatternRoom,
                 () ->
                     OkDialog.showOkDialog(
                         "In diesem Raum müssen verschiedene Design Patterns anhand eines UML-Klassendiagramms erkannt werden. Die erkannten Design Patterns müssen dann dem Schamanen mitgeteilt werden. - Sprich mit dem Schamanen.",
                         "\"Die Vulkanhöhle\" (Raum 2)",
                         () -> {})),
             new BuildRoomData(
-                DojoStarter::buildRoom_MyImpRoom,
+                DojoStarter::buildMyImpRoom,
                 () ->
                     OkDialog.showOkDialog(
                         "In diesem Raum erhält man eine Beschreibung des erwarteten Verhaltens, die implementiert werden muss. Der Dämon erteilt die Aufgabe, Methoden zu schreiben, die dieses Verhalten implementieren. Danach muss der Dämon angegriffen werden. - Sprich mit dem Imp und danach mit der Truhe!",
@@ -218,14 +218,14 @@ public class DojoStarter {
                                 "\"Tempel der verlorenen Geheimnisse\" (Raum 1)",
                                 () -> {}))),
             new BuildRoomData(
-                DojoStarter::buildRoom_MyMonsterRoom,
+                DojoStarter::buildMyMonsterRoom,
                 () ->
                     OkDialog.showOkDialog(
                         "In diesem Raum muss ein Monster mit verschiedenen Eigenschaften erstellt und danach besiegt werden, um in den nächsten Raum zu gelangen. - Gehe zum Ritter für die Raumaufgabe.",
                         "\"Tempel der verlorenen Geheimnisse\" (Raum 2)",
                         () -> {})),
             new BuildRoomData(
-                DojoStarter::buildRoom_RefactoringRoom,
+                DojoStarter::buildRefactoringRoom,
                 () ->
                     OkDialog.showOkDialog(
                         "In diesem Raum ist das Ziel, den vorgegebenen Code zu optimieren, Fehler zu beheben und die Lesbarkeit zu verbessern. Nur wenn der Code korrekt ist, kann man in den nächsten Raum weitergehen. - Gehe zum Ritter für die Raumaufgabe.",
@@ -237,7 +237,7 @@ public class DojoStarter {
           DesignLabel.DEFAULT,
           new BuildRoomData[] {
             new BuildRoomData(
-                DojoStarter::buildRoom_RollOfPaperRoom,
+                DojoStarter::buildRollOfPaperRoom,
                 () ->
                     OkDialog.showOkDialog(
                         "Ein düsterer, verfallener Kerker mit steinernen Wänden und alten Türen. - Der Kerker besteht aus drei Räumen.",
@@ -248,14 +248,14 @@ public class DojoStarter {
                                 "\"Kerker des Grauens\" (Raum 1)",
                                 () -> {}))),
             new BuildRoomData(
-                DojoStarter::buildRoom_QuaderRoom,
+                DojoStarter::buildQuaderRoom,
                 () ->
                     OkDialog.showOkDialog(
                         "In diesem Raum muss eine Klasse mit mathematischen Funktionen verbessert werden. Der Spieler hat jedoch nur eine begrenzte Anzahl an Versuchen, symbolisiert durch seine Lebenspunkte. Wenn die Klasse richtig verbessert wurde, gilt der Imp als besiegt und der Spieler kann in den nächsten Raum weitergehen. - Sprich mit der Truhe für die Raumaufgabe.",
                         "\"Kerker des Grauens\" (Raum 2)",
                         () -> {})),
             new BuildRoomData(
-                DojoStarter::buildRoom_RegExesRoom,
+                DojoStarter::buildRegExesRoom,
                 () ->
                     OkDialog.showOkDialog(
                         "In diesem Raum muss ein String eingegeben werden, der zum regulären Ausdruck passt. Wenn der passende String eingegeben wurde, lässt OgreX den Spieler zur nächsten Ebene weitergehen. - Gehe zu OgreX für die Raumaufgabe.",
@@ -319,7 +319,7 @@ public class DojoStarter {
     Game.add(new IdleSoundSystem());
   }
 
-  private static Room buildRoom_FindKeyRoom(
+  private static Room buildFindKeyRoom(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -327,10 +327,10 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.LARGE)
         .designLabel(designLabel)
-        .buildRoom_FindKeyRoom();
+        .buildFindKeyRoom();
   }
 
-  private static Room buildRoom_SyntaxRoom(
+  private static Room buildSyntaxRoom(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -338,10 +338,10 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(designLabel)
-        .buildRoom_SyntaxRoom();
+        .buildSyntaxRoom();
   }
 
-  private static Room buildRoom_LambdaRoom(
+  private static Room buildLambdaRoom(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -349,7 +349,7 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.SMALL)
         .designLabel(designLabel)
-        .buildRoom_LambdaRoom();
+        .buildLambdaRoom();
   }
 
   private static Room build_SaphireRoom(
@@ -360,10 +360,10 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.LARGE)
         .designLabel(designLabel)
-        .buildRoom_SaphireRoom();
+        .buildSaphireRoom();
   }
 
-  private static Room buildRoom_MyMonsterRoom(
+  private static Room buildMyMonsterRoom(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -371,10 +371,10 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(designLabel)
-        .buildRoom_MyMonsterRoom();
+        .buildMyMonsterRoom();
   }
 
-  private static Room buildRoom_RefactoringRoom(
+  private static Room buildRefactoringRoom(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -382,10 +382,10 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.SMALL)
         .designLabel(designLabel)
-        .buildRoom_RefactoringRoom();
+        .buildRefactoringRoom();
   }
 
-  private static Room buildRoom_RollOfPaperRoom(
+  private static Room buildRollOfPaperRoom(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     ArrayList<String> list1 = new ArrayList<>();
     list1.add("Builder");
@@ -415,10 +415,10 @@ public class DojoStarter {
               new SimpleIPath("character/monster/zombie")
             })
         .sortables(sortables)
-        .buildRoom_RollOfPaperRoom();
+        .buildRollOfPaperRoom();
   }
 
-  private static Room buildRoom_QuaderRoom(
+  private static Room buildQuaderRoom(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -426,10 +426,10 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(designLabel)
-        .buildRoom_QuaderRoom();
+        .buildQuaderRoom();
   }
 
-  private static Room buildRoom_RegExesRoom(
+  private static Room buildRegExesRoom(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -437,10 +437,10 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.SMALL)
         .designLabel(designLabel)
-        .buildRoom_RegExesRoom();
+        .buildRegExesRoom();
   }
 
-  private static Room buildRoom_KillMonsterRoom(
+  private static Room buildKillMonsterRoom(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -448,10 +448,10 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(designLabel)
-        .buildRoom_KillMonsterRoom();
+        .buildKillMonsterRoom();
   }
 
-  private static Room buildRoom_PatternRoom(
+  private static Room buildPatternRoom(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -459,10 +459,10 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(designLabel)
-        .buildRoom_PatternRoom();
+        .buildPatternRoom();
   }
 
-  private static Room buildRoom_MyImpRoom(
+  private static Room buildMyImpRoom(
       LevelRoom levelRoom, RoomGenerator gen, Room nextRoom, DesignLabel designLabel) {
     return new RoomBuilder()
         .levelRoom(levelRoom)
@@ -470,6 +470,6 @@ public class DojoStarter {
         .nextRoom(nextRoom)
         .levelSize(LevelSize.MEDIUM)
         .designLabel(designLabel)
-        .buildRoom_MyImpRoom();
+        .buildMyImpRoom();
   }
 }
