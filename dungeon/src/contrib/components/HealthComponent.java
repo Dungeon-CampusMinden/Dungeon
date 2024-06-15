@@ -13,6 +13,7 @@ import dsl.annotation.DSLTypeMember;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -35,7 +36,8 @@ import java.util.logging.Logger;
 @DSLType(name = "health_component")
 public final class HealthComponent implements Component {
   private final List<Damage> damageToGet;
-  private @DSLCallback(name = "on_death") final Consumer<Entity> onDeath;
+  private BiConsumer<Entity, Damage> onHit = (entity, damage) -> {};
+  private @DSLCallback(name = "on_death") Consumer<Entity> onDeath;
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
   private @DSLTypeMember(name = "max_health") int maximalHealthpoints;
   private @DSLTypeMember(name = "start_health") int currentHealthpoints;
@@ -74,6 +76,7 @@ public final class HealthComponent implements Component {
    * @param damage Damage that should be inflicted
    */
   public void receiveHit(Damage damage) {
+    this.onHit.accept(damage.cause(), damage);
     damageToGet.add(damage);
     this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
   }
@@ -85,6 +88,29 @@ public final class HealthComponent implements Component {
    */
   public void triggerOnDeath(final Entity entity) {
     onDeath.accept(entity);
+  }
+
+  /**
+   * Set the onDeath function.
+   *
+   * <p>This function will be called when the associated entity dies.
+   *
+   * @param onDeath A Consumer function that takes an Entity as input.
+   */
+  public void onDeath(Consumer<Entity> onDeath) {
+    this.onDeath = onDeath;
+  }
+
+  /**
+   * Set the onHit function.
+   *
+   * <p>This function will be called when the associated entity receives damage.
+   *
+   * @param onHit A BiConsumer function that takes an Entity that caused the damage (can be null)
+   *     and the Damage object.
+   */
+  public void onHit(BiConsumer<Entity, Damage> onHit) {
+    this.onHit = onHit;
   }
 
   /**
