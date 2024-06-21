@@ -1,0 +1,43 @@
+project.ext.lwjglVersion = "3.3.3"
+project.ext.jomlVersion = "1.10.5"
+project.ext.joml_primitivesVersion = "1.10.0"
+project.ext.natives = ["natives-linux", "natives-linux-arm32", "natives-linux-arm64",
+                       "natives-macos", "natives-macos-arm64",
+                       "natives-windows-x86", "natives-windows", "natives-windows-arm64"]
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+
+    implementation "org.lwjgl:lwjgl"
+    implementation "org.lwjgl:lwjgl-assimp"
+    implementation "org.lwjgl:lwjgl-freetype"
+    implementation "org.lwjgl:lwjgl-glfw"
+    implementation "org.lwjgl:lwjgl-meshoptimizer"
+    implementation "org.lwjgl:lwjgl-nfd"
+    implementation "org.lwjgl:lwjgl-openal"
+    implementation "org.lwjgl:lwjgl-opencl"
+    implementation "org.lwjgl:lwjgl-opengl"
+    implementation "org.lwjgl:lwjgl-opus"
+    implementation "org.lwjgl:lwjgl-stb"
+
+    //Linux
+    for(nat in project.ext.natives) {
+        runtimeOnly "org.lwjgl:lwjgl::$nat"
+        runtimeOnly "org.lwjgl:lwjgl-assimp::$nat"
+        runtimeOnly "org.lwjgl:lwjgl-freetype::$nat"
+        runtimeOnly "org.lwjgl:lwjgl-glfw::$nat"
+        runtimeOnly "org.lwjgl:lwjgl-meshoptimizer::$nat"
+        runtimeOnly "org.lwjgl:lwjgl-nfd::$nat"
+        runtimeOnly "org.lwjgl:lwjgl-openal::$nat"
+        runtimeOnly "org.lwjgl:lwjgl-opengl::$nat"
+        runtimeOnly "org.lwjgl:lwjgl-opus::$nat"
+        runtimeOnly "org.lwjgl:lwjgl-stb::$nat"
+    }
+
+    implementation "org.joml:joml:${jomlVersion}"
+    implementation "org.joml:joml-primitives:${joml_primitivesVersion}"
+}
