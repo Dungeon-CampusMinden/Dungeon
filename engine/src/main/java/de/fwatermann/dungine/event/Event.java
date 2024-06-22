@@ -1,4 +1,4 @@
-package de.fwatermann.engine.event;
+package de.fwatermann.dungine.event;
 
 /**
  * Represents an abstract event.

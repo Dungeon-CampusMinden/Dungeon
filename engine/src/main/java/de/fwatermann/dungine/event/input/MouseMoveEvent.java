@@ -1,7 +1,7 @@
-package de.fwatermann.engine.event.input;
+package de.fwatermann.dungine.event.input;
 
-import de.fwatermann.engine.event.Cancelable;
-import de.fwatermann.engine.event.Event;
+import de.fwatermann.dungine.event.Cancelable;
+import de.fwatermann.dungine.event.Event;
 import org.joml.Vector2i;
 
 /**

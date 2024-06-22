@@ -1,6 +1,6 @@
-package de.fwatermann.engine.event.input;
+package de.fwatermann.dungine.event.input;
 
-import de.fwatermann.engine.event.Event;
+import de.fwatermann.dungine.event.Event;
 
 /**
  * Represents a keyboard event.

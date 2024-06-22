@@ -1,4 +1,4 @@
-package de.fwatermann.engine;
+package de.fwatermann.dungine;
 
 public class Engine {
 

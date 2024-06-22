@@ -1,7 +1,7 @@
-package de.fwatermann.engine.event.window;
+package de.fwatermann.dungine.event.window;
 
-import de.fwatermann.engine.event.Event;
-import de.fwatermann.engine.window.GameWindow;
+import de.fwatermann.dungine.event.Event;
+import de.fwatermann.dungine.window.GameWindow;
 
 /**
  * Represents a window focus changed event.

@@ -1,4 +1,4 @@
-package de.fwatermann.engine.event;
+package de.fwatermann.dungine.event;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,7 +35,7 @@ public class EventManager {
      * @param listener the event listener to register
      * @throws IllegalArgumentException if a method annotated with EventHandler has less or more than 1 parameter, or if the parameter is not a subclass of Event
      */
-    public void registerListener(EventListener listener) {
+    public void registerListener(de.fwatermann.dungine.event.EventListener listener) {
         Method[] methods = listener.getClass().getMethods();
         Arrays.stream(methods).filter(m -> {
             return m.getAnnotation(EventHandler.class) != null;
@@ -60,7 +60,7 @@ public class EventManager {
      *
      * @param listener the event listener to unregister
      */
-    public void unregisterListener(EventListener listener) {
+    public void unregisterListener(de.fwatermann.dungine.event.EventListener listener) {
         this.listeners.values().forEach(l -> l.removeIf(p -> p.listener() == listener));
     }
 

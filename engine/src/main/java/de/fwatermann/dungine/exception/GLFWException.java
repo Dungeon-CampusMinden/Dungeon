@@ -1,4 +1,4 @@
-package de.fwatermann.engine.exception;
+package de.fwatermann.dungine.exception;
 
 /**
  * Represents a GLFW exception.

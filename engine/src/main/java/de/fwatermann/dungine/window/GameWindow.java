@@ -1,14 +1,14 @@
-package de.fwatermann.engine.window;
+package de.fwatermann.dungine.window;
 
-import de.fwatermann.engine.event.input.KeyboardEvent;
-import de.fwatermann.engine.event.input.MouseButtonEvent;
-import de.fwatermann.engine.event.input.MouseMoveEvent;
-import de.fwatermann.engine.event.input.MouseScrollEvent;
-import de.fwatermann.engine.event.window.WindowCloseEvent;
-import de.fwatermann.engine.event.window.WindowFocusChangedEvent;
-import de.fwatermann.engine.event.window.WindowMoveEvent;
-import de.fwatermann.engine.event.window.WindowResizeEvent;
-import de.fwatermann.engine.exception.GLFWException;
+import de.fwatermann.dungine.exception.GLFWException;
+import de.fwatermann.dungine.event.input.KeyboardEvent;
+import de.fwatermann.dungine.event.input.MouseButtonEvent;
+import de.fwatermann.dungine.event.input.MouseMoveEvent;
+import de.fwatermann.dungine.event.input.MouseScrollEvent;
+import de.fwatermann.dungine.event.window.WindowCloseEvent;
+import de.fwatermann.dungine.event.window.WindowFocusChangedEvent;
+import de.fwatermann.dungine.event.window.WindowMoveEvent;
+import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -30,6 +30,7 @@ public abstract class GameWindow {
     private boolean resizable = true;
     private boolean rawMouseInput = false;
     private boolean vsync = false;
+    private boolean hasFocus = false;
     private long frameRate = -1;
     private long tickRate = 50;
 
@@ -151,6 +152,7 @@ public abstract class GameWindow {
         glfwSetWindowFocusCallback(this.glfwWindow, (window, focused) -> {
             WindowFocusChangedEvent event = new WindowFocusChangedEvent(focused, this);
             event.fire();
+            this.hasFocus = focused;
         });
 
         glfwSetMouseButtonCallback(this.glfwWindow, (window, button, action, mods) -> {
@@ -243,9 +245,16 @@ public abstract class GameWindow {
             long execution = end - start;
 
             try {
-                long sleepTime = ((1_000_000_000L / 60) - (execution)) / 1_000_000L;
-                if (sleepTime > 0 && this.frameRate > 0) {
-                    TimeUnit.MILLISECONDS.sleep(sleepTime);
+                long sleepTime = ((1_000_000_000L / Math.max(1, this.frameRate)) - (execution)) / 1_000_000L;
+                if(this.hasFocus) {
+                    if (sleepTime > 0 && this.frameRate > 0) {
+                        TimeUnit.MILLISECONDS.sleep(sleepTime);
+                    }
+                } else { //Reduce Frame Rate when window is not focused to max 10 FPS.
+                    sleepTime = ((1_000_000_000L / 10) - (execution)) / 1_000_000L;
+                    if (sleepTime > 0) {
+                        TimeUnit.MILLISECONDS.sleep(sleepTime);
+                    }
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -490,5 +499,13 @@ public abstract class GameWindow {
         }
         this.resizable = resizable;
         return this;
+    }
+
+    /**
+     * Sets the focus to the game window.
+     * This method makes the game window the active window on the user's screen.
+     */
+    public void focus() {
+        glfwFocusWindow(this.glfwWindow);
     }
 }
