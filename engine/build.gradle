@@ -1,3 +1,8 @@
+plugins {
+    id 'application'
+    id 'java-library'
+}
+
 project.ext.lwjglVersion = "3.3.3"
 project.ext.jomlVersion = "1.10.5"
 project.ext.joml_primitivesVersion = "1.10.0"
@@ -40,4 +45,15 @@ dependencies {
 
     implementation "org.joml:joml:${jomlVersion}"
     implementation "org.joml:joml-primitives:${joml_primitivesVersion}"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    sourceCompatibility = JavaVersion.VERSION_21
+}
+
+application {
+    mainClass = "de.fwatermann.engine.Engine"
 }
