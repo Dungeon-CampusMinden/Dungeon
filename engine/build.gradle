@@ -30,7 +30,7 @@ dependencies {
     implementation "org.lwjgl:lwjgl-stb"
 
     //Linux
-    for(nat in project.ext.natives) {
+    for (nat in project.ext.natives) {
         runtimeOnly "org.lwjgl:lwjgl::$nat"
         runtimeOnly "org.lwjgl:lwjgl-assimp::$nat"
         runtimeOnly "org.lwjgl:lwjgl-freetype::$nat"
@@ -56,4 +56,16 @@ java {
 
 application {
     mainClass = "de.fwatermann.engine.Engine"
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'de.fwatermann.engine.Engine'
+        )
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
