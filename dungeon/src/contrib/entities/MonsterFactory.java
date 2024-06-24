@@ -26,7 +26,7 @@ public final class MonsterFactory {
   private static final IPath[] MONSTER_FILE_PATHS = {
     new SimpleIPath("character/monster/chort"),
     new SimpleIPath("character/monster/imp"),
-    new SimpleIPath("character/monster/big_deamon"),
+    new SimpleIPath("character/monster/big_daemon"),
     new SimpleIPath("character/monster/big_zombie"),
     new SimpleIPath("character/monster/doc"),
     new SimpleIPath("character/monster/goblin"),
