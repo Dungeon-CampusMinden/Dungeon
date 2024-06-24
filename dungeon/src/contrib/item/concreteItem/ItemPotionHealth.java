@@ -42,18 +42,13 @@ public final class ItemPotionHealth extends Item {
   }
 
   /**
-   * Constructs a new health potion with the specified name, healing amount, and texture.
+   * Constructs a new WEAK health potion. The potion restores 7 health points when used. The {@link
+   * #DEFAULT_TEXTURE default texture} is used for the visual representation of the potion.
    *
-   * @param itemName The name of the health potion.
-   * @param healAmount The amount of health that the potion restores when used.
-   * @param texture The texture used for the visual representation of the potion.
+   * @see HealthPotionType#WEAK
    */
-  public ItemPotionHealth(String itemName, int healAmount, IPath texture) {
-    super(
-        itemName,
-        "It heals you for " + healAmount + " health points.",
-        Animation.fromSingleImage(texture));
-    this.heal_amount = healAmount;
+  public ItemPotionHealth() {
+    this(HealthPotionType.WEAK);
   }
 
   /**
