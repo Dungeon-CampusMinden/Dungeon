@@ -2,6 +2,7 @@ package contrib.crafting;
 
 import static org.junit.Assert.*;
 
+import contrib.item.HealthPotionType;
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
@@ -27,7 +28,7 @@ public class CraftingTest {
     CraftingIngredient[] recipeIngredient = {
       new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
     };
-    CraftingResult[] recipeResults = {new ItemPotionHealth()};
+    CraftingResult[] recipeResults = {new ItemPotionHealth(HealthPotionType.NORMAL)};
     Recipe recipe = new Recipe(false, recipeIngredient, recipeResults);
     Crafting.addRecipe(recipe);
 
@@ -53,7 +54,7 @@ public class CraftingTest {
     CraftingIngredient[] recipeIngredient = {
       new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
     };
-    CraftingResult[] recipeResults = {new ItemPotionHealth()};
+    CraftingResult[] recipeResults = {new ItemPotionHealth(HealthPotionType.NORMAL)};
     Recipe recipe = new Recipe(true, recipeIngredient, recipeResults);
     Crafting.addRecipe(recipe);
 
@@ -79,7 +80,7 @@ public class CraftingTest {
     CraftingIngredient[] recipeIngredient = {
       new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
     };
-    CraftingResult[] recipeResults = {new ItemPotionHealth()};
+    CraftingResult[] recipeResults = {new ItemPotionHealth(HealthPotionType.NORMAL)};
     Recipe recipe = new Recipe(true, recipeIngredient, recipeResults);
     Crafting.addRecipe(recipe);
 
@@ -104,7 +105,7 @@ public class CraftingTest {
     CraftingIngredient[] recipeIngredient = {
       new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
     };
-    CraftingResult[] recipeResults = {new ItemPotionHealth()};
+    CraftingResult[] recipeResults = {new ItemPotionHealth(HealthPotionType.NORMAL)};
     Recipe recipeOrdered = new Recipe(true, recipeIngredient, recipeResults);
     Recipe recipeUnordered = new Recipe(false, recipeIngredient, recipeResults);
     Crafting.addRecipe(recipeUnordered);
