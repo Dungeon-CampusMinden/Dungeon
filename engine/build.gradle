@@ -43,8 +43,8 @@ dependencies {
         runtimeOnly "org.lwjgl:lwjgl-stb::$nat"
     }
 
-    implementation "org.joml:joml:${jomlVersion}"
-    implementation "org.joml:joml-primitives:${joml_primitivesVersion}"
+    api "org.joml:joml:${jomlVersion}"
+    api "org.joml:joml-primitives:${joml_primitivesVersion}"
 }
 
 java {
