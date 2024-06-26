@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.window;
 
-import de.fwatermann.dungine.exception.GLFWException;
+import static org.lwjgl.glfw.GLFW.*;
+
 import de.fwatermann.dungine.event.input.KeyboardEvent;
 import de.fwatermann.dungine.event.input.MouseButtonEvent;
 import de.fwatermann.dungine.event.input.MouseMoveEvent;
@@ -9,19 +10,20 @@ import de.fwatermann.dungine.event.window.WindowCloseEvent;
 import de.fwatermann.dungine.event.window.WindowFocusChangedEvent;
 import de.fwatermann.dungine.event.window.WindowMoveEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
+import de.fwatermann.dungine.exception.GLFWException;
+import de.fwatermann.dungine.utils.IVoidFunction;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL33;
 
-import java.util.concurrent.TimeUnit;
-
-import static org.lwjgl.glfw.GLFW.*;
-
 public abstract class GameWindow {
 
     private Thread updateThread;
+    private Thread mainThread;
     private String title;
     private Vector2i size;
     private Vector2i position;
@@ -31,11 +33,14 @@ public abstract class GameWindow {
     private boolean rawMouseInput = false;
     private boolean vsync = false;
     private boolean hasFocus = false;
+    private boolean fullscreen = false;
     private long frameRate = -1;
     private long tickRate = 50;
 
     private Vector2d mousePosition = new Vector2d(0, 0);
     private long glfwWindow;
+
+    private ConcurrentLinkedQueue<IVoidFunction> mainThreadQueue = new ConcurrentLinkedQueue<>();
 
     /**
      * Constructs a new GameWindow.
@@ -53,32 +58,27 @@ public abstract class GameWindow {
     }
 
     /**
-     * Render the game.
-     * This method is called every frame.
-     * It should <b>ONLY</b> be used to render the game.
-     * Attention: This method is called asynchronously to the update method!
+     * Render the game. This method is called every frame. It should <b>ONLY</b> be used to render the
+     * game. Attention: This method is called asynchronously to the update method!
      *
      * @param deltaTime The time since the last render in seconds.
      */
     public abstract void render(float deltaTime);
 
     /**
-     * Update the game logic.
-     * Attention: This method is called asynchronously to the render method!
+     * Update the game logic. Attention: This method is called asynchronously to the render method!
      *
      * @param deltaTime The time since the last update in seconds.
      */
     public abstract void update(float deltaTime);
 
     /**
-     * Initialize the game.
-     * This method is called once before the render loop starts.
+     * Initialize the game. This method is called once before the render loop starts.
      */
     public abstract void init();
 
     /**
-     * Clean up the game.
-     * This method is called once after the game loop ends.
+     * Clean up the game. This method is called once after the game loop ends.
      */
     public abstract void cleanup();
 
@@ -89,7 +89,7 @@ public abstract class GameWindow {
         if (this.visible) {
             glfwShowWindow(this.glfwWindow);
         }
-
+        this.mainThread = Thread.currentThread();
         this.updateThread = new Thread(this::_updateLoop, "Update Thread");
         this.updateThread.start();
         this._renderLoop();
@@ -115,86 +115,104 @@ public abstract class GameWindow {
         glfwMakeContextCurrent(this.glfwWindow);
         glfwSwapInterval(this.vsync ? 1 : 0);
 
-        //Register Callbacks
-        glfwSetWindowSizeCallback(this.glfwWindow, (window, width, height) -> {
-            WindowResizeEvent event = new WindowResizeEvent(this.size, new Vector2i(width, height), this);
-            event.fire();
-            if (event.isCanceled()) {
-                glfwSetWindowSize(window, event.from.x, event.from.y);
-            }
-            this.size = new Vector2i(width, height);
-        });
+        // Register Callbacks
+        glfwSetWindowSizeCallback(
+                this.glfwWindow,
+                (window, width, height) -> {
+                    WindowResizeEvent event =
+                            new WindowResizeEvent(this.size, new Vector2i(width, height), this);
+                    event.fire();
+                    if (event.isCanceled()) {
+                        glfwSetWindowSize(window, event.from.x, event.from.y);
+                    }
+                    this.size = new Vector2i(width, height);
+                });
 
-        glfwSetFramebufferSizeCallback(this.glfwWindow, (window, width, height) -> {
-            GL33.glViewport(0, 0, width, height);
-        });
+        glfwSetFramebufferSizeCallback(
+                this.glfwWindow,
+                (window, width, height) -> {
+                    GL33.glViewport(0, 0, width, height);
+                });
 
-        glfwSetWindowPosCallback(this.glfwWindow, (window, x, y) -> {
-            WindowMoveEvent event = new WindowMoveEvent(this.position, new Vector2i(x, y));
-            event.fire();
-            if (event.isCanceled()) {
-                glfwSetWindowPos(window, event.from.x, event.from.y);
-            }
-            this.position = event.to;
-        });
+        glfwSetWindowPosCallback(
+                this.glfwWindow,
+                (window, x, y) -> {
+                    WindowMoveEvent event = new WindowMoveEvent(this.position, new Vector2i(x, y));
+                    event.fire();
+                    if (event.isCanceled()) {
+                        glfwSetWindowPos(window, event.from.x, event.from.y);
+                    }
+                    this.position = event.to;
+                });
 
-        glfwSetWindowCloseCallback(this.glfwWindow, window -> {
-            WindowCloseEvent event = new WindowCloseEvent(this);
-            event.fire();
-            if (event.isCanceled()) {
-                glfwSetWindowShouldClose(window, false);
-                return;
-            }
-            glfwSetWindowShouldClose(window, true);
-        });
+        glfwSetWindowCloseCallback(
+                this.glfwWindow,
+                window -> {
+                    WindowCloseEvent event = new WindowCloseEvent(this);
+                    event.fire();
+                    if (event.isCanceled()) {
+                        glfwSetWindowShouldClose(window, false);
+                        return;
+                    }
+                    glfwSetWindowShouldClose(window, true);
+                });
 
+        glfwSetWindowFocusCallback(
+                this.glfwWindow,
+                (window, focused) -> {
+                    WindowFocusChangedEvent event = new WindowFocusChangedEvent(focused, this);
+                    event.fire();
+                    this.hasFocus = focused;
+                });
 
-        glfwSetWindowFocusCallback(this.glfwWindow, (window, focused) -> {
-            WindowFocusChangedEvent event = new WindowFocusChangedEvent(focused, this);
-            event.fire();
-            this.hasFocus = focused;
-        });
+        glfwSetMouseButtonCallback(
+                this.glfwWindow,
+                (window, button, action, mods) -> {
+                    MouseButtonEvent.MouseButtonAction mouseButtonAction =
+                            switch (action) {
+                                case GLFW_PRESS -> MouseButtonEvent.MouseButtonAction.PRESS;
+                                case GLFW_RELEASE -> MouseButtonEvent.MouseButtonAction.RELEASE;
+                                case GLFW_REPEAT -> MouseButtonEvent.MouseButtonAction.REPEAT;
+                                default -> throw new IllegalStateException("Unexpected value: " + action);
+                            };
+                    MouseButtonEvent event = new MouseButtonEvent(button, mouseButtonAction);
+                    event.fire();
+                });
 
-        glfwSetMouseButtonCallback(this.glfwWindow, (window, button, action, mods) -> {
-            MouseButtonEvent.MouseButtonAction mouseButtonAction = switch (action) {
-                case GLFW_PRESS -> MouseButtonEvent.MouseButtonAction.PRESS;
-                case GLFW_RELEASE -> MouseButtonEvent.MouseButtonAction.RELEASE;
-                case GLFW_REPEAT -> MouseButtonEvent.MouseButtonAction.REPEAT;
-                default -> throw new IllegalStateException("Unexpected value: " + action);
-            };
-            MouseButtonEvent event = new MouseButtonEvent(button, mouseButtonAction);
-            event.fire();
-        });
+        glfwSetScrollCallback(
+                this.glfwWindow,
+                (window, xoffset, yoffset) -> {
+                    MouseScrollEvent event = new MouseScrollEvent((int) xoffset, (int) yoffset);
+                    event.fire();
+                });
 
-        glfwSetScrollCallback(this.glfwWindow, (window, xoffset, yoffset) -> {
-            MouseScrollEvent event = new MouseScrollEvent((int) xoffset, (int) yoffset);
-            event.fire();
-        });
+        glfwSetCursorPosCallback(
+                this.glfwWindow,
+                (window, xpos, ypos) -> {
+                    Vector2i from = new Vector2i((int) this.mousePosition.x, (int) this.mousePosition.y);
+                    Vector2i to = new Vector2i((int) xpos, (int) ypos);
+                    MouseMoveEvent event = new MouseMoveEvent(from, to);
+                    event.fire();
+                    if (event.isCanceled()) {
+                        glfwSetCursorPos(window, from.x, from.y);
+                    } else {
+                        this.mousePosition = new Vector2d(xpos, ypos);
+                    }
+                });
 
-        glfwSetCursorPosCallback(this.glfwWindow, (window, xpos, ypos) -> {
-            Vector2i from = new Vector2i((int) this.mousePosition.x, (int) this.mousePosition.y);
-            Vector2i to = new Vector2i((int) xpos, (int) ypos);
-            MouseMoveEvent event = new MouseMoveEvent(from, to);
-            event.fire();
-            if (event.isCanceled()) {
-                glfwSetCursorPos(window, from.x, from.y);
-            } else {
-                this.mousePosition = new Vector2d(xpos, ypos);
-            }
-        });
-
-        glfwSetKeyCallback(this.glfwWindow, (window, key, scancode, action, mods) -> {
-            KeyboardEvent.KeyAction keyAction = switch (action) {
-                case GLFW_PRESS -> KeyboardEvent.KeyAction.PRESS;
-                case GLFW_RELEASE -> KeyboardEvent.KeyAction.RELEASE;
-                case GLFW_REPEAT -> KeyboardEvent.KeyAction.REPEAT;
-                default -> throw new IllegalStateException("Unexpected value: " + action);
-            };
-            KeyboardEvent event = new KeyboardEvent(key, keyAction);
-            event.fire();
-        });
-
-
+        glfwSetKeyCallback(
+                this.glfwWindow,
+                (window, key, scancode, action, mods) -> {
+                    KeyboardEvent.KeyAction keyAction =
+                            switch (action) {
+                                case GLFW_PRESS -> KeyboardEvent.KeyAction.PRESS;
+                                case GLFW_RELEASE -> KeyboardEvent.KeyAction.RELEASE;
+                                case GLFW_REPEAT -> KeyboardEvent.KeyAction.REPEAT;
+                                default -> throw new IllegalStateException("Unexpected value: " + action);
+                            };
+                    KeyboardEvent event = new KeyboardEvent(key, keyAction);
+                    event.fire();
+                });
     }
 
     private void _initOpenGL() {
@@ -241,16 +259,21 @@ public abstract class GameWindow {
             this.render(deltaTime);
             glfwSwapBuffers(this.glfwWindow);
             glfwPollEvents();
+
+            this.mainThreadQueue.forEach(IVoidFunction::run);
+            this.mainThreadQueue.clear();
+
             long end = System.nanoTime();
             long execution = end - start;
 
             try {
-                long sleepTime = ((1_000_000_000L / Math.max(1, this.frameRate)) - (execution)) / 1_000_000L;
-                if(this.hasFocus) {
+                long sleepTime =
+                        ((1_000_000_000L / Math.max(1, this.frameRate)) - (execution)) / 1_000_000L;
+                if (this.hasFocus) {
                     if (sleepTime > 0 && this.frameRate > 0) {
                         TimeUnit.MILLISECONDS.sleep(sleepTime);
                     }
-                } else { //Reduce Frame Rate when window is not focused to max 10 FPS.
+                } else { // Reduce Frame Rate when window is not focused to max 10 FPS.
                     sleepTime = ((1_000_000_000L / 10) - (execution)) / 1_000_000L;
                     if (sleepTime > 0) {
                         TimeUnit.MILLISECONDS.sleep(sleepTime);
@@ -260,6 +283,18 @@ public abstract class GameWindow {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    /**
+     * Runs the given function on the main thread.
+     *
+     * <p>Attention: This method is not blocking and the function will be executed in the next frame
+     * and will impact the frame performance.
+     *
+     * @param func the function to run on the main thread
+     */
+    public void runOnMainThread(IVoidFunction func) {
+        this.mainThreadQueue.add(func);
     }
 
     /**
@@ -278,6 +313,7 @@ public abstract class GameWindow {
      * @return the game window
      */
     public GameWindow title(String title) {
+        this.checkMainThread();
         glfwSetWindowTitle(this.glfwWindow, title);
         this.title = title;
         return this;
@@ -299,6 +335,7 @@ public abstract class GameWindow {
      * @return the game window
      */
     public GameWindow size(Vector2i size) {
+        this.checkMainThread();
         glfwSetWindowSize(this.glfwWindow, size.x, size.y);
         this.size = size;
         return this;
@@ -320,6 +357,7 @@ public abstract class GameWindow {
      * @return the game window
      */
     public GameWindow position(Vector2i position) {
+        this.checkMainThread();
         glfwSetWindowPos(this.glfwWindow, position.x, position.y);
         this.position = position;
         return this;
@@ -341,6 +379,7 @@ public abstract class GameWindow {
      * @return the game window
      */
     public GameWindow debug(boolean debug) {
+        this.checkMainThread();
         if (!this.debug && debug) {
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
         } else if (this.debug && !debug) {
@@ -366,6 +405,7 @@ public abstract class GameWindow {
      * @return the game window
      */
     public GameWindow visible(boolean visible) {
+        this.checkMainThread();
         if (this.visible && !visible) {
             glfwHideWindow(this.glfwWindow);
         } else if (!this.visible && visible) {
@@ -391,6 +431,7 @@ public abstract class GameWindow {
      * @return the game window
      */
     public GameWindow vsync(boolean vsync) {
+        this.checkMainThread();
         if (this.vsync && !vsync) {
             glfwSwapInterval(0);
         } else if (!this.vsync && vsync) {
@@ -463,6 +504,7 @@ public abstract class GameWindow {
      * @return the game window
      */
     public GameWindow rawMouseInput(boolean rawMouseInput) {
+        this.checkMainThread();
         if (this.rawMouseInput && !rawMouseInput) {
             glfwSetInputMode(this.glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
         } else if (!this.rawMouseInput && rawMouseInput) {
@@ -492,6 +534,7 @@ public abstract class GameWindow {
      * @return the game window
      */
     public GameWindow resizable(boolean resizable) {
+        this.checkMainThread();
         if (this.resizable && !resizable) {
             glfwSetWindowAttrib(this.glfwWindow, GLFW_RESIZABLE, GLFW_FALSE);
         } else if (!this.resizable && resizable) {
@@ -502,10 +545,41 @@ public abstract class GameWindow {
     }
 
     /**
-     * Sets the focus to the game window.
-     * This method makes the game window the active window on the user's screen.
+     * Sets the focus to the game window. This method makes the game window the active window on the
+     * user's screen.
      */
     public void focus() {
         glfwFocusWindow(this.glfwWindow);
+    }
+
+    public boolean fullscreen() {
+        return this.fullscreen;
+    }
+
+    public GameWindow fullscreen(boolean fullscreen) {
+        this.checkMainThread();
+        if (this.fullscreen && !fullscreen) {
+            glfwSetWindowMonitor(
+                    this.glfwWindow, 0, this.position.x, this.position.y, this.size.x, this.size.y, 0);
+        } else if (!this.fullscreen && fullscreen) {
+            long monitor = glfwGetPrimaryMonitor();
+            int[] xpos = new int[1];
+            int[] ypos = new int[1];
+            glfwGetMonitorPos(monitor, xpos, ypos);
+            int[] width = new int[1];
+            int[] height = new int[1];
+            glfwGetMonitorPhysicalSize(monitor, width, height);
+            glfwSetWindowMonitor(
+                    this.glfwWindow, monitor, xpos[0], ypos[0], width[0], height[0], GLFW_DONT_CARE);
+        }
+        this.fullscreen = fullscreen;
+        return this;
+    }
+
+    private void checkMainThread() {
+        if (Thread.currentThread() != this.mainThread) {
+            throw new IllegalStateException(
+                    "This method can only be called from the main thread (aka. Render-/Input-Thread)");
+        }
     }
 }
