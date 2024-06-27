@@ -79,7 +79,7 @@ public class DialogUtils {
                   } else {
                     output += "incorrectly ";
                   }
-                  output += "solved the task";
+                  output += "solved the quiz";
 
                   OkDialog.showOkDialog(
                       output,
