@@ -171,8 +171,20 @@ public final class Crafting {
 
         String type = ingredient.getString("type");
         if (type.equals("item")) {
-          CraftingIngredient ci = Item.getItem(id).getDeclaredConstructor().newInstance();
-          ingredientsArray[i] = ci;
+          if (item.has("param")) {
+            @SuppressWarnings("unchecked")
+            Constructor<? extends Item>[] itemConstructor =
+                (Constructor<? extends Item>[]) Item.getItem(id).getDeclaredConstructors();
+            Object[] params = parseParams(item.get("param"));
+            Constructor<?> fittingCons = findFittingConstructor(itemConstructor, params);
+            if (fittingCons == null) {
+              throw new RuntimeException("No fitting constructor found for item: " + id);
+            }
+            ingredientsArray[i] = (CraftingIngredient) fittingCons.newInstance(params);
+          } else {
+            CraftingIngredient ci = Item.getItem(id).getDeclaredConstructor().newInstance();
+            ingredientsArray[i] = ci;
+          }
         } else {
           throw new RuntimeException("Unknown ingredient type: " + type);
         }
@@ -187,10 +199,10 @@ public final class Crafting {
 
         String type = result.getString("type");
         if (type.equals("item")) {
-          @SuppressWarnings("unchecked")
-          Constructor<? extends Item>[] itemConstructor =
-              (Constructor<? extends Item>[]) Item.getItem(id).getDeclaredConstructors();
           if (item.has("param")) {
+            @SuppressWarnings("unchecked")
+            Constructor<? extends Item>[] itemConstructor =
+                (Constructor<? extends Item>[]) Item.getItem(id).getDeclaredConstructors();
             Object[] params = parseParams(item.get("param"));
             Constructor<?> fittingCons = findFittingConstructor(itemConstructor, params);
             if (fittingCons == null) {
