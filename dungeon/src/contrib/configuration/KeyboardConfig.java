@@ -29,8 +29,13 @@ public class KeyboardConfig {
       new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Input.Keys.E));
 
   /** WTF? . */
+  public static final ConfigKey<Integer> TRANSFER_ITEM =
+      new ConfigKey<>(
+          new String[] {"inventory", "transfer"}, new ConfigIntValue(Input.Buttons.RIGHT));
+
+  /** WTF? . */
   public static final ConfigKey<Integer> FIRST_SKILL =
-      new ConfigKey<>(new String[] {"skill", "first"}, new ConfigIntValue(Input.Keys.Q));
+      new ConfigKey<>(new String[] {"skill", "fireball"}, new ConfigIntValue(Input.Keys.Q));
 
   /** WTF? . */
   public static final ConfigKey<Integer> DEBUG_ZOOM_IN =
