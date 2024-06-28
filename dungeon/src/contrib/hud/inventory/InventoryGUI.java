@@ -31,7 +31,7 @@ public class InventoryGUI extends CombinableGUI {
 
   private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
   private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
-  private static final int MAX_ITEMS_PER_ROW = 8;
+  private static final int DEFAULT_MAX_ITEMS_PER_ROW = 8;
   private static final int BORDER_COLOR = 0x9dc1ebff;
   private static final int BACKGROUND_COLOR = 0x3e3e63e1;
   private static final int HOVER_BACKGROUND_COLOR = 0xffffffff;
@@ -70,19 +70,33 @@ public class InventoryGUI extends CombinableGUI {
   private String title;
   private int slotSize = 0;
   private int slotsPerRow = 0;
+  private int maxItemsPerRow;
 
   /**
    * Create a new inventory GUI.
    *
    * @param title the title of the inventory
    * @param inventoryComponent the inventory component on which the GUI is based.
+   * @param maxItemsPerRow the maximum number of items per row in the inventory
    */
-  public InventoryGUI(String title, InventoryComponent inventoryComponent) {
+  public InventoryGUI(String title, InventoryComponent inventoryComponent, int maxItemsPerRow) {
     super();
     this.inventoryComponent = inventoryComponent;
     this.title = title;
-    this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
-    addInputListener();
+    this.maxItemsPerRow = maxItemsPerRow;
+    this.slotsPerRow = Math.min(maxItemsPerRow, this.inventoryComponent.items().length);
+    this.addInputListener();
+  }
+
+  /**
+   * Create a new inventory GUI. The max number of items per row is set to the default value. (see
+   * {@link InventoryGUI#DEFAULT_MAX_ITEMS_PER_ROW})
+   *
+   * @param title the title of the inventory
+   * @param inventoryComponent the inventory component on which the GUI is based.
+   */
+  public InventoryGUI(String title, InventoryComponent inventoryComponent) {
+    this(title, inventoryComponent, DEFAULT_MAX_ITEMS_PER_ROW);
   }
 
   /**
@@ -96,7 +110,7 @@ public class InventoryGUI extends CombinableGUI {
         .ifPresentOrElse(e -> this.title = e.toString(), () -> this.title = "Inventory");
     title = title.split("_(?=\\d+)")[0]; // remove id
     title = title.toUpperCase();
-    this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
+    this.slotsPerRow = Math.min(maxItemsPerRow, this.inventoryComponent.items().length);
     addInputListener();
   }
 
