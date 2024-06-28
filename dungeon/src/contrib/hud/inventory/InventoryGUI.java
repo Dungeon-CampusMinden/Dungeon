@@ -127,7 +127,7 @@ public class InventoryGUI extends CombinableGUI {
     this.drawItems(batch);
 
     // Draw inventory title
-    this.drawInventoryTitle(batch);
+    if (!this.title.isEmpty()) this.drawInventoryTitle(batch);
   }
 
   @Override
