@@ -21,6 +21,7 @@ import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.item.Item;
+import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.MissingHeroException;
@@ -86,7 +87,8 @@ public class InventoryGUI extends CombinableGUI {
     this.inventoryComponent = inventoryComponent;
     this.title = title;
     this.maxItemsPerRow = maxItemsPerRow;
-    this.slotsPerRow = Math.min(maxItemsPerRow, this.inventoryComponent.items().length);
+    this.slotsPerRow =
+        Math.max(Math.min(maxItemsPerRow, this.inventoryComponent.items().length), 1);
     this.addInputListener();
   }
 
@@ -107,13 +109,13 @@ public class InventoryGUI extends CombinableGUI {
    * @param inventoryComponent the inventory component on which the GUI is based.
    */
   public InventoryGUI(InventoryComponent inventoryComponent) {
-    this.inventoryComponent = inventoryComponent;
-    Game.find(inventoryComponent)
-        .ifPresentOrElse(e -> this.title = e.toString(), () -> this.title = "Inventory");
-    title = title.split("_(?=\\d+)")[0]; // remove id
-    title = title.toUpperCase();
-    this.slotsPerRow = Math.min(maxItemsPerRow, this.inventoryComponent.items().length);
-    addInputListener();
+    this(
+        Game.find(inventoryComponent)
+            .map(Entity::toString)
+            .orElse("Inventory")
+            .split("_(?=\\d+)")[0]
+            .toUpperCase(),
+        inventoryComponent);
   }
 
   @Override

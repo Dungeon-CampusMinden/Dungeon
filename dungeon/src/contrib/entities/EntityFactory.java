@@ -91,7 +91,7 @@ public final class EntityFactory {
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity newChest() throws IOException {
-    return MiscFactory.newChest();
+    return MiscFactory.newChest(MiscFactory.FILL_CHEST.RANDOM);
   }
 
   /**
