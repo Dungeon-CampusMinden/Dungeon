@@ -104,6 +104,15 @@ public final class GUICombination extends Group {
   }
 
   /**
+   * Returns the list of CombinableGUI elements that are part of this GUICombination.
+   *
+   * @return An ArrayList of CombinableGUI elements.
+   */
+  public ArrayList<CombinableGUI> combinableGuis() {
+    return this.combinableGuis;
+  }
+
+  /**
    * WTF? .
    *
    * @param x foo
