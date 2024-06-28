@@ -1757,6 +1757,23 @@ public class TestDungeonASTConverter {
   }
 
   @Test
+  public void testASTErrorBrokenIdListIsolated() {
+    String program =
+      """
+    graph g {
+        t1,;khas // broken
+    }
+    """;
+
+    var env = new TestEnvironment();
+
+    String parseTree = Helpers.getPrettyPrintedParseTree(program, env, true);
+    System.out.println(parseTree);
+
+    var ast = DungeonASTConverter.getProgramAST(program, env);
+  }
+
+  @Test
   @Ignore // TODO: for later
   public void testPlusInGraphDefinition() {
     // NOTE: The DotDefNode will contain only the 't1' identifier, the rest of the definition from

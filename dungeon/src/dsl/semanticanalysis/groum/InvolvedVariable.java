@@ -15,6 +15,11 @@ public class InvolvedVariable {
 
   private TypeOfInvolvement type;
 
+  // TODO:
+  //  this is a leftover from the first implementation attempt, when the mechanics of groumScope weren't clear!
+  //  this should be refactored out and whenever a involved variable is used to determine, from which node a data
+  //  dependency edge should be added to the current node, the groumScope should be used to get definition Nodes, not this
+  //  internal definitionNode
   private GroumNode definitionNode;
 
   public InvolvedVariable(

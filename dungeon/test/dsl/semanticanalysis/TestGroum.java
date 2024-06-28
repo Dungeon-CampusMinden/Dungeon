@@ -2563,6 +2563,82 @@ public class TestGroum {
   }
 
   @Test
+  public void condWrite() {
+    String program =
+      """
+        fn func(bool param) {
+            var my_var = 42;
+            if param {
+                my_var = 123;
+            }
+            print(my_var);
+            my_var = 1;
+            print(my_var);
+        }
+        """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, false);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
+  @Test
+  public void condPrint() {
+    String program =
+      """
+        fn print_conditional(int number) {
+            if number > 42 {
+              print("Greater than 42");
+            } else {
+              print("Equal or less than 42");
+            }
+        }
+        """;
+
+    var gameEnv = new GameEnvironment();
+    var ast = Helpers.getASTFromString(program, gameEnv);
+
+    var result = Helpers.getSymtableForAST(ast, gameEnv);
+    var symbolTable = result.symbolTable;
+    var env = result.environment;
+    var fs = env.getFileScope(null);
+
+    TemporalGroumBuilder builder = new TemporalGroumBuilder();
+    HashMap<Symbol, Long> instanceMap = new HashMap<>();
+    var temporalGroum = builder.walk(ast, symbolTable, env, instanceMap);
+
+    GroumPrinter p1 = new GroumPrinter();
+    String temporalGroumStr = p1.print(temporalGroum);
+    write(temporalGroumStr, "temp_groum.dot");
+
+    FinalGroumBuilder finalGroumBuilder = new FinalGroumBuilder();
+    var finalizedGroum = finalGroumBuilder.finalize(temporalGroum, instanceMap);
+
+    GroumPrinter p2 = new GroumPrinter();
+    String finalizedGroumStr = p2.print(finalizedGroum, true);
+    write(finalizedGroumStr, "final_groum.dot");
+  }
+
+  @Test
   public void ref() {
     String program =
         """

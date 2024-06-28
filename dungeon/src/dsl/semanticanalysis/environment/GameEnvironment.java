@@ -390,9 +390,9 @@ public class GameEnvironment implements IEnvironment {
     nativeFunctions.add(addFillerContent);
 
     IType taskContentType = (IType) this.globalScope.resolve("task_content");
-    // NativeFunction nativeBuildQuestItem =
-    // new NativeBuildQuestItemFunc(Scope.NULL, questItemType, taskContentType);
-    // nativeFunctions.add(nativeBuildQuestItem);
+    NativeFunction nativeBuildQuestItem =
+    new NativeBuildQuestItemFunc(Scope.NULL, questItemType, taskContentType);
+    nativeFunctions.add(nativeBuildQuestItem);
 
     var taskSymbol = this.globalScope.resolve("task");
     if (!taskSymbol.equals(Symbol.NULL)) {

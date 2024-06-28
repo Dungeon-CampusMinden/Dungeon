@@ -8,14 +8,17 @@ import java.util.*;
 
 public class GroumScope {
   public static GroumScope NONE = new GroumScope(Groum.NONE, GroumNode.NONE);
+
   private HashMap<Long, HashMap<GroumScope, GroumNode>> variableDefinitions = new HashMap<>();
   private Stack<GroumNode> conditionalScopesOrdered = new Stack<>();
   private HashMap<GroumNode, GroumScope> conditionalScopes = new HashMap<>();
   private HashMap<Long, HashSet<Long>> instancedDefinitions = new HashMap<>();
+
   private GroumScope parent;
   private GroumScope controlFlowParent;
   private HashSet<GroumScope> children = new HashSet<>();
   private HashSet<GroumScope> heritage = new HashSet<>();
+
   private GroumNode associatedGroumNode;
   private final Groum groum;
 
@@ -87,37 +90,51 @@ public class GroumScope {
   }
 
   public List<GroumNode> getDefinitions(Long instanceId, GroumScope fromScope) {
+    // only search in this scope, if it contains definitions, otherwise search in parent scope
     if (this.variableDefinitions.containsKey(instanceId)) {
       // - check, if the fromScope is child of an ifElseStmt
       // - if so, add the scope of the other branch to the blocked scopes
       // - repeat that until we reach THIS scope or conditional parent is NONE
 
+      // get all definitions regarding instance id -> map from scope to node
       var instanceDefinitions = this.variableDefinitions.get(instanceId);
 
       GroumScope scopeToCheck = fromScope;
       HashSet<GroumScope> scopesToBlock = new HashSet<>();
+
+      // find out, which scopes to block for getDefinitions query from `fromScope`
       while (scopeToCheck != GroumScope.NONE) {
+
+        // get the controlFlowParent of the scopeToCheck (fromScope)
         var immediateControlFlowParent = scopeToCheck.controlFlowParent;
         if (immediateControlFlowParent == GroumScope.NONE) {
+          // if the controlFlowParent is none, we don't have to do anything
           break;
         }
 
-        var assocNodeControlFlowParent = immediateControlFlowParent.associatedGroumNode();
         var parentOfControlFlowParent = immediateControlFlowParent.controlFlowParent;
         if (parentOfControlFlowParent == GroumScope.NONE) {
+          // if the controlFlowParent of the controlFlowParent is None, we don't have to do anything..
           break;
         }
 
+        // get the groumNode which corresponds to the control flow parent of the scope
+        var assocNodeControlFlowParent = immediateControlFlowParent.associatedGroumNode();
+        // get the groumNode which corresponds to the parent of the control flow parent of the scope
         var assocNodeParentOfControlFlowParent = parentOfControlFlowParent.associatedGroumNode();
         if (!(assocNodeControlFlowParent instanceof ControlNode parentControlNode
             && assocNodeParentOfControlFlowParent
                 instanceof ControlNode parentsParentControlNode)) {
+          // if not both the control flow parent and the parent of the control flow parent are control nodes, we don't have to do anything
           break;
         }
 
         GroumScope scopeToBlock = GroumScope.NONE;
         if (parentControlNode.controlType().equals(ControlNode.ControlType.ifStmt)
             && parentsParentControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+          // if the direct control flow parent is an if stmt and its parent is an ifElseStmt, we need to block all definitions
+          // from the else-scope
+
           // get else control node
           var elseStmtNode =
               assocNodeParentOfControlFlowParent
@@ -135,6 +152,9 @@ public class GroumScope {
           }
         } else if (parentControlNode.controlType().equals(ControlNode.ControlType.elseStmt)
             && parentsParentControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
+          // if the direct control flow parent is an else stmt and its parent is an ifElseStmt, we need to block all definitions
+          // from the if-scope
+
           // get if control node
           var ifStmtNode =
               assocNodeParentOfControlFlowParent
@@ -159,12 +179,14 @@ public class GroumScope {
         scopeToCheck = parentOfControlFlowParent;
       }
       final var finalScopesToBlock = scopesToBlock;
+      // get definitions
       return instanceDefinitions.entrySet().stream()
           .filter(e -> !finalScopesToBlock.contains(e.getKey()))
           .map(Map.Entry::getValue)
           .toList();
     } else {
       if (this.parent != NONE) {
+        // search in parent scope
         return this.parent.getDefinitions(instanceId, fromScope);
       } else {
         return new ArrayList<>();

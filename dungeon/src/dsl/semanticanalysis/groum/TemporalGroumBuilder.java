@@ -815,7 +815,15 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
   public Groum visit(ComparisonNode node) {
     var lhsGroum = node.getLhs().accept(this);
     var rhsGroum = node.getRhs().accept(this);
-    return lhsGroum.mergeParallel(rhsGroum);
+    var mergedGroum = lhsGroum.mergeParallel(rhsGroum);
+
+    var expressionAction = new ExpressionAction(mergedGroum.nodes, IndexGenerator.getIdx());
+    if (node.getComparisonType() == ComparisonNode.ComparisonType.greaterThan) {
+      expressionAction.operator(ExpressionAction.Operator.greaterThan);
+    }
+    mergedGroum = mergedGroum.mergeSequential(expressionAction);
+
+    return mergedGroum;
   }
 
   @Override
