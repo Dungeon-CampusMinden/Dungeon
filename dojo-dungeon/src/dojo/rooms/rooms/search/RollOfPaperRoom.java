@@ -32,7 +32,7 @@ import java.util.*;
  * der Programming Patterns und Software Development Principles beschriftet. Erst wenn alle
  * Schriftrollen korrekt zugeordnet sind, kann der Spieler in den nächsten Raum weitergehen.
  */
-public class Fragen_Schriftrollen extends MonsterRoom {
+public class RollOfPaperRoom extends MonsterRoom {
 
   HashMap<String, ArrayList<String>> sortables;
   HashMap<Entity, Boolean> doneChests = new HashMap<>();
@@ -49,7 +49,7 @@ public class Fragen_Schriftrollen extends MonsterRoom {
    * @param monsterPaths the paths of the monsters in this room
    * @param sortables a map of the sortables in this room
    */
-  public Fragen_Schriftrollen(
+  public RollOfPaperRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

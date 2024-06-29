@@ -30,7 +30,7 @@ import task.tasktype.quizquestion.SingleChoice;
  * <p>In diesem Raum muss der Spieler alle Fragen eines NPCs zu Lambda-Ausdrücken und
  * Funktionsinterfaces richtig beantworten, um in den nächsten Raum zu gelangen.
  */
-public class Fragen_Lambda extends Room {
+public class LambdaRoom extends Room {
   private record QuestionAndAnswers(Quiz question, Set<Quiz.Content> correctAnswers) {}
 
   private static QuestionAndAnswers question;
@@ -47,7 +47,7 @@ public class Fragen_Lambda extends Room {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public Fragen_Lambda(
+  public LambdaRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,

@@ -16,7 +16,10 @@ import dojo.rooms.Room;
 import dojo.rooms.TaskRoom;
 import dojo.tasks.Task;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Set;
+import studenttasks.mymonster.MyMonster;
 
 /**
  * Informationen für den Spieler über diesen Raum:
@@ -24,11 +27,14 @@ import java.util.Set;
  * <p>In diesem Raum muss ein Monster mit verschiedenen Eigenschaften erstellt und danach besiegt
  * werden, um in den nächsten Raum zu gelangen.
  */
-public class Implement_MyMonster extends TaskRoom {
-  private final String FILENAME1 = "../dojo-dungeon/todo-assets/Implement_MyMonster/Monster.java";
-  private final String FILENAME2 = "../dojo-dungeon/todo-assets/Implement_MyMonster/MyMonster.java";
-  private final String CLASS_NAME = "MyMonster";
-  private final String title = "Monster besiegen";
+public class MyMonsterRoom extends TaskRoom {
+  private static final Class<?> CLASS_TO_TEST = MyMonster.class;
+  private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
+  private static final String PATH_TO_TEST_CLASS = "src/studenttasks/mymonster/";
+  private static final String FRIENDLY_NAME =
+      PATH_TO_TEST_CLASS + CLASS_TO_TEST.getSimpleName() + ".java";
+
+  private static final String TITLE = "Monster besiegen";
 
   /**
    * Generate a new room.
@@ -39,7 +45,7 @@ public class Implement_MyMonster extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public Implement_MyMonster(
+  public MyMonsterRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
@@ -66,21 +72,20 @@ public class Implement_MyMonster extends TaskRoom {
                 () ->
                     OkDialog.showOkDialog(
                         String.format(
-                            "Implementiere die Datei %s, nach der Vorgabe in %s. Wenn das Monster besiegt ist, soll sich die Tür zum nächsten Raum öffnen.",
-                            FILENAME2, FILENAME1),
-                        title,
+                            "Implementiere die Datei %s. Wenn das Monster besiegt ist, soll sich die Tür zum nächsten Raum öffnen.",
+                            FRIENDLY_NAME),
+                        TITLE,
                         empty),
                 (t1) -> {
-                  DojoCompiler.TestResult results =
-                      new DojoCompiler().spawnMonsterToOpenTheDoor(FILENAME2, CLASS_NAME, this);
-                  if (results.passed()) {
+                  String results = spawnMonsterToOpenTheDoor();
+                  if (results.isEmpty()) {
                     OkDialog.showOkDialog(
-                        "Ok! " + results.messages(),
-                        title,
-                        () -> OkDialog.showOkDialog("Das Monster ist gespawnt!", title, empty));
+                        "Ok!",
+                        TITLE,
+                        () -> OkDialog.showOkDialog("Das Monster ist gespawnt!", TITLE, empty));
                     return true;
                   }
-                  OkDialog.showOkDialog("Fehler: " + results.messages(), title, empty);
+                  OkDialog.showOkDialog("Fehler: " + results, TITLE, empty);
                   return false;
                 },
                 empty)
@@ -106,9 +111,53 @@ public class Implement_MyMonster extends TaskRoom {
                         },
                         () ->
                             OkDialog.showOkDialog(
-                                "Das Monster ist bereits gespawnt!", title, empty))));
+                                "Das Monster ist bereits gespawnt!", TITLE, empty))));
 
     // Add questioner to room
     addRoomEntities(Set.of(questioner));
+  }
+
+  private String spawnMonsterToOpenTheDoor() {
+    Class<?> cls;
+    try {
+      cls = DojoCompiler.compileClassDependentOnOthers(PATH_TO_TEST_CLASS, CLASS_TO_TEST_FQ_NAME);
+    } catch (Exception e) {
+      return "compile not ok";
+    }
+
+    Method method;
+    try {
+      method = cls.getMethod("spawnMonster", DrawComponent.class, int.class, float.class);
+    } catch (NoSuchMethodException e) {
+      return "method not found";
+    }
+
+    Object instance;
+    try {
+      instance = cls.getConstructor(Room.class).newInstance(this);
+    } catch (InstantiationException
+        | NoSuchMethodException
+        | InvocationTargetException
+        | IllegalAccessException e) {
+      return "instance not found";
+    }
+
+    Entity entity;
+    try {
+      entity =
+          (Entity)
+              method.invoke(
+                  instance,
+                  new DrawComponent(new SimpleIPath("character/monster/pumpkin_dude")),
+                  10,
+                  10.0f);
+    } catch (IllegalAccessException | IOException | InvocationTargetException e) {
+      return "entity not found";
+    }
+
+    this.addEntityImmediately(entity);
+
+    // All ok.
+    return "";
   }
 }

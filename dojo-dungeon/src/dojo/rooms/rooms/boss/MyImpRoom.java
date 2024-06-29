@@ -13,15 +13,12 @@ import core.components.VelocityComponent;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
+import dojo.compiler.DojoCompiler;
 import dojo.rooms.LevelRoom;
 import dojo.rooms.Room;
-import dojo.utils.studentTasks.modifyEntities.ModifyEntities;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
-import javax.tools.*;
+import studenttasks.modifyentities.ModifyEntities;
 
 /**
  * Informationen für den Spieler über diesen Raum:
@@ -31,27 +28,11 @@ import javax.tools.*;
  * implementieren. Danach muss der Dämon angegriffen werden.
  */
 public class MyImpRoom extends Room {
-  private static final String IMP_FQC = ModifyEntities.class.getName();
-  private static final String IMP_PATH = "src/" + IMP_FQC.replace('.', '/');
-  private static final String PATH_FOR_UI =
-      ModifyEntities.class.getSimpleName() + ".java (dojo-dungeon/" + IMP_PATH + ".java)";
-
-  /** A class loader that replaces the ModifyEntities class with a new implementation. */
-  public static class ReplacingClassLoader extends ClassLoader {
-    @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
-      if (name.equals(IMP_FQC)) {
-        try (InputStream is = new FileInputStream(IMP_PATH + ".class")) {
-          byte[] buf = new byte[10000];
-          int len = is.read(buf);
-          return defineClass(name, buf, 0, len);
-        } catch (IOException e) {
-          throw new ClassNotFoundException("", e);
-        }
-      }
-      return getParent().loadClass(name);
-    }
-  }
+  private static final Class<?> CLASS_TO_TEST = ModifyEntities.class;
+  private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
+  private static final String PATH_TO_TEST_CLASS = "src/studenttasks/modifyentities/";
+  private static final String FRIENDLY_NAME =
+      PATH_TO_TEST_CLASS + CLASS_TO_TEST.getSimpleName() + ".java";
 
   /**
    * Generate a new room.
@@ -88,7 +69,9 @@ public class MyImpRoom extends Room {
             true,
             (entity1, entity2) -> {
               try {
-                Class<?> cls = compile();
+                Class<?> cls =
+                    DojoCompiler.compileClassDependentOnOthers(
+                        PATH_TO_TEST_CLASS, CLASS_TO_TEST_FQ_NAME);
                 cls.getDeclaredMethod("disableGodMode", Entity.class).invoke(null, myImp);
                 cls.getDeclaredMethod("setHealthTo25", Entity.class).invoke(null, myImp);
                 cls.getDeclaredMethod("increaseSpeed", Entity.class).invoke(null, myImp);
@@ -101,15 +84,6 @@ public class MyImpRoom extends Room {
             }));
 
     addRoomEntities(Set.of(myImp, chest));
-  }
-
-  private Class<?> compile() throws Exception {
-    // Compile source file
-    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    compiler.run(null, null, null, new File(IMP_PATH + ".java").getPath());
-
-    // Load compiled class, and replace existing ModifyEntities class with new one
-    return new ReplacingClassLoader().loadClass(IMP_FQC);
   }
 
   private static Entity createEntityMyImp(Room currentRoom) {
@@ -151,7 +125,7 @@ public class MyImpRoom extends Room {
             true,
             (entity1, entity2) ->
                 OkDialog.showOkDialog(
-                    "Du findest eine Klasse zum Anpassen in " + PATH_FOR_UI + ".",
+                    "Du findest eine Klasse zum Anpassen in " + FRIENDLY_NAME + ".",
                     "Aufgabe in diesem Raum:",
                     () ->
                         OkDialog.showOkDialog(

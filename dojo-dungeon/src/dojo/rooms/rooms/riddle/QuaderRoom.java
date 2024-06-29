@@ -25,6 +25,7 @@ import dojo.rooms.Room;
 import dojo.rooms.TaskRoom;
 import java.io.IOException;
 import java.util.Set;
+import studenttasks.cuboid.Cuboid;
 
 /**
  * Informationen für den Spieler über diesen Raum:
@@ -34,9 +35,12 @@ import java.util.Set;
  * die Klasse richtig verbessert wurde, gilt der Imp als besiegt und der Spieler kann in den
  * nächsten Raum weitergehen.
  */
-public class Fehler_Quader extends TaskRoom {
-  private static final String FILE_NAME = "../dojo-dungeon/todo-assets/Fehler_Quader/Cuboid.java";
-  private static final String CLASS_NAME = "Cuboid";
+public class QuaderRoom extends TaskRoom {
+  private static final Class<?> CLASS_TO_TEST = Cuboid.class;
+  private static final String CLASS_TO_TEST_FQ_NAME = CLASS_TO_TEST.getName();
+  private static final String PATH_TO_TEST_CLASS = "src/studenttasks/cuboid/";
+  private static final String FRIENDLY_NAME =
+      PATH_TO_TEST_CLASS + CLASS_TO_TEST.getSimpleName() + ".java";
 
   private int impHealth = 10;
 
@@ -49,7 +53,7 @@ public class Fehler_Quader extends TaskRoom {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public Fehler_Quader(
+  public QuaderRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
@@ -107,7 +111,8 @@ public class Fehler_Quader extends TaskRoom {
             (e) -> {
               // Test players solution
               DojoCompiler.TestResult testResult =
-                  new DojoCompiler().testMathematicalClass(FILE_NAME, CLASS_NAME);
+                  new DojoCompiler()
+                      .testMathematicalClass(PATH_TO_TEST_CLASS, CLASS_TO_TEST_FQ_NAME);
               if (testResult.passed()) {
                 OkDialog.showOkDialog(
                     "Danke, du hast die Aufgabe gelöst.",
@@ -151,7 +156,7 @@ public class Fehler_Quader extends TaskRoom {
             true,
             (entity1, entity2) ->
                 OkDialog.showOkDialog(
-                    "Finde und verbessere die Fehler in der Klasse: " + FILE_NAME,
+                    "Finde und verbessere die Fehler in der Klasse: " + FRIENDLY_NAME,
                     "Aufgabe in diesem Raum:",
                     () -> {
                       OkDialog.showOkDialog(

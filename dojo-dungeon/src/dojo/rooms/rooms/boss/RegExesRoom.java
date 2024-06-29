@@ -30,7 +30,7 @@ import task.tasktype.quizquestion.FreeText;
  * <p>In diesem Raum muss ein String eingegeben werden, der zum regulären Ausdruck passt. Wenn der
  * passende String eingegeben wurde, lässt OgreX den Spieler zur nächsten Ebene weitergehen.
  */
-public class Fragen_RegExes extends Room {
+public class RegExesRoom extends Room {
   private final String[] regexes;
 
   {
@@ -75,7 +75,7 @@ public class Fragen_RegExes extends Room {
    * @param levelSize the size of this room
    * @param designLabel the design label of this room
    */
-  public Fragen_RegExes(
+  public RegExesRoom(
       LevelRoom levelRoom,
       RoomGenerator gen,
       Room nextRoom,
