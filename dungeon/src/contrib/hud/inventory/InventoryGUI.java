@@ -1,7 +1,6 @@
 package contrib.hud.inventory;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,10 +14,14 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import contrib.components.InventoryComponent;
+import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
+import contrib.hud.UIUtils;
+import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.elements.CombinableGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.item.Item;
+import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.MissingHeroException;
@@ -31,7 +34,7 @@ public class InventoryGUI extends CombinableGUI {
 
   private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
   private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
-  private static final int MAX_ITEMS_PER_ROW = 8;
+  private static final int DEFAULT_MAX_ITEMS_PER_ROW = 8;
   private static final int BORDER_COLOR = 0x9dc1ebff;
   private static final int BACKGROUND_COLOR = 0x3e3e63e1;
   private static final int HOVER_BACKGROUND_COLOR = 0xffffffff;
@@ -70,19 +73,34 @@ public class InventoryGUI extends CombinableGUI {
   private String title;
   private int slotSize = 0;
   private int slotsPerRow = 0;
+  private int maxItemsPerRow;
 
   /**
    * Create a new inventory GUI.
    *
    * @param title the title of the inventory
    * @param inventoryComponent the inventory component on which the GUI is based.
+   * @param maxItemsPerRow the maximum number of items per row in the inventory
    */
-  public InventoryGUI(String title, InventoryComponent inventoryComponent) {
+  public InventoryGUI(String title, InventoryComponent inventoryComponent, int maxItemsPerRow) {
     super();
     this.inventoryComponent = inventoryComponent;
     this.title = title;
-    this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
-    addInputListener();
+    this.maxItemsPerRow = maxItemsPerRow;
+    this.slotsPerRow =
+        Math.max(Math.min(maxItemsPerRow, this.inventoryComponent.items().length), 1);
+    this.addInputListener();
+  }
+
+  /**
+   * Create a new inventory GUI. The max number of items per row is set to the default value. (see
+   * {@link InventoryGUI#DEFAULT_MAX_ITEMS_PER_ROW})
+   *
+   * @param title the title of the inventory
+   * @param inventoryComponent the inventory component on which the GUI is based.
+   */
+  public InventoryGUI(String title, InventoryComponent inventoryComponent) {
+    this(title, inventoryComponent, DEFAULT_MAX_ITEMS_PER_ROW);
   }
 
   /**
@@ -91,13 +109,13 @@ public class InventoryGUI extends CombinableGUI {
    * @param inventoryComponent the inventory component on which the GUI is based.
    */
   public InventoryGUI(InventoryComponent inventoryComponent) {
-    this.inventoryComponent = inventoryComponent;
-    Game.find(inventoryComponent)
-        .ifPresentOrElse(e -> this.title = e.toString(), () -> this.title = "Inventory");
-    title = title.split("_(?=\\d+)")[0]; // remove id
-    title = title.toUpperCase();
-    this.slotsPerRow = Math.min(MAX_ITEMS_PER_ROW, this.inventoryComponent.items().length);
-    addInputListener();
+    this(
+        Game.find(inventoryComponent)
+            .map(Entity::toString)
+            .orElse("Inventory")
+            .split("_(?=\\d+)")[0]
+            .toUpperCase(),
+        inventoryComponent);
   }
 
   @Override
@@ -113,7 +131,7 @@ public class InventoryGUI extends CombinableGUI {
     this.drawItems(batch);
 
     // Draw inventory title
-    this.drawInventoryTitle(batch);
+    if (!this.title.isEmpty()) this.drawInventoryTitle(batch);
   }
 
   @Override
@@ -218,23 +236,30 @@ public class InventoryGUI extends CombinableGUI {
     Item item = InventoryGUI.this.inventoryComponent.get(hoveredSlot);
     if (item == null) return;
 
-    GlyphLayout layoutName = new GlyphLayout(bitmapFont, item.displayName());
-    GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, item.description());
+    String title = item.displayName();
+    String description = UIUtils.formatString(item.description());
+    GlyphLayout layoutName = new GlyphLayout(bitmapFont, title);
+    GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, description);
 
     float x = mousePos.x + HOVER_OFFSET.x;
     float y = mousePos.y + HOVER_OFFSET.y;
     float width = Math.max(layoutName.width, layoutDesc.width) + HOVER_OFFSET.x;
     float height = layoutName.height + layoutDesc.height + HOVER_OFFSET.y + LINE_GAP;
+
+    // if out of bounds, move to the left of cursor
+    if (x + width > Gdx.graphics.getWidth()) {
+      x = mousePos.x - width - HOVER_OFFSET.x;
+    }
+
     batch.draw(hoverBackground, x, y, width, height);
     bitmapFont.setColor(Color.BLACK);
     bitmapFont.draw(
         batch,
-        item.displayName(),
+        title,
         x + BORDER_PADDING,
-        y + layoutName.height + LINE_GAP + layoutDesc.height + 5);
+        y + layoutDesc.height + LINE_GAP + layoutName.height + LINE_GAP);
     bitmapFont.setColor(new Color(0x000000b0));
-    bitmapFont.draw(
-        batch, item.description(), x + BORDER_PADDING, y + layoutName.height + LINE_GAP);
+    bitmapFont.draw(batch, description, x + BORDER_PADDING, y + layoutDesc.height + LINE_GAP);
   }
 
   @Override
@@ -333,14 +358,49 @@ public class InventoryGUI extends CombinableGUI {
         .addListener(
             new InputListener() {
               @Override
-              public boolean keyTyped(InputEvent event, char character) {
-                if (inHeroInventory
-                    && (Character.toLowerCase(character)
-                        == Input.Keys.toString(KeyboardConfig.USE_ITEM.value())
-                            .toLowerCase()
-                            .toCharArray()[0])) {
-                  useItem(InventoryGUI.this.inventoryComponent.get(getSlotByMousePosition()));
-                  return true;
+              public boolean keyDown(InputEvent event, int keycode) {
+                if (inHeroInventory) {
+                  if (KeyboardConfig.USE_ITEM.value() == keycode) {
+                    InventoryGUI.this.useItem(
+                        InventoryGUI.this.inventoryComponent.get(
+                            InventoryGUI.this.getSlotByMousePosition()));
+                    return true;
+                  }
+                }
+                return false;
+              }
+
+              @Override
+              public boolean touchDown(
+                  InputEvent event, float x, float y, int pointer, int button) {
+                if (inHeroInventory) return false;
+
+                UIComponent uiComponent =
+                    Game.hero().flatMap(e -> e.fetch(UIComponent.class)).orElse(null);
+                if (uiComponent != null
+                    && uiComponent.dialog() instanceof GUICombination guiCombination) {
+                  // if two inventories are open, transfer items between them if key is pressed
+                  if (KeyboardConfig.TRANSFER_ITEM.value() == button) {
+                    int slot = InventoryGUI.this.getSlotByMousePosition();
+                    Item item = InventoryGUI.this.inventoryComponent.get(slot);
+                    if (item != null) {
+                      guiCombination
+                          .combinableGuis()
+                          .forEach(
+                              gui -> {
+                                if (gui instanceof InventoryGUI inventoryGui) {
+                                  if (inventoryGui != InventoryGUI.this) {
+                                    InventoryGUI.this.inventoryComponent.transfer(
+                                        item, inventoryGui.inventoryComponent);
+                                  }
+                                } else if (gui instanceof CraftingGUI craftingGui) {
+                                  craftingGui.addItem(item);
+                                  InventoryGUI.this.inventoryComponent.remove(item);
+                                }
+                              });
+                    }
+                    return true;
+                  }
                 }
                 return false;
               }
