@@ -1,11 +1,15 @@
 package dojo.rooms.rooms.riddle;
 
+import contrib.components.AIComponent;
+import contrib.components.CollideComponent;
+import contrib.components.HealthComponent;
 import contrib.components.InteractionComponent;
 import contrib.hud.dialogs.OkDialog;
 import contrib.level.generator.graphBased.RoomGenerator;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelSize;
 import core.utils.IVoidFunction;
@@ -83,9 +87,9 @@ public class MyMonsterRoom extends TaskRoom {
                         "Ok!",
                         TITLE,
                         () -> OkDialog.showOkDialog("Das Monster ist gespawnt!", TITLE, empty));
-                    return true;
+                  } else {
+                    OkDialog.showOkDialog("Fehler: " + results, TITLE, empty);
                   }
-                  OkDialog.showOkDialog("Fehler: " + results, TITLE, empty);
                   return false;
                 },
                 empty)
@@ -101,17 +105,14 @@ public class MyMonsterRoom extends TaskRoom {
             true,
             (entity1, entity2) ->
                 getNextUncompletedTask()
-                    .ifPresentOrElse(
+                    .ifPresent(
                         (t) -> {
                           if (!t.isActivated()) {
                             t.question();
                           } else {
                             t.solve();
                           }
-                        },
-                        () ->
-                            OkDialog.showOkDialog(
-                                "Das Monster ist bereits gespawnt!", TITLE, empty))));
+                        })));
 
     // Add questioner to room
     addRoomEntities(Set.of(questioner));
@@ -152,7 +153,26 @@ public class MyMonsterRoom extends TaskRoom {
                   10,
                   10.0f);
     } catch (IllegalAccessException | IOException | InvocationTargetException e) {
-      return "entity not found";
+      return "entity not found, try to compile again";
+    }
+
+    if (entity.fetch(HealthComponent.class).isEmpty()) {
+      return "health not found, try to compile again";
+    }
+    if (entity.fetch(PositionComponent.class).isEmpty()) {
+      return "position not found, try to compile again";
+    }
+    if (entity.fetch(AIComponent.class).isEmpty()) {
+      return "ai not found, try to compile again";
+    }
+    if (entity.fetch(DrawComponent.class).isEmpty()) {
+      return "texture not found, try to compile again";
+    }
+    if (entity.fetch(VelocityComponent.class).isEmpty()) {
+      return "velocity not found, try to compile again";
+    }
+    if (entity.fetch(CollideComponent.class).isEmpty()) {
+      return "collide not found, try to compile again";
     }
 
     this.addEntityImmediately(entity);
