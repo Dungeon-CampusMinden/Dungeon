@@ -31,6 +31,23 @@ public final class MiscFactory {
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
 
   /**
+   * This method is used to create a new chest entity. The chest will be empty.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   * <p>The Entity will have a {@link InteractionComponent}, {@link PositionComponent}, {@link
+   * core.components.DrawComponent}, {@link contrib.components.CollideComponent} and {@link
+   * contrib.components.InventoryComponent}. It will use the {@link
+   * contrib.utils.components.interaction.DropItemsInteraction} on interaction.
+   *
+   * @return A new Entity representing the chest.
+   * @throws IOException if the animation could not be loaded.
+   */
+  public static Entity newChest() throws IOException {
+    return newChest(FILL_CHEST.EMPTY);
+  }
+
+  /**
    * This method is used to create a new chest entity. The chest entity can either be empty or
    * filled with random items.
    *
