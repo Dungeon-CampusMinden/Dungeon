@@ -28,7 +28,10 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> USE_ITEM =
       new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Input.Keys.E));
 
-  /** WTF? . */
+  /**
+   * Quickly transfers an item from one inventory to another. E.g. chest to player or player to
+   * crafting cauldron.
+   */
   public static final ConfigKey<Integer> TRANSFER_ITEM =
       new ConfigKey<>(
           new String[] {"inventory", "transfer"}, new ConfigIntValue(Input.Buttons.RIGHT));
