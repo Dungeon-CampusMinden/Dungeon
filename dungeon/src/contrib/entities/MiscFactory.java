@@ -31,7 +31,7 @@ public final class MiscFactory {
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
 
   /**
-   * This method is used to create a new chest entity. The chest will be empty.
+   * This method is used to create a new chest entity. The chest will be filled with random items.
    *
    * <p>The Entity is not added to the game yet.
    *
@@ -42,9 +42,10 @@ public final class MiscFactory {
    *
    * @return A new Entity representing the chest.
    * @throws IOException if the animation could not be loaded.
+   * @see MiscFactory#generateRandomItems(int, int) generateRandomItems
    */
   public static Entity newChest() throws IOException {
-    return newChest(FILL_CHEST.EMPTY);
+    return newChest(FILL_CHEST.RANDOM);
   }
 
   /**
