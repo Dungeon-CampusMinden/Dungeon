@@ -159,6 +159,8 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       nodesToProcess.addAll(defNodesSourceNodes);
       var sorted = TopologicalGroumSort.sortChildren(defNode);
 
+      // TODO: should split this up in function definition analysis and global object definition analysis...
+      //  -> function definition action propagation is different than object definition action propagation..
       // TODO: clean up
       for (var currentNode : sorted) {
       //while (!nodesToProcess.isEmpty()) {
@@ -184,7 +186,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
           // TODO: wouldn't it be better to just add the precedent nodes? not the children?
           if (!allPrecedentsProcesseed) {
-            throw new RuntimeException("DERP!");
+            throw new RuntimeException("Not all preceding nodes were processed!");
             // If the current node to process has children, add them first!
             //var currentNodeChildren = currentNode.children();
 
@@ -206,7 +208,7 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           }
 
           if (!allPrecedentsProcesseed) {
-            throw new RuntimeException("DERP!");
+            throw new RuntimeException("Not all preceding nodes were processed!");
             //this.nodesToProcess.addFirst(currentNode);
             //precedents.reversed().forEach(nodesToProcess::addFirst);
             //continue;
@@ -336,15 +338,17 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       }
 
       if (this.involvedVariables.containsKey(precedingNode)) {
-        // collect involved variables
+        // collect involved variables of preceding node
         var precdingInvolvedVariables = this.involvedVariables.get(precedingNode);
+
+        // get the involved variables which are not defined by the preceding node itself (which come from before!)
         var precedingInvolvedVariablesOtherThanNodes =
             precdingInvolvedVariables.stream()
                 .filter(v -> !v.definitionNode().equals(precedingNode))
                 .toList();
+
         if (!precedingInvolvedVariablesOtherThanNodes.isEmpty()) {
           nodesInvolvedVariables.addAll(precdingInvolvedVariables);
-          continue;
         }
       }
       var precedingInvolvedVariables =
