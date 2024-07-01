@@ -29,7 +29,7 @@ public final class HealthSystem extends System {
 
   @Override
   public void execute() {
-    entityStream()
+    filteredEntityStream(HealthComponent.class, DrawComponent.class)
         // Consider only entities that have a HealthComponent
         // Form triples (e, hc, dc)
         .map(this::buildDataObject)

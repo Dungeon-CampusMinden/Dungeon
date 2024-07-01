@@ -19,6 +19,7 @@ public final class SpikeSystem extends System {
 
   @Override
   public void execute() {
-    entityStream().forEach(e -> e.fetch(SpikyComponent.class).orElseThrow().reduceCoolDown());
+    filteredEntityStream(SpikyComponent.class)
+        .forEach(e -> e.fetch(SpikyComponent.class).orElseThrow().reduceCoolDown());
   }
 }

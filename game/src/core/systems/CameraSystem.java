@@ -79,8 +79,9 @@ public final class CameraSystem extends System {
 
   @Override
   public void execute() {
-    if (entityStream().findAny().isEmpty()) focus();
-    else entityStream().forEach(this::focus);
+    if (filteredEntityStream(CameraComponent.class, PositionComponent.class).findAny().isEmpty())
+      focus();
+    else filteredEntityStream().forEach(this::focus);
     // Check if Gdx.graphics is null which happens when the game is run in headless mode (e.g.
     // in tests)
     if (Gdx.graphics != null) {

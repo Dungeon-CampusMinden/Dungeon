@@ -29,7 +29,12 @@ import java.util.stream.Stream;
  * inheriting System to implement the corresponding logic for these events.
  */
 public abstract class System {
-  /** WTF? . */
+  /**
+   * Determines how many frames pass between two executions of the {@link #execute()}-loop.
+   *
+   * <p>The value 1 means that no frames are skipped, the {@link #execute()}-loop is executed every
+   * frame.
+   */
   public static final int DEFAULT_EVERY_FRAME_EXECUTE = 1;
 
   protected static final Logger LOGGER = Logger.getLogger(System.class.getSimpleName());
@@ -160,13 +165,53 @@ public abstract class System {
   }
 
   /**
-   * Use this Stream to iterate over all active entities for this system in the {@link #execute}
-   * method.
+   * Provides a stream of active entities that match the specified filter rules.
    *
-   * @return a stream of active entities that will be processed by the system
+   * <p>This stream can be used in the {@link #execute} method to iterate over and process entities
+   * that have the required components.
+   *
+   * @param filterRules the component classes that an entity must possess to be included in the
+   *     stream. Entities must have all specified components to be processed. If this Set is empty,
+   *     the Stream will contain all Entities in the Game.
+   * @return a stream of active entities that meet the filter criteria and will be processed by the
+   *     system.
    */
-  public final Stream<Entity> entityStream() {
-    return Game.entityStream(this);
+  public final Stream<Entity> filteredEntityStream(
+      final Set<Class<? extends Component>> filterRules) {
+    return Game.entityStream(filterRules);
+  }
+
+  /**
+   * Provides a stream of active entities that are relevant to this system.
+   *
+   * <p>This stream can be used in the {@link #execute} method to iterate over and process entities
+   * that are managed by this system.
+   *
+   * @return a stream of active entities that will be processed by this system.
+   */
+  public final Stream<Entity> filteredEntityStream() {
+    return filteredEntityStream(filterRules);
+  }
+
+  /**
+   * Provides a stream of active entities that match the specified filter rules.
+   *
+   * <p>This stream can be used in the {@link #execute} method to iterate over and process entities
+   * that have the required components.
+   *
+   * <p>Note: Due to method overloading, it is not possible to use no filter rules. If you do not
+   * provide filter rules, the filter rules defined in the system constructor will be used. Use
+   * {@link #filteredEntityStream(Set)} with an empty Set to get all entities in the game.
+   *
+   * @param filterRules the component classes that an entity must possess to be included in the
+   *     stream. Entities must have all specified components to be processed.
+   * @return a stream of active entities that meet the filter criteria and will be processed by the
+   *     system.
+   */
+  @SafeVarargs
+  public final Stream<Entity> filteredEntityStream(
+      final Class<? extends Component>... filterRules) {
+    return filteredEntityStream(Set.of(filterRules));
   }
 
   /**

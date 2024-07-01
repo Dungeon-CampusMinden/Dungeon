@@ -282,9 +282,10 @@ public final class LevelSystem extends System {
   public void execute() {
     if (currentLevel == null) {
       loadLevel(levelSize);
-    } else if (entityStream().anyMatch(this::isOnOpenEndTile)) onEndTile.execute();
+    } else if (filteredEntityStream(PlayerComponent.class, PositionComponent.class)
+        .anyMatch(this::isOnOpenEndTile)) onEndTile.execute();
     else
-      entityStream()
+      filteredEntityStream()
           .forEach(
               e -> {
                 isOnDoor(e)
