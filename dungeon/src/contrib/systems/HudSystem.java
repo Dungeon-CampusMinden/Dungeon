@@ -91,7 +91,7 @@ public final class HudSystem extends System {
 
   @Override
   public void execute() {
-    if (entityStream().anyMatch(this::pausesGame)) pauseGame();
+    if (filteredEntityStream().anyMatch(this::pausesGame)) pauseGame();
     else unpauseGame();
   }
 

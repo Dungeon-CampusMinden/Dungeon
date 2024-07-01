@@ -51,7 +51,7 @@ public final class VelocitySystem extends System {
   /** Updates the position of all entities based on their velocity. */
   @Override
   public void execute() {
-    entityStream().map(this::buildDataObject).forEach(this::updatePosition);
+    filteredEntityStream().map(this::buildDataObject).forEach(this::updatePosition);
   }
 
   private void updatePosition(VSData vsd) {

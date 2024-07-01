@@ -72,7 +72,7 @@ public final class HealthBarSystem extends System {
 
   @Override
   public void execute() {
-    entityStream().map(this::buildDataObject).forEach(this::update);
+    filteredEntityStream().map(this::buildDataObject).forEach(this::update);
   }
 
   private void update(final EnemyData ed) {

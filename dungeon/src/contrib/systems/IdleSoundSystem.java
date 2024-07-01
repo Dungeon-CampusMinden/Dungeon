@@ -48,7 +48,7 @@ public final class IdleSoundSystem extends System {
         Game.hero()
             .flatMap(e -> e.fetch(PositionComponent.class).map(PositionComponent::position))
             .orElse(null);
-    entityStream()
+    filteredEntityStream()
         .filter(e -> isEntityNearby(heroPos, e))
         .forEach(
             e ->

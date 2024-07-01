@@ -31,7 +31,7 @@ public final class PositionSystem extends System {
 
   @Override
   public void execute() {
-    entityStream()
+    filteredEntityStream()
         .map(this::buildDataObject)
         .filter(data -> data.pc.position().equals(PositionComponent.ILLEGAL_POSITION))
         .forEach(this::randomPosition);
@@ -47,7 +47,7 @@ public final class PositionSystem extends System {
     if (Game.currentLevel() != null) {
       Coordinate randomPosition = Game.randomTile(LevelElement.FLOOR).coordinate();
       boolean otherEntityIsOnThisCoordinate =
-          entityStream()
+          filteredEntityStream()
               .map(this::buildDataObject)
               .anyMatch(psData -> psData.pc().position().toCoordinate().equals(randomPosition));
       if (!otherEntityIsOnThisCoordinate) {

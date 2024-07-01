@@ -83,7 +83,7 @@ public final class DrawSystem extends System {
   @Override
   public void execute() {
     Map<Boolean, List<Entity>> partitionedEntities =
-        entityStream()
+        filteredEntityStream()
             .collect(Collectors.partitioningBy(entity -> entity.isPresent(PlayerComponent.class)));
     List<Entity> players = partitionedEntities.get(true);
     List<Entity> npcs = partitionedEntities.get(false);

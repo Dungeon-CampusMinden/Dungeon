@@ -40,7 +40,7 @@ public final class CollisionSystem extends System {
    */
   @Override
   public void execute() {
-    entityStream().flatMap(this::createDataPairs).forEach(this::onEnterLeaveCheck);
+    filteredEntityStream().flatMap(this::createDataPairs).forEach(this::onEnterLeaveCheck);
   }
 
   /**
@@ -52,7 +52,7 @@ public final class CollisionSystem extends System {
    * @return The stream which contains every valid pair of Entities.
    */
   private Stream<CollisionData> createDataPairs(final Entity a) {
-    return entityStream().filter(b -> isSmallerThen(a, b)).map(b -> newDataPair(a, b));
+    return filteredEntityStream().filter(b -> isSmallerThen(a, b)).map(b -> newDataPair(a, b));
   }
 
   /**
