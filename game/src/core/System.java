@@ -32,7 +32,8 @@ public abstract class System {
   /**
    * Determines how many frames pass between two executions of the {@link #execute()}-loop.
    *
-   * <p>The value 1 means that no frames are skipped, the {@link #execute()}-loop is executed every frame.
+   * <p>The value 1 means that no frames are skipped, the {@link #execute()}-loop is executed every
+   * frame.
    */
   public static final int DEFAULT_EVERY_FRAME_EXECUTE = 1;
 
@@ -170,7 +171,8 @@ public abstract class System {
    * that have the required components.
    *
    * @param filterRules the component classes that an entity must possess to be included in the
-   *     stream. Entities must have all specified components to be processed.
+   *     stream. Entities must have all specified components to be processed. If this Set is empty,
+   *     the Stream will contain all Entities in the Game.
    * @return a stream of active entities that meet the filter criteria and will be processed by the
    *     system.
    */
@@ -197,15 +199,19 @@ public abstract class System {
    * <p>This stream can be used in the {@link #execute} method to iterate over and process entities
    * that have the required components.
    *
+   * <p>Note: Due to method overloading, it is not possible to use no filter rules. If you do not
+   * provide filter rules, the filter rules defined in the system constructor will be used. Use
+   * {@link #filteredEntityStream(Set)} with an empty Set to get all entities in the game.
+   *
    * @param filterRules the component classes that an entity must possess to be included in the
    *     stream. Entities must have all specified components to be processed.
    * @return a stream of active entities that meet the filter criteria and will be processed by the
    *     system.
    */
   @SafeVarargs
-  public final Stream<Entity> filteredEntityStream(final Class<? extends Component>... filterRules) {
-    Set<Class<? extends Component>> filters = (filterRules != null) ? Set.of(filterRules) : Set.of();
-    return filteredEntityStream(filters);
+  public final Stream<Entity> filteredEntityStream(
+      final Class<? extends Component>... filterRules) {
+    return filteredEntityStream(Set.of(filterRules));
   }
 
   /**
