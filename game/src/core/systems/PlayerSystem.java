@@ -27,7 +27,7 @@ public final class PlayerSystem extends System {
 
   @Override
   public void execute() {
-    filteredEntityStream().forEach(this::execute);
+    filteredEntityStream(PlayerComponent.class).forEach(this::execute);
   }
 
   private void execute(final Entity entity) {

@@ -40,7 +40,9 @@ public final class CollisionSystem extends System {
    */
   @Override
   public void execute() {
-    filteredEntityStream().flatMap(this::createDataPairs).forEach(this::onEnterLeaveCheck);
+    filteredEntityStream(CollideComponent.class)
+        .flatMap(this::createDataPairs)
+        .forEach(this::onEnterLeaveCheck);
   }
 
   /**

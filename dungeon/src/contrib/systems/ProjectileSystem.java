@@ -33,7 +33,8 @@ public final class ProjectileSystem extends System {
   /** Sets the velocity and removes entities that have reached their endpoints. */
   @Override
   public void execute() {
-    filteredEntityStream()
+    filteredEntityStream(
+            ProjectileComponent.class, PositionComponent.class, VelocityComponent.class)
         // Consider only entities that have a ProjectileComponent
         .map(this::buildDataObject)
         .map(this::setVelocity)

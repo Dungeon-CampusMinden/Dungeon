@@ -19,7 +19,7 @@ public final class AISystem extends System {
 
   @Override
   public void execute() {
-    filteredEntityStream().forEach(this::executeAI);
+    filteredEntityStream(AIComponent.class).forEach(this::executeAI);
   }
 
   private void executeAI(Entity entity) {
