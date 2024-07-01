@@ -20,6 +20,7 @@ public final class SpikeSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream(SpikyComponent.class)
-        .forEach(e -> e.fetch(SpikyComponent.class).orElseThrow().reduceCoolDown());
+        .flatMap((e -> e.fetch(SpikyComponent.class).stream()))
+        .forEach(sc -> sc.reduceCoolDown());
   }
 }
