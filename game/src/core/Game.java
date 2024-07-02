@@ -536,4 +536,9 @@ public final class Game {
   public static void levelSize(final LevelSize levelSize) {
     LevelSystem.levelSize(levelSize);
   }
+
+  /** Exits the GDX application. */
+  public static void exit() {
+    Gdx.app.exit();
+  }
 }
