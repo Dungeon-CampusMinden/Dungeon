@@ -2,8 +2,10 @@ package contrib.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.Vector2;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
+import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.health.Damage;
@@ -26,12 +28,15 @@ import java.util.Comparator;
 /** A utility class for building the hero entity in the game world. */
 public final class HeroFactory {
 
-  /** WTF? . */
-  public static final int DEFAULT_INVENTORY_SIZE = 10;
+  /**
+   * The default size of the inventory.
+   *
+   * @see InventoryComponent
+   */
+  public static final int DEFAULT_INVENTORY_SIZE = 6;
 
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final float X_SPEED_HERO = 7.5f;
-  private static final float Y_SPEED_HERO = 7.5f;
+  private static final Vector2 SPEED_HERO = new Vector2(7.5f, 7.5f);
   private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 100;
 
@@ -53,7 +58,7 @@ public final class HeroFactory {
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
-    hero.add(new VelocityComponent(X_SPEED_HERO, Y_SPEED_HERO, (e) -> {}, true));
+    hero.add(new VelocityComponent(SPEED_HERO.x, SPEED_HERO.y, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
     HealthComponent hc =
         new HealthComponent(
@@ -73,6 +78,8 @@ public final class HeroFactory {
               cameraDummy.add(cc);
               cameraDummy.add(poc);
               Game.add(cameraDummy);
+
+              DialogUtils.showTextPopup("You died!", "Game Over", Game::exit);
             });
     hero.add(hc);
     hero.add(
@@ -101,49 +108,13 @@ public final class HeroFactory {
         new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
     // hero movement
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-          vc.currentYVelocity(1 * vc.yVelocity());
-        });
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-
-          vc.currentYVelocity(-1 * vc.yVelocity());
-        });
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-
-          vc.currentXVelocity(1 * vc.xVelocity());
-        });
-    pc.registerCallback(
-        core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-
-          vc.currentXVelocity(-1 * vc.xVelocity());
-        });
+    registerMovement(pc, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), new Vector2(0, 1));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), new Vector2(0, -1));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), new Vector2(1, 0));
+    registerMovement(
+        pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), new Vector2(-1, 0));
 
     pc.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(),
@@ -163,7 +134,8 @@ public final class HeroFactory {
             e.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
           }
         },
-        false);
+        false,
+        true);
 
     pc.registerCallback(
         KeyboardConfig.CLOSE_UI.value(),
@@ -203,7 +175,17 @@ public final class HeroFactory {
 
     pc.registerCallback(
         KeyboardConfig.INTERACT_WORLD.value(),
-        InteractionTool::interactWithClosestInteractable,
+        entity -> {
+          UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
+          if (uiComponent != null
+              && uiComponent.dialog() instanceof GUICombination
+              && !InventoryGUI.inHeroInventory) {
+            // if chest or cauldron
+            entity.remove(UIComponent.class);
+          } else {
+            InteractionTool.interactWithClosestInteractable(entity);
+          }
+        },
         false);
 
     pc.registerCallback(
@@ -250,5 +232,23 @@ public final class HeroFactory {
     pc.registerCallback(KeyboardConfig.FIRST_SKILL.value(), fireball::execute);
 
     return hero;
+  }
+
+  private static void registerMovement(PlayerComponent pc, int key, Vector2 direction) {
+    pc.registerCallback(
+        key,
+        entity -> {
+          VelocityComponent vc =
+              entity
+                  .fetch(VelocityComponent.class)
+                  .orElseThrow(
+                      () -> MissingComponentException.build(entity, VelocityComponent.class));
+          if (direction.x != 0) {
+            vc.currentXVelocity(direction.x * vc.xVelocity());
+          }
+          if (direction.y != 0) {
+            vc.currentYVelocity(direction.y * vc.yVelocity());
+          }
+        });
   }
 }
