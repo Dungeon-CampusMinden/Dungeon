@@ -36,11 +36,12 @@ public abstract class GameWindow implements Disposable {
   @Nullable public static Thread MAIN_THREAD = null;
   @Nullable public static Thread UPDATE_THREAD = null;
 
-  private static Logger logger = LogManager.getLogger();
+  private static Logger LOGGER = LogManager.getLogger();
 
   private String title;
   private Vector2i size;
   private Vector2i position;
+  private Vector2i nfSize; // Last Non-Fullscreen Size
   private boolean debug = false;
   private boolean visible = false;
   private boolean resizable = true;
@@ -99,7 +100,6 @@ public abstract class GameWindow implements Disposable {
   private void _init() {
     MAIN_THREAD = Thread.currentThread();
 
-    logger.info("Hello World!");
     System.setOut(new PrintStream(new Log4jOutputStream()));
 
     this._initGLFW();
@@ -235,7 +235,7 @@ public abstract class GameWindow implements Disposable {
 
   private void _initOpenGL() {
     GL.createCapabilities();
-    if(!GLUtils.checkVersion(3, 3)) {
+    if (!GLUtils.checkVersion(3, 3)) {
       throw new GLFWException("OpenGL 3.3 or higher is required!");
     }
 
@@ -278,7 +278,7 @@ public abstract class GameWindow implements Disposable {
     try {
       this.init();
 
-      //Start Update Thread
+      // Start Update Thread
       UPDATE_THREAD = new Thread(this::_updateLoop, "Tick");
       UPDATE_THREAD.start();
 
@@ -604,12 +604,31 @@ public abstract class GameWindow implements Disposable {
     }
   }
 
+  /**
+   * Sets the game window to fullscreen mode.
+   *
+   * @param fullscreen the new fullscreen state of the game window
+   * @return the game window
+   */
   public GameWindow fullscreen(boolean fullscreen) {
     checkMainThread();
     if (this.fullscreen && !fullscreen) {
       glfwSetWindowMonitor(
-          this.glfwWindow, 0, this.position.x, this.position.y, this.size.x, this.size.y, 0);
+          this.glfwWindow, 0, this.position.x, this.position.y, this.nfSize.x, this.nfSize.y, 0);
+
+      GLFWVidMode mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+      if (mode == null) {
+        glfwSetWindowPos(this.glfwWindow, 100, 100);
+      } else {
+        glfwSetWindowPos(
+            this.glfwWindow, (mode.width() - this.size.x) / 2, (mode.height() - this.size.y) / 2);
+      }
     } else if (!this.fullscreen && fullscreen) {
+      int[] width = new int[1];
+      int[] height = new int[1];
+      glfwGetWindowSize(this.glfwWindow, width, height);
+      this.nfSize = new Vector2i(width[0], height[0]);
+
       long monitor = glfwGetPrimaryMonitor();
       GLFWVidMode mode = glfwGetVideoMode(monitor);
       if (mode == null) return this;
