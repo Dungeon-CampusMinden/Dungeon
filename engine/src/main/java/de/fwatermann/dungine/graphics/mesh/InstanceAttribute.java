@@ -4,14 +4,11 @@ import de.fwatermann.dungine.utils.annotations.NotNull;
 import org.lwjgl.opengl.GL33;
 
 /**
- * The InstanceAttribute class represents an attribute of a vertex in a 3D mesh. It provides methods
+ * The InstanceAttribute class represents an attribute of an instance in a 3D mesh. It provides methods
  * for getting the size of the attribute in bytes, and overrides the equals, hashCode, and toString
  * methods.
  */
 public class InstanceAttribute {
-
-  /** The Usage enum represents the usage of a vertex attribute. */
-  public final int usage;
 
   public final int numComponents;
   public final int glType;
@@ -22,13 +19,11 @@ public class InstanceAttribute {
    * Constructs a InstanceAttribute with the specified usage, number of components, GL type, offset,
    * and name.
    *
-   * @param usage the usage of the vertex attribute
-   * @param numComponents the number of components of the vertex attribute
-   * @param glType the GL type of the vertex attribute
-   * @param name the name of the vertex attribute
+   * @param numComponents the number of components of the instance attribute
+   * @param glType the GL type of the instance attribute
+   * @param name the name of the instance attribute
    */
-  public InstanceAttribute(int usage, int numComponents, int glType, @NotNull String name) {
-    this.usage = usage;
+  public InstanceAttribute(int numComponents, int glType, @NotNull String name) {
     this.numComponents = numComponents;
     this.glType = glType;
     this.name = name;
@@ -61,6 +56,7 @@ public class InstanceAttribute {
 
   /**
    * Get the offset of the attributes in bytes.
+   *
    * @return the offset of the attributes in bytes
    */
   public int offset() {
@@ -79,8 +75,7 @@ public class InstanceAttribute {
     if (!(obj instanceof InstanceAttribute other)) {
       return false;
     }
-    return this.usage == other.usage
-        && this.numComponents == other.numComponents
+    return this.numComponents == other.numComponents
         && this.glType == other.glType
         && this.offset == other.offset
         && this.name.equals(other.name);
@@ -99,7 +94,7 @@ public class InstanceAttribute {
   @Override
   public String toString() {
     return String.format(
-        "InstanceAttribute [Usage: %s, NumComponents: %d, GLType: %d, Offset: %d, Name: %s]",
-        this.usage, this.numComponents, this.glType, this.offset, this.name);
+        "InstanceAttribute [NumComponents: %d, GLType: %d, Offset: %d, Name: %s]",
+        this.numComponents, this.glType, this.offset, this.name);
   }
 }

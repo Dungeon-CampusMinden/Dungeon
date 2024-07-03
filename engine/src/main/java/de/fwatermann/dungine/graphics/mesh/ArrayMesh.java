@@ -5,7 +5,7 @@ import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.FloatBuffer;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 /**
  * The ArrayMesh class represents a 3D mesh object in the game engine that is rendered using an array
@@ -85,17 +85,17 @@ public class ArrayMesh extends UnInstancedMesh {
   }
 
   private void initGL() {
-    this.glVAO = GL30.glGenVertexArrays();
-    this.glVBO = GL30.glGenBuffers();
+    this.glVAO = GL33.glGenVertexArrays();
+    this.glVBO = GL33.glGenBuffers();
 
-    GL30.glBindVertexArray(this.glVAO);
-    GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, this.glVBO);
+    GL33.glBindVertexArray(this.glVAO);
+    GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glVBO);
 
     if (this.vertices != null) {
-      GL30.glBufferData(GL30.GL_ARRAY_BUFFER, this.vertices, GL30.GL_STATIC_DRAW);
+      GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, GL33.GL_STATIC_DRAW);
     }
 
-    GL30.glBindVertexArray(0);
+    GL33.glBindVertexArray(0);
   }
 
   @Override
@@ -103,8 +103,8 @@ public class ArrayMesh extends UnInstancedMesh {
       ShaderProgram shaderProgram, int primitiveType, int offset, int count, boolean bindShader) {
 
     if (this.verticesDirty && this.vertices != null) {
-      GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, this.glVBO);
-      GL30.glBufferData(GL30.GL_ARRAY_BUFFER, this.vertices, GL30.GL_STATIC_DRAW);
+      GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glVBO);
+      GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, GL33.GL_STATIC_DRAW);
       this.verticesDirty = false;
     }
 
@@ -117,29 +117,15 @@ public class ArrayMesh extends UnInstancedMesh {
     }
     shaderProgram.setUniformMatrix4f(shaderProgram.configuration().uniformModelMatrix(), this.transformMatrix);
 
-    GL30.glBindVertexArray(this.glVAO);
+    GL33.glBindVertexArray(this.glVAO);
 
     if (this.lastShaderProgram != shaderProgram) {
-      GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, this.glVBO);
-      this.attributes.forEach(
-          attrib -> {
-            int loc = shaderProgram.getAttributeLocation(attrib.name);
-            if (loc != -1) {
-              GL30.glEnableVertexAttribArray(loc);
-              GL30.glVertexAttribPointer(
-                  loc,
-                  attrib.numComponents,
-                  attrib.glType,
-                  false,
-                  this.attributes.sizeInBytes(),
-                  attrib.offset);
-            }
-          });
+      this.attributes.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO);
       this.lastShaderProgram = shaderProgram;
     }
 
-    GL30.glDrawArrays(primitiveType, offset, count);
-    GL30.glBindVertexArray(0);
+    GL33.glDrawArrays(primitiveType, offset, count);
+    GL33.glBindVertexArray(0);
 
     if (bindShader) {
       shaderProgram.unbind();
@@ -148,7 +134,7 @@ public class ArrayMesh extends UnInstancedMesh {
 
   @Override
   public void dispose() {
-    GL30.glDeleteBuffers(this.glVBO);
-    GL30.glDeleteVertexArrays(this.glVAO);
+    GL33.glDeleteBuffers(this.glVBO);
+    GL33.glDeleteVertexArrays(this.glVAO);
   }
 }

@@ -188,22 +188,7 @@ public class IndexedMesh extends UnInstancedMesh {
     this.updateBuffers();
 
     if (this.lastShaderProgram != shaderProgram) {
-      GL33.glBindVertexArray(this.glVAO);
-      this.attributes.forEach(
-          attrib -> {
-            int loc = shaderProgram.getAttributeLocation(attrib.name);
-            if (loc != -1) {
-              GL33.glEnableVertexAttribArray(loc);
-              GL33.glVertexAttribPointer(
-                  loc,
-                  attrib.numComponents,
-                  attrib.glType,
-                  false,
-                  this.attributes.sizeInBytes(),
-                  attrib.offset);
-            }
-          });
-      GL33.glBindVertexArray(0);
+      this.attributes.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO);
       this.lastShaderProgram = shaderProgram;
     }
 

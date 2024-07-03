@@ -115,7 +115,8 @@ public class InstancedArrayMesh extends InstancedMesh {
     if (this.vertices == null || this.instanceCount <= 0) return;
 
     if (this.lastShaderProgram != shaderProgram) {
-      this.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO, this.glIBO);
+      this.attributes.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO);
+      this.instanceAttributes.bindAttribPointers(shaderProgram, this.glVAO, this.glIBO);
       this.lastShaderProgram = shaderProgram;
     }
 

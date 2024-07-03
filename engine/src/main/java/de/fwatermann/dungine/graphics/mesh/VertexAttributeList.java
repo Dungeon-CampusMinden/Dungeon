@@ -1,9 +1,11 @@
 package de.fwatermann.dungine.graphics.mesh;
 
+import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.ReadOnlyIterator;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import org.lwjgl.opengl.GL33;
 
 /**
  * The VertexAttributeList class represents a list of VertexAttributes. This class implements the
@@ -89,5 +91,32 @@ public class VertexAttributeList implements Iterable<VertexAttribute> {
       this.iterator = new ReadOnlyIterator<>(this.attributes);
     }
     return this.iterator;
+  }
+
+  public void bindAttribPointers(ShaderProgram shaderProgram, int vao, int vbo) {
+    GL33.glBindVertexArray(vao);
+    GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, vbo);
+    this.forEach(
+        attrib -> {
+          int loc = shaderProgram.getAttributeLocation(attrib.name);
+          if (loc != -1) {
+            GL33.glEnableVertexAttribArray(loc);
+            int remaining = attrib.numComponents;
+            while (remaining > 0) {
+              GL33.glVertexAttribPointer(
+                  loc,
+                  Math.min(remaining, 4),
+                  attrib.glType,
+                  false,
+                  this.sizeInBytes(),
+                  attrib.offset
+                      + (long) (attrib.numComponents - remaining) * attrib.getSizeInBytes());
+              remaining -= Math.min(remaining, 4);
+              loc++;
+            }
+          }
+        });
+    GL33.glBindVertexArray(0);
+    GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
   }
 }

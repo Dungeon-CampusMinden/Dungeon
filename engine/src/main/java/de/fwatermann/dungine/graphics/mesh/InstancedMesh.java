@@ -1,11 +1,8 @@
 package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
-import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
-import org.lwjgl.opengl.GL33;
-
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
@@ -84,51 +81,6 @@ public abstract class InstancedMesh extends Mesh {
    */
   public void setInstanceCount(int count) {
     this.instanceCount = count;
-  }
-
-  /**
-   * Binds the vertex array object, vertex buffer object, and instance data buffer object of this mesh to
-   * @param program the shader program to bind the attributes to
-   * @param vao the vertex array object to bind
-   * @param vbo the vertex buffer object to bind
-   * @param ibo the instance data buffer object to bind
-   */
-  protected void bindAttribPointers(ShaderProgram program, int vao, int vbo, int ibo) {
-    GL33.glBindVertexArray(vao);
-
-    GL33.glBindBuffer(GL33.GL_VERTEX_ARRAY, vbo);
-    this.attributes.forEach(
-      attrib -> {
-        int location = program.getAttributeLocation(attrib.name);
-        if (location == -1) return;
-        GL33.glEnableVertexAttribArray(location);
-        GL33.glVertexAttribPointer(
-          location,
-          attrib.numComponents,
-          attrib.glType,
-          false,
-          this.attributes.sizeInBytes(),
-          attrib.offset());
-      });
-
-    GL33.glBindBuffer(GL33.GL_VERTEX_ARRAY, ibo);
-    this.instanceAttributes.forEach(
-      attrib -> {
-        int location = program.getAttributeLocation(attrib.name);
-        if (location == -1) return;
-        GL33.glEnableVertexAttribArray(location);
-        GL33.glVertexAttribPointer(
-          location,
-          attrib.numComponents,
-          attrib.glType,
-          false,
-          this.instanceAttributes.sizeInBytes(),
-          attrib.offset());
-        GL33.glVertexAttribDivisor(location, 1);
-      });
-
-    GL33.glBindVertexArray(0);
-    GL33.glBindBuffer(GL33.GL_VERTEX_ARRAY, 0);
   }
 
 }
