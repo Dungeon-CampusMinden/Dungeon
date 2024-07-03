@@ -33,6 +33,7 @@ public final class AIComponent implements Component {
   private final Consumer<Entity> fightBehavior;
   private final Consumer<Entity> idleBehavior;
   private final Function<Entity, Boolean> shouldFight;
+  private boolean active = true;
 
   /**
    * Create an AIComponent with the given behavior.
@@ -66,7 +67,10 @@ public final class AIComponent implements Component {
    * @return Transition function between idle and fight behavior.
    */
   public Function<Entity, Boolean> shouldFight() {
-    return shouldFight;
+    if (!this.active) {
+      return (entity) -> false;
+    }
+    return this.shouldFight;
   }
 
   /**
@@ -75,7 +79,7 @@ public final class AIComponent implements Component {
    * @return Function that implements the fight behavior.
    */
   public Consumer<Entity> fightBehavior() {
-    return fightBehavior;
+    return this.fightBehavior;
   }
 
   /**
@@ -84,6 +88,27 @@ public final class AIComponent implements Component {
    * @return Function that implements the idle behavior.
    */
   public Consumer<Entity> idleBehavior() {
-    return idleBehavior;
+    if (!this.active) {
+      return (entity) -> {};
+    }
+    return this.idleBehavior;
+  }
+
+  /**
+   * Set the active state of the AI.
+   *
+   * @param active The new active state.
+   */
+  public void active(boolean active) {
+    this.active = active;
+  }
+
+  /**
+   * Get the active state of the AI.
+   *
+   * @return The current active state.
+   */
+  public boolean active() {
+    return this.active;
   }
 }

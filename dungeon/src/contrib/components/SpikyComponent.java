@@ -31,9 +31,9 @@ import core.Component;
 public final class SpikyComponent implements Component {
   private final int damageAmount;
   private final DamageType damageType;
-
   private final int coolDown;
   private int currentCoolDown;
+  private boolean active = true;
 
   /**
    * Create a new {@link SpikyComponent}.
@@ -73,7 +73,7 @@ public final class SpikyComponent implements Component {
    * @return true if the cool down is 0, false if not.
    */
   public boolean isActive() {
-    return currentCoolDown == 0;
+    return this.active() && this.currentCoolDown == 0;
   }
 
   /** Set the current cool down to the cool down configured in the constructor. */
@@ -84,5 +84,23 @@ public final class SpikyComponent implements Component {
   /** Reduce the current cool down by one. */
   public void reduceCoolDown() {
     currentCoolDown = Math.max(0, currentCoolDown - 1);
+  }
+
+  /**
+   * Is the spiky component active?
+   *
+   * @return true if the spiky component is active, false if not.
+   */
+  public boolean active() {
+    return this.active;
+  }
+
+  /**
+   * Set the active state of the spiky component.
+   *
+   * @param active The new active state.
+   */
+  public void active(boolean active) {
+    this.active = active;
   }
 }
