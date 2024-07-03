@@ -86,6 +86,13 @@ public abstract class InstancedMesh extends Mesh {
     this.instanceCount = count;
   }
 
+  /**
+   * Binds the vertex array object, vertex buffer object, and instance data buffer object of this mesh to
+   * @param program the shader program to bind the attributes to
+   * @param vao the vertex array object to bind
+   * @param vbo the vertex buffer object to bind
+   * @param ibo the instance data buffer object to bind
+   */
   protected void bindAttribPointers(ShaderProgram program, int vao, int vbo, int ibo) {
     GL33.glBindVertexArray(vao);
 

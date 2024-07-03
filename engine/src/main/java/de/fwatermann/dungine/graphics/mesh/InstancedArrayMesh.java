@@ -6,6 +6,11 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import org.lwjgl.opengl.GL33;
 
+/**
+ * The InstancedArrayMesh class represents a 3D mesh object in the game engine that is rendered using
+ * an array of vertices and instance data. It provides methods for manipulating the mesh's position,
+ * rotation, and scale, as well as methods for rendering the mesh.
+ */
 public class InstancedArrayMesh extends InstancedMesh {
 
   private int glVAO;
@@ -14,6 +19,15 @@ public class InstancedArrayMesh extends InstancedMesh {
 
   private ShaderProgram lastShaderProgram = null;
 
+  /**
+   * Constructs a new InstancedArrayMesh with the specified vertex buffer, instance data, instance
+   * @param vertices the vertex buffer of the mesh
+   * @param instanceData the instance data buffer of the mesh
+   * @param instanceCount the number of instances to render
+   * @param usageHint the usage hint of the mesh
+   * @param attributes the attributes of the mesh
+   * @param instanceAttributes the instance attributes of the mesh
+   */
   public InstancedArrayMesh(
       FloatBuffer vertices,
       ByteBuffer instanceData,
@@ -25,6 +39,14 @@ public class InstancedArrayMesh extends InstancedMesh {
     this.initGL();
   }
 
+  /**
+   * Constructs a new InstancedArrayMesh with the specified vertex buffer, instance data, and instance
+   * @param vertices the vertex buffer of the mesh
+   * @param instanceData the instance data buffer of the mesh
+   * @param instanceCount the number of instances to render
+   * @param attributes the attributes of the mesh
+   * @param instanceAttributes the instance attributes of the mesh
+   */
   public InstancedArrayMesh(
       FloatBuffer vertices,
       ByteBuffer instanceData,
@@ -40,6 +62,12 @@ public class InstancedArrayMesh extends InstancedMesh {
         instanceAttributes);
   }
 
+  /**
+   * Constructs a new InstancedArrayMesh with the specified instance data and instance
+   * @param usageHint the usage hint of the mesh
+   * @param attributes the attributes of the mesh
+   * @param instanceAttributes the instance attributes of the mesh
+   */
   public InstancedArrayMesh(
       GLUsageHint usageHint,
       VertexAttributeList attributes,
@@ -47,6 +75,11 @@ public class InstancedArrayMesh extends InstancedMesh {
     this(null, null, 0, usageHint, attributes, instanceAttributes);
   }
 
+  /**
+   * Constructs a new InstancedArrayMesh with the specified instance data and instance
+   * @param attributes the attributes of the mesh
+   * @param instanceAttributes the instance attributes of the mesh
+   */
   public InstancedArrayMesh(
       VertexAttributeList attributes, InstanceAttributeList instanceAttributes) {
     this(GLUsageHint.DRAW_STATIC, attributes, instanceAttributes);

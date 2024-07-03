@@ -100,6 +100,10 @@ public class VertexAttribute {
     };
   }
 
+  /**
+   * Sets the offset of the attribute.
+   * @return the offset of the attribute
+   */
   public int offset() {
     return this.offset;
   }

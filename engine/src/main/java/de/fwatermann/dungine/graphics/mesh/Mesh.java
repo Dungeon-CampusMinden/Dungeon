@@ -20,6 +20,12 @@ public abstract class Mesh implements Disposable {
 
   protected GLUsageHint usageHint = GLUsageHint.DRAW_STATIC;
 
+  /**
+   * Constructs a new Mesh with the specified vertex buffer, usage hint, and attributes.
+   * @param vertices the vertex buffer of the mesh
+   * @param usageHint the usage hint of the mesh
+   * @param attributes the attributes of the mesh
+   */
   protected Mesh(FloatBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
     GLUtils.checkBuffer(vertices);
     this.vertices = vertices;
@@ -27,10 +33,20 @@ public abstract class Mesh implements Disposable {
     this.usageHint = usageHint;
   }
 
+  /**
+   * Constructs a new Mesh with the specified vertex buffer and attributes.
+   * @param usageHint the usage hint of the mesh
+   * @param attributes the attributes of the mesh
+   */
   protected Mesh(GLUsageHint usageHint, VertexAttribute... attributes) {
     this(null, usageHint, new VertexAttributeList(attributes));
   }
 
+  /**
+   * Constructs a new Mesh with the specified attributes.
+   * @param usageHint the usage hint of the mesh
+   * @param attributes the attributes of the mesh
+   */
   protected Mesh(GLUsageHint usageHint, VertexAttributeList attributes) {
     this.attributes = attributes;
     this.usageHint = usageHint;

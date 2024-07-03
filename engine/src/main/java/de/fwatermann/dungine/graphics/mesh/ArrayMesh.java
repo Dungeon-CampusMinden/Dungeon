@@ -7,6 +7,11 @@ import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.FloatBuffer;
 import org.lwjgl.opengl.GL30;
 
+/**
+ * The ArrayMesh class represents a 3D mesh object in the game engine that is rendered using an array
+ * of vertices. It provides methods for manipulating the mesh's position, rotation, and scale, as well
+ * as methods for rendering the mesh.
+ */
 public class ArrayMesh extends UnInstancedMesh {
 
   private int glVAO;

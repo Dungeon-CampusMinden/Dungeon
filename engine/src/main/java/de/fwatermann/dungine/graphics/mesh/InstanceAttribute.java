@@ -59,6 +59,10 @@ public class InstanceAttribute {
     };
   }
 
+  /**
+   * Get the offset of the attributes in bytes.
+   * @return the offset of the attributes in bytes
+   */
   public int offset() {
     return this.offset;
   }
