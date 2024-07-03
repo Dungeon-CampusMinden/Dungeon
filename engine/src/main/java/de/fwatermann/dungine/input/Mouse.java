@@ -19,7 +19,7 @@ public class Mouse implements EventListener {
     EventManager.getInstance().registerStaticListener(Mouse.class);
   }
 
-  private static Set<Integer> justPressedCheck = new HashSet<>();
+  private static final Set<Integer> justPressedCheck = new HashSet<>();
 
   /**
    * Check if a button is pressed.

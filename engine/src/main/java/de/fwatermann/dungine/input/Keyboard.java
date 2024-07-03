@@ -15,7 +15,7 @@ public class Keyboard implements EventListener {
     EventManager.getInstance().registerStaticListener(Keyboard.class);
   }
 
-  private static Set<Integer> justPressedCheck = new HashSet<>();
+  private static final Set<Integer> justPressedCheck = new HashSet<>();
 
   /**
    * Check if a key is pressed.
