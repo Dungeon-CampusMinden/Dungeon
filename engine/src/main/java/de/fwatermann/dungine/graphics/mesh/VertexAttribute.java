@@ -44,7 +44,7 @@ public class VertexAttribute {
 
   public final int numComponents;
   public final int glType;
-  public final int offset;
+  protected int offset;
   public final String name;
 
   /**
@@ -57,11 +57,10 @@ public class VertexAttribute {
    * @param offset the offset of the vertex attribute
    * @param name the name of the vertex attribute
    */
-  public VertexAttribute(int usage, int numComponents, int glType, int offset, String name) {
+  public VertexAttribute(int usage, int numComponents, int glType, String name) {
     this.usage = usage;
     this.numComponents = numComponents;
     this.glType = glType;
-    this.offset = offset;
     this.name = name == null ? Usage.getDefaultName(usage) : name;
 
     if (this.glType != GL33.GL_FLOAT
@@ -85,8 +84,8 @@ public class VertexAttribute {
    * @param glType the GL type of the vertex attribute
    * @param offset the offset of the vertex attribute
    */
-  public VertexAttribute(int usage, int numComponents, int glType, int offset) {
-    this(usage, numComponents, glType, offset, null);
+  public VertexAttribute(int usage, int numComponents, int glType) {
+    this(usage, numComponents, glType, null);
   }
 
   /**
@@ -101,6 +100,10 @@ public class VertexAttribute {
       case GL33.GL_UNSIGNED_SHORT, GL33.GL_SHORT -> this.numComponents * 2;
       default -> throw new IllegalArgumentException("Invalid GL type: " + this.glType);
     };
+  }
+
+  public int offset() {
+    return this.offset;
   }
 
   /**
