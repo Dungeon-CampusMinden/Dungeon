@@ -3,6 +3,7 @@ package de.fwatermann.dungine.utils.resource;
 import de.fwatermann.dungine.utils.annotations.NotNull;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -18,7 +19,7 @@ public class FileResource extends Resource {
   private void read() {
     try {
       byte[] bytes = Files.readAllBytes(this.path);
-      this.buffer = ByteBuffer.allocateDirect(bytes.length);
+      this.buffer = ByteBuffer.allocateDirect(bytes.length).order(ByteOrder.nativeOrder());
       this.buffer.put(bytes);
       this.buffer.flip();
     } catch (IOException e) {
