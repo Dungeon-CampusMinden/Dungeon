@@ -2,13 +2,11 @@ package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
-import de.fwatermann.dungine.utils.BoundingBox;
+import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.ThreadUtils;
-import de.fwatermann.dungine.utils.annotations.Nullable;
-import java.nio.ByteOrder;
+import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL33;
 
 /**
@@ -16,20 +14,17 @@ import org.lwjgl.opengl.GL33;
  * of a 3D object. This class extends the Mesh class, providing functionality specific to indexed
  * meshes, such as managing vertex and index buffers, and rendering the mesh using OpenGL.
  */
-public class IndexedMesh extends Mesh {
+public class IndexedMesh extends UnInstancedMesh {
 
   private int glVAO;
   private int glVBO;
   private int glEBO;
 
-  @Nullable private FloatBuffer vertices;
+  private @Null IntBuffer indices;
 
-  @Nullable private IntBuffer indices;
-
-  private boolean verticesDirty = false;
   private boolean indicesDirty = false;
 
-  private ShaderProgram lastShaderProgarm = null;
+  private ShaderProgram lastShaderProgram = null;
 
   /**
    * Constructs an IndexedMesh with specified vertices, indices, usage hint, and vertex attributes.
@@ -46,12 +41,8 @@ public class IndexedMesh extends Mesh {
       GLUsageHint usageHint,
       VertexAttributeList attributes) {
     super(usageHint, attributes);
-    if (vertices.order() != ByteOrder.nativeOrder()) {
-      throw new IllegalArgumentException("VertexBuffer must be in native byte order!");
-    }
-    if (indices.order() != ByteOrder.nativeOrder()) {
-      throw new IllegalArgumentException("IndexBuffer must be in native byte order!");
-    }
+    GLUtils.checkBuffer(vertices);
+    GLUtils.checkBuffer(indices);
     this.vertices = vertices;
     this.indices = indices;
     this.indicesDirty = true;
@@ -152,49 +143,12 @@ public class IndexedMesh extends Mesh {
   }
 
   /**
-   * Disposes of OpenGL resources associated with this mesh. This should be called when the mesh is
-   * no longer needed to free up resources.
-   */
-  @Override
-  public void dispose() {
-    GL33.glDeleteBuffers(this.glVBO);
-    GL33.glDeleteBuffers(this.glEBO);
-    GL33.glDeleteVertexArrays(this.glVAO);
-  }
-
-  @Override
-  public int getVertexCount() {
-    if (this.vertices == null) {
-      return 0;
-    }
-    return this.vertices.capacity() / this.attributes.sizeInBytes();
-  }
-
-  @Override
-  @Nullable
-  public FloatBuffer getVertexBuffer() {
-    return this.vertices;
-  }
-
-  @Override
-  public void setVertexBuffer(FloatBuffer buffer) {
-    if (buffer.order() != ByteOrder.nativeOrder()) {
-      throw new IllegalArgumentException("Buffer must be in native byte order!");
-    }
-    this.vertices = buffer;
-    this.verticesDirty = true;
-    this.calcBoundingBox();
-  }
-
-  /**
    * Sets the indices of this mesh.
    *
    * @param buffer the new indices of this mesh
    */
   public void setIndexBuffer(IntBuffer buffer) {
-    if (buffer.order() != ByteOrder.nativeOrder()) {
-      throw new IllegalArgumentException("Buffer must be in native byte order!");
-    }
+    GLUtils.checkBuffer(buffer);
     this.indices = buffer;
     this.indicesDirty = true;
   }
@@ -206,38 +160,6 @@ public class IndexedMesh extends Mesh {
    */
   public IntBuffer getIndexBuffer() {
     return this.indices;
-  }
-
-  @Override
-  protected void calcBoundingBox() {
-    float minX = Float.MAX_VALUE;
-    float minY = Float.MAX_VALUE;
-    float minZ = Float.MAX_VALUE;
-    float maxX = Float.MIN_VALUE;
-    float maxY = Float.MIN_VALUE;
-    float maxZ = Float.MIN_VALUE;
-    this.vertices.position(0);
-    int vertexCount = this.vertices.capacity() / this.attributes.sizeInBytes();
-    for (int i = 0; i < vertexCount; i++) {
-      float x = this.vertices.get();
-      float y = this.vertices.get();
-      float z = this.vertices.get();
-      this.vertices.position(
-          this.vertices.position() + this.attributes.sizeInBytes() - 3 * Float.BYTES);
-      minX = Math.min(minX, x);
-      minY = Math.min(minY, y);
-      minZ = Math.min(minZ, z);
-      maxX = Math.max(maxX, x);
-      maxY = Math.max(maxY, y);
-      maxZ = Math.max(maxZ, z);
-    }
-    this.boundingBox = new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
-  }
-
-  @Override
-  protected void calcTransformMatrix() {
-    this.transformMatrix =
-        new Matrix4f().translationRotateScale(this.translation, this.rotation, this.scale);
   }
 
   private void updateBuffers() {
@@ -265,7 +187,7 @@ public class IndexedMesh extends Mesh {
 
     this.updateBuffers();
 
-    if (this.lastShaderProgarm != shaderProgram) {
+    if (this.lastShaderProgram != shaderProgram) {
       GL33.glBindVertexArray(this.glVAO);
       this.attributes.forEach(
           attrib -> {
@@ -282,7 +204,7 @@ public class IndexedMesh extends Mesh {
             }
           });
       GL33.glBindVertexArray(0);
-      this.lastShaderProgarm = shaderProgram;
+      this.lastShaderProgram = shaderProgram;
     }
 
     if (bindShader) shaderProgram.bind();
@@ -292,5 +214,12 @@ public class IndexedMesh extends Mesh {
     GL33.glBindVertexArray(0);
 
     if (bindShader) shaderProgram.unbind();
+  }
+
+  @Override
+  public void dispose() {
+    GL33.glDeleteBuffers(this.glVBO);
+    GL33.glDeleteBuffers(this.glEBO);
+    GL33.glDeleteVertexArrays(this.glVAO);
   }
 }
