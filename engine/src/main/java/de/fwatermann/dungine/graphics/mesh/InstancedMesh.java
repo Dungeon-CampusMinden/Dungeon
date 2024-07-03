@@ -41,6 +41,7 @@ public abstract class InstancedMesh extends Mesh {
     this.instanceAttributes = instanceAttributes;
     this.instanceData = instanceData;
     this.instanceCount = instanceCount;
+    this.instanceDataDirty = true;
   }
 
   /**
