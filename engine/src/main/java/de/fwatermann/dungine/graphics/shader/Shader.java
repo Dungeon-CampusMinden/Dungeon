@@ -2,10 +2,10 @@ package de.fwatermann.dungine.graphics.shader;
 
 import de.fwatermann.dungine.exception.OpenGLException;
 import de.fwatermann.dungine.utils.Disposable;
-import de.fwatermann.dungine.utils.resource.Resource;
+import de.fwatermann.dungine.resource.Resource;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.*;
+
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL33;

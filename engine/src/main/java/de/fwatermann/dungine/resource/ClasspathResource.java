@@ -1,4 +1,4 @@
-package de.fwatermann.dungine.utils.resource;
+package de.fwatermann.dungine.resource;
 
 import java.io.IOException;
 import java.io.InputStream;

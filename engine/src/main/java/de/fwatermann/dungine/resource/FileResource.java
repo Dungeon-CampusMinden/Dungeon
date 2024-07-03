@@ -1,4 +1,4 @@
-package de.fwatermann.dungine.utils.resource;
+package de.fwatermann.dungine.resource;
 
 import de.fwatermann.dungine.utils.annotations.NotNull;
 import java.io.IOException;
