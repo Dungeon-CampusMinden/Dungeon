@@ -54,7 +54,6 @@ public class VertexAttribute {
    * @param usage the usage of the vertex attribute
    * @param numComponents the number of components of the vertex attribute
    * @param glType the GL type of the vertex attribute
-   * @param offset the offset of the vertex attribute
    * @param name the name of the vertex attribute
    */
   public VertexAttribute(int usage, int numComponents, int glType, String name) {
@@ -82,7 +81,6 @@ public class VertexAttribute {
    * @param usage the usage of the vertex attribute
    * @param numComponents the number of components of the vertex attribute
    * @param glType the GL type of the vertex attribute
-   * @param offset the offset of the vertex attribute
    */
   public VertexAttribute(int usage, int numComponents, int glType) {
     this(usage, numComponents, glType, null);
