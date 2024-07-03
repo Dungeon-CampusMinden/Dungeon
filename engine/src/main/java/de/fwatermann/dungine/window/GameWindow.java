@@ -99,8 +99,6 @@ public abstract class GameWindow implements Disposable {
       glfwShowWindow(this.glfwWindow);
     }
     MAIN_THREAD = Thread.currentThread();
-    // UPDATE_THREAD = new Thread(this::_updateLoop, "Update Thread");
-    // UPDATE_THREAD.start();
     this._renderLoop();
   }
 
@@ -265,6 +263,11 @@ public abstract class GameWindow implements Disposable {
   private void _renderLoop() {
     try {
       this.init();
+
+      //Start Update Thread
+      UPDATE_THREAD = new Thread(this::_updateLoop, "Update Thread");
+      UPDATE_THREAD.start();
+
       long lastTime = System.nanoTime();
       while (!this.shouldClose) {
         long currentTime = System.nanoTime();
