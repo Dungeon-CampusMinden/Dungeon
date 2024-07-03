@@ -1,6 +1,6 @@
 package de.fwatermann.dungine.graphics;
 
-import de.fwatermann.dungine.utils.resource.Resource;
+import de.fwatermann.dungine.resource.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
