@@ -171,6 +171,7 @@ public class IndexedMesh extends UnInstancedMesh {
   }
 
   private void updateBuffers() {
+    ThreadUtils.checkMainThread();
     GL33.glBindVertexArray(this.glVAO);
     if (this.verticesDirty && this.vertices != null) {
       GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, this.usageHint.getGLConstant());

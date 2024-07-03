@@ -2,6 +2,7 @@ package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.ReadOnlyIterator;
+import de.fwatermann.dungine.utils.ThreadUtils;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -98,6 +99,7 @@ public class VertexAttributeList implements Iterable<VertexAttribute> {
   }
 
   public void bindAttribPointers(ShaderProgram shaderProgram, int vao, int vbo) {
+    ThreadUtils.checkMainThread();
     GL33.glBindVertexArray(vao);
     GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, vbo);
     this.forEach(

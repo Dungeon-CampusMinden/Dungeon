@@ -3,6 +3,7 @@ package de.fwatermann.dungine.graphics.mesh;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.GLUtils;
+import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.FloatBuffer;
 import org.lwjgl.opengl.GL33;
@@ -85,6 +86,7 @@ public class ArrayMesh extends UnInstancedMesh {
   }
 
   private void initGL() {
+    ThreadUtils.checkMainThread();
     this.glVAO = GL33.glGenVertexArrays();
     this.glVBO = GL33.glGenBuffers();
 

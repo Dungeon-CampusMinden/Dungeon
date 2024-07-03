@@ -2,6 +2,7 @@ package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
+import de.fwatermann.dungine.utils.ThreadUtils;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import org.lwjgl.opengl.GL33;
@@ -86,6 +87,7 @@ public class InstancedArrayMesh extends InstancedMesh {
   }
 
   private void initGL() {
+    ThreadUtils.checkMainThread();
     this.glVAO = GL33.glGenVertexArrays();
     this.glVBO = GL33.glGenBuffers();
     this.glIBO = GL33.glGenBuffers();
@@ -93,6 +95,7 @@ public class InstancedArrayMesh extends InstancedMesh {
   }
 
   private void updateBuffers() {
+    ThreadUtils.checkMainThread();
     if (this.vertices != null && this.verticesDirty) {
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glVBO);
       GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, this.usageHint.getGLConstant());
@@ -110,6 +113,7 @@ public class InstancedArrayMesh extends InstancedMesh {
   @Override
   public void render(
       ShaderProgram shaderProgram, int primitiveType, int offset, int count, boolean bindShader) {
+    ThreadUtils.checkMainThread();
 
     this.updateBuffers();
     if (this.vertices == null || this.instanceCount <= 0) return;
@@ -135,6 +139,7 @@ public class InstancedArrayMesh extends InstancedMesh {
 
   @Override
   public void dispose() {
+    ThreadUtils.checkMainThread();
     GL33.glDeleteVertexArrays(this.glVAO);
     GL33.glDeleteBuffers(this.glVBO);
     GL33.glDeleteBuffers(this.glIBO);
