@@ -195,6 +195,10 @@ public class GroumPrinter {
   }
 
   private void edge(GroumEdge edge, StringBuilder builder) {
+    if (!edge.draw()) {
+      return;
+    }
+
     var start = edge.start();
     String startId = this.idMap.get(start);
 

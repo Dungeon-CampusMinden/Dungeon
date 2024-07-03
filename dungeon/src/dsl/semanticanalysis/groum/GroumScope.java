@@ -168,6 +168,32 @@ public class GroumScope {
           if (scopeToBlock != GroumScope.NONE) {
             scopesToBlock.add(scopeToBlock);
           }
+        } else if (fromScope.isBranchOfIfElse()) {
+          var assocControlNode = (ControlNode) fromScope.associatedGroumNode;
+          parentControlNode = (ControlNode) assocControlNode.controlFlowParent();
+          if (assocControlNode.controlType().equals(ControlNode.ControlType.ifStmt)) {
+            // get else branch
+            var elseStmtNode =
+              parentControlNode
+                .getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL)
+                .get(1);
+
+            scopeToBlock = immediateControlFlowParent.getConditionalScopeFor(elseStmtNode);
+            if (scopeToBlock != GroumScope.NONE) {
+              scopesToBlock.add(scopeToBlock);
+            }
+          } else {
+            // get if branch
+            var ifStmtNode =
+              parentControlNode
+                .getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL)
+                .get(0);
+            scopeToBlock = immediateControlFlowParent.getConditionalScopeFor(ifStmtNode);
+            if (scopeToBlock != GroumScope.NONE) {
+              scopesToBlock.add(scopeToBlock);
+            }
+          }
+
         }
 
         // add all children scopes of the scope to block
@@ -223,14 +249,13 @@ public class GroumScope {
       checkInstancedDefinitionsOverwriting(instanceId, List.of(node));
     } else if (controlFlowParent == GroumScope.NONE) {
       scopeToNodeMap.put(parentScope, node);
-      // TODO: ??? -> seems about right, not to do it...
-      // checkInstancedDefinitionsOverwriting(instanceId, parentScope);
     } else {
       scopeToNodeMap.put(controlFlowParent, node);
-      // TODO: ??? -> seems about right, not to do it...
-      // checkInstancedDefinitionsOverwriting(instanceId, controlFlowParent);
     }
 
+    // this gets all definitions from the heritage of the control flow parent of this scope
+    // we remove all definitions in these scopes, because adding a definition in this scope
+    // removes all other competing definitions from child scopes
     var childScopesOfDefinitionScope = controlFlowParent.heritage;
     for (var scope : childScopesOfDefinitionScope) {
       scopeToNodeMap.remove(scope);
@@ -411,7 +436,10 @@ public class GroumScope {
           definitionsToShadow.addAll(heritage);
         }
 
-        // TODO: explain
+        // the controlflow parent of the from scope is not this
+        // or
+        // the associated groum node of this scope is a beginFunc-Node (this is a function definition scope)
+        // then add this scope and its control parent to definitions to shadow
         if (fromScope.controlFlowParent != this
             || this.associatedGroumNode instanceof ControlNode assocControlNode
                 && assocControlNode.controlType() == ControlNode.ControlType.beginFunc) {
@@ -421,6 +449,7 @@ public class GroumScope {
         }
       }
 
+      // remove the definitions to shadow
       if (definitions != null) {
         for (var definitionToShadow : definitionsToShadow) {
           checkInstancedDefinitionsOverwriting(instanceId, newDefinitions);

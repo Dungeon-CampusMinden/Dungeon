@@ -635,6 +635,14 @@ public class TemporalGroumBuilder implements AstVisitor<Groum> {
     Groum mergedBranches = mergedIfBranch.mergeParallel(mergedElseBranch);
     Groum merged = parentControlWithCondition.mergeSequential(mergedBranches);
 
+    // force calculation of ifStmt before elseStmt
+    var sinkNodes = mergedIfBranch.sinkNodes();
+    if (!sinkNodes.isEmpty()) {
+      var sinkNode = sinkNodes.getFirst();
+      var forceEdge = new GroumEdge(sinkNode, elseControlNode, GroumEdge.GroumEdgeType.EDGE_TEMPORAL, false, true);
+      merged.addEdge(forceEdge);
+    }
+
     return merged;
   }
 

@@ -11,12 +11,6 @@ import dsl.semanticanalysis.symbol.Symbol;
 import dsl.semanticanalysis.typesystem.typebuilding.type.FunctionType;
 import java.util.*;
 
-// TODO: how are we going to calculate data dependencies based on the SETS of
-//  involved variables (like in the original paper)? if two nodes share an involved
-//  variable, the one is data-dependent on the other...how are we going to implement this?
-//  .
-//  But do we even have to? We distinguish between read and write accesses and the last
-//  node, which writes to a variable is registered as it's new latest definition..
 public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   private SymbolTable symbolTable;
   private IEnvironment environment;
@@ -235,10 +229,6 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           }
         }
 
-        // visit node
-        currentNode.accept(this);
-
-        // TODO: what if controlFlowParentNode is NULL?
         // set control flow parent of node
         var controlFlowParentNode = getCurrentControlParentNode();
         if (controlFlowParentNode != GroumNode.NONE) {
@@ -247,6 +237,11 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           this.groum.addEdge(controlFlowParentEdge);*/
           currentNode.controlFlowParent(controlFlowParentNode);
         }
+
+        // visit node
+        currentNode.accept(this);
+
+        // TODO: what if controlFlowParentNode is NULL?
 
         // set processed counter idx
         this.processedCounter++;
@@ -374,7 +369,8 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   @Override
   public List<InvolvedVariable> visit(ControlNode node) {
     GroumScope scope;
-    var incomingNodes = node.getStartsOfIncoming(GroumEdge.GroumEdgeType.EDGE_TEMPORAL);
+    var incomingNodes = node.getIncomingOfType(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).stream().filter(e -> !e.ignoreInDataAnalysis()).map(GroumEdge::start).toList();
+
     switch (node.controlType()) {
       case ifElseStmt:
         // we never expect to visit the same node twice
@@ -424,6 +420,8 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           this.currentScope().pushConditionalScope(scope);
         }
 
+        var thisScope = this.scopesForNodes.get(node);
+
         // TODO: test this
         for (var incomingNode : incomingNodes) {
           var nodesInvolvedVariables =
@@ -431,9 +429,12 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           nodesInvolvedVariables.forEach(
               n -> {
                 this.addInvolvedVariable(node, n, n.typeOfInvolvement());
-                var readEdge =
-                    new GroumEdge(n.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-                this.groum.addEdge(readEdge);
+                var definitions = this.currentScope().getDefinitions(n.variableInstanceId(), thisScope);
+                for (var definitionNode : definitions) {
+                  var readEdge =
+                    new GroumEdge(definitionNode, node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+                  this.groum.addEdge(readEdge);
+                }
               });
         }
 
@@ -701,7 +702,6 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
     List<InvolvedVariable> parentsInvolvedVariables = new ArrayList<>();
     if (node.parent() instanceof MethodAccessAction parentNode) {
-      // TODO: handle; should be easy
       parentsInvolvedVariables = this.involvedVariables.get(parentNode);
 
       parentsInvolvedVariables.forEach(
@@ -774,7 +774,6 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   public List<InvolvedVariable> visit(PropertyAccessAction node) {
     List<InvolvedVariable> parentsInvolvedVariables = new ArrayList<>();
     if (node.parent() instanceof MethodAccessAction parentNode) {
-      // TODO: handle; should be easy
       parentsInvolvedVariables = this.involvedVariables.get(parentNode);
       if (parentsInvolvedVariables == null) {
         boolean b = true;
@@ -841,7 +840,6 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
   @Override
   public List<InvolvedVariable> visit(ReferenceInGraphAction node) {
-    // TODO
     // read variable
 
     long instanceId = node.referencedInstanceId();

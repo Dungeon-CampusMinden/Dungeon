@@ -23,6 +23,8 @@ public class GroumEdge {
   @Property private final int idxOnEnd;
   @Property private final GroumEdgeType edgeType;
   @Property private String label;
+  @Transient private boolean draw;
+  @Transient private boolean ignoreInDataAnalysis;
 
   @Transient private String cypherCreationString;
 
@@ -40,7 +42,7 @@ public class GroumEdge {
     generateCypherString();
   }
 
-  public GroumEdge(GroumNode start, GroumNode end, GroumEdgeType edgeType) {
+  public GroumEdge(GroumNode start, GroumNode end, GroumEdgeType edgeType, boolean draw, boolean ignoreInDataAnalysis) {
     this.start = start;
     this.idxOnStart = start.outgoing().size();
     start.addOutgoing(this);
@@ -56,7 +58,13 @@ public class GroumEdge {
     if (start.processedCounter() == 4 && edgeType.equals(GroumEdgeType.EDGE_DATA_READ)) {
       boolean b = true;
     }
+    this.draw = draw;
+    this.ignoreInDataAnalysis = ignoreInDataAnalysis;
     generateCypherString();
+  }
+
+  public GroumEdge(GroumNode start, GroumNode end, GroumEdgeType edgeType) {
+    this(start, end, edgeType, true, false);
   }
 
   public GroumNode start() {
@@ -69,6 +77,14 @@ public class GroumEdge {
 
   public GroumEdgeType edgeType() {
     return edgeType;
+  }
+
+  public boolean draw() {
+    return draw;
+  }
+
+  public boolean ignoreInDataAnalysis() {
+    return ignoreInDataAnalysis;
   }
 
   @Override
