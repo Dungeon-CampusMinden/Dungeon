@@ -8,9 +8,9 @@ import java.nio.FloatBuffer;
 
 /**
  * The InstancedMesh class represents a 3D mesh object in the game engine that is instanced. It
- * provides methods for manipulating the mesh's position, rotation, and scale, as well as methods for
- * rendering the mesh. This class is abstract and should be extended by specific types of instanced
- * meshes.
+ * provides methods for manipulating the mesh's position, rotation, and scale, as well as methods
+ * for rendering the mesh. This class is abstract and should be extended by specific types of
+ * instanced meshes.
  */
 public abstract class InstancedMesh extends Mesh {
 
@@ -20,7 +20,8 @@ public abstract class InstancedMesh extends Mesh {
   protected int instanceCount = 0;
 
   /**
-   * Constructs a new InstancedMesh with the specified vertex buffer, instance data buffer, instance count, usage hint, and attributes.
+   * Constructs a new InstancedMesh with the specified vertex buffer, instance data buffer, instance
+   * count, usage hint, and attributes.
    *
    * @param vertices the vertex buffer of the mesh
    * @param instanceData the instance data buffer of the mesh
@@ -84,4 +85,11 @@ public abstract class InstancedMesh extends Mesh {
     this.instanceCount = count;
   }
 
+  /**
+   * Mark the instance data buffer as dirty. This will cause the instance data buffer to be updated
+   * the next time the mesh is rendered.
+   */
+  public void markInstanceDataDirty() {
+    this.instanceDataDirty = true;
+  }
 }

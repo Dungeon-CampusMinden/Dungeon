@@ -153,6 +153,14 @@ public class InstancedIndexedMesh extends InstancedMesh {
     return this.indices;
   }
 
+  /**
+   * Marks the indices of this mesh as dirty, causing them to be updated the next time the mesh is
+   * rendered.
+   */
+  public void markIndicesDirty() {
+    this.indicesDirty = true;
+  }
+
   @Override
   public void render(
       ShaderProgram shaderProgram, int primitiveType, int offset, int count, boolean bindShader) {
