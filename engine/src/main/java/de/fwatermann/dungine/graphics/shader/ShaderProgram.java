@@ -29,6 +29,8 @@ public class ShaderProgram implements Disposable {
   private final Map<String, Integer> uniformLocations = new HashMap<>();
   private final Map<String, Integer> attributeLocations = new HashMap<>();
 
+  private ShaderProgramConfiguration configuration = new ShaderProgramConfiguration();
+
   public ShaderProgram(Shader... shaders) {
     this.shaders = shaders;
     this.glInit();
@@ -226,26 +228,24 @@ public class ShaderProgram implements Disposable {
 
   /**
    * Sets the view and projection matrices of the specified camera as uniforms in this shader
-   * program. The specified names are used for the view and projection matrices.
-   *
-   * @param camera the camera to use
-   * @param viewMatrixName the name of the view matrix uniform
-   * @param projectionMatrixName the name of the projection matrix uniform
-   */
-  public void useCamera(Camera camera, String viewMatrixName, String projectionMatrixName) {
-    this.setUniformMatrix4f(viewMatrixName, camera.viewMatrix());
-    this.setUniformMatrix4f(projectionMatrixName, camera.projectionMatrix());
-  }
-
-  /**
-   * Sets the view and projection matrices of the specified camera as uniforms in this shader
-   * program. The default uniform "uView" and "uProjection" are used for the view and projection
-   * matrices.
+   * program. The uniform names for the view and projection matrices are specified in this shader
+   * programs configuration. {@link ShaderProgramConfiguration} {@link #configuration()}
    *
    * @param camera the camera to use
    */
   public void useCamera(Camera camera) {
-    this.useCamera(camera, "uView", "uProjection");
+    this.setUniformMatrix4f(this.configuration.uniformViewMatrix(), camera.viewMatrix());
+    this.setUniformMatrix4f(
+        this.configuration.uniformProjectionMatrix(), camera.projectionMatrix());
+  }
+
+  /**
+   * Returns the configuration of this shader program.
+   *
+   * @return the configuration of this shader program
+   */
+  public ShaderProgramConfiguration configuration() {
+    return this.configuration;
   }
 
   @Override
