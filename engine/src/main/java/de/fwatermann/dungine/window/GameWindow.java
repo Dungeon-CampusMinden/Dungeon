@@ -3,6 +3,7 @@ package de.fwatermann.dungine.window;
 import static de.fwatermann.dungine.utils.ThreadUtils.checkMainThread;
 import static org.lwjgl.glfw.GLFW.*;
 
+import de.fwatermann.dungine.Dungine;
 import de.fwatermann.dungine.event.input.KeyboardEvent;
 import de.fwatermann.dungine.event.input.MouseButtonEvent;
 import de.fwatermann.dungine.event.input.MouseMoveEvent;
@@ -12,6 +13,7 @@ import de.fwatermann.dungine.event.window.WindowFocusChangedEvent;
 import de.fwatermann.dungine.event.window.WindowMoveEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.exception.GLFWException;
+import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.IVoidFunction;
 import de.fwatermann.dungine.utils.annotations.Nullable;
@@ -26,7 +28,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GLUtil;
 
-public abstract class GameWindow {
+public abstract class GameWindow implements Disposable {
 
   @Nullable public static Thread MAIN_THREAD = null;
   @Nullable public static Thread UPDATE_THREAD = null;
@@ -64,6 +66,8 @@ public abstract class GameWindow {
     this.size = size;
     this.visible = visible;
     this.debug = debug;
+
+    Dungine.WINDOWS.add(this);
   }
 
   /**
@@ -597,5 +601,11 @@ public abstract class GameWindow {
     }
     this.fullscreen = fullscreen;
     return this;
+  }
+
+  @Override
+  public void dispose() {
+    Dungine.WINDOWS.remove(this);
+    this.close();
   }
 }
