@@ -162,6 +162,14 @@ public class IndexedMesh extends UnInstancedMesh {
     return this.indices;
   }
 
+  /**
+   * Marks the indices of this mesh as dirty, causing them to be updated the next time the mesh is
+   * rendered.
+   */
+  public void markIndicesDirty() {
+    this.indicesDirty = true;
+  }
+
   private void updateBuffers() {
     GL33.glBindVertexArray(this.glVAO);
     if (this.verticesDirty && this.vertices != null) {
@@ -194,7 +202,8 @@ public class IndexedMesh extends UnInstancedMesh {
 
     if (bindShader) shaderProgram.bind();
 
-    shaderProgram.setUniformMatrix4f(shaderProgram.configuration().uniformModelMatrix(), this.transformMatrix);
+    shaderProgram.setUniformMatrix4f(
+        shaderProgram.configuration().uniformModelMatrix(), this.transformMatrix);
 
     GL33.glBindVertexArray(this.glVAO);
     GL33.glDrawElements(primitiveType, count, GL33.GL_UNSIGNED_INT, offset);

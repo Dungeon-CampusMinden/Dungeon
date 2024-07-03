@@ -22,6 +22,7 @@ public abstract class Mesh implements Disposable {
 
   /**
    * Constructs a new Mesh with the specified vertex buffer, usage hint, and attributes.
+   *
    * @param vertices the vertex buffer of the mesh
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
@@ -36,6 +37,7 @@ public abstract class Mesh implements Disposable {
 
   /**
    * Constructs a new Mesh with the specified vertex buffer and attributes.
+   *
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
@@ -45,6 +47,7 @@ public abstract class Mesh implements Disposable {
 
   /**
    * Constructs a new Mesh with the specified attributes.
+   *
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
@@ -83,6 +86,11 @@ public abstract class Mesh implements Disposable {
   public void setVertexBuffer(FloatBuffer buffer) {
     GLUtils.checkBuffer(buffer);
     this.vertices = buffer;
+    this.verticesDirty = true;
+  }
+
+  /** Marks the vertices of the mesh as dirty, causing them to be updated before rendering. */
+  public void markVerticesDirty() {
     this.verticesDirty = true;
   }
 
