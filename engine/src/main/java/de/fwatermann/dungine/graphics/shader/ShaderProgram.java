@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.graphics.shader;
 
 import de.fwatermann.dungine.exception.OpenGLException;
+import de.fwatermann.dungine.graphics.Camera;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import java.util.HashMap;
@@ -221,6 +222,30 @@ public class ShaderProgram implements Disposable {
    */
   public void setUniformMatrix4f(String name, Matrix4f matrix, boolean transpose) {
     GL33.glUniformMatrix4fv(this.getUniformLocation(name), transpose, matrix.get(new float[16]));
+  }
+
+  /**
+   * Sets the view and projection matrices of the specified camera as uniforms in this shader
+   * program. The specified names are used for the view and projection matrices.
+   *
+   * @param camera the camera to use
+   * @param viewMatrixName the name of the view matrix uniform
+   * @param projectionMatrixName the name of the projection matrix uniform
+   */
+  public void useCamera(Camera camera, String viewMatrixName, String projectionMatrixName) {
+    this.setUniformMatrix4f(viewMatrixName, camera.viewMatrix());
+    this.setUniformMatrix4f(projectionMatrixName, camera.projectionMatrix());
+  }
+
+  /**
+   * Sets the view and projection matrices of the specified camera as uniforms in this shader
+   * program. The default uniform "uView" and "uProjection" are used for the view and projection
+   * matrices.
+   *
+   * @param camera the camera to use
+   */
+  public void useCamera(Camera camera) {
+    this.useCamera(camera, "uView", "uProjection");
   }
 
   @Override
