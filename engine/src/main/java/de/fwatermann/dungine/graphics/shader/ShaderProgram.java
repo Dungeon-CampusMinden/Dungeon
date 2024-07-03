@@ -10,7 +10,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 
 /**
@@ -37,14 +36,14 @@ public class ShaderProgram implements Disposable {
   }
 
   private void glInit() {
-    this.glHandle = GL30.glCreateProgram();
+    this.glHandle = GL33.glCreateProgram();
     for (Shader shader : this.shaders) {
-      GL30.glAttachShader(this.glHandle, shader.glHandle());
+      GL33.glAttachShader(this.glHandle, shader.glHandle());
     }
-    GL30.glLinkProgram(this.glHandle);
-    if (GL30.glGetProgrami(this.glHandle, GL30.GL_LINK_STATUS) == GL30.GL_FALSE) {
+    GL33.glLinkProgram(this.glHandle);
+    if (GL33.glGetProgrami(this.glHandle, GL33.GL_LINK_STATUS) == GL33.GL_FALSE) {
       throw new OpenGLException(
-          "Failed to link shader program: " + GL30.glGetProgramInfoLog(this.glHandle));
+          "Failed to link shader program: " + GL33.glGetProgramInfoLog(this.glHandle));
     } else {
       System.out.println("Successfully linked shader program: " + this.glHandle);
     }
@@ -53,12 +52,12 @@ public class ShaderProgram implements Disposable {
 
   /** Binds this shader program. */
   public void bind() {
-    GL30.glUseProgram(this.glHandle);
+    GL33.glUseProgram(this.glHandle);
   }
 
   /** Unbinds this shader program. */
   public void unbind() {
-    GL30.glUseProgram(0);
+    GL33.glUseProgram(0);
   }
 
   /**
@@ -80,7 +79,7 @@ public class ShaderProgram implements Disposable {
     return this.uniformLocations.computeIfAbsent(
         name,
         k -> {
-          return GL30.glGetUniformLocation(this.glHandle, k);
+          return GL33.glGetUniformLocation(this.glHandle, k);
         });
   }
 
@@ -94,7 +93,7 @@ public class ShaderProgram implements Disposable {
     return this.attributeLocations.computeIfAbsent(
         name,
         k -> {
-          return GL30.glGetAttribLocation(this.glHandle, k);
+          return GL33.glGetAttribLocation(this.glHandle, k);
         });
   }
 
@@ -250,6 +249,6 @@ public class ShaderProgram implements Disposable {
 
   @Override
   public void dispose() {
-    GL30.glDeleteProgram(this.glHandle);
+    GL33.glDeleteProgram(this.glHandle);
   }
 }

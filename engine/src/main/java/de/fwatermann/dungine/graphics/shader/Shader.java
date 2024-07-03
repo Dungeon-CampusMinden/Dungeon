@@ -1,13 +1,10 @@
 package de.fwatermann.dungine.graphics.shader;
 
 import de.fwatermann.dungine.exception.OpenGLException;
-import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.resource.Resource;
+import de.fwatermann.dungine.utils.Disposable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL40;
 import org.lwjgl.opengl.GL43;
@@ -23,9 +20,9 @@ public class Shader implements Disposable {
    * and the minimum OpenGL version required to support that shader type.
    */
   public enum ShaderType {
-    VERTEX_SHADER(GL30.GL_VERTEX_SHADER, 3, 0),
-    FRAGMENT_SHADER(GL30.GL_FRAGMENT_SHADER, 3, 0),
-    GEOMETRY_SHADER(GL32.GL_GEOMETRY_SHADER, 3, 2),
+    VERTEX_SHADER(GL33.GL_VERTEX_SHADER, 3, 3),
+    FRAGMENT_SHADER(GL33.GL_FRAGMENT_SHADER, 3, 3),
+    GEOMETRY_SHADER(GL33.GL_GEOMETRY_SHADER, 3, 3),
     TESS_CONTROL_SHADER(GL40.GL_TESS_CONTROL_SHADER, 4, 0),
     TESS_EVALUATION_SHADER(GL40.GL_TESS_EVALUATION_SHADER, 4, 0),
     COMPUTE_SHADER(GL43.GL_COMPUTE_SHADER, 4, 3);
@@ -46,8 +43,8 @@ public class Shader implements Disposable {
      * Throws an OpenGLException if the requirement is not met.
      */
     private void compatible() {
-      int glMajor = GL30.glGetInteger(GL30.GL_MAJOR_VERSION);
-      int glMinor = GL30.glGetInteger(GL30.GL_MINOR_VERSION);
+      int glMajor = GL33.glGetInteger(GL33.GL_MAJOR_VERSION);
+      int glMinor = GL33.glGetInteger(GL33.GL_MINOR_VERSION);
       if (glMajor < this.major || (glMajor == this.major && glMinor < this.minor)) {
         throw new OpenGLException(
             String.format(
