@@ -1,8 +1,7 @@
 package de.fwatermann.dungine.graphics;
 
-import java.nio.ByteBuffer;
-
 import de.fwatermann.dungine.utils.Disposable;
+import java.nio.ByteBuffer;
 import org.lwjgl.opengl.GL33;
 
 /**
@@ -11,7 +10,7 @@ import org.lwjgl.opengl.GL33;
  */
 public class Texture implements Disposable {
 
-  private int glTextureId;
+  private final int glTextureId;
   private boolean bound = false;
   private int unit;
   private final int width;

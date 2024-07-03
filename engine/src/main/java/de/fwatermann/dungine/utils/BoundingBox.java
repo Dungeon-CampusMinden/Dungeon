@@ -55,5 +55,4 @@ public class BoundingBox {
         && this.min.z <= other.max.z
         && this.max.z >= other.min.z;
   }
-
 }

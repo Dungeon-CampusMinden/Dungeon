@@ -1,13 +1,9 @@
 package de.fwatermann.dungine.utils;
 
-/**
- * Represents a disposable object.
- */
+/** Represents a disposable object. */
 public interface Disposable extends AutoCloseable {
 
-  /**
-   * Disposes the object.
-   */
+  /** Disposes the object. */
   void dispose();
 
   @Override

@@ -31,5 +31,4 @@ public class ReadOnlyIterator<T> implements Iterator<T> {
   public void reset() {
     this.position = 0;
   }
-
 }
