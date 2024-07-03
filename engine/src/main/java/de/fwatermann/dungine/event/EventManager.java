@@ -2,6 +2,7 @@ package de.fwatermann.dungine.event;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -37,14 +38,15 @@ public class EventManager {
    *     1 parameter, or if the parameter is not a subclass of Event
    */
   public void registerListener(de.fwatermann.dungine.event.EventListener listener) {
-    Method[] methods = listener.getClass().getMethods();
+    Method[] methods = listener.getClass().getDeclaredMethods();
     Arrays.stream(methods)
-        .filter(
-            m -> {
-              return m.getAnnotation(EventHandler.class) != null;
-            })
+        .filter(m -> m.getAnnotation(EventHandler.class) != null)
         .forEach(
             m -> {
+              if (Modifier.isPrivate(m.getModifiers()) || Modifier.isProtected(m.getModifiers())) {
+                m.setAccessible(true);
+              }
+
               Class<?>[] params = m.getParameterTypes();
               if (params.length != 1) {
                 throw new IllegalArgumentException(
@@ -67,7 +69,53 @@ public class EventManager {
               Class<? extends Event> eventType = (Class<? extends Event>) eventTypeClass;
               this.listeners
                   .computeIfAbsent(eventType, k -> new HashSet<>())
-                  .add(new EventHandlerPair(listener, m));
+                  .add(new EventHandlerPair(listener, listener.getClass(), m));
+            });
+  }
+
+  /**
+   * Registers a static event listener. This method inspects the methods of the listener class for
+   * the EventHandler annotation and registers them for the appropriate event type.
+   *
+   * <p>This method is useful for registering event listeners that are not instantiated, meaning the
+   * event handler methods are static.
+   *
+   * @param clazz the class of the event listener to register
+   */
+  public void registerStaticListener(Class<? extends EventListener> clazz) {
+    Method[] methods = clazz.getDeclaredMethods();
+    Arrays.stream(methods)
+        .filter(
+            m -> m.getAnnotation(EventHandler.class) != null && Modifier.isStatic(m.getModifiers()))
+        .forEach(
+            m -> {
+              if (Modifier.isPrivate(m.getModifiers()) || Modifier.isProtected(m.getModifiers())) {
+                m.setAccessible(true);
+              }
+
+              Class<?>[] params = m.getParameterTypes();
+              if (params.length != 1) {
+                throw new IllegalArgumentException(
+                    "EventHandler-Method "
+                        + m.getName()
+                        + " in "
+                        + clazz.getName()
+                        + " has less or more than 1 parameters!");
+              }
+              Class<?> eventTypeClass = params[0];
+              if (!Event.class.isAssignableFrom(eventTypeClass)) {
+                throw new IllegalArgumentException(
+                    "EventHandler-Method "
+                        + m.getName()
+                        + " in "
+                        + clazz.getName()
+                        + " has a parameter that is not a subclass of Event!");
+              }
+              @SuppressWarnings("unchecked")
+              Class<? extends Event> eventType = (Class<? extends Event>) eventTypeClass;
+              this.listeners
+                  .computeIfAbsent(eventType, k -> new HashSet<>())
+                  .add(new EventHandlerPair(null, clazz, m));
             });
   }
 
@@ -106,5 +154,6 @@ public class EventManager {
    * Represents a pair of an event listener and an event handler method. This record is used to
    * store the association between an event listener and one of its event handler methods.
    */
-  public record EventHandlerPair(EventListener listener, Method method) {}
+  public record EventHandlerPair(
+      EventListener listener, Class<? extends EventListener> clazz, Method method) {}
 }
