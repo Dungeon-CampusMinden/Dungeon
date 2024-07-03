@@ -10,10 +10,11 @@ import java.nio.IntBuffer;
 import org.lwjgl.opengl.GL33;
 
 /**
- * Represents an instanced, indexed mesh for rendering in OpenGL. This class extends {@link InstancedMesh}
- * to add support for element array buffers (indices), allowing for efficient rendering of complex geometries.
- * It manages the creation and updating of vertex array objects (VAOs), vertex buffer objects (VBOs),
- * element buffer objects (EBOs), and instance buffer objects (IBOs) based on the provided data.
+ * Represents an instanced, indexed mesh for rendering in OpenGL. This class extends {@link
+ * InstancedMesh} to add support for element array buffers (indices), allowing for efficient
+ * rendering of complex geometries. It manages the creation and updating of vertex array objects
+ * (VAOs), vertex buffer objects (VBOs), element buffer objects (EBOs), and instance buffer objects
+ * (IBOs) based on the provided data.
  */
 public class InstancedIndexedMesh extends InstancedMesh {
 
@@ -28,7 +29,9 @@ public class InstancedIndexedMesh extends InstancedMesh {
   private ShaderProgram lastShaderProgram = null;
 
   /**
-   * Constructs a new InstancedIndexedMesh with the specified vertices, indices, instance data, instance count, usage hint, attributes, and instance attributes.
+   * Constructs a new InstancedIndexedMesh with the specified vertices, indices, instance data,
+   * instance count, usage hint, attributes, and instance attributes.
+   *
    * @param vertices the vertex buffer of the mesh
    * @param indices the index buffer of the mesh
    * @param instanceData the instance data buffer of the mesh
@@ -52,7 +55,9 @@ public class InstancedIndexedMesh extends InstancedMesh {
   }
 
   /**
-   * Constructs a new InstancedIndexedMesh with the specified vertices, indices, instance data, instance count, attributes, and instance attributes.
+   * Constructs a new InstancedIndexedMesh with the specified vertices, indices, instance data,
+   * instance count, attributes, and instance attributes.
+   *
    * @param vertices the vertex buffer of the mesh
    * @param indices the index buffer of the mesh
    * @param instanceData the instance data buffer of the mesh
@@ -60,21 +65,40 @@ public class InstancedIndexedMesh extends InstancedMesh {
    * @param attributes the attributes of the mesh
    * @param instanceAttributes the instance attributes of the mesh
    */
-  public InstancedIndexedMesh(FloatBuffer vertices, IntBuffer indices, ByteBuffer instanceData, int instanceCount, VertexAttributeList attributes, InstanceAttributeList instanceAttributes) {
-    this(vertices, indices, instanceData, instanceCount, GLUsageHint.DRAW_STATIC, attributes, instanceAttributes);
+  public InstancedIndexedMesh(
+      FloatBuffer vertices,
+      IntBuffer indices,
+      ByteBuffer instanceData,
+      int instanceCount,
+      VertexAttributeList attributes,
+      InstanceAttributeList instanceAttributes) {
+    this(
+        vertices,
+        indices,
+        instanceData,
+        instanceCount,
+        GLUsageHint.DRAW_STATIC,
+        attributes,
+        instanceAttributes);
   }
 
   /**
-   * Constructs a new InstancedIndexedMesh with the specified usage hint, attributes, and instance attributes.
+   * Constructs a new InstancedIndexedMesh with the specified usage hint, attributes, and instance
+   * attributes.
+   *
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    * @param instanceAttributes the instance attributes of the mesh
    */
-  public InstancedIndexedMesh(GLUsageHint usageHint, VertexAttributeList attributes, InstanceAttributeList instanceAttributes) {
+  public InstancedIndexedMesh(
+      GLUsageHint usageHint,
+      VertexAttributeList attributes,
+      InstanceAttributeList instanceAttributes) {
     this(null, null, null, 0, usageHint, attributes, instanceAttributes);
   }
 
-  public InstancedIndexedMesh(VertexAttributeList attributes, InstanceAttributeList instanceAttributes) {
+  public InstancedIndexedMesh(
+      VertexAttributeList attributes, InstanceAttributeList instanceAttributes) {
     this(GLUsageHint.DRAW_STATIC, attributes, instanceAttributes);
   }
 
@@ -135,7 +159,8 @@ public class InstancedIndexedMesh extends InstancedMesh {
 
     this.updateBuffers();
     if (this.lastShaderProgram != shaderProgram) {
-      this.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO, this.glIBO);
+      this.attributes.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO);
+      this.instanceAttributes.bindAttribPointers(shaderProgram, this.glVAO, this.glIBO);
       this.lastShaderProgram = shaderProgram;
     }
 

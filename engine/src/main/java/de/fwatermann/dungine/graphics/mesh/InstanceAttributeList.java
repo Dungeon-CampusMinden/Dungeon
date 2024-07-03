@@ -1,9 +1,9 @@
 package de.fwatermann.dungine.graphics.mesh;
 
+import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.ReadOnlyIterator;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
+import org.lwjgl.opengl.GL33;
 
 /**
  * The InstanceAttributeList class represents a list of InstanceAttributes. This class implements the
@@ -60,16 +60,6 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
   }
 
   /**
-   * Returns a list of InstanceAttributes in the list that have the specified usage.
-   *
-   * @param usage the usage of the InstanceAttributes to return
-   * @return a list of InstanceAttributes in the list that have the specified usage
-   */
-  public List<InstanceAttribute> getByUsage(int usage) {
-    return Arrays.stream(this.attributes).filter(attribute -> attribute.usage == usage).toList();
-  }
-
-  /**
    * Returns the count of InstanceAttributes in the list.
    *
    * @return the count of InstanceAttributes in the list
@@ -90,4 +80,41 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
     }
     return this.iterator;
   }
+
+  /**
+   * Binds the attribute pointers of the InstanceAttributes in the list to the specified shader
+   * program, vertex array object, and instance data buffer object.
+   *
+   * @param shaderProgram the shader program to bind the attribute pointers to
+   * @param vao the vertex array object to bind the attribute pointers to
+   * @param ibo the instance data buffer object to bind the attribute pointers to
+   */
+  public void bindAttribPointers(ShaderProgram shaderProgram, int vao, int ibo) {
+    GL33.glBindVertexArray(vao);
+    GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, ibo);
+    this.forEach(
+      attrib -> {
+        int loc = shaderProgram.getAttributeLocation(attrib.name);
+        if (loc != -1) {
+          int remaining = attrib.numComponents;
+          while (remaining > 0) {
+            GL33.glEnableVertexAttribArray(loc);
+            GL33.glVertexAttribDivisor(loc, 1);
+            GL33.glVertexAttribPointer(
+              loc,
+              Math.min(remaining, 4),
+              attrib.glType,
+              false,
+              this.sizeInBytes(),
+              attrib.offset
+                + (long) (attrib.numComponents - remaining) * attrib.getSizeInBytes());
+            remaining -= Math.min(remaining, 4);
+            loc++;
+          }
+        }
+      });
+    GL33.glBindVertexArray(0);
+    GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
+  }
+
 }
