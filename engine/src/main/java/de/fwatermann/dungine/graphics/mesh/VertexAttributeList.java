@@ -5,6 +5,8 @@ import de.fwatermann.dungine.utils.ReadOnlyIterator;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL33;
 
 /**
@@ -12,6 +14,8 @@ import org.lwjgl.opengl.GL33;
  * Iterable interface, allowing it to be used in enhanced for loops.
  */
 public class VertexAttributeList implements Iterable<VertexAttribute> {
+
+  private static final Logger LOGGER = LogManager.getFormatterLogger();
 
   /** An array of VertexAttributes in the list. */
   private final VertexAttribute[] attributes;
@@ -100,9 +104,10 @@ public class VertexAttributeList implements Iterable<VertexAttribute> {
         attrib -> {
           int loc = shaderProgram.getAttributeLocation(attrib.name);
           if (loc != -1) {
-            GL33.glEnableVertexAttribArray(loc);
             int remaining = attrib.numComponents;
             while (remaining > 0) {
+              GL33.glEnableVertexAttribArray(loc);
+              LOGGER.debug("Binding vertex attribute %s at location %d\n", attrib.name, loc);
               GL33.glVertexAttribPointer(
                   loc,
                   Math.min(remaining, 4),
