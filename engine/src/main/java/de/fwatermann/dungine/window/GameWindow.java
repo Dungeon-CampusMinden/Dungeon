@@ -24,7 +24,6 @@ import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GLUtil;
 
@@ -226,15 +225,16 @@ public abstract class GameWindow implements Disposable {
 
   private void _initOpenGL() {
     GL.createCapabilities();
-    GL30.glClearColor(0.51f, 0.78f, 0.89f, 1f);
-    GL30.glDisable(GL30.GL_DEPTH_TEST);
-    GL30.glDisable(GL30.GL_CULL_FACE);
-    // GL33.glEnable(GL33.GL_CULL_FACE);
-    // GL33.glCullFace(GL33.GL_FRONT);
+    GL33.glClearColor(0.51f, 0.78f, 0.89f, 1f);
+    GL33.glEnable(GL33.GL_DEPTH_TEST);
+    GL33.glEnable(GL33.GL_CULL_FACE);
+    GL33.glCullFace(GL33.GL_FRONT);
 
     if (GLUtils.checkVersion(4, 3)) {
       GLUtil.setupDebugMessageCallback(System.out);
     }
+
+    GLUtils.checkGLError();
   }
 
   private void _updateLoop() {
@@ -275,7 +275,7 @@ public abstract class GameWindow implements Disposable {
         lastTime = currentTime;
 
         long start = System.nanoTime();
-        GL30.glClear(GL30.GL_COLOR_BUFFER_BIT | GL30.GL_DEPTH_BUFFER_BIT);
+        GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
         this.render(deltaTime);
         glfwSwapBuffers(this.glfwWindow);
         glfwPollEvents();
