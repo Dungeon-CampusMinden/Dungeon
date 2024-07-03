@@ -13,12 +13,16 @@ import de.fwatermann.dungine.event.window.WindowFocusChangedEvent;
 import de.fwatermann.dungine.event.window.WindowMoveEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.exception.GLFWException;
+import de.fwatermann.dungine.logging.Log4jOutputStream;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.IVoidFunction;
 import de.fwatermann.dungine.utils.annotations.Nullable;
+import java.io.PrintStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -31,6 +35,8 @@ public abstract class GameWindow implements Disposable {
 
   @Nullable public static Thread MAIN_THREAD = null;
   @Nullable public static Thread UPDATE_THREAD = null;
+
+  private static Logger logger = LogManager.getLogger();
 
   private String title;
   private Vector2i size;
@@ -91,13 +97,17 @@ public abstract class GameWindow implements Disposable {
   public abstract void cleanup();
 
   private void _init() {
+    MAIN_THREAD = Thread.currentThread();
+
+    logger.info("Hello World!");
+    System.setOut(new PrintStream(new Log4jOutputStream()));
+
     this._initGLFW();
     this._initOpenGL();
 
     if (this.visible) {
       glfwShowWindow(this.glfwWindow);
     }
-    MAIN_THREAD = Thread.currentThread();
     this._renderLoop();
   }
 
@@ -269,7 +279,7 @@ public abstract class GameWindow implements Disposable {
       this.init();
 
       //Start Update Thread
-      UPDATE_THREAD = new Thread(this::_updateLoop, "Update Thread");
+      UPDATE_THREAD = new Thread(this::_updateLoop, "Tick");
       UPDATE_THREAD.start();
 
       long lastTime = System.nanoTime();
