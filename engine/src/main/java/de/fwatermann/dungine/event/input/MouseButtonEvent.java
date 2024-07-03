@@ -9,7 +9,7 @@ import de.fwatermann.dungine.event.Event;
 public class MouseButtonEvent extends Event {
 
   /** The key code of the mouse button involved in the event. */
-  public final int key;
+  public final int button;
 
   /** The action performed on the mouse button. */
   public final MouseButtonAction action;
@@ -17,11 +17,11 @@ public class MouseButtonEvent extends Event {
   /**
    * Constructs a new MouseButtonEvent with the specified key code and action.
    *
-   * @param key the key code of the mouse button involved in the event
+   * @param button the key code of the mouse button involved in the event
    * @param action the action performed on the mouse button
    */
-  public MouseButtonEvent(int key, MouseButtonAction action) {
-    this.key = key;
+  public MouseButtonEvent(int button, MouseButtonAction action) {
+    this.button = button;
     this.action = action;
   }
 
