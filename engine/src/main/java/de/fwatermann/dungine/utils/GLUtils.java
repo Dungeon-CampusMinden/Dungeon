@@ -1,16 +1,30 @@
 package de.fwatermann.dungine.utils;
 
 import java.nio.*;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 public class GLUtils {
 
   /** Checks for OpenGL errors and throws a RuntimeException if an error occurred. */
   public static void checkGLError() {
-    int error = GL30.glGetError();
-    if (error != GL30.GL_NO_ERROR) {
-      throw new RuntimeException("OpenGL error: " + error);
+    int error = GL33.glGetError();
+    if (error != GL33.GL_NO_ERROR) {
+      throw new RuntimeException("OpenGL error: " + error + " (" + getErrorName(error) + ")");
     }
+  }
+
+  private static String getErrorName(int errorCode) {
+    return switch(errorCode) {
+      case GL33.GL_NO_ERROR -> "GL_NO_ERROR";
+      case GL33.GL_INVALID_ENUM -> "GL_INVALID_ENUM";
+      case GL33.GL_INVALID_VALUE -> "GL_INVALID_VALUE";
+      case GL33.GL_INVALID_OPERATION -> "GL_INVALID_OPERATION";
+      case GL33.GL_STACK_OVERFLOW -> "GL_STACK_OVERFLOW";
+      case GL33.GL_STACK_UNDERFLOW -> "GL_STACK_UNDERFLOW";
+      case GL33.GL_OUT_OF_MEMORY -> "GL_OUT_OF_MEMORY";
+      case GL33.GL_INVALID_FRAMEBUFFER_OPERATION -> "GL_INVALID_FRAMEBUFFER_OPERATION";
+      default -> "UNKNOWN_ERROR";
+    };
   }
 
   /**
@@ -21,8 +35,8 @@ public class GLUtils {
    * @return true if the OpenGL version is at least the specified version, false otherwise
    */
   public static boolean checkVersion(int minMajor, int minMinor) {
-    int major = GL30.glGetInteger(GL30.GL_MAJOR_VERSION);
-    int minor = GL30.glGetInteger(GL30.GL_MINOR_VERSION);
+    int major = GL33.glGetInteger(GL33.GL_MAJOR_VERSION);
+    int minor = GL33.glGetInteger(GL33.GL_MINOR_VERSION);
     return major > minMajor || (major == minMajor && minor >= minMinor);
   }
 
