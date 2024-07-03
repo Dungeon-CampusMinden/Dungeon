@@ -225,6 +225,10 @@ public abstract class GameWindow implements Disposable {
 
   private void _initOpenGL() {
     GL.createCapabilities();
+    if(!GLUtils.checkVersion(3, 3)) {
+      throw new GLFWException("OpenGL 3.3 or higher is required!");
+    }
+
     GL33.glClearColor(0.51f, 0.78f, 0.89f, 1f);
     GL33.glEnable(GL33.GL_DEPTH_TEST);
     GL33.glEnable(GL33.GL_CULL_FACE);
