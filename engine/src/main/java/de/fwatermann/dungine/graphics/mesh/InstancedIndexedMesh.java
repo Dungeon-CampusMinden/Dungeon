@@ -3,6 +3,7 @@ package de.fwatermann.dungine.graphics.mesh;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.GLUtils;
+import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -103,6 +104,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
   }
 
   private void initGL() {
+    ThreadUtils.checkMainThread();
     this.glVAO = GL33.glGenVertexArrays();
     this.glVBO = GL33.glGenBuffers();
     this.glEBO = GL33.glGenBuffers();
@@ -111,6 +113,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
   }
 
   private void updateBuffers() {
+    ThreadUtils.checkMainThread();
     if (this.vertices != null && this.verticesDirty) {
       GL33.glBindBuffer(GL33.GL_VERTEX_ARRAY, this.glVBO);
       GL33.glBufferData(GL33.GL_VERTEX_ARRAY, this.vertices, this.usageHint.getGLConstant());
@@ -164,6 +167,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
   @Override
   public void render(
       ShaderProgram shaderProgram, int primitiveType, int offset, int count, boolean bindShader) {
+    ThreadUtils.checkMainThread();
 
     this.updateBuffers();
     if (this.lastShaderProgram != shaderProgram) {

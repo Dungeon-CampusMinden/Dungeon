@@ -2,6 +2,7 @@ package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.ReadOnlyIterator;
+import de.fwatermann.dungine.utils.ThreadUtils;
 import java.util.Iterator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -94,6 +95,7 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
    * @param ibo the instance data buffer object to bind the attribute pointers to
    */
   public void bindAttribPointers(ShaderProgram shaderProgram, int vao, int ibo) {
+    ThreadUtils.checkMainThread();
     GL33.glBindVertexArray(vao);
     GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, ibo);
     this.forEach(
