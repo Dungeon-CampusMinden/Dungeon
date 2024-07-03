@@ -6,6 +6,7 @@ plugins {
 project.ext.lwjglVersion = "3.3.3"
 project.ext.jomlVersion = "1.10.5"
 project.ext.joml_primitivesVersion = "1.10.0"
+project.ext.log4jVersion = "2.23.1"
 project.ext.natives = ["natives-linux", "natives-linux-arm32", "natives-linux-arm64",
                        "natives-macos", "natives-macos-arm64",
                        "natives-windows-x86", "natives-windows", "natives-windows-arm64"]
@@ -29,7 +30,9 @@ dependencies {
     implementation "org.lwjgl:lwjgl-opus"
     implementation "org.lwjgl:lwjgl-stb"
 
-    //Linux
+    implementation "org.apache.logging.log4j:log4j-api:$project.ext.log4jVersion"
+    implementation "org.apache.logging.log4j:log4j-core:$project.ext.log4jVersion"
+
     for (nat in project.ext.natives) {
         runtimeOnly "org.lwjgl:lwjgl::$nat"
         runtimeOnly "org.lwjgl:lwjgl-assimp::$nat"

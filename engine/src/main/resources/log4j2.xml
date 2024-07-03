@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{dd.MM.yyyy HH:mm:ss.SSS}] [%logger{0}@%t/%level]: %msg%n" />
+        </Console>
+        <RollingFile name="file" fileName="logs/engine.log" filePattern="logs/%d{yyyy.MM.dd}_%i.log">
+            <PatternLayout pattern="[%d{dd.MM.yyyy HH:mm:ss.SSS}] [%logger{0}@%t/%level]: %msg%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="256 MB" />
+                <OnStartupTriggeringPolicy/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="trace">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="file" />
+        </Root>
+    </Loggers>
+</Configuration>
