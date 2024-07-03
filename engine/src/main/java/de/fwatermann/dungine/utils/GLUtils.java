@@ -7,6 +7,7 @@ public class GLUtils {
 
   /** Checks for OpenGL errors and throws a RuntimeException if an error occurred. */
   public static void checkGLError() {
+    ThreadUtils.checkMainThread();
     int error = GL33.glGetError();
     if (error != GL33.GL_NO_ERROR) {
       throw new RuntimeException("OpenGL error: " + error + " (" + getErrorName(error) + ")");
