@@ -3,6 +3,7 @@ package de.fwatermann.dungine.utils.resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class ClasspathResource extends Resource {
 
@@ -20,7 +21,7 @@ public class ClasspathResource extends Resource {
         throw new RuntimeException("Resource not found: " + this.path);
       }
       byte[] bytes = is.readAllBytes();
-      this.buffer = ByteBuffer.allocateDirect(bytes.length);
+      this.buffer = ByteBuffer.allocateDirect(bytes.length).order(ByteOrder.nativeOrder());
       this.buffer.put(bytes);
       this.buffer.flip();
 
