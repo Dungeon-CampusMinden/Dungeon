@@ -108,7 +108,7 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param angle the angle of rotation, in degrees
    */
   public void rotate(float x, float y, float z, float angle) {
-    this.rotation.rotateAxis(x, y, z, angle);
+    this.rotation.rotateAxis(angle, x, y, z);
     this.calcTransformMatrix();
   }
 
