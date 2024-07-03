@@ -14,9 +14,13 @@ import de.fwatermann.dungine.event.window.WindowMoveEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.exception.GLFWException;
 import de.fwatermann.dungine.logging.Log4jOutputStream;
+import de.fwatermann.dungine.state.GameState;
+import de.fwatermann.dungine.state.GameStateTransition;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.IVoidFunction;
+import de.fwatermann.dungine.utils.annotations.NotNull;
+import de.fwatermann.dungine.utils.annotations.Null;
 import de.fwatermann.dungine.utils.annotations.Nullable;
 import java.io.PrintStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -56,6 +60,9 @@ public abstract class GameWindow implements Disposable {
   private Vector2d mousePosition = new Vector2d(0, 0);
   private long glfwWindow;
 
+  private @Null GameState currentState;
+  private @Null GameStateTransition transition = null;
+
   private final ConcurrentLinkedQueue<IVoidFunction> mainThreadQueue =
       new ConcurrentLinkedQueue<>();
 
@@ -75,21 +82,6 @@ public abstract class GameWindow implements Disposable {
 
     Dungine.WINDOWS.add(this);
   }
-
-  /**
-   * Render the game. This method is called every frame. It should <b>ONLY</b> be used to render the
-   * game. Attention: This method is called asynchronously to the update method!
-   *
-   * @param deltaTime The time since the last render in seconds.
-   */
-  public abstract void render(float deltaTime);
-
-  /**
-   * Update the game logic. Attention: This method is called asynchronously to the render method!
-   *
-   * @param deltaTime The time since the last update in seconds.
-   */
-  public abstract void update(float deltaTime);
 
   /** Initialize the game. This method is called once before the render loop starts. */
   public abstract void init();
@@ -259,7 +251,7 @@ public abstract class GameWindow implements Disposable {
       lastTime = currentTime;
 
       long start = System.nanoTime();
-      this.update(deltaTime);
+      if(this.currentState != null) this.currentState.update(deltaTime);
       long end = System.nanoTime();
       long execution = end - start;
 
@@ -290,7 +282,7 @@ public abstract class GameWindow implements Disposable {
 
         long start = System.nanoTime();
         GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
-        this.render(deltaTime);
+        if(this.currentState != null) this.currentState.render(deltaTime);
         glfwSwapBuffers(this.glfwWindow);
         glfwPollEvents();
 
@@ -638,6 +630,25 @@ public abstract class GameWindow implements Disposable {
     this.fullscreen = fullscreen;
     return this;
   }
+
+  public void setState(@NotNull GameState state) {
+    if (this.currentState != null) {
+      this.currentState.dispose();
+    }
+    this.currentState = state;
+    if (this.currentState != null) {
+      this.currentState.init();
+    }
+  }
+
+  public void setStateTransition(GameStateTransition transition) {
+    this.transition = transition;
+  }
+
+  public void removeStateTransition() {
+    this.transition = null;
+  }
+
 
   @Override
   public void dispose() {
