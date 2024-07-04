@@ -97,12 +97,14 @@ public class InstancedArrayMesh extends InstancedMesh {
   private void updateBuffers() {
     ThreadUtils.checkMainThread();
     if (this.vertices != null && this.verticesDirty) {
+      this.vertices.position(0);
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glVBO);
       GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, this.usageHint.getGLConstant());
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
       this.verticesDirty = false;
     }
     if (this.instanceData != null && this.instanceDataDirty) {
+      this.instanceData.position(0);
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glIBO);
       GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.instanceData, this.usageHint.getGLConstant());
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);

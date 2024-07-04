@@ -116,12 +116,14 @@ public class InstancedIndexedMesh extends InstancedMesh {
   private void updateBuffers() {
     ThreadUtils.checkMainThread();
     if (this.vertices != null && this.verticesDirty) {
+      this.vertices.position(0);
       GL33.glBindBuffer(GL33.GL_VERTEX_ARRAY, this.glVBO);
       GL33.glBufferData(GL33.GL_VERTEX_ARRAY, this.vertices, this.usageHint.getGLConstant());
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
       this.verticesDirty = false;
     }
     if (this.indices != null && this.indicesDirty) {
+      this.indices.position(0);
       GL33.glBindVertexArray(this.glVAO);
       GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, this.glEBO);
       GL33.glBufferData(GL33.GL_ELEMENT_ARRAY_BUFFER, this.indices, this.usageHint.getGLConstant());
@@ -130,6 +132,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
       this.indicesDirty = false;
     }
     if (this.instanceData != null && this.instanceDataDirty) {
+      this.instanceData.position(0);
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glIBO);
       GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.instanceData, this.usageHint.getGLConstant());
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
