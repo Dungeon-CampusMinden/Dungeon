@@ -2,7 +2,6 @@ package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
-import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.FloatBuffer;
@@ -28,9 +27,7 @@ public class ArrayMesh extends UnInstancedMesh {
    * @param attributes the attributes of the mesh
    */
   public ArrayMesh(FloatBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
-    super(usageHint, attributes);
-    GLUtils.checkBuffer(vertices);
-    this.vertices = vertices;
+    super(vertices, usageHint, attributes);
     this.initGL();
   }
 

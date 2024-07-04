@@ -32,7 +32,7 @@ public abstract class Mesh implements Disposable {
     this.vertices = vertices;
     this.attributes = attributes;
     this.usageHint = usageHint;
-    this.verticesDirty = true;
+    this.verticesDirty = this.vertices != null;
   }
 
   /**

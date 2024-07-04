@@ -40,13 +40,12 @@ public class IndexedMesh extends UnInstancedMesh {
       IntBuffer indices,
       GLUsageHint usageHint,
       VertexAttributeList attributes) {
-    super(usageHint, attributes);
+    super(vertices, usageHint, attributes);
     GLUtils.checkBuffer(vertices);
     GLUtils.checkBuffer(indices);
     this.vertices = vertices;
     this.indices = indices;
-    this.indicesDirty = true;
-    this.verticesDirty = true;
+    this.indicesDirty = this.indices != null;
     this.initGL();
   }
 

@@ -52,6 +52,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
     super(vertices, instanceData, instanceCount, usageHint, attributes, instanceAttributes);
     GLUtils.checkBuffer(indices);
     this.indices = indices;
+    this.indicesDirty = this.indices != null;
     this.initGL();
   }
 
