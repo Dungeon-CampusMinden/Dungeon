@@ -91,7 +91,9 @@ public class ArrayMesh extends UnInstancedMesh {
     GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glVBO);
 
     if (this.vertices != null) {
+      this.vertices.position(0);
       GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, GL33.GL_STATIC_DRAW);
+      this.verticesDirty = false;
     }
 
     GL33.glBindVertexArray(0);
@@ -102,6 +104,7 @@ public class ArrayMesh extends UnInstancedMesh {
       ShaderProgram shaderProgram, int primitiveType, int offset, int count, boolean bindShader) {
 
     if (this.verticesDirty && this.vertices != null) {
+      this.vertices.position(0);
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glVBO);
       GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, GL33.GL_STATIC_DRAW);
       this.verticesDirty = false;
