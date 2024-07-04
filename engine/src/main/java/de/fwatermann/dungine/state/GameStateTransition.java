@@ -28,7 +28,7 @@ public abstract class GameStateTransition implements Disposable {
    *
    * @param deltaTime the time since the last frame in seconds
    */
-  public abstract void render(float deltaTime);
+  public abstract void render(float deltaTime, GameState to);
 
   /**
    * Reset this transition.

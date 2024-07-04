@@ -20,6 +20,7 @@ import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.IVoidFunction;
 import de.fwatermann.dungine.utils.Then;
+import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.annotations.NotNull;
 import de.fwatermann.dungine.utils.annotations.Null;
 import de.fwatermann.dungine.utils.annotations.Nullable;
@@ -283,8 +284,15 @@ public abstract class GameWindow implements Disposable {
 
         long start = System.nanoTime();
         GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
-        if (this.currentState != null && this.currentState.loaded())
-          this.currentState.render(deltaTime);
+        if (this.currentState != null) {
+          if(this.currentState.loaded()) {
+            this.currentState.render(deltaTime);
+          } else {
+            if(this.transition != null) {
+              this.transition.render(deltaTime, this.currentState);
+            }
+          }
+        }
         glfwSwapBuffers(this.glfwWindow);
         glfwPollEvents();
 
@@ -655,7 +663,9 @@ public abstract class GameWindow implements Disposable {
   }
 
   public void setStateTransition(GameStateTransition transition) {
+    ThreadUtils.checkMainThread();
     this.transition = transition;
+    this.transition.init();
   }
 
   public void removeStateTransition() {
