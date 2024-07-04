@@ -30,8 +30,8 @@ dependencies {
     implementation "org.lwjgl:lwjgl-opus"
     implementation "org.lwjgl:lwjgl-stb"
 
-    implementation "org.apache.logging.log4j:log4j-api:$project.ext.log4jVersion"
-    implementation "org.apache.logging.log4j:log4j-core:$project.ext.log4jVersion"
+    api "org.apache.logging.log4j:log4j-api:$project.ext.log4jVersion"
+    api "org.apache.logging.log4j:log4j-core:$project.ext.log4jVersion"
 
     for (nat in project.ext.natives) {
         runtimeOnly "org.lwjgl:lwjgl::$nat"
