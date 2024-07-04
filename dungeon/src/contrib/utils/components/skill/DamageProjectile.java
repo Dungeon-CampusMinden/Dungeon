@@ -43,6 +43,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final Supplier<Point> selectionFunction;
   private final Consumer<Entity> onWallHit;
   private final String name;
+  private static int nextId = 0;
   private final List<Entity> ignoreEntities = new ArrayList<>();
 
   /**
@@ -54,10 +55,10 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private int tintColor = -1; // -1 means no tint
 
   /**
-   * The DamageProjectile constructor sets the path to the textures of the projectile, the speed of
-   * the projectile, the damage amount and type to be dealt, the size of the projectile's hit box,
-   * the target selection function, the range of the projectile, and the behavior when a wall is
-   * hit.
+   * The DamageProjectile constructor sets the name, the path to the textures of the projectile, the
+   * speed of the projectile, the damage amount and type to be dealt, the size of the projectile's
+   * hit box, the target selection function, the range of the projectile, and the behavior when a
+   * wall is hit.
    *
    * <p>For a specific implementation, see {@link FireballSkill}.
    *
@@ -83,7 +84,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       float projectileRange,
       final Consumer<Entity> onWallHit,
       final BiConsumer<Entity, Entity> onEntityHit) {
-    this.name = name;
+    this.name = name + "_" + nextId++;
     this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
     this.damageAmount = damageAmount;
     this.damageType = damageType;
@@ -96,9 +97,9 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   }
 
   /**
-   * The DamageProjectile constructor sets the path to the textures of the projectile, the speed of
-   * the projectile, the damage amount and type to be dealt, the size of the projectile's hit box,
-   * the target selection function, and the range of the projectile.
+   * The DamageProjectile constructor sets the name, the path to the textures of the projectile, the
+   * speed of the projectile, the damage amount and type to be dealt, the size of the projectile's
+   * hit box, the target selection function, and the range of the projectile.
    *
    * <p>For a specific implementation, see {@link FireballSkill}
    *
@@ -122,6 +123,42 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       float projectileRange) {
     this(
         name,
+        pathToTexturesOfProjectile,
+        projectileSpeed,
+        damageAmount,
+        damageType,
+        projectileHitBoxSize,
+        selectionFunction,
+        projectileRange,
+        DEFAULT_ON_WALL_HIT,
+        DEFAULT_ON_ENTITY_HIT);
+  }
+
+  /**
+   * The DamageProjectile constructor sets the path to the textures of the projectile, the speed of
+   * the projectile, the damage amount and type to be dealt, the size of the projectile's hit box,
+   * the target selection function, and the range of the projectile.
+   *
+   * <p>For a specific implementation, see {@link FireballSkill}
+   *
+   * @param pathToTexturesOfProjectile Path to the textures of the projectile.
+   * @param projectileSpeed Speed of the projectile.
+   * @param damageAmount Amount of damage to be dealt.
+   * @param damageType Type of damage to be dealt.
+   * @param projectileHitBoxSize Size of the hit box.
+   * @param selectionFunction Specific functionality of the projectile.
+   * @param projectileRange Range in which the projectile is effective.
+   */
+  public DamageProjectile(
+      final IPath pathToTexturesOfProjectile,
+      float projectileSpeed,
+      int damageAmount,
+      final DamageType damageType,
+      final Point projectileHitBoxSize,
+      final Supplier<Point> selectionFunction,
+      float projectileRange) {
+    this(
+        "DamageProjectile",
         pathToTexturesOfProjectile,
         projectileSpeed,
         damageAmount,
