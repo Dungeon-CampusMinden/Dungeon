@@ -37,6 +37,12 @@ public abstract class GameState implements Disposable {
   }
 
   /**
+   * Check if this state is loaded.
+   * @return true if this state is loaded
+   */
+  public abstract boolean loaded();
+
+  /**
    * Render this state.
    * @param deltaTime the time since the last frame in seconds
    */
