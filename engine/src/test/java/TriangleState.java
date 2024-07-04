@@ -38,7 +38,7 @@ public class TriangleState extends GameState {
     stepper
         .step(
             "vertexBuffer",
-            (results) -> { // 0
+            () -> { // 0
               FloatBuffer vertices = BufferUtils.createFloatBuffer(9);
               vertices.put(new float[] {0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f});
               vertices.flip();
@@ -47,13 +47,13 @@ public class TriangleState extends GameState {
             })
         .step(
             "indexBuffer",
-            (results -> { // 1
+            () -> { // 1
               IntBuffer indices = BufferUtils.createIntBuffer(3);
               indices.put(new int[] {0, 1, 2});
               indices.flip();
               logger.debug("Loaded indices");
               return indices;
-            }))
+            })
         .step(
             "mesh",
             true,
@@ -70,7 +70,7 @@ public class TriangleState extends GameState {
         .step(
             "vertexShader",
             true,
-            (results) -> { // 3
+            () -> { // 3
               logger.debug("Loading vertex shader");
               try {
                 return Shader.loadShader(
@@ -82,7 +82,7 @@ public class TriangleState extends GameState {
         .step(
             "fragmentShader",
             true,
-            (results) -> { // 4
+            () -> { // 4
               logger.debug("Loading fragment shader");
               try {
                 return Shader.loadShader(
@@ -104,9 +104,7 @@ public class TriangleState extends GameState {
             (results) -> {
               this.shaderProgram = results.result("shaderProgram");
               this.mesh = results.result("mesh");
-
               logger.info("TriangleState loaded!");
-              return null;
             });
     stepper.start();
   }
