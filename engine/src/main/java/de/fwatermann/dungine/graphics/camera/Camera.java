@@ -68,6 +68,7 @@ public abstract class Camera<T extends Camera<T>> {
     this.viewMatrix.setLookAt(
         this.position, this.position.add(this.front, new Vector3f()), this.up);
     this.projectionMatrix = this.calcProjectionMatrix(this.projectionMatrix);
+    this.onUpdate();
   }
 
   /**
