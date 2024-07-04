@@ -1,5 +1,7 @@
+import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.state.GameStateTransition;
 import de.fwatermann.dungine.window.GameWindow;
+import org.lwjgl.opengl.GL33;
 
 public class LoadingScreenTransition extends GameStateTransition {
 
@@ -13,7 +15,8 @@ public class LoadingScreenTransition extends GameStateTransition {
   }
 
   @Override
-  public void render(float deltaTime) {
+  public void render(float deltaTime, GameState to) {
+    GL33.glClearColor(0.0f, to.getProgress(), 0.0f, 1.0f);
   }
 
   @Override
