@@ -122,7 +122,7 @@ public class TriangleState extends GameState {
 
   @Override
   public float getProgress() {
-    return (this.done - System.currentTimeMillis()) / 10_000.0f;
+    return 1.0f - (this.done - System.currentTimeMillis()) / 10_000.0f;
   }
 
   @Override
