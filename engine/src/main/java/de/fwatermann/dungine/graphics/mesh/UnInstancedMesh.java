@@ -7,6 +7,8 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.nio.FloatBuffer;
+
 /**
  * Represents a mesh that is not instanced, providing basic transformation capabilities such as
  * translation, rotation, and scaling. This abstract class serves as a foundation for meshes
@@ -23,11 +25,35 @@ public abstract class UnInstancedMesh extends Mesh {
 
   /**
    * Constructs a new UnInstancedMesh with the specified usage hint and attributes.
+   *
+   * @param vertices the vertices of the mesh
+   * @param usageHint the usage hint of the mesh
+   * @param attributes the attributes of the mesh
+   */
+  protected UnInstancedMesh(FloatBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
+    super(vertices, usageHint, attributes);
+    this.calcTransformMatrix();
+    this.calcBoundingBox();
+  }
+
+  /**
+   * Constructs a new UnInstancedMesh with the specified usage hint and attributes.
+   *
+   * @param vertices the vertices of the mesh
+   * @param usageHint the usage hint of the mesh
+   * @param attributes the attributes of the mesh
+   */
+  protected UnInstancedMesh(FloatBuffer vertices, GLUsageHint usageHint, VertexAttribute ... attributes) {
+    this(vertices, usageHint, new VertexAttributeList(attributes));
+  }
+
+  /**
+   * Constructs a new UnInstancedMesh with the specified usage hint and attributes.
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
   protected UnInstancedMesh(GLUsageHint usageHint, VertexAttributeList attributes) {
-    super(usageHint, attributes);
+    this(null, usageHint, attributes);
   }
 
   /**
@@ -36,7 +62,7 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param attributes the attributes of the mesh
    */
   protected UnInstancedMesh(GLUsageHint usageHint, VertexAttribute... attributes) {
-    super(usageHint, attributes);
+    this(null, usageHint, new VertexAttributeList(attributes));
   }
 
   /**
