@@ -19,14 +19,6 @@ public class EngineTest extends GameWindow implements EventListener {
   private ShaderProgram shaderProgram;
   private Camera camera;
 
-  /**
-   * Constructs a new GameWindow.
-   *
-   * @param title the title of the game window
-   * @param size the size of the game window as a Vector2i object
-   * @param visible the visibility state of the game window
-   * @param debug the debug state of the game window
-   */
   public EngineTest(String title, Vector2i size, boolean visible, boolean debug) {
     super(title, size, visible, debug);
   }
@@ -34,6 +26,9 @@ public class EngineTest extends GameWindow implements EventListener {
   @Override
   public void init() {
     EventManager.getInstance().registerListener(this);
+
+    this.setStateTransition(new LoadingScreenTransition(this));
+    this.setState(new TriangleState(this));
   }
 
   @Override
