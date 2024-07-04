@@ -648,6 +648,9 @@ public abstract class GameWindow implements Disposable {
       glfwSetWindowMonitor(
           this.glfwWindow, monitor, 0, 0, mode.width(), mode.height(), mode.refreshRate());
     }
+    if(this.fullscreen != fullscreen) {
+      LOGGER.info("Fullscreen: {}", fullscreen);
+    }
     this.fullscreen = fullscreen;
     return this;
   }
