@@ -2,7 +2,7 @@ import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.EventListener;
 import de.fwatermann.dungine.event.EventManager;
 import de.fwatermann.dungine.event.input.KeyboardEvent;
-import de.fwatermann.dungine.graphics.Camera;
+import de.fwatermann.dungine.graphics.camera.CameraPerspective;
 import de.fwatermann.dungine.graphics.mesh.Mesh;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.window.GameWindow;
@@ -17,7 +17,7 @@ public class EngineTest extends GameWindow implements EventListener {
 
   private Mesh mesh;
   private ShaderProgram shaderProgram;
-  private Camera camera;
+  private CameraPerspective camera;
 
   public EngineTest(String title, Vector2i size, boolean visible, boolean debug) {
     super(title, size, visible, debug);
