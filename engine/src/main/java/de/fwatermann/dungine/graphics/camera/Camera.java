@@ -54,9 +54,11 @@ public abstract class Camera<T extends Camera<T>> {
 
   /**
    * Internal method to update the camera's view and projection matrices. This method is called by
-   * the {@link #update()} method and should not be called directly from outside the class/subclasses.
+   * the {@link #update()} method and should not be called directly from outside the
+   * class/subclasses.
    *
-   * @param force If true, the matrices will be updated regardless of the {@link #updateOnChange} setting.
+   * @param force If true, the matrices will be updated regardless of the {@link #updateOnChange}
+   *     setting.
    */
   protected final void _update(boolean force) {
     if (!force && !this.updateOnChange) return;
@@ -194,7 +196,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T lookAt(Vector3f target) {
-    this.front = target.sub(this.position, new Vector3f()).normalize();
+    this.rotation.rotateTo(this.front, target.sub(this.position, new Vector3f()));
     this._update(false);
     return (T) this;
   }
@@ -209,8 +211,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T lookAt(float x, float y, float z) {
-    this.front.set(x, y, z).sub(this.position).normalize();
-    this._update(false);
+    this.rotation.rotateTo(this.front, new Vector3f(x, y, z).sub(this.position, new Vector3f()));
     return (T) this;
   }
 
@@ -374,8 +375,8 @@ public abstract class Camera<T extends Camera<T>> {
    * @param updateOnChange true to enable automatic updates, false to disable.
    * @return The camera instance for method chaining.
    */
-  public Camera<T> updateOnChange(boolean updateOnChange) {
+  public T updateOnChange(boolean updateOnChange) {
     this.updateOnChange = updateOnChange;
-    return this;
+    return (T) this;
   }
 }
