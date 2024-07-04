@@ -9,8 +9,6 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
   private float viewportHeight;
   private float zoom = 1.0f;
 
-  private final CameraFrustum frustumIntersection;
-
   /**
    * Constructs a new Camera instance.
    *
@@ -35,7 +33,6 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
     this.viewportWidth = viewportWidth;
     this.viewportHeight = viewportHeight;
     this.zoom = zoom;
-    this.frustumIntersection = new CameraFrustum();
     this._update(true);
   }
 
@@ -93,11 +90,7 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
   }
 
   @Override
-  protected void onUpdate() {
-    if (this.frustumIntersection != null) {
-      this.frustumIntersection.set(this.viewMatrix.mul(this.projectionMatrix, new Matrix4f()));
-    }
-  }
+  protected void onUpdate() {}
 
   /**
    * Returns the current width of the viewport.

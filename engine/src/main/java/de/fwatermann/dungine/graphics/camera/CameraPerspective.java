@@ -1,9 +1,8 @@
 package de.fwatermann.dungine.graphics.camera;
 
-import org.joml.FrustumIntersection;
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Math;
 
 /**
  * Represents a camera in a 3D space, allowing for movement and orientation adjustments. The
@@ -17,7 +16,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
   private float near;
   private float far;
 
-  private FrustumIntersection frustumIntersection;
+  private final CameraFrustum frustum;
 
   /**
    * Constructs a Camera with specified perspective settings.
@@ -45,6 +44,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
     this.aspectRatio = aspectRatio;
     this.near = near;
     this.far = far;
+    this.frustum = new CameraFrustum();
     this._update(true);
   }
 
@@ -124,7 +124,13 @@ public class CameraPerspective extends Camera<CameraPerspective> {
 
   @Override
   protected Matrix4f calcProjectionMatrix(Matrix4f projectionMatrix) {
-    return projectionMatrix.setPerspective(Math.toRadians(this.fov), this.aspectRatio, this.near, this.far);
+    return projectionMatrix.setPerspective(
+        Math.toRadians(this.fov), this.aspectRatio, this.near, this.far);
+  }
+
+  @Override
+  protected void onUpdate() {
+    this.frustum.set(this.viewMatrix.mul(this.projectionMatrix, new Matrix4f()));
   }
 
   /**
@@ -209,5 +215,14 @@ public class CameraPerspective extends Camera<CameraPerspective> {
     this.far = farPlane;
     this._update(false);
     return this;
+  }
+
+  /**
+   * Get the camera frustum.
+   *
+   * @return the camera frustum
+   */
+  public CameraFrustum frustum() {
+    return this.frustum;
   }
 }
