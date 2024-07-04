@@ -165,9 +165,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         damageType,
         projectileHitBoxSize,
         selectionFunction,
-        projectileRange,
-        DEFAULT_ON_WALL_HIT,
-        DEFAULT_ON_ENTITY_HIT);
+        projectileRange);
   }
 
   /**
