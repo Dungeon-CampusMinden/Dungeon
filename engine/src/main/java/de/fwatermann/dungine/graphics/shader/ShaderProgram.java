@@ -6,6 +6,8 @@ import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -22,6 +24,8 @@ import org.lwjgl.opengl.GL33;
  * cleanup of the OpenGL program when it is no longer needed.
  */
 public class ShaderProgram implements Disposable {
+
+  private static final Logger LOGGER = LogManager.getLogger(ShaderProgram.class);
 
   private int glHandle;
   private final Shader[] shaders;
@@ -79,7 +83,12 @@ public class ShaderProgram implements Disposable {
     return this.uniformLocations.computeIfAbsent(
         name,
         k -> {
-          return GL33.glGetUniformLocation(this.glHandle, k);
+          int loc = GL33.glGetUniformLocation(this.glHandle, k);
+          if (loc == -1) {
+            LOGGER.warn("Uniform '{}' not found in shader program", k);
+            return null;
+          }
+          return loc;
         });
   }
 
@@ -93,7 +102,12 @@ public class ShaderProgram implements Disposable {
     return this.attributeLocations.computeIfAbsent(
         name,
         k -> {
-          return GL33.glGetAttribLocation(this.glHandle, k);
+          int loc = GL33.glGetAttribLocation(this.glHandle, k);
+          if (loc == -1) {
+            LOGGER.warn("Attribute '{}' not found in shader program", k);
+            return null;
+          }
+          return loc;
         });
   }
 
