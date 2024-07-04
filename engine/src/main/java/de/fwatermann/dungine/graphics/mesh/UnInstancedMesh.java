@@ -6,6 +6,7 @@ import de.fwatermann.dungine.utils.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Math;
 
 import java.nio.FloatBuffer;
 
@@ -134,7 +135,7 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param angle the angle of rotation, in degrees
    */
   public void rotate(float x, float y, float z, float angle) {
-    this.rotation.rotateAxis(angle, x, y, z);
+    this.rotation.rotateAxis(Math.toRadians(angle), x, y, z);
     this.calcTransformMatrix();
   }
 
