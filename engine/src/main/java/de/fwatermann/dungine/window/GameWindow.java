@@ -19,6 +19,7 @@ import de.fwatermann.dungine.state.GameStateTransition;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.IVoidFunction;
+import de.fwatermann.dungine.utils.Then;
 import de.fwatermann.dungine.utils.annotations.NotNull;
 import de.fwatermann.dungine.utils.annotations.Null;
 import de.fwatermann.dungine.utils.annotations.Nullable;
@@ -63,8 +64,7 @@ public abstract class GameWindow implements Disposable {
   private @Null GameState currentState;
   private @Null GameStateTransition transition = null;
 
-  private final ConcurrentLinkedQueue<IVoidFunction> mainThreadQueue =
-      new ConcurrentLinkedQueue<>();
+  private ConcurrentLinkedQueue<Then> mainThreadQueue = new ConcurrentLinkedQueue<>();
 
   /**
    * Constructs a new GameWindow.
@@ -81,6 +81,7 @@ public abstract class GameWindow implements Disposable {
     this.debug = debug;
 
     Dungine.WINDOWS.add(this);
+    LOGGER.info("Initialized GameWindow: {}", title);
   }
 
   /** Initialize the game. This method is called once before the render loop starts. */
@@ -234,7 +235,7 @@ public abstract class GameWindow implements Disposable {
     GL33.glClearColor(0.51f, 0.78f, 0.89f, 1f);
     GL33.glEnable(GL33.GL_DEPTH_TEST);
     GL33.glEnable(GL33.GL_CULL_FACE);
-    GL33.glCullFace(GL33.GL_FRONT);
+    GL33.glCullFace(GL33.GL_BACK);
 
     if (GLUtils.checkVersion(4, 3)) {
       GLUtil.setupDebugMessageCallback(System.out);
@@ -251,7 +252,7 @@ public abstract class GameWindow implements Disposable {
       lastTime = currentTime;
 
       long start = System.nanoTime();
-      if(this.currentState != null) this.currentState.update(deltaTime);
+      if (this.currentState != null) this.currentState.update(deltaTime);
       long end = System.nanoTime();
       long execution = end - start;
 
@@ -282,12 +283,22 @@ public abstract class GameWindow implements Disposable {
 
         long start = System.nanoTime();
         GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
-        if(this.currentState != null) this.currentState.render(deltaTime);
+        if (this.currentState != null && this.currentState.loaded())
+          this.currentState.render(deltaTime);
         glfwSwapBuffers(this.glfwWindow);
         glfwPollEvents();
 
-        this.mainThreadQueue.forEach(IVoidFunction::run);
-        this.mainThreadQueue.clear();
+        ConcurrentLinkedQueue<Then> queue = this.mainThreadQueue;
+        this.mainThreadQueue = new ConcurrentLinkedQueue<>();
+
+        queue.forEach(t -> t.run.run());
+        queue.forEach(
+            t -> {
+              if (t.then() != null) {
+                t.then().run();
+              }
+            });
+        queue.clear();
 
         long end = System.nanoTime();
         long execution = end - start;
@@ -322,8 +333,10 @@ public abstract class GameWindow implements Disposable {
    *
    * @param func the function to run on the main thread
    */
-  public void runOnMainThread(IVoidFunction func) {
-    this.mainThreadQueue.add(func);
+  public Then runOnMainThread(IVoidFunction func) {
+    Then then = new Then(func);
+    this.mainThreadQueue.add(then);
+    return then;
   }
 
   /**
@@ -649,10 +662,11 @@ public abstract class GameWindow implements Disposable {
     this.transition = null;
   }
 
-
   @Override
   public void dispose() {
     Dungine.WINDOWS.remove(this);
     this.close();
   }
+
+
 }
