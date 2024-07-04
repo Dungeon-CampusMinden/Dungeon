@@ -1,7 +1,7 @@
 package de.fwatermann.dungine.graphics.shader;
 
 import de.fwatermann.dungine.exception.OpenGLException;
-import de.fwatermann.dungine.graphics.Camera;
+import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import java.util.HashMap;
@@ -232,7 +232,7 @@ public class ShaderProgram implements Disposable {
    *
    * @param camera the camera to use
    */
-  public void useCamera(Camera camera) {
+  public void useCamera(Camera<?> camera) {
     this.setUniformMatrix4f(this.configuration.uniformViewMatrix(), camera.viewMatrix());
     this.setUniformMatrix4f(
         this.configuration.uniformProjectionMatrix(), camera.projectionMatrix());
