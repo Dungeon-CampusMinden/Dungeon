@@ -4,9 +4,9 @@ import de.fwatermann.dungine.utils.annotations.NotNull;
 import org.lwjgl.opengl.GL33;
 
 /**
- * The InstanceAttribute class represents an attribute of an instance in a 3D mesh. It provides methods
- * for getting the size of the attribute in bytes, and overrides the equals, hashCode, and toString
- * methods.
+ * The InstanceAttribute class represents an attribute of an instance in a 3D mesh. It provides
+ * methods for getting the size of the attribute in bytes, and overrides the equals, hashCode, and
+ * toString methods.
  */
 public class InstanceAttribute {
 

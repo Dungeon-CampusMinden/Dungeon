@@ -5,6 +5,9 @@ import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.lwjgl.opengl.GL33;
 
 /**
  * The InstancedMesh class represents a 3D mesh object in the game engine that is instanced. It
@@ -13,6 +16,10 @@ import java.nio.FloatBuffer;
  * instanced meshes.
  */
 public abstract class InstancedMesh extends Mesh {
+
+  private static final Logger LOGGER = LogManager.getLogger(InstancedMesh.class);
+
+  protected int glIBO;
 
   protected InstanceAttributeList instanceAttributes;
   protected @Null ByteBuffer instanceData;
@@ -43,6 +50,23 @@ public abstract class InstancedMesh extends Mesh {
     this.instanceData = instanceData;
     this.instanceCount = instanceCount;
     this.instanceDataDirty = this.instanceData != null;
+    this.initGL();
+  }
+
+  private void initGL() {
+    this.glIBO = GL33.glGenBuffers();
+    LOGGER.debug("Generated IBO: {}", this.glIBO);
+    this.updateInstanceBuffer();
+  }
+
+  protected void updateInstanceBuffer() {
+    if (this.instanceData != null && this.instanceDataDirty) {
+      GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glIBO);
+      GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.instanceData, this.usageHint.getGLConstant());
+      GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
+      this.instanceDataDirty = false;
+      LOGGER.debug("Updated IBO {}", this.glIBO);
+    }
   }
 
   /**

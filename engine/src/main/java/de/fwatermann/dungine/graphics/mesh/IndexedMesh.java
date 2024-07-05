@@ -7,6 +7,8 @@ import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL33;
 
 /**
@@ -16,15 +18,11 @@ import org.lwjgl.opengl.GL33;
  */
 public class IndexedMesh extends UnInstancedMesh {
 
-  private int glVAO;
-  private int glVBO;
+  private static final Logger LOGGER = LogManager.getLogger(IndexedMesh.class);
+
   private int glEBO;
-
   private @Null IntBuffer indices;
-
   private boolean indicesDirty = false;
-
-  private ShaderProgram lastShaderProgram = null;
 
   /**
    * Constructs an IndexedMesh with specified vertices, indices, usage hint, and vertex attributes.
@@ -41,9 +39,7 @@ public class IndexedMesh extends UnInstancedMesh {
       GLUsageHint usageHint,
       VertexAttributeList attributes) {
     super(vertices, usageHint, attributes);
-    GLUtils.checkBuffer(vertices);
     GLUtils.checkBuffer(indices);
-    this.vertices = vertices;
     this.indices = indices;
     this.indicesDirty = this.indices != null;
     this.initGL();
@@ -128,19 +124,6 @@ public class IndexedMesh extends UnInstancedMesh {
     this(null, null, GLUsageHint.DRAW_STATIC, new VertexAttributeList(attributes));
   }
 
-  private void initGL() {
-    ThreadUtils.checkMainThread();
-
-    this.glVAO = GL33.glGenVertexArrays();
-    this.glVBO = GL33.glGenBuffers();
-    this.glEBO = GL33.glGenBuffers();
-
-    GL33.glBindVertexArray(this.glVAO);
-    GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glVBO);
-    GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, this.glEBO);
-    GL33.glBindVertexArray(0);
-  }
-
   /**
    * Sets the indices of this mesh.
    *
@@ -169,20 +152,25 @@ public class IndexedMesh extends UnInstancedMesh {
     this.indicesDirty = true;
   }
 
-  private void updateBuffers() {
+  private void initGL() {
     ThreadUtils.checkMainThread();
-    GL33.glBindVertexArray(this.glVAO);
-    if (this.verticesDirty && this.vertices != null) {
-      this.vertices.position(0);
-      GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, this.usageHint.getGLConstant());
-      this.verticesDirty = false;
-    }
-    if (this.indicesDirty && this.indices != null) {
+    this.glEBO = GL33.glGenBuffers();
+    LOGGER.debug("Generated EBO: {}", this.glEBO);
+    this.updateIndexBuffer();
+  }
+
+  private void updateIndexBuffer() {
+    ThreadUtils.checkMainThread();
+    if (this.indices != null && this.indicesDirty) {
       this.indices.position(0);
+      GL33.glBindVertexArray(this.glVAO);
+      GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, this.glEBO);
       GL33.glBufferData(GL33.GL_ELEMENT_ARRAY_BUFFER, this.indices, this.usageHint.getGLConstant());
+      GL33.glBindVertexArray(0);
+      GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, 0);
       this.indicesDirty = false;
+      LOGGER.debug("Updated EBO {}", this.glEBO);
     }
-    GL33.glBindVertexArray(0);
   }
 
   @Override
@@ -193,8 +181,8 @@ public class IndexedMesh extends UnInstancedMesh {
     if (this.vertices == null || this.indices == null) {
       return;
     }
-
-    this.updateBuffers();
+    this.updateVertexBuffer();
+    this.updateIndexBuffer();
 
     if (this.lastShaderProgram != shaderProgram) {
       this.attributes.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO);
@@ -215,8 +203,7 @@ public class IndexedMesh extends UnInstancedMesh {
 
   @Override
   public void dispose() {
-    GL33.glDeleteBuffers(this.glVBO);
+    super.dispose();
     GL33.glDeleteBuffers(this.glEBO);
-    GL33.glDeleteVertexArrays(this.glVAO);
   }
 }

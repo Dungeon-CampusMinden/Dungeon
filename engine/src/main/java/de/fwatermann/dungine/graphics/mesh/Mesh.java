@@ -6,6 +6,9 @@ import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.FloatBuffer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.lwjgl.opengl.GL33;
 
 /**
  * The Mesh class represents a 3D mesh object in the game engine. It provides methods for
@@ -14,11 +17,17 @@ import java.nio.FloatBuffer;
  */
 public abstract class Mesh implements Disposable {
 
+  private static final Logger LOGGER = LogManager.getLogger(Mesh.class);
+
+  protected int glVAO;
+  protected int glVBO;
+
   protected VertexAttributeList attributes;
   protected @Null FloatBuffer vertices;
   protected boolean verticesDirty = false;
 
   protected GLUsageHint usageHint = GLUsageHint.DRAW_STATIC;
+  protected ShaderProgram lastShaderProgram;
 
   /**
    * Constructs a new Mesh with the specified vertex buffer, usage hint, and attributes.
@@ -33,6 +42,7 @@ public abstract class Mesh implements Disposable {
     this.attributes = attributes;
     this.usageHint = usageHint;
     this.verticesDirty = this.vertices != null;
+    this.initGL();
   }
 
   /**
@@ -54,6 +64,25 @@ public abstract class Mesh implements Disposable {
   protected Mesh(GLUsageHint usageHint, VertexAttributeList attributes) {
     this.attributes = attributes;
     this.usageHint = usageHint;
+  }
+
+  private void initGL() {
+    this.glVAO = GL33.glGenVertexArrays();
+    LOGGER.debug("Generated VAO: {}", this.glVAO);
+    this.glVBO = GL33.glGenBuffers();
+    LOGGER.debug("Generated VBO: {}", this.glVBO);
+    this.updateVertexBuffer();
+  }
+
+  /** Updates the vertex buffer of the mesh in the OpenGL context if needed. */
+  protected void updateVertexBuffer() {
+    if (this.vertices != null && this.verticesDirty) {
+      GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glVBO);
+      GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, this.usageHint.getGLConstant());
+      GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
+      this.verticesDirty = false;
+      LOGGER.debug("Updated VBO {}", this.glVBO);
+    }
   }
 
   /**
@@ -92,6 +121,12 @@ public abstract class Mesh implements Disposable {
   /** Marks the vertices of the mesh as dirty, causing them to be updated before rendering. */
   public void markVerticesDirty() {
     this.verticesDirty = true;
+  }
+
+  @Override
+  public void dispose() {
+    GL33.glDeleteVertexArrays(this.glVAO);
+    GL33.glDeleteBuffers(this.glVBO);
   }
 
   /**
