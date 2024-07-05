@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 public class Skill {
 
   private final Consumer<Entity> skillFunction;
-  private final long coolDownInMilliSeconds;
+  private long coolDownInMilliSeconds;
   private Instant lastUsed;
   private Instant nextUsableAt = Instant.now();
 
@@ -65,10 +65,38 @@ public class Skill {
   }
 
   /**
+   * Sets the cooldown of this skill.
+   *
+   * @param newCoolDown The new cooldown in milliseconds.
+   */
+  public void cooldown(long newCoolDown) {
+    this.coolDownInMilliSeconds = newCoolDown;
+  }
+
+  /**
+   * Returns the cooldown of this skill.
+   *
+   * @return int The cooldown in milliseconds.
+   */
+  public long cooldown() {
+    return coolDownInMilliSeconds;
+  }
+
+  /**
    * Adds coolDownInMilliSeconds to the time the skill was last used and updates when this skill can
    * be used again.
    */
   private void activateCoolDown() {
     nextUsableAt = lastUsed.plusMillis(coolDownInMilliSeconds);
+  }
+
+  /**
+   * Sets the last used time to now.
+   *
+   * <p>This method is used to reset the cool down of the skill.
+   */
+  public void setLastUsedToNow() {
+    this.lastUsed = Instant.now();
+    activateCoolDown();
   }
 }

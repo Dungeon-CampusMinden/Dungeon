@@ -16,6 +16,9 @@ import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -29,6 +32,7 @@ import java.util.logging.Logger;
 public abstract class DamageProjectile implements Consumer<Entity> {
 
   private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
+  private static final BiConsumer<Entity, Entity> DEFAULT_ON_ENTITY_HIT = (a, b) -> {};
   private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getSimpleName());
   private final IPath pathToTexturesOfProjectile;
   private final float projectileSpeed;
@@ -38,15 +42,27 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final Point projectileHitBoxSize;
   private final Supplier<Point> selectionFunction;
   private final Consumer<Entity> onWallHit;
+  private final String name;
+  private static int nextId = 0;
+  private final List<Entity> ignoreEntities = new ArrayList<>();
 
   /**
-   * The DamageProjectile constructor sets the path to the textures of the projectile, the speed of
-   * the projectile, the damage amount and type to be dealt, the size of the projectile's hit box,
-   * the target selection function, the range of the projectile, and the behavior when a wall is
-   * hit.
+   * The behavior when an entity is hit. (The first parameter is the projectile, the second the
+   * entity that was hit)
+   */
+  private final BiConsumer<Entity, Entity> onEntityHit;
+
+  private int tintColor = -1; // -1 means no tint
+
+  /**
+   * The DamageProjectile constructor sets the name, the path to the textures of the projectile, the
+   * speed of the projectile, the damage amount and type to be dealt, the size of the projectile's
+   * hit box, the target selection function, the range of the projectile, and the behavior when a
+   * wall is hit.
    *
    * <p>For a specific implementation, see {@link FireballSkill}.
    *
+   * @param name Name of the projectile.
    * @param pathToTexturesOfProjectile Path to the textures of the projectile.
    * @param projectileSpeed Speed of the projectile.
    * @param damageAmount Amount of damage to be dealt.
@@ -55,8 +71,10 @@ public abstract class DamageProjectile implements Consumer<Entity> {
    * @param selectionFunction Specific functionality of the projectile.
    * @param projectileRange Range in which the projectile is effective.
    * @param onWallHit Behavior when a wall is hit.
+   * @param onEntityHit Behavior when an entity is hit before the damage is applied.
    */
   public DamageProjectile(
+      final String name,
       final IPath pathToTexturesOfProjectile,
       float projectileSpeed,
       int damageAmount,
@@ -64,7 +82,9 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       final Point projectileHitBoxSize,
       final Supplier<Point> selectionFunction,
       float projectileRange,
-      final Consumer<Entity> onWallHit) {
+      final Consumer<Entity> onWallHit,
+      final BiConsumer<Entity, Entity> onEntityHit) {
+    this.name = name + "_" + nextId++;
     this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
     this.damageAmount = damageAmount;
     this.damageType = damageType;
@@ -73,6 +93,45 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     this.projectileHitBoxSize = projectileHitBoxSize;
     this.selectionFunction = selectionFunction;
     this.onWallHit = onWallHit;
+    this.onEntityHit = onEntityHit;
+  }
+
+  /**
+   * The DamageProjectile constructor sets the name, the path to the textures of the projectile, the
+   * speed of the projectile, the damage amount and type to be dealt, the size of the projectile's
+   * hit box, the target selection function, and the range of the projectile.
+   *
+   * <p>For a specific implementation, see {@link FireballSkill}
+   *
+   * @param name Name of the projectile.
+   * @param pathToTexturesOfProjectile Path to the textures of the projectile.
+   * @param projectileSpeed Speed of the projectile.
+   * @param damageAmount Amount of damage to be dealt.
+   * @param damageType Type of damage to be dealt.
+   * @param projectileHitBoxSize Size of the hit box.
+   * @param selectionFunction Specific functionality of the projectile.
+   * @param projectileRange Range in which the projectile is effective.
+   */
+  public DamageProjectile(
+      String name,
+      final IPath pathToTexturesOfProjectile,
+      float projectileSpeed,
+      int damageAmount,
+      final DamageType damageType,
+      final Point projectileHitBoxSize,
+      final Supplier<Point> selectionFunction,
+      float projectileRange) {
+    this(
+        name,
+        pathToTexturesOfProjectile,
+        projectileSpeed,
+        damageAmount,
+        damageType,
+        projectileHitBoxSize,
+        selectionFunction,
+        projectileRange,
+        DEFAULT_ON_WALL_HIT,
+        DEFAULT_ON_ENTITY_HIT);
   }
 
   /**
@@ -99,14 +158,14 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       final Supplier<Point> selectionFunction,
       float projectileRange) {
     this(
+        "DamageProjectile",
         pathToTexturesOfProjectile,
         projectileSpeed,
         damageAmount,
         damageType,
         projectileHitBoxSize,
         selectionFunction,
-        projectileRange,
-        DEFAULT_ON_WALL_HIT);
+        projectileRange);
   }
 
   /**
@@ -124,7 +183,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
    */
   @Override
   public void accept(final Entity entity) {
-    Entity projectile = new Entity("Projectile");
+    Entity projectile = new Entity(name);
     // Get the PositionComponent of the entity
     PositionComponent epc =
         entity
@@ -133,7 +192,9 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     projectile.add(new PositionComponent(epc.position()));
 
     try {
-      projectile.add(new DrawComponent(pathToTexturesOfProjectile));
+      DrawComponent dc = new DrawComponent(pathToTexturesOfProjectile);
+      dc.tintColor(tintColor());
+      projectile.add(dc);
     } catch (IOException e) {
       LOGGER.warning(
           String.format("The DrawComponent for the projectile %s cant be created. ", entity)
@@ -169,10 +230,11 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     // Create a collision handler for the projectile
     TriConsumer<Entity, Entity, Tile.Direction> collide =
         (a, b, from) -> {
-          if (b != entity) {
+          if (b != entity && !ignoreEntities.contains(b)) {
             b.fetch(HealthComponent.class)
                 .ifPresent(
                     hc -> {
+                      onEntityHit.accept(projectile, b);
                       // Apply the projectile damage to the collided entity
                       hc.receiveHit(new Damage(damageAmount, damageType, entity));
 
@@ -190,6 +252,44 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     playSound();
   }
 
+  /**
+   * Adds an entity to the list of entities to be ignored by the projectile. Entities in this list
+   * will not be affected by the projectile's collision handler.
+   *
+   * @param entity The entity to be ignored by the projectile.
+   */
+  public void ignoreEntity(Entity entity) {
+    ignoreEntities.add(entity);
+  }
+
+  /**
+   * Removes an entity from the list of entities to be ignored by the projectile. Entities not in
+   * this list will be affected by the projectile's collision handler.
+   *
+   * @param entity The entity to be removed from the ignore list.
+   */
+  public void removeIgnoredEntity(Entity entity) {
+    ignoreEntities.remove(entity);
+  }
+
   /** Override this method to play a Sound-effect on spawning the projectile if you want. */
   protected void playSound() {}
+
+  /**
+   * Sets the tint color of the projectile. Set to -1 to remove the tint.
+   *
+   * @param tintColor The tint color of the projectile.
+   */
+  public void tintColor(int tintColor) {
+    this.tintColor = tintColor;
+  }
+
+  /**
+   * Returns the tint color of the projectile.
+   *
+   * @return The tint color of the projectile. -1 means no tint.
+   */
+  public int tintColor() {
+    return tintColor;
+  }
 }
