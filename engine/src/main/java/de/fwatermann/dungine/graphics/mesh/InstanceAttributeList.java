@@ -9,8 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL33;
 
 /**
- * The InstanceAttributeList class represents a list of InstanceAttributes. This class implements the
- * Iterable interface, allowing it to be used in enhanced for loops.
+ * The InstanceAttributeList class represents a list of InstanceAttributes. This class implements
+ * the Iterable interface, allowing it to be used in enhanced for loops.
  */
 public class InstanceAttributeList implements Iterable<InstanceAttribute> {
 
@@ -106,15 +106,16 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
             while (remaining > 0) {
               GL33.glEnableVertexAttribArray(loc);
               GL33.glVertexAttribDivisor(loc, 1);
-              LOGGER.debug("Binding instance attribute %s (%d) at location %d", attrib.name, attrib.numComponents - remaining, loc);
+              LOGGER.debug(
+                  "Binding instance attribute %s (%d) at location %d",
+                  attrib.name, attrib.numComponents - remaining, loc);
               GL33.glVertexAttribPointer(
                   loc,
                   Math.min(remaining, 4),
                   attrib.glType,
                   false,
                   this.sizeInBytes(),
-                  attrib.offset
-                      + (long) (attrib.numComponents - remaining) * 4);
+                  attrib.offset + (long) (attrib.numComponents - remaining) * 4);
               remaining -= Math.min(remaining, 4);
               loc++;
             }
@@ -123,5 +124,4 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
     GL33.glBindVertexArray(0);
     GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
   }
-
 }

@@ -2,22 +2,15 @@ package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
-import de.fwatermann.dungine.utils.ThreadUtils;
-import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.FloatBuffer;
 import org.lwjgl.opengl.GL33;
 
 /**
- * The ArrayMesh class represents a 3D mesh object in the game engine that is rendered using an array
- * of vertices. It provides methods for manipulating the mesh's position, rotation, and scale, as well
- * as methods for rendering the mesh.
+ * The ArrayMesh class represents a 3D mesh object in the game engine that is rendered using an
+ * array of vertices. It provides methods for manipulating the mesh's position, rotation, and scale,
+ * as well as methods for rendering the mesh.
  */
 public class ArrayMesh extends UnInstancedMesh {
-
-  private int glVAO;
-  private int glVBO;
-
-  private @Null ShaderProgram lastShaderProgram = null;
 
   /**
    * Constructs a new ArrayMesh with the specified vertex buffer, usage hint, and attributes.
@@ -28,7 +21,6 @@ public class ArrayMesh extends UnInstancedMesh {
    */
   public ArrayMesh(FloatBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
     super(vertices, usageHint, attributes);
-    this.initGL();
   }
 
   /**
@@ -82,42 +74,20 @@ public class ArrayMesh extends UnInstancedMesh {
     this(null, usageHint, new VertexAttributeList(attributes));
   }
 
-  private void initGL() {
-    ThreadUtils.checkMainThread();
-    this.glVAO = GL33.glGenVertexArrays();
-    this.glVBO = GL33.glGenBuffers();
-
-    GL33.glBindVertexArray(this.glVAO);
-    GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glVBO);
-
-    if (this.vertices != null) {
-      this.vertices.position(0);
-      GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, GL33.GL_STATIC_DRAW);
-      this.verticesDirty = false;
-    }
-
-    GL33.glBindVertexArray(0);
-  }
-
   @Override
   public void render(
       ShaderProgram shaderProgram, int primitiveType, int offset, int count, boolean bindShader) {
 
-    if (this.verticesDirty && this.vertices != null) {
-      this.vertices.position(0);
-      GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glVBO);
-      GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, GL33.GL_STATIC_DRAW);
-      this.verticesDirty = false;
-    }
-
     if (this.vertices == null) {
       return;
     }
+    this.updateVertexBuffer();
 
     if (bindShader) {
       shaderProgram.bind();
     }
-    shaderProgram.setUniformMatrix4f(shaderProgram.configuration().uniformModelMatrix(), this.transformMatrix);
+    shaderProgram.setUniformMatrix4f(
+        shaderProgram.configuration().uniformModelMatrix(), this.transformMatrix);
 
     GL33.glBindVertexArray(this.glVAO);
 
@@ -136,7 +106,6 @@ public class ArrayMesh extends UnInstancedMesh {
 
   @Override
   public void dispose() {
-    GL33.glDeleteBuffers(this.glVBO);
-    GL33.glDeleteVertexArrays(this.glVAO);
+    super.dispose();
   }
 }

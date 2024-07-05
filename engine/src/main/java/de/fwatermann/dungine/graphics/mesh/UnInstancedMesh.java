@@ -3,17 +3,16 @@ package de.fwatermann.dungine.graphics.mesh;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.utils.BoundingBox;
 import de.fwatermann.dungine.utils.annotations.Nullable;
+import java.nio.FloatBuffer;
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.joml.Math;
-
-import java.nio.FloatBuffer;
 
 /**
  * Represents a mesh that is not instanced, providing basic transformation capabilities such as
- * translation, rotation, and scaling. This abstract class serves as a foundation for meshes
- * that are manipulated individually rather than as part of an instanced group.
+ * translation, rotation, and scaling. This abstract class serves as a foundation for meshes that
+ * are manipulated individually rather than as part of an instanced group.
  */
 public abstract class UnInstancedMesh extends Mesh {
 
@@ -31,7 +30,8 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
-  protected UnInstancedMesh(FloatBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
+  protected UnInstancedMesh(
+      FloatBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
     super(vertices, usageHint, attributes);
     this.calcTransformMatrix();
     this.calcBoundingBox();
@@ -44,12 +44,14 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
-  protected UnInstancedMesh(FloatBuffer vertices, GLUsageHint usageHint, VertexAttribute ... attributes) {
+  protected UnInstancedMesh(
+      FloatBuffer vertices, GLUsageHint usageHint, VertexAttribute... attributes) {
     this(vertices, usageHint, new VertexAttributeList(attributes));
   }
 
   /**
    * Constructs a new UnInstancedMesh with the specified usage hint and attributes.
+   *
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
@@ -59,6 +61,7 @@ public abstract class UnInstancedMesh extends Mesh {
 
   /**
    * Constructs a new UnInstancedMesh with the specified usage hint and attributes.
+   *
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
@@ -91,7 +94,7 @@ public abstract class UnInstancedMesh extends Mesh {
       float y = this.vertices.get();
       float z = this.vertices.get();
       this.vertices.position(
-        this.vertices.position() + this.attributes.sizeInBytes() - 3 * Float.BYTES);
+          this.vertices.position() + this.attributes.sizeInBytes() - 3 * Float.BYTES);
       minX = Math.min(minX, x);
       minY = Math.min(minY, y);
       minZ = Math.min(minZ, z);
@@ -240,7 +243,6 @@ public abstract class UnInstancedMesh extends Mesh {
    */
   private void calcTransformMatrix() {
     this.transformMatrix =
-      new Matrix4f().translationRotateScale(this.translation, this.rotation, this.scale);
+        new Matrix4f().translationRotateScale(this.translation, this.rotation, this.scale);
   }
-
 }
