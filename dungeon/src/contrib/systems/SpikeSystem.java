@@ -3,6 +3,7 @@ package contrib.systems;
 import contrib.components.SpikyComponent;
 import core.System;
 import core.components.PositionComponent;
+import java.util.Optional;
 
 /**
  * Reduces the current cool down for each {@link SpikyComponent} once per frame. Entities with the
@@ -20,6 +21,8 @@ public final class SpikeSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream(SpikyComponent.class)
-        .forEach(e -> e.fetch(SpikyComponent.class).orElseThrow().reduceCoolDown());
+        .map(e -> e.fetch(SpikyComponent.class))
+        .flatMap(Optional::stream)
+        .forEach(SpikyComponent::reduceCoolDown);
   }
 }
