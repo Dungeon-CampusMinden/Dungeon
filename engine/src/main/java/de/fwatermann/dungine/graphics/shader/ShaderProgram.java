@@ -80,7 +80,7 @@ public class ShaderProgram implements Disposable {
    * @return the location of the uniform
    */
   public int getUniformLocation(String name) {
-    return this.uniformLocations.computeIfAbsent(
+    Integer ret = this.uniformLocations.computeIfAbsent(
         name,
         k -> {
           int loc = GL33.glGetUniformLocation(this.glHandle, k);
@@ -90,6 +90,7 @@ public class ShaderProgram implements Disposable {
           }
           return loc;
         });
+    return ret == null ? -1 : ret;
   }
 
   /**
@@ -99,7 +100,7 @@ public class ShaderProgram implements Disposable {
    * @return the location of the attribute
    */
   public int getAttributeLocation(String name) {
-    return this.attributeLocations.computeIfAbsent(
+    Integer ret = this.attributeLocations.computeIfAbsent(
         name,
         k -> {
           int loc = GL33.glGetAttribLocation(this.glHandle, k);
@@ -109,6 +110,7 @@ public class ShaderProgram implements Disposable {
           }
           return loc;
         });
+    return ret == null ? -1 : ret;
   }
 
   /**
