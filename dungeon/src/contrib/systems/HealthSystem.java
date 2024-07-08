@@ -7,10 +7,8 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
-import core.utils.components.draw.Animation;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,6 +29,7 @@ public final class HealthSystem extends System {
 
   @Override
   public void execute() {
+    // filter entities for components and partition into alive and dead
     Map<Boolean, List<HSData>> deadOrAlive =
         filteredEntityStream(HealthComponent.class, DrawComponent.class)
             .map(
@@ -85,7 +84,6 @@ public final class HealthSystem extends System {
    * @return true if Entity can be removed from the game.
    */
   private boolean isDeathAnimationFinished(final HSData hsd) {
-    DrawComponent dc = hsd.dc;
     // test if hsd has a DeathAnimation
     Predicate<DrawComponent> hasDeathAnimation =
         (drawComponent) -> drawComponent.hasAnimation(AdditionalAnimations.DIE);
@@ -94,9 +92,9 @@ public final class HealthSystem extends System {
     // test if Animation has finished playing
     Predicate<DrawComponent> isAnimationFinished = DrawComponent::isCurrentAnimationFinished;
 
-    return !hasDeathAnimation.test(dc)
-        || isAnimationLooping.test(dc)
-        || isAnimationFinished.test(dc);
+    return !hasDeathAnimation.test(hsd.dc)
+        || isAnimationLooping.test(hsd.dc)
+        || isAnimationFinished.test(hsd.dc);
   }
 
   private void removeDeadEntities(final HSData hsd) {
