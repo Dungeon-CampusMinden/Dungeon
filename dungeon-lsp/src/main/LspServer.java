@@ -120,11 +120,8 @@ public class LspServer
     checks.add(
       new SemanticCheck(
         """
-          //match infinite loop (faster now!)
+          //match infinite loop
           match (n:ControlNode {controlType:"whileLoop"})
-          //match (n)<-[:GROUM_EDGE {edgeType:"EDGE_DATA_READ"}]-(def:DefinitionAction|ParameterInstantiationAction)
-             //match (def)-[:GROUM_EDGE {edgeType:"EDGE_DATA_WRITE"}]-(redef:DefinitionAction)-[:CHILDREN]->*(n)
-          //match p=(def)-[:GROUM_EDGE {edgeType:"EDGE_DATA_WRITE"}]-(redef:DefinitionAction)-[:CHILDREN]->*(n)
           where not exists {
             match (n)<-[:GROUM_EDGE {edgeType:"EDGE_DATA_READ"}]-(def:DefinitionAction|ParameterInstantiationAction)
              match (def)-[:GROUM_EDGE {edgeType:"EDGE_DATA_WRITE"}]-(redef:DefinitionAction)<-[:CHILDREN]-*(n)
