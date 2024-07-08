@@ -33,7 +33,12 @@ public final class HealthSystem extends System {
   public void execute() {
     Map<Boolean, List<HSData>> deadOrAlive =
         filteredEntityStream(HealthComponent.class, DrawComponent.class)
-            .map(this::buildDataObject)
+            .map(
+                e ->
+                    new HSData(
+                        e,
+                        e.fetch(HealthComponent.class).orElseThrow(),
+                        e.fetch(DrawComponent.class).orElseThrow()))
             .collect(Collectors.partitioningBy(hsd -> hsd.hc.isDead()));
 
     // apply damage to all entities which are still alive
@@ -78,13 +83,6 @@ public final class HealthSystem extends System {
     deathAnimation.ifPresent(
         animation -> hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.DIE));
     return hsd;
-  }
-
-  private HSData buildDataObject(final Entity entity) {
-    return new HSData(
-        entity,
-        entity.fetch(HealthComponent.class).orElseThrow(),
-        entity.fetch(DrawComponent.class).orElseThrow());
   }
 
   private HSData applyDamage(final HSData hsd) {
