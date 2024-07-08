@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joml.Vector2d;
+import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -60,7 +60,7 @@ public abstract class GameWindow implements Disposable {
   private long tickRate = 50;
   private boolean shouldClose = false;
 
-  private Vector2d mousePosition = new Vector2d(0, 0);
+  private Vector2f mousePosition = new Vector2f(0, 0);
   private long glfwWindow;
 
   private @Null GameState currentState;
@@ -119,6 +119,7 @@ public abstract class GameWindow implements Disposable {
       glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
     }
     this.glfwWindow = glfwCreateWindow(this.size.x, this.size.y, this.title, 0L, 0L);
+    this.mousePosition = new Vector2f((float) this.size.x / 2, (float) this.size.y / 2);
     if (this.glfwWindow == 0L) {
       throw new GLFWException("Unable to create GLFW window");
     }
@@ -204,12 +205,17 @@ public abstract class GameWindow implements Disposable {
         (window, xpos, ypos) -> {
           Vector2i from = new Vector2i((int) this.mousePosition.x, (int) this.mousePosition.y);
           Vector2i to = new Vector2i((int) xpos, (int) ypos);
-          MouseMoveEvent event = new MouseMoveEvent(from, to);
+          MouseMoveEvent event = new MouseMoveEvent(from, new Vector2i(to));
           event.fire();
           if (event.isCanceled()) {
             glfwSetCursorPos(window, from.x, from.y);
           } else {
-            this.mousePosition = new Vector2d(xpos, ypos);
+            if(!to.equals(event.to)) {
+              glfwSetCursorPos(window, event.to.x, event.to.y);
+              this.mousePosition = new Vector2f(event.to.x, event.to.y);
+            } else {
+              this.mousePosition = new Vector2f((float) xpos, (float) ypos);
+            }
           }
         });
 
@@ -678,6 +684,10 @@ public abstract class GameWindow implements Disposable {
 
   public void removeStateTransition() {
     this.transition = null;
+  }
+
+  public boolean hasFocus() {
+    return this.hasFocus;
   }
 
   @Override
