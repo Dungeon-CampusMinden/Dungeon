@@ -214,6 +214,65 @@ public abstract class System {
     return filteredEntityStream(Set.of(filterRules));
   }
 
+  // some product types to avoid later filtering
+  public sealed interface ComponentTuple permits SingleComponent, PairComponent, TripleComponent {}
+
+  public static record SingleComponent<T extends Component>(Entity entity, T first)
+      implements ComponentTuple {}
+
+  public static record PairComponent<T1 extends Component, T2 extends Component>(
+      Entity entity, T1 first, T2 second) implements ComponentTuple {}
+
+  public static record TripleComponent<
+          T1 extends Component, T2 extends Component, T3 extends Component>(
+      Entity entity, T1 first, T2 second, T3 third) implements ComponentTuple {}
+
+  // (2) some filter functions using the new product types
+  public final <T extends Component> Stream<SingleComponent<T>> filteredEntityStreamX(Class<T> c) {
+    return filteredEntityStream(Set.of(c))
+        .map(e -> new SingleComponent<>(e, e.fetch(c).orElseThrow()));
+  }
+
+  public final <T1 extends Component, T2 extends Component>
+      Stream<PairComponent<T1, T2>> filteredEntityStreamX(Class<T1> c1, Class<T2> c2) {
+    return filteredEntityStream(Set.of(c1, c2))
+        .map(e -> new PairComponent<>(e, e.fetch(c1).orElseThrow(), e.fetch(c2).orElseThrow()));
+  }
+
+  public final <T1 extends Component, T2 extends Component, T3 extends Component>
+      Stream<TripleComponent<T1, T2, T3>> filteredEntityStreamX(
+          Class<T1> c1, Class<T2> c2, Class<T3> c3) {
+    return filteredEntityStream(Set.of(c1, c2, c3))
+        .map(
+            e ->
+                new TripleComponent<>(
+                    e,
+                    e.fetch(c1).orElseThrow(),
+                    e.fetch(c2).orElseThrow(),
+                    e.fetch(c3).orElseThrow()));
+  }
+
+  public final <T1 extends Component, T2 extends Component, T3 extends Component>
+      Stream<Entity> filteredEntityStreamX(
+          Class<T1> c1, Class<T2> c2, Class<T3> c3, Class<? extends Component>... cx) {
+    Set<Class<? extends Component>> s = new HashSet<>();
+    s.addAll(Set.of(c1, c2, c3));
+    s.addAll(Set.of(cx));
+    return filteredEntityStream(s);
+  }
+
+  // (2a) some filter functions using the new product types (pattern matching)
+  // same as (2), but Stream<ComponentTuple> instead of Stream<Single>/Stream<Pair>/Stream<Triple>
+  public final <T extends Component> Stream<ComponentTuple> filteredEntityStreamY(Class<T> c) {
+    return filteredEntityStream(Set.of(c))
+        .map(e -> new SingleComponent<>(e, e.fetch(c).orElseThrow()));
+  }
+
+  // (3) produce a stream w/ the components itself
+  public final <T extends Component> Stream<T> filteredEntityStreamZ(Class<T> c) {
+    return filteredEntityStream(Set.of(c)).map(e -> e.fetch(c).orElseThrow());
+  }
+
   /**
    * @return the frame count the system should have between executes
    */
