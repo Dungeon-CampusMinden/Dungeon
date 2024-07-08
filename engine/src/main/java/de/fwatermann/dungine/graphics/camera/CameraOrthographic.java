@@ -33,7 +33,7 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
     this.viewportWidth = viewportWidth;
     this.viewportHeight = viewportHeight;
     this.zoom = zoom;
-    this._update(true);
+    this.updateMatrices(true);
   }
 
   /**
@@ -52,7 +52,7 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
         viewportHeight,
         zoom,
         new Vector3f(),
-        new Vector3f(0, 0, -1),
+        new Vector3f(0, 0, 1),
         new Vector3f(0, 1, 0),
         updateOnChange);
   }
@@ -110,7 +110,7 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
    */
   public CameraOrthographic viewportWidth(float viewportWidth) {
     this.viewportWidth = viewportWidth;
-    this._update(false);
+    this.updateMatrices(false);
     return this;
   }
 
@@ -132,7 +132,7 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
    */
   public CameraOrthographic viewportHeight(float viewportHeight) {
     this.viewportHeight = viewportHeight;
-    this._update(false);
+    this.updateMatrices(false);
     return this;
   }
 
@@ -154,7 +154,7 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
    */
   public CameraOrthographic zoom(float zoom) {
     this.zoom = zoom;
-    this._update(false);
+    this.updateMatrices(false);
     return this;
   }
 }
