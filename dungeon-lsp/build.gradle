@@ -86,4 +86,4 @@ task modifyStartupScript {
 }
 
 // Ensure that the modifyStartupScript task is executed after installDist
-installDist.finalizedBy modifyStartupScript
+//installDist.finalizedBy modifyStartupScript
