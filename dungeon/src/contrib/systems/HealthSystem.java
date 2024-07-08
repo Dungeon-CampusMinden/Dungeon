@@ -51,6 +51,28 @@ public final class HealthSystem extends System {
         .forEach(this::removeDeadEntities);
   }
 
+  private HSData applyDamage(final HSData hsd) {
+    int dmgAmount = Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum();
+
+    // if we have some damage, let's show a little dance
+    if (dmgAmount > 0) hsd.dc.queueAnimation(AdditionalAnimations.HIT);
+
+    // reset all damage objects in health component and apply damage
+    hsd.hc.clearDamage();
+    hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
+
+    // return data object to enable method chaining/streaming
+    return hsd;
+  }
+
+  private HSData activateDeathAnimation(final HSData hsd) {
+    // set DeathAnimation as active animation
+    Optional<Animation> deathAnimation = hsd.dc.animation(AdditionalAnimations.DIE);
+    deathAnimation.ifPresent(
+        animation -> hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.DIE));
+    return hsd;
+  }
+
   /**
    * Tests the existence and current status of the DeathAnimation of an entity.
    *
@@ -75,28 +97,6 @@ public final class HealthSystem extends System {
     return !hasDeathAnimation.test(dc)
         || isAnimationLooping.test(dc)
         || isAnimationFinished.test(dc);
-  }
-
-  private HSData activateDeathAnimation(final HSData hsd) {
-    // set DeathAnimation as active animation
-    Optional<Animation> deathAnimation = hsd.dc.animation(AdditionalAnimations.DIE);
-    deathAnimation.ifPresent(
-        animation -> hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.DIE));
-    return hsd;
-  }
-
-  private HSData applyDamage(final HSData hsd) {
-    int dmgAmount = Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum();
-
-    // if we have some damage, let's show a little dance
-    if (dmgAmount > 0) hsd.dc.queueAnimation(AdditionalAnimations.HIT);
-
-    // reset all damage objects in health component and apply damage
-    hsd.hc.clearDamage();
-    hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
-
-    // return data object to enable method chaining/streaming
-    return hsd;
   }
 
   private void removeDeadEntities(final HSData hsd) {
