@@ -15,10 +15,15 @@ public class GroumPrinter {
   private static final int edgeFontSize = 20;
   private static final int subGraphFontSize = 20;
 
-  private static final String preamble = "digraph G {\n" +
-    "graph [ranksep=0.1];\n" +
-    "node [width=0.1, fontsize="+nodeFontSize+"];\n" +
-    "edge [minlen=1, fontsize="+edgeFontSize+"];\n";
+  private static final String preamble =
+      "digraph G {\n"
+          + "graph [ranksep=0.1];\n"
+          + "node [width=0.1, fontsize="
+          + nodeFontSize
+          + "];\n"
+          + "edge [minlen=1, fontsize="
+          + edgeFontSize
+          + "];\n";
   private static final String epilog = "}";
   private static final String controlShape = "shape=diamond";
   private static final String actionShape = "shape=ellipse";
@@ -27,7 +32,8 @@ public class GroumPrinter {
   private static final String invisibleEdgeStyle = "invis";
   private static final String normaleEdgeStyle = "solid";
   private static final String edgeFmt = "%s -> %s [label=%s, style=%s]";
-  private static final String nodeWithChildrenStartFmt = "subgraph cluster_%s {\n label=\"%s\";\n fontsize="+subGraphFontSize+";\n\n";
+  private static final String nodeWithChildrenStartFmt =
+      "subgraph cluster_%s {\n label=\"%s\";\n fontsize=" + subGraphFontSize + ";\n\n";
   private static final String nodeWithChildrenEnd = "}";
 
   private final HashMap<Object, String> idMap = new HashMap<>();

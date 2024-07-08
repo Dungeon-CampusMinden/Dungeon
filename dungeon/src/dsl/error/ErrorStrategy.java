@@ -474,8 +474,8 @@ public class ErrorStrategy extends DefaultErrorStrategy {
               LOGGER.warning("Computing recovery set from 'sync'");
             }
             IntervalSet expecting = recognizer.getExpectedTokens();
-            IntervalSet whatFollowsLoopIterationOrRule =
-                expecting.or(this.getErrorRecoverySet(recognizer));
+            IntervalSet recoverySet = this.getErrorRecoverySet(recognizer);
+            IntervalSet whatFollowsLoopIterationOrRule = expecting.or(recoverySet);
 
             if (recognizer.isTrace()) {
               LOGGER.warning("Entering consume until from 'sync'");

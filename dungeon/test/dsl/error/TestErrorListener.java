@@ -695,7 +695,6 @@ public class TestErrorListener {
     Assert.assertEquals(0, mismatches.size());
 
     var list = ErrorRecordFactory.instance.get();
-
   }
 
   @Test

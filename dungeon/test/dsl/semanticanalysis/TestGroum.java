@@ -2565,7 +2565,7 @@ public class TestGroum {
   @Test
   public void condWrite() {
     String program =
-      """
+        """
         fn func(bool param) {
             var my_var = 42;
             if param {
@@ -2604,7 +2604,7 @@ public class TestGroum {
   @Test
   public void condPrint() {
     String program =
-      """
+        """
         fn print_conditional(int number) {
             if number > 42 {
               print("Greater than 42");
@@ -2641,7 +2641,7 @@ public class TestGroum {
   @Test
   public void shadowingSimple() {
     String program =
-      """
+        """
       fn func(bool param) {
         var x = 1;
         if param {
@@ -2680,7 +2680,7 @@ public class TestGroum {
   @Test
   public void differentGroumStructures() {
     String program =
-      """
+        """
       fn func() {
           var x : int;
           var y : int;

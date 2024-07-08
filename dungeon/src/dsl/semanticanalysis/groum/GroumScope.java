@@ -114,7 +114,8 @@ public class GroumScope {
 
         var parentOfControlFlowParent = immediateControlFlowParent.controlFlowParent;
         if (parentOfControlFlowParent == GroumScope.NONE) {
-          // if the controlFlowParent of the controlFlowParent is None, we don't have to do anything..
+          // if the controlFlowParent of the controlFlowParent is None, we don't have to do
+          // anything..
           break;
         }
 
@@ -125,14 +126,16 @@ public class GroumScope {
         if (!(assocNodeControlFlowParent instanceof ControlNode parentControlNode
             && assocNodeParentOfControlFlowParent
                 instanceof ControlNode parentsParentControlNode)) {
-          // if not both the control flow parent and the parent of the control flow parent are control nodes, we don't have to do anything
+          // if not both the control flow parent and the parent of the control flow parent are
+          // control nodes, we don't have to do anything
           break;
         }
 
         GroumScope scopeToBlock = GroumScope.NONE;
         if (parentControlNode.controlType().equals(ControlNode.ControlType.ifStmt)
             && parentsParentControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
-          // if the direct control flow parent is an if stmt and its parent is an ifElseStmt, we need to block all definitions
+          // if the direct control flow parent is an if stmt and its parent is an ifElseStmt, we
+          // need to block all definitions
           // from the else-scope
 
           // get else control node
@@ -152,7 +155,8 @@ public class GroumScope {
           }
         } else if (parentControlNode.controlType().equals(ControlNode.ControlType.elseStmt)
             && parentsParentControlNode.controlType().equals(ControlNode.ControlType.ifElseStmt)) {
-          // if the direct control flow parent is an else stmt and its parent is an ifElseStmt, we need to block all definitions
+          // if the direct control flow parent is an else stmt and its parent is an ifElseStmt, we
+          // need to block all definitions
           // from the if-scope
 
           // get if control node
@@ -174,9 +178,7 @@ public class GroumScope {
           if (assocControlNode.controlType().equals(ControlNode.ControlType.ifStmt)) {
             // get else branch
             var elseStmtNode =
-              parentControlNode
-                .getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL)
-                .get(1);
+                parentControlNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).get(1);
 
             scopeToBlock = immediateControlFlowParent.getConditionalScopeFor(elseStmtNode);
             if (scopeToBlock != GroumScope.NONE) {
@@ -185,15 +187,12 @@ public class GroumScope {
           } else {
             // get if branch
             var ifStmtNode =
-              parentControlNode
-                .getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL)
-                .get(0);
+                parentControlNode.getEndsOfOutgoing(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).get(0);
             scopeToBlock = immediateControlFlowParent.getConditionalScopeFor(ifStmtNode);
             if (scopeToBlock != GroumScope.NONE) {
               scopesToBlock.add(scopeToBlock);
             }
           }
-
         }
 
         // add all children scopes of the scope to block
@@ -438,7 +437,8 @@ public class GroumScope {
 
         // the controlflow parent of the from scope is not this
         // or
-        // the associated groum node of this scope is a beginFunc-Node (this is a function definition scope)
+        // the associated groum node of this scope is a beginFunc-Node (this is a function
+        // definition scope)
         // then add this scope and its control parent to definitions to shadow
         if (fromScope.controlFlowParent != this
             || this.associatedGroumNode instanceof ControlNode assocControlNode

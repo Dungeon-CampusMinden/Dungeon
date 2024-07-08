@@ -42,7 +42,12 @@ public class GroumEdge {
     generateCypherString();
   }
 
-  public GroumEdge(GroumNode start, GroumNode end, GroumEdgeType edgeType, boolean draw, boolean ignoreInDataAnalysis) {
+  public GroumEdge(
+      GroumNode start,
+      GroumNode end,
+      GroumEdgeType edgeType,
+      boolean draw,
+      boolean ignoreInDataAnalysis) {
     this.start = start;
     this.idxOnStart = start.outgoing().size();
     start.addOutgoing(this);

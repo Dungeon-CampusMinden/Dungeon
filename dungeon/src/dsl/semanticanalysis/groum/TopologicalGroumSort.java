@@ -2,7 +2,6 @@ package dsl.semanticanalysis.groum;
 
 import dsl.semanticanalysis.groum.node.GroumEdge;
 import dsl.semanticanalysis.groum.node.GroumNode;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +11,7 @@ public class TopologicalGroumSort {
     HashSet<GroumNode> allUnmarkedNodes = new HashSet<>();
     addAllChildren(node, allUnmarkedNodes);
     int allUnmarkedNodesSize = allUnmarkedNodes.size();
-    //var childList = allChildren.stream().toList();
+    // var childList = allChildren.stream().toList();
     var sortList = new ArrayList<GroumNode>();
     HashSet<GroumNode> permanentMarks = new HashSet<>();
     HashSet<GroumNode> temporaryMarks = new HashSet<>();
@@ -34,7 +33,12 @@ public class TopologicalGroumSort {
     }
   }
 
-  private static void visitNode(GroumNode node, HashSet<GroumNode> permanentMarks, HashSet<GroumNode> temporaryMarks, List<GroumNode> sortedList, HashSet<GroumNode> allUnmarkedChildren) {
+  private static void visitNode(
+      GroumNode node,
+      HashSet<GroumNode> permanentMarks,
+      HashSet<GroumNode> temporaryMarks,
+      List<GroumNode> sortedList,
+      HashSet<GroumNode> allUnmarkedChildren) {
     /*
     function visit(node n)
     if n has a permanent mark then

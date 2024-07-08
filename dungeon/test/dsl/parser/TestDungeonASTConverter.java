@@ -1758,8 +1758,7 @@ public class TestDungeonASTConverter {
 
   @Test
   public void testASTErrorBrokenIdListIsolated() {
-    String program =
-      """
+    String program = """
     graph g {
         t1,;khas // broken
     }
@@ -1857,7 +1856,8 @@ public class TestDungeonASTConverter {
 
   @Test
   public void testWeird() {
-    String program = """
+    String program =
+        """
       single_choice_task task1 {
         description: "desc",
         answers: [ "1", "2", "3", "4"],

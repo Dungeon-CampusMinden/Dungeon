@@ -123,10 +123,10 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     add n to head of L
     */
 
-    //for (var defNode : defNodes.values()) {
+    // for (var defNode : defNodes.values()) {
     //  var sorted = TopologicalGroumSort.sortChildren(defNode);
     //  boolean b = true;
-    //}
+    // }
 
     // process all global definitions
     processedNodes.clear();
@@ -153,12 +153,14 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
       nodesToProcess.addAll(defNodesSourceNodes);
       var sorted = TopologicalGroumSort.sortChildren(defNode);
 
-      // TODO: should split this up in function definition analysis and global object definition analysis...
-      //  -> function definition action propagation is different than object definition action propagation..
+      // TODO: should split this up in function definition analysis and global object definition
+      // analysis...
+      //  -> function definition action propagation is different than object definition action
+      // propagation..
       // TODO: clean up
       for (var currentNode : sorted) {
-      //while (!nodesToProcess.isEmpty()) {
-        //GroumNode currentNode = nodesToProcess.pop();
+        // while (!nodesToProcess.isEmpty()) {
+        // GroumNode currentNode = nodesToProcess.pop();
         if (processedNodes.contains(currentNode)) {
           // skip already processed node
           continue;
@@ -182,11 +184,11 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           if (!allPrecedentsProcesseed) {
             throw new RuntimeException("Not all preceding nodes were processed!");
             // If the current node to process has children, add them first!
-            //var currentNodeChildren = currentNode.children();
+            // var currentNodeChildren = currentNode.children();
 
-            //this.nodesToProcess.addFirst(currentNode);
-            //currentNodeChildren.reversed().forEach(nodesToProcess::addFirst);
-            //continue;
+            // this.nodesToProcess.addFirst(currentNode);
+            // currentNodeChildren.reversed().forEach(nodesToProcess::addFirst);
+            // continue;
           }
         }
 
@@ -203,9 +205,9 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
           if (!allPrecedentsProcesseed) {
             throw new RuntimeException("Not all preceding nodes were processed!");
-            //this.nodesToProcess.addFirst(currentNode);
-            //precedents.reversed().forEach(nodesToProcess::addFirst);
-            //continue;
+            // this.nodesToProcess.addFirst(currentNode);
+            // precedents.reversed().forEach(nodesToProcess::addFirst);
+            // continue;
           }
         }
 
@@ -249,14 +251,14 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
         // TODO: this is unclean, shouldn't pushing following children suffice?
         // add all following nodes to nodestoprocess
-        //if (!currentNode.children().isEmpty()) {
+        // if (!currentNode.children().isEmpty()) {
         //  // If the current node to process has children, add them first!
         //  var currentNodeChildren = currentNode.children();
         //  currentNodeChildren.reversed().forEach(nodesToProcess::addFirst);
-        //}
+        // }
 
         // add following children
-        //nodesToProcess.addAll(
+        // nodesToProcess.addAll(
         //    currentNode.outgoing().stream()
         //        .filter(e -> e.edgeType().equals(GroumEdge.GroumEdgeType.EDGE_TEMPORAL))
         //        .map(GroumEdge::end)
@@ -303,8 +305,6 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
     return this.groum;
   }
 
-
-
   private GroumNode getCurrentControlParentNode() {
     var currentScopeNode = this.currentScope().associatedGroumNode();
     if (currentScopeNode instanceof ControlNode controlNode
@@ -319,9 +319,13 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   // TODO: which problem does this method solve? what happens, if we remove this?
   //  Note: this is called initially with global non-function definitions
   //  From Notes:
-  // 	- [x] Was nice wäre: die ganzen global definitionen haben nur "einfache" read abhängigkeiten zu ihren Properties, aber nicht zu den übergebenen Werten
-  //		- [ ] Grund: die automatische Propagierung der Definitionen von vorherigen Knoten wird nicht durchgeführt, weil das auf Statement-Basis problematisch ist (dann ist da alles von allem abhängig)
-  //		- [ ] Auf globaler Definitionsebene (für nicht-Funktionsdefinitionen) könnte das in einem separaten Schritt durchgeführt werden
+  // 	- [x] Was nice wäre: die ganzen global definitionen haben nur "einfache" read abhängigkeiten
+  // zu ihren Properties, aber nicht zu den übergebenen Werten
+  //		- [ ] Grund: die automatische Propagierung der Definitionen von vorherigen Knoten wird nicht
+  // durchgeführt, weil das auf Statement-Basis problematisch ist (dann ist da alles von allem
+  // abhängig)
+  //		- [ ] Auf globaler Definitionsebene (für nicht-Funktionsdefinitionen) könnte das in einem
+  // separaten Schritt durchgeführt werden
   private List<InvolvedVariable> calculateInvolvedVariablesBottomUp(
       GroumNode node, HashSet<GroumNode> childrenInScope) {
     // get preceding nodes
@@ -336,7 +340,8 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
         // collect involved variables of preceding node
         var precdingInvolvedVariables = this.involvedVariables.get(precedingNode);
 
-        // get the involved variables which are not defined by the preceding node itself (which come from before!)
+        // get the involved variables which are not defined by the preceding node itself (which come
+        // from before!)
         var precedingInvolvedVariablesOtherThanNodes =
             precdingInvolvedVariables.stream()
                 .filter(v -> !v.definitionNode().equals(precedingNode))
@@ -369,7 +374,11 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
   @Override
   public List<InvolvedVariable> visit(ControlNode node) {
     GroumScope scope;
-    var incomingNodes = node.getIncomingOfType(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).stream().filter(e -> !e.ignoreInDataAnalysis()).map(GroumEdge::start).toList();
+    var incomingNodes =
+        node.getIncomingOfType(GroumEdge.GroumEdgeType.EDGE_TEMPORAL).stream()
+            .filter(e -> !e.ignoreInDataAnalysis())
+            .map(GroumEdge::start)
+            .toList();
 
     switch (node.controlType()) {
       case ifElseStmt:
@@ -398,14 +407,14 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
 
         for (var incomingNode : incomingNodes) {
           var nodesInvolvedVariables =
-            this.involvedVariables.getOrDefault(incomingNode, new ArrayList<>());
+              this.involvedVariables.getOrDefault(incomingNode, new ArrayList<>());
           nodesInvolvedVariables.forEach(
-            n -> {
-              this.addInvolvedVariable(node, n, n.typeOfInvolvement());
-              var readEdge =
-                new GroumEdge(n.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
-              this.groum.addEdge(readEdge);
-            });
+              n -> {
+                this.addInvolvedVariable(node, n, n.typeOfInvolvement());
+                var readEdge =
+                    new GroumEdge(n.definitionNode(), node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+                this.groum.addEdge(readEdge);
+              });
         }
         break;
       case whileLoop:
@@ -429,10 +438,11 @@ public class FinalGroumBuilder implements GroumVisitor<List<InvolvedVariable>> {
           nodesInvolvedVariables.forEach(
               n -> {
                 this.addInvolvedVariable(node, n, n.typeOfInvolvement());
-                var definitions = this.currentScope().getDefinitions(n.variableInstanceId(), thisScope);
+                var definitions =
+                    this.currentScope().getDefinitions(n.variableInstanceId(), thisScope);
                 for (var definitionNode : definitions) {
                   var readEdge =
-                    new GroumEdge(definitionNode, node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
+                      new GroumEdge(definitionNode, node, GroumEdge.GroumEdgeType.EDGE_DATA_READ);
                   this.groum.addEdge(readEdge);
                 }
               });

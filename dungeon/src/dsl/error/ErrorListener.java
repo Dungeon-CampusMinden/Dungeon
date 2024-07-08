@@ -1,5 +1,6 @@
 package dsl.error;
 
+import dsl.antlr.DungeonDSLParser;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
@@ -35,6 +36,39 @@ public class ErrorListener extends BaseErrorListener {
       int charPositionInLine,
       String msg,
       RecognitionException e) {
+
+    // String text = this._input.getText(Interval.of(this._tokenStartCharIndex,
+    // this._input.index()));
+    /*if (recognizer instanceof DungeonDSLLexer lexer) {
+      String mismatchedText = lexer._input.getText(Interval.of(lexer._tokenStartCharIndex, lexer._input.index()));
+      var vocab = lexer.getVocabulary();
+      var maxTokenType = vocab.getMaxTokenType();
+      ArrayList<String> vocabList = new ArrayList<>();
+      for (int i = 0; i<maxTokenType; i++) {
+        vocabList.add(vocab.getLiteralName(i));
+      }
+      int smallestDist = Integer.MAX_VALUE;
+      int smallestDistIdx = -1;
+      var inst = LevenshteinDistance.getDefaultInstance();
+      for (int i = 0; i < vocabList.size(); i++) {
+        var voc = vocabList.get(i);
+        if (voc != null) {
+          var dist = inst.apply(voc, mismatchedText);
+          if (dist < smallestDist) {
+            smallestDist = dist;
+            smallestDistIdx = i;
+          }
+        }
+      }
+
+      String vocValue = "";
+      if (smallestDistIdx != -1) {
+        vocValue = vocabList.get(smallestDistIdx);
+      }
+
+      boolean b = true;
+    }
+    */
 
     String additionalInformation = "";
     if (recognizer instanceof DungeonDSLParser parser) {

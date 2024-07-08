@@ -24,7 +24,7 @@ public class ExpressionAction extends ActionNode {
 
   @Override
   public String getLabel() {
-    return "<expression [" + this.referencedInstanceId() + "] "+ "op: " + this.operator + ">";
+    return "<expression [" + this.referencedInstanceId() + "] " + "op: " + this.operator + ">";
   }
 
   public ExpressionAction() {

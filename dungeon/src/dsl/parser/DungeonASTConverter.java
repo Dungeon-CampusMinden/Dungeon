@@ -307,7 +307,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
   public void enterVar_decl_assignment_incomplete(
       DungeonDSLParser.Var_decl_assignment_incompleteContext ctx) {}
 
-  private List<String> contextRuleNames (RuleContext ctx) {
+  private List<String> contextRuleNames(RuleContext ctx) {
     List<String> contextRuleNames = new ArrayList<>();
     RuleContext iterRule = ctx;
     String iterRuleName;
@@ -330,6 +330,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     ErrorRecord record =
         new ErrorRecord(
             "Incomplete variable declaration",
+            "",
             null,
             line,
             charPosInLine,
@@ -379,6 +380,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     ErrorRecord record =
         new ErrorRecord(
             "Incomplete variable declaration",
+            "",
             null,
             line,
             charPosInLine,
@@ -426,6 +428,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     ErrorRecord record =
         new ErrorRecord(
             "Incomplete assignment",
+            "",
             null,
             line,
             charPosInLine,
@@ -492,6 +495,7 @@ public class DungeonASTConverter implements dsl.antlr.DungeonDSLParserListener {
     ErrorRecord record =
         new ErrorRecord(
             "Incomplete member accesss",
+            "",
             null,
             line,
             charPosInLine,
