@@ -55,14 +55,14 @@ public class TestState extends GameState implements EventListener {
               FloatBuffer vertices = BufferUtils.createFloatBuffer(24);
               vertices.put(
                   new float[] {
-                    -0.5f, -0.5f, -0.5f,
-                    +0.5f, -0.5f, -0.5f,
-                    +0.5f, +0.5f, -0.5f,
-                    -0.5f, +0.5f, -0.5f,
                     -0.5f, -0.5f, +0.5f,
                     +0.5f, -0.5f, +0.5f,
                     +0.5f, +0.5f, +0.5f,
-                    -0.5f, +0.5f, +0.5f
+                    -0.5f, +0.5f, +0.5f,
+                    -0.5f, -0.5f, -0.5f,
+                    +0.5f, -0.5f, -0.5f,
+                    +0.5f, +0.5f, -0.5f,
+                    -0.5f, +0.5f, -0.5f
                   });
               vertices.flip();
               LOGGER.debug("Loaded vertices");
@@ -141,7 +141,7 @@ public class TestState extends GameState implements EventListener {
             false,
             () -> {
               this.camera = new CameraPerspective();
-              this.camera.position(0, 0, -5.0f);
+              this.camera.position(0, 0, 3.0f);
               LOGGER.debug("Created camera");
             })
         .done(
@@ -189,16 +189,17 @@ public class TestState extends GameState implements EventListener {
     if(Keyboard.keyPressed(GLFW.GLFW_KEY_LEFT_SHIFT)) {
       this.camera.move(0.0f, -deltaTime, 0.0f);
     }
+    this.window.title(this.camera.position().toString(NumberFormat.getInstance()));
 
-    if(this.axis != null) {
-      this.axis.render(this.camera);
-    }
-    /*if (this.mesh != null) {
+    if (this.mesh != null) {
       this.shaderProgram.bind();
       this.shaderProgram.useCamera(this.camera);
       this.mesh.render(this.shaderProgram, GL33.GL_TRIANGLES, 0, 36, false);
       this.shaderProgram.unbind();
-    }*/
+    }
+    if(this.axis != null) {
+      this.axis.render(this.camera);
+    }
   }
 
   @Override
@@ -214,12 +215,9 @@ public class TestState extends GameState implements EventListener {
     Vector2i rel = event.to.sub(event.from, new Vector2i());
     this.camera.pitchDeg((float) -rel.y);
     this.camera.yawDeg((float) -rel.x);
-    LOGGER.debug(
-        "Vectors: Front: {} Right: {} Up: {}",
-        this.camera.front().toString(NumberFormat.getInstance()),
-        this.camera.right().toString(NumberFormat.getInstance()),
-        this.camera.up().toString(NumberFormat.getInstance()));
-    event.setCanceled(true);
+    if(this.window.hasFocus()) {
+      event.to.set(this.window.size().x / 2, this.window.size().y / 2);
+    }
   }
 
   @Override
