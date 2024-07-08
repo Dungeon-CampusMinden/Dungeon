@@ -66,9 +66,9 @@ public final class HealthSystem extends System {
 
   private HSData activateDeathAnimation(final HSData hsd) {
     // set DeathAnimation as active animation
-    Optional<Animation> deathAnimation = hsd.dc.animation(AdditionalAnimations.DIE);
-    deathAnimation.ifPresent(
-        animation -> hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.DIE));
+    hsd.dc.queueAnimation(AdditionalAnimations.DIE);
+
+    // return data object to enable method chaining/streaming
     return hsd;
   }
 
