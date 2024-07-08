@@ -9,8 +9,11 @@ import core.System;
 import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -29,19 +32,18 @@ public final class HealthSystem extends System {
 
   @Override
   public void execute() {
-    filteredEntityStream(HealthComponent.class, DrawComponent.class)
-        // Consider only entities that have a HealthComponent
-        // Form triples (e, hc, dc)
-        .map(this::buildDataObject)
-        // Apply damage
-        .map(this::applyDamage)
-        // Filter all dead entities
-        .filter(hsd -> hsd.hc.isDead())
-        // Set DeathAnimation if possible and not yet set
+    Map<Boolean, List<HSData>> deadOrAlive =
+        filteredEntityStream(HealthComponent.class, DrawComponent.class)
+            .map(this::buildDataObject)
+            .collect(Collectors.partitioningBy(hsd -> hsd.hc.isDead()));
+
+    // apply damage to all entities which are still alive
+    deadOrAlive.get(false).forEach(this::applyDamage);
+
+    // handle dead entities
+    deadOrAlive.get(true).stream()
         .map(this::activateDeathAnimation)
-        // Filter by state of animation
         .filter(this::testDeathAnimationStatus)
-        // Remove all dead entities
         .forEach(this::removeDeadEntities);
   }
 
