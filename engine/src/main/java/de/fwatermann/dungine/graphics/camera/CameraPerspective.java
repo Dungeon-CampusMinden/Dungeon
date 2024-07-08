@@ -22,8 +22,6 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    * Constructs a Camera with specified perspective settings.
    *
    * @param position The position of the camera.
-   * @param front The direction the camera is facing.
-   * @param up The up vector of the camera.
    * @param fov The field of view angle in degrees.
    * @param aspectRatio The aspect ratio (width / height) of the camera.
    * @param near The distance to the near clipping plane.
@@ -32,14 +30,12 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    */
   public CameraPerspective(
       Vector3f position,
-      Vector3f front,
-      Vector3f up,
       float fov,
       float aspectRatio,
       float near,
       float far,
       boolean updateOnChange) {
-    super(position, front, up, updateOnChange);
+    super(position, updateOnChange);
     this.fov = fov;
     this.aspectRatio = aspectRatio;
     this.near = near;
@@ -52,8 +48,6 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    * Constructs a Camera with specified perspective settings.
    *
    * @param position The position of the camera.
-   * @param front The direction the camera is facing.
-   * @param up The up vector of the camera.
    * @param fov The field of view angle in degrees.
    * @param aspectRatio The aspect ratio (width / height) of the camera.
    * @param near The distance to the near clipping plane.
@@ -61,33 +55,11 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    */
   public CameraPerspective(
       Vector3f position,
-      Vector3f front,
-      Vector3f up,
       float fov,
       float aspectRatio,
       float near,
       float far) {
-    this(position, front, up, fov, aspectRatio, near, far, false);
-  }
-
-  /**
-   * Constructs a Camera with specified perspective settings.
-   *
-   * @param position The position of the camera.
-   * @param fov The field of view angle in degrees.
-   * @param aspectRatio The aspect ratio (width / height) of the camera.
-   * @param near The distance to the near clipping plane.
-   * @param far The distance to the far clipping plane.
-   */
-  public CameraPerspective(Vector3f position, float fov, float aspectRatio, float near, float far) {
-    this(
-        position,
-        new Vector3f(0.0f, 0.0f, 1.0f),
-        new Vector3f(0.0f, 1.0f, 0.0f),
-        fov,
-        aspectRatio,
-        near,
-        far);
+    this(position, fov, aspectRatio, near, far, false);
   }
 
   /**
