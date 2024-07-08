@@ -11,6 +11,7 @@ dependencies {
     api supportDependencies.ogm
     api supportDependencies.ogm_core
     api supportDependencies.ogm_bolt_driver
+    api 'org.apache.commons:commons-text:1.12.0'
 
     // ANTLR version 4 for DSL Grammar
     antlr supportDependencies.antlr

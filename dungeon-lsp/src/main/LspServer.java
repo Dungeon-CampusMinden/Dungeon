@@ -136,7 +136,6 @@ public class LspServer
   public CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
     LOGGER.info("initialize");
 
-
     // TODO: welche informationen muss der Server hier speichern oder abfragen?
     var options = initializeParams.getInitializationOptions();
     var caps = initializeParams.getCapabilities();
@@ -1293,7 +1292,7 @@ public class LspServer
       if (!errorRecord.additionalInformation().isEmpty()) {
         // TODO: is not shown
         /*diagnostic.setCodeDescription(
-            new DiagnosticCodeDescription(errorRecord.additionalInformation()));*/
+        new DiagnosticCodeDescription(errorRecord.additionalInformation()));*/
         diagnostic.setMessage(diagnostic.getMessage() + " " + errorRecord.additionalInformation());
       }
       diagnostics.add(diagnostic);
