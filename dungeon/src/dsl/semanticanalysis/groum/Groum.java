@@ -22,7 +22,7 @@ public class Groum implements Relatable {
   // TODO: iterate manually over that..
   @Transient List<GroumEdge> edges = new ArrayList<>();
   // TODO: temporary
-  @Transient public FileScope fileScope;
+  @Relate @Transient public FileScope fileScope;
 
   public Groum() {}
 

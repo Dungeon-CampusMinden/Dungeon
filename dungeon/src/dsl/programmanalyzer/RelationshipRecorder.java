@@ -101,7 +101,7 @@ public class RelationshipRecorder {
                   Relate.Direction.OUTGOING);
 
           var propertyFielsd =
-              Arrays.stream(clazz.getFields()).filter(f -> f.isAnnotationPresent(Property.class));
+              getAllFields(clazz).stream().filter(f -> f.isAnnotationPresent(Property.class));
           HashMap<String, Object> properties = new HashMap<>();
           propertyFielsd.forEach(
               f -> {

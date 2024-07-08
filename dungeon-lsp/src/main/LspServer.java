@@ -65,6 +65,8 @@ public class LspServer
   private ReentrantLock documentCalculationsMutex = new ReentrantLock();
   private HashMap<String, CompletableFuture<Void>> documentAnalysisFutures = new HashMap<>();
 
+  private static List<SemanticCheck> semanticChecks = setupSemanticChecks();
+
   private final PriorityBlockingQueue<Runnable> queue = new PriorityBlockingQueue<>();
   private final ExecutorService EXECUTOR =
       new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES, this.queue);
@@ -96,6 +98,64 @@ public class LspServer
 
     this.dbUpdater.initializeDB();
   }
+
+  private static List<SemanticCheck> setupSemanticChecks() {
+    ArrayList<SemanticCheck> checks = new ArrayList<>();
+    checks.add(
+      new SemanticCheck(
+      """
+        // match unread definitions
+        match (def:DefinitionAction|ParameterInstantiationAction) where not exists {(methodAccess:MethodAccessAction)-[:CHILDREN*]->(def)} and not exists {(def)-[:RELATED_AST_NODE]-(:FuncDefNode)}
+        match (def) where not exists {(def)-[:GROUM_EDGE {edgeType:"EDGE_DATA_READ"}]->()}\s
+        match (def)-[:RELATED_AST_NODE]-(n:AstNode)
+        match (def)-[:INSTANCE_SYMBOL]-(sym:Symbol)
+        match (n)-[:SOURCE_FILE_REFERENCE]-(sfr:SourceFileReference)
+        return distinct def, sfr, sym.name as n0
+        """,
+      1,
+      "Variable '%s' is assigned but never read",
+        DiagnosticSeverity.Hint
+      ));
+
+    checks.add(
+      new SemanticCheck(
+        """
+          //match infinite loop (faster now!)
+          match (n:ControlNode {controlType:"whileLoop"})
+          //match (n)<-[:GROUM_EDGE {edgeType:"EDGE_DATA_READ"}]-(def:DefinitionAction|ParameterInstantiationAction)
+             //match (def)-[:GROUM_EDGE {edgeType:"EDGE_DATA_WRITE"}]-(redef:DefinitionAction)-[:CHILDREN]->*(n)
+          //match p=(def)-[:GROUM_EDGE {edgeType:"EDGE_DATA_WRITE"}]-(redef:DefinitionAction)-[:CHILDREN]->*(n)
+          where not exists {
+            match (n)<-[:GROUM_EDGE {edgeType:"EDGE_DATA_READ"}]-(def:DefinitionAction|ParameterInstantiationAction)
+             match (def)-[:GROUM_EDGE {edgeType:"EDGE_DATA_WRITE"}]-(redef:DefinitionAction)<-[:CHILDREN]-*(n)
+            }
+          match (n)-[:RELATED_AST_NODE]->(node:AstNode)
+          match (node)-[:SOURCE_FILE_REFERENCE]->(sfr:SourceFileReference)
+          return sfr
+          """,
+        0,
+        "Condition of while loop is never updated",
+        DiagnosticSeverity.Warning
+      ));
+
+    checks.add(
+      new SemanticCheck(
+        """
+          match (def1:DefinitionAction)-[:GROUM_EDGE {edgeType:"EDGE_DATA_READ"}]->(def2:DefinitionAction)
+          match (def2)-[:GROUM_EDGE {edgeType:"EDGE_DATA_READ"}]->(def1)
+          match (n)-[:RELATED_AST_NODE]-(def1)
+          match (n)-[:SOURCE_FILE_REFERENCE]-(sfr:SourceFileReference)
+          match (sym1:Symbol)-[:INSTANCE_SYMBOL]-(def1)
+          match (sym2:Symbol)-[:INSTANCE_SYMBOL]-(def2)
+          return sfr, sym1.name as n0, sym2.name as n1
+          """,
+        2,
+        "Definition of object '%s' has a cyclical dependency with object '%s'",
+        DiagnosticSeverity.Error
+      ));
+    return checks;
+  }
+
 
   public <V> CompletableFuture<V> runAsync(Task<V> task) {
     CompletableFuture<V> result = new CompletableFuture<>();
@@ -1298,12 +1358,15 @@ public class LspServer
       diagnostics.add(diagnostic);
     }
 
+    List<Diagnostic> semanticDiagnostics = doSemanticChecks();
+    diagnostics.addAll(semanticDiagnostics);
+
     // nodes with error records
-    for (var node : nodesWithErrorRecord) {
+    //for (var node : nodesWithErrorRecord) {
       // get range for error
-      Position start = new Position(0, 0);
-      Position end = new Position(0, 0);
-      boolean setStart = false;
+     // Position start = new Position(0, 0);
+     // Position end = new Position(0, 0);
+     // boolean setStart = false;
       /*if (node instanceof ASTOffendingSymbol) {
         // get parent
         var parent = node.getParent();
@@ -1334,62 +1397,92 @@ public class LspServer
         }
       }*/
 
-      var errorRecord = node.getErrorRecord();
-      if (errorRecord == null) {
-        continue;
-      }
+    //  var errorRecord = node.getErrorRecord();
+    //  if (errorRecord == null) {
+    //    continue;
+    //  }
 
-      if (!setStart) {
-        var line = errorRecord.line();
-        var charPosition = errorRecord.charPositionInLine();
-        start = new Position(line - 1, charPosition);
-        if (errorRecord.offendingSymbol() != null) {
-          var offendingSymbol = errorRecord.offendingSymbol();
-          boolean b = true;
-        }
-      }
+    //  if (!setStart) {
+    //    var line = errorRecord.line();
+    //    var charPosition = errorRecord.charPositionInLine();
+    //    start = new Position(line - 1, charPosition);
+    //    if (errorRecord.offendingSymbol() != null) {
+    //      var offendingSymbol = errorRecord.offendingSymbol();
+    //      boolean b = true;
+    //    }
+    //  }
 
-      var line = errorRecord.line();
-      var charPosition = errorRecord.charPositionInLine();
-      end = new Position(line - 1, charPosition);
+    //  var line = errorRecord.line();
+    //  var charPosition = errorRecord.charPositionInLine();
+    //  end = new Position(line - 1, charPosition);
 
-      Range range = new Range(start, end);
-      String msg = errorRecord.msg() != null ? errorRecord.msg() : "LEXER ERROR!";
-      Diagnostic diagnostic =
-          new Diagnostic(range, msg, DiagnosticSeverity.Error, "Source: DungeonDSL LSP Server");
-      diagnostics.add(diagnostic);
-    }
+    //  Range range = new Range(start, end);
+    //  String msg = errorRecord.msg() != null ? errorRecord.msg() : "LEXER ERROR!";
+    //  Diagnostic diagnostic =
+    //      new Diagnostic(range, msg, DiagnosticSeverity.Error, "Source: DungeonDSL LSP Server");
+    //  diagnostics.add(diagnostic);
+    //}
 
     // get Parsing errors (ASTErrorNode)
-    for (var node : errorNodes) {
-      var internalErrorNode = node.internalErrorNode();
-      if (internalErrorNode == null) {
-        boolean b = true;
-      }
+    //for (var node : errorNodes) {
+    //  var internalErrorNode = node.internalErrorNode();
+    //  if (internalErrorNode == null) {
+    //    boolean b = true;
+    //  }
 
-      if (node.getErrorRecord() == null) {
-        boolean b = true;
-      } else {
-        var errorRecord = node.getErrorRecord();
-        // var sourceInterval = internalErrorNode.getSourceInterval();
-        // to use source interval, we need the lexer output.. i guess
-        // var symbol = internalErrorNode.getSymbol();
-        // var tokenSource = symbol.getTokenSource();
-        int line = errorRecord.line() - 1; // symbol.getLine() - 1;
-        int charInLine = errorRecord.charPositionInLine(); // symbol.getCharPositionInLine();
+    //  if (node.getErrorRecord() == null) {
+    //    boolean b = true;
+    //  } else {
+    //    var errorRecord = node.getErrorRecord();
+    //    // var sourceInterval = internalErrorNode.getSourceInterval();
+    //    // to use source interval, we need the lexer output.. i guess
+    //    // var symbol = internalErrorNode.getSymbol();
+    //    // var tokenSource = symbol.getTokenSource();
+    //    int line = errorRecord.line() - 1; // symbol.getLine() - 1;
+    //    int charInLine = errorRecord.charPositionInLine(); // symbol.getCharPositionInLine();
 
-        // get range for error
-        Position start = new Position(line, charInLine);
-        Position end = new Position(line, charInLine);
+    //    // get range for error
+    //    Position start = new Position(line, charInLine);
+    //    Position end = new Position(line, charInLine);
 
+    //    Range range = new Range(start, end);
+    //    String msg = errorRecord.msg(); // internalErrorNode.toString();
+    //    Diagnostic diagnostic =
+    //        new Diagnostic(range, msg, DiagnosticSeverity.Error, "Source: DungeonDSL LSP Server");
+    //    diagnostics.add(diagnostic);
+    //  }
+    //}
+    return diagnostics;
+  }
+
+  private List<Diagnostic> doSemanticChecks() {
+    List<Diagnostic> list = new ArrayList<>();
+    for (var semanticCheck : semanticChecks) {
+      // needs to return source file reference as 'sfr'
+      var result = session.query(semanticCheck.cypherQuery, Map.of());
+      var iter = result.iterator();
+      while (iter.hasNext()) {
+        var res = iter.next();
+        var sfr = (SourceFileReference)res.get("sfr");
+        List<String> params = new ArrayList<>();
+        if (semanticCheck.amountParamsFromQuery > 0) {
+          for (int i = 0; i < semanticCheck.amountParamsFromQuery; i++) {
+            String name = "n" + i;
+            String str = (String)res.get(name);
+            params.add(str);
+          }
+        }
+        // create diagnostic
+        String msg = String.format(semanticCheck.msgFmt, params.toArray());
+        Position start = new Position(sfr.getStartLine(), sfr.getStartColumn());
+        Position end = new Position(sfr.getEndLine(), sfr.getEndColumn());
         Range range = new Range(start, end);
-        String msg = errorRecord.msg(); // internalErrorNode.toString();
-        Diagnostic diagnostic =
-            new Diagnostic(range, msg, DiagnosticSeverity.Error, "Source: DungeonDSL LSP Server");
-        diagnostics.add(diagnostic);
+        var diagnostic = new Diagnostic(range, msg);
+        diagnostic.setSeverity(semanticCheck.sev);
+        list.add(diagnostic);
       }
     }
-    return diagnostics;
+    return list;
   }
 
   @Override
