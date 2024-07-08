@@ -95,8 +95,14 @@ public final class HealthSystem extends System {
   private HSData applyDamage(final HSData hsd) {
     int dmgAmount = Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum();
 
+    // do the dance
     doDamageAndAnimation(hsd, dmgAmount);
 
+    // reset all damage objects in health component and apply damage
+    hsd.hc.clearDamage();
+    hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
+
+    // return data object to enable method chaining/streaming
     return hsd;
   }
 
@@ -107,9 +113,6 @@ public final class HealthSystem extends System {
       hitAnimation.ifPresent(
           animation -> hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.HIT));
     }
-    // reset all damage objects in health component and apply damage
-    hsd.hc.clearDamage();
-    hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
   }
 
   private void removeDeadEntities(final HSData hsd) {
