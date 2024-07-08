@@ -96,7 +96,7 @@ public final class HealthSystem extends System {
     int dmgAmount = Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum();
 
     // do the dance
-    doDamageAndAnimation(hsd, dmgAmount);
+    doDamageAndAnimation(hsd.dc, dmgAmount);
 
     // reset all damage objects in health component and apply damage
     hsd.hc.clearDamage();
@@ -106,12 +106,12 @@ public final class HealthSystem extends System {
     return hsd;
   }
 
-  private void doDamageAndAnimation(final HSData hsd, final int dmgAmount) {
+  private void doDamageAndAnimation(final DrawComponent dc, final int dmgAmount) {
     if (dmgAmount > 0) {
-      Optional<Animation> hitAnimation = hsd.dc.animation(AdditionalAnimations.HIT);
+      Optional<Animation> hitAnimation = dc.animation(AdditionalAnimations.HIT);
       // we have some damage - let's show a little dance
       hitAnimation.ifPresent(
-          animation -> hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.HIT));
+          animation -> dc.queueAnimation(animation.duration(), AdditionalAnimations.HIT));
     }
   }
 
