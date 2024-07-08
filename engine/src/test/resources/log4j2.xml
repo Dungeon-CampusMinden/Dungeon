@@ -4,7 +4,7 @@
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{dd.MM.yyyy HH:mm:ss.SSS}/%logger{1}@%t/%highlight{%level}] %msg%n%throwable" />
         </Console>
-        <RollingFile name="file" fileName="logs/test/engine.log" filePattern="logs/%d{yyyy.MM.dd}_%i.log">
+        <RollingFile name="file" fileName="logs/test/engine.log" filePattern="logs/test/%d{yyyy.MM.dd}_%i.log">
             <PatternLayout pattern="[%d{dd.MM.yyyy HH:mm:ss.SSS}/%logger{36}@%t/%level] %msg%n%throwable" />
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -16,7 +16,7 @@
     </Appenders>
 
     <Loggers>
-        <Root level="debug">
+        <Root level="trace">
             <AppenderRef ref="console" />
             <AppenderRef ref="file" />
         </Root>
