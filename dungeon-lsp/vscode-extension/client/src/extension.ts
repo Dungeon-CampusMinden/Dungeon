@@ -26,10 +26,15 @@ export function activate(context: ExtensionContext) {
 
 	// TODO: server command
 
+	const c = context.asAbsolutePath(path.join("../build/install/dungeon-lsp/bin/dungeon-lsp"));
+	console.log(c);
+
+
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
 	const serverOptions: ServerOptions = {
-		command: '/home/malt_r/dev/Dungeon/dungeon-lsp/build/install/dungeon-lsp/bin/dungeon-lsp',
+		//command: '/home/malt_r/dev/Dungeon/dungeon-lsp/build/install/dungeon-lsp/bin/dungeon-lsp',
+		command: c,
 		transport: {kind:TransportKind.socket, port:1044}
 	};
 

@@ -2,11 +2,10 @@ package dsl.error;
 
 import dsl.IndexGenerator;
 import dsl.programmanalyzer.Relatable;
-import org.antlr.v4.runtime.*;
-import org.neo4j.ogm.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.antlr.v4.runtime.*;
+import org.neo4j.ogm.annotation.*;
 
 @NodeEntity
 public class ErrorRecord implements Relatable {
@@ -17,6 +16,7 @@ public class ErrorRecord implements Relatable {
   }
 
   @Property private final String msg;
+  @Property private final String additionalInformation;
   @Transient private final CommonToken offendingSymbol;
   @Property private final int line;
   @Property private final int charPositionInLine;
@@ -66,6 +66,10 @@ public class ErrorRecord implements Relatable {
     return msg;
   }
 
+  public String additionalInformation() {
+    return additionalInformation;
+  }
+
   public List<String> contextRuleNames() {
     return this.contextRuleNames;
   }
@@ -93,6 +97,7 @@ public class ErrorRecord implements Relatable {
   public ErrorRecord() {
     this.documentVersion = g_documentVersion;
     this.msg = "";
+    this.additionalInformation = "";
     this.errorType = ErrorType.none;
     this.line = -1;
     this.charPositionInLine = -1;
@@ -103,6 +108,7 @@ public class ErrorRecord implements Relatable {
 
   public ErrorRecord(
       String msg,
+      String additionalInformation,
       CommonToken offendingSymbol,
       int line,
       int charPositionInLine,
@@ -111,6 +117,7 @@ public class ErrorRecord implements Relatable {
       List<String> contextRuleNames) {
     this.documentVersion = g_documentVersion;
     this.msg = msg;
+    this.additionalInformation = additionalInformation;
     this.errorType = errorType;
     this.offendingSymbol = offendingSymbol;
     this.line = line;

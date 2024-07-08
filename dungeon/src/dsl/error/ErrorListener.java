@@ -36,6 +36,12 @@ public class ErrorListener extends BaseErrorListener {
       String msg,
       RecognitionException e) {
 
+    String additionalInformation = "";
+    if (recognizer instanceof DungeonDSLParser parser) {
+      var context = parser.getContext();
+      additionalInformation = ErrorLinkVisitor.instance.getAdditionalInformation(context);
+    }
+
     if (e != null) {
       var ctx = e.getCtx();
       if (ctx != null) {
@@ -68,7 +74,13 @@ public class ErrorListener extends BaseErrorListener {
     // TODO: how to figure out, that this is actually a lexing error?
     this.errors.add(
         ErrorRecordFactory.instance.errorRecord(
-            msg, (CommonToken) offendingSymbol, line, charPositionInLine, e, contextRuleNames));
+            msg,
+            additionalInformation,
+            (CommonToken) offendingSymbol,
+            line,
+            charPositionInLine,
+            e,
+            contextRuleNames));
 
     if (this.trace) {
       String warning =
