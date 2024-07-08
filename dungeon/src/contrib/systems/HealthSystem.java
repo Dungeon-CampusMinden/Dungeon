@@ -7,7 +7,6 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import java.util.List;
 import java.util.Map;
@@ -82,16 +81,10 @@ public final class HealthSystem extends System {
   }
 
   private HSData buildDataObject(final Entity entity) {
-
-    HealthComponent hc =
-        entity
-            .fetch(HealthComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, HealthComponent.class));
-    DrawComponent ac =
-        entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-    return new HSData(entity, hc, ac);
+    return new HSData(
+        entity,
+        entity.fetch(HealthComponent.class).orElseThrow(),
+        entity.fetch(DrawComponent.class).orElseThrow());
   }
 
   private HSData applyDamage(final HSData hsd) {
