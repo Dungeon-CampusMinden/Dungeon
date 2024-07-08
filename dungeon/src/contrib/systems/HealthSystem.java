@@ -108,10 +108,10 @@ public final class HealthSystem extends System {
 
   private void doAnimation(final DrawComponent dc, final int dmgAmount) {
     if (dmgAmount > 0) {
-      Optional<Animation> hitAnimation = dc.animation(AdditionalAnimations.HIT);
       // we have some damage - let's show a little dance
-      hitAnimation.ifPresent(
-          animation -> dc.queueAnimation(animation.duration(), AdditionalAnimations.HIT));
+      dc.animation(AdditionalAnimations.HIT)
+          .ifPresent(
+              animation -> dc.queueAnimation(animation.duration(), AdditionalAnimations.HIT));
     }
   }
 
