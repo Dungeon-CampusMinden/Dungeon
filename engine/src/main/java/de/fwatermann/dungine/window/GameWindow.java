@@ -27,6 +27,7 @@ import de.fwatermann.dungine.utils.annotations.Nullable;
 import java.io.PrintStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Vector2d;
@@ -94,7 +95,7 @@ public abstract class GameWindow implements Disposable {
   private void _init() {
     MAIN_THREAD = Thread.currentThread();
 
-    System.setOut(new PrintStream(new Log4jOutputStream()));
+    System.setOut(new PrintStream(new Log4jOutputStream(Level.INFO)));
 
     this._initGLFW();
     this._initOpenGL();
@@ -236,10 +237,13 @@ public abstract class GameWindow implements Disposable {
     GL33.glClearColor(0.51f, 0.78f, 0.89f, 1f);
     GL33.glEnable(GL33.GL_DEPTH_TEST);
     GL33.glEnable(GL33.GL_CULL_FACE);
-    GL33.glCullFace(GL33.GL_BACK);
+
+    LOGGER.info("OpenGL Version: {}", GL33.glGetString(GL33.GL_VERSION));
+    LOGGER.debug("CullFace: {}", GL33.glGetInteger(GL33.GL_FRONT_FACE));
 
     if (GLUtils.checkVersion(4, 3)) {
-      GLUtil.setupDebugMessageCallback(System.out);
+      LOGGER.info("OpenGL Version >= 4.3 -> Enabling Debugging");
+      GLUtil.setupDebugMessageCallback(new PrintStream(new Log4jOutputStream(Level.DEBUG)));
     }
 
     GLUtils.checkGLError();
@@ -344,6 +348,7 @@ public abstract class GameWindow implements Disposable {
   public Then runOnMainThread(IVoidFunction func) {
     Then then = new Then(func);
     this.mainThreadQueue.add(then);
+    LOGGER.trace("Queued function for main thread: {}", func);
     return then;
   }
 
