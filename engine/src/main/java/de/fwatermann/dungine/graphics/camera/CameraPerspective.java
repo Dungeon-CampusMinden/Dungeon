@@ -45,7 +45,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
     this.near = near;
     this.far = far;
     this.frustum = new CameraFrustum();
-    this._update(true);
+    this.updateMatrices(true);
   }
 
   /**
@@ -82,7 +82,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
   public CameraPerspective(Vector3f position, float fov, float aspectRatio, float near, float far) {
     this(
         position,
-        new Vector3f(0.0f, 0.0f, -1.0f),
+        new Vector3f(0.0f, 0.0f, 1.0f),
         new Vector3f(0.0f, 1.0f, 0.0f),
         fov,
         aspectRatio,
@@ -150,7 +150,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    */
   public CameraPerspective fov(float fov) {
     this.fov = fov;
-    this._update(false);
+    this.updateMatrices(false);
     return this;
   }
 
@@ -171,7 +171,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    */
   public CameraPerspective aspectRatio(float aspectRatio) {
     this.aspectRatio = aspectRatio;
-    this._update(false);
+    this.updateMatrices(false);
     return this;
   }
 
@@ -192,7 +192,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    */
   public CameraPerspective nearPlane(float nearPlane) {
     this.near = nearPlane;
-    this._update(false);
+    this.updateMatrices(false);
     return this;
   }
 
@@ -213,7 +213,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    */
   public CameraPerspective farPlane(float farPlane) {
     this.far = farPlane;
-    this._update(false);
+    this.updateMatrices(false);
     return this;
   }
 
