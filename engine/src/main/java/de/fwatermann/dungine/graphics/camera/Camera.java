@@ -36,12 +36,12 @@ public abstract class Camera<T extends Camera<T>> {
    * @param updateOnChange If true, the camera will automatically update its view matrix when its
    *     state changes.
    */
-  public Camera(Vector3f position, Vector3f front, Vector3f up, boolean updateOnChange) {
+  public Camera(Vector3f position, boolean updateOnChange) {
     this.position = position;
-    this.front = front;
-    this.initFront = new Vector3f(front).normalize();
-    this.up = up;
-    this.initUp = new Vector3f(up).normalize();
+    this.front = new Vector3f(0, 0, -1);
+    this.initFront = new Vector3f(this.front).normalize();
+    this.up = new Vector3f(0, 1.0f, 0.0f);
+    this.initUp = new Vector3f(this.up).normalize();
     this.right = this.front.cross(this.up, new Vector3f()).normalize();
     this.initRight = new Vector3f(this.right).normalize();
     this.updateOnChange = updateOnChange;
@@ -73,8 +73,7 @@ public abstract class Camera<T extends Camera<T>> {
    */
   protected void updateMatrices(boolean force) {
     if (!force && !this.updateOnChange) return;
-    this.viewMatrix.setLookAt(
-        this.position, this.position.add(this.front, new Vector3f()), this.up);
+    this.viewMatrix.setLookAt(this.position, this.position.add(this.front, new Vector3f()), this.up);
     this.projectionMatrix = this.calcProjectionMatrix(this.projectionMatrix);
     this.onUpdate();
   }

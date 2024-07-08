@@ -16,8 +16,6 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
    * @param viewportHeight The height of the camera's viewport.
    * @param zoom The zoom level of the camera.
    * @param position The initial position of the camera.
-   * @param front The initial front vector of the camera, indicating the direction it is facing.
-   * @param up The initial up vector of the camera.
    * @param updateOnChange If true, the camera will automatically update its view matrix when its
    *     state changes.
    */
@@ -26,10 +24,8 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
       float viewportHeight,
       float zoom,
       Vector3f position,
-      Vector3f front,
-      Vector3f up,
       boolean updateOnChange) {
-    super(position, front, up, updateOnChange);
+    super(position, updateOnChange);
     this.viewportWidth = viewportWidth;
     this.viewportHeight = viewportHeight;
     this.zoom = zoom;
@@ -52,8 +48,6 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
         viewportHeight,
         zoom,
         new Vector3f(),
-        new Vector3f(0, 0, 1),
-        new Vector3f(0, 1, 0),
         updateOnChange);
   }
 
