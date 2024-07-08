@@ -93,9 +93,10 @@ public final class HealthSystem extends System {
   }
 
   private HSData applyDamage(final HSData hsd) {
+    int dmgAmount = Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum();
 
-    doDamageAndAnimation(
-        hsd, Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum());
+    doDamageAndAnimation(hsd, dmgAmount);
+
     return hsd;
   }
 
