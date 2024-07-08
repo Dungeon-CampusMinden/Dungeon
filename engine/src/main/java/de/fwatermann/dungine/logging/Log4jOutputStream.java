@@ -1,13 +1,18 @@
 package de.fwatermann.dungine.logging;
 
+import org.apache.logging.log4j.Level;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 public class Log4jOutputStream extends OutputStream {
 
-  public Log4jOutputStream() {
+  private Level level;
+
+  public Log4jOutputStream(Level logLevel) {
     super();
+    this.level = logLevel;
   }
 
   private Class<?> getCaller() {
@@ -59,9 +64,9 @@ public class Log4jOutputStream extends OutputStream {
     String message = new String(bytes);
     Class<?> caller = this.getCaller();
     if (caller != null) {
-      org.apache.logging.log4j.LogManager.getLogger(caller).info(message);
+      org.apache.logging.log4j.LogManager.getLogger(caller).log(this.level, message);
     } else {
-      org.apache.logging.log4j.LogManager.getLogger("Default").info(message);
+      org.apache.logging.log4j.LogManager.getLogger("Default").log(this.level, message);
     }
   }
 
