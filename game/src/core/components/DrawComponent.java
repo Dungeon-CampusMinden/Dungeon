@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
@@ -175,47 +176,64 @@ public final class DrawComponent implements Component {
   }
 
   /**
-   * Queue up an Animation to be considered as the next played Animation.
+   * Enqueue the first existing animation to be considered as the next animation to be played.
    *
-   * <p>Animations are given as an {@link IPath} Array or multiple variables. The First existing
-   * Animation will be added to the queue. If the Animation is already added, the remaining Frames
-   * are set to the highest of remaining or new.
+   * <p>Animations are given as a number of {@link IPath} objects. The first actually existing
+   * animation will be added to the queue. The duration of the animation (i.e. how many frames *
+   * should the animation be displayed) is specified by the given parameter.
    *
-   * <p>Animation length is set to the given parameter.
-   *
-   * @param forFrames Number of frames to play the Animation for.
-   * @param next Array of IPaths representing the Animation.
+   * @param forFrames Number of frames the animation is to be displayed for
+   * @param next List of potential next animations (represented via <code>IPath</code> objects)
    */
   public void queueAnimation(int forFrames, final IPath... next) {
-    for (IPath path : next) {
-      // is an existing animation of the component
-      if (animationMap.containsKey(path.pathString())) {
-        // check if the path is already queued
-        if (animationQueue.containsKey(path)) {
-          // update time of the animation
-          animationQueue.put(path, Math.max(animationQueue.get(path), forFrames));
-        } else {
-          // add animation
-          animationQueue.put(path, forFrames);
-        }
-        return;
-      }
-    }
+    Consumer<IPath> fn = path -> animationQueue.put(path, duration(path, forFrames));
+
+    queueAnimation(fn, next);
   }
 
   /**
-   * Queue up an Animation to be considered as the next played Animation.
+   * Enqueue the first existing animation to be considered as the next animation to be played.
    *
-   * <p>Animations are given as an {@link IPath} Array or multiple variables. Animation length is
-   * set to the number of frames given for an animation. If you need to queue longer Animations, use
-   * {@link #queueAnimation(int, IPath...)}. The first existing Animation will be added to the
-   * queue.
+   * <p>Animations are given as a number of {@link IPath} objects. The first actually existing
+   * animation will be added to the queue. The number of steps in this animation is used as the
+   * duration of the animation (i.e. how many frames the animation should be displayed).
    *
-   * @param next Array of IPaths representing the Animation.
+   * @param next List of potential next animations (represented via <code>IPath</code> objects)
    */
   public void queueAnimation(final IPath... next) {
-    Arrays.stream(next)
-        .forEach(path -> animation(path).ifPresent(anim -> queueAnimation(anim.duration(), path)));
+    Consumer<IPath> fn =
+        path -> animationQueue.put(path, duration(path, animation(path).orElseThrow().duration()));
+
+    queueAnimation(fn, next);
+  }
+
+  /**
+   * Enqueue the first existing animation to be considered as the next animation to be played.
+   *
+   * <p>Animations are given as a number of {@link IPath} objects. The first actually existing
+   * animation will be added to the queue. The duration of the animation (i.e. how many frames
+   * should the animation be displayed) is specified in the given consumer function.
+   *
+   * @param fn Function to perform the actual enqueuing
+   * @param next List of potential next animations (represented via <code>IPath</code> objects)
+   */
+  private void queueAnimation(final Consumer<IPath> fn, final IPath... next) {
+    Arrays.stream(next).filter(this::hasAnimation).findFirst().ifPresent(fn);
+  }
+
+  /**
+   * Calculate the duration (in frames) for a given animation.
+   *
+   * <p>If the animation is already enqueued, the new duration will be the maximum of the old value
+   * (in the queue) and the value specified by the parameter. Otherwise, it's just the value
+   * specified by the parameter.
+   *
+   * @param path IPath representing the animation
+   * @param forFrames Number of frames the animation is to be shown for
+   * @return max(forFrames, current value) if already enqueued; forFrames otherwise
+   */
+  private int duration(IPath path, int forFrames) {
+    return Math.max(animationQueue.getOrDefault(path, 0), forFrames);
   }
 
   /**
