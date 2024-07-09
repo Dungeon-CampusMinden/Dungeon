@@ -3,6 +3,8 @@ package de.fwatermann.dungine.graphics.texture;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import java.nio.ByteBuffer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL33;
 
 /**
@@ -10,6 +12,8 @@ import org.lwjgl.opengl.GL33;
  * texture, as well as getters and setters for various texture properties.
  */
 public class Texture implements Disposable {
+
+  private static final Logger LOGGER = LogManager.getLogger(Texture.class);
 
   private final int glTextureId;
   private boolean bound = false;
@@ -92,6 +96,16 @@ public class Texture implements Disposable {
     this(width, height, GL33.GL_RGBA, pixels);
   }
 
+  /**
+   * Constructs a new Texture with the specified width and height and default values for format,
+   *
+   * @param width the width of the texture
+   * @param height the height of the texture
+   */
+  public Texture(int width, int height) {
+    this(width, height, GL33.GL_RGBA, null);
+  }
+
   /** Binds this texture to the current texture unit. */
   public void bind() {
     this.unit = GL33.glGetInteger(GL33.GL_ACTIVE_TEXTURE);
@@ -108,7 +122,7 @@ public class Texture implements Disposable {
     this.bound = true;
     GL33.glActiveTexture(textureUnit);
     GL33.glBindTexture(GL33.GL_TEXTURE_2D, this.glTextureId);
-    if (!this.onGPU) {
+    if (!this.onGPU && this.pixels != null) {
       GL33.glTexImage2D(
           GL33.GL_TEXTURE_2D,
           0,
@@ -120,6 +134,8 @@ public class Texture implements Disposable {
           GL33.GL_UNSIGNED_BYTE,
           this.pixels);
       this.onGPU = true;
+    } else if(this.pixels == null) {
+      LOGGER.warn("Binding texture without pixel data!");
     }
   }
 
