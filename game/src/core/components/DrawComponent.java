@@ -176,11 +176,11 @@ public final class DrawComponent implements Component {
   }
 
   /**
-   * Enqueue the first existing animation to be considered as the next animation to be played.
+   * Enqueue the first existing animation in the queue of animations to be played next.
    *
-   * <p>Animations are given as a number of {@link IPath} objects. The first actually existing
-   * animation will be added to the queue. The duration of the animation (i.e. how many frames *
-   * should the animation be displayed) is specified by the given parameter.
+   * <p>Animations to be considered are given as a number of {@link IPath} objects. The first
+   * actually existing animation will be added to the queue. The duration of this animation (i.e.
+   * how many frames should the animation be displayed) is specified by the given parameter.
    *
    * @param forFrames Number of frames the animation is to be displayed for
    * @param next List of potential next animations (represented via <code>IPath</code> objects)
@@ -192,11 +192,12 @@ public final class DrawComponent implements Component {
   }
 
   /**
-   * Enqueue the first existing animation to be considered as the next animation to be played.
+   * Enqueue the first existing animation in the queue of animations to be played next.
    *
-   * <p>Animations are given as a number of {@link IPath} objects. The first actually existing
-   * animation will be added to the queue. The number of steps in this animation is used as the
-   * duration of the animation (i.e. how many frames the animation should be displayed).
+   * <p>Animations to be considered are given as a number of {@link IPath} objects. The first
+   * actually existing animation will be added to the queue. The number of steps in this animation
+   * is used as the duration of the animation (i.e. how many frames the animation should be
+   * displayed).
    *
    * @param next List of potential next animations (represented via <code>IPath</code> objects)
    */
@@ -208,11 +209,13 @@ public final class DrawComponent implements Component {
   }
 
   /**
-   * Enqueue the first existing animation to be considered as the next animation to be played.
+   * Enqueue the first existing animation in the queue of animations to be played next.
    *
-   * <p>Animations are given as a number of {@link IPath} objects. The first actually existing
-   * animation will be added to the queue. The duration of the animation (i.e. how many frames
-   * should the animation be displayed) is specified in the given consumer function.
+   * <p>Animations to be considered are given as a number of {@link IPath} objects. The first
+   * actually existing animation will be added to the queue. The duration of the animation (i.e. how
+   * many frames should the animation be displayed) is specified in the given consumer function.
+   *
+   * <p>This is an internal auxiliary function.
    *
    * @param fn Function to perform the actual enqueuing
    * @param next List of potential next animations (represented via <code>IPath</code> objects)
