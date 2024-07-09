@@ -1,4 +1,4 @@
-package de.fwatermann.dungine.graphics;
+package de.fwatermann.dungine.graphics.texture;
 
 import de.fwatermann.dungine.resource.Resource;
 import java.io.IOException;
