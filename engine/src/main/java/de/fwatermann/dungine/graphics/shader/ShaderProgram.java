@@ -51,7 +51,7 @@ public class ShaderProgram implements Disposable {
     } else {
       System.out.println("Successfully linked shader program: " + this.glHandle);
     }
-    GLUtils.checkGLError();
+    GLUtils.checkError();
   }
 
   /** Binds this shader program. */

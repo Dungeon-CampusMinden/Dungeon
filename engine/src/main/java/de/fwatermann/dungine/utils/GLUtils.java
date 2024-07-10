@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL33;
 public class GLUtils {
 
   /** Checks for OpenGL errors and throws a RuntimeException if an error occurred. */
-  public static void checkGLError() {
+  public static void checkError() {
     ThreadUtils.checkMainThread();
     int error = GL33.glGetError();
     if (error != GL33.GL_NO_ERROR) {
