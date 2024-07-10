@@ -6,7 +6,6 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-
 /**
  * Abstract base class for a camera system in a 3D environment. This class provides the basic
  * functionality to manipulate the camera's position, orientation, and projection.
@@ -73,7 +72,8 @@ public abstract class Camera<T extends Camera<T>> {
    */
   protected void updateMatrices(boolean force) {
     if (!force && !this.updateOnChange) return;
-    this.viewMatrix.setLookAt(this.position, this.position.add(this.front, new Vector3f()), this.up);
+    this.viewMatrix.setLookAt(
+        this.position, this.position.add(this.front, new Vector3f()), this.up);
     this.projectionMatrix = this.calcProjectionMatrix(this.projectionMatrix);
     this.onUpdate();
   }
