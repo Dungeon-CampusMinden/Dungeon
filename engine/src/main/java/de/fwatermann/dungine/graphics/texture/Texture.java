@@ -2,9 +2,11 @@ package de.fwatermann.dungine.graphics.texture;
 
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
+import de.fwatermann.dungine.utils.ThreadUtils;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
 /**
@@ -16,8 +18,6 @@ public class Texture implements Disposable {
   private static final Logger LOGGER = LogManager.getLogger(Texture.class);
 
   private final int glTextureId;
-  private boolean bound = false;
-  private boolean onGPU = false;
   private int unit;
   private int width;
   private int height;
@@ -25,7 +25,6 @@ public class Texture implements Disposable {
   private int maxFilter;
   private int wrapS;
   private int wrapT;
-  private ByteBuffer pixels;
 
   /**
    * Constructs a new Texture with the specified parameters.
@@ -48,19 +47,25 @@ public class Texture implements Disposable {
       int wrapS,
       int wrapT,
       ByteBuffer pixels) {
+    ThreadUtils.checkMainThread();
     this.glTextureId = GL33.glGenTextures();
     this.width = width;
     this.height = height;
-    this.pixels = pixels;
     GL33.glActiveTexture(GL33.GL_TEXTURE0);
     GL33.glBindTexture(GL33.GL_TEXTURE_2D, this.glTextureId);
-    // GL33.glTexImage2D(GL33.GL_TEXTURE_2D, 0, format, width, height, 0, format,
-    // GL33.GL_UNSIGNED_BYTE, 0);
+    if (pixels != null) {
+      GL33.glTexImage2D(
+          GL33.GL_TEXTURE_2D, 0, format, width, height, 0, format, GL33.GL_UNSIGNED_BYTE, pixels);
+    } else {
+      GL33.glTexImage2D(
+          GL33.GL_TEXTURE_2D, 0, format, width, height, 0, format, GL33.GL_UNSIGNED_BYTE, 0);
+    }
     GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, minFilter);
     GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, maxFilter);
     GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, wrapS);
     GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, wrapT);
     GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
+    LOGGER.debug("Created texture {}", this.glTextureId);
   }
 
   /**
@@ -118,38 +123,30 @@ public class Texture implements Disposable {
    * @param textureUnit the texture unit to bind this texture to
    */
   public void bind(int textureUnit) {
+    ThreadUtils.checkMainThread();
     this.unit = textureUnit;
-    this.bound = true;
     GL33.glActiveTexture(textureUnit);
     GL33.glBindTexture(GL33.GL_TEXTURE_2D, this.glTextureId);
-    if (!this.onGPU && this.pixels != null) {
-      GL33.glTexImage2D(
-          GL33.GL_TEXTURE_2D,
-          0,
-          GL33.GL_RGBA,
-          this.width,
-          this.height,
-          0,
-          GL33.GL_RGBA,
-          GL33.GL_UNSIGNED_BYTE,
-          this.pixels);
-      this.onGPU = true;
-    } else if(this.pixels == null) {
-      LOGGER.warn("Binding texture without pixel data!");
-    }
+    LOGGER.trace(
+        "Bound texture {} to unit {} ({})",
+        this.glTextureId,
+        textureUnit,
+        (textureUnit - GL33.GL_TEXTURE0));
   }
 
   /** Unbinds this texture from the current texture unit. */
   public void unbind() {
-    this.bound = false;
-    int tmpUnit = GL33.glGetInteger(GL33.GL_ACTIVE_TEXTURE);
-    if (tmpUnit != this.unit) {
+    ThreadUtils.checkMainThread();
+    int[] currentUnit = new int[1];
+    GL33.glGetIntegerv(GL33.GL_ACTIVE_TEXTURE, currentUnit);
+    if (currentUnit[0] != this.unit) {
       GL33.glActiveTexture(this.unit);
       GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
-      GL33.glActiveTexture(tmpUnit);
+      GL33.glActiveTexture(currentUnit[0]);
     } else {
       GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
     }
+    LOGGER.trace("Unbound texture {}", this.glTextureId);
   }
 
   /**
@@ -255,13 +252,45 @@ public class Texture implements Disposable {
   }
 
   /**
-   * Returns the pixel data of this texture.
+   * Get the pixels in the texture.
+   *
+   * <p>Note: The pixels are fetched from the GPU so this method should be used sparingly.
    *
    * @return the pixel data of this texture
    */
-  public ByteBuffer pixels() {
-    if (this.pixels == null) return null;
-    return this.pixels.asReadOnlyBuffer();
+  public ByteBuffer readPixels() {
+    ThreadUtils.checkMainThread();
+    ByteBuffer buffer = BufferUtils.createByteBuffer(this.width * this.height * 4);
+    int currentTexture = GL33.glGetInteger(GL33.GL_TEXTURE_BINDING_2D);
+    GL33.glBindTexture(GL33.GL_TEXTURE_2D, this.glTextureId);
+    GL33.glGetTexImage(GL33.GL_TEXTURE_2D, 0, GL33.GL_RGBA, GL33.GL_UNSIGNED_BYTE, buffer);
+    GL33.glBindTexture(GL33.GL_TEXTURE_2D, currentTexture);
+    return buffer;
+  }
+
+  /**
+   * Reads the pixels of this texture into the specified destination buffer.
+   *
+   * <p>Note: The destination buffer must be direct and in native byte order. The destination buffer
+   * must also fit the dimensions of the texture (width * height * 4 (RGBA))!
+   *
+   * <p>Note: The pixels are fetched from the GPU so this method should be used sparingly.
+   *
+   * @param destination the destination buffer to read the pixels into
+   * @return this texture
+   */
+  public Texture readPixels(ByteBuffer destination) {
+    ThreadUtils.checkMainThread();
+    GLUtils.checkBuffer(destination);
+    if (destination.remaining() < this.width * this.height * 4) {
+      throw new IllegalArgumentException(
+          "Destination buffer does not fit to the dimensions. The remaining length of the buffer must be width * height * 4 (RGBA)!");
+    }
+    int currentTexture = GL33.glGetInteger(GL33.GL_TEXTURE_BINDING_2D);
+    GL33.glBindTexture(GL33.GL_TEXTURE_2D, this.glTextureId);
+    GL33.glGetTexImage(GL33.GL_TEXTURE_2D, 0, GL33.GL_RGBA, GL33.GL_UNSIGNED_BYTE, destination);
+    GL33.glBindTexture(GL33.GL_TEXTURE_2D, currentTexture);
+    return this;
   }
 
   /**
@@ -296,8 +325,7 @@ public class Texture implements Disposable {
     }
     this.width = width;
     this.height = height;
-    this.pixels = pixels;
-    int tmpUnit = GL33.glGetInteger(GL33.GL_ACTIVE_TEXTURE);
+    int currentTexture = GL33.glGetInteger(GL33.GL_TEXTURE_BINDING_2D);
     GL33.glBindTexture(GL33.GL_TEXTURE_2D, this.glTextureId);
     GL33.glTexImage2D(
         GL33.GL_TEXTURE_2D,
@@ -308,8 +336,8 @@ public class Texture implements Disposable {
         0,
         GL33.GL_RGBA,
         GL33.GL_UNSIGNED_BYTE,
-        this.pixels);
-    GL33.glBindTexture(GL33.GL_TEXTURE_2D, tmpUnit);
+        pixels);
+    GL33.glBindTexture(GL33.GL_TEXTURE_2D, currentTexture);
     return this;
   }
 
@@ -317,6 +345,9 @@ public class Texture implements Disposable {
   @Override
   public void dispose() {
     GL33.glDeleteTextures(this.glTextureId);
-    this.pixels = null;
+  }
+
+  public int glHandle() {
+    return this.glTextureId;
   }
 }
