@@ -252,7 +252,7 @@ public abstract class GameWindow implements Disposable {
       GLUtil.setupDebugMessageCallback(new PrintStream(new Log4jOutputStream(Level.DEBUG)));
     }
 
-    GLUtils.checkGLError();
+    GLUtils.checkError();
   }
 
   private void _updateLoop() {
