@@ -2,6 +2,9 @@ package de.fwatermann.dungine.graphics.texture.atlas;
 
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.utils.annotations.Null;
+
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -112,9 +115,14 @@ public class TextureAtlas {
    *
    * <p>The atlas is saved as a series of images, one for each AtlasTexture.
    *
-   * @param path the path to save the atlas to
+   * <p>If the specified path does not exist, it is created.
+   *
+   * @param path the path to save the atlas to (must be a directory)
    */
-  public void saveAtlas(Path path) {
+  public void saveAtlas(Path path) throws IOException {
+    if (Files.notExists(path)) {
+      Files.createDirectories(path);
+    }
     for (int i = 0; i < this.atlases.size(); i++) {
       this.atlases.get(i).save(path.resolve("atlas" + i + ".png"));
     }
