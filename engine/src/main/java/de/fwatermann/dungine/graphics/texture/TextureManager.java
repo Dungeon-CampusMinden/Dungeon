@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.graphics.texture;
 
 import de.fwatermann.dungine.resource.Resource;
+import de.fwatermann.dungine.utils.GLUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -45,21 +46,28 @@ public class TextureManager {
    * @throws RuntimeException if the image fails to load or if an I/O error occurs
    */
   public Texture load(Resource resource) {
-    return this.resourceCache.computeIfAbsent(resource, k -> {
-      try {
-        ByteBuffer bytes = resource.readBytes();
-        int[] width = new int[1];
-        int[] height = new int[1];
-        int[] channels = new int[1];
-        ByteBuffer pixels = STBImage.stbi_load_from_memory(bytes, width, height, channels, 4);
-        if(pixels == null) {
-          throw new RuntimeException("Failed to load image: " + STBImage.stbi_failure_reason());
-        }
-        return new Texture(width[0], height[0], pixels);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    });
+    return this.resourceCache.computeIfAbsent(
+        resource,
+        k -> {
+          try {
+            return loadTexture(resource.readBytes());
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  /**
+   * Loads a texture from a resource and caches it. If the texture has already been loaded, the
+   * cached texture is returned.
+   *
+   * @param resource the Resource that contains the texture data
+   * @param cached an array to store whether the texture was cached
+   * @return the loaded texture
+   */
+  public Texture load(Resource resource, boolean[] cached) {
+    cached[0] = this.resourceCache.containsKey(resource);
+    return this.load(resource);
   }
 
   /**
@@ -84,20 +92,11 @@ public class TextureManager {
             byte[] data = is.readAllBytes();
             is.close();
 
-            int[] width = new int[1];
-            int[] height = new int[1];
-            int[] channels = new int[1];
-
             ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
             buffer.put(data);
             buffer.position(0);
 
-            ByteBuffer pixels = STBImage.stbi_load_from_memory(buffer, width, height, channels, 4);
-            if (pixels == null) {
-              throw new RuntimeException("Failed to load image: " + STBImage.stbi_failure_reason());
-            }
-
-            return new Texture(width[0], height[0], pixels);
+            return loadTexture(buffer);
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
@@ -119,25 +118,28 @@ public class TextureManager {
         p -> {
           try {
             byte[] data = Files.readAllBytes(java.nio.file.Paths.get(p));
-
-            int[] width = new int[1];
-            int[] height = new int[1];
-            int[] channels = new int[1];
-
             ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
             buffer.put(data);
             buffer.position(0);
-
-            ByteBuffer pixels = STBImage.stbi_load_from_memory(buffer, width, height, channels, 4);
-            if (pixels == null) {
-              throw new RuntimeException("Failed to load image: " + STBImage.stbi_failure_reason());
-            }
-
-            return new Texture(width[0], height[0], pixels);
+            return loadTexture(buffer);
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
         });
+  }
+
+  private static Texture loadTexture(ByteBuffer buffer) {
+    GLUtils.checkBuffer(buffer);
+    int[] width = new int[1];
+    int[] height = new int[1];
+    int[] channels = new int[1];
+    ByteBuffer pixels = STBImage.stbi_load_from_memory(buffer, width, height, channels, 4);
+    if (pixels == null) {
+      throw new RuntimeException("Failed to load image: " + STBImage.stbi_failure_reason());
+    }
+    Texture ret = new Texture(width[0], height[0], pixels);
+    STBImage.stbi_image_free(pixels);
+    return ret;
   }
 
   /**
@@ -164,11 +166,11 @@ public class TextureManager {
 
   /**
    * Removes the texture from the resource cache.
+   *
    * @param resource the resource to remove
    * @return the removed texture, or null if the texture was not in the cache
    */
   public Texture removeFromResourceCache(Resource resource) {
     return this.resourceCache.remove(resource);
   }
-
 }
