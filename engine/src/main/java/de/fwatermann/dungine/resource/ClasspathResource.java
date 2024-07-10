@@ -45,7 +45,12 @@ public class ClasspathResource extends Resource {
     if (this.buffer == null) {
       this.read();
     }
-    return this.buffer.asReadOnlyBuffer();
+    return this.buffer.asReadOnlyBuffer().order(ByteOrder.nativeOrder());
+  }
+
+  @Override
+  public void deallocate() {
+    this.buffer = null;
   }
 
   @Override
