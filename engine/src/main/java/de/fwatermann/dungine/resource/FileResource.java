@@ -32,12 +32,17 @@ public class FileResource extends Resource {
     if (this.buffer == null) {
       this.read();
     }
-    return this.buffer.asReadOnlyBuffer();
+    return this.buffer.asReadOnlyBuffer().order(ByteOrder.nativeOrder());
   }
 
   @Override
   public long size() throws IOException {
     return this.buffer != null ? this.buffer.capacity() : Files.size(this.path);
+  }
+
+  @Override
+  public void deallocate() {
+    this.buffer = null;
   }
 
   @Override
