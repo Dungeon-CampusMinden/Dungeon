@@ -148,7 +148,7 @@ public class KillMonsterRoom extends Room {
     monster1.add(new PositionComponent());
     monster1.add(new AIComponent(AIFactory.randomFightAI(), AIFactory.randomIdleAI(), e -> true));
     try {
-      monster1.add(new DrawComponent(new SimpleIPath("character/monster/big_deamon")));
+      monster1.add(new DrawComponent(new SimpleIPath("character/monster/big_daemon")));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
