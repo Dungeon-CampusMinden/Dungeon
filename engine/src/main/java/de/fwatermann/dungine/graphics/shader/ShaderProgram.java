@@ -10,8 +10,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.joml.Vector4f;
+import org.joml.Vector4i;
 import org.lwjgl.opengl.GL33;
 
 /**
@@ -80,16 +83,17 @@ public class ShaderProgram implements Disposable {
    * @return the location of the uniform
    */
   public int getUniformLocation(String name) {
-    Integer ret = this.uniformLocations.computeIfAbsent(
-        name,
-        k -> {
-          int loc = GL33.glGetUniformLocation(this.glHandle, k);
-          if (loc == -1) {
-            LOGGER.warn("Uniform '{}' not found in shader program", k);
-            return null;
-          }
-          return loc;
-        });
+    Integer ret =
+        this.uniformLocations.computeIfAbsent(
+            name,
+            k -> {
+              int loc = GL33.glGetUniformLocation(this.glHandle, k);
+              if (loc == -1) {
+                LOGGER.warn("Uniform '{}' not found in shader program", k);
+                return null;
+              }
+              return loc;
+            });
     return ret == null ? -1 : ret;
   }
 
@@ -100,16 +104,17 @@ public class ShaderProgram implements Disposable {
    * @return the location of the attribute
    */
   public int getAttributeLocation(String name) {
-    Integer ret = this.attributeLocations.computeIfAbsent(
-        name,
-        k -> {
-          int loc = GL33.glGetAttribLocation(this.glHandle, k);
-          if (loc == -1) {
-            LOGGER.warn("Attribute '{}' not found in shader program", k);
-            return null;
-          }
-          return loc;
-        });
+    Integer ret =
+        this.attributeLocations.computeIfAbsent(
+            name,
+            k -> {
+              int loc = GL33.glGetAttribLocation(this.glHandle, k);
+              if (loc == -1) {
+                LOGGER.warn("Attribute '{}' not found in shader program", k);
+                return null;
+              }
+              return loc;
+            });
     return ret == null ? -1 : ret;
   }
 
@@ -154,6 +159,14 @@ public class ShaderProgram implements Disposable {
     GL33.glUniform2f(this.getUniformLocation(name), value.x, value.y);
   }
 
+  public void setUniform2iv(String name, int x, int y) {
+    GL33.glUniform2i(this.getUniformLocation(name), x, y);
+  }
+
+  public void setUniform2i(String name, Vector2i value) {
+    GL33.glUniform2i(this.getUniformLocation(name), value.x, value.y);
+  }
+
   /**
    * Sets the uniform with the specified name to the specified value.
    *
@@ -183,6 +196,28 @@ public class ShaderProgram implements Disposable {
    * @param x the x component of the value
    * @param y the y component of the value
    * @param z the z component of the value
+   */
+  public void setUniform3iv(String name, int x, int y, int z) {
+    GL33.glUniform3i(this.getUniformLocation(name), x, y, z);
+  }
+
+  /**
+   * Sets the uniform with the specified name to the specified value.
+   *
+   * @param name the name of the uniform
+   * @param value the value of the uniform
+   */
+  public void setUniform3i(String name, Vector3i value) {
+    GL33.glUniform3i(this.getUniformLocation(name), value.x, value.y, value.z);
+  }
+
+  /**
+   * Sets the uniform with the specified name to the specified value.
+   *
+   * @param name the name of the uniform
+   * @param x the x component of the value
+   * @param y the y component of the value
+   * @param z the z component of the value
    * @param w the w component of the value
    */
   public void setUniform4fv(String name, float x, float y, float z, float w) {
@@ -197,6 +232,29 @@ public class ShaderProgram implements Disposable {
    */
   public void setUniform4f(String name, Vector4f value) {
     GL33.glUniform4f(this.getUniformLocation(name), value.x, value.y, value.z, value.w);
+  }
+
+  /**
+   * Sets the uniform with the specified name to the specified value.
+   *
+   * @param name the name of the uniform
+   * @param x the x component of the value
+   * @param y the y component of the value
+   * @param z the z component of the value
+   * @param w the w component of the value
+   */
+  public void setUniform4iv(String name, int x, int y, int z, int w) {
+    GL33.glUniform4i(this.getUniformLocation(name), x, y, z, w);
+  }
+
+  /**
+   * Sets the uniform with the specified name to the specified value.
+   *
+   * @param name the name of the uniform
+   * @param value the value of the uniform
+   */
+  public void setUniform4i(String name, Vector4i value) {
+    GL33.glUniform4i(this.getUniformLocation(name), value.x, value.y, value.z, value.w);
   }
 
   /**
