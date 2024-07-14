@@ -2,9 +2,10 @@ package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.utils.GLUtils;
-import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL33;
@@ -19,11 +20,9 @@ public abstract class InstancedMesh extends Mesh {
 
   private static final Logger LOGGER = LogManager.getLogger(InstancedMesh.class);
 
-  protected int glIBO;
-
+  protected List<Integer> glIBOs = new ArrayList<>();
   protected InstanceAttributeList instanceAttributes;
-  protected @Null ByteBuffer instanceData;
-  protected boolean instanceDataDirty = false;
+  protected List<InstanceDataBuffer> instanceData = new ArrayList<>();
   protected int instanceCount = 0;
 
   /**
@@ -47,46 +46,51 @@ public abstract class InstancedMesh extends Mesh {
     super(vertices, usageHint, attributes);
     GLUtils.checkBuffer(instanceData);
     this.instanceAttributes = instanceAttributes;
-    this.instanceData = instanceData;
+    this.instanceData.add(new InstanceDataBuffer(GL33.glGenBuffers(), instanceData, instanceData != null));
     this.instanceCount = instanceCount;
-    this.instanceDataDirty = this.instanceData != null;
-    this.initGL();
-  }
-
-  private void initGL() {
-    this.glIBO = GL33.glGenBuffers();
-    LOGGER.debug("Generated IBO: {}", this.glIBO);
-    this.updateInstanceBuffer();
   }
 
   protected void updateInstanceBuffer() {
-    if (this.instanceData != null && this.instanceDataDirty) {
-      GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glIBO);
-      GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.instanceData, this.usageHint.getGLConstant());
-      GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
-      this.instanceDataDirty = false;
-      LOGGER.debug("Updated IBO {}", this.glIBO);
+    for (InstanceDataBuffer buffers : this.instanceData) {
+      if (buffers.dirty) {
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, buffers.glIBO);
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, buffers.instanceData, this.usageHint.getGLConstant());
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
+        buffers.dirty = false;
+        LOGGER.debug("Updated IBO {}", buffers.glIBO);
+      }
     }
   }
 
   /**
    * Returns the instance data buffer of the mesh.
    *
+   * @param index the index of the instance data buffer to return
    * @return the instance data buffer of the mesh
    */
-  public ByteBuffer getInstanceData() {
-    return this.instanceData;
+  public ByteBuffer getInstanceData(int index) {
+    InstanceDataBuffer buffers = this.instanceData.get(index);
+    if(buffers != null) {
+      return buffers.instanceData;
+    }
+    return null;
   }
 
   /**
    * Sets the instance data buffer of the mesh.
    *
    * @param buffer the new instance data buffer of the mesh
+   * @param index the index of the instance data buffer to set
    */
-  public void setInstanceData(ByteBuffer buffer) {
+  public void setInstanceData(ByteBuffer buffer, int index) {
     GLUtils.checkBuffer(buffer);
-    this.instanceData = buffer;
-    this.instanceDataDirty = true;
+    InstanceDataBuffer buffers = this.instanceData.get(index);
+    if(buffers != null) {
+      buffers.instanceData = buffer;
+      buffers.dirty = true;
+    } else {
+      this.instanceData.set(index, new InstanceDataBuffer(GL33.glGenBuffers(), buffer, true));
+    }
   }
 
   /**
@@ -114,6 +118,32 @@ public abstract class InstancedMesh extends Mesh {
    * the next time the mesh is rendered.
    */
   public void markInstanceDataDirty() {
-    this.instanceDataDirty = true;
+    this.instanceData.forEach(buffer -> buffer.dirty = true);
   }
+
+  public void markInstanceDataDirty(int index) {
+    InstanceDataBuffer buffers = this.instanceData.get(index);
+    if(buffers != null) {
+      buffers.dirty = true;
+    }
+  }
+
+  public static class InstanceDataBuffer {
+
+    public int glIBO;
+    public ByteBuffer instanceData;
+    public boolean dirty = false;
+
+    public InstanceDataBuffer(int glIBO, ByteBuffer instanceData, boolean dirty) {
+      this.glIBO = glIBO;
+      this.instanceData = instanceData;
+      this.dirty = dirty;
+    }
+
+    public InstanceDataBuffer(int glIBO, ByteBuffer instanceData) {
+      this(glIBO, instanceData, instanceData != null);
+    }
+
+  }
+
 }
