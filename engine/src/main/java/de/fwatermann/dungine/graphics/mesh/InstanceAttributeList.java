@@ -3,7 +3,10 @@ package de.fwatermann.dungine.graphics.mesh;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.ReadOnlyIterator;
 import de.fwatermann.dungine.utils.ThreadUtils;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL33;
@@ -32,17 +35,6 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
    */
   public InstanceAttributeList(InstanceAttribute... attributes) {
     this.attributes = attributes;
-    this.calculateOffsets();
-  }
-
-  /** Calculates the offsets of the InstanceAttributes in the list. */
-  private void calculateOffsets() {
-    int offset = 0;
-    for (InstanceAttribute attribute : this.attributes) {
-      attribute.offset = offset;
-      offset += attribute.getSizeInBytes();
-    }
-    this.sizeInBytes = offset;
   }
 
   /**
@@ -92,17 +84,19 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
    *
    * @param shaderProgram the shader program to bind the attribute pointers to
    * @param vao the vertex array object to bind the attribute pointers to
-   * @param ibo the instance data buffer object to bind the attribute pointers to
+   * @param buffers the instance data buffers to bind the attribute pointers to
    */
-  public void bindAttribPointers(ShaderProgram shaderProgram, int vao, int ibo) {
+  public void bindAttribPointers(ShaderProgram shaderProgram, int vao, List<InstancedMesh.InstanceDataBuffer> buffers) {
     ThreadUtils.checkMainThread();
+    Map<Integer, Integer> offsets = new HashMap<>();
     GL33.glBindVertexArray(vao);
-    GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, ibo);
     this.forEach(
         attrib -> {
+          GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, buffers.get(attrib.bufferIndex).glIBO);
           int loc = shaderProgram.getAttributeLocation(attrib.name);
           if (loc != -1) {
             int remaining = attrib.numComponents;
+            int offset = offsets.getOrDefault(attrib.bufferIndex, 0);
             while (remaining > 0) {
               GL33.glEnableVertexAttribArray(loc);
               GL33.glVertexAttribDivisor(loc, 1);
@@ -115,10 +109,11 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
                   attrib.glType,
                   false,
                   this.sizeInBytes(),
-                  attrib.offset + (long) (attrib.numComponents - remaining) * 4);
+                  offset + (long) (attrib.numComponents - remaining) * 4);
               remaining -= Math.min(remaining, 4);
               loc++;
             }
+            offsets.put(attrib.bufferIndex, offset + attrib.getSizeInBytes());
           }
         });
     GL33.glBindVertexArray(0);

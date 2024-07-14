@@ -95,7 +95,7 @@ public class InstancedArrayMesh extends InstancedMesh {
 
     if (this.lastShaderProgram != shaderProgram) {
       this.attributes.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO);
-      this.instanceAttributes.bindAttribPointers(shaderProgram, this.glVAO, this.glIBO);
+      this.instanceAttributes.bindAttribPointers(shaderProgram, this.glVAO, this.instanceData);
       this.lastShaderProgram = shaderProgram;
     }
 
@@ -117,6 +117,6 @@ public class InstancedArrayMesh extends InstancedMesh {
     ThreadUtils.checkMainThread();
     GL33.glDeleteVertexArrays(this.glVAO);
     GL33.glDeleteBuffers(this.glVBO);
-    GL33.glDeleteBuffers(this.glIBO);
+    this.instanceData.forEach(buffer -> GL33.glDeleteBuffers(buffer.glIBO));
   }
 }

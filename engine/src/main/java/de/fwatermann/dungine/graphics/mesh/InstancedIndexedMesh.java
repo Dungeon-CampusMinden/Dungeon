@@ -52,7 +52,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
     super(vertices, instanceData, instanceCount, usageHint, attributes, instanceAttributes);
     GLUtils.checkBuffer(indices);
     this.indices = indices;
-    this.indicesDirty = this.indices != null;
+    this.indicesDirty = indices != null;
     this.initGL();
   }
 
@@ -165,7 +165,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
 
     if (this.lastShaderProgram != shaderProgram) {
       this.attributes.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO);
-      this.instanceAttributes.bindAttribPointers(shaderProgram, this.glVAO, this.glIBO);
+      this.instanceAttributes.bindAttribPointers(shaderProgram, this.glVAO, this.instanceData);
       this.lastShaderProgram = shaderProgram;
     }
 

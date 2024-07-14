@@ -10,20 +10,22 @@ import org.lwjgl.opengl.GL33;
  */
 public class InstanceAttribute {
 
+  public final int bufferIndex;
   public final int numComponents;
   public final int glType;
-  protected int offset;
   public final String name;
 
   /**
    * Constructs a InstanceAttribute with the specified usage, number of components, GL type, offset,
-   * and name.
+   * bufferIndex and name.
    *
+   * @param bufferIndex the index of the buffer containing the instance attribute
    * @param numComponents the number of components of the instance attribute
    * @param glType the GL type of the instance attribute
    * @param name the name of the instance attribute
    */
-  public InstanceAttribute(int numComponents, int glType, @NotNull String name) {
+  public InstanceAttribute(int bufferIndex, int numComponents, int glType, @NotNull String name) {
+    this.bufferIndex = bufferIndex;
     this.numComponents = numComponents;
     this.glType = glType;
     this.name = name;
@@ -41,6 +43,18 @@ public class InstanceAttribute {
   }
 
   /**
+   * Constructs a InstanceAttribute with the specified usage, number of components, GL type, offset,
+   * and name.
+   *
+   * @param numComponents the number of components of the instance attribute
+   * @param glType the GL type of the instance attribute
+   * @param name the name of the instance attribute
+   */
+  public InstanceAttribute(int numComponents, int glType, @NotNull String name) {
+    this(0, numComponents, glType, name);
+  }
+
+  /**
    * Returns the size of the attribute in bytes.
    *
    * @return the size of the attribute in bytes
@@ -52,15 +66,6 @@ public class InstanceAttribute {
       case GL33.GL_UNSIGNED_SHORT, GL33.GL_SHORT -> this.numComponents * 2;
       default -> throw new IllegalArgumentException("Invalid GL type: " + this.glType);
     };
-  }
-
-  /**
-   * Get the offset of the attributes in bytes.
-   *
-   * @return the offset of the attributes in bytes
-   */
-  public int offset() {
-    return this.offset;
   }
 
   /**
@@ -76,8 +81,8 @@ public class InstanceAttribute {
       return false;
     }
     return this.numComponents == other.numComponents
+        && this.bufferIndex == other.bufferIndex
         && this.glType == other.glType
-        && this.offset == other.offset
         && this.name.equals(other.name);
   }
 
@@ -86,7 +91,6 @@ public class InstanceAttribute {
     int result = 43;
     result = 31 * result + this.numComponents;
     result = 31 * result + this.glType;
-    result = 31 * result + this.offset;
     result = 31 * result + (this.name != null ? this.name.hashCode() : 0);
     return result;
   }
@@ -94,7 +98,7 @@ public class InstanceAttribute {
   @Override
   public String toString() {
     return String.format(
-        "InstanceAttribute [NumComponents: %d, GLType: %d, Offset: %d, Name: %s]",
-        this.numComponents, this.glType, this.offset, this.name);
+        "InstanceAttribute [NumComponents: %d, GLType: %d, Buffer: %d, Name: %s]",
+        this.numComponents, this.glType, this.bufferIndex, this.name);
   }
 }
