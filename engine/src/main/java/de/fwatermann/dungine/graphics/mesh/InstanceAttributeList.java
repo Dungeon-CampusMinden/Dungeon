@@ -101,8 +101,8 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
               GL33.glEnableVertexAttribArray(loc);
               GL33.glVertexAttribDivisor(loc, 1);
               LOGGER.debug(
-                  "Binding instance attribute %s (%d) at location %d",
-                  attrib.name, attrib.numComponents - remaining, loc);
+                  "Binding instance attribute '%s' (%d) in buffer %d at location %d",
+                  attrib.name, attrib.numComponents - remaining, attrib.bufferIndex, loc);
               GL33.glVertexAttribPointer(
                   loc,
                   Math.min(remaining, 4),
