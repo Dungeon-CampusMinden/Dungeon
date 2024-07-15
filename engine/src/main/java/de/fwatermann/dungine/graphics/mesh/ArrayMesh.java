@@ -87,7 +87,7 @@ public class ArrayMesh extends UnInstancedMesh {
       shaderProgram.bind();
     }
     shaderProgram.setUniformMatrix4f(
-        shaderProgram.configuration().uniformModelMatrix(), this.transformMatrix);
+        shaderProgram.configuration().uniformModelMatrix, this.transformMatrix);
 
     GL33.glBindVertexArray(this.glVAO);
 
