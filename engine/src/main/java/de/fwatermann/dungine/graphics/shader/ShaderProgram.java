@@ -34,6 +34,7 @@ public class ShaderProgram implements Disposable {
   private final Shader[] shaders;
   private final Map<String, Integer> uniformLocations = new HashMap<>();
   private final Map<String, Integer> attributeLocations = new HashMap<>();
+  private final Map<String, Integer> uniformBlockIndices = new HashMap<>();
 
   private ShaderProgramConfiguration configuration = new ShaderProgramConfiguration();
 
@@ -118,6 +119,21 @@ public class ShaderProgram implements Disposable {
     return ret == null ? -1 : ret;
   }
 
+  public int getUniformBlockIndex(String name) {
+    Integer ret =
+        this.uniformBlockIndices.computeIfAbsent(
+            name,
+            k -> {
+              int index = GL33.glGetUniformBlockIndex(this.glHandle, k);
+              if (index == -1) {
+                LOGGER.warn("Uniform block '{}' not found in shader program", k);
+                return null;
+              }
+              return index;
+            });
+    return ret == null ? -1 : ret;
+  }
+
   /**
    * Sets the uniform with the specified name to the specified value.
    *
@@ -139,13 +155,23 @@ public class ShaderProgram implements Disposable {
   }
 
   /**
+   * Sets the uniform with the specified name to the specified values.
+   *
+   * @param name the name of the uniform
+   * @param values the values of the uniform
+   */
+  public void setUniform1iv(String name, int[] values) {
+    GL33.glUniform1iv(this.getUniformLocation(name), values);
+  }
+
+  /**
    * Sets the uniform with the specified name to the specified value.
    *
    * @param name the name of the uniform
    * @param x the x component of the value
    * @param y the y component of the value
    */
-  public void setUniform2fv(String name, float x, float y) {
+  public void setUniform2f(String name, float x, float y) {
     GL33.glUniform2f(this.getUniformLocation(name), x, y);
   }
 
@@ -307,9 +333,8 @@ public class ShaderProgram implements Disposable {
    * @param camera the camera to use
    */
   public void useCamera(Camera<?> camera) {
-    this.setUniformMatrix4f(this.configuration.uniformViewMatrix(), camera.viewMatrix());
-    this.setUniformMatrix4f(
-        this.configuration.uniformProjectionMatrix(), camera.projectionMatrix());
+    this.setUniformMatrix4f(this.configuration.uniformViewMatrix, camera.viewMatrix());
+    this.setUniformMatrix4f(this.configuration.uniformProjectionMatrix, camera.projectionMatrix());
   }
 
   /**

@@ -5,66 +5,18 @@ package de.fwatermann.dungine.graphics.shader;
  */
 public class ShaderProgramConfiguration {
 
-  private String uniformViewMatrix = "uView";
-  private String uniformProjectionMatrix = "uProjection";
-  private String uniformModelMatrix = "uModel";
+  /** Uniform name of the mat4 that contains the View matrix. */
+  public String uniformViewMatrix = "uView";
+
+  /** Uniform name of the mat4 that contains the Projection matrix. */
+  public String uniformProjectionMatrix = "uProjection";
+
+  /** Uniform name of the mat4 that contains the Model/Transform matrix. */
+  public String uniformModelMatrix = "uModel";
+
+  public String uniformBlockTextureAtlas = "ubTextureAtlas";
+
 
   public ShaderProgramConfiguration() {}
 
-  /**
-   * Get the uniform name for the view matrix.
-   * Default: "uView"
-   * @return the uniform name for the view matrix
-   */
-  public String uniformViewMatrix() {
-    return this.uniformViewMatrix;
-  }
-
-  /**
-   * Set the uniform name for the view matrix.
-   * @param uniformViewMatrix the uniform name for the view matrix
-   * @return this ShaderProgramConfiguration object
-   */
-  public ShaderProgramConfiguration uniformViewMatrix(String uniformViewMatrix) {
-    this.uniformViewMatrix = uniformViewMatrix;
-    return this;
-  }
-
-  /**
-   * Get the uniform name for the projection matrix.
-   * Default: "uProjection"
-   * @return the uniform name for the projection matrix
-   */
-  public String uniformProjectionMatrix() {
-    return this.uniformProjectionMatrix;
-  }
-
-  /**
-   * Set the uniform name for the projection matrix.
-   * @param uniformProjectionMatrix the uniform name for the projection matrix
-   * @return this ShaderProgramConfiguration object
-   */
-  public ShaderProgramConfiguration uniformProjectionMatrix(String uniformProjectionMatrix) {
-    this.uniformProjectionMatrix = uniformProjectionMatrix;
-    return this;
-  }
-
-  /**
-   * Get the uniform name for the model matrix.
-   * Default: "uModel"
-   * @return the uniform name for the model matrix
-   */
-  public String uniformModelMatrix() {
-    return this.uniformModelMatrix;
-  }
-
-  /**
-   * Set the uniform name for the model matrix.
-   * @param uniformModelMatrix the uniform name for the model matrix
-   * @return this ShaderProgramConfiguration object
-   */
-  public ShaderProgramConfiguration uniformModelMatrix(String uniformModelMatrix) {
-    this.uniformModelMatrix = uniformModelMatrix;
-    return this;
-  }
 }
