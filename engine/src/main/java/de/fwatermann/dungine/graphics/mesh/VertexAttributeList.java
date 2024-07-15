@@ -109,7 +109,7 @@ public class VertexAttributeList implements Iterable<VertexAttribute> {
             int remaining = attrib.numComponents;
             while (remaining > 0) {
               GL33.glEnableVertexAttribArray(loc);
-              LOGGER.debug("Binding vertex attribute %s at location %d\n", attrib.name, loc);
+              LOGGER.debug("Binding vertex attribute '%s' at location %d", attrib.name, loc);
               GL33.glVertexAttribPointer(
                   loc,
                   Math.min(remaining, 4),
