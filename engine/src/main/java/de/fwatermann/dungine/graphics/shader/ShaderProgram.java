@@ -84,18 +84,15 @@ public class ShaderProgram implements Disposable {
    * @return the location of the uniform
    */
   public int getUniformLocation(String name) {
-    Integer ret =
-        this.uniformLocations.computeIfAbsent(
-            name,
-            k -> {
-              int loc = GL33.glGetUniformLocation(this.glHandle, k);
-              if (loc == -1) {
-                LOGGER.warn("Uniform '{}' not found in shader program", k);
-                return null;
-              }
-              return loc;
-            });
-    return ret == null ? -1 : ret;
+    return this.uniformLocations.computeIfAbsent(
+        name,
+        k -> {
+          int loc = GL33.glGetUniformLocation(this.glHandle, k);
+          if (loc == -1) {
+            LOGGER.warn("Uniform '{}' not found in shader program", k);
+          }
+          return loc;
+        });
   }
 
   /**
@@ -105,33 +102,27 @@ public class ShaderProgram implements Disposable {
    * @return the location of the attribute
    */
   public int getAttributeLocation(String name) {
-    Integer ret =
-        this.attributeLocations.computeIfAbsent(
-            name,
-            k -> {
-              int loc = GL33.glGetAttribLocation(this.glHandle, k);
-              if (loc == -1) {
-                LOGGER.warn("Attribute '{}' not found in shader program", k);
-                return null;
-              }
-              return loc;
-            });
-    return ret == null ? -1 : ret;
+    return this.attributeLocations.computeIfAbsent(
+        name,
+        k -> {
+          int loc = GL33.glGetAttribLocation(this.glHandle, k);
+          if (loc == -1) {
+            LOGGER.warn("Attribute '{}' not found in shader program", k);
+          }
+          return loc;
+        });
   }
 
   public int getUniformBlockIndex(String name) {
-    Integer ret =
-        this.uniformBlockIndices.computeIfAbsent(
-            name,
-            k -> {
-              int index = GL33.glGetUniformBlockIndex(this.glHandle, k);
-              if (index == -1) {
-                LOGGER.warn("Uniform block '{}' not found in shader program", k);
-                return null;
-              }
-              return index;
-            });
-    return ret == null ? -1 : ret;
+    return this.uniformBlockIndices.computeIfAbsent(
+        name,
+        k -> {
+          int index = GL33.glGetUniformBlockIndex(this.glHandle, k);
+          if (index == -1) {
+            LOGGER.warn("Uniform block '{}' not found in shader program", k);
+          }
+          return index;
+        });
   }
 
   /**
@@ -323,6 +314,16 @@ public class ShaderProgram implements Disposable {
    */
   public void setUniformMatrix4f(String name, Matrix4f matrix, boolean transpose) {
     GL33.glUniformMatrix4fv(this.getUniformLocation(name), transpose, matrix.get(new float[16]));
+  }
+
+  /**
+   * Sets the binding of the uniform block with the specified name to the specified binding.
+   *
+   * @param name the name of the uniform block
+   * @param binding the binding of the uniform block
+   */
+  public void setUniformBlockBinding(String name, int binding) {
+    GL33.glUniformBlockBinding(this.glHandle, this.getUniformBlockIndex(name), binding);
   }
 
   /**
