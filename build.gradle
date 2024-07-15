@@ -5,12 +5,14 @@ buildscript {
 
 plugins {
     id 'com.diffplug.spotless' version "${spotlessVersion}"
+    id 'com.github.jk1.dependency-license-report' version "${licenseReportVersion}"
 }
 
 
 allprojects {
     apply plugin: 'java'
     apply plugin: 'checkstyle'
+    apply plugin: 'com.github.jk1.dependency-license-report'
 
     java {
         toolchain {
