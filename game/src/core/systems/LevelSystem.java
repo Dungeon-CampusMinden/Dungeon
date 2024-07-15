@@ -19,10 +19,10 @@ import core.utils.components.draw.PainterConfig;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.sound.SoundPlayer;
+import java.util.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.*;
 import java.util.logging.Logger;
 
 /**
