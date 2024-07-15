@@ -9,7 +9,7 @@ import de.fwatermann.dungine.graphics.texture.Texture;
  */
 public class AtlasEntry {
 
-  protected final int index;
+  protected final int atlasPage;
   protected final AtlasNode atlasNode;
   protected final TextureAtlas atlas;
 
@@ -17,11 +17,11 @@ public class AtlasEntry {
    * Constructs a new AtlasEntry.
    *
    * @param atlas The texture atlas this entry is part of.
-   * @param index The index of the texture within the atlas.
+   * @param atlasPage The index of the texture within the atlas.
    * @param atlasNode The node within the atlas where this texture is located.
    */
-  protected AtlasEntry(TextureAtlas atlas, int index, AtlasNode atlasNode) {
-    this.index = index;
+  protected AtlasEntry(TextureAtlas atlas, int atlasPage, AtlasNode atlasNode) {
+    this.atlasPage = atlasPage;
     this.atlasNode = atlasNode;
     this.atlas = atlas;
   }
@@ -32,7 +32,7 @@ public class AtlasEntry {
    * @return The texture.
    */
   public Texture texture() {
-    return this.atlas.atlases.get(this.index).texture;
+    return this.atlas.pages.get(this.atlasPage).texture;
   }
 
   /**
