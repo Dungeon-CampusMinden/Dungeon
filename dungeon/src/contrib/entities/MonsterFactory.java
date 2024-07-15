@@ -1,5 +1,7 @@
 package contrib.entities;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import contrib.components.*;
 import contrib.item.Item;
 import contrib.utils.components.health.DamageType;
