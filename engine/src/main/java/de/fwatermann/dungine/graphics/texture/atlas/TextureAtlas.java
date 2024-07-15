@@ -35,11 +35,12 @@ public class TextureAtlas {
   public static final int DEFAULT_ATLAS_SIZE = 1024;
 
   /**
-   * The maximum number of pages in the atlas. Each page is a seperate texture.
+   * The maximum number of pages in the atlas. Each page is a separat texture.
    *
-   * <p>Set to 48 as OpenGL 3.3 must support at least 48 texture units.
+   * <p>Set to 32 as OpenGL 3.3 must support at least 48 texture units, and we may need some for other
+   * textures. The first 10 (GL_TEXTURE0 - GL_TEXTURE9) texture units are left free.
    */
-  public static int MAX_TEXTURES = 48;
+  public static int MAX_PAGES = 32;
 
   /**
    * The maximum number of entries in the atlas
@@ -57,7 +58,8 @@ public class TextureAtlas {
   protected final Map<Integer, AtlasEntry> entries = new HashMap<>();
   protected final Map<Resource, Integer> indices = new HashMap<>();
 
-  private int glUBO = -1;
+  private int glTBO = -1;
+  private int glBO = -1;
   private ByteBuffer uboData;
   private boolean uboDirty = false;
 
@@ -120,7 +122,7 @@ public class TextureAtlas {
       }
     }
 
-    if (this.pages.size() >= MAX_TEXTURES) {
+    if (this.pages.size() >= MAX_PAGES) {
       LOGGER.error("Not enough space in TextureAtlas! Cannot add resource: {}", resource);
       throw new IllegalStateException(
           "This resource does not fit in the remaining space of the TextureAtlas!");
@@ -189,29 +191,15 @@ public class TextureAtlas {
   }
 
   private void initUBOData() {
-    int capacity = 8 + (4 * this.pages.size() + 16 * this.entries.size());
+    int capacity = 12 * this.entries.size();
     if (this.uboData == null) {
       this.uboData = BufferUtils.createByteBuffer(capacity);
-      this.uboData.putFloat(this.width).putFloat(this.height);
     }
   }
 
   private AtlasPage addPage() {
-    if (this.uboData == null) this.initUBOData();
     AtlasPage newTexture = new AtlasPage(this.width, this.height);
     this.pages.add(newTexture);
-    ByteBuffer old = this.uboData;
-    ByteBuffer neu =
-        BufferUtils.createByteBuffer(8 + (4 * this.pages.size() + 16 * this.entries.size()));
-    neu.putFloat(this.width).putFloat(this.height);
-    for (int i = 0; i < this.pages.size(); i++) {
-      neu.putInt(i);
-    }
-    old.position(8 + 4 * (this.pages.size() - 1));
-    neu.put(old);
-    neu.flip();
-    this.uboData = neu;
-    this.uboDirty = true;
     return newTexture;
   }
 
@@ -223,20 +211,17 @@ public class TextureAtlas {
     this.indices.put(resource, index);
 
     ByteBuffer old = this.uboData;
-    ByteBuffer neu =
-        BufferUtils.createByteBuffer(8 + (4 * this.pages.size() + 16 * this.entries.size()));
+    ByteBuffer neu = BufferUtils.createByteBuffer(12 * this.entries.size());
     old.position(0);
+    neu.position(0);
     neu.put(old);
 
     // x
-    neu.putInt(
-        ((entry.atlasNode.position.x & 0xFFFF) << 16) | (entry.atlasNode.position.y & 0xFFFF));
+    neu.putInt(((entry.atlasNode.position.x & 0xFFFF) << 16) | (entry.atlasNode.position.y & 0xFFFF));
     // y
     neu.putInt(((entry.atlasNode.size.x & 0xFFFF) << 16) | (entry.atlasNode.size.y & 0xFFFF));
     // z
-    neu.putInt(
-        entry.atlasPage
-            & 0xFFFF << 16); // 32 bit index. The upper 16 bits are reserved for future use.
+    neu.putInt((entry.atlasPage & 0xFFFF) << 16);
     neu.flip();
 
     this.uboData = neu;
@@ -263,21 +248,39 @@ public class TextureAtlas {
    * upper 16 bits. The atlas page index is stored in the lower 16 bits of the third int.
    *
    * @param program the shader program to use the TextureAtlas in
-   * @param uniformBlockName the name of the uniform block in the shader program
+   * @param uniformAtlasPageSize the name of the uniform for the size of the atlas pages
+   * @param uniformAtlasEntrySampler the name of the uniform for the sampler of the atlas entries
+   * @param uniformPagesSamplerName the name of the uniform for the sampler of the atlas pages textures
    */
-  public void use(ShaderProgram program, String uniformBlockName) {
-    if (this.glUBO == -1) {
-      this.glUBO = GL33.glGenBuffers();
-      GL33.glBindBufferBase(GL33.GL_UNIFORM_BUFFER, UNIFORM_BUFFER_BINDING, this.glUBO);
+  public void use(ShaderProgram program, String uniformAtlasPageSize, String uniformAtlasEntrySampler, String uniformPagesSamplerName) {
+    if(this.glBO == -1) {
+      this.glBO = GL33.glGenBuffers();
+    }
+    if (this.glTBO == -1) {
+      this.glTBO = GL33.glGenTextures();
+      GL33.glBindTexture(GL33.GL_TEXTURE_BUFFER, this.glTBO);
+      GL33.glTexBuffer(GL33.GL_TEXTURE_BUFFER, GL33.GL_R32I, this.glBO);
+      GL33.glBindTexture(GL33.GL_TEXTURE_BUFFER, 0);
+      GL33.glBindBuffer(GL33.GL_TEXTURE_BUFFER, 0);
     }
     if (this.uboDirty) {
-      GL33.glBindBuffer(GL33.GL_UNIFORM_BUFFER, this.glUBO);
-      GL33.glBufferData(GL33.GL_UNIFORM_BUFFER, this.uboData, GL33.GL_DYNAMIC_DRAW);
-      GL33.glBindBuffer(GL33.GL_UNIFORM_BUFFER, 0);
+      GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glBO);
+      GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.uboData, GL33.GL_STATIC_DRAW);
+      GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
       this.uboDirty = false;
     }
-    GL33.glUniformBlockBinding(
-        program.glHandle(), program.getUniformBlockIndex(uniformBlockName), UNIFORM_BUFFER_BINDING);
+    int firstUnit = 11;
+    for(int i = 0; i < this.pages.size(); i ++) {
+      this.pages.get(i).texture.bind(GL33.GL_TEXTURE0 + firstUnit + i);
+      program.setUniform1i(uniformPagesSamplerName + "[" + i + "]", firstUnit + i);
+    }
+    GL33.glActiveTexture(GL33.GL_TEXTURE0 + firstUnit - 1);
+    GL33.glBindTexture(GL33.GL_TEXTURE_BUFFER, this.glTBO);
+    GL33.glTexBuffer(GL33.GL_TEXTURE_BUFFER, GL33.GL_R32I, this.glBO);
+
+    program.setUniform2iv(uniformAtlasPageSize, this.width, this.height);
+    program.setUniform1i(uniformAtlasEntrySampler, firstUnit - 1);
+    GL33.glActiveTexture(GL33.GL_TEXTURE0);
   }
 
   /**
@@ -288,7 +291,17 @@ public class TextureAtlas {
    *
    * @param program the shader program to use the TextureAtlas in
    */
-  public void use(ShaderProgram program) {
-    this.use(program, program.configuration().uniformBlockTextureAtlas);
+  public void use(ShaderProgram program, String suffix) {
+    if(suffix == null) suffix = "";
+    this.use(program, program.configuration().uniformTextureAtlasSize + suffix, program.configuration().uniformTextureAtlasEntrySampler + suffix, program.configuration().uniformTextureAtlasPagesSamplerArray + suffix);
   }
+
+  /**
+   * Use the TextureAtlas in a shader program.
+   * @param program the shader program to use the TextureAtlas in
+   */
+  public void use(ShaderProgram program) {
+    this.use(program, null);
+  }
+
 }

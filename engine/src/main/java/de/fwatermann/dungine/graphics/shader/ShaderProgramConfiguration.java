@@ -14,8 +14,11 @@ public class ShaderProgramConfiguration {
   /** Uniform name of the mat4 that contains the Model/Transform matrix. */
   public String uniformModelMatrix = "uModel";
 
-  public String uniformBlockTextureAtlas = "ubTextureAtlas";
+  public String uniformTextureAtlasSize = "uTextureAtlasSize";
 
+  public String uniformTextureAtlasEntrySampler = "uTextureAtlasEntries";
+
+  public String uniformTextureAtlasPagesSamplerArray = "uTextureAtlasPages";
 
   public ShaderProgramConfiguration() {}
 
